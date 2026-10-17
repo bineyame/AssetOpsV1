@@ -100,3 +100,9 @@ Code at the fix-round commits after `13cf2477`; frontend only.
 - Proof: `npx.cmd tsc --noEmit` clean; focused files (s404, s2LedgerEvidence, v01bEvidenceVisual, siteFindingEvidence, siteAction, t028, w1f4RecommendationStructure) pass; full `npm.cmd test` 82 files, 2140 passed, 0 failed (156 s); `tools/check-all.ps1`: All 10 guards passed.
 
 USER_REVIEW_REQUIRED: yes. This index is the owner's repeat W1 walkthrough. Owner acceptance closes W1.
+
+## Fix round 2 (re-review RETURN: 1 Medium, 1 Low)
+- **M1 lost capture state:** parts 06 and 07 were recaptured against fresh private fixtures (s302 claim-limit and s3 dispatch walkthroughs) with the assessed revision restored in the URL. part06 supported (10/06) reads "avoidable for 30 min"; limited (10/11) reads "avoidable for at most 5 min; ... missing or unreliable" with "Clear selection". part07 analysis supported (10/02, block 1) shows the constraint table and "Low" confidence; limited (10/09) shows its own result. Images viewed at 1440 and 390. Capture tooling only; no code change for this item.
+- **L2 part09 scroll:** `w1ux02-findings-index.css` lets non-first cells wrap and first column min-width 12rem at 900px and wider. The stocked 1440 capture shows all 8 columns with no scrollbar. part09 recaptured (72/72 claims).
+- Audit index and `audit.json` regenerated: 168 pairs, 2 match, 24 taller, 0 failing.
+- Proof: `npx.cmd tsc --noEmit` clean; `s404SiteFindingIndex` 37 passed. Full suite not rerun (CSS only). Ports 9900-9950/6300-6350 servers stopped; fixture DBs and work folders dropped.

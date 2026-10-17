@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-17T20:17:00.666Z",
+ "generated": "2026-10-17T20:33:14.187Z",
  "limit": 1.3,
  "summary": [
   {
@@ -2212,111 +2212,11 @@
   },
   {
    "screen": "evidence",
-   "case": "stocked",
-   "width": "1440",
-   "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence",
-   "mockHash": "#/evidence",
-   "appImage": "part06-evidence-analysis/evidence-stocked-1440-app.png",
-   "mockImage": "part06-evidence-analysis/evidence-stocked-1440-mock.png",
-   "appCount": 3,
-   "mockCount": 3,
-   "countMatch": true,
-   "appTitles": [
-    "What we can conclude now",
-    "Data sources · data quality, not equipment condition",
-    "Most useful next evidence"
-   ],
-   "mockTitles": [
-    "What we can conclude now",
-    "Data sources · data quality, not equipment condition",
-    "Most useful next evidence"
-   ],
-   "overflow": 0,
-   "panels": [
-    {
-     "title": "What we can conclude now",
-     "app": 483,
-     "mock": 387,
-     "ratio": 1.248062015503876,
-     "reason": null
-    },
-    {
-     "title": "Data sources · data quality, not equipment condition",
-     "app": 497,
-     "mock": 387,
-     "ratio": 1.2842377260981912,
-     "reason": "At 390 the three status rows (readings received, gateway contact, analysis up to date) carry full sentences that wrap in the narrow column, and the panel adds a note line, a source table with its 'Show all 8 sources' link, a 'not available yet' line and a closed details row."
-    },
-    {
-     "title": "Most useful next evidence",
-     "app": 231,
-     "mock": 387,
-     "ratio": 0.5968992248062015,
-     "reason": null
-    }
-   ],
-   "maxRatio": 1.2842377260981912,
-   "caseLabel": "stocked"
-  },
-  {
-   "screen": "evidence",
-   "case": "stocked",
-   "width": "390",
-   "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence",
-   "mockHash": "#/evidence",
-   "appImage": "part06-evidence-analysis/evidence-stocked-390-app.png",
-   "mockImage": "part06-evidence-analysis/evidence-stocked-390-mock.png",
-   "appCount": 3,
-   "mockCount": 3,
-   "countMatch": true,
-   "appTitles": [
-    "What we can conclude now",
-    "Data sources · data quality, not equipment condition",
-    "Most useful next evidence"
-   ],
-   "mockTitles": [
-    "What we can conclude now",
-    "Data sources · data quality, not equipment condition",
-    "Most useful next evidence"
-   ],
-   "overflow": 0,
-   "panels": [
-    {
-     "title": "What we can conclude now",
-     "app": 696,
-     "mock": 549,
-     "ratio": 1.2677595628415301,
-     "reason": null
-    },
-    {
-     "title": "Data sources · data quality, not equipment condition",
-     "app": 774,
-     "mock": 533,
-     "ratio": 1.452157598499062,
-     "reason": "At 390 the three status rows (readings received, gateway contact, analysis up to date) carry full sentences that wrap in the narrow column, and the panel adds a note line, a source table with its 'Show all 8 sources' link, a 'not available yet' line and a closed details row."
-    },
-    {
-     "title": "Most useful next evidence",
-     "app": 231,
-     "mock": 319,
-     "ratio": 0.7241379310344828,
-     "reason": null
-    }
-   ],
-   "maxRatio": 1.452157598499062,
-   "caseLabel": "stocked"
-  },
-  {
-   "screen": "evidence",
    "case": "no-readings",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
    "mockHash": "#/evidence",
    "appImage": "part06-evidence-analysis/evidence-no-readings-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-no-readings-1440-mock.png",
@@ -2365,8 +2265,8 @@
    "case": "no-readings",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?from=2020-01-01T00:00:00Z&to=2020-01-02T00:00:00Z",
    "mockHash": "#/evidence",
    "appImage": "part06-evidence-analysis/evidence-no-readings-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-no-readings-390-mock.png",
@@ -2411,12 +2311,112 @@
    "caseLabel": "no-readings"
   },
   {
+   "screen": "evidence",
+   "case": "stocked",
+   "width": "1440",
+   "part": "part06-evidence-analysis",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence",
+   "mockHash": "#/evidence",
+   "appImage": "part06-evidence-analysis/evidence-stocked-1440-app.png",
+   "mockImage": "part06-evidence-analysis/evidence-stocked-1440-mock.png",
+   "appCount": 3,
+   "mockCount": 3,
+   "countMatch": true,
+   "appTitles": [
+    "What we can conclude now",
+    "Data sources · data quality, not equipment condition",
+    "Most useful next evidence"
+   ],
+   "mockTitles": [
+    "What we can conclude now",
+    "Data sources · data quality, not equipment condition",
+    "Most useful next evidence"
+   ],
+   "overflow": 0,
+   "panels": [
+    {
+     "title": "What we can conclude now",
+     "app": 483,
+     "mock": 387,
+     "ratio": 1.248062015503876,
+     "reason": null
+    },
+    {
+     "title": "Data sources · data quality, not equipment condition",
+     "app": 497,
+     "mock": 387,
+     "ratio": 1.2842377260981912,
+     "reason": "At 390 the three status rows (readings received, gateway contact, analysis up to date) carry full sentences that wrap in the narrow column, and the panel adds a note line, a source table with its 'Show all 8 sources' link, a 'not available yet' line and a closed details row."
+    },
+    {
+     "title": "Most useful next evidence",
+     "app": 231,
+     "mock": 387,
+     "ratio": 0.5968992248062015,
+     "reason": null
+    }
+   ],
+   "maxRatio": 1.2842377260981912,
+   "caseLabel": "stocked"
+  },
+  {
+   "screen": "evidence",
+   "case": "stocked",
+   "width": "390",
+   "part": "part06-evidence-analysis",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence",
+   "mockHash": "#/evidence",
+   "appImage": "part06-evidence-analysis/evidence-stocked-390-app.png",
+   "mockImage": "part06-evidence-analysis/evidence-stocked-390-mock.png",
+   "appCount": 3,
+   "mockCount": 3,
+   "countMatch": true,
+   "appTitles": [
+    "What we can conclude now",
+    "Data sources · data quality, not equipment condition",
+    "Most useful next evidence"
+   ],
+   "mockTitles": [
+    "What we can conclude now",
+    "Data sources · data quality, not equipment condition",
+    "Most useful next evidence"
+   ],
+   "overflow": 0,
+   "panels": [
+    {
+     "title": "What we can conclude now",
+     "app": 696,
+     "mock": 549,
+     "ratio": 1.2677595628415301,
+     "reason": null
+    },
+    {
+     "title": "Data sources · data quality, not equipment condition",
+     "app": 774,
+     "mock": 533,
+     "ratio": 1.452157598499062,
+     "reason": "At 390 the three status rows (readings received, gateway contact, analysis up to date) carry full sentences that wrap in the narrow column, and the panel adds a note line, a source table with its 'Show all 8 sources' link, a 'not available yet' line and a closed details row."
+    },
+    {
+     "title": "Most useful next evidence",
+     "app": 231,
+     "mock": 319,
+     "ratio": 0.7241379310344828,
+     "reason": null
+    }
+   ],
+   "maxRatio": 1.452157598499062,
+   "caseLabel": "stocked"
+  },
+  {
    "screen": "evidence-analysis",
    "case": "no-selection",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?view=analysis",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-no-selection-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-no-selection-1440-mock.png",
@@ -2456,8 +2456,8 @@
    "case": "no-selection",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?view=analysis",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-no-selection-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-no-selection-390-mock.png",
@@ -2497,8 +2497,8 @@
    "case": "supported",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-06",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=44bf0520-f439-4cd8-88f4-b23080479483",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-supported-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-supported-1440-mock.png",
@@ -2524,13 +2524,13 @@
     },
     {
      "title": "How each limit is set",
-     "app": 292,
+     "app": 266,
      "mock": 148,
-     "ratio": 1.972972972972973,
+     "ratio": 1.7972972972972974,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 1.972972972972973,
+   "maxRatio": 1.7972972972972974,
    "caseLabel": "supported"
   },
   {
@@ -2538,8 +2538,8 @@
    "case": "supported",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-06",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?view=analysis&day=2026-10-06&revision=44bf0520-f439-4cd8-88f4-b23080479483",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-supported-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-supported-390-mock.png",
@@ -2565,13 +2565,13 @@
     },
     {
      "title": "How each limit is set",
-     "app": 504,
+     "app": 497,
      "mock": 228,
-     "ratio": 2.210526315789474,
+     "ratio": 2.1798245614035086,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 2.210526315789474,
+   "maxRatio": 2.1798245614035086,
    "caseLabel": "supported"
   },
   {
@@ -2579,8 +2579,8 @@
    "case": "limited",
    "width": "1440",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-11",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=b086369d-bd3b-454e-b3fc-03b1e93da259",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-limited-1440-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-limited-1440-mock.png",
@@ -2606,13 +2606,13 @@
     },
     {
      "title": "How each limit is set",
-     "app": 292,
+     "app": 266,
      "mock": 148,
-     "ratio": 1.972972972972973,
+     "ratio": 1.7972972972972974,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 1.972972972972973,
+   "maxRatio": 1.7972972972972974,
    "caseLabel": "limited"
   },
   {
@@ -2620,8 +2620,8 @@
    "case": "limited",
    "width": "390",
    "part": "part06-evidence-analysis",
-   "revision": "e7d73fd7",
-   "appUrl": "http://localhost:6306/sites/KOBO-001/evidence?view=analysis&day=2026-10-11",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6301/sites/KOBO-001/evidence?view=analysis&day=2026-10-11&revision=b086369d-bd3b-454e-b3fc-03b1e93da259",
    "mockHash": "#/evidence-analysis",
    "appImage": "part06-evidence-analysis/evidence-analysis-limited-390-app.png",
    "mockImage": "part06-evidence-analysis/evidence-analysis-limited-390-mock.png",
@@ -2647,13 +2647,13 @@
     },
     {
      "title": "How each limit is set",
-     "app": 504,
+     "app": 517,
      "mock": 228,
-     "ratio": 2.210526315789474,
+     "ratio": 2.267543859649123,
      "reason": "The mock's panel is just two paragraphs. The app keeps those and adds a result line with its state, a 'not available yet' rule line and one closed details row; the review accepted this."
     }
    ],
-   "maxRatio": 2.210526315789474,
+   "maxRatio": 2.267543859649123,
    "caseLabel": "limited"
   },
   {
@@ -2661,8 +2661,8 @@
    "case": "supported",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-supported-1440-app.png",
    "mockImage": "part07-dispatch/dispatch-supported-1440-mock.png",
@@ -2671,7 +2671,7 @@
    "countMatch": true,
    "appTitles": [
     "Sources and 15-minute blocks",
-    "Selected block · No block selected",
+    "Selected block · 04:00–04:15 UTC",
     "Accepted sample coverage"
    ],
    "mockTitles": [
@@ -2683,16 +2683,16 @@
    "panels": [
     {
      "title": "Sources and 15-minute blocks",
-     "app": 417,
+     "app": 507,
      "mock": 489,
-     "ratio": 0.852760736196319,
+     "ratio": 1.0368098159509203,
      "reason": "At 390 the day's 22 real 15-minute blocks wrap into five rows of tiles, with a summary sentence, the generator bar, a legend, a selected-period chip and two closed details rows above and below them."
     },
     {
-     "title": "Selected block · No block selected",
-     "app": 417,
+     "title": "Selected block · 04:00–04:15 UTC",
+     "app": 507,
      "mock": 489,
-     "ratio": 0.852760736196319,
+     "ratio": 1.0368098159509203,
      "reason": null
     },
     {
@@ -2711,8 +2711,8 @@
    "case": "supported",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-supported-390-app.png",
    "mockImage": "part07-dispatch/dispatch-supported-390-mock.png",
@@ -2721,7 +2721,7 @@
    "countMatch": true,
    "appTitles": [
     "Sources and 15-minute blocks",
-    "Selected block · No block selected",
+    "Selected block · 04:00–04:15 UTC",
     "Accepted sample coverage"
    ],
    "mockTitles": [
@@ -2733,16 +2733,16 @@
    "panels": [
     {
      "title": "Sources and 15-minute blocks",
-     "app": 535,
+     "app": 789,
      "mock": 356,
-     "ratio": 1.502808988764045,
+     "ratio": 2.216292134831461,
      "reason": "At 390 the day's 22 real 15-minute blocks wrap into five rows of tiles, with a summary sentence, the generator bar, a legend, a selected-period chip and two closed details rows above and below them."
     },
     {
-     "title": "Selected block · No block selected",
-     "app": 96,
+     "title": "Selected block · 04:00–04:15 UTC",
+     "app": 563,
      "mock": 489,
-     "ratio": 0.19631901840490798,
+     "ratio": 1.1513292433537832,
      "reason": null
     },
     {
@@ -2753,7 +2753,107 @@
      "reason": "On top of the coverage rows, the app adds a record count with 'Show all', a comparison line and the recorded limitations; the review accepted this as honest content."
     }
    ],
-   "maxRatio": 1.502808988764045,
+   "maxRatio": 2.216292134831461,
+   "caseLabel": "supported"
+  },
+  {
+   "screen": "analysis",
+   "case": "supported",
+   "width": "1440",
+   "part": "part07-dispatch",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+   "mockHash": "#/analysis",
+   "appImage": "part07-dispatch/analysis-supported-1440-app.png",
+   "mockImage": "part07-dispatch/analysis-supported-1440-mock.png",
+   "appCount": 3,
+   "mockCount": 3,
+   "countMatch": true,
+   "appTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mockTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "overflow": 0,
+   "panels": [
+    {
+     "title": "Constraint comparison",
+     "app": 349,
+     "mock": 432,
+     "ratio": 0.8078703703703703,
+     "reason": null
+    },
+    {
+     "title": "Bounded fuel calculation",
+     "app": 349,
+     "mock": 432,
+     "ratio": 0.8078703703703703,
+     "reason": null
+    },
+    {
+     "title": "Coverage, confidence and alternatives",
+     "app": 320,
+     "mock": 287,
+     "ratio": 1.1149825783972125,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
+    }
+   ],
+   "maxRatio": 1.1149825783972125,
+   "caseLabel": "supported"
+  },
+  {
+   "screen": "analysis",
+   "case": "supported",
+   "width": "390",
+   "part": "part07-dispatch",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-02&revision=5671edfb-6901-4ddf-8026-ab2ec388c045&block=1&view=analysis",
+   "mockHash": "#/analysis",
+   "appImage": "part07-dispatch/analysis-supported-390-app.png",
+   "mockImage": "part07-dispatch/analysis-supported-390-mock.png",
+   "appCount": 3,
+   "mockCount": 3,
+   "countMatch": true,
+   "appTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mockTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "overflow": 0,
+   "panels": [
+    {
+     "title": "Constraint comparison",
+     "app": 545,
+     "mock": 716,
+     "ratio": 0.7611731843575419,
+     "reason": null
+    },
+    {
+     "title": "Bounded fuel calculation",
+     "app": 146,
+     "mock": 286,
+     "ratio": 0.5104895104895105,
+     "reason": null
+    },
+    {
+     "title": "Coverage, confidence and alternatives",
+     "app": 526,
+     "mock": 446,
+     "ratio": 1.1793721973094171,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
+    }
+   ],
+   "maxRatio": 1.1793721973094171,
    "caseLabel": "supported"
   },
   {
@@ -2761,8 +2861,8 @@
    "case": "limited",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-09",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-limited-1440-app.png",
    "mockImage": "part07-dispatch/dispatch-limited-1440-mock.png",
@@ -2811,8 +2911,8 @@
    "case": "limited",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-09",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-limited-390-app.png",
    "mockImage": "part07-dispatch/dispatch-limited-390-mock.png",
@@ -2840,9 +2940,9 @@
     },
     {
      "title": "Selected block · No block selected",
-     "app": 96,
+     "app": 186,
      "mock": 489,
-     "ratio": 0.19631901840490798,
+     "ratio": 0.3803680981595092,
      "reason": null
     },
     {
@@ -2857,12 +2957,112 @@
    "caseLabel": "limited"
   },
   {
+   "screen": "analysis",
+   "case": "limited",
+   "width": "1440",
+   "part": "part07-dispatch",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+   "mockHash": "#/analysis",
+   "appImage": "part07-dispatch/analysis-limited-1440-app.png",
+   "mockImage": "part07-dispatch/analysis-limited-1440-mock.png",
+   "appCount": 3,
+   "mockCount": 3,
+   "countMatch": true,
+   "appTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mockTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "overflow": 0,
+   "panels": [
+    {
+     "title": "Constraint comparison",
+     "app": 498,
+     "mock": 432,
+     "ratio": 1.1527777777777777,
+     "reason": null
+    },
+    {
+     "title": "Bounded fuel calculation",
+     "app": 498,
+     "mock": 432,
+     "ratio": 1.1527777777777777,
+     "reason": null
+    },
+    {
+     "title": "Coverage, confidence and alternatives",
+     "app": 291,
+     "mock": 287,
+     "ratio": 1.0139372822299653,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
+    }
+   ],
+   "maxRatio": 1.1527777777777777,
+   "caseLabel": "limited"
+  },
+  {
+   "screen": "analysis",
+   "case": "limited",
+   "width": "390",
+   "part": "part07-dispatch",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-09&revision=e1cb9f3c-0424-4d37-9ba6-0fc3337984e1&view=analysis",
+   "mockHash": "#/analysis",
+   "appImage": "part07-dispatch/analysis-limited-390-app.png",
+   "mockImage": "part07-dispatch/analysis-limited-390-mock.png",
+   "appCount": 3,
+   "mockCount": 3,
+   "countMatch": true,
+   "appTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "mockTitles": [
+    "Constraint comparison",
+    "Bounded fuel calculation",
+    "Coverage, confidence and alternatives"
+   ],
+   "overflow": 0,
+   "panels": [
+    {
+     "title": "Constraint comparison",
+     "app": 770,
+     "mock": 716,
+     "ratio": 1.0754189944134078,
+     "reason": null
+    },
+    {
+     "title": "Bounded fuel calculation",
+     "app": 146,
+     "mock": 286,
+     "ratio": 0.5104895104895105,
+     "reason": null
+    },
+    {
+     "title": "Coverage, confidence and alternatives",
+     "app": 457,
+     "mock": 446,
+     "ratio": 1.0246636771300448,
+     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
+    }
+   ],
+   "maxRatio": 1.0754189944134078,
+   "caseLabel": "limited"
+  },
+  {
    "screen": "dispatch",
    "case": "refused-failed",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-07",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-refused-failed-1440-app.png",
    "mockImage": "part07-dispatch/dispatch-refused-failed-1440-mock.png",
@@ -2911,8 +3111,8 @@
    "case": "refused-failed",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-07",
    "mockHash": "#/dispatch",
    "appImage": "part07-dispatch/dispatch-refused-failed-390-app.png",
    "mockImage": "part07-dispatch/dispatch-refused-failed-390-mock.png",
@@ -2940,9 +3140,9 @@
     },
     {
      "title": "Selected block · No block selected",
-     "app": 96,
+     "app": 165,
      "mock": 489,
-     "ratio": 0.19631901840490798,
+     "ratio": 0.3374233128834356,
      "reason": null
     },
     {
@@ -2958,211 +3158,11 @@
   },
   {
    "screen": "analysis",
-   "case": "supported",
-   "width": "1440",
-   "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1&view=analysis",
-   "mockHash": "#/analysis",
-   "appImage": "part07-dispatch/analysis-supported-1440-app.png",
-   "mockImage": "part07-dispatch/analysis-supported-1440-mock.png",
-   "appCount": 3,
-   "mockCount": 3,
-   "countMatch": true,
-   "appTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "mockTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "overflow": 0,
-   "panels": [
-    {
-     "title": "Constraint comparison",
-     "app": 146,
-     "mock": 432,
-     "ratio": 0.33796296296296297,
-     "reason": null
-    },
-    {
-     "title": "Bounded fuel calculation",
-     "app": 146,
-     "mock": 432,
-     "ratio": 0.33796296296296297,
-     "reason": null
-    },
-    {
-     "title": "Coverage, confidence and alternatives",
-     "app": 262,
-     "mock": 287,
-     "ratio": 0.9128919860627178,
-     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
-    }
-   ],
-   "maxRatio": 0.9128919860627178,
-   "caseLabel": "supported"
-  },
-  {
-   "screen": "analysis",
-   "case": "supported",
-   "width": "390",
-   "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-02&block=1&view=analysis",
-   "mockHash": "#/analysis",
-   "appImage": "part07-dispatch/analysis-supported-390-app.png",
-   "mockImage": "part07-dispatch/analysis-supported-390-mock.png",
-   "appCount": 3,
-   "mockCount": 3,
-   "countMatch": true,
-   "appTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "mockTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "overflow": 0,
-   "panels": [
-    {
-     "title": "Constraint comparison",
-     "app": 162,
-     "mock": 716,
-     "ratio": 0.22625698324022347,
-     "reason": null
-    },
-    {
-     "title": "Bounded fuel calculation",
-     "app": 146,
-     "mock": 286,
-     "ratio": 0.5104895104895105,
-     "reason": null
-    },
-    {
-     "title": "Coverage, confidence and alternatives",
-     "app": 387,
-     "mock": 446,
-     "ratio": 0.8677130044843049,
-     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
-    }
-   ],
-   "maxRatio": 0.8677130044843049,
-   "caseLabel": "supported"
-  },
-  {
-   "screen": "analysis",
-   "case": "limited",
-   "width": "1440",
-   "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09&view=analysis",
-   "mockHash": "#/analysis",
-   "appImage": "part07-dispatch/analysis-limited-1440-app.png",
-   "mockImage": "part07-dispatch/analysis-limited-1440-mock.png",
-   "appCount": 3,
-   "mockCount": 3,
-   "countMatch": true,
-   "appTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "mockTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "overflow": 0,
-   "panels": [
-    {
-     "title": "Constraint comparison",
-     "app": 146,
-     "mock": 432,
-     "ratio": 0.33796296296296297,
-     "reason": null
-    },
-    {
-     "title": "Bounded fuel calculation",
-     "app": 146,
-     "mock": 432,
-     "ratio": 0.33796296296296297,
-     "reason": null
-    },
-    {
-     "title": "Coverage, confidence and alternatives",
-     "app": 262,
-     "mock": 287,
-     "ratio": 0.9128919860627178,
-     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
-    }
-   ],
-   "maxRatio": 0.9128919860627178,
-   "caseLabel": "limited"
-  },
-  {
-   "screen": "analysis",
-   "case": "limited",
-   "width": "390",
-   "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-09&view=analysis",
-   "mockHash": "#/analysis",
-   "appImage": "part07-dispatch/analysis-limited-390-app.png",
-   "mockImage": "part07-dispatch/analysis-limited-390-mock.png",
-   "appCount": 3,
-   "mockCount": 3,
-   "countMatch": true,
-   "appTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "mockTitles": [
-    "Constraint comparison",
-    "Bounded fuel calculation",
-    "Coverage, confidence and alternatives"
-   ],
-   "overflow": 0,
-   "panels": [
-    {
-     "title": "Constraint comparison",
-     "app": 162,
-     "mock": 716,
-     "ratio": 0.22625698324022347,
-     "reason": null
-    },
-    {
-     "title": "Bounded fuel calculation",
-     "app": 146,
-     "mock": 286,
-     "ratio": 0.5104895104895105,
-     "reason": null
-    },
-    {
-     "title": "Coverage, confidence and alternatives",
-     "app": 387,
-     "mock": 446,
-     "ratio": 0.8677130044843049,
-     "reason": "Within 1.3x at both widths since the label and value rows stack below 480px (0.87x at 390); no overage remains."
-    }
-   ],
-   "maxRatio": 0.8677130044843049,
-   "caseLabel": "limited"
-  },
-  {
-   "screen": "analysis",
    "case": "refused-failed",
    "width": "1440",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-refused-failed-1440-app.png",
    "mockImage": "part07-dispatch/analysis-refused-failed-1440-mock.png",
@@ -3211,8 +3211,8 @@
    "case": "refused-failed",
    "width": "390",
    "part": "part07-dispatch",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6340/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
+   "revision": "661f2701",
+   "appUrl": "http://localhost:6302/sites/KOBO-001/performance/dispatch?day=2026-10-07&view=analysis",
    "mockHash": "#/analysis",
    "appImage": "part07-dispatch/analysis-refused-failed-390-app.png",
    "mockImage": "part07-dispatch/analysis-refused-failed-390-mock.png",
@@ -3889,8 +3889,8 @@
    "case": "stocked",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stocked-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stocked-1440-mock.png",
@@ -3907,13 +3907,13 @@
    "panels": [
     {
      "title": "Findings at this site",
-     "app": 516,
+     "app": 451,
      "mock": 288,
-     "ratio": 1.7916666666666667,
+     "ratio": 1.5659722222222223,
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.7916666666666667,
+   "maxRatio": 1.5659722222222223,
    "caseLabel": "stocked"
   },
   {
@@ -3921,8 +3921,8 @@
    "case": "stocked",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stocked-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stocked-390-mock.png",
@@ -3953,8 +3953,8 @@
    "case": "page2",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-page2-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-page2-1440-mock.png",
@@ -3971,13 +3971,13 @@
    "panels": [
     {
      "title": "Findings at this site",
-     "app": 446,
+     "app": 399,
      "mock": 288,
-     "ratio": 1.5486111111111112,
+     "ratio": 1.3854166666666667,
      "reason": "The app adds the Priority and Confidence columns showing 'Not assessed' and Related links under each title, and the panel now also holds the mock's lens chips and the working date window control (which wraps onto a second line at 390). The review accepted the columns."
     }
    ],
-   "maxRatio": 1.5486111111111112,
+   "maxRatio": 1.3854166666666667,
    "caseLabel": "page2"
   },
   {
@@ -3985,8 +3985,8 @@
    "case": "page2",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-15T00%3A00%3A00Z&to=2026-10-16T00%3A00%3A00Z&domain=mini-grid-dispatch&limit=2",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-page2-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-page2-390-mock.png",
@@ -4017,8 +4017,8 @@
    "case": "empty",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-empty-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-empty-1440-mock.png",
@@ -4049,8 +4049,8 @@
    "case": "empty",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-empty-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-empty-390-mock.png",
@@ -4081,8 +4081,8 @@
    "case": "stale",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stale-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stale-1440-mock.png",
@@ -4113,8 +4113,8 @@
    "case": "stale",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-27T00%3A00%3A00Z&to=2026-10-28T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-stale-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-stale-390-mock.png",
@@ -4145,8 +4145,8 @@
    "case": "failed",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-failed-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-failed-1440-mock.png",
@@ -4177,8 +4177,8 @@
    "case": "failed",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-11-05T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-failed-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-failed-390-mock.png",
@@ -4209,8 +4209,8 @@
    "case": "unassessed",
    "width": "1440",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-unassessed-1440-app.png",
    "mockImage": "part09-sitefindings/sitefindings-unassessed-1440-mock.png",
@@ -4241,8 +4241,8 @@
    "case": "unassessed",
    "width": "390",
    "part": "part09-sitefindings",
-   "revision": "d02849db",
-   "appUrl": "http://localhost:6300/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
+   "revision": "4ffb5193",
+   "appUrl": "http://localhost:6303/sites/KOBO-001/findings?from=2026-10-30T00%3A00%3A00Z&to=2026-10-31T00%3A00%3A00Z&domain=mini-grid-dispatch",
    "mockHash": "#/sitefindings",
    "appImage": "part09-sitefindings/sitefindings-unassessed-390-app.png",
    "mockImage": "part09-sitefindings/sitefindings-unassessed-390-mock.png",
