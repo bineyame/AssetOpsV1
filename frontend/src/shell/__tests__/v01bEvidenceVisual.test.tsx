@@ -349,6 +349,17 @@ describe("V-01b Site Evidence analysis", () => {
     expect(client.recordKeys.at(-1)).toBe(EVIDENCE_UUID);
     const detail = document.querySelector(`[data-record-detail='${EVIDENCE_UUID}']`) as HTMLElement;
     expect(detail.textContent).toContain("Exact message as received");
+    // W1-F5b review M3: ids, fingerprints, source codes and the raw message sit in ONE closed disclosure; the body is plain words.
+    const refs = detail.querySelectorAll("details");
+    expect(refs).toHaveLength(1);
+    expect(refs[0]?.hasAttribute("open")).toBe(false);
+    expect(refs[0]?.querySelector("summary")?.textContent).toBe("Exact references");
+    expect(refs[0]?.contains(detail.querySelector("[data-record-message]"))).toBe(true);
+    const outside = Array.from(detail.children).filter((c) => !refs[0]?.parentElement?.contains(c) && c !== refs[0]?.closest(".evidence-advanced"));
+    const outsideText = outside.map((c) => c.textContent).join(" ");
+    expect(outsideText).not.toContain(LEDGER_RECORD.evidence_id);
+    expect(outsideText).not.toContain(LEDGER_RECORD.envelope.sha256);
+    expect(outsideText).not.toMatch(/GOOD|ACCEPTED/);
     expect(detail.querySelector("[data-record-message]")?.textContent).toBe(LEDGER_RECORD.envelope.text);
   });
 

@@ -396,10 +396,6 @@ const FINDING_SECTION_LABELS: Record<FindingChildView, string> = {
   history: "History",
   recommendation: "Recommendation",
 };
-/** W1-F5b (carry 10): Evidence and History head with the Finding's own name (`onTitle`), as the mock does. */
-const FINDING_VIEW_TITLES: Record<"recommendation", string> = {
-  recommendation: "Recommendation",
-};
 
 export function SiteFindingFrame({
   detail,
@@ -457,7 +453,7 @@ export function SiteFindingFrame({
               ]}
             />
             <PageHeader
-              title={view === "recommendation" ? FINDING_VIEW_TITLES[view] : title}
+              title={title}
               headingId={SITE_FINDING_HEADING_ID}
               subtitle={`${site.display_name} · generator support finding`}
             />
@@ -503,6 +499,7 @@ export function SiteFindingFrame({
                     siteId={site.site_id}
                     findingId={id}
                     client={actions}
+                    onTitle={onTitle}
                     links={{
                       finding: (rev) => siteFindingHref(site.site_id, id, rev),
                       action: (actionId) => siteActionHref(site.site_id, actionId),

@@ -437,6 +437,7 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
           <th scope="col">Confidence</th>
           <th scope="col">State</th>
           <th scope="col">Main consequence</th>
+          <th scope="col">Lens</th>
           <th scope="col">Period</th>
         </tr>
       </thead>
@@ -480,6 +481,11 @@ function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: Find
               </td>
               <td data-finding-index-amount={row.amount.state}>
                 Not in this list
+              </td>
+              <td>
+                <span className="badge badge--not-assessed" data-finding-index-lens data-not-assessed>
+                  Not assessed
+                </span>
               </td>
               <td className="finding-index-period">{periodText(row.episode.start, row.episode.end)}</td>
             </tr>

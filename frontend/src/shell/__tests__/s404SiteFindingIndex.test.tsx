@@ -298,12 +298,13 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
     expect(card().querySelector("[data-finding-index-row] .finding-index-period")?.textContent).toContain("25 Oct 2026");
     // W1-F3 review H2: the mock's Domain, Priority and Confidence columns; the unsupported two are honest unknowns.
     expect(Array.from(card().querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
-      "Finding", "Domain", "Priority", "Confidence", "State", "Main consequence", "Period",
+      "Finding", "Domain", "Priority", "Confidence", "State", "Main consequence", "Lens", "Period",
     ]);
     for (const row of Array.from(card().querySelectorAll("[data-finding-index-row]"))) {
       expect(row.querySelector("[data-finding-index-domain]")?.textContent).toBe("Dispatch");
       expect(row.querySelector("[data-finding-index-priority]")?.textContent).toBe("Not assessed");
       expect(row.querySelector("[data-finding-index-confidence]")?.textContent).toBe("Not assessed");
+      expect(row.querySelector("[data-finding-index-lens]")?.textContent).toBe("Not assessed");
     }
     expect(within(card()).getByRole("link", { name: "Open the newest Finding" })).toHaveAttribute(
       "href",
