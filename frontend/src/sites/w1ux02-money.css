@@ -82,3 +82,203 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/*
+ * W1-F3 phase D (W1-F1 re-review lesson): the Interpretation history is the mock's compact table,
+ * and the shared state lines inside the Financials/Assumptions panels read as one small notice.
+ */
+.site-financials tr.consequence-history__row td {
+  vertical-align: top;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.consequence-history__line {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-secondary);
+}
+
+.site-financials tr.consequence-history__row .disclosure {
+  margin-top: 4px;
+}
+
+.site-financials tr.consequence-history__row .disclosure__summary {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.site-financials .panel .product-status:not(.product-status--inline) {
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #46566e;
+}
+
+.site-financials .panel .product-status p {
+  margin: 0 0 2px;
+}
+
+.site-financials .panel .product-status__label {
+  font-weight: 600;
+  color: #22344f;
+}
+
+.site-financials .panel .product-status .source-provenance .notice {
+  margin: 4px 0;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.site-financials .panel .product-status .disclosure__summary {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+/* Assumptions panel 1: the lead sentence and the disabled-edit reason at the mock's prose size. */
+.site-financials .panel .financials-lead,
+.site-financials .panel .financials-edit p {
+  color: #46566e;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.site-financials .panel .product-status .product-status__bound,
+.site-financials [data-price-history-part] {
+  font-size: 12px;
+}
+
+.site-financials .w1-money-strip__list {
+  font-size: 12px;
+}
+
+/*
+ * W1-F3 height phase: Assumptions and Financials. The pair's panels keep their own height (Impact
+ * preview no longer stretches to its neighbour); the price strip is compact; the closed disclosures
+ * read as one small line; price history items are one line each.
+ */
+.site-financials .panel-pair {
+  align-items: start;
+}
+
+.site-financials .w1-money-strip {
+  margin-top: 10px;
+}
+
+.site-financials .w1-money-strip__title {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.site-financials .w1-money-strip__item {
+  gap: 0;
+  padding: 4px 8px;
+  border-top-width: 3px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.site-financials .w1-money-strip__state {
+  font-size: 11px;
+}
+
+.site-financials .panel details.disclosure,
+.site-financials .panel details.exact-references {
+  margin: 8px 0 0;
+  border: 0;
+  background: none;
+}
+
+.site-financials .panel details.disclosure > .disclosure__summary {
+  padding: 2px 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.site-financials .panel .financials-edit {
+  margin-top: 8px;
+}
+
+.site-financials .price-history {
+  margin: 4px 0;
+  padding-left: 18px;
+  font-size: 12px;
+}
+
+.site-financials .price-history li p {
+  margin: 0 0 4px;
+}
+
+.site-financials .v69-compact-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+}
+
+.site-financials [data-price-history-part] > .v69-eyebrow {
+  margin-top: 10px;
+}
+
+/* The withheld bridge's limits and record link are 12px notes, not body text. */
+.site-financials [data-financials-money-limit] .v69-chart-note,
+.site-financials .w1-money-limits {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.site-financials .w1-money-limits {
+  padding-left: 18px;
+}
+
+/* The money state line keeps its tone on the label when it is one compact line. */
+.w1-money-state-line .product-status--problem .product-status__label,
+.w1-money-state-line .product-status--waiting .product-status__label {
+  color: #8a5300;
+}
+
+/* Trade-offs and the method notes read at the mock's 12px panel text size. */
+.site-financials [data-financials-tradeoffs],
+.site-financials .w1-money-method {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.site-financials [data-financials-tradeoffs] p,
+.site-financials .w1-money-method p {
+  margin: 0 0 6px;
+}
+
+.site-financials .price-history__foot {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/* W1-F3 review H3: price versions are table rows, one line each; the row's exact reference stays inline. */
+.price-history__row td {
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+/* Height3 capture: the row's exact reference sits on its own line under the badge and link, so the Status
+   column never pushes past the card at 1440; the correction reason wraps under "Set by". */
+.price-history__row .exact-references--tech {
+  display: block;
+  margin: 2px 0 0;
+}
+
+.price-history__row td.price-history__set-by {
+  white-space: normal;
+  min-width: 12rem;
+}
+
+.price-history__why {
+  display: block;
+}
+
+/* W1-F3 fix round 2 M1: the Status cell is the badge and the version link on one line. */
+.price-history__row td.price-history__status {
+  white-space: nowrap;
+}

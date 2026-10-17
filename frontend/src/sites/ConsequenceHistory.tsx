@@ -1,6 +1,7 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { ExactReferences, Fact, FactList, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
+import { DataTable, ExactReferences, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
 import type { ConsequenceHistoryBody, ConsequenceHistoryResult, ConsequenceHistoryRow } from "./financialsClient";
 import { priceWords, quantityWords } from "./FindingConsequence";
 import { formatInstant } from "./FoundationRevisionPanel";
@@ -64,88 +65,96 @@ const RECORDED_WORDS: ProductWords = {
   unrecognised: false,
 };
 
+/** W1-F3 review M7: an empty first page says so in its one state line, never "every amount here". */
+function emptyWords(pricesOnly: boolean): ProductWords {
+  return {
+    label: "No fuel cost version recorded",
+    sentence: pricesOnly
+      ? "No fuel cost version recorded by this moment; the price versions below are prices only."
+      : "No fuel cost version had been recorded for this site at this moment.",
+    tone: "neutral",
+    code: "HISTORICAL",
+    unrecognised: false,
+  };
+}
+
 function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: FinancialsLinks; pinnedCutoff?: string }) {
   const current = row.at_cutoff === "CURRENT_AT_CUTOFF";
   const source = SOURCE_WORDS[sourceState(row.source_provenance)];
   const amount = row.recorded_amount.disposition === "SHOWN" ? row.recorded_amount.amount : null;
   const change = CHANGE_WORDS[row.change_from_prior] ?? null;
+  // W1-F3 phase D: one table row per version, as the mock's Interpretation history table.
   return (
-    <li
+    <tr
       className="consequence-history__row"
       data-history-row={row.consequence_revision_id}
       data-history-at-cutoff={row.at_cutoff}
       data-history-amount={row.recorded_amount.disposition}
       data-history-price={row.price.state}
     >
-      <p>
+      <td>
         <strong>
           Finding for {formatInstant(row.window.from)} to {formatInstant(row.window.to)}
         </strong>
-        {row.finding_revision_no !== null ? `, finding version ${row.finding_revision_no}` : ""}. Fuel cost version{" "}
-        {row.revision_no}, recorded {formatInstant(row.recorded_at)}.
-      </p>
-      <p>
+        {row.finding_revision_no !== null ? `, finding version ${row.finding_revision_no}` : ""}.
+        <small className="consequence-history__line">
+          Fuel cost version {row.revision_no}, recorded {formatInstant(row.recorded_at)}.
+        </small>
+        <small className="consequence-history__line">
+          <Link to={links.consequence(row.finding_id, row.finding_revision_id, row.consequence_revision_id)} data-history-open>
+            Open this fuel cost version
+          </Link>
+          {" · "}
+          <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-history-finding>
+            Open the finding
+          </Link>
+        </small>
+        <ExactReferences
+          name={`history-${row.consequence_revision_id}`}
+          references={[
+            { label: "Finding reference", value: row.finding_id },
+            { label: "Finding version reference", value: row.finding_revision_id },
+            { label: "Fuel cost version reference", value: row.consequence_revision_id },
+            ...(row.price.price_revision_id !== null ? [{ label: "Price version reference", value: row.price.price_revision_id }] : []),
+            { label: "Recorded at", value: row.recorded_at },
+          ]}
+        />
+      </td>
+      <td>
+        {priceText(row)}
+        {row.price.price_revision_id !== null && row.price.state === "LINKED" ? (
+          <>
+            {" · "}
+            <Link to={links.assumptions({ revisionId: row.price.price_revision_id, recordedAt: pinnedCutoff })} data-history-price-link>
+              The price version used
+            </Link>
+          </>
+        ) : null}
+      </td>
+      <td>
+        {amount ? (
+          <span data-history-recorded-amount>
+            <strong>
+              {amount.low} to {amount.high} {amount.currency}
+            </strong>
+            . {row.recorded_amount.label}. Not a current cost.
+          </span>
+        ) : (
+          amountWhy(row)
+        )}
+      </td>
+      <td>
+        <span data-history-source={sourceState(row.source_provenance)}>
+          {source.label}. {source.statement}
+        </span>
+      </td>
+      <td>
         <span className={current ? "badge badge--provenance" : "badge badge--neutral"} data-history-badge={current ? "latest" : "earlier"}>
           {current ? "Latest at this moment" : "Earlier version"}
-        </span>{" "}
-        {change}
-      </p>
-      <FactList>
-        <Fact term="Diesel price">
-          {priceText(row)}
-          {row.price.price_revision_id !== null && row.price.state === "LINKED" ? (
-            <>
-              {" · "}
-              <Link to={links.assumptions({ revisionId: row.price.price_revision_id, recordedAt: pinnedCutoff })} data-history-price-link>
-                The price version used
-              </Link>
-            </>
-          ) : null}
-        </Fact>
-        <Fact term="Recorded amount">
-          {amount ? (
-            <span data-history-recorded-amount>
-              <strong>
-                {amount.low} to {amount.high} {amount.currency}
-              </strong>
-              . {row.recorded_amount.label}. Not a current cost.
-            </span>
-          ) : (
-            amountWhy(row)
-          )}
-        </Fact>
-        <Fact term="Source">
-          <span data-history-source={sourceState(row.source_provenance)}>
-            {source.label}. {source.statement}
-          </span>
-        </Fact>
-      </FactList>
-      <p>
-        <Link to={links.consequence(row.finding_id, row.finding_revision_id, row.consequence_revision_id)} data-history-open>
-          Open this fuel cost version
-        </Link>
-        {" · "}
-        <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-history-finding>
-          Open the finding
-        </Link>
-      </p>
-      <p className="muted">
-        This version is kept exactly as it was recorded. Its price is the one its own record names, not today's
-        price. {current
-          ? "It is the latest version recorded for the latest version of its finding at this moment."
-          : "A later version of the same finding, or of its fuel cost, had been recorded by this moment."}
-      </p>
-      <ExactReferences
-        name={`history-${row.consequence_revision_id}`}
-        references={[
-          { label: "Finding reference", value: row.finding_id },
-          { label: "Finding version reference", value: row.finding_revision_id },
-          { label: "Fuel cost version reference", value: row.consequence_revision_id },
-          ...(row.price.price_revision_id !== null ? [{ label: "Price version reference", value: row.price.price_revision_id }] : []),
-          { label: "Recorded at", value: row.recorded_at },
-        ]}
-      />
-    </li>
+        </span>
+        {change ? <small className="consequence-history__line">{change}</small> : null}
+      </td>
+    </tr>
   );
 }
 
@@ -155,13 +164,18 @@ export function ConsequenceHistoryPanel({
   siteName,
   links,
   historyLimit = null,
+  children,
 }: {
   body: ConsequenceHistoryBody;
   siteName: string;
   links: FinancialsLinks;
   historyLimit?: number | null;
+  /** W1-F3: the price versions recorded at the same moment, inside this panel. */
+  children?: ReactNode;
 }) {
   const cutoff = body.cutoff.recorded_at;
+  const empty = body.rows.length === 0 && body.page.is_first;
+  const pricesOnly = empty && Boolean(children);
   return (
     <Panel
       heading="Interpretation history"
@@ -169,22 +183,43 @@ export function ConsequenceHistoryPanel({
       description="Every fuel cost version this site had recorded at the moment below, newest first, with the price each one used. Earlier versions are kept for the record."
     >
       <div data-consequence-history="loaded" data-history-cutoff={cutoff} data-history-selected-by={body.cutoff.selected_by}>
-        <div data-history-state="recorded">
-          <ProductStatus words={RECORDED_WORDS} scope={`${siteName}, every fuel cost version recorded by this moment`} asOf={cutoff} />
+        <div
+          className="v69-state-line"
+          data-history-state={empty ? "empty" : "recorded"}
+          data-consequence-history-empty={empty ? "" : undefined}
+          data-consequence-history-prices-only={pricesOnly ? "" : undefined}
+        >
+          <ProductStatus
+            inline
+            words={empty ? emptyWords(pricesOnly) : RECORDED_WORDS}
+            scope={`${siteName}, every fuel cost version recorded by this moment`}
+            asOf={cutoff}
+          />
         </div>
         {!body.source_gate.open ? (
           <p className="notice" data-history-source-closed>
             This site's source is closed, so every version is listed without an amount.
           </p>
         ) : null}
-        {body.rows.length === 0 ? (
-          <p data-consequence-history-empty>
-            {body.page.is_first
-              ? "No fuel cost version had been recorded for this site at this moment."
-              : "No further versions."}
+        {body.rows.length === 0 && !body.page.is_first ? (
+          <p className="v69-gap-line" data-consequence-history-empty>
+            No further versions.
           </p>
+        ) : null}
+        {body.rows.length === 0 ? (
+          null
         ) : (
-          <ol className="consequence-history">
+          <DataTable>
+            <thead>
+              <tr>
+                <th scope="col">Version</th>
+                <th scope="col">Diesel price</th>
+                <th scope="col">Recorded amount</th>
+                <th scope="col">Source</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
             {body.rows.map((row) => (
               <Row
                 key={row.consequence_revision_id}
@@ -194,7 +229,16 @@ export function ConsequenceHistoryPanel({
                 pinnedCutoff={body.cutoff.selected_by === "RECORDED_CUTOFF" ? cutoff : undefined}
               />
             ))}
-          </ol>
+            </tbody>
+          </DataTable>
+        )}
+        {body.rows.length === 0 ? null : (
+          <p className="v69-chart-note" data-history-kept-note>
+            Each version is kept exactly as it was recorded. Its price is the one its own record names, not today&apos;s
+            price. &quot;Latest at this moment&quot;: it is the latest version recorded for the latest version of its finding
+            at this moment. &quot;Earlier version&quot;: a later version of the same finding, or of its fuel cost, had been
+            recorded by this moment.
+          </p>
         )}
         <p className="muted">
           {body.page.is_first ? null : (
@@ -212,11 +256,18 @@ export function ConsequenceHistoryPanel({
           ) : null}
         </p>
       </div>
+      {children}
     </Panel>
   );
 }
 
-export function ConsequenceHistoryRefused({ read }: { read: Exclude<ConsequenceHistoryResult, { status: "loaded" }> }) {
+export function ConsequenceHistoryRefused({
+  read,
+  children,
+}: {
+  read: Exclude<ConsequenceHistoryResult, { status: "loaded" }>;
+  children?: ReactNode;
+}) {
   const words: Record<typeof read.status, string> = {
     not_found: "That list position is not one this list gave out. Nothing else is shown in its place.",
     unauthenticated: "Sign in to read this site's fuel cost versions.",
@@ -232,6 +283,7 @@ export function ConsequenceHistoryRefused({ read }: { read: Exclude<ConsequenceH
           <p data-consequence-history={read.status}>{words[read.status]}</p>
         </ProductStatus>
       </div>
+      {children}
     </Panel>
   );
 }

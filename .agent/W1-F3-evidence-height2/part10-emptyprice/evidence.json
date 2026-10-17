@@ -1,0 +1,148 @@
+{
+  "revision": "cbf8819a",
+  "captured_at": "2026-10-17T12:11:14.129Z",
+  "pairs": [
+    {
+      "screen": "financials",
+      "case": "emptyprice",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5751/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
+      "mock_hash": "#/financials",
+      "app_image": "financials-emptyprice-1440-app.png",
+      "mock_image": "financials-emptyprice-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1145,
+            "h": 374
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 857,
+            "w": 725,
+            "h": 227
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 991,
+            "y": 857,
+            "w": 403,
+            "h": 295
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "emptyprice",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5751/sites/KOBO-001/financials?finding_id=0e95ad69-759b-4c45-92e9-222146268f54&revision_id=565111ca-4bfa-44d0-bf48-05bb9525fe3b",
+      "mock_hash": "#/financials",
+      "app_image": "financials-emptyprice-390-app.png",
+      "mock_image": "financials-emptyprice-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1312,
+            "w": 358,
+            "h": 638
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1968,
+            "w": 358,
+            "h": 244
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 2228,
+            "w": 358,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

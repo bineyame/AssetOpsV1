@@ -1,0 +1,652 @@
+{
+  "revision": "de19aeff",
+  "captured_at": "2026-10-17T14:56:20.813Z",
+  "pairs": [
+    {
+      "screen": "finding-evidence",
+      "case": null,
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/9bd093fe-615a-44db-8121-28aa66034b7f/evidence?revision_id=044d352d-7796-4cf2-b950-c303defbab96",
+      "mock_hash": "#/finding-evidence",
+      "app_image": "finding-evidence-1440-app.png",
+      "mock_image": "finding-evidence-1440-mock.png",
+      "app": {
+        "titles": [
+          "Evidence bundle · Generator support merits review",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · Generator support merits review",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 411
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 248,
+            "y": 692,
+            "w": 1160,
+            "h": 126
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence bundle · F-104",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · F-104",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 287
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 234,
+            "y": 609,
+            "w": 1161,
+            "h": 100
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-evidence",
+      "case": null,
+      "viewport": "390x900",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/9bd093fe-615a-44db-8121-28aa66034b7f/evidence?revision_id=044d352d-7796-4cf2-b950-c303defbab96",
+      "mock_hash": "#/finding-evidence",
+      "app_image": "finding-evidence-390-app.png",
+      "mock_image": "finding-evidence-390-mock.png",
+      "app": {
+        "titles": [
+          "Evidence bundle · Generator support merits review",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · Generator support merits review",
+            "x": 16,
+            "y": 870,
+            "w": 358,
+            "h": 728
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 16,
+            "y": 1632,
+            "w": 358,
+            "h": 218
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence bundle · F-104",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · F-104",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 463
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 15,
+            "y": 913,
+            "w": 360,
+            "h": 100
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-evidence",
+      "case": "notfound",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence",
+      "mock_hash": "#/finding-evidence",
+      "app_image": "finding-evidence-notfound-1440-app.png",
+      "mock_image": "finding-evidence-notfound-1440-mock.png",
+      "app": {
+        "titles": [
+          "Evidence bundle · Selected Finding",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · Selected Finding",
+            "x": 248,
+            "y": 497,
+            "w": 1160,
+            "h": 99
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 248,
+            "y": 630,
+            "w": 1160,
+            "h": 99
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence bundle · F-104",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · F-104",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 287
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 234,
+            "y": 609,
+            "w": 1161,
+            "h": 100
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "finding-evidence",
+      "case": "notfound",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5860/sites/KOBO-001/findings/00000000-0000-4000-8000-000000000000/evidence",
+      "mock_hash": "#/finding-evidence",
+      "app_image": "finding-evidence-notfound-390-app.png",
+      "mock_image": "finding-evidence-notfound-390-mock.png",
+      "app": {
+        "titles": [
+          "Evidence bundle · Selected Finding",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · Selected Finding",
+            "x": 16,
+            "y": 1138,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 16,
+            "y": 1291,
+            "w": 358,
+            "h": 119
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence bundle · F-104",
+          "Inspect source lineage"
+        ],
+        "panels": [
+          {
+            "title": "Evidence bundle · F-104",
+            "x": 15,
+            "y": 432,
+            "w": 360,
+            "h": 463
+          },
+          {
+            "title": "Inspect source lineage",
+            "x": 15,
+            "y": 913,
+            "w": 360,
+            "h": 100
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "priced",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5860/sites/KOBO-001/financials?finding_id=9bd093fe-615a-44db-8121-28aa66034b7f&revision_id=044d352d-7796-4cf2-b950-c303defbab96",
+      "mock_hash": "#/financials",
+      "app_image": "financials-priced-1440-app.png",
+      "mock_image": "financials-priced-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1145,
+            "h": 347
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 831,
+            "w": 725,
+            "h": 275
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 991,
+            "y": 831,
+            "w": 403,
+            "h": 368
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "priced",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5860/sites/KOBO-001/financials?finding_id=9bd093fe-615a-44db-8121-28aa66034b7f&revision_id=044d352d-7796-4cf2-b950-c303defbab96",
+      "mock_hash": "#/financials",
+      "app_image": "financials-priced-390-app.png",
+      "mock_image": "financials-priced-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1326,
+            "w": 358,
+            "h": 631
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1976,
+            "w": 358,
+            "h": 308
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 2300,
+            "w": 358,
+            "h": 387
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "withheld",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5860/sites/KOBO-001/financials?finding_id=a5f8edc1-f394-4d18-9cfe-f6124bd3dbbf&revision_id=dc56aa24-21dc-4d83-b0ca-17ae4aea9439",
+      "mock_hash": "#/financials",
+      "app_image": "financials-withheld-1440-app.png",
+      "mock_image": "financials-withheld-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1145,
+            "h": 417
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 900,
+            "w": 725,
+            "h": 275
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 991,
+            "y": 900,
+            "w": 403,
+            "h": 295
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "withheld",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5860/sites/KOBO-001/financials?finding_id=a5f8edc1-f394-4d18-9cfe-f6124bd3dbbf&revision_id=dc56aa24-21dc-4d83-b0ca-17ae4aea9439",
+      "mock_hash": "#/financials",
+      "app_image": "financials-withheld-390-app.png",
+      "mock_image": "financials-withheld-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1312,
+            "w": 358,
+            "h": 760
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 2090,
+            "w": 358,
+            "h": 308
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 2414,
+            "w": 358,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "nofinding",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5860/sites/KOBO-001/financials",
+      "mock_hash": "#/financials",
+      "app_image": "financials-nofinding-1440-app.png",
+      "mock_image": "financials-nofinding-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 466,
+            "w": 1160,
+            "h": 103
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 586,
+            "w": 734,
+            "h": 275
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 1000,
+            "y": 586,
+            "w": 408,
+            "h": 295
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 589,
+            "w": 1161,
+            "h": 288
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 895,
+            "w": 735,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 987,
+            "y": 895,
+            "w": 408,
+            "h": 306
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "financials",
+      "case": "nofinding",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5860/sites/KOBO-001/financials",
+      "mock_hash": "#/financials",
+      "app_image": "financials-nofinding-390-app.png",
+      "mock_image": "financials-nofinding-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 1315,
+            "w": 358,
+            "h": 149
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1482,
+            "w": 358,
+            "h": 308
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 16,
+            "y": 1806,
+            "w": 358,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Trade-offs and exclusions"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1001,
+            "w": 360,
+            "h": 372
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1391,
+            "w": 360,
+            "h": 306
+          },
+          {
+            "title": "Trade-offs and exclusions",
+            "x": 15,
+            "y": 1715,
+            "w": 360,
+            "h": 244
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}
