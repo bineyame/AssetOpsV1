@@ -124,3 +124,23 @@
 .site-verification .panel .w1f4-verification-action {
   margin: 10px 0 0;
 }
+
+/* Pair panels at mock density: labels take their own width, values one line,
+   inline badges at chip size. */
+.site-verification .panel .v69-key-values {
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 16px;
+}
+
+.site-verification .panel .v69-key-values dd .badge,
+.site-verification .panel .v69-key-values dd .v69-badge {
+  padding-top: 1px;
+  padding-bottom: 1px;
+  font-size: 10px;
+}
+
+.site-verification .panel .v69-key-values dt,
+.site-verification .panel .v69-key-values dd {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}

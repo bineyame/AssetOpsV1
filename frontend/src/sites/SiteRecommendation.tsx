@@ -218,7 +218,7 @@ export function SiteRecommendation({
           ? "missed a safety or service limit, so no new trial on this battery can be accepted."
           : body.state === "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
             ? "overlapped late evidence that withdrew its result, so new trials on this battery stay held."
-            : "is still open. Follow that Action; a new trial waits until it is settled."}{" "}
+            : "is still open; a new trial waits until it settles."}{" "}
         <PriorActionHold block={block} links={links} code={holdCode} />
       </p>
     </>
@@ -327,12 +327,12 @@ export function SiteRecommendation({
                 <Link to={links.money(body.money_consequence.basis.finding_revision_id)}>
                   {body.money_consequence.label} of this Finding version
                 </Link>
-                : that stored figure belongs to the Finding, not to the trial. The trial predicts no saving.
+                : the Finding&apos;s figure, not the trial&apos;s; the trial predicts no saving.
               </span>
             ) : (
               <span data-recommendation-money-link="finding">
-                <Link to={links.money(body.revision_id)}>What this Finding means in money</Link>: any stored figure
-                belongs to the Finding, not to the trial. The trial predicts no saving.
+                <Link to={links.money(body.revision_id)}>What this Finding means in money</Link>: any figure is the Finding&apos;s,
+                not the trial&apos;s; the trial predicts no saving.
               </span>
             )}
             {!body.source_open ? (

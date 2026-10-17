@@ -534,9 +534,9 @@ function Overview({ body, links }: { body: ActionBody; links: SiteActionLinks })
                 {notice ? (
                   <span data-action-newer-revision={notice.latest_revision_id}>
                     {" "}
-                    · a{" "}
-                    <Link to={links.finding(body.origin.finding_id, notice.latest_revision_id)}>newer version (number {notice.revision_no})</Link>{" "}
-                    exists; this Action stays with the version it was accepted for
+                    · Finding{" "}
+                    <Link to={links.finding(body.origin.finding_id, notice.latest_revision_id)}>version {notice.revision_no}</Link> is newer;
+                    this Action keeps its own
                   </span>
                 ) : (
                   <span data-action-newer-revision="none" />
@@ -840,13 +840,11 @@ function Application({
           <>
             <p className="v69-chart-note">
               Applying publishes the accepted reserve ({body.accepted_recommendation.proposed_value}
-              {body.accepted_recommendation.unit}) as a new Site Foundation version, acted by a {SYSTEM_DEMONSTRATION}{" "}
-              service. No effect is stated or measured.
+              {body.accepted_recommendation.unit}) as a new Site Foundation version ({SYSTEM_DEMONSTRATION}); no effect is stated or measured.
               {basis ? (
                 <span data-action-expected-foundation={basis.current_foundation_revision_id ?? ""}>
                   {" "}
-                  The server checks the Foundation version covering the effective time; a change since the read (at{" "}
-                  {when(basis.covers_instant)}) makes the attempt fail as stale.
+                  A Foundation change since the read ({when(basis.covers_instant)}) makes it fail as stale.
                 </span>
               ) : null}
             </p>

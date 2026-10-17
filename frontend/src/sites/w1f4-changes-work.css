@@ -137,3 +137,21 @@
     flex: 1 1 auto;
   }
 }
+
+/* 390 px: the window form wraps under the title instead of widening the page. */
+@media (max-width: 760px) {
+  .w1f4-changes-work .panel__header:has(.w1f4-work-window) {
+    flex-wrap: wrap;
+  }
+
+  .w1f4-changes-work .panel__actions:has(.w1f4-work-window) {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .w1f4-changes-work .disclosure .data-table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}

@@ -145,3 +145,57 @@
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* History rows at mock density: exact IDs stay in the row (and in full in the
+   title tooltip and the disclosure) but show as short, one-line references. */
+.w1f4-action-panel td small code,
+.w1f4-action-panel .v69-chart-note code.action-ref {
+  display: inline-block;
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.w1f4-action-panel td small {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.w1f4-action-panel td:last-child:has([data-action-select-event]) {
+  white-space: nowrap;
+}
+
+.w1f4-action-panel .data-table td {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* Apply control on one row: label, time and button inline. */
+.w1f4-action-apply .form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.w1f4-action-apply .w1f4-action-field {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.w1f4-action-apply .w1f4-action-field input {
+  height: 32px;
+  padding: 4px 8px;
+}
+
+.w1f4-action-apply .button {
+  padding: 7px 14px;
+}
