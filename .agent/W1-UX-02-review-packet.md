@@ -93,7 +93,7 @@ CSS lives only in four new per-group files, `frontend/src/sites/w1ux02-{site,fin
 - Several states have no read time, so they show "As of: time not recorded" and are tested explicitly:
   - the directory, list and refusal reads;
   - the Financials non-positive states;
-  - the s402b priced case, whose head version carries no `recorded_at`. The s405 priced case shows a time.
+  - (Corrected in fix round 1: the s402b priced case is not untimed. The API always serialises `recorded_at`; the capture judged the card before the second read landed. See Fix round 1, L1.)
   - A read time on the bridge needs an Architect decision.
 - `tools/s502-overview-finding-list-evidence.mjs:148` reads `[data-finding-index-token]`, which no longer renders on the Overview. That historical script needs updating if it is reused.
 - Local word maps that could become shared kinds later:
@@ -113,3 +113,17 @@ CSS lives only in four new per-group files, `frontend/src/sites/w1ux02-{site,fin
 - The untimed "As of: time not recorded" states.
 - The Financials readings table living in a closed disclosure.
 - The display overlay for the backend's "fingerprint" link words, which a backend slice should retire.
+
+## Fix round 1
+
+Review `.agent/W1-UX-02-review.md` (RETURN, one Medium).
+
+- **M1 fixed.** `SiteFinancials.tsx`: when the view is historical (`recorded_at` set), the headline reads "Diesel price covering today, as recorded then: <price>" and the strip's selected entry reads "Covered today, as recorded then" (new `recorded-then` state; `data-price-strip-entry="recorded-then"`). The default view keeps "Diesel price in use" and "In use today". The earlier-moment test now asserts the headline and strip carry no "in use" text, no `in-use` strip entry, and one `recorded-then` entry. The state sentence still says "may not be the price in use now", which is a hedge, not a claim, so the assertion is scoped to the headline and strip.
+- **L2 fixed.** `FindingBridge` takes `consequencesLoading`; a PRICED CURRENT bridge draws "Loading the finding's money view." until the consequences read settles (no amount, no untimed bound). New test holds the second read open, asserts no headline amount, no `0.00 to 16.20` and no "time not recorded", then releases it and asserts the amount appears.
+- **L3 fixed.** `SiteWindowOverview.tsx` `Money`: a `PRICED` read missing a bound uses the shared non-positive fallback words, so no "Current amount" label and no positive tone. New test (low and high each missing).
+- **L5 fixed.** `STATUS_WORDS` in `SiteFindingIndex.tsx` is still used locally (line ~263, table day status), so it is not deleted; the `export` and the stale comment are removed. Nothing imported it (the other `STATUS_WORDS` is `dispatchWords.ts`, unrelated).
+- **L1.** The packet's s402b explanation above is corrected. `tools/w1-ux-02-evidence.mjs` now (a) waits for the second read (`[data-financials-bridge-loading]` gone) plus 800 ms before judging the Financials card, as its own claim, and (b) accepts "As of: time not recorded" only when no amount is drawn (`amountShown` false: no `data-financials-amount="shown"` and no PRICED price selection). The script passes `node --check`. **Evidence re-capture: not run.** The walkthroughs need a live Postgres and the s402b/s408 templates; none was listening in this session, so the Financials/Assumptions 1440/390 captures are unverified after the fix. No fixtures were created, so none to drop.
+- **For the owner's list (not fixed):**
+  - L4: the Overview money card and Financials word the same money codes differently ("Fuel quantity not known" vs "Not calculated: no fuel amount, so no cost"); the Overview's "Upstream out of date" label and "Upstream" term are jargon. Belongs in the batched W1 plain-language task.
+  - L6: non-positive Financials states (STALE, LR-01-withheld) show "As of: time not recorded" although the loaded recorded cost has a `recorded_at`; that instant dates the recorded cost, not the "no current amount" judgement, and the bridge carries no read instant. Needs an Architect decision with the existing "read time on the bridge" item.
+- **Checks.** `npx.cmd tsc --noEmit`: clean. Focused `siteFinancials` (74) and `s5SiteWindowOverview` pass; the vocabulary tests (`t028Vocabulary`, `sharedVisualVocabulary`, `findingLinkWordsParity`, `productStatus`) ran inside the full `npm.cmd test`: 74/74 files, 1843/1843 tests, 128 s, no failure and no rerun needed. Two first-attempt test failures during the build were test-scoping mistakes (a whole-card "in use" match that hit the legitimate hedge sentence; a loading text shared with the bridge-null state) and were corrected in the new tests, not by weakening any assertion.

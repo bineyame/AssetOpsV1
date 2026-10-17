@@ -154,6 +154,8 @@ const measure = (card) =>
       measured: inside.length, wide, scrollWidth: d.scrollWidth, clientWidth: d.clientWidth,
       focusable,
       visual: Boolean(c.querySelector('[data-value-bars], [data-step-strip], [data-price-strip]')),
+      // A drawn amount is always timed: its time comes from the second (consequences) read.
+      amountShown: Boolean(document.querySelector('[data-financials-amount="shown"], [data-price-selection="PRICED"]')),
     };
   })()`);
 
@@ -188,6 +190,11 @@ try {
       await size(width, height);
       const ok = await go(url, `document.querySelector('[data-headline-card="${card}"] [data-product-status-label]')`);
       claim(`${id} ${label}: the migrated card renders at ${url}`, ok);
+      // The Financials card's time arrives with a second read; judge the state line only once it has landed.
+      if (mockId === "financials") {
+        claim(`${id} ${label}: the second (consequences) read has landed`, await waitFor("!document.querySelector('[data-financials-bridge-loading]')"));
+        await sleep(800);
+      }
       const m = await measure(card);
       if (m === null) {
         claim(`${id} ${label}: card measured`, false);
@@ -197,7 +204,7 @@ try {
         claim(`${id} ${label}: the page is laid out at ${width} px (documentElement.clientWidth within ${width - 20}..${width})`, m.clientWidth >= width - 20 && m.clientWidth <= width, { clientWidth: m.clientWidth });
       }
       const shown = (b) => b !== null && b.w > 0 && b.h > 0;
-      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen !== true && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && (/^As of \d/.test(m.asOf ?? "") || m.asOf === "As of: time not recorded"), { label: m.label, asOf: m.asOf, noTime: m.asOf === "As of: time not recorded" });
+      claim(`${id} ${label}: state, scope and as-of are drawn with the disclosure closed`, m.disclosureOpen !== true && shown(m.labelBox) && shown(m.scopeBox) && shown(m.asOfBox) && (/^As of \d/.test(m.asOf ?? "") || (m.asOf === "As of: time not recorded" && !m.amountShown)), { label: m.label, asOf: m.asOf, amountShown: m.amountShown, noTime: m.asOf === "As of: time not recorded" });
       if (m.disclosureOpen === null) {
         // A state with nothing to reference (e.g. an empty directory) renders no disclosure; say so rather than pass silently.
         claim(`${id} ${label}: no exact-reference disclosure in this state (nothing to reference)`, true, "no disclosure");
