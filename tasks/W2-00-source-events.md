@@ -23,3 +23,9 @@ W2-00 is a prerequisite shared source-format packet. The current registry has no
 ## Architect questions
 
 None; the cited design specifies the contract.
+
+## Plan review fixes (coordinator, 2026-10-17; `.agent/W2-packets-1-review.md`)
+
+- **Rule-8 writer guard (design `.agent/W2-technical-design-cold.md:164-168`, required):** ADD probes to `tools/writer_guard_probes.py` and the rule-8 policy in `tools/checks/configuration-persistence.ps1`: pass probes for the ledger as sole writer of the new columns and for the message conflict target on every insert; fail probes for an event partial-index conflict target, any `DO UPDATE`, and a foreign writer; double-collision probes proving message+event resolves to the message disposition and event+session resolves to the event disposition. Running the existing probe corpus alone does not satisfy acceptance.
+- **Receipt counts:** `backend/assetops_backend/evidence/ledger_reads.py:232,376` must count all three conflict kinds (message, event, session) as conflicts, not rejected; add tests that a receipt with each new conflict kind reports it as a conflict and leaves rejected counts unchanged, and that `MESSAGE_CONFLICT` receipt bytes are unchanged.
+- **Explicit tests (L1):** v3 mapping snapshots still parse without the new mapping keys; the four EV rejection codes write a null conflicting-record reference; `/evidence/records` family/kind filters work and old records return the new fields as null.

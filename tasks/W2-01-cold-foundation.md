@@ -28,3 +28,10 @@ Existing open `A-cold-role-set`, `I-configuration-breadth-store` and `D-configur
 ## Architect questions
 
 None; the cited design specifies the contract and labels the missing reads.
+
+## Plan review notes (coordinator, 2026-10-17)
+
+- Phase 1 requires W2-00 merged (migration `0021` builds on `0020`); phase 2 requires W1-F1 merged (shared layout guard and CSS).
+- Phase 2 acceptance also runs the plain-language vocabulary scan on the three routes (`.agent/architect-W2-design.md:73`) and records the capture-log fields the fidelity contract requires.
+- The cold-readiness panel 2 and cold-sld panel 1 title changes in the cold design table (lines 127, 130) are Architect-approved under `D-2026-10-17-w2-techdesign-cold`; the reviewer treats them as approved title-map entries.
+- `binding_roles.py` citations in the design have drifted: the role-set registries are now at lines 99 and 103.
