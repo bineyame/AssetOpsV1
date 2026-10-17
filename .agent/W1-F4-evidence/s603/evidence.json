@@ -1,0 +1,240 @@
+{
+  "revision": "4016b4fc",
+  "captured_at": "2026-10-17T10:13:22.277Z",
+  "pairs": [
+    {
+      "screen": "sitework",
+      "case": "active",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5590/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-active-1440-app.png",
+      "mock_image": "sitework-active-1440-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 439
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitework",
+      "case": "active",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5590/sites/KOBO-001/work?from=2026-11-01T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-active-390-app.png",
+      "mock_image": "sitework-active-390-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 16,
+            "y": 971,
+            "w": 358,
+            "h": 712
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 362
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitework",
+      "case": "zero",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5590/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-zero-1440-app.png",
+      "mock_image": "sitework-zero-1440-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 284
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitework",
+      "case": "zero",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5590/sites/KOBO-001/work?from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-zero-390-app.png",
+      "mock_image": "sitework-zero-390-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 16,
+            "y": 948,
+            "w": 358,
+            "h": 414
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 362
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitework",
+      "case": "no-window",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5590/sites/KOBO-001/work",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-no-window-1440-app.png",
+      "mock_image": "sitework-no-window-1440-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 223
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "sitework",
+      "case": "no-window",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5590/sites/KOBO-001/work",
+      "mock_hash": "#/sitework",
+      "app_image": "sitework-no-window-390-app.png",
+      "mock_image": "sitework-no-window-390-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 16,
+            "y": 932,
+            "w": 358,
+            "h": 337
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 362
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

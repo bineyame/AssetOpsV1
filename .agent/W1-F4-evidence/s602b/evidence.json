@@ -1,0 +1,886 @@
+{
+  "revision": "4016b4fc",
+  "captured_at": "2026-10-17T10:14:10.942Z",
+  "pairs": [
+    {
+      "screen": "action-plan",
+      "case": "pass",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/plan",
+      "mock_hash": "#/action-plan",
+      "app_image": "action-plan-pass-1440-app.png",
+      "mock_image": "action-plan-pass-1440-mock.png",
+      "app": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 248,
+            "y": 374,
+            "w": 1145,
+            "h": 672
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-plan",
+      "case": "pass",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/plan",
+      "mock_hash": "#/action-plan",
+      "app_image": "action-plan-pass-390-app.png",
+      "mock_image": "action-plan-pass-390-mock.png",
+      "app": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 16,
+            "y": 1068,
+            "w": 358,
+            "h": 1036
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 358
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-evidence",
+      "case": "pass",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/evidence",
+      "mock_hash": "#/action-evidence",
+      "app_image": "action-evidence-pass-1440-app.png",
+      "mock_image": "action-evidence-pass-1440-mock.png",
+      "app": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 248,
+            "y": 352,
+            "w": 1145,
+            "h": 616
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 262
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-evidence",
+      "case": "pass",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/evidence",
+      "mock_hash": "#/action-evidence",
+      "app_image": "action-evidence-pass-390-app.png",
+      "mock_image": "action-evidence-pass-390-mock.png",
+      "app": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 16,
+            "y": 1068,
+            "w": 358,
+            "h": 833
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 262
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "verification",
+      "case": "pass",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/verification",
+      "mock_hash": "#/verification",
+      "app_image": "verification-pass-1440-app.png",
+      "mock_image": "verification-pass-1440-mock.png",
+      "app": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 248,
+            "y": 523,
+            "w": 1145,
+            "h": 456
+          },
+          {
+            "title": "Activity evidence",
+            "x": 248,
+            "y": 1013,
+            "w": 725,
+            "h": 678
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 991,
+            "y": 1013,
+            "w": 403,
+            "h": 678
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 234,
+            "y": 586,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "Activity evidence",
+            "x": 234,
+            "y": 940,
+            "w": 735,
+            "h": 252
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 987,
+            "y": 940,
+            "w": 408,
+            "h": 252
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "verification",
+      "case": "pass",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/verification",
+      "mock_hash": "#/verification",
+      "app_image": "verification-pass-390-app.png",
+      "mock_image": "verification-pass-390-mock.png",
+      "app": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 16,
+            "y": 1420,
+            "w": 358,
+            "h": 764
+          },
+          {
+            "title": "Activity evidence",
+            "x": 16,
+            "y": 2218,
+            "w": 358,
+            "h": 375
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 16,
+            "y": 2609,
+            "w": 358,
+            "h": 761
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 15,
+            "y": 1101,
+            "w": 360,
+            "h": 522
+          },
+          {
+            "title": "Activity evidence",
+            "x": 15,
+            "y": 1641,
+            "w": 360,
+            "h": 252
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 15,
+            "y": 1911,
+            "w": 360,
+            "h": 246
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "verification",
+      "case": "historical",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/verification?outcome_id=035f0894-a731-487b-b1e7-89933a0c3884",
+      "mock_hash": "#/verification",
+      "app_image": "verification-historical-1440-app.png",
+      "mock_image": "verification-historical-1440-mock.png",
+      "app": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 248,
+            "y": 500,
+            "w": 1145,
+            "h": 476
+          },
+          {
+            "title": "Activity evidence",
+            "x": 248,
+            "y": 1010,
+            "w": 725,
+            "h": 678
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 991,
+            "y": 1010,
+            "w": 403,
+            "h": 678
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 234,
+            "y": 586,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "Activity evidence",
+            "x": 234,
+            "y": 940,
+            "w": 735,
+            "h": 252
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 987,
+            "y": 940,
+            "w": 408,
+            "h": 252
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "verification",
+      "case": "historical",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5582/sites/KOBO-001/actions/6bb5ca73-0386-4171-a113-4700d65cb619/verification?outcome_id=035f0894-a731-487b-b1e7-89933a0c3884",
+      "mock_hash": "#/verification",
+      "app_image": "verification-historical-390-app.png",
+      "mock_image": "verification-historical-390-mock.png",
+      "app": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 16,
+            "y": 1446,
+            "w": 358,
+            "h": 784
+          },
+          {
+            "title": "Activity evidence",
+            "x": 16,
+            "y": 2264,
+            "w": 358,
+            "h": 375
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 16,
+            "y": 2655,
+            "w": 358,
+            "h": 761
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 15,
+            "y": 1101,
+            "w": 360,
+            "h": 522
+          },
+          {
+            "title": "Activity evidence",
+            "x": 15,
+            "y": 1641,
+            "w": 360,
+            "h": 252
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 15,
+            "y": 1911,
+            "w": 360,
+            "h": 246
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-plan",
+      "case": "guardrail",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5583/sites/KOBO-001/actions/dac451d3-3d95-4c47-b786-806785d73833/plan",
+      "mock_hash": "#/action-plan",
+      "app_image": "action-plan-guardrail-1440-app.png",
+      "mock_image": "action-plan-guardrail-1440-mock.png",
+      "app": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 248,
+            "y": 374,
+            "w": 1145,
+            "h": 734
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-plan",
+      "case": "guardrail",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5583/sites/KOBO-001/actions/dac451d3-3d95-4c47-b786-806785d73833/plan",
+      "mock_hash": "#/action-plan",
+      "app_image": "action-plan-guardrail-390-app.png",
+      "mock_image": "action-plan-guardrail-390-mock.png",
+      "app": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 16,
+            "y": 1068,
+            "w": 358,
+            "h": 1098
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Success criteria"
+        ],
+        "panels": [
+          {
+            "title": "Success criteria",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 358
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-evidence",
+      "case": "guardrail",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5583/sites/KOBO-001/actions/dac451d3-3d95-4c47-b786-806785d73833/evidence",
+      "mock_hash": "#/action-evidence",
+      "app_image": "action-evidence-guardrail-1440-app.png",
+      "mock_image": "action-evidence-guardrail-1440-mock.png",
+      "app": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 248,
+            "y": 352,
+            "w": 1145,
+            "h": 678
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 234,
+            "y": 304,
+            "w": 1161,
+            "h": 262
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "action-evidence",
+      "case": "guardrail",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5583/sites/KOBO-001/actions/dac451d3-3d95-4c47-b786-806785d73833/evidence",
+      "mock_hash": "#/action-evidence",
+      "app_image": "action-evidence-guardrail-390-app.png",
+      "mock_image": "action-evidence-guardrail-390-mock.png",
+      "app": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 16,
+            "y": 1052,
+            "w": 358,
+            "h": 920
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Evidence requirements"
+        ],
+        "panels": [
+          {
+            "title": "Evidence requirements",
+            "x": 15,
+            "y": 488,
+            "w": 360,
+            "h": 262
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "verification",
+      "case": "guardrail",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5583/sites/KOBO-001/actions/dac451d3-3d95-4c47-b786-806785d73833/verification",
+      "mock_hash": "#/verification",
+      "app_image": "verification-guardrail-1440-app.png",
+      "mock_image": "verification-guardrail-1440-mock.png",
+      "app": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 248,
+            "y": 500,
+            "w": 1145,
+            "h": 578
+          },
+          {
+            "title": "Activity evidence",
+            "x": 248,
+            "y": 1112,
+            "w": 725,
+            "h": 695
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 991,
+            "y": 1112,
+            "w": 403,
+            "h": 695
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 234,
+            "y": 586,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "Activity evidence",
+            "x": 234,
+            "y": 940,
+            "w": 735,
+            "h": 252
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 987,
+            "y": 940,
+            "w": 408,
+            "h": 252
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "verification",
+      "case": "guardrail",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5583/sites/KOBO-001/actions/dac451d3-3d95-4c47-b786-806785d73833/verification",
+      "mock_hash": "#/verification",
+      "app_image": "verification-guardrail-390-app.png",
+      "mock_image": "verification-guardrail-390-mock.png",
+      "app": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 16,
+            "y": 1403,
+            "w": 358,
+            "h": 1108
+          },
+          {
+            "title": "Activity evidence",
+            "x": 16,
+            "y": 2545,
+            "w": 358,
+            "h": 375
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 16,
+            "y": 2936,
+            "w": 358,
+            "h": 777
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Target and guardrails evaluated together",
+          "Activity evidence",
+          "Outcome evidence"
+        ],
+        "panels": [
+          {
+            "title": "Target and guardrails evaluated together",
+            "x": 15,
+            "y": 1101,
+            "w": 360,
+            "h": 522
+          },
+          {
+            "title": "Activity evidence",
+            "x": 15,
+            "y": 1641,
+            "w": 360,
+            "h": 252
+          },
+          {
+            "title": "Outcome evidence",
+            "x": 15,
+            "y": 1911,
+            "w": 360,
+            "h": 246
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "guardrail-hold",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:5583/sites/KOBO-001/findings/b7ca3f5d-ee2d-46eb-b395-81a2684677d5/recommendation?revision_id=c6e6f0b6-bc89-4124-89c3-2d1b4d76eb8e",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-guardrail-hold-1440-app.png",
+      "mock_image": "recommendation-guardrail-hold-1440-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 248,
+            "y": 346,
+            "w": 725,
+            "h": 912
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 991,
+            "y": 346,
+            "w": 403,
+            "h": 912
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 248,
+            "y": 1372,
+            "w": 1145,
+            "h": 123
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 234,
+            "y": 366,
+            "w": 735,
+            "h": 370
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 987,
+            "y": 366,
+            "w": 408,
+            "h": 370
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 234,
+            "y": 814,
+            "w": 1161,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "recommendation",
+      "case": "guardrail-hold",
+      "viewport": "390x900",
+      "app_url": "http://localhost:5583/sites/KOBO-001/findings/b7ca3f5d-ee2d-46eb-b395-81a2684677d5/recommendation?revision_id=c6e6f0b6-bc89-4124-89c3-2d1b4d76eb8e",
+      "mock_hash": "#/recommendation",
+      "app_image": "recommendation-guardrail-hold-390-app.png",
+      "mock_image": "recommendation-guardrail-hold-390-mock.png",
+      "app": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 16,
+            "y": 1058,
+            "w": 358,
+            "h": 1265
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 16,
+            "y": 2338,
+            "w": 358,
+            "h": 139
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 16,
+            "y": 2634,
+            "w": 358,
+            "h": 123
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Proposed intervention",
+          "Declare success before evaluating",
+          "Evidence needed to verify"
+        ],
+        "panels": [
+          {
+            "title": "Proposed intervention",
+            "x": 15,
+            "y": 577,
+            "w": 360,
+            "h": 457
+          },
+          {
+            "title": "Declare success before evaluating",
+            "x": 15,
+            "y": 1051,
+            "w": 360,
+            "h": 367
+          },
+          {
+            "title": "Evidence needed to verify",
+            "x": 15,
+            "y": 1515,
+            "w": 360,
+            "h": 251
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}
