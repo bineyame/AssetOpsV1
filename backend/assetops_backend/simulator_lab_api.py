@@ -124,6 +124,7 @@ from assetops_backend.scenarios.execution import (
     initialization_inputs,
     state_transition_inputs,
 )
+from assetops_backend.scenarios.cold_parsing import ColdScenarioDefinition
 from assetops_backend.scenarios.identity import (
     SCENARIO_ID_RULE,
     validate_scenario_id,
@@ -2601,9 +2602,12 @@ def build_simulator_lab_router(
                 detail=_refusal(REFUSAL_SCENARIO_STORE_UNAVAILABLE, str(error)),
             ) from error
 
+        # W2-02: `cold-scenario/1` definitions are a separate strict type that the legacy
+        # summary does not describe; their Lab presentation is not part of this listing.
         return {
             "scenarios": [
                 scenario_public_summary(scenario) for scenario in saved
+                if not isinstance(scenario, ColdScenarioDefinition)
             ]
         }
 
@@ -2635,6 +2639,8 @@ def build_simulator_lab_router(
 
         try:
             scenario = scenario_detail.get_scenario(scenario_id)
+            if isinstance(scenario, ColdScenarioDefinition):
+                raise ScenarioNotFound(scenario_id)
         except ScenarioNotFound as error:
             raise HTTPException(
                 status_code=404,

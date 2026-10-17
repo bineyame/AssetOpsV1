@@ -23,9 +23,16 @@ nothing in the product can write a scenario.
 
 from __future__ import annotations
 
-from typing import Protocol, Sequence, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, Sequence, Union, runtime_checkable
 
 from assetops_backend.scenarios.models import ScenarioDefinition
+
+if TYPE_CHECKING:
+    from assetops_backend.scenarios.cold_parsing import ColdScenarioDefinition
+
+#: W2-02 (`D-2026-10-17-w2-02-buildspec`): the typed union the shipped store returns; a
+#: `cold-scenario/1` document is its own strict type, never a legacy timeline definition.
+AnyScenarioDefinition = Union[ScenarioDefinition, "ColdScenarioDefinition"]
 
 
 class ScenarioRepositoryError(Exception):
@@ -77,7 +84,7 @@ class ScenarioDefinitionRepository(Protocol):
     query DSL, no pagination, and no caching method for the same reason.
     """
 
-    def list_scenarios(self) -> Sequence[ScenarioDefinition]:
+    def list_scenarios(self) -> Sequence[AnyScenarioDefinition]:
         """Return every saved scenario from every store.
 
         Raises:
@@ -87,7 +94,7 @@ class ScenarioDefinitionRepository(Protocol):
         """
         ...
 
-    def get_scenario(self, scenario_id: str) -> ScenarioDefinition:
+    def get_scenario(self, scenario_id: str) -> AnyScenarioDefinition:
         """Return one scenario by identity, compared without regard to case.
 
         Raises:

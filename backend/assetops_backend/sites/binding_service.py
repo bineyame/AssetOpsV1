@@ -231,8 +231,15 @@ def validate_bindings(
     requests: Sequence[BindingRequest],
     registrations: Registrations,
     foundation: Sequence[RevisionRow],
+    *,
+    v4_metadata: bool = False,
 ) -> tuple[BindingRow, ...]:
     """Every request as a binding row, or a refusal naming every problem.
+
+    `v4_metadata` (W2-02, `D-2026-10-17-w2-02-buildspec`): a published (not
+    replayed-conversion) `cold-roles-1` row carries the closed v4 tuple's five
+    metadata keys; a tuple absent from the table, or one whose family or unit
+    does not match the role, is refused before publication.
 
     `foundation` is every currently recorded Foundation revision the binding
     period overlaps (after any joint Foundation change); each must declare the
@@ -286,6 +293,7 @@ def validate_bindings(
     channels: set[tuple[str, str]] = set()
     single: dict[tuple[str, str | None], int] = {}
     for index, req in enumerate(requests):
+        v4_mapping = None
         channel = (req.device_id, req.signal_id)
         name = f"{req.device_id} / {req.signal_id}"
         if channel in channels:
@@ -349,6 +357,17 @@ def validate_bindings(
                         f"Channel {name} carries {sorted(entry.allowed_record_kinds)}, but {role.label} "
                         f"needs {sorted(role.event_kinds)}.",
                     )
+                elif v4_metadata and entry is None:
+                    problem("BINDING_CHANNEL_V4_UNKNOWN", index,
+                            f"Channel {name} is not in the closed v4 channel table.")
+                elif v4_metadata and entry.family != ("EVENT" if role.value_kind == "EVENT" else "MEASUREMENT"):
+                    problem("BINDING_CHANNEL_ROLE_MISMATCH", index,
+                            f"Channel {name} carries {entry.family} records, not {role.label} values.")
+                elif v4_metadata and entry.family == "MEASUREMENT" and req.canonical_unit not in entry.allowed_units:
+                    problem("BINDING_UNIT_MISMATCH", index,
+                            f"Channel {name} carries {sorted(entry.allowed_units)}, not {req.canonical_unit!r}.")
+                elif v4_metadata:
+                    v4_mapping = entry.metadata()
             if req.asset_id is None:
                 problem("BINDING_ASSET_REQUIRED", index, f"{role.label} must name the asset it describes.")
             elif asset is not None and asset.asset_type != role.asset_type:
@@ -396,6 +415,7 @@ def validate_bindings(
                     source_unit=req.source_unit,
                     canonical_unit=req.canonical_unit,
                     conversion=req.conversion,
+                    v4_mapping=v4_mapping,
                 )
             )
     if problems:
@@ -613,7 +633,8 @@ class BindingService:
                     status=422,
                 )
             overlapping = [r for r in after if _overlaps(r.valid_from, r.valid_to, effective_from, period_to)]
-            bindings = validate_bindings(site, role_set, requests, registrations, overlapping)
+            bindings = validate_bindings(site, role_set, requests, registrations, overlapping,
+                                         v4_metadata=origin != "CONVERSION")
             digest = bindings_digest(role_set, bindings)
             if replaced is not None and digest == replaced.bindings_sha256 and not rev_inserts:
                 raise BindingRefused(

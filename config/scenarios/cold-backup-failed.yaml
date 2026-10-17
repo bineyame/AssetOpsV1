@@ -1,0 +1,32 @@
+# W2-02 registered cold Lab scenario `backup-failed` (D-2026-10-17-w2-02-buildspec, technical design section 4).
+schema: cold-scenario/1
+scenario_id: cold-backup-failed
+version: 1
+site_code: COLD-LAB-001
+model_profile: cold-thermal/1
+publication_profile: cold-publication/1
+observation_profile: cold-observation/1
+seed: 20417
+start: '2026-10-06T19:00:00Z'
+end: '2026-10-06T20:00:00Z'
+initial_temperature_deg_c: '3.8'
+ambient_deg_c: '20'
+backup_enabled: true
+forcings:
+- at: '2026-10-06T19:00:00Z'
+  kind: GENERATOR_FAILURE
+  asset: generator-1
+  value: FAILED
+- at: '2026-10-06T19:00:00Z'
+  kind: GRID_LOSS
+  asset: grid-1
+  value: LOST
+- at: '2026-10-06T19:10:00Z'
+  kind: DOOR_OPEN
+  asset: door-1
+  value: OPEN
+- at: '2026-10-06T19:11:00Z'
+  kind: DOOR_CLOSE
+  asset: door-1
+  value: CLOSED
+observations: []

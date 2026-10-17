@@ -134,6 +134,7 @@ from assetops_contracts.execution_contract import (
     canonical_model_need_quantity,
 )
 
+from assetops_backend.scenarios.cold_parsing import ColdScenarioDefinition
 from assetops_backend.scenarios.execution import (
     CANONICAL_UNITS,
     EXECUTION_CONTRACT_VERSION,
@@ -566,6 +567,15 @@ class RunSetupService:
                 f"No scenario with scenario ID {request.scenario_id!r} is "
                 "saved, so there is nothing for a run to execute.",
             ) from error
+
+        if isinstance(scenario, ColdScenarioDefinition):
+            # W2-02 commit 1: the cold-only freeze path is not built yet; a cold definition never
+            # reaches the legacy timeline freeze.
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {scenario.scenario_id} is a {scenario.schema} document; its cold-only run "
+                "freeze path is not available in this build.",
+            )
 
         if scenario.version.scenario_version != request.scenario_version:
             raise refuse(

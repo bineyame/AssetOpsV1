@@ -21,10 +21,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from assetops_backend.scenarios.adapters.yaml_scenario_documents import (
-    read_scenario_records,
+    MAX_DOCUMENT_BYTES,
+    _document_paths,
+    read_scenario_record,
+)
+from assetops_backend.scenarios.cold_parsing import (
+    ColdScenarioDefinition,
+    is_cold_document,
+    parse_cold_scenario_document,
 )
 from assetops_backend.scenarios.models import ScenarioDefinition
+from assetops_backend.scenarios.identity import scenario_id_key
+from assetops_backend.scenarios.ports import (
+    ScenarioConfigurationInvalid,
+    ScenarioIdentityConflict,
+    ScenarioStoreUnavailable,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -55,7 +70,45 @@ class ReadOnlyYamlScenarioStore:
     def store_name(self) -> str:
         return STORE_NAME
 
-    def list_scenarios(self) -> tuple[ScenarioDefinition, ...]:
-        return read_scenario_records(
-            self._root, store_name=STORE_NAME, origin=ORIGIN
-        )
+    def list_scenarios(self) -> tuple[ScenarioDefinition | ColdScenarioDefinition, ...]:
+        """Every shipped document, dispatched by its exact `schema` key.
+
+        W2-02 (`D-2026-10-17-w2-02-buildspec`): a `schema: cold-scenario/1`
+        document is parsed by the separate strict cold parser and never by the
+        legacy timeline parser; every other document is a legacy definition.
+        """
+        records: list[ScenarioDefinition | ColdScenarioDefinition] = []
+        seen: dict[str, str] = {}
+        for path in _document_paths(self._root, store_name=STORE_NAME):
+            record = _read_shipped(path)
+            key = scenario_id_key(record.scenario_id)
+            if key in seen:
+                raise ScenarioIdentityConflict(
+                    f"Scenario ID {record.scenario_id!r} is declared twice in the "
+                    f"{STORE_NAME} scenario store, in {seen[key]} and {path.name}."
+                )
+            seen[key] = path.name
+            records.append(record)
+        return tuple(records)
+
+
+def _read_shipped(path: Path) -> ScenarioDefinition | ColdScenarioDefinition:
+    try:
+        if path.stat().st_size > MAX_DOCUMENT_BYTES:
+            return read_scenario_record(path, store_name=STORE_NAME, origin=ORIGIN)
+        text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return read_scenario_record(path, store_name=STORE_NAME, origin=ORIGIN)
+    except OSError as error:
+        raise ScenarioStoreUnavailable(
+            f"Scenario document {path.name} in the {STORE_NAME} store could not be read"
+        ) from error
+    try:
+        document = yaml.safe_load(text)
+    except yaml.YAMLError as error:
+        raise ScenarioConfigurationInvalid(
+            f"Scenario document {path.name} in the {STORE_NAME} store is not valid YAML"
+        ) from error
+    if is_cold_document(document):
+        return parse_cold_scenario_document(document, source=f"{STORE_NAME}:{path.name}", origin=ORIGIN)
+    return read_scenario_record(path, store_name=STORE_NAME, origin=ORIGIN)

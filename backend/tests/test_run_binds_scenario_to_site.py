@@ -216,10 +216,17 @@ NEVER_SHIPPED_AS_V1 = {
     "kobo-mini-grid-reserve-trial",
 }
 
+#: W2-02: the registered cold Lab's `cold-scenario/1` documents are a separate strict type
+#: (`test_w202_cold_scenario.py`), not legacy timeline definitions an owner copies.
+COLD_SCENARIO_DOCUMENTS = {
+    "cold-normal", "cold-excursion", "cold-backup-failed", "cold-missing-probe", "cold-late-reading",
+    "cold-contradictory",
+}
+
 SHIPPED_DOCUMENTS = sorted(
     path
     for path in SHIPPED_SCENARIOS.glob("*.yaml")
-    if path.stem not in NEVER_SHIPPED_AS_V1
+    if path.stem not in NEVER_SHIPPED_AS_V1 | COLD_SCENARIO_DOCUMENTS
 )
 
 
@@ -228,7 +235,7 @@ def test_the_shipped_documents_were_found() -> None:
     assert {path.stem for path in SHIPPED_DOCUMENTS} == set(FROZEN_V1_SAMPLE)
     assert {
         path.stem for path in SHIPPED_SCENARIOS.glob("*.yaml")
-    } == set(FROZEN_V1_SAMPLE) | NEVER_SHIPPED_AS_V1
+    } == set(FROZEN_V1_SAMPLE) | NEVER_SHIPPED_AS_V1 | COLD_SCENARIO_DOCUMENTS
 
 
 @pytest.mark.parametrize(
