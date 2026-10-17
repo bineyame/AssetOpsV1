@@ -24,7 +24,7 @@ export {
   type FactListProps,
   type FactProps,
 } from "./DataTable";
-export { Disclosure, type DisclosureProps } from "./Disclosure";
+export { Disclosure, ShowAll, type DisclosureProps, type ShowAllProps } from "./Disclosure";
 export {
   NAV_RAIL_UNAVAILABLE_STATUS,
   NavRail,

@@ -18,7 +18,10 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus } from "../ui";
+import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll } from "../ui";
+
+/** W1-F3 height phase: how many of the latest versions the default view shows, as the mock's three rows. */
+const LATEST_SHOWN = 3;
 import { durationText, minutes, stamp } from "./dispatchWords";
 import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevision } from "./findingClient";
 import { findingRefusalWords } from "./findingPresentation";
@@ -264,6 +267,29 @@ function RevisionHistory({
   }
   const recordedAt = new Map(rows.map((r) => [r.id, r.times.recorded_at]));
   const related = relatedItems(body);
+  // W1-F3 height phase: the mock shows the latest few versions; the earlier ones stay in the
+  // document, oldest first, behind one "Show all N" expander placed above them.
+  const latest = rows.slice(-LATEST_SHOWN);
+  const earlier = rows.slice(0, rows.length - latest.length);
+  const versionHead = (
+    <thead>
+      <tr>
+        <th scope="col">Version recorded</th>
+        <th scope="col">Event</th>
+        <th scope="col">Basis</th>
+      </tr>
+    </thead>
+  );
+  const versionRow = (r: HistoryRevision) => (
+    <VersionRow
+      key={r.id}
+      r={r}
+      findingId={body.finding.id}
+      group={groupOf.get(r.id)}
+      previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
+      links={links}
+    />
+  );
   return (
     <Panel
       heading="Revision history"
@@ -281,40 +307,51 @@ function RevisionHistory({
         </>
       }
     >
-      <ProductStatus
-        words={selectionWords(body)}
-        scope={`Version ${no} of ${total} selected`}
-        asOf={selectedRow?.times.recorded_at ?? null}
-      >
-        {body.audit_only ? (
-          <p className="site-finding__lead" data-history-audit-only>
-            Record only. This site&apos;s assessments are not released for use, so these saved versions are shown as a
-            record, not as the current Finding.
-          </p>
-        ) : null}
-        {latestState === undefined || state.lifecycle === "SUPPORTED" ? null : (
-          <p className="site-finding__lead" data-history-lifecycle={state.lifecycle}>
-            State recorded by the latest version: <strong>{latestState.label}</strong>. {latestState.sentence}
-          </p>
-        )}
-        {!selection.is_latest ? (
-          <p className="site-finding__lead" data-history-earlier-version>
-            Version {no} is selected. It is an earlier version: version {selection.latest_revision_no} replaces it.{" "}
-            <Link to={links.history(selection.latest_revision_id)} data-history-select-latest>
-              Select the latest version
-            </Link>
-          </p>
-        ) : selection.selected_by === "LATEST_RECORDED" ? (
-          <p data-history-latest-at-read>
-            Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
-            <Link to={links.history(selection.revision_id)} data-history-pin>
-              Keep this exact version
-            </Link>
-          </p>
-        ) : (
-          <p data-history-pinned-latest>Version {no}, the latest recorded version, selected by its exact reference.</p>
-        )}
-      </ProductStatus>
+      <p className="v69-state-line" data-history-state-line>
+        <ProductStatus
+          inline
+          words={selectionWords(body)}
+          scope={`Version ${no} of ${total} selected`}
+          asOf={selectedRow?.times.recorded_at ?? null}
+        >
+          {body.audit_only ? (
+            <span className="site-finding__lead" data-history-audit-only>
+              {" "}
+              Record only. This site&apos;s assessments are not released for use, so these saved versions are shown as
+              a record, not as the current Finding.
+            </span>
+          ) : null}
+          {latestState === undefined || state.lifecycle === "SUPPORTED" ? null : (
+            <span className="site-finding__lead" data-history-lifecycle={state.lifecycle}>
+              {" "}
+              State recorded by the latest version: <strong>{latestState.label}</strong>. {latestState.sentence}
+            </span>
+          )}
+          {!selection.is_latest ? (
+            <span className="site-finding__lead" data-history-earlier-version>
+              {" "}
+              Version {no} is selected. It is an earlier version: version {selection.latest_revision_no} replaces it.{" "}
+              <Link to={links.history(selection.latest_revision_id)} data-history-select-latest>
+                Select the latest version
+              </Link>
+            </span>
+          ) : selection.selected_by === "LATEST_RECORDED" ? (
+            <span data-history-latest-at-read>
+              {" "}
+              Latest version at the time of reading (version {no}). A version recorded later would replace it on
+              reload.{" "}
+              <Link to={links.history(selection.revision_id)} data-history-pin>
+                Keep this exact version
+              </Link>
+            </span>
+          ) : (
+            <span data-history-pinned-latest>
+              {" "}
+              Version {no}, the latest recorded version, selected by its exact reference.
+            </span>
+          )}
+        </ProductStatus>
+      </p>
       <p className="site-finding-history__summary">
         <strong data-history-summary>{historyHeadline(body, rows, read)}</strong>{" "}
         {body.earlier_versions === "NONE" ? (
@@ -335,26 +372,21 @@ function RevisionHistory({
           </span>
         ) : null}
       </p>
+      {earlier.length === 0 ? null : (
+        <ShowAll
+          name="finding-history-versions"
+          summary={`Show all ${rows.length} versions (${earlier.length} earlier)`}
+          defaultOpen={earlier.some((r) => r.is_selected)}
+        >
+          <DataTable labelledBy={HEADING_ID}>
+            {versionHead}
+            <tbody>{earlier.map(versionRow)}</tbody>
+          </DataTable>
+        </ShowAll>
+      )}
       <DataTable labelledBy={HEADING_ID}>
-        <thead>
-          <tr>
-            <th scope="col">Version recorded</th>
-            <th scope="col">Event</th>
-            <th scope="col">Basis</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <VersionRow
-              key={r.id}
-              r={r}
-              findingId={body.finding.id}
-              group={groupOf.get(r.id)}
-              previousRecordedAt={r.previous_revision_id ? recordedAt.get(r.previous_revision_id) ?? null : null}
-              links={links}
-            />
-          ))}
-        </tbody>
+        {versionHead}
+        <tbody>{latest.map(versionRow)}</tbody>
       </DataTable>
       {related.length === 0 ? null : (
         <p className="site-finding-history__related" data-history-related-line>
@@ -371,9 +403,8 @@ function RevisionHistory({
         </p>
       )}
       <p className="v69-gap-line" data-history-kept-as-recorded>
-        Versions are kept exactly as recorded. A reading that arrives later adds a new version; it never changes an
-        earlier one. The times above describe each version; they are not a way to view the Finding as of an earlier
-        moment.
+        Versions are kept as recorded; a later reading adds a version and never changes one. The times describe each
+        version; they are not a way to view the Finding as of an earlier moment.
       </p>
       <ExactReferences
         name="finding-history-references"
@@ -425,21 +456,9 @@ function VersionRow({
         </strong>
         {r.is_selected ? <span data-history-selected-mark> · Selected</span> : null}
         {r.is_latest ? <span data-history-latest-mark> · Latest</span> : null}
-        <br />
-        <small>State: {state?.label ?? r.lifecycle}</small>
-        {group ? (
-          <small className="site-finding-history__line" data-history-group>
-            One of {group.count} assessment updates with the amount unchanged (versions {group.first}–{group.last}); each
-            stays its own version.
-          </small>
-        ) : null}
-        {lateEvidence ? (
-          <small className="site-finding-history__line" data-history-late-evidence>
-            Cites readings accepted after version {r.revision_no - 1} was recorded. Version {r.revision_no - 1} keeps the
-            records it cited.
-          </small>
-        ) : null}
         <small className="site-finding-history__line">
+          State: {state?.label ?? r.lifecycle}
+          {" · "}
           <Link to={links.history(r.id)} data-history-select={r.id} aria-current={r.is_selected ? "true" : undefined}>
             Select version {r.revision_no}
           </Link>
@@ -452,12 +471,24 @@ function VersionRow({
             Its evidence
           </Link>
         </small>
+        {group ? (
+          <small className="site-finding-history__line" data-history-group>
+            One of {group.count} assessment updates with the amount unchanged (versions {group.first}–{group.last}); each
+            stays its own version.
+          </small>
+        ) : null}
+        {lateEvidence ? (
+          <small className="site-finding-history__line" data-history-late-evidence>
+            Cites readings accepted after version {r.revision_no - 1} was recorded. Version {r.revision_no - 1} keeps the
+            records it cited.
+          </small>
+        ) : null}
       </td>
       <td>
         <p className="site-finding-history__basis-line" data-history-basis-line>
           {minuteText(r.minutes.candidate)} possibly avoidable; {minuteText(r.minutes.indeterminate)} undecided
         </p>
-        <p className="site-finding-history__basis-line">
+        <div className="site-finding-history__basis-line">
           <span>
             <span data-history-cited={cited.count} data-history-accepted-rows={cited.accepted_rows}>
               {cited.count} cited; {cited.resolved} of {cited.count} found as accepted records
@@ -467,11 +498,11 @@ function VersionRow({
             ) : null}
             .{" "}
             <Link to={links.evidence(r.id)} data-history-check-evidence={r.id}>
-              Check their record trail on the Evidence page
+              Check their record trail
             </Link>
           </span>
-        </p>
-        <Disclosure name={`finding-history-basis-${r.revision_no}`} summary="Times and references">
+          {" · "}
+        <Disclosure variant="inline" name={`finding-history-basis-${r.revision_no}`} summary="Times and references">
         <dl className="site-finding-history__basis">
           <div>
             <dt>Period</dt>
@@ -540,6 +571,7 @@ function VersionRow({
           </div>
         </dl>
         </Disclosure>
+        </div>
       </td>
     </tr>
   );

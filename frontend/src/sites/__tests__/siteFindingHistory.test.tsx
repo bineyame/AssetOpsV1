@@ -596,6 +596,34 @@ describe("W1-F3: Finding History renders exactly the v69 panel (finding-history)
     );
   });
 
+  it("height phase: the default view shows the latest 3 versions; every earlier version stays reachable, oldest first, behind 'Show all N'", async () => {
+    await frame(HISTORY, client({ total: 205 }));
+    const shown = all("[data-history-revision]").filter((r) => visibleOutsideClosedDisclosure(r));
+    expect(shown.map((r) => Number(r.getAttribute("data-history-revision-no")))).toEqual([203, 204, 205]);
+    const showAll = panel().querySelector("details[data-show-all='finding-history-versions']") as HTMLDetailsElement;
+    expect(showAll.open).toBe(false);
+    expect(showAll.querySelector("summary")).toHaveTextContent("Show all 205 versions (202 earlier)");
+    expect(Array.from(showAll.querySelectorAll("[data-history-revision]")).map((r) => Number(r.getAttribute("data-history-revision-no")))).toEqual(
+      Array.from({ length: 202 }, (_, i) => i + 1),
+    );
+    // The state line, the completeness line and the replay disclaimer stay outside any closed disclosure.
+    for (const sel of ["[data-history-state-line]", "[data-history-complete]", "[data-history-kept-as-recorded]"]) {
+      expect(visibleOutsideClosedDisclosure(panel().querySelector(sel)!), sel).toBe(true);
+    }
+  });
+
+  it("height phase: an earlier selected version hidden behind 'Show all' opens the expander so the selection is visible", async () => {
+    await frame(`${HISTORY}?revision_id=${rid(2)}`, client({ total: 205 }));
+    const showAll = panel().querySelector("details[data-show-all='finding-history-versions']") as HTMLDetailsElement;
+    expect(showAll.open).toBe(true);
+    expect(visibleOutsideClosedDisclosure(panel().querySelector(`[data-history-revision='${rid(2)}']`)!)).toBe(true);
+  });
+
+  it("height phase: three or fewer versions need no expander", async () => {
+    await frame(HISTORY, client({ total: 3 }));
+    expect(panel().querySelector("[data-show-all]")).toBeNull();
+  });
+
   it("one version: the same panel says 'No earlier versions.'", async () => {
     await frame(HISTORY, client({ total: 1 }));
     expectV69Panels("finding-history");

@@ -86,3 +86,19 @@
 .site-finding-history__version .disclosure__summary {
   font-size: 11px;
 }
+
+/* W1-F3 height phase: two short lines per cell, as the mock's compact rows. */
+.site-finding-history__version td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 1.5;
+}
+
+.site-finding-history__line {
+  margin-top: 2px;
+}
+
+.site-finding-history .v69-show-all + .data-table-wrap,
+.site-finding-history .v69-show-all {
+  margin-bottom: 6px;
+}
