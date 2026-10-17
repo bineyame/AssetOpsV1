@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
+import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { expectStateLineVisible } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
@@ -414,8 +415,11 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() }, { "rev-current": detail(current) });
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current&block=1");
     await settledScreen();
-    const card = container.querySelector("[data-headline-card='dispatch-story']") as HTMLElement;
-    expect(card.querySelector(".headline-card__question")?.textContent).toBe("Why did the generator operate, and what can the readings support?");
+    // W1-F2: no answer card; the v69 dispatch panels, with the state line in the statusbar above them.
+    expectV69Panels("dispatch", { interval: "04:00–04:15 UTC" }, container.querySelector("section") as HTMLElement);
+    expect(container.querySelector("[data-headline-card]")).toBeNull();
+    const card = container.querySelector(".durable-dispatch__body") as HTMLElement;
+    const blocks = panelTitled("Sources and 15-minute blocks", container);
     expect(card.querySelector("[data-dispatch-headline]")?.textContent).toBe(
       "The generator operated for 30 min to 1 h: 15 min possibly avoidable, 15 min needed and 0 min that cannot be determined.",
     );
@@ -430,7 +434,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     expect(card.querySelector("[data-dispatch-analysis-link]")?.getAttribute("href")).toContain("view=analysis");
     // The rule versions are labelled exact references in the closed disclosure, never default prose.
     expect(defaultText(container)).not.toMatch(/dispatch-3\.1|model version/);
-    const disclosure = scanDisclosureVocabulary(card, "dispatch disclosure");
+    const disclosure = scanDisclosureVocabulary(blocks, "dispatch disclosure");
     expect(disclosure.disclosures).toBe(1);
     expect(describeViolations(disclosure.violations)).toBe("");
     const w1 = scanProductVocabulary(reading(container), "dispatch overview (W1)", { set: "w1" });
@@ -458,7 +462,7 @@ describe("W1-UX-03: dispatch and analysis presentation", () => {
     }, { "rev-current": detail(undetermined) });
     const { container } = mount(client, "?day=2026-10-02&revision=rev-current");
     await settledScreen();
-    const card = container.querySelector("[data-headline-card='dispatch-story']") as HTMLElement;
+    const card = container.querySelector(".durable-dispatch__body") as HTMLElement;
     expect(card.querySelector("[data-dispatch-headline]")?.textContent).toMatch(/^From an earlier result that is not current: /);
     expectStateLineVisible(card);
     expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");

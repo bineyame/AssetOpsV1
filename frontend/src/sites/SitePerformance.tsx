@@ -20,10 +20,10 @@ import {
   type PerformanceDispatchClient,
 } from "./performanceDispatchClient";
 import { awaitingMigration } from "./siteEvidenceClient";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, Fact, FactList, Panel } from "../ui";
+import { ChartNote, DataTable, Fact, FactList, Panel, StatusBar } from "../ui";
 import { AssessmentAnalysis } from "./assessmentAnalysis";
 import { AssessedPeriodTimeline } from "./assessmentGraphics";
 import {
@@ -147,13 +147,15 @@ export function SitePerformance({
   }
   if (declaration.status !== "loaded") {
     return (
-      <Panel heading="Performance unavailable" headingId="site-performance-unavailable-heading">
-        <p>
-          {declaration.status === "unavailable" && declaration.message !== null
+      <LegacyRefused
+        name="performance-unavailable"
+        title="Performance unavailable"
+        reason={
+          declaration.status === "unavailable" && declaration.message !== null
             ? declaration.message
-            : "The site's assessments could not be read."}
-        </p>
-      </Panel>
+            : "The site's assessments could not be read."
+        }
+      />
     );
   }
 
@@ -166,9 +168,7 @@ export function SitePerformance({
   );
   if (subtabs.length === 0) {
     return (
-      <Panel heading="No performance assessment" headingId="site-performance-none-heading">
-        <p>{declaration.value.statement}</p>
-      </Panel>
+      <LegacyRefused name="no-assessment" title="No performance assessment" reason={declaration.value.statement} />
     );
   }
   const current = subtabs.find((item) => item.id === capabilityId) ?? subtabs[0];
@@ -253,17 +253,30 @@ function DispatchView({
     return <p>Loading the site&apos;s assessments.</p>;
   }
   if (awaitingMigration(result)) {
-    return <AwaitingEvidenceMigration surface="dispatch performance" />;
+    return (
+      <LegacyRefused
+        name="awaiting-migration"
+        title="Awaiting evidence migration"
+        reason={
+          <span data-evidence-state="awaiting_migration">
+            This site&apos;s configuration has moved to its stored Foundation versions. Its dispatch performance is
+            awaiting evidence migration, so earlier results are not shown beside the updated configuration.
+          </span>
+        }
+      />
+    );
   }
   if (result.status !== "loaded") {
     return (
-      <Panel heading="Dispatch unavailable" headingId="site-dispatch-unavailable-heading">
-        <p>
-          {result.status === "unavailable" && result.message !== null
+      <LegacyRefused
+        name="dispatch-unavailable"
+        title="Dispatch unavailable"
+        reason={
+          result.status === "unavailable" && result.message !== null
             ? result.message
-            : "The assessed periods could not be read."}
-        </p>
-      </Panel>
+            : "The assessed periods could not be read."
+        }
+      />
     );
   }
 
@@ -287,18 +300,20 @@ function DispatchView({
   withoutSelection.delete("interval");
   const currentResults = localViewSearch(withoutSelection, "overview");
 
+  const intervalTitle =
+    selected === null
+      ? "No block selected"
+      : readablePeriod(selected.interval.first_running_observed, selected.interval.last_running_observed);
+
   return (
-    <section aria-labelledby="site-dispatch-heading" className="dispatch-view">
-      <h2 id="site-dispatch-heading" className="identity-heading">
-        Was the generator needed?
-      </h2>
+    <section aria-label="Was the generator needed?" className="dispatch-view">
       <LocalViews label={DISPATCH_VIEWS_LABEL} current={view} params={params} />
       {selectedId !== null && selected === null ? (
-        <p data-dispatch-selected-missing>
+        <StatusBar data={{ "data-dispatch-selected-missing": "" }}>
           The selected assessed period is not among the current results: it may
           have been withdrawn or replaced. No other period has been put in its
           place. <Link to={{ search: currentResults }}>See the current results</Link>.
-        </p>
+        </StatusBar>
       ) : null}
       {view === "analysis" ? (
         <DispatchAnalysis
@@ -311,94 +326,162 @@ function DispatchView({
           coverageHref={coverageHref}
         />
       ) : (
-        <>
-          <p className="overview-note" data-dispatch-question>
-            For each period the generator operated, this asks whether the
-            reported solar power and battery could have met the site demand
-            instead. Each period, or part of one, is Needed (a recorded reason
-            required the generator), Possibly avoidable (the reported solar power
-            and battery output were more than the demand and no reason was
-            recorded; not proof of wasted fuel) or Cannot determine (the records
-            needed are missing or conflicting). A Needed period is explained here
-            and has no Finding. Times are UTC.
-          </p>
-          {rows.length === 0 ? (
-            <p data-dispatch-empty>
-              No period of generator operation has been assessed from this
-              site&apos;s accepted records.
-            </p>
-          ) : (
-            <DataTable labelledBy="site-dispatch-heading">
-              <thead>
-                <tr>
-                  <th scope="col">Period</th>
-                  <th scope="col">Outcome</th>
-                  <th scope="col">Timeline</th>
-                  <th scope="col">Operating time</th>
-                  <th scope="col">Main reason or missing information</th>
-                  <th scope="col">Finding</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr
-                    key={row.assessment_id}
-                    data-dispatch-interval={row.assessment_id}
-                    data-claim-level={row.claim_level}
-                    aria-selected={row.assessment_id === selectedId}
-                  >
-                    <th scope="row">
-                      <button
-                        type="button"
-                        className="link-button"
-                        onClick={() => select(row.assessment_id)}
+        <LegacySlots
+          view="overview"
+          interval={intervalTitle}
+          first={
+            <>
+              {rows.length === 0 ? (
+                <p data-dispatch-empty>
+                  No period of generator operation has been assessed from this
+                  site&apos;s accepted records.
+                </p>
+              ) : (
+                <DataTable labelledBy="legacy-dispatch-blocks-heading">
+                  <thead>
+                    <tr>
+                      <th scope="col">Period</th>
+                      <th scope="col">Outcome</th>
+                      <th scope="col">Timeline</th>
+                      <th scope="col">Operating time</th>
+                      <th scope="col">Main reason or missing information</th>
+                      <th scope="col">Finding</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr
+                        key={row.assessment_id}
+                        data-dispatch-interval={row.assessment_id}
+                        data-claim-level={row.claim_level}
+                        aria-selected={row.assessment_id === selectedId}
                       >
-                        {readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}
-                      </button>
-                    </th>
-                    <td>
-                      <ClaimBadge
-                        level={row.claim_level}
-                        label={row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}
-                      />
-                    </td>
-                    <td>
-                      <AssessedPeriodTimeline
-                        compact
-                        source={row.assessment}
-                        outcomes={row.assessment.segments.map((_, i) => row.reading?.segments[i]?.outcome)}
-                        assessmentId={row.assessment_id}
-                      />
-                    </td>
-                    <td>{row.reading?.operating_time ?? "Not available"}</td>
-                    <td data-dispatch-reason>{row.reading?.reason ?? "Not available"}</td>
-                    <td>
-                      {row.finding_id === null ? (
-                        <span className="overview-note">No Finding (needed)</span>
-                      ) : (
-                        <Link
-                          to={findingHref(row.finding_id)}
-                          data-dispatch-finding-link={row.finding_id}
-                        >
-                          Open Finding
-                        </Link>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </DataTable>
-          )}
-          {selected === null ? null : (
-            <SelectedInterval
-              row={selected}
-              findingHref={findingHref}
-              analysisSearch={intervalSearch(selected.assessment_id, "analysis")}
-            />
-          )}
-        </>
+                        <th scope="row">
+                          <button
+                            type="button"
+                            className="link-button"
+                            onClick={() => select(row.assessment_id)}
+                          >
+                            {readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}
+                          </button>
+                        </th>
+                        <td>
+                          <ClaimBadge
+                            level={row.claim_level}
+                            label={row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}
+                          />
+                        </td>
+                        <td>
+                          <AssessedPeriodTimeline
+                            compact
+                            source={row.assessment}
+                            outcomes={row.assessment.segments.map((_, i) => row.reading?.segments[i]?.outcome)}
+                            assessmentId={row.assessment_id}
+                          />
+                        </td>
+                        <td>{row.reading?.operating_time ?? "Not available"}</td>
+                        <td data-dispatch-reason>{row.reading?.reason ?? "Not available"}</td>
+                        <td>
+                          {row.finding_id === null ? (
+                            <span className="overview-note">No Finding (needed)</span>
+                          ) : (
+                            <Link
+                              to={findingHref(row.finding_id)}
+                              data-dispatch-finding-link={row.finding_id}
+                            >
+                              Open Finding
+                            </Link>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </DataTable>
+              )}
+              <ChartNote data={{ "data-dispatch-question": "" }}>
+                Each period, or part of one, is Needed (a recorded reason required the generator), Possibly avoidable
+                (the reported solar power and battery output were more than the demand and no reason was recorded; not
+                proof of wasted fuel) or Cannot determine (the records needed are missing or conflicting). A Needed
+                period is explained here and has no Finding. Times are UTC.
+              </ChartNote>
+            </>
+          }
+          second={
+            selected === null ? (
+              <p className="chart-note" data-dispatch-selected="none">
+                No period selected. Select a period in the list to see its reading.
+              </p>
+            ) : (
+              <SelectedInterval
+                row={selected}
+                findingHref={findingHref}
+                analysisSearch={intervalSearch(selected.assessment_id, "analysis")}
+              />
+            )
+          }
+          third={
+            <p data-dispatch-coverage="per-period">
+              This list carries no accepted-sample coverage for the day. Each period&apos;s record coverage is on its
+              Analysis view.
+            </p>
+          }
+        />
       )}
     </section>
+  );
+}
+
+/**
+ * W1-F2: a page-level state stated before the v69 Dispatch panels; each panel states the gap inside it.
+ * (The Analysis view of a refused read keeps the Dispatch slots: the refusal precedes any view choice.)
+ */
+function LegacyRefused({ name, title, reason }: { name: string; title: string; reason: ReactNode }) {
+  const gap = <p data-dispatch-gap={name}>Not shown: {title.toLowerCase()}. Nothing is put in its place.</p>;
+  return (
+    <div className="site-performance" data-dispatch-refused={name}>
+      <div className="page-refusal" data-page-refusal={name}>
+        <p className="page-refusal__title">
+          <strong>{title}</strong>
+        </p>
+        <p>{reason}</p>
+      </div>
+      <LegacySlots view="overview" interval="No block selected" first={gap} second={gap} third={gap} />
+    </div>
+  );
+}
+
+/** W1-F2: the v69 `dispatch` / `analysis` panel grid for a legacy Site's Dispatch (pair, then one full panel). */
+function LegacySlots({
+  view,
+  interval,
+  first,
+  second,
+  third,
+}: {
+  view: "overview" | "analysis";
+  interval: string;
+  first: ReactNode;
+  second: ReactNode;
+  third: ReactNode;
+}) {
+  const titles =
+    view === "analysis"
+      ? ["Constraint comparison", "Bounded fuel calculation", "Coverage, confidence and alternatives"]
+      : ["Sources and 15-minute blocks", `Selected block · ${interval}`, "Accepted sample coverage"];
+  return (
+    <>
+      <div className="panel-pair">
+        <Panel heading={titles[0]} headingId="legacy-dispatch-blocks-heading">
+          {first}
+        </Panel>
+        <Panel heading={titles[1]} headingId="site-dispatch-selected-heading">
+          {second}
+        </Panel>
+      </div>
+      <Panel heading={titles[2]} headingId="legacy-dispatch-coverage-heading">
+        {third}
+      </Panel>
+    </>
   );
 }
 
@@ -413,10 +496,6 @@ function SelectedInterval({
 }) {
   const reading = row.reading;
   return (
-    <Panel
-      heading={`Period ${readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}`}
-      headingId="site-dispatch-selected-heading"
-    >
       <div data-dispatch-selected={row.assessment_id}>
         {reading === undefined ? (
           <p>The plain reading of this period is not available.</p>
@@ -445,7 +524,9 @@ function SelectedInterval({
                 <li key={line}>{line}</li>
               ))}
             </ul>
-            <h3 className="finding-section__heading">What to check next</h3>
+            <p>
+              <strong>What to check next</strong>
+            </p>
             <NextSteps reading={reading} href={() => null} />
           </>
         )}
@@ -466,7 +547,6 @@ function SelectedInterval({
           </li>
         </ul>
       </div>
-    </Panel>
   );
 }
 
@@ -487,52 +567,84 @@ function DispatchAnalysis({
   recordHref: (link: EvidenceLink) => string;
   coverageHref?: (assessmentId: string) => string;
 }) {
-  if (rows.length === 0) {
-    return (
-      <p data-dispatch-analysis-empty>
-        No period of generator operation has been assessed from this site&apos;s
-        accepted records, so there is nothing to analyse yet.
-      </p>
-    );
-  }
+  const fuel = selected?.reading?.fuel ?? null;
   return (
     <div data-dispatch-analysis={selected?.assessment_id ?? "none"}>
-      <p className="overview-note">
-        The analysis of one assessed period: how its outcome follows from the
-        reported values. Choose a period:
-      </p>
-      <ul className="cell-list" data-dispatch-analysis-periods>
-        {rows.map((row) => (
-          <li key={row.assessment_id}>
-            <Link
-              to={{ search: intervalSearch(row.assessment_id, "analysis") }}
-              aria-current={row.assessment_id === selected?.assessment_id ? "true" : undefined}
-            >
-              {`${readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}: ${row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}`}
-            </Link>
-          </li>
-        ))}
-      </ul>
-      {selected === null ? null : (
-        <AssessmentAnalysis
-          summary={selected}
-          assessment={selected.assessment}
-          records={{ kind: "record", href: recordHref }}
-          coverageHref={coverageHref?.(selected.assessment_id)}
-          alternativesHref={
-            selected.finding_id === null ? null : `${findingHref(selected.finding_id)}/alternatives`
-          }
-          links={
-            selected.finding_id === null ? null : (
-              <li>
-                <Link to={findingAnalysisHref(selected.finding_id)}>
-                  Open this period&apos;s Finding
-                </Link>
-              </li>
-            )
-          }
-        />
-      )}
+      <LegacySlots
+        view="analysis"
+        interval=""
+        first={
+          rows.length === 0 ? (
+            <p data-dispatch-analysis-empty>
+              No period of generator operation has been assessed from this site&apos;s
+              accepted records, so there is nothing to analyse yet.
+            </p>
+          ) : (
+            <>
+              <ul className="cell-list" data-dispatch-analysis-periods aria-label="Choose a period">
+                {rows.map((row) => (
+                  <li key={row.assessment_id}>
+                    <Link
+                      to={{ search: intervalSearch(row.assessment_id, "analysis") }}
+                      aria-current={row.assessment_id === selected?.assessment_id ? "true" : undefined}
+                    >
+                      {`${readablePeriod(row.interval.first_running_observed, row.interval.last_running_observed)}: ${row.reading?.outcome ?? OUTCOME_WORDS[row.claim_level] ?? "Assessed"}`}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {selected === null ? (
+                <p className="chart-note">Choose a period to see how its outcome follows from the reported values.</p>
+              ) : (
+                <AssessmentAnalysis
+                  summary={selected}
+                  assessment={selected.assessment}
+                  records={{ kind: "record", href: recordHref }}
+                  coverageHref={coverageHref?.(selected.assessment_id)}
+                  alternativesHref={
+                    selected.finding_id === null ? null : `${findingHref(selected.finding_id)}/alternatives`
+                  }
+                  links={
+                    selected.finding_id === null ? null : (
+                      <li>
+                        <Link to={findingAnalysisHref(selected.finding_id)}>
+                          Open this period&apos;s Finding
+                        </Link>
+                      </li>
+                    )
+                  }
+                />
+              )}
+            </>
+          )
+        }
+        second={
+          fuel === null || fuel.text === null ? (
+            <p data-dispatch-fuel="none">No supported calculation for the selected period.</p>
+          ) : (
+            <p data-dispatch-fuel="stated">{`${fuel.label}: ${fuel.text}. ${fuel.note}`}</p>
+          )
+        }
+        third={
+          selected === null || selected.reading === undefined ? (
+            <p data-dispatch-confidence="none">No period selected, so no coverage or confidence is stated.</p>
+          ) : (
+            <>
+              <p>
+                Confidence: {selected.reading.confidence.word}
+                {selected.reading.confidence.principal_limitation === null
+                  ? ""
+                  : `. ${selected.reading.confidence.principal_limitation}`}
+              </p>
+              <ul className="cell-list" data-claim-limits>
+                {selected.reading.limits.map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+            </>
+          )
+        }
+      />
     </div>
   );
 }
