@@ -1,0 +1,83 @@
+/* W1-UX-02 group A: Sites directory and the selected-day Overview (sites/SitesIndex.tsx, sites/SiteWindowOverview.tsx). */
+
+/* Sites directory: the registered-scope cards beside the answer. Stacked at narrow widths. */
+.sites-scope {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  min-width: 0;
+}
+.sites-scope__card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 0.625rem 0.75rem;
+  background: var(--surface-sunken);
+  min-width: 0;
+}
+.sites-scope__term {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.sites-scope__value {
+  margin: 0.125rem 0 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+.sites-scope__detail {
+  margin: 0.125rem 0 0;
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .sites-scope { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Overview: the lead answer spans the grid; the rest stack under it. */
+.site-window-overview__lead {
+  min-width: 0;
+}
+
+/* Overview day timeline: a readable legend under the bars. */
+.window-timeline-figure {
+  margin: 0;
+  min-width: 0;
+}
+.window-timeline-figure__caption {
+  margin: 0 0 0.5rem;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+.window-timeline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem 1rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+.window-timeline-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.window-timeline-legend__swatch {
+  position: relative;
+  display: inline-block;
+  width: 1rem;
+  height: 0.625rem;
+  border-radius: 2px;
+}
+.window-timeline-legend__swatch.window-timeline__bar {
+  position: relative;
+  top: auto;
+  bottom: auto;
+}
+
+/* Exact-reference tables and long values scroll inside their own wrapper at 390 px. */
+.site-window-overview .exact-references,
+[data-headline-card="sites-directory"] .exact-references {
+  max-width: 100%;
+  overflow-x: auto;
+}

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { Disclosure, Fact, FactList, Panel } from "../ui";
+import { ExactReferences, Fact, FactList, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
 import type { ConsequenceHistoryBody, ConsequenceHistoryResult, ConsequenceHistoryRow } from "./financialsClient";
 import { priceWords, quantityWords } from "./FindingConsequence";
 import { formatInstant } from "./FoundationRevisionPanel";
@@ -52,14 +52,17 @@ const CHANGE_WORDS: Record<string, string | null> = {
   PRIOR_UNREADABLE: null,
 };
 
-function Ref({ label, value }: { label: string; value: string | null }) {
-  if (value === null) return null;
-  return (
-    <p>
-      {label}: <code data-vocabulary-exempt="source-reference">{value}</code>
-    </p>
-  );
-}
+/**
+ * W1-UX-02: the state line of the Interpretation history. Every version here is a recorded one, shown as it
+ * was; the line never says or implies a current amount (`D-2026-10-16-s408` Q3).
+ */
+const RECORDED_WORDS: ProductWords = {
+  label: "Recorded versions, kept for the record",
+  sentence: "Every amount here is shown as it was recorded. None of them is a current cost, and none is added up.",
+  tone: "neutral",
+  code: "HISTORICAL",
+  unrecognised: false,
+};
 
 function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: FinancialsLinks; pinnedCutoff?: string }) {
   const current = row.at_cutoff === "CURRENT_AT_CUTOFF";
@@ -126,19 +129,22 @@ function Row({ row, links, pinnedCutoff }: { row: ConsequenceHistoryRow; links: 
           Open the finding
         </Link>
       </p>
-      <Disclosure summary="How this was worked out" name={`history-${row.consequence_revision_id}`}>
-        <p>
-          This version is kept exactly as it was recorded. Its price is the one its own record names, not today's
-          price. {current
-            ? "It is the latest version recorded for the latest version of its finding at this moment."
-            : "A later version of the same finding, or of its fuel cost, had been recorded by this moment."}
-        </p>
-        <Ref label="Finding" value={row.finding_id} />
-        <Ref label="Finding version" value={row.finding_revision_id} />
-        <Ref label="Fuel cost version" value={row.consequence_revision_id} />
-        <Ref label="Price version" value={row.price.price_revision_id} />
-        <Ref label="Recorded at" value={row.recorded_at} />
-      </Disclosure>
+      <p className="muted">
+        This version is kept exactly as it was recorded. Its price is the one its own record names, not today's
+        price. {current
+          ? "It is the latest version recorded for the latest version of its finding at this moment."
+          : "A later version of the same finding, or of its fuel cost, had been recorded by this moment."}
+      </p>
+      <ExactReferences
+        name={`history-${row.consequence_revision_id}`}
+        references={[
+          { label: "Finding reference", value: row.finding_id },
+          { label: "Finding version reference", value: row.finding_revision_id },
+          { label: "Fuel cost version reference", value: row.consequence_revision_id },
+          ...(row.price.price_revision_id !== null ? [{ label: "Price version reference", value: row.price.price_revision_id }] : []),
+          { label: "Recorded at", value: row.recorded_at },
+        ]}
+      />
     </li>
   );
 }
@@ -163,10 +169,9 @@ export function ConsequenceHistoryPanel({
       description="Every fuel cost version this site had recorded at the moment below, newest first, with the price each one used. Earlier versions are kept for the record."
     >
       <div data-consequence-history="loaded" data-history-cutoff={cutoff} data-history-selected-by={body.cutoff.selected_by}>
-        <p className="notice">
-          {siteName}, as recorded at {formatInstant(cutoff)}. These are recorded amounts for the record only; no amount
-          here is a current cost, and none is added up.
-        </p>
+        <div data-history-state="recorded">
+          <ProductStatus words={RECORDED_WORDS} scope={`${siteName}, every fuel cost version recorded by this moment`} asOf={cutoff} />
+        </div>
         {!body.source_gate.open ? (
           <p className="notice" data-history-source-closed>
             This site's source is closed, so every version is listed without an amount.
@@ -222,7 +227,31 @@ export function ConsequenceHistoryRefused({ read }: { read: Exclude<ConsequenceH
   };
   return (
     <Panel heading="Interpretation history" headingId="site-consequence-history-heading">
-      <p data-consequence-history={read.status}>{words[read.status]}</p>
+      <div data-history-state={read.status}>
+        <ProductStatus words={refusedWords(read.status)} scope="This site's fuel cost versions" asOf={null}>
+          <p data-consequence-history={read.status}>{words[read.status]}</p>
+        </ProductStatus>
+      </div>
     </Panel>
   );
+}
+
+/** W1-UX-02: how a refused history read ended, in the shared words; a changed list is its own waiting state. */
+function refusedWords(status: Exclude<ConsequenceHistoryResult, { status: "loaded" }>["status"]): ProductWords {
+  switch (status) {
+    case "not_found":
+      return readResultWords("not-found");
+    case "unavailable":
+      return readResultWords("unavailable");
+    case "basis_changed":
+      return {
+        label: "The list changed while you were reading",
+        sentence: "New versions were recorded, so the list starts again from the newest. Nothing is lost.",
+        tone: "waiting",
+        code: status,
+        unrecognised: false,
+      };
+    default:
+      return readResultWords("refused");
+  }
 }

@@ -26,7 +26,8 @@ import {
   notCurrent,
 } from "../../sites/__tests__/findingIndexFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible } from "../../test/productPresentation";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
@@ -61,6 +62,26 @@ function renderAt(path: string, index: FindingIndexClient) {
 const where = () => document.querySelector("[data-location]")?.textContent ?? "";
 const state = () => document.querySelector("[data-finding-index-state]")?.getAttribute("data-finding-index-state");
 const query = () => new URLSearchParams(where().split("?")[1] ?? "");
+const card = () => document.querySelector('[data-headline-card="site-findings"]') as HTMLElement;
+
+/** The exact value under a labelled row of the closed exact-reference disclosure. */
+function exactValue(label: string): string | null {
+  const disclosure = card().querySelector("details[data-exact-references]");
+  expect(disclosure, "an exact-reference disclosure").not.toBeNull();
+  for (const row of Array.from(disclosure!.querySelectorAll(".exact-references__row"))) {
+    if (row.querySelector("dt")?.textContent === label) return row.querySelector("dd code")?.textContent ?? null;
+  }
+  return null;
+}
+
+/** The day strip step for one plain day. */
+function dayStep(day: string): HTMLElement | null {
+  return (
+    Array.from(card().querySelectorAll<HTMLElement>("[data-step-strip] [data-step]")).find(
+      (step) => step.querySelector(".step-strip__label")?.textContent === day,
+    ) ?? null
+  );
+}
 
 function noClaim() {
   expect(document.querySelector("[data-finding-index-row]")).toBeNull();
@@ -92,8 +113,11 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     ]);
     expect(state()).toBe("current-empty");
     expect(screen.getByRole("heading", { name: "No Findings in this window" })).toBeInTheDocument();
-    expect(document.querySelector("[data-finding-index-token]")?.textContent).toBe(TOKEN);
-    expect(document.querySelector('[data-finding-index-day="2026-10-25"]')?.textContent).toContain("Assessed");
+    // W1-UX-02: the list reference moved into the labelled exact-reference disclosure, and the
+    // per-day basis into the day strip (checked and matched).
+    expect(exactValue("List reference")).toBe(TOKEN);
+    expect(dayStep("25 Oct 2026")?.getAttribute("data-step")).toBe("done");
+    expect(dayStep("25 Oct 2026")?.textContent).toContain("Checked, and Findings matched");
     expect(document.querySelector("[data-finding-index-row]")).toBeNull();
     const { violations } = scanProductVocabulary(document.body, "site findings empty");
     expect(violations, describeViolations(violations)).toEqual([]);
@@ -141,10 +165,10 @@ describe("S4-04 Site Findings index: positive rows (sitefindings:1#b)", () => {
       `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,
       `/sites/${SITE_ID}/findings/${FID_A}?revision_id=${RID_A}`,
     ]);
-    expect(within(rows[0] as HTMLElement).getByRole("link", { name: FID_A.slice(0, 8) })).toHaveAttribute(
-      "href",
-      `/sites/${SITE_ID}/findings/${FID_A}`,
-    );
+    // W1-UX-02: the related-Finding link reads in words; it still opens the exact related Finding.
+    const related = within(rows[0] as HTMLElement).getByRole("link", { name: "Recurs after an earlier Finding" });
+    expect(related).toHaveAttribute("href", `/sites/${SITE_ID}/findings/${FID_A}`);
+    expect(related.getAttribute("data-finding-index-related")).toBe(FID_A);
     expect(within(rows[1] as HTMLElement).getByText("No longer supported")).toBeInTheDocument();
     for (const cell of document.querySelectorAll("[data-finding-index-amount]")) {
       expect(cell.getAttribute("data-finding-index-amount")).toBe("UNAVAILABLE");
@@ -196,7 +220,8 @@ describe("S4-04 Site Findings index: no rows, no count, no empty claim", () => {
     noClaim();
     if (result.status === "loaded") {
       expect(screen.getByText(/This is not a statement that the window has no Findings/)).toBeInTheDocument();
-      expect(document.querySelector("[data-finding-index-reasons]")?.textContent).toContain("2026-10-25");
+      // W1-UX-02: the raw recorded reason moved into the labelled exact-reference disclosure.
+      expect(exactValue("Reason recorded 1")).toMatch(/^2026-10-25: /);
     }
   });
 
@@ -226,5 +251,171 @@ describe("S4-04 Site Findings index: a Site with no imported record", () => {
     expect(document.querySelector('[data-findings-index="site"]')).not.toBeNull();
     expect(document.querySelector('[data-findings-index="site-window"]')).toBeNull();
     expect(state()).toBeUndefined();
+  });
+});
+
+describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
+  const AS_OF = /^As of \d{1,2} \w{3} \d{4}, \d{2}:\d{2} UTC$/;
+
+  function w1Scans(page: string) {
+    const main = document.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, `${page} (W1)`, { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(8);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const t028 = scanProductVocabulary(main, page);
+    expect(t028.violations, describeViolations(t028.violations)).toEqual([]);
+  }
+
+  function disclosureScan(page: string) {
+    const disclosure = scanDisclosureVocabulary(card(), `${page} disclosure`);
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.scanned).toBeGreaterThan(0);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+  }
+
+  function outsideDisclosure(): string {
+    const details = card().querySelector("details[data-exact-references]");
+    return (card().textContent ?? "").replace(details?.textContent ?? "", "");
+  }
+
+  it("populated: leads with the question, the count, a current state line and the rows; references stay closed", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: ROWS }));
+    renderAt(PATH, client);
+    await settledScreen();
+    expect(card().textContent).toContain("Which Findings belong to this site?");
+    expect(expectStateLineVisible(card())).toBe("Using the latest checked readings");
+    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    expect(card().querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
+    expect(card().querySelectorAll("[data-finding-index-row]")).toHaveLength(2);
+    expect(card().querySelectorAll("[data-step-strip] [data-step]").length, "the day strip is the card's visual beside the rows").toBeGreaterThan(0);
+    expect(within(card()).getByRole("link", { name: "Open the newest Finding" })).toHaveAttribute(
+      "href",
+      `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,
+    );
+    // Opaque page and list references live only in the closed disclosure, not in the default reading.
+    expect(exactValue("Next page reference")).toBe("cursor-page-2");
+    expect(exactValue("List reference")).toBe(TOKEN);
+    const details = card().querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")?.textContent).toBe("How this was worked out");
+    const outside = outsideDisclosure();
+    for (const raw of ["cursor-page-2", TOKEN, FID_A, FID_B, RID_A, RID_B, FID_A.slice(0, 8), "CURRENT", "SUPPORTED"]) {
+      expect(outside).not.toContain(raw);
+    }
+    // The exact references come last in the card.
+    const body = card().querySelector(".headline-card__body") as HTMLElement;
+    expect(body.lastElementChild).toBe(details);
+    w1Scans("site findings rows");
+    disclosureScan("site findings rows");
+  });
+
+  it("proved zero: a current empty window says so with a plain As of beside the claim", async () => {
+    const { client } = indexClient(() => ({ status: "loaded", value: indexBody() }));
+    renderAt(PATH, client);
+    await settledScreen();
+    expect(state()).toBe("current-empty");
+    expect(screen.getByRole("heading", { name: "No Findings in this window" })).toBeInTheDocument();
+    expect(expectStateLineVisible(card())).toBe("Checked: nothing to report");
+    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
+    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 30 Oct 2026, 08:00 UTC");
+    w1Scans("site findings empty");
+    disclosureScan("site findings empty");
+  });
+
+  const notCurrentCases: [string, Parameters<typeof notCurrent>[0], string, string, string][] = [
+    ["pending", "PENDING", "MATCH_PENDING", "Not checked yet", "waiting"],
+    ["unassessed", "UNASSESSED", "no selection", "We have not checked this period", "not-known"],
+    ["stale (late readings)", "STALE_PROJECTION", "late evidence", "This result may miss newer readings", "waiting"],
+    ["failed", "FAILED", "RECOMPUTE_FAILED", "The latest check could not be completed", "problem"],
+  ];
+  it.each(notCurrentCases)("%s: a non-positive state line, no count, no rows, no zero claim", async (_n, status, reason, label, step) => {
+    const body = notCurrent(status, reason);
+    body.watermarks.days[0] = { ...body.watermarks.days[0], status };
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client);
+    await settledScreen();
+    noClaim();
+    expect(expectStateLineVisible(card())).toBe(label);
+    expect(card().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(card().querySelector("[data-product-status-as-of]")?.textContent).toMatch(AS_OF);
+    expect(screen.getByRole("heading", { name: "The Findings for this window are not known" })).toBeInTheDocument();
+    expect(screen.getByText(/This is not a statement that the window has no Findings/)).toBeInTheDocument();
+    expect(dayStep("25 Oct 2026")?.getAttribute("data-step")).toBe(step);
+    expect(exactValue("Recorded list state")).toBe(status);
+    expect(exactValue("Reason recorded 1")).toBe(`2026-10-25: ${reason}`);
+    const outside = outsideDisclosure();
+    expect(outside).not.toContain(status);
+    expect(outside).not.toContain(reason);
+    w1Scans(`site findings ${status}`);
+    disclosureScan(`site findings ${status}`);
+  });
+
+  it("an unrecognised list state falls back non-positively", async () => {
+    const body = notCurrent("PENDING", "x");
+    (body as { status: string }).status = "SOMETHING_NEW";
+    const { client } = indexClient(() => ({ status: "loaded", value: body }));
+    renderAt(PATH, client);
+    await settledScreen();
+    noClaim();
+    expect(expectStateLineVisible(card())).toBe("We cannot judge this yet");
+    expect(card().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+  });
+
+  /** A refused or unavailable read records no time: explicit checks instead of the timed helper. */
+  function expectUntimedStateLine(label: string) {
+    const status = card().querySelector("[data-product-status]") as HTMLElement;
+    expect(status).not.toBeNull();
+    expect(status.getAttribute("data-product-status")).not.toBe("positive");
+    expect(status.closest("details")).toBeNull();
+    expect(status.querySelector("[data-product-status-label]")?.textContent).toBe(label);
+    expect((status.querySelector(".product-status__sentence")?.textContent ?? "").length).toBeGreaterThan(10);
+    expect(status.querySelector("[data-product-status-scope]")?.textContent).toContain("25 Oct 2026");
+    expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+    for (const details of Array.from(card().querySelectorAll<HTMLDetailsElement>("details"))) {
+      expect(details.open).toBe(false);
+    }
+  }
+
+  const refusedCases: [string, FindingIndexResult, string, string][] = [
+    ["refused (no access)", { status: "forbidden", message: null }, "forbidden", "This cannot be shown to you"],
+    ["unavailable", { status: "unavailable", message: null }, "unavailable", "This could not be read right now"],
+    ["closed", { status: "closed", message: "Performance comparison has not passed", note: "n" }, "closed", "Not released for this Site"],
+    [
+      "continuity limit",
+      { status: "continuity_limit", message: null, limitDays: 62, inspectedFrom: "2026-08-01", inspectedTo: "2026-10-01" },
+      "continuity-limit",
+      "The list cannot be completed",
+    ],
+    ["unauthenticated", { status: "unauthenticated", message: null }, "unauthenticated", "Sign in needed"],
+    ["invalid", { status: "invalid", message: null, code: "INVALID_WINDOW", field: "to" }, "invalid", "This window is not valid"],
+  ];
+  it.each(refusedCases)("%s: a distinct non-positive state line with no time, no count and no zero claim", async (_n, result, expected, label) => {
+    const { client } = indexClient(() => result);
+    renderAt(PATH, client);
+    await settledScreen();
+    expect(state()).toBe(expected);
+    noClaim();
+    expectUntimedStateLine(label);
+    expect(card().textContent).toContain("Which Findings belong to this site?");
+    const main = document.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, `site findings ${expected} (W1)`, { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    if (result.status === "invalid") {
+      expect(exactValue("Recorded reason")).toBe("INVALID_WINDOW");
+      expect(outsideDisclosure()).not.toContain("INVALID_WINDOW");
+      disclosureScan("site findings invalid");
+    }
+  });
+
+  it("a changed list keeps its raw reason and old page reference only in exact detail", async () => {
+    const { client } = indexClient(() => ({ status: "basis_changed", message: "changed", reason: "SELECTION_CHANGED" }));
+    renderAt(`${PATH}&cursor=old-cursor`, client);
+    await settledScreen();
+    expectUntimedStateLine("The list changed while you were reading it");
+    expect(exactValue("Recorded reason")).toBe("SELECTION_CHANGED");
+    expect(exactValue("Old page reference")).toBe("old-cursor");
+    expect(outsideDisclosure()).not.toContain("SELECTION_CHANGED");
+    w1Scans("site findings basis changed");
+    disclosureScan("site findings basis changed");
   });
 });

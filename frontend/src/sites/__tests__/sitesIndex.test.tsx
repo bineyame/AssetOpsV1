@@ -7,6 +7,8 @@ import type { SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteListResult, SiteSummary } from "../siteReadModel";
 import { deriveSiteView } from "../siteViewModel";
 import { spacedText } from "../../test/text";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
+import { settledScreen } from "../../test/settled";
 
 /**
  * Tests for the shared Site presentation substrate.
@@ -473,6 +475,10 @@ describe("the index shows no capability the product lacks", () => {
         control.getAttribute("id") ?? control.getAttribute("href"),
       ]),
     ).toEqual([
+      // W1-UX-02: the answer card's closed exact-reference disclosure (site
+      // references only), named here so any other control still fails.
+      ["DETAILS", null],
+      ["SUMMARY", null],
       ["INPUT", "sites-search"],
       ["SELECT", "sites-type"],
       ["SELECT", "sites-mode"],
@@ -661,5 +667,85 @@ describe("the substrate is a leaf with no shell discriminant", () => {
     // only be a same-input assertion today. The real render-equivalence guard
     // needs a second consumer and ships with the Lab's site view.
     expect(second.container.innerHTML).toBe(firstMarkup);
+  });
+});
+
+/** The explicit closed-disclosure checks for a state line whose read carries no time. */
+function expectUntimedStateLine(card: Element, label: string) {
+  const status = card.querySelector("[data-product-status]") as HTMLElement;
+  expect(status, "a shared state line is rendered").not.toBeNull();
+  for (const details of Array.from(card.querySelectorAll<HTMLDetailsElement>("details[data-exact-references]"))) {
+    expect(details.open).toBe(false);
+  }
+  expect(status.querySelector("[data-product-status-label]")?.textContent).toBe(label);
+  expect((status.querySelector(".product-status__sentence")?.textContent ?? "").trim().length).toBeGreaterThan(0);
+  expect(status.querySelector("[data-product-status-scope]")?.textContent).toBe("All registered sites");
+  expect(status.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+  expect(status.closest("details")).toBeNull();
+}
+
+describe("W1-UX-02: the Sites directory (sites) on the W1 set", () => {
+  it("answers which site to open by identity only, with registered scope, a closed exact-reference disclosure and no attention claim", async () => {
+    const { container } = renderIndex({
+      status: "loaded",
+      sites: [USER_SIMULATED_SITE, { ...SHIPPED_SIMULATED_SITE, configuration_store: "POSTGRES" }],
+    });
+    await screen.findByRole("table");
+    await settledScreen();
+    const card = container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
+    expect(card).not.toBeNull();
+    expect(card.querySelector(".headline-card__question")?.textContent).toBe("Which site should I open?");
+    expect(card.querySelector(".headline-card__headline")?.textContent).toBe("2 registered sites: open one by name below.");
+    expectUntimedStateLine(card, "Registered sites, not ranked");
+    // The material limit sits beside the answer, outside any disclosure.
+    expect(card.querySelector(".product-status__sentence")?.textContent).toContain("does not judge how any site is operating");
+    expect(card.querySelector("[data-sites-scope]")?.textContent).toContain("Mini-grid: 1");
+    expect(card.querySelector("[data-sites-scope]")?.textContent).toContain("Demonstration data: 2");
+    expect(card.querySelector("[data-sites-scope-limit]")?.textContent).toContain("Not judged in this list");
+    // No condition, ranking or attention is claimed anywhere on the card.
+    expect(card.textContent).not.toMatch(/needs attention|healthy|top issue|degraded/i);
+    // Exact references: each site's reference and registration store, labelled, in the closed disclosure.
+    const details = card.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    const codes = Array.from(details.querySelectorAll("code")).map((c) => c.textContent);
+    expect(codes).toEqual(["MG-002", "CC-001", "POSTGRES"]);
+    expect(details.textContent).toContain("Kalangala Mini-Grid: registration storenot recorded");
+    const w1 = scanProductVocabulary(container, "sites directory (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(20);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const d = scanDisclosureVocabulary(card, "sites directory disclosure");
+    expect(d.disclosures).toBe(1);
+    expect(d.scanned).toBeGreaterThan(2);
+    expect(d.violations, describeViolations(d.violations)).toEqual([]);
+    // The three missing claims stay unchanged beside the inventory.
+    expect(container.querySelectorAll("[data-gap-id]")).toHaveLength(5);
+  });
+
+  it("the empty and unreadable directories state themselves on the same card, distinctly, with no count", async () => {
+    const empty = renderIndex({ status: "loaded", sites: [] });
+    await screen.findByRole("heading", { level: 2, name: "No sites configured" });
+    const emptyCard = empty.container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
+    expectUntimedStateLine(emptyCard, "No sites registered");
+    expect(emptyCard.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe("neutral");
+    const emptyScan = scanProductVocabulary(empty.container, "sites empty (W1)", { set: "w1" });
+    expect(emptyScan.violations, describeViolations(emptyScan.violations)).toEqual([]);
+    empty.unmount();
+
+    const unreadable = renderIndex({ status: "unavailable" });
+    await screen.findByRole("heading", { level: 2, name: "Sites unavailable" });
+    const card = unreadable.container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
+    expectUntimedStateLine(card, "This could not be read right now");
+    expect(card.querySelector(".product-status__sentence")?.textContent).toContain("It is not empty");
+    expect(card.textContent).not.toMatch(/No sites registered/);
+    const scan = scanProductVocabulary(unreadable.container, "sites unreadable (W1)", { set: "w1" });
+    expect(scan.violations, describeViolations(scan.violations)).toEqual([]);
+  });
+
+  it("a loaded directory with one site uses the singular and stays unranked", async () => {
+    const { container } = renderIndex({ status: "loaded", sites: [USER_SIMULATED_SITE] });
+    await screen.findByRole("table");
+    const card = container.querySelector('[data-headline-card="sites-directory"]') as HTMLElement;
+    expect(card.querySelector(".headline-card__headline")?.textContent).toBe("1 registered site: open one by name below.");
+    expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
   });
 });

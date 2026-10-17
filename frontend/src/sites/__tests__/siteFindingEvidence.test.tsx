@@ -8,7 +8,8 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
-import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
+import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
+import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import type { SourceProvenance } from "../sourceProvenance";
 import {
@@ -19,7 +20,7 @@ import {
   type FindingReadResult,
   type FindingWindowBody,
 } from "../findingClient";
-import { LegacyFindingEvidence, SiteFindingEvidence } from "../SiteFindingEvidence";
+import { LINK_DISPLAY_OVERRIDES, LINK_DISPLAY_WORDS, LINK_WORDS, LegacyFindingEvidence, SiteFindingEvidence } from "../SiteFindingEvidence";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 
@@ -240,7 +241,9 @@ async function mount(client: FindingClient, search = "") {
           path="/sites/:siteId/findings/:findingId/evidence"
           element={
             <>
-              <SiteFindingEvidence siteId={SITE} findingId={F} client={client} links={LINKS} />
+              <main>
+                <SiteFindingEvidence siteId={SITE} findingId={F} client={client} links={LINKS} />
+              </main>
               <Where />
             </>
           }
@@ -254,6 +257,13 @@ async function mount(client: FindingClient, search = "") {
 }
 
 const q = (selector: string) => document.querySelector(selector);
+
+/** W1-UX-02: the notes of a state line after its state label and sentence, in order. */
+function statusNotes(note: Element): Element[] {
+  return Array.from(note.parentElement?.children ?? []).filter(
+    (el) => !el.matches(".product-status__label, .product-status__sentence"),
+  );
+}
 
 
 /** S4-05b: a stored source provenance block for the selected version. */
@@ -360,8 +370,10 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
     await mount(fake({ status: "loaded", value }), `?revision_id=${R2}`);
     const lead = q("[data-evidence-audit-only]") as HTMLElement;
     expect(lead).toHaveTextContent("Record only");
-    const selection = lead.closest("section") as HTMLElement;
-    expect(selection.querySelector("p")).toBe(lead);
+    // W1-UX-02: the record-only note is the first note of the answer card's state line, right after the state sentence.
+    const card = lead.closest("[data-headline-card='finding-evidence']") as HTMLElement;
+    expect(expectStateLineVisible(card)).toBe("For the record only");
+    expect(statusNotes(lead)[0]).toBe(lead);
     expect(q("[data-evidence-dispatch-link]")).toBeNull();
     expect(q("[data-evidence-dispatch-withheld]")).toHaveTextContent("Not linked: record only");
   });
@@ -394,7 +406,7 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
     expect(q("[data-evidence-lineage-complete]")).toBeNull();
     expect(q("[data-evidence-lineage-broken]")).not.toBeNull();
     expect(q(`[data-evidence-broken-record='${tampered.evidence_id}']`)).toHaveTextContent(
-      "the stored original message does not match its saved fingerprint",
+      "the stored original message does not match the check value saved with it",
     );
     expect(q("[data-evidence-page-range]")).toHaveTextContent("of 3");
     expect(q(`tr[data-evidence-id='${missing.evidence_id}'] [data-evidence-withheld]`)).toHaveTextContent("no measurement, source or message");
@@ -422,8 +434,10 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
       if (lifecycle === "UNCONFIRMED") {
         expect(lead).toHaveTextContent("stay available in this Finding's history");
       }
-      const panel = lead.parentElement as HTMLElement;
-      expect(panel.firstElementChild).toBe(lead);
+      // W1-UX-02: the recorded state is the first note of the answer card's state line, beside the headline.
+      expect(lead.closest(".headline-card__status")).not.toBeNull();
+      expect(statusNotes(lead)[0]).toBe(lead);
+      expectStateLineVisible(lead.closest("[data-headline-card='finding-evidence']") as HTMLElement);
       unmount();
     }
   });
@@ -755,5 +769,144 @@ describe("Finding Evidence client", () => {
     expect(notice).toHaveTextContent("Sources do not agree.");
     expect(notice.querySelector("details")).not.toHaveAttribute("open");
     expect(notice.querySelector("[data-source-reason='BOUND_AND_UNBOUND']")).not.toBeNull();
+  });
+});
+
+/** W1-UX-02: a state whose read records no time: explicit checks instead of `expectStateLineVisible`. */
+function expectUntimedStateLine(card: Element): string {
+  const status = card.querySelector("[data-product-status]");
+  expect(status, "a shared state line is rendered").not.toBeNull();
+  for (const selector of ["[data-product-status-label]", ".product-status__sentence", "[data-product-status-scope]", "[data-product-status-as-of]"]) {
+    const el = status!.querySelector(selector);
+    expect(el, selector).not.toBeNull();
+    expect((el!.textContent ?? "").trim().length, `${selector} has text`).toBeGreaterThan(0);
+    expect(visibleOutsideClosedDisclosure(el!), `${selector} is outside any closed disclosure`).toBe(true);
+  }
+  expect(status!.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of: time not recorded");
+  return status!.querySelector("[data-product-status-label]")?.textContent ?? "";
+}
+
+/** The card's default reading: its text without the closed exact-reference disclosure. */
+function defaultReading(card: HTMLElement): string {
+  const copy = card.cloneNode(true) as HTMLElement;
+  copy.querySelectorAll("details[data-exact-references]").forEach((d) => d.remove());
+  return copy.textContent ?? "";
+}
+
+describe("W1-UX-02: Finding Evidence answer card", () => {
+  it("rewords only backend-held link codes on screen, keeping every code and banning the W1 word", () => {
+    for (const key of Object.keys(LINK_DISPLAY_OVERRIDES)) expect(Object.keys(LINK_WORDS)).toContain(key);
+    expect(Object.keys(LINK_DISPLAY_WORDS).sort()).toEqual(Object.keys(LINK_WORDS).sort());
+    for (const text of Object.values(LINK_DISPLAY_WORDS)) expect(text).not.toMatch(/fingerprint/i);
+  });
+
+  const card = () => document.querySelector("[data-headline-card='finding-evidence']") as HTMLElement;
+  const main = () => document.querySelector("main") as HTMLElement;
+  const steps = () => Array.from(card().querySelectorAll("[data-step-strip] li")).map((li) => [li.querySelector(".step-strip__label")?.textContent, li.getAttribute("data-step")]);
+
+  it("W1-UX-02: leads with the supporting records and a record trail; exact references last; W1 vocabulary on <main>", async () => {
+    await mount(fake({ status: "loaded", value: body() }));
+    const answer = card();
+    expect(answer.querySelector(".headline-card__question")?.textContent).toBe("Which accepted records support this Finding?");
+    expect(answer.querySelector("h2")?.textContent).toBe("Evidence for version 2");
+    expect(answer.querySelector(".headline-card__headline")?.textContent).toBe("3 cited records, each traced back to its accepted record");
+    // The latest-at-read version is not claimed current: neutral words, plain "as of" the version's recorded time.
+    expect(expectStateLineVisible(answer)).toBe("Latest recorded version when read");
+    expect(answer.querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
+    expect(answer.querySelector("[data-product-status-as-of]")?.textContent).toBe("As of 9 Oct 2026, 12:00 UTC");
+    expect(steps()).toEqual([
+      ["Accepted record", "done"], ["Delivery batch", "done"], ["Stored message", "done"], ["Site setup", "done"], ["Assessment", "done"],
+    ]);
+    // Model version and exact references are labelled detail, not the default reading.
+    expect(defaultReading(answer)).not.toContain("dispatch-3.1");
+    expect(defaultReading(answer)).not.toContain(F);
+    const refs = answer.querySelector("details[data-exact-references]") as HTMLDetailsElement;
+    expect(refs.open).toBe(false);
+    expect(answer.querySelector(".headline-card__body")?.lastElementChild).toBe(refs);
+    expect(Array.from(refs.querySelectorAll("dt")).map((dt) => dt.textContent)).toEqual([
+      "Finding reference", "Shown version reference", "Latest version reference", "How the version was chosen", "Assessment method reference", "Cited set check code",
+    ]);
+    // Exact selectors keep working from the card.
+    expect(q("[data-evidence-back-to-finding]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${R2}`);
+    expect(q("[data-evidence-pin]")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
+    // MissingClaims for coverage and use stay in place.
+    expect(q("[data-gap-id='G-finding-evidence-coverage']")).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.coverage");
+    expect(q("[data-gap-id='G-finding-evidence-use']")).toHaveAttribute("data-gap-placement", "finding-evidence.bundle.use");
+    const w1 = scanProductVocabulary(main(), "finding evidence (W1)", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(40);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    const disclosure = scanDisclosureVocabulary(answer, "finding evidence exact references");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.scanned).toBeGreaterThan(5);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: an earlier (historical) version and a record-only version keep their state line visible", async () => {
+    const earlier = body({
+      selection: { revision_id: R1, revision_no: 1, selected_by: "EXACT_REVISION_ID", latest_revision_id: R2, is_latest: false, replay: "" },
+    });
+    const a = await mount(fake({ status: "loaded", value: earlier }), `?revision_id=${R1}`);
+    expect(expectStateLineVisible(card())).toBe("Earlier version, kept for the record");
+    expect(card().querySelector("[data-evidence-earlier-version] a")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}`);
+    let w1 = scanProductVocabulary(main(), "finding evidence earlier (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    a.unmount();
+
+    const base = body();
+    const closed = body({
+      audit_only: { non_current: true, reason: "CUTOVER_CLOSED", statement: "Audit material only" },
+      selection: { ...base.selection, selected_by: "EXACT_REVISION_ID" },
+      links: { ...base.links, performance: { status: "CLOSED" }, assessment_revisions: {} },
+    });
+    await mount(fake({ status: "loaded", value: closed }), `?revision_id=${R2}`);
+    expect(expectStateLineVisible(card())).toBe("For the record only");
+    w1 = scanProductVocabulary(main(), "finding evidence record only (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+  });
+
+  it("W1-UX-02: a broken trail marks only the broken steps; an unknown link leaves the others not known, never done", async () => {
+    const tampered = record(2, { lineage_status: "BROKEN", broken_links: ["ENVELOPE_DIGEST"], envelope: { sha256: "ff", digest_verified: false } });
+    const broken = body(
+      { lineage: { ...body().lineage, status: "BROKEN", broken_records: [{ evidence_id: tampered.evidence_id, links: ["ENVELOPE_DIGEST"] }] } },
+      [record(1), tampered],
+    );
+    const a = await mount(fake({ status: "loaded", value: broken }));
+    expect(card().querySelector(".headline-card__headline")?.textContent).toBe("2 cited records; part of the record trail does not resolve");
+    expect(steps()).toEqual([
+      ["Accepted record", "done"], ["Delivery batch", "done"], ["Stored message", "problem"], ["Site setup", "done"], ["Assessment", "done"],
+    ]);
+    expectStateLineVisible(card());
+    const w1 = scanProductVocabulary(main(), "finding evidence broken (W1)", { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    a.unmount();
+
+    const odd = body({ lineage: { ...body().lineage, status: "BROKEN", set_breaks: [{ link: "ANOTHER_NEW_LINK", detail: "x" }] } });
+    await mount(fake({ status: "loaded", value: odd }));
+    expect(steps().every(([, state]) => state === "not-known")).toBe(true);
+    expectStateLineVisible(card());
+  });
+
+  it("W1-UX-02: an unknown stored source is named beside the state line (S4-05), never as a positive source", async () => {
+    await mount(fake({ status: "loaded", value: body() }));
+    const source = card().querySelector("[data-source-provenance-subject='evidence']") as HTMLElement;
+    expect(source).toHaveAttribute("data-source-provenance", "UNKNOWN");
+    expect(source).toHaveTextContent("Source unverified.");
+    expect(source.closest(".headline-card__status")).not.toBeNull();
+    expect(visibleOutsideClosedDisclosure(source)).toBe(true);
+    expectStateLineVisible(card());
+  });
+
+  it.each([
+    ["not_found", "This record was not found"],
+    ["forbidden", "This cannot be shown to you"],
+    ["closed", "Not released for use yet"],
+    ["unavailable", "This could not be read right now"],
+  ] as const)("W1-UX-02: a %s read shows a plain state line, not an empty evidence list", async (status, label) => {
+    const result = (status === "closed" ? { status, message: null, note: null } : { status, message: null }) as FindingReadResult<FindingEvidenceBody>;
+    await mount(fake(result), "?revision_id=foreign");
+    expect(expectUntimedStateLine(card())).toBe(label);
+    expect(q("[data-finding-evidence]")).toBeNull();
+    const w1 = scanProductVocabulary(main(), `finding evidence ${status} (W1)`, { set: "w1" });
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   });
 });

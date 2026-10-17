@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, DataTable, MissingClaim, Panel } from "../ui";
+import {
+  Badge,
+  DataTable,
+  ExactReferences,
+  HeadlineVisualCard,
+  MissingClaim,
+  Panel,
+  ProductStatus,
+  readResultWords,
+  type ProductWords,
+} from "../ui";
 import type { SiteDirectoryClient } from "./siteDirectoryClient";
 import type { SiteListResult, SiteSummary } from "./siteReadModel";
 import { deriveSiteView } from "./siteViewModel";
@@ -11,6 +21,7 @@ import {
   type SiteTemplateLineageReadModel,
 } from "./siteTemplateLineage";
 import { TemplateProvenanceText } from "./TemplateProvenanceText";
+import "./w1ux02-site.css";
 
 type LineageAnswers = ReadonlyMap<string, SiteTemplateLineageReadModel> | null;
 
@@ -105,37 +116,153 @@ export function SitesIndex({
 
   if (result.status === "unavailable") {
     return (
-      <Panel heading="Sites unavailable" headingId="sites-unavailable-heading">
-        <p>
-          The site store could not be read, so no site can be listed. This is a
-          statement about the store, not a statement that no site is
-          configured.
-        </p>
-      </Panel>
+      <HeadlineVisualCard
+        dataName="sites-directory"
+        headingId="sites-unavailable-heading"
+        title="Sites unavailable"
+        question={SITES_QUESTION}
+        headline="No site can be listed right now."
+        status={<ProductStatus words={readResultWords("unavailable")} scope={SITES_SCOPE} asOf={null} />}
+        meaning={
+          <p>
+            The site store could not be read, so no site can be listed. This is a
+            statement about the store, not a statement that no site is
+            configured.
+          </p>
+        }
+      />
     );
   }
 
   if (result.sites.length === 0) {
     return (
-      <Panel heading="No sites configured" headingId="sites-empty-heading">
-        <p>
-          No site has been configured, so there is nothing to list. This is the
-          real state of this build rather than a placeholder: no row, no count,
-          and no example site stands in for one.
-        </p>
-      </Panel>
+      <HeadlineVisualCard
+        dataName="sites-directory"
+        headingId="sites-empty-heading"
+        title="No sites configured"
+        question={SITES_QUESTION}
+        headline="There is no site to open yet."
+        status={<ProductStatus words={NO_SITES_WORDS} scope={SITES_SCOPE} asOf={null} />}
+        meaning={
+          <p>
+            No site has been configured, so there is nothing to list. This is the
+            real state of this build rather than a placeholder: no row, no count,
+            and no example site stands in for one.
+          </p>
+        }
+      />
     );
   }
 
   return (
-    <Panel
-      heading="Site inventory"
-      headingId="sites-list-heading"
-      description="Mode is provenance. A row is a configured Site, never a simulation run."
-      flush
-    >
-      <SiteFilters sites={result.sites} siteHref={siteHref} lineage={lineage} />
-    </Panel>
+    <>
+      <SitesAnswer sites={result.sites} />
+      <Panel
+        heading="Site inventory"
+        headingId="sites-list-heading"
+        description="Mode says where a site's readings come from. It is not a measure of how the site is operating."
+        flush
+      >
+        <SiteFilters sites={result.sites} siteHref={siteHref} lineage={lineage} />
+      </Panel>
+    </>
+  );
+}
+
+/** The v69 `sites` question. The directory answers it by identity only. */
+export const SITES_QUESTION = "Which site should I open?";
+const SITES_SCOPE = "All registered sites";
+
+/** A loaded directory with no site: a domain state the shared map does not own. */
+const NO_SITES_WORDS: ProductWords = {
+  label: "No sites registered",
+  sentence: "The site list was read and holds no site. Nothing is listed in its place.",
+  tone: "neutral",
+  code: null,
+  unrecognised: false,
+};
+
+/**
+ * A loaded directory: registered identity only. It reads no condition, so it
+ * names no site as needing attention and ranks none (W1-UX-02).
+ */
+export const SITES_LISTED_WORDS: ProductWords = {
+  label: "Registered sites, not ranked",
+  sentence:
+    "This list shows which sites are registered. It does not judge how any site is operating, and it holds no assessment or evidence limit for any site.",
+  next: "Open a site to see its selected day: what was assessed, what the readings can support and any Finding.",
+  tone: "neutral",
+  code: null,
+  unrecognised: false,
+};
+
+/** Count each distinct value, in first-seen order. */
+function tally(values: string[]): [string, number][] {
+  const counts = new Map<string, number>();
+  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
+  return Array.from(counts.entries());
+}
+
+/**
+ * The directory's answer card. The registered count and the type and data
+ * source of each site come straight off the records; nothing about operation,
+ * evidence or attention is inferred. The list read carries no read instant, so
+ * the bound says the time is not recorded rather than inventing one.
+ */
+function SitesAnswer({ sites }: { sites: SiteSummary[] }) {
+  const views = sites.map(deriveSiteView);
+  const n = sites.length;
+  return (
+    <HeadlineVisualCard
+      dataName="sites-directory"
+      headingId="sites-answer-heading"
+      question={SITES_QUESTION}
+      headline={`${n} registered ${n === 1 ? "site" : "sites"}: open one by name below.`}
+      status={<ProductStatus words={SITES_LISTED_WORDS} scope={SITES_SCOPE} asOf={null} />}
+      visual={
+        <div className="sites-scope" data-sites-scope>
+          <div className="sites-scope__card">
+            <p className="sites-scope__term">Registered</p>
+            <p className="sites-scope__value">
+              {n} {n === 1 ? "site" : "sites"}
+            </p>
+            <p className="sites-scope__detail">
+              {tally(views.map((v) => v.siteType))
+                .map(([type, count]) => `${type}: ${count}`)
+                .join(" · ")}
+            </p>
+          </div>
+          <div className="sites-scope__card">
+            <p className="sites-scope__term">Where readings come from</p>
+            <p className="sites-scope__detail">
+              {tally(views.map((v) => v.sourceMode))
+                .map(([mode, count]) => `${mode}: ${count}`)
+                .join(" · ")}
+            </p>
+          </div>
+          <div className="sites-scope__card" data-sites-scope-limit>
+            <p className="sites-scope__term">Operating condition</p>
+            <p className="sites-scope__detail">Not judged in this list. Each site shows it for a selected day.</p>
+          </div>
+        </div>
+      }
+      meaning={
+        <p>
+          A site&apos;s assessment, Findings and what its readings can support belong to one
+          selected day at that site, so they appear when the site is opened, not here.
+        </p>
+      }
+      todo={<p>Choose a site by name or search for its name or site reference.</p>}
+      references={
+        <ExactReferences
+          name="sites-directory"
+          references={sites.flatMap((site) => [
+            { label: `${site.display_name}: site reference`, value: site.site_id },
+            { label: `${site.display_name}: registration store`, value: site.configuration_store ?? null },
+          ])}
+        />
+      }
+    />
   );
 }
 

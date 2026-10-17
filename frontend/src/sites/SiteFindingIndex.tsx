@@ -14,22 +14,46 @@
  *   a continuity limit, a changed basis under an old cursor, and an invalid
  *   scope show no rows and no count, and never say "no Findings".
  *
+ * W1-UX-02 (`D-2026-10-16-w1-ux`): every state leads with the v69 question
+ * "Which Findings belong to this site?" as a `HeadlineVisualCard`, a shared
+ * state line with its scope and plain "As of" bound beside the answer, the
+ * Findings as rows (or a day strip when no rows can be listed), and a closed
+ * exact-reference disclosure last holding the list, page and matching
+ * references and the raw recorded state and reasons.
+ *
  * No amount is shown: exact-revision money provenance is not in this read.
  * A Site with no imported record keeps the older summary (`fallback`).
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel } from "../ui";
+import {
+  DataTable,
+  Disclosure,
+  ExactReferences,
+  Fact,
+  FactList,
+  HeadlineVisualCard,
+  plainTime,
+  ProductStatus,
+  StepStrip,
+  currentnessWords,
+  readResultWords,
+  type ExactReference,
+  type ProductWords,
+  type Step,
+} from "../ui";
 import type {
   FindingIndexBody,
   FindingIndexClient,
+  FindingIndexDayWatermark,
   FindingIndexResult,
   FindingIndexRow,
   FindingIndexScope,
 } from "./findingIndexClient";
 import { LIFECYCLE_WORDS, transitionWords } from "./findingWords";
 import type { Lifecycle } from "./findingClient";
+import "./w1ux02-findings-index.css";
 
 export interface FindingIndexLinks {
   /** The same page at another scope (a new window, page one, or the next page). */
@@ -50,25 +74,71 @@ export interface SiteFindingIndexProps {
 }
 
 const HEADING_ID = "site-finding-index-heading";
+const QUESTION = "Which Findings belong to this site?";
+const NOT_A_ZERO =
+  "No Findings are listed and no count is given. This is not a statement that the window has no Findings.";
 
-export const STATUS_WORDS: Record<string, { label: string; sentence: string }> = {
-  PENDING: {
-    label: "Not known yet",
-    sentence: "The assessment or Finding matching for this window is still in progress.",
+const NOT_CURRENT_CODES = ["PENDING", "UNASSESSED", "STALE_PROJECTION", "FAILED"] as const;
+
+/**
+ * The index's non-current states, wrapped onto the shared currentness words
+ * (W1-UX-02 wrap-then-replace). Local to this view.
+ */
+const STATUS_WORDS: Record<string, { label: string; sentence: string }> = Object.fromEntries(
+  NOT_CURRENT_CODES.map((code) => {
+    const words = currentnessWords(code);
+    return [code, { label: words.label, sentence: words.sentence }];
+  }),
+);
+
+/** A `CURRENT` read that still carries no count: never read as current or empty. */
+const NO_COUNT_WORDS: ProductWords = {
+  label: "No count was given",
+  sentence: "The list came back without a count, so nothing is concluded about this window's Findings.",
+  next: "Look again shortly.",
+  tone: "limited",
+  code: null,
+  unrecognised: false,
+};
+
+type RefusalKind = "closed" | "continuity_limit" | "basis_changed" | "invalid" | "unauthenticated";
+
+/** Refusal states this domain owns (not in the shared map). */
+const REFUSAL_WORDS: Record<RefusalKind, Omit<ProductWords, "code" | "unrecognised">> = {
+  closed: {
+    label: "Not released for this Site",
+    sentence: "This Site's assessments are not released, so no Findings list can be shown. It is not empty.",
+    tone: "limited",
   },
-  UNASSESSED: {
-    label: "Not known",
-    sentence: "This window has not been assessed, so nothing can be said about its Findings.",
+  continuity_limit: {
+    label: "The list cannot be completed",
+    sentence:
+      "At least one Finding reaches further back than can be followed, so this window's list cannot be completed. It is not empty.",
+    next: "Choose a narrower window.",
+    tone: "limited",
   },
-  STALE_PROJECTION: {
-    label: "Not current",
-    sentence: "Newer evidence or work for this window is waiting to be assessed.",
+  basis_changed: {
+    label: "The list changed while you were reading it",
+    sentence: "The Findings for this window changed since this page was opened, so this page cannot continue.",
+    next: "Start again from the first page.",
+    tone: "waiting",
   },
-  FAILED: {
-    label: "Not known",
-    sentence: "Assessment work for this window failed.",
+  invalid: {
+    label: "This window is not valid",
+    sentence: "Windows are whole UTC days, at most 31 days long. Nothing is concluded about this request.",
+    next: "Choose a window of whole days.",
+    tone: "neutral",
+  },
+  unauthenticated: {
+    label: "Sign in needed",
+    sentence: "Sign in to read this Site's Findings. Nothing is shown until you do, and nothing is concluded.",
+    tone: "neutral",
   },
 };
+
+function refusalWords(kind: RefusalKind): ProductWords {
+  return { ...REFUSAL_WORDS[kind], code: kind, unrecognised: false };
+}
 
 /** `2026-10-15 08:00 UTC` from an ISO instant (the read's display zone is UTC). */
 export function utcText(instant: string | null | undefined): string {
@@ -90,8 +160,31 @@ function lastDayOf(to: string): string {
   return new Date(new Date(to).getTime() - 1).toISOString().slice(0, 10);
 }
 
+/** "25 Oct 2026" for a `YYYY-MM-DD` UTC day; the day itself when unreadable. */
+function plainDay(day: string): string {
+  const text = plainTime(`${day}T00:00:00Z`);
+  return text === null ? day : text.replace(/, \d{2}:\d{2} UTC$/, "");
+}
+
+function plainInstant(instant: string | null | undefined): string {
+  return plainTime(instant) ?? "time not recorded";
+}
+
+function validWindow(scope: FindingIndexScope): boolean {
+  return !Number.isNaN(new Date(scope.from).getTime()) && !Number.isNaN(new Date(scope.to).getTime());
+}
+
+/** The plain scope of the state line: the domain and the window's UTC days. */
+function windowScope(scope: FindingIndexScope): string {
+  if (!validWindow(scope)) return "Mini-grid dispatch Findings · the requested window";
+  const first = dayOf(scope.from);
+  const last = lastDayOf(scope.to);
+  const days = first === last ? plainDay(first) : `${plainDay(first)} to ${plainDay(last)}`;
+  return `Mini-grid dispatch Findings at this site · ${days} (UTC)`;
+}
+
 function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (scope: FindingIndexScope) => void }) {
-  const valid = !Number.isNaN(new Date(scope.from).getTime()) && !Number.isNaN(new Date(scope.to).getTime());
+  const valid = validWindow(scope);
   const [first, setFirst] = useState(valid ? dayOf(scope.from) : "");
   const [last, setLast] = useState(valid ? lastDayOf(scope.to) : "");
   useEffect(() => {
@@ -128,6 +221,11 @@ function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (sc
   );
 }
 
+/**
+ * The older basis disclosure. This view no longer renders it (W1-UX-02 moved
+ * its values to the exact-reference disclosure and the day strip); it stays
+ * exported for `OverviewFindingList` until that view migrates.
+ */
 export function Basis({ body }: { body: FindingIndexBody }) {
   const matcher = body.watermarks.matcher;
   return (
@@ -179,22 +277,80 @@ export function Basis({ body }: { body: FindingIndexBody }) {
   );
 }
 
+/** One day of the window as a step: checked and matched, waiting, failed or not known. */
+function dayStep(day: FindingIndexDayWatermark): Step {
+  const label = plainDay(day.day);
+  if (day.status === "CURRENT") {
+    return day.s4.matched
+      ? { label, state: "done", detail: "Checked, and Findings matched" }
+      : { label, state: "waiting", detail: "Checked; Findings not matched yet" };
+  }
+  const words = currentnessWords(day.status);
+  if (words.unrecognised) return { label, state: "not-known", detail: words.label };
+  if (day.status === "FAILED") return { label, state: "problem", detail: words.label };
+  if (words.tone === "waiting" || words.tone === "limited") return { label, state: "waiting", detail: words.label };
+  return { label, state: "not-known", detail: words.label };
+}
+
+function DayStrip({ body }: { body: FindingIndexBody }) {
+  if (body.watermarks.days.length === 0) return null;
+  return <StepStrip title="Days in this window" steps={body.watermarks.days.map(dayStep)} />;
+}
+
+/** The labelled exact values behind a loaded list: references, raw state and reasons. */
+function bodyReferences(body: FindingIndexBody, scope: FindingIndexScope): ExactReference[] {
+  const matcher = body.watermarks.matcher;
+  const through = matcher?.matched_through_selection_seq;
+  const references: ExactReference[] = [
+    { label: "Recorded list state", value: body.status },
+    { label: "List as of (exact time)", value: body.knowledge_at },
+    { label: "List prepared at (exact time)", value: body.built_at },
+    { label: "List reference", value: body.selection_token },
+    { label: "Matching pass reference", value: matcher?.match_pass_id ? String(matcher.match_pass_id) : null },
+    { label: "Matched through check number", value: through === null || through === undefined ? null : String(through) },
+  ];
+  if (scope.cursor) references.push({ label: "This page reference", value: scope.cursor });
+  if (body.next_cursor) references.push({ label: "Next page reference", value: body.next_cursor });
+  for (const day of body.watermarks.days) {
+    references.push({ label: `Assessment record, ${plainDay(day.day)}`, value: day.s3.run_id });
+  }
+  body.status_reasons.forEach((reason, index) => {
+    references.push({ label: `Reason recorded ${index + 1}`, value: reason });
+  });
+  return references;
+}
+
+const RELATION_TEXT = {
+  merged_from: "Merged from another Finding",
+  recurs_after: "Recurs after an earlier Finding",
+  recurred_by: "Recurred as a later Finding",
+  split_from: "Split from another Finding",
+  split_parts: "Split into another Finding",
+} as const;
+
 function Relations({ row, links }: { row: FindingIndexRow; links: FindingIndexLinks }) {
-  const items: { label: string; id: string }[] = [
-    ...row.relations.merged_from.map((id) => ({ label: "Merged from", id })),
-    ...(row.relations.recurs_after ? [{ label: "Recurs after", id: row.relations.recurs_after }] : []),
-    ...row.relations.recurred_by.map((id) => ({ label: "Recurred as", id })),
-    ...(row.relations.split_from ? [{ label: "Split from", id: row.relations.split_from }] : []),
-    ...row.relations.split_parts.map((id) => ({ label: "Split into", id })),
+  const items: { text: string; id: string }[] = [
+    ...row.relations.merged_from.map((id) => ({ text: RELATION_TEXT.merged_from, id })),
+    ...(row.relations.recurs_after ? [{ text: RELATION_TEXT.recurs_after, id: row.relations.recurs_after }] : []),
+    ...row.relations.recurred_by.map((id) => ({ text: RELATION_TEXT.recurred_by, id })),
+    ...(row.relations.split_from ? [{ text: RELATION_TEXT.split_from, id: row.relations.split_from }] : []),
+    ...row.relations.split_parts.map((id) => ({ text: RELATION_TEXT.split_parts, id })),
   ];
   if (items.length === 0) return <>None</>;
+  const seen: Record<string, number> = {};
   return (
     <ul className="finding-index-relations">
-      {items.map((item) => (
-        <li key={`${item.label}-${item.id}`}>
-          {item.label} <Link to={links.finding(item.id)}>{short(item.id)}</Link>
-        </li>
-      ))}
+      {items.map((item) => {
+        seen[item.text] = (seen[item.text] ?? 0) + 1;
+        const text = seen[item.text] > 1 ? `${item.text} (${seen[item.text]})` : item.text;
+        return (
+          <li key={`${item.text}-${item.id}`}>
+            <Link to={links.finding(item.id)} data-finding-index-related={item.id}>
+              {text}
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -204,57 +360,56 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
     <DataTable labelledBy={HEADING_ID}>
       <thead>
         <tr>
-          <th scope="col">Period (UTC)</th>
           <th scope="col">Finding</th>
-          <th scope="col">Status</th>
-          <th scope="col">Version</th>
+          <th scope="col">Period</th>
+          <th scope="col">State</th>
+          <th scope="col">Main consequence</th>
           <th scope="col">Related</th>
-          <th scope="col">Amount</th>
         </tr>
       </thead>
       <tbody>
-        {body.rows.map((row) => (
-          <tr
-            key={row.finding_id}
-            data-finding-index-row={row.finding_id}
-            data-finding-revision={row.finding_revision_id}
-          >
-            <td>
-              {utcText(row.episode.start)} to {utcText(row.episode.end)}
-            </td>
-            <td>
-              <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-finding-index-link>
-                {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.title ?? "Generator support review"}
-              </Link>
-              <br />
-              <small>
-                Finding <code>{short(row.finding_id)}</code>
-              </small>
-            </td>
-            <td>
-              {LIFECYCLE_WORDS[row.lifecycle as Lifecycle]?.label ?? row.lifecycle}
-              {row.transition ? (
-                <>
-                  <br />
-                  <small>{transitionWords(row.transition)}</small>
-                </>
-              ) : null}
-            </td>
-            <td>
-              Version {row.revision_no}
-              <br />
-              <small>
-                <code>{short(row.finding_revision_id)}</code>
-              </small>
-            </td>
-            <td>
-              <Relations row={row} links={links} />
-            </td>
-            <td data-finding-index-amount={row.amount.state} title={row.amount.reason}>
-              No amount shown
-            </td>
-          </tr>
-        ))}
+        {body.rows.map((row) => {
+          const lifecycle = LIFECYCLE_WORDS[row.lifecycle as Lifecycle];
+          return (
+            <tr
+              key={row.finding_id}
+              className="finding-index-row"
+              data-finding-index-row={row.finding_id}
+              data-finding-revision={row.finding_revision_id}
+            >
+              <td>
+                <Link to={links.finding(row.finding_id, row.finding_revision_id)} data-finding-index-link>
+                  {lifecycle?.title ?? "Generator support review"}
+                </Link>
+                <br />
+                <small>Version {row.revision_no}</small>
+              </td>
+              <td>
+                {plainInstant(row.episode.start)} to {plainInstant(row.episode.end)}
+              </td>
+              <td>
+                <span
+                  className="finding-index-state"
+                  data-finding-index-lifecycle={lifecycle ? "known" : "unrecognised"}
+                >
+                  {lifecycle?.label ?? "State not recognised"}
+                </span>
+                {row.transition ? (
+                  <>
+                    <br />
+                    <small>{transitionWords(row.transition)}</small>
+                  </>
+                ) : null}
+              </td>
+              <td data-finding-index-amount={row.amount.state}>
+                No amount shown in this list. Open the Finding for its consequence and evidence.
+              </td>
+              <td>
+                <Relations row={row} links={links} />
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </DataTable>
   );
@@ -262,130 +417,257 @@ function Rows({ body, links }: { body: FindingIndexBody; links: FindingIndexLink
 
 function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: FindingIndexScope; links: FindingIndexLinks }) {
   const firstPage = links.scope({ ...scope, cursor: null });
+  const scopeText = windowScope(scope);
+  const references = <ExactReferences name="finding-index-references" references={bodyReferences(body, scope)} />;
   if (body.status !== "CURRENT" || body.total_count === null) {
-    const words = STATUS_WORDS[body.status] ?? { label: "Not known", sentence: "This read is not current." };
+    const words = body.status === "CURRENT" ? NO_COUNT_WORDS : currentnessWords(body.status);
     return (
-      <Panel heading={words.label} headingId={HEADING_ID}>
-        <div data-finding-index-state={body.status}>
-          <p>{words.sentence}</p>
-          <p>No Findings are listed and no count is given. This is not a statement that the window has no Findings.</p>
-          <Basis body={body} />
-        </div>
-      </Panel>
+      <div data-finding-index-state={body.status}>
+        <HeadlineVisualCard
+          dataName="site-findings"
+          headingId={HEADING_ID}
+          question={QUESTION}
+          headline="The Findings for this window are not known"
+          status={<ProductStatus words={words} scope={scopeText} asOf={body.knowledge_at} />}
+          visual={<DayStrip body={body} />}
+          meaning={<p>{NOT_A_ZERO}</p>}
+          todo={<p>{words.next ?? "Look again after every day in this window has been checked."}</p>}
+          references={references}
+        />
+      </div>
     );
   }
   if (body.total_count === 0) {
     return (
-      <Panel heading="No Findings in this window" headingId={HEADING_ID}>
-        <div data-finding-index-state="current-empty">
-          <p>
-            Every day in this window was assessed and matched for Findings through its latest selection, and no
-            Finding overlaps the window.
-          </p>
-          <Basis body={body} />
-        </div>
-      </Panel>
+      <div data-finding-index-state="current-empty">
+        <HeadlineVisualCard
+          dataName="site-findings"
+          headingId={HEADING_ID}
+          question={QUESTION}
+          headline="No Findings in this window"
+          status={<ProductStatus words={readResultWords("proved-empty")} scope={scopeText} asOf={body.knowledge_at} />}
+          visual={<DayStrip body={body} />}
+          meaning={
+            <p>
+              Every day in this window was assessed and matched for Findings through its latest check, and no
+              Finding overlaps the window. This holds for the time shown; later readings can change it.
+            </p>
+          }
+          todo={<p>Choose another window to look at other days.</p>}
+          references={references}
+        />
+      </div>
     );
   }
   const shown = body.rows.length;
+  const newest = body.rows[0];
   return (
-    <Panel
-      heading={`${body.total_count} ${body.total_count === 1 ? "Finding" : "Findings"} in this window`}
-      headingId={HEADING_ID}
-    >
-      <div data-finding-index-state="current-rows">
-        <p>
-          Newest period first. Each Finding opens at the exact version listed here, which stays the same after
-          reload even when a newer version is recorded.
-        </p>
-        <Rows body={body} links={links} />
-        <nav aria-label="Findings pages" data-finding-index-pages>
-          <span>
-            Showing {shown} of {body.total_count}.
-          </span>{" "}
-          {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
-          {body.next_cursor ? (
-            <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
-              Next page
+    <div data-finding-index-state="current-rows">
+      <HeadlineVisualCard
+        dataName="site-findings"
+        headingId={HEADING_ID}
+        question={QUESTION}
+        headline={`${body.total_count} ${body.total_count === 1 ? "Finding" : "Findings"} in this window`}
+        status={<ProductStatus words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
+        visual={
+          <>
+            <DayStrip body={body} />
+            <Rows body={body} links={links} />
+            <nav aria-label="Findings pages" data-finding-index-pages>
+              <span>
+                Showing {shown} of {body.total_count}.
+              </span>{" "}
+              {scope.cursor ? <Link to={firstPage}>First page</Link> : null}{" "}
+              {body.next_cursor ? (
+                <Link to={links.scope({ ...scope, cursor: body.next_cursor })} data-finding-index-next>
+                  Next page
+                </Link>
+              ) : null}
+            </nav>
+          </>
+        }
+        meaning={
+          <p>
+            Each row is a bounded conclusion about part of this window, newest period first. Each Finding opens at the
+            exact version listed here, which stays the same after reload even when a newer version is recorded. No
+            amount is shown in this list.
+          </p>
+        }
+        todo={<p>Open a Finding to see what supports it, its consequence and what could change it.</p>}
+        destination={
+          newest === undefined ? undefined : (
+            <Link to={links.finding(newest.finding_id, newest.finding_revision_id)} data-finding-index-destination>
+              Open the newest Finding
             </Link>
-          ) : null}
-        </nav>
-        <Basis body={body} />
-      </div>
-    </Panel>
+          )
+        }
+        references={references}
+      />
+    </div>
+  );
+}
+
+function RefusedCard({
+  state,
+  headline,
+  words,
+  scope,
+  meaning,
+  todo,
+  references = [],
+  attributes = {},
+}: {
+  state: string;
+  headline: string;
+  words: ProductWords;
+  scope: string;
+  meaning: ReactNode;
+  todo?: ReactNode;
+  references?: ExactReference[];
+  attributes?: Record<string, string>;
+}) {
+  return (
+    <div data-finding-index-state={state} {...attributes}>
+      <HeadlineVisualCard
+        dataName="site-findings"
+        headingId={HEADING_ID}
+        question={QUESTION}
+        headline={headline}
+        status={<ProductStatus words={words} scope={scope} asOf={null} />}
+        meaning={meaning}
+        todo={todo}
+        references={
+          references.length === 0 ? undefined : (
+            <ExactReferences name="finding-index-references" references={references} />
+          )
+        }
+      />
+    </div>
   );
 }
 
 function Refused({ result, scope, links }: { result: FindingIndexResult; scope: FindingIndexScope; links: FindingIndexLinks }) {
   const firstPage = links.scope({ ...scope, cursor: null });
+  const scopeText = windowScope(scope);
   switch (result.status) {
     case "closed":
       return (
-        <Panel heading="Findings list closed for this Site" headingId={HEADING_ID}>
-          <div data-finding-index-state="closed">
-            <p>{result.message ?? "This Site's assessments are not released."}</p>
-            <p>
-              No Findings are listed and no count is given. A link to an exact Finding version still opens it as
-              audit material.
-            </p>
-          </div>
-        </Panel>
+        <RefusedCard
+          state="closed"
+          headline="Findings list closed for this Site"
+          words={refusalWords("closed")}
+          scope={scopeText}
+          meaning={
+            <>
+              <p>{result.message ?? "This Site's assessments are not released."}</p>
+              <p>
+                No Findings are listed and no count is given. A link to an exact Finding version still opens it as
+                audit material.
+              </p>
+            </>
+          }
+        />
       );
     case "continuity_limit":
       return (
-        <Panel heading="Not known for this window" headingId={HEADING_ID}>
-          <div data-finding-index-state="continuity-limit">
-            <p>{result.message}</p>
-            <p>
-              No Findings are listed and no count is given. Choose a narrower window.
-              {result.inspectedFrom && result.inspectedTo
-                ? ` Days reached: ${result.inspectedFrom} to ${result.inspectedTo}.`
-                : ""}
-            </p>
-          </div>
-        </Panel>
+        <RefusedCard
+          state="continuity-limit"
+          headline="Not known for this window"
+          words={refusalWords("continuity_limit")}
+          scope={scopeText}
+          meaning={
+            <>
+              {result.message ? <p>{result.message}</p> : null}
+              <p>
+                No Findings are listed and no count is given.
+                {result.inspectedFrom && result.inspectedTo
+                  ? ` Days reached: ${plainDay(result.inspectedFrom)} to ${plainDay(result.inspectedTo)}.`
+                  : ""}
+              </p>
+            </>
+          }
+          todo={<p>Choose a narrower window.</p>}
+        />
       );
     case "basis_changed":
       return (
-        <Panel heading="This list changed" headingId={HEADING_ID}>
-          <div data-finding-index-state="basis-changed" data-finding-index-reason={result.reason ?? ""}>
-            <p>The Findings for this window changed since this page was opened, so this page cannot continue.</p>
+        <RefusedCard
+          state="basis-changed"
+          headline="This list changed"
+          words={refusalWords("basis_changed")}
+          scope={scopeText}
+          attributes={{ "data-finding-index-reason": result.reason ?? "" }}
+          meaning={<p>No Findings are listed from the old page, and no count is given.</p>}
+          todo={
             <p>
               <Link to={firstPage} data-finding-index-restart>
                 Start again from the first page
               </Link>
             </p>
-          </div>
-        </Panel>
+          }
+          references={[
+            { label: "Recorded reason", value: result.reason ?? null },
+            ...(scope.cursor ? [{ label: "Old page reference", value: scope.cursor }] : []),
+          ]}
+        />
       );
     case "invalid":
       return (
-        <Panel heading="This window cannot be shown" headingId={HEADING_ID}>
-          <div data-finding-index-state="invalid" data-finding-index-code={result.code ?? ""}>
-            <p>{result.message ?? "The requested window is not valid."}</p>
-            <p>Windows are whole UTC days, at most 31 days long.</p>
-          </div>
-        </Panel>
+        <RefusedCard
+          state="invalid"
+          headline="This window cannot be shown"
+          words={refusalWords("invalid")}
+          scope={scopeText}
+          attributes={{ "data-finding-index-code": result.code ?? "" }}
+          meaning={
+            <>
+              <p>{result.message ?? "The requested window is not valid."}</p>
+              <p>No Findings are listed and no count is given.</p>
+            </>
+          }
+          todo={<p>Choose whole UTC days, at most 31 days long, above.</p>}
+          references={[
+            { label: "Recorded reason", value: result.code ?? null },
+            { label: "Field named", value: result.field ?? null },
+          ]}
+        />
       );
     case "unauthenticated":
       return (
-        <Panel heading="Sign in to see Findings" headingId={HEADING_ID}>
-          <p data-finding-index-state="unauthenticated">{result.message ?? "Sign in to read Findings."}</p>
-        </Panel>
+        <RefusedCard
+          state="unauthenticated"
+          headline="Sign in to see Findings"
+          words={refusalWords("unauthenticated")}
+          scope={scopeText}
+          meaning={<p>{result.message ?? "Sign in to read Findings."}</p>}
+        />
       );
     case "forbidden":
       return (
-        <Panel heading="No access to this Site's Findings" headingId={HEADING_ID}>
-          <p data-finding-index-state="forbidden">{result.message ?? "You do not have access to this Site."}</p>
-        </Panel>
+        <RefusedCard
+          state="forbidden"
+          headline="No access to this Site's Findings"
+          words={readResultWords("refused")}
+          scope={scopeText}
+          meaning={<p>{result.message ?? "You do not have access to this Site."}</p>}
+        />
       );
     default:
       return (
-        <Panel heading="Findings unavailable" headingId={HEADING_ID}>
-          <p data-finding-index-state="unavailable">
-            {result.status === "unavailable" && result.message ? result.message : "The Findings could not be read."}
-          </p>
-        </Panel>
+        <RefusedCard
+          state="unavailable"
+          headline="Findings unavailable"
+          words={readResultWords("unavailable")}
+          scope={scopeText}
+          meaning={
+            <>
+              <p>
+                {result.status === "unavailable" && result.message ? result.message : "The Findings could not be read."}
+              </p>
+              <p>No Findings are listed and no count is given.</p>
+            </>
+          }
+        />
       );
   }
 }
@@ -410,9 +692,10 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
     return <>{fallback}</>;
   }
   return (
-    <section aria-labelledby={HEADING_ID} data-findings-index="site-window">
+    <section className="finding-index" aria-labelledby={HEADING_ID} data-findings-index="site-window">
       <p className="overview-note">
-        Mini-grid dispatch Findings that overlap {utcText(from)} to {utcText(to)} (the end is not included).
+        Mini-grid dispatch Findings at this site that overlap {plainInstant(from)} to {plainInstant(to)} (the end is
+        not included). A Finding is a bounded conclusion about part of an assessed period.
       </p>
       <WindowForm scope={scope} onScope={onScope} />
       {result.status === "loaded" ? (
