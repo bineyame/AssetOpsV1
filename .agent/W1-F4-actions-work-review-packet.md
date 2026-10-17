@@ -90,3 +90,32 @@ The earlier F4 fixtures had been left in place despite the earlier note (`asseto
 - Owner: compare the `index.html` pairs for action-execution, action-history and recommendation held first (highest remaining ratios).
 - History IDs are visually shortened (CSS ellipsis); full values remain in the DOM, the tooltip and the disclosure.
 - Full-suite load flakes recur in timing-sensitive files (`siteFinancials` S4-08, `siteFoundationChange`, `s404SiteFindingIndex`); each passes alone.
+
+## Fix rounds 1 and 2 (review `1132c336` RETURN: Verification summary row High, Site Work columns Medium, plus three smaller findings)
+| Finding | Round 1 (`8a1dcc55`, `d52d55b6`, `26524dc3`) | Round 2 (`a2480b0a`, `2045cfdd`) |
+| --- | --- | --- |
+| Verification summary row missing (High) | Summary row restored on the verification strip | Kept unchanged; trial notice cut to one sentence, attempts moved into the disclosure, evidence link at note size (pair 1.68-1.75 down to 1.40-1.47) |
+| Site Work table not six columns (Medium) | Six columns restored; Site Work test re-pointed to six columns | Kept; second line is the latest-step link only; count line, basis link and open basis body share one compact foot row (1.50 down to 1.36) |
+| History codes dropped | Failure codes shown in History rows | Kept (never truncated) |
+| No-plan wording repeated | One no-plan sentence | Kept; Plan and Evidence shrink as a side effect of the shared note-size link (Plan 1.28/1.37, Evidence 1.32/1.52) |
+| Trial notice at body size | Note-size trial notice | One sentence |
+
+Re-pointed assertions (same guarantee asserted where the content now lives, none weakened): `siteWorkActions` (six columns; scope header scoped to the list table), `siteActionVerification` (attempts counts read inside the disclosure, trial notice one sentence), Verification/Site Work structure tests.
+
+### Current heights (1440, revision `2045cfdd`, panel px; app / mock = ratio)
+| Screen:case | App | Mock | Ratio |
+| --- | --- | --- | --- |
+| action-plan pass / guardrail | 366 / 392 | 287 | 1.28 / 1.37 |
+| action-evidence pass / guardrail | 347 / 399 | 262 | 1.32 / 1.52 |
+| verification p1 pass / historical / guardrail | 347 / 366 / 390 | 336 | 1.03 / 1.09 / 1.16 |
+| verification pair pass / historical / guardrail | 354 / 354 / 371 | 252 | 1.40 / 1.40 / 1.47 |
+| recommendation guardrail hold p1 / p2 | 513 / 513 | 370 | 1.39 |
+| sitework active / zero / none | 319 / 233 / 196 | 234 | 1.36 / 1.00 / 0.84 |
+(action-overview, execution, history and recommendation accepted/held rows from the trim table above were not recaptured this round.)
+
+### Round-2 checks (revision `2045cfdd`)
+`npx.cmd tsc --noEmit` clean. Full `npm.cmd test`: 80 files, **2019 passed, 0 failed** (271 s). `tools/check-all.ps1`: All 10 guards passed. Captures: `s602b` 96/96 and `s603` 36/36 (fresh fixtures on API 9430-9432, web 5830-5832, then dropped and servers stopped; only `var/sites` remains). Backend not run (frontend-only).
+
+### Round-2 known deviations
+- Not all panels reached 1.3x: verification pair 1.40-1.47, Evidence guardrail 1.52, Plan guardrail 1.37, Site Work active 1.36. All are at or below their pre-round-2 ratios; further trimming would drop real rows (guardrail limits, attempts summary) the mock does not draw.
+- The Evidence guardrail 1.52 was not in the round-2 growth list; it carries the failed-limit rows the mock lacks.

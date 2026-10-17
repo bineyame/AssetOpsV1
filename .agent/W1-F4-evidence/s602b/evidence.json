@@ -1,12 +1,12 @@
 {
-  "revision": "26524dc3",
-  "captured_at": "2026-10-17T12:33:24.979Z",
+  "revision": "2045cfdd",
+  "captured_at": "2026-10-17T15:06:42.985Z",
   "pairs": [
     {
       "screen": "action-plan",
       "case": "pass",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/plan",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-pass-1440-app.png",
       "mock_image": "action-plan-pass-1440-mock.png",
@@ -20,7 +20,7 @@
             "x": 248,
             "y": 352,
             "w": 1160,
-            "h": 383
+            "h": 366
           }
         ],
         "overflowX": 0
@@ -45,7 +45,7 @@
       "screen": "action-plan",
       "case": "pass",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/plan",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-pass-390-app.png",
       "mock_image": "action-plan-pass-390-mock.png",
@@ -59,7 +59,7 @@
             "x": 16,
             "y": 1068,
             "w": 358,
-            "h": 548
+            "h": 515
           }
         ],
         "overflowX": 0
@@ -84,7 +84,7 @@
       "screen": "action-plan",
       "case": "guardrail",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/plan",
+      "app_url": "http://localhost:5831/sites/KOBO-001/actions/3477e311-0fe7-463e-9df5-d7e57832e7bb/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-guardrail-1440-app.png",
       "mock_image": "action-plan-guardrail-1440-mock.png",
@@ -98,7 +98,7 @@
             "x": 248,
             "y": 374,
             "w": 1160,
-            "h": 409
+            "h": 392
           }
         ],
         "overflowX": 0
@@ -123,7 +123,7 @@
       "screen": "action-plan",
       "case": "guardrail",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/plan",
+      "app_url": "http://localhost:5831/sites/KOBO-001/actions/3477e311-0fe7-463e-9df5-d7e57832e7bb/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-guardrail-390-app.png",
       "mock_image": "action-plan-guardrail-390-mock.png",
@@ -137,7 +137,7 @@
             "x": 16,
             "y": 1068,
             "w": 358,
-            "h": 606
+            "h": 573
           }
         ],
         "overflowX": 0
@@ -162,7 +162,7 @@
       "screen": "action-evidence",
       "case": "pass",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/evidence",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-pass-1440-app.png",
       "mock_image": "action-evidence-pass-1440-mock.png",
@@ -176,7 +176,7 @@
             "x": 248,
             "y": 352,
             "w": 1160,
-            "h": 363
+            "h": 347
           }
         ],
         "overflowX": 0
@@ -201,7 +201,7 @@
       "screen": "action-evidence",
       "case": "pass",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/evidence",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-pass-390-app.png",
       "mock_image": "action-evidence-pass-390-mock.png",
@@ -215,7 +215,7 @@
             "x": 16,
             "y": 1068,
             "w": 358,
-            "h": 600
+            "h": 567
           }
         ],
         "overflowX": 0
@@ -240,7 +240,7 @@
       "screen": "action-evidence",
       "case": "guardrail",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/evidence",
+      "app_url": "http://localhost:5831/sites/KOBO-001/actions/3477e311-0fe7-463e-9df5-d7e57832e7bb/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-guardrail-1440-app.png",
       "mock_image": "action-evidence-guardrail-1440-mock.png",
@@ -254,7 +254,7 @@
             "x": 248,
             "y": 352,
             "w": 1160,
-            "h": 389
+            "h": 399
           }
         ],
         "overflowX": 0
@@ -279,7 +279,7 @@
       "screen": "action-evidence",
       "case": "guardrail",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/evidence",
+      "app_url": "http://localhost:5831/sites/KOBO-001/actions/3477e311-0fe7-463e-9df5-d7e57832e7bb/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-guardrail-390-app.png",
       "mock_image": "action-evidence-guardrail-390-mock.png",
@@ -293,7 +293,7 @@
             "x": 16,
             "y": 1052,
             "w": 358,
-            "h": 648
+            "h": 615
           }
         ],
         "overflowX": 0
@@ -318,7 +318,7 @@
       "screen": "verification",
       "case": "pass",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-pass-1440-app.png",
       "mock_image": "verification-pass-1440-mock.png",
@@ -341,14 +341,14 @@
             "x": 248,
             "y": 993,
             "w": 725,
-            "h": 423
+            "h": 354
           },
           {
             "title": "Outcome evidence",
             "x": 991,
             "y": 993,
             "w": 403,
-            "h": 423
+            "h": 354
           }
         ],
         "overflowX": 0
@@ -389,7 +389,7 @@
       "screen": "verification",
       "case": "pass",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-pass-390-app.png",
       "mock_image": "verification-pass-390-mock.png",
@@ -419,7 +419,7 @@
             "x": 16,
             "y": 2660,
             "w": 358,
-            "h": 423
+            "h": 354
           }
         ],
         "overflowX": 0
@@ -460,7 +460,7 @@
       "screen": "verification",
       "case": "historical",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification?outcome_id=a80ccd3f-bc8a-41fe-a103-99004ea6ebc6",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/verification?outcome_id=869ee819-7507-41f6-b7f9-49187226ea65",
       "mock_hash": "#/verification",
       "app_image": "verification-historical-1440-app.png",
       "mock_image": "verification-historical-1440-mock.png",
@@ -483,14 +483,14 @@
             "x": 248,
             "y": 990,
             "w": 725,
-            "h": 423
+            "h": 354
           },
           {
             "title": "Outcome evidence",
             "x": 991,
             "y": 990,
             "w": 403,
-            "h": 423
+            "h": 354
           }
         ],
         "overflowX": 0
@@ -531,7 +531,7 @@
       "screen": "verification",
       "case": "historical",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification?outcome_id=a80ccd3f-bc8a-41fe-a103-99004ea6ebc6",
+      "app_url": "http://localhost:5830/sites/KOBO-001/actions/0c4bd539-a1ed-42ea-bb0d-ad9b755ffe17/verification?outcome_id=869ee819-7507-41f6-b7f9-49187226ea65",
       "mock_hash": "#/verification",
       "app_image": "verification-historical-390-app.png",
       "mock_image": "verification-historical-390-mock.png",
@@ -561,7 +561,7 @@
             "x": 16,
             "y": 2706,
             "w": 358,
-            "h": 423
+            "h": 354
           }
         ],
         "overflowX": 0
@@ -602,7 +602,7 @@
       "screen": "verification",
       "case": "guardrail",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/verification",
+      "app_url": "http://localhost:5831/sites/KOBO-001/actions/3477e311-0fe7-463e-9df5-d7e57832e7bb/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-guardrail-1440-app.png",
       "mock_image": "verification-guardrail-1440-mock.png",
@@ -625,14 +625,14 @@
             "x": 248,
             "y": 1014,
             "w": 725,
-            "h": 440
+            "h": 371
           },
           {
             "title": "Outcome evidence",
             "x": 991,
             "y": 1014,
             "w": 403,
-            "h": 440
+            "h": 371
           }
         ],
         "overflowX": 0
@@ -673,7 +673,7 @@
       "screen": "verification",
       "case": "guardrail",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/verification",
+      "app_url": "http://localhost:5831/sites/KOBO-001/actions/3477e311-0fe7-463e-9df5-d7e57832e7bb/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-guardrail-390-app.png",
       "mock_image": "verification-guardrail-390-mock.png",
@@ -703,7 +703,7 @@
             "x": 16,
             "y": 2736,
             "w": 358,
-            "h": 440
+            "h": 371
           }
         ],
         "overflowX": 0
@@ -744,7 +744,7 @@
       "screen": "recommendation",
       "case": "guardrail-hold",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/findings/b3516ae0-6b2a-4dc8-a3fe-07067ad94cc0/recommendation?revision_id=c634e3fa-7b76-4a98-b055-4af2ab590a61",
+      "app_url": "http://localhost:5831/sites/KOBO-001/findings/ffeea44d-dc59-4fdd-80ea-39ac36226f6c/recommendation?revision_id=c2990acd-c3c7-424c-a37e-0b82baa79644",
       "mock_hash": "#/recommendation",
       "app_image": "recommendation-guardrail-hold-1440-app.png",
       "mock_image": "recommendation-guardrail-hold-1440-mock.png",
@@ -815,7 +815,7 @@
       "screen": "recommendation",
       "case": "guardrail-hold",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/findings/b3516ae0-6b2a-4dc8-a3fe-07067ad94cc0/recommendation?revision_id=c634e3fa-7b76-4a98-b055-4af2ab590a61",
+      "app_url": "http://localhost:5831/sites/KOBO-001/findings/ffeea44d-dc59-4fdd-80ea-39ac36226f6c/recommendation?revision_id=c2990acd-c3c7-424c-a37e-0b82baa79644",
       "mock_hash": "#/recommendation",
       "app_image": "recommendation-guardrail-hold-390-app.png",
       "mock_image": "recommendation-guardrail-hold-390-mock.png",
