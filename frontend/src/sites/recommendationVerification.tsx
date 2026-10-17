@@ -6,9 +6,10 @@
  * The accepted recommendation snapshot stays pinned; this only links to the
  * frozen plan once one exists.
  */
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, Panel } from "../ui";
+import { AttentionList, ChartNote, DataTable, Panel } from "../ui";
 import type { VerificationSummary } from "./verificationClient";
 import { stateLabel, stateSentence, stateTone } from "./verificationWords";
 
@@ -19,18 +20,32 @@ export interface TrialLinks {
   child: (actionId: string, view: VerificationChild, selector?: { planRevisionId?: string | null; outcomeId?: string | null }) => string;
 }
 
-export function VerificationStateLine({ summary, name }: { summary: VerificationSummary | null | undefined; name: string }) {
+export function VerificationStateLine({
+  summary,
+  name,
+  note = false,
+  action,
+}: {
+  summary: VerificationSummary | null | undefined;
+  name: string;
+  /** W1-F4: render as one v69 chart-note line inside a v69 panel. */
+  note?: boolean;
+  /** W1-F4: a trailing link on the same line (the mock's attention-row link). */
+  action?: ReactNode;
+}) {
+  const extra = note ? " v69-chart-note" : "";
   if (!summary) {
     return (
-      <p className="action-note" data-trial-verification-state="UNAVAILABLE" data-trial-verification-name={name}>
-        The verification state is not available from this server yet.
+      <p className={`action-note${extra}`} data-trial-verification-state="UNAVAILABLE" data-trial-verification-name={name}>
+        The verification state is not available from this server yet.{action ? <> {action}</> : null}
       </p>
     );
   }
   return (
-    <p className="action-status" data-trial-verification-state={summary.state} data-trial-verification-name={name}>
+    <p className={`action-status${extra}`} data-trial-verification-state={summary.state} data-trial-verification-name={name}>
       <span className={`verify-chip verify-chip--${stateTone(summary.state)}`}>{stateLabel(summary.state, summary.reasons)}</span>
       <span className="action-note">{stateSentence(summary.state, summary.reasons)}</span>
+      {action ? <> {action}</> : null}
     </p>
   );
 }
@@ -80,18 +95,15 @@ export function DeclaredSuccessPanel({
         </tbody>
       </DataTable>
       {planId ? (
-        <p data-recommendation-plan-link={planId}>
-          <Link to={links.child(actionId, "plan", { planRevisionId: planId })}>Open the frozen plan</Link>
-          <span className="action-note"> The accepted proposal above stays as it was accepted.</span>
-        </p>
+        <ChartNote data={{ "data-recommendation-plan-link": planId }}>
+          <Link to={links.child(actionId, "plan", { planRevisionId: planId })}>Open the frozen plan</Link>. The accepted
+          proposal stays as it was accepted.
+        </ChartNote>
       ) : (
-        <p className="action-note" data-recommendation-plan-link="none">
+        <ChartNote data={{ "data-recommendation-plan-link": "none" }}>
           The plan is frozen after the change is applied; it does not exist yet.
-        </p>
+        </ChartNote>
       )}
-      <p className="action-note">
-        Accepting creates the work. It does not close the Finding, verify the change or send a real controller command.
-      </p>
     </Panel>
   );
 }
@@ -112,24 +124,37 @@ export function EvidenceNeededPanel({
 }) {
   return (
     <Panel heading="Evidence needed to verify" headingId="site-recommendation-evidence-heading">
-      <ol className="action-list verify-steps">
-        <li>
-          Applied change record. <Link to={actionHref}>Open {actionCode}</Link>
-        </li>
-        <li>
-          Later operating readings, accepted under the frozen plan.{" "}
-          <Link to={links.child(actionId, "evidence")} data-recommendation-evidence-link>
-            Inspect the evidence
-          </Link>
-        </li>
-        <li>
-          Outcome, decided from the target and the limits together.{" "}
+      <AttentionList
+        label="Evidence needed to verify"
+        items={[
+          {
+            key: "applied",
+            title: "Applied change record",
+            body: "The applied setting change and when it took effect.",
+            action: <Link to={actionHref}>Open {actionCode} →</Link>,
+          },
+          {
+            key: "later",
+            title: "Later operating readings",
+            body: "Readings in a later window, accepted under the frozen plan; the outcome weighs the target and limits together.",
+            action: (
+              <Link to={links.child(actionId, "evidence")} data-recommendation-evidence-link>
+                Inspect the evidence →
+              </Link>
+            ),
+          },
+        ]}
+      />
+      <VerificationStateLine
+        summary={summary}
+        name="recommendation"
+        note
+        action={
           <Link to={links.child(actionId, "verification")} data-recommendation-verification-link>
-            Open verification
+            Open verification →
           </Link>
-        </li>
-      </ol>
-      <VerificationStateLine summary={summary} name="recommendation" />
+        }
+      />
     </Panel>
   );
 }

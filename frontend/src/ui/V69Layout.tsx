@@ -74,6 +74,24 @@ export function MetricCards({
   );
 }
 
+/**
+ * The mock's `mheader`: a bordered row of labelled cells (Owner, Due / SLA, State,
+ * Source, Success criterion) between a status strip and the metric cards. A cell
+ * the read cannot support is passed as its gap word, never omitted.
+ */
+export function MetricHeader({ cells, label, data }: { cells: [ReactNode, ReactNode, string?][]; label: string; data?: Record<string, string> }) {
+  return (
+    <dl className="v69-mheader" aria-label={label} {...data}>
+      {cells.map(([term, value, key], index) => (
+        <div key={key ?? index} data-mheader-cell={key}>
+          <dt>{term}</dt>
+          <dd>{value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 /** The mock's `.key-values`: term left, value right. */
 export function KeyValues({ rows, label }: { rows: [ReactNode, ReactNode, string?][]; label?: string }) {
   return (
@@ -213,6 +231,11 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   // W1 vocabulary list, D-2026-10-16-w1-ux), so the description says what the page does show.
   evidence: "Evidence · accepted readings and what is missing",
   "evidence-analysis": "Evidence · accepted records and how limits are set",
+  changes: "Configuration change · the stored policy change and its decision path",
+  sitework: "Site-scoped work · the same managed records as global queues",
+  recommendation: "Proposed intervention and declared success criterion",
+  action: "Current intervention and outcome state",
+  verification: "Target and guardrails · outcome from accepted evidence",
 } as const;
 
 export interface SitePageHeaderProps {

@@ -44,6 +44,7 @@ export {
   MetricCard,
   type MetricCardProps,
   MetricCards,
+  MetricHeader,
   type MetricTone,
   CausalTimeline,
   type TimelineEvent,

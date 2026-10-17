@@ -53,7 +53,7 @@ const CHROME_SELECTOR = "nav, header.page-header";
  * `.v69-objective`, the mock's `.objective` line between status and cards.
  */
 const LEADING_SELECTOR =
-  ".status-strip, [data-page-refusal], .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective";
+  ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective";
 /** Section-like elements that must not render outside a panel or leading pattern. */
 const STRAY_SELECTOR = "h3, h4, h5, h6, section, article, [role=region], .card, .callout";
 
@@ -205,4 +205,24 @@ export function panelTitled(title: string, scope?: HTMLElement): HTMLElement {
   const panel = heading?.closest<HTMLElement>("section.panel, .panel");
   if (panel === null || panel === undefined) throw new Error(`No panel titled "${title}".`);
   return panel;
+}
+
+/**
+ * Non-vacuity proof for a rendered route: plants an extra titled panel before
+ * panel 1 of the current screen and asserts the guard rejects it, then removes
+ * the plant so the screen is left as rendered.
+ */
+export function expectPlantedPanelRejected(screenId: string): void {
+  const first = document.querySelector("main section.panel");
+  expect(first, "the screen renders a panel 1 to plant before").not.toBeNull();
+  const plant = document.createElement("section");
+  plant.className = "panel";
+  plant.innerHTML = "<h2>Planted extra panel</h2>";
+  first!.parentElement!.insertBefore(plant, first);
+  try {
+    expect(() => expectV69Panels(screenId)).toThrow();
+  } finally {
+    plant.remove();
+  }
+  expectV69Panels(screenId);
 }
