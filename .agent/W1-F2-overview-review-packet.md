@@ -136,3 +136,22 @@ Each change below re-points an assertion at the content's new v69 home and asser
 - `siteFoundationChange` flake: not hit in these runs.
 
 USER_REVIEW: hold for the combined owner walkthrough after F5, per the contract. Independent review is needed first.
+
+## Panel heights at 1440, app vs mock: pass 2 baseline (`6a6528b2`, before the 1.3x compaction)
+Pairs share one row height. Ratio = app / mock; the target is about 1.3 or less (coordinator rule, 2026-10-17).
+| Screen · case | Panels (app h / mock h = ratio) |
+| --- | --- |
+| mini · p01 priced | happened 481/238=2.02 · context+attention 992/373=2.66 · money+next 679/193=3.52 |
+| mini · p02 held | 528/238=2.22 · 992/373=2.66 · 582/193=3.02 |
+| mini · unassessed | 395/238=1.66 · 469/373=1.26 · 294/193=1.52 |
+| mini · failed | 395/238=1.66 · 520/373=1.39 · 294/193=1.52 |
+| dispatch · supported | pair 605/489=1.24 · coverage 744/243=3.06 |
+| dispatch · limited | pair 380/489=0.78 · coverage 728/243=3.00 |
+| dispatch · failed | pair 289/489=0.59 · coverage 749/243=3.08 |
+| analysis · supported | pair 349/432=0.81 · coverage 394/287=1.37 |
+| analysis · limited | pair 1675/432=3.88 · coverage 416/287=1.45 |
+| evidence · stocked | conclude 564/387=1.46 · sources+next 1172/387=3.03 |
+| evidence · no readings | 525/387=1.36 · 1299/387=3.36 |
+| evidence-analysis · supported | records 1047/266=3.94 · limits 1595/148=10.78 |
+| evidence-analysis · limited | 1047/266=3.94 · 1749/148=11.82 |
+| evidence-analysis · no selection | 1047/266=3.94 · 630/148=4.26 |
