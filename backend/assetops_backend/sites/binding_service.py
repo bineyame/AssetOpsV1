@@ -48,6 +48,8 @@ from assetops_backend.sites.binding_roles import (
     conversion_problem,
     roles_for,
 )
+from assetops_backend.sites.cold_foundation import assets_by_code as cold_assets_by_code
+from assetops_backend.sites.cold_foundation import cold_foundation_document
 from assetops_backend.sites.foundation_content import (
     CURRENT_ROW_GAP_CODES,
     ConfigurationGap,
@@ -944,6 +946,38 @@ def pinned_identity_problems(
     return problems
 
 
+def cold_snapshot_gaps(
+    foundation: RevisionRow,
+    registrations: Registrations,
+    binding_set: BindingSetRevisionRow,
+) -> list[ConfigurationGap]:
+    """The blocking cold readiness of a COLDCHAIN selection, as snapshot gaps (q6).
+
+    Derived from `cold_foundation_document` on the selected revision and binding set; contact and
+    commissioning never gate acquisition, and nonblocking messages (TRANSFER_UNREPORTED, optional
+    channels) do not refuse. A role set other than cold-roles-1, or a revision the cold rule cannot
+    evaluate, is unavailable, never ready.
+    """
+    if binding_set.role_set != ROLE_SET_COLD_1:
+        return [ConfigurationGap(
+            "BINDING_ROLE_SET_UNKNOWN", "binding",
+            f"Role set {binding_set.role_set!r} is not the {ROLE_SET_COLD_1} cold role set.")]
+    try:
+        document = cold_foundation_document(
+            revision=foundation,
+            binding_set=binding_set,
+            assets_by_code=cold_assets_by_code(registrations.assets),
+            contact=None,
+        )
+        messages = document["readiness"]["messages"]
+    except (KeyError, TypeError, ValueError, AttributeError) as error:
+        return [ConfigurationGap(
+            "COLD_FOUNDATION_UNEVALUABLE", "foundation",
+            f"The selected cold Foundation revision cannot be evaluated ({type(error).__name__}).")]
+    return [ConfigurationGap(m["code"], m["role"] or "foundation", m["message"])
+            for m in messages if m["blocking"]]
+
+
 def acquisition_snapshot(
     tenant_id: UUID,
     site: StoredSite,
@@ -984,8 +1018,15 @@ def acquisition_snapshot(
             500,
         )
     current = now is None or is_current_snapshot(binding_set, now)
-    gaps = configuration_gaps(site, foundation, registrations)
-    blocking = gaps if current else [g for g in gaps if g.code not in CURRENT_ROW_GAP_CODES]
+    if site.site_type == "COLDCHAIN":
+        # q6 (D-2026-10-17-w2-02-buildspec): COLDCHAIN readiness is the W2-01 cold rule on the selected
+        # revision and binding set; the MINIGRID gap rule is never applied to it. Every blocking cold
+        # readiness message refuses, current or historical.
+        gaps = cold_snapshot_gaps(foundation, registrations, binding_set)
+        blocking = gaps
+    else:
+        gaps = configuration_gaps(site, foundation, registrations)
+        blocking = gaps if current else [g for g in gaps if g.code not in CURRENT_ROW_GAP_CODES]
     if blocking:
         return SnapshotUnavailable(
             "ACQUISITION_SNAPSHOT_UNAVAILABLE",
@@ -1041,5 +1082,6 @@ def acquisition_snapshot(
         foundation_revision_id=foundation.id,
         binding_set=binding_set,
         current=current,
-        current_gaps=() if current else tuple(g for g in gaps if g.code in CURRENT_ROW_GAP_CODES),
+        current_gaps=() if current or site.site_type == "COLDCHAIN"
+        else tuple(g for g in gaps if g.code in CURRENT_ROW_GAP_CODES),
     )

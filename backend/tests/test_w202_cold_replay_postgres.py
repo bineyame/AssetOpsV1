@@ -145,24 +145,6 @@ def hold_uuids(monkeypatch, tag: int) -> None:
     monkeypatch.setattr(run_identity, "uuid", types.SimpleNamespace(uuid4=next_uuid))
 
 
-# --- KNOWN DEVIATION (packet): the production registered basis refuses a COLDCHAIN snapshot -------------
-# `binding_service.acquisition_snapshot` derives MINIGRID `configuration_gaps` (SITE_TYPE_UNSUPPORTED and the
-# electrical component gaps) for COLD-LAB-001, so `RegisteredLabBasis` refuses every cold Draft. How COLDCHAIN
-# readiness gates the snapshot is an open Architect question; these proofs lift only that gap check, test-only,
-# and only for a COLDCHAIN Site. The stored snapshot bytes, hash and pinned-identity checks still run.
-
-
-def open_cold_snapshot_gate(monkeypatch) -> None:
-    from assetops_backend.sites import binding_service
-
-    original = binding_service.configuration_gaps
-
-    def gaps(site, foundation, registrations):
-        return [] if site.site_type == "COLDCHAIN" else original(site, foundation, registrations)
-
-    monkeypatch.setattr(binding_service, "configuration_gaps", gaps)
-
-
 # --- the chain ------------------------------------------------------------------------------------------
 
 
@@ -348,7 +330,6 @@ def chain(tmp_path, monkeypatch):
 
     def make(case: str) -> Chain:
         hold_uuids(monkeypatch, CASES.index(case) + 1)
-        open_cold_snapshot_gate(monkeypatch)
         built = Chain(case, tmp_path / case)
         opened.append(built)
         return built.open()
