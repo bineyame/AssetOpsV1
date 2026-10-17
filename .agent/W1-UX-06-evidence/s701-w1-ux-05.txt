@@ -1,0 +1,57 @@
+﻿PASS  loaded http://localhost:5470/sites/KOBO-001/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  health desktop: the migrated card renders at http://localhost:5470/sites/KOBO-001/health
+PASS  health desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Some gateways are not in contact","asOf":"As of 17 Oct 2026, 00:27 UTC"}
+PASS  health desktop: the closed summary is plain text  "How this was worked out"
+PASS  health desktop: no sideways scroll from the card (measured 85 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  health desktop: the card has a small visual  true
+PASS  health desktop: keyboard Tab reaches the disclosure summary  {"tabs":19,"focusable":["A:Open gateway s7-clock-offset","A:Open gateway s7-delayed-old","A:Open gateway s7-never-received","A:Open gateway s7-stale-cadence","A:Battery condition: battery page →","SUMMARY:How this was worked out"]}
+PASS  health desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/health"
+PASS  loaded http://localhost:5470/mockups/v69/index.html#/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  health desktop: mock #/health renders
+PASS  loaded http://localhost:5470/sites/KOBO-001/health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  health narrow: the migrated card renders at http://localhost:5470/sites/KOBO-001/health
+PASS  health narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Some gateways are not in contact","asOf":"As of 17 Oct 2026, 00:27 UTC"}
+PASS  health narrow: the closed summary is plain text  "How this was worked out"
+PASS  health narrow: no sideways scroll from the card (measured 85 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  health narrow: the card has a small visual  true
+PASS  health narrow: keyboard Tab reaches the disclosure summary  {"tabs":19,"focusable":["A:Open gateway s7-clock-offset","A:Open gateway s7-delayed-old","A:Open gateway s7-never-received","A:Open gateway s7-stale-cadence","A:Battery condition: battery page →","SUMMARY:How this was worked out"]}
+PASS  health narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/health"
+PASS  loaded http://localhost:5470/mockups/v69/index.html#/health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  health narrow: mock #/health renders
+PASS  loaded http://localhost:5470/sites/KOBO-002/health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  health-nosource desktop: the migrated card renders at http://localhost:5470/sites/KOBO-002/health
+PASS  health-nosource desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"No gateway is reporting","asOf":"As of 17 Oct 2026, 00:27 UTC"}
+PASS  health-nosource desktop: the closed summary is plain text  "How this was worked out"
+PASS  health-nosource desktop: no sideways scroll from the card (measured 33 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  health-nosource desktop: the card has a small visual  "none when no gateway is reporting (no zero bars)"
+PASS  health-nosource desktop: keyboard Tab reaches the disclosure summary  {"tabs":15,"focusable":["A:Battery condition: battery page →","SUMMARY:How this was worked out"]}
+PASS  health-nosource desktop: the address keeps its path and selectors after load  "/sites/KOBO-002/health"
+PASS  loaded http://localhost:5470/sites/KOBO-002/health: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  health-nosource narrow: the migrated card renders at http://localhost:5470/sites/KOBO-002/health
+PASS  health-nosource narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"No gateway is reporting","asOf":"As of 17 Oct 2026, 00:27 UTC"}
+PASS  health-nosource narrow: the closed summary is plain text  "How this was worked out"
+PASS  health-nosource narrow: no sideways scroll from the card (measured 33 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  health-nosource narrow: the card has a small visual  "none when no gateway is reporting (no zero bars)"
+PASS  health-nosource narrow: keyboard Tab reaches the disclosure summary  {"tabs":15,"focusable":["A:Battery condition: battery page →","SUMMARY:How this was worked out"]}
+PASS  health-nosource narrow: the address keeps its path and selectors after load  "/sites/KOBO-002/health"
+PASS  loaded http://localhost:5470/sites/KOBO-001/assets/61e5e895-c41a-4ef4-b3e8-6df022af4053: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset desktop: the migrated card renders at http://localhost:5470/sites/KOBO-001/assets/61e5e895-c41a-4ef4-b3e8-6df022af4053
+PASS  asset desktop: state, scope and as-of are drawn with the disclosure closed  {"label":"Cannot yet be judged","asOf":"As of 17 Oct 2026, 00:27 UTC"}
+PASS  asset desktop: the closed summary is plain text  "How this was worked out"
+PASS  asset desktop: no sideways scroll from the card (measured 68 elements)  {"scrollWidth":1425,"clientWidth":1425,"wide":[]}
+PASS  asset desktop: the card has a small visual  true
+PASS  asset desktop: keyboard Tab reaches the disclosure summary  {"tabs":17,"focusable":["A:Source contact and reports: Health →","SUMMARY:How this was worked out"]}
+PASS  asset desktop: the address keeps its path and selectors after load  "/sites/KOBO-001/assets/61e5e895-c41a-4ef4-b3e8-6df022af4053"
+PASS  loaded http://localhost:5470/mockups/v69/index.html#/asset: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset desktop: mock #/asset renders
+PASS  loaded http://localhost:5470/sites/KOBO-001/assets/61e5e895-c41a-4ef4-b3e8-6df022af4053: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset narrow: the migrated card renders at http://localhost:5470/sites/KOBO-001/assets/61e5e895-c41a-4ef4-b3e8-6df022af4053
+PASS  asset narrow: state, scope and as-of are drawn with the disclosure closed  {"label":"Cannot yet be judged","asOf":"As of 17 Oct 2026, 00:27 UTC"}
+PASS  asset narrow: the closed summary is plain text  "How this was worked out"
+PASS  asset narrow: no sideways scroll from the card (measured 68 elements)  {"scrollWidth":390,"clientWidth":390,"wide":[]}
+PASS  asset narrow: the card has a small visual  true
+PASS  asset narrow: keyboard Tab reaches the disclosure summary  {"tabs":17,"focusable":["A:Source contact and reports: Health →","SUMMARY:How this was worked out"]}
+PASS  asset narrow: the address keeps its path and selectors after load  "/sites/KOBO-001/assets/61e5e895-c41a-4ef4-b3e8-6df022af4053"
+PASS  loaded http://localhost:5470/mockups/v69/index.html#/asset: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset narrow: mock #/asset renders
+56/56 claims passed; screenshots in C:\Users\assef\AppData\Local\Temp\w1ux06-final\s701
