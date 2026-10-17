@@ -3802,6 +3802,10 @@ ul.evidence-notes li { font-size: inherit; }
 .site-battery .data-table {
   min-width: 640px;
 }
+/* The data-sources table carries the long reported-fact lines; give its Quality column room to stay short. */
+.site-health .data-table[aria-labelledby="site-health-sources-heading"] {
+  min-width: 920px;
+}
 .health-condition-lead,
 .health-contact-summary {
   margin: 0 0 var(--space-3);
