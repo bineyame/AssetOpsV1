@@ -1,12 +1,12 @@
 {
-  "revision": null,
-  "captured_at": "2026-10-17T11:34:52.634Z",
+  "revision": "26524dc3",
+  "captured_at": "2026-10-17T12:33:24.979Z",
   "pairs": [
     {
       "screen": "action-plan",
       "case": "pass",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/plan",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-pass-1440-app.png",
       "mock_image": "action-plan-pass-1440-mock.png",
@@ -20,7 +20,7 @@
             "x": 248,
             "y": 352,
             "w": 1160,
-            "h": 340
+            "h": 383
           }
         ],
         "overflowX": 0
@@ -45,7 +45,7 @@
       "screen": "action-plan",
       "case": "pass",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/plan",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-pass-390-app.png",
       "mock_image": "action-plan-pass-390-mock.png",
@@ -59,7 +59,7 @@
             "x": 16,
             "y": 1068,
             "w": 358,
-            "h": 472
+            "h": 548
           }
         ],
         "overflowX": 0
@@ -84,7 +84,7 @@
       "screen": "action-plan",
       "case": "guardrail",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/1a17bec5-5642-4622-9ffa-ef7c6f05ed8f/plan",
+      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-guardrail-1440-app.png",
       "mock_image": "action-plan-guardrail-1440-mock.png",
@@ -98,7 +98,7 @@
             "x": 248,
             "y": 374,
             "w": 1160,
-            "h": 366
+            "h": 409
           }
         ],
         "overflowX": 0
@@ -123,7 +123,7 @@
       "screen": "action-plan",
       "case": "guardrail",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/1a17bec5-5642-4622-9ffa-ef7c6f05ed8f/plan",
+      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/plan",
       "mock_hash": "#/action-plan",
       "app_image": "action-plan-guardrail-390-app.png",
       "mock_image": "action-plan-guardrail-390-mock.png",
@@ -137,7 +137,7 @@
             "x": 16,
             "y": 1068,
             "w": 358,
-            "h": 530
+            "h": 606
           }
         ],
         "overflowX": 0
@@ -162,7 +162,7 @@
       "screen": "action-evidence",
       "case": "pass",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/evidence",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-pass-1440-app.png",
       "mock_image": "action-evidence-pass-1440-mock.png",
@@ -176,7 +176,7 @@
             "x": 248,
             "y": 352,
             "w": 1160,
-            "h": 347
+            "h": 363
           }
         ],
         "overflowX": 0
@@ -201,7 +201,7 @@
       "screen": "action-evidence",
       "case": "pass",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/evidence",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-pass-390-app.png",
       "mock_image": "action-evidence-pass-390-mock.png",
@@ -215,7 +215,7 @@
             "x": 16,
             "y": 1068,
             "w": 358,
-            "h": 481
+            "h": 600
           }
         ],
         "overflowX": 0
@@ -240,7 +240,7 @@
       "screen": "action-evidence",
       "case": "guardrail",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/1a17bec5-5642-4622-9ffa-ef7c6f05ed8f/evidence",
+      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-guardrail-1440-app.png",
       "mock_image": "action-evidence-guardrail-1440-mock.png",
@@ -254,7 +254,7 @@
             "x": 248,
             "y": 352,
             "w": 1160,
-            "h": 346
+            "h": 389
           }
         ],
         "overflowX": 0
@@ -279,7 +279,7 @@
       "screen": "action-evidence",
       "case": "guardrail",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/1a17bec5-5642-4622-9ffa-ef7c6f05ed8f/evidence",
+      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/evidence",
       "mock_hash": "#/action-evidence",
       "app_image": "action-evidence-guardrail-390-app.png",
       "mock_image": "action-evidence-guardrail-390-mock.png",
@@ -293,7 +293,7 @@
             "x": 16,
             "y": 1052,
             "w": 358,
-            "h": 572
+            "h": 648
           }
         ],
         "overflowX": 0
@@ -318,7 +318,7 @@
       "screen": "verification",
       "case": "pass",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/verification",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-pass-1440-app.png",
       "mock_image": "verification-pass-1440-mock.png",
@@ -332,23 +332,23 @@
           {
             "title": "Target and guardrails evaluated together",
             "x": 248,
-            "y": 523,
+            "y": 613,
             "w": 1145,
             "h": 347
           },
           {
             "title": "Activity evidence",
             "x": 248,
-            "y": 903,
+            "y": 993,
             "w": 725,
-            "h": 347
+            "h": 423
           },
           {
             "title": "Outcome evidence",
             "x": 991,
-            "y": 903,
+            "y": 993,
             "w": 403,
-            "h": 347
+            "h": 423
           }
         ],
         "overflowX": 0
@@ -389,7 +389,7 @@
       "screen": "verification",
       "case": "pass",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/verification",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-pass-390-app.png",
       "mock_image": "verification-pass-390-mock.png",
@@ -403,23 +403,23 @@
           {
             "title": "Target and guardrails evaluated together",
             "x": 16,
-            "y": 1420,
+            "y": 1637,
             "w": 358,
             "h": 659
           },
           {
             "title": "Activity evidence",
             "x": 16,
-            "y": 2112,
+            "y": 2330,
             "w": 358,
             "h": 314
           },
           {
             "title": "Outcome evidence",
             "x": 16,
-            "y": 2442,
+            "y": 2660,
             "w": 358,
-            "h": 347
+            "h": 423
           }
         ],
         "overflowX": 0
@@ -460,7 +460,7 @@
       "screen": "verification",
       "case": "historical",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/verification?outcome_id=1557cea4-1052-4874-a670-1fadcfa50e0e",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification?outcome_id=a80ccd3f-bc8a-41fe-a103-99004ea6ebc6",
       "mock_hash": "#/verification",
       "app_image": "verification-historical-1440-app.png",
       "mock_image": "verification-historical-1440-mock.png",
@@ -474,23 +474,23 @@
           {
             "title": "Target and guardrails evaluated together",
             "x": 248,
-            "y": 500,
+            "y": 590,
             "w": 1145,
             "h": 366
           },
           {
             "title": "Activity evidence",
             "x": 248,
-            "y": 900,
+            "y": 990,
             "w": 725,
-            "h": 347
+            "h": 423
           },
           {
             "title": "Outcome evidence",
             "x": 991,
-            "y": 900,
+            "y": 990,
             "w": 403,
-            "h": 347
+            "h": 423
           }
         ],
         "overflowX": 0
@@ -531,7 +531,7 @@
       "screen": "verification",
       "case": "historical",
       "viewport": "390x900",
-      "app_url": "http://localhost:5592/sites/KOBO-001/actions/20db9063-eba4-4920-a5d8-96b4b83e9ae0/verification?outcome_id=1557cea4-1052-4874-a670-1fadcfa50e0e",
+      "app_url": "http://localhost:5592/sites/KOBO-001/actions/1d22e85e-51e4-4f54-82e5-2503fb23c2c4/verification?outcome_id=a80ccd3f-bc8a-41fe-a103-99004ea6ebc6",
       "mock_hash": "#/verification",
       "app_image": "verification-historical-390-app.png",
       "mock_image": "verification-historical-390-mock.png",
@@ -545,23 +545,23 @@
           {
             "title": "Target and guardrails evaluated together",
             "x": 16,
-            "y": 1446,
+            "y": 1664,
             "w": 358,
             "h": 678
           },
           {
             "title": "Activity evidence",
             "x": 16,
-            "y": 2158,
+            "y": 2376,
             "w": 358,
             "h": 314
           },
           {
             "title": "Outcome evidence",
             "x": 16,
-            "y": 2488,
+            "y": 2706,
             "w": 358,
-            "h": 347
+            "h": 423
           }
         ],
         "overflowX": 0
@@ -602,7 +602,7 @@
       "screen": "verification",
       "case": "guardrail",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/1a17bec5-5642-4622-9ffa-ef7c6f05ed8f/verification",
+      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-guardrail-1440-app.png",
       "mock_image": "verification-guardrail-1440-mock.png",
@@ -616,23 +616,23 @@
           {
             "title": "Target and guardrails evaluated together",
             "x": 248,
-            "y": 500,
+            "y": 590,
             "w": 1145,
             "h": 390
           },
           {
             "title": "Activity evidence",
             "x": 248,
-            "y": 924,
+            "y": 1014,
             "w": 725,
-            "h": 364
+            "h": 440
           },
           {
             "title": "Outcome evidence",
             "x": 991,
-            "y": 924,
+            "y": 1014,
             "w": 403,
-            "h": 364
+            "h": 440
           }
         ],
         "overflowX": 0
@@ -673,7 +673,7 @@
       "screen": "verification",
       "case": "guardrail",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/actions/1a17bec5-5642-4622-9ffa-ef7c6f05ed8f/verification",
+      "app_url": "http://localhost:5593/sites/KOBO-001/actions/ba2a75d6-9ab7-49f0-aafb-19ae80900eb7/verification",
       "mock_hash": "#/verification",
       "app_image": "verification-guardrail-390-app.png",
       "mock_image": "verification-guardrail-390-mock.png",
@@ -687,23 +687,23 @@
           {
             "title": "Target and guardrails evaluated together",
             "x": 16,
-            "y": 1403,
+            "y": 1621,
             "w": 358,
             "h": 751
           },
           {
             "title": "Activity evidence",
             "x": 16,
-            "y": 2188,
+            "y": 2406,
             "w": 358,
             "h": 314
           },
           {
             "title": "Outcome evidence",
             "x": 16,
-            "y": 2518,
+            "y": 2736,
             "w": 358,
-            "h": 364
+            "h": 440
           }
         ],
         "overflowX": 0
@@ -744,7 +744,7 @@
       "screen": "recommendation",
       "case": "guardrail-hold",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:5593/sites/KOBO-001/findings/bd63eec4-954f-4355-b2c5-da622ce01578/recommendation?revision_id=7d1507da-e48b-4114-99ca-17b877b8d3d1",
+      "app_url": "http://localhost:5593/sites/KOBO-001/findings/b3516ae0-6b2a-4dc8-a3fe-07067ad94cc0/recommendation?revision_id=c634e3fa-7b76-4a98-b055-4af2ab590a61",
       "mock_hash": "#/recommendation",
       "app_image": "recommendation-guardrail-hold-1440-app.png",
       "mock_image": "recommendation-guardrail-hold-1440-mock.png",
@@ -815,7 +815,7 @@
       "screen": "recommendation",
       "case": "guardrail-hold",
       "viewport": "390x900",
-      "app_url": "http://localhost:5593/sites/KOBO-001/findings/bd63eec4-954f-4355-b2c5-da622ce01578/recommendation?revision_id=7d1507da-e48b-4114-99ca-17b877b8d3d1",
+      "app_url": "http://localhost:5593/sites/KOBO-001/findings/b3516ae0-6b2a-4dc8-a3fe-07067ad94cc0/recommendation?revision_id=c634e3fa-7b76-4a98-b055-4af2ab590a61",
       "mock_hash": "#/recommendation",
       "app_image": "recommendation-guardrail-hold-390-app.png",
       "mock_image": "recommendation-guardrail-hold-390-mock.png",
