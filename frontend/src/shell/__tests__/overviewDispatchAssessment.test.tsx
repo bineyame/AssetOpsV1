@@ -3,7 +3,7 @@
  * and one-line reason; the other cards keep "No assessment yet". The three
  * capability rendering rules (AC18) for the card's assessment slot.
  */
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -85,10 +85,13 @@ function renderOverview(value: SiteOverview) {
   );
 }
 
+/** W1-F2: a domain is the mock's objective card (label, state word, note) in the card row. */
 function cardFor(name: string): HTMLElement {
-  return screen
-    .getByRole("heading", { level: 3, name })
-    .closest("section") as HTMLElement;
+  const card = Array.from(document.querySelectorAll<HTMLElement>("main [data-overview-card]")).find(
+    (c) => c.querySelector(".v69-metric__label")?.textContent === name,
+  );
+  if (card === undefined) throw new Error(`No domain card "${name}".`);
+  return card;
 }
 
 describe("the Overview Dispatch card's assessment slot (T028)", () => {

@@ -24,6 +24,7 @@ import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { MONEY_STATE_WORDS } from "../../sites/SiteWindowOverview";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible } from "../../test/productPresentation";
+import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
 
@@ -369,7 +370,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     const w1 = scanProductVocabulary(container.querySelector("main") as HTMLElement, "selected-day overview (W1)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(5);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
-    const disclosure = scanDisclosureVocabulary(objectiveCard(), "overview objective disclosure");
+    const disclosure = scanDisclosureVocabulary(dayReading(), "overview objective disclosure");
     expect(disclosure.disclosures).toBe(1);
     expect(disclosure.scanned).toBeGreaterThan(2);
     expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
@@ -378,8 +379,20 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
   });
 });
 
+/**
+ * W1-F2: the former objective answer card is gone (v69 `mini` has no leading card). Its state line is the mock's
+ * statusbar above the panels; its exact references sit with the day reading in panel 1.
+ */
 function objectiveCard(): HTMLElement {
-  return document.querySelector('[data-headline-card="overview-objective"]') as HTMLElement;
+  return document.querySelector("[data-overview-status]") as HTMLElement;
+}
+
+function dayReading(): HTMLElement {
+  return document.querySelector('[data-disclosure="window-assessment"]')?.parentElement as HTMLElement;
+}
+
+function dispatchObjective(): string {
+  return document.querySelector('[data-objective-card="dispatch"] .v69-metric__value')?.textContent ?? "";
 }
 
 function freshnessCard(): HTMLElement {
@@ -392,10 +405,10 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
     await settledScreen();
     const main = container.querySelector("main") as HTMLElement;
-    // The day answer leads: the objective card is the first card under the day selector.
-    const firstCard = main.querySelector("[data-headline-card]");
-    expect(firstCard?.getAttribute("data-headline-card")).toBe("overview-objective");
-    expect(within(objectiveCard()).getByText("Is the mini-grid meeting its operating objective?")).toBeTruthy();
+    // W1-F2: the day state leads as the mock's statusbar; no answer card precedes the five v69 panels.
+    expect(main.querySelector("[data-headline-card]")).toBeNull();
+    expect(main.querySelector(".site-window-overview")?.firstElementChild).toBe(objectiveCard());
+    expectV69Panels("mini");
     const w1 = scanProductVocabulary(main, "selected-day overview (W1-UX-02)", { set: "w1" });
     expect(w1.scanned).toBeGreaterThan(30);
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
@@ -447,7 +460,8 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     expect(expectStateLineVisible(freshnessCard())).toBe("This result may miss newer readings");
     expect(expectStateLineVisible(moneyCard())).toBe("Upstream out of date");
     expect(expectStateLineVisible(objectiveCard())).toBe("This result may miss newer readings");
-    expect(objectiveCard().querySelector(".headline-card__headline")?.textContent).toBe("No current answer for this day");
+    // W1-F2: the Dispatch objective card names the same not-current state, never a current answer.
+    expect(dispatchObjective()).toBe("This result may miss newer readings");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
     expect(moneyCard().querySelector("[data-value-bars]")).toBeNull();
     expect(container.querySelector("[data-window-timeline-figure] figcaption")?.textContent).toContain("not current");
