@@ -455,8 +455,7 @@ function Body({
   if (day === null) {
     return (
       <p className="claim-limit__result" data-claim-limit-state="no-day" data-currentness="UNASSESSED">
-        <ProductStatus inline words={currentnessWords("UNASSESSED")} scope="No assessment selected" asOf={null} /> Choose a day,
-        then one of its assessed periods.
+        No assessment selected: nothing is concluded. Choose a day, then one of its assessed periods.
       </p>
     );
   }
