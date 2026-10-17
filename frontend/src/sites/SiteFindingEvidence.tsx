@@ -234,19 +234,32 @@ export function SiteFindingEvidence({
     >
       <Panel heading={`Evidence bundle · ${bundleName(body)}`} headingId="finding-evidence-bundle-heading">
         <Selection body={body} links={links} />
-        <Bundle body={body} />
-        {/* W1-F3 phase D: the mock's bundle is the summary table; the per-record pages sit in a
-            closed disclosure that opens itself when a later page or a record is chosen. */}
+        <InputsByMeasurement body={body} />
+        <CaseNotes body={body} />
+        {/* W1-F3 height phase: the mock's bundle is the input table. The counts, sources, per-record
+            pages and assessments sit in one closed disclosure, which opens itself (with the record
+            pages) when a later page or a record is chosen. */}
         <Disclosure
-          name="finding-evidence-records"
-          summary={`Cited records, one by one (${body.page.total})`}
+          name="finding-evidence-detail"
+          summary="How this was worked out"
           defaultOpen={offset > 0 || selectedRecord !== null}
         >
-          <Records body={body} selected={selectedRecord} search={search} />
+          <Bundle body={body} />
+          <Disclosure
+            name="finding-evidence-records"
+            summary={`Cited records, one by one (${body.page.total})`}
+            defaultOpen={offset > 0 || selectedRecord !== null}
+          >
+            <Records body={body} selected={selectedRecord} search={search} />
+          </Disclosure>
+          <Assessments body={body} links={links} />
         </Disclosure>
-        <Assessments body={body} links={links} />
       </Panel>
-      <Panel heading="Inspect source lineage" headingId="finding-evidence-lineage-heading">
+      <Panel
+        heading="Inspect source lineage"
+        headingId="finding-evidence-lineage-heading"
+        actions={<DestinationLinks body={body} links={links} />}
+      >
         <Lineage body={body} />
         {selectedRecord === null ? (
           <p className="v69-gap-line" data-evidence-no-record-selected>
@@ -255,7 +268,7 @@ export function SiteFindingEvidence({
         ) : (
           <RecordLineage body={body} evidenceId={selectedRecord} links={links} closeSearch={search({ record: null })} />
         )}
-        <Destinations body={body} links={links} />
+        <Destinations body={body} />
       </Panel>
     </div>
   );
@@ -412,43 +425,50 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
   const words = selectionWords(body);
   const notSupported = lifecycle !== undefined && body.revision.lifecycle !== "SUPPORTED";
   return (
-    <div className="site-finding__state" data-evidence-state>
-      <p className="v69-prose" data-evidence-headline>
-        <strong>{evidenceHeadline(body)}</strong>
-      </p>
-      <ProductStatus words={words} scope={`Version ${no} of this Finding`} asOf={body.revision.recorded_at}>
+    <div className="site-finding__state v69-state-line" data-evidence-state>
+      <strong className="v69-state-line__lead" data-evidence-headline>
+        {evidenceHeadline(body)}
+      </strong>
+      <span aria-hidden="true"> · </span>
+      <ProductStatus inline words={words} scope={`Version ${no} of this Finding`} asOf={body.revision.recorded_at}>
         {notSupported ? (
-          <p className="site-finding__lead" data-evidence-lifecycle={body.revision.lifecycle}>
+          <span className="site-finding__lead" data-evidence-lifecycle={body.revision.lifecycle}>
+            {" "}
             State of this version: <strong>{lifecycle.label}</strong>.{" "}
             {EVIDENCE_LIFECYCLE_SENTENCE[body.revision.lifecycle] ?? lifecycle.sentence}
-          </p>
+          </span>
         ) : null}
         {body.audit_only ? (
-          <p className="site-finding__lead" data-evidence-audit-only>
+          <span className="site-finding__lead" data-evidence-audit-only>
+            {" "}
             Record only. This site&apos;s assessments are not released for use, so this saved version is shown as a
             record, not as the current Finding, and no Dispatch period is linked.
-          </p>
+          </span>
         ) : null}
         <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="evidence" />
         {!selection.is_latest ? (
-          <p className="site-finding__lead" data-evidence-earlier-version>
+          <span className="site-finding__lead" data-evidence-earlier-version>
+            {" "}
             Earlier version {no}. A later version replaces it; these are the records this earlier version cited.{" "}
             <Link to={links.evidence(selection.latest_revision_id)}>Open the latest version&apos;s evidence</Link>
-          </p>
+          </span>
         ) : selection.selected_by === "LATEST_RECORDED" ? (
-          <p data-evidence-latest-at-read>
-            Latest version at the time of reading (version {no}). A version recorded later would replace it on reload.{" "}
+          <span data-evidence-latest-at-read>
+            {" "}
+            Latest version at the time of reading (version {no}). A version recorded later would replace it on
+            reload.{" "}
             <Link to={links.evidence(selection.revision_id)} data-evidence-pin>
               Keep this exact version
             </Link>
-          </p>
+          </span>
         ) : (
-          <p data-evidence-pinned-latest>Version {no}, the latest recorded version, opened by its exact reference.</p>
+          <span data-evidence-pinned-latest> Version {no}, the latest recorded version, opened by its exact reference.</span>
         )}
         {lifecycle === undefined || notSupported ? null : (
-          <p data-evidence-lifecycle={body.revision.lifecycle}>
-            State of this version: <strong>{lifecycle.label}</strong>. {lifecycle.sentence}
-          </p>
+          <span data-evidence-lifecycle={body.revision.lifecycle}>
+            {" "}
+            State of this version: <strong>{lifecycle.label}</strong>.
+          </span>
         )}
       </ProductStatus>
     </div>
@@ -456,11 +476,10 @@ function Selection({ body, links }: { body: FindingEvidenceBody; links: SiteFind
 }
 
 /** The way back to the Finding and its history, and the exact references last. */
-function Destinations({ body, links }: { body: FindingEvidenceBody; links: SiteFindingEvidenceLinks }) {
+function DestinationLinks({ body, links }: { body: FindingEvidenceBody; links: SiteFindingEvidenceLinks }) {
   const { selection } = body;
   return (
-    <>
-      <p className="site-finding__note" data-evidence-destinations>
+      <span className="site-finding__note" data-evidence-destinations>
         <Link to={links.finding(body.finding.id, selection.revision_id)} data-evidence-back-to-finding>
           Back to this version of the Finding
         </Link>
@@ -472,7 +491,14 @@ function Destinations({ body, links }: { body: FindingEvidenceBody; links: SiteF
             </Link>
           </>
         ) : null}
-      </p>
+      </span>
+  );
+}
+
+/** The exact references, last in Inspect source lineage. */
+function Destinations({ body }: { body: FindingEvidenceBody }) {
+  const { selection } = body;
+  return (
       <ExactReferences
         name="finding-evidence-references"
         references={[
@@ -484,22 +510,25 @@ function Destinations({ body, links }: { body: FindingEvidenceBody; links: SiteF
           { label: "Cited set check code", value: body.lineage.cited_set_digest?.status ?? null },
         ]}
       />
-    </>
   );
 }
 
 /** Whole-set lineage: positive claims only when every link resolves. */
 function Lineage({ body }: { body: FindingEvidenceBody }) {
   const { lineage } = body;
-  const strip = <StepStrip title="How each cited record is traced" steps={trailSteps(body)} />;
+  // W1-F3 height phase: the five trail steps read as one compact line; a broken step keeps its detail.
+  const strip = (
+    <div className="finding-evidence__trail-line">
+      <StepStrip title="How each cited record is traced" steps={trailSteps(body)} />
+    </div>
+  );
   if (lineage.status === "COMPLETE") {
     return (
       <div className="finding-evidence__lineage">
         {strip}
-        <p className="v69-prose" data-evidence-lineage-complete>
+        <p className="v69-gap-line" data-evidence-lineage-complete>
           Every one of the {body.counts.cited_total} cited records traces to its accepted record, delivery batch,
-          stored message, the site setup it was accepted under, and the assessment that used it. The cited set
-          matches the check value saved with this version.
+          stored message, site setup and assessment; the cited set matches the check value saved with this version.
         </p>
       </div>
     );
@@ -553,9 +582,13 @@ function Mode({ value }: { value: string | null | undefined }) {
 /** Cited versus input, and where the cited records came from. */
 function Bundle({ body }: { body: FindingEvidenceBody }) {
   const { counts, provenance } = body;
-  const notes = provenance.case_annotations;
   return (
     <>
+      {body.revision.lifecycle === "SUPPORTED" && LIFECYCLE_WORDS.SUPPORTED !== undefined ? (
+        <p className="v69-prose" data-evidence-lifecycle-sentence>
+          {LIFECYCLE_WORDS.SUPPORTED.sentence}
+        </p>
+      ) : null}
       <p className="v69-prose" data-evidence-cited-vs-input>
         This version cites <strong data-evidence-cited-total>{counts.cited_total}</strong> accepted records as support.
         The analysis behind it read <span data-evidence-input-total>{counts.input_distinct_total}</span> accepted records
@@ -568,7 +601,12 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
           {minutes(body.revision.minutes.candidate) === null ? "–" : durationText(minutes(body.revision.minutes.candidate) ?? 0)}
         </Fact>
       </FactList>
-      <InputsByMeasurement body={body} />
+      <p className="site-finding__note" data-evidence-inputs-scope>
+        Counted over all {counts.cited_total} cited records of this version, not only the page shown below.
+        {counts.cited_unresolved > 0
+          ? ` ${counts.cited_unresolved} do not resolve to a record and are not counted by measurement.`
+          : ""}
+      </p>
       <Disclosure name="finding-evidence-sources" summary="Where the cited records came from">
       <p className="site-finding__note" id="finding-evidence-sources">
         Cited records by gateway, source and sequence epoch.
@@ -602,6 +640,15 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
         </tbody>
       </DataTable>
       </Disclosure>
+    </>
+  );
+}
+
+/** The note supplied with demonstration data stays visible beside the input table. */
+function CaseNotes({ body }: { body: FindingEvidenceBody }) {
+  const notes = body.provenance.case_annotations;
+  return (
+    <>
       {notes.length > 0 ? (
         <aside className="dispatch-demo-notes" aria-label="Demonstration data notes" data-finding-case-notes={notes.length}>
           <p className="v69-eyebrow">Note supplied with the demonstration data</p>
@@ -632,11 +679,8 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
   const { counts } = body;
   return (
     <>
-      <p className="site-finding__note" id="finding-evidence-inputs" data-evidence-inputs-scope>
-        Counted over all {counts.cited_total} cited records of this version, not only the page shown below.
-        {counts.cited_unresolved > 0
-          ? ` ${counts.cited_unresolved} do not resolve to a record and are not counted by measurement.`
-          : ""}
+      <p className="visually-hidden" id="finding-evidence-inputs">
+        Inputs counted over all {counts.cited_total} cited records of this version
       </p>
       {groups.length === 0 ? null : (
         <DataTable labelledBy="finding-evidence-inputs">
@@ -669,22 +713,14 @@ function InputsByMeasurement({ body }: { body: FindingEvidenceBody }) {
           </tbody>
         </DataTable>
       )}
-      <MissingClaim
-        as="p"
-        gapId="G-finding-evidence-coverage"
-        placement="finding-evidence.bundle.coverage"
-        className="site-finding__note"
-      >
-        How completely each input was reported over the assessed period is not available yet.
-      </MissingClaim>
-      <MissingClaim
-        as="p"
-        gapId="G-finding-evidence-use"
-        placement="finding-evidence.bundle.use"
-        className="site-finding__note"
-      >
-        What each input was used for in the analysis is not available yet.
-      </MissingClaim>
+      <p className="v69-gap-line">
+        <MissingClaim gapId="G-finding-evidence-coverage" placement="finding-evidence.bundle.coverage">
+          How completely each input was reported over the assessed period is not available yet.
+        </MissingClaim>{" "}
+        <MissingClaim gapId="G-finding-evidence-use" placement="finding-evidence.bundle.use">
+          What each input was used for in the analysis is not available yet.
+        </MissingClaim>
+      </p>
     </>
   );
 }

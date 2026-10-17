@@ -128,3 +128,99 @@
     flex: 1 1 100%;
   }
 }
+
+/* W1-F3 height phase: finding-evidence. The state reads as one compact line (no box); the
+   trail steps read as one line of marks; a broken step keeps its detail visible. */
+.site-finding .panel .v69-state-line .product-status__label {
+  font-weight: 600;
+}
+
+.v69-state-line .source-provenance,
+.v69-state-line .source-provenance .notice {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.v69-state-line .source-provenance .notice::before {
+  content: " · ";
+}
+
+.v69-state-line .source-provenance .disclosure {
+  display: inline;
+  margin: 0 0 0 6px;
+  border: 0;
+  background: none;
+}
+
+.v69-state-line .source-provenance .disclosure__summary {
+  display: inline;
+  padding: 0;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.v69-state-line .source-provenance .disclosure[open] > .disclosure__body {
+  display: block;
+}
+
+.finding-evidence__trail-line .step-strip {
+  margin: 0 0 6px;
+}
+
+.finding-evidence__trail-line .step-strip figcaption {
+  display: inline;
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.finding-evidence__trail-line .step-strip__list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: none;
+}
+
+.finding-evidence__trail-line .step-strip__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12px;
+}
+
+.finding-evidence__trail-line .step-strip__mark {
+  grid-row: auto;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-top: 0;
+}
+
+.finding-evidence__trail-line .step-strip__label {
+  font-weight: 400;
+}
+
+.finding-evidence__trail-line .step-strip__step--done .step-strip__state {
+  display: none;
+}
+
+.finding-evidence__trail-line .step-strip__step--done .step-strip__detail {
+  display: none;
+}
+
+.finding-evidence__trail-line .step-strip__detail {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.site-finding-evidence .panel__actions .site-finding__note {
+  font-size: 12px;
+}

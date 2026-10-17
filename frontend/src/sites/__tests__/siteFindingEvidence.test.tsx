@@ -961,6 +961,38 @@ describe("W1-F3: finding-evidence renders exactly the v69 panels", () => {
     expect(panelTitled("Inspect source lineage").querySelector("[data-evidence-no-record-selected]")).not.toBeNull();
   });
 
+  it("height phase: the bundle's default reading is the state line and the input table; counts, sources, records and assessments are reachable in one closed disclosure", async () => {
+    await mount(fake({ status: "loaded", value: body() }));
+    const bundle = panelTitled(BUNDLE);
+    const detail = bundle.querySelector("details[data-disclosure='finding-evidence-detail']") as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    expect(detail.querySelector("summary")).toHaveTextContent("How this was worked out");
+    for (const sel of ["[data-evidence-cited-vs-input]", "[data-disclosure='finding-evidence-sources']", "[data-disclosure='finding-evidence-records']", "[data-disclosure='finding-evidence-assessments']"]) {
+      expect(detail.querySelector(sel), sel).not.toBeNull();
+    }
+    expect(bundle.querySelectorAll("[data-evidence-id]")).toHaveLength(3);
+    // Visible: the state line, the input table and both missing-claim statements.
+    for (const sel of ["[data-evidence-state]", "tr[data-evidence-input-role]", "[data-gap-id='G-finding-evidence-coverage']", "[data-gap-id='G-finding-evidence-use']"]) {
+      expect(visibleOutsideClosedDisclosure(bundle.querySelector(sel)!), sel).toBe(true);
+    }
+  });
+
+  it("height phase: a broken trail keeps its broken step and the named broken links visible in Inspect source lineage", async () => {
+    const tampered = record(2, { lineage_status: "BROKEN", broken_links: ["ENVELOPE_DIGEST"], envelope: { sha256: "ff", digest_verified: false } });
+    const broken = body(
+      { lineage: { ...body().lineage, status: "BROKEN", broken_records: [{ evidence_id: tampered.evidence_id, links: ["ENVELOPE_DIGEST"] }] } },
+      [record(1), tampered],
+    );
+    await mount(fake({ status: "loaded", value: broken }));
+    const lineagePanel = panelTitled("Inspect source lineage");
+    const problem = lineagePanel.querySelector("[data-step-strip] li[data-step='problem']") as HTMLElement;
+    expect(problem).toHaveTextContent("Stored message");
+    expect(visibleOutsideClosedDisclosure(problem)).toBe(true);
+    for (const sel of ["[data-evidence-lineage-broken]", `[data-evidence-broken-record='${tampered.evidence_id}']`]) {
+      expect(visibleOutsideClosedDisclosure(lineagePanel.querySelector(sel)!), sel).toBe(true);
+    }
+  });
+
   it("one record, selected: the inspector sits inside Inspect source lineage; still two panels", async () => {
     const one = record(1);
     await mount(fake({ status: "loaded", value: body({}, [one]) }), `?record=${one.evidence_id}`);
