@@ -12,7 +12,7 @@
  * reopens the same view. An omitted version is the latest at read time and is
  * labelled so; an unknown or foreign version is refused, never replaced.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import {
@@ -56,9 +56,18 @@ export interface FindingSectionLink {
  * The Finding root's sections (the Finding itself and its named child views).
  * Each link keeps the exact selected version; the frame builds the hrefs.
  */
-export function FindingSections({ sections, current }: { sections: FindingSectionLink[]; current: string }) {
+export function FindingSections({
+  sections,
+  current,
+  aside,
+}: {
+  sections: FindingSectionLink[];
+  current: string;
+  /** W1-F3: a related-screen link at the end of the section row (chrome, not a content block). */
+  aside?: ReactNode;
+}) {
   return (
-    <nav className="site-tabs site-subtabs" aria-label={FINDING_SECTIONS_LABEL}>
+    <nav className="site-tabs site-subtabs finding-sections" aria-label={FINDING_SECTIONS_LABEL}>
       <ol className="site-tabs__list">
         {sections.map((section) => (
           <li className="site-tabs__item" key={section.id}>
@@ -73,6 +82,7 @@ export function FindingSections({ sections, current }: { sections: FindingSectio
           </li>
         ))}
       </ol>
+      {aside === undefined ? null : <span className="finding-sections__aside">{aside}</span>}
     </nav>
   );
 }
@@ -214,9 +224,8 @@ export function SiteFindingEvidence({
   };
   // W1-F3: the v69 finding-evidence form: the evidence bundle, then the source lineage.
   return (
-    <section
+    <div
       className="site-finding site-finding-evidence"
-      aria-labelledby="finding-evidence-bundle-heading"
       data-finding-evidence={body.finding.id}
       data-finding-revision={body.selection.revision_id}
       data-evidence-selected-by={body.selection.selected_by}
@@ -248,7 +257,7 @@ export function SiteFindingEvidence({
         )}
         <Destinations body={body} links={links} />
       </Panel>
-    </section>
+    </div>
   );
 }
 
@@ -294,7 +303,7 @@ function Refused({
   );
   // W1-F3: the page-level refusal, then both v69 panel slots with the gap stated in each.
   return (
-    <section className="site-finding site-finding-evidence" data-finding-evidence-refused={read.status}>
+    <div className="site-finding site-finding-evidence" data-finding-evidence-refused={read.status}>
       <div className="page-refusal" role="status" data-page-refusal={read.status}>
         <p className="page-refusal__title">
           <strong>{chosen.heading}</strong>
@@ -320,7 +329,7 @@ function Refused({
       <Panel heading="Inspect source lineage" headingId="finding-evidence-lineage-heading">
         {gap("lineage")}
       </Panel>
-    </section>
+    </div>
   );
 }
 
@@ -595,7 +604,7 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
       </Disclosure>
       {notes.length > 0 ? (
         <aside className="dispatch-demo-notes" aria-label="Demonstration data notes" data-finding-case-notes={notes.length}>
-          <h3>Note supplied with the demonstration data</h3>
+          <p className="v69-eyebrow">Note supplied with the demonstration data</p>
           <ul>
             {notes.map((note, index) => (
               <li key={index} data-case-kind={String(note.kind ?? "")}>

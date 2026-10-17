@@ -224,7 +224,7 @@ function WindowForm({ scope, onScope }: { scope: FindingIndexScope; onScope: (sc
         {"To (UTC day, included)"}
         <input type="date" value={last} onChange={(event) => setLast(event.target.value)} />
       </label>
-      <button className="v69-button" type="submit">
+      <button className="button" type="submit">
         Show Findings
       </button>
     </form>
@@ -489,7 +489,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
       <View
         state={body.status}
         claim="The Findings for this window are not known"
-        status={<ProductStatus words={words} scope={scopeText} asOf={body.knowledge_at} />}
+        status={<ProductStatus inline words={words} scope={scopeText} asOf={body.knowledge_at} />}
         body={
           <>
             <Gap>
@@ -508,7 +508,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
       <View
         state="current-empty"
         claim="No Findings in this window"
-        status={<ProductStatus words={readResultWords("proved-empty")} scope={scopeText} asOf={body.knowledge_at} />}
+        status={<ProductStatus inline words={readResultWords("proved-empty")} scope={scopeText} asOf={body.knowledge_at} />}
         body={
           <>
             <Gap>
@@ -531,7 +531,7 @@ function Loaded({ body, scope, links }: { body: FindingIndexBody; scope: Finding
     <View
       state="current-rows"
       claim={`${body.total_count} ${body.total_count === 1 ? "Finding" : "Findings"} in this window`}
-      status={<ProductStatus words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
+      status={<ProductStatus inline words={currentnessWords("CURRENT")} scope={scopeText} asOf={body.knowledge_at} />}
       body={
         <>
           <Rows body={body} links={links} />
@@ -592,7 +592,7 @@ function RefusedCard({
       state={state}
       attributes={attributes}
       claim={headline}
-      status={<ProductStatus words={words} scope={scope} asOf={null} />}
+      status={<ProductStatus inline words={words} scope={scope} asOf={null} />}
       body={
         <Gap>
           {meaning}

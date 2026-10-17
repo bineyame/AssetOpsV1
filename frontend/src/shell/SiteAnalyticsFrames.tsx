@@ -444,12 +444,17 @@ export function SiteFindingFrame({
               </Panel>
             ) : (
               <>
-                <FindingSections sections={sections} current={view} />
-                <p className="finding-financials-link" data-finding-financials-link>
-                  <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
-                    What this finding means in money
-                  </Link>
-                </p>
+                <FindingSections
+                  sections={sections}
+                  current={view}
+                  aside={
+                    <span className="finding-financials-link" data-finding-financials-link>
+                      <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
+                        What this finding means in money
+                      </Link>
+                    </span>
+                  }
+                />
                 {view === "evidence" ? (
                   <SiteFindingEvidence
                     siteId={site.site_id}

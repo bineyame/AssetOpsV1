@@ -138,7 +138,7 @@ export function SiteFinding({
   // the limits / next-step pair, then Where to look next. Versions live on
   // History and the record lists on Evidence.
   return (
-    <section {...shared} aria-labelledby="site-finding-happened-heading">
+    <div {...shared}>
       <LocalViews label={FINDING_VIEWS_LABEL} current={view} params={params} />
       <FindingStatusBar body={body} />
       <WhatHappened body={body} links={links} />
@@ -148,7 +148,7 @@ export function SiteFinding({
         <WhatNext body={body} links={links} />
       </div>
       <WhereToLook body={body} links={links} params={params} />
-    </section>
+    </div>
   );
 }
 
@@ -182,7 +182,7 @@ function Refused({ read, pinned }: { read: Exclude<FindingReadResult<FindingDeta
   );
   // W1-F3: the page-level refusal, then the four v69 panel slots with the gap stated in each.
   return (
-    <section className="site-finding" data-finding-refused={read.status}>
+    <div className="site-finding" data-finding-refused={read.status}>
       <div className="page-refusal" role="status" data-page-refusal={read.status}>
         <p className="page-refusal__title">
           <strong>{chosen.heading}</strong>
@@ -209,7 +209,7 @@ function Refused({ read, pinned }: { read: Exclude<FindingReadResult<FindingDeta
       <Panel heading="Where to look next" headingId="site-finding-look-heading">
         {gap("look")}
       </Panel>
-    </section>
+    </div>
   );
 }
 
@@ -487,7 +487,7 @@ function FindingStatusBar({ body }: { body: FindingDetailBody }) {
       <span className="badge badge--neutral" data-chip="version">
         {versionWords(body)}
       </span>
-      <span className="v69-statusbar__spacer" />
+      <span className="status-strip__spacer" />
       <span data-chip="period">{periodWords(selected.episode.start, selected.episode.end)}</span>
     </StatusBar>
   );
@@ -578,9 +578,9 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
       </p>
       {portions.length > 0 ? (
         <div className="site-finding__timeline">
-          <h3 className="site-finding__subheading" id="site-finding-blocks-heading">
+          <p className="v69-eyebrow" id="site-finding-blocks-heading">
             Blocks in this Finding
-          </h3>
+          </p>
           <ol className="site-finding__blocks" aria-labelledby="site-finding-blocks-heading">
             {portions.map((p, index) => {
               const left = ((Date.parse(p.start) - startMs) / total) * 100;
@@ -612,9 +612,11 @@ function WhatHappened({ body, links }: { body: FindingDetailBody; links: SiteFin
           </p>
           {chosen ? (
             <div className="dispatch-block-detail" data-finding-portion-detail>
-              <h3>
-                {portionWords(chosen.classification)}: {stamp(chosen.start)}–{clock(chosen.end)} UTC
-              </h3>
+              <p>
+                <strong>
+                  {portionWords(chosen.classification)}: {stamp(chosen.start)}–{clock(chosen.end)} UTC
+                </strong>
+              </p>
               <p>
                 {durationText(spanMinutes(chosen.start, chosen.end))}
                 {chosen.evidenceCount !== null ? `, supported by ${chosen.evidenceCount} accepted records` : ""}.{" "}

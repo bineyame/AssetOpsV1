@@ -20,10 +20,40 @@ export interface ProductStatusProps {
   asOf: string | null | undefined;
   /** Extra material beside the state (a failed limit, known failures). */
   children?: ReactNode;
+  /**
+   * W1-F3 (additive): render as one-line `status-strip__*` parts for use inside
+   * a `.status-strip--line`, with the same words, scope and bound. No blocks.
+   */
+  inline?: boolean;
 }
 
 /** The plain state line: state sentence, scope and "as of" bound together. */
-export function ProductStatus({ words, scope, asOf, children }: ProductStatusProps) {
+export function ProductStatus({ words, scope, asOf, children, inline = false }: ProductStatusProps) {
+  if (inline) {
+    return (
+      <span className={`status-strip__state product-status--${words.tone}`} data-product-status={words.tone}>
+        <strong className="product-status__label" data-product-status-label>
+          {words.label}
+        </strong>{" "}
+        <span className="product-status__sentence">{words.sentence}</span>
+        {children}
+        <span aria-hidden="true"> · </span>
+        <span className="product-status__bound">
+          <span data-product-status-scope>{scope}</span>
+          <span aria-hidden="true"> · </span>
+          <span data-product-status-as-of>{asOfText(asOf)}</span>
+        </span>
+        {words.next === undefined ? null : (
+          <>
+            <span aria-hidden="true"> · </span>
+            <span className="product-status__next" data-product-status-next>
+              {words.next}
+            </span>
+          </>
+        )}
+      </span>
+    );
+  }
   return (
     <div className={`product-status product-status--${words.tone}`} data-product-status={words.tone}>
       <p className="product-status__label" data-product-status-label>

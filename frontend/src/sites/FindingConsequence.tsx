@@ -474,7 +474,7 @@ export function FinancialsStatusBar({ lines, currency }: { lines: string; curren
       <span className="badge badge--neutral" data-chip="lines">
         {lines}
       </span>
-      <span className="v69-statusbar__spacer" />
+      <span className="status-strip__spacer" />
       <span>
         {currency ? `${currency} · ` : ""}selected finding window · no financial status here; status stays on the source
         finding

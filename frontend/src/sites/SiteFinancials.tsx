@@ -229,24 +229,24 @@ function DisabledEdit() {
 function PriceFields({ price, valid }: { price: PriceRevision; valid: { from: string; to: string | null } }) {
   return (
     <div data-price-fields={price.revision_id}>
-      <div className="v69-input-row">
-        <label className="v69-field">
+      <div className="input-row">
+        <label className="field">
           Diesel price · {price.currency} per litre
           <input value={price.value} readOnly />
           <small>Version {price.revision_no} · {CHANGE_WORDS[price.change_kind] ?? "Change"}</small>
         </label>
-        <label className="v69-field">
+        <label className="field">
           Currency and unit
           <input value={`${price.currency} · per litre`} readOnly />
           <small>{BASIS_WORDS[price.basis] ?? "Another basis"}</small>
         </label>
       </div>
-      <div className="v69-input-row">
-        <label className="v69-field">
+      <div className="input-row">
+        <label className="field">
           Effective period
           <input value={applies(valid)} readOnly />
         </label>
-        <label className="v69-field">
+        <label className="field">
           Recorded
           <input value={`${day(price.recorded_at)}, by ${setBy(price)}`} readOnly />
           <small>Source: {price.source_reference}</small>
@@ -351,7 +351,7 @@ function AssumptionsRefused({
   cutoff: string;
 }) {
   return (
-    <section className="site-financials" aria-label="Site prices" data-price-cutoff={cutoff}>
+    <div className="site-financials" data-price-cutoff={cutoff}>
       {refusal}
       <div className="panel-pair">
         <Panel heading="Financial assumptions" headingId="site-price-heading">
@@ -368,7 +368,7 @@ function AssumptionsRefused({
           </p>
         </Panel>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -495,13 +495,11 @@ export function SiteAssumptions({
   }
   const body = series.value as AssumptionSeriesBody;
   return (
-    <section
+    <div
       className="site-financials"
-      aria-label="Site prices"
       data-price-cutoff={body.cutoff.selected_by}
       data-price-recorded-cutoff={body.cutoff.recorded_at ?? undefined}
     >
-      <AssumptionsNotice recordedAt={recordedAt} links={links} />
       <div className="panel-pair">
         <FinancialAssumptions
           body={body}
@@ -513,6 +511,8 @@ export function SiteAssumptions({
         />
         <ImpactPreview />
       </div>
+      {/* W1-F3: the mock's notice follows the Financial assumptions panel (siteAssumptionsScreen). */}
+      <AssumptionsNotice recordedAt={recordedAt} links={links} />
       {historyPanel(
         <PriceHistory
           body={body}
@@ -524,7 +524,7 @@ export function SiteAssumptions({
           }}
         />,
       )}
-    </section>
+    </div>
   );
 }
 
@@ -620,7 +620,7 @@ function FinancialAssumptions({
       ) : pinned !== null ? (
         <ExactVersion body={pinned} links={links} />
       ) : null}
-      <div className="v69-form-footer">
+      <div className="form-footer">
         <DisabledEdit />
       </div>
       {body.timeline.length > 0 ? <PriceTimeStrip body={body} historical={historical} /> : null}
@@ -819,7 +819,7 @@ export function SiteFinancialsOverview({
   const assumptions = <AssumptionsInUse siteId={siteId} client={client} links={links} />;
 
   return (
-    <section className="site-financials" aria-label="Site financials overview">
+    <div className="site-financials">
       {bridge === null ? (
         <p>Loading the finding's money view.</p>
       ) : bridge.status !== "loaded" ? (
@@ -877,7 +877,7 @@ export function SiteFinancialsOverview({
           <FinancialsNotice />
         </>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -933,8 +933,8 @@ function AssumptionsInUse({ siteId, client, links }: { siteId: string; client: F
           <p className="v69-gap-line">No diesel price is recorded for today at this site.</p>
         </div>
       )}
-      <p className="v69-form-footer">
-        <Link className="v69-button" to={links.assumptions()}>
+      <p className="form-footer">
+        <Link className="button" to={links.assumptions()}>
           Review assumptions
         </Link>
       </p>

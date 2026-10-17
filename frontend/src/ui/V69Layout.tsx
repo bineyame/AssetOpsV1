@@ -136,7 +136,7 @@ export function StatusBar({
   data?: Record<string, string>;
 }) {
   return (
-    <div className="v69-statusbar" role="group" aria-label={label} {...data}>
+    <div className="status-strip status-strip--line" role="group" aria-label={label} {...data}>
       {children}
     </div>
   );
@@ -144,23 +144,20 @@ export function StatusBar({
 
 /**
  * The mock's `.big-claim`: the one concise answer line inside its owning
- * panel, only where the mock shows one (e.g. finding:1). A paragraph by
- * default; it never stands in for a former panel or answer card.
+ * panel, only where the mock shows one (e.g. finding:1). A paragraph;
+ * it never stands in for a former panel or answer card.
  */
 export function BigClaim({
   children,
-  as = "p",
   data,
 }: {
   children: ReactNode;
-  as?: "h3" | "p";
   data?: Record<string, string>;
 }) {
-  const Tag = as;
   return (
-    <Tag className="v69-big-claim" {...data}>
+    <p className="v69-big-claim" {...data}>
       {children}
-    </Tag>
+    </p>
   );
 }
 
@@ -175,7 +172,7 @@ export function Notice({
   data?: Record<string, string>;
 }) {
   return (
-    <div className={tone === "blue" ? "v69-notice v69-notice--blue" : "v69-notice"} {...data}>
+    <div className={tone === "blue" ? "notice v69-notice v69-notice--blue" : "notice v69-notice"} {...data}>
       {children}
     </div>
   );
