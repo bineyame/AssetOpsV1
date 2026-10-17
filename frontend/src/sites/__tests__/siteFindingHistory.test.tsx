@@ -319,6 +319,12 @@ describe("Finding History child view (S4-03 phase 3)", () => {
     for (const term of ["Version recorded", "Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
       expect(screen.getByText(term)).toBeInTheDocument();
     }
+    // W1-F3 phase D: the Basis cell shows one short phrase; its labelled times sit in a closed per-row disclosure.
+    for (const term of ["Readings from", "Last cited reading received", "Last cited reading accepted", "Analysis finished"]) {
+      expect(screen.getByText(term).closest("details")).not.toHaveAttribute("open");
+    }
+    expect(q("[data-history-basis-line]")).toHaveTextContent(/possibly avoidable; .* undecided/);
+    expect(q("[data-history-basis-line]")?.closest("details")).toBeNull();
     expect(document.body).toHaveTextContent("they are not a way to view the Finding as of an earlier moment");
     expect(document.body.textContent ?? "").not.toMatch(/knowledge/i);
   });

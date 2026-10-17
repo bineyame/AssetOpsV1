@@ -70,3 +70,19 @@
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+/* W1-F3 phase D: the Basis cell shows one short phrase and the cited-records line, as the mock's
+   short Basis cell; the labelled times and references sit in a closed per-row disclosure. */
+.site-finding-history__basis-line {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.site-finding-history__version .disclosure {
+  margin-top: 2px;
+}
+
+.site-finding-history__version .disclosure__summary {
+  font-size: 11px;
+}

@@ -18,7 +18,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { DataTable, ExactReferences, Panel, ProductStatus } from "../ui";
+import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus } from "../ui";
 import { durationText, minutes, stamp } from "./dispatchWords";
 import type { FindingClient, FindingHistoryBody, FindingReadResult, HistoryRevision } from "./findingClient";
 import { findingRefusalWords } from "./findingPresentation";
@@ -454,6 +454,24 @@ function VersionRow({
         </small>
       </td>
       <td>
+        <p className="site-finding-history__basis-line" data-history-basis-line>
+          {minuteText(r.minutes.candidate)} possibly avoidable; {minuteText(r.minutes.indeterminate)} undecided
+        </p>
+        <p className="site-finding-history__basis-line">
+          <span>
+            <span data-history-cited={cited.count} data-history-accepted-rows={cited.accepted_rows}>
+              {cited.count} cited; {cited.resolved} of {cited.count} found as accepted records
+            </span>
+            {cited.accepted_rows === "UNRESOLVED_PRESENT" ? (
+              <span data-history-unresolved> ({cited.count - cited.resolved} could not be found)</span>
+            ) : null}
+            .{" "}
+            <Link to={links.evidence(r.id)} data-history-check-evidence={r.id}>
+              Check their record trail on the Evidence page
+            </Link>
+          </span>
+        </p>
+        <Disclosure name={`finding-history-basis-${r.revision_no}`} summary="Times and references">
         <dl className="site-finding-history__basis">
           <div>
             <dt>Period</dt>
@@ -476,21 +494,6 @@ function VersionRow({
           <div>
             <dt>Amount changed from the previous version</dt>
             <dd>{r.revision_no === 1 ? "First version" : r.support_changed ? "Yes" : "No"}</dd>
-          </div>
-          <div>
-            <dt>Cited records</dt>
-            <dd>
-              <span data-history-cited={cited.count} data-history-accepted-rows={cited.accepted_rows}>
-                {cited.count} cited; {cited.resolved} of {cited.count} found as accepted records
-              </span>
-              {cited.accepted_rows === "UNRESOLVED_PRESENT" ? (
-                <span data-history-unresolved> ({cited.count - cited.resolved} could not be found)</span>
-              ) : null}
-              .{" "}
-              <Link to={links.evidence(r.id)} data-history-check-evidence={r.id}>
-                Check their record trail on the Evidence page
-              </Link>
-            </dd>
           </div>
           <div>
             <dt>Readings from</dt>
@@ -536,6 +539,7 @@ function VersionRow({
             </dd>
           </div>
         </dl>
+        </Disclosure>
       </td>
     </tr>
   );

@@ -1118,6 +1118,39 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     expect(violations, describeViolations(violations)).toEqual([]);
   });
 
+  // W1-F3 phase D (phase C risk): the S4-05b per-version source label, moved off the Financials
+  // overview, must render in the Assumptions Interpretation history for both non-attested states.
+  it.each([
+    ["MIXED", "Sources do not agree", "different or unverified sources"],
+    ["UNKNOWN", "Source unverified", "cannot establish the source"],
+  ] as const)("labels a %s-source version in the Interpretation history and shows no amount for it", async (state, label, statement) => {
+    const rows = [
+      hrow(H2, {
+        finding_id: "f0000000-0000-4000-8000-000000000009",
+        source_provenance: { ...authoredSource(H2), state },
+        recorded_amount: { disposition: "MIXED_OR_UNKNOWN_SOURCE", label: null, amount: null, is_current_amount: false },
+      }),
+    ];
+    mount(
+      fake({ seriesFor: echoSeries, history: { status: "loaded", value: historyBody(rows) } }),
+      "/sites/KOBO-001/financials/assumptions",
+    );
+    await settledScreen();
+    expectV69Panels("assumptions");
+    const panel = panelTitled("Interpretation history");
+    const row = panel.querySelector("[data-history-row]") as HTMLElement;
+    const source = row.querySelector("[data-history-source]") as HTMLElement;
+    expect(source).toHaveAttribute("data-history-source", state);
+    expect(source).toHaveTextContent(label);
+    expect(source).toHaveTextContent(statement);
+    expect(visibleOutsideClosedDisclosure(source)).toBe(true);
+    expect(row).toHaveTextContent("Not shown: the source of the readings behind this version is not confirmed.");
+    expect(row.querySelector("[data-history-recorded-amount]")).toBeNull();
+    // No recorded fuel-cost range for this version (a price per litre elsewhere in the panel is not an amount).
+    expect(row).not.toHaveTextContent(/\d+\.\d{2} to \d+\.\d{2} USD/);
+    expect(panel).not.toHaveTextContent(/current amount|today.s (amount|cost)/i);
+  });
+
   it("keeps every version listed without amounts when the source is closed", async () => {
     const closed = hrow(H1, { recorded_amount: { disposition: "SOURCE_CLOSED", label: null, amount: null, is_current_amount: false } });
     mount(
