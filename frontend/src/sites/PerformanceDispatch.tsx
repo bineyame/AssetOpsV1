@@ -1573,7 +1573,7 @@ function AnalysisView({
               ))}
               {hasAlternatives ? (
                 <Fact term="Other explanations">
-                  {`${Object.keys(result.alternatives).length} recorded; their exact wording is in the technical details below.`}
+                  {`${Object.keys(result?.alternatives ?? {}).length} recorded; their exact wording is in the technical details below.`}
                 </Fact>
               ) : null}
               {result?.candidate_bound ? <Fact term="Possibly avoidable bound">Recorded; its exact wording is in the technical details below.</Fact> : null}

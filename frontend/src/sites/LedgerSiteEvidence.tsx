@@ -141,6 +141,9 @@ export function LedgerSiteEvidence({
     };
   }, [gatewayHealth, siteId]);
 
+  // W1-F2 fix round (H2): the chip-row element the claim-limit chooser renders into.
+  const [chooserSlot, setChooserSlot] = useState<HTMLDivElement | null>(null);
+
   const inspect = (key: "signal" | "source", value: string) => {
     const next = new URLSearchParams(params);
     for (const name of ["signal", "source", "record", "cursor"]) next.delete(name);
@@ -158,7 +161,15 @@ export function LedgerSiteEvidence({
       data-evidence-view={view}
     >
       <LocalViews label={LEDGER_EVIDENCE_VIEWS_LABEL} current={view} params={params} />
-      <WindowChooser evidence={evidence} />
+      <WindowChooser
+        evidence={evidence}
+        extra={
+          view === "analysis" ? (
+            // W1-F2 fix round (H2): the assessment day and period chooser joins the page's chip row.
+            <div className="evidence-toolbar__controls evidence-toolbar__assessment" ref={setChooserSlot} />
+          ) : null
+        }
+      />
       {view === "overview" ? (
         <OverviewBody evidence={evidence} health={health} params={params} onInspect={(source) => inspect("source", source)} />
       ) : (
@@ -193,9 +204,10 @@ export function LedgerSiteEvidence({
               )}
             </Advanced>
           </Inspector>
-          <ClaimLimit evidence={evidence}>
-            <EvidenceClaimLimit siteId={siteId} client={claimLimit} assessmentHref={assessmentHref} />
-            {/* W1-F2 compaction: the three technical disclosures sit in one closed row; each keeps its own closed disclosure. */}
+          <ClaimLimit
+            evidence={evidence}
+            technical={
+            /* W1-F2 compaction: the three technical disclosures sit in one closed row; each keeps its own closed disclosure. */
             <Advanced
               name="evidence-analysis-technical"
               summary={
@@ -218,6 +230,14 @@ export function LedgerSiteEvidence({
                 </Panel>
               </Advanced>
             </Advanced>
+            }
+          >
+            <EvidenceClaimLimit
+              siteId={siteId}
+              client={claimLimit}
+              assessmentHref={assessmentHref}
+              chooserTarget={chooserSlot}
+            />
           </ClaimLimit>
         </>
       )}
@@ -227,7 +247,7 @@ export function LedgerSiteEvidence({
 
 // --- selected period -------------------------------------------------------------
 
-function WindowChooser({ evidence }: { evidence: LedgerEvidence }) {
+function WindowChooser({ evidence, extra }: { evidence: LedgerEvidence; extra?: ReactNode }) {
   const [params, setParams] = useSearchParams();
   const { start, end } = evidence.window;
   const [from, setFrom] = useState(localInput(start));
@@ -264,8 +284,8 @@ function WindowChooser({ evidence }: { evidence: LedgerEvidence }) {
 
   return (
     // W1-F2: the window chooser as the v69 chip row (chip-sized controls, `.button`), the app-only control before panel 1.
-    <form className="v69-chips evidence-window evidence-toolbar" onSubmit={apply} data-evidence-window={evidence.window.basis}>
-      <div className="evidence-toolbar__controls">
+    <div className="v69-chips evidence-window evidence-toolbar" data-evidence-window={evidence.window.basis}>
+      <form className="evidence-toolbar__controls" onSubmit={apply}>
         <label className="evidence-toolbar__field">
           <span>From (UTC)</span>
           <input className="v69-chip-control" type="datetime-local" name="from" value={from} onChange={(e) => setFrom(e.target.value)} />
@@ -280,14 +300,15 @@ function WindowChooser({ evidence }: { evidence: LedgerEvidence }) {
         <button type="button" className="button" onClick={all}>
           Show all readings
         </button>
-      </div>
+      </form>
+      {extra}
       <p className="evidence-toolbar__period">
         <strong>Selected period:</strong> {period}. Periods are chosen by the time each reading was taken.
         {evidence.extent.first_source_time === null || evidence.extent.last_source_time === null
           ? " This site has no accepted readings yet."
           : ` Accepted readings for this site span ${readablePeriod(evidence.extent.first_source_time, evidence.extent.last_source_time)}.`}
       </p>
-    </form>
+    </div>
   );
 }
 
@@ -1408,7 +1429,16 @@ function Inspector({
 }
 
 /** `evidence-analysis:2`: the S2-supported way a claim is limited, in plain prose. */
-function ClaimLimit({ evidence, children }: { evidence: LedgerEvidence; children?: ReactNode }) {
+function ClaimLimit({
+  evidence,
+  children,
+  technical,
+}: {
+  evidence: LedgerEvidence;
+  children?: ReactNode;
+  /** The closed technical disclosures, after the not-available line and the list of limits. */
+  technical?: ReactNode;
+}) {
   const applies = (state: LedgerEvidence["states"][number]) =>
     evidence.states.includes(state) ? " This applies to the selected period." : "";
   const p = evidence.projection;
@@ -1417,11 +1447,24 @@ function ClaimLimit({ evidence, children }: { evidence: LedgerEvidence; children
     <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-heading">
       {/* W1-F2: note-size lines in the panel; the full list of limits sits in one closed disclosure, every statement kept. */}
       <div data-evidence-claim-limit>
-        {/* W1-F2 compaction (phase B): the panel's two note lines are one line; both statements kept word for word. */}
-        <ChartNote data={{ "data-evidence-limit-note": "" }}>
-          This page states what arrived for the selected period and draws no conclusion about how the site or its
-          equipment is operating. Data-source status describes reporting, not equipment condition.
-        </ChartNote>
+        {/* W1-F2 fix round (H2): the mock's two paragraphs; the Overview's "This page states what arrived" line is not repeated. */}
+        <div className="claim-limit__prose">
+          <p>
+            Each conclusion lists the readings it needs. When all are present for a period, the full conclusion is
+            allowed. When one is missing or unreliable, the conclusion is narrowed to the periods that are covered,
+            and the gap is shown rather than filled in.
+          </p>
+          <p data-evidence-limit-note>
+            Data-source status describes reporting, not equipment condition: a source can be online while the
+            equipment it watches is faulty.
+          </p>
+        </div>
+      </div>
+      {children}
+      <NotAvailableYet name="claim-limit-rule">
+        Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).
+      </NotAvailableYet>
+      <div data-evidence-claim-limit-list>
         <Advanced name="evidence-limit-list" summary="Advanced details — how what can be said is narrowed">
         <p>What can be said is narrowed in these ways:</p>
         <ul>
@@ -1440,10 +1483,7 @@ function ClaimLimit({ evidence, children }: { evidence: LedgerEvidence; children
         </ul>
         </Advanced>
       </div>
-      <NotAvailableYet name="claim-limit-rule">
-        Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).
-      </NotAvailableYet>
-      {children}
+      {technical}
     </Panel>
   );
 }

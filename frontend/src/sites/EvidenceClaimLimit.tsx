@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { ChartNote, currentnessWords, readResultWords, DataTable, Disclosure, Fact, FactList, plainTime, ProductStatus } from "../ui";
@@ -239,9 +240,15 @@ export interface EvidenceClaimLimitProps {
   client: ClaimLimitClient | undefined;
   /** The Performance > Dispatch address of one pinned revision (shell-built). */
   assessmentHref?: (day: string, revisionId: string) => string;
+  /**
+   * W1-F2 fix round (H2): where the day and period chooser renders. Omitted, it renders inline in the
+   * section; an element (the page's chip row) receives it through a portal; null renders it nowhere yet
+   * (the chip row has not mounted).
+   */
+  chooserTarget?: HTMLElement | null;
 }
 
-export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceClaimLimitProps) {
+export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarget }: EvidenceClaimLimitProps) {
   const [params] = useSearchParams();
   const rawDay = params.get("day");
   const day = isDay(rawDay) ? rawDay : null;
@@ -294,22 +301,24 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref }: EvidenceC
     return `?${next.toString()}`;
   };
 
+  // W1-F2 fix round (H2): the day and period chooser is a chip-row control, not a second panel toolbar.
+  const chooser = (
+    <div className="claim-limit__chooser" data-claim-limit-chooser>
+      <DayChooser day={day} />
+      {day === null || client === undefined ? null : (
+        <AssessedPeriods assessed={assessed} selected={revision} hrefFor={select} />
+      )}
+    </div>
+  );
   return (
-      <div className="claim-limit" data-claim-limit-section data-claim-limit-day={day ?? ""} data-claim-limit-revision={revision ?? ""}>
-        {/* W1-F2: this read sits inside the v69 "How each limit is set" panel; its label is a line, not a panel. */}
-        <p className="claim-limit__label" id={CLAIM_LIMIT_HEADING_ID}>
-          <strong>What the readings can support</strong>
-        </p>
-        {/* W1-F2 compaction: the mock's short paragraph, at note size. */}
-        <ChartNote>
-          Each conclusion lists the readings it needs. When all are present for a period, the full conclusion is
-          allowed. When one is missing or unreliable, the conclusion is narrowed to the periods that are covered, and
-          the gap is shown rather than filled in.
-        </ChartNote>
-        <DayChooser day={day} />
-        {day === null || client === undefined ? null : (
-          <AssessedPeriods assessed={assessed} selected={revision} hrefFor={select} />
-        )}
+      <div
+        className="claim-limit"
+        data-claim-limit-section
+        data-claim-limit-day={day ?? ""}
+        data-claim-limit-revision={revision ?? ""}
+        id={CLAIM_LIMIT_HEADING_ID}
+      >
+        {chooserTarget === undefined ? chooser : chooserTarget === null ? null : createPortal(chooser, chooserTarget)}
         <Body
           siteId={siteId}
           client={client}
@@ -343,11 +352,19 @@ function DayChooser({ day }: { day: string | null }) {
   };
   return (
     <form className="claim-limit__day" onSubmit={submit} data-claim-limit-day-form>
-      <label>
-        Day (UTC){" "}
-        <input type="date" value={draft} onChange={(event) => setDraft(event.target.value)} aria-label="Assessment day (UTC)" />
-      </label>{" "}
-      <button type="submit">Show this day</button>
+      <label className="evidence-toolbar__field">
+        <span>Assessment day (UTC)</span>
+        <input
+          className="v69-chip-control"
+          type="date"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          aria-label="Assessment day (UTC)"
+        />
+      </label>
+      <button type="submit" className="button">
+        Show this day
+      </button>
     </form>
   );
 }
@@ -380,7 +397,7 @@ function AssessedPeriods({
   }
   return (
     <nav aria-label="Assessed periods on this day" data-claim-limit-periods="loaded">
-      <p className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? "in a state not known"}):`}</p>
+      <span className="claim-limit__periods-label">{`Assessed periods (the day is ${DAY_STATUS_WORDS[assessed.value.status] ?? "in a state not known"}):`}</span>
       <ul className="claim-limit__periods">
         {assessed.value.periods.map((p) => (
           <li key={p.id}>
@@ -518,31 +535,32 @@ function Loaded({
       data-support={current ? (limit?.support ?? "") : ""}
       data-scope={read.scope ?? ""}
     >
-      <p className="headline-card__question claim-limit__question">What can these readings support?</p>
-      <p className="claim-limit__headline" data-claim-limit-headline>
-        {head.text}
-      </p>
-      {/* W1-F2 compaction (phase B): the state line in the strip's inline form (same words, scope and bound). */}
-      <p className="claim-limit__status v69-chart-note">
-        <ProductStatusLine read={read} whenText={whenText} />
+      {/* W1-F2 fix round (H2): one result line - the sentence, then its state inline (same words, scope and bound). */}
+      <p className="claim-limit__result">
+        <span className="claim-limit__headline" data-claim-limit-headline>
+          {head.text}
+        </span>{" "}
+        <span className="claim-limit__status">
+          <ProductStatusLine read={read} whenText={whenText} />
+        </span>
       </p>
       {read.currentness === "UNASSESSED" ? (
         <ChartNote>{`This day is ${DAY_STATUS_WORDS[read.window_status] ?? "in a state not known"}.`}</ChartNote>
       ) : null}
       {selected === null || assessmentHref === undefined ? null : (
-        <p>
+        <ChartNote>
           <Link to={assessmentHref(read.day, selected)} data-claim-limit-pinned={selected}>
             Open this assessment in Performance › Dispatch
           </Link>
-        </p>
+        </ChartNote>
       )}
-      <ChartNote>
-        This describes what the readings show, not the equipment's physical capacity; configured ratings are not
-        treated as observed.
-      </ChartNote>
       {/* W1-F2 compaction: what limits it, the readings by input, earlier-version text and the technical
           references sit in one closed disclosure; the headline, state line and day status stay visible. */}
       <Disclosure variant="tech" name="claim-limit-detail" summary="Details — what limits it, readings by input and earlier versions">
+        <ChartNote>
+          This describes what the readings show, not the equipment's physical capacity; configured ratings are not
+          treated as observed.
+        </ChartNote>
         <RoleStrip read={read} roleKeys={roleKeys} roles={roles} />
         {reasons.length === 0 ? null : (
           <>

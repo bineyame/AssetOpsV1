@@ -231,6 +231,14 @@ describe("V-01b Site Evidence analysis", () => {
 
     const limit = panel(V69_EVIDENCE_ANALYSIS_TITLE);
     expect(limit.textContent).toContain("Data-source status describes reporting, not equipment condition");
+    // Review fix H2: the mock's two paragraphs; the assessment chooser is in the page chip row, not the panel; no
+    // answer-card label and no repeat of the Overview's "This page states what arrived" line.
+    expect(limit.querySelector("[data-evidence-limit-note]")?.textContent).toContain("a source can be online while the equipment it watches is faulty");
+    expect(limit.textContent).toContain("Each conclusion lists the readings it needs.");
+    expect(limit.textContent).not.toContain("This page states what arrived");
+    expect(limit.querySelector(".headline-card__question, h3:not(details h3)")).toBeNull();
+    expect(limit.querySelector("[data-claim-limit-day-form]")).toBeNull();
+    expect(document.querySelector(".v69-chips [data-claim-limit-day-form] input.v69-chip-control[type='date']")).not.toBeNull();
     expect(limit.querySelector("[data-not-available='claim-limit-rule']")?.textContent).toBe(
       "Not available yet: the rule that turns accepted readings into a positive capability conclusion and sets its limit (a later capability assessment).",
     );

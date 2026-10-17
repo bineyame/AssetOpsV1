@@ -3406,6 +3406,38 @@ tr[data-selected] > * {
   font-weight: 600;
 }
 
+/* W1-F2 fix round (H2): the mock's prose paragraphs, one result line with its inline state, and the
+   assessment chooser as a chip-row control (no second toolbar inside the panel). */
+.evidence-window.v69-chips {
+  display: grid;
+  gap: var(--space-2);
+}
+.evidence-toolbar__assessment:empty { display: none; }
+.claim-limit__chooser {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.claim-limit__chooser .claim-limit__day {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+.claim-limit__chooser nav { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); }
+.claim-limit__chooser .claim-limit__periods-label { margin: 0; font-size: 11px; }
+.claim-limit__chooser .claim-limit__periods { margin: 0; gap: var(--space-1) var(--space-2); font-size: 11px; }
+.claim-limit__chooser p { margin: 0; font-size: 11px; }
+.claim-limit__prose { font-size: 12px; line-height: 1.8; color: var(--text-secondary); }
+.claim-limit__prose p { margin: 0; }
+.claim-limit__prose p + p { margin-top: var(--space-2); }
+.claim-limit__result { margin: var(--space-3) 0 var(--space-1); font-size: 12px; }
+.claim-limit__result .claim-limit__status { margin: 0; font-size: 11px; }
+
 .claim-limit__subheading {
   margin: var(--space-4) 0 var(--space-2);
   font-size: var(--text-sm);
