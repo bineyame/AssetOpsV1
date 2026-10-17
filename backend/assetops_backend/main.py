@@ -49,6 +49,8 @@ from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.source_health_api import build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
+from assetops_backend.cold_replay import ColdReplayService
+from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.actions.site_index import ActionIndexService
@@ -74,6 +76,7 @@ from assetops_backend.config import (
     load_feature_flags,
 )
 from assetops_backend.evidence.composition import (
+    build_cold_replay_reader,
     build_comparison_reports,
     build_performance_comparison_reports,
     build_evidence_ledger,
@@ -450,6 +453,11 @@ def create_app(
                 registered_bases=RegisteredLabBasis(registry),
             )
         )
+        # W2-02: the explicit-run cold replay read. No production owner principal exists, so every production
+        # read answers 403 (`no_owner_principal`); tests inject the owner check.
+        app.include_router(build_cold_replay_router(
+            ColdReplayService(build_cold_replay_reader(database_url()), runs) if database_url() else None,
+            registry.ledger_scope, access=development_access, owner=no_owner_principal))
 
     return app
 

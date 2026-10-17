@@ -38,6 +38,11 @@ def build_source_provenance(database_url: str | None) -> SourceProvenanceResolve
     return SourceProvenanceResolver(PostgresEvidenceLedger(database_url))
 
 
+def build_cold_replay_reader(database_url: str | None) -> PostgresEvidenceLedger:
+    """W2-02: the cold replay read uses only the ledger's SELECT-only `cold_replay_*` methods. Lazy."""
+    return PostgresEvidenceLedger(database_url)
+
+
 def build_gateway_access(database_url: str | None) -> PostgresGatewayAccess:
     """Gateway credentials, provisioning steps and central diagnostics (S2-02 phase 2).
     Lazy: no connection until first use."""

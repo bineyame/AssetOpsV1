@@ -1013,6 +1013,45 @@ class PostgresEvidenceLedger:
             return finding_revision_id, cited, power
         return self._run(work)
 
+    # --- W2-02 cold replay reads (SELECT only; the service is assetops_backend/cold_replay.py) -------------
+    # Publications are scoped by tenant, Site, `REGISTERED_SIMULATION` and the explicit run ID; the link and
+    # batch are joined LEFT and unscoped so a commitment or scope that disagrees comes back for the service to
+    # refuse, never silently dropped. Dispositions are read for the linked batch IDs only.
+
+    def cold_replay_rows(self, tenant_id: UUID, site_id: UUID, run_id: str) -> dict:
+        def work(c: Connection) -> dict:
+            publications = [dict(r._mapping) for r in c.execute(_COLD_REPLAY_PUBLICATIONS,
+                                                                 {"t": tenant_id, "s": site_id, "run": run_id}).all()]
+            batch_ids = [p["b_id"] for p in publications if p["b_id"] is not None]
+            dispositions = [] if not batch_ids else [dict(r._mapping) for r in c.execute(text(
+                "SELECT CAST(batch_id AS text) AS batch_id, ordinal, decision, "
+                "CAST(accepted_evidence_id AS text) AS accepted_evidence_id FROM ingestion_disposition "
+                "WHERE tenant_id = :t AND site_id = :s AND batch_id = ANY(CAST(:ids AS uuid[])) "
+                "ORDER BY batch_id, ordinal"), {"t": tenant_id, "s": site_id, "ids": batch_ids}).all()]
+            return {"publications": publications, "dispositions": dispositions}
+        return self._run(work)
+
+    def cold_replay_run_referenced(self, tenant_id: UUID, site_id: UUID, run_id: str) -> bool:
+        """Whether any publication of this tenant Site names `run_id` (a missing run it references is a 503)."""
+        def work(c: Connection) -> bool:
+            return c.execute(text("SELECT 1 FROM evidence_publication WHERE tenant_id = :t AND site_id = :s "
+                                  "AND run_id = :run LIMIT 1"),
+                             {"t": tenant_id, "s": site_id, "run": run_id}).first() is not None
+        return self._run(work)
+
+
+_COLD_REPLAY_PUBLICATIONS = text(
+    "SELECT CAST(p.id AS text) AS publication_id, CAST(p.tenant_id AS text) AS p_tenant, "
+    "CAST(p.site_id AS text) AS p_site, p.external_batch_id AS p_ext, p.payload_sha256 AS p_sha, "
+    "CAST(l.batch_id AS text) AS l_batch, CAST(b.id AS text) AS b_id, CAST(b.tenant_id AS text) AS b_tenant, "
+    "CAST(b.site_id AS text) AS b_site, b.external_batch_id AS b_ext, b.payload_sha256 AS b_sha, "
+    "b.status AS b_status, b.total_count AS b_total, b.batch_text AS b_text "
+    "FROM evidence_publication p "
+    "LEFT JOIN batch_publication_link l ON l.publication_id = p.id "
+    "LEFT JOIN ingestion_batch b ON b.id = l.batch_id "
+    "WHERE p.tenant_id = :t AND p.site_id = :s AND p.source_class = 'REGISTERED_SIMULATION' AND p.run_id = :run "
+    "ORDER BY p.recorded_at, p.id")
+
 
 _LINKS = text(
     "SELECT CAST(q.id AS text) AS requested_id, e.id IS NOT NULL AS in_scope, "
