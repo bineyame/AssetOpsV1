@@ -445,11 +445,14 @@ export function SiteFindingFrame({
             ) : (
               <>
                 <FindingSections sections={sections} current={view} />
-                <p className="finding-financials-link" data-finding-financials-link>
-                  <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
-                    What this finding means in money
-                  </Link>
-                </p>
+                {/* W1-F4: on Recommendation the money link is a qualified line inside "Proposed intervention". */}
+                {view === "recommendation" ? null : (
+                  <p className="finding-financials-link" data-finding-financials-link>
+                    <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
+                      What this finding means in money
+                    </Link>
+                  </p>
+                )}
                 {view === "evidence" ? (
                   <SiteFindingEvidence
                     siteId={site.site_id}

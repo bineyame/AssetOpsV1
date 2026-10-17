@@ -717,10 +717,19 @@ describe("W1-UX-04 phase 2: Verification, Plan and Evidence answer cards", () =>
     serve({ [`/api/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`]: ok(body) });
     mount(`/sites/KOBO-001/findings/${FINDING}/recommendation?revision_id=${body.revision_id}`);
     await settledScreen();
-    const card = w1Card("recommendation", "recommendation (W1) overlap hold");
-    expect(expectStateLineVisible(card)).toBe("Held: late evidence withdrew an earlier trial's result");
-    expect(tone(card)).toBe("problem");
-    expect(card.querySelector("[data-recommendation-card-held-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
+    // W1-F4: the former answer card is the v69 status strip; the same state line, tone, as-of and held link.
+    const main = document.body.querySelector("main") as HTMLElement;
+    const w1 = scanProductVocabulary(main, "recommendation (W1) overlap hold", { set: "w1" });
+    expect(w1.scanned).toBeGreaterThan(10);
+    expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
+    expect(q("[data-headline-card]")).toBeNull();
+    const strip = q(".status-strip[data-product-status]") as HTMLElement;
+    const disclosure = scanDisclosureVocabulary(strip, "recommendation (W1) overlap hold disclosure");
+    expect(disclosure.disclosures).toBe(1);
+    expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
+    expect(expectStateLineVisible(strip.parentElement as HTMLElement)).toBe("Held: late evidence withdrew an earlier trial's result");
+    expect(strip.getAttribute("data-product-status")).toBe("problem");
+    expect(strip.querySelector("[data-recommendation-card-held-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
     expect(screen.getByRole("button", { name: /Accept trial/ })).toBeDisabled();
   });
 });

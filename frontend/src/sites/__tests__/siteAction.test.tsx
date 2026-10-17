@@ -862,7 +862,7 @@ describe("W1-UX-04 phase 1: Application and History answer cards", () => {
   });
 });
 
-describe("W1-UX-04 phase 1: Recommendation answer card", () => {
+describe("W1-F4: Recommendation state line (was the W1-UX-04 answer card, now the v69 strip and panel 1)", () => {
   function w1Scan(page: string) {
     const main = document.body.querySelector("main") as HTMLElement;
     const w1 = scanProductVocabulary(main, page, { set: "w1" });
@@ -870,11 +870,11 @@ describe("W1-UX-04 phase 1: Recommendation answer card", () => {
     expect(w1.violations, describeViolations(w1.violations)).toEqual([]);
   }
 
-  for (const [name, label, tone, bars] of [
-    ["pre_accept_available", "Trial proposed; not accepted", "waiting", 2],
-    ["pre_accept_unavailable", "No trial proposed", "limited", 0],
-    ["accepted_snapshot_live_status", "Accepted; result not yet known", "limited", 2],
-    ["latest_revision_after_apply", "Held: an earlier trial is still open", "waiting", 0],
+  for (const [name, label, tone, change] of [
+    ["pre_accept_available", "Trial proposed; not accepted", "waiting", true],
+    ["pre_accept_unavailable", "No trial proposed", "limited", false],
+    ["accepted_snapshot_live_status", "Accepted; result not yet known", "limited", true],
+    ["latest_revision_after_apply", "Held: an earlier trial is still open", "waiting", false],
   ] as const) {
     it(`${name}: the state line, scope and as-of stay outside the closed disclosure; never positive`, async () => {
       const fixture = rec[name];
@@ -882,15 +882,20 @@ describe("W1-UX-04 phase 1: Recommendation answer card", () => {
       mount(fixture.request.path.replace("/api", ""));
       await settledScreen();
       w1Scan(`recommendation (W1) ${name}`);
-      const card = q("[data-headline-card='recommendation']") as HTMLElement;
-      expect(expectStateLineVisible(card)).toBe(label);
-      expect(card.querySelector("[data-product-status]")?.getAttribute("data-product-status")).toBe(tone);
-      expect(card.textContent).toContain("What action should be accepted, and how will success be judged?");
-      expect(card.querySelectorAll("[data-value-bar-key]")).toHaveLength(bars);
-      const disclosure = scanDisclosureVocabulary(card, `recommendation disclosure ${name}`);
+      expect(q("[data-headline-card]")).toBeNull();
+      const strip = q(".status-strip[data-product-status]") as HTMLElement;
+      expect(expectStateLineVisible(strip.parentElement as HTMLElement)).toBe(label);
+      expect(strip.getAttribute("data-product-status")).toBe(tone);
+      const claim = q("#site-recommendation-heading")?.closest(".panel")?.querySelector(".w1f4-recommendation__claim") as HTMLElement;
+      if (change) expect(claim.textContent).toMatch(/20%.*to.*15%/);
+      else expect(claim.textContent).not.toMatch(/to.*15%/);
+      expect(q("[data-recommendation-next]")?.textContent?.length).toBeGreaterThan(10);
+      const disclosure = scanDisclosureVocabulary(strip, `recommendation disclosure ${name}`);
       expect(disclosure.disclosures).toBe(1);
       expect(disclosure.violations, describeViolations(disclosure.violations)).toEqual([]);
-      expect(card.textContent).not.toMatch(/saving (?:of|was|is achieved)|verified/i);
+      for (const el of [strip, claim, q("[data-recommendation-next]") as HTMLElement]) {
+        expect(el.textContent).not.toMatch(/saving (?:of|was|is achieved)|verified/i);
+      }
       expect(document.body.textContent).not.toMatch(/Input digest/);
     });
   }

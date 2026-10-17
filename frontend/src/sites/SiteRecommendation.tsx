@@ -1,7 +1,16 @@
 /**
- * S6-01b phase 1: the Recommendation child view of a durable Finding (mock
- * `recommendation:1`), at
+ * S6-01b phase 1: the Recommendation child view of a durable Finding, at
  * `/sites/{site}/findings/{finding}/recommendation[?revision_id=]`.
+ *
+ * W1-F4 (`D-2026-10-17-mockup-layout-spec`): the screen renders exactly the
+ * v69 `recommendation` panels. A one-line status strip carries the state,
+ * scope and "as of" bound; then panels 1 and 2 side by side (Proposed
+ * intervention | Declare success before evaluating), the acceptance-limit
+ * notice line, and panel 3 (Evidence needed to verify) full width. The former
+ * W1-UX-04 answer card, the battery reserve trial, accepted proposal, live
+ * recomputation, prior-action hold, Actions-on-this-Finding list, accept
+ * control and money link are merged into panel 1. A refused read keeps the
+ * three slots, each with its gap stated inside.
  *
  * Reads `GET /api/sites/{site}/findings/{finding}/recommendation`. Before
  * acceptance the proposal is computed by the server from persisted inputs
@@ -20,14 +29,14 @@
  * (any revision) is listed with its own origin version, application and
  * outcome state and an exact link; it is never relabelled as the selected
  * version's. While an earlier trial is unresolved (`PRIOR_ACTION_UNRESOLVED`)
- * a notice names and links the blocking Action, the live recomputation is
+ * the hold names and links the blocking Action, the live recomputation is
  * shown separately as a second reason, and Accept is disabled with the reason
  * stated. A 409 `PRIOR_ACTION_UNRESOLVED` on accept is reported the same way.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { Disclosure, ExactReferences, Fact, FactList, HeadlineVisualCard, Panel, ProductStatus, ValueBars } from "../ui";
+import { asOfText, Badge, ChartNote, Disclosure, ExactReferences, Fact, FactList, KeyValues, Panel } from "../ui";
 import { SourceProvenanceNotice } from "./sourceProvenance";
 import { DeclaredSuccessPanel, EvidenceNeededPanel, type TrialLinks } from "./recommendationVerification";
 import {
@@ -49,13 +58,13 @@ import {
   CommandUnavailable,
   granted,
   Ref,
-  RefusalPanel,
   SYSTEM_DEMONSTRATION,
   TrialLimitation,
   outcomeWords,
   recommendationWords,
   when,
 } from "./actionPresentation";
+import "./w1f4-recommendation.css";
 
 export interface SiteRecommendationLinks {
   /** This Finding at an exact version (or the latest when null). */
@@ -67,6 +76,14 @@ export interface SiteRecommendationLinks {
   /** The Finding's money view, pinned to the exact Finding version. */
   money: (revisionId: string) => string;
 }
+
+/** The v69 panel titles of `recommendation`, in order. */
+const PROPOSED = "Proposed intervention";
+const SUCCESS = "Declare success before evaluating";
+const EVIDENCE = "Evidence needed to verify";
+
+const ACCEPT_LIMIT =
+  "Accepting creates managed work. It does not close the Finding, verify the change or send a real controller command.";
 
 export function SiteRecommendation({
   siteId,
@@ -111,7 +128,7 @@ export function SiteRecommendation({
   const body = read?.status === "loaded" ? read.value : lastLoaded;
   const failedRead = read !== null && read.status === "refused" ? read : null;
   if (body === null) {
-    return <RefusalPanel refusal={failedRead as Refusal} subject="Recommendation" headingId="site-recommendation-refused-heading" />;
+    return <RefusedRecommendation refusal={failedRead as Refusal} />;
   }
 
   const accept = async (proposal: Proposal) => {
@@ -132,173 +149,318 @@ export function SiteRecommendation({
   const held = HELD_STATES.has(body.state);
   const block = held ? blockFrom(body) : null;
   const priorActions = body.prior_actions?.items ?? [];
+  const words = recommendationWords(accepted ? "ACCEPTED" : body.state);
+  const shown = accepted ? accepted.snapshot : body.proposal;
+  const holdCode = block?.code ?? body.state;
+
+  const acceptControl = accepted ? (
+    <ChartNote data={{ "data-recommendation-accepted-action": accepted.action_id }}>
+      Accepted at {when(accepted.accepted_at)} as <Link to={links.action(accepted.action_id)}>{accepted.action_code}</Link>.
+      Accepting records the trial; it changes nothing on the Site.
+    </ChartNote>
+  ) : body.state === "AVAILABLE" && body.proposal && granted(body.system_demo_capability, "ACCEPT") ? (
+    <>
+      <ChartNote>
+        Accepting records this trial as an Action, acted by a {SYSTEM_DEMONSTRATION} service. It changes nothing on the
+        Site; applying it is a separate step.
+      </ChartNote>
+      <div className="form-footer">
+        <button
+          type="button"
+          className="button primary"
+          data-action-command="ACCEPT"
+          aria-busy={busy}
+          onClick={() => {
+            if (!busy && body.proposal) void accept(body.proposal);
+          }}
+        >
+          Accept trial ({SYSTEM_DEMONSTRATION})
+        </button>
+      </div>
+    </>
+  ) : held ? (
+    <>
+      <div className="form-footer">
+        <button
+          type="button"
+          className="button primary"
+          data-action-command="ACCEPT"
+          data-action-command-held={body.state}
+          disabled
+          aria-describedby="site-recommendation-accept-held"
+        >
+          Accept trial ({SYSTEM_DEMONSTRATION})
+        </button>
+      </div>
+      <p
+        id="site-recommendation-accept-held"
+        className="action-command-unavailable v69-chart-note"
+        data-action-command-unavailable={body.state}
+      >
+        Accepting is not offered: an earlier trial {block?.otherFinding ? "on this battery" : "on this Finding"}
+        {block ? (
+          <>
+            {" "}
+            (<Link to={links.action(block.actionId)}>{block.actionCode ?? "the earlier Action"}</Link>)
+          </>
+        ) : null}{" "}
+        {body.state === "PRIOR_TRIAL_GUARDRAIL_FAILED"
+          ? "missed a safety or service limit, so no new trial on this battery can be accepted."
+          : body.state === "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
+            ? "overlapped late evidence that withdrew its result, so new trials on this battery stay held."
+            : "is still open. Follow that Action; a new trial waits until it is settled."}
+      </p>
+    </>
+  ) : body.state === "AVAILABLE" ? (
+    <CommandUnavailable capability={body.system_demo_capability} what="Accepting" />
+  ) : (
+    <ChartNote>There is no proposal to accept.</ChartNote>
+  );
+
   return (
-    <section
-      className="site-recommendation"
-      aria-labelledby="site-recommendation-heading"
+    <div
+      className="site-recommendation w1f4-recommendation"
       data-recommendation-state={body.state}
       data-recommendation-basis={body.basis}
       data-recommendation-revision={body.revision_id}
     >
       {read === null ? <p className="action-note">Loading the recommendation.</p> : null}
       {failedRead ? (
-        <RefusalPanel refusal={failedRead} subject="Recommendation" headingId="site-recommendation-reread-heading">
-          <p className="action-note">The last successful read is still shown below.</p>
-        </RefusalPanel>
+        <RefusalLine refusal={failedRead} kind="reread">
+          <p className="page-refusal__note">The last successful read is still shown below.</p>
+        </RefusalLine>
       ) : null}
-      <RecommendationCard body={body} accepted={accepted} block={block} links={links} />
-      <Panel heading="Battery reserve trial" headingId="site-recommendation-heading">
-        <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="recommendation" />
-        <FactList>
-          <Fact term="Rule">
-            <Ref value={`${body.rule.id} v${body.rule.version}`} attr="data-recommendation-rule" />
-          </Fact>
-          <Fact term="Finding version">
-            <Link to={links.finding(body.revision_id)} data-recommendation-finding-link>
-              <Ref value={body.revision_id} />
-            </Link>
-            {body.is_latest ? " (latest)" : null}
-          </Fact>
-        </FactList>
-        {!body.is_latest ? (
-          <p className="action-note" data-recommendation-newer-revision={body.latest_revision_id}>
-            A newer version of this Finding exists:{" "}
-            <Link to={links.finding(body.latest_revision_id)}>
-              <Ref value={body.latest_revision_id} />
-            </Link>
-            . This page stays on the version in the address.
-          </p>
-        ) : null}
-        <TrialLimitation limitation={body.rule.limitation} />
-        {!body.source_open ? (
-          <p className="action-note" data-recommendation-source-closed>
-            This site's assessments are not released for use, so this is shown as a record only.
-          </p>
-        ) : null}
-      </Panel>
+      <RecommendationStrip body={body} accepted={accepted} block={block} links={links} />
 
-      {accepted ? (
-        <div className="site-recommendation__pair">
-          <AcceptedPanel accepted={accepted} links={links} />
-          <LivePanel live={body.live_status} />
-        </div>
-      ) : held ? (
-        <div className="site-recommendation__pair">
-          <PriorActionNotice block={block} links={links} state={body.state} />
-          <LivePanel
-            live={body.live_status}
-            note="Recomputed from the current stored inputs. This is a separate reason, shown for information; it does not make a new trial acceptable here."
-          />
-        </div>
-      ) : body.proposal ? (
-        <ProposalPanel heading="Proposed trial" proposal={body.proposal} pinnedNote="Computed from stored inputs when read; not yet accepted." />
-      ) : (
-        <Panel heading="No trial proposed" headingId="site-recommendation-unavailable-heading">
-          <p data-recommendation-unavailable={body.unavailable?.code ?? "UNKNOWN"}>
-            The fixed rule proposes no reserve trial for this Finding version.
-          </p>
-          {body.unavailable ? (
-            <p className="action-note">
+      <div className="panel-pair">
+        <Panel heading={PROPOSED} headingId="site-recommendation-heading" className="w1f4-recommendation__proposed">
+          {accepted ? (
+            <div className="w1f4-recommendation__claim" data-recommendation-accepted={accepted.snapshot.proposed_value}>
+              Battery reserve {accepted.snapshot.old_value}
+              {accepted.snapshot.unit} to {accepted.snapshot.proposed_value}
+              {accepted.snapshot.unit} on <Ref value={accepted.snapshot.asset_code} />, as a measured trial.
+            </div>
+          ) : held ? (
+            <div className="w1f4-recommendation__claim" data-recommendation-held={holdCode}>
+              {HOLD_HEADINGS[holdCode] ?? HOLD_HEADINGS.PRIOR_ACTION_UNRESOLVED}.
+            </div>
+          ) : body.proposal ? (
+            <div className="w1f4-recommendation__claim" data-recommendation-proposal={body.proposal.proposed_value}>
+              Battery reserve {body.proposal.old_value}
+              {body.proposal.unit} to {body.proposal.proposed_value}
+              {body.proposal.unit} on <Ref value={body.proposal.asset_code} />, as a measured trial.
+            </div>
+          ) : (
+            <div className="w1f4-recommendation__claim" data-recommendation-unavailable={body.unavailable?.code ?? "UNKNOWN"}>
+              The fixed rule proposes no reserve trial for this Finding version.
+            </div>
+          )}
+
+          {accepted ? (
+            <ChartNote>
+              Stored when accepted ({when(accepted.accepted_at)}); a later change on the Site does not alter it.{" "}
+              <Link to={links.action(accepted.action_id)} data-recommendation-action-link>
+                {accepted.action_code}
+              </Link>
+            </ChartNote>
+          ) : held ? (
+            <PriorActionHold block={block} links={links} code={holdCode} />
+          ) : body.proposal ? (
+            <ChartNote>Computed from stored inputs when read; not yet accepted.</ChartNote>
+          ) : body.unavailable ? (
+            <ChartNote>
               Reason: <Ref value={body.unavailable.code} /> {body.unavailable.message}
-            </p>
+            </ChartNote>
           ) : null}
+
+          <TrialLimitation limitation={body.rule.limitation} />
+          <SourceProvenanceNotice provenance={body.source_provenance} subject="finding version" name="recommendation" />
+
+          <KeyValues
+            label="Proposed intervention"
+            rows={[
+              ["Action type", `Battery reserve trial (${SYSTEM_DEMONSTRATION})`, "type"],
+              ["Rule", <Ref key="rule" value={`${body.rule.id} v${body.rule.version}`} attr="data-recommendation-rule" />, "rule"],
+              [
+                "Origin",
+                <span key="origin">
+                  <Link to={links.finding(body.revision_id)} data-recommendation-finding-link>
+                    <Ref value={body.revision_id} />
+                  </Link>
+                  {body.is_latest ? " (latest)" : null}
+                </span>,
+                "origin",
+              ],
+              [
+                "Configuration change",
+                shown ? (
+                  <span key="change">
+                    Battery reserve {shown.old_value}
+                    {shown.unit} to {shown.proposed_value}
+                    {shown.unit}
+                  </span>
+                ) : (
+                  <span key="change" data-panel-gap="site-recommendation-change">
+                    None proposed
+                  </span>
+                ),
+                "change",
+              ],
+              ["Suggested owner", <span key="owner" data-panel-gap="site-recommendation-owner">Not recorded</span>, "owner"],
+            ]}
+          />
+
+          {!body.is_latest ? (
+            <ChartNote data={{ "data-recommendation-newer-revision": body.latest_revision_id }}>
+              A newer version of this Finding exists:{" "}
+              <Link to={links.finding(body.latest_revision_id)}>
+                <Ref value={body.latest_revision_id} />
+              </Link>
+              . This page stays on the version in the address.
+            </ChartNote>
+          ) : null}
+          {!body.source_open ? (
+            <ChartNote data={{ "data-recommendation-source-closed": "" }}>
+              This site&apos;s assessments are not released for use, so this is shown as a record only.
+            </ChartNote>
+          ) : null}
+
+          {accepted ? (
+            <LiveLines live={body.live_status} />
+          ) : held ? (
+            <LiveLines
+              live={body.live_status}
+              note="Live recomputation, from the current stored inputs. This is a separate reason, shown for information; it does not make a new trial acceptable here."
+            />
+          ) : null}
+
+          {priorActions.length > 0 ? <PriorActionList items={priorActions} links={links} /> : null}
+
+          <ChartNote data={{ "data-recommendation-next": "" }}>{words.next ?? words.sentence}</ChartNote>
+          {acceptControl}
+          <AcceptOutcome outcome={outcome} links={links} />
+
+          {body.money_consequence ? (
+            <ChartNote data={{ "data-recommendation-money-link": "" }}>
+              <Link to={links.money(body.money_consequence.basis.finding_revision_id)}>
+                {body.money_consequence.label} of this Finding version
+              </Link>
+              . That stored figure belongs to the Finding, not to the trial. The trial predicts no saving.
+            </ChartNote>
+          ) : (
+            <ChartNote data={{ "data-recommendation-money-link": "finding" }}>
+              <Link to={links.money(body.revision_id)}>What this Finding means in money</Link>. Any stored figure belongs
+              to the Finding, not to the trial. The trial predicts no saving.
+            </ChartNote>
+          )}
+
+          {shown ? <StoredInputs shown={shown} proposal={accepted ? null : body.proposal} /> : null}
         </Panel>
-      )}
 
-      <Panel heading={`Accept (${SYSTEM_DEMONSTRATION})`} headingId="site-recommendation-accept-heading">
-        {accepted ? (
-          <p data-recommendation-accepted-action={accepted.action_id}>
-            Accepted at {when(accepted.accepted_at)} as{" "}
-            <Link to={links.action(accepted.action_id)}>{accepted.action_code}</Link>. Accepting records the trial;
-            it changes nothing on the Site.
-          </p>
-        ) : body.state === "AVAILABLE" && body.proposal && granted(body.system_demo_capability, "ACCEPT") ? (
-          <>
-            <p className="action-note">
-              Accepting records this trial as an Action, acted by a {SYSTEM_DEMONSTRATION} service. It changes
-              nothing on the Site; applying it is a separate step.
-            </p>
-            <button
-              type="button"
-              className="action-command"
-              data-action-command="ACCEPT"
-              aria-busy={busy}
-              onClick={() => {
-                if (!busy && body.proposal) void accept(body.proposal);
-              }}
-            >
-              Accept trial ({SYSTEM_DEMONSTRATION})
-            </button>
-          </>
-        ) : held ? (
-          <>
-            <button
-              type="button"
-              className="action-command"
-              data-action-command="ACCEPT"
-              data-action-command-held={body.state}
-              disabled
-              aria-describedby="site-recommendation-accept-held"
-            >
-              Accept trial ({SYSTEM_DEMONSTRATION})
-            </button>
-            <p
-              id="site-recommendation-accept-held"
-              className="action-command-unavailable"
-              data-action-command-unavailable={body.state}
-            >
-              Accepting is not offered: an earlier trial {block?.otherFinding ? "on this battery" : "on this Finding"}
-              {block ? (
-                <>
-                  {" "}
-                  (<Link to={links.action(block.actionId)}>{block.actionCode ?? "the earlier Action"}</Link>)
-                </>
-              ) : null}{" "}
-              {body.state === "PRIOR_TRIAL_GUARDRAIL_FAILED"
-                ? "missed a safety or service limit, so no new trial on this battery can be accepted."
-                : body.state === "PRIOR_TRIAL_REASSESSMENT_OVERLAP"
-                  ? "overlapped late evidence that withdrew its result, so new trials on this battery stay held."
-                  : "is still open. Follow that Action; a new trial waits until it is settled."}
-            </p>
-          </>
-        ) : body.state === "AVAILABLE" ? (
-          <CommandUnavailable capability={body.system_demo_capability} what="Accepting" />
-        ) : (
-          <p className="action-note">There is no proposal to accept.</p>
-        )}
-        <AcceptOutcome outcome={outcome} links={links} />
-      </Panel>
-
-      {accepted && links.actionChild ? (
-        <div className="site-recommendation__pair">
+        {accepted && links.actionChild ? (
           <DeclaredSuccessPanel
             actionId={accepted.action_id}
             summary={body.verification?.[accepted.action_id]}
             links={{ child: links.actionChild }}
           />
-          <EvidenceNeededPanel
-            actionId={accepted.action_id}
-            actionCode={accepted.action_code}
-            summary={body.verification?.[accepted.action_id]}
-            links={{ child: links.actionChild }}
-            actionHref={links.action(accepted.action_id)}
-          />
-        </div>
-      ) : null}
+        ) : (
+          <Panel heading={SUCCESS} headingId="site-recommendation-success-heading">
+            <PanelGap id="site-recommendation-success-heading">No success criteria recorded.</PanelGap>
+            <ChartNote>The trial&apos;s success criteria are recorded with its acceptance; this Finding version has none.</ChartNote>
+          </Panel>
+        )}
+      </div>
 
-      {priorActions.length > 0 ? <PriorActionList items={priorActions} links={links} /> : null}
+      <p className="notice notice--info w1f4-recommendation__notice" data-recommendation-accept-limit>
+        {ACCEPT_LIMIT}
+      </p>
 
-      {body.money_consequence ? (
-        <Panel heading="Money" headingId="site-recommendation-money-heading">
-          <p data-recommendation-money-link>
-            <Link to={links.money(body.money_consequence.basis.finding_revision_id)}>
-              {body.money_consequence.label} of this Finding version
-            </Link>
-            . That stored figure belongs to the Finding, not to the trial. The trial predicts no saving.
-          </p>
+      {accepted && links.actionChild ? (
+        <EvidenceNeededPanel
+          actionId={accepted.action_id}
+          actionCode={accepted.action_code}
+          summary={body.verification?.[accepted.action_id]}
+          links={{ child: links.actionChild }}
+          actionHref={links.action(accepted.action_id)}
+        />
+      ) : (
+        <Panel heading={EVIDENCE} headingId="site-recommendation-evidence-heading">
+          <PanelGap id="site-recommendation-evidence-heading">Requirements not recorded.</PanelGap>
+          <ChartNote>Evidence requirements exist only for an accepted trial.</ChartNote>
         </Panel>
+      )}
+    </div>
+  );
+}
+
+/** An honest in-panel gap line. */
+function PanelGap({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <p className="v69-chart-note w1f4-recommendation__gap" data-panel-gap={id}>
+      {children}
+    </p>
+  );
+}
+
+const REFUSAL_TITLES: Record<number, string> = {
+  401: "Sign-in required",
+  403: "No access",
+  404: "Recommendation not found",
+  409: "Refused",
+  422: "Refused",
+};
+
+/** The typed refusal of a read, as the page-level refusal line (never an h2 panel). */
+function RefusalLine({ refusal, kind, children }: { refusal: Refusal; kind: string; children?: ReactNode }) {
+  const title =
+    refusal.http === null ? "Recommendation unavailable" : (REFUSAL_TITLES[refusal.http] ?? "Recommendation unavailable");
+  const text =
+    refusal.http === null
+      ? "The server could not be reached."
+      : refusal.http === 401
+        ? "Sign in to read this site's Actions."
+        : refusal.http === 403
+          ? "Your account has no access to this."
+          : refusal.http === 404
+            ? "This site has no such recommendation."
+            : `The recommendation could not be read (HTTP ${refusal.http}).`;
+  return (
+    <div className="page-refusal" role="status" data-page-refusal={kind}>
+      <p className="page-refusal__title">
+        <strong>{title}</strong>
+      </p>
+      <p data-action-read="refused" data-action-http={refusal.http ?? "none"} data-action-code={refusal.code ?? ""}>
+        {text}
+      </p>
+      {refusal.code ? (
+        <p className="action-note">
+          Code: <Ref value={refusal.code} />
+        </p>
       ) : null}
-    </section>
+      {refusal.message ? <p className="action-note">Reason given: {refusal.message}</p> : null}
+      {children}
+    </div>
+  );
+}
+
+/** A refused first read: the refusal line, then the three v69 slots, each with its gap inside. */
+function RefusedRecommendation({ refusal }: { refusal: Refusal }) {
+  const gap = "The recommendation could not be read, so nothing is shown here.";
+  return (
+    <div className="site-recommendation w1f4-recommendation" data-recommendation-state="REFUSED">
+      <RefusalLine refusal={refusal} kind="refused" />
+      <div className="panel-pair">
+        <Panel heading={PROPOSED} headingId="site-recommendation-heading">
+          <PanelGap id="site-recommendation-heading">{gap}</PanelGap>
+        </Panel>
+        <Panel heading={SUCCESS} headingId="site-recommendation-success-heading">
+          <PanelGap id="site-recommendation-success-heading">No success criteria recorded. {gap}</PanelGap>
+        </Panel>
+      </div>
+      <Panel heading={EVIDENCE} headingId="site-recommendation-evidence-heading">
+        <PanelGap id="site-recommendation-evidence-heading">Requirements not recorded. {gap}</PanelGap>
+      </Panel>
+    </div>
   );
 }
 
@@ -306,7 +468,7 @@ function AcceptOutcome({ outcome, links }: { outcome: CommandResult | null; link
   if (outcome === null) return null;
   if (outcome.status === "done") {
     return (
-      <p role="status" data-action-command-done={outcome.replayed ? "replayed" : "created"}>
+      <p role="status" className="v69-chart-note" data-action-command-done={outcome.replayed ? "replayed" : "created"}>
         {outcome.replayed ? "This command was already recorded; " : "Accepted; "}
         {outcome.action ? (
           <Link to={links.action(outcome.action.action_id)}>open {outcome.action.action_code}</Link>
@@ -351,7 +513,7 @@ function AcceptOutcome({ outcome, links }: { outcome: CommandResult | null; link
   }
   if (outcome.code === "ACTION_ACCEPTANCE_CONFLICT" && typeof outcome.detail?.action_id === "string") {
     return (
-      <p role="status" data-action-command-done="already-accepted">
+      <p role="status" className="v69-chart-note" data-action-command-done="already-accepted">
         This trial was already accepted.{" "}
         <Link to={links.action(outcome.detail.action_id)}>Open the existing Action</Link>.
       </p>
@@ -360,20 +522,19 @@ function AcceptOutcome({ outcome, links }: { outcome: CommandResult | null; link
   return <CommandRefusal refusal={outcome} />;
 }
 
-function ProposalPanel({ heading, proposal, pinnedNote }: { heading: string; proposal: Proposal; pinnedNote: string }) {
-  const evidenceIds = Array.from(
-    new Set(proposal.inputs.segments.map((segment) => segment.selected_soc?.evidence_id).filter((id): id is string => !!id)),
-  );
-  const assessmentIds = Array.from(new Set(proposal.inputs.segments.map((segment) => segment.assessment_revision_id)));
+/** The stored inputs and pinned versions behind the shown proposal: one closed disclosure. */
+function StoredInputs({ shown, proposal }: { shown: Proposal | AcceptedRecommendation["snapshot"]; proposal: Proposal | null }) {
+  const evidenceIds = proposal
+    ? Array.from(new Set(proposal.inputs.segments.map((segment) => segment.selected_soc?.evidence_id).filter((id): id is string => !!id)))
+    : [];
+  const assessmentIds = proposal ? Array.from(new Set(proposal.inputs.segments.map((segment) => segment.assessment_revision_id))) : [];
   return (
-    <Panel heading={heading} headingId={`site-recommendation-${heading.toLowerCase().replace(/\W+/g, "-")}-heading`}>
-      <p className="action-proposal" data-recommendation-proposal={proposal.proposed_value}>
-        Battery reserve <strong>{proposal.old_value}{proposal.unit}</strong> to{" "}
-        <strong>{proposal.proposed_value}{proposal.unit}</strong> on <Ref value={proposal.asset_code} />.
-      </p>
-      <p className="action-note">{pinnedNote}</p>
-      <PinnedFacts proposal={proposal} />
-      <Disclosure name="recommendation-inputs" summary={`Stored inputs (${assessmentIds.length} assessment, ${evidenceIds.length} readings)`}>
+    <Disclosure
+      name="recommendation-inputs"
+      summary={proposal ? `Stored inputs (${assessmentIds.length} assessment, ${evidenceIds.length} readings)` : "Pinned versions"}
+    >
+      <PinnedFacts proposal={shown} />
+      {proposal ? (
         <FactList>
           <Fact term="Assessment versions">
             {assessmentIds.map((id) => (
@@ -391,8 +552,8 @@ function ProposalPanel({ heading, proposal, pinnedNote }: { heading: string; pro
             <Ref value={proposal.input_sha256} />
           </Fact>
         </FactList>
-      </Disclosure>
-    </Panel>
+      ) : null}
+    </Disclosure>
   );
 }
 
@@ -412,45 +573,27 @@ function PinnedFacts({ proposal }: { proposal: Proposal | AcceptedRecommendation
   );
 }
 
-function AcceptedPanel({ accepted, links }: { accepted: AcceptedRecommendation; links: SiteRecommendationLinks }) {
-  const snapshot = accepted.snapshot;
-  return (
-    <Panel heading="Accepted proposal" headingId="site-recommendation-accepted-heading">
-      <p className="action-proposal" data-recommendation-accepted={snapshot.proposed_value}>
-        Battery reserve <strong>{snapshot.old_value}{snapshot.unit}</strong> to{" "}
-        <strong>{snapshot.proposed_value}{snapshot.unit}</strong> on <Ref value={snapshot.asset_code} />.
-      </p>
-      <p className="action-note">
-        Stored when accepted ({when(accepted.accepted_at)}); a later change on the Site does not alter it.{" "}
-        <Link to={links.action(accepted.action_id)} data-recommendation-action-link>
-          {accepted.action_code}
-        </Link>
-      </p>
-      <PinnedFacts proposal={snapshot} />
-    </Panel>
-  );
-}
-
-function LivePanel({
+/** The live recomputation: a labelled note line, then what the rule says on current inputs. */
+function LiveLines({
   live,
-  note = "Recomputed from the current stored inputs. This is not the accepted proposal.",
+  note = "Live recomputation, from the current stored inputs. This is not the accepted proposal.",
 }: {
   live: LiveStatus | null;
   note?: string;
 }) {
   return (
-    <Panel heading="Live recomputation" headingId="site-recommendation-live-heading">
-      <p className="action-note">{note}</p>
+    <>
+      <ChartNote>{note}</ChartNote>
       {live === null ? (
-        <p data-recommendation-live="none">No live recomputation was returned.</p>
+        <ChartNote data={{ "data-recommendation-live": "none" }}>No live recomputation was returned.</ChartNote>
       ) : live.state === "AVAILABLE" && live.proposal ? (
-        <p data-recommendation-live="AVAILABLE">
+        <ChartNote data={{ "data-recommendation-live": "AVAILABLE" }}>
           The rule would propose {live.proposal.old_value}
           {live.proposal.unit} to {live.proposal.proposed_value}
           {live.proposal.unit} on current inputs.
-        </p>
+        </ChartNote>
       ) : (
-        <p data-recommendation-live={live.state}>
+        <ChartNote data={{ "data-recommendation-live": live.state }}>
           No proposal on current inputs.
           {live.unavailable ? (
             <>
@@ -458,9 +601,9 @@ function LivePanel({
               Reason: <Ref value={live.unavailable.code} /> {live.unavailable.message}
             </>
           ) : null}
-        </p>
+        </ChartNote>
       )}
-    </Panel>
+    </>
   );
 }
 
@@ -510,91 +653,89 @@ function blockFrom(body: RecommendationBody): HeldBy | null {
   };
 }
 
-/** The plain notice naming and linking the earlier Action that holds a new acceptance. */
+/** The hold's plain claim line in panel 1. */
 const HOLD_HEADINGS: Record<string, string> = {
   PRIOR_ACTION_UNRESOLVED: "An earlier trial is still open",
   PRIOR_TRIAL_GUARDRAIL_FAILED: "An earlier trial missed a safety or service limit",
   PRIOR_TRIAL_REASSESSMENT_OVERLAP: "An earlier trial's result was withdrawn after a new acceptance",
 };
 
-function PriorActionNotice({ block, links, state }: { block: HeldBy | null; links: SiteRecommendationLinks; state: string }) {
-  const code = block?.code ?? state;
+/** The note lines naming and linking the earlier Action that holds a new acceptance. */
+function PriorActionHold({ block, links, code }: { block: HeldBy | null; links: SiteRecommendationLinks; code: string }) {
+  if (block === null) {
+    return (
+      <ChartNote data={{ "data-recommendation-prior-block": "UNKNOWN" }}>
+        An earlier trial on this Finding is still open, so a new trial cannot be accepted here. The server did not name
+        it.
+      </ChartNote>
+    );
+  }
   return (
-    <Panel heading={HOLD_HEADINGS[code] ?? HOLD_HEADINGS.PRIOR_ACTION_UNRESOLVED} headingId="site-recommendation-prior-block-heading">
-      {block ? (
-        <>
-          {block.otherFinding ? (
-            <p data-recommendation-prior-block-other-finding={block.action?.origin.finding_id ?? ""}>
-              The hold comes from a trial on the same battery that was accepted for a different Finding. This page's
-              Finding is not that one.
-            </p>
-          ) : null}
-          {code !== "PRIOR_ACTION_UNRESOLVED" ? (
-            <p data-recommendation-prior-block-code={code}>
-              {code === "PRIOR_TRIAL_GUARDRAIL_FAILED"
-                ? "That trial was resolved as ineffective because a measured safety or service limit failed. No new reserve trial on this battery can be accepted."
-                : "A trial was accepted after late evidence had invalidated an earlier result but before that result was withdrawn. New reserve trials on this battery stay held."}{" "}
-              {block.outcomeId && links.actionChild ? (
-                <Link
-                  to={links.actionChild(block.actionId, "verification", { outcomeId: block.outcomeId })}
-                  data-recommendation-prior-block-outcome={block.outcomeId}
-                >
-                  Open that outcome
-                </Link>
-              ) : null}
-              {block.withdrawnOutcomeId && block.withdrawnActionId && links.actionChild ? (
-                <Link
-                  to={links.actionChild(block.withdrawnActionId, "verification", { outcomeId: block.withdrawnOutcomeId })}
-                  data-recommendation-prior-block-withdrawn={block.withdrawnOutcomeId}
-                >
-                  Open the withdrawn outcome
-                </Link>
-              ) : null}
-            </p>
-          ) : null}
-          <p data-recommendation-prior-block={block.actionId}>
-            {block.otherFinding ? "The earlier reserve trial on this battery:" : "This Finding already has a reserve trial:"}{" "}
-            <Link to={links.action(block.actionId)} data-recommendation-prior-block-link>
-              {block.actionCode ?? "the earlier Action"}
+    <>
+      {block.otherFinding ? (
+        <ChartNote data={{ "data-recommendation-prior-block-other-finding": block.action?.origin.finding_id ?? "" }}>
+          The hold comes from a trial on the same battery that was accepted for a different Finding. This page&apos;s
+          Finding is not that one.
+        </ChartNote>
+      ) : null}
+      {code !== "PRIOR_ACTION_UNRESOLVED" ? (
+        <ChartNote data={{ "data-recommendation-prior-block-code": code }}>
+          {code === "PRIOR_TRIAL_GUARDRAIL_FAILED"
+            ? "That trial was resolved as ineffective because a measured safety or service limit failed. No new reserve trial on this battery can be accepted."
+            : "A trial was accepted after late evidence had invalidated an earlier result but before that result was withdrawn. New reserve trials on this battery stay held."}{" "}
+          {block.outcomeId && links.actionChild ? (
+            <Link
+              to={links.actionChild(block.actionId, "verification", { outcomeId: block.outcomeId })}
+              data-recommendation-prior-block-outcome={block.outcomeId}
+            >
+              Open that outcome
             </Link>
-            , accepted on{" "}
-            {block.originRevisionId ? (
-              <Link to={links.finding(block.originRevisionId)} data-recommendation-prior-block-origin={block.originRevisionId}>
-                {block.originRevisionNo !== null ? `Finding version ${block.originRevisionNo}` : "an earlier Finding version"}
-              </Link>
-            ) : (
-              "an earlier Finding version"
-            )}
-            {block.otherFinding ? " of that other Finding." : ", not on the version shown on this page."}
-            {code === "PRIOR_ACTION_UNRESOLVED" ? " A new trial cannot be accepted while that one is still open." : null}
-          </p>
-          {block.action ? (
-            <p className="action-note" data-recommendation-prior-block-state={block.action.application.state}>
-              {block.action.action_code}:{" "}
-              {APPLICATION_WORDS[block.action.application.state] ?? block.action.application.state}.{" "}
-              {outcomeWords(block.action.outcome.state)}
-            </p>
           ) : null}
-          <p className="action-note">
-            Reason: <Ref value={block.code} /> {block.message}
-          </p>
-        </>
-      ) : (
-        <p data-recommendation-prior-block="UNKNOWN">
-          An earlier trial on this Finding is still open, so a new trial cannot be accepted here. The server did not
-          name it.
-        </p>
-      )}
-    </Panel>
+          {block.withdrawnOutcomeId && block.withdrawnActionId && links.actionChild ? (
+            <Link
+              to={links.actionChild(block.withdrawnActionId, "verification", { outcomeId: block.withdrawnOutcomeId })}
+              data-recommendation-prior-block-withdrawn={block.withdrawnOutcomeId}
+            >
+              Open the withdrawn outcome
+            </Link>
+          ) : null}
+        </ChartNote>
+      ) : null}
+      <ChartNote data={{ "data-recommendation-prior-block": block.actionId }}>
+        {block.otherFinding ? "The earlier reserve trial on this battery:" : "This Finding already has a reserve trial:"}{" "}
+        <Link to={links.action(block.actionId)} data-recommendation-prior-block-link>
+          {block.actionCode ?? "the earlier Action"}
+        </Link>
+        , accepted on{" "}
+        {block.originRevisionId ? (
+          <Link to={links.finding(block.originRevisionId)} data-recommendation-prior-block-origin={block.originRevisionId}>
+            {block.originRevisionNo !== null ? `Finding version ${block.originRevisionNo}` : "an earlier Finding version"}
+          </Link>
+        ) : (
+          "an earlier Finding version"
+        )}
+        {block.otherFinding ? " of that other Finding." : ", not on the version shown on this page."}
+        {code === "PRIOR_ACTION_UNRESOLVED" ? " A new trial cannot be accepted while that one is still open." : null}
+      </ChartNote>
+      {block.action ? (
+        <ChartNote data={{ "data-recommendation-prior-block-state": block.action.application.state }}>
+          {block.action.action_code}: {APPLICATION_WORDS[block.action.application.state] ?? block.action.application.state}.{" "}
+          {outcomeWords(block.action.outcome.state)}
+        </ChartNote>
+      ) : null}
+      <ChartNote>
+        Reason: <Ref value={block.code} /> {block.message}
+      </ChartNote>
+    </>
   );
 }
 
 /** Every Action on this canonical Finding, each with its own origin version (never relabelled). */
 function PriorActionList({ items, links }: { items: PriorAction[]; links: SiteRecommendationLinks }) {
   return (
-    <Panel heading="Actions on this Finding" headingId="site-recommendation-prior-actions-heading">
-      <p className="action-note">Each Action keeps the Finding version it was accepted on.</p>
-      <ul className="action-list">
+    <div className="w1f4-recommendation__prior" data-recommendation-prior-actions>
+      <ChartNote>Actions on this Finding. Each keeps the Finding version it was accepted on.</ChartNote>
+      <ul className="action-list w1f4-recommendation__prior-list">
         {items.map((item) => (
           <li
             key={item.action_id}
@@ -621,13 +762,8 @@ function PriorActionList({ items, links }: { items: PriorAction[]; links: SiteRe
           </li>
         ))}
       </ul>
-    </Panel>
+    </div>
   );
-}
-
-function reserveNumber(value: string): number | null {
-  const n = Number(value);
-  return value.trim() === "" || !Number.isFinite(n) ? null : n;
 }
 
 /** The latest end of the stored input windows: the plain "as of" bound of a proposal. */
@@ -647,10 +783,12 @@ function heldAsOf(body: RecommendationBody): string | null {
 }
 
 /**
- * W1-UX-04: the Recommendation answer card - what action should be accepted
- * and how success will be judged. A proposal or acceptance is never a result.
+ * The mock's one-line status strip: the Recommendation badge and state word as
+ * the lead, the state sentence, the scope and "as of" bound, then the next
+ * link and the exact references. A proposal or acceptance is never a result.
+ * (Replaces the W1-UX-04 answer card; its state line keeps the shared hooks.)
  */
-function RecommendationCard({
+function RecommendationStrip({
   body,
   accepted,
   block,
@@ -672,52 +810,33 @@ function RecommendationCard({
       : inputsAsOf(shown?.inputs?.segments ?? body.live_status?.proposal?.inputs?.segments ?? body.segments);
   const scope = `This Finding version, battery reserve rule${accepted ? " (stored when accepted)" : ""}`;
   return (
-    <HeadlineVisualCard
-      dataName="recommendation"
-      headingId="site-recommendation-answer-heading"
-      title="Recommended action"
-      description="A recommendation is a proposed trial. Accepting it records an Action; it changes nothing on the site."
-      question="What action should be accepted, and how will success be judged?"
-      headline={
-        shown ? (
-          <>
-            Lower the battery reserve from {shown.old_value}
-            {shown.unit} to {shown.proposed_value}
-            {shown.unit} as a measured trial.
-          </>
-        ) : (
-          <>{words.label}.</>
-        )
-      }
-      status={<ProductStatus words={words} scope={scope} asOf={asOf} />}
-      visual={
-        shown ? (
-          <ValueBars
-            title="Battery reserve setting"
-            items={[
-              { label: "Current setting", key: "current", value: reserveNumber(shown.old_value), valueText: `${shown.old_value}${shown.unit}` },
-              { label: "Proposed for the trial", key: "proposed", value: reserveNumber(shown.proposed_value), valueText: `${shown.proposed_value}${shown.unit}` },
-            ]}
-          />
-        ) : undefined
-      }
-      meaning={
-        <p>
-          The trial tests whether a lower reserve is safe for this battery. It predicts no saving and no change in
-          generator use. Success is judged only after the trial, against a plan fixed before its readings arrive, on
-          Verification.
-        </p>
-      }
-      todo={words.next === undefined ? undefined : <p>{words.next}</p>}
-      destination={
-        accepted ? (
+    <section
+      className="status-strip status-strip--line w1f4-recommendation__strip"
+      aria-label="Recommendation state"
+      data-product-status={words.tone}
+    >
+      <span className="status-strip__lead">
+        <Badge tone="neutral">Recommendation</Badge>{" "}
+        <strong className="status-strip__state" data-product-status-label>
+          {words.label}
+        </strong>
+      </span>
+      <span className="status-strip__item product-status__sentence">{words.sentence}</span>
+      <span className="muted status-strip__item">
+        <span data-product-status-scope>{scope}</span>
+        <span aria-hidden="true"> · </span>
+        <span data-product-status-as-of>{asOfText(asOf)}</span>
+      </span>
+      <span className="status-strip__spacer" aria-hidden="true" />
+      <span className="status-strip__action">
+        {accepted ? (
           <>
             <Link to={links.action(accepted.action_id)} data-recommendation-card-action-link>
               Open the Action
             </Link>
             {links.actionChild ? (
               <>
-                {" "}
+                {" · "}
                 <Link to={links.actionChild(accepted.action_id, "verification")} data-recommendation-card-verification-link>
                   Open Verification
                 </Link>
@@ -732,21 +851,20 @@ function RecommendationCard({
           <Link to={links.finding(body.revision_id)} data-recommendation-card-finding-link>
             Open the Finding
           </Link>
-        )
-      }
-      references={
-        <ExactReferences
-          name="recommendation-references"
-          references={[
-            { label: "Rule", value: `${body.rule.id} v${body.rule.version}` },
-            { label: "Finding version", value: body.revision_id },
-            { label: "Recommendation state", value: body.state },
-            { label: "Reason no trial is proposed", value: body.unavailable?.code ?? null },
-            { label: "Input reference", value: shown?.input_sha256 ?? null },
-            { label: "Action reference", value: accepted?.action_id ?? null },
-          ]}
-        />
-      }
-    />
+        )}
+      </span>
+      <ExactReferences
+        name="recommendation-references"
+        variant="tech"
+        references={[
+          { label: "Rule", value: `${body.rule.id} v${body.rule.version}` },
+          { label: "Finding version", value: body.revision_id },
+          { label: "Recommendation state", value: body.state },
+          { label: "Reason no trial is proposed", value: body.unavailable?.code ?? null },
+          { label: "Input reference", value: shown?.input_sha256 ?? null },
+          { label: "Action reference", value: accepted?.action_id ?? null },
+        ]}
+      />
+    </section>
   );
 }

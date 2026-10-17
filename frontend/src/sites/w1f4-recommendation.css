@@ -1,0 +1,72 @@
+/* W1-F4 Recommendation (v69 `recommendation`): the mock's big-claim line, note-sized
+   limits and source qualification inside "Proposed intervention", the blue
+   acceptance-limit notice line between the pair and panel 3. */
+
+.w1f4-recommendation__claim {
+  max-width: 790px;
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 550;
+  color: #273e5d;
+}
+
+.w1f4-recommendation__claim .action-ref {
+  font-size: 15px;
+}
+
+.w1f4-recommendation .v69-key-values {
+  margin-top: 13px;
+}
+
+/* Trial limitation and source qualification stay visible beside the claim, at note size. */
+.w1f4-recommendation .action-limitation,
+.w1f4-recommendation .action-command-unavailable,
+.w1f4-recommendation .source-provenance .notice {
+  margin: 10px 0 0;
+  padding: 6px 10px;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.w1f4-recommendation .source-provenance .disclosure,
+.w1f4-recommendation .panel .disclosure {
+  margin-top: 10px;
+  font-size: 11px;
+}
+
+.w1f4-recommendation .form-footer {
+  margin-top: 17px;
+}
+
+.w1f4-recommendation__prior-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.w1f4-recommendation__gap {
+  font-size: 12px;
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+.w1f4-recommendation__notice {
+  margin: 0 0 18px;
+  padding: 11px 14px;
+  border: 1px solid #dce6f5;
+  border-radius: 5px;
+  background: #f0f5fd;
+  color: #456080;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.w1f4-recommendation .panel-pair {
+  margin-bottom: 18px;
+}
+
+.w1f4-recommendation .action-command-refusal {
+  margin-top: 10px;
+  font-size: 11px;
+}
