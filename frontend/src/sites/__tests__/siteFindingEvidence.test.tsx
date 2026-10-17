@@ -342,10 +342,14 @@ describe("Finding Evidence child view (S4-03 phase 2)", () => {
     }));
     await mount(client, `?revision_id=${R2}`);
     expect(q("[data-evidence-page-range]")).toHaveTextContent("Records 1–50 of 70");
+    // W1-F3 phase D: the per-record pages sit in a closed disclosure on the first page...
+    expect(q("[data-disclosure='finding-evidence-records']")).not.toHaveAttribute("open");
     fireEvent.click(q("[data-evidence-page='next']") as HTMLElement);
     await settledScreen();
     expect(where()).toBe(`/sites/${SITE}/findings/${F}/evidence?revision_id=${R2}&offset=50`);
     expect(q("[data-evidence-page-range]")).toHaveTextContent("Records 51–70 of 70");
+    // ...and open on a later page, so the page the reader asked for is shown.
+    expect(q("[data-disclosure='finding-evidence-records']")).toHaveAttribute("open");
     expect(client.asked.at(-1)).toEqual({ revisionId: R2, offset: 50, limit: 50 });
     fireEvent.click(q("[data-evidence-page='previous']") as HTMLElement);
     await settledScreen();

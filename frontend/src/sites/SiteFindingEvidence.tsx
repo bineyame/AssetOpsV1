@@ -226,7 +226,15 @@ export function SiteFindingEvidence({
       <Panel heading={`Evidence bundle · ${bundleName(body)}`} headingId="finding-evidence-bundle-heading">
         <Selection body={body} links={links} />
         <Bundle body={body} />
-        <Records body={body} selected={selectedRecord} search={search} />
+        {/* W1-F3 phase D: the mock's bundle is the summary table; the per-record pages sit in a
+            closed disclosure that opens itself when a later page or a record is chosen. */}
+        <Disclosure
+          name="finding-evidence-records"
+          summary={`Cited records, one by one (${body.page.total})`}
+          defaultOpen={offset > 0 || selectedRecord !== null}
+        >
+          <Records body={body} selected={selectedRecord} search={search} />
+        </Disclosure>
         <Assessments body={body} links={links} />
       </Panel>
       <Panel heading="Inspect source lineage" headingId="finding-evidence-lineage-heading">
@@ -479,7 +487,7 @@ function Lineage({ body }: { body: FindingEvidenceBody }) {
     return (
       <div className="finding-evidence__lineage">
         {strip}
-        <p data-evidence-lineage-complete>
+        <p className="v69-prose" data-evidence-lineage-complete>
           Every one of the {body.counts.cited_total} cited records traces to its accepted record, delivery batch,
           stored message, the site setup it was accepted under, and the assessment that used it. The cited set
           matches the check value saved with this version.
@@ -539,7 +547,7 @@ function Bundle({ body }: { body: FindingEvidenceBody }) {
   const notes = provenance.case_annotations;
   return (
     <>
-      <p data-evidence-cited-vs-input>
+      <p className="v69-prose" data-evidence-cited-vs-input>
         This version cites <strong data-evidence-cited-total>{counts.cited_total}</strong> accepted records as support.
         The analysis behind it read <span data-evidence-input-total>{counts.input_distinct_total}</span> accepted records
         in all; only the cited ones are listed here.

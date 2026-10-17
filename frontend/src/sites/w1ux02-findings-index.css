@@ -42,3 +42,33 @@
 .site-findings-window {
   align-items: center;
 }
+
+/*
+ * W1-F3 phase D (W1-F1 re-review lesson): the statusbar reads as one compact line at the mock's
+ * size, and the day strip and page line are small captions under the table, not body-size cards.
+ */
+.site-findings-view .v69-statusbar .product-status,
+.site-findings-view .v69-statusbar .product-status p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.finding-index [data-finding-index-pages] {
+  font-size: 12px;
+}
+
+.finding-index .step-strip__step {
+  padding: 4px 8px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.finding-index .step-strip__mark {
+  grid-row: span 3;
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.finding-index .step-strip .value-bars__title {
+  font-size: 12px;
+}
