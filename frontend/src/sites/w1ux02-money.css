@@ -152,3 +152,71 @@
 .site-financials .w1-money-strip__list {
   font-size: 12px;
 }
+
+/*
+ * W1-F3 height phase: Assumptions and Financials. The pair's panels keep their own height (Impact
+ * preview no longer stretches to its neighbour); the price strip is compact; the closed disclosures
+ * read as one small line; price history items are one line each.
+ */
+.site-financials .panel-pair {
+  align-items: start;
+}
+
+.site-financials .w1-money-strip {
+  margin-top: 10px;
+}
+
+.site-financials .w1-money-strip__title {
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.site-financials .w1-money-strip__item {
+  gap: 0;
+  padding: 4px 8px;
+  border-top-width: 3px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.site-financials .w1-money-strip__state {
+  font-size: 11px;
+}
+
+.site-financials .panel details.disclosure,
+.site-financials .panel details.exact-references {
+  margin: 8px 0 0;
+  border: 0;
+  background: none;
+}
+
+.site-financials .panel details.disclosure > .disclosure__summary {
+  padding: 2px 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.site-financials .panel .financials-edit {
+  margin-top: 8px;
+}
+
+.site-financials .price-history {
+  margin: 4px 0;
+  padding-left: 18px;
+  font-size: 12px;
+}
+
+.site-financials .price-history li p {
+  margin: 0 0 4px;
+}
+
+.site-financials .v69-compact-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+}
+
+.site-financials [data-price-history-part] > .v69-eyebrow {
+  margin-top: 10px;
+}

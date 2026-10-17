@@ -1171,6 +1171,41 @@ describe("Site > Financials > Assumptions > Interpretation history (S4-08)", () 
     expect(screen.getByText("No fuel cost version had been recorded for this site at this moment.")).toBeInTheDocument();
   });
 
+  it("height phase: an empty fuel cost history beside listed price versions says the prices are prices only", async () => {
+    mount(fake({ seriesFor: echoSeries }), "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    expect(document.querySelectorAll("[data-price-history-revision]").length).toBeGreaterThan(0);
+    expect(document.querySelector("[data-consequence-history-prices-only]")).toHaveTextContent(
+      "The price versions below are prices only; no fuel cost was worked out from them by this moment.",
+    );
+  });
+
+  it("height phase: price history shows the latest 3 versions; earlier ones stay reachable, oldest first, behind 'Show all N'", async () => {
+    const more = [1, 2, 3, 4, 5].map((n) => ({ ...P1, revision_id: `p-${n}`, revision_no: n }));
+    mount(fake({ series: { status: "loaded", value: series({ revisions: more, revision_page: { after_revision_no: 0, limit: 200, total: 5, next_after_revision_no: null } }) } }), "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    const ids = (root: ParentNode) => Array.from(root.querySelectorAll("[data-price-history-revision]")).map((li) => li.getAttribute("data-price-history-revision"));
+    expect(ids(document)).toEqual(["p-1", "p-2", "p-3", "p-4", "p-5"]);
+    const showAll = document.querySelector("details[data-show-all='price-history-earlier']") as HTMLDetailsElement;
+    expect(showAll.open).toBe(false);
+    expect(showAll.querySelector("summary")).toHaveTextContent("Show all 5 versions (2 earlier)");
+    expect(ids(showAll)).toEqual(["p-1", "p-2"]);
+    expect(Array.from(document.querySelectorAll("[data-price-history-revision]")).filter((li) => visibleOutsideClosedDisclosure(li)).map((li) => li.getAttribute("data-price-history-revision"))).toEqual(["p-3", "p-4", "p-5"]);
+  });
+
+  it("height phase: the price strip and state line are visible; the full schedule table is reachable behind 'Show the full price schedule'", async () => {
+    mount(fake(), "/sites/KOBO-001/financials/assumptions");
+    await settledScreen();
+    const c = card("assumptions-price");
+    const showAll = c.querySelector("details[data-show-all='price-schedule']") as HTMLDetailsElement;
+    expect(showAll.open).toBe(false);
+    expect(showAll.querySelector("summary")).toHaveTextContent("Show the full price schedule (3 prices)");
+    expect(showAll.querySelectorAll("tr[data-price-assignment]")).toHaveLength(3);
+    for (const sel of ["[data-price-state]", "[data-price-strip]", "[data-price-selection]", "[data-gap-id='G-assumptions-human-edit']"]) {
+      expect(visibleOutsideClosedDisclosure(c.querySelector(sel)!), sel).toBe(true);
+    }
+  });
+
   it("shows a plain refusal for the price list when the history cannot fix a moment (review L-R2)", async () => {
     const client = fake({ history: { status: "unavailable", message: null } });
     mount(client, "/sites/KOBO-001/financials/assumptions");

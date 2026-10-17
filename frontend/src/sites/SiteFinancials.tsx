@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   DataTable,
   Disclosure,
+  ShowAll,
   ExactReferences,
   KeyValues,
   MetricCard,
@@ -591,8 +592,8 @@ function FinancialAssumptions({
       headingId="site-price-heading"
       description="Site-scoped business context · a change keeps the earlier version"
     >
-      <div data-price-state={historical ? "RECORDED_CUTOFF" : state}>
-        <ProductStatus words={words} scope={`Diesel price for site ${siteId}`} asOf={body.cutoff.recorded_at} />
+      <div className="v69-state-line" data-price-state={historical ? "RECORDED_CUTOFF" : state}>
+        <ProductStatus inline words={words} scope={`Diesel price for site ${siteId}`} asOf={body.cutoff.recorded_at} />
       </div>
       {priced !== null ? (
         <div data-price-selection="PRICED" data-price-selected-revision={priced.revision_id}>
@@ -649,7 +650,10 @@ function Schedule({
 }) {
   if (body.timeline.length === 0) return null;
   const today = body.selection?.state === "PRICED" ? body.selection.assignment_id : null;
+  // W1-F3 height phase: the effective-time strip above shows every price at a glance; the full schedule
+  // table (with each version link) stays on the page behind one "Show all" expander.
   return (
+    <ShowAll name="price-schedule" summary={`Show the full price schedule (${body.timeline.length} prices)`}>
     <div data-price-schedule="">
       <p className="v69-eyebrow" id="site-price-schedule-heading">
         Price schedule
@@ -686,6 +690,7 @@ function Schedule({
         </tbody>
       </DataTable>
     </div>
+    </ShowAll>
   );
 }
 
@@ -702,6 +707,21 @@ function PriceHistory({
   onMore: (after: number) => void;
 }) {
   const page = body.revision_page;
+  // W1-F3 height phase: the latest three versions show, oldest first; earlier ones stay behind "Show all".
+  const latest = shown.slice(-3);
+  const hidden = shown.slice(0, shown.length - latest.length);
+  const item = (r: PriceRevision) => (
+    <li key={r.revision_id} data-price-history-revision={r.revision_id}>
+      <p>
+        <strong>Version {r.revision_no}</strong> · {CHANGE_WORDS[r.change_kind] ?? "Change"} · {priceText(r)},{" "}
+        {applies(r.authored_valid)}. Set by {setBy(r)} on {day(r.recorded_at)}.{" "}
+        {r.correction_reason ? <span className="muted">Why: {r.correction_reason} </span> : null}
+        <Link to={links.assumptions({ revisionId: r.revision_id })}>Open version {r.revision_no}</Link>
+        {" · "}
+        <Link to={links.assumptions({ recordedAt: r.recorded_at })}>Prices as recorded then</Link>
+      </p>
+    </li>
+  );
   return (
     <div role="region" aria-label="Price history" data-price-history-part="">
       <p className="v69-eyebrow">
@@ -711,22 +731,18 @@ function PriceHistory({
       {shown.length === 0 ? (
         <p data-price-history="empty">No price version had been recorded at this moment.</p>
       ) : (
-        <ol className="price-history" data-price-history="loaded">
-          {shown.map((r) => (
-            <li key={r.revision_id} data-price-history-revision={r.revision_id}>
-              <p>
-                <strong>Version {r.revision_no}</strong> · {CHANGE_WORDS[r.change_kind] ?? "Change"} ·{" "}
-                {priceText(r)}, {applies(r.authored_valid)}. Set by {setBy(r)} on {day(r.recorded_at)}.
-              </p>
-              {r.correction_reason ? <p className="muted">Why: {r.correction_reason}</p> : null}
-              <p>
-                <Link to={links.assumptions({ revisionId: r.revision_id })}>Open version {r.revision_no}</Link>
-                {" · "}
-                <Link to={links.assumptions({ recordedAt: r.recorded_at })}>Prices as recorded then</Link>
-              </p>
-            </li>
-          ))}
-        </ol>
+        <>
+          {hidden.length === 0 ? null : (
+            <ShowAll name="price-history-earlier" summary={`Show all ${shown.length} versions (${hidden.length} earlier)`}>
+              <ol className="price-history" data-price-history="earlier">
+                {hidden.map(item)}
+              </ol>
+            </ShowAll>
+          )}
+          <ol className="price-history" data-price-history="loaded" start={hidden.length + 1}>
+            {latest.map(item)}
+          </ol>
+        </>
       )}
       <p className="muted">
         Showing {shown.length} of {page.total} version{page.total === 1 ? "" : "s"}.{" "}
@@ -756,21 +772,20 @@ function ExactVersion({ body, links }: { body: AssumptionRevisionBody; links: Fi
   return (
     <div role="region" aria-label={`Price version ${price.revision_no}`} data-price-exact-revision={price.revision_id}>
       <p className="v69-eyebrow">
-        Selected: price version {price.revision_no}, exactly as recorded: {priceText(price)}
-      </p>
-      <PriceFields price={price} valid={price.authored_valid} />
-      <p className="v69-gap-line">Where this version applied:</p>
-      <ul data-price-exact-assignments={body.assignments.length}>
-        {body.assignments.map((a) => (
-          <li key={a.assignment_id}>
-            {applies(a.valid)}; known from {formatInstant(a.recorded.from)}
-            {a.recorded.to === null ? ", still current" : `, replaced on ${formatInstant(a.recorded.to)}`}.
-          </li>
-        ))}
-      </ul>
-      <p>
+        Selected: price version {price.revision_no}, exactly as recorded: {priceText(price)} ·{" "}
         <Link to={links.assumptions()}>Back to the current prices</Link>
       </p>
+      <PriceFields price={price} valid={price.authored_valid} />
+      <ShowAll name="price-exact-assignments" summary={`Where this version applied (${body.assignments.length})`}>
+        <ul className="v69-compact-list" data-price-exact-assignments={body.assignments.length}>
+          {body.assignments.map((a) => (
+            <li key={a.assignment_id}>
+              {applies(a.valid)}; known from {formatInstant(a.recorded.from)}
+              {a.recorded.to === null ? ", still current" : `, replaced on ${formatInstant(a.recorded.to)}`}.
+            </li>
+          ))}
+        </ul>
+      </ShowAll>
       <ExactReferences name={`price-record-${price.revision_no}`} references={priceReferences(price)} />
     </div>
   );

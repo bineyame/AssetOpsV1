@@ -168,8 +168,13 @@ export function ConsequenceHistoryPanel({
       description="Every fuel cost version this site had recorded at the moment below, newest first, with the price each one used. Earlier versions are kept for the record."
     >
       <div data-consequence-history="loaded" data-history-cutoff={cutoff} data-history-selected-by={body.cutoff.selected_by}>
-        <div data-history-state="recorded">
-          <ProductStatus words={RECORDED_WORDS} scope={`${siteName}, every fuel cost version recorded by this moment`} asOf={cutoff} />
+        <div className="v69-state-line" data-history-state="recorded">
+          <ProductStatus
+            inline
+            words={RECORDED_WORDS}
+            scope={`${siteName}, every fuel cost version recorded by this moment`}
+            asOf={cutoff}
+          />
         </div>
         {!body.source_gate.open ? (
           <p className="notice" data-history-source-closed>
@@ -182,6 +187,14 @@ export function ConsequenceHistoryPanel({
               ? "No fuel cost version had been recorded for this site at this moment."
               : "No further versions."}
           </p>
+        ) : null}
+        {body.rows.length === 0 && body.page.is_first && children ? (
+          <p className="v69-gap-line" data-consequence-history-prices-only>
+            The price versions below are prices only; no fuel cost was worked out from them by this moment.
+          </p>
+        ) : null}
+        {body.rows.length === 0 ? (
+          null
         ) : (
           <DataTable>
             <thead>
