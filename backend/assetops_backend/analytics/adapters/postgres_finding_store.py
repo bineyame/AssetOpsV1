@@ -182,15 +182,15 @@ class PostgresFindingStore:
                                 "WHERE finding_id = :f"), {"f": w.finding_id}).scalar_one()
         rid = str(uuid4())
         c.execute(text(
-            "INSERT INTO finding_revision (id, tenant_id, site_id, finding_id, revision_no, transition, lifecycle, "
-            "claim_level, title, mechanism, matcher_version, analytic_id, model_version, assessment_revision_id, "
-            "analytic_run_id, window_assessment_revision_id, episode_start, episode_end, candidate_minutes, "
-            "necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, support_sha256, "
-            "cited_evidence_sha256, input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, :n, :tr, :lc, "
-            ":cl, :title, :m, :mv, :a, "
+            "INSERT INTO finding_revision (id, tenant_id, site_id, finding_id, domain, revision_no, transition, "
+            "lifecycle, claim_level, title, mechanism, matcher_version, analytic_id, model_version, "
+            "assessment_revision_id, analytic_run_id, window_assessment_revision_id, episode_start, episode_end, "
+            "candidate_minutes, necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, "
+            "support_sha256, cited_evidence_sha256, input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, "
+            ":d, :n, :tr, :lc, :cl, :title, :m, :mv, :a, "
             ":model, :primary, :run, :wrev, :es, :ee, :cand, :nec, :ind, CAST(:claim AS jsonb), "
             "CAST(:limits AS jsonb), :basis, :support, :cited, :inputs, :now)"),
-            {"id": rid, "t": tenant_id, "s": site_id, "f": w.finding_id, "n": number, "tr": w.transition,
+            {"id": rid, "t": tenant_id, "s": site_id, "f": w.finding_id, "d": DOMAIN, "n": number, "tr": w.transition,
              "lc": w.lifecycle, "cl": w.claim_level, "title": TITLES[w.lifecycle], "m": MECHANISM,
              "mv": MATCHER_VERSION, "a": analytic_id, "model": w.model_version, "primary": w.primary_revision_id,
              "run": w.primary_run_id, "wrev": w.window_revision_id, "es": w.episode_start, "ee": w.episode_end,

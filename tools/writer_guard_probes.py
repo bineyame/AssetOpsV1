@@ -21,6 +21,10 @@ Sets:
   ledger-owned tables, and the two double-collision orders (message+event must resolve to message: event before
   message is refused; event+session with a free message must resolve to event: session before event is refused).
   The order probes REPLACE the pinned `_REREAD_ORDER` line rather than append a second one.
+- `cold <table> ...`: W2-03 (migration 0022) cold episode and cold Finding tables: a foreign INSERT from the cold
+  worker (`assessment_worker.py`, which owns the shared transaction but writes no table) and an UPDATE, DELETE and
+  DO UPDATE from the owning store; `controls cold <table> insert` is the allowed INSERT. Rule 8 fails closed when
+  any of these names is missing.
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -44,12 +48,14 @@ ASSUMPTION = f"{B}/financials/adapters/postgres_assumption_store.py"
 CONSEQUENCE = f"{B}/financials/adapters/postgres_consequence_store.py"
 ACTION = f"{B}/actions/adapters/postgres_action_store.py"
 TICK = f"{B}/scheduling/tick.py"
+WORKER = f"{B}/analytics/assessment_worker.py"
 
 NEVER = "never deletes, truncates, upserts or runs DDL"
 SCHED_TABLES = "The schedule store updates only"
 MERGE_COPY = "No product writer runs MERGE or COPY"
 LITERAL_TARGET = "names its target table literally"
 ASSESS_ONLY = "The assessment store inserts only"
+FINDING_ONLY = "The Finding store only inserts into"
 ACTION_NEVER = "The Action store never updates, deletes, truncates, upserts or runs DDL"
 ACTION_ONLY = "The Action store only inserts"
 PROV = "Source provenance is insert-only"
@@ -250,6 +256,50 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
     ("w200 real accepted insert loses its arbiter", LEDGER,
      ("replace", "ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING RETURNING id", "RETURNING id"),
      W200_MESSAGE),
+    # W2-03 (migration 0022): the assessment store alone INSERTs the cold episode tables and the Finding store alone
+    # INSERTs the cold Finding tables; the cold worker owns their shared transaction but writes no table. Each table
+    # gets a foreign INSERT from the worker and an UPDATE, DELETE and DO UPDATE from its own owner. Rule 8 requires
+    # every one of these names (configuration-persistence.ps1 fails closed when one is missing).
+    ("cold cold_episode foreign insert", WORKER,
+     '_OPS02 = (\n    "INSERT INTO cold_episode "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes assessment table 'cold_episode'"),
+    ("cold cold_episode update", ASSESS, split("cold_episode", "site_id = :s WHERE id = :i"), ASSESS_ONLY),
+    ("cold cold_episode delete", ASSESS, '_OPS02 = (\n    "delete from "\n    "cold_episode where id = :i"\n)\n', ASSESS_ONLY),
+    ("cold cold_episode upsert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO cold_episode (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("cold cold_episode_revision foreign insert", WORKER,
+     '_OPS02 = (\n    "INSERT INTO cold_episode_revision "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes assessment table 'cold_episode_revision'"),
+    ("cold cold_episode_revision update", ASSESS, split("cold_episode_revision", "site_id = :s WHERE id = :i"), ASSESS_ONLY),
+    ("cold cold_episode_revision delete", ASSESS, '_OPS02 = (\n    "delete from "\n    "cold_episode_revision where id = :i"\n)\n', ASSESS_ONLY),
+    ("cold cold_episode_revision upsert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO cold_episode_revision (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("cold cold_episode_evidence foreign insert", WORKER,
+     '_OPS02 = (\n    "INSERT INTO cold_episode_evidence "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes assessment table 'cold_episode_evidence'"),
+    ("cold cold_episode_evidence update", ASSESS, split("cold_episode_evidence", "site_id = :s WHERE id = :i"), ASSESS_ONLY),
+    ("cold cold_episode_evidence delete", ASSESS, '_OPS02 = (\n    "delete from "\n    "cold_episode_evidence where id = :i"\n)\n', ASSESS_ONLY),
+    ("cold cold_episode_evidence upsert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO cold_episode_evidence (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("cold finding foreign insert", WORKER,
+     '_OPS02 = (\n    "INSERT INTO finding "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes Finding table 'finding'"),
+    ("cold finding update", FINDING, split("finding", "site_id = :s WHERE id = :i"), FINDING_ONLY),
+    ("cold finding delete", FINDING, '_OPS02 = (\n    "delete from "\n    "finding where id = :i"\n)\n', FINDING_ONLY),
+    ("cold finding upsert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO finding (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("cold finding_revision foreign insert", WORKER,
+     '_OPS02 = (\n    "INSERT INTO finding_revision "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes Finding table 'finding_revision'"),
+    ("cold finding_revision update", FINDING, split("finding_revision", "site_id = :s WHERE id = :i"), FINDING_ONLY),
+    ("cold finding_revision delete", FINDING, '_OPS02 = (\n    "delete from "\n    "finding_revision where id = :i"\n)\n', FINDING_ONLY),
+    ("cold finding_revision upsert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO finding_revision (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
 ]
 
 CONTROLS = (
@@ -284,6 +334,17 @@ WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls w200 event insert with message arbiter", LEDGER,
      '_OPS02 = (\n    "INSERT INTO accepted_evidence (id, record_kind, event_id, session_id) "\n'
      '    "VALUES (:i, :k, :e, :s) ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING"\n)\n'),
+    # W2-03: one allowed multiline INSERT per cold table in its owning writer (must pass).
+    ("controls cold cold_episode insert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO cold_episode (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls cold cold_episode_revision insert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO cold_episode_revision (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls cold cold_episode_evidence insert", ASSESS,
+     '_OPS02 = (\n    "INSERT INTO cold_episode_evidence (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls cold finding insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO finding (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls cold finding_revision insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO finding_revision (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
 ]
 
 

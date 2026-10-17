@@ -642,8 +642,14 @@ function Invoke-ConfigurationPersistenceCheck {
     $assessWriter = "$backendRoot/analytics/adapters/postgres_assessment_store.py"
     # LR-01 adds source_clock_attestation (migration 0014): INSERT-only events written with their affected-window
     # requeue in one transaction by the assessment store; no other writer touches it and no UPDATE is allowed.
+    # W2-03 (D-2026-10-17-w2-02-buildspec, migration 0022) adds the three append-only cold episode tables here, before
+    # $assessInserts is derived: the assessment store alone INSERTs them, never UPDATE/DELETE/upsert. The cold
+    # worker (analytics/assessment_worker.py) owns the one shared transaction across the assessment and Finding
+    # stores and the job completion; it writes no table itself.
     $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection',
-        'source_clock_attestation')
+        'source_clock_attestation', 'cold_episode', 'cold_episode_revision', 'cold_episode_evidence')
+    $coldEpisodeTables = @('cold_episode', 'cold_episode_revision', 'cold_episode_evidence')
+    $coldTransactionOwner = "$backendRoot/analytics/assessment_worker.py"
     $assessInserts = $assessTables + @('recompute_job')
     $assessUpdates = @(
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',
@@ -871,7 +877,8 @@ function Invoke-ConfigurationPersistenceCheck {
                 # LR-01 attestations, S6-01a Action rows and S4-05a provenance are insert-only: a permitted INSERT
                 # into one of them must not carry an upsert (ON CONFLICT ... DO UPDATE stays in the INSERT clause).
                 if ($null -ne $target -and $line -match '(?i)\bDO\s+UPDATE\b' -and
-                        (@('source_clock_attestation') + $actionTables + $provenanceTables) -contains $target) {
+                        (@('source_clock_attestation', 'finding', 'finding_revision') + $coldEpisodeTables +
+                            $actionTables + $provenanceTables) -contains $target) {
                     $failures.Add(("Insert-only table '$target' is never upserted (no ON CONFLICT DO UPDATE); " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
@@ -1055,6 +1062,25 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($provenanceInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no ledger INSERT statement into $table in $ledgerWriter, so the " +
                 "provenance writer check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    # W2-03: the cold writer policy fails closed. Each declared owner module must exist, and the rule-8 mutation
+    # corpus must keep its pass probe and its foreign-INSERT, UPDATE, DELETE and DO UPDATE fail probes for every cold
+    # episode table and for the cold Finding tables, so a removed owner or probe cannot leave the policy unproven.
+    foreach ($owner in @($assessWriter, $findingWriter, $coldTransactionOwner)) {
+        if (-not (Test-Path -LiteralPath $owner -PathType Leaf)) {
+            $failures.Add("Rule 8 declares cold writer owner '$owner', which does not exist; update the check.") | Out-Null
+        }
+    }
+    $probeCorpus = 'tools/writer_guard_probes.py'
+    $probeText = if (Test-Path -LiteralPath $probeCorpus -PathType Leaf) { Get-Content -LiteralPath $probeCorpus -Raw } else { '' }
+    foreach ($table in ($coldEpisodeTables + @('finding', 'finding_revision'))) {
+        foreach ($probeName in @("controls cold $table insert", "cold $table foreign insert", "cold $table update",
+                "cold $table delete", "cold $table upsert")) {
+            if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
+                $failures.Add(("Rule 8 cold writer probe '$probeName' is missing from tools/writer_guard_probes.py; " +
+                    "the cold writer policy is unproven without it.")) | Out-Null
+            }
         }
     }
     # S4-05a: designation is a server-side command only. No HTTP module may reach it or its tables.
