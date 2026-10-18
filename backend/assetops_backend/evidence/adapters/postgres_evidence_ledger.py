@@ -641,14 +641,19 @@ class PostgresEvidenceLedger:
              "end": end + _COLD_BRIDGE if domain == COLD_RECOMPUTE_DOMAIN else end},
         ).first()
         if job is None:
+            # A cold job's ID comes from Postgres, not the process `uuid4`: the cold enqueue (W2-03) must not
+            # consume the identifier sequence the registered W2-02 replays pin their accepted IDs to.
             c.execute(
                 text(
                     "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, "
                     "cause_evidence_id, status, available_at, created_at) "
-                    "VALUES (:id, :t, :site, :d, :start, :end, :cause, 'PENDING', :now, :now)"
+                    + ("VALUES (gen_random_uuid(), " if domain == COLD_RECOMPUTE_DOMAIN else "VALUES (:id, ")
+                    + ":t, :site, :d, :start, :end, :cause, 'PENDING', :now, :now)"
                 ),
                 {"id": uuid4(), "t": tenant_id, "site": site_id, "d": domain, "start": start,
-                 "end": end, "cause": cause, "now": now},
+                 "end": end, "cause": cause, "now": now} if domain != COLD_RECOMPUTE_DOMAIN else
+                {"t": tenant_id, "site": site_id, "d": domain, "start": start, "end": end, "cause": cause,
+                 "now": now},
             )
             return
         # S4-07: widening also lifts `available_at` to at least the decision instant. A scheduled lease's cutoff
