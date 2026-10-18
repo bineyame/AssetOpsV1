@@ -29,7 +29,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from assetops_contracts.source_envelope import SourceMappingEntry, SourceMappingSet
-from assetops_contracts.source_envelope_v4 import V4_CHANNEL_MAPPINGS, ChannelMapping
+from assetops_contracts.source_envelope_v4 import V4_COLD_CHANNEL_MAPPINGS, ChannelMapping
 
 SIMULATOR_LAB_GATEWAY_MAPPINGS = SourceMappingSet(
     mapping_set_id="simulator-lab-gateway-fuel",
@@ -165,8 +165,8 @@ COLD_V4_GATEWAY_MAPPINGS = V4MappingSet(
     channels=tuple(
         sorted(
             (key, entry)
-            for key, entry in V4_CHANNEL_MAPPINGS.items()
-            if entry.role is not None and key != ("operator-log", "temperature-event")
+            for key, entry in V4_COLD_CHANNEL_MAPPINGS.items()
+            if key != ("operator-log", "temperature-event")
         )
     ),
 )

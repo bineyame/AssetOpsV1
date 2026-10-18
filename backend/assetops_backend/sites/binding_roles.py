@@ -31,6 +31,8 @@ ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
 #: W2-01 (`.agent/W2-technical-design-cold.md` section 3, `D-2026-10-17-w2-01-answers`
 #: and its W2-02 channel closure): the immutable COLDCHAIN vocabulary.
 ROLE_SET_COLD_1 = "cold-roles-1"
+#: W2-05a (`D-2026-10-18-w2-05-buildspec` "Role set", Q1/Q4/Q8): the immutable EV_CHARGING vocabulary.
+ROLE_SET_EV_1 = "ev-roles-1"
 
 #: The canonical generator states an ENUM conversion may map to.
 GENERATOR_STATES: tuple[str, ...] = ("STOPPED", "STARTING", "RUNNING", "FAILED")
@@ -38,6 +40,7 @@ GENERATOR_STATES: tuple[str, ...] = ("STOPPED", "STARTING", "RUNNING", "FAILED")
 COMPRESSOR_STATES: tuple[str, ...] = ("OFF", "STARTING", "RUNNING", "FAILED")
 GRID_STATES: tuple[str, ...] = ("AVAILABLE", "LOST")
 BUS_STATES: tuple[str, ...] = ("POWERED", "UNPOWERED")
+EV_CONNECTOR_STATES: tuple[str, ...] = ("AVAILABLE", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
 
 #: The nonquantitative declared unit of an event channel (`SIGNAL_UNITS`).
 EVENT_UNIT = "event"
@@ -53,7 +56,7 @@ class Role:
     label: str
     asset_type: str
     canonical_unit: str
-    value_kind: str  # NUMBER | STATE | EVENT
+    value_kind: str  # NUMBER | STATE | EVENT | INTERVAL_DELTA (ev_connector_energy only)
     cardinality: str  # ONE | PER_ASSET
     required: bool
     #: "CHANNEL" roles are bound to a device signal; "FOUNDATION_CONTROL"
@@ -159,6 +162,41 @@ COLD_ROLES_1: tuple[Role, ...] = (
     ),
 )
 
+#: `ev-roles-1`: every connector role is per EV_CONNECTOR; Site import is one per feed, bound on the import
+#: meter. Required are the per-connector session events, state and energy (Q2); fault, connector power,
+#: requested power, allocated limit and Site import are optional capability channels. Immutable.
+EV_ROLES_1: tuple[Role, ...] = (
+    Role(
+        "ev_session_event", "Charging session start and end", "EV_CONNECTOR", EVENT_UNIT, "EVENT", PER_ASSET, True,
+        event_kinds=("EV_SESSION_ABORT", "EV_SESSION_END", "EV_SESSION_START"),
+    ),
+    Role(
+        "ev_connector_fault", "Connector fault and clear", "EV_CONNECTOR", EVENT_UNIT, "EVENT", PER_ASSET, False,
+        event_kinds=("EV_CONNECTOR_CLEAR", "EV_CONNECTOR_FAULT"),
+    ),
+    Role(
+        "ev_connector_state", "Connector state", "EV_CONNECTOR", "state", "STATE", PER_ASSET, True,
+        states=EV_CONNECTOR_STATES,
+    ),
+    Role("ev_connector_energy", "Connector energy", "EV_CONNECTOR", "kWh", "INTERVAL_DELTA", PER_ASSET, True),
+    Role("ev_connector_power", "Connector power", "EV_CONNECTOR", "kW", "NUMBER", PER_ASSET, False),
+    Role("ev_site_import", "Site import power", "METER", "kW", "NUMBER", ONE, False),
+    Role("ev_requested_power", "Requested power", "EV_CONNECTOR", "kW", "NUMBER", PER_ASSET, False),
+    Role("ev_allocated_limit", "Allocated power limit", "EV_CONNECTOR", "kW", "NUMBER", PER_ASSET, False),
+)
+#: Q4: the connector Foundation property (minutes) each periodic EV role's published cadence is derived from;
+#: EVENT roles have no cadence. The cadence is never a binding request field and never inferred from data.
+EV_CADENCE_PROPERTY_BY_ROLE: dict[str, str | None] = {
+    "ev_session_event": None,
+    "ev_connector_fault": None,
+    "ev_connector_state": "ev-status-cadence",
+    "ev_connector_energy": "ev-meter-cadence",
+    "ev_connector_power": "ev-meter-cadence",
+    "ev_site_import": "ev-meter-cadence",
+    "ev_requested_power": "ev-meter-cadence",
+    "ev_allocated_limit": "ev-meter-cadence",
+}
+
 #: The Foundation property each cold policy role is selected from.
 COLD_POLICY_PROPERTIES: dict[str, str] = {
     "cold_policy_low": "cold-policy-low",
@@ -174,15 +212,19 @@ ROLES_BY_SET: dict[str, tuple[Role, ...]] = {
     ROLE_SET_MINIGRID_2: MINIGRID_ROLES_2,
     ROLE_SET_MINIGRID_3: MINIGRID_ROLES_3,
     ROLE_SET_COLD_1: COLD_ROLES_1,
+    ROLE_SET_EV_1: EV_ROLES_1,
 }
 #: The role set a new publication for a Site type is recorded under.
-ROLE_SET_BY_SITE_TYPE: dict[str, str] = {"MINIGRID": ROLE_SET_MINIGRID, "COLDCHAIN": ROLE_SET_COLD_1}
+ROLE_SET_BY_SITE_TYPE: dict[str, str] = {
+    "MINIGRID": ROLE_SET_MINIGRID, "COLDCHAIN": ROLE_SET_COLD_1, "EV_CHARGING": ROLE_SET_EV_1,
+}
 #: Every role set a Site type still serves: a binding set recorded under an
 #: older version stays interpretable (and selectable as a historical basis)
 #: under the role definitions it was published with, never today's.
 SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
     "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2, ROLE_SET_MINIGRID_3}),
     "COLDCHAIN": frozenset({ROLE_SET_COLD_1}),
+    "EV_CHARGING": frozenset({ROLE_SET_EV_1}),
 }
 
 #: S6-02a verification inputs (Architect S6-02a Q2). Interval-power roles
@@ -245,6 +287,9 @@ def serves(site_type: str, role_set: str) -> bool:
 #: LINEAR is deferred until supported unit pairs, coefficients and
 #: normalization rules are decided; a LINEAR conversion is refused.
 CONVERSION_KINDS = ("IDENTITY", "ENUM")
+#: W2-05a Q8: the parameter-free kWh-to-kWh conversion of the one INTERVAL_DELTA role, `ev_connector_energy`.
+#: Closed to that role: no other role accepts it, and that role accepts nothing else.
+IDENTITY_KWH = "IDENTITY_KWH"
 DEFERRED_CONVERSION_KINDS = ("LINEAR",)
 
 
@@ -257,6 +302,8 @@ def conversion_problem(role: Role, source_unit: str, conversion: object) -> str 
     if not isinstance(conversion, dict) or set(conversion) != {"kind", "parameters"}:
         return "conversion must be an object with exactly 'kind' and 'parameters'"
     kind, parameters = conversion["kind"], conversion["parameters"]
+    if role.value_kind == "INTERVAL_DELTA" or kind == IDENTITY_KWH:
+        return _identity_kwh_problem(role, source_unit, kind, parameters)
     if kind in DEFERRED_CONVERSION_KINDS:
         return f"a {kind} conversion is not published in this release; only IDENTITY and ENUM are"
     if kind not in CONVERSION_KINDS:
@@ -292,3 +339,15 @@ def conversion_problem(role: Role, source_unit: str, conversion: object) -> str 
         return f"a state is reported in {role.canonical_unit!r}, not {source_unit!r}"
     return None
 
+
+
+def _identity_kwh_problem(role: Role, source_unit: str, kind: object, parameters: object) -> str | None:
+    if role.value_kind != "INTERVAL_DELTA":
+        return f"an {IDENTITY_KWH} conversion applies only to interval energy, not {role.label}"
+    if kind != IDENTITY_KWH:
+        return f"{role.label} is interval energy; use the {IDENTITY_KWH} conversion"
+    if parameters != {}:
+        return f"an {IDENTITY_KWH} conversion takes no parameters"
+    if source_unit != "kWh" or role.canonical_unit != "kWh":
+        return f"an {IDENTITY_KWH} conversion accepts only 'kWh', not {source_unit!r}"
+    return None

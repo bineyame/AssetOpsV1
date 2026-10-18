@@ -1,0 +1,227 @@
+{
+  "schema": {
+    "id": "assetops.binding-conversion",
+    "version": 1
+  },
+  "status": "W2-05a labelled simulated EV charging fixture (D-2026-10-18-w2-05-buildspec); configuration only, no observation.",
+  "site_code": "EV-LAB-001",
+  "role_set": "ev-roles-1",
+  "effective_from": "FOUNDATION_ORIGINAL_VALID_FROM",
+  "note": "First ev-roles-1 binding set for the EV-LAB-001 fixture: the exact simulator-lab-gateway-ev/1 channels.",
+  "declare_signals": [],
+  "bindings": [
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "site-meter",
+      "signal_id": "import",
+      "asset_code": "site-meter-1",
+      "role": "ev_site_import",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    }
+  ]
+}

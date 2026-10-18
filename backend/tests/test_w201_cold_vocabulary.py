@@ -129,11 +129,15 @@ class TestColdRoles:
         assert roles_for(ROLE_SET_COLD_1)["backup_start_event"].event_kinds == ("START_REQUEST", "START_RESULT")
 
     def test_the_closed_v4_table_names_exactly_the_cold_channel_roles(self) -> None:
-        named = {entry.role for entry in V4_CHANNEL_MAPPINGS.values() if entry.role is not None}
+        # W2-05a: the closed table also holds the EV profile's tuples; the cold profile's table is the subject.
+        from assetops_contracts.source_envelope_v4 import V4_COLD_CHANNEL_MAPPINGS
+
+        named = {entry.role for entry in V4_COLD_CHANNEL_MAPPINGS.values() if entry.role is not None}
         channel_roles = {r.role for r in COLD_ROLES_1 if r.covered_by == "CHANNEL"}
         assert named == channel_roles
+        assert all(V4_CHANNEL_MAPPINGS[k] == v for k, v in V4_COLD_CHANNEL_MAPPINGS.items())
         roles = roles_for(ROLE_SET_COLD_1)
-        for entry in V4_CHANNEL_MAPPINGS.values():
+        for entry in V4_COLD_CHANNEL_MAPPINGS.values():
             if entry.role is not None and entry.family == "EVENT":
                 assert set(entry.allowed_record_kinds) == set(roles[entry.role].event_kinds)
 

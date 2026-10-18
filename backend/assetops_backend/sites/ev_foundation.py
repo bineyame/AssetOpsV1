@@ -402,3 +402,38 @@ __all__ = [
     "validate_ev_foundation",
     "validate_ev_schedule_interval",
 ]
+
+
+# --- blocking configuration gaps (Q2; the Draft/snapshot gate) ------------------------------------------------
+
+#: Q2: the per-connector required channel roles and the readiness code each one's absence emits.
+EV_REQUIRED_CHANNEL_CODES: tuple[tuple[str, str], ...] = (
+    ("ev_connector_energy", "METER_NOT_BOUND"),
+    ("ev_session_event", "SESSION_EVENTS_NOT_BOUND"),
+    ("ev_connector_state", "STATUS_NOT_BOUND"),
+)
+
+
+def ev_blocking_gaps(content: Mapping, bound: set[tuple[str, str]]) -> list[tuple[str, str, str]]:
+    """The `CONFIGURATION_INCOMPLETE` gaps of one selected Foundation content and binding set, as
+    `(code, subject, message)`.
+
+    `bound` holds `(role, component_id)` for every binding of the selected set. A missing connector, feed or
+    `ev-site-import-limit`, or a declared connector without its energy, session-event or state binding blocks;
+    optional roles (fault, connector power, requested, allocated, Site import) never do.
+    """
+    components = list(content.get("components") or ())
+    connectors = [c["component_id"] for c in components if c.get("component_type") == "EV_CONNECTOR"]
+    feeds = [c for c in components if c.get("component_type") == "AC_BUS"]
+    gaps: list[tuple[str, str, str]] = []
+    if not connectors:
+        gaps.append(("CONNECTOR_NOT_DECLARED", "foundation", "No connector declared."))
+    if not feeds:
+        gaps.append(("FEED_OR_LIMIT_MISSING", "foundation", "No site feed declared."))
+    elif not any(p.get("property_key") == "ev-site-import-limit" for p in feeds[0].get("properties") or ()):
+        gaps.append(("FEED_OR_LIMIT_MISSING", "foundation", "Site import limit not declared."))
+    for connector in connectors:
+        for role, code in EV_REQUIRED_CHANNEL_CODES:
+            if (role, connector) not in bound:
+                gaps.append((code, role, f"Connector {connector} has no {role} binding."))
+    return gaps

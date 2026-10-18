@@ -228,7 +228,11 @@ def test_header_path_keeps_homogeneity_and_order() -> None:
 
 
 def test_closed_channel_table_holds_the_section_4_tuples_and_two_reserved_ev_tuples() -> None:
-    assert len(V4_CHANNEL_MAPPINGS) == 14
+    # W2-05a adds the exact simulator-lab-gateway-ev/1 tuples (Q1); the cold twelve plus the two reserved stay.
+    from assetops_contracts.source_envelope_v4 import V4_COLD_CHANNEL_MAPPINGS, V4_EV_CHANNEL_MAPPINGS
+
+    assert len(V4_COLD_CHANNEL_MAPPINGS) == 12 and len(V4_EV_CHANNEL_MAPPINGS) == 15
+    assert len(V4_CHANNEL_MAPPINGS) == 14 + 15
     assert V4_CHANNEL_MAPPINGS[("charger-controller", "session-event")].requires_session is True
     assert V4_CHANNEL_MAPPINGS[("connector-controller", "fault-event")].requires_session is False
     assert V4_CHANNEL_MAPPINGS[("operator-log", "temperature-event")].allowed_units == ("degC",)
