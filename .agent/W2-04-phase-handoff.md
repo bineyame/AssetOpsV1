@@ -1,123 +1,87 @@
-# W2-04 phase handoff - run 2 (spec commit 1 COMPLETE)
+# W2-04 phase handoff - run 3 (spec commits 1 and 2 COMPLETE)
 
-Branch `task/W2-04-cold-site-evidence-money`. Spec commit 1 is three commits:
+Branch `task/W2-04-cold-site-evidence-money`. Nothing is merged. Private DB `assetops_w204_test`; environment in
+the scratchpad file `w204env.sh` (PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASSETOPS_GUARD_PYTHON`, `PY`, cd
+`backend`).
 
-- `11abf439`: the 0023 schema (run 1).
-- `07e51a0d`: 1a, aligning 0023 with the Architect's Q1-Q10 rulings (`.agent/W2-04-build-spec.md`, section "Final
-  Architect rulings").
-- `527d5342`: 1b, the rule-8 policy and probes.
+- Spec commit 1: `11abf439` (0023 schema), `07e51a0d` (Q1-Q10 alignment), `527d5342` (rule-8 policy and probes).
+- Spec commit 2: `bf3dd9aa` (derivation, store, worker, Q10 guard, tests), `cc6f83bf` (Q10 inserts-unseen probes).
 
-Nothing is merged. The private DB is `assetops_w204_test`. The environment lives in the scratchpad file
-`w204env.sh`. It sets PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASSETOPS_GUARD_PYTHON` and `PY`, then changes into
-`backend`.
+## Landed in spec commit 2
 
-## Landed in this run
+- `backend/assetops_backend/financials/cold_consequence.py` (pure; no SQL): `derive`, `basis_sha256`,
+  `basis_document`, `check_basis` (raises `ColdBasisMismatch`, code `COLD_BASIS_MISMATCH`), `warranted`,
+  `merged_evidence`, `source_gate` (S4-05 `classify`/`link_of` over the cited IDs; gate digest is SHA-256 of the
+  canonical classify result), `overlap_group`, `selected_instant` (Q3; `test_w204_cold_migration._z` now reuses it),
+  `decimal_text`.
+- `financials/adapters/postgres_consequence_store.py`: `__init__(..., link_rows=)`; `cold_unit` (REPEATABLE READ,
+  first statement `pg_advisory_xact_lock(hashtextextended('cold_consequence:' || work_id, 0))`) yielding `ColdUnit`
+  with `work`, `targets`, `basis`, `append`, `succeed`; `cold_record_failure` (fresh transaction; records nothing if
+  the work already succeeded); `cold_pending_work`; `cold_claim_site`; `cold_rows`. Server times are column
+  defaults (Q6). `append` takes an extra Finding/kind advisory lock and checks the predecessor's Finding and kind (Q5).
+  Mini-grid methods unchanged.
+- `financials/cold_recompute.py`: `ColdConsequenceWorker.process_one/run/run_pending` on store protocols;
+  `retry_due_at` schedule; empty-ID success when no Finding warrants an exposure.
+- `financials/composition.py`: `build_cold_consequence_store`, `build_cold_consequence_worker`.
+- Rule 8: `$coldConsequenceInsertsSeen[...] -lt 1` fails with "...insert-only check is vacuous" (after the provenance
+  loop). Probes `cold <table> owner insert unseen` (x3) prove it.
 
-### 0023 changes (`backend/migrations/versions/0023_w2_cold_consequence.py`)
+## Evidence (final revision `cc6f83bf`)
 
-- **Q1, room:** `cold_consequence_room(tenant, site, assessment_revision_id)` takes the one `COLD_ROOM` component of
-  the Foundation listed in `analytic_run.foundation_revision_ids` for the assessment's run. It maps that component
-  to a scoped `asset` by `asset_code`.
-  - This is the same lookup as `postgres_assessment_store.py:cold_inputs` `asset_of(room)`, which W2-03 uses for
-    `ColdPolicy.room_asset_id`.
-  - All three triggers and both backfills use it.
-  - The episode asset and the Finding subject are no longer used, so the generator is never stored.
-- **Q8:** zero rooms, or more than one, raises and rolls back the W2-03 append. An empty window fails the work CHECK.
-- **Q3:** `cold_consequence_instant(timestamptz)` writes whole seconds, or `.ffffff` when the microseconds are
-  nonzero. `cold_consequence_dirty_key` uses it.
-- **Q2:** every head subquery (max-revision, link and evidence) is scoped by tenant and Site.
-- **Q7:** a CHECK limits `source_classification` to `AUTHORED_DEMONSTRATION`, `REGISTERED_SIMULATION`, `MIXED` and
-  `UNKNOWN`.
-- **Q4, Q5, Q6:** accepted as built; no change.
+- Cold probe set with `--seam` on a clean tree: 29/29 CAUGHT (incl. the 3 new unseen probes), 4/4 controls ALLOWED,
+  "tree restored", exit 0. `tools/check-architecture.ps1`: passed.
+- `test_w204_cold_consequence.py`: 29 passed (6 replays + late-reading history + 22 pure). `test_w204_cold_worker.py`:
+  4 passed (trigger work/drain/idempotence, race, failed attempt/rollback/retry/no starvation, unpaired basis and
+  foreign scope). Adjacent run on `cc6f83bf` (w204 migration/consequence/worker, s4 consequence store/recompute/dispatch/history postgres, w203 cold migration): 84 passed, 0 failed, 0 skipped, 6m38s.
+- Replay results: normal and missing-probe have no exposure row. Excursion, backup-failed, late-reading (20:05) and
+  contradictory each have one `UNPRICED` `PRODUCT_EXPOSURE`, REGISTERED_SIMULATION, chamber room, amounts null.
+  Bounds copied from the episode: excursion 19/23, backup-failed 19.5/24, late-reading 18.5/23 degC_min. Late reading
+  at 20:10 appends revision 2 with `prior_revision_id` = revision 1 and a new basis; revision 1 is unchanged.
 
-### Tests
+## Implementer readings to confirm (spec does not name these values; no design was intended)
 
-- `test_w203_cold_migration_postgres.py:Ctx` now builds `cold_room_assessment()`: a superseded Foundation valid
-  only in 2000 that names `assets[0]` as `COLD_ROOM`, plus copies of the run and the assessment.
-  - `ctx.assessment` and `ctx.run` are now the copies.
-  - `ctx.mini_assessment` is the original, which resolves no room.
-  - `ctx.room` is `assets[0]`.
-  - `insert_revision(..., assessment=)` takes an override.
-- `test_w204_cold_migration.py` adds:
-  - Q3 golden vectors, SQL against Python, for whole-second and fractional windows.
-  - Q1: EXCURSION and START_RESPONSE episodes and Findings all store the chamber room, never the generator.
-  - Q8: an unresolvable room raises and rolls back.
-  - Q7: two refused classes.
-- Results:
-  - The w204 and w203 migration tests: 16 passed.
-  - `test_w203_cold_replay_postgres.py`: 14 passed. That replay fires the triggers against the real COLD-LAB-001
-    Foundation, so a room-resolution failure would have raised.
+1. **Q4 vs. data.** W2-03 stores both `degree_minutes_low` and `degree_minutes_high` for the open excursion
+   (`claim.open = true`; duration upper is null). As the dry-read says to copy the bounds, the row has both, and
+   `OPEN_EPISODE_UPPER_UNKNOWN` is set only when the upper bound is null. So none of the six replays carries that
+   limit; it is covered by a pure test. Architect question: should an open episode carry
+   `OPEN_EPISODE_UPPER_UNKNOWN` (or a null upper bound) even when W2-03 gives a degree-minute upper bound?
+2. **Stored codes.** Reasons are `COLD_VALUATION_NOT_APPROVED` (UNPRICED), `SOURCE_GATE_WITHHELD` and
+   `TECHNICAL_CLAIM_LIMITED`. Limitation codes are `OPEN_EPISODE_UPPER_UNKNOWN`, `CONTRADICTORY_EVIDENCE`,
+   `CLAIM_LEVEL_<level>`, `COVERAGE_INCOMPLETE` (below 0.8, the floor in the spec's EXCURSION_BOUNDS rule),
+   `EXPOSURE_LOWER_BOUND_UNKNOWN` and `SOURCE_CLASS_<class>`; several are joined with "; ".
+3. **Withholding.**
+   - A technical limit nulls the quantity.
+   - Withholding for the source alone keeps the proved bounds.
+   - Currentness (pending or historical) is applied at read time in commit 3, not stored.
+4. **Worker error codes.** `COLD_BASIS_MISMATCH` (from the spec). The others are this run's choice:
+   - `COLD_RECOMPUTE_FAILED` for any other fault;
+   - `STORE_UNAVAILABLE`;
+   - `WORK_SCOPE_MISMATCH` for foreign work, which records no attempt.
+5. **Race.** The RR snapshot starts at the lock statement, so a racing loser hits a unique constraint. It then
+   records nothing, because `cold_record_failure` sees the success, and reports `already_succeeded`. The test proves
+   one attempt and one revision.
 
-### Rule 8 (`tools/checks/configuration-persistence.ps1`)
+## Residual
 
-- The three tables in `$coldConsequenceTables` are appended to `$consequenceTables`. Their only owner is
-  `postgres_consequence_store.py`.
-- Each of them also gets its own insert-only check (failure text: "Cold consequence table '...' is insert-only").
-- They are on the DO UPDATE refusal list.
-- `cold_consequence_work` is trigger-only: any runtime verb against it fails.
-- Owner and migration existence, and probe-name registration, fail closed.
-- The Q9 migration-text check runs after stripping comments and the docstring:
-  - at least one `INSERT INTO cold_consequence_work` must exist;
-  - each must carry exactly one `ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING`;
-  - the file has no `DO UPDATE`.
-- `$coldConsequenceInsertsSeen` counts the owner's INSERTs per table. It is not asserted yet (Q10 stages that to
-  commit 2).
+- The `SOURCE_GATE_CHANGED` worker path (`ColdUnit.targets` SOURCE_GATE SQL) has no positive test. In the chain,
+  every batch is linked before acceptance, so no source-gate work arises. The 0023 trigger itself is tested in
+  commit 1.
 
-### Probes (`tools/writer_guard_probes.py`)
+## Next run: spec commit 3 (five selected API reads)
 
-- 12 per-table probes: a foreign insert from the Finding store, plus update, delete and upsert.
-- 6 `cold cold_consequence_work runtime <verb>` probes: insert, update, delete, truncate, merge and copy.
-- 5 `cold work migration ...` probes, each a temporary replace or append on the 0023 file, restored afterwards.
-- 4 controls that must pass.
+Read the spec sections "Five API reads", "Selection, projection and capability", the dry-read rows "How does the API
+keep one snapshot?", "What is a valid explicit selection/cursor?" and "What do `as_of` and contact mean?", and the
+W2-03 `cold_reads.py`/`cold_assessment_api.py` anchors.
 
-## Probe evidence
+- Add `analytics/cold_site_reads.py:ColdSiteReadService` (pure; no SQLAlchemy) and `cold_site_api.py:build_cold_site_router`.
+- Add read-only caller-connection methods on `PostgresAssessmentStore` and `PostgresConsequenceStore`.
+- Mount the router in `main.py:create_app` beside the W2-03 and cold-foundation routers.
+- Write `test_w204_cold_reads.py`.
+- Consequence reads take the head per Finding/kind (highest `revision_no`), grouped by `overlap_group`. A relevant
+  cold work item with no SUCCEEDED attempt means `PENDING_RECOMPUTE`.
 
-On `527d5342`, run with `--seam` on a clean tree:
-
-- 23 of 23 fail probes were CAUGHT.
-- 4 of 4 controls were ALLOWED.
-- "tree restored", exit 0.
-- The seam guard passes on the clean tree.
-
-## Next run: spec commit 2 (pure derivation, store, worker)
-
-Read these spec sections first: "Money schema `0023` and rules" (its last three paragraphs), "Implementer dry-read:
-exact backend behavior", and Q4, Q5, Q6 and Q10.
-
-1. **Pure module.** Create `financials/cold_consequence.py` with `derive` and `basis_sha256`. No SQL and no driver.
-   - Put a Python `selected_instant` here using the Q3 spelling. Have `test_w204_cold_migration._z` reuse it.
-   - Put the overlap-group helper here as well: `'cold:' + sha256(canonical [t,s,ws,we,room])`.
-   - Use `canonical_json` from `contracts/assetops_contracts/source_envelope.py`.
-2. **Store.** Add cold methods to `financials/adapters/postgres_consequence_store.py`, the only allowed INSERT
-   owner.
-   - Leave out the server-time columns (Q6).
-   - Check that the predecessor is the same Finding and kind (Q5).
-   - Leave the mini-grid methods unchanged.
-3. **Worker.** Create `financials/cold_recompute.py` with `ColdConsequenceWorker.run` and `process_one`, written
-   against store protocols.
-   - The store holds the lock `pg_advisory_xact_lock(hashtextextended('cold_consequence:' || work_id, 0))`.
-   - Use `retry_due_at` from `recompute.py`.
-   - Write a FAILED attempt in a fresh transaction.
-   - When an episode trigger yields no consequence, write a success attempt with `[]` IDs.
-   - A basis mismatch fails with `COLD_BASIS_MISMATCH`.
-4. **Q10 assertion.** In rule 8, require each `$coldConsequenceInsertsSeen[...]` to be at least 1, beside the
-   provenance loop near line 1062.
-   - Write it so it fails with a "vacuous" message.
-   - Prove it is not vacuous by removing one store INSERT on a committed tree.
-5. **Tests.** Write `test_w204_cold_consequence.py` and `test_w204_cold_worker.py`.
-   - Run the six W2-02 replays through S2 and then W2-03, reusing the `chain` fixture from
-     `test_w203_cold_replay_postgres.py` and W2-02.
-   - Assert Q6: server times lie inside the transaction interval.
-   - Cover race, retry, idempotence and the failed attempt.
-6. **Finish.** Rerun the cold probe set and the inserts-seen mutation. Commit, then write the handoff.
-
-After commit 2, continue in spec order:
-
-- **Commit 3:** the reads and API.
-- **Commit 4:** the frontend.
-- **Commit 5:** final guards, suites and the review packet.
-
-The retro-ruling corrections below go in their own commit alongside commit 4.
+Then commit 4 (frontend plus the retro corrections below), then commit 5 (final guards, one full backend suite and
+the review packet).
 
 ## Retro-ruling corrections (carried forward, unchanged)
 
