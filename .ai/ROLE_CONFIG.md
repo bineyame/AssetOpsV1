@@ -413,6 +413,10 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   each missing input, cadence sources, fixture Sites vs revisions, migration
   numbering against in-flight slices), and answer each in the spec. W2-05a
   stopped with eight such questions after the gate alone.
+  The dry-read includes a **copy dry-read**: every user-visible string (labels,
+  gap/empty/unavailable/refused copy, limitation and reason sentences, notices)
+  and the exact response field that feeds it, per mock element. W2-04 commit 3
+  left seven response fields empty for want of wording or shape.
 - **Size builder runs to one spec commit each**, with a handoff after each, so
   no run dies mid-commit and the next run reads only the handoff.
 - **Model by risk.** First review of a new build and design-deciding work on
