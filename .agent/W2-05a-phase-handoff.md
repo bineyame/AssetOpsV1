@@ -16,13 +16,15 @@ Branch `task/W2-05a-ev-foundation`, worktree `AssetOpsV1-review5`. Commits: 1 `2
 - Heights at 1440 (app/mock): foundation 1.22/1.22; readiness table 1.15 (1.31 missing-role, extra Site-import row), gateway 1.24; sld diagram 0.87, parts table 1.51 stocked (honest reason: spec requires charger + per-connector rows, 5 rows vs mock 4, and each connector lists its mapped roles). At 390 the readiness Connected sources list is long: one chip per binding (15) as the spec requires.
 - Checks: frontend 86 files / 2202 passed; `tsc` clean; build ok; `tools/check-all.ps1` 10/10.
 
-## Questions for the Architect (exact)
+## Commit-4 rulings QM-QP applied (Architect `D-2026-10-18-w2-05-buildspec`)
 
-1. W1 vocabulary forbids `mapping`, `scenario`, `load`. The spec binds the mock label "Session identity mapping", the gap copy "No scenario tariff in use" and the part name "load manager". I kept them and added exact-phrase W1 glosses in `productVocabulary.json`. Confirm, or give plain variants.
-2. ev-sld slot mapping: the declared AC feed is drawn as the bus (header = feed name + import limit); grid supply, load manager and all breakers are dashed "Not declared" slots; the sole import meter sits in its charger's feeder kWh slot, because the topology is feed->meter->charger (the mock draws a meter upstream of the bus). Confirm.
-3. Readiness messages with no mock row (meter, session-event, Site-import gaps) are extra rows under the four mock rows (cold precedent). Confirm.
-4. Panel 4 row 2's mock Action link is shown as "Investigation action · Not available yet" (no Action exists for this Site). Confirm the label.
+- QM: mock labels kept; `productVocabulary.json` now has exact-phrase glosses (T028 and W1 lists) for "Session identity mapping", "Grid supply + load manager", "Site meter & load manager", "Load manager · Not declared"; the broad "load manager" and "No scenario tariff in use" glosses are gone, no `scenario` exception. Glosses are global exact phrases (the scanner has no per-route scoping); `mapping`/`load` stay flagged elsewhere. Tariff gap is "No tariff set for estimates".
+- QN: `EvSingleLineDiagram` draws the selected direct import meter (name + limit) inside the mock's source-side "Site meter & load manager" box with "Load manager · Not declared"; feeder kWh slots stay "Not declared"; supply-row AC lines solid (only the undeclared depot-auxiliary line stays dashed); no topology/fixture change.
+- QO: ev-readiness panel 1 is exactly the four mock rows; meter/Site-import gaps are row 1 detail, session-event/status gaps row 2 detail; no extra rows. Panel 4 row 2 Action entry is "Investigation action · Not available yet" (already as ruled).
+- QP: ev-sld parts table is four rows (Grid supply + load manager, Charger 1, Charger 2, Depot auxiliary); connectors inside the charger row; missing charger is "Not declared"; chargers beyond two join the second row.
+- Tests: `evFoundation.test.tsx` 21 (new: row counts, source-side meter box, solid supply lines, extra-charger row); frontend 86 files / 2203 passed; `tsc` clean; check-all 10/10.
+- Recaptured (`.agent/W2-05a-evidence`, 108/108 claims, same private-DB recipe, DB dropped, servers stopped). Heights at 1440 app/mock: foundation 1.22/1.22; readiness table 1.15 (stocked and missing-role), gateway 1.24 / 1.17 missing-role; sld diagram 0.87, parts table 1.47 (was 1.51; remaining excess is connector detail inside the charger row). ev-sld viewed against the mock: meter box sits where the mock's is.
 
 ## Next: spec commit 5
 
-Merge W2-04 `0023` into this branch, create `0024_w2_ev_config` (`down_revision` = 0023) per spec "Code seams", run upgrade/downgrade; final guards; one full backend suite + host suite (check no other pytest first, keep-awake, 75-min cap); frontend suite; packet `.agent/W2-05a-review-packet.md` (git add -f) with the height table above.
+Merge W2-04 `0023` into this branch, create `0024_w2_ev_config` (`down_revision` = 0023) per spec "Code seams", run upgrade/downgrade; final guards; one full backend suite + host suite (check no other pytest first, keep-awake, 75-min cap); frontend suite; packet `.agent/W2-05a-review-packet.md` (git add -f) with the height table above (rulings section).
