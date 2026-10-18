@@ -58,6 +58,12 @@ def build_cold_replay_reader(database_url: str | None) -> _ColdReplayReader:
     return _ColdReplayReader(PostgresEvidenceLedger(database_url))
 
 
+def build_link_rows_reader():
+    """W2-03: the S4-05 link-row reader that runs on a caller's connection (the cold assessment's source gate)."""
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
+    return link_rows_on
+
+
 def build_gateway_access(database_url: str | None) -> PostgresGatewayAccess:
     """Gateway credentials, provisioning steps and central diagnostics (S2-02 phase 2).
     Lazy: no connection until first use."""

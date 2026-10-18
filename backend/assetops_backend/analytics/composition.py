@@ -98,7 +98,15 @@ def finding_store_unavailable() -> tuple[type, ...]:
 def build_postgres_assessment_store(database_url: str | None):
     """The S3 assessment writer itself (job leasing, live-job and job reads) for the S4-02d schedule stages."""
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
-    return PostgresAssessmentStore(database_url)
+    from assetops_backend.evidence.composition import build_link_rows_reader
+    return PostgresAssessmentStore(database_url, link_rows=build_link_rows_reader())
+
+
+def build_cold_assessment_worker(database_url: str | None):
+    """W2-03: the cold worker over the assessment and Finding stores (one shared transaction per job)."""
+    from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
+    from assetops_backend.analytics.assessment_worker import ColdAssessmentWorker
+    return ColdAssessmentWorker(build_postgres_assessment_store(database_url), PostgresFindingStore(database_url))
 
 
 def finding_fence_moved_type() -> type:

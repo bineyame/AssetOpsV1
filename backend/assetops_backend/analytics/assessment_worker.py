@@ -25,7 +25,7 @@ from types import ModuleType
 from typing import Any, Callable
 from uuid import UUID
 
-from assetops_backend.analytics import dispatch_v3
+from assetops_backend.analytics import cold, dispatch_v3
 from assetops_backend.analytics.assessment_inputs import (
     BRACKET,
     AnalyticInputSet,
@@ -196,3 +196,89 @@ class DispatchAssessmentWorker:
                 self.store.enqueue(tenant_id, site_id, DOMAIN, head.window, now)
                 scheduled.append(head.window)
         return scheduled
+
+
+# --- cold_chain (W2-03) --------------------------------------------------------------------------------------
+
+COLD_DOMAIN = "cold_chain"
+
+
+@dataclass(frozen=True)
+class ColdProjection:
+    """One window's projection: per analytic, the persisted run/revision and the episode/Finding revisions."""
+
+    window: Window
+    known_at: datetime
+    runs: tuple[dict, ...]
+    finding_revision_ids: tuple[UUID, ...]
+
+
+class ColdAssessmentWorker:
+    """`cold-excursion/1` and `cold-start-response/1` projection (`.agent/W2-03-build-spec.md` commit 3).
+
+    One SQLAlchemy transaction per job (or explicit request) rechecks the lease, selects the effective
+    configuration and S4-05 lineage, computes both analytics, persists their revisions, episodes and Findings and
+    completes the job before commit. Any failure rolls all of it back and records a retryable job failure."""
+
+    def __init__(self, store, findings, *, clock: Callable[[], datetime] = utc_now,
+                 lease: timedelta = timedelta(minutes=5), max_attempts: int = 3,
+                 backoff: timedelta = timedelta(seconds=30)) -> None:
+        self.store, self.findings, self.clock = store, findings, clock
+        self.lease, self.max_attempts, self.backoff = lease, max_attempts, backoff
+
+    def _project(self, c, tenant_id: UUID, site_id: UUID, window: Window, known_at: datetime, *,
+                 job_id: UUID | None, selection: str) -> ColdProjection:
+        started = self.clock()
+        inputs = self.store.cold_inputs(c, tenant_id, site_id, cold.ColdWindow(window.start, window.end, known_at))
+        runs, revisions = [], []
+        for assessment in cold.assess_all(inputs):
+            now = self.clock()
+            persisted = self.store.cold_persist(c, inputs, assessment, job_id=job_id, selection=selection, now=now,
+                                                started=started)
+            if persisted["created"]:
+                episodes = self.store.cold_episodes(c, inputs, assessment, persisted, now)
+                revisions += self.findings.cold_apply(c, tenant_id, site_id, assessment.analytic_id, persisted,
+                                                      episodes, list(assessment.limitations), now)
+            runs.append(persisted)
+        return ColdProjection(window, known_at, tuple(runs), tuple(revisions))
+
+    def assess_explicit(self, tenant_id: UUID, site_id: UUID, window: Window,
+                        known_at: datetime | None = None) -> ColdProjection:
+        """One explicit window at `known_at` (default: the Site's committed disposition watermark), not selected."""
+        with self.store.transaction() as c:
+            known = known_at or self.store.cold_watermark(c, tenant_id, site_id)
+            if known is None:
+                raise cold.ColdConfigurationRefused("the Site has no committed disposition to assess")
+            return self._project(c, tenant_id, site_id, window, known, job_id=None, selection="EXPLICIT")
+
+    def run_once(self, tenant_id: UUID | None = None, site_id: UUID | None = None) -> JobOutcome | None:
+        scope = {} if site_id is None else {"tenant_id": tenant_id, "site_id": site_id}
+        lease = self.store.lease_job(COLD_DOMAIN, self.clock(), self.lease, max_attempts=self.max_attempts, **scope)
+        if lease is None:
+            return None
+        try:
+            with self.store.transaction() as c:
+                self.store.cold_still_mine(c, lease)
+                known = self.store.cold_watermark(c, lease.tenant_id, lease.site_id)
+                projections = [self._project(c, lease.tenant_id, lease.site_id, w, known, job_id=lease.job_id,
+                                             selection="DEFAULT")
+                               for w in self.store.cold_windows(c, lease)]
+                self.store.cold_complete(c, lease)
+            return JobOutcome(lease.job_id, "DONE", tuple(projections))  # type: ignore[arg-type]
+        except LeaseLost as lost:
+            return JobOutcome(lease.job_id, "LEASE_LOST", error=str(lost))
+        except Exception as error:  # noqa: BLE001 - every failure rolls back and is recorded on the job
+            reason = f"{type(error).__name__}: {error}"[:500]
+            status = self.store.fail_job(lease, reason, self.clock(), max_attempts=self.max_attempts,
+                                         backoff=self.backoff)
+            return JobOutcome(lease.job_id, status, error=reason)
+
+    def run_pending(self, limit: int = 100, tenant_id: UUID | None = None,
+                    site_id: UUID | None = None) -> list[JobOutcome]:
+        out: list[JobOutcome] = []
+        while len(out) < limit:
+            outcome = self.run_once(tenant_id, site_id)
+            if outcome is None:
+                break
+            out.append(outcome)
+        return out

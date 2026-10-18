@@ -678,3 +678,66 @@ def assess_start_response(evidence: Iterable[ColdEvidence], window: ColdWindow, 
     links = tuple(link for c in chains for link in c.links)
     return ColdAssessment(START_RESPONSE_ANALYTIC, MODEL_VERSION, window, state, claim, 0, 0, Decimal(0), (), (),
                           chains, links, tuple(c.limitation for c in chains if c.limitation))
+
+
+# --- selected inputs and the persisted result document (W2-03 commit 3) ------------------------------------
+
+
+class ColdConfigurationRefused(Exception):
+    """The effective cold configuration cannot be selected exactly (missing, duplicate or overlapping Foundation,
+    `cold-roles-1` binding, policy or calibration); no claim is computed (fail closed)."""
+
+
+@dataclass(frozen=True)
+class ColdInputs:
+    """One Site/window/cutoff selection: accepted records, effective policies, S4-05 gate and configuration IDs."""
+
+    tenant_id: UUID
+    site_id: UUID
+    window: ColdWindow
+    evidence: tuple[ColdEvidence, ...]
+    policy: ColdPolicy
+    start_policy: ColdStartPolicy
+    gate: SourceGate
+    foundation_revision_ids: tuple[UUID, ...]
+    binding_revision_ids: tuple[UUID, ...]
+
+    def basis(self, analytic_id: str) -> str:
+        return basis_sha256(analytic_id=analytic_id, model_version=MODEL_VERSION, tenant_id=self.tenant_id,
+                            site_id=self.site_id, window=self.window,
+                            foundation_revision_ids=self.foundation_revision_ids,
+                            binding_revision_ids=self.binding_revision_ids, source_gate=self.gate,
+                            records=self.evidence)
+
+
+def assess_all(inputs: ColdInputs) -> tuple[ColdAssessment, ColdAssessment]:
+    """Both analytics over one selection: (`cold-excursion/1`, `cold-start-response/1`)."""
+    return (assess_excursion(inputs.evidence, inputs.window, inputs.policy, inputs.gate),
+            assess_start_response(inputs.evidence, inputs.window, inputs.start_policy, inputs.gate))
+
+
+def plain(value):
+    """JSON form of a result value: decimal strings, UTC instants, lowercase UUID text."""
+    if isinstance(value, Decimal):
+        text_value = format(value.normalize(), "f")
+        return "0" if text_value in ("-0", "") else text_value
+    if isinstance(value, datetime):
+        return iso(value)
+    if isinstance(value, UUID):
+        return str(value).lower()
+    if isinstance(value, (tuple, list)):
+        return [plain(v) for v in value]
+    if isinstance(value, dict):
+        return {k: plain(v) for k, v in value.items()}
+    if hasattr(value, "__dataclass_fields__"):
+        return {k: plain(getattr(value, k)) for k in value.__dataclass_fields__}
+    return value
+
+
+def assessment_document(assessment: ColdAssessment, *, policy: ColdPolicy | ColdStartPolicy,
+                        gate: SourceGate) -> dict:
+    """The persisted `assessment_revision.result`: the pure fields, its episodes/chains, policy and gate."""
+    document = plain(assessment)
+    document["policy"] = plain(policy)
+    document["source_gate"] = {**gate.basis(), "permitted": gate.permitted}
+    return document

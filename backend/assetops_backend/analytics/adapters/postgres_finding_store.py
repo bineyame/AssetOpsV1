@@ -22,6 +22,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from assetops_backend.analytics.assessment_inputs import sha256_json
+from assetops_backend.analytics.cold import plain
 from assetops_backend.analytics.dispatch import CANDIDATE, INDETERMINATE, NECESSARY
 from assetops_backend.analytics.finding_episode import (
     DOMAIN,
@@ -31,6 +32,13 @@ from assetops_backend.analytics.finding_episode import (
     Episode,
     Write,
 )
+
+
+#: W2-03 cold Finding identity: one mechanism and plain title per episode kind.
+COLD_MATCHER_VERSION = "cold-episode/1"
+COLD_MECHANISMS = {"EXCURSION": "COLD_EXCURSION", "START_RESPONSE": "COLD_START_FAILURE"}
+COLD_TITLES = {"EXCURSION": "Cold room temperature outside its policy band",
+               "START_RESPONSE": "Backup generator did not start when the grid failed"}
 
 
 def _num(x) -> str:
@@ -500,3 +508,128 @@ class PostgresFindingStore:
                 "ORDER BY window_start, id"), p)]
             return {"assessments": cites, "evidence": evidence, "runs": runs}
         return self._read(work)
+
+    # --- cold_chain (W2-03): Findings on the cold worker's connection ----------------------------------------
+    # `.agent/W2-03-build-spec.md` commit 3: this module alone inserts cold `finding`, `finding_revision`,
+    # `finding_revision_assessment` and `finding_revision_evidence`, on the caller's transaction. The dispatch
+    # `_insert_finding/_insert_revision` paths are untouched. A cold Finding carries `domain='cold_chain'`, its
+    # `subject_asset_id`, NULL `generator_asset_id` and NULL dispatch minute fields; its claim names the exact
+    # episode and episode revision.
+
+    def cold_apply(self, c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str, persisted: dict[str, Any],
+                   episodes: list[dict[str, Any]], limitations: list[str], now: datetime) -> list[UUID]:
+        """Open, revise or withdraw the cold Finding of each episode revision written by this assessment."""
+        written: list[UUID] = []
+        for ep in episodes:
+            if not ep["created"]:
+                continue
+            item, kind = ep["item"], ep["kind"]
+            held = self._cold_finding_of(c, tenant_id, site_id, ep["episode_id"])
+            warrants = item is not None and (item.exposure_finding if kind == "EXCURSION" else item.failure_finding)
+            if ep["state"] == "NO_LONGER_SUPPORTED":
+                if held is None:
+                    continue
+                transition, lifecycle = "NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED"
+            elif held is None:
+                if not warrants:
+                    continue
+                split = (None if ep["split_from_episode_id"] is None
+                         else self._cold_finding_of(c, tenant_id, site_id, ep["split_from_episode_id"]))
+                held = self._insert_cold_finding(c, tenant_id, site_id, analytic_id, ep, persisted,
+                                                 None if split is None else split[0], now)
+                transition, lifecycle = "OPENED", "SUPPORTED"
+            else:
+                transition = "SUPPORT_CHANGED" if ep["evidence_changed"] else "BASIS_REFRESHED"
+                lifecycle = "SUPPORTED" if warrants else "UNCONFIRMED"
+            rid = self._insert_cold_revision(c, tenant_id, site_id, analytic_id, held, ep, persisted, transition,
+                                             lifecycle, limitations, now)
+            if rid is not None:
+                written.append(rid)
+        return written
+
+    @staticmethod
+    def _cold_finding_of(c: Connection, tenant_id: UUID, site_id: UUID, episode_id: UUID):
+        """(finding_id, mechanism, subject) of the cold Finding whose revisions claim `episode_id`, or None."""
+        return c.execute(text(
+            "SELECT f.id, f.mechanism, f.subject_asset_id FROM finding f JOIN finding_revision r ON r.finding_id = f.id "
+            "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = 'cold_chain' "
+            "AND r.claim->>'episode_id' = :e ORDER BY r.revision_no LIMIT 1"),
+            {"t": tenant_id, "s": site_id, "e": str(episode_id)}).first()
+
+    @staticmethod
+    def _insert_cold_finding(c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str, ep: dict[str, Any],
+                             persisted: dict[str, Any], split_from: UUID | None, now: datetime):
+        fid = uuid4()
+        mechanism = COLD_MECHANISMS[ep["kind"]]
+        c.execute(text(
+            "INSERT INTO finding (id, tenant_id, site_id, finding_key, domain, mechanism, analytic_id, "
+            "generator_asset_id, subject_asset_id, anchor_start, anchor_assessment_revision_id, cohort_sha256, "
+            "matcher_version, recurs_after_finding_id, split_from_finding_id, opened_at, created_at) VALUES "
+            "(:id, :t, :s, :k, 'cold_chain', :m, :a, NULL, :subject, :anchor, :anchor_rev, NULL, :mv, NULL, "
+            ":split, :now, :now)"),
+            {"id": fid, "t": tenant_id, "s": site_id, "k": f"cold:{ep['kind']}:{ep['episode_id']}", "m": mechanism,
+             "a": analytic_id, "subject": ep["subject_asset_id"], "anchor": ep["item"].anchor_time,
+             "anchor_rev": persisted["revision_id"], "mv": COLD_MATCHER_VERSION, "split": split_from, "now": now})
+        return (fid, mechanism, ep["subject_asset_id"])
+
+    @staticmethod
+    def _insert_cold_revision(c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str, held,
+                              ep: dict[str, Any], persisted: dict[str, Any], transition: str, lifecycle: str,
+                              limitations: list[str], now: datetime) -> UUID | None:
+        fid, mechanism = held[0], held[1]
+        if c.execute(text("SELECT 1 FROM finding_revision WHERE finding_id = :f AND basis_sha256 = :b "
+                          "AND transition = :tr"), {"f": fid, "b": persisted["basis"], "tr": transition}).first():
+            return None  # this exact basis and transition is already recorded
+        item, kind = ep["item"], ep["kind"]
+        n = c.execute(text("SELECT coalesce(max(revision_no), 0) + 1 FROM finding_revision WHERE finding_id = :f"),
+                      {"f": fid}).scalar_one()
+        claim: dict[str, Any] = {"episode_id": str(ep["episode_id"]), "episode_revision_id": str(ep["revision_id"]),
+                                 "kind": kind, "state": ep["state"]}
+        start = end = None
+        claim_level = "UNKNOWN"
+        if item is not None:
+            claim_level = item.claim_level
+            if kind == "EXCURSION":
+                start, end = item.start_latest, item.end_latest
+                claim.update(plain({
+                    "direction": item.direction, "start_bounds": {"earliest": item.start_earliest,
+                                                                  "latest": item.start_latest},
+                    "end_bounds": {"earliest": item.end_earliest, "latest": item.end_latest},
+                    "duration_bounds": {"low": item.duration_low, "high": item.duration_high},
+                    "degree_minute_bounds": {"low": item.degree_minutes_low, "high": item.degree_minutes_high},
+                    "peak_observed": item.peak_observed, "open": item.open}))
+            else:
+                start = item.anchor_time
+                claim.update(plain({"correlation_id": item.correlation_id, "result": item.result,
+                                    "missing_steps": list(item.missing_steps),
+                                    "start_timeout_min": item.start_timeout_min}))
+        limits = list(limitations) + ([item.limitation] if item is not None and item.limitation else [])
+        limits.append("No spoilage, product-loss or failed-part determination is made.")
+        support = ep["support_ids"]
+        digests = [r[0] for r in c.execute(text(
+            "SELECT envelope_sha256 FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s AND id = ANY(:ids) "
+            "ORDER BY id"), {"t": tenant_id, "s": site_id, "ids": support}).all()] if support else []
+        rid = uuid4()
+        c.execute(text(
+            "INSERT INTO finding_revision (id, tenant_id, site_id, finding_id, domain, revision_no, transition, "
+            "lifecycle, claim_level, title, mechanism, matcher_version, analytic_id, model_version, "
+            "assessment_revision_id, analytic_run_id, window_assessment_revision_id, episode_start, episode_end, "
+            "candidate_minutes, necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, "
+            "support_sha256, cited_evidence_sha256, input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, "
+            "'cold_chain', :n, :tr, :life, :claim_level, :title, :m, :mv, :a, :model, :ar, :run, NULL, :es, :ee, "
+            "NULL, NULL, NULL, CAST(:claim AS jsonb), CAST(:limits AS jsonb), :b, :sup, :cited, :input, :now)"),
+            {"id": rid, "t": tenant_id, "s": site_id, "f": fid, "n": n, "tr": transition, "life": lifecycle,
+             "claim_level": claim_level, "title": COLD_TITLES[kind], "m": mechanism, "mv": COLD_MATCHER_VERSION,
+             "a": analytic_id, "model": "1", "ar": persisted["revision_id"], "run": persisted["run_id"],
+             "es": start, "ee": end, "claim": json.dumps(claim), "limits": json.dumps(limits),
+             "b": persisted["basis"], "sup": sha256_json(support), "cited": sha256_json(digests),
+             "input": persisted["basis"], "now": now})
+        c.execute(text(
+            "INSERT INTO finding_revision_assessment (finding_revision_id, assessment_revision_id, tenant_id, site_id, "
+            "analytic_run_id, scope, is_primary) VALUES (:r, :a, :t, :s, :run, 'WINDOW', true)"),
+            {"r": rid, "a": persisted["revision_id"], "t": tenant_id, "s": site_id, "run": persisted["run_id"]})
+        if support:
+            c.execute(text("INSERT INTO finding_revision_evidence (finding_revision_id, evidence_id, tenant_id, "
+                           "site_id) VALUES (:r, :e, :t, :s)"),
+                      [{"r": rid, "e": e, "t": tenant_id, "s": site_id} for e in support])
+        return rid
