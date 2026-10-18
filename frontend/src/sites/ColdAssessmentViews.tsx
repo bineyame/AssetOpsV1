@@ -519,7 +519,8 @@ function TemperaturePanels({
                     "outage",
                   ],
                   ["Door opening", door.length === 0 ? "No record" : `Door record ${door.map((d) => hm(d.as_of)).join(", ")} · context only`, "door"],
-                  ["Loading / batch", NOT_RECORDED, "loading"],
+                  // The capture tool treats any "Loading" text as a page still loading (W2-01 deviation 6 precedent).
+                  ["Stock loading / batch", NOT_RECORDED, "loading"],
                   ["Defrost", NOT_RECORDED, "defrost"],
                 ]}
               />
