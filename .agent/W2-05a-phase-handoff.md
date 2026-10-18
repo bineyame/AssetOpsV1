@@ -1,0 +1,29 @@
+# W2-05a phase handoff - run 1 (STOPPED: Architect questions before Phase 1 code)
+
+Branch `task/W2-05a-ev-foundation`, base `fb028507`. No code written; tree clean. Stopped under the owner rule (ROLE_CONFIG `f632ed48`): Phase 1 has gaps the spec does not settle, so no interpretive choice was made.
+
+## Survey done (reuse, do not redo)
+
+Template is W2-01 phase 1 (`git diff d9cdcb97^1 d9cdcb97 -- backend contracts`): models.py vocab, foundation_parsing UNIT_RANGES (optional per unit, `foundation_parsing.py:176,1176`), site_parsing dispatch (`validate_cold_foundation` after `_parse_foundation`), foundation_service `publish_topology`, binding_roles `Role`/`ROLES_BY_SET`/`ROLE_SET_BY_SITE_TYPE`/`SERVED_ROLE_SETS_BY_SITE_TYPE`/`conversion_problem`, binding_service `validate_bindings` v4 branch gated on `ROLE_SET_COLD_1` (`binding_service.py:346-372`), `acquisition_snapshot` COLDCHAIN gap branch (`binding_service.py:~1021`), `source_envelope_v4.py:V4_CHANNEL_MAPPINGS` (EV tuples at the end, `role=None`), ledger role/connector checks (`ledger.py:~415,445`), `cold_foundation.py` messages `{code,role,component_id,message,blocking}` and `{nodes,edges}`, `cold_foundation_api.py` refusal/contact pattern, main.py router include. Fixture shape: `backend/tests/fixtures/w2/cold-001.yaml`; 05b spec line 17 gives EV-LAB-001 constants (`feed-1`, `site-meter-1`, `charger-1`, `c1`,`c2`, `GW-EV-LAB-01`).
+
+## Open questions (exact; Phase 1 cannot proceed without Q1-Q7)
+
+Q1 (blocker) Per-connector channels. Seven roles are PER EV_CONNECTOR with one channel each, and EV-LAB-001 has c1, c2. `validate_bindings` refuses a channel bound twice (`BINDING_CHANNEL_OVERLAP`, binding_service.py:301) and S2 refuses `EV_CONNECTOR_MISMATCH` unless envelope `connector_id` equals the one bound asset (ledger.py:445). The closed table (design §3) names one tuple per signal: `(charger-controller,session-event)`, `(connector-controller,fault-event|state|requested-power|allocated-limit)`, `(connector-meter,energy|power)`, `(site-meter,import)`. What are the exact device_id/signal_id tuples for c1 and for c2? If one channel serves both connectors instead, that changes the overlap refusal and the ledger's one-binding lookup: is that intended? And which Foundation component does each device attach to (a device has one `component_id`): charger-1, the connector, or site-meter-1?
+
+Q2 Readiness state. Does `SITE_IMPORT_NOT_BOUND` make state `CONFIGURATION_INCOMPLETE`, or is it a non-blocking message under `READY_TO_REPORT` like `SOURCE_NOT_CONTACTED`/`COMMISSIONING_UNCONFIRMED`? The spec lists it among the six configuration codes, but calls site import optional for Draft. Confirm that a missing optional fault/power/requested/allocated binding produces none of the eight codes.
+
+Q3 Missing EV properties other than the site import limit (`ev-charger-max-power`, `ev-connector-max-power`, `ev-connector-enabled`, meter resolution/error bound, status/meter cadence, clock bound). Is the publish refused (with which refusal code), or reported as readiness (under which of the eight codes)? "A real Site must author these values" could mean either.
+
+Q4 Cadence. `Role` has no cadence. Cold uses the fixed constant `COLD_PERIODIC_CADENCE_SECONDS`. For EV, is `bindings[].cadence_seconds` the fixed role contract (state 60, energy/power/import/requested/allocated 300, events null), or the Foundation `ev-status-cadence`/`ev-meter-cadence` converted to seconds? What exactly is refused for "cadence > configured ceiling": a property above the role ceiling (60 s / 300 s), or something else? Which property governs the power, site-import, requested and allocated cadences? Is `ev-clock-error-bound` checked against anything in 05a, or only shown?
+
+Q5 Schedule placement and validity. Is `connector_enable_schedules` a new top-level Foundation content key in `FOUNDATION_CONTENT_KEYS`? `site_controls` are ordered member lists and cannot hold it. Is its validity exactly the Foundation revision's effective interval? For a current, open-ended revision, how is "offset matches the zone for every occurrence in the effective date range" checked? Is it checked through a fixed horizon, or refused for any zone with DST? Is the fixture schedule weekly-recurring TUESDAY, or limited to the date 2026-10-06? What is EV-LAB-001's `timezone`? It must give offset 0 (`UTC`?). Must every connector have a schedule entry, and is an ENABLED connector with no entry allowed?
+
+Q6 Fixtures. Are the missing-meter/event/status/limit examples separate Sites (like COLD-001/COLD-002), or later Foundation/binding revisions of EV-LAB-001? Give their site codes if they are Sites. Is `backend/tests/fixtures/w2/ev-lab-001.yaml` created in 05a? The 05b spec says 05b adds it, but the 05a UI needs it.
+
+Q7 Migration. W2-04's `0023` is not on main (head is `0022_w2_cold_assessment`). Should I build Phase 1 now without `0024` and its upgrade/downgrade tests, adding them after main receives `0023`? Or should the slice wait?
+
+Q8 (minor) Energy role kinds. Does `ev_connector_energy` carry `value_kind="INTERVAL_DELTA"` with conversion `IDENTITY_KWH`? Does `IDENTITY_KWH` take no parameters and require source unit kWh? Are the INTERVAL_MEAN roles `NUMBER`/`IDENTITY`? Does `(connector-meter,energy)` have `requires_session=True`? EV bindings snapshot under `V4_MAPPING_PROFILE_ID="simulator-lab-gateway-cold"` in 05a: should they, or under `simulator-lab-gateway-ev/1`?
+
+## Next steps after answers
+
+Phase 1 (one run): vocab + typed number-or-state property; `ev_foundation.py` validator/projection/readiness; `ev-roles-1` + v4 EV tuples + binding v4 branch + Draft gate; fixtures; `ev_foundation_api.py` + main include; `0024` (when `0023` present); tests `test_w205a_*`; then this handoff. Phase 2: three routes, `expectV69Panels`, captures, packet.
