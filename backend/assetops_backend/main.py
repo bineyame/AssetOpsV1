@@ -36,6 +36,7 @@ from fastapi import APIRouter, FastAPI
 from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.analytics.composition import build_claim_limit_read_service
+from assetops_backend.analytics.composition import build_cold_read_service
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.analytics.composition import (build_dispatch_read_service, build_finding_index_service,
@@ -50,7 +51,6 @@ from assetops_backend.source_health_api import build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
-from assetops_backend.analytics.cold_reads import build_cold_read_service
 from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
 from assetops_backend.action_api import build_action_router

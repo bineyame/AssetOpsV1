@@ -26,7 +26,7 @@ if URL:
     from test_w202_cold_replay_postgres import chain  # noqa: F401 - the W2-02 replay fixture
     from test_w203_cold_replay_postgres import admit, opened, report_like, rows, run  # noqa: F401
 
-    from assetops_backend.analytics.cold_reads import ColdReadService
+    from assetops_backend.analytics.adapters.postgres_assessment_store import ColdReadService
     from assetops_backend.cold_assessment_api import build_cold_assessment_router
 
 CODE = "COLD-READ"

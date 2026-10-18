@@ -113,3 +113,10 @@ def finding_fence_moved_type() -> type:
     """`FindingFenceMoved`, for a caller that classifies a failed match without importing the adapter."""
     from assetops_backend.analytics.adapters.postgres_finding_store import FindingFenceMoved
     return FindingFenceMoved
+
+
+def build_cold_read_service(database_url: str):
+    """W2-03: the selected cold temperature, backup-chain and cold Finding read (read-only Postgres adapter)."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import ColdReadService
+
+    return ColdReadService(database_url)

@@ -24,7 +24,6 @@ from assetops_backend.analytics.cold_reads import (
     MAX_LIMIT,
     MAX_WINDOW,
     ColdCursorRefused,
-    ColdReadService,
     ColdReadUnavailable,
 )
 from assetops_backend.finding_api import Access, development_access
@@ -67,7 +66,7 @@ def _instant(request: Request, key: str) -> datetime | None:
     return at
 
 
-def build_cold_assessment_router(registry: ImportedSiteRegistry, reads: ColdReadService | None,
+def build_cold_assessment_router(registry: ImportedSiteRegistry, reads: Any | None,
                                  access: Access = development_access,
                                  disclosure: Disclosure = allow_disclosure) -> APIRouter:
     router = APIRouter()
