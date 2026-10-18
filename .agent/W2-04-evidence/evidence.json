@@ -1,6 +1,6 @@
 {
-  "revision": "b9b79493",
-  "captured_at": "2026-10-18T16:24:54.250Z",
+  "revision": "d5d57ada",
+  "captured_at": "2026-10-18T17:42:43.325Z",
   "pairs": [
     {
       "screen": "cold",
@@ -235,14 +235,14 @@
             "x": 248,
             "y": 743,
             "w": 725,
-            "h": 508
+            "h": 545
           },
           {
             "title": "Most useful next evidence",
             "x": 991,
             "y": 743,
             "w": 403,
-            "h": 508
+            "h": 545
           }
         ],
         "overflowX": 0
@@ -368,14 +368,14 @@
             "title": "Accepted records behind the conclusions",
             "x": 248,
             "y": 339,
-            "w": 1145,
-            "h": 423
+            "w": 1160,
+            "h": 370
           },
           {
             "title": "How a claim limit is set",
             "x": 248,
-            "y": 780,
-            "w": 1145,
+            "y": 727,
+            "w": 1160,
             "h": 191
           }
         ],
@@ -424,12 +424,12 @@
             "x": 16,
             "y": 464,
             "w": 358,
-            "h": 531
+            "h": 426
           },
           {
             "title": "How a claim limit is set",
             "x": 16,
-            "y": 1013,
+            "y": 907,
             "w": 358,
             "h": 262
           }

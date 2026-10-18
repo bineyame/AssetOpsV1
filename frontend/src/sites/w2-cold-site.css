@@ -124,6 +124,11 @@
     padding-bottom: 6px;
   }
 
+  /* Run-9 D2: a two-line Record cell stays within the ruled panel height (line spacing only; no text scaling). */
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td) {
+    line-height: 1.25;
+  }
+
   [data-cold-view="cold-evidence-analysis"] .cold-panel-link,
   [data-cold-view="cold-evidence-analysis"] [data-disclosure="cold-site-record-details"] {
     margin-top: 6px;
