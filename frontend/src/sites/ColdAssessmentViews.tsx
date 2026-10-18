@@ -431,7 +431,7 @@ function temperatureTimeline(read: ColdTemperatureRead, backup: ColdBackupRead |
   const events: TimelineEvent[] = [];
   const lost = grid(backup);
   if (lost !== null) events.push({ key: "grid", time: hm(lost.at), title: "Power lost", detail: "Grid supply record", tone: "danger" });
-  const compressor = backup?.chains[0]?.steps.find((s) => s.kind === "COMPRESSOR" && s.state === "OBSERVED");
+  const compressor = coolingRunning(backup?.chains[0]);
   if (compressor) events.push({ key: "cooling", time: hm(compressor.at), title: "Cooling running", detail: "Compressor record" });
   const x = read.excursions[0];
   if (x !== undefined) {
@@ -601,6 +601,21 @@ function TemperaturePanels({
 
 /* ---------- backup chain ---------- */
 
+/** The step's observed outcome in words; a probe step's outcome is its temperature. */
+function outcomeText(s: ColdStepRead): string | null {
+  if (s.outcome === null) return null;
+  return s.kind === "PROBE" ? deg(s.outcome) : plainCode(s.outcome);
+}
+
+const ADVERSE = /FAIL|LOSS|LOST|^OFF$|UNPOWERED|STOPPED/;
+const RUNNING = /^(RUNNING|ON|POWERED|STARTED)$/;
+
+/** The compressor step only when it shows cooling running (an observed OFF is not "cooling resumed"). */
+function coolingRunning(chain: ColdChainRead | undefined): ColdStepRead | undefined {
+  const s = chain?.steps.find((x) => x.kind === "COMPRESSOR");
+  return s !== undefined && s.state === "OBSERVED" && s.outcome !== null && RUNNING.test(s.outcome) ? s : undefined;
+}
+
 function stepOf(chain: ColdChainRead | undefined, kind: string): ColdStepRead | undefined {
   return chain?.steps.find((s) => s.kind === kind);
 }
@@ -609,7 +624,7 @@ function stepCell(step: ColdStepRead | undefined, verb: string): string {
   if (step === undefined) return "Not bound";
   if (step.state === "MISSING") return NOT_RECORDED;
   if (step.state === "CONTRADICTORY") return "Records disagree";
-  return `${step.outcome ? `${plainCode(step.outcome)} ` : `${verb} `}${hm(step.at)}`;
+  return `${outcomeText(step) ?? verb} ${hm(step.at)}`;
 }
 
 function chainSentence(chain: ColdChainRead | undefined, contradicted: boolean): string {
@@ -640,7 +655,7 @@ function chainTimeline(chain: ColdChainRead, links: ColdLinks): TimelineEvent[] 
   return chain.steps.map((s) => ({
     key: s.kind,
     time: s.at === null ? "—" : hm(s.at),
-    title: `${stepLabel(s.kind)}${s.outcome ? ` · ${plainCode(s.outcome)}` : ""}`,
+    title: `${stepLabel(s.kind)}${s.outcome ? ` · ${outcomeText(s)}` : ""}`,
     detail:
       s.state === "OBSERVED" && s.evidence_id !== null ? (
         <Link to={links.record(s.evidence_id)} data-evidence-link={s.evidence_id}>
@@ -649,7 +664,7 @@ function chainTimeline(chain: ColdChainRead, links: ColdLinks): TimelineEvent[] 
       ) : (
         stepStateWord(s.state)
       ),
-    tone: s.state === "OBSERVED" ? (s.outcome !== null && /FAIL|LOSS/.test(s.outcome) ? "danger" : undefined) : "gap",
+    tone: s.state === "OBSERVED" ? (s.outcome !== null && ADVERSE.test(s.outcome) ? "danger" : undefined) : "gap",
   }));
 }
 
@@ -697,7 +712,7 @@ function BackupPanels({
           <MetricCard label="Grid-loss event" value={stepOf(chain, "GRID")?.state === "OBSERVED" ? hm(stepOf(chain, "GRID")?.at) : NOT_RECORDED} note="Grid supply record" word={stepOf(chain, "GRID")?.state !== "OBSERVED"} />
           <MetricCard label="Automatic start" value={chain === undefined ? NOT_ASSESSED : startResultWord(chain.result)} note="Start request and result records" word />
           <MetricCard label="Manual recovery" value={NOT_RECORDED} note="No operational log is connected" word />
-          <MetricCard label="Cooling resumed" value={stepOf(chain, "COMPRESSOR")?.state === "OBSERVED" ? hm(stepOf(chain, "COMPRESSOR")?.at) : NOT_RECORDED} note="Compressor record" word={stepOf(chain, "COMPRESSOR")?.state !== "OBSERVED"} />
+          <MetricCard label="Cooling resumed" value={coolingRunning(chain) ? hm(coolingRunning(chain)?.at) : NOT_RECORDED} note={stepOf(chain, "COMPRESSOR")?.state === "OBSERVED" && !coolingRunning(chain) ? `Compressor ${outcomeText(stepOf(chain, "COMPRESSOR")!)?.toLowerCase()} at ${hm(stepOf(chain, "COMPRESSOR")?.at)}; no running record` : "Compressor record"} word={!coolingRunning(chain)} />
         </MetricCards>
       )}
       <Panel heading="Reconstructed event chain" headingId="cold-chain-steps-heading">
@@ -781,7 +796,7 @@ function BackupPanels({
                     <td>
                       {s.state === "OBSERVED" ? (
                         <>
-                          {s.outcome ? `${plainCode(s.outcome)} at ` : "At "}
+                          {s.outcome ? `${outcomeText(s)} at ` : "At "}
                           {hm(s.at)}
                           {s.evidence_id === null ? null : (
                             <>
