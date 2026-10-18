@@ -215,6 +215,7 @@ class SiteCreationService:
                         signal_mappings=template.foundation.signal_mappings,
                         control_assumptions=template.foundation.control_assumptions,
                         site_controls=template.foundation.site_controls,
+                        connector_enable_schedules=template.foundation.connector_enable_schedules,
                     )
                 ),
             },

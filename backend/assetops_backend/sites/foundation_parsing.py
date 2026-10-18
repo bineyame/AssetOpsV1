@@ -50,8 +50,10 @@ from assetops_backend.sites.models import (
     SITE_CONTROL_SOURCES,
     SIGNAL_UNITS,
     SIGNED_PROPERTY_UNITS,
+    STATE_PROPERTY_VALUES,
     TOPOLOGY_NODE_ROLES,
     ComponentProperty,
+    ConnectorEnableSchedule,
     ControlAssumption,
     DeviceSignal,
     FoundationContent,
@@ -61,6 +63,7 @@ from assetops_backend.sites.models import (
     SiteControl,
     TopologyConnection,
     TopologyNode,
+    WeeklyEnableInterval,
 )
 
 #: The four keys T014 adds to a Foundation document. Exported so that both
@@ -74,6 +77,9 @@ FOUNDATION_CONTENT_KEYS = frozenset(
         "signal_mappings",
         "control_assumptions",
         "site_controls",
+        # W2-05a: the typed, time-valid connector enable schedule. A top-level
+        # key of its own, never a `site_controls` member list.
+        "connector_enable_schedules",
     }
 )
 
@@ -96,6 +102,14 @@ CONTROL_ASSUMPTION_KEYS = frozenset(
 COMPONENT_PROPERTY_KEYS = frozenset(
     {"property_key", "value", "unit", "source", "source_version"}
 )
+#: W2-05a: one connector's enable schedule and one weekly interval in it.
+CONNECTOR_SCHEDULE_KEYS = frozenset({"connector_asset_id", "time_zone", "weekly"})
+WEEKLY_INTERVAL_KEYS = frozenset(
+    {"weekday", "local_start", "local_end", "utc_offset_minutes"}
+)
+MAX_CONNECTOR_SCHEDULES = 64
+MAX_WEEKLY_INTERVALS = 64
+MAX_TIME_ZONE_LENGTH = 64
 
 # Cardinality bounds. A document that declares ten thousand connections is
 # refused rather than rendered: a screen nobody can scroll past is the same
@@ -258,12 +272,21 @@ def parse_foundation_content(
         invalid=invalid,
     )
 
+    connector_enable_schedules = _parse_connector_enable_schedules(
+        foundation.get("connector_enable_schedules"),
+        component_ids=component_ids,
+        where=f"{where}.connector_enable_schedules",
+        source=source,
+        invalid=invalid,
+    )
+
     return FoundationContent(
         topology=topology,
         devices=devices,
         signal_mappings=signal_mappings,
         control_assumptions=control_assumptions,
         site_controls=site_controls,
+        connector_enable_schedules=connector_enable_schedules,
     )
 
 
@@ -280,8 +303,9 @@ def render_foundation_content(content: FoundationContent) -> dict[str, Any]:
     mappings = content.signal_mappings
     assumptions = content.control_assumptions
     controls = content.site_controls
+    schedules = content.connector_enable_schedules
 
-    return {
+    rendered: dict[str, Any] = {
         "topology": (
             None
             if topology is None
@@ -367,6 +391,116 @@ def render_foundation_content(content: FoundationContent) -> dict[str, Any]:
             ]
         ),
     }
+    # W2-05a: written only when declared, so every Foundation that predates the
+    # key keeps its rendered bytes and content digest. The parser reads an
+    # absent key as `None`, so the round trip still returns an equal record.
+    if schedules is not None:
+        rendered["connector_enable_schedules"] = [
+            {
+                "connector_asset_id": schedule.connector_asset_id,
+                "time_zone": schedule.time_zone,
+                "weekly": [
+                    {
+                        "weekday": interval.weekday,
+                        "local_start": interval.local_start,
+                        "local_end": interval.local_end,
+                        "utc_offset_minutes": interval.utc_offset_minutes,
+                    }
+                    for interval in schedule.weekly
+                ],
+            }
+            for schedule in schedules
+        ]
+    return rendered
+
+
+# --- Connector enable schedules (W2-05a) ------------------------------------
+
+
+def _parse_connector_enable_schedules(
+    raw: Any,
+    *,
+    component_ids: frozenset[str],
+    where: str,
+    source: str,
+    invalid: Invalid,
+) -> tuple[ConnectorEnableSchedule, ...] | None:
+    """The shape of `connector_enable_schedules` only.
+
+    Which component type each entry names, one entry per connector, weekday and
+    local-time spelling, ordering, overlap and the offset-against-zone rule
+    belong to the EV Foundation validator, which refuses them as EV
+    configuration errors with a property path.
+    """
+    if raw is None:
+        return None
+    entries = _require_non_empty_list(
+        raw, where=where, source=source, limit=MAX_CONNECTOR_SCHEDULES, invalid=invalid
+    )
+    schedules: list[ConnectorEnableSchedule] = []
+    for index, entry in enumerate(entries):
+        at = f"{where}[{index}]"
+        mapping = _require_mapping(entry, where=at, source=source, invalid=invalid)
+        _reject_unknown_keys(
+            mapping, CONNECTOR_SCHEDULE_KEYS, where=at, source=source, invalid=invalid
+        )
+        connector = _require_component_reference(
+            mapping,
+            "connector_asset_id",
+            component_ids=component_ids,
+            where=at,
+            source=source,
+            invalid=invalid,
+        )
+        time_zone = _require_text(
+            mapping, "time_zone", max_length=MAX_TIME_ZONE_LENGTH, where=at,
+            source=source, invalid=invalid,
+        )
+        weekly_raw = mapping.get("weekly")
+        if not isinstance(weekly_raw, list):
+            invalid(
+                f"'{at}.weekly' must be a list in {source}; an empty list declares "
+                "no enabled hours"
+            )
+        if len(weekly_raw) > MAX_WEEKLY_INTERVALS:
+            invalid(
+                f"'{at}.weekly' declares {len(weekly_raw)} intervals in {source}, "
+                f"above the limit of {MAX_WEEKLY_INTERVALS}"
+            )
+        weekly: list[WeeklyEnableInterval] = []
+        for position, item in enumerate(weekly_raw):
+            item_at = f"{at}.weekly[{position}]"
+            interval = _require_mapping(item, where=item_at, source=source, invalid=invalid)
+            _reject_unknown_keys(
+                interval, WEEKLY_INTERVAL_KEYS, where=item_at, source=source,
+                invalid=invalid,
+            )
+            texts: dict[str, str] = {}
+            for key in ("weekday", "local_start", "local_end"):
+                value = interval.get(key)
+                if not isinstance(value, str):
+                    invalid(f"'{item_at}.{key}' must be a string in {source}, got {value!r}")
+                texts[key] = value
+            offset = interval.get("utc_offset_minutes")
+            if type(offset) is not int or not -1440 < offset < 1440:
+                invalid(
+                    f"'{item_at}.utc_offset_minutes' must be an integer number of "
+                    f"minutes strictly between -1440 and 1440 in {source}, got {offset!r}"
+                )
+            weekly.append(
+                WeeklyEnableInterval(
+                    weekday=texts["weekday"],
+                    local_start=texts["local_start"],
+                    local_end=texts["local_end"],
+                    utc_offset_minutes=offset,
+                )
+            )
+        schedules.append(
+            ConnectorEnableSchedule(
+                connector_asset_id=connector, time_zone=time_zone, weekly=tuple(weekly)
+            )
+        )
+    return tuple(schedules)
 
 
 # --- Topology ---------------------------------------------------------------
@@ -1098,6 +1232,15 @@ def _parse_component_property(
 
     definition = COMPONENT_PROPERTY_DEFINITIONS[property_key]
 
+    states = STATE_PROPERTY_VALUES.get(property_key)
+    if states is not None:
+        # W2-05a: the one state-valued property. Its own branch, so the numeric
+        # path below and every numeric property's bytes are untouched.
+        return _parse_state_property(
+            mapping, property_key, definition.unit, definition.kind, states,
+            where=where, source=source, invalid=invalid,
+        )
+
     value = mapping.get("value")
     # `isinstance(True, int)` is True, so booleans are excluded by type: a
     # property is a quantity, never a flag.
@@ -1215,6 +1358,52 @@ def _parse_component_property(
         value=float(value),
         unit=definition.unit,
         kind=definition.kind,
+        source=declared_source,
+        source_version=source_version,
+    )
+
+
+def _parse_state_property(
+    mapping: Mapping[str, Any],
+    property_key: str,
+    unit: str,
+    kind: str,
+    states: frozenset[str],
+    *,
+    where: str,
+    source: str,
+    invalid: Invalid,
+) -> ComponentProperty:
+    value = mapping.get("value")
+    if not isinstance(value, str) or value not in states:
+        invalid(
+            f"'{where}.value' must be exactly one of {sorted(states)} for property "
+            f"{property_key!r} in {source}, got {value!r}"
+        )
+    unit_given = mapping.get("unit")
+    if unit_given != unit:
+        invalid(
+            f"'{where}.unit' must be {unit!r} for property {property_key!r} in "
+            f"{source}, got {unit_given!r}"
+        )
+    declared_source = _require_choice(
+        mapping, "source", COMPONENT_PROPERTY_SOURCES, where=where, source=source,
+        invalid=invalid,
+    )
+    source_version = mapping.get("source_version")
+    if (
+        type(source_version) is not int
+        or not 1 <= source_version <= MAX_PROPERTY_SOURCE_VERSION
+    ):
+        invalid(
+            f"'{where}.source_version' must be an integer between 1 and "
+            f"{MAX_PROPERTY_SOURCE_VERSION} in {source}, got {source_version!r}"
+        )
+    return ComponentProperty(
+        property_key=property_key,
+        value=value,
+        unit=unit,
+        kind=kind,
         source=declared_source,
         source_version=source_version,
     )

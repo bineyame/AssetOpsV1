@@ -200,6 +200,7 @@ def _parse_foundation(raw: Any, *, source: str) -> TemplateFoundation:
         signal_mappings=content.signal_mappings,
         control_assumptions=content.control_assumptions,
         site_controls=content.site_controls,
+        connector_enable_schedules=content.connector_enable_schedules,
     )
 
 

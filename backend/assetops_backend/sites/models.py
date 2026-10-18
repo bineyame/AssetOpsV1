@@ -23,7 +23,7 @@ from dataclasses import dataclass
 
 # The M1 Site types. A template declares which kind of Site it would produce;
 # that is a statement about the archetype, not about any Site.
-SITE_TYPES = frozenset({"MINIGRID", "COLDCHAIN"})
+SITE_TYPES = frozenset({"MINIGRID", "COLDCHAIN", "EV_CHARGING"})
 
 # Component archetypes a template may declare. Strict and closed: an
 # unsupported component type is a configuration error, not a passthrough
@@ -45,6 +45,9 @@ COMPONENT_TYPES = frozenset(
         "TEMPERATURE_PROBE",
         "COMPRESSOR",
         "TRANSFER_SWITCH",
+        # W2-05a (`D-2026-10-18-w2-05-buildspec`): the EV charger and connector.
+        "EV_CHARGER",
+        "EV_CONNECTOR",
     }
 )
 
@@ -213,6 +216,58 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "cold-compressor-start-delay": PropertyDefinition(
         unit="min", kind="PHYSICAL", display_name="Compressor start delay"
     ),
+    # W2-05a (`D-2026-10-18-w2-05-buildspec`): the nine EV properties. The
+    # carrier of each is in `EV_PROPERTY_CARRIERS`; positivity, cadence
+    # ceilings and which are required are enforced by the EV Foundation
+    # validator after parsing. `ev-connector-enabled` is the only property
+    # whose value is a state member rather than a number.
+    "ev-site-import-limit": PropertyDefinition(
+        unit="kW", kind="CONTROL", display_name="Site import limit"
+    ),
+    "ev-charger-max-power": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="Charger maximum power"
+    ),
+    "ev-connector-max-power": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="Connector maximum power"
+    ),
+    "ev-connector-enabled": PropertyDefinition(
+        unit="state", kind="CONTROL", display_name="Connector enabled"
+    ),
+    "ev-meter-resolution": PropertyDefinition(
+        unit="kWh", kind="PHYSICAL", display_name="Connector meter resolution"
+    ),
+    "ev-meter-error-bound": PropertyDefinition(
+        unit="kWh", kind="PHYSICAL", display_name="Connector meter error bound"
+    ),
+    "ev-status-cadence": PropertyDefinition(
+        unit="min", kind="CONTROL", display_name="Status reporting cadence"
+    ),
+    "ev-meter-cadence": PropertyDefinition(
+        unit="min", kind="CONTROL", display_name="Meter reporting cadence"
+    ),
+    "ev-clock-error-bound": PropertyDefinition(
+        unit="s", kind="PHYSICAL", display_name="Clock error bound"
+    ),
+}
+
+#: W2-05a: the component type that must carry each EV property.
+EV_PROPERTY_CARRIERS: dict[str, str] = {
+    "ev-site-import-limit": "AC_BUS",
+    "ev-charger-max-power": "EV_CHARGER",
+    "ev-connector-max-power": "EV_CONNECTOR",
+    "ev-connector-enabled": "EV_CONNECTOR",
+    "ev-meter-resolution": "EV_CONNECTOR",
+    "ev-meter-error-bound": "EV_CONNECTOR",
+    "ev-status-cadence": "EV_CONNECTOR",
+    "ev-meter-cadence": "EV_CONNECTOR",
+    "ev-clock-error-bound": "EV_CONNECTOR",
+}
+
+#: W2-05a: the properties whose value is a member of a closed state set
+#: rather than a number, and that set. Only `ev-connector-enabled`; every other
+#: property keeps the numeric parser path and its rendered bytes unchanged.
+STATE_PROPERTY_VALUES: dict[str, frozenset[str]] = {
+    "ev-connector-enabled": frozenset({"ENABLED", "DISABLED"}),
 }
 
 #: W2-01: the component type that must carry each cold property
@@ -266,7 +321,9 @@ class ComponentProperty:
     """
 
     property_key: str
-    value: float
+    # A number, except for a property in `STATE_PROPERTY_VALUES` (W2-05a),
+    # whose value is one exact member of that property's state set.
+    value: float | str
     unit: str
     kind: str
     source: str
@@ -317,6 +374,9 @@ TOPOLOGY_NODE_ROLES = frozenset(
         "SENSOR",
         "COOLING",
         "SWITCH",
+        # W2-05a: EV charger and connector positions.
+        "CHARGER",
+        "CONNECTOR",
     }
 )
 
@@ -546,6 +606,37 @@ class ControlAssumption:
     statement: str
 
 
+#: W2-05a: the weekday names a connector enable schedule may use.
+WEEKDAYS = ("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
+
+
+@dataclass(frozen=True)
+class WeeklyEnableInterval:
+    """One half-open local interval `[local_start, local_end)` on one weekday (W2-05a).
+
+    `utc_offset_minutes` is the explicit UTC offset of both local endpoints. The EV Foundation validator checks
+    it against the Site zone for every occurrence in the revision's effective interval.
+    """
+
+    weekday: str
+    local_start: str
+    local_end: str
+    utc_offset_minutes: int
+
+
+@dataclass(frozen=True)
+class ConnectorEnableSchedule:
+    """The configured service hours of one connector (W2-05a `connector_enable_schedules`).
+
+    `connector_asset_id` names the EV_CONNECTOR component of this Foundation. An empty `weekly` declares no
+    enabled hours. A configured service window is never observed availability.
+    """
+
+    connector_asset_id: str
+    time_zone: str
+    weekly: tuple[WeeklyEnableInterval, ...]
+
+
 @dataclass(frozen=True)
 class FoundationContent:
     """The four Foundation sections below the component list.
@@ -561,6 +652,7 @@ class FoundationContent:
     signal_mappings: tuple[SignalMapping, ...] | None = None
     control_assumptions: tuple[ControlAssumption, ...] | None = None
     site_controls: tuple[SiteControl, ...] | None = None
+    connector_enable_schedules: tuple[ConnectorEnableSchedule, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -596,6 +688,7 @@ class TemplateFoundation:
     signal_mappings: tuple[SignalMapping, ...] | None = None
     control_assumptions: tuple[ControlAssumption, ...] | None = None
     site_controls: tuple[SiteControl, ...] | None = None
+    connector_enable_schedules: tuple[ConnectorEnableSchedule, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -710,6 +803,7 @@ class SiteFoundation:
     signal_mappings: tuple[SignalMapping, ...] | None = None
     control_assumptions: tuple[ControlAssumption, ...] | None = None
     site_controls: tuple[SiteControl, ...] | None = None
+    connector_enable_schedules: tuple[ConnectorEnableSchedule, ...] | None = None
 
 
 @dataclass(frozen=True)
