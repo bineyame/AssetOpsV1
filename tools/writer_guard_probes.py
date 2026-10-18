@@ -32,6 +32,8 @@ Sets:
   skips migrations): DO UPDATE, another arbiter, no arbiter, no work INSERT and a second INSERT without the arbiter.
   `controls cold <table> insert` and `controls cold work migration trigger insert` must pass. Rule 8 fails closed when
   any of these names is missing.
+- `cold <cold consequence table> owner insert unseen`: W2-04 Q10, the store's one INSERT into that table replaced by a
+  SELECT; rule 8's per-table inserts-seen assertion must report the check vacuous.
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -373,6 +375,17 @@ NEGATIVE += [
      COLD_NO_INSERT),
     ("cold work migration second insert without arbiter", COLD_MIGRATION,
      '_OPS02 = """\nINSERT INTO cold_consequence_work (id) VALUES (gen_random_uuid());\n"""\n', COLD_ARBITER),
+]
+
+# W2-04 Q10 (spec commit 2): the per-table "inserts seen" assertion is nonvacuous. Each probe turns the store's one
+# real INSERT into a cold consequence table into a SELECT; rule 8 must then report that table's check as vacuous.
+NEGATIVE += [
+    (f"cold {table} owner insert unseen", CONSEQUENCE,
+     ("replace", f'"INSERT INTO {table} ({columns}', f'"SELECT * FROM {table} WHERE ({columns}'),
+     f"Rule 8 found no INSERT INTO {table} in ")
+    for table, columns in (("cold_consequence_revision", "id, tenant_id, site_id, finding_revision_id, "),
+                           ("cold_consequence_evidence", "consequence_revision_id, tenant_id, site_id, "),
+                           ("cold_consequence_work_attempt", "id, tenant_id, site_id, work_id, "))
 ]
 
 CONTROLS = (
