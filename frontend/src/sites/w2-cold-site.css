@@ -37,3 +37,14 @@
 .cold-site-list li + li {
   margin-top: 6px;
 }
+
+/* At phone width the cold tables scroll in their own region instead of wrapping each cell into a tall column. */
+@media (max-width: 640px) {
+  table[aria-labelledby^="cold-site-"] th[scope="row"] {
+    min-width: 220px;
+  }
+
+  table[aria-labelledby^="cold-site-"] td {
+    min-width: 150px;
+  }
+}
