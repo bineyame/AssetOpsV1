@@ -151,17 +151,18 @@ def test_six_replays_consequence_states(chain, case) -> None:  # noqa: F811
     # overlap group.
     [f] = exposure_findings(built)
     [rev] = revs
-    [episode] = rows(built, "SELECT degree_minutes_low, degree_minutes_high FROM cold_episode_revision WHERE id = :r",
-                     r=f["claim"]["episode_revision_id"])
+    [episode] = rows(built, "SELECT degree_minutes_low, degree_minutes_high, lower_end, upper_end "
+                            "FROM cold_episode_revision WHERE id = :r", r=f["claim"]["episode_revision_id"])
     assert str(rev["finding_revision_id"]) == str(f["id"])
     assert str(rev["episode_revision_id"]) == f["claim"]["episode_revision_id"]
     assert (rev["state"], rev["reason"], rev["quantity_unit"]) == ("UNPRICED", cc.REASON_UNPRICED, "degC_min")
-    # Copied exactly from the W2-03 episode revision's degree-minute bounds, never integrated or inferred.
-    assert (rev["quantity_low"], rev["quantity_high"]) == (episode["degree_minutes_low"],
-                                                          episode["degree_minutes_high"])
+    # Q4 (corrected): every replay excursion is open (no recorded end). The W2-03 technical read keeps its finite
+    # observed-segment pair; the consequence copies only the proved low, a null high and the named limit.
+    assert (episode["lower_end"], episode["upper_end"]) == (None, None)
+    assert episode["degree_minutes_high"] is not None and episode["degree_minutes_high"] >= episode["degree_minutes_low"]
+    assert (rev["quantity_low"], rev["quantity_high"]) == (episode["degree_minutes_low"], None)
     assert rev["quantity_low"] > 0
-    # Q4: a null upper bound carries the named open-upper limit; a proved upper bound carries none.
-    assert rev["limitation"] == (None if rev["quantity_high"] is not None else "OPEN_EPISODE_UPPER_UNKNOWN")
+    assert rev["limitation"] == "OPEN_EPISODE_UPPER_UNKNOWN"
     assert (rev["revision_no"], rev["prior_revision_id"]) == (1, None)
     assert rev["source_classification"] == "REGISTERED_SIMULATION"
     assert len({r["overlap_group"] for r in revs}) == 1
@@ -246,6 +247,31 @@ def test_open_upper_keeps_lower_bound_with_named_limit() -> None:  # Q4
     out = cc.derive(basis(degree_minutes_high=None))
     assert (out.state, out.quantity_low, out.quantity_high, out.limitation) == (
         "UNPRICED", "19", None, cc.LIMIT_OPEN_UPPER)
+
+
+def test_open_episode_drops_a_finite_observed_high() -> None:  # Q4 corrected: open/end state decides, not a null high
+    out = cc.derive(basis(episode_open=True))
+    assert (out.state, out.reason, out.quantity_low, out.quantity_high, out.limitation) == (
+        "UNPRICED", cc.REASON_UNPRICED, "19", None, cc.LIMIT_OPEN_UPPER)
+    assert out.consequence_basis_sha256 != cc.derive(basis()).consequence_basis_sha256
+
+
+@pytest.mark.parametrize("level, limit", [("POSSIBLE", "CLAIM_LEVEL_POSSIBLE"), ("UNKNOWN", "CLAIM_LEVEL_UNKNOWN"),
+                                          (None, "CLAIM_LEVEL_UNKNOWN"), ("SOMETHING_ELSE", "CLAIM_LEVEL_UNKNOWN")])
+def test_claim_level_limits_are_the_two_fixed_codes(level, limit) -> None:  # codes ruling: no dynamic suffix
+    assert cc.derive(basis(claim_level=level)).limitation.split("; ")[0] == limit
+
+
+def test_every_stored_code_has_screen_wording() -> None:  # codes ruling: raw codes never reach a screen
+    out = cc.derive(basis(claim_level="POSSIBLE", coverage=Decimal("0.5"), link_rows=(bound(E1),)))
+    assert cc.REASON_SOURCE_WITHHELD == out.reason
+    for code in out.limitation.split("; ") + [out.reason]:
+        assert cc.SCREEN_WORDING[code]
+    assert set(cc.SCREEN_WORDING) >= {
+        "COLD_VALUATION_NOT_APPROVED", "SOURCE_GATE_WITHHELD", "TECHNICAL_CLAIM_LIMITED", "OPEN_EPISODE_UPPER_UNKNOWN",
+        "CONTRADICTORY_EVIDENCE", "CLAIM_LEVEL_POSSIBLE", "CLAIM_LEVEL_UNKNOWN", "COVERAGE_INCOMPLETE",
+        "EXPOSURE_LOWER_BOUND_UNKNOWN", "SOURCE_CLASS_MIXED", "SOURCE_CLASS_UNKNOWN", "COLD_RECOMPUTE_FAILED",
+        "STORE_UNAVAILABLE", "WORK_SCOPE_MISMATCH"}
 
 
 @pytest.mark.parametrize("over, limit", [

@@ -31,6 +31,7 @@ from assetops_contracts.source_envelope import canonical_json
 
 from assetops_backend.evidence.source_provenance import (
     AUTHORED_DEMONSTRATION,
+    MIXED,
     REGISTERED_SIMULATION,
     LinkRow,
     classify,
@@ -56,9 +57,42 @@ LIMIT_OPEN_UPPER = "OPEN_EPISODE_UPPER_UNKNOWN"
 LIMIT_CONTRADICTORY = "CONTRADICTORY_EVIDENCE"
 LIMIT_COVERAGE = "COVERAGE_INCOMPLETE"
 LIMIT_LOWER_UNKNOWN = "EXPOSURE_LOWER_BOUND_UNKNOWN"
+LIMIT_CLAIM_POSSIBLE = "CLAIM_LEVEL_POSSIBLE"
+LIMIT_CLAIM_UNKNOWN = "CLAIM_LEVEL_UNKNOWN"
+LIMIT_SOURCE_MIXED = "SOURCE_CLASS_MIXED"
+LIMIT_SOURCE_UNKNOWN = "SOURCE_CLASS_UNKNOWN"
 
 # Spec "Selection, projection and capability": EXCURSION_BOUNDS needs >= 0.8 coverage.
 COVERAGE_FLOOR = Decimal("0.8")
+
+#: Commit-2 Architect rulings ("stored codes and screen copy"): the exact plain wording a screen shows for each
+#: stored machine code; a raw code never reaches a screen.
+SCREEN_WORDING: dict[str, str] = {
+    "COLD_VALUATION_NOT_APPROVED": "Thermal exposure is recorded, but no approved product valuation is available.",
+    "SOURCE_GATE_WITHHELD": "The source record cannot support a money claim for this selection.",
+    "TECHNICAL_CLAIM_LIMITED": "The available temperature evidence cannot establish an exposure amount.",
+    "OPEN_EPISODE_UPPER_UNKNOWN": "The excursion has no recorded end, so its total exposure has no upper bound.",
+    "CONTRADICTORY_EVIDENCE": "Accepted records disagree; this conclusion cannot be established.",
+    "CLAIM_LEVEL_POSSIBLE": "The evidence suggests an excursion but does not confirm it.",
+    "CLAIM_LEVEL_UNKNOWN": "The evidence cannot establish whether an excursion occurred.",
+    "COVERAGE_INCOMPLETE": "Too few qualifying temperature readings were recorded for an exposure conclusion.",
+    "EXPOSURE_LOWER_BOUND_UNKNOWN": "The recorded readings do not establish a minimum thermal exposure.",
+    "SOURCE_CLASS_MIXED": "This selection mixes source types, so its money claim is withheld.",
+    "SOURCE_CLASS_UNKNOWN": "The source type is unknown, so its money claim is withheld.",
+    "COLD_RECOMPUTE_FAILED": "The exposure calculation failed and is waiting to retry.",
+    "STORE_UNAVAILABLE": "The exposure record is temporarily unavailable.",
+    "WORK_SCOPE_MISMATCH": "This exposure work item does not belong to the selected site.",
+}
+
+
+def screen_sentences(limitation: str | None) -> list[str]:
+    """Each distinct stored code of a semicolon-joined limitation as its plain sentence, in stored order."""
+    out: list[str] = []
+    for code in (limitation or "").split("; "):
+        sentence = SCREEN_WORDING.get(code.strip())
+        if sentence and sentence not in out:
+            out.append(sentence)
+    return out
 PERMITTED_CLASSES = (REGISTERED_SIMULATION, AUTHORED_DEMONSTRATION)
 PROVED_LEVELS = ("OBSERVED", "BOUNDED")
 
@@ -138,6 +172,8 @@ class ColdBasis:
     room_asset_id: str | None
     evidence: tuple[EvidenceUse, ...] = ()
     link_rows: tuple[LinkRow, ...] = ()
+    #: Q4 (corrected): the selected episode has no recorded end (both end bounds null).
+    episode_open: bool = False
 
 
 @dataclass(frozen=True)
@@ -273,17 +309,23 @@ def derive(basis: ColdBasis) -> ColdConsequence | None:
     technical: list[str] = []
     if basis.claim_level == "CONTRADICTORY":
         technical.append(LIMIT_CONTRADICTORY)
+    elif basis.claim_level == "POSSIBLE":
+        technical.append(LIMIT_CLAIM_POSSIBLE)
     elif basis.claim_level not in PROVED_LEVELS:
-        technical.append(f"CLAIM_LEVEL_{basis.claim_level or 'UNKNOWN'}")
+        technical.append(LIMIT_CLAIM_UNKNOWN)
     if basis.coverage is None or Decimal(basis.coverage) < COVERAGE_FLOOR:
         technical.append(LIMIT_COVERAGE)
     if low is None:
         technical.append(LIMIT_LOWER_UNKNOWN)
     source_withheld = classification not in PERMITTED_CLASSES
-    limits = ([f"SOURCE_CLASS_{classification}"] if source_withheld else []) + technical
+    source_limit = {MIXED: LIMIT_SOURCE_MIXED}.get(classification, LIMIT_SOURCE_UNKNOWN)
+    limits = ([source_limit] if source_withheld else []) + technical
     if technical:
         low = high = None  # missing-probe/contradictory: the technical quantity is not proved
-    elif high is None:
+    elif basis.episode_open or high is None:
+        # Q4 corrected: an open episode keeps its proved low; W2-03's finite observed-segment high is not a high for
+        # total episode exposure.
+        high = None
         limits.append(LIMIT_OPEN_UPPER)
     if source_withheld or technical:
         state, reason = STATE_WITHHELD, (REASON_SOURCE_WITHHELD if source_withheld else REASON_TECHNICAL_WITHHELD)

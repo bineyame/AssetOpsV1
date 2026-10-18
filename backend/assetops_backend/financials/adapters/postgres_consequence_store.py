@@ -693,7 +693,8 @@ class ColdUnit:
             episode_revision = None
         er = None if episode_revision is None else c.execute(text(
             "SELECT er.id, er.episode_id, er.assessment_revision_id, er.basis_sha256, er.claim_level, "
-            "er.degree_minutes_low, er.degree_minutes_high, er.coverage, e.kind FROM cold_episode_revision er "
+            "er.degree_minutes_low, er.degree_minutes_high, er.coverage, e.kind, "
+            "(er.lower_end IS NULL AND er.upper_end IS NULL) AS open FROM cold_episode_revision er "
             "JOIN cold_episode e ON e.tenant_id = er.tenant_id AND e.site_id = er.site_id AND e.id = er.episode_id "
             "WHERE er.tenant_id = :t AND er.site_id = :s AND er.id = :e"), {**p, "e": episode_revision}).first()
         a = c.execute(text(
@@ -727,6 +728,7 @@ class ColdUnit:
             degree_minutes_low=None if er is None else er.degree_minutes_low,
             degree_minutes_high=None if er is None else er.degree_minutes_high,
             coverage=None if er is None else er.coverage,
+            episode_open=False if er is None else bool(er.open),
             assessment_revision_id=None if a is None else str(a.id),
             assessment_basis_sha256=None if a is None else a.basis_sha256,
             window_start=None if a is None else a.window_start, window_end=None if a is None else a.window_end,
