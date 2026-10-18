@@ -620,6 +620,16 @@ function qualityText(sources: ColdSource[]): string {
   return "Accepted facts · mixed quality";
 }
 
+function distinctContacts(sources: ColdSource[]): ColdSource[] {
+  const seen = new Set<string>();
+  return sources.filter((s) => {
+    const key = `${s.contact}|${s.contact_at}|${s.limitation}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function affects(caps: ColdCapability[], roles: string[]): string {
   const labels = CAP_ROWS.filter((row) => row.claims.some((claim) => caps.find((c) => c.claim === claim)?.required_roles.some((r) => roles.includes(r))));
   return labels.length === 0 ? "Claim effect not assessed" : labels.map((r) => r.label).join(", ");
@@ -741,8 +751,9 @@ function EvidenceScreen(p: ScreenProps) {
                           ))}
                         </th>
                         <td>
-                          {bound.map((s) => (
-                            <span className="cold-site-line" key={`${s.id}|${s.role}`} data-source-contact={s.contact}>
+                          {/* Channels with the same contact word, time and limitation are stated once. */}
+                          {distinctContacts(bound).map((s) => (
+                            <span className="cold-site-line" key={`${s.contact}|${s.contact_at}|${s.limitation}`} data-source-contact={s.contact}>
                               {CONTACT_WORDS[s.contact] ?? CONTACT_WORDS.UNKNOWN}
                               {s.contact_at === null ? null : ` at ${utc(s.contact_at)}`}
                               {s.limitation === null ? null : <small className="cold-site-detail">{s.limitation}</small>}
@@ -821,9 +832,13 @@ function EvidenceScreen(p: ScreenProps) {
 
 /* ---------- cold-evidence-analysis ---------- */
 
+/** Rows shown before the rest are opened (the mock table shows three; W1 lists show four, SiteWorkActions). */
+const RECORDS_SHOWN = 4;
+
 function AnalysisScreen(p: ScreenProps) {
   const first = useColdRead(() => p.client.getAnalysis(p.siteId, p.window, null), keyOf(p, "a"));
   const [more, setMore] = useState<{ key: string; pages: ColdAnalysisRead[] }>({ key: "", pages: [] });
+  const [expanded, setExpanded] = useState(false);
   if (first === null) return <p>{COLD_ASSESSMENT_LOADING}</p>;
   const a = value(first);
   const refused = refusalOf(first);
@@ -869,8 +884,8 @@ function AnalysisScreen(p: ScreenProps) {
                     </td>
                   </tr>
                 ) : (
-                  rows.map((r) => (
-                    <tr key={r.evidence_id} data-accepted-record={r.evidence_id}>
+                  rows.map((r, index) => (
+                    <tr key={r.evidence_id} data-accepted-record={r.evidence_id} hidden={!expanded && index >= RECORDS_SHOWN}>
                       <th scope="row">
                         {r.role === null ? NOT_RECORDED : roleLabel(r.role)}
                         <small className="cold-site-detail">
@@ -896,7 +911,14 @@ function AnalysisScreen(p: ScreenProps) {
                 )}
               </tbody>
             </DataTable>
-            {cursor === null ? null : (
+            {rows.length <= RECORDS_SHOWN ? null : (
+              <p className="cold-panel-link">
+                <button type="button" className="button" onClick={() => setExpanded((x) => !x)} aria-expanded={expanded} data-cold-all-records>
+                  {expanded ? `Show the first ${RECORDS_SHOWN} accepted records` : `Show all ${rows.length} accepted records`}
+                </button>
+              </p>
+            )}
+            {cursor === null || !expanded ? null : (
               <p className="cold-panel-link">
                 <button type="button" className="button" onClick={loadMore} data-cold-more>
                   Show more accepted records
