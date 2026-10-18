@@ -1,0 +1,2466 @@
+{
+  "revision": "019a9e47",
+  "captured_at": "2026-10-18T14:21:08.564Z",
+  "pairs": [
+    {
+      "screen": "cold",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-stocked-1440-app.png",
+      "mock_image": "cold-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 248,
+            "y": 458,
+            "w": 1145,
+            "h": 252
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 248,
+            "y": 728,
+            "w": 725,
+            "h": 386
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 728,
+            "w": 403,
+            "h": 386
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1132,
+            "w": 725,
+            "h": 185
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1132,
+            "w": 403,
+            "h": 185
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 234,
+            "y": 579,
+            "w": 1161,
+            "h": 274
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 234,
+            "y": 872,
+            "w": 735,
+            "h": 373
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 872,
+            "w": 408,
+            "h": 373
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1263,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1263,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-stocked-390-app.png",
+      "mock_image": "cold-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 16,
+            "y": 923,
+            "w": 358,
+            "h": 557
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 16,
+            "y": 1498,
+            "w": 358,
+            "h": 277
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1791,
+            "w": 358,
+            "h": 249
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2056,
+            "w": 358,
+            "h": 227
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2299,
+            "w": 358,
+            "h": 126
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 15,
+            "y": 1237,
+            "w": 360,
+            "h": 660
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 15,
+            "y": 1915,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2220,
+            "w": 360,
+            "h": 336
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2574,
+            "w": 360,
+            "h": 190
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2782,
+            "w": 360,
+            "h": 215
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-stocked-1440-app.png",
+      "mock_image": "cold-evidence-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 308,
+            "w": 1145,
+            "h": 386
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 712,
+            "w": 725,
+            "h": 1423
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 712,
+            "w": 403,
+            "h": 1423
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 770,
+            "w": 735,
+            "h": 438
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 770,
+            "w": 408,
+            "h": 438
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-stocked-390-app.png",
+      "mock_image": "cold-evidence-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 464,
+            "w": 358,
+            "h": 474
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 956,
+            "w": 358,
+            "h": 1315
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 2287,
+            "w": 358,
+            "h": 231
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 715,
+            "w": 360,
+            "h": 451
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1185,
+            "w": 360,
+            "h": 560
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1763,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-stocked-1440-app.png",
+      "mock_image": "cold-evidence-analysis-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 308,
+            "w": 1145,
+            "h": 534
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 248,
+            "y": 860,
+            "w": 1145,
+            "h": 693
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-stocked-390-app.png",
+      "mock_image": "cold-evidence-analysis-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 448,
+            "w": 358,
+            "h": 658
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 16,
+            "y": 1124,
+            "w": 358,
+            "h": 919
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 688,
+            "w": 360,
+            "h": 371
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1078,
+            "w": 360,
+            "h": 228
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-stocked-1440-app.png",
+      "mock_image": "cold-financials-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 434,
+            "w": 1145,
+            "h": 381
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 833,
+            "w": 725,
+            "h": 291
+          },
+          {
+            "title": "Not included",
+            "x": 991,
+            "y": 833,
+            "w": 403,
+            "h": 291
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 234
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 799,
+            "w": 735,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 987,
+            "y": 799,
+            "w": 408,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-stocked-390-app.png",
+      "mock_image": "cold-financials-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 694,
+            "w": 358,
+            "h": 437
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1149,
+            "w": 358,
+            "h": 308
+          },
+          {
+            "title": "Not included",
+            "x": 16,
+            "y": 1473,
+            "w": 358,
+            "h": 266
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1013,
+            "w": 360,
+            "h": 292
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1322,
+            "w": 360,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 15,
+            "y": 1574,
+            "w": 360,
+            "h": 142
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-stocked-1440-app.png",
+      "mock_image": "cold-assumptions-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 279
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-stocked-390-app.png",
+      "mock_image": "cold-assumptions-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 404,
+            "w": 358,
+            "h": 373
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 599,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-stocked-1440-app.png",
+      "mock_image": "temperature-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 248,
+            "y": 440,
+            "w": 725,
+            "h": 447
+          },
+          {
+            "title": "Excursion context",
+            "x": 991,
+            "y": 440,
+            "w": 403,
+            "h": 447
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 966,
+            "w": 1145,
+            "h": 225
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 234,
+            "y": 563,
+            "w": 735,
+            "h": 442
+          },
+          {
+            "title": "Excursion context",
+            "x": 987,
+            "y": 563,
+            "w": 408,
+            "h": 442
+          },
+          {
+            "title": "Claim boundary",
+            "x": 234,
+            "y": 1083,
+            "w": 1161,
+            "h": 120
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-stocked-390-app.png",
+      "mock_image": "temperature-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 16,
+            "y": 738,
+            "w": 358,
+            "h": 398
+          },
+          {
+            "title": "Excursion context",
+            "x": 16,
+            "y": 1152,
+            "w": 358,
+            "h": 463
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1729,
+            "w": 358,
+            "h": 323
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 15,
+            "y": 993,
+            "w": 360,
+            "h": 408
+          },
+          {
+            "title": "Excursion context",
+            "x": 15,
+            "y": 1419,
+            "w": 360,
+            "h": 415
+          },
+          {
+            "title": "Claim boundary",
+            "x": 15,
+            "y": 1967,
+            "w": 360,
+            "h": 163
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-empty-1440-app.png",
+      "mock_image": "cold-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 248,
+            "y": 442,
+            "w": 1160,
+            "h": 119
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 248,
+            "y": 579,
+            "w": 734,
+            "h": 119
+          },
+          {
+            "title": "Needs attention",
+            "x": 1000,
+            "y": 579,
+            "w": 408,
+            "h": 119
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 716,
+            "w": 734,
+            "h": 131
+          },
+          {
+            "title": "Next step",
+            "x": 1000,
+            "y": 716,
+            "w": 408,
+            "h": 131
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 234,
+            "y": 579,
+            "w": 1161,
+            "h": 274
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 234,
+            "y": 872,
+            "w": 735,
+            "h": 373
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 872,
+            "w": 408,
+            "h": 373
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1263,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1263,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-empty-390-app.png",
+      "mock_image": "cold-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 16,
+            "y": 874,
+            "w": 358,
+            "h": 142
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 16,
+            "y": 1034,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1169,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 1281,
+            "w": 358,
+            "h": 131
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 1428,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 15,
+            "y": 1237,
+            "w": 360,
+            "h": 660
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 15,
+            "y": 1915,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2220,
+            "w": 360,
+            "h": 336
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2574,
+            "w": 360,
+            "h": 190
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2782,
+            "w": 360,
+            "h": 215
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-empty-1440-app.png",
+      "mock_image": "cold-evidence-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 308,
+            "w": 1160,
+            "h": 119
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 445,
+            "w": 734,
+            "h": 119
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 1000,
+            "y": 445,
+            "w": 408,
+            "h": 119
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 770,
+            "w": 735,
+            "h": 438
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 770,
+            "w": 408,
+            "h": 438
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-empty-390-app.png",
+      "mock_image": "cold-evidence-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 464,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 601,
+            "w": 358,
+            "h": 160
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 777,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 715,
+            "w": 360,
+            "h": 451
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1185,
+            "w": 360,
+            "h": 560
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1763,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-empty-1440-app.png",
+      "mock_image": "cold-evidence-analysis-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 308,
+            "w": 1160,
+            "h": 191
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 248,
+            "y": 516,
+            "w": 1160,
+            "h": 119
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-empty-390-app.png",
+      "mock_image": "cold-evidence-analysis-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 480,
+            "w": 358,
+            "h": 191
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 16,
+            "y": 689,
+            "w": 358,
+            "h": 137
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 688,
+            "w": 360,
+            "h": 371
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1078,
+            "w": 360,
+            "h": 228
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-empty-1440-app.png",
+      "mock_image": "cold-financials-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 434,
+            "w": 1160,
+            "h": 167
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 619,
+            "w": 734,
+            "h": 291
+          },
+          {
+            "title": "Not included",
+            "x": 1000,
+            "y": 619,
+            "w": 408,
+            "h": 291
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 234
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 799,
+            "w": 735,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 987,
+            "y": 799,
+            "w": 408,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-empty-390-app.png",
+      "mock_image": "cold-financials-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 694,
+            "w": 358,
+            "h": 167
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 880,
+            "w": 358,
+            "h": 308
+          },
+          {
+            "title": "Not included",
+            "x": 16,
+            "y": 1203,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1013,
+            "w": 360,
+            "h": 292
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1322,
+            "w": 360,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 15,
+            "y": 1574,
+            "w": 360,
+            "h": 142
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-empty-1440-app.png",
+      "mock_image": "cold-assumptions-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 303,
+            "w": 1160,
+            "h": 315
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 279
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-empty-390-app.png",
+      "mock_image": "cold-assumptions-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 404,
+            "w": 358,
+            "h": 373
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 599,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-empty-1440-app.png",
+      "mock_image": "temperature-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 248,
+            "y": 434,
+            "w": 725,
+            "h": 381
+          },
+          {
+            "title": "Excursion context",
+            "x": 991,
+            "y": 434,
+            "w": 403,
+            "h": 381
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 893,
+            "w": 1145,
+            "h": 202
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 234,
+            "y": 563,
+            "w": 735,
+            "h": 442
+          },
+          {
+            "title": "Excursion context",
+            "x": 987,
+            "y": 563,
+            "w": 408,
+            "h": 442
+          },
+          {
+            "title": "Claim boundary",
+            "x": 234,
+            "y": 1083,
+            "w": 1161,
+            "h": 120
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-empty-390-app.png",
+      "mock_image": "temperature-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 16,
+            "y": 704,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "Excursion context",
+            "x": 16,
+            "y": 833,
+            "w": 358,
+            "h": 381
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 1328,
+            "w": 358,
+            "h": 261
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 15,
+            "y": 993,
+            "w": 360,
+            "h": 408
+          },
+          {
+            "title": "Excursion context",
+            "x": 15,
+            "y": 1419,
+            "w": 360,
+            "h": 415
+          },
+          {
+            "title": "Claim boundary",
+            "x": 15,
+            "y": 1967,
+            "w": 360,
+            "h": 163
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-refused-1440-app.png",
+      "mock_image": "cold-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 248,
+            "y": 187,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 248,
+            "y": 301,
+            "w": 734,
+            "h": 119
+          },
+          {
+            "title": "Needs attention",
+            "x": 1000,
+            "y": 301,
+            "w": 408,
+            "h": 119
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 438,
+            "w": 734,
+            "h": 96
+          },
+          {
+            "title": "Next step",
+            "x": 1000,
+            "y": 438,
+            "w": 408,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 234,
+            "y": 579,
+            "w": 1161,
+            "h": 274
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 234,
+            "y": 872,
+            "w": 735,
+            "h": 373
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 872,
+            "w": 408,
+            "h": 373
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1263,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1263,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold",
+      "app_image": "cold-refused-390-app.png",
+      "mock_image": "cold-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 16,
+            "y": 267,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 16,
+            "y": 404,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 539,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 651,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 763,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened · power → cooling → product conditions",
+          "Chamber temperature",
+          "Needs attention",
+          "Bounded money consequence",
+          "Next step"
+        ],
+        "panels": [
+          {
+            "title": "What happened · power → cooling → product conditions",
+            "x": 15,
+            "y": 1237,
+            "w": 360,
+            "h": 660
+          },
+          {
+            "title": "Chamber temperature",
+            "x": 15,
+            "y": 1915,
+            "w": 360,
+            "h": 286
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2220,
+            "w": 360,
+            "h": 336
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2574,
+            "w": 360,
+            "h": 190
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2782,
+            "w": 360,
+            "h": 215
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-refused-1440-app.png",
+      "mock_image": "cold-evidence-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 119
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 384,
+            "w": 734,
+            "h": 119
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 1000,
+            "y": 384,
+            "w": 408,
+            "h": 119
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 770,
+            "w": 735,
+            "h": 438
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 770,
+            "w": 408,
+            "h": 438
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold-evidence",
+      "app_image": "cold-evidence-refused-390-app.png",
+      "mock_image": "cold-evidence-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 358,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 495,
+            "w": 358,
+            "h": 160
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 671,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What we can conclude now",
+          "Data sources · data quality, not equipment condition",
+          "Most useful next evidence"
+        ],
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 715,
+            "w": 360,
+            "h": 451
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1185,
+            "w": 360,
+            "h": 560
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1763,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-refused-1440-app.png",
+      "mock_image": "cold-evidence-analysis-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 119
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 248,
+            "y": 384,
+            "w": 1160,
+            "h": 119
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-evidence-analysis",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
+      "mock_hash": "#/cold-evidence-analysis",
+      "app_image": "cold-evidence-analysis-refused-390-app.png",
+      "mock_image": "cold-evidence-analysis-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 454,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 16,
+            "y": 592,
+            "w": 358,
+            "h": 137
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Accepted records behind the conclusions",
+          "How a claim limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 688,
+            "w": 360,
+            "h": 371
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1078,
+            "w": 360,
+            "h": 228
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-refused-1440-app.png",
+      "mock_image": "cold-financials-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 361,
+            "w": 734,
+            "h": 96
+          },
+          {
+            "title": "Not included",
+            "x": 1000,
+            "y": 361,
+            "w": 408,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 234
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 799,
+            "w": 735,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 987,
+            "y": 799,
+            "w": 408,
+            "h": 234
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-financials",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold-financials",
+      "app_image": "cold-financials-refused-390-app.png",
+      "mock_image": "cold-financials-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 432,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 546,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Not included",
+            "x": 16,
+            "y": 658,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What happened → what it means in money",
+          "Assumptions in use",
+          "Not included"
+        ],
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1013,
+            "w": 360,
+            "h": 292
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1322,
+            "w": 360,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 15,
+            "y": 1574,
+            "w": 360,
+            "h": 142
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-refused-1440-app.png",
+      "mock_image": "cold-assumptions-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 247,
+            "w": 1160,
+            "h": 119
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 279
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-assumptions",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/cold-assumptions",
+      "app_image": "cold-assumptions-refused-390-app.png",
+      "mock_image": "cold-assumptions-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 465,
+            "w": 358,
+            "h": 137
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Financial assumptions"
+        ],
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 599,
+            "w": 360,
+            "h": 319
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-refused-1440-app.png",
+      "mock_image": "temperature-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 248,
+            "y": 377,
+            "w": 734,
+            "h": 96
+          },
+          {
+            "title": "Excursion context",
+            "x": 1000,
+            "y": 377,
+            "w": 408,
+            "h": 96
+          },
+          {
+            "title": "How each limit is set",
+            "x": 248,
+            "y": 552,
+            "w": 1160,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 234,
+            "y": 563,
+            "w": 735,
+            "h": 442
+          },
+          {
+            "title": "Excursion context",
+            "x": 987,
+            "y": 563,
+            "w": 408,
+            "h": 442
+          },
+          {
+            "title": "Claim boundary",
+            "x": 234,
+            "y": 1083,
+            "w": 1161,
+            "h": 120
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-refused-390-app.png",
+      "mock_image": "temperature-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "How each limit is set"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 16,
+            "y": 474,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Excursion context",
+            "x": 16,
+            "y": 586,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "How each limit is set",
+            "x": 16,
+            "y": 796,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 15,
+            "y": 993,
+            "w": 360,
+            "h": 408
+          },
+          {
+            "title": "Excursion context",
+            "x": 15,
+            "y": 1419,
+            "w": 360,
+            "h": 415
+          },
+          {
+            "title": "Claim boundary",
+            "x": 15,
+            "y": 1967,
+            "w": 360,
+            "h": 163
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}
