@@ -1,6 +1,6 @@
 {
-  "revision": "d5d57ada",
-  "captured_at": "2026-10-18T17:42:43.325Z",
+  "revision": "caa20df4",
+  "captured_at": "2026-10-18T17:45:24.820Z",
   "pairs": [
     {
       "screen": "cold",
@@ -369,12 +369,12 @@
             "x": 248,
             "y": 339,
             "w": 1160,
-            "h": 370
+            "h": 344
           },
           {
             "title": "How a claim limit is set",
             "x": 248,
-            "y": 727,
+            "y": 701,
             "w": 1160,
             "h": 191
           }
@@ -1189,12 +1189,12 @@
             "x": 248,
             "y": 339,
             "w": 1160,
-            "h": 169
+            "h": 165
           },
           {
             "title": "How a claim limit is set",
             "x": 248,
-            "y": 526,
+            "y": 523,
             "w": 1160,
             "h": 96
           }
