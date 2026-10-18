@@ -438,6 +438,10 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   reviewers flag it Medium (High if user-visible vs the mock), and the Architect
   rules it and amends the spec before merge
   (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
+- **Test databases are owner-authorized (2026-10-18).** Agents may create and
+  drop private `*_test` databases in the local `assetopsv1-postgres-1`
+  container for tests, captures and fixtures; never non-test databases
+  (`.agent/owner-test-db-authorization-2026-10-18.md`).
 - **Briefs point to files; they do not restate them.** Coordinator replies to
   interim agent notifications stay to one line.
 
