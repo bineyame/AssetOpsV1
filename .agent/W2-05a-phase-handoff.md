@@ -1,29 +1,28 @@
-# W2-05a phase handoff - run 4 (spec commits 1-3 landed; QE-QG applied)
+# W2-05a phase handoff - run 5 (spec commits 1-4 landed; QH-QL applied)
 
-Branch `task/W2-05a-ev-foundation`, worktree `AssetOpsV1-review5`. Commit 1 `2d8b323d`; QC/QD `932ad981`; commit 2 `880384d3`; main merged with the QE-QG amendment; spec commit 3 `5a7b46c6`. Architect rulings Q1-Q8, QA-QG live in `.agent/W2-05a-build-spec.md` (`D-2026-10-18-w2-05-buildspec`).
+Branch `task/W2-05a-ev-foundation`, worktree `AssetOpsV1-review5`. Commits: 1 `2d8b323d`, QC/QD `932ad981`, 2 `880384d3`, 3 `5a7b46c6`, QH-QL `ca3ef6ab`, 4 `ee8b92d7`. Rulings Q1-Q8, QA-QL in `.agent/W2-05a-build-spec.md`.
 
-## What landed in commit 3
+## QH-QL on commit 3 (`ca3ef6ab`)
 
-- `backend/assetops_backend/ev_foundation_api.py:build_ev_foundation_router` - `GET /api/sites/{site_code}/ev/foundation?at=`, the cold Access/source gate: 401 `UNAUTHENTICATED`, 403 `SITE_SCOPE_FORBIDDEN`, 404 `SITE_NOT_FOUND` (unknown or non-EV after access), 422 `EV_SELECTION_INVALID` (bad `at`, extra or repeated field), 503 `EV_FOUNDATION_UNAVAILABLE` (Foundation store or gateway-health read). No revision at `at` passes `FoundationRefused` through (404 `FOUNDATION_REVISION_NOT_FOUND`), as cold does. `ev_contact` maps the cold `contact_document` to `{state,as_of,gateway_id,reason}`; gateway = binding set's gateway, else the single registered one. Included in `main.py` after the cold router.
-- `sites/ev_foundation.py:ev_foundation_document` - pure projection with the spec's exact fields. `_gap_items` is the one gap list behind both `ev_blocking_gaps` (Draft gate, output unchanged) and the read. Nonblocking: `SITE_IMPORT_NOT_BOUND` (no `ev_site_import` binding), `SOURCE_NOT_CONTACTED` (contact `NEVER`), `COMMISSIONING_UNCONFIRMED` (always). Messages use the cold shape `{code,role,component_id,asset_id,message,blocking}`. Decimals via `_decimal_text` ("80", "0.001"); cadence `_seconds` = min x 60 (int when whole). QE: Site import = min connector `ev-meter-cadence`.
-- `sites/cold_foundation.py:topology_parts` - the cold topology builder extracted unchanged and shared (cold tests green).
-- QG: `binding_service.py:validate_bindings` refuses `BINDING_SOURCE_ASSET_MISMATCH` for `ev-roles-1` when `SourceRow.asset_id != asset.id`. QF: no code change needed (publish passes `v4_metadata=True`, so a tuple outside the EV profile already gets `BINDING_CHANNEL_V4_UNKNOWN`); test added.
-- Tests: `test_w205a_ev_foundation_api_postgres.py` (9: stocked exact values, contact RECENT/STALE/NEVER, three missing-binding revisions at pinned `at` with the original still READY, optional Site import absent, missing-limit revision, QE minimum cadence, all refusals); `test_w205a_ev_foundation_postgres.py` +3 (QG x2, QF); `test_w205a_ev_roles.py` +1 (main serves the route).
+`sites/ev_foundation.py:ev_foundation_document`: `enabled_schedule` always `{enabled: bool, time_zone, weekly}` (enabled only for `ENABLED`; empty weekly when none); per-connector `clock_error_bound_seconds` decimal string. `ev_foundation_api.py`: one request-time `checked_at = clock()` feeds freshness and `contact.checked_at`. QJ/QK needed no code; tests added (`test_w205a_ev_foundation_api_postgres.py`: disabled connector + differing clock bound, no-feed null object, stale has no `SOURCE_NOT_CONTACTED`, `checked_at` with a historical `at`). 44 passed (API + EV Foundation + EV roles files), Postgres `assetops_w205a_test`.
 
-## Interpretations to confirm at review (not blocking)
+## Commit 4 (`ee8b92d7`)
 
-- `enabled_schedule` = `{enabled, time_zone, weekly}`, where `enabled` is the connector's `ev-connector-enabled`; null when the connector has no schedule entry. `ev-clock-error-bound` and the cadence minutes are not echoed outside `bindings[].cadence_seconds`; the spec's field list has no slot for them.
-- `feed` is always an object (`asset_id` null when no feed); `meter_asset_id` is the single METER fed by the feed over AC, else null. Connectors are listed under their charger (SIGNAL edge); the validator refuses orphan connectors.
-- Contact freshness is measured at request time (`clock()`), as the cold read does, not at `at`.
+- `frontend/src/sites/evFoundationClient.ts` (read client), `EvFoundationViews.tsx` (frame, three views, empty/403/503 skeletons), `evWords.ts`, `w2-ev-foundation.css`; `SiteSingleLineDiagram.tsx:EvSingleLineDiagram` (mock `sld()` grammar; shell-overflow guard requires SVG in this module).
+- Wiring: `SiteFoundationFrame.tsx` `EV_CHARGING` branch, `App.tsx` `evFoundation` prop. Appended (W2-04-owned files, append only): `V69Layout.tsx` three `ev-*` descriptions; `v69PanelTitles.ts` `ev-readiness:2`, `ev-sld:1`; `test/settled.ts` loading phrase; `test/productVocabulary.json` three exact W1 glosses (see questions). `ui/UnavailableEntry.tsx:UnavailableLinkEntry` (the panel-4 Action entry).
+- `siteDirectoryClient.ts:isComponentProperty` + `siteReadModel.ts` accept the one string state property (unit `state`); without it the EV Site record was rejected and the empty selection fell to the generic Foundation view (found in captures; test proven non-vacuous).
+- Tests `src/sites/__tests__/evFoundation.test.tsx` (20): `expectV69Panels` stocked / missing-role / empty / 403 / 503 on all three routes, planted-panel failure on all three, every mock row/column/chip, QH-QL copy, vocabulary scan.
+- Captures `.agent/W2-05a-evidence` (108/108 claims; 9 pairs x 1440/390; stocked `at=2026-10-06T12Z`, missing-role `at=2026-10-08T12Z` (c2 status + Site import unmapped revision), empty `at=2026-09-01`). API 9821 / web 6221 / CDP 9831 on private `assetops_w205acap_test` seeded by `install_ev_lab` plus one gap binding revision (throwaway script); DB dropped, servers stopped. Captured before two non-visual edits (diagram moved module; completeness note reworded to "Expected, received and late reading counts are not read here"). 403/503 are jsdom-tested only.
+- Heights at 1440 (app/mock): foundation 1.22/1.22; readiness table 1.15 (1.31 missing-role, extra Site-import row), gateway 1.24; sld diagram 0.87, parts table 1.51 stocked (honest reason: spec requires charger + per-connector rows, 5 rows vs mock 4, and each connector lists its mapped roles). At 390 the readiness Connected sources list is long: one chip per binding (15) as the spec requires.
+- Checks: frontend 86 files / 2202 passed; `tsc` clean; build ok; `tools/check-all.ps1` 10/10.
 
-## Checks (run 4)
+## Questions for the Architect (exact)
 
-- Postgres `assetops_w205a_test`: API file 9 passed; EV Foundation file 11 passed; with cold Foundation, S1 bindings, W2-02 replay, EV roles and vocabulary: 152 passed. Roles + health 26 passed.
-- Non-vacuous: QG check disabled -> both QG tests fail; Site import cadence from bound asset -> QE test fails; reverted via `git checkout`.
-- `tools/check-all.ps1`: 10/10.
+1. W1 vocabulary forbids `mapping`, `scenario`, `load`. The spec binds the mock label "Session identity mapping", the gap copy "No scenario tariff in use" and the part name "load manager". I kept them and added exact-phrase W1 glosses in `productVocabulary.json`. Confirm, or give plain variants.
+2. ev-sld slot mapping: the declared AC feed is drawn as the bus (header = feed name + import limit); grid supply, load manager and all breakers are dashed "Not declared" slots; the sole import meter sits in its charger's feeder kWh slot, because the topology is feed->meter->charger (the mock draws a meter upstream of the bus). Confirm.
+3. Readiness messages with no mock row (meter, session-event, Site-import gaps) are extra rows under the four mock rows (cold precedent). Confirm.
+4. Panel 4 row 2's mock Action link is shown as "Investigation action · Not available yet" (no Action exists for this Site). Confirm the label.
 
-## Next: spec commit 4 (UI routes and captures)
+## Next: spec commit 5
 
-Per the spec section "Three routes and fidelity proof" and the brief's UI phase rules: client for this read; `ev-foundation`, `ev-readiness`, `ev-sld` via `SiteFoundationFrame.tsx` and the `ColdFoundationViews.tsx` pattern; `APPROVED_TITLE_CHANGES` for `ev-readiness:2` and `ev-sld:1` (append only - W2-04 owns the shared file); `evFoundation.test.tsx` with `expectV69Panels` stocked/missing-role/403/503 plus planted-panel failure; 1440/390 captures with `tools/w1-fidelity-evidence.mjs` (ports 9800-9850 / 6200-6250).
-
-Later: commit 5 is `0024_w2_ev_config` after W2-04's `0023` is merged here; then final guards, one full backend suite and host suite (check no other pytest is running first), frontend suite and the packet.
+Merge W2-04 `0023` into this branch, create `0024_w2_ev_config` (`down_revision` = 0023) per spec "Code seams", run upgrade/downgrade; final guards; one full backend suite + host suite (check no other pytest first, keep-awake, 75-min cap); frontend suite; packet `.agent/W2-05a-review-packet.md` (git add -f) with the height table above.
