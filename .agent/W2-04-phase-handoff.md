@@ -1,4 +1,58 @@
-# W2-04 phase handoff - run 7 (spec commits 1-4 COMPLETE; commit 5 = final proof + packet NOT STARTED)
+# W2-04 phase handoff - run 8 (Run-7 rulings applied; commit 5 BLOCKED - see "Resume here")
+
+## Run 8 (this run): Architect Run-7 rulings applied, one commit per ruling group
+
+- `2a17ef1f` date bar: `SelectedWindowBar` (`coldSiteViews.tsx`) renders `Selected window {from}–{to} UTC` +
+  `Selected evidence through {known_at} UTC` as each screen's first element (below the tab rows; no shared date-bar
+  component exists). Strips no longer carry window/cutoff; `cold-assumptions` has no strip (its pending/historical
+  sentence rides on the date bar's secondary line). `test/panelStructure.ts` CHROME_SELECTOR gains `.site-date-bar`.
+- `5781eb4f` Evidence chip: `evidenceState` from the four row chips (contradictory > limited > unknown > supported);
+  the Overview Evidence card uses the same function.
+- `414ed872` SOURCE_ROWS exact placement; closed cells = one line (contact/quality chips, `Mixed source contact` /
+  `Mixed accepted quality` when channels disagree); one `Contact checked at window end` line; one closed
+  `Source details` disclosure (`SourceChannel`), replacing the ExactReferences disclosure. Grid/bus under
+  `Other power-path reports` (Grid meter / AC bus), ambient/manual under `Other temperature context`.
+- `48159c02` Analysis: 3 rows, one line per cell, `Show all {N}` with N = new backend `accepted_records.total_count`
+  (`accepted_count_on` in `postgres_assessment_store.py`; `cold_site_reads.py` analysis; backend test asserts it on
+  every page, non-vacuous: >7 records with limit 7), then only `Show more accepted records`; closed `Record details`;
+  claim panel = the two ruled sentences + closed `Claim details`. Sent/Received `HH:MM:SS UTC`.
+- `3a03b439` Overview: attention labels / `Not available yet` (null), Next step = h3 text + destination label,
+  panel-1 `Open Finding →`, card clauses omitted when unavailable, backup counts only when `isSelected && as_of`;
+  causal strip and chamber chart tick labels carry `UTC` (`assessmentGraphics.tsx` ticks, shared with W2-03).
+- `4c106b60` Financials: one line per cell; closed `Basis details` with every exact basis field, reason, limitation,
+  bounds, source gate; backup gap row states no stored consequence/cost basis.
+- `81125dc8` recapture at `4c106b60`: 216/216 claims, no 390 page overflow, all disclosures closed when measured.
+
+Checks at `4c106b60`: cold test file 42 passed; full `npm.cmd test` 86 files / 2224 passed; typecheck + build OK;
+backend `test_w204_cold_reads.py` 18 passed (Postgres `assetops_w204_test`, left in place for the final run); rule-8
+probes `python tools/writer_guard_probes.py --seam` exit 0, 129 CAUGHT, 0 MISSED, "tree restored". Note: two orphan
+`assetops_gateway serve` processes (PIDs 23064/22388, started 13:28 from an earlier pytest tmp dir) were left running.
+
+## Open (blocking in_review)
+
+1. **Heights still >1.30x at stocked 1440 (closed):** cold-evidence Data sources 689/438 (1.57; target <=569),
+   Analysis Accepted records 373/266 (1.40; <=345), How a claim limit is set 193/148 (1.304; <=192). Cause: wrapped
+   cells in the half-width table (Chamber probe Affects wraps to 6 lines; the inverter row's four
+   `No inverter or battery source declared` cells wrap to 3 lines). Plan: CSS-only in `w2-cold-site.css` (column
+   widths, chips may wrap, tighter note/summary/button spacing), then recapture. Not in Run-7 scope but measured:
+   W2-03 `temperature` "How each limit is set" 225/120 (1.88).
+2. **Blocked by permissions:** re-seeding `assetops_w204cap_test` (CREATE DATABASE in shared Docker Postgres) was
+   denied by the auto-mode classifier; no measurement possible until the owner allows it. The full backend and host
+   suites also create run-owned DBs and were therefore not started.
+3. **Guard conflict (Architect):** `tools/check-all.ps1` 8/10 - Missing-claim orphan scan + its fixtures fail on
+   untagged "Not available yet" in `coldSiteViews.tsx` (ToLink null destination - Run-7 ruled copy; Overview
+   attention label; Cooling card `Recovery comparison not assessed · Not available yet` from the commit-4 ledger).
+   The guard requires a registered `mock_gaps` placement rendered through `<MissingClaim>`; a cold placement is an
+   Architect registration (see `ColdFoundationViews.tsx:54`). Needs: registry placements or replacement copy.
+
+## Resume here
+
+After 1-3 are unblocked: CSS compaction + recapture (free ports 9700-9750/6100-6150); full real-Postgres backend
+suite + JUnit zero-skip and host suite (no other pytest, keep-awake, 75-min cap, copy/remove `var/sites`); rule-8
+probes; full `npm.cmd test`; check-all; packet `.agent/W2-04-review-packet.md` (git add -f); `Status: in_review`;
+drop `assetops_w204_test`.
+
+## (Run 7 header, superseded by Run 8 above)
 
 ## Run 7 (this run): spec commit 4 built (five cold Site screens + retro 14/17)
 
