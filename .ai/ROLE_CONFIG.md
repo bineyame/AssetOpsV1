@@ -406,6 +406,13 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   direction); refusal codes; freshness/time references; UI empty/unavailable
   copy and the panel map; how Lab/run projections and stored artifacts look.
   W2-02 needed six question rounds because its first spec skipped these.
+  Then the Architect does an **implementer dry-read**: walk the spec commit by
+  commit against the real code, write down every question a mid-level
+  implementer would have to ask (multiplicity such as per-connector channels,
+  which component owns each device, new Foundation keys, readiness codes for
+  each missing input, cadence sources, fixture Sites vs revisions, migration
+  numbering against in-flight slices), and answer each in the spec. W2-05a
+  stopped with eight such questions after the gate alone.
 - **Size builder runs to one spec commit each**, with a handoff after each, so
   no run dies mid-commit and the next run reads only the handoff.
 - **Model by risk.** First review of a new build and design-deciding work on
@@ -420,6 +427,13 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   preemptive sweep of the slice's remaining commits into that same call.
 - **No duplicate agents.** Check for a live agent on a worktree before
   dispatching; never reuse a worktree a reviewer is still using.
+- **Mockup drives the design; implementers never decide (owner, 2026-10-18).**
+  Every spec maps each mock panel, row, column and chip of each owned screen to
+  its data source or an honest gap; no mock element is trimmed or redesigned to
+  fit the backend. Any implementer choice the spec did not fix is a defect:
+  reviewers flag it Medium (High if user-visible vs the mock), and the Architect
+  rules it and amends the spec before merge
+  (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
 - **Briefs point to files; they do not restate them.** Coordinator replies to
   interim agent notifications stay to one line.
 
