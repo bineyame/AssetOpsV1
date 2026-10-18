@@ -32,6 +32,8 @@ import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
 import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
+import type { ColdSiteClient } from "../sites/coldSiteClient";
+import { coldSiteScreen } from "./coldSiteRoutes";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
@@ -623,17 +625,34 @@ export function SiteFinancialsFrame({
   sitesPath,
   view,
   financials = DEFAULT_FINANCIALS,
+  coldSite,
+  coldAssessment,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   view: "overview" | "assumptions";
   financials?: FinancialsClient;
+  /** W2-04: a COLDCHAIN Site renders `cold-financials` / `cold-assumptions` from these reads (read-only). */
+  coldSite?: ColdSiteClient;
+  coldAssessment?: ColdAssessmentClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
+  const [params] = useSearchParams();
   const title = view === "assumptions" ? "Financial assumptions" : "Financials";
   return (
     <SiteScoped siteId={siteId} detail={detail} title={title} headingId={SITE_FINANCIALS_HEADING_ID}>
       {(site) => {
+        if (site.site_type === "COLDCHAIN" && coldSite !== undefined && coldAssessment !== undefined) {
+          return coldSiteScreen({
+            view: view === "assumptions" ? "assumptions" : "financials",
+            site,
+            params,
+            coldSite,
+            coldAssessment,
+            tabs: <OperatorSiteTabs siteId={siteId} current="Financials" />,
+            sitesPath,
+          });
+        }
         const links: FinancialsLinks = {
           finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
           evidence: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "evidence", rev),

@@ -1,0 +1,39 @@
+/*
+ * W2-04: the five cold Site screens (cold, cold-evidence, cold-evidence-analysis, cold-financials,
+ * cold-assumptions). They reuse the shared W1-F1 frame, panel, table, card and attention primitives; only the
+ * small secondary lines inside table cells and the noninteractive "Not available yet" destination are styled here.
+ */
+.cold-site-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted, #5f6b7a);
+}
+
+.cold-site-line {
+  display: block;
+}
+
+.cold-site-noop {
+  color: var(--text-muted, #5f6b7a);
+}
+
+.cold-site-rule + .cold-site-rule {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #e3e6ea);
+}
+
+.cold-site-rule .prose {
+  margin-bottom: 8px;
+}
+
+.cold-site-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.cold-site-list li + li {
+  margin-top: 6px;
+}
