@@ -28,3 +28,9 @@ Branch `task/W2-05a-ev-foundation`, worktree `AssetOpsV1-review5`. Commits: 1 `2
 ## Next: spec commit 5
 
 Merge W2-04 `0023` into this branch, create `0024_w2_ev_config` (`down_revision` = 0023) per spec "Code seams", run upgrade/downgrade; final guards; one full backend suite + host suite (check no other pytest first, keep-awake, 75-min cap); frontend suite; packet `.agent/W2-05a-review-packet.md` (git add -f) with the height table above (rulings section).
+
+## Run 6 (ev-sld parts-table compaction ruling)
+- Applied the Architect's compaction exactly: charger cells are two lines (`{name} · {rating|Rating not declared}`; `{n} connector(s) · {schedule state} · {n} mapped source role(s)|No mapped source roles`); closed in-cell `Connector details` disclosure carries each connector's name, rating, service hours, clock bound and mapped roles; more than two chargers: second row says `{n} additional charger(s)` with every extra charger in its disclosure; missing charger is `Not declared` in name, role and reporting cells with no disclosure. Four vocabulary exceptions confirmed as global exact phrases (unchanged).
+- Recaptured ev-sld stocked and empty at 1440/390 (24/24 claims; same private-DB recipe, DB dropped, servers stopped). ev-sld-missing-role not recaptured (needs the gap binding revision; its parts table is unchanged in kind). Parts panel at 1440 app/mock: 370/287 = **1.29x** (was 1.47x; limit 1.30x). 390: no horizontal overflow.
+- Deviation for a ruling: the spec labels bindings `Configured mapping`, but the vocabulary scanner flags `mapping` outside the four exact phrases and the ruling forbids new exceptions. The disclosure label is `Configured source roles:` instead. If the Architect wants `Configured mapping`, a fifth exact allowlist phrase is needed.
+- Reporting column now shows `{n} configured source role(s)` / Not declared (no connector lines; those moved to the disclosure).
