@@ -1,3 +1,50 @@
+# W2-04 phase handoff - Run 9 (Run-8 rulings applied; recapture and suites remain)
+
+## Run 8 rulings applied (commits f0da723c, 7372c264, e6be9a82 on top of 6fb1aaf7)
+
+- f0da723c: `ToLink` null fallback, Overview attention label and Next-step cells now read `No linked page for this item`;
+  the Cooling card note ends at `Recovery comparison not assessed`. No registry or baseline change; `UnavailableEntry` untouched.
+- 7372c264: `Claim details` opens with `Accepted record IDs for this assessment are in Record details.` (only when items
+  exist; the per-rule "Accepted records" row is removed). `total_count`: `accepted_count_on` already counts the same cited-ID
+  set as the page query before limit/cursor (includes CONTEXT/EXCLUDED); the backend test already asserts it on every page
+  with >7 records. The assumptions pending/historical sentence already rides the date bar's second line; a test was added
+  (no status strip).
+- e6be9a82: compaction. `coldSiteViews.tsx`: `CLOSED_SOURCE` closed What/Affects labels per mock row (unbound rows keep
+  `No accepted report for this role` / `Claim effect not assessed`; `Other recorded roles` when only non-primary roles are
+  accepted), inverter row five cells, `Sent (UTC)` / `Received (UTC)` headers over bare HH:MM:SS, `RECORD_LABEL` short first
+  cell, Record details gains `Kind:`. `w2-cold-site.css`: `@media (min-width:641px)` route-scoped fixed widths
+  24/17/13/26/20 and 28/9/17/14/16/16, 6 px cell padding and link/disclosure gaps, claim disclosure -2 px.
+- Checks: `tsc --noEmit` clean; full `npm.cmd test` 86 files / 2225 passed; `tools/check-all.ps1` 10/10 guards passed
+  (orphan scan and fixtures pass, baseline unchanged). Backend untouched in Run 8.
+
+## Run 9: exact remaining steps
+
+BLOCKED: the auto-mode classifier denied creating the private capture DB `assetops_w204cap_test` even after the
+coordinator relayed the owner's authorization (`.agent/owner-test-db-authorization-2026-10-18.md`). The owner's permission
+rule must allow it before step 2.
+
+1. Confirm no other pytest runs (other worktrees only run uvicorn/vite).
+2. Create DB `assetops_w204cap_test` in `assetopsv1-postgres-1` (user assetops, db postgres).
+3. Seed with a throwaway, uncommitted `backend/tests/test_zz_capseed.py`: `chain` (test_w202_cold_replay_postgres),
+   `opened("excursion", chain)`, `run(built)` (test_w203_cold_replay_postgres), `drain(built)` (test_w204_cold_consequence).
+   Env from scratchpad `w204env.sh` but `ASSETOPS_TEST_DATABASE_URL=...assetops_w204cap_test`, `ASSETOPS_TEST_TEMPLATE=0`;
+   run from `backend/` with `-p no:cacheprovider` (1-2 min). Delete the file afterwards.
+4. Serve: `w204cap-api.ps1` (host `lab_app`, port 9704) and `w204cap-web.ps1` (vite 6104, `ASSETOPS_API_PORT=9704`); CDP 9714.
+5. Recapture the 18 pairs with `ASSETOPS_CDP_PORT=9714 W1_REVISION=<head> node tools/w1-fidelity-evidence.mjs
+   .agent/W2-04-evidence <id>:<case>=<url> ...` using the exact URLs in `.agent/W2-04-evidence/evidence.json` with host
+   `localhost:6104` (stocked 2026-10-06T19:00Z-20:05Z, empty 2026-10-05, refused from>to); commit with `git add -f`.
+6. Re-measure stocked 1440 closed heights: Data sources <=569 (mock 438), Accepted records <=345 (mock 266), How a claim
+   limit is set <=192 (mock 148); Chamber Affects and inverter cells <=2 lines; Most useful next evidence card unchanged;
+   390 no page overflow. If a bound is missed, inspect row wrapping and scoped spacing, then report measured numbers in the
+   packet. Log W2-03 `temperature` "How each limit is set" 225/120 as a W2-03 follow-up (not this slice).
+7. Stop servers. Full real-Postgres backend suite per `backend/TESTING.md` (keep-awake script, 2x cap, JUnit zero-skip) and
+   the host suite; `python tools/writer_guard_probes.py --seam`; `test_w204_cold_reads.py` on `assetops_w204_test`.
+8. Write `.agent/W2-04-review-packet.md` (`git add -f`, <=150 lines), set the task `Status: in_review`, update
+   `.ai/ACTIVE_CONTEXT.md` and `.ai/CODE_STATE.md` (<40 lines).
+9. Drop `assetops_w204cap_test`, `assetops_w204_test` and any run DBs; stop orphan `assetops_gateway serve` PIDs 23064/22388 if present.
+
+## (Run 8 handoff, superseded by Run 9 above)
+
 # W2-04 phase handoff - run 8 (Run-7 rulings applied; commit 5 BLOCKED - see "Resume here")
 
 ## Run 8 (this run): Architect Run-7 rulings applied, one commit per ruling group
