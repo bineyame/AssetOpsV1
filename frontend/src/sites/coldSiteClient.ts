@@ -133,7 +133,8 @@ export interface ColdClaimRule extends Dated {
 }
 
 export interface ColdAnalysisRead extends ColdEnvelope {
-  accepted_records: { items: ColdAcceptedRecord[]; next_cursor: string | null };
+  /** `total_count`: the full selected accepted count behind the paged list (Run-7 paging ruling). */
+  accepted_records: { items: ColdAcceptedRecord[]; next_cursor: string | null; total_count: number };
   claim_rules: ColdClaimRule[];
   links: Record<"evidence" | "findings", string | null>;
 }
@@ -211,7 +212,8 @@ const SHAPES = {
     arrays(v, "causal_strip", "needs_attention") && isObject((v as ColdOverviewRead).status) && isObject((v as ColdOverviewRead).consequence_summary),
   evidence: (v: unknown) => arrays(v, "capabilities", "sources"),
   analysis: (v: unknown) =>
-    arrays(v, "claim_rules") && isObject((v as ColdAnalysisRead).accepted_records) && Array.isArray((v as ColdAnalysisRead).accepted_records.items),
+    arrays(v, "claim_rules") && isObject((v as ColdAnalysisRead).accepted_records) && Array.isArray((v as ColdAnalysisRead).accepted_records.items) &&
+    typeof (v as ColdAnalysisRead).accepted_records.total_count === "number",
   financials: (v: unknown) => arrays(v, "consequences", "not_included"),
   assumptions: (v: unknown) => arrays(v, "items", "missing_keys"),
 };

@@ -287,9 +287,12 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
     while True:
         page = get(c, f"evidence/analysis?{W}&limit=7" + (f"&cursor={cursor}" if cursor else ""))
         seen += page["accepted_records"]["items"]
+        # Run-7 paging ruling: every page names the full selected accepted count, not its own length.
+        assert page["accepted_records"]["total_count"] == len(expected)
         cursor = page["accepted_records"]["next_cursor"]
         if cursor is None:
             break
+    assert len(expected) > 7  # the count differs from a page length, so the assertion above is not vacuous
     assert sorted(x["evidence_id"] for x in seen) == expected
     assert [(x["source_time"], x["evidence_id"]) for x in seen] == sorted((x["source_time"], x["evidence_id"])
                                                                           for x in seen)
@@ -411,7 +414,7 @@ def test_missing_probe_and_empty_window(chain) -> None:  # noqa: F811
     assert bodies["overview"]["maintenance"]["state"] == "NOT_RECORDED"
     assert bodies["overview"]["consequence_summary"]["state"] == "UNKNOWN"
     assert (bodies["evidence"]["capabilities"], bodies["evidence"]["sources"]) == ([], [])
-    assert bodies["evidence/analysis"]["accepted_records"] == {"items": [], "next_cursor": None}
+    assert bodies["evidence/analysis"]["accepted_records"] == {"items": [], "next_cursor": None, "total_count": 0}
     assert bodies["evidence/analysis"]["claim_rules"] == []
     assert (bodies["financials"]["consequences"], bodies["financials"]["not_included"]) == ([], [])
     assert bodies["financial-assumptions"]["items"] == []

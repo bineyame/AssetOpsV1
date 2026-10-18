@@ -915,8 +915,19 @@ function EvidenceScreen(p: ScreenProps) {
 /** A state or event outcome (e.g. `LOST`) in plain words; a number is shown as recorded. */
 const recordValue = (v: string) => (/^[A-Z][A-Z0-9_]*$/.test(v) ? plainCode(v) : v);
 
-/** Rows shown before the rest are opened (the mock table shows three; W1 lists show four, SiteWorkActions). */
-const RECORDS_SHOWN = 4;
+/** Run-7 density ruling: the first three selected accepted records, as the mock table shows three. */
+const RECORDS_SHOWN = 3;
+
+/** Run-7 time copy: `Sent` and `Received` are UTC clock times with a per-cell `UTC` suffix. */
+function utcClock(value: string | null | undefined): string {
+  const d = date(value);
+  return d === null ? NOT_RECORDED : `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+}
+
+const CLAIM_SENTENCES = [
+  "Each claim needs accepted readings and enough coverage for the selected window. A missing or conflicting input limits what can be concluded.",
+  "Source reporting describes data availability, not equipment condition.",
+];
 
 function AnalysisScreen(p: ScreenProps) {
   const first = useColdRead(() => p.client.getAnalysis(p.siteId, p.window, null), keyOf(p, "a"));
@@ -930,6 +941,8 @@ function AnalysisScreen(p: ScreenProps) {
   const pages = more.key === key ? more.pages : [];
   const rows = a === null ? [] : [a, ...pages].flatMap((x) => x.accepted_records.items);
   const cursor = a === null ? null : (pages.length > 0 ? pages[pages.length - 1] : a).accepted_records.next_cursor;
+  const total = a === null ? 0 : a.accepted_records.total_count;
+  const shown = expanded ? rows : rows.slice(0, RECORDS_SHOWN);
   const loadMore = () => {
     if (cursor === null) return;
     void p.client.getAnalysis(p.siteId, p.window, cursor).then((next) => {
@@ -970,23 +983,21 @@ function AnalysisScreen(p: ScreenProps) {
                 ) : (
                   rows.map((r, index) => (
                     <tr key={r.evidence_id} data-accepted-record={r.evidence_id} hidden={!expanded && index >= RECORDS_SHOWN}>
-                      <th scope="row">
-                        {r.role === null ? NOT_RECORDED : roleLabel(r.role)}
-                        <small className="cold-site-detail">
-                          Quality: {r.quality === null ? NOT_RECORDED : plainCode(r.quality)} · Use: {r.exclusion === null ? "Not classified" : reasonWord(r.exclusion)} · Assessment:{" "}
-                          <code data-vocabulary-exempt="source-reference">{r.assessment_revision_id ?? NOT_RECORDED}</code>
-                        </small>
-                      </th>
+                      <th scope="row">{r.role === null ? NOT_RECORDED : roleLabel(r.role)}</th>
                       <td>{r.value_display === null ? NOT_RECORDED : `${recordValue(r.value_display)}${r.unit === null ? "" : ` ${r.unit}`}`}</td>
                       <td>{eatTime(r.source_time) ?? NOT_RECORDED}</td>
-                      <td>{eatTime(r.sent_at) ?? NOT_RECORDED}</td>
-                      <td>{eatTime(r.received_at) ?? NOT_RECORDED}</td>
+                      <td>{utcClock(r.sent_at)}</td>
+                      <td>{utcClock(r.received_at)}</td>
                       <td>
                         {r.record_target_state === "PROVED" && r.link !== null ? (
                           <ToLink href={coldUiHref(r.link, p.routes) ?? r.link}>Open record</ToLink>
                         ) : (
                           <span data-record-target="unavailable">
-                            Record <code data-vocabulary-exempt="source-reference">{r.evidence_id}</code> · Analysis view not available for this cold record
+                            Record{" "}
+                            <code className="cold-site-clip" title={r.evidence_id} data-vocabulary-exempt="source-reference">
+                              {r.evidence_id}
+                            </code>{" "}
+                            · Analysis view not available for this cold record
                           </span>
                         )}
                       </td>
@@ -995,10 +1006,10 @@ function AnalysisScreen(p: ScreenProps) {
                 )}
               </tbody>
             </DataTable>
-            {rows.length <= RECORDS_SHOWN ? null : (
+            {expanded || total <= RECORDS_SHOWN ? null : (
               <p className="cold-panel-link">
-                <button type="button" className="button" onClick={() => setExpanded((x) => !x)} aria-expanded={expanded} data-cold-all-records>
-                  {expanded ? `Show the first ${RECORDS_SHOWN} accepted records` : `Show all ${rows.length} accepted records`}
+                <button type="button" className="button" onClick={() => setExpanded(true)} aria-expanded={false} data-cold-all-records>
+                  {`Show all ${total} accepted records`}
                 </button>
               </p>
             )}
@@ -1009,32 +1020,68 @@ function AnalysisScreen(p: ScreenProps) {
                 </button>
               </p>
             )}
+            {shown.length === 0 ? null : (
+              <Disclosure summary="Record details" name="cold-site-record-details">
+                <ul className="cold-site-list">
+                  {shown.map((r) => (
+                    <li key={r.evidence_id} data-record-detail={r.evidence_id}>
+                      <span className="cold-site-line">
+                        Record <code data-vocabulary-exempt="source-reference">{r.evidence_id}</code>
+                        {r.role === null ? null : ` · ${roleLabel(r.role)}`}
+                      </span>
+                      <span className="cold-site-line">
+                        Quality: {r.quality === null ? NOT_RECORDED : plainCode(r.quality)} · Use: {r.exclusion === null ? "Not classified" : reasonWord(r.exclusion)} · Assessment:{" "}
+                        <code data-vocabulary-exempt="source-reference">{r.assessment_revision_id ?? NOT_RECORDED}</code>
+                      </span>
+                      <span className="cold-site-line">
+                        Source <code data-vocabulary-exempt="source-reference">{r.source_id ?? NOT_RECORDED}</code> ·{" "}
+                        {a!.source_provenance.classification === null ? "Source classification unknown" : classificationWord(a!.source_provenance.classification)}
+                      </span>
+                      {r.limitation === null ? null : <span className="cold-site-line">{plainLimitation(r.limitation)}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </Disclosure>
+            )}
           </>
         )}
       </Panel>
-      <Panel heading="How a claim limit is set" headingId="cold-site-limit-heading" description="Source reporting describes data availability, not equipment condition.">
+      <Panel heading="How a claim limit is set" headingId="cold-site-limit-heading">
         {refused !== null ? (
           <RefusedGap id="cold-site-limit" refusal={refused} />
         ) : none || a!.claim_rules.length === 0 ? (
           <Gap id="cold-site-limit">Claim limit not assessed</Gap>
         ) : (
-          a!.claim_rules.map((rule) => (
-            <div className="cold-site-rule" key={rule.rule_id} data-claim-rule={rule.rule_id}>
-              <p className="prose">{rule.requirement}</p>
-              <KeyValues
-                label={rule.requirement}
-                rows={[
-                  ["Observed", rule.observed_roles.length === 0 ? "None" : rule.observed_roles.map(roleName).join(", "), "observed"],
-                  ["Missing", rule.missing_roles.length === 0 ? "None" : rule.missing_roles.map(roleName).join(", "), "missing"],
-                  ["Coverage", decimal(rule.coverage.ratio) ?? NOT_ASSESSED, "coverage"],
-                  ["Result", rule.result === null ? NOT_ASSESSED : plainCode(rule.result), "result"],
-                  ["Source", a!.source_provenance.classification === null ? "Unknown" : classificationWord(a!.source_provenance.classification), "source"],
-                  ["Evidence cutoff", utc(a!.window.known_at), "cutoff"],
-                  ...(rule.limitation === null ? [] : ([["Limit", plainLimitation(rule.limitation), "limit"]] as [string, string, string][])),
-                ]}
-              />
+          <>
+            <div className="prose" data-claim-prose>
+              {CLAIM_SENTENCES.map((t) => (
+                <p key={t}>{t}</p>
+              ))}
             </div>
-          ))
+            <Disclosure summary="Claim details" name="cold-site-claim-details">
+              {a!.claim_rules.map((rule) => (
+                <div className="cold-site-rule" key={rule.rule_id} data-claim-rule={rule.rule_id}>
+                  <p className="prose">
+                    <code data-vocabulary-exempt="source-reference">{rule.rule_id}</code> · {rule.result === null ? NOT_ASSESSED : plainCode(rule.result)}
+                  </p>
+                  <KeyValues
+                    label={`${rule.rule_id} details`}
+                    rows={[
+                      ["Requirement", rule.requirement, "requirement"],
+                      ["Observed", rule.observed_roles.length === 0 ? "None" : rule.observed_roles.map(roleName).join(", "), "observed"],
+                      ["Missing", rule.missing_roles.length === 0 ? "None" : rule.missing_roles.map(roleName).join(", "), "missing"],
+                      ["Coverage", decimal(rule.coverage.ratio) ?? NOT_ASSESSED, "coverage"],
+                      ["Result", rule.result === null ? NOT_ASSESSED : plainCode(rule.result), "result"],
+                      ["Source", a!.source_provenance.classification === null ? "Unknown" : classificationWord(a!.source_provenance.classification), "source"],
+                      ["Evidence cutoff", utc(a!.window.known_at), "cutoff"],
+                      ["Accepted records", "Listed by exact ID in Record details", "records"],
+                      ...(rule.limitation === null ? [] : ([["Limit", plainLimitation(rule.limitation), "limit"]] as [string, string, string][])),
+                    ]}
+                  />
+                </div>
+              ))}
+            </Disclosure>
+          </>
         )}
       </Panel>
     </>

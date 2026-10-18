@@ -506,7 +506,8 @@ class ColdSiteReadService:
             after = None if cursor is None else decode_cursor(cursor, basis)
             links = {"evidence": self._link(snap, "evidence"), "findings": self._link(snap, "findings")}
             if not snap["selected"]:
-                return {**body, "accepted_records": {"items": [], "next_cursor": None}, "claim_rules": [],
+                return {**body, "accepted_records": {"items": [], "next_cursor": None, "total_count": 0},
+                        "claim_rules": [],
                         "links": links}
             cited: dict[str, tuple[str, str | None]] = {}  # evidence ID -> (assessment revision ID, reason)
             for analytic in (EXC, START):
@@ -530,7 +531,9 @@ class ColdSiteReadService:
                 "as_of": _plain(r["received_at"]), "limitation": RECORD_TARGET_UNAVAILABLE,
             } for r in page]
             nxt = encode_cursor(page[-1]["source_time"], page[-1]["id"], basis) if more else None
-            return {**body, "accepted_records": {"items": items, "next_cursor": nxt},
+            # Run-7 paging ruling: `Show all {N}` names the full selected accepted count, not the current page.
+            total = self._reads.accepted_count_on(c, t, s, sorted(cited))
+            return {**body, "accepted_records": {"items": items, "next_cursor": nxt, "total_count": total},
                     "claim_rules": self._claim_rules(c, snap), "links": links}
         return self._reads.within(work)
 

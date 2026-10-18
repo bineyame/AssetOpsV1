@@ -144,6 +144,7 @@ const STOCKED_ANALYSIS: ColdAnalysisRead = {
       },
     ],
     next_cursor: null,
+    total_count: 1,
   },
   claim_rules: [
     {
@@ -216,7 +217,7 @@ const EMPTY_OVERVIEW: ColdOverviewRead = {
   consequence_summary: { state: "UNKNOWN", quantity: { low: null, high: null, unit: null }, amount: { low: null, high: null, currency: null }, overlap_group: null, ...dated },
 };
 const EMPTY_EVIDENCE: ColdEvidenceRead = { ...STOCKED_EVIDENCE, ...EMPTY_ENV, capabilities: [], sources: [] };
-const EMPTY_ANALYSIS: ColdAnalysisRead = { ...STOCKED_ANALYSIS, ...EMPTY_ENV, accepted_records: { items: [], next_cursor: null }, claim_rules: [] };
+const EMPTY_ANALYSIS: ColdAnalysisRead = { ...STOCKED_ANALYSIS, ...EMPTY_ENV, accepted_records: { items: [], next_cursor: null, total_count: 0 }, claim_rules: [] };
 const EMPTY_FINANCIALS: ColdFinancialsRead = { ...STOCKED_FINANCIALS, ...EMPTY_ENV, consequences: [], not_included: [] };
 
 const point = (minute: number, v: string) => ({ at: `2026-10-06T16:${String(minute).padStart(2, "0")}:00Z`, value: v, quality: "GOOD", evidence_id: id(100 + minute) });
@@ -338,6 +339,9 @@ const LEDGER_CLAIM = new RegExp(
       "Claim limit not assessed",
       "Record-level detail and claim limits are on",
       "How a claim limit is set",
+      // Run-7 ruled copy for the closed claim panel and its one disclosure.
+      "Each claim needs accepted readings and enough coverage for the selected window\.",
+      "Claim details",
     ].join("|") +
     ")",
 );
@@ -581,6 +585,53 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(text(row)).toContain(`Record ${id(11)} · Analysis view not available for this cold record`);
     expect(row.querySelector("a")).toBeNull();
     expect(text(panelTitled("How a claim limit is set"))).toContain("Accepted chamber readings, the selected temperature policy and enough coverage to bound an excursion.");
+  });
+
+  it("analysis: first three records, 'Show all {total}' from the full count, then only 'Show more'; closed Record and Claim details", async () => {
+    const base = STOCKED_ANALYSIS.accepted_records.items[0];
+    const items = [11, 12, 13, 14, 15].map((n, i) => ({ ...base, evidence_id: id(n), source_time: `2026-10-06T16:${19 + i}:00Z`, sent_at: "2026-10-06T16:19:01Z" }));
+    const analysis = { ...STOCKED_ANALYSIS, accepted_records: { items, next_cursor: "c1", total_count: 12 } };
+    renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(analysis) });
+    await settledScreen();
+    const records = panelTitled("Accepted records behind the conclusions");
+    const visible = () => Array.from(records.querySelectorAll<HTMLElement>("[data-accepted-record]")).filter((r) => !r.hidden);
+    expect(visible()).toHaveLength(3);
+    // Run-7 time copy: Sent and Received are UTC with a visible suffix; only Measured (EAT) is East Africa Time.
+    const cells = visible()[0].querySelectorAll("td");
+    expect(cells[1].textContent).toBe(eatTime("2026-10-06T16:19:00Z"));
+    expect(cells[2].textContent).toBe("16:19:01 UTC");
+    expect(cells[3].textContent).toBe("16:19:02 UTC");
+    expect(records.querySelector("[data-cold-more]")).toBeNull();
+    const details = records.querySelectorAll("details");
+    expect(details).toHaveLength(1);
+    expect((details[0] as HTMLDetailsElement).open).toBe(false);
+    expect(details[0].querySelector("summary")?.textContent).toBe("Record details");
+    expect(Array.from(details[0].querySelectorAll("[data-record-detail]")).map((d) => d.getAttribute("data-record-detail"))).toEqual([id(11), id(12), id(13)]);
+    expect(text(details[0])).toContain(`Assessment: ${id(51)}`);
+    fireEvent.click(screen.getByRole("button", { name: "Show all 12 accepted records" }));
+    expect(visible()).toHaveLength(5);
+    expect(records.querySelector("[data-cold-all-records]")).toBeNull();
+    expect(Array.from(records.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["Show more accepted records"]);
+    expect(records.querySelectorAll("[data-record-detail]")).toHaveLength(5);
+    const limit = panelTitled("How a claim limit is set");
+    const prose = Array.from(limit.querySelectorAll("[data-claim-prose] p")).map((x) => x.textContent);
+    expect(prose).toEqual([
+      "Each claim needs accepted readings and enough coverage for the selected window. A missing or conflicting input limits what can be concluded.",
+      "Source reporting describes data availability, not equipment condition.",
+    ]);
+    const claim = limit.querySelectorAll("details");
+    expect(claim).toHaveLength(1);
+    expect((claim[0] as HTMLDetailsElement).open).toBe(false);
+    expect(claim[0].querySelector("summary")?.textContent).toBe("Claim details");
+    expect(text(claim[0].querySelector('[data-claim-rule="cold-excursion/1"]')!)).toContain("cold-excursion/1 · Observed excursion");
+  });
+
+  it("analysis: no selected assessment says 'Claim limit not assessed' instead of the two sentences", async () => {
+    renderCold(ROUTES[2][1], EMPTY);
+    await settledScreen();
+    const limit = text(panelTitled("How a claim limit is set"));
+    expect(limit).toContain("Claim limit not assessed");
+    expect(limit).not.toContain("Each claim needs accepted readings");
   });
 
   it("financials: one exposure row with its exact basis, the backup gap row and no price", async () => {

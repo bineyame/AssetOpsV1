@@ -1568,6 +1568,15 @@ class ColdReadService:
         return [dict(zip(names, r)) for r in c.execute(text(sql), p).all()]
 
     @staticmethod
+    def accepted_count_on(c: Connection, t: UUID, s: UUID, ids: list[str]) -> int:
+        """How many of the stored IDs are accepted public records: the full selected count behind the paged list."""
+        if not ids:
+            return 0
+        return int(c.execute(text(
+            "SELECT count(*) FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s AND id = ANY(:ids)"),
+            {"t": t, "s": s, "ids": sorted({UUID(str(i)) for i in ids}, key=str)}).scalar_one())
+
+    @staticmethod
     def source_facts_on(c: Connection, t: UUID, s: UUID, lo: datetime, hi: datetime,
                         known: datetime) -> dict[tuple[UUID, str], tuple[int, datetime, int]]:
         """(source_id, role) -> (accepted count, latest `source_time`, GOOD-quality count) of the accepted records
