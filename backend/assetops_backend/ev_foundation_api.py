@@ -30,6 +30,7 @@ from assetops_backend.sites.cold_foundation import (
     CONTACT_NO_GATEWAY_REGISTERED,
     CONTACT_NO_GATEWAY_SELECTED,
     ContactFacts,
+    _iso,
     assets_by_code,
     contact_document,
 )
@@ -48,14 +49,15 @@ def _refusal(status: int, code: str, message: str, headers: dict[str, str] | Non
     return JSONResponse(status_code=status, content={"error": {"code": code, "message": message}}, headers=headers)
 
 
-def ev_contact(facts: ContactFacts | None, absent: str, gateway_id: Any) -> dict[str, Any]:
+def ev_contact(facts: ContactFacts | None, absent: str, gateway_id: Any, checked_at: datetime) -> dict[str, Any]:
     """Spec contact mapping: S7 CURRENT -> RECENT, STALE -> STALE, absent diagnostic -> NEVER with a reason and
-    null `as_of`; the selected gateway comes from registration. Per-source contact is unavailable in 05a."""
+    null `as_of`; the selected gateway comes from registration. Per-source contact is unavailable in 05a.
+    QL: `checked_at` is the server's request-time UTC check, independent of the selected configuration `at`."""
     document = contact_document(facts, absent)
     reason = document["limitations"][0] if document["limitations"] else None
     if document["state"] == "NEVER" and reason is None:
         reason = CONTACT_NO_DIAGNOSTIC
-    return {"state": document["state"], "as_of": document["as_of"],
+    return {"state": document["state"], "as_of": document["as_of"], "checked_at": _iso(checked_at),
             "gateway_id": None if gateway_id is None else str(gateway_id), "reason": reason}
 
 
@@ -101,6 +103,7 @@ def build_ev_foundation_router(registry: ImportedSiteRegistry, health_store: Any
         gateways = view.registrations.gateways
         wanted = view.binding_set.gateway_id if view.binding_set is not None else (
             gateways[0].id if len(gateways) == 1 else None)
+        checked_at = clock()
         facts: ContactFacts | None = None
         absent = CONTACT_HEALTH_ABSENT
         if health_store is not None:
@@ -115,14 +118,14 @@ def build_ev_foundation_router(registry: ImportedSiteRegistry, health_store: Any
                 selected = next((f for f in health if f.gateway_id == wanted), None)
                 if selected is not None:
                     received = None if selected.latest is None else selected.latest.received_at
-                    facts = ContactFacts(received, freshness(received, selected.cadence_seconds, clock()))
+                    facts = ContactFacts(received, freshness(received, selected.cadence_seconds, checked_at))
         return ev_foundation_document(
             site=site,
             selected_at=view.at,
             revision=view.revision,
             binding_set=view.binding_set,
             assets_by_code=assets_by_code(view.registrations.assets),
-            contact=ev_contact(facts, absent, wanted),
+            contact=ev_contact(facts, absent, wanted, checked_at),
         )
 
     return router

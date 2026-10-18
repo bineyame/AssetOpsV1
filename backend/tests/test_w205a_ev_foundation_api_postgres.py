@@ -98,8 +98,9 @@ def test_stocked_selection_is_ready_with_exact_values(store) -> None:
     for connector in charger["connectors"]:
         assert (connector["max_kw"], connector["meter_resolution_kwh"], connector["meter_error_bound_kwh"]) == (
             "60", "0.001", "0.001")
+        assert connector["clock_error_bound_seconds"] == "30"
         assert connector["enabled_schedule"] == {
-            "enabled": "ENABLED", "time_zone": "Etc/UTC",
+            "enabled": True, "time_zone": "Etc/UTC",
             "weekly": [{"weekday": "TUESDAY", "local_start": "08:00", "local_end": "16:00",
                         "utc_offset_minutes": 0}]}
     assert {n["component_type"] for n in body["topology"]["nodes"]} == {"AC_BUS", "METER", "EV_CHARGER",
@@ -117,7 +118,8 @@ def test_stocked_selection_is_ready_with_exact_values(store) -> None:
     assert body["readiness"]["state"] == "READY_TO_REPORT"
     assert codes(body) == ["SOURCE_NOT_CONTACTED", "COMMISSIONING_UNCONFIRMED"]
     assert body["commissioning"] == {"state": "UNCONFIRMED", "evidence_ids": []}
-    assert body["contact"] == {"state": "NEVER", "as_of": None, "gateway_id": str(binding_set.gateway_id),
+    assert body["contact"] == {"state": "NEVER", "as_of": None, "checked_at": "2026-10-17T12:00:00Z",
+                               "gateway_id": str(binding_set.gateway_id),
                                "reason": "No gateway health read is configured"}
 
 
@@ -125,14 +127,20 @@ def test_contact_maps_s7_receipt_and_never_claims_commissioning(store) -> None:
     result = install(store)
     gateway = str(store.binding_sets(result.tenant.id, result.site.id)[0].gateway_id)
     recent = read(client(store, Health(NOW - timedelta(minutes=5))), at=STOCKED_AT).json()
-    assert recent["contact"] == {"state": "RECENT", "as_of": "2026-10-17T11:55:00Z", "gateway_id": gateway,
+    # QL: a historical selection (6 Oct) does not date the contact check; freshness is at request time.
+    assert recent["contact"] == {"state": "RECENT", "as_of": "2026-10-17T11:55:00Z",
+                                 "checked_at": "2026-10-17T12:00:00Z", "gateway_id": gateway,
                                  "reason": None}
     assert codes(recent) == ["COMMISSIONING_UNCONFIRMED"]
     assert recent["commissioning"] == {"state": "UNCONFIRMED", "evidence_ids": []}
     stale = read(client(store, Health(NOW - timedelta(hours=2))), at=STOCKED_AT).json()["contact"]
     assert (stale["state"], stale["as_of"]) == ("STALE", "2026-10-17T10:00:00Z")
+    # QK: stale contact is not "never contacted".
+    stale_body = read(client(store, Health(NOW - timedelta(hours=2))), at=STOCKED_AT).json()
+    assert "SOURCE_NOT_CONTACTED" not in codes(stale_body)
     never = read(client(store, Health(None)), at=STOCKED_AT).json()
-    assert never["contact"] == {"state": "NEVER", "as_of": None, "gateway_id": gateway,
+    assert never["contact"] == {"state": "NEVER", "as_of": None, "checked_at": "2026-10-17T12:00:00Z",
+                                "gateway_id": gateway,
                                 "reason": "No diagnostic is recorded for the selected gateway"}
     assert "SOURCE_NOT_CONTACTED" in codes(never, blocking=False)
 
@@ -194,6 +202,46 @@ def test_site_import_cadence_is_the_minimum_connector_meter_cadence(store) -> No
     assert cadence[("c2-connector-meter", "energy")] == 300
     stocked = read(client(store), at=STOCKED_AT).json()["bindings"]
     assert next(b for b in stocked if b["role"] == "ev_site_import")["cadence_seconds"] == 300
+
+
+def test_disabled_connector_schedule_and_per_connector_clock_bound(store) -> None:
+    """QH/QI: a disabled connector serves enabled=false with an empty weekly array; clock bound per connector."""
+    result = install(store)
+
+    def disable_c2(content):
+        by_id = {c["component_id"]: c for c in content["components"]}
+        prop = {p["property_key"]: p for p in by_id["c2"]["properties"]}
+        prop["ev-connector-enabled"]["value"] = "DISABLED"
+        prop["ev-clock-error-bound"]["value"] = 45
+        next(e for e in content["connector_enable_schedules"]
+             if e["connector_asset_id"] == "c2")["weekly"] = []
+
+    change_foundation(store, result, disable_c2)
+    [charger] = read(client(store), at=LIMIT_AT).json()["chargers"]
+    c1, c2 = charger["connectors"]
+    assert c1["enabled_schedule"]["enabled"] is True and len(c1["enabled_schedule"]["weekly"]) == 1
+    assert c2["enabled_schedule"] == {"enabled": False, "time_zone": "Etc/UTC", "weekly": []}
+    assert (c1["clock_error_bound_seconds"], c2["clock_error_bound_seconds"]) == ("30", "45")
+
+
+def test_no_declared_feed_serves_a_null_feed_object(store) -> None:
+    """QJ: no feed -> feed is an object of three nulls; chargers and connectors stay visible."""
+    result = install(store)
+
+    def drop_feed(content):
+        content["components"] = [c for c in content["components"] if c["component_type"] != "AC_BUS"]
+        topology = content["topology"]
+        dropped = {n["node_id"] for n in topology["nodes"] if n.get("component_id") == "feed-1"}
+        topology["nodes"] = [n for n in topology["nodes"] if n["node_id"] not in dropped]
+        topology["connections"] = [e for e in topology["connections"] if e["from_node"] not in dropped]
+        for entry in content["connector_enable_schedules"]:
+            entry["weekly"] = []
+
+    change_foundation(store, result, drop_feed)
+    body = read(client(store), at=LIMIT_AT).json()
+    assert body["feed"] == {"asset_id": None, "limit_kw": None, "meter_asset_id": None}
+    assert len(body["chargers"][0]["connectors"]) == 2
+    assert "FEED_OR_LIMIT_MISSING" in codes(body, blocking=True)
 
 
 def test_refusals(store) -> None:

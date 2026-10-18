@@ -523,13 +523,17 @@ def ev_foundation_document(
             connectors.append({
                 "asset_id": asset_id(connector_id),
                 "max_kw": _decimal_text(props.get("ev-connector-max-power")),
-                "enabled_schedule": None if schedule is None else {
-                    "enabled": props.get("ev-connector-enabled"),
-                    "time_zone": schedule["time_zone"],
-                    "weekly": [dict(w) for w in schedule.get("weekly") or ()],
+                # QH: always an object; `enabled` is the selected ev-connector-enabled=ENABLED only, and the
+                # weekly service hours come from the same revision's schedule entry (empty when none).
+                "enabled_schedule": {
+                    "enabled": props.get("ev-connector-enabled") == "ENABLED",
+                    "time_zone": None if schedule is None else schedule["time_zone"],
+                    "weekly": [] if schedule is None else [dict(w) for w in schedule.get("weekly") or ()],
                 },
                 "meter_resolution_kwh": _decimal_text(props.get("ev-meter-resolution")),
                 "meter_error_bound_kwh": _decimal_text(props.get("ev-meter-error-bound")),
+                # QI: the configured tolerance, never an observed clock-sync claim.
+                "clock_error_bound_seconds": _decimal_text(props.get("ev-clock-error-bound")),
             })
         chargers.append({
             "asset_id": asset_id(charger["component_id"]),
