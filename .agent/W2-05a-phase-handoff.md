@@ -1,36 +1,29 @@
-# W2-05a phase handoff - run 3 (spec commits 1 and 2 landed)
+# W2-05a phase handoff - run 4 (spec commits 1-3 landed; QE-QG applied)
 
-Branch `task/W2-05a-ev-foundation`, worktree `AssetOpsV1-review5`. Commit 1 `2d8b323d`; QC/QD fix `932ad981`; spec commit 2 `880384d3`. Next run builds spec commit 3 (selected API). Architect rulings Q1-Q8 and QA-QD live in `.agent/W2-05a-build-spec.md` (`D-2026-10-18-w2-05-buildspec`); they are not repeated here.
+Branch `task/W2-05a-ev-foundation`, worktree `AssetOpsV1-review5`. Commit 1 `2d8b323d`; QC/QD `932ad981`; commit 2 `880384d3`; main merged with the QE-QG amendment; spec commit 3 `5a7b46c6`. Architect rulings Q1-Q8, QA-QG live in `.agent/W2-05a-build-spec.md` (`D-2026-10-18-w2-05-buildspec`).
 
-## What landed
+## What landed in commit 3
 
-- **QC/QD (`932ad981`)** `sites/ev_foundation.py:_validate_ev_topology`: a second `AC_BUS` refuses with the path to the extra feed (checked from components, with or without topology). Every `METER` refuses more than one parent and, once a feed is declared, no parent. A charger refuses more than one meter and, once a feed is declared, no meter->feed path. Nonempty schedules still need `_has_supply_path`. Tests in `test_w205a_ev_vocabulary.py::TestTopology` (second feed, second feed without topology, unfed meter, absent feed publishable, absent feed with hours refused).
-- **Commit 2 (`880384d3`)**
-  - `sites/binding_roles.py`: `ROLE_SET_EV_1="ev-roles-1"`, `EV_ROLES_1` (8 roles; required = session event, state, energy per EV_CONNECTOR; `ev_site_import` ONE on METER), `EV_CONNECTOR_STATES`, `EV_CADENCE_PROPERTY_BY_ROLE` (role -> `ev-status-cadence`/`ev-meter-cadence`, events None), `IDENTITY_KWH` closed both ways to the INTERVAL_DELTA role (`_identity_kwh_problem`). `CONVERSION_KINDS` is unchanged.
-  - `contracts/.../source_envelope_v4.py`: `V4_COLD_CHANNEL_MAPPINGS` (the 12 cold entries, byte-identical), `V4_EV_CHANNEL_MAPPINGS` (the 14 c1/c2 tuples + `(site-meter,import)`), `V4_CHANNEL_MAPPINGS` = cold + the 2 reserved W2-00 tuples (now labelled `ev_session_event`/`ev_connector_fault`) + EV, `V4_EV_MAPPING_PROFILE_ID/VERSION` (`simulator-lab-gateway-ev`/1), `V4_CHANNEL_MAPPINGS_BY_PROFILE`. `simulator/.../gateway/mappings.py` now builds the cold gateway set from `V4_COLD_CHANNEL_MAPPINGS` (the same 11 channels as before).
-  - `sites/binding_service.py`: `_V4_TABLE_BY_ROLE_SET` (cold keeps the whole table; EV uses the EV profile table) in the `validate_bindings` closed-table branch; `ev_snapshot_gaps` + EV branch in `acquisition_snapshot` (the role set must be `ev-roles-1`; gaps come from `ev_foundation.ev_blocking_gaps`).
-  - `sites/ev_foundation.py:ev_blocking_gaps(content, bound)`: CONNECTOR_NOT_DECLARED, FEED_OR_LIMIT_MISSING, and per connector METER_NOT_BOUND / SESSION_EVENTS_NOT_BOUND / STATUS_NOT_BOUND. Commit 3's readiness builds on it.
-  - `sites/ev_lab.py:install_ev_lab`: imports `tests/fixtures/w2/ev-lab-001.yaml`, then publishes `conversions/ev-lab-001-bindings.json` (15 bindings, `ev-roles-1`) at Foundation `valid_from` 2026-10-01 through `BindingService.publish`. There is no conversion replay: it would carry no v4 metadata, and EV has no v3 history.
-  - Tests: `test_w205a_ev_roles.py` (25, no DB) and `test_w205a_ev_foundation_postgres.py` (8). The Postgres tests cover persist/reload; v4 metadata equal to each entry; the 6 October snapshot served; missing meter, event and status binding revisions from 2026-10-08 and a missing-limit Foundation revision from 2026-10-12 (via `FoundationService._publish_content_change`), each refusing Draft while 6 October stays served; optional roles absent not blocking; and energy role/conversion refusals. Adjusted: `test_w201_cold_vocabulary` and the gateway `test_source_envelope_v4` table assertions now use the cold table and 29 entries; `test_w202_cold_replay_postgres` binds the reserved session tuple with `entry.role`, because the ledger enforces labelled roles.
+- `backend/assetops_backend/ev_foundation_api.py:build_ev_foundation_router` - `GET /api/sites/{site_code}/ev/foundation?at=`, the cold Access/source gate: 401 `UNAUTHENTICATED`, 403 `SITE_SCOPE_FORBIDDEN`, 404 `SITE_NOT_FOUND` (unknown or non-EV after access), 422 `EV_SELECTION_INVALID` (bad `at`, extra or repeated field), 503 `EV_FOUNDATION_UNAVAILABLE` (Foundation store or gateway-health read). No revision at `at` passes `FoundationRefused` through (404 `FOUNDATION_REVISION_NOT_FOUND`), as cold does. `ev_contact` maps the cold `contact_document` to `{state,as_of,gateway_id,reason}`; gateway = binding set's gateway, else the single registered one. Included in `main.py` after the cold router.
+- `sites/ev_foundation.py:ev_foundation_document` - pure projection with the spec's exact fields. `_gap_items` is the one gap list behind both `ev_blocking_gaps` (Draft gate, output unchanged) and the read. Nonblocking: `SITE_IMPORT_NOT_BOUND` (no `ev_site_import` binding), `SOURCE_NOT_CONTACTED` (contact `NEVER`), `COMMISSIONING_UNCONFIRMED` (always). Messages use the cold shape `{code,role,component_id,asset_id,message,blocking}`. Decimals via `_decimal_text` ("80", "0.001"); cadence `_seconds` = min x 60 (int when whole). QE: Site import = min connector `ev-meter-cadence`.
+- `sites/cold_foundation.py:topology_parts` - the cold topology builder extracted unchanged and shared (cold tests green).
+- QG: `binding_service.py:validate_bindings` refuses `BINDING_SOURCE_ASSET_MISMATCH` for `ev-roles-1` when `SourceRow.asset_id != asset.id`. QF: no code change needed (publish passes `v4_metadata=True`, so a tuple outside the EV profile already gets `BINDING_CHANNEL_V4_UNKNOWN`); test added.
+- Tests: `test_w205a_ev_foundation_api_postgres.py` (9: stocked exact values, contact RECENT/STALE/NEVER, three missing-binding revisions at pinned `at` with the original still READY, optional Site import absent, missing-limit revision, QE minimum cadence, all refusals); `test_w205a_ev_foundation_postgres.py` +3 (QG x2, QF); `test_w205a_ev_roles.py` +1 (main serves the route).
 
-## Checks (run 3)
+## Interpretations to confirm at review (not blocking)
 
-- `test_w205a_ev_vocabulary.py` + `test_w201_cold_vocabulary.py`: 102 passed after QC/QD. `test_w205a_ev_roles.py` + vocab: 95 passed.
-- Postgres, private `assetops_w205a_test`: `test_w205a_ev_foundation_postgres.py` 8 passed. Non-vacuous proof: with the EV branch disabled, 6 failed; reverted.
-- Adjacent (16 files: bindings, S1/S3 roles, W2-00/01/02 Postgres and API): 297 passed, plus 1 cold-vocab table assertion fixed and rerun green.
-- Simulator 271 passed, gateway 233 passed (after the count fix), contracts 6 passed.
+- `enabled_schedule` = `{enabled, time_zone, weekly}`, where `enabled` is the connector's `ev-connector-enabled`; null when the connector has no schedule entry. `ev-clock-error-bound` and the cadence minutes are not echoed outside `bindings[].cadence_seconds`; the spec's field list has no slot for them.
+- `feed` is always an object (`asset_id` null when no feed); `meter_asset_id` is the single METER fed by the feed over AC, else null. Connectors are listed under their charger (SIGNAL edge); the validator refuses orphan connectors.
+- Contact freshness is measured at request time (`clock()`), as the cold read does, not at `at`.
+
+## Checks (run 4)
+
+- Postgres `assetops_w205a_test`: API file 9 passed; EV Foundation file 11 passed; with cold Foundation, S1 bindings, W2-02 replay, EV roles and vocabulary: 152 passed. Roles + health 26 passed.
+- Non-vacuous: QG check disabled -> both QG tests fail; Site import cadence from bound asset -> QE test fails; reverted via `git checkout`.
 - `tools/check-all.ps1`: 10/10.
 
-## Questions for the Architect (none blocks commit 3's structure)
+## Next: spec commit 4 (UI routes and captures)
 
-- **QE, Site import cadence.** `ev-meter-cadence` is a per-connector property, but `ev_site_import` binds the METER. Which value gives `bindings[].cadence_seconds` for the Site import row? The options are a connector's value (which one, if c1 and c2 differ?), the minimum, or null. The fixture has 5 min on both, so the value is the same today.
-- **QF, reserved W2-00 tuples.** They are in `V4_CHANNEL_MAPPINGS` with EV role labels but not in the `simulator-lab-gateway-ev/1` table, so an `ev-roles-1` publication cannot bind them. Please confirm they stay outside the EV profile.
-- **QG, device-to-connector check.** Q1 says each cX device binds the cX connector asset. The fixture test asserts this, but `validate_bindings` does not refuse a c1 device bound to the c2 asset. Ingestion's `EV_CONNECTOR_MISMATCH` compares only the envelope connector to the bound asset. Should publication refuse it, and under which code?
+Per the spec section "Three routes and fidelity proof" and the brief's UI phase rules: client for this read; `ev-foundation`, `ev-readiness`, `ev-sld` via `SiteFoundationFrame.tsx` and the `ColdFoundationViews.tsx` pattern; `APPROVED_TITLE_CHANGES` for `ev-readiness:2` and `ev-sld:1` (append only - W2-04 owns the shared file); `evFoundation.test.tsx` with `expectV69Panels` stocked/missing-role/403/503 plus planted-panel failure; 1440/390 captures with `tools/w1-fidelity-evidence.mjs` (ports 9800-9850 / 6200-6250).
 
-## Next: spec commit 3 (selected API)
-
-1. `backend/assetops_backend/ev_foundation_api.py` beside `cold_foundation_api.py:build_cold_foundation_router`, with `GET /api/sites/{site_code}/ev/foundation?at=`. The response shape, error codes and contact/commissioning rules are in the spec section "Role set, binding and selected read". Use the cold Access/source gate. Decimals are strings; unknowns are null.
-2. A pure readiness/projection in `sites/ev_foundation.py`: `READY_TO_REPORT|CONFIGURATION_INCOMPLETE` from `ev_blocking_gaps`, plus the nonblocking `SITE_IMPORT_NOT_BOUND`, `SOURCE_NOT_CONTACTED` and `COMMISSIONING_UNCONFIRMED`. Cadence uses `EV_CADENCE_PROPERTY_BY_ROLE` (min -> s), pending QE for Site import.
-3. Main include; API tests (stocked, gap revisions at pinned `at`, 401/403/404/422/503, extra query field refused).
-
-Later: commit 4 is the UI routes and captures. Commit 5 is `0024_w2_ev_config`, after W2-04's `0023` lands on this branch; then the final guards, one full backend suite and host suite, and the packet.
+Later: commit 5 is `0024_w2_ev_config` after W2-04's `0023` is merged here; then final guards, one full backend suite and host suite (check no other pytest is running first), frontend suite and the packet.
