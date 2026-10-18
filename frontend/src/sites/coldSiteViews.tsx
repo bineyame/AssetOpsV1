@@ -428,15 +428,18 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
     o.objective.policy_low_deg_c !== null && o.objective.policy_high_deg_c !== null
       ? `policy ${decimal(o.objective.policy_low_deg_c)}–${decimal(o.objective.policy_high_deg_c)} °C`
       : null;
-  const coverage = t.coverage.known_points === null ? null : `coverage ${t.coverage.known_points} / ${t.coverage.expected_points ?? "?"} readings`;
+  // Run-7 card copy: each unavailable clause is omitted rather than rendered as null, zero or a placeholder.
+  const coverage =
+    t.coverage.known_points === null || t.coverage.expected_points === null ? null : `coverage ${t.coverage.known_points} / ${t.coverage.expected_points} readings`;
   const tempNote =
     t.latest_deg_c === null
       ? "No chamber reading for this window"
       : [`${t.episode_count} ${t.episode_count === 1 ? "excursion" : "excursions"}`, `latest ${decimal(t.latest_deg_c)} °C`, policy, coverage].filter(Boolean).join(" · ");
   const b = o.backup_summary;
   const backupChip = b.observed_failure > 0 ? "Degraded" : b.observed_success > 0 ? "Observed start" : "Unknown";
-  const backupNote =
-    b.observed_failure + b.observed_success === 0
+  // Run-7 card copy: actual zero counts only from an assessed selected summary.
+  const backupAssessed = isSelected(o) && b.as_of !== null;
+  const backupNote = !backupAssessed
       ? "Backup result not observed"
       : `${b.attempts} ${b.attempts === 1 ? "start attempt" : "start attempts"} · ${b.observed_success} started · ${b.observed_failure} failed`;
   const coolingChip = { SUPPORTED: "Supported", LIMITED: "Limited", CONTRADICTORY: "Contradictory" }[o.cooling.state] ?? "Unknown";
@@ -476,7 +479,7 @@ function stripEvents(o: ColdOverviewRead): TimelineEvent[] {
     return {
       key: s.step,
       // UTC like the chamber chart beside it; only the Analysis `Measured (EAT)` column is East Africa Time.
-      time: s.at === null ? "—" : hm(s.at),
+      time: s.at === null ? "—" : `${hm(s.at)} UTC`,
       title: `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
       detail: s.state === "MISSING" ? `No accepted ${name.toLowerCase()} report for this chain` : (limitText(s.limitation) ?? undefined),
       tone: s.state === "OBSERVED" ? undefined : s.state === "CONTRADICTORY" ? "danger" : "gap",
@@ -493,7 +496,8 @@ function OverviewScreen(p: ScreenProps) {
   const refused = refusalOf(overview);
   const none = o !== null && !isSelected(o);
   const firstFinding = o?.findings.items.find((f) => f.link !== null) ?? null;
-  const next = o?.needs_attention.find((n) => n.link !== null) ?? null;
+  // Run-7: the Next step is the first ordered attention item with a real destination, with that destination's label.
+  const next = o?.needs_attention.find((n) => coldUiHref(n.link, p.routes) !== null) ?? null;
   const policyNote =
     o !== null && o.objective.policy_low_deg_c !== null && o.objective.policy_high_deg_c !== null
       ? `Policy band ${decimal(o.objective.policy_low_deg_c)}–${decimal(o.objective.policy_high_deg_c)}°C. Gaps between accepted readings remain unmeasured.`
@@ -501,8 +505,8 @@ function OverviewScreen(p: ScreenProps) {
   const temp: ColdTemperatureRead | null = value(temperature);
   const tempRefused = refusalOf(temperature);
   const money = o?.consequence_summary;
-  const attentionLabel = (link: string): string =>
-    link.includes("/cold/findings/") ? "Open Finding →" : link.includes("/cold/backup-chain") ? "Performance › Backup →" : "Evidence →";
+  const attentionLabel = (link: string | null): string =>
+    link === null ? "Not available yet" : link.includes("/cold/findings/") ? "Open Finding →" : link.includes("/cold/backup-chain") ? "Performance › Backup →" : "Evidence →";
   return (
     <>
       {o === null ? null : (
@@ -524,7 +528,7 @@ function OverviewScreen(p: ScreenProps) {
         heading="What happened · power → cooling → product conditions"
         headingId="cold-site-what-happened-heading"
         description={o === null ? undefined : "No incident recorded"}
-        actions={firstFinding === null ? undefined : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open Finding</ToLink>}
+        actions={firstFinding === null ? undefined : <ToLink href={coldUiHref(firstFinding.link, p.routes)}>Open Finding →</ToLink>}
       >
         {refused !== null ? (
           <RefusedGap id="cold-site-what-happened" refusal={refused} onRetry={p.retry} />
@@ -570,14 +574,14 @@ function OverviewScreen(p: ScreenProps) {
                 key: n.code,
                 title: n.text,
                 body: limitText(n.limitation) ?? "",
-                action:
-                  n.link === null ? undefined : (
-                    <p className="cold-panel-link">
-                      <ToLink href={coldUiHref(n.link, p.routes)} data={{ "data-attention-link": n.code }}>
-                        {attentionLabel(n.link)}
-                      </ToLink>
-                    </p>
-                  ),
+                // Run-7: a null destination shows noninteractive "Not available yet".
+                action: (
+                  <p className="cold-panel-link">
+                    <ToLink href={coldUiHref(n.link, p.routes)} data={{ "data-attention-link": n.code }}>
+                      {attentionLabel(n.link)}
+                    </ToLink>
+                  </p>
+                ),
               }))}
             />
           )}
@@ -616,9 +620,12 @@ function OverviewScreen(p: ScreenProps) {
           ) : next === null ? (
             <Gap id="cold-site-next">No recorded next step</Gap>
           ) : (
-            <p className="cold-panel-link" data-cold-next={next.code}>
-              <ToLink href={coldUiHref(next.link, p.routes)}>{next.text} →</ToLink>
-            </p>
+            <div data-cold-next={next.code}>
+              <h3>{next.text}</h3>
+              <p className="cold-panel-link">
+                <ToLink href={coldUiHref(next.link, p.routes)}>{attentionLabel(next.link)}</ToLink>
+              </p>
+            </div>
           )}
         </Panel>
       </div>

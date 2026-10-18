@@ -493,7 +493,35 @@ describe("W2-04: cold Overview", () => {
     expect(attention.querySelector('[data-attention-link="COLD_TRANSFER_UNKNOWN"]')?.getAttribute("href")).toBe(`/sites/COLD-001/performance/backup${Q}`);
     expect(text(panelTitled("Bounded money consequence"))).toContain("Not priced");
     expect(text(panelTitled("Next step"))).toContain("Automatic generator start failed in the accepted record");
+    // Run-7 link and card copy.
+    expect(panelTitled("Next step").querySelector("h3")?.textContent).toBe("Automatic generator start failed in the accepted record");
+    expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Open Finding →");
+    expect(attention.querySelector('[data-attention-link="COLD_START_FAILURE"]')?.textContent).toBe("Open Finding →");
+    expect(attention.querySelector('[data-attention-link="COLD_TRANSFER_UNKNOWN"]')?.textContent).toBe("Performance › Backup →");
+    expect(text(document.querySelector('[data-cold-card="temperature"]')!)).toContain("1 excursion · latest 4.6 °C · policy 2–4 °C · coverage 13 / 13 readings");
+    expect(text(document.querySelector('[data-cold-card="backup"]')!)).toContain("1 start attempt · 0 started · 1 failed");
+    expect(Array.from(happened.querySelectorAll("[data-timeline-event]")).map((e) => text(e))[0]).toContain("16:11 UTC");
     expect(panelTitled("Chamber temperature").querySelectorAll("[data-cold-point]").length).toBe(4);
+  });
+
+  it("a null attention destination is noninteractive 'Not available yet'; Next step takes the first real destination", async () => {
+    const o: ColdOverviewRead = {
+      ...STOCKED_OVERVIEW,
+      needs_attention: [{ ...STOCKED_OVERVIEW.needs_attention[0], link: null }, STOCKED_OVERVIEW.needs_attention[1]],
+      temperature_summary: { ...STOCKED_OVERVIEW.temperature_summary, coverage: { known_points: 13, expected_points: null, ratio: null } },
+      backup_summary: { ...STOCKED_OVERVIEW.backup_summary, as_of: null },
+    };
+    renderCold(ROUTES[0][1], { ...STOCKED, overview: ok(o) });
+    await settledScreen();
+    const noop = panelTitled("Needs attention").querySelector('[data-attention-link="COLD_START_FAILURE"]')!;
+    expect(noop.tagName).toBe("SPAN");
+    expect(noop.textContent).toBe("Not available yet");
+    expect(panelTitled("Next step").querySelector("h3")?.textContent).toBe("Transfer-switch position was not observed");
+    expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Performance › Backup →");
+    const temp = text(document.querySelector('[data-cold-card="temperature"]')!);
+    expect(temp).not.toContain("coverage");
+    expect(temp).not.toContain("?");
+    expect(text(document.querySelector('[data-cold-card="backup"]')!)).toContain("Backup result not observed");
   });
 
   it("pending: withholds the money consequence and states the waiting evidence", async () => {
@@ -510,6 +538,7 @@ describe("W2-04: cold Overview", () => {
     expect(money).toContain("Money consequence withheld");
     expect(money).not.toContain("Not priced");
     expect(panelTitled("Next step").querySelector("a")?.getAttribute("href")).toBe(`/sites/COLD-001/evidence${Q}`);
+    expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Evidence →");
   });
 });
 
