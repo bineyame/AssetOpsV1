@@ -13,10 +13,12 @@ import hashlib
 import importlib.util
 import json
 import os
-from datetime import timedelta, timezone
+from datetime import timedelta
 from uuid import uuid4
 
 import pytest
+
+from assetops_backend.financials.cold_consequence import selected_instant
 
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -49,10 +51,9 @@ def _migration():
     return module
 
 
-def _z(moment) -> str:
-    """Q3: UTC `Z`, whole seconds, or six fractional digits when microseconds are nonzero (never truncated)."""
-    utc = moment.astimezone(timezone.utc)
-    return utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ" if utc.microsecond else "%Y-%m-%dT%H:%M:%SZ")
+# Q3: UTC `Z`, whole seconds, or six fractional digits when microseconds are nonzero (never truncated); the one
+# Python spelling lives in the pure derivation module and the golden vectors below pin SQL against it.
+_z = selected_instant
 
 
 def dirty_key(cause, locator, t, s, start, end, room) -> str:

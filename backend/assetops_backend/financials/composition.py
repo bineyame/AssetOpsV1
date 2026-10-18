@@ -15,11 +15,13 @@ from assetops_backend.financials.adapters.postgres_consequence_store import (
 from assetops_backend.financials.assumption_read import AssumptionReadService
 from assetops_backend.financials.consequence_history import ConsequenceHistoryService
 from assetops_backend.financials.consequence_read import ConsequenceReadService
+from assetops_backend.financials.cold_recompute import ColdConsequenceWorker
 from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
 __all__ = ["Appended", "AssumptionStoreUnavailable", "ConsequenceStoreUnavailable", "PostgresAssumptionStore",
            "PostgresConsequenceStore", "Published", "build_assumption_read_service", "build_assumption_store",
            "build_consequence_history_service", "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
+           "build_cold_consequence_store", "build_cold_consequence_worker",
            "CONSEQUENCE_UNAVAILABLE"]
 
 # Store failures the consequence read and the recompute worker report as typed unavailable.
@@ -62,3 +64,14 @@ def build_consequence_history_service(database_url: str | None) -> ConsequenceHi
 def build_recompute_worker(database_url: str | None) -> ConsequenceRecomputeWorker:
     return ConsequenceRecomputeWorker(PostgresConsequenceStore(database_url), PostgresAssumptionStore(database_url),
                                       CONSEQUENCE_UNAVAILABLE)
+
+
+def build_cold_consequence_store(database_url: str | None) -> PostgresConsequenceStore:
+    """W2-04: the consequence store with the S4-05 link-row reader on its own connection (cold source gate)."""
+    from assetops_backend.evidence.composition import build_link_rows_reader
+
+    return PostgresConsequenceStore(database_url, link_rows=build_link_rows_reader())
+
+
+def build_cold_consequence_worker(database_url: str | None) -> ColdConsequenceWorker:
+    return ColdConsequenceWorker(build_cold_consequence_store(database_url), CONSEQUENCE_UNAVAILABLE)

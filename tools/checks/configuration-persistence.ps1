@@ -713,7 +713,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $provenanceTables = @('evidence_publication', 'batch_publication_link')
     $ledgerConflictAllowed = "(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b"
     $provenanceInsertsSeen = @{ 'evidence_publication' = 0; 'batch_publication_link' = 0 }
-    # W2-04: per-table owner INSERTs into the cold consequence tables (Q10: asserted nonvacuous from spec commit 2).
+    # W2-04: per-table owner INSERTs into the cold consequence tables (Q10: each asserted >= 1 below).
     $coldConsequenceInsertsSeen = @{ 'cold_consequence_revision' = 0; 'cold_consequence_evidence' = 0
         'cold_consequence_work_attempt' = 0 }
     # W2-00 (D-2026-10-17-w2-00-answers; design section 7): the ledger alone inserts event evidence, rejections and
@@ -1086,6 +1086,14 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($provenanceInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no ledger INSERT statement into $table in $ledgerWriter, so the " +
                 "provenance writer check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    # W2-04 Q10 (enabled in spec commit 2): the consequence store must really INSERT into each cold consequence
+    # table, so the per-table insert-only and sole-owner checks above cannot pass on an empty set.
+    foreach ($table in $coldConsequenceTables) {
+        if ($coldConsequenceInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $consequenceWriter, so the cold consequence " +
+                "insert-only check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
     # W2-03: the cold writer policy fails closed. Each declared owner module must exist, and the rule-8 mutation

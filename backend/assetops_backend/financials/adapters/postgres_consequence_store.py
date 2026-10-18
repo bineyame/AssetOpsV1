@@ -20,13 +20,14 @@ import json
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
+from assetops_backend.financials import cold_consequence as cc
 from assetops_backend.financials import fuel_cost as fc
 
 RECOMPUTE_ACTOR = "service:assetops-consequence-recompute"
@@ -50,9 +51,12 @@ def _at(value: str | None) -> datetime | None:
 
 
 class PostgresConsequenceStore:
-    def __init__(self, database_url: str | None) -> None:
+    def __init__(self, database_url: str | None, *, link_rows: Callable[..., list] | None = None) -> None:
         self._database_url = database_url
         self._engine: Engine | None = None
+        # W2-04: the S4-05 link-row reader on the caller's connection (`evidence.composition.build_link_rows_reader`),
+        # so the cold worker classifies its exact evidence inside its own snapshot.
+        self._link_rows = link_rows
 
     def _connect(self) -> Engine:
         if not self._database_url:
@@ -505,3 +509,276 @@ class PostgresConsequenceStore:
                     f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s ORDER BY {order}"), scope)]
             return out
         return self._run(work, "REPEATABLE READ")
+
+    # ---- W2-04: cold consequence (migration 0023) -------------------------------------------------------------
+    # `.agent/W2-04-build-spec.md` "Money schema `0023` and rules", Q5/Q6. This store alone INSERTs
+    # `cold_consequence_revision`, `cold_consequence_evidence` and `cold_consequence_work_attempt`; work rows come
+    # only from the 0023 triggers. Server times (`created_at`, `finished_at`) are always the column defaults: no
+    # method accepts a client timestamp. The mini-grid methods above are unchanged.
+    #
+    # `cold_unit` opens one REPEATABLE READ transaction whose first statement takes the work lock
+    # `pg_advisory_xact_lock(hashtextextended('cold_consequence:' || work_id, 0))`. Its snapshot starts at that
+    # statement, so a concurrent worker's success committed while this one waited is caught by the unique
+    # constraints (attempt number, consequence basis) on write; the worker then records the failure through
+    # `cold_record_failure`, which re-checks success under the lock at READ COMMITTED and records nothing when
+    # the work already succeeded.
+
+    @contextmanager
+    def cold_unit(self, tenant_id: UUID, site_id: UUID, work_id: UUID) -> Iterator["ColdUnit"]:
+        try:
+            with self._connect().connect().execution_options(isolation_level="REPEATABLE READ") as c:
+                with c.begin():
+                    c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('cold_consequence:' || :w, 0))"),
+                              {"w": str(work_id)})
+                    yield ColdUnit(c, tenant_id, site_id, work_id, self._link_rows)
+        except (OperationalError, ProgrammingError) as error:
+            raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+
+    def cold_record_failure(self, tenant_id: UUID, site_id: UUID, work_id: UUID, error_code: str) -> int:
+        """Append a typed FAILED attempt in a fresh transaction under the work lock; returns its number, or 0 when
+        the work is not this Site's or already has a SUCCEEDED attempt (nothing is recorded)."""
+        def work(c: Connection) -> int:
+            c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('cold_consequence:' || :w, 0))"),
+                      {"w": str(work_id)})
+            p = {"t": tenant_id, "s": site_id, "w": work_id}
+            if c.execute(text("SELECT 1 FROM cold_consequence_work WHERE tenant_id = :t AND site_id = :s "
+                              "AND id = :w"), p).first() is None:
+                return 0
+            if c.execute(text("SELECT 1 FROM cold_consequence_work_attempt WHERE tenant_id = :t AND site_id = :s "
+                              "AND work_id = :w AND outcome = 'SUCCEEDED'"), p).first() is not None:
+                return 0
+            return _cold_attempt(c, tenant_id, site_id, work_id, "FAILED", error_code, [])
+        return self._run(work)
+
+    def cold_pending_work(self, tenant_id: UUID, site_id: UUID) -> list[dict[str, Any]]:
+        """Cold work of this Site with no SUCCEEDED attempt in `(enqueued_at, id)` order, with its latest attempt
+        (`last_attempt_no`, `last_outcome`, `last_finished_at`; null before any attempt)."""
+        def work(c: Connection):
+            return [dict(r._mapping) for r in c.execute(text(
+                "SELECT w.*, last.attempt_no AS last_attempt_no, last.outcome AS last_outcome, "
+                "last.finished_at AS last_finished_at FROM cold_consequence_work w "
+                "LEFT JOIN LATERAL (SELECT a.attempt_no, a.outcome, a.finished_at FROM cold_consequence_work_attempt a "
+                "WHERE a.tenant_id = w.tenant_id AND a.site_id = w.site_id AND a.work_id = w.id "
+                "ORDER BY a.attempt_no DESC LIMIT 1) last ON true WHERE w.tenant_id = :t AND w.site_id = :s "
+                "AND NOT EXISTS (SELECT 1 FROM cold_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+                "AND a.site_id = w.site_id AND a.work_id = w.id AND a.outcome = 'SUCCEEDED') "
+                "ORDER BY w.enqueued_at, w.id"), {"t": tenant_id, "s": site_id})]
+        return self._run(work, "REPEATABLE READ")
+
+    @contextmanager
+    def cold_claim_site(self, tenant_id: UUID, site_id: UUID) -> Iterator[bool]:
+        """The cold runner's Site claim: a session `pg_try_advisory_lock` keyed by `cold_consequence_runner:` plus
+        the Site on one dedicated connection, released in `finally` (invalidated if the unlock cannot run)."""
+        try:
+            conn = self._connect().connect().execution_options(isolation_level="AUTOCOMMIT")
+        except (OperationalError, ProgrammingError) as error:
+            raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+        key = {"k": COLD_RUNNER_LOCK_PREFIX + str(site_id)}
+        held = False
+        try:
+            try:
+                held = bool(conn.execute(text("SELECT pg_try_advisory_lock(hashtextextended(:k, 0))"),
+                                         key).scalar_one())
+            except (OperationalError, ProgrammingError) as error:
+                raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+            yield held
+        finally:
+            try:
+                if held:
+                    conn.execute(text("SELECT pg_advisory_unlock(hashtextextended(:k, 0))"), key)
+            except Exception:  # noqa: BLE001 - never pool a connection that may still hold the claim
+                conn.invalidate()
+            finally:
+                conn.close()
+
+    def cold_rows(self, tenant_id: UUID, site_id: UUID) -> dict[str, list[dict[str, Any]]]:
+        """Raw cold consequence rows of one Site (tests and diagnostics)."""
+        scope = {"t": tenant_id, "s": site_id}
+
+        def work(c: Connection):
+            out = {}
+            for table, order in (("cold_consequence_revision", "created_at, id"),
+                                 ("cold_consequence_evidence", "consequence_revision_id, evidence_id, use"),
+                                 ("cold_consequence_work", "enqueued_at, id"),
+                                 ("cold_consequence_work_attempt", "work_id, attempt_no")):
+                out[table] = [dict(r._mapping) for r in c.execute(text(
+                    f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s ORDER BY {order}"), scope)]
+            return out
+        return self._run(work, "REPEATABLE READ")
+
+
+COLD_RUNNER_LOCK_PREFIX = "cold_consequence_runner:"
+
+
+def _cold_attempt(c: Connection, tenant_id: UUID, site_id: UUID, work_id: UUID, outcome: str,
+                  error_code: str | None, revision_ids: list[UUID]) -> int:
+    n = c.execute(text("SELECT count(*) FROM cold_consequence_work_attempt WHERE tenant_id = :t AND site_id = :s "
+                       "AND work_id = :w"), {"t": tenant_id, "s": site_id, "w": work_id}).scalar_one() + 1
+    c.execute(text(
+        "INSERT INTO cold_consequence_work_attempt (id, tenant_id, site_id, work_id, attempt_no, outcome, error_code, "
+        "consequence_revision_ids) VALUES (:id, :t, :s, :w, :n, :o, :code, CAST(:ids AS jsonb))"),
+        {"id": uuid4(), "t": tenant_id, "s": site_id, "w": work_id, "n": n, "o": outcome, "code": error_code,
+         "ids": json.dumps([str(x) for x in revision_ids])})
+    return n
+
+
+def _low(value: Any) -> str | None:
+    return None if value is None else str(value).lower()
+
+
+class ColdUnit:
+    """One locked, repeatable-read cold work transaction (see `PostgresConsequenceStore.cold_unit`)."""
+
+    def __init__(self, c: Connection, tenant_id: UUID, site_id: UUID, work_id: UUID,
+                 link_rows: Callable[..., list] | None) -> None:
+        self._c = c
+        self._p = {"t": tenant_id, "s": site_id, "w": work_id}
+        self._link_rows = link_rows
+        self.tenant_id, self.site_id, self.work_id = tenant_id, site_id, work_id
+
+    def work(self) -> dict[str, Any] | None:
+        """This Site's work row with `succeeded` (a SUCCEEDED attempt is visible), or None when foreign/missing."""
+        row = self._c.execute(text(
+            "SELECT w.*, EXISTS (SELECT 1 FROM cold_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+            "AND a.site_id = w.site_id AND a.work_id = w.id AND a.outcome = 'SUCCEEDED') AS succeeded "
+            "FROM cold_consequence_work w WHERE w.tenant_id = :t AND w.site_id = :s AND w.id = :w"), self._p).first()
+        return None if row is None else dict(row._mapping)
+
+    def targets(self, work: dict[str, Any]) -> list[UUID]:
+        """The exact cold FindingRevisions a work item derives for. FINDING: its revision. EPISODE: the cold
+        revisions whose claim names its episode revision (none for an episode without a warranted Finding).
+        SOURCE_GATE: the latest cold FindingRevision per Finding of the work's window and room whose cited
+        evidence, or its claimed episode revision's evidence, came from the linked batch."""
+        c, p = self._c, self._p
+        if work["cause"] == "FINDING_REVISION_APPENDED":
+            return [work["finding_revision_id"]]
+        if work["cause"] == "EPISODE_REVISION_APPENDED":
+            return list(c.execute(text(
+                "SELECT r.id FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s "
+                "AND r.domain = 'cold_chain' AND r.claim->>'episode_revision_id' = :e ORDER BY r.created_at, r.id"),
+                {**p, "e": str(work["episode_revision_id"])}).scalars())
+        return list(c.execute(text(
+            "SELECT r.id FROM finding_revision r JOIN assessment_revision a ON a.tenant_id = r.tenant_id "
+            "AND a.site_id = r.site_id AND a.id = r.assessment_revision_id "
+            "WHERE r.tenant_id = :t AND r.site_id = :s AND r.domain = 'cold_chain' "
+            "AND r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x WHERE x.tenant_id = r.tenant_id "
+            "AND x.site_id = r.site_id AND x.finding_id = r.finding_id) "
+            "AND a.window_start = :ws AND a.window_end = :we "
+            "AND cold_consequence_room(a.tenant_id, a.site_id, a.id) = :room "
+            "AND (EXISTS (SELECT 1 FROM finding_revision_evidence l JOIN accepted_evidence ev "
+            "ON ev.tenant_id = l.tenant_id AND ev.site_id = l.site_id AND ev.id = l.evidence_id "
+            "WHERE l.tenant_id = r.tenant_id AND l.site_id = r.site_id AND l.finding_revision_id = r.id "
+            "AND ev.batch_id = :b) OR EXISTS (SELECT 1 FROM cold_episode_evidence l JOIN accepted_evidence ev "
+            "ON ev.tenant_id = l.tenant_id AND ev.site_id = l.site_id AND ev.id = l.evidence_id "
+            "WHERE l.tenant_id = r.tenant_id AND l.site_id = r.site_id "
+            "AND CAST(l.episode_revision_id AS text) = r.claim->>'episode_revision_id' AND ev.batch_id = :b)) "
+            "ORDER BY r.created_at, r.id"),
+            {**p, "ws": work["window_start"], "we": work["window_end"], "room": work["room_asset_id"],
+             "b": work["publication_batch_id"]}).scalars())
+
+    def basis(self, finding_revision_id: UUID) -> cc.ColdBasis | None:
+        """The exact basis of one cold FindingRevision in this snapshot, or None when the revision is not this
+        Site's cold revision. Missing episode/assessment parts are None for `check_basis` to refuse."""
+        c, p = self._c, {**self._p, "r": finding_revision_id}
+        fr = c.execute(text(
+            "SELECT r.id, r.finding_id, r.lifecycle, r.basis_sha256, r.assessment_revision_id, r.claim "
+            "FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :r "
+            "AND r.domain = 'cold_chain'"), p).first()
+        if fr is None:
+            return None
+        claim = fr.claim if isinstance(fr.claim, dict) else {}
+        try:
+            episode_revision = UUID(str(claim.get("episode_revision_id")))
+        except ValueError:
+            episode_revision = None
+        er = None if episode_revision is None else c.execute(text(
+            "SELECT er.id, er.episode_id, er.assessment_revision_id, er.basis_sha256, er.claim_level, "
+            "er.degree_minutes_low, er.degree_minutes_high, er.coverage, e.kind FROM cold_episode_revision er "
+            "JOIN cold_episode e ON e.tenant_id = er.tenant_id AND e.site_id = er.site_id AND e.id = er.episode_id "
+            "WHERE er.tenant_id = :t AND er.site_id = :s AND er.id = :e"), {**p, "e": episode_revision}).first()
+        a = c.execute(text(
+            "SELECT a.id, a.basis_sha256, a.window_start, a.window_end, run.knowledge_cutoff, "
+            "cold_consequence_room(a.tenant_id, a.site_id, a.id) AS room FROM assessment_revision a "
+            "JOIN analytic_run run ON run.tenant_id = a.tenant_id AND run.site_id = a.site_id "
+            "AND run.id = a.analytic_run_id WHERE a.tenant_id = :t AND a.site_id = :s AND a.id = :a"),
+            {**p, "a": fr.assessment_revision_id}).first()
+        episode_links = [] if er is None else [cc.EvidenceUse(str(x[0]), x[1], x[2]) for x in c.execute(text(
+            "SELECT evidence_id, use, reason FROM cold_episode_evidence WHERE tenant_id = :t AND site_id = :s "
+            "AND episode_revision_id = :e ORDER BY evidence_id, use"), {**p, "e": er.id}).all()]
+        cited = [str(x) for x in c.execute(text(
+            "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s "
+            "AND finding_revision_id = :r ORDER BY evidence_id"), p).scalars()]
+        evidence = cc.merged_evidence(episode_links, cited)
+        ids = sorted({e.evidence_id for e in evidence})
+        if ids and self._link_rows is None:
+            raise RuntimeError("no S4-05 link reader is configured for the cold consequence source gate")
+        rows = tuple(self._link_rows(c, self.tenant_id, self.site_id, ids)) if ids else ()
+        return cc.ColdBasis(
+            tenant_id=str(self.tenant_id).lower(), site_id=str(self.site_id).lower(),
+            finding_revision_id=str(fr.id), finding_id=str(fr.finding_id), finding_lifecycle=fr.lifecycle,
+            finding_basis_sha256=fr.basis_sha256, finding_assessment_revision_id=str(fr.assessment_revision_id),
+            claim=claim,
+            episode_revision_id=None if er is None else str(er.id),
+            episode_id=None if er is None else str(er.episode_id),
+            episode_kind=None if er is None else er.kind,
+            episode_assessment_revision_id=None if er is None else str(er.assessment_revision_id),
+            episode_basis_sha256=None if er is None else er.basis_sha256,
+            claim_level=None if er is None else er.claim_level,
+            degree_minutes_low=None if er is None else er.degree_minutes_low,
+            degree_minutes_high=None if er is None else er.degree_minutes_high,
+            coverage=None if er is None else er.coverage,
+            assessment_revision_id=None if a is None else str(a.id),
+            assessment_basis_sha256=None if a is None else a.basis_sha256,
+            window_start=None if a is None else a.window_start, window_end=None if a is None else a.window_end,
+            known_at=None if a is None else a.knowledge_cutoff, room_asset_id=None if a is None else _low(a.room),
+            evidence=evidence, link_rows=rows)
+
+    def append(self, consequence: cc.ColdConsequence) -> tuple[UUID, bool]:
+        """Store one derived consequence idempotently: an identical `(finding_revision_id, kind, basis)` returns its
+        ID (`True` = replayed); otherwise revision `max+1` of the Finding/kind chain with `prior_revision_id`,
+        after checking the predecessor is the same Finding and kind (Q5), under a Finding/kind lock."""
+        c, k = self._c, consequence
+        p = {"t": self.tenant_id, "s": self.site_id, "fr": k.finding_revision_id, "f": k.finding_id, "k": k.kind}
+        c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('cold_consequence_finding:' || :f || ':' "
+                       "|| :k, 0))"), p)
+        found = c.execute(text(
+            "SELECT id FROM cold_consequence_revision WHERE tenant_id = :t AND site_id = :s "
+            "AND finding_revision_id = :fr AND kind = :k AND consequence_basis_sha256 = :b"),
+            {**p, "b": k.consequence_basis_sha256}).scalar_one_or_none()
+        if found is not None:
+            return found, True
+        prior = c.execute(text(
+            "SELECT cr.id, cr.revision_no, cr.kind, r.finding_id FROM cold_consequence_revision cr "
+            "JOIN finding_revision r ON r.tenant_id = cr.tenant_id AND r.site_id = cr.site_id "
+            "AND r.id = cr.finding_revision_id WHERE cr.tenant_id = :t AND cr.site_id = :s AND cr.kind = :k "
+            "AND r.finding_id = :f ORDER BY cr.revision_no DESC LIMIT 1"), p).first()
+        if prior is not None and (str(prior.finding_id) != str(k.finding_id) or prior.kind != k.kind):
+            raise RuntimeError(f"cold consequence predecessor {prior.id} is not Finding {k.finding_id}/{k.kind}")
+        rid = uuid4()
+        c.execute(text(
+            "INSERT INTO cold_consequence_revision (id, tenant_id, site_id, finding_revision_id, episode_revision_id, "
+            "assessment_revision_id, revision_no, prior_revision_id, kind, state, reason, window_start, window_end, "
+            "room_asset_id, overlap_group, quantity_unit, quantity_low, quantity_high, amount_low, amount_high, "
+            "currency, finding_basis_sha256, consequence_basis_sha256, model_id, source_classification, "
+            "source_gate_sha256, assumption_revision_ids, limitation) VALUES (:id, :t, :s, :fr, :er, :ar, :n, "
+            ":prior, :k, :state, :reason, :ws, :we, :room, :group, :unit, CAST(:ql AS numeric), "
+            "CAST(:qh AS numeric), NULL, NULL, NULL, :fb, :cb, :model, :cls, :gate, CAST(:assumptions AS jsonb), "
+            ":limitation)"),
+            {**p, "id": rid, "er": k.episode_revision_id, "ar": k.assessment_revision_id,
+             "n": 1 if prior is None else prior.revision_no + 1, "prior": None if prior is None else prior.id,
+             "state": k.state, "reason": k.reason, "ws": k.window_start, "we": k.window_end,
+             "room": k.room_asset_id, "group": k.overlap_group, "unit": k.quantity_unit, "ql": k.quantity_low,
+             "qh": k.quantity_high, "fb": k.finding_basis_sha256, "cb": k.consequence_basis_sha256,
+             "model": k.model_id, "cls": k.source_classification, "gate": k.source_gate_sha256,
+             "assumptions": json.dumps(list(k.assumption_revision_ids)), "limitation": k.limitation})
+        if k.evidence:
+            c.execute(text(
+                "INSERT INTO cold_consequence_evidence (consequence_revision_id, tenant_id, site_id, evidence_id, "
+                "use, reason) VALUES (:r, :t, :s, :e, :u, :why)"),
+                [{"r": rid, "t": self.tenant_id, "s": self.site_id, "e": e.evidence_id, "u": e.use,
+                  "why": e.reason} for e in k.evidence])
+        return rid, False
+
+    def succeed(self, revision_ids: list[UUID]) -> int:
+        """Append the SUCCEEDED attempt with the exact returned IDs (`[]` for a no-op) in this transaction."""
+        return _cold_attempt(self._c, self.tenant_id, self.site_id, self.work_id, "SUCCEEDED", None, revision_ids)
