@@ -1,4 +1,4 @@
-# W2-04 phase handoff - run 4 (spec commits 1-2 COMPLETE, rulings applied; commit 3 NOT STARTED)
+# W2-04 phase handoff - run 5 (spec commits 1-3 COMPLETE; commit 3 questions Q-R1..Q-R9 open; commit 4 NOT STARTED)
 
 Branch `task/W2-04-cold-site-evidence-money`. Nothing is merged. Private DB `assetops_w204_test`; environment in
 the scratchpad file `w204env.sh` (PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASSETOPS_GUARD_PYTHON`, `PY`, cd
@@ -7,7 +7,61 @@ the scratchpad file `w204env.sh` (PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASS
 - Spec commit 1: `11abf439` (0023 schema), `07e51a0d` (Q1-Q10 alignment), `527d5342` (rule-8 policy and probes).
 - Spec commit 2: `bf3dd9aa` (derivation, store, worker, Q10 guard, tests), `cc6f83bf` (Q10 inserts-unseen probes).
 
-## Run 4 (this run): rulings applied, commit 3 surveyed but not built (stopped at context budget)
+## Run 5 (this run): spec commit 3 built (five cold Site reads); commit 4 next
+
+- `c3178afd` (one spec commit):
+  - `analytics/cold_site_reads.py:ColdSiteReadService` (pure; no SQLAlchemy) and `cold_site_api.py:build_cold_site_router`
+    (`/overview`, `/evidence`, `/evidence/analysis`, `/financials`, `/financial-assumptions`), mounted in
+    `main.py:create_app` after the W2-03 router; the consequence store from `build_cold_consequence_store`, disposed at shutdown.
+  - `ColdReadService` (assessment adapter) gains caller-connection reads: `within`, `selection_on`, `envelope_on`,
+    `temperature_on`, `backup_on`, `current_findings_on`, `basis_revisions_on` (a cold run stores its exact
+    `signal_binding_revision` IDs in `analytic_run.binding_set_revision_ids`), `accepted_on`, `source_facts_on` and
+    `source_contacts_on` (the latest diagnostic per gateway received at or before `min(known_at, to)`).
+  - The consequence store gains `cold_heads_on` (the highest revision per exact selected FindingRevision and kind) and
+    `cold_pending_on` (overlapping work with no SUCCEEDED attempt).
+  - Source contact follows ruling line 41 (`source_contact`). Money reason and limits use `SCREEN_WORDING`/`screen_sentences`.
+    A `known_at` later than the watermark, or a time finer than microseconds, is 422 `COLD_TIME_INVALID`.
+- Evidence on `c3178afd`:
+  - `test_w204_cold_reads.py` 16 passed (12 pure contact cases, 1 pure refusal test, excursion, late-reading pending then
+    historical, missing-probe plus an empty window).
+  - Adjacent run (new file + `test_w204_cold_worker.py` + `test_w203_cold_reads_postgres.py`): 25 passed, 0 failed,
+    0 skipped, 6m41s (before an `_open` -> `_selected` rename the architecture check required); after the rename the new file alone: 16 passed, 48 s.
+  - Rule-8 cold probe set with `--seam`: all 55 cold probes and controls (W2-03 and W2-04) were run: 46/46 CAUGHT, 9/9 controls ALLOWED, "tree restored", exit 0, 762 s. `tools/check-architecture.ps1`: passed (70 s, with `ASSETOPS_GUARD_PYTHON` set).
+- Built but needing a ruling (the spec does not give these, so each is a reading, not a decision):
+  1. Capability predicates. `TEMPERATURE_POINT` needs >=1 known point. `EXCURSION_BOUNDS` needs the policy, >=2 points,
+     coverage >=0.8 and no gap >10 min. `BACKUP_START_RESULT` needs an observed success or failure chain.
+     `TRANSFER_POSITION` needs an observed TRANSFER step. `COOLING_RESPONSE` needs an accepted `compressor_state` and
+     >=2 points. `PRODUCT_EXPOSURE` needs an eligible excursion (OBSERVED/BOUNDED, exposure Finding) plus bounds.
+     LIMITED means partial; CONTRADICTORY comes from a contradictory W2-03 state or step. `required_roles` are in
+     `REQUIRED_ROLES`. The coverage of the event claims (backup/transfer) is null-valued.
+  2. `latest_chain_id` is the `correlation_id` of the chain with the latest anchor. `causal_strip` shows that chain's steps.
+  3. `last_accepted_at` is the latest accepted `source_time` (the same fact `fact_age` uses), not `decided_at`.
+  4. Source rows are the selected runs' bound `(source_id, role)` channels, in `cold-roles-1` order.
+  5. Contact-limitation sentences for the five UNKNOWN causes (`CONTACT_*` constants) are implementer wording.
+  6. Money is WITHHELD while the read is `PENDING_RECOMPUTE` or overlapping cold work has no success. The reason is
+     `New evidence is waiting to be assessed` (or the `COLD_RECOMPUTE_FAILED` sentence when the last attempt failed).
+     If a group has more than one head, the latest created is used. Heads are selected by the exact FindingRevision
+     selected at the cutoff, without `created_at <= known_at`, because money is derived after its Finding.
+  7. `known_at` is compared only when a watermark exists. Analysis rows all have `record_target_state:'UNAVAILABLE'`,
+     `link:null` and `Analysis view not available for this cold record`: this commit has no route proof for the Site
+     Evidence exact record.
+- Exact questions (these pieces are left out or null; everything else is built):
+  - Q-R1 `/overview.needs_attention`: what are the five `code` values (pending recompute, probe gap, observed start
+    failure, unknown transfer, missing policy) and their `text` wording? The key is omitted.
+  - Q-R2 `/overview` `cooling` and `maintenance`: what is the field shape of each card-specific capability gap? Omitted.
+  - Q-R3 `/overview.objective.text`: what is the wording? Omitted; policy, room, `as_of` and `limitation` are present.
+  - Q-R4 `/financials.not_included[].text` for `STOCK_VALUE_UNDECLARED`, `EXPOSURE_RULE_UNAPPROVED`,
+    `SPOILAGE_UNPROVED` and `REPAIR_COST_ABSENT`: what is the wording? Null for now (`SOURCE_GATE_WITHHELD` uses its ruled sentence).
+  - Q-R5 `/financials.consequences[].exact_basis`: is it a string or an object, and with which fields? Omitted.
+  - Q-R6 `/evidence.links.foundation`: the cold Foundation route accepts only `at`, so it cannot carry
+    `from,to,known_at`. Should it be `?at={to}`, or omitted? Omitted.
+  - Q-R7 `/evidence/analysis.claim_rules[].requirement`: what is the wording? Omitted.
+  - Q-R8 Should a source row carry `contact_at` (the ruling's "null contact time")? It is not in the spec shape. Not added.
+  - Q-R9 May analysis rows become `PROVED` with a Site Evidence record link? That needs an integration test mounting
+    `evidence_api` against the cold replay.
+- Next: commit 4 (frontend five routes plus the retro corrections), after the Q-R answers; then commit 5.
+
+## Run 4: rulings applied, commit 3 surveyed but not built (stopped at context budget)
 
 - `git merge main` brought in the Architect's amended spec. Q4 is corrected, and a new section, "Commit-2 Architect
   rulings: stored codes and screen copy", is in `.agent/W2-04-build-spec.md`.
@@ -147,7 +201,7 @@ the scratchpad file `w204env.sh` (PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASS
   every batch is linked before acceptance, so no source-gate work arises. The 0023 trigger itself is tested in
   commit 1.
 
-## Next run: spec commit 3 (five selected API reads)
+## (Superseded by Run 5) spec commit 3 plan
 
 Read the spec sections "Five API reads", "Selection, projection and capability", the dry-read rows "How does the API
 keep one snapshot?", "What is a valid explicit selection/cursor?" and "What do `as_of` and contact mean?", and the
