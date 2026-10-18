@@ -1,0 +1,6 @@
+# Architect request - W2-04 Q4 against data + implementer-named codes (2026-10-18). Brief rulings; edit `.agent/W2-04-build-spec.md` in place; amend `D-2026-10-18-w2-04-buildspec`. No code.
+
+From the W2-04 commit-2 implementer (branch task/W2-04-cold-site-evidence-money, handoff `.agent/W2-04-phase-handoff.md` there):
+1. Q4 against data: W2-03 stores both degree-minute bounds for an open excursion (e.g. excursion 19 to 23 degC_min). Implementer copies both, so `OPEN_EPISODE_UPPER_UNKNOWN` is set only when the upper bound is null - no replay carries it. Should an open episode carry the limit (and/or a null upper bound) even when W2-03 gives an upper bound? Rule exactly, consistent with W2-03's open-episode semantics (lower bound 45 min, no upper bound).
+2. Implementer-named codes (owner rule: implementer decisions are defects - confirm or rename each; give plain user-facing wording for any shown on screens): reasons `COLD_VALUATION_NOT_APPROVED`, `SOURCE_GATE_WITHHELD`, `TECHNICAL_CLAIM_LIMITED`; limitations `CONTRADICTORY_EVIDENCE`, `CLAIM_LEVEL_<level>`, `COVERAGE_INCOMPLETE` (below 0.8), `EXPOSURE_LOWER_BOUND_UNKNOWN`, `SOURCE_CLASS_<class>`; worker errors `COLD_RECOMPUTE_FAILED`, `STORE_UNAVAILABLE`, `WORK_SCOPE_MISMATCH`.
+Print a 3-line summary.
