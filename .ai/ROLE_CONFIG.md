@@ -420,6 +420,13 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   preemptive sweep of the slice's remaining commits into that same call.
 - **No duplicate agents.** Check for a live agent on a worktree before
   dispatching; never reuse a worktree a reviewer is still using.
+- **Mockup drives the design; implementers never decide (owner, 2026-10-18).**
+  Every spec maps each mock panel, row, column and chip of each owned screen to
+  its data source or an honest gap; no mock element is trimmed or redesigned to
+  fit the backend. Any implementer choice the spec did not fix is a defect:
+  reviewers flag it Medium (High if user-visible vs the mock), and the Architect
+  rules it and amends the spec before merge
+  (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
 - **Briefs point to files; they do not restate them.** Coordinator replies to
   interim agent notifications stay to one line.
 
