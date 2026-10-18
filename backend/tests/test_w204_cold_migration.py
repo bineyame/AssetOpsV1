@@ -50,7 +50,9 @@ def _migration():
 
 
 def _z(moment) -> str:
-    return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    """Q3: UTC `Z`, whole seconds, or six fractional digits when microseconds are nonzero (never truncated)."""
+    utc = moment.astimezone(timezone.utc)
+    return utc.strftime("%Y-%m-%dT%H:%M:%S.%fZ" if utc.microsecond else "%Y-%m-%dT%H:%M:%SZ")
 
 
 def dirty_key(cause, locator, t, s, start, end, room) -> str:
@@ -221,6 +223,8 @@ class TestScopeAppendOnlyAndUnpriced:
             ({"n": 2}, IntegrityError),  # revision 2 needs a prior
             ({"prior": cid}, IntegrityError),  # revision 1 has none
             ({"fb": "ABC"}, IntegrityError),
+            ({"cls": "ATTESTED_REAL_SOURCE"}, IntegrityError),  # Q7: exactly the four S4-05 aggregate classes
+            ({"cls": "simulated"}, IntegrityError),
         ]
         for over, error in refused:
             with pytest.raises(error):
@@ -315,6 +319,50 @@ class TestTriggerOnlyWork:
                       s=ctx.s)
         assert mini is not None
         assert not [w for w in work(engine, ctx) if w["finding_revision_id"] == mini]
+
+    def test_sql_and_python_dirty_keys_match_for_whole_second_and_fractional_windows(self, ctx, engine) -> None:  # noqa: F811
+        """Q3 golden vectors: SQL `cold_consequence_instant`/`cold_consequence_dirty_key` equal the Python spelling."""
+        vectors = [(T0, T0 + timedelta(minutes=65), "2026-10-06T19:00:00Z", "2026-10-06T20:05:00Z"),
+                   (T0 + timedelta(microseconds=1), T0 + timedelta(minutes=5, microseconds=250000),
+                    "2026-10-06T19:00:00.000001Z", "2026-10-06T19:05:00.250000Z")]
+        locator, room = uuid4(), ctx.room
+        with engine.connect() as c:
+            for start, end, start_text, end_text in vectors:
+                assert (_z(start), _z(end)) == (start_text, end_text)
+                got = c.execute(text("SELECT cold_consequence_instant(:a), cold_consequence_instant(:b), "
+                                     "cold_consequence_dirty_key('FINDING_REVISION_APPENDED', :l, :t, :s, :a, :b, :r)"),
+                                ctx.p(a=start, b=end, l=locator, r=room)).one()
+                assert tuple(got) == (start_text, end_text, dirty_key("FINDING_REVISION_APPENDED", locator, ctx.t,
+                                                                      ctx.s, start, end, room))
+        assert vectors[0][2] != vectors[1][2]  # a fractional window is never truncated to the same key
+
+    def test_excursion_and_start_response_share_the_chamber_room_never_the_generator(self, ctx, engine) -> None:  # noqa: F811
+        """Q1: both episode kinds and both Finding kinds of one assessment enqueue the same window and chamber room;
+        the START_RESPONSE generator (its episode asset and Finding subject) is never stored as the room."""
+        generator = ctx.assets[1]
+        assert generator != ctx.room
+        excursion = insert_revision(engine, ctx, insert_episode(engine, ctx, key="exc"))
+        start_episode = insert_episode(engine, ctx, key="start", asset=generator)
+        with engine.begin() as c:
+            c.execute(text("SET LOCAL session_replication_role = replica"))  # fixture helper inserts EXCURSION
+            c.execute(text("UPDATE cold_episode SET kind = 'START_RESPONSE' WHERE id = :e"), {"e": start_episode})
+        start_rev = insert_revision(engine, ctx, start_episode, basis="start")
+        exc_finding = finding_revision_id(engine, insert_cold_finding(engine, ctx))
+        start_finding = finding_revision_id(engine, insert_cold_finding(engine, ctx, subject=generator))
+        start, end = assessment_window(engine, ctx)
+        got = work(engine, ctx)
+        assert {w["episode_revision_id"] or w["finding_revision_id"] for w in got} == {
+            excursion, start_rev, exc_finding, start_finding}
+        assert {(w["window_start"], w["window_end"], w["room_asset_id"]) for w in got} == {(start, end, ctx.room)}
+        assert generator not in {w["room_asset_id"] for w in got}
+
+    def test_unresolvable_room_raises_and_rolls_back_the_cold_append(self, ctx, engine) -> None:  # noqa: F811
+        """Q8: an assessment whose Foundation basis names no chamber room refuses the cold revision append."""
+        episode = insert_episode(engine, ctx)
+        with pytest.raises(DBAPIError, match="chamber rooms in its Foundation basis"):
+            insert_revision(engine, ctx, episode, assessment=ctx.mini_assessment)
+        assert scalar(engine, "SELECT count(*) FROM cold_episode_revision WHERE episode_id = :e", e=episode) == 0
+        assert work(engine, ctx) == []
 
     def test_source_gate_link_enqueues_only_heads_citing_that_batch(self, ctx, engine) -> None:  # noqa: F811
         erev, frev = cold_heads(engine, ctx)

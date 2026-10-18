@@ -9,6 +9,7 @@ Requires ASSETOPS_TEST_DATABASE_URL.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
@@ -83,8 +84,45 @@ def remove_cold(engine) -> None:  # noqa: F811
              "DELETE FROM finding WHERE domain = 'cold_chain'")
 
 
+def _copy(c, table, where, **override) -> None:  # noqa: F811
+    """INSERT a copy of the one `table` row matching `where`, with `override` column -> SQL expression."""
+    cols = [r[0] for r in c.execute(text(
+        "SELECT column_name FROM information_schema.columns WHERE table_name = :t ORDER BY ordinal_position"),
+        {"t": table})]
+    exprs = ", ".join(override.get(col, col) for col in cols)
+    c.execute(text(f"INSERT INTO {table} ({', '.join(cols)}) SELECT {exprs} FROM {table} WHERE {where}"))
+
+
+def cold_room_assessment(engine, ctx, assessment):  # noqa: F811
+    """W2-04 Q1: a copy of `assessment` (and its run) whose run Foundation basis names exactly one COLD_ROOM, the
+    Site asset `ctx.assets[0]`, so 0023 resolves the chamber room. The Foundation row is superseded and valid only
+    in 2000, so no current or historical Site read selects it."""
+    fid, rid, aid = uuid4(), uuid4(), uuid4()
+    with engine.begin() as c:
+        code = c.execute(text("SELECT asset_code FROM asset WHERE id = :a"), {"a": ctx.assets[0]}).scalar_one()
+        version = c.execute(text("SELECT coalesce(max(version), 0) + 1000 FROM foundation_revision "
+                                 "WHERE site_id = :s"), {"s": ctx.s}).scalar_one()
+        content = json.dumps({"components": [{"component_type": "COLD_ROOM", "component_id": code}]})
+        c.execute(text(
+            "INSERT INTO foundation_revision (id, tenant_id, site_id, version, valid_from, valid_to, recorded_at, "
+            "superseded_at, schema_version, content, content_sha256, origin, derived_from_revision_id, change_note) "
+            "VALUES (:i, :t, :s, :v, '2000-01-01T00:00:00Z', '2000-01-02T00:00:00Z', '2000-01-01T00:00:00Z', "
+            "'2000-01-01T00:00:00Z', 1, CAST(:c AS jsonb), :h, 'IMPORT', NULL, 'W2-04 test chamber-room basis')"),
+            ctx.p(i=fid, v=version, c=content, h=_sha(content)))
+        run = c.execute(text("SELECT analytic_run_id FROM assessment_revision WHERE id = :a"),
+                        {"a": assessment}).scalar_one()
+        _copy(c, "analytic_run", f"id = '{run}'", id=f"'{rid}'::uuid",
+              foundation_revision_ids=f"jsonb_build_array('{fid}')", input_sha256=f"'{_sha(str(rid))}'")
+        _copy(c, "assessment_revision", f"id = '{assessment}'", id=f"'{aid}'::uuid",
+              analytic_run_id=f"'{rid}'::uuid", assessment_key=f"assessment_key || '-w204-room-{aid}'")
+    return aid, rid
+
+
 class Ctx:
-    """Existing ids of the mini-grid Site: a probe-like asset, a selected assessment, its run and evidence."""
+    """Existing ids of the mini-grid Site: a probe-like asset, a selected assessment, its run and evidence.
+
+    W2-04: `assessment`/`run` are a copy whose Foundation basis names `assets[0]` as the one chamber room (0023 Q1);
+    `mini_assessment` is the original, which resolves no room."""
 
     def __init__(self, site, engine) -> None:  # noqa: F811
         self.t, self.s = site.tenant, site.site
@@ -97,6 +135,8 @@ class Ctx:
             self.evidence = [r[0] for r in c.execute(text(
                 "SELECT id FROM accepted_evidence WHERE site_id = :s ORDER BY id LIMIT 3"), {"s": self.s})]
         assert len(self.assets) >= 2 and len(self.evidence) == 3
+        self.mini_assessment, self.room = self.assessment, self.assets[0]
+        self.assessment, self.run = cold_room_assessment(engine, self, self.mini_assessment)
 
     def p(self, **kw) -> dict:
         return {"t": self.t, "s": self.s, **kw}
@@ -113,7 +153,7 @@ def insert_episode(engine, ctx, *, key="anchor-1", asset=None, split=None, episo
     return eid
 
 
-def insert_revision(engine, ctx, episode_id, *, n=1, basis="basis-1", **over):  # noqa: F811
+def insert_revision(engine, ctx, episode_id, *, n=1, basis="basis-1", assessment=None, **over):  # noqa: F811
     rid = uuid4()
     cols = {"lower_start": T0 + timedelta(minutes=10), "upper_start": T0 + timedelta(minutes=15),
             "lower_end": None, "upper_end": None, "duration_low": "45", "duration_high": None,
@@ -128,7 +168,7 @@ def insert_revision(engine, ctx, episode_id, *, n=1, basis="basis-1", **over):  
             "missing_steps, created_at) VALUES (:i, :t, :s, :e, :n, :ar, :b, :claim_level, :lower_start, "
             ":upper_start, :lower_end, :upper_end, :duration_low, :duration_high, :degree_minutes_low, "
             ":degree_minutes_high, :peak_observed, :coverage, CAST(:missing_steps AS jsonb), now())"),
-            ctx.p(i=rid, e=episode_id, n=n, ar=ctx.assessment, b=_sha(basis), **cols))
+            ctx.p(i=rid, e=episode_id, n=n, ar=assessment or ctx.assessment, b=_sha(basis), **cols))
     return rid
 
 

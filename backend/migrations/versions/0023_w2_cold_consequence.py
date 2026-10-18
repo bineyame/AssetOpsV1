@@ -8,12 +8,15 @@ tenant/Site-scoped, append-only tables; the mini-grid `financial_*` tables (0010
   approved migration must widen that CHECK, the diesel-only assumption publisher and the dirty-work causes together.
 - `cold_consequence_evidence`: the exact accepted evidence a revision cites, with its SUPPORT/CONTEXT/EXCLUDED use.
 - `cold_consequence_work`: dirty work inserted only by the triggers below, never by runtime code. A cold
-  FindingRevision (`NEW.domain = 'cold_chain'`) or a cold episode revision enqueues its Site/assessment window/room;
+  FindingRevision (`NEW.domain = 'cold_chain'`) or a cold episode revision enqueues its Site, assessment window and
+  chamber room (Q1: the one COLD_ROOM of the assessment run's Foundation basis, the room its temperature policy names;
+  never the START_RESPONSE generator); a missing/ambiguous room or empty window raises and rolls back (Q8);
   an appended `batch_publication_link` enqueues `SOURCE_GATE_CHANGED` only for cold heads whose linked accepted
   evidence came from that batch. Each trigger takes the Site advisory transaction lock before selecting heads and
   inserts through `cold_consequence_enqueue` with `ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING`.
   The dirty key is SHA-256 of the canonical JSON array `[cause, locator, tenant_id, site_id, window_start,
-  window_end, room_asset_id]` (sorted-key, no-whitespace JSON; lowercase UUIDs; UTC `Z` instants to the second).
+  window_end, room_asset_id]` (no-whitespace JSON; lowercase UUIDs; UTC `Z` instants, whole seconds or six
+  fractional digits when microseconds are nonzero, Q3).
   There is no `ASSUMPTION_PUBLISHED` cause: 0010 is diesel-only in DB and publisher.
 - `cold_consequence_work_attempt`: SUCCEEDED (no error, exact revision IDs) or FAILED (typed error, no IDs) attempts.
 
@@ -70,7 +73,8 @@ CREATE TABLE cold_consequence_revision (
     finding_basis_sha256 char(64) NOT NULL CHECK (finding_basis_sha256 ~ '^[0-9a-f]{64}$'),
     consequence_basis_sha256 char(64) NOT NULL CHECK (consequence_basis_sha256 ~ '^[0-9a-f]{64}$'),
     model_id text NOT NULL CHECK (model_id IN ('cold-exposure/1', 'cold-repair/1')),
-    source_classification text NOT NULL CHECK (length(btrim(source_classification)) > 0),
+    source_classification text NOT NULL CHECK (
+        source_classification IN ('AUTHORED_DEMONSTRATION', 'REGISTERED_SIMULATION', 'MIXED', 'UNKNOWN')),
     source_gate_sha256 char(64) NOT NULL CHECK (source_gate_sha256 ~ '^[0-9a-f]{64}$'),
     assumption_revision_ids jsonb NOT NULL,
     limitation text NULL,
@@ -188,6 +192,40 @@ APPEND_ONLY = "".join(
     for t in COLD_CONSEQUENCE_TABLES)
 
 TRIGGERS = rf"""
+-- Q3: a selected-window instant as UTC `Z` text, whole seconds, or six fractional digits when microseconds are nonzero.
+CREATE FUNCTION cold_consequence_instant(p timestamptz) RETURNS text
+LANGUAGE sql STABLE STRICT AS $$
+    SELECT to_char(p AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS')
+        || CASE WHEN extract(microseconds FROM p)::bigint % 1000000 = 0 THEN ''
+                ELSE '.' || to_char(p AT TIME ZONE 'UTC', 'US') END
+        || 'Z'
+$$;
+
+-- Q1: the chamber room of an exact assessment revision: the one COLD_ROOM component of its run's Foundation basis
+-- (the room its `cold-roles-1` temperature policy names), as a scoped Site asset. Anything else raises (Q8).
+CREATE FUNCTION cold_consequence_room(p_tenant_id uuid, p_site_id uuid, p_assessment_revision_id uuid) RETURNS uuid
+LANGUAGE plpgsql STABLE AS $$
+DECLARE
+    rooms uuid[];
+BEGIN
+    SELECT array_agg(DISTINCT s.id) INTO rooms
+    FROM assessment_revision a
+    JOIN analytic_run r ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.analytic_run_id
+    CROSS JOIN LATERAL jsonb_array_elements_text(r.foundation_revision_ids) AS fid(id)
+    JOIN foundation_revision f ON f.tenant_id = a.tenant_id AND f.site_id = a.site_id AND f.id::text = lower(fid.id)
+    CROSS JOIN LATERAL jsonb_array_elements(f.content -> 'components') AS c(component)
+    JOIN asset s ON s.tenant_id = a.tenant_id AND s.site_id = a.site_id
+        AND s.asset_code = c.component ->> 'component_id'
+    WHERE a.tenant_id = p_tenant_id AND a.site_id = p_site_id AND a.id = p_assessment_revision_id
+      AND c.component ->> 'component_type' = 'COLD_ROOM';
+    IF rooms IS NULL OR cardinality(rooms) <> 1 THEN
+        RAISE EXCEPTION 'cold consequence enqueue refused: assessment revision % has % chamber rooms in its Foundation basis; exactly one is required',
+            p_assessment_revision_id, coalesce(cardinality(rooms), 0);
+    END IF;
+    RETURN rooms[1];
+END;
+$$;
+
 CREATE FUNCTION cold_consequence_dirty_key(p_cause text, p_locator uuid, p_tenant_id uuid, p_site_id uuid,
                                            p_window_start timestamptz, p_window_end timestamptz,
                                            p_room_asset_id uuid) RETURNS char(64)
@@ -197,8 +235,8 @@ LANGUAGE sql STABLE STRICT AS $$
         to_json(p_locator::text)::text,
         to_json(p_tenant_id::text)::text,
         to_json(p_site_id::text)::text,
-        to_json(to_char(p_window_start AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'))::text,
-        to_json(to_char(p_window_end AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'))::text,
+        to_json(cold_consequence_instant(p_window_start))::text,
+        to_json(cold_consequence_instant(p_window_end))::text,
         to_json(p_room_asset_id::text)::text) || ']', 'UTF8')), 'hex')
 $$;
 
@@ -222,7 +260,7 @@ BEGIN
 END;
 $$;
 
--- A cold FindingRevision enqueues its Site, its primary assessment window and its Finding's subject room.
+-- A cold FindingRevision enqueues its Site, its primary assessment window and that assessment's chamber room.
 CREATE FUNCTION cold_consequence_dirty_on_finding_revision() RETURNS trigger
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -230,10 +268,9 @@ DECLARE
     w record;
 BEGIN
     {ENQUEUE_LOCK}
-    SELECT a.window_start, a.window_end, f.subject_asset_id AS room INTO STRICT w
-    FROM assessment_revision a, finding f
-    WHERE a.tenant_id = NEW.tenant_id AND a.site_id = NEW.site_id AND a.id = NEW.assessment_revision_id
-      AND f.tenant_id = NEW.tenant_id AND f.site_id = NEW.site_id AND f.id = NEW.finding_id;
+    SELECT a.window_start, a.window_end, cold_consequence_room(a.tenant_id, a.site_id, a.id) AS room INTO STRICT w
+    FROM assessment_revision a
+    WHERE a.tenant_id = NEW.tenant_id AND a.site_id = NEW.site_id AND a.id = NEW.assessment_revision_id;
     PERFORM cold_consequence_enqueue('FINDING_REVISION_APPENDED', NEW.id, NEW.tenant_id, NEW.site_id,
                                      w.window_start, w.window_end, w.room);
     RETURN NULL;
@@ -243,7 +280,7 @@ CREATE TRIGGER cold_consequence_dirty_on_finding_revision AFTER INSERT ON findin
     FOR EACH ROW WHEN (NEW.domain = 'cold_chain')
     EXECUTE FUNCTION cold_consequence_dirty_on_finding_revision();
 
--- A cold episode revision (warranted Finding or not) enqueues its Site, assessment window and episode room.
+-- A cold episode revision (warranted Finding or not) enqueues its Site, assessment window and chamber room.
 CREATE FUNCTION cold_consequence_dirty_on_episode_revision() RETURNS trigger
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -251,10 +288,9 @@ DECLARE
     w record;
 BEGIN
     {ENQUEUE_LOCK}
-    SELECT a.window_start, a.window_end, e.asset_id AS room INTO STRICT w
-    FROM assessment_revision a, cold_episode e
-    WHERE a.tenant_id = NEW.tenant_id AND a.site_id = NEW.site_id AND a.id = NEW.assessment_revision_id
-      AND e.tenant_id = NEW.tenant_id AND e.site_id = NEW.site_id AND e.id = NEW.episode_id;
+    SELECT a.window_start, a.window_end, cold_consequence_room(a.tenant_id, a.site_id, a.id) AS room INTO STRICT w
+    FROM assessment_revision a
+    WHERE a.tenant_id = NEW.tenant_id AND a.site_id = NEW.site_id AND a.id = NEW.assessment_revision_id;
     PERFORM cold_consequence_enqueue('EPISODE_REVISION_APPENDED', NEW.id, NEW.tenant_id, NEW.site_id,
                                      w.window_start, w.window_end, w.room);
     RETURN NULL;
@@ -265,7 +301,7 @@ CREATE TRIGGER cold_consequence_dirty_on_episode_revision AFTER INSERT ON cold_e
 
 -- An appended source-publication link changes the source gate of the cold heads (latest episode revision per
 -- episode, latest cold FindingRevision per Finding) whose linked accepted evidence came from that batch; only
--- those heads' Site/window/room are enqueued. A link before any acceptance finds no heads and enqueues nothing.
+-- those heads' Site/assessment window/chamber room are enqueued. A link before any acceptance finds no heads and enqueues nothing.
 CREATE FUNCTION cold_consequence_dirty_on_source_gate() RETURNS trigger
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -274,32 +310,33 @@ DECLARE
 BEGIN
     {ENQUEUE_LOCK}
     FOR h IN
-        SELECT DISTINCT a.window_start, a.window_end, e.asset_id AS room
-        FROM cold_episode_revision r
-        JOIN cold_episode e ON e.tenant_id = r.tenant_id AND e.site_id = r.site_id AND e.id = r.episode_id
-        JOIN assessment_revision a ON a.tenant_id = r.tenant_id AND a.site_id = r.site_id
-            AND a.id = r.assessment_revision_id
-        WHERE r.tenant_id = NEW.tenant_id AND r.site_id = NEW.site_id
-          AND r.revision_no = (SELECT max(x.revision_no) FROM cold_episode_revision x
-                               WHERE x.episode_id = r.episode_id)
-          AND EXISTS (SELECT 1 FROM cold_episode_evidence l
-                      JOIN accepted_evidence ev ON ev.tenant_id = l.tenant_id AND ev.site_id = l.site_id
-                          AND ev.id = l.evidence_id
-                      WHERE l.episode_revision_id = r.id AND ev.batch_id = NEW.batch_id)
-        UNION
-        SELECT DISTINCT a.window_start, a.window_end, f.subject_asset_id AS room
-        FROM finding_revision r
-        JOIN finding f ON f.tenant_id = r.tenant_id AND f.site_id = r.site_id AND f.id = r.finding_id
-        JOIN assessment_revision a ON a.tenant_id = r.tenant_id AND a.site_id = r.site_id
-            AND a.id = r.assessment_revision_id
-        WHERE r.tenant_id = NEW.tenant_id AND r.site_id = NEW.site_id AND r.domain = 'cold_chain'
-          AND r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x
-                               WHERE x.finding_id = r.finding_id)
-          AND EXISTS (SELECT 1 FROM finding_revision_evidence l
-                      JOIN accepted_evidence ev ON ev.tenant_id = l.tenant_id AND ev.site_id = l.site_id
-                          AND ev.id = l.evidence_id
-                      WHERE l.finding_revision_id = r.id AND ev.batch_id = NEW.batch_id)
-        ORDER BY 1, 2, 3
+        SELECT a.window_start, a.window_end, cold_consequence_room(a.tenant_id, a.site_id, a.id) AS room
+        FROM assessment_revision a
+        WHERE a.tenant_id = NEW.tenant_id AND a.site_id = NEW.site_id AND a.id IN (
+            SELECT r.assessment_revision_id
+            FROM cold_episode_revision r
+            WHERE r.tenant_id = NEW.tenant_id AND r.site_id = NEW.site_id
+              AND r.revision_no = (SELECT max(x.revision_no) FROM cold_episode_revision x
+                                   WHERE x.tenant_id = r.tenant_id AND x.site_id = r.site_id
+                                     AND x.episode_id = r.episode_id)
+              AND EXISTS (SELECT 1 FROM cold_episode_evidence l
+                          JOIN accepted_evidence ev ON ev.tenant_id = l.tenant_id AND ev.site_id = l.site_id
+                              AND ev.id = l.evidence_id
+                          WHERE l.tenant_id = r.tenant_id AND l.site_id = r.site_id AND l.episode_revision_id = r.id
+                            AND ev.batch_id = NEW.batch_id)
+            UNION
+            SELECT r.assessment_revision_id
+            FROM finding_revision r
+            WHERE r.tenant_id = NEW.tenant_id AND r.site_id = NEW.site_id AND r.domain = 'cold_chain'
+              AND r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x
+                                   WHERE x.tenant_id = r.tenant_id AND x.site_id = r.site_id
+                                     AND x.finding_id = r.finding_id)
+              AND EXISTS (SELECT 1 FROM finding_revision_evidence l
+                          JOIN accepted_evidence ev ON ev.tenant_id = l.tenant_id AND ev.site_id = l.site_id
+                              AND ev.id = l.evidence_id
+                          WHERE l.tenant_id = r.tenant_id AND l.site_id = r.site_id AND l.finding_revision_id = r.id
+                            AND ev.batch_id = NEW.batch_id))
+        ORDER BY a.window_start, a.window_end, a.id
     LOOP
         PERFORM cold_consequence_enqueue('SOURCE_GATE_CHANGED', NEW.batch_id, NEW.tenant_id, NEW.site_id,
                                          h.window_start, h.window_end, h.room);
@@ -314,20 +351,20 @@ CREATE TRIGGER cold_consequence_dirty_on_source_gate AFTER INSERT ON batch_publi
 # Existing W2-03 cold heads are enqueued once; ON CONFLICT DO NOTHING makes a repeat a no-op.
 BACKFILL = r"""
 SELECT cold_consequence_enqueue('FINDING_REVISION_APPENDED', r.id, r.tenant_id, r.site_id, a.window_start,
-                                a.window_end, f.subject_asset_id)
+                                a.window_end, cold_consequence_room(a.tenant_id, a.site_id, a.id))
 FROM finding_revision r
-JOIN finding f ON f.tenant_id = r.tenant_id AND f.site_id = r.site_id AND f.id = r.finding_id
 JOIN assessment_revision a ON a.tenant_id = r.tenant_id AND a.site_id = r.site_id AND a.id = r.assessment_revision_id
 WHERE r.domain = 'cold_chain'
-  AND r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x WHERE x.finding_id = r.finding_id)
+  AND r.revision_no = (SELECT max(x.revision_no) FROM finding_revision x
+                       WHERE x.tenant_id = r.tenant_id AND x.site_id = r.site_id AND x.finding_id = r.finding_id)
 ORDER BY r.site_id, r.id;
 
 SELECT cold_consequence_enqueue('EPISODE_REVISION_APPENDED', r.id, r.tenant_id, r.site_id, a.window_start,
-                                a.window_end, e.asset_id)
+                                a.window_end, cold_consequence_room(a.tenant_id, a.site_id, a.id))
 FROM cold_episode_revision r
-JOIN cold_episode e ON e.tenant_id = r.tenant_id AND e.site_id = r.site_id AND e.id = r.episode_id
 JOIN assessment_revision a ON a.tenant_id = r.tenant_id AND a.site_id = r.site_id AND a.id = r.assessment_revision_id
-WHERE r.revision_no = (SELECT max(x.revision_no) FROM cold_episode_revision x WHERE x.episode_id = r.episode_id)
+WHERE r.revision_no = (SELECT max(x.revision_no) FROM cold_episode_revision x
+                       WHERE x.tenant_id = r.tenant_id AND x.site_id = r.site_id AND x.episode_id = r.episode_id)
 ORDER BY r.site_id, r.id;
 """
 
@@ -355,6 +392,8 @@ DROP TABLE cold_consequence_evidence;
 DROP TABLE cold_consequence_revision;
 DROP FUNCTION cold_consequence_enqueue(text, uuid, uuid, uuid, timestamptz, timestamptz, uuid);
 DROP FUNCTION cold_consequence_dirty_key(text, uuid, uuid, uuid, timestamptz, timestamptz, uuid);
+DROP FUNCTION cold_consequence_room(uuid, uuid, uuid);
+DROP FUNCTION cold_consequence_instant(timestamptz);
 ALTER TABLE batch_publication_link DROP CONSTRAINT batch_publication_link_scope_unique;
 """
 
