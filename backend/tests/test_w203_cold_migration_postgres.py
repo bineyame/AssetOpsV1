@@ -73,8 +73,6 @@ def _replica(engine, *statements) -> None:  # noqa: F811
 def remove_cold(engine) -> None:  # noqa: F811
     _replica(engine, "DELETE FROM cold_episode_evidence", "DELETE FROM cold_episode_revision",
              "DELETE FROM cold_episode",
-             "DELETE FROM financial_consequence_work w USING finding_revision r WHERE w.finding_revision_id = r.id "
-             "AND r.domain = 'cold_chain'",
              "DELETE FROM finding_revision WHERE domain = 'cold_chain'",
              "DELETE FROM finding WHERE domain = 'cold_chain'")
 
@@ -137,7 +135,7 @@ def insert_link(engine, ctx, revision_id, evidence_id, use="SUPPORT", *, site_id
 
 
 def insert_cold_finding(engine, ctx, *, generator=None, subject="asset", minutes=None,  # noqa: F811
-                        revision_domain="cold_chain", episode=(T0, T0 + timedelta(minutes=45))):
+                        revision_domain="cold_chain", episode=(None, None)):
     fid = uuid4()
     with engine.begin() as c:
         c.execute(text(
@@ -259,6 +257,34 @@ class TestMigration0022:
                 insert_cold_finding(engine, ctx, **kw)
         remove_cold(engine)
 
+    def test_fuel_trigger_is_mini_grid_only(self, site, engine) -> None:  # noqa: F811
+        """D-2026-10-18-w2-03-answers Q1: a cold revision with NULL bounds queues no fuel work; mini-grid still does."""
+        ctx = Ctx(site, engine)
+        assert "WHEN ((new.domain = 'mini_grid'::text))" in scalar(
+            engine, "SELECT pg_get_triggerdef(oid) FROM pg_trigger "
+            "WHERE tgname = 'financial_consequence_dirty_on_finding_revision'")
+        work = "SELECT count(*) FROM financial_consequence_work w JOIN finding_revision r ON r.id = w.finding_revision_id"
+        before = scalar(engine, work)
+        fid = insert_cold_finding(engine, ctx)
+        assert scalar(engine, "SELECT count(*) FROM finding_revision WHERE finding_id = :f AND episode_start IS NULL "
+                      "AND episode_end IS NULL", f=fid) == 1
+        assert scalar(engine, work + " WHERE r.domain = 'cold_chain'") == 0
+        assert scalar(engine, work) == before
+        new_rid = uuid4()
+        try:
+            with engine.begin() as c:
+                c.execute(text("CREATE TEMP TABLE fr_copy ON COMMIT DROP AS SELECT * FROM finding_revision "
+                               "WHERE domain = 'mini_grid' ORDER BY id LIMIT 1"))
+                c.execute(text("UPDATE fr_copy SET id = :r, revision_no = revision_no + 100, "
+                               "basis_sha256 = repeat('d', 64)"), {"r": new_rid})
+                c.execute(text("INSERT INTO finding_revision SELECT * FROM fr_copy"))
+            assert scalar(engine, "SELECT count(*) FROM financial_consequence_work WHERE finding_revision_id = :r "
+                          "AND cause = 'FINDING_REVISION_APPENDED'", r=new_rid) == 1
+        finally:
+            _replica(engine, f"DELETE FROM financial_consequence_work WHERE finding_revision_id = '{new_rid}'",
+                     f"DELETE FROM finding_revision WHERE id = '{new_rid}'")
+            remove_cold(engine)
+
     def test_scoped_fk_and_append_only(self, site, engine) -> None:  # noqa: F811
         ctx = Ctx(site, engine)
         episode = insert_episode(engine, ctx)
@@ -378,6 +404,9 @@ class TestMigration0022:
             remove_cold(engine)
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS and minigrid_rows(engine) == before
+            trigger = scalar(engine, "SELECT pg_get_triggerdef(oid) FROM pg_trigger "
+                             "WHERE tgname = 'financial_consequence_dirty_on_finding_revision'")
+            assert trigger and " WHEN " not in trigger  # the original unconditional 0011 trigger is back
         finally:
             if head(engine) != HEAD:
                 command.upgrade(config, "head")

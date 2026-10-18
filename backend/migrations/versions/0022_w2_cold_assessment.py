@@ -209,12 +209,30 @@ ALTER TABLE finding
 """
 
 
+# D-2026-10-18-w2-03-answers Q1: the 0012 fuel-consequence trigger fires only for mini-grid revisions.
+# The 0012 function body is unchanged; W2-04 (0023) owns any cold consequence work.
+NARROW_FUEL_TRIGGER = """
+DROP TRIGGER financial_consequence_dirty_on_finding_revision ON finding_revision;
+CREATE TRIGGER financial_consequence_dirty_on_finding_revision AFTER INSERT ON finding_revision
+    FOR EACH ROW WHEN (NEW.domain = 'mini_grid')
+    EXECUTE FUNCTION financial_consequence_dirty_on_finding_revision();
+"""
+
+RESTORE_FUEL_TRIGGER = """
+DROP TRIGGER financial_consequence_dirty_on_finding_revision ON finding_revision;
+CREATE TRIGGER financial_consequence_dirty_on_finding_revision AFTER INSERT ON finding_revision
+    FOR EACH ROW EXECUTE FUNCTION financial_consequence_dirty_on_finding_revision();
+"""
+
+
 def upgrade() -> None:
     op.execute(FINDING_WIDEN)
+    op.execute(NARROW_FUEL_TRIGGER)
     op.execute(COLD_SCHEMA)
     op.execute(APPEND_ONLY)
 
 
 def downgrade() -> None:
     op.execute(REFUSE_IF_USED)
+    op.execute(RESTORE_FUEL_TRIGGER)
     op.execute(DOWNGRADE)
