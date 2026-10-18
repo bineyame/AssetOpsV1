@@ -285,14 +285,58 @@ class TestTopology:
         document["foundation"]["topology"]["connections"].pop(1)
         refused(document, "components[2]")
 
-    def test_meter_fed_by_two_feeds_is_refused(self) -> None:
+    def test_a_second_feed_is_refused_with_its_path(self) -> None:
+        # QD: an EV Foundation declares at most one AC_BUS; the path names the extra feed.
         document = ev_doc()
         f = document["foundation"]
         f["components"].append({"component_id": "feed-2", "component_type": "AC_BUS", "display_name": "Feed 2"})
         f["topology"]["nodes"].append(node("n-feed-2", "feed-2", "BUS"))
         f["topology"]["connections"].append(edge("e5", "n-feed-2", "n-meter", "AC"))
-        error = refused(document, "components[1]")
-        assert "more than one feed" in str(error)
+        error = refused(document, "components[5]")
+        assert "second AC_BUS" in str(error)
+
+    def test_a_second_feed_without_topology_is_refused(self) -> None:
+        document = ev_doc()
+        f = document["foundation"]
+        f["components"].insert(1, {"component_id": "feed-2", "component_type": "AC_BUS",
+                                   "display_name": "Feed 2"})
+        f["topology"] = None
+        f["connector_enable_schedules"] = [{"connector_asset_id": c, "time_zone": "Etc/UTC", "weekly": []}
+                                           for c in ("c1", "c2")]
+        refused(document, "components[1]")
+
+    def test_unfed_meter_is_refused_once_a_feed_is_declared(self) -> None:
+        # QC: every declared meter must have the declared feed as its parent, even one feeding no charger.
+        document = ev_doc()
+        f = document["foundation"]
+        f["components"].append({"component_id": "meter-2", "component_type": "METER", "display_name": "Meter 2"})
+        f["topology"]["nodes"].append(node("n-meter-2", "meter-2", "METERING"))
+        error = refused(document, "components[5]")
+        assert "not connected to the declared feed" in str(error)
+
+    def test_no_feed_is_publishable_as_incomplete_configuration(self) -> None:
+        # QC: without an AC_BUS, a declared meter, charger and connectors publish when every property and
+        # schedule entry is valid and no connector has service hours.
+        document = ev_doc()
+        f = document["foundation"]
+        f["components"] = [c for c in f["components"] if c["component_id"] != "feed-1"]
+        f["topology"]["nodes"] = [n for n in f["topology"]["nodes"] if n["node_id"] != "n-feed"]
+        f["topology"]["connections"] = f["topology"]["connections"][1:]
+        for entry in f["connector_enable_schedules"]:
+            entry["weekly"] = []
+        site = parse(document)
+        assert [c.component_type for c in site.foundation.components] == [
+            "METER", "EV_CHARGER", "EV_CONNECTOR", "EV_CONNECTOR"]
+
+    def test_no_feed_with_service_hours_is_refused(self) -> None:
+        # QC: any nonempty schedule needs the complete feed->meter->charger->connector path.
+        document = ev_doc()
+        f = document["foundation"]
+        f["components"] = [c for c in f["components"] if c["component_id"] != "feed-1"]
+        f["topology"]["nodes"] = [n for n in f["topology"]["nodes"] if n["node_id"] != "n-feed"]
+        f["topology"]["connections"] = f["topology"]["connections"][1:]
+        f["connector_enable_schedules"][1]["weekly"] = []
+        refused(document, "connector_enable_schedules[0].weekly")
 
     def test_duplicate_directed_edge_is_refused(self) -> None:
         document = ev_doc()

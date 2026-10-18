@@ -15,6 +15,9 @@ Two entry points, both pure (no store, no SQL):
 Absence of the feed, its `ev-site-import-limit`, or every connector is publishable: readiness explains it. A
 declared charger or connector missing a required property, any wrong value, invalid topology or invalid schedule
 refuses as `EvConfigurationInvalid` (`EV_CONFIGURATION_INVALID`) with the path to the offending position.
+Topology follows the QC/QD rulings (`D-2026-10-18-w2-05-buildspec`): at most one `AC_BUS` feed; a meter, charger
+or connector with more than one parent always refuses; once a feed is declared, every meter must be fed by it and
+every charger must reach it through one meter; any nonempty schedule needs the full feed->meter->charger path.
 """
 
 from __future__ import annotations
@@ -143,7 +146,12 @@ def validate_ev_foundation(foundation: SiteFoundation, *, timezone_name: str, so
 def _validate_ev_topology(foundation: SiteFoundation, types: Mapping[str, str], *, base: str,
                           source: str) -> dict[str, list[str]]:
     """Check the declared topology and return each component's parent components."""
-    feed_declared = any(t == "AC_BUS" for t in types.values())
+    feeds_declared = [i for i, c in enumerate(foundation.components) if c.component_type == "AC_BUS"]
+    if len(feeds_declared) > 1:
+        extra = foundation.components[feeds_declared[1]]
+        _refuse(f"{base}.components[{feeds_declared[1]}]",
+                f"feed {extra.component_id} is a second AC_BUS; an EV Site declares at most one feed", source)
+    feed_declared = bool(feeds_declared)
     parents: dict[str, list[str]] = {}
     noded: set[str] = set()
     topology = foundation.topology
@@ -191,23 +199,15 @@ def _validate_ev_topology(foundation: SiteFoundation, types: Mapping[str, str], 
         elif ctype == "EV_CHARGER":
             if len(mine) > 1:
                 _refuse(where, f"charger {cid} is fed by more than one meter ({', '.join(sorted(mine))})", source)
-            if not mine and feed_declared:
+            if feed_declared and not (mine and parents.get(mine[0])):
                 _refuse(where, f"charger {cid} is not fed from the declared feed through one import meter", source)
-            for meter in mine:
-                feeds = parents.get(meter, [])
-                if len(feeds) > 1:
-                    _refuse(f"{base}.components[{_index(foundation, meter)}]",
-                            f"import meter {meter} is fed by more than one feed ({', '.join(sorted(feeds))})",
-                            source)
-                if not feeds and feed_declared:
-                    _refuse(f"{base}.components[{_index(foundation, meter)}]",
-                            f"import meter {meter} feeding charger {cid} is not connected to the declared feed",
-                            source)
+        elif ctype == "METER":
+            if len(mine) > 1:
+                _refuse(where, f"import meter {cid} is fed by more than one feed ({', '.join(sorted(mine))})",
+                        source)
+            if not mine and feed_declared:
+                _refuse(where, f"import meter {cid} is not connected to the declared feed", source)
     return parents
-
-
-def _index(foundation: SiteFoundation, component_id: str) -> int:
-    return next(i for i, c in enumerate(foundation.components) if c.component_id == component_id)
 
 
 def _find_cycle(successors: Mapping[str, Sequence[str]]) -> list[str] | None:
