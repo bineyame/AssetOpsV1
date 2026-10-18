@@ -479,6 +479,7 @@ describe("W2-04: cold Overview", () => {
       "evidence",
     ]);
     expect(text(document.querySelector('[data-cold-card="cooling"]')!)).toContain("Recovery comparison not assessed");
+    expect(text(document.querySelector('[data-cold-card="cooling"]')!)).not.toContain("Not available yet");
     expect(text(document.querySelector('[data-cold-card="maintenance"]')!)).toContain("Not recorded");
     const happened = panelTitled(PANELS.cold[0]);
     expect(happened.querySelectorAll("[data-timeline-event]")).toHaveLength(3);
@@ -504,7 +505,7 @@ describe("W2-04: cold Overview", () => {
     expect(panelTitled("Chamber temperature").querySelectorAll("[data-cold-point]").length).toBe(4);
   });
 
-  it("a null attention destination is noninteractive 'Not available yet'; Next step takes the first real destination", async () => {
+  it("a null attention destination is noninteractive 'No linked page for this item'; Next step takes the first real destination", async () => {
     const o: ColdOverviewRead = {
       ...STOCKED_OVERVIEW,
       needs_attention: [{ ...STOCKED_OVERVIEW.needs_attention[0], link: null }, STOCKED_OVERVIEW.needs_attention[1]],
@@ -515,7 +516,7 @@ describe("W2-04: cold Overview", () => {
     await settledScreen();
     const noop = panelTitled("Needs attention").querySelector('[data-attention-link="COLD_START_FAILURE"]')!;
     expect(noop.tagName).toBe("SPAN");
-    expect(noop.textContent).toBe("Not available yet");
+    expect(noop.textContent).toBe("No linked page for this item");
     expect(panelTitled("Next step").querySelector("h3")?.textContent).toBe("Transfer-switch position was not observed");
     expect(panelTitled("Next step").querySelector("a")?.textContent).toBe("Performance › Backup →");
     const temp = text(document.querySelector('[data-cold-card="temperature"]')!);

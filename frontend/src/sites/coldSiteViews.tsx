@@ -206,7 +206,7 @@ function selected(base: string, window: ColdWindowQuery, view?: "analysis"): str
 function ToLink({ href, children, data }: { href: string | null; children: ReactNode; data?: Record<string, string> }) {
   return href === null ? (
     <span className="cold-site-noop" {...data}>
-      Not available yet
+      No linked page for this item
     </span>
   ) : (
     <Link to={href} {...data}>
@@ -453,7 +453,7 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
       <MetricCard
         label="Cooling"
         value={coolingChip}
-        note={`${o.cooling.text} · Recovery comparison not assessed · Not available yet`}
+        note={`${o.cooling.text} · Recovery comparison not assessed`}
         tone="muted"
         assessment
         data={{ "data-cold-card": "cooling" }}
@@ -505,7 +505,7 @@ function OverviewScreen(p: ScreenProps) {
   const tempRefused = refusalOf(temperature);
   const money = o?.consequence_summary;
   const attentionLabel = (link: string | null): string =>
-    link === null ? "Not available yet" : link.includes("/cold/findings/") ? "Open Finding →" : link.includes("/cold/backup-chain") ? "Performance › Backup →" : "Evidence →";
+    link === null ? "No linked page for this item" : link.includes("/cold/findings/") ? "Open Finding →" : link.includes("/cold/backup-chain") ? "Performance › Backup →" : "Evidence →";
   return (
     <>
       {o === null ? null : (
@@ -573,7 +573,7 @@ function OverviewScreen(p: ScreenProps) {
                 key: n.code,
                 title: n.text,
                 body: limitText(n.limitation) ?? "",
-                // Run-7: a null destination shows noninteractive "Not available yet".
+                // Run-7: a null destination shows noninteractive "No linked page for this item".
                 action: (
                   <p className="cold-panel-link">
                     <ToLink href={coldUiHref(n.link, p.routes)} data={{ "data-attention-link": n.code }}>
