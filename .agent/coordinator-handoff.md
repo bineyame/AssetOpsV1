@@ -421,3 +421,8 @@ A fresh coordinator starts from this file; do not re-derive what it states.
 - Owner walkthrough index: `.agent/W1-F5b-evidence/index.html` (168 app-vs-mock pairs at 1440/390, 0 failing; overages with reasons in `overages.json`). Owner folder `AssetOpsV1` moved to `056a34b8`. W1 closes only on owner acceptance.
 - W2: W2-00, W2-01 merged. W2-02 (review2, `task/W2-02-cold-producer`) commit (4) + full suites running (agent). Then Opus review, W2-03 (build spec ready: `.agent/W2-03-build-spec.md`).
 - Efficiency rules in memory `token-efficiency`.
+
+## Entry 38 (2026-10-18) - W1 accepted conditionally
+
+- Owner accepted W1 conditionally (`.agent/owner-W1-acceptance-2026-10-18.md`): refine UI/UX after all waves; backlog item added. W1 is closed for sequencing; W2 proceeds.
+- W2: W2-00..02 merged; W2-03 final proof running (review2, `task/W2-03-cold-assessment`); W2-04 spec passed readiness gate; W2 mockup authority ruling `D-2026-10-18-w2-mockup-authority`.

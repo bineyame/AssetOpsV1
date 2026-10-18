@@ -1,5 +1,8 @@
 # W2 EV charging technical design — 2026-10-17
 
+> **Mockup authority (owner ruling 2026-10-18, `.agent/owner-W2-mockup-authority-2026-10-18.md`):** the v6.9 mockup's W2 screens - cold-chain AND EV - are built and are the binding visual and content authority, exactly like the W1 screens: panel set, order, titles, prominence, layout and content scope. The mockup's "EV extrapolation" / "domain-pack extrapolation" tags (`frontend/mockups/v69/screens.js`) record only that the v6.9 *product spec* had no EV section; they do NOT make any mock screen uncertain, illustrative-only or optional. Where accepted data cannot back a mock value, keep the mock slot and state the gap ("not available yet"); never drop or redesign a panel. Which routes belong to W2 vs later waves is a scope question, unaffected by this note.
+
+
 **Decision:** `D-2026-10-17-w2-techdesign-ev` (amended by `D-2026-10-17-mockup-layout-spec`). Contract for W2-05a, 05b, 06, 07. Planner sequences and tests it. The W2-00 v4 event/delta format, deduplication, accepted-event columns, 0020 migration and closed host pack registry are fixed by `.agent/W2-technical-design-cold.md` §§1–2,4; this document adds no new envelope family. Existing W1 selected-window, exact-source, money and plain-language rules apply (`.ai/DECISIONS.md`). The screen scope and EV visual hierarchy remain owner proposals (`.agent/architect-W2-design.md`); no registry promotion follows from this design.
 
 ## 1. Migration ledger after 0023
@@ -114,7 +117,7 @@ The binding `D-2026-10-17-mockup-layout-spec` applies to every row. The componen
 
 **Reads still needed for mock slots:** `ev-readiness` panel 3 needs per-source contact, and panel 4 needs the W2-07 capability read before it can state confidence. `ev-sld` panel 2 needs a stored part-function description. `sessions` panel 2 needs a full-window denominator summary in W2-06; paged rows alone cannot supply it. `ev-evidence` panel 3 needs a ranked next-evidence recommendation. `ev-finding` panel 3 needs a Recommendation/Action read. `ev-financials` panel 1 needs an eligible complete quantity plus a published tariff revision before it can show a gross scenario amount. Keep each panel and its stated in-panel gap until those reads exist.
 
-The v69 EV extrapolations remain content/structure references pending owner visual-authority confirmation; this decision applies the binding mock layout now. `availability`, `energy`, health, work, Action, Scenario and estate routes are outside W2. The illustrative sessions 10/1/1, 120 kWh and $36 are never seeded values.
+The v69 EV screens are the binding visual and content authority (owner ruling 2026-10-18; the screens.js "extrapolation" tag only records that the v6.9 product spec had no EV section). `availability`, `energy`, health, work, Action, Scenario and estate routes are outside W2. The illustrative sessions 10/1/1, 120 kWh and $36 are never seeded values.
 
 ## 8. Slice fixtures, replay and vendor peer
 

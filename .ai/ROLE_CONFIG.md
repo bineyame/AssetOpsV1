@@ -390,6 +390,39 @@ coordinator's:
   pass, closeout records - is dispatched with `model: sonnet`, like fix rounds.
   Steps that decide a design stay on the session model.
 
+## Token Efficiency Without Lowering Quality (owner, 2026-10-18)
+
+Owner: be very efficient without compromising quality, in every session. Lessons
+from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
+
+- **All acceptance rules in the brief from the start.** Layout contract,
+  recurring-defect checklist, height rule, plain-language rules, proof list.
+  Never introduce a rule mid-build; it forces trimming passes on every slice.
+- **Build specs answer the known question classes before coding.** A W2+ build
+  spec is ready only when it fixes, against the actual code: identifier
+  grammars and formats; exact fixture Site/Foundation values and how bindings
+  are published; every seam with path:symbol; guard allowlists the new code
+  must satisfy (rule 8 writers, sqlalchemy import allowlist, dependency
+  direction); refusal codes; freshness/time references; UI empty/unavailable
+  copy and the panel map; how Lab/run projections and stored artifacts look.
+  W2-02 needed six question rounds because its first spec skipped these.
+- **Size builder runs to one spec commit each**, with a handoff after each, so
+  no run dies mid-commit and the next run reads only the handoff.
+- **Model by risk.** First review of a new build and design-deciding work on
+  the session model; fix rounds, re-reviews (scoped to prior findings) and
+  mechanical steps on Sonnet. A capture- or copy-only fix may be verified by
+  the coordinator directly (view the evidence, record a short verify note).
+- **Serialize slices that edit the same shared UI files**; parallelize only
+  disjoint work (backend vs frontend, different domains).
+- **One full suite per round, only when no builder is running.** Do not rerun
+  full suites after doc-, test- or CSS-only changes; rerun the touched files.
+- **Batch Architect/Planner questions into one Codex call**, and fold a
+  preemptive sweep of the slice's remaining commits into that same call.
+- **No duplicate agents.** Check for a live agent on a worktree before
+  dispatching; never reuse a worktree a reviewer is still using.
+- **Briefs point to files; they do not restate them.** Coordinator replies to
+  interim agent notifications stay to one line.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record

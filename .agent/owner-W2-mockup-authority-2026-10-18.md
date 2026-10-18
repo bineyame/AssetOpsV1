@@ -1,0 +1,5 @@
+# Owner ruling - W2 mockup screens are the authority (2026-10-18)
+
+Owner, verbatim: "also, wave2 mockup screens are already built, so i am not sure why there should be uncertainity"
+
+Ruling: the v6.9 mockup contains the full W2 screen set (cold-chain and EV: `ev`, `ev-foundation`, `ev-readiness`, `ev-sld`, `ev-health`, `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions`, `ev-scenarios`, `ev-findings`, `ev-finding`, `ev-recommendation`, `ev-action`, `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, and the matching cold set). These screens are the binding visual and content authority for W2 exactly as the W1 screens were - panel set, order, titles, prominence, layout AND content scope. `.agent/architect-W2-design.md` "Only owner decisions remaining" item 4 ("EV screens are extrapolated; content scope open") is closed by this ruling: no EV screen is treated as uncertain or extrapolated. Where accepted data cannot back a mock value, the screen keeps the mock slot and states the gap honestly ("not available yet"), never drops or redesigns the panel.
