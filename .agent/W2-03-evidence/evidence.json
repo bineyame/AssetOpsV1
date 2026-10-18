@@ -1,6 +1,6 @@
 {
-  "revision": "264dfe9a",
-  "captured_at": "2026-10-18T09:55:16.977Z",
+  "revision": "8facadf7",
+  "captured_at": "2026-10-18T10:30:48.832Z",
   "pairs": [
     {
       "screen": "temperature",
@@ -14,7 +14,7 @@
         "titles": [
           "Temperature with operating context",
           "Excursion context",
-          "Claim boundary"
+          "How each limit is set"
         ],
         "panels": [
           {
@@ -32,7 +32,7 @@
             "h": 463
           },
           {
-            "title": "Claim boundary",
+            "title": "How each limit is set",
             "x": 248,
             "y": 982,
             "w": 1145,
@@ -85,7 +85,7 @@
         "titles": [
           "Temperature with operating context",
           "Excursion context",
-          "Claim boundary"
+          "How each limit is set"
         ],
         "panels": [
           {
@@ -103,11 +103,11 @@
             "h": 480
           },
           {
-            "title": "Claim boundary",
+            "title": "How each limit is set",
             "x": 16,
             "y": 1773,
             "w": 358,
-            "h": 307
+            "h": 323
           }
         ],
         "overflowX": 0
@@ -156,7 +156,7 @@
         "titles": [
           "Temperature with operating context",
           "Excursion context",
-          "Claim boundary"
+          "How each limit is set"
         ],
         "panels": [
           {
@@ -174,7 +174,7 @@
             "h": 381
           },
           {
-            "title": "Claim boundary",
+            "title": "How each limit is set",
             "x": 248,
             "y": 893,
             "w": 1145,
@@ -227,7 +227,7 @@
         "titles": [
           "Temperature with operating context",
           "Excursion context",
-          "Claim boundary"
+          "How each limit is set"
         ],
         "panels": [
           {
@@ -245,7 +245,7 @@
             "h": 381
           },
           {
-            "title": "Claim boundary",
+            "title": "How each limit is set",
             "x": 16,
             "y": 1328,
             "w": 358,
@@ -298,7 +298,7 @@
         "titles": [
           "Temperature with operating context",
           "Excursion context",
-          "Claim boundary"
+          "How each limit is set"
         ],
         "panels": [
           {
@@ -316,7 +316,7 @@
             "h": 96
           },
           {
-            "title": "Claim boundary",
+            "title": "How each limit is set",
             "x": 248,
             "y": 552,
             "w": 1160,
@@ -369,7 +369,7 @@
         "titles": [
           "Temperature with operating context",
           "Excursion context",
-          "Claim boundary"
+          "How each limit is set"
         ],
         "panels": [
           {
@@ -387,7 +387,7 @@
             "h": 96
           },
           {
-            "title": "Claim boundary",
+            "title": "How each limit is set",
             "x": 16,
             "y": 796,
             "w": 358,
@@ -550,14 +550,14 @@
             "x": 16,
             "y": 1378,
             "w": 358,
-            "h": 217
+            "h": 199
           },
           {
             "title": "Evidence by causal step",
             "x": 16,
-            "y": 1613,
+            "y": 1595,
             "w": 358,
-            "h": 836
+            "h": 853
           }
         ],
         "overflowX": 0
