@@ -344,12 +344,22 @@ function Subtabs({ view, routes, window }: { view: ColdSiteView; routes: ColdSit
   );
 }
 
-/** The selected window and evidence cutoff (the mock's date bar), with any pending, historical or stale sentence. */
-function selectionLine(read: { window: ColdWindowQuery; currentness: { state: string } } | null, withCutoff: boolean): string | null {
+/**
+ * Run-7 status/date ruling: the selected half-open UTC window and the evidence cutoff in the Site date-bar slot,
+ * immediately below the tabs (no shared date-bar component exists to carry a sub-day window and cutoff).
+ * `extra` carries the pending/historical sentence on `cold-assumptions`, which has no status strip.
+ */
+function SelectedWindowBar({ read, extra }: { read: { window: ColdWindowQuery } | null; extra?: string | null }) {
   if (read === null) return null;
-  const parts = [windowText(read.window.from, read.window.to)];
-  if (withCutoff) parts.push(`Selected evidence through ${utc(read.window.known_at)}`);
-  return parts.join(" · ");
+  return (
+    <p className="site-date-bar" data-cold-date-bar>
+      <span className="site-date-bar__window">Selected window {windowText(read.window.from, read.window.to)}</span>
+      <span className="site-date-bar__cutoff">
+        Selected evidence through {utc(read.window.known_at)}
+        {extra ? ` · ${extra}` : null}
+      </span>
+    </p>
+  );
 }
 const stateSentence = (read: { currentness: { state: string } } | null) =>
   read === null ? null : (CURRENTNESS_SENTENCE[read.currentness.state] ?? null);
@@ -480,15 +490,12 @@ function OverviewScreen(p: ScreenProps) {
     <>
       {o === null ? null : (
         <>
-          <StatusBar
-            label="Cold room state"
-            other={selectionLine(o, false)}
-            action={<ToLink href={coldUiHref(o.links.evidence, p.routes)}>Inspect evidence</ToLink>}
-          >
+          <SelectedWindowBar read={o} />
+          <StatusBar label="Cold room state" action={<ToLink href={coldUiHref(o.links.evidence, p.routes)}>Inspect evidence</ToLink>}>
             <Badge tone="neutral">{overviewStateChip(o)}</Badge>{" "}
             <Badge tone="neutral">{o.status.claim_level === null ? "Confidence: Unknown" : `Confidence: ${claimWord(o.status.claim_level)}`}</Badge>{" "}
-            <Badge tone="neutral">{o.consequence_summary.overlap_group !== null ? "Potential product exposure" : "Product exposure not established"}</Badge>{" "}
-            {stateSentence(o) === null ? `Selected evidence through ${utc(o.window.known_at)}` : `${stateSentence(o)} · Selected evidence through ${utc(o.window.known_at)}`}
+            <Badge tone="neutral">{o.consequence_summary.overlap_group !== null ? "Potential product exposure" : "Product exposure not established"}</Badge>
+            {stateSentence(o) === null ? null : ` ${stateSentence(o)}`}
           </StatusBar>
           <p className="v69-objective" data-cold-objective>
             {o.objective.text}
@@ -652,10 +659,10 @@ function EvidenceScreen(p: ScreenProps) {
   const channels = e?.sources ?? [];
   return (
     <>
+      <SelectedWindowBar read={e} />
       {e === null ? null : (
         <StatusBar
           label="Evidence state"
-          other={selectionLine(e, true)}
           action={foundation === null ? <span>Configuration link not available</span> : <Link to={foundation}>Configuration at window end</Link>}
         >
           <Badge tone="neutral">{evidenceChip(caps)}</Badge> {countSentence(caps)}
@@ -859,8 +866,9 @@ function AnalysisScreen(p: ScreenProps) {
   };
   return (
     <>
+      <SelectedWindowBar read={a} />
       {a === null ? null : (
-        <StatusBar label="Evidence analysis" other={selectionLine(a, true)}>
+        <StatusBar label="Evidence analysis">
           <Badge tone="neutral">Evidence · Analysis</Badge> Accepted records, timing and how each limit is set
           {stateSentence(a) === null ? null : ` · ${stateSentence(a)}`}
         </StatusBar>
@@ -988,7 +996,8 @@ function FinancialsScreen(p: ScreenProps) {
     <>
       {f === null ? null : (
         <>
-          <StatusBar label="Financial consequence" other={selectionLine(f, true)}>
+          <SelectedWindowBar read={f} />
+          <StatusBar label="Financial consequence">
             <Badge tone="neutral">{`${count} consequence ${count === 1 ? "line" : "lines"}`}</Badge> selected window · no financial status here
             {stateSentence(f) === null ? null : ` · ${stateSentence(f)}`}
           </StatusBar>
@@ -1162,11 +1171,7 @@ function AssumptionsScreen(p: ScreenProps) {
   ];
   return (
     <>
-      {s === null ? null : (
-        <StatusBar label="Selected window">
-          {stateSentence(s) === null ? selectionLine(s, true) : `${selectionLine(s, true)} · ${stateSentence(s)}`}
-        </StatusBar>
-      )}
+      <SelectedWindowBar read={s} extra={stateSentence(s)} />
       <Panel heading="Financial assumptions" headingId="cold-site-assumptions-heading" description="Site-scoped business context · no cold assumption publication is available in W2">
         {refused !== null ? (
           <RefusedGap id="cold-site-assumptions" refusal={refused} onRetry={p.retry} />

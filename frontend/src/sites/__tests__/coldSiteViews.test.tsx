@@ -351,9 +351,10 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     expect(main().getAttribute("data-cold-view")).toBe(screenId);
     expectV69Panels(screenId);
     expectPlantedPanelRejected(screenId);
-    expect(document.querySelectorAll(".status-strip")).toHaveLength(1);
+    // Run-7: cold-assumptions has the mock's one panel and notice and no status strip.
+    expect(document.querySelectorAll(".status-strip")).toHaveLength(screenId === "cold-assumptions" ? 0 : 1);
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
-      expect(panel.querySelectorAll("details[data-exact-references]").length).toBeLessThanOrEqual(1);
+      expect(panel.querySelectorAll("details").length).toBeLessThanOrEqual(1);
     }
     const result = scanProductVocabulary(main(), screenId, { set: "w1" });
     expect(result.scanned).toBeGreaterThan(3);
@@ -406,6 +407,33 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
   });
 });
 
+describe("W2-04: Run-7 date bar", () => {
+  it.each(ROUTES)("stocked: %s shows the selected window and cutoff in the date-bar slot, never in the status strip", async (_screenId, path) => {
+    renderCold(path, STOCKED);
+    await settledScreen();
+    const bars = document.querySelectorAll("[data-cold-date-bar]");
+    expect(bars).toHaveLength(1);
+    expect(text(bars[0])).toContain("Selected window 6 Oct 2026 16:00–17:05 UTC");
+    expect(text(bars[0])).toContain("Selected evidence through 6 Oct 17:06 UTC");
+    for (const strip of Array.from(document.querySelectorAll(".status-strip"))) {
+      expect(text(strip)).not.toContain("Selected evidence through");
+      expect(text(strip)).not.toContain("16:00–17:05");
+    }
+    // The date bar sits before panel 1 and after the tab rows.
+    const firstPanel = document.querySelector("main section.panel")!;
+    expect(bars[0].compareDocumentPosition(firstPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    for (const nav of Array.from(document.querySelectorAll("main nav"))) {
+      expect(nav.compareDocumentPosition(bars[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+  });
+
+  it("cold-assumptions gets no status strip", async () => {
+    renderCold(ROUTES[4][1], STOCKED);
+    await settledScreen();
+    expect(document.querySelector(".status-strip")).toBeNull();
+  });
+});
+
 describe("W2-04: cold Overview", () => {
   it("renders the ledger's strip, five cards and the selected panels with window-preserving links", async () => {
     renderCold(ROUTES[0][1], STOCKED);
@@ -414,7 +442,7 @@ describe("W2-04: cold Overview", () => {
     expect(strip).toContain("Degraded");
     expect(strip).toContain("Confidence: Bounded");
     expect(strip).toContain("Potential product exposure");
-    expect(strip).toContain("Selected evidence through");
+    expect(strip).not.toContain("Selected evidence through");
     expect(document.querySelector("[data-cold-objective]")?.textContent).toBe(STOCKED_OVERVIEW.objective.text);
     expect(Array.from(document.querySelectorAll("[data-cold-card]")).map((c) => c.getAttribute("data-cold-card"))).toEqual([
       "temperature",
