@@ -226,23 +226,12 @@ def _properties(component: Mapping[str, Any]) -> dict[str, float]:
     return {p["property_key"]: p["value"] for p in component.get("properties") or ()}
 
 
-def cold_foundation_document(
-    *,
-    revision: Any,
-    binding_set: Any,
-    assets_by_code: Mapping[str, Any],
-    contact: ContactFacts | None,
-    contact_absent: str = CONTACT_HEALTH_ABSENT,
-) -> dict[str, Any]:
-    """The `GET /api/sites/{code}/cold/foundation` body for one selected effective revision."""
-    content = revision.content
-    components = list(content.get("components") or ())
-    by_id = {c["component_id"]: c for c in components}
-
-    def asset_id(component_id: str) -> str | None:
-        asset = assets_by_code.get(component_id)
-        return None if asset is None else str(asset.id)
-
+def topology_parts(
+    content: Mapping[str, Any], asset_id: Callable[[str], str | None]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, str]]:
+    """The selected read's `topology.nodes` and `topology.edges`, plus node -> component, of one Foundation
+    content (shared by the cold and W2-05a EV selected reads)."""
+    by_id = {c["component_id"]: c for c in content.get("components") or ()}
     topology = content.get("topology")
     node_component: dict[str, str] = {}
     edges: list[dict[str, Any]] = []
@@ -265,6 +254,27 @@ def cold_foundation_document(
                 "to_node": edge["to_node"],
                 "medium": edge["medium"],
             })
+    return nodes, edges, node_component
+
+
+def cold_foundation_document(
+    *,
+    revision: Any,
+    binding_set: Any,
+    assets_by_code: Mapping[str, Any],
+    contact: ContactFacts | None,
+    contact_absent: str = CONTACT_HEALTH_ABSENT,
+) -> dict[str, Any]:
+    """The `GET /api/sites/{code}/cold/foundation` body for one selected effective revision."""
+    content = revision.content
+    components = list(content.get("components") or ())
+
+    def asset_id(component_id: str) -> str | None:
+        asset = assets_by_code.get(component_id)
+        return None if asset is None else str(asset.id)
+
+    topology = content.get("topology")
+    nodes, edges, node_component = topology_parts(content, asset_id)
 
     def linked(room_id: str, medium: str, outgoing: bool) -> list[str]:
         found: list[str] = []

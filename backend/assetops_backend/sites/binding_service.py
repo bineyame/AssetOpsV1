@@ -342,6 +342,13 @@ def validate_bindings(
                     "BINDING_ASSET_UNKNOWN", index,
                     f"Asset {req.asset_id} is not a registered asset of {site.site_code}.",
                 )
+        if role_set == ROLE_SET_EV_1 and source is not None and asset is not None and source.asset_id != asset.id:
+            # W2-05a QG (`D-2026-10-18-w2-05-buildspec`): an EV source binds only the asset it is registered to,
+            # compared by registered UUID (a c1 device on the c2 connector, a meter device on another meter).
+            problem(
+                "BINDING_SOURCE_ASSET_MISMATCH", index,
+                f"Device {req.device_id!r} is registered to another asset, not {asset.asset_code}.",
+            )
         role: Role | None = roles.get(req.role)
         if role is None:
             problem("BINDING_ROLE_UNKNOWN", index, f"Role {req.role!r} is not in {role_set}.")

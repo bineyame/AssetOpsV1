@@ -159,3 +159,41 @@ def test_energy_channel_refusals(store, change, code) -> None:
             result.tenant, result.site, requests=requests, effective_from=MISSING_METER_FROM, note="refused",
             role_set="ev-roles-1")
     assert code in {p["code"] for p in caught.value.problems}
+
+
+def _refused_codes(store, result, requests) -> set[str]:
+    with pytest.raises(BindingRefused) as caught:
+        BindingService(store, Clock(NOW - timedelta(hours=1))).publish(
+            result.tenant, result.site, requests=requests, effective_from=MISSING_METER_FROM, note="refused",
+            role_set="ev-roles-1")
+    return {p["code"] for p in caught.value.problems}
+
+
+@pytest.mark.parametrize("device,other", [("c1-connector-meter", "c2"), ("site-meter", "c1")])
+def test_source_bound_to_another_asset_is_refused(store, device, other) -> None:
+    """QG: a source binds only the asset it is registered to (registered UUIDs, not name prefixes)."""
+    result = install(store)
+    regs = store.registrations(result.tenant.id, result.site.id)
+    other_id = str(next(a.id for a in regs.assets if a.asset_code == other))
+    requests = [BindingRequest(**{**r.__dict__, "asset_id": other_id}) if r.device_id == device else r
+                for r in complete_requests(store, result)]
+    before = len(store.binding_sets(result.tenant.id, result.site.id))
+    assert "BINDING_SOURCE_ASSET_MISMATCH" in _refused_codes(store, result, requests)
+    assert len(store.binding_sets(result.tenant.id, result.site.id)) == before
+
+
+def test_legacy_w200_tuples_cannot_bind_under_the_ev_profile(store) -> None:
+    """QF: the unsuffixed W2-00 tuples keep their role labels globally but are outside simulator-lab-gateway-ev/1."""
+    from assetops_contracts.source_envelope_v4 import V4_CHANNEL_MAPPINGS, V4_COLD_CHANNEL_MAPPINGS
+
+    legacy = {k: v for k, v in V4_CHANNEL_MAPPINGS.items()
+              if k not in V4_EV_CHANNEL_MAPPINGS and k not in V4_COLD_CHANNEL_MAPPINGS}
+    assert {v.role for v in legacy.values()} == {"ev_session_event", "ev_connector_fault"}
+    result = install(store)
+    template = {(r.device_id, r.signal_id): r for r in complete_requests(store, result)}
+    for (device, signal), entry in legacy.items():
+        model = template[("c1-charger-controller", "session-event")] if entry.role == "ev_session_event" \
+            else template[("c1-connector-controller", "fault-event")]
+        requests = [r for r in template.values() if r is not model]
+        requests.append(BindingRequest(**{**model.__dict__, "device_id": device, "signal_id": signal}))
+        assert "BINDING_CHANNEL_V4_UNKNOWN" in _refused_codes(store, result, requests)

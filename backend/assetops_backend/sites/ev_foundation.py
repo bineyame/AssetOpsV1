@@ -24,9 +24,12 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, time, timedelta, timezone
-from typing import Mapping, NoReturn, Sequence
+from decimal import Decimal
+from typing import Any, Mapping, NoReturn, Sequence
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from assetops_backend.sites.binding_roles import EV_CADENCE_PROPERTY_BY_ROLE
+from assetops_backend.sites.cold_foundation import _iso, topology_parts
 from assetops_backend.sites.models import EV_PROPERTY_CARRIERS, WEEKDAYS, SiteFoundation
 from assetops_backend.sites.ports import SiteConfigurationInvalid
 
@@ -414,6 +417,27 @@ EV_REQUIRED_CHANNEL_CODES: tuple[tuple[str, str], ...] = (
 )
 
 
+def _gap_items(content: Mapping, bound: set[tuple[str, str]]) -> list[tuple[str, str, str | None, str]]:
+    """Every blocking gap as `(code, subject, component_id, message)`; `ev_blocking_gaps` and the selected read
+    share it, so the Draft gate and the read never disagree."""
+    components = list(content.get("components") or ())
+    connectors = [c["component_id"] for c in components if c.get("component_type") == "EV_CONNECTOR"]
+    feeds = [c for c in components if c.get("component_type") == "AC_BUS"]
+    gaps: list[tuple[str, str, str | None, str]] = []
+    if not connectors:
+        gaps.append(("CONNECTOR_NOT_DECLARED", "foundation", None, "No connector declared."))
+    if not feeds:
+        gaps.append(("FEED_OR_LIMIT_MISSING", "foundation", None, "No site feed declared."))
+    elif not any(p.get("property_key") == "ev-site-import-limit" for p in feeds[0].get("properties") or ()):
+        gaps.append(("FEED_OR_LIMIT_MISSING", "foundation", feeds[0]["component_id"],
+                     "Site import limit not declared."))
+    for connector in connectors:
+        for role, code in EV_REQUIRED_CHANNEL_CODES:
+            if (role, connector) not in bound:
+                gaps.append((code, role, connector, f"Connector {connector} has no {role} binding."))
+    return gaps
+
+
 def ev_blocking_gaps(content: Mapping, bound: set[tuple[str, str]]) -> list[tuple[str, str, str]]:
     """The `CONFIGURATION_INCOMPLETE` gaps of one selected Foundation content and binding set, as
     `(code, subject, message)`.
@@ -422,18 +446,161 @@ def ev_blocking_gaps(content: Mapping, bound: set[tuple[str, str]]) -> list[tupl
     `ev-site-import-limit`, or a declared connector without its energy, session-event or state binding blocks;
     optional roles (fault, connector power, requested, allocated, Site import) never do.
     """
+    return [(code, subject, message) for code, subject, _component, message in _gap_items(content, bound)]
+
+
+# --- Selected read (`GET /api/sites/{code}/ev/foundation`) ---------------------------------------------------
+
+READY = "READY_TO_REPORT"
+INCOMPLETE = "CONFIGURATION_INCOMPLETE"
+MESSAGE_SITE_IMPORT = "Site import is not bound; site power comparison is unavailable."
+MESSAGE_NOT_CONTACTED = "No gateway contact recorded."
+MESSAGE_COMMISSIONING = "Commissioning unconfirmed."
+
+
+def _decimal_text(value: object) -> str | None:
+    """A JSON decimal quantity: the exact decimal string of a stored number; None stays None (never zero)."""
+    if value is None:
+        return None
+    return format(Decimal(str(value)).normalize(), "f")
+
+
+def _seconds(minutes: object) -> int | str | None:
+    """A cadence in minutes as seconds (Q4): an integer when whole, otherwise its exact decimal string."""
+    if minutes is None:
+        return None
+    seconds = Decimal(str(minutes)) * 60
+    return int(seconds) if seconds == seconds.to_integral_value() else format(seconds.normalize(), "f")
+
+
+def _props(component: Mapping | None) -> dict[str, object]:
+    return {} if component is None else {p["property_key"]: p["value"] for p in component.get("properties") or ()}
+
+
+def ev_foundation_document(
+    *,
+    site: Any,
+    selected_at: datetime,
+    revision: Any,
+    binding_set: Any,
+    assets_by_code: Mapping[str, Any],
+    contact: Mapping[str, Any],
+) -> dict[str, Any]:
+    """The `GET /api/sites/{code}/ev/foundation` body for one selected effective Foundation revision and the
+    binding set effective with it (spec "Role set, binding and selected read"; Q2-Q4, QE).
+
+    `contact` is the already-mapped `{state, as_of, gateway_id, reason}`. Configuration only: a configured
+    service window is not observed availability, and no charger health or commissioning is claimed.
+    """
+    content = revision.content
     components = list(content.get("components") or ())
-    connectors = [c["component_id"] for c in components if c.get("component_type") == "EV_CONNECTOR"]
+    by_id = {c["component_id"]: c for c in components}
+    codes_by_asset = {str(a.id): code for code, a in assets_by_code.items()}
+
+    def asset_id(component_id: str | None) -> str | None:
+        asset = None if component_id is None else assets_by_code.get(component_id)
+        return None if asset is None else str(asset.id)
+
+    nodes, edges, node_component = topology_parts(content, asset_id)
+
+    def children(component_id: str, medium: str) -> list[str]:
+        return [node_component[e["to_node"]] for e in edges
+                if e["medium"] == medium and node_component.get(e["from_node"]) == component_id
+                and e["to_node"] in node_component]
+
     feeds = [c for c in components if c.get("component_type") == "AC_BUS"]
-    gaps: list[tuple[str, str, str]] = []
-    if not connectors:
-        gaps.append(("CONNECTOR_NOT_DECLARED", "foundation", "No connector declared."))
-    if not feeds:
-        gaps.append(("FEED_OR_LIMIT_MISSING", "foundation", "No site feed declared."))
-    elif not any(p.get("property_key") == "ev-site-import-limit" for p in feeds[0].get("properties") or ()):
-        gaps.append(("FEED_OR_LIMIT_MISSING", "foundation", "Site import limit not declared."))
-    for connector in connectors:
-        for role, code in EV_REQUIRED_CHANNEL_CODES:
-            if (role, connector) not in bound:
-                gaps.append((code, role, f"Connector {connector} has no {role} binding."))
-    return gaps
+    feed = feeds[0] if feeds else None
+    feed_meters = [] if feed is None else [m for m in children(feed["component_id"], "AC")
+                                           if by_id.get(m, {}).get("component_type") == "METER"]
+    schedules = {s["connector_asset_id"]: s for s in content.get("connector_enable_schedules") or ()}
+
+    chargers = []
+    for charger in (c for c in components if c.get("component_type") == "EV_CHARGER"):
+        connectors = []
+        for connector_id in children(charger["component_id"], "SIGNAL"):
+            props = _props(by_id.get(connector_id))
+            schedule = schedules.get(connector_id)
+            connectors.append({
+                "asset_id": asset_id(connector_id),
+                "max_kw": _decimal_text(props.get("ev-connector-max-power")),
+                "enabled_schedule": None if schedule is None else {
+                    "enabled": props.get("ev-connector-enabled"),
+                    "time_zone": schedule["time_zone"],
+                    "weekly": [dict(w) for w in schedule.get("weekly") or ()],
+                },
+                "meter_resolution_kwh": _decimal_text(props.get("ev-meter-resolution")),
+                "meter_error_bound_kwh": _decimal_text(props.get("ev-meter-error-bound")),
+            })
+        chargers.append({
+            "asset_id": asset_id(charger["component_id"]),
+            "max_kw": _decimal_text(_props(charger).get("ev-charger-max-power")),
+            "connectors": connectors,
+        })
+
+    rows = tuple(binding_set.bindings) if binding_set is not None else ()
+    bound = {(r.role, codes_by_asset[str(r.asset_id)]) for r in rows if str(r.asset_id) in codes_by_asset}
+    connector_meter_cadences = [Decimal(str(v)) for v in (
+        _props(c).get("ev-meter-cadence") for c in components if c.get("component_type") == "EV_CONNECTOR")
+        if v is not None]
+
+    def cadence(role: str, component_id: str | None) -> int | str | None:
+        key = EV_CADENCE_PROPERTY_BY_ROLE.get(role)
+        if key is None:
+            return None  # EVENT roles have no cadence (Q4).
+        if role == "ev_site_import":
+            # QE: the minimum ev-meter-cadence across the selected revision's declared connectors.
+            return _seconds(min(connector_meter_cadences)) if connector_meter_cadences else None
+        return _seconds(_props(by_id.get(component_id) if component_id else None).get(key))
+
+    bindings = []
+    for row in sorted(rows, key=lambda r: (r.role, str(r.asset_id), r.device_id, r.signal_id)):
+        component_id = codes_by_asset.get(str(row.asset_id))
+        bindings.append({
+            "role": row.role,
+            "asset_id": None if row.asset_id is None else str(row.asset_id),
+            "source_id": str(row.source_id),
+            "device_id": row.device_id,
+            "signal_id": row.signal_id,
+            "unit": row.canonical_unit,
+            "cadence_seconds": cadence(row.role, component_id),
+            "effective_from": _iso(binding_set.valid_from),
+            "effective_to": _iso(binding_set.valid_to),
+        })
+
+    messages: list[dict[str, Any]] = []
+
+    def say(code: str, role: str | None, component_id: str | None, message: str, blocking: bool) -> None:
+        messages.append({"code": code, "role": role, "component_id": component_id,
+                         "asset_id": asset_id(component_id), "message": message, "blocking": blocking})
+
+    for code, subject, component_id, message in _gap_items(content, bound):
+        say(code, None if subject == "foundation" else subject, component_id, message, True)
+    if not any(role == "ev_site_import" for role, _component in bound):
+        say("SITE_IMPORT_NOT_BOUND", "ev_site_import", None, MESSAGE_SITE_IMPORT, False)
+    if contact.get("state") == "NEVER":
+        say("SOURCE_NOT_CONTACTED", None, None, MESSAGE_NOT_CONTACTED, False)
+    say("COMMISSIONING_UNCONFIRMED", None, None, MESSAGE_COMMISSIONING, False)
+
+    return {
+        "site_id": str(site.id),
+        "site_code": site.site_code,
+        "site_type": site.site_type,
+        "selected_at": _iso(selected_at),
+        "foundation_revision_id": str(revision.id),
+        "binding_revision_id": None if binding_set is None else str(binding_set.id),
+        "feed": {
+            "asset_id": asset_id(None if feed is None else feed["component_id"]),
+            "limit_kw": _decimal_text(_props(feed).get("ev-site-import-limit")),
+            "meter_asset_id": asset_id(feed_meters[0]) if len(feed_meters) == 1 else None,
+        },
+        "chargers": chargers,
+        "topology": None if content.get("topology") is None else {"nodes": nodes, "edges": edges},
+        "bindings": bindings,
+        "readiness": {
+            "state": INCOMPLETE if any(m["blocking"] for m in messages) else READY,
+            "messages": messages,
+        },
+        "contact": dict(contact),
+        # No commissioning record exists in 05a; never manufactured from a good gateway receipt.
+        "commissioning": {"state": "UNCONFIRMED", "evidence_ids": []},
+    }

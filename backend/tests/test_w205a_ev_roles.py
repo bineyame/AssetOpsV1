@@ -190,3 +190,14 @@ def test_a_submitted_cadence_field_is_a_request_refusal() -> None:
     with pytest.raises(BindingRefused) as caught:
         BindingRequest.from_wire(item, 0)
     assert caught.value.code == "BINDING_REQUEST_INVALID"
+
+
+def test_main_serves_the_selected_ev_foundation_read() -> None:
+    """Spec commit 3: the selected EV read is included in the application beside the cold read."""
+    from route_inventory import served_paths
+
+    from assetops_backend.main import app
+
+    paths = served_paths(app)
+    assert "/api/sites/{site_code}/cold/foundation" in paths, "route inventory must not be vacuous"
+    assert "/api/sites/{site_code}/ev/foundation" in paths
