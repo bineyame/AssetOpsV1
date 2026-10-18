@@ -1,23 +1,34 @@
-# W2-03 handoff (partial; stopped on an Architect question)
+# W2-03 handoff (partial; commits 1-3 done, stopped at context budget before commit 4)
 
-Branch `task/W2-03-cold-assessment`. Landed:
-- 7667ad97, 4d704f76 — commit (1): `0022_w2_cold_assessment.py`, Finding revision `domain` write, rule-8 cold policy + 25 probes (20 caught / 5 allowed, non-vacuity proven), `test_w203_cold_migration_postgres.py` (4 pass), head literals 0021->0022 in 7 tests. check-all 10/10.
-- 0089cdb8 — commit (2): `analytics/cold.py` pure rules, `test_w203_cold_rules.py` (7 pass), pinned vectors `backend/tests/fixtures/w2/cold-w203-vectors.json` + drift check `host/tests/test_w203_cold_vectors.py`. Six W2-02 cases give the spec outcomes.
+Branch `task/W2-03-cold-assessment`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`. Binding: `.agent/W2-03-build-spec.md` (incl. `D-2026-10-18-w2-03-answers` and "Commits 3-5 exact contract"), `.agent/W2-03-build-brief.md`.
 
-## Blocking question (commit 3)
-Q1. Trigger `financial_consequence_dirty_on_finding_revision` (0011/0012) fires on every `finding_revision` INSERT and copies `episode_start/end` into `financial_consequence_work.affected_from/to`. A cold revision with null bounds fails NOT NULL; with bounds it queues mini-grid fuel work. 0022 spec is silent. Should 0022 narrow it to `WHEN (NEW.domain = 'mini_grid')` (W2-04 adds cold money triggers in 0023), or otherwise?
+## Landed
+- 7667ad97, 4d704f76 - commit (1): `0022`, Finding `domain`, rule-8 cold policy + probes, migration tests.
+- 0089cdb8 - commit (2): `analytics/cold.py` pure rules, `test_w203_cold_rules.py`, pinned vectors + host drift check.
+- 6ddb6fad - Q1: `0022` drops/recreates `financial_consequence_dirty_on_finding_revision` with `WHEN (NEW.domain = 'mini_grid')`; downgrade restores the unconditional trigger first (0012 function untouched). Migration test workaround and stray-fuel cleanup removed; new `test_fuel_trigger_is_mini_grid_only` (cold null-bounds revision -> 0 fuel rows, mini-grid copy -> exactly 1); downgrade asserts the unconditional trigger is back. Non-vacuity: removing the `WHEN` fails 2 tests (NotNullViolation + triggerdef assert); reverted. 5/5 pass.
+- Q2-Q11: no corrections needed; commits 1-2 already match the answers (Q4 45 min, Q5, Q9 LOW = min, Q10 calibration at selection, Q11 CONTRADICTORY EXCLUDED all as built).
+- 07d3c0d1 - commit (3), see anchors below. `test_w203_cold_replay_postgres.py` 12 pass (six cases + late/idempotent/split x2/retry/event-ID conflict+SUSPECT); adjacent W2-00/S2 ledger/S3 dispatch/S4 consequence/W2-02 gate/finding tests pass (91 + 92); check-all 10/10.
 
-## Readings to confirm (commit 1/2 built on the narrowest reading)
-Q2. `cold_episode_revision.coverage` NOT NULL; "peak null if no usable point" as `CHECK (peak_observed IS NULL OR coverage > 0)`. Added scope-unique `(tenant_id,site_id,id)` on episode/revision (needed by scoped FKs), no-self-split CHECK, 64-hex SHA CHECKs.
-Q3. `cold-excursion/1` stored as analytic_id `cold-excursion` + model_version `1`.
-Q4. Open-episode low duration ends at last continuously observed out-of-band reading (20:00 -> 45 min); literal "window end" (20:05) would give 50, contradicting the required 45.
-Q5. Earliest start null when prior reading is >10 min earlier or not in band.
-Q6. Claim mapping: coverage<0.8 UNKNOWN; confirmed >=15 min + gate permits BOUNDED+exposure; confirmed short or gate refuses POSSIBLE; single out-of-band reading state UNKNOWN/claim POSSIBLE; in band NO_EXCURSION_OBSERVED/BOUNDED; conflicting GOOD probe values at one instant CONTRADICTORY.
-Q7. Start Finding only for OBSERVED_FAILURE with permitting gate (timeout-inferred failure also OBSERVED); success -> no Finding.
-Q8. Backup transfer step counts only TRANSFER_RESULT before first POWER_RESTORED in the correlation.
-Q9. Low-excursion peak = minimum observed value.
-Q10. Calibration settled at configuration selection (commit 3) via probe_asset_id; ColdEvidence has no calibration field.
-Q11. Contradictory records linked EXCLUDED reason CONTRADICTORY.
+## Commit 3 anchors (for commit 4 reads)
+- `analytics/cold.py` tail: `ColdConfigurationRefused`, `ColdInputs` (+`.basis(analytic)`), `assess_all`, `plain` (decimal strings, `iso` UTC `...000000Z`, lowercase UUIDs), `assessment_document`.
+- `postgres_assessment_store.py` "cold_chain (W2-03)" block (before `_cold_value`/`_REVISION_NAMES`): `transaction`, `cold_watermark(c,t,s)` = max `ingestion_disposition.decided_at`, `cold_still_mine`, `cold_complete`, `cold_windows`, `cold_inputs`, `cold_persist`, `cold_episodes`, `_cold_revision`. Constructor takes `link_rows=` (S4-05 reader injected by `analytics/composition.py:build_postgres_assessment_store` via `evidence/composition.py:build_link_rows_reader`); `build_cold_assessment_worker(url)` also there.
+- Assessment key: `f"{analytic}:{iso(from)}:{iso(to)}"`; `assessment_revision.result` = `plain(ColdAssessment)` + `policy` + `source_gate{classification,source_ids,permitted}`; `evidence_ids` = all selected records; `analytic_run.knowledge_cutoff` = `known_at`; DEFAULT runs logged in `analytic_run_selection` (explicit runs are `EXPLICIT`, not selected).
+- Episodes: excursion `asset_id` = room, chain = generator; a NO_LONGER_SUPPORTED episode revision has claim `UNKNOWN`, null bounds and no evidence links.
+- `postgres_finding_store.py` tail: `cold_apply`, `_cold_finding_of` (by `claim->>'episode_id'`), `_insert_cold_finding`, `_insert_cold_revision`; constants `COLD_MATCHER_VERSION`, `COLD_MECHANISMS` (`COLD_EXCURSION`, `COLD_START_FAILURE`), `COLD_TITLES`. Finding claim: `episode_id, episode_revision_id, kind, state` + excursion bounds/peak/open or chain `correlation_id,result,missing_steps,start_timeout_min`. `finding_key = cold:<KIND>:<episode_id>`.
+- `assessment_worker.py` tail: `COLD_DOMAIN`, `ColdProjection`, `ColdAssessmentWorker(store, findings, ...)` with `assess_explicit`, `run_once`, `run_pending(limit, tenant_id, site_id)`.
+- Intake: `postgres_evidence_ledger.py` `decide_chunk` enqueues `cold_chain` for new ACCEPTED v4 rows whose binding role is in `COLD_ROLE_NAMES`; `_coalesce_job(..., domain=)` widens cold matches by `_COLD_BRIDGE` (10 min).
+- Replay test helpers reusable for reads tests: `opened(case, chain)` (attests sources, uploads), `run`, `latest`, `findings`, `report_like`, `admit` in `test_w203_cold_replay_postgres.py`.
 
-## Remaining
-Commit (3) worker/episode/Finding writes + `test_w203_cold_replay_postgres.py` (anchors: assessment store `query_evidence` :176, `_configuration` :201, `enqueue` :318, `_persist` :421, own txn :544; finding store `apply` :118 txn :145, `_insert_finding` :151, `_insert_revision` :165; intake kit `test_s2_evidence_ledger_postgres.py`, v4 fixture `test_w200_source_events_postgres.py:55`); (4) read API + reads tests; (5) four routes, panel guard, 1440/390 captures, packet; then full backend + host suites, full npm test, check-all. Private DB `assetops_w203_test` exists.
+## Known deviations / interpretations to carry into the packet
+1. Work window: the spec says "bracket accepted cold source times into work windows" without a rule. Built: the job window is the 5-min-aligned bracket of its accepted source times, merged with every selected cold window within the 10-min bridge; the ledger coalesces pending cold jobs across the same bridge. Without it, the per-tick gateway batches produced thirteen 5-minute windows. The canonical replay yields exactly `[19:00,20:05)` (asserted). Worth an Architect confirmation.
+2. Clock attestation: the cold lab installs none, and the rules need attested clocks, so the replay tests record the SYSTEM attester's labelled simulated attestation per lab source (epoch `cold-<case>`) before upload. This is not an accepted-row insert.
+3. L3 `split_from_finding_id`: an ad hoc reading can only enter through the gateway outside the registered publication (the registered release refuses it: `STAGE_NOT_ATTESTABLE`), so the window's S4-05 gate becomes MIXED and correctly opens no new Finding (asserted). The positive link is proven with a test-only `classify` double holding the registered class (`test_split_links_finding_when_gate_permits`).
+4. A Finding whose episode no longer warrants one (still supported, claim limited) gets `SUPPORT_CHANGED`/`BASIS_REFRESHED` with lifecycle `UNCONFIRMED`. The spec is silent.
+5. `test_w200_source_events_postgres.py` "no dispatch job" now excludes `cold_chain` (W2-03 supersedes "v4 enqueues nothing" for cold roles only).
+6. In the W2-02 excursion replay the start chain is `OBSERVED_FAILURE` (it opens a start Finding too). The spec states no excursion start result, so none is asserted.
+
+## Remaining (exact)
+1. Commit (4): `analytics/cold_reads.py:ColdReadService` + `cold_assessment_api.py:build_cold_assessment_router` per spec "Commit 4 - selected reads"; mount it in `main.py` beside `build_cold_foundation_router` (pattern: `cold_foundation_api.py`, `finding_api.py:open_scope/source_gate`). Read the latest selected run per analytic covering the requested window (`analytic_run_selection` max seq), its `assessment_revision.result`, episodes and cold Findings (`domain='cold_chain'`). Add the currentness rule (pending cold job overlapping -> `PENDING_RECOMPUTE`; explicit `known_at` older than the watermark -> `HISTORICAL`; latest probe older than 10 min -> `STALE_SOURCE`; no selection -> 200 `UNKNOWN`). Add typed errors, the cursor and the 31-day limit. Tests: `test_w203_cold_reads_postgres.py::{test_window_limit_and_paging,test_typed_errors_and_unknown_200,test_tenant_source_gate,test_pending_historical_reload}`, reusing the replay helpers. Note: the `latest_relevant_evidence_at` vs read-time staleness makes a 2026-10-06 replay `STALE_SOURCE` at today's wall clock unless the read time is the cutoff; follow the spec literally and record it.
+2. Commit (5): four routes in `frontend/src/sites/` (clients + views), with the COLDCHAIN switch and `coldRoutes.test.tsx` (`expectV69Panels`, panel titles from `v69-rendered-panels.json`, stocked/empty/refused, planted-panel failure). Then 1440/390 captures via `tools/w1-fidelity-evidence.mjs`, the self-check list in the brief, and the app-vs-mock height table.
+3. Final proof: keep-awake; one full backend suite + host suite (no other pytest; copy `var/sites`, remove after; 75-min cap; JUnit zero-skip); full `npm.cmd test`; `check-all`; rule-8 probes; captures.
+4. Packet `.agent/W2-03-review-packet.md` (git add -f), task `Status: in_review`, `.ai/ACTIVE_CONTEXT.md`, `.ai/CODE_STATE.md`. Drop `assetops_w203_test` at the end.
