@@ -1,4 +1,112 @@
-# W2-04 phase handoff - run 5 (spec commits 1-3 COMPLETE; commit 3 questions Q-R1..Q-R9 open; commit 4 NOT STARTED)
+# W2-04 phase handoff - run 7 (spec commits 1-4 COMPLETE; commit 5 = final proof + packet NOT STARTED)
+
+## Run 7 (this run): spec commit 4 built (five cold Site screens + retro 14/17)
+
+- Commits `1abdd28b`..`019a9e47` (code), plus the evidence commit. Not merged.
+- Code: `frontend/src/sites/coldSiteClient.ts` (five reads, `getAnalysis` takes `cursor`), `sites/coldSiteViews.tsx`
+  (`ColdSiteFrame`, `coldUiHref` maps each API link to its UI route keeping `from,to,known_at`/`at`), `sites/w2-cold-site.css`,
+  `shell/coldSiteRoutes.tsx` (`coldSiteRoutes`, `coldSiteScreen`). COLDCHAIN branches: `SiteDetailFrame` (uses
+  `useSiteRecord`, W2-01 pattern), `SiteEvidenceFrame` (`?view=analysis`), `SiteFinancialsFrame` (both views; new shared
+  `FinancialsSections` keeps one Scenarios entry for the navigation guard). `App` prop `coldSite`.
+- Retro 14 shipped as the **exact-ID gap** (no integration proof): `ColdAssessmentViews.tsx` EvidenceLine shows
+  `Assessment {id} · Analysis view not available for this cold record`; Analysis Record cell likewise (Q-R9 UNAVAILABLE).
+- Retro 17: label `Loading / batch` = `Not established`; settle detectors in `tools/w1-fidelity-evidence.mjs:170`,
+  `tools/layout-evidence.mjs:5442`, `tools/s302-claim-limit-evidence.mjs:65` match only a `main p` whose whole text is a
+  `Loading ….` sentence. Temperature screen recaptured.
+- Tests: `sites/__tests__/coldSiteViews.test.tsx` 28 (5 routes x stocked/empty/403/503 with `expectV69Panels`, planted panel
+  on every stocked route, ledger copy, pending, links, Dev 14/17). Full frontend 86 files / 2210 passed on `019a9e47`;
+  typecheck + production build OK; `check-architecture` and `check-agent-workflow` passed.
+- Captures `.agent/W2-04-evidence/` at `019a9e47`: 216/216 claims, 18 pairs x 1440/390 (cold, cold-evidence,
+  cold-evidence-analysis, cold-financials, cold-assumptions, temperature) x stocked `[2026-10-06T19:00Z,20:05Z)` / empty
+  (2026-10-05, 200 UNKNOWN) / refused (`from>to`, 422). API 9704 (host `lab_app`) on private `assetops_w204cap_test` seeded by
+  the excursion replay -> W2-03 worker -> W2-04 drain (throwaway seed test, `ASSETOPS_TEST_TEMPLATE=0`, not committed); web
+  6104; CDP 9714. DB dropped, servers stopped. Site `COLD-LAB-001`.
+- Height table (stocked 1440, app/mock px): cold 252/274, 386/373, 386/373, 185/193, 185/193 (all <=1.03);
+  cold-evidence 386/336 (1.15), **1423/438 (3.25)**, pair 1423/438; analysis **534/266 (2.01)**, **693/148 (4.68)**;
+  financials **381/234 (1.63)**, 291/234 (1.24) x2; assumptions 315/279 (1.13). Reasons: Data sources = six rows each with
+  the ledger's per-channel contact word/limitation, `Contact checked at window end`, and per-channel `Last accepted fact`
+  (identical contact lines are already merged); Analysis 1 = four rows shown, the rest behind `Show all N accepted records`;
+  Analysis 2 = the ledger's seven facts per rule x two rules (mock is two prose lines); Financials 1 = exposure + backup gap
+  rows with the reason/limitation lines and the Q-R5 basis disclosure. 390: no page overflow; cold tables scroll.
+- Needs-attention per-code link and `COLD_POLICY_MISSING` limitation: the UI renders whatever the API returns (no UI change
+  needed for either Architect answer).
+
+### Questions for the Architect (implemented provisionally; one constant each)
+
+1. `cold-evidence` strip chip: the literal rule (six capability states; `Evidence limited` only if one is LIMITED) gives
+   `Evidence unknown` on the excursion replay (one UNAVAILABLE TRANSFER_POSITION, rest SUPPORTED) beside `3 full · 1 limited`
+   and the Overview Evidence card `Limited` (row-based). Should the strip chip follow the four row chips?
+2. Source rows: no mock row owns `grid_state`, `grid_power_event`, `backup_bus_state` (placed in `Inverter-charger + battery`,
+   no inverter device exists in v4 mapping) or `ambient_temperature`, `manual_temperature` (placed in `Chamber probe`).
+   `coldSiteViews.tsx` `SOURCE_ROWS`. Confirm or give the mapping.
+3. Accept the four >1.3x heights above with their reasons, or name a compaction (e.g. `Contact checked at window end` once).
+
+### Implementer readings (no ledger string existed; confirm)
+
+- Date bar stand-in: each route's status strip carries `{window} · Selected evidence through {known_at UTC}` (Overview: window
+  only, since its detail already states the cutoff); `cold-assumptions` (no mock strip) gets a strip with only that line.
+- Attention/next links labels: `Open Finding →`, `Performance › Backup →`, `Evidence →`; Next step = the first item with a link,
+  label = its Q-R1 text. Evidence panel 1/3 `Review evidence` -> the Analysis link; `Review financials` -> Financials route.
+  `Configuration at window end` sits in the Evidence strip's action slot.
+- Overview card details: Temperature `{n} excursion(s) · latest {t} °C · policy {lo}–{hi} °C · coverage {k} / {e} readings`;
+  Backup `{n} start attempt(s) · {s} started · {f} failed`. Analysis paging: `Show all N accepted records` /
+  `Show more accepted records` (cursor). Causal strip times UTC (chart is UTC); only `Measured (EAT)` uses EAT.
+- Risk: W2-03 accepted-record links (`/evidence?view=analysis&record=`) on cold Finding/Backup screens now open the cold
+  Analysis list (record present by ID, not focused) - not a Q-R9 proof.
+
+### Commit 5 (next): final proof per spec (full backend real-Postgres suite + JUnit zero-skip, host suite, rule-8 probes,
+`tools/check-all.ps1`), review packet `.agent/W2-04-review-packet.md` (git add -f) with the above table/readings, task
+`Status: in_review`, `ACTIVE_CONTEXT`/`CODE_STATE` updates.
+
+## Run 6: commit 3 fixup `f7421764`
+
+
+- Fixup applies spec "Final Run-5 Architect rulings" Q-R1..Q-R8 and verdicts 1/5 (code: `analytics/cold_site_reads.py`
+  constants `ATTENTION`, `COOLING_TEXT`, `MAINTENANCE_*`, `OBJECTIVE_*`, `NOT_INCLUDED_TEXT`, `REQUIREMENTS`, `CONTACT_*`;
+  `_needs_attention`, `_cooling`, `_exact_basis`; `source_contact` now returns `(contact, contact_at, limitation)`).
+  Adapters: `source_facts_on` adds the GOOD count (`quality:{good_count,other_count}`); `cold_heads_on` adds
+  `source_gate_sha256`, `assumption_revision_ids` and sorted distinct `evidence_ids` (SELECT only).
+  `/evidence.links.foundation` = `/api/sites/{code}/cold/foundation?at={to}`. Q-R9: rows stay UNAVAILABLE (no proof built).
+- Verdict 1: W2-03 `known_points` already counts only qualifying (bound, GOOD, clock-attested) points and a missing
+  calibration refuses the run, so capability predicates were already on qualifying points; pure test
+  `test_capability_needs_qualifying_points` pins it. Verdicts 2/3/4/6/7/8 matched the built code (no change).
+- Evidence on `f7421764`: `test_w204_cold_reads.py` + `test_w204_cold_worker.py` 22 passed, 0 failed, 0 skipped,
+  2m29s; `tools/check-architecture.ps1` passed. Rule-8 probes not re-run (no DML changed; run at commit 5).
+- Applied without an explicit per-code ruling (confirm with Architect; one line each):
+  - Q-R1 `link`: Finding URL for the item's analytic if a selected Finding exists, else `backup-chain` read
+    (start failure, transfer unknown) or `evidence` read (pending, probe gap, policy missing).
+  - Q-R1 `COLD_POLICY_MISSING.limitation`: `POLICY_REVISION_UNRESOLVED` when unresolved, else the EXC limitation.
+  - Excursion replay yields `needs_attention` codes `COLD_START_FAILURE, COLD_TRANSFER_UNKNOWN` (pinned in test).
+
+### Commit 4 anchors (Explore survey on this revision; build from these)
+
+- Test helpers: `frontend/src/test/panelStructure.ts:187 expectV69Panels(screenId, values?, scope?)`,
+  `:215 expectPlantedPanelRejected(screenId)`; pattern `sites/__tests__/coldFoundation.test.tsx:198-215` (stub client
+  via `vi.fn`, `<MemoryRouter><App ... coldFoundation={...}/>`), `settledScreen` from `test/settled`.
+- Panel titles: `frontend/docs/architecture/v69-rendered-panels.json` `cold` :268, `cold-evidence` :582,
+  `cold-evidence-analysis` :596, `cold-financials` :606, `cold-assumptions` :620.
+- Window params: `sites/coldAssessmentClient.ts:190 NO_WINDOW`, `:193-197 coldWindowSearch`, `:202 coldWindowFromParams`.
+- Plug points (none has a cold branch yet): `shell/SiteDetailFrame.tsx:95-160` (overview render prop ~:113 receives
+  only the ID); `shell/SiteEvidenceFrame.tsx:95` site resolved, `localView` `?view=analysis` :112, render :116-126;
+  `shell/SiteAnalyticsFrames.tsx:621 SiteFinancialsFrame`, overview/assumptions switch ~:688-691. Existing cold
+  branch pattern `SiteAnalyticsFrames.tsx:165` and `:471` (`site.site_type === "COLDCHAIN" && client !== undefined`),
+  `coldLinks()` :126-135.
+- Dev 14: `coldLinks().analysis` (`SiteAnalyticsFrames.tsx:133`, `siteEvidenceAssessmentHref`) is rendered as a Link
+  at `sites/ColdAssessmentViews.tsx:178`; replace with labelled text + `Analysis view not available for this cold record`
+  until the Q-R9 integration proof exists.
+- Dev 17: `sites/ColdAssessmentViews.tsx:382-383` label is `Stock loading / batch` -> restore `Loading / batch`
+  (`Not established` when none); fix detector `tools/w1-fidelity-evidence.mjs:170`
+  (`!document.body.textContent.includes("Loading")`) to match the real loading element or exact sentences
+  `COLD_ASSESSMENT_LOADING`/`COLD_FINDING_LOADING` (`ColdAssessmentViews.tsx:71-72`). Similar detectors:
+  `tools/layout-evidence.mjs:5442`, `tools/s302-claim-limit-evidence.mjs:65`.
+- Capture tool: `node tools/w1-fidelity-evidence.mjs <out-dir> <mock-id>[:<case>]=<app-url> ...`; mock URL derived
+  from the app origin (`/mockups/v69/index.html#/<id>`); CDP port env `ASSETOPS_CDP_PORT`; `W1_REVISION` env.
+- Next exact steps: (1) `sites/coldSiteClient.ts` typed client for the five reads (shapes in spec "Five API reads" +
+  Run-5 additions); (2) `sites/coldSiteViews.tsx` five views with the spec "Commit-4 copy ledger" copy only, plus
+  `w2-cold-site.css`; (3) COLDCHAIN branches at the plug points; (4) Dev 14 + Dev 17; (5)
+  `sites/__tests__/coldSiteViews.test.tsx` stocked/empty/refused(403)/503/pending per route + planted panel;
+  (6) self-check + height table; (7) 1440/390 captures on ports 9700-9750/6100-6150, then drop fixtures, stop servers.
+
 
 Branch `task/W2-04-cold-site-evidence-money`. Nothing is merged. Private DB `assetops_w204_test`; environment in
 the scratchpad file `w204env.sh` (PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASSETOPS_GUARD_PYTHON`, `PY`, cd
