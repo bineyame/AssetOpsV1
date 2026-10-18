@@ -8,6 +8,7 @@ import {
   type Crumb,
   CausalTimeline,
   DataTable,
+  Disclosure,
   ExactReferences,
   KeyValues,
   MetricCard,
@@ -120,15 +121,31 @@ const SAY: Record<RowChip, string> = {
   Contradictory: "Selected records contradict one another.",
 };
 
-/** The six grouped source rows of `cold-evidence` panel 2 in mock order, and the `cold-roles-1` roles each groups. */
-const SOURCE_ROWS: { label: string; roles: string[] }[] = [
-  { label: "Chamber probe", roles: ["chamber_temperature", "ambient_temperature", "manual_temperature"] },
-  { label: "Inverter-charger + battery", roles: ["grid_state", "grid_power_event", "backup_bus_state"] },
+/**
+ * The six mock source rows of `cold-evidence` panel 2 in mock order (Run-7 exact source-to-mock-row placement).
+ * `roles` populate the closed cells; `other` reports appear only in that row's `Source details`, identified by
+ * `OTHER_SOURCE_NAME`, and never populate the closed cells or establish the named mock device.
+ */
+const SOURCE_ROWS: { label: string; roles: string[]; undeclared?: string; other?: { heading: string; roles: string[] } }[] = [
+  { label: "Chamber probe", roles: ["chamber_temperature"], other: { heading: "Other temperature context", roles: ["ambient_temperature", "manual_temperature"] } },
+  {
+    label: "Inverter-charger + battery",
+    roles: [],
+    undeclared: "No inverter or battery source declared",
+    other: { heading: "Other power-path reports", roles: ["grid_state", "grid_power_event", "backup_bus_state"] },
+  },
   { label: "Generator controller", roles: ["backup_start_event", "generator_state"] },
   { label: "Compressor meter", roles: ["compressor_state", "compressor_power"] },
   { label: "Transfer switch", roles: ["transfer_result"] },
   { label: "Loading / door log", roles: ["door_event"] },
 ];
+const OTHER_SOURCE_NAME: Record<string, string> = {
+  grid_state: "Grid meter",
+  grid_power_event: "Grid meter",
+  backup_bus_state: "AC bus",
+  ambient_temperature: "Ambient probe",
+  manual_temperature: "Manual room log",
+};
 
 const ASSUMPTION_ROWS: [string, string][] = [
   ["cold_stock_quantity", "Stock quantity in chamber"],
@@ -634,14 +651,39 @@ function qualityText(sources: ColdSource[]): string {
   return "Accepted facts · mixed quality";
 }
 
-function distinctContacts(sources: ColdSource[]): ColdSource[] {
-  const seen = new Set<string>();
-  return sources.filter((s) => {
-    const key = `${s.contact}|${s.contact_at}|${s.limitation}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+/** Run-7: several channels in one closed row are summarized only when their states agree. */
+function contactChip(sources: ColdSource[]): string {
+  const words = new Set(sources.map((s) => CONTACT_WORDS[s.contact] ?? CONTACT_WORDS.UNKNOWN));
+  return words.size === 1 ? [...words][0] : "Mixed source contact";
+}
+function qualityChip(sources: ColdSource[]): string {
+  const words = new Set(sources.map((s) => qualityText([s])));
+  return words.size === 1 ? [...words][0] : "Mixed accepted quality";
+}
+
+/** One `(source_id, role)` channel inside `Source details` (Run-7 density ruling). */
+function SourceChannel({ source: s, name, caps }: { source: ColdSource; name: string; caps: ColdCapability[] }) {
+  const word = CONTACT_WORDS[s.contact] ?? CONTACT_WORDS.UNKNOWN;
+  const at = s.contact_at === null ? CONTACT_WORDS.NEVER : utc(s.contact_at);
+  return (
+    <li data-source-channel={s.role}>
+      <span className="cold-site-line">
+        {name} · {roleLabel(s.role)} · Source <code data-vocabulary-exempt="source-reference">{s.id}</code>
+      </span>
+      <span className="cold-site-line">{word === at ? word : `${word} · ${at}`}</span>
+      {s.limitation === null ? null : <span className="cold-site-line">{s.limitation}</span>}
+      <span className="cold-site-line">
+        {s.accepted_count === 0 ? "Configured source, no accepted report" : `${s.accepted_count} accepted · ${qualityText([s])}`}
+      </span>
+      <span className="cold-site-line">
+        {s.last_accepted_at === null
+          ? "No accepted fact in this window"
+          : `Last accepted fact ${utc(s.last_accepted_at)}${s.fact_age === null ? "" : ` · ${s.fact_age} s old`}`}
+      </span>
+      <span className="cold-site-line">What it provides: {roleName(s.role)}</span>
+      <span className="cold-site-line">Affects: {affects(caps, [s.role])}</span>
+    </li>
+  );
 }
 
 function affects(caps: ColdCapability[], roles: string[]): string {
@@ -726,6 +768,9 @@ function EvidenceScreen(p: ScreenProps) {
             <Gap id="cold-site-sources">{NO_COLD_ASSESSMENT}</Gap>
           ) : (
             <>
+              <p className="v69-chart-note" data-cold-contact-checked>
+                Contact checked at window end {utc(e!.window.to)}
+              </p>
               <DataTable labelledBy="cold-site-sources-heading">
                 <thead>
                   <tr>
@@ -738,14 +783,21 @@ function EvidenceScreen(p: ScreenProps) {
                 </thead>
                 <tbody>
                   {SOURCE_ROWS.map((row) => {
+                    if (row.undeclared !== undefined) {
+                      return (
+                        <tr key={row.label} data-source-row={row.label}>
+                          <th scope="row">{row.label}</th>
+                          {[0, 1, 2, 3].map((i) => (
+                            <td key={i}>{row.undeclared}</td>
+                          ))}
+                        </tr>
+                      );
+                    }
                     const bound = channels.filter((s) => row.roles.includes(s.role));
                     if (bound.length === 0) {
                       return (
                         <tr key={row.label} data-source-row={row.label}>
-                          <th scope="row">
-                            {row.label}
-                            <small className="cold-site-detail">No source-specific record</small>
-                          </th>
+                          <th scope="row">{row.label}</th>
                           <td>No source-specific record</td>
                           <td>No accepted fact</td>
                           <td>No accepted report for this role</td>
@@ -756,32 +808,12 @@ function EvidenceScreen(p: ScreenProps) {
                     const provides = bound.filter((s) => s.accepted_count > 0).map((s) => roleName(s.role));
                     return (
                       <tr key={row.label} data-source-row={row.label}>
-                        <th scope="row">
-                          {row.label}
-                          {bound.map((s) => (
-                            <small className="cold-site-detail" key={`${s.id}|${s.role}`}>
-                              {roleLabel(s.role)}
-                            </small>
-                          ))}
-                        </th>
+                        <th scope="row">{row.label}</th>
                         <td>
-                          {/* Channels with the same contact word, time and limitation are stated once. */}
-                          {distinctContacts(bound).map((s) => (
-                            <span className="cold-site-line" key={`${s.contact}|${s.contact_at}|${s.limitation}`} data-source-contact={s.contact}>
-                              {CONTACT_WORDS[s.contact] ?? CONTACT_WORDS.UNKNOWN}
-                              {s.contact_at === null ? null : ` at ${utc(s.contact_at)}`}
-                              {s.limitation === null ? null : <small className="cold-site-detail">{s.limitation}</small>}
-                            </span>
-                          ))}
-                          <small className="cold-site-detail">Contact checked at window end {utc(e!.window.to)}</small>
+                          <Badge tone="neutral">{contactChip(bound)}</Badge>
                         </td>
                         <td>
-                          {qualityText(bound)}
-                          {bound.map((s) => (
-                            <small className="cold-site-detail" key={`${s.id}|${s.role}`}>
-                              {s.last_accepted_at === null ? "No accepted fact in this window" : `Last accepted fact ${utc(s.last_accepted_at)} · ${s.fact_age ?? "?"} s old`}
-                            </small>
-                          ))}
+                          <Badge tone="neutral">{qualityChip(bound)}</Badge>
                         </td>
                         <td>{provides.length === 0 ? "No accepted report for this role" : provides.join(", ")}</td>
                         <td>{affects(caps, bound.map((s) => s.role))}</td>
@@ -790,10 +822,44 @@ function EvidenceScreen(p: ScreenProps) {
                   })}
                 </tbody>
               </DataTable>
-              <ExactReferences
-                name="cold-site-source-references"
-                references={channels.map((s, i) => ({ label: `${roleLabel(s.role)} source ${i + 1}`, value: s.id }))}
-              />
+              <Disclosure summary="Source details" name="cold-site-source-details">
+                {SOURCE_ROWS.map((row) => {
+                  const owned = channels.filter((s) => row.roles.includes(s.role));
+                  const others = row.other === undefined ? [] : channels.filter((s) => row.other!.roles.includes(s.role));
+                  return (
+                    <div className="cold-site-group" key={row.label} data-source-detail={row.label}>
+                      <p>
+                        <strong>{row.label}</strong>
+                      </p>
+                      {row.undeclared !== undefined ? (
+                        <p>{row.undeclared}</p>
+                      ) : owned.length === 0 ? (
+                        <p>No source-specific record</p>
+                      ) : (
+                        <ul className="cold-site-list">
+                          {owned.map((s) => (
+                            <SourceChannel key={`${s.id}|${s.role}`} source={s} name={row.label} caps={caps} />
+                          ))}
+                        </ul>
+                      )}
+                      {row.other === undefined ? null : (
+                        <>
+                          <p>{row.other.heading}</p>
+                          {others.length === 0 ? (
+                            <p>No source-specific record</p>
+                          ) : (
+                            <ul className="cold-site-list">
+                              {others.map((s) => (
+                                <SourceChannel key={`${s.id}|${s.role}`} source={s} name={OTHER_SOURCE_NAME[s.role]} caps={caps} />
+                              ))}
+                            </ul>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </Disclosure>
             </>
           )}
         </Panel>

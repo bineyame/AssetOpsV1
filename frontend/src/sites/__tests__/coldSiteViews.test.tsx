@@ -526,12 +526,50 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(sources.map((r) => r.getAttribute("data-source-row"))).toEqual(["Chamber probe", "Inverter-charger + battery", "Generator controller", "Compressor meter", "Transfer switch", "Loading / door log"]);
     expect(text(sources[0])).toContain("Recent source contact");
     expect(text(sources[0])).toContain("Accepted facts · good quality");
-    expect(text(sources[2])).toContain("No gateway diagnostic was available by the window end and evidence cutoff.");
+    expect(text(sources[2])).toContain("Source contact unknown");
+    // Run-7: the Q-R5 limitation moves from the closed cell into the row's Source details.
+    expect(text(sources[2])).not.toContain("No gateway diagnostic was available");
     expect(text(sources[4])).toContain("No source-specific record");
+    // Run-7 source placement: the inverter/battery row states no declared source; grid reports only in its details.
+    expect(Array.from(sources[1].querySelectorAll("td")).map((c) => text(c))).toEqual(Array(4).fill("No inverter or battery source declared"));
+    const sourcesPanel = panelTitled("Data sources · data quality, not equipment condition");
+    expect(sourcesPanel.querySelectorAll("[data-cold-contact-checked]")).toHaveLength(1);
+    expect(text(sourcesPanel).match(/Contact checked at window end/g)).toHaveLength(1);
+    const details = sourcesPanel.querySelectorAll("details");
+    expect(details).toHaveLength(1);
+    expect((details[0] as HTMLDetailsElement).open).toBe(false);
+    expect(details[0].querySelector("summary")?.textContent).toBe("Source details");
+    // Matched by attribute value (jsdom selector parsing mishandles "+" inside the quoted value).
+    const group = (label: string) => text(Array.from(sourcesPanel.querySelectorAll("[data-source-detail]")).find((g) => g.getAttribute("data-source-detail") === label)!);
+    expect(group("Inverter-charger + battery")).toContain("Other power-path reports");
+    expect(group("Inverter-charger + battery")).toContain("Grid meter · Grid power loss and restoration");
+    expect(group("Inverter-charger + battery")).toContain(id(23));
+    expect(group("Generator controller")).toContain("No gateway diagnostic was available by the window end and evidence cutoff.");
+    expect(group("Chamber probe")).toContain("Last accepted fact 6 Oct 17:04 UTC · 60 s old");
+    expect(group("Chamber probe")).toContain("Other temperature context");
+    expect(group("Transfer switch")).toContain("No source-specific record");
+    expect(text(sourcesPanel)).not.toContain("How this was worked out");
     const next = panelTitled("Most useful next evidence");
     expect(text(next)).toContain("Record Transfer position");
     expect(text(next)).toContain("Declare stock identity and value");
     expect(text(main())).not.toMatch(/Online|Offline|Raise action/);
+  });
+
+  it("evidence: disagreeing channels in one row get Mixed chips; ambient and manual reports stay out of the chamber row", async () => {
+    const generatorState = { ...source(24, "generator_state", "RECENT", 3), quality: { good_count: 0, other_count: 3 } };
+    const ambient = { ...source(25, "ambient_temperature", "NEVER", 0) };
+    renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok({ ...STOCKED_EVIDENCE, sources: [...STOCKED_EVIDENCE.sources, generatorState, ambient] }) });
+    await settledScreen();
+    const sourcesPanel = panelTitled("Data sources · data quality, not equipment condition");
+    const row = (label: string) => sourcesPanel.querySelector(`[data-source-row="${label}"]`)!;
+    expect(text(row("Generator controller"))).toContain("Mixed source contact");
+    expect(text(row("Generator controller"))).toContain("Mixed accepted quality");
+    expect(text(row("Generator controller"))).not.toContain("Recent source contact");
+    expect(text(row("Chamber probe"))).toContain("Recent source contact");
+    expect(text(row("Chamber probe"))).not.toContain("No source contact recorded");
+    const chamber = text(sourcesPanel.querySelector('[data-source-detail="Chamber probe"]')!);
+    expect(chamber).toContain("Ambient probe");
+    expect(chamber).toContain("Configured source, no accepted report");
   });
 
   it("analysis: the accepted record keeps its labelled ID and no guessed record link (retro correction 14)", async () => {
