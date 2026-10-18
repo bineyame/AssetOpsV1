@@ -19,7 +19,6 @@ import {
   StatusBar,
   type TimelineEvent,
 } from "../ui";
-import { UnavailableTab } from "../ui/UnavailableEntry";
 import { type ColdAssessmentClient, type ColdRead, type ColdTemperatureRead, type ColdWindowQuery, type ColdFindingsRead, coldWindowSearch } from "./coldAssessmentClient";
 import type {
   ColdAnalysisRead,
@@ -297,6 +296,8 @@ export interface ColdSiteFrameProps {
   assessment: ColdAssessmentClient;
   routes: ColdSiteRoutes;
   tabs: ReactNode;
+  /** The Financials subtab row for `financials` / `assumptions`, from the shell. */
+  sections?: ReactNode;
   parentTrail: Crumb[];
 }
 
@@ -323,19 +324,13 @@ const CRUMB: Record<ColdSiteView, Crumb[]> = {
 };
 
 function Subtabs({ view, routes, window }: { view: ColdSiteView; routes: ColdSiteRoutes; window: ColdWindowQuery }) {
-  if (view === "overview") return null;
-  const evidence = view === "evidence" || view === "analysis";
-  const items: [string, string, string][] = evidence
-    ? [
-        ["evidence", "Overview", selected(routes.evidence, window)],
-        ["analysis", "Analysis", selected(routes.evidence, window, "analysis")],
-      ]
-    : [
-        ["financials", "Overview", selected(routes.financials, window)],
-        ["assumptions", "Assumptions", selected(routes.assumptions, window)],
-      ];
+  if (view !== "evidence" && view !== "analysis") return null;
+  const items: [string, string, string][] = [
+    ["evidence", "Overview", selected(routes.evidence, window)],
+    ["analysis", "Analysis", selected(routes.evidence, window, "analysis")],
+  ];
   return (
-    <nav className="site-tabs site-subtabs" aria-label={evidence ? "Evidence sections" : "Financials sections"}>
+    <nav className="site-tabs site-subtabs" aria-label="Evidence sections">
       <ol className="site-tabs__list">
         {items.map(([id, label, href]) => (
           <li className="site-tabs__item" key={id}>
@@ -344,7 +339,6 @@ function Subtabs({ view, routes, window }: { view: ColdSiteView; routes: ColdSit
             </Link>
           </li>
         ))}
-        {evidence ? null : <UnavailableTab label="Scenarios" />}
       </ol>
     </nav>
   );
@@ -370,6 +364,7 @@ export function ColdSiteFrame(props: ColdSiteFrameProps) {
       <SitePageHeader siteName={props.siteName} siteId={siteId} mode={props.mode} description={DESCRIPTION[view]} headingId={COLD_SITE_HEADING_ID} />
       {props.tabs}
       <Subtabs view={view} routes={props.routes} window={window} />
+      {view === "financials" || view === "assumptions" ? (props.sections ?? null) : null}
       {view === "overview" ? (
         <OverviewScreen {...props} attempt={attempt} retry={retry} />
       ) : view === "evidence" ? (

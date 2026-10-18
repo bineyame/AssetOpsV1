@@ -40,6 +40,7 @@ export function coldSiteScreen({
   coldSite,
   coldAssessment,
   tabs,
+  sections,
   sitesPath,
 }: {
   view: ColdSiteView;
@@ -48,6 +49,8 @@ export function coldSiteScreen({
   coldSite: ColdSiteClient;
   coldAssessment: ColdAssessmentClient;
   tabs: ReactNode;
+  /** The Financials subtab row, shared with the generic Financials frame (one Scenarios entry). */
+  sections?: ReactNode;
   sitesPath: string;
 }) {
   const overview = view === "overview";
@@ -62,6 +65,7 @@ export function coldSiteScreen({
       assessment={coldAssessment}
       routes={coldSiteRoutes(site.site_id)}
       tabs={tabs}
+      sections={sections}
       parentTrail={[
         { label: "Sites", to: sitesPath },
         overview ? { label: site.display_name } : { label: site.display_name, to: siteDetailHref(site.site_id) },
