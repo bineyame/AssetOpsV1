@@ -434,6 +434,29 @@ describe("W2-04: Run-7 date bar", () => {
   });
 });
 
+describe("W2-04: Run-7 Evidence status chip", () => {
+  const withCaps = (states: Record<string, string>): Reads => ({
+    ...STOCKED,
+    evidence: ok({ ...STOCKED_EVIDENCE, capabilities: STOCKED_EVIDENCE.capabilities.map((c) => ({ ...c, state: states[c.claim] ?? "SUPPORTED" })) }),
+  });
+  it.each([
+    ["three Full rows and one Limited row (excursion replay)", { TRANSFER_POSITION: "UNAVAILABLE" }, "Evidence limited", "3 full · 1 limited · 0 none", "Limited"],
+    ["any Contradictory row wins over Limited", { TRANSFER_POSITION: "UNAVAILABLE", COOLING_RESPONSE: "CONTRADICTORY" }, "Evidence contradictory", "2 full · 1 limited · 0 none · 1 contradictory", "Contradictory"],
+    ["a None row without Limited is unknown", { COOLING_RESPONSE: "UNAVAILABLE" }, "Evidence unknown", "3 full · 0 limited · 1 none", "Unknown"],
+    ["all four rows Full", {}, "Evidence supported", "4 full · 0 limited · 0 none", "Supported"],
+  ])("%s", async (_name, states, chip, counts, card) => {
+    renderCold(ROUTES[1][1], withCaps(states));
+    await settledScreen();
+    const strip = text(document.querySelector(".status-strip")!);
+    expect(strip).toContain(chip);
+    expect(strip).toContain(`4 capabilities · ${counts} · no single score`);
+    cleanup();
+    renderCold(ROUTES[0][1], withCaps(states));
+    await settledScreen();
+    expect(text(document.querySelector('[data-cold-card="evidence"]')!)).toContain(card);
+  });
+});
+
 describe("W2-04: cold Overview", () => {
   it("renders the ledger's strip, five cards and the selected panels with window-preserving links", async () => {
     renderCold(ROUTES[0][1], STOCKED);

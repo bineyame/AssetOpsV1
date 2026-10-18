@@ -424,8 +424,8 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
       : `${b.attempts} ${b.attempts === 1 ? "start attempt" : "start attempts"} · ${b.observed_success} started · ${b.observed_failure} failed`;
   const coolingChip = { SUPPORTED: "Supported", LIMITED: "Limited", CONTRADICTORY: "Contradictory" }[o.cooling.state] ?? "Unknown";
   const caps = evidence?.capabilities ?? [];
-  const counts = chipCounts(caps);
-  const evidenceChip = caps.length === 0 ? "Unknown" : counts.limited > 0 ? "Limited" : counts.contradictory > 0 ? "Contradictory" : counts.full === counts.n ? "Supported" : "Unknown";
+  // The same row-based rule as the Evidence status chip (Run-7), so Overview and Evidence agree.
+  const evidenceChip = evidenceState(caps);
   const card = (label: string, href: string | null) => (href === null ? label : <Link to={href}>{label}</Link>);
   return (
     <MetricCards columns={5} label="Cold room conditions">
@@ -611,13 +611,19 @@ function OverviewScreen(p: ScreenProps) {
 
 /* ---------- cold-evidence ---------- */
 
-function evidenceChip(caps: ColdCapability[]): string {
-  const states = caps.map((c) => c.state);
-  if (states.includes("LIMITED")) return "Evidence limited";
-  if (states.includes("CONTRADICTORY")) return "Evidence contradictory";
-  if (states.length > 0 && states.every((s) => s === "SUPPORTED")) return "Evidence supported";
-  return "Evidence unknown";
+/**
+ * Run-7 Evidence status chip: computed from the four panel-1 row chips. Contradictory if any row is; else limited
+ * if any row is; else unknown if any row is None or there is no assessment; else supported (all four Full).
+ */
+function evidenceState(caps: ColdCapability[]): "Contradictory" | "Limited" | "Unknown" | "Supported" {
+  if (caps.length === 0) return "Unknown";
+  const c = chipCounts(caps);
+  if (c.contradictory > 0) return "Contradictory";
+  if (c.limited > 0) return "Limited";
+  if (c.none > 0) return "Unknown";
+  return "Supported";
 }
+const evidenceChip = (caps: ColdCapability[]) => `Evidence ${evidenceState(caps).toLowerCase()}`;
 
 function qualityText(sources: ColdSource[]): string {
   const good = sources.reduce((n, s) => n + s.quality.good_count, 0);
