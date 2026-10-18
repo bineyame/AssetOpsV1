@@ -25,6 +25,13 @@ Sets:
   worker (`assessment_worker.py`, which owns the shared transaction but writes no table) and an UPDATE, DELETE and
   DO UPDATE from the owning store; `controls cold <table> insert` is the allowed INSERT. Rule 8 fails closed when
   any of these names is missing.
+- `cold cold_consequence_* ...`: W2-04 (migration 0023) cold consequence tables: a foreign INSERT from the Finding store
+  and an UPDATE, DELETE and DO UPDATE from the consequence store (sole INSERT-only owner); `cold cold_consequence_work
+  runtime <verb>`: any runtime INSERT/UPDATE/DELETE/TRUNCATE/MERGE/COPY of the trigger-only work table;
+  `cold work migration ...`: mutations of the 0023 migration text (rule 8 reads it on its own, since its runtime scan
+  skips migrations): DO UPDATE, another arbiter, no arbiter, no work INSERT and a second INSERT without the arbiter.
+  `controls cold <table> insert` and `controls cold work migration trigger insert` must pass. Rule 8 fails closed when
+  any of these names is missing.
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -49,6 +56,7 @@ CONSEQUENCE = f"{B}/financials/adapters/postgres_consequence_store.py"
 ACTION = f"{B}/actions/adapters/postgres_action_store.py"
 TICK = f"{B}/scheduling/tick.py"
 WORKER = f"{B}/analytics/assessment_worker.py"
+COLD_MIGRATION = "backend/migrations/versions/0023_w2_cold_consequence.py"
 
 NEVER = "never deletes, truncates, upserts or runs DDL"
 SCHED_TABLES = "The schedule store updates only"
@@ -61,6 +69,11 @@ ACTION_NEVER = "The Action store never updates, deletes, truncates, upserts or r
 ACTION_ONLY = "The Action store only inserts"
 PROV = "Source provenance is insert-only"
 UPSERT = "is never upserted (no ON CONFLICT DO UPDATE)"
+COLD_INSERT_ONLY = "is insert-only: no UPDATE, DELETE, TRUNCATE, MERGE or COPY from any module"
+COLD_WORK = "Cold consequence work is written only by the migration 0023 triggers"
+COLD_ARBITER = "keeps exactly the ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING arbiter"
+COLD_NO_INSERT = "Rule 8 found no INSERT INTO cold_consequence_work"
+COLD_ARBITER_LINE = "ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING;"
 W200_ARBITER = "ON CONFLICT is allowed only as its three"
 W200_MESSAGE = "keeps the accepted_evidence_message_unique DO NOTHING arbiter"
 W200_ORDER = "rereads collisions in the fixed order message, event, session"
@@ -303,6 +316,65 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
 ]
 
+# W2-04 (migration 0023): the consequence store alone INSERTs each cold consequence table, which no module updates,
+# deletes or upserts; cold_consequence_work has no runtime writer at all, and its one migration INSERT keeps the
+# dirty-key DO NOTHING arbiter. Rule 8 requires every one of these names.
+NEGATIVE += [
+    ("cold cold_consequence_revision foreign insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_revision "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes consequence table 'cold_consequence_revision'"),
+    ("cold cold_consequence_revision update", CONSEQUENCE, split("cold_consequence_revision", "state = :s WHERE id = :i"), COLD_INSERT_ONLY),
+    ("cold cold_consequence_revision delete", CONSEQUENCE, '_OPS02 = (\n    "delete from "\n    "cold_consequence_revision where id = :i"\n)\n',
+     COLD_INSERT_ONLY),
+    ("cold cold_consequence_revision upsert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_revision (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("cold cold_consequence_evidence foreign insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_evidence "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes consequence table 'cold_consequence_evidence'"),
+    ("cold cold_consequence_evidence update", CONSEQUENCE, split("cold_consequence_evidence", "state = :s WHERE id = :i"), COLD_INSERT_ONLY),
+    ("cold cold_consequence_evidence delete", CONSEQUENCE, '_OPS02 = (\n    "delete from "\n    "cold_consequence_evidence where id = :i"\n)\n',
+     COLD_INSERT_ONLY),
+    ("cold cold_consequence_evidence upsert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_evidence (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("cold cold_consequence_work_attempt foreign insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_work_attempt "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes consequence table 'cold_consequence_work_attempt'"),
+    ("cold cold_consequence_work_attempt update", CONSEQUENCE, split("cold_consequence_work_attempt", "state = :s WHERE id = :i"), COLD_INSERT_ONLY),
+    ("cold cold_consequence_work_attempt delete", CONSEQUENCE, '_OPS02 = (\n    "delete from "\n    "cold_consequence_work_attempt where id = :i"\n)\n',
+     COLD_INSERT_ONLY),
+    ("cold cold_consequence_work_attempt upsert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_work_attempt (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("cold cold_consequence_work runtime insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_work (id, tenant_id) "\n    "VALUES (:i, :t) ON CONFLICT '
+     '(tenant_id, site_id, dirty_key_sha256) DO NOTHING"\n)\n', COLD_WORK),
+    ("cold cold_consequence_work runtime update", CONSEQUENCE,
+     split("cold_consequence_work", "enqueued_at = now() WHERE id = :i"), COLD_WORK),
+    ("cold cold_consequence_work runtime delete", CONSEQUENCE,
+     '_OPS02 = (\n    "delete from "\n    "cold_consequence_work where id = :i"\n)\n', COLD_WORK),
+    ("cold cold_consequence_work runtime truncate", CONSEQUENCE, '_OPS02 = "TRUNCATE cold_consequence_work"\n',
+     COLD_WORK),
+    ("cold cold_consequence_work runtime merge", CONSEQUENCE,
+     '_OPS02 = "MERGE INTO cold_consequence_work w USING (SELECT 1) x ON true WHEN MATCHED THEN DELETE"\n',
+     COLD_WORK),
+    ("cold cold_consequence_work runtime copy", CONSEQUENCE, '_OPS02 = "copy cold_consequence_work from stdin"\n',
+     COLD_WORK),
+    ("cold work migration do update", COLD_MIGRATION,
+     ("replace", COLD_ARBITER_LINE,
+      "ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO UPDATE SET enqueued_at = clock_timestamp();"),
+     COLD_ARBITER),
+    ("cold work migration other arbiter", COLD_MIGRATION, ("replace", COLD_ARBITER_LINE, "ON CONFLICT (id) DO NOTHING;"),
+     COLD_ARBITER),
+    ("cold work migration no arbiter", COLD_MIGRATION, ("replace", COLD_ARBITER_LINE, ";"), COLD_ARBITER),
+    ("cold work migration no insert", COLD_MIGRATION,
+     ("replace", "    INSERT INTO cold_consequence_work (", "    INSERT INTO cold_consequence_work_attempt ("),
+     COLD_NO_INSERT),
+    ("cold work migration second insert without arbiter", COLD_MIGRATION,
+     '_OPS02 = """\nINSERT INTO cold_consequence_work (id) VALUES (gen_random_uuid());\n"""\n', COLD_ARBITER),
+]
+
 CONTROLS = (
     '_OPS02_A = """\nUPDATE schedule_site_head\nSET stage = :st,\n    stage_started_at = clock_timestamp()\n'
     'WHERE tenant_id = :t\n"""\n'
@@ -346,6 +418,18 @@ WRITER_CONTROLS: list[tuple[str, str, str]] = [
      '_OPS02 = (\n    "INSERT INTO finding (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
     ("controls cold finding_revision insert", FINDING,
      '_OPS02 = (\n    "INSERT INTO finding_revision (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    # W2-04: one allowed multiline INSERT per cold consequence table in the consequence store, and a second
+    # arbitrated work INSERT in the 0023 migration text (must pass).
+    ("controls cold cold_consequence_revision insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_revision (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls cold cold_consequence_evidence insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_evidence (consequence_revision_id, evidence_id) "\n'
+     '    "VALUES (:c, :e)"\n)\n'),
+    ("controls cold cold_consequence_work_attempt insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO cold_consequence_work_attempt (id, work_id) "\n    "VALUES (:i, :w)"\n)\n'),
+    ("controls cold work migration trigger insert", COLD_MIGRATION,
+     '_OPS02 = """\nINSERT INTO cold_consequence_work (id) VALUES (gen_random_uuid())\n'
+     'ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING;\n"""\n'),
 ]
 
 

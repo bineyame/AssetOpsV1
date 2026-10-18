@@ -667,9 +667,17 @@ function Invoke-ConfigurationPersistenceCheck {
     # assumption publication and FindingRevision append; 0012, S4-02c: accepted generator-power disposition), so
     # no module may write financial_consequence_work at all.
     $consequenceWriter = "$backendRoot/financials/adapters/postgres_consequence_store.py"
+    # W2-04 (D-2026-10-18-w2-04-buildspec, migration 0023): the same store is the sole INSERT-only writer of the
+    # three cold consequence tables, registered here before the DML checks. Each of them is also checked as
+    # insert-only on its own (no UPDATE/DELETE/TRUNCATE/MERGE/COPY or DO UPDATE from any module). cold_consequence_work
+    # is trigger-only like financial_consequence_work: any runtime statement against it fails, and its one migration
+    # INSERT must keep the dirty-key DO NOTHING arbiter (checked on the migration text below; rule 8 skips migrations).
+    $coldConsequenceTables = @('cold_consequence_revision', 'cold_consequence_evidence', 'cold_consequence_work_attempt')
+    $coldConsequenceWork = 'cold_consequence_work'
+    $coldConsequenceMigration = 'backend/migrations/versions/0023_w2_cold_consequence.py'
     $consequenceTables = @('financial_consequence_revision', 'financial_consequence_assessment_revision',
         'financial_consequence_assumption_revision', 'financial_consequence_power_interval',
-        'financial_consequence_work_attempt')
+        'financial_consequence_work_attempt') + $coldConsequenceTables
     # S4-02d adds the eighth writer, the schedule store (D-2026-10-14-s402d-schedule-storage-and-install-gate):
     # the sole runtime writer of the four migration-0013 schedule tables, and it writes no other table. It may
     # INSERT into those tables and UPDATE only the named mutable schedule-state columns below (environment tick
@@ -705,6 +713,9 @@ function Invoke-ConfigurationPersistenceCheck {
     $provenanceTables = @('evidence_publication', 'batch_publication_link')
     $ledgerConflictAllowed = "(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b"
     $provenanceInsertsSeen = @{ 'evidence_publication' = 0; 'batch_publication_link' = 0 }
+    # W2-04: per-table owner INSERTs into the cold consequence tables (Q10: asserted nonvacuous from spec commit 2).
+    $coldConsequenceInsertsSeen = @{ 'cold_consequence_revision' = 0; 'cold_consequence_evidence' = 0
+        'cold_consequence_work_attempt' = 0 }
     # W2-00 (D-2026-10-17-w2-00-answers; design section 7): the ledger alone inserts event evidence, rejections and
     # dispositions (recompute_job stays shared with the assessment store). Every INSERT INTO accepted_evidence keeps
     # only the message DO NOTHING arbiter: an event or EV START unique violation is handled by a per-ordinal
@@ -878,7 +889,7 @@ function Invoke-ConfigurationPersistenceCheck {
                 # into one of them must not carry an upsert (ON CONFLICT ... DO UPDATE stays in the INSERT clause).
                 if ($null -ne $target -and $line -match '(?i)\bDO\s+UPDATE\b' -and
                         (@('source_clock_attestation', 'finding', 'finding_revision') + $coldEpisodeTables +
-                            $actionTables + $provenanceTables) -contains $target) {
+                            $coldConsequenceTables + $actionTables + $provenanceTables) -contains $target) {
                     $failures.Add(("Insert-only table '$target' is never upserted (no ON CONFLICT DO UPDATE); " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
@@ -914,6 +925,19 @@ function Invoke-ConfigurationPersistenceCheck {
                 if ($module.Path -ne $scheduleWriter -and $null -ne $target -and $scheduleTables -contains $target) {
                     $failures.Add(("Only $scheduleWriter writes schedule table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $coldConsequenceTables -contains $target) {
+                    if ($line -notmatch '(?i)^INSERT\s+INTO\b') {
+                        $failures.Add(("Cold consequence table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE or COPY from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($module.Path -eq $consequenceWriter) {
+                        $coldConsequenceInsertsSeen[$target]++
+                    }
+                }
+                if ($target -eq $coldConsequenceWork) {
+                    $failures.Add(("Cold consequence work is written only by the migration 0023 triggers (no runtime " +
+                        "INSERT, UPDATE, DELETE, TRUNCATE, MERGE or COPY); $($module.Path):${lineNumber}: " +
+                        "$($line.Trim()).")) | Out-Null
                 }
                 if ($target -eq 'financial_consequence_work') {
                     $failures.Add(("Dirty consequence work is inserted only by the migration 0011/0012 triggers; " +
@@ -1081,6 +1105,62 @@ function Invoke-ConfigurationPersistenceCheck {
                 $failures.Add(("Rule 8 cold writer probe '$probeName' is missing from tools/writer_guard_probes.py; " +
                     "the cold writer policy is unproven without it.")) | Out-Null
             }
+        }
+    }
+    # W2-04: the cold consequence policy fails closed the same way: its owner and migration must exist, and the
+    # rule-8 corpus must keep the owner-INSERT controls and the foreign-INSERT, UPDATE, DELETE and DO UPDATE probes
+    # per cold consequence table, the runtime work probes and the migration arbiter probes (Q9/Q10).
+    foreach ($owner in @($consequenceWriter, $coldConsequenceMigration)) {
+        if (-not (Test-Path -LiteralPath $owner -PathType Leaf)) {
+            $failures.Add("Rule 8 declares cold consequence owner '$owner', which does not exist; update the check.") | Out-Null
+        }
+    }
+    $coldProbeNames = @()
+    foreach ($table in $coldConsequenceTables) {
+        $coldProbeNames += @("controls cold $table insert", "cold $table foreign insert", "cold $table update",
+            "cold $table delete", "cold $table upsert")
+    }
+    foreach ($verb in @('insert', 'update', 'delete', 'truncate', 'merge', 'copy')) {
+        $coldProbeNames += "cold $coldConsequenceWork runtime $verb"
+    }
+    $coldProbeNames += @('controls cold work migration trigger insert', 'cold work migration do update',
+        'cold work migration other arbiter', 'cold work migration no arbiter', 'cold work migration no insert',
+        'cold work migration second insert without arbiter')
+    foreach ($probeName in $coldProbeNames) {
+        if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
+            $failures.Add(("Rule 8 cold consequence probe '$probeName' is missing from tools/writer_guard_probes.py; " +
+                "the cold consequence writer policy is unproven without it.")) | Out-Null
+        }
+    }
+    # Q9: rule 8 scans runtime modules only, so the one migration that may insert cold_consequence_work is read on
+    # its own. Comments and the module docstring are removed first; then there must be at least one
+    # INSERT INTO cold_consequence_work, each such statement (to its ';') must carry exactly one ON CONFLICT, the
+    # dirty-key DO NOTHING arbiter, and the file has no DO UPDATE at all.
+    if (Test-Path -LiteralPath $coldConsequenceMigration -PathType Leaf) {
+        $migrationText = (Get-Content -LiteralPath $coldConsequenceMigration -Raw) -replace "`r`n", "`n"
+        $migrationText = [regex]::Replace($migrationText, '^\s*(?:\x22\x22\x22[\s\S]*?\x22\x22\x22|\x27\x27\x27[\s\S]*?\x27\x27\x27)', '')
+        $migrationText = [regex]::Replace($migrationText, '--[^\n]*', '')
+        $migrationText = [regex]::Replace($migrationText, '(?m)^\s*#[^\n]*', '')
+        $workInserts = [regex]::Matches($migrationText, '(?i)\bINSERT\s+INTO\s+"?cold_consequence_work"?(?![a-z0-9_])')
+        if ($workInserts.Count -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $coldConsequenceWork in $coldConsequenceMigration, so the " +
+                "trigger-only dirty-work arbiter check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+        foreach ($insert in $workInserts) {
+            $end = $migrationText.IndexOf(';', $insert.Index)
+            $statement = if ($end -lt 0) { $migrationText.Substring($insert.Index) } else {
+                $migrationText.Substring($insert.Index, $end - $insert.Index + 1) }
+            $conflicts = [regex]::Matches($statement, '(?i)\bON\s+CONFLICT\b').Count
+            $arbiter = '(?i)\bON\s+CONFLICT\s*\(\s*tenant_id\s*,\s*site_id\s*,\s*dirty_key_sha256\s*\)\s*DO\s+NOTHING\s*;?\s*$'
+            if ($conflicts -ne 1 -or $statement -notmatch $arbiter) {
+                $failures.Add(("Every INSERT INTO $coldConsequenceWork in $coldConsequenceMigration keeps exactly the " +
+                    "ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING arbiter; found: " +
+                    "$(($statement -replace '\s+', ' ').Trim())")) | Out-Null
+            }
+        }
+        if ($migrationText -match '(?i)\bDO\s+UPDATE\b') {
+            $failures.Add(("$coldConsequenceMigration runs no ON CONFLICT DO UPDATE: cold consequence work and " +
+                "history are append-only.")) | Out-Null
         }
     }
     # S4-05a: designation is a server-side command only. No HTTP module may reach it or its tables.
