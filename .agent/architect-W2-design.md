@@ -1,5 +1,8 @@
 # Wave 2 architecture proposal — 2026-10-17
 
+> **Mockup authority (owner ruling 2026-10-18, `.agent/owner-W2-mockup-authority-2026-10-18.md`):** the v6.9 mockup's W2 screens - cold-chain AND EV - are built and are the binding visual and content authority, exactly like the W1 screens: panel set, order, titles, prominence, layout and content scope. The mockup's "EV extrapolation" / "domain-pack extrapolation" tags (`frontend/mockups/v69/screens.js`) record only that the v6.9 *product spec* had no EV section; they do NOT make any mock screen uncertain, illustrative-only or optional. Where accepted data cannot back a mock value, keep the mock slot and state the gap ("not available yet"); never drop or redesign a panel. Which routes belong to W2 vs later waves is a scope question, unaffected by this note.
+
+
 **Status:** Architect design for Planner and owner scope confirmation; no W2 panel is thereby approved or delivered. W2 is the registry's 22 cold-chain/EV manifest IDs, Site first; W3 is estate aggregation, while domain health, work cases, recommendations, actions, cooling comparisons, availability and scenarios are W5 (`frontend/docs/architecture/v69-dependency-registry-pilot.json:274-277`). Existing ledger/panel/model mappings are candidates, not shipped claims (`frontend/docs/architecture/v69-screen-ledger.json:1-5`; `frontend/docs/architecture/v69-panel-contracts.json:1-5`; `frontend/docs/architecture/v69-model-homes.json:1-5`). The numbered cores below prioritize supported claims; the amended W2 technical decisions require **every** exact v69 panel slot under `D-2026-10-17-mockup-layout-spec`.
 
 ## Owner scope proposal
