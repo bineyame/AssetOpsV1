@@ -1,0 +1,1380 @@
+{
+  "revision": "264dfe9a",
+  "captured_at": "2026-10-18T09:55:16.977Z",
+  "pairs": [
+    {
+      "screen": "temperature",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-stocked-1440-app.png",
+      "mock_image": "temperature-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 248,
+            "y": 440,
+            "w": 725,
+            "h": 463
+          },
+          {
+            "title": "Excursion context",
+            "x": 991,
+            "y": 440,
+            "w": 403,
+            "h": 463
+          },
+          {
+            "title": "Claim boundary",
+            "x": 248,
+            "y": 982,
+            "w": 1145,
+            "h": 225
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 234,
+            "y": 563,
+            "w": 735,
+            "h": 442
+          },
+          {
+            "title": "Excursion context",
+            "x": 987,
+            "y": 563,
+            "w": 408,
+            "h": 442
+          },
+          {
+            "title": "Claim boundary",
+            "x": 234,
+            "y": 1083,
+            "w": 1161,
+            "h": 120
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-stocked-390-app.png",
+      "mock_image": "temperature-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 16,
+            "y": 766,
+            "w": 358,
+            "h": 398
+          },
+          {
+            "title": "Excursion context",
+            "x": 16,
+            "y": 1179,
+            "w": 358,
+            "h": 480
+          },
+          {
+            "title": "Claim boundary",
+            "x": 16,
+            "y": 1773,
+            "w": 358,
+            "h": 307
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 15,
+            "y": 993,
+            "w": 360,
+            "h": 408
+          },
+          {
+            "title": "Excursion context",
+            "x": 15,
+            "y": 1419,
+            "w": 360,
+            "h": 415
+          },
+          {
+            "title": "Claim boundary",
+            "x": 15,
+            "y": 1967,
+            "w": 360,
+            "h": 163
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-empty-1440-app.png",
+      "mock_image": "temperature-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 248,
+            "y": 434,
+            "w": 725,
+            "h": 381
+          },
+          {
+            "title": "Excursion context",
+            "x": 991,
+            "y": 434,
+            "w": 403,
+            "h": 381
+          },
+          {
+            "title": "Claim boundary",
+            "x": 248,
+            "y": 893,
+            "w": 1145,
+            "h": 202
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 234,
+            "y": 563,
+            "w": 735,
+            "h": 442
+          },
+          {
+            "title": "Excursion context",
+            "x": 987,
+            "y": 563,
+            "w": 408,
+            "h": 442
+          },
+          {
+            "title": "Claim boundary",
+            "x": 234,
+            "y": 1083,
+            "w": 1161,
+            "h": 120
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-empty-390-app.png",
+      "mock_image": "temperature-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 16,
+            "y": 704,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "Excursion context",
+            "x": 16,
+            "y": 833,
+            "w": 358,
+            "h": 381
+          },
+          {
+            "title": "Claim boundary",
+            "x": 16,
+            "y": 1328,
+            "w": 358,
+            "h": 261
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 15,
+            "y": 993,
+            "w": 360,
+            "h": 408
+          },
+          {
+            "title": "Excursion context",
+            "x": 15,
+            "y": 1419,
+            "w": 360,
+            "h": 415
+          },
+          {
+            "title": "Claim boundary",
+            "x": 15,
+            "y": 1967,
+            "w": 360,
+            "h": 163
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-refused-1440-app.png",
+      "mock_image": "temperature-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 248,
+            "y": 377,
+            "w": 734,
+            "h": 96
+          },
+          {
+            "title": "Excursion context",
+            "x": 1000,
+            "y": 377,
+            "w": 408,
+            "h": 96
+          },
+          {
+            "title": "Claim boundary",
+            "x": 248,
+            "y": 552,
+            "w": 1160,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 234,
+            "y": 563,
+            "w": 735,
+            "h": 442
+          },
+          {
+            "title": "Excursion context",
+            "x": 987,
+            "y": 563,
+            "w": 408,
+            "h": 442
+          },
+          {
+            "title": "Claim boundary",
+            "x": 234,
+            "y": 1083,
+            "w": 1161,
+            "h": 120
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "temperature",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/temperature",
+      "app_image": "temperature-refused-390-app.png",
+      "mock_image": "temperature-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 16,
+            "y": 474,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Excursion context",
+            "x": 16,
+            "y": 586,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Claim boundary",
+            "x": 16,
+            "y": 796,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Temperature with operating context",
+          "Excursion context",
+          "Claim boundary"
+        ],
+        "panels": [
+          {
+            "title": "Temperature with operating context",
+            "x": 15,
+            "y": 993,
+            "w": 360,
+            "h": 408
+          },
+          {
+            "title": "Excursion context",
+            "x": 15,
+            "y": 1419,
+            "w": 360,
+            "h": 415
+          },
+          {
+            "title": "Claim boundary",
+            "x": 15,
+            "y": 1967,
+            "w": 360,
+            "h": 163
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "coldbackup",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance/backup",
+      "mock_hash": "#/coldbackup",
+      "app_image": "coldbackup-stocked-1440-app.png",
+      "mock_image": "coldbackup-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 248,
+            "y": 308,
+            "w": 1145,
+            "h": 148
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 248,
+            "y": 606,
+            "w": 1145,
+            "h": 170
+          },
+          {
+            "title": "Backup event chains",
+            "x": 248,
+            "y": 794,
+            "w": 1145,
+            "h": 188
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 248,
+            "y": 999,
+            "w": 1145,
+            "h": 554
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 153
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 234,
+            "y": 718,
+            "w": 1161,
+            "h": 208
+          },
+          {
+            "title": "Backup event chains",
+            "x": 234,
+            "y": 944,
+            "w": 1161,
+            "h": 194
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 234,
+            "y": 1156,
+            "w": 1161,
+            "h": 332
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "coldbackup",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance/backup",
+      "mock_hash": "#/coldbackup",
+      "app_image": "coldbackup-stocked-390-app.png",
+      "mock_image": "coldbackup-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 16,
+            "y": 409,
+            "w": 358,
+            "h": 202
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 16,
+            "y": 908,
+            "w": 358,
+            "h": 452
+          },
+          {
+            "title": "Backup event chains",
+            "x": 16,
+            "y": 1378,
+            "w": 358,
+            "h": 217
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 16,
+            "y": 1613,
+            "w": 358,
+            "h": 836
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 15,
+            "y": 711,
+            "w": 360,
+            "h": 239
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 15,
+            "y": 1234,
+            "w": 360,
+            "h": 469
+          },
+          {
+            "title": "Backup event chains",
+            "x": 15,
+            "y": 1721,
+            "w": 360,
+            "h": 265
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 15,
+            "y": 2004,
+            "w": 360,
+            "h": 526
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "coldbackup",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/coldbackup",
+      "app_image": "coldbackup-empty-1440-app.png",
+      "mock_image": "coldbackup-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 248,
+            "y": 308,
+            "w": 1145,
+            "h": 148
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 248,
+            "y": 600,
+            "w": 1145,
+            "h": 96
+          },
+          {
+            "title": "Backup event chains",
+            "x": 248,
+            "y": 714,
+            "w": 1145,
+            "h": 188
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 248,
+            "y": 919,
+            "w": 1145,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 153
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 234,
+            "y": 718,
+            "w": 1161,
+            "h": 208
+          },
+          {
+            "title": "Backup event chains",
+            "x": 234,
+            "y": 944,
+            "w": 1161,
+            "h": 194
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 234,
+            "y": 1156,
+            "w": 1161,
+            "h": 332
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "coldbackup",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "mock_hash": "#/coldbackup",
+      "app_image": "coldbackup-empty-390-app.png",
+      "mock_image": "coldbackup-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 16,
+            "y": 409,
+            "w": 358,
+            "h": 179
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 16,
+            "y": 885,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Backup event chains",
+            "x": 16,
+            "y": 999,
+            "w": 358,
+            "h": 252
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 16,
+            "y": 1269,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 15,
+            "y": 711,
+            "w": 360,
+            "h": 239
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 15,
+            "y": 1234,
+            "w": 360,
+            "h": 469
+          },
+          {
+            "title": "Backup event chains",
+            "x": 15,
+            "y": 1721,
+            "w": 360,
+            "h": 265
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 15,
+            "y": 2004,
+            "w": 360,
+            "h": 526
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "coldbackup",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/coldbackup",
+      "app_image": "coldbackup-refused-1440-app.png",
+      "mock_image": "coldbackup-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 248,
+            "y": 377,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 248,
+            "y": 491,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "Backup event chains",
+            "x": 248,
+            "y": 605,
+            "w": 1160,
+            "h": 119
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 248,
+            "y": 742,
+            "w": 1160,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 153
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 234,
+            "y": 718,
+            "w": 1161,
+            "h": 208
+          },
+          {
+            "title": "Backup event chains",
+            "x": 234,
+            "y": 944,
+            "w": 1161,
+            "h": 194
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 234,
+            "y": 1156,
+            "w": 1161,
+            "h": 332
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "coldbackup",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "mock_hash": "#/coldbackup",
+      "app_image": "coldbackup-refused-390-app.png",
+      "mock_image": "coldbackup-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 16,
+            "y": 474,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 16,
+            "y": 588,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Backup event chains",
+            "x": 16,
+            "y": 702,
+            "w": 358,
+            "h": 119
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 16,
+            "y": 839,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "What the chain shows",
+          "Reconstructed event chain",
+          "Backup event chains",
+          "Evidence by causal step"
+        ],
+        "panels": [
+          {
+            "title": "What the chain shows",
+            "x": 15,
+            "y": 711,
+            "w": 360,
+            "h": 239
+          },
+          {
+            "title": "Reconstructed event chain",
+            "x": 15,
+            "y": 1234,
+            "w": 360,
+            "h": 469
+          },
+          {
+            "title": "Backup event chains",
+            "x": 15,
+            "y": 1721,
+            "w": 360,
+            "h": 265
+          },
+          {
+            "title": "Evidence by causal step",
+            "x": 15,
+            "y": 2004,
+            "w": 360,
+            "h": 526
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-finding",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c",
+      "mock_hash": "#/cold-finding",
+      "app_image": "cold-finding-stocked-1440-app.png",
+      "mock_image": "cold-finding-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 248,
+            "y": 308,
+            "w": 1160,
+            "h": 217
+          },
+          {
+            "title": "Operational context",
+            "x": 248,
+            "y": 542,
+            "w": 734,
+            "h": 348
+          },
+          {
+            "title": "Recommended next step",
+            "x": 1000,
+            "y": 542,
+            "w": 408,
+            "h": 348
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 209
+          },
+          {
+            "title": "Operational context",
+            "x": 234,
+            "y": 592,
+            "w": 735,
+            "h": 253
+          },
+          {
+            "title": "Recommended next step",
+            "x": 987,
+            "y": 592,
+            "w": 408,
+            "h": 253
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-finding",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c",
+      "mock_hash": "#/cold-finding",
+      "app_image": "cold-finding-stocked-390-app.png",
+      "mock_image": "cold-finding-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 16,
+            "y": 438,
+            "w": 358,
+            "h": 294
+          },
+          {
+            "title": "Operational context",
+            "x": 16,
+            "y": 750,
+            "w": 358,
+            "h": 630
+          },
+          {
+            "title": "Recommended next step",
+            "x": 16,
+            "y": 1395,
+            "w": 358,
+            "h": 148
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 15,
+            "y": 652,
+            "w": 360,
+            "h": 287
+          },
+          {
+            "title": "Operational context",
+            "x": 15,
+            "y": 957,
+            "w": 360,
+            "h": 469
+          },
+          {
+            "title": "Recommended next step",
+            "x": 15,
+            "y": 1444,
+            "w": 360,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-finding",
+      "case": "refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-0000000fffff",
+      "mock_hash": "#/cold-finding",
+      "app_image": "cold-finding-refused-1440-app.png",
+      "mock_image": "cold-finding-refused-1440-mock.png",
+      "app": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 248,
+            "y": 377,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "Operational context",
+            "x": 248,
+            "y": 491,
+            "w": 734,
+            "h": 96
+          },
+          {
+            "title": "Recommended next step",
+            "x": 1000,
+            "y": 491,
+            "w": 408,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 209
+          },
+          {
+            "title": "Operational context",
+            "x": 234,
+            "y": 592,
+            "w": 735,
+            "h": 253
+          },
+          {
+            "title": "Recommended next step",
+            "x": 987,
+            "y": 592,
+            "w": 408,
+            "h": 253
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-finding",
+      "case": "refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-0000000fffff",
+      "mock_hash": "#/cold-finding",
+      "app_image": "cold-finding-refused-390-app.png",
+      "mock_image": "cold-finding-refused-390-mock.png",
+      "app": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 16,
+            "y": 497,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Operational context",
+            "x": 16,
+            "y": 611,
+            "w": 358,
+            "h": 96
+          },
+          {
+            "title": "Recommended next step",
+            "x": 16,
+            "y": 723,
+            "w": 358,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Bounded conclusion",
+          "Operational context",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 15,
+            "y": 652,
+            "w": 360,
+            "h": 287
+          },
+          {
+            "title": "Operational context",
+            "x": 15,
+            "y": 957,
+            "w": 360,
+            "h": 469
+          },
+          {
+            "title": "Recommended next step",
+            "x": 15,
+            "y": 1444,
+            "w": 360,
+            "h": 193
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-finding-excursion",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-000000000176",
+      "mock_hash": "#/cold-finding-excursion",
+      "app_image": "cold-finding-excursion-stocked-1440-app.png",
+      "mock_image": "cold-finding-excursion-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Bounded conclusion",
+          "Temperature",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 248,
+            "y": 308,
+            "w": 1145,
+            "h": 248
+          },
+          {
+            "title": "Temperature",
+            "x": 248,
+            "y": 574,
+            "w": 725,
+            "h": 485
+          },
+          {
+            "title": "Recommended next step",
+            "x": 991,
+            "y": 574,
+            "w": 403,
+            "h": 485
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Bounded conclusion",
+          "Temperature",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 234,
+            "y": 366,
+            "w": 1161,
+            "h": 209
+          },
+          {
+            "title": "Temperature",
+            "x": 234,
+            "y": 592,
+            "w": 735,
+            "h": 333
+          },
+          {
+            "title": "Recommended next step",
+            "x": 987,
+            "y": 592,
+            "w": 408,
+            "h": 333
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "cold-finding-excursion",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-000000000176",
+      "mock_hash": "#/cold-finding-excursion",
+      "app_image": "cold-finding-excursion-stocked-390-app.png",
+      "mock_image": "cold-finding-excursion-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Bounded conclusion",
+          "Temperature",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 16,
+            "y": 438,
+            "w": 358,
+            "h": 353
+          },
+          {
+            "title": "Temperature",
+            "x": 16,
+            "y": 809,
+            "w": 358,
+            "h": 380
+          },
+          {
+            "title": "Recommended next step",
+            "x": 16,
+            "y": 1204,
+            "w": 358,
+            "h": 185
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Bounded conclusion",
+          "Temperature",
+          "Recommended next step"
+        ],
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 15,
+            "y": 632,
+            "w": 360,
+            "h": 259
+          },
+          {
+            "title": "Temperature",
+            "x": 15,
+            "y": 909,
+            "w": 360,
+            "h": 212
+          },
+          {
+            "title": "Recommended next step",
+            "x": 15,
+            "y": 1139,
+            "w": 360,
+            "h": 228
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}
