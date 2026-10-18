@@ -6,7 +6,8 @@ the single REPEATABLE READ connection that `ColdReadService.within` opens (W2-03
 backup chain, current Findings, basis revisions, accepted records, source facts, gateway diagnostics) and the cold
 consequence store's caller-connection heads and pending work. A display-meant field never carries a raw machine
 code: money reasons and limits go through `financials.cold_consequence.SCREEN_WORDING`/`screen_sentences`.
-A field whose content or shape the spec does not give is left out (see `.agent/W2-04-phase-handoff.md` Run 5).
+Fields, codes and copy follow the spec's "Final Run-5 Architect rulings for commit 4 (Q-R1-Q-R9)" and its Run-5
+reading verdicts.
 """
 
 from __future__ import annotations
@@ -58,12 +59,48 @@ PENDING_COPY = "New evidence is waiting to be assessed"
 RECORD_TARGET_UNAVAILABLE = "Analysis view not available for this cold record"
 POLICY_REVISION_UNRESOLVED = "No single effective Foundation revision covers this window's policy."
 
-# Commit-3 Architect ruling, source contact: each UNKNOWN cause carries its own limitation.
-CONTACT_NO_DIAGNOSTIC = "No gateway diagnostic was received by the window end and the evidence cutoff."
-CONTACT_NOT_REPORTED = "The selected gateway diagnostic does not report this source."
-CONTACT_NO_CADENCE = "The gateway has no usable declared diagnostic cadence."
-CONTACT_CLOCK = "The gateway clock is not verified, so the reported contact time cannot be trusted."
-CONTACT_AFTER_WINDOW = "The reported contact time is after the window end."
+# Run-5 reading verdict 5: each UNKNOWN contact cause carries its own exact limitation.
+CONTACT_NO_DIAGNOSTIC = "No gateway diagnostic was available by the window end and evidence cutoff."
+CONTACT_NOT_REPORTED = "The selected gateway diagnostic has no contact time for this source."
+CONTACT_NO_CADENCE = "The gateway's reporting interval is not declared, so source contact cannot be called recent."
+CONTACT_CLOCK = "The gateway time cannot be verified, so the reported contact time is uncertain."
+CONTACT_AFTER_WINDOW = "The reported source contact happened after this window ended."
+
+# Q-R1: ranked attention codes and their exact text, in response order.
+ATTENTION = {
+    "COLD_RECOMPUTE_PENDING": "New evidence is waiting to be assessed",
+    "COLD_PROBE_GAP": "Chamber temperature has an unmeasured gap",
+    "COLD_START_FAILURE": "Automatic generator start failed in the accepted record",
+    "COLD_TRANSFER_UNKNOWN": "Transfer-switch position was not observed",
+    "COLD_POLICY_MISSING": "Chamber temperature policy is not declared for this window",
+}
+# Q-R2: cooling card text by COOLING_RESPONSE state; maintenance is never recorded in W2-04.
+COOLING_TEXT = {
+    "SUPPORTED": "Cooling response is supported by compressor and chamber readings",
+    "LIMITED": "Cooling response has incomplete compressor or chamber readings",
+    "UNAVAILABLE": "Cooling response was not assessed",
+    "CONTRADICTORY": "Cooling response has contradictory records",
+}
+MAINTENANCE_TEXT = "No maintenance work record is available for this window"
+MAINTENANCE_LIMITATION = "No accepted maintenance work record is in the W2-04 read contract."
+# Q-R3: the objective line.
+OBJECTIVE_TEXT = "Keep the chamber between {low}–{high}°C through power, cooling and operating disturbances."
+OBJECTIVE_ABSENT = "Chamber temperature objective not declared for this window"
+# Q-R4: not-included sentences (SOURCE_GATE_WITHHELD keeps its ruled SCREEN_WORDING sentence).
+NOT_INCLUDED_TEXT = {
+    "STOCK_VALUE_UNDECLARED": "Stock quantity and unit value have not been declared for this chamber.",
+    "EXPOSURE_RULE_UNAPPROVED": "No reviewed rule translates chamber exposure into product loss.",
+    "SPOILAGE_UNPROVED": "Chamber temperature alone does not establish spoilage or stock loss.",
+    "REPAIR_COST_ABSENT": "No accepted repair or call-out cost record is available.",
+    "SOURCE_GATE_WITHHELD": SCREEN_WORDING["SOURCE_GATE_WITHHELD"],
+}
+# Q-R7: claim-rule requirement by rule ID.
+REQUIREMENTS = {
+    f"{EXC}/{cold.MODEL_VERSION}": "Accepted chamber readings, the selected temperature policy and enough coverage "
+                                   "to bound an excursion.",
+    f"{START}/{cold.MODEL_VERSION}": "Correlated accepted grid, start request, start result, generator, transfer, "
+                                     "bus, compressor and chamber reports to explain the backup chain.",
+}
 
 
 def _plain(value: Any) -> Any:
@@ -79,11 +116,13 @@ def _joined(sentences) -> str | None:
     return " ".join(out) if out else None
 
 
-def source_contact(diagnostic: dict[str, Any] | None, source_id: UUID, to: datetime) -> tuple[str, str | None]:
-    """Commit-3 Architect ruling: `RECENT|STALE|NEVER|UNKNOWN` and its limitation, from only the selected
-    diagnostic's explicit `last_device_contact_by_source[source_id]`, judged at the selected window end `to`."""
+def source_contact(diagnostic: dict[str, Any] | None, source_id: UUID,
+                   to: datetime) -> tuple[str, str | None, str | None]:
+    """Commit-3 Architect ruling and Q-R8: `(RECENT|STALE|NEVER|UNKNOWN, contact_at, limitation)` from only the
+    selected diagnostic's explicit `last_device_contact_by_source[source_id]`, judged at the window end `to`.
+    `contact_at` is that trusted, parseable instant `<= to` for RECENT/STALE, otherwise None."""
     if diagnostic is None:
-        return "UNKNOWN", CONTACT_NO_DIAGNOSTIC
+        return "UNKNOWN", None, CONTACT_NO_DIAGNOSTIC
     contacts: dict[str, Any] = {}
     for key, value in (diagnostic.get("contacts") or {}).items():
         try:
@@ -92,24 +131,25 @@ def source_contact(diagnostic: dict[str, Any] | None, source_id: UUID, to: datet
             continue
     key = str(source_id)
     if key not in contacts:
-        return "UNKNOWN", CONTACT_NOT_REPORTED
+        return "UNKNOWN", None, CONTACT_NOT_REPORTED
     raw = contacts[key]
     if raw is None:
-        return "NEVER", None
+        return "NEVER", None, None
     cadence = diagnostic.get("cadence_seconds")
     if not isinstance(cadence, int) or isinstance(cadence, bool) or cadence <= 0:
-        return "UNKNOWN", CONTACT_NO_CADENCE
+        return "UNKNOWN", None, CONTACT_NO_CADENCE
     if clock_trust(diagnostic.get("clock_offset_ms"))[0] != "WITHIN_TOLERANCE":
-        return "UNKNOWN", CONTACT_CLOCK
+        return "UNKNOWN", None, CONTACT_CLOCK
     try:
         at = _at(str(raw))
     except ValueError:
         at = None
     if at is None or at.tzinfo is None:
-        return "UNKNOWN", CONTACT_CLOCK
+        return "UNKNOWN", None, CONTACT_CLOCK
     if at > to:
-        return "UNKNOWN", CONTACT_AFTER_WINDOW
-    return ("RECENT" if to - at <= timedelta(seconds=FRESHNESS_CADENCES * cadence) else "STALE"), None
+        return "UNKNOWN", None, CONTACT_AFTER_WINDOW
+    state = "RECENT" if to - at <= timedelta(seconds=FRESHNESS_CADENCES * cadence) else "STALE"
+    return state, cold.plain(at), None
 
 
 class ColdSiteReadService:
@@ -182,8 +222,22 @@ class ColdSiteReadService:
             "quantity_unit": head["quantity_unit"],
             "amount_bounds": {"low": None, "high": None}, "currency": None,
             "reason": reason, "overlap_group": head["overlap_group"],
+            "exact_basis": self._exact_basis(head),
             "as_of": _plain(head["created_at"]), "limitation": _joined(screen_sentences(head["limitation"])),
         }
+
+    @staticmethod
+    def _exact_basis(head: dict[str, Any]) -> dict[str, Any]:
+        """Q-R5: the selected immutable consequence's exact basis; UUID arrays deduplicated and lexically sorted."""
+        def ids(values) -> list[str]:
+            return sorted({str(UUID(str(v))) for v in values or ()})
+        return {"finding_revision_id": str(head["finding_revision_id"]),
+                "episode_revision_id": str(head["episode_revision_id"]),
+                "assessment_revision_id": str(head["assessment_revision_id"]),
+                "evidence_ids": ids(head["evidence_ids"]),
+                "source_gate_sha256": head["source_gate_sha256"].lower(),
+                "assumption_revision_ids": ids(head["assumption_revision_ids"]),
+                "consequence_basis_sha256": head["consequence_basis_sha256"].lower()}
 
     # --- /overview -------------------------------------------------------------------------------------------
 
@@ -198,12 +252,18 @@ class ColdSiteReadService:
             exc_as_of, st_as_of = self._as_of(c, snap, EXC), self._as_of(c, snap, START)
             findings = self._reads.current_findings_on(c, snap)
             money = self._money(c, snap, findings)
+            objective = self._objective(c, snap, exc)
+            caps = {x["claim"]: x for x in self._capabilities(c, snap)} if snap["selected"] else {}
             return {
                 **body,
                 "status": {"state": exc.result.get("state") if exc else "UNKNOWN",
                            "claim_level": exc.result.get("claim_level") if exc else None,
                            "as_of": exc_as_of, "limitation": self._limits(snap, EXC)},
-                "objective": self._objective(c, snap, exc),
+                "objective": objective,
+                "needs_attention": self._needs_attention(c, snap, findings, money, objective),
+                "cooling": self._cooling(snap, caps.get("COOLING_RESPONSE")),
+                "maintenance": {"state": "NOT_RECORDED", "text": MAINTENANCE_TEXT, "record_id": None, "link": None,
+                                "as_of": known, "limitation": MAINTENANCE_LIMITATION},
                 "temperature_summary": self._temperature_summary(snap, temp, exc, exc_as_of),
                 "backup_summary": self._backup_summary(snap, back, st, st_as_of),
                 "causal_strip": self._causal_strip(back, st, known),
@@ -234,8 +294,54 @@ class ColdSiteReadService:
                 as_of = _plain(covering[0][1])
             else:
                 limitation = POLICY_REVISION_UNRESOLVED
-        return {"policy_low_deg_c": pol.get("policy_low"), "policy_high_deg_c": pol.get("policy_high"),
-                "room_asset_id": pol.get("room_asset_id"), "as_of": as_of, "limitation": limitation}
+        low, high, room = pol.get("policy_low"), pol.get("policy_high"), pol.get("room_asset_id")
+        declared = low is not None and high is not None and room is not None
+        return {"text": OBJECTIVE_TEXT.format(low=low, high=high) if declared else OBJECTIVE_ABSENT,
+                "policy_low_deg_c": low, "policy_high_deg_c": high,
+                "room_asset_id": room, "as_of": as_of, "limitation": limitation}
+
+    @staticmethod
+    def _cooling(snap, cap: dict[str, Any] | None) -> dict[str, Any]:
+        """Q-R2: the COOLING_RESPONSE capability on the selected W2-03 basis."""
+        if cap is None:
+            return {"state": "UNAVAILABLE", "text": COOLING_TEXT["UNAVAILABLE"], "as_of": _plain(snap["known"]),
+                    "limitation": NO_SELECTION_NOTE}
+        return {"state": cap["state"], "text": COOLING_TEXT[cap["state"]], "as_of": cap["as_of"],
+                "limitation": cap["limitation"]}
+
+    def _needs_attention(self, c, snap, findings, money, objective) -> list[dict[str, Any]]:
+        """Q-R1: true predicates only, in the ruled order. `link` is the exact selected Finding URL for the item's
+        analytic when one exists, otherwise its selected Backup or Evidence read URL; `as_of`/`limitation` are that
+        analytic's selected values (the cutoff and hold sentence for pending)."""
+        exc, st = snap["selected"].get(EXC), snap["selected"].get(START)
+        by_revision = {str(sel.revision_id): a for a, sel in snap["selected"].items()}
+        finding_link: dict[str, str] = {}
+        for item in findings:
+            analytic = by_revision.get(str(item.get("assessment_revision_id")))
+            if analytic is not None and item["links"].get("finding"):
+                finding_link.setdefault(analytic, item["links"]["finding"])
+        out: list[dict[str, Any]] = []
+
+        def add(code: str, link: str | None, as_of, limitation) -> None:
+            out.append({"code": code, "text": ATTENTION[code], "link": link, "as_of": as_of,
+                        "limitation": limitation})
+        if snap["state"] == "PENDING_RECOMPUTE" or money["withheld"]:
+            add("COLD_RECOMPUTE_PENDING", self._link(snap, "evidence"), _plain(snap["known"]), money["hold"])
+        if exc is not None and exc.result.get("gaps"):
+            add("COLD_PROBE_GAP", finding_link.get(EXC) or self._link(snap, "evidence"),
+                self._as_of(c, snap, EXC), self._limits(snap, EXC))
+        chains = (st.result.get("chains") or []) if st else []
+        if any(ch.get("result") == "OBSERVED_FAILURE" for ch in chains):
+            add("COLD_START_FAILURE", finding_link.get(START) or self._link(snap, "backup-chain"),
+                self._as_of(c, snap, START), self._limits(snap, START))
+        if any(not any(x["step"] == "TRANSFER" and x["state"] == "OBSERVED" for x in ch["steps"]) for ch in chains):
+            add("COLD_TRANSFER_UNKNOWN", self._link(snap, "backup-chain"),
+                self._as_of(c, snap, START), self._limits(snap, START))
+        if exc is not None and (objective["policy_low_deg_c"] is None or objective["policy_high_deg_c"] is None
+                                or objective["limitation"] == POLICY_REVISION_UNRESOLVED):
+            add("COLD_POLICY_MISSING", self._link(snap, "evidence"), self._as_of(c, snap, EXC),
+                objective["limitation"] or self._limits(snap, EXC))
+        return out
 
     @staticmethod
     def _temperature_summary(snap, temp, exc, as_of) -> dict[str, Any]:
@@ -294,7 +400,10 @@ class ColdSiteReadService:
             snap = self._selected(c, t, s, code, lo, hi, known_at)
             body = self._reads.envelope_on(snap, (EXC, START))
             links = {"analysis": self._link(snap, "evidence/analysis"),
-                     "temperature": self._link(snap, "temperature"), "backup": self._link(snap, "backup-chain")}
+                     "temperature": self._link(snap, "temperature"), "backup": self._link(snap, "backup-chain"),
+                     "foundation": None if snap["hi"] is None else (  # Q-R6: the Foundation read takes `at=to`
+                         f"/api/sites/{quote(snap['code'], safe='')}/cold/foundation?"
+                         + urlencode([("at", _plain(snap["hi"]))]))}
             if not snap["selected"]:
                 return {**body, "capabilities": [], "sources": [], "links": links}
             return {**body, "capabilities": self._capabilities(c, snap), "sources": self._sources(c, snap),
@@ -375,12 +484,13 @@ class ColdSiteReadService:
         diagnostics = self._reads.source_contacts_on(c, t, s, [b[2] for b in bindings], min(known, hi))
         out = []
         for source_id, role, gateway_id in bindings:
-            count, last = facts.get((source_id, role), (0, None))
+            count, last, good = facts.get((source_id, role), (0, None, 0))
             diagnostic = diagnostics.get(gateway_id)
-            contact, limitation = source_contact(diagnostic, source_id, hi)
-            out.append({"id": str(source_id), "role": role, "contact": contact,
+            contact, contact_at, limitation = source_contact(diagnostic, source_id, hi)
+            out.append({"id": str(source_id), "role": role, "contact": contact, "contact_at": contact_at,
                         "fact_age": None if last is None else max(0, int((hi - last).total_seconds())),
                         "accepted_count": count, "last_accepted_at": _plain(last),
+                        "quality": {"good_count": good, "other_count": count - good},
                         "as_of": _plain(diagnostic["received_at"]) if diagnostic else _plain(known),
                         "limitation": limitation})
         return out
@@ -446,7 +556,8 @@ class ColdSiteReadService:
                         continue
                     if role not in required:
                         required.append(role)
-            out.append({"rule_id": f"{analytic}/{cold.MODEL_VERSION}",
+            rule_id = f"{analytic}/{cold.MODEL_VERSION}"
+            out.append({"rule_id": rule_id, "requirement": REQUIREMENTS[rule_id],
                         "observed_roles": [x for x in required if x in roles],
                         "missing_roles": [x for x in required if x not in roles],
                         "coverage": {"known_points": r.get("known_points"),
@@ -471,7 +582,7 @@ class ColdSiteReadService:
                 codes.append("SOURCE_GATE_WITHHELD")
             known = _plain(snap["known"])
             return {**body, "consequences": [self._consequence_row(h, money) for h in money["counted"]],
-                    "not_included": [{"code": code_, "text": SCREEN_WORDING.get(code_), "as_of": known,
+                    "not_included": [{"code": code_, "text": NOT_INCLUDED_TEXT[code_], "as_of": known,
                                       "limitation": None} for code_ in codes],
                     "links": links}
         return self._reads.within(work)

@@ -1569,16 +1569,17 @@ class ColdReadService:
 
     @staticmethod
     def source_facts_on(c: Connection, t: UUID, s: UUID, lo: datetime, hi: datetime,
-                        known: datetime) -> dict[tuple[UUID, str], tuple[int, datetime]]:
-        """(source_id, role) -> (accepted count, latest `source_time`) of the accepted records in `[lo, hi)`
-        whose disposition was committed at or before the cutoff."""
+                        known: datetime) -> dict[tuple[UUID, str], tuple[int, datetime, int]]:
+        """(source_id, role) -> (accepted count, latest `source_time`, GOOD-quality count) of the accepted records
+        in `[lo, hi)` whose disposition was committed at or before the cutoff (Run-5 copy-source closure)."""
         rows = c.execute(text(
-            "SELECT e.source_id, e.role, count(*), max(e.source_time) FROM accepted_evidence e "
+            "SELECT e.source_id, e.role, count(*), max(e.source_time), "
+            "count(*) FILTER (WHERE e.quality = 'GOOD') FROM accepted_evidence e "
             "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
             "WHERE e.tenant_id = :t AND e.site_id = :s AND e.source_time >= :lo AND e.source_time < :hi "
             "AND d.decided_at <= :k GROUP BY e.source_id, e.role"),
             {"t": t, "s": s, "lo": lo, "hi": hi, "k": known}).all()
-        return {(r[0], r[1]): (int(r[2]), r[3]) for r in rows}
+        return {(r[0], r[1]): (int(r[2]), r[3], int(r[4])) for r in rows}
 
     @staticmethod
     def source_contacts_on(c: Connection, t: UUID, s: UUID, gateway_ids: list[UUID],

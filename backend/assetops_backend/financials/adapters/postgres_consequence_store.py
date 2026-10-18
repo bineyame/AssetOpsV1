@@ -603,12 +603,16 @@ class PostgresConsequenceStore:
         if not finding_revision_ids:
             return []
         return [dict(r._mapping) for r in c.execute(text(
-            "SELECT DISTINCT ON (finding_revision_id, kind) id, finding_revision_id, episode_revision_id, "
-            "assessment_revision_id, revision_no, kind, state, reason, window_start, window_end, room_asset_id, "
-            "overlap_group, quantity_unit, quantity_low, quantity_high, amount_low, amount_high, currency, "
-            "consequence_basis_sha256, source_classification, limitation, created_at FROM cold_consequence_revision "
-            "WHERE tenant_id = :t AND site_id = :s AND finding_revision_id = ANY(:f) "
-            "ORDER BY finding_revision_id, kind, revision_no DESC"),
+            "SELECT DISTINCT ON (r.finding_revision_id, r.kind) r.id, r.finding_revision_id, r.episode_revision_id, "
+            "r.assessment_revision_id, r.revision_no, r.kind, r.state, r.reason, r.window_start, r.window_end, "
+            "r.room_asset_id, r.overlap_group, r.quantity_unit, r.quantity_low, r.quantity_high, r.amount_low, "
+            "r.amount_high, r.currency, r.consequence_basis_sha256, r.source_gate_sha256, "
+            "r.assumption_revision_ids, r.source_classification, r.limitation, r.created_at, "
+            "ARRAY(SELECT DISTINCT e.evidence_id::text FROM cold_consequence_evidence e WHERE e.tenant_id = r.tenant_id "
+            "AND e.site_id = r.site_id AND e.consequence_revision_id = r.id ORDER BY 1) AS evidence_ids "
+            "FROM cold_consequence_revision r "
+            "WHERE r.tenant_id = :t AND r.site_id = :s AND r.finding_revision_id = ANY(:f) "
+            "ORDER BY r.finding_revision_id, r.kind, r.revision_no DESC"),
             {"t": tenant_id, "s": site_id, "f": sorted({UUID(str(x)) for x in finding_revision_ids}, key=str)})]
 
     @staticmethod

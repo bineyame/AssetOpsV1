@@ -45,6 +45,7 @@ EMPTY = "from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
 ROUTES = ("overview", "evidence", "evidence/analysis", "financials", "financial-assumptions")
 ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "limitations"}
 RAW_CODES = tuple(SCREEN_WORDING)
+EXCURSION_ATTENTION = ["COLD_START_FAILURE", "COLD_TRANSFER_UNKNOWN"]  # the excursion replay's chain
 
 
 def _registry(site_id, tenant_id, site_type="COLDCHAIN"):
@@ -95,21 +96,40 @@ def diag(contact="absent", *, offset=0, cadence=60):
 
 
 @pytest.mark.parametrize("diagnostic,expected", [
-    (None, ("UNKNOWN", csr.CONTACT_NO_DIAGNOSTIC)),
-    (diag(), ("UNKNOWN", csr.CONTACT_NOT_REPORTED)),
-    (diag(None), ("NEVER", None)),
-    (diag("2026-10-06T20:03:00Z"), ("RECENT", None)),
-    (diag("2026-10-06T20:03:00Z", cadence=60), ("RECENT", None)),  # equality (2 x 60 s) is recent
-    (diag("2026-10-06T20:02:59Z", cadence=60), ("STALE", None)),
-    (diag("2026-10-06T20:03:00Z", offset=None), ("UNKNOWN", csr.CONTACT_CLOCK)),  # offset not measured
-    (diag("2026-10-06T20:03:00Z", offset=60_000), ("UNKNOWN", csr.CONTACT_CLOCK)),  # untrusted clock
-    (diag("2026-10-06T20:03:00Z", cadence=None), ("UNKNOWN", csr.CONTACT_NO_CADENCE)),
-    (diag("2026-10-06T20:03:00Z", cadence=0), ("UNKNOWN", csr.CONTACT_NO_CADENCE)),
-    (diag("2026-10-06T20:05:01Z"), ("UNKNOWN", csr.CONTACT_AFTER_WINDOW)),
-    (diag("not-a-time"), ("UNKNOWN", csr.CONTACT_CLOCK)),
+    (None, ("UNKNOWN", None, csr.CONTACT_NO_DIAGNOSTIC)),
+    (diag(), ("UNKNOWN", None, csr.CONTACT_NOT_REPORTED)),
+    (diag(None), ("NEVER", None, None)),
+    (diag("2026-10-06T20:03:00Z"), ("RECENT", "2026-10-06T20:03:00.000000Z", None)),
+    (diag("2026-10-06T20:03:00Z", cadence=60), ("RECENT", "2026-10-06T20:03:00.000000Z", None)),  # equality (2 x 60 s)
+    (diag("2026-10-06T20:02:59Z", cadence=60), ("STALE", "2026-10-06T20:02:59.000000Z", None)),
+    (diag("2026-10-06T20:03:00Z", offset=None), ("UNKNOWN", None, csr.CONTACT_CLOCK)),  # offset not measured
+    (diag("2026-10-06T20:03:00Z", offset=60_000), ("UNKNOWN", None, csr.CONTACT_CLOCK)),  # untrusted clock
+    (diag("2026-10-06T20:03:00Z", cadence=None), ("UNKNOWN", None, csr.CONTACT_NO_CADENCE)),
+    (diag("2026-10-06T20:03:00Z", cadence=0), ("UNKNOWN", None, csr.CONTACT_NO_CADENCE)),
+    (diag("2026-10-06T20:05:01Z"), ("UNKNOWN", None, csr.CONTACT_AFTER_WINDOW)),
+    (diag("not-a-time"), ("UNKNOWN", None, csr.CONTACT_CLOCK)),
 ])
 def test_source_contact_ruling(diagnostic, expected) -> None:
     assert csr.source_contact(diagnostic, SOURCE, TO) == expected
+
+
+def test_run5_exact_copy() -> None:
+    """Run-5 rulings: contact limitations (verdict 5), Q-R1/Q-R2/Q-R3/Q-R4/Q-R7 sentences, verbatim."""
+    assert (csr.CONTACT_NO_DIAGNOSTIC, csr.CONTACT_NOT_REPORTED, csr.CONTACT_NO_CADENCE, csr.CONTACT_CLOCK,
+            csr.CONTACT_AFTER_WINDOW) == (
+        "No gateway diagnostic was available by the window end and evidence cutoff.",
+        "The selected gateway diagnostic has no contact time for this source.",
+        "The gateway's reporting interval is not declared, so source contact cannot be called recent.",
+        "The gateway time cannot be verified, so the reported contact time is uncertain.",
+        "The reported source contact happened after this window ended.")
+    assert list(csr.ATTENTION) == ["COLD_RECOMPUTE_PENDING", "COLD_PROBE_GAP", "COLD_START_FAILURE",
+                                   "COLD_TRANSFER_UNKNOWN", "COLD_POLICY_MISSING"]
+    assert csr.ATTENTION["COLD_START_FAILURE"] == "Automatic generator start failed in the accepted record"
+    assert csr.OBJECTIVE_TEXT.format(low="2", high="4") == \
+        "Keep the chamber between 2\u20134\u00b0C through power, cooling and operating disturbances."
+    assert csr.NOT_INCLUDED_TEXT["SOURCE_GATE_WITHHELD"] == SCREEN_WORDING["SOURCE_GATE_WITHHELD"]
+    assert set(csr.COOLING_TEXT) == {"SUPPORTED", "LIMITED", "UNAVAILABLE", "CONTRADICTORY"}
+    assert set(csr.REQUIREMENTS) == {"cold-excursion/1", "cold-start-response/1"}
 
 
 # --- pure: refusal order and parsing (no database) -----------------------------------------------------------
@@ -212,7 +232,16 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
     assert SCREEN_WORDING["OPEN_EPISODE_UPPER_UNKNOWN"] in money["limitation"]
     for name, href in ov["links"].items():
         assert follow(c, href)["window"]["known_at"] == known, name
-    assert "needs_attention" not in ov and "cooling" not in ov and "maintenance" not in ov  # Run 5 questions
+    assert ov["objective"]["text"] == csr.OBJECTIVE_TEXT.format(low="2", high="4")
+    assert [x["code"] for x in ov["needs_attention"]] == EXCURSION_ATTENTION
+    for item in ov["needs_attention"]:
+        assert set(item) == {"code", "text", "link", "as_of", "limitation"}
+        assert item["text"] == csr.ATTENTION[item["code"]] and item["as_of"]
+        assert item["link"] is None or follow(c, item["link"])  # never an Action URL
+    assert ov["cooling"]["state"] in csr.COOLING_TEXT and ov["cooling"]["text"] == \
+        csr.COOLING_TEXT[ov["cooling"]["state"]]
+    assert ov["maintenance"] == {"state": "NOT_RECORDED", "text": csr.MAINTENANCE_TEXT, "record_id": None,
+                                 "link": None, "as_of": known, "limitation": csr.MAINTENANCE_LIMITATION}
 
     ev = bodies["evidence"]
     assert [x["claim"] for x in ev["capabilities"]] == list(csr.CAPABILITIES)
@@ -224,12 +253,18 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
                for x in ev["capabilities"])
     sources = ev["sources"]
     assert sources and all(s["contact"] == "UNKNOWN" and s["limitation"] == csr.CONTACT_NO_DIAGNOSTIC
-                           for s in sources)  # the replay sends no gateway diagnostic: never NEVER
+                           and s["contact_at"] is None for s in sources)  # no gateway diagnostic: never NEVER
     probe = next(s for s in sources if s["role"] == "chamber_temperature")
     assert probe["accepted_count"] == 13 and probe["fact_age"] == 300  # 20:05 - last probe 20:00
-    for name, href in ev["links"].items():
+    assert probe["last_accepted_at"] == "2026-10-06T20:00:00.000000Z"
+    assert probe["quality"] == {"good_count": 13, "other_count": 0}
+    assert all(s["quality"]["good_count"] + s["quality"]["other_count"] == s["accepted_count"] for s in sources)
+    roles = [s["role"] for s in sources]
+    assert roles == sorted(roles, key=lambda r: csr.ROLE_ORDER.get(r, len(csr.ROLE_ORDER)))
+    links = dict(ev["links"])
+    assert links.pop("foundation") == f"/api/sites/{CODE}/cold/foundation?at=2026-10-06T20%3A05%3A00.000000Z"  # Q-R6
+    for name, href in links.items():
         assert follow(c, href)["window"]["known_at"] == known, name
-    assert "foundation" not in ev["links"]  # Run 5 question: the Foundation route takes `at`, not the window
 
     # Source contact from the latest diagnostic received by min(known_at, to); later receipts are ignored.
     [gateway_id] = [r["gateway_id"] for r in rows(
@@ -239,10 +274,12 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
     add_diagnostic(built, gateway_id, 2, TO + timedelta(minutes=1), {probe["id"]: None})  # after `to`: ignored
     contacts = {(s["id"], s["role"]): s for s in get(c, f"evidence?{W}")["sources"]}
     assert contacts[(probe["id"], "chamber_temperature")]["contact"] == "RECENT"
+    assert contacts[(probe["id"], "chamber_temperature")]["contact_at"] == "2026-10-06T20:04:00.000000Z"  # Q-R8
     others = [s for (sid, _), s in contacts.items() if sid != probe["id"]]
     assert all(s["contact"] == "UNKNOWN" for s in others)  # another source's key absent or no diagnostic
     add_diagnostic(built, gateway_id, 3, TO - timedelta(minutes=1), {probe["id"]: None})
-    assert {s["contact"] for s in get(c, f"evidence?{W}")["sources"] if s["id"] == probe["id"]} == {"NEVER"}
+    assert {(s["contact"], s["contact_at"]) for s in get(c, f"evidence?{W}")["sources"]
+            if s["id"] == probe["id"]} == {("NEVER", None)}
 
     an = bodies["evidence/analysis"]
     expected = sorted(an["source_provenance"]["evidence_ids"])
@@ -261,6 +298,7 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
     probes = [x for x in seen if x["role"] == "chamber_temperature"]
     assert probes and all(x["value_display"] is not None and x["unit"] == "degC" for x in probes)
     assert {r["rule_id"] for r in an["claim_rules"]} == {"cold-excursion/1", "cold-start-response/1"}
+    assert all(r["requirement"] == csr.REQUIREMENTS[r["rule_id"]] for r in an["claim_rules"])  # Q-R7
     first = get(c, f"evidence/analysis?{W}&limit=1")["accepted_records"]["next_cursor"]
     moved = encode_cursor(datetime(2026, 10, 6, 19, tzinfo=timezone.utc), uuid4(), "0" * 64)
     assert first and error(c, f"evidence/analysis?{W}&cursor={moved}", 409) == "COLD_CURSOR_BASIS_CHANGED"
@@ -274,6 +312,16 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
     assert row["reason"] == SCREEN_WORDING["COLD_VALUATION_NOT_APPROVED"]
     assert row["limitation"] == SCREEN_WORDING["OPEN_EPISODE_UPPER_UNKNOWN"]
     assert [x["code"] for x in fin["not_included"]] == list(csr.NOT_INCLUDED)
+    assert all(x["text"] == csr.NOT_INCLUDED_TEXT[x["code"]] for x in fin["not_included"])  # Q-R4
+    basis = row["exact_basis"]  # Q-R5: an object from the selected immutable consequence
+    assert set(basis) == {"finding_revision_id", "episode_revision_id", "assessment_revision_id", "evidence_ids",
+                          "source_gate_sha256", "assumption_revision_ids", "consequence_basis_sha256"}
+    assert basis["evidence_ids"] and basis["evidence_ids"] == sorted(set(basis["evidence_ids"]))
+    assert basis["assumption_revision_ids"] == []
+    assert all(len(basis[k]) == 64 and basis[k] == basis[k].lower()
+               for k in ("source_gate_sha256", "consequence_basis_sha256"))
+    assert basis["finding_revision_id"] in {i["revision_id"] for i in ov["findings"]["items"]}
+    assert set(basis["evidence_ids"]) <= set(an["source_provenance"]["evidence_ids"])
     for name, href in fin["links"].items():
         assert follow(c, href)["window"]["known_at"] == known, name
 
@@ -311,6 +359,9 @@ def test_late_reading_pending_then_historical(chain) -> None:  # noqa: F811
     assert pending["currentness"]["state"] == "PENDING_RECOMPUTE"
     assert pending["consequence_summary"]["state"] == "WITHHELD"
     assert pending["consequence_summary"]["limitation"].startswith(csr.PENDING_COPY)
+    head = pending["needs_attention"][0]  # Q-R1: pending ranks first, at the cutoff
+    assert (head["code"], head["text"], head["as_of"]) == ("COLD_RECOMPUTE_PENDING", csr.PENDING_COPY,
+                                                           pending["window"]["known_at"])
     run(built)  # a new assessment and Finding revision; the money work is still queued
     queued = get(c, f"financials?{W}")
     assert queued["currentness"]["state"] == "CURRENT"
@@ -340,6 +391,9 @@ def test_missing_probe_and_empty_window(chain) -> None:  # noqa: F811
     assert ov["backup_summary"]["observed_failure"] == 1
     assert ov["consequence_summary"]["state"] == "UNKNOWN"
     assert ov["consequence_summary"]["quantity"] == {"low": None, "high": None, "unit": None}
+    codes = [x["code"] for x in ov["needs_attention"]]
+    assert "COLD_PROBE_GAP" in codes and "COLD_START_FAILURE" in codes and "COLD_RECOMPUTE_PENDING" not in codes
+    assert codes == [k for k in csr.ATTENTION if k in codes]  # ruled order
     caps = {x["claim"]: x for x in get(c, f"evidence?{W}")["capabilities"]}
     assert caps["EXCURSION_BOUNDS"]["state"] == "LIMITED"  # coverage 7/13 < 0.8
     assert caps["PRODUCT_EXPOSURE"]["state"] != "SUPPORTED"
@@ -350,9 +404,52 @@ def test_missing_probe_and_empty_window(chain) -> None:  # noqa: F811
         assert body["currentness"]["state"] == "UNKNOWN" and body["limitations"], route
     assert bodies["overview"]["causal_strip"] == [] and bodies["overview"]["findings"]["items"] == []
     assert bodies["overview"]["status"]["state"] == "UNKNOWN"
+    assert bodies["overview"]["needs_attention"] == []  # never a generic invented row
+    assert bodies["overview"]["objective"]["text"] == csr.OBJECTIVE_ABSENT
+    assert (bodies["overview"]["cooling"]["state"], bodies["overview"]["cooling"]["text"]) == (
+        "UNAVAILABLE", csr.COOLING_TEXT["UNAVAILABLE"])
+    assert bodies["overview"]["maintenance"]["state"] == "NOT_RECORDED"
     assert bodies["overview"]["consequence_summary"]["state"] == "UNKNOWN"
     assert (bodies["evidence"]["capabilities"], bodies["evidence"]["sources"]) == ([], [])
     assert bodies["evidence/analysis"]["accepted_records"] == {"items": [], "next_cursor": None}
     assert bodies["evidence/analysis"]["claim_rules"] == []
     assert (bodies["financials"]["consequences"], bodies["financials"]["not_included"]) == ([], [])
     assert bodies["financial-assumptions"]["items"] == []
+
+
+class _CapReads:
+    """Accepted records exist for every role, but the selected W2-03 results count only qualifying points."""
+
+    @staticmethod
+    def accepted_on(c, t, s, ids, *a):
+        return [{"role": r} for r in ("chamber_temperature", "compressor_state", "backup_start_event")]
+
+    @staticmethod
+    def basis_revisions_on(c, t, s, revision_id):
+        return {"created_at": TO, "foundations": [], "bindings": []}
+
+
+def _cap_states(exc_result: dict, chains: list) -> dict:
+    sel = {csr.EXC: SimpleNamespace(revision_id=uuid4(), evidence_ids=[uuid4()], result=exc_result),
+           csr.START: SimpleNamespace(revision_id=uuid4(), evidence_ids=[], result={"chains": chains})}
+    snap = {"t": uuid4(), "s": uuid4(), "known": TO, "selected": sel}
+    return {x["claim"]: x for x in csr.ColdSiteReadService(_CapReads(), None)._capabilities(None, snap)}
+
+
+def test_capability_needs_qualifying_points() -> None:
+    """Run-5 verdict 1: accepted but unqualified probe records (clock unattested or uncalibrated, so W2-03 counts
+    zero qualifying points) never make a temperature claim SUPPORTED from a raw record count."""
+    policy = {"policy_low": "2", "policy_high": "4"}
+    unqualified = _cap_states({"known_points": 0, "expected_points": 13, "coverage": "0", "policy": policy,
+                               "gaps": [], "excursions": []}, [])
+    assert unqualified["TEMPERATURE_POINT"]["state"] == "UNAVAILABLE"
+    assert unqualified["EXCURSION_BOUNDS"]["state"] == "UNAVAILABLE"
+    assert unqualified["COOLING_RESPONSE"]["state"] == "LIMITED"  # compressor state alone: a narrower claim
+    assert unqualified["PRODUCT_EXPOSURE"]["state"] == "UNAVAILABLE"
+    for claim in ("BACKUP_START_RESULT", "TRANSFER_POSITION"):
+        assert unqualified[claim]["coverage"] == {"known_points": None, "expected_points": None, "ratio": None}
+    # An excursion without proved thermal bounds is LIMITED, never SUPPORTED, product exposure.
+    unbounded = _cap_states({"known_points": 7, "expected_points": 13, "coverage": "0.54", "policy": policy,
+                             "gaps": [], "excursions": [{"exposure_finding": True, "claim_level": "OBSERVED"}]}, [])
+    assert unbounded["TEMPERATURE_POINT"]["state"] == "SUPPORTED"
+    assert unbounded["PRODUCT_EXPOSURE"]["state"] == "LIMITED"
