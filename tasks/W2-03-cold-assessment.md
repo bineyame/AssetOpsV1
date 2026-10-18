@@ -1,6 +1,6 @@
 # W2-03 — Cold assessment, episodes and Findings
 
-Status: in_review (built 2026-10-18, commits 1-5; packet `.agent/W2-03-review-packet.md`); was active (activated 2026-10-18 from main `a3ac189c`; W2-02 merged); was implementation-ready (planned). Size M; two phases. Branch `task/W2-03-cold-assessment` from merged W2-02. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. The exit is immutable, evidence-linked cold claims and four exact v69 routes, with missing and pending states visible.
+Status: done (merged to main 2026-10-18; re-review ACCEPT; backend 2752, host 708, frontend 2182); was in_review (built 2026-10-18, commits 1-5; packet `.agent/W2-03-review-packet.md`); was active (activated 2026-10-18 from main `a3ac189c`; W2-02 merged); was implementation-ready (planned). Size M; two phases. Branch `task/W2-03-cold-assessment` from merged W2-02. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. The exit is immutable, evidence-linked cold claims and four exact v69 routes, with missing and pending states visible.
 
 ## Binding design and dependencies
 
