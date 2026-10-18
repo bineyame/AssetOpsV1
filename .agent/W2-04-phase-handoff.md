@@ -1,4 +1,53 @@
-# W2-04 phase handoff - run 5 (spec commits 1-3 COMPLETE; commit 3 questions Q-R1..Q-R9 open; commit 4 NOT STARTED)
+# W2-04 phase handoff - run 6 (spec commits 1-3 COMPLETE incl. Run-5 fixup; commit 4 NOT STARTED)
+
+## Run 6 (this run): commit 3 fixup `f7421764`; commit 4 next (did not fit this run's context budget)
+
+- Fixup applies spec "Final Run-5 Architect rulings" Q-R1..Q-R8 and verdicts 1/5 (code: `analytics/cold_site_reads.py`
+  constants `ATTENTION`, `COOLING_TEXT`, `MAINTENANCE_*`, `OBJECTIVE_*`, `NOT_INCLUDED_TEXT`, `REQUIREMENTS`, `CONTACT_*`;
+  `_needs_attention`, `_cooling`, `_exact_basis`; `source_contact` now returns `(contact, contact_at, limitation)`).
+  Adapters: `source_facts_on` adds the GOOD count (`quality:{good_count,other_count}`); `cold_heads_on` adds
+  `source_gate_sha256`, `assumption_revision_ids` and sorted distinct `evidence_ids` (SELECT only).
+  `/evidence.links.foundation` = `/api/sites/{code}/cold/foundation?at={to}`. Q-R9: rows stay UNAVAILABLE (no proof built).
+- Verdict 1: W2-03 `known_points` already counts only qualifying (bound, GOOD, clock-attested) points and a missing
+  calibration refuses the run, so capability predicates were already on qualifying points; pure test
+  `test_capability_needs_qualifying_points` pins it. Verdicts 2/3/4/6/7/8 matched the built code (no change).
+- Evidence on `f7421764`: `test_w204_cold_reads.py` + `test_w204_cold_worker.py` 22 passed, 0 failed, 0 skipped,
+  2m29s; `tools/check-architecture.ps1` passed. Rule-8 probes not re-run (no DML changed; run at commit 5).
+- Applied without an explicit per-code ruling (confirm with Architect; one line each):
+  - Q-R1 `link`: Finding URL for the item's analytic if a selected Finding exists, else `backup-chain` read
+    (start failure, transfer unknown) or `evidence` read (pending, probe gap, policy missing).
+  - Q-R1 `COLD_POLICY_MISSING.limitation`: `POLICY_REVISION_UNRESOLVED` when unresolved, else the EXC limitation.
+  - Excursion replay yields `needs_attention` codes `COLD_START_FAILURE, COLD_TRANSFER_UNKNOWN` (pinned in test).
+
+### Commit 4 anchors (Explore survey on this revision; build from these)
+
+- Test helpers: `frontend/src/test/panelStructure.ts:187 expectV69Panels(screenId, values?, scope?)`,
+  `:215 expectPlantedPanelRejected(screenId)`; pattern `sites/__tests__/coldFoundation.test.tsx:198-215` (stub client
+  via `vi.fn`, `<MemoryRouter><App ... coldFoundation={...}/>`), `settledScreen` from `test/settled`.
+- Panel titles: `frontend/docs/architecture/v69-rendered-panels.json` `cold` :268, `cold-evidence` :582,
+  `cold-evidence-analysis` :596, `cold-financials` :606, `cold-assumptions` :620.
+- Window params: `sites/coldAssessmentClient.ts:190 NO_WINDOW`, `:193-197 coldWindowSearch`, `:202 coldWindowFromParams`.
+- Plug points (none has a cold branch yet): `shell/SiteDetailFrame.tsx:95-160` (overview render prop ~:113 receives
+  only the ID); `shell/SiteEvidenceFrame.tsx:95` site resolved, `localView` `?view=analysis` :112, render :116-126;
+  `shell/SiteAnalyticsFrames.tsx:621 SiteFinancialsFrame`, overview/assumptions switch ~:688-691. Existing cold
+  branch pattern `SiteAnalyticsFrames.tsx:165` and `:471` (`site.site_type === "COLDCHAIN" && client !== undefined`),
+  `coldLinks()` :126-135.
+- Dev 14: `coldLinks().analysis` (`SiteAnalyticsFrames.tsx:133`, `siteEvidenceAssessmentHref`) is rendered as a Link
+  at `sites/ColdAssessmentViews.tsx:178`; replace with labelled text + `Analysis view not available for this cold record`
+  until the Q-R9 integration proof exists.
+- Dev 17: `sites/ColdAssessmentViews.tsx:382-383` label is `Stock loading / batch` -> restore `Loading / batch`
+  (`Not established` when none); fix detector `tools/w1-fidelity-evidence.mjs:170`
+  (`!document.body.textContent.includes("Loading")`) to match the real loading element or exact sentences
+  `COLD_ASSESSMENT_LOADING`/`COLD_FINDING_LOADING` (`ColdAssessmentViews.tsx:71-72`). Similar detectors:
+  `tools/layout-evidence.mjs:5442`, `tools/s302-claim-limit-evidence.mjs:65`.
+- Capture tool: `node tools/w1-fidelity-evidence.mjs <out-dir> <mock-id>[:<case>]=<app-url> ...`; mock URL derived
+  from the app origin (`/mockups/v69/index.html#/<id>`); CDP port env `ASSETOPS_CDP_PORT`; `W1_REVISION` env.
+- Next exact steps: (1) `sites/coldSiteClient.ts` typed client for the five reads (shapes in spec "Five API reads" +
+  Run-5 additions); (2) `sites/coldSiteViews.tsx` five views with the spec "Commit-4 copy ledger" copy only, plus
+  `w2-cold-site.css`; (3) COLDCHAIN branches at the plug points; (4) Dev 14 + Dev 17; (5)
+  `sites/__tests__/coldSiteViews.test.tsx` stocked/empty/refused(403)/503/pending per route + planted panel;
+  (6) self-check + height table; (7) 1440/390 captures on ports 9700-9750/6100-6150, then drop fixtures, stop servers.
+
 
 Branch `task/W2-04-cold-site-evidence-money`. Nothing is merged. Private DB `assetops_w204_test`; environment in
 the scratchpad file `w204env.sh` (PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASSETOPS_GUARD_PYTHON`, `PY`, cd
