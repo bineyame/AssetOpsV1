@@ -21,7 +21,6 @@ import {
   StatusBar,
   type TimelineEvent,
 } from "../ui";
-import { UnavailableTab } from "../ui/UnavailableEntry";
 import {
   type ColdAssessmentClient,
   type ColdBackupRead,
@@ -49,6 +48,8 @@ import {
   temperatureStateWord,
   transitionWord,
 } from "./coldAssessmentWords";
+import { ColdTemperatureChart } from "./assessmentGraphics";
+import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, hm, num, range, windowText } from "./coldFormat";
 import "./w2-cold-assessment.css";
 
 /*
@@ -70,8 +71,7 @@ export const COLD_FINDING_LOADING = "Loading the Finding.";
 export const COLD_PERFORMANCE_HEADING_ID = "cold-performance-heading";
 export const COLD_FINDING_HEADING_ID = "cold-finding-heading";
 export const NO_RECORDED_NEXT_STEP = "No recorded next step";
-export const NOT_RECORDED = "Not recorded";
-export const NOT_ASSESSED = "Not assessed";
+export { NOT_ASSESSED, NOT_RECORDED } from "./coldFormat";
 
 export type ColdPerformanceView = "temperature" | "backup";
 
@@ -81,71 +81,6 @@ export interface ColdLinks {
   finding: (findingId: string) => string;
   record: (evidenceId: string) => string;
   analysis: (assessmentRevisionId: string) => string;
-}
-
-/* ---------- formatting ---------- */
-
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const pad = (n: number) => String(n).padStart(2, "0");
-
-function date(value: string | null | undefined): Date | null {
-  if (value === null || value === undefined) return null;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-/** "19:15" (UTC), or "19:11:05" when the instant has seconds. */
-export function hm(value: string | null | undefined): string {
-  const d = date(value);
-  if (d === null) return "—";
-  const base = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
-  return d.getUTCSeconds() === 0 ? base : `${base}:${pad(d.getUTCSeconds())}`;
-}
-
-function dayHm(value: string | null | undefined): string {
-  const d = date(value);
-  return d === null ? "—" : `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${hm(value)}`;
-}
-
-export function windowText(from: string | null, to: string | null): string {
-  const a = date(from);
-  const b = date(to);
-  if (a === null || b === null) return "No window selected";
-  const sameDay = a.toISOString().slice(0, 10) === new Date(b.getTime() - 1).toISOString().slice(0, 10);
-  const end = sameDay ? hm(to) : dayHm(to);
-  return `${a.getUTCDate()} ${MONTHS[a.getUTCMonth()]} ${a.getUTCFullYear()} ${hm(from)}–${end} UTC`;
-}
-
-function num(value: string | number | null | undefined): number | null {
-  if (value === null || value === undefined || value === "") return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-function decimal(value: string | number | null | undefined): string | null {
-  const n = num(value);
-  return n === null ? null : String(Number(n.toFixed(4)));
-}
-
-const deg = (value: string | number | null | undefined) => {
-  const d = decimal(value);
-  return d === null ? NOT_RECORDED : `${d} °C`;
-};
-
-function range(low: string | null, high: string | null, unit: string): string {
-  const lo = decimal(low);
-  const hi = decimal(high);
-  if (lo === null && hi === null) return NOT_ASSESSED;
-  if (hi === null) return `At least ${lo} ${unit}`;
-  if (lo === null || lo === hi) return `${hi} ${unit}`;
-  return `${lo}–${hi} ${unit}`;
-}
-
-function between(earliest: string | null, latest: string | null): string {
-  if (earliest === null && latest === null) return NOT_RECORDED;
-  if (earliest === null) return `by ${hm(latest)}`;
-  if (latest === null || earliest === latest) return hm(earliest);
-  return `${hm(earliest)}–${hm(latest)}`;
 }
 
 const unique = (items: string[]) => Array.from(new Set(items));
@@ -242,118 +177,6 @@ function EvidenceLine({ finding, links }: { finding: ColdFindingDetailRead; link
         Open the assessment →
       </Link>
     </p>
-  );
-}
-
-/* ---------- temperature chart ---------- */
-
-const CHART_W = 640;
-const CHART_H = 220;
-const PAD = { l: 40, r: 12, t: 12, b: 26 };
-const BRIDGE_MS = 10 * 60 * 1000;
-
-export function ColdTemperatureChart({ read, label }: { read: ColdTemperatureRead; label: string }) {
-  const from = date(read.window.from);
-  const to = date(read.window.to);
-  const points = read.points
-    .map((p) => ({ t: date(p.at), v: num(p.value), p }))
-    .filter((x): x is { t: Date; v: number; p: (typeof read.points)[number] } => x.t !== null && x.v !== null);
-  if (from === null || to === null || points.length === 0) {
-    return <Gap id="cold-temperature-chart">No accepted chamber probe reading in this window, so no temperature line is drawn.</Gap>;
-  }
-  const low = num(read.policy?.low_deg_c);
-  const high = num(read.policy?.high_deg_c);
-  const values = [...points.map((x) => x.v), ...(low === null ? [] : [low]), ...(high === null ? [] : [high])];
-  const yMin = Math.floor(Math.min(...values) - 1);
-  const yMax = Math.ceil(Math.max(...values) + 1);
-  const x = (t: Date) => PAD.l + ((t.getTime() - from.getTime()) / (to.getTime() - from.getTime())) * (CHART_W - PAD.l - PAD.r);
-  const y = (v: number) => PAD.t + ((yMax - v) / (yMax - yMin)) * (CHART_H - PAD.t - PAD.b);
-  const segments: string[] = [];
-  let current: string[] = [];
-  points.forEach((pt, i) => {
-    if (i > 0 && pt.t.getTime() - points[i - 1].t.getTime() > BRIDGE_MS) {
-      segments.push(current.join(" "));
-      current = [];
-    }
-    current.push(`${x(pt.t).toFixed(1)},${y(pt.v).toFixed(1)}`);
-  });
-  segments.push(current.join(" "));
-  const ticks: Date[] = [];
-  for (let t = Math.ceil(from.getTime() / 900000) * 900000; t < to.getTime(); t += 900000) ticks.push(new Date(t));
-  const step = yMax - yMin > 8 ? 2 : 1;
-  const yTicks: number[] = [];
-  for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) yTicks.push(v);
-  // The confirmed excursion's span, from its latest possible start to its latest end (or the window end while open).
-  const x0 = read.excursions[0] === undefined ? null : date(read.excursions[0].start_bounds.latest ?? read.excursions[0].start_bounds.earliest);
-  const x1 = read.excursions[0] === undefined ? null : (date(read.excursions[0].end_bounds.latest) ?? to);
-  const excursion =
-    x0 === null || x1 === null
-      ? null
-      : {
-          x0: x(x0),
-          x1: x(x1),
-          label: `${read.excursions[0].direction === "LOW" ? "Below" : "Above"} policy ${range(read.excursions[0].duration_bounds.low, read.excursions[0].duration_bounds.high, "min").replace(/^At least/, "at least")}`,
-        };
-  return (
-    <figure className="cold-chart" data-cold-chart="temperature">
-      <svg viewBox={`0 0 ${CHART_W} ${CHART_H}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
-        {low !== null && high !== null ? (
-          <rect className="cold-chart__band" x={PAD.l} y={y(high)} width={CHART_W - PAD.l - PAD.r} height={Math.max(0, y(low) - y(high))} />
-        ) : null}
-        {read.gaps.map((gap) => {
-          const a = date(gap.start);
-          const b = date(gap.end);
-          if (a === null || b === null) return null;
-          return (
-            <rect key={`${gap.start}-${gap.end}`} className="cold-chart__gap" data-cold-gap-shade={gap.start ?? ""} x={x(a)} y={PAD.t} width={Math.max(2, x(b) - x(a))} height={CHART_H - PAD.t - PAD.b}>
-              <title>{`No usable reading ${hm(gap.start)}–${hm(gap.end)}`}</title>
-            </rect>
-          );
-        })}
-        {yTicks.map((v) => (
-          <g key={`y-${v}`}>
-            <line className="cold-chart__grid" x1={PAD.l} x2={CHART_W - PAD.r} y1={y(v)} y2={y(v)} />
-            <text className="cold-chart__axis" x={PAD.l - 4} y={y(v) + 4} textAnchor="end">{`${v}°`}</text>
-          </g>
-        ))}
-        {excursion === null ? null : (
-          <g data-cold-excursion-shade>
-            <rect className="cold-chart__excursion" x={excursion.x0} y={PAD.t} width={Math.max(2, excursion.x1 - excursion.x0)} height={CHART_H - PAD.t - PAD.b} />
-            <text className="cold-chart__excursion-label" x={(excursion.x0 + excursion.x1) / 2} y={PAD.t + 12} textAnchor="middle">
-              {excursion.label}
-            </text>
-          </g>
-        )}
-        {[low, high].map((v) =>
-          v === null ? null : <line key={`limit-${v}`} className="cold-chart__limit" x1={PAD.l} x2={CHART_W - PAD.r} y1={y(v)} y2={y(v)} />,
-        )}
-        {segments.map((s) => (
-          <polyline key={s} className="cold-chart__line" points={s} />
-        ))}
-        {points.map((pt) => (
-          <circle
-            key={pt.p.evidence_id}
-            className={high !== null && pt.v > high ? "cold-chart__point cold-chart__point--out" : low !== null && pt.v < low ? "cold-chart__point cold-chart__point--out" : "cold-chart__point"}
-            cx={x(pt.t)}
-            cy={y(pt.v)}
-            r={3.5}
-            data-cold-point={pt.p.at}
-          >
-            <title>{`${hm(pt.p.at)} · ${deg(pt.v)}`}</title>
-          </circle>
-        ))}
-        {ticks.map((t) => (
-          <text key={t.toISOString()} className="cold-chart__axis" x={x(t)} y={CHART_H - 8} textAnchor="middle">
-            {hm(t.toISOString())}
-          </text>
-        ))}
-      </svg>
-      <figcaption className="cold-chart__legend">
-        <span className="cold-chart__key cold-chart__key--line">Chamber temperature</span>
-        <span className="cold-chart__key cold-chart__key--band">Policy band</span>
-        {read.gaps.length > 0 ? <span className="cold-chart__key cold-chart__key--gap">No usable reading</span> : null}
-      </figcaption>
-    </figure>
   );
 }
 
@@ -600,7 +423,7 @@ function TemperaturePanels({
             <p className="v69-chart-note" data-cold-claim-facts>
               {[
                 read.coverage.known_points === null
-                  ? "Usable readings not assessed"
+                  ? "No usable-reading count is selected"
                   : `${read.coverage.known_points} of ${read.coverage.expected_points} expected readings usable (${Math.round((num(read.coverage.ratio) ?? 0) * 100)}%)`,
                 excluded.length === 0 ? "no records set aside" : `set aside: ${excluded.map((e) => reasonWord(e.reason).toLowerCase()).join(", ")}`,
               ].join(" · ")}
@@ -927,7 +750,6 @@ export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
               Temperature
             </Link>
           </li>
-          <UnavailableTab label="Cooling" />
           <li className="site-tabs__item">
             <Link className="site-tabs__link" to={props.subtabHref("backup")} data-performance-subtab="backup" aria-current={view === "backup" ? "page" : undefined}>
               Backup
@@ -1204,7 +1026,6 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
               Overview
             </span>
           </li>
-          {isExcursion ? null : <UnavailableTab label="Recommendation" />}
         </ol>
       </nav>
       {finding === null || !companionReady ? (
