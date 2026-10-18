@@ -26,7 +26,7 @@ if URL:
 
     from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
 
-HEAD = "0022_w2_cold_assessment"
+HEAD = "0023_w2_cold_consequence"  # W2-04: 0023 sits above 0022; its cold work rows are cleared first
 PREVIOUS = "0021_w2_cold_config"
 REFUSED = "Downgrade of 0022_w2_cold_assessment refused"
 COLD = ("cold_episode", "cold_episode_revision", "cold_episode_evidence")
@@ -70,8 +70,14 @@ def _replica(engine, *statements) -> None:  # noqa: F811
             c.execute(text(sql))
 
 
+# W2-04 (0023) triggers enqueue cold consequence work for every cold episode/Finding revision; 0023's own downgrade
+# refuses while that work exists, so a 0022 downgrade test clears it first to exercise 0022's refusal.
+CLEAR_W204 = ("DELETE FROM cold_consequence_work_attempt", "DELETE FROM cold_consequence_evidence",
+              "DELETE FROM cold_consequence_revision", "DELETE FROM cold_consequence_work")
+
+
 def remove_cold(engine) -> None:  # noqa: F811
-    _replica(engine, "DELETE FROM cold_episode_evidence", "DELETE FROM cold_episode_revision",
+    _replica(engine, *CLEAR_W204, "DELETE FROM cold_episode_evidence", "DELETE FROM cold_episode_revision",
              "DELETE FROM cold_episode",
              "DELETE FROM finding_revision WHERE domain = 'cold_chain'",
              "DELETE FROM finding WHERE domain = 'cold_chain'")
@@ -391,12 +397,14 @@ class TestMigration0022:
             insert_link(engine, ctx, revision, ctx.evidence[0])
             for blocker in ("cold_episode_evidence", "cold_episode_revision", "cold_episode"):
                 counts = {t: scalar(engine, f"SELECT count(*) FROM {t}") for t in COLD}
+                _replica(engine, *CLEAR_W204)
                 with pytest.raises(DBAPIError, match=REFUSED):
                     command.downgrade(config, PREVIOUS)
                 assert head(engine) == HEAD  # the whole downgrade rolled back
                 assert {t: scalar(engine, f"SELECT count(*) FROM {t}") for t in COLD} == counts  # nothing deleted
                 _replica(engine, f"DELETE FROM {blocker}")
             insert_cold_finding(engine, ctx)  # a cold Finding alone blocks too
+            _replica(engine, *CLEAR_W204)
             with pytest.raises(DBAPIError, match=REFUSED):
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD
