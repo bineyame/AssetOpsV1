@@ -45,19 +45,27 @@ EXC_KEY = "cold-excursion:2026-10-06T19:00:00.000000Z:2026-10-06T20:05:00.000000
 START_KEY = "cold-start-response:2026-10-06T19:00:00.000000Z:2026-10-06T20:05:00.000000Z"
 
 
-def attest(built) -> None:
-    """The SYSTEM attester's simulated clock attestation for every lab source, recorded before any upload."""
+def attest(built, *, unattested: str | None = None, until: datetime | None = None) -> None:
+    """The SYSTEM attester's simulated clock attestation for every lab source, recorded before any upload.
+
+    `unattested` names one source (`source_external_id`) that gets no attestation, or, with `until`, one whose
+    attestation ends at that instant (review M2: the negative clock case enters through real intake)."""
     store = PostgresAssessmentStore(URL)
     with built.engine.connect() as c:
-        sources = c.execute(text("SELECT s.id FROM source s JOIN gateway g ON g.id = s.gateway_id "
-                                 "WHERE g.site_id = :s ORDER BY s.id"), {"s": built.site_id}).scalars().all()
-    for n, source in enumerate(sources):
+        sources = c.execute(text("SELECT s.id, s.source_external_id FROM source s JOIN gateway g "
+                                 "ON g.id = s.gateway_id WHERE g.site_id = :s ORDER BY s.id"),
+                            {"s": built.site_id}).all()
+    if unattested is not None:
+        assert unattested in {x[1] for x in sources}, ([x[1] for x in sources], unattested)
+    for n, (source, external) in enumerate(sources):
+        if external == unattested and until is None:
+            continue
         change = AttestationChange(
             event_kind="RECORDED", source_id=UUID(str(source)), sequence_epoch=f"cold-{built.case}",
             idempotency_key=f"w203-{built.case}-{n}", channel="SYSTEM_CLI", authority="lab-simulated-clock",
             label="SIMULATED demonstration clock (W2-03)", max_utc_error=timedelta(seconds=5),
             valid_from=datetime(2026, 10, 6, 0, 0, tzinfo=timezone.utc),
-            valid_to=datetime(2026, 10, 8, 0, 0, tzinfo=timezone.utc))
+            valid_to=until if external == unattested else datetime(2026, 10, 8, 0, 0, tzinfo=timezone.utc))
         store.record_clock_attestation(built.tenant_id, built.site_id, change, SYSTEM_ATTESTER,
                                        datetime.now(timezone.utc), domain="cold_chain")
     store._engine.dispose()
@@ -73,9 +81,9 @@ def run(built, **kw) -> list:
     return outcomes
 
 
-def opened(case: str, chain_factory):  # noqa: F811
+def opened(case: str, chain_factory, **attestation):  # noqa: F811
     built = chain_factory(case)
-    attest(built)
+    attest(built, **attestation)
     built.start_release_upload()
     return built
 
@@ -134,6 +142,14 @@ def test_all_six_w202_manifests_through_intake(chain, case) -> None:  # noqa: F8
         exc = latest(built, EXC_KEY)
         assert (exc["known_points"], exc["expected_points"]) == (12, 13)
         assert [x["anchor_time"] for x in exc["excursions"]] == ["2026-10-06T19:15:00.000000Z"]
+        # Review L5: the second high reading (19:25) is present and HIGH; the late 19:20 reading is absent.
+        support = {str(link["evidence_id"]) for link in exc["links"] if link["use"] == "SUPPORT"}
+        probe = {r["hm"]: r for r in rows(
+            built, "SELECT to_char(source_time AT TIME ZONE 'UTC', 'HH24:MI') AS hm, id, "
+                   "normalized_value_text AS v FROM accepted_evidence WHERE site_id = :s AND role = :r",
+            r=cold.PROBE_ROLE)}
+        assert "19:20" not in probe and str(probe["19:25"]["id"]) in support
+        assert float(probe["19:25"]["v"]) > 4.0 and float(probe["19:15"]["v"]) > 4.0
         return  # the 20:10 recompute is test_late_recompute_keeps_history
     exc, start = latest(built, EXC_KEY), latest(built, START_KEY)
     exposure, failure = findings(built, "COLD_EXCURSION"), findings(built, "COLD_START_FAILURE")
@@ -350,3 +366,28 @@ def test_split_links_finding_when_gate_permits(chain, monkeypatch) -> None:  # n
     [new] = [f for f in revisions if f["id"] != old_finding]
     assert (new["split_from_finding_id"], new["transition"], new["claim_level"]) == (old_finding, "OPENED", "BOUNDED")
     assert new["claim"]["episode_id"] == str(episodes[1]["id"]) and episodes[1]["split_from_episode_id"] == episodes[0]["id"]
+
+
+@pytest.mark.parametrize("variant", ["no-attestation", "attested-until-19:25"])
+def test_unattested_probe_source_excluded_through_intake(chain, variant) -> None:  # noqa: F811
+    """Review M2: the clock rule on real rows. The chamber-probe source has no clock attestation, or one that ends
+    before 19:25; its readings enter by the authenticated gateway path and must link EXCLUDED/CLOCK_UNATTESTED,
+    never SUPPORT, with coverage and gaps dropping accordingly. (The unbound-role rule cannot be driven the same
+    way: S2 intake refuses a record outside its binding period with OUTSIDE_BINDING_PERIOD, evidence/ledger.py
+    `_outside_periods`, so no accepted row can carry that state; it stays a pure-rule test.)"""
+    kw = ({"unattested": "chamber-probe"} if variant == "no-attestation"
+          else {"unattested": "chamber-probe", "until": datetime(2026, 10, 6, 19, 25, tzinfo=timezone.utc)})
+    built = opened("excursion", chain, **kw)
+    run(built)
+    exc = latest(built, EXC_KEY)
+    probe = rows(built, "SELECT id, to_char(source_time AT TIME ZONE 'UTC', 'HH24:MI') AS hm FROM accepted_evidence "
+                        "WHERE site_id = :s AND role = :r", r=cold.PROBE_ROLE)
+    by_id = {str(r["id"]): r["hm"] for r in probe}
+    lk = {str(link["evidence_id"]): (link["use"], link["reason"]) for link in exc["links"]}
+    excluded = {by_id[i] for i, v in lk.items() if i in by_id and v == ("EXCLUDED", "CLOCK_UNATTESTED")}
+    # Attestation ending at 19:25 covers readings strictly before it; every later probe reading is unattested.
+    expect_excluded = {hm for hm in by_id.values() if variant == "no-attestation" or hm >= "19:25"}
+    assert expect_excluded and excluded == expect_excluded, (excluded, expect_excluded)
+    assert not [i for i in by_id if lk.get(i, ("", ""))[0] == "SUPPORT" and by_id[i] in expect_excluded]
+    assert exc["known_points"] < exc["expected_points"]
+    assert (exc["known_points"], exc["expected_points"]) == (len(by_id) - len(expect_excluded), 13)

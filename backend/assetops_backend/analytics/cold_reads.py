@@ -2,7 +2,7 @@
 "freshness reference for commit 4" amendment).
 
 The pure currentness, freshness and cursor rules live here; the Postgres snapshot read is
-`analytics/adapters/postgres_cold_reads.py:ColdReadService`. One REPEATABLE READ snapshot per request: the committed disposition watermark captured first, the latest DEFAULT
+`analytics/adapters/postgres_assessment_store.py:ColdReadService`. One REPEATABLE READ snapshot per request: the committed disposition watermark captured first, the latest DEFAULT
 selection per analytic whose window covers the request and whose run cutoff is at or before `known_at`, its
 assessment revision, the episode revisions of that revision and the cold Findings (`domain='cold_chain'`) whose
 latest revision was known at the cutoff. Read-only; nothing here inserts. A missing selection is a valid

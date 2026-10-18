@@ -37,6 +37,7 @@ import {
   STEP_ESTABLISHES,
   claimWord,
   classificationWord,
+  SIMULATION_SOURCE_SENTENCE,
   currentnessWord,
   lifecycleWord,
   plainCode,
@@ -50,13 +51,14 @@ import {
 } from "./coldAssessmentWords";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, hm, num, range, windowText } from "./coldFormat";
+import { UnavailableTab } from "../ui/UnavailableEntry";
 import "./w2-cold-assessment.css";
 
 /*
  * W2-03 commit 5: the four cold assessment screens of a COLDCHAIN Site in their exact v69 panel slots
  * (`.agent/W2-03-build-spec.md` "Commit 5 - exact v69 slots"; `D-2026-10-17-mockup-layout-spec`):
  *
- *   temperature             1 Temperature with operating context, 2 Excursion context, 3 Claim boundary
+ *   temperature             1 Temperature with operating context, 2 Excursion context, 3 How each limit is set (mock: Claim boundary)
  *   coldbackup              1 What the chain shows, 2 Reconstructed event chain, 3 Backup event chains,
  *                           4 Evidence by causal step
  *   cold-finding            1 Bounded conclusion, 2 Operational context, 3 Recommended next step
@@ -408,7 +410,7 @@ function TemperaturePanels({
         Durations are bounded by the reading spacing. Exposure size is bounded the same way (lowest and highest reading in each step); it does not
         describe what happened to the product.
       </Notice>
-      <Panel heading="Claim boundary" headingId="cold-claim-boundary-heading">
+      <Panel heading="How each limit is set" headingId="cold-claim-boundary-heading">
         {read === null ? (
           <Gap id="cold-claim-boundary-heading">{gap}</Gap>
         ) : (
@@ -429,6 +431,7 @@ function TemperaturePanels({
               ].join(" · ")}
               {" · source: "}
               <span data-cold-source>{classificationWord(read.source_provenance.classification)}</span>
+              {read.source_provenance.classification === "REGISTERED_SIMULATION" ? <> <span data-cold-source-sentence>{SIMULATION_SOURCE_SENTENCE}</span></> : null}
             </p>
             <ul className="cold-limits" data-cold-limitations>
               {unique(read.limitations).map((text) => (
@@ -471,7 +474,8 @@ function coolingRunning(chain: ColdChainRead | undefined): ColdStepRead | undefi
 }
 
 /** What an observed step establishes and its limit; an adverse state (off, unpowered, failed) says only that. */
-function establishes(s: ColdStepRead): [string, string] {
+function establishes(s: ColdStepRead, chain?: ColdChainRead): [string, string] {
+  if (s.kind === "PROBE" && !coolingRunning(chain)) return ["Chamber temperature after the compressor record", "No spoilage determination"];
   if (["GENERATOR", "BUS", "COMPRESSOR"].includes(s.kind) && s.outcome !== null && ADVERSE.test(s.outcome)) {
     return [`${stepLabel(s.kind)} recorded ${outcomeText(s)?.toLowerCase()}`, "Does not identify the cause"];
   }
@@ -593,7 +597,7 @@ function BackupPanels({
           <DataTable labelledBy="cold-chain-table-heading">
             <thead>
               <tr>
-                {["When", "Grid", "Start requested", "Generator", "Power to load", "Load response", "Outcome for service", "Result"].map((h) => (
+                {["When", "Grid", "Start requested", "Generator", "Power to compressor", "Compressor response", "Outcome for service", "Result"].map((h) => (
                   <th key={h} scope="col">
                     {h}
                   </th>
@@ -623,9 +627,11 @@ function BackupPanels({
                     <td>{stepCell(stepOf(c, "START_RESULT"), "Result")}</td>
                     <td>{[stepCell(stepOf(c, "TRANSFER"), "Transfer"), stepCell(stepOf(c, "BUS"), "Bus")].filter((s) => s !== "Not bound").join(" · ")}</td>
                     <td>{stepCell(stepOf(c, "COMPRESSOR"), "Running")}</td>
-                    <td>{x === undefined ? (temperature?.state === "NO_EXCURSION_OBSERVED" ? "Within policy" : NOT_ASSESSED) : `${limitOf(temperature!, x.direction).word === "above" ? "Above" : "Below"} policy ${range(x.duration_bounds.low, x.duration_bounds.high, "min")}`}</td>
+                    <td>{x === undefined ? (temperature?.state === "NO_EXCURSION_OBSERVED" ? "Within policy" : NOT_ASSESSED) : `${limitOf(temperature!, x.direction).word === "above" ? "Above" : "Below"} policy · ${range(x.duration_bounds.low, x.duration_bounds.high, "min")}`}</td>
                     <td>
-                      <Badge tone="neutral">{startResultWord(c.result)}</Badge>
+                      <span className={`cold-result cold-result--${c.result === "OBSERVED_FAILURE" ? "danger" : c.result === "CONTRADICTORY" ? "warning" : "neutral"}`} data-cold-result={c.result}>
+                        <Badge tone="neutral">{startResultWord(c.result)}</Badge>
+                      </span>
                     </td>
                   </tr>
                 ))
@@ -673,8 +679,8 @@ function BackupPanels({
                         stepStateWord(s.state)
                       )}
                     </td>
-                    <td>{s.state === "OBSERVED" ? establishes(s)[0] : "Nothing for this step"}</td>
-                    <td>{s.state === "OBSERVED" ? establishes(s)[1] : s.state === "MISSING" ? "No accepted record shows this step" : "Accepted records disagree"}</td>
+                    <td>{s.state === "OBSERVED" ? establishes(s, chain)[0] : "Nothing for this step"}</td>
+                    <td>{s.state === "OBSERVED" ? establishes(s, chain)[1] : s.state === "MISSING" ? "No accepted record shows this step" : "Accepted records disagree"}</td>
                   </tr>
                 ))}
                 <tr data-cold-step="TEMPERATURE">
@@ -750,6 +756,7 @@ export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
               Temperature
             </Link>
           </li>
+          <UnavailableTab label="Cooling" />
           <li className="site-tabs__item">
             <Link className="site-tabs__link" to={props.subtabHref("backup")} data-performance-subtab="backup" aria-current={view === "backup" ? "page" : undefined}>
               Backup
@@ -1026,6 +1033,7 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
               Overview
             </span>
           </li>
+          <UnavailableTab label="Recommendation" />
         </ol>
       </nav>
       {finding === null || !companionReady ? (

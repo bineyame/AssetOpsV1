@@ -718,7 +718,8 @@ function Get-OperatorRailFailures {
 
 # W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the unbuilt entries of the named
 # v69 in-page rows - Finding > Alternatives, Financials > Scenarios, Work >
-# Incidents and Maintenance - and the Site Findings lens chips Cost, Risks and
+# Incidents and Maintenance, and (W2-03 q3, D-2026-10-18-w2-03-answers) the cold
+# Performance > Cooling and cold Finding > Recommendation - and the Site Findings lens chips Cost, Risks and
 # Opportunities render as "Not available yet" text through one component,
 # frontend/src/ui/UnavailableEntry.tsx. This is a narrow exception to the
 # absent-tab rule above, never a general one:
@@ -737,7 +738,7 @@ function Get-InPageUnavailableEntryFailures {
     $failures = New-Object System.Collections.Generic.List[string]
     $componentPath = "frontend/src/ui/UnavailableEntry.tsx"
     $dynamicOwner = "frontend/src/sites/SiteFindingEvidence.tsx"
-    $expectedTabs = @("Alternatives", "Scenarios", "Incidents", "Maintenance")
+    $expectedTabs = @("Alternatives", "Scenarios", "Incidents", "Maintenance", "Cooling", "Recommendation")
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
     if ($null -eq $Modules) {

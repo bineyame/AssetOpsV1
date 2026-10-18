@@ -269,3 +269,18 @@ def test_suspect_clock_skew_unbound_excluded() -> None:
     gen = pick(changed, "generator_state", "19:05")
     [u] = assess_start_response(swap(changed, gen, replace(gen, quality="SUSPECT")), window(), START, GATE).chains
     assert u.result == "UNKNOWN"
+
+
+def test_low_excursion_peak_is_minimum() -> None:
+    """Review L6: a LOW-direction excursion (2.0-4.0 band): peak is the minimum, durations from the observed points."""
+    base = pick(evidence("normal"), "chamber_temperature", "19:30")
+    values = {"19:30": "1.5", "19:35": "1.2", "19:40": "0.9", "19:45": "1.1", "19:50": "1.4"}
+    in_band = [e for e in evidence("normal") if e.role == "chamber_temperature"
+               and not ("19:30" <= e.source_time.strftime("%H:%M") <= "19:50")]
+    low = [replace(base, evidence_id=uuid5(NS, f"low-{hm}"), envelope_sha256="0" * 64, source_time=at(hm),
+                   received_at=at(hm), decided_at=at(hm), value=Decimal(v)) for hm, v in values.items()]
+    a = assess_excursion(in_band + low, window(), POLICY, GATE)
+    [x] = a.excursions
+    assert x.direction == "LOW" and x.peak_observed == Decimal("0.9")
+    assert (x.duration_low, x.duration_high) == (Decimal(20), Decimal(30))
+    assert x.claim_level == "BOUNDED" and not x.open

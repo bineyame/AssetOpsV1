@@ -105,10 +105,12 @@ const TRANSITION: Record<string, string> = {
 export const transitionWord = (code: string | null | undefined) => mapped(TRANSITION, code, "Not recorded");
 
 const CLASSIFICATION: Record<string, string> = {
-  REGISTERED_SIMULATION: "Registered simulation",
+  REGISTERED_SIMULATION: "Generated test data",
   MIXED: "Mixed sources",
   MIXED_OR_UNKNOWN_SOURCE: "Mixed or unknown sources",
 };
+/** Shown beside the label (D-2026-10-16-s405b-label; W2-03 deviation 18). */
+export const SIMULATION_SOURCE_SENTENCE = "From a registered test run; not readings from physical equipment.";
 export const classificationWord = (code: string | null | undefined) => mapped(CLASSIFICATION, code, "Not recorded");
 
 /** A server limitation sentence with any step or reason code replaced by its plain words. */

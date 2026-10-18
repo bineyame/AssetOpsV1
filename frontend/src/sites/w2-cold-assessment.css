@@ -119,3 +119,15 @@
   gap: 4px 10px;
   align-items: baseline;
 }
+
+/* W2-03 review L4: the mock's Result chip is red for a failed start and amber for contradictory records. */
+.cold-result--danger .badge {
+  background: #f7e3e3;
+  color: #7d2323;
+  border-color: #c15d5d;
+}
+.cold-result--warning .badge {
+  background: #fbf0d9;
+  color: #6b4a07;
+  border-color: #c9a24a;
+}

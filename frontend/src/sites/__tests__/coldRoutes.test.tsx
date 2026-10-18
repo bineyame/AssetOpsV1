@@ -245,7 +245,9 @@ const ROUTES = [
   ["cold-finding-excursion", `/sites/COLD-001/findings/${EXC_FINDING}`],
 ] as const;
 
-const MANDATED = new Set(["Claim boundary", "Power to load", "Load response", "Registered simulation"]);
+// W2-03 q3: the mock words are replaced by plain wording, the mock words are gone from these screens.
+// The one exemption is the Architect-ruled provenance sentence verbatim (its "run" is on the W1 list); no general exemption.
+const MANDATED = new Set<string>(["From a registered test run; not readings from physical equipment."]);
 const main = () => document.querySelector("main") as HTMLElement;
 const gaps = () => Array.from(document.querySelectorAll("[data-panel-gap]"));
 
@@ -260,8 +262,6 @@ describe("W2-03: cold assessment routes keep the v69 panel structure", () => {
     expect(document.querySelectorAll(".status-strip")).toHaveLength(1);
     const result = scanProductVocabulary(main(), screenId, { set: "w1" });
     expect(result.scanned).toBeGreaterThan(5);
-    // The v69 title "Claim boundary", the mock's backup-table columns and the registered-simulation provenance
-    // the spec requires are the only W1-list words allowed here (packet deviation: Architect ruling requested).
     expect(describeViolations(result.violations.filter((v) => !MANDATED.has(v.text.trim())))).toBe("");
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
       expect(panel.querySelectorAll("details[data-exact-references]").length).toBeLessThanOrEqual(1);
@@ -309,7 +309,7 @@ describe("W2-03: temperature", () => {
     expect(context).toContain("Door record 19:12");
     expect(document.querySelector('[data-cold-card="duration"]')?.textContent).toContain("At least 45 min");
     expect(document.querySelector('[data-cold-card="exposure"]')?.textContent).toContain("24.5–31");
-    expect(panelTitled("Claim boundary").textContent).toContain("No spoilage");
+    expect(panelTitled("How each limit is set").textContent).toContain("No spoilage");
   });
 
   it("links the excursion Finding only when it is persisted", async () => {
@@ -342,7 +342,7 @@ describe("W2-03: temperature", () => {
     expect(document.querySelectorAll("[data-cold-point]")).toHaveLength(7);
     expect(document.querySelectorAll(".cold-chart__line")).toHaveLength(2);
     expect(document.querySelector("[data-cold-gap]")?.textContent).toContain("No usable reading 19:15–19:45");
-    expect(panelTitled("Claim boundary").textContent).toContain("7 of 13 expected");
+    expect(panelTitled("How each limit is set").textContent).toContain("7 of 13 expected");
   });
 
   it("keeps the selected window in the subtab and Finding addresses", async () => {
@@ -365,6 +365,23 @@ describe("W2-03: backup chain", () => {
     expect(panelTitled("Backup event chains").querySelectorAll("[data-cold-chain-row]")).toHaveLength(1);
     expect(panelTitled("Evidence by causal step").querySelector(`[data-evidence-link="${id(300)}"]`)).not.toBeNull();
     expect(main().querySelector('a[href*="incident"]')).toBeNull();
+    // Review M1: a failed chain (no compressor running record) never says "after recovery".
+    expect(panelTitled("Evidence by causal step").textContent).not.toContain("after recovery");
+    expect(panelTitled("Evidence by causal step").querySelector('[data-cold-step="PROBE"]')?.textContent).toContain("after the compressor record");
+    // q3 deviation 18: the cold column labels, all eight in order.
+    const heads = Array.from(panelTitled("Backup event chains").querySelectorAll("th")).map((h) => h.textContent);
+    expect(heads).toEqual(["When", "Grid", "Start requested", "Generator", "Power to compressor", "Compressor response", "Outcome for service", "Result"]);
+    // Review L3: no run-on, and L4: the failed-start chip is the danger tone.
+    expect(panelTitled("Backup event chains").textContent).not.toMatch(/policy At least/);
+    expect(panelTitled("Backup event chains").querySelector("[data-cold-result='OBSERVED_FAILURE']")?.className).toContain("cold-result--danger");
+  });
+
+  it("says the probe reading came after recovery only when the compressor shows cooling running", async () => {
+    const base = STOCKED_BACKUP.chains[0];
+    const steps = base.steps.map((s) => (s.kind === "COMPRESSOR" ? { ...s, state: "OBSERVED", outcome: "RUNNING", at: s.at ?? base.steps[7].at, evidence_id: id(305) } : s));
+    renderCold(ROUTES[1][1], { ...STOCKED, backup: ok({ ...STOCKED_BACKUP, chains: [{ ...base, steps: steps as typeof base.steps, missing_steps: [] }] }) });
+    await settledScreen();
+    expect(panelTitled("Evidence by causal step").querySelector('[data-cold-step="PROBE"]')?.textContent).toContain("after recovery");
   });
 
   it("states contradictory start results without a failure", async () => {
@@ -375,6 +392,46 @@ describe("W2-03: backup chain", () => {
     });
     await settledScreen();
     expect(panelTitled("What the chain shows").textContent).toContain("no start failure is claimed");
+  });
+});
+
+describe("W2-03 q3: unavailable entries, wording and provenance", () => {
+  const row = (label: string) => document.querySelector(`nav[aria-label="${label}"]`) as HTMLElement;
+  const entries = (nav: HTMLElement) => Array.from(nav.querySelectorAll("li")).map((li) => li.textContent?.trim());
+
+  it.each([
+    ["Performance sections", ROUTES[0][1], ["Temperature", "Cooling · Not available yet", "Backup"], "Cooling"],
+    ["Performance sections", ROUTES[1][1], ["Temperature", "Cooling · Not available yet", "Backup"], "Cooling"],
+    ["Finding sections", ROUTES[2][1], ["Overview", "Recommendation · Not available yet"], "Recommendation"],
+    ["Finding sections", ROUTES[3][1], ["Overview", "Recommendation · Not available yet"], "Recommendation"],
+  ] as const)("%s on %s keep order and render the unbuilt entry as text only", async (aria, path, order, unbuilt) => {
+    renderCold(path, STOCKED);
+    await settledScreen();
+    const nav = row(aria);
+    expect(entries(nav)).toEqual(order);
+    const li = nav.querySelector(`[data-tab-unavailable="${unbuilt}"]`) as HTMLElement;
+    expect(li.getAttribute("aria-label")).toBe(`${unbuilt}, Not available yet`);
+    expect(li.querySelector("a, button, [tabindex], [role], [disabled], [aria-disabled]")).toBeNull();
+    expect(li.getAttribute("tabindex")).toBeNull();
+    expect(nav.querySelectorAll("a")).toHaveLength(aria === "Performance sections" ? 2 : 0);
+    expect(nav.querySelector('[aria-current="page"]')).not.toBeNull();
+    expect(main().querySelector('a[href*="cooling"], a[href*="recommendation"]')).toBeNull();
+  });
+
+  it("uses the approved panel title and keeps the mock title out", async () => {
+    renderCold(ROUTES[0][1], STOCKED);
+    await settledScreen();
+    expect(panelTitled("How each limit is set")).not.toBeNull();
+    expect(main().textContent).not.toContain("Claim boundary");
+  });
+
+  it("labels the simulated source as generated test data with the adjacent sentence", async () => {
+    renderCold(ROUTES[0][1], STOCKED);
+    await settledScreen();
+    const source = main().querySelector("[data-cold-source]") as HTMLElement;
+    expect(source.textContent).toBe("Generated test data");
+    expect(source.nextElementSibling?.textContent).toBe("From a registered test run; not readings from physical equipment.");
+    expect(main().textContent).not.toContain("Registered simulation");
   });
 });
 
