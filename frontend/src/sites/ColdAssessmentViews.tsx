@@ -148,6 +148,8 @@ function between(earliest: string | null, latest: string | null): string {
   return `${hm(earliest)}–${hm(latest)}`;
 }
 
+const unique = (items: string[]) => Array.from(new Set(items));
+
 /* ---------- reads ---------- */
 
 function useRead<T>(load: (() => Promise<ColdRead<T>>) | null, key: string): ColdRead<T> | null {
@@ -225,16 +227,21 @@ function PageRefusal({ read, window }: { read: Exclude<ColdRead<unknown>, { stat
   );
 }
 
-function evidenceLinks(ids: string[], links: ColdLinks, label = "Accepted record"): ReactNode {
-  if (ids.length === 0) return NOT_RECORDED;
+/** One line: the Finding's exact accepted records as numbered links, then its assessment (Analysis) link. */
+function EvidenceLine({ finding, links }: { finding: ColdFindingDetailRead; links: ColdLinks }) {
   return (
-    <span className="cold-links" data-evidence-links={ids.length}>
-      {ids.map((id, index) => (
-        <Link key={id} to={links.record(id)} data-evidence-link={id}>
-          {ids.length === 1 ? label : `${label} ${index + 1}`}
+    <p className="v69-chart-note cold-evidence-line" data-evidence-links={finding.evidence_ids.length}>
+      {finding.evidence_ids.length === 0 ? "No accepted record is linked" : "Accepted records:"}
+      {finding.evidence_ids.map((id, index) => (
+        <Link key={id} to={links.record(id)} data-evidence-link={id} aria-label={`Accepted record ${index + 1}`}>
+          {index + 1}
         </Link>
       ))}
-    </span>
+      <span aria-hidden="true">·</span>
+      <Link to={links.analysis(finding.assessment_revision_id)} data-analysis-link={finding.assessment_revision_id}>
+        Open the assessment →
+      </Link>
+    </p>
   );
 }
 
@@ -273,6 +280,20 @@ export function ColdTemperatureChart({ read, label }: { read: ColdTemperatureRea
   segments.push(current.join(" "));
   const ticks: Date[] = [];
   for (let t = Math.ceil(from.getTime() / 900000) * 900000; t < to.getTime(); t += 900000) ticks.push(new Date(t));
+  const step = yMax - yMin > 8 ? 2 : 1;
+  const yTicks: number[] = [];
+  for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) yTicks.push(v);
+  // The confirmed excursion's span, from its latest possible start to its latest end (or the window end while open).
+  const x0 = read.excursions[0] === undefined ? null : date(read.excursions[0].start_bounds.latest ?? read.excursions[0].start_bounds.earliest);
+  const x1 = read.excursions[0] === undefined ? null : (date(read.excursions[0].end_bounds.latest) ?? to);
+  const excursion =
+    x0 === null || x1 === null
+      ? null
+      : {
+          x0: x(x0),
+          x1: x(x1),
+          label: `${read.excursions[0].direction === "LOW" ? "Below" : "Above"} policy ${range(read.excursions[0].duration_bounds.low, read.excursions[0].duration_bounds.high, "min").replace(/^At least/, "at least")}`,
+        };
   return (
     <figure className="cold-chart" data-cold-chart="temperature">
       <svg viewBox={`0 0 ${CHART_W} ${CHART_H}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
@@ -289,13 +310,22 @@ export function ColdTemperatureChart({ read, label }: { read: ColdTemperatureRea
             </rect>
           );
         })}
+        {yTicks.map((v) => (
+          <g key={`y-${v}`}>
+            <line className="cold-chart__grid" x1={PAD.l} x2={CHART_W - PAD.r} y1={y(v)} y2={y(v)} />
+            <text className="cold-chart__axis" x={PAD.l - 4} y={y(v) + 4} textAnchor="end">{`${v}°`}</text>
+          </g>
+        ))}
+        {excursion === null ? null : (
+          <g data-cold-excursion-shade>
+            <rect className="cold-chart__excursion" x={excursion.x0} y={PAD.t} width={Math.max(2, excursion.x1 - excursion.x0)} height={CHART_H - PAD.t - PAD.b} />
+            <text className="cold-chart__excursion-label" x={(excursion.x0 + excursion.x1) / 2} y={PAD.t + 12} textAnchor="middle">
+              {excursion.label}
+            </text>
+          </g>
+        )}
         {[low, high].map((v) =>
-          v === null ? null : (
-            <g key={`limit-${v}`}>
-              <line className="cold-chart__limit" x1={PAD.l} x2={CHART_W - PAD.r} y1={y(v)} y2={y(v)} />
-              <text className="cold-chart__axis" x={PAD.l - 4} y={y(v) + 4} textAnchor="end">{`${decimal(v)}°`}</text>
-            </g>
-          ),
+          v === null ? null : <line key={`limit-${v}`} className="cold-chart__limit" x1={PAD.l} x2={CHART_W - PAD.r} y1={y(v)} y2={y(v)} />,
         )}
         {segments.map((s) => (
           <polyline key={s} className="cold-chart__line" points={s} />
@@ -318,6 +348,11 @@ export function ColdTemperatureChart({ read, label }: { read: ColdTemperatureRea
           </text>
         ))}
       </svg>
+      <figcaption className="cold-chart__legend">
+        <span className="cold-chart__key cold-chart__key--line">Chamber temperature</span>
+        <span className="cold-chart__key cold-chart__key--band">Policy band</span>
+        {read.gaps.length > 0 ? <span className="cold-chart__key cold-chart__key--gap">No usable reading</span> : null}
+      </figcaption>
     </figure>
   );
 }
@@ -562,23 +597,18 @@ function TemperaturePanels({
                   ? "The accepted probe readings stay within policy for this window. This says nothing about product condition."
                   : "The accepted probe readings do not support a temperature conclusion for this window."}
             </p>
-            <KeyValues
-              label="Claim boundary"
-              rows={[
-                [
-                  "Usable readings",
-                  read.coverage.known_points === null
-                    ? NOT_ASSESSED
-                    : `${read.coverage.known_points} of ${read.coverage.expected_points} expected (${Math.round((num(read.coverage.ratio) ?? 0) * 100)}%)`,
-                  "coverage",
-                ],
-                ["Records not used", excluded.length === 0 ? "None" : excluded.map((e) => reasonWord(e.reason)).join(" · "), "excluded"],
-                ["Source", classificationWord(read.source_provenance.classification), "source"],
-                ["Assessment state", currentnessWord(read.currentness.state), "currentness"],
-              ]}
-            />
+            <p className="v69-chart-note" data-cold-claim-facts>
+              {[
+                read.coverage.known_points === null
+                  ? "Usable readings not assessed"
+                  : `${read.coverage.known_points} of ${read.coverage.expected_points} expected readings usable (${Math.round((num(read.coverage.ratio) ?? 0) * 100)}%)`,
+                excluded.length === 0 ? "no records set aside" : `set aside: ${excluded.map((e) => reasonWord(e.reason).toLowerCase()).join(", ")}`,
+              ].join(" · ")}
+              {" · source: "}
+              <span data-cold-source>{classificationWord(read.source_provenance.classification)}</span>
+            </p>
             <ul className="cold-limits" data-cold-limitations>
-              {read.limitations.map((text) => (
+              {unique(read.limitations).map((text) => (
                 <li key={text}>{plainLimitation(text)}</li>
               ))}
             </ul>
@@ -615,6 +645,14 @@ const RUNNING = /^(RUNNING|ON|POWERED|STARTED)$/;
 function coolingRunning(chain: ColdChainRead | undefined): ColdStepRead | undefined {
   const s = chain?.steps.find((x) => x.kind === "COMPRESSOR");
   return s !== undefined && s.state === "OBSERVED" && s.outcome !== null && RUNNING.test(s.outcome) ? s : undefined;
+}
+
+/** What an observed step establishes and its limit; an adverse state (off, unpowered, failed) says only that. */
+function establishes(s: ColdStepRead): [string, string] {
+  if (["GENERATOR", "BUS", "COMPRESSOR"].includes(s.kind) && s.outcome !== null && ADVERSE.test(s.outcome)) {
+    return [`${stepLabel(s.kind)} recorded ${outcomeText(s)?.toLowerCase()}`, "Does not identify the cause"];
+  }
+  return STEP_ESTABLISHES[s.kind] ?? ["—", "—"];
 }
 
 function stepOf(chain: ColdChainRead | undefined, kind: string): ColdStepRead | undefined {
@@ -812,8 +850,8 @@ function BackupPanels({
                         stepStateWord(s.state)
                       )}
                     </td>
-                    <td>{s.state === "OBSERVED" ? (STEP_ESTABLISHES[s.kind]?.[0] ?? "—") : "Nothing for this step"}</td>
-                    <td>{s.state === "OBSERVED" ? (STEP_ESTABLISHES[s.kind]?.[1] ?? "—") : s.state === "MISSING" ? "No accepted record shows this step" : "Accepted records disagree"}</td>
+                    <td>{s.state === "OBSERVED" ? establishes(s)[0] : "Nothing for this step"}</td>
+                    <td>{s.state === "OBSERVED" ? establishes(s)[1] : s.state === "MISSING" ? "No accepted record shows this step" : "Accepted records disagree"}</td>
                   </tr>
                 ))}
                 <tr data-cold-step="TEMPERATURE">
@@ -951,11 +989,13 @@ function FindingStatus({ finding, siteName }: { finding: ColdFindingDetailRead; 
   );
 }
 
+/** The Finding's limits, once each; the no-spoilage sentence is already the panel's own prose line. */
 function limitsLine(finding: ColdFindingDetailRead): ReactNode {
-  if (finding.limitations.length === 0) return null;
+  const limits = unique(finding.limitations).filter((text) => !/^No spoilage/.test(text));
+  if (limits.length === 0) return null;
   return (
     <ul className="cold-limits" data-cold-limitations>
-      {finding.limitations.map((text) => (
+      {limits.map((text) => (
         <li key={text}>{plainLimitation(text)}</li>
       ))}
     </ul>
@@ -1030,16 +1070,9 @@ function StartFindingPanels({ finding, backup, links }: { finding: ColdFindingDe
             rows={[
               ["Missing steps", missing.length === 0 ? "None" : missing.map((s) => stepLabel(s)).join(", "), "missing"],
               ["Versions", versionsLine(finding), "versions"],
-              ["Evidence", evidenceLinks(finding.evidence_ids, links), "evidence"],
-              [
-                "Analysis",
-                <Link key="analysis" to={links.analysis(finding.assessment_revision_id)} data-analysis-link={finding.assessment_revision_id}>
-                  Open the assessment →
-                </Link>,
-                "analysis",
-              ],
             ]}
           />
+          <EvidenceLine finding={finding} links={links} />
           <ExactReferences name="cold-finding-references" references={findingReferences(finding)} />
         </Panel>
         <NextStepPanel links={[{ href: links.backup, label: "Open the Backup view →" }]} related={null} />
@@ -1098,16 +1131,9 @@ function ExcursionFindingPanels({
             rows={[
               ["Peak observed", deg(peak), "peak"],
               ["Exposure size", range(dm.low, dm.high, "°C·min"), "exposure"],
-              ["Evidence", evidenceLinks(finding.evidence_ids, links), "evidence"],
-              [
-                "Analysis",
-                <Link key="analysis" to={links.analysis(finding.assessment_revision_id)} data-analysis-link={finding.assessment_revision_id}>
-                  Open the assessment →
-                </Link>,
-                "analysis",
-              ],
             ]}
           />
+          <EvidenceLine finding={finding} links={links} />
           <ExactReferences name="cold-finding-references" references={findingReferences(finding)} />
         </Panel>
         <NextStepPanel
