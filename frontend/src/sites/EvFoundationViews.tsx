@@ -732,6 +732,12 @@ function EvSldView(props: ViewProps) {
     const roles = Array.from(new Set(rolesFor(assetId).map((b) => evRoleLabel(b.role).toLowerCase())));
     return roles.length === 0 ? NOT_DECLARED : `Mapped: ${roles.join(", ")}`;
   };
+  const roleCount = (charger: EvCharger) =>
+    new Set([charger.asset_id, ...charger.connectors.map((c) => c.asset_id)].flatMap((id) => rolesFor(id).map((b) => b.role))).size;
+  const clockBound = (c: EvConnector) => {
+    const v = c.clock_error_bound_seconds;
+    return v === null ? NOT_DECLARED.toLowerCase() : `${v} s`;
+  };
   const feedName = read.feed.asset_id === null ? null : (names.get(read.feed.asset_id) ?? "Site feed");
   const siteImport = read.bindings.filter((b) => b.role === "ev_site_import");
   const nodes = read.topology?.nodes ?? [];
@@ -770,7 +776,7 @@ function EvSldView(props: ViewProps) {
               <td>{siteImport.length === 0 ? NOT_DECLARED : "Mapped: site import power"}</td>
             </tr>
             {[0, 1].map((slot) => (
-              <ChargerRow key={slot} slot={slot} chargers={slot === 1 ? read.chargers.slice(1) : read.chargers.slice(0, 1)} first={slot === 0} names={names} mapped={mapped} />
+              <ChargerRow key={slot} slot={slot} chargers={slot === 1 ? read.chargers.slice(1) : read.chargers.slice(0, 1)} names={names} roleCount={roleCount} mapped={mapped} clockBound={clockBound} />
             ))}
             <tr data-ev-part="auxiliary">
               <th scope="row">Depot auxiliary</th>
@@ -799,46 +805,65 @@ function EvSldView(props: ViewProps) {
   );
 }
 
-/** One of the mock's two charger rows: its declared chargers (extra chargers join the second row), with their connectors inside. */
-function ChargerRow({ slot, chargers, first, names, mapped }: { slot: number; chargers: EvFoundationReadModel["chargers"]; first: boolean; names: Map<string, string>; mapped: (id: string | null) => string }) {
-  const label = (charger: EvFoundationReadModel["chargers"][number] | undefined, k: number) =>
+type EvCharger = EvFoundationReadModel["chargers"][number];
+
+/** The closed-state schedule word for a charger's connectors. */
+function scheduleState(connectors: EvConnector[]): string {
+  if (connectors.length === 0) return "no schedule declared";
+  const states = new Set(connectors.map((c) => (!c.enabled_schedule.enabled ? "disabled" : c.enabled_schedule.weekly.length === 0 ? "no service hours" : "service hours set")));
+  return states.size === 1 ? Array.from(states)[0]! : "mixed schedules";
+}
+
+/**
+ * One of the mock's two charger rows. Closed, each charger is two lines (name and rating; connector count, schedule state and
+ * mapped role count); every connector's name, rating, schedule, clock bound and mapped roles sit in a closed in-cell disclosure.
+ * More than two chargers: the second row says how many additional chargers there are and its disclosure lists them all.
+ */
+function ChargerRow({ slot, chargers, names, roleCount, mapped, clockBound }: { slot: number; chargers: EvFoundationReadModel["chargers"]; names: Map<string, string>; roleCount: (c: EvCharger) => number; mapped: (id: string | null) => string; clockBound: (c: EvConnector) => string }) {
+  const label = (charger: EvCharger | undefined, k: number) =>
     charger === undefined ? `Charger ${slot + 1}` : ((charger.asset_id === null ? undefined : names.get(charger.asset_id)) ?? `Charger ${slot + k + 1}`);
   if (chargers.length === 0) {
     return (
       <tr data-ev-part="charger">
-        <th scope="row">{label(undefined, 0)}</th>
+        <th scope="row">{NOT_DECLARED}</th>
         <td>{NOT_DECLARED}</td>
         <td>{NOT_DECLARED}</td>
       </tr>
     );
   }
+  const lead = chargers[0]!;
+  const extra = slot === 1 && chargers.length > 1;
+  const rolesTotal = chargers.reduce((n, c) => n + roleCount(c), 0);
+  const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
   return (
     <tr data-ev-part="charger">
-      <th scope="row">{label(chargers[0], 0)}</th>
+      <th scope="row">{label(lead, 0)}</th>
       <td>
-        {chargers.map((charger, k) => (
-          <div key={charger.asset_id ?? k}>
-            {chargers.length > 1 || !first ? <strong>{label(charger, k)}: </strong> : null}
-            {charger.max_kw === null ? FUNCTION_NOT_RECORDED : `${charger.max_kw} kW charging`}
-            {` · ${charger.connectors.length} connector${charger.connectors.length === 1 ? "" : "s"}`}
-            {charger.connectors.map((c, i) => (
-              <div key={c.asset_id ?? i} className="muted" data-ev-part="connector">
-                {`${connectorName(c, names, i)} · ${c.max_kw === null ? "rating not declared" : `${c.max_kw} kW`} · service hours ${scheduleText(c)}`}
-              </div>
-            ))}
-          </div>
-        ))}
+        {extra ? (
+          <div data-ev-charger-summary="">{count(chargers.length, "additional charger")}</div>
+        ) : (
+          <>
+            <div data-ev-charger-summary="">{`${label(lead, 0)} · ${lead.max_kw === null ? "Rating not declared" : `${lead.max_kw} kW`}`}</div>
+            <div className="muted">
+              {`${count(lead.connectors.length, "connector")} · ${scheduleState(lead.connectors)} · ${rolesTotal === 0 ? "No mapped source roles" : count(rolesTotal, "mapped source role")}`}
+            </div>
+          </>
+        )}
+        <details className="ev-connector-details" data-ev-connector-details="">
+          <summary>Connector details</summary>
+          {chargers.map((charger, k) => (
+            <div key={charger.asset_id ?? k} data-ev-charger-detail="">
+              {extra || chargers.length > 1 ? <strong>{`${label(charger, k)} · ${charger.max_kw === null ? "Rating not declared" : `${charger.max_kw} kW`}`}</strong> : null}
+              {charger.connectors.map((c, i) => (
+                <div key={c.asset_id ?? i} className="muted" data-ev-part="connector">
+                  {`${connectorName(c, names, i)} · ${c.max_kw === null ? "rating not declared" : `${c.max_kw} kW`} · service hours ${scheduleText(c)} · clock bound ${clockBound(c)} · Configured source roles: ${mapped(c.asset_id).replace(/^Mapped: /, "")}`}
+                </div>
+              ))}
+            </div>
+          ))}
+        </details>
       </td>
-      <td>
-        {chargers.map((charger, k) => (
-          <div key={charger.asset_id ?? k}>
-            {mapped(charger.asset_id) === NOT_DECLARED ? "Charger reports: Not declared" : mapped(charger.asset_id)}
-            {charger.connectors.map((c, i) => (
-              <div key={c.asset_id ?? i} className="muted">{`${connectorName(c, names, i)} · ${mapped(c.asset_id)}`}</div>
-            ))}
-          </div>
-        ))}
-      </td>
+      <td>{rolesTotal === 0 ? NOT_DECLARED : count(rolesTotal, "configured source role")}</td>
     </tr>
   );
 }

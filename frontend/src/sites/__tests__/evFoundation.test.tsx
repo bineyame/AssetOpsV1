@@ -466,11 +466,20 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(Array.from(parts.querySelectorAll("tbody th")).map((th) => th.textContent)).toEqual([
       "Grid supply + load manager",
       "Charger 1",
-      "Charger 2",
+      "Not declared",
       "Depot auxiliary",
     ]);
     expect(text(parts)).toContain("Site import limit 80 kW; power sharing: Not declared");
-    expect(text(parts)).toContain("Connector c1 · Mapped: session events, fault events, connector status, energy metering, connector power");
+    // Compact closed lines; the connector facts sit in a closed in-cell disclosure labelled as configuration.
+    const chargerRow = parts.querySelector('tr[data-ev-part="charger"]') as Element;
+    expect(text(chargerRow.querySelector("[data-ev-charger-summary]") as Element)).toBe("Charger 1 · 60 kW");
+    expect(text(chargerRow)).toContain("2 connectors · service hours set · 5 mapped source roles");
+    const disclosure = chargerRow.querySelector("details[data-ev-connector-details]") as HTMLDetailsElement;
+    expect(disclosure.open).toBe(false);
+    expect(text(disclosure.querySelector("summary") as Element)).toBe("Connector details");
+    expect(text(disclosure)).toContain("Configured source roles: session events, fault events, connector status, energy metering, connector power");
+    expect(text(disclosure)).toContain("clock bound");
+    expect(text(parts)).not.toContain("Reporting");
     expect(text(parts)).toContain("A mapped channel is configuration, not proof of reporting");
   });
 
@@ -479,7 +488,8 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     await settledScreen();
     const rows = Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"));
     expect(rows).toHaveLength(4);
-    expect(text(rows[2] as Element)).toBe("Charger 2Not declaredNot declared");
+    expect(text(rows[2] as Element)).toBe("Not declaredNot declaredNot declared");
+    expect((rows[2] as Element).querySelector("details")).toBeNull();
     cleanup();
     const three: EvFoundationReadModel = {
       ...STOCKED,
@@ -489,7 +499,8 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     await settledScreen();
     const rows3 = Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"));
     expect(rows3).toHaveLength(4);
-    expect(text(rows3[2] as Element).match(/kW charging/g)).toHaveLength(2);
+    expect(text(rows3[2] as Element)).toContain("2 additional chargers");
+    expect((rows3[2] as Element).querySelectorAll("[data-ev-charger-detail]")).toHaveLength(2);
   });
 
   it("ev-sld leaves a missing feed and import meter in their slots while chargers and connectors stay visible", async () => {
