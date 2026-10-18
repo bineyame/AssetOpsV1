@@ -1,0 +1,66 @@
+/*
+ * W2-03: the cold temperature chart (mock `lineChart('temperature')`: policy band, sampled points, explicit
+ * gaps) and the small link rows of the cold assessment screens.
+ */
+.cold-chart {
+  margin: 0 0 10px;
+}
+
+.cold-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 260px;
+}
+
+.cold-chart__band {
+  fill: #e3f3e8;
+}
+
+.cold-chart__limit {
+  stroke: #7fb28f;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.cold-chart__gap {
+  fill: #f1f1f1;
+  stroke: #b9b9b9;
+  stroke-dasharray: 3 3;
+}
+
+.cold-chart__line {
+  fill: none;
+  stroke: #2f6fb2;
+  stroke-width: 2;
+}
+
+.cold-chart__point {
+  fill: #2f6fb2;
+}
+
+.cold-chart__point--out {
+  fill: #c0392b;
+}
+
+.cold-chart__axis {
+  font-size: 11px;
+  fill: var(--text-muted, #5f6b7a);
+}
+
+.cold-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.cold-panel-link {
+  margin-top: 12px;
+}
+
+.cold-limits {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--text-muted, #5f6b7a);
+  font-size: 13px;
+}

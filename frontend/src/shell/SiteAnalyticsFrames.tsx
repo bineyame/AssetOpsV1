@@ -30,6 +30,8 @@ import { SiteFinding } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
+import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
+import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
@@ -120,14 +122,31 @@ export function SiteScoped({
 
 export const SITE_PERFORMANCE_HEADING_ID = "site-performance-heading";
 
+/** W2-03: the addresses the cold assessment screens link to, keeping the selected window. */
+function coldLinks(siteId: string, window: ColdWindowQuery): ColdLinks {
+  const search = coldWindowSearch(window);
+  return {
+    temperature: `${sitePerformanceHref(siteId, "temperature")}${search}`,
+    backup: `${sitePerformanceHref(siteId, "backup")}${search}`,
+    finding: (findingId) => `${siteFindingHref(siteId, findingId)}${search}`,
+    record: (evidenceId) => siteEvidenceAcceptedRecordHref(siteId, evidenceId),
+    analysis: (revisionId) => siteEvidenceAssessmentHref(siteId, revisionId),
+  };
+}
+
+const COLD_PERFORMANCE_VIEWS: Record<string, "temperature" | "backup"> = { temperature: "temperature", backup: "backup" };
+
 export function SitePerformanceFrame({
   detail,
   analytics,
   sitesPath,
+  coldAssessment,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
+  /** W2-03: the selected cold assessment reads; a COLDCHAIN Site renders `temperature` / `coldbackup` from them. */
+  coldAssessment?: ColdAssessmentClient;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
   const [params] = useSearchParams();
@@ -141,7 +160,29 @@ export function SitePerformanceFrame({
       title="Performance"
       headingId={SITE_PERFORMANCE_HEADING_ID}
     >
-      {(site) => (
+      {(site) => {
+        const coldView = capabilityId === undefined ? "temperature" : COLD_PERFORMANCE_VIEWS[capabilityId];
+        if (site.site_type === "COLDCHAIN" && coldAssessment !== undefined && coldView !== undefined) {
+          const window = coldWindowFromParams(params);
+          return (
+            <ColdPerformanceFrame
+              view={coldView}
+              siteId={site.site_id}
+              siteName={site.display_name}
+              mode={deriveSiteView(site).sourceMode}
+              window={window}
+              client={coldAssessment}
+              links={coldLinks(site.site_id, window)}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" />}
+              parentTrail={[
+                { label: "Sites", to: sitesPath },
+                { label: site.display_name, to: siteDetailHref(site.site_id) },
+              ]}
+              subtabHref={(id) => `${sitePerformanceHref(site.site_id, id)}${coldWindowSearch(window)}`}
+            />
+          );
+        }
+        return (
         <main aria-labelledby={SITE_PERFORMANCE_HEADING_ID}>
           <Breadcrumbs
             trail={[
@@ -186,7 +227,8 @@ export function SitePerformanceFrame({
             coverageHref={(id) => siteEvidenceAssessmentHref(site.site_id, id)}
           />
         </main>
-      )}
+        );
+      }}
     </SiteScoped>
   );
 }
@@ -402,11 +444,14 @@ export function SiteFindingFrame({
   sitesPath,
   findings = DEFAULT_FINDINGS,
   actions = DEFAULT_ACTIONS,
+  coldAssessment,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   findings?: FindingClient;
   actions?: ActionClient;
+  /** W2-03: a COLDCHAIN Site's Finding renders `cold-finding` or `cold-finding-excursion` by its kind. */
+  coldAssessment?: ColdAssessmentClient;
 }) {
   const { siteId, findingId, findingView } = useParams<{ siteId: string; findingId: string; findingView?: string }>();
   const [params] = useSearchParams();
@@ -423,6 +468,25 @@ export function SiteFindingFrame({
     <SiteScoped siteId={siteId} detail={detail} title="Finding" headingId={SITE_FINDING_HEADING_ID}>
       {(site) => {
         const id = findingId ?? "";
+        if (site.site_type === "COLDCHAIN" && coldAssessment !== undefined && findingView === undefined) {
+          const window = coldWindowFromParams(params);
+          return (
+            <ColdFindingFrame
+              siteId={site.site_id}
+              siteName={site.display_name}
+              findingId={id}
+              window={window}
+              client={coldAssessment}
+              links={coldLinks(site.site_id, window)}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" />}
+              parentTrail={[
+                { label: "Sites", to: sitesPath },
+                { label: site.display_name, to: siteDetailHref(site.site_id) },
+                { label: "Findings", to: siteFindingsHref(site.site_id) },
+              ]}
+            />
+          );
+        }
         const dispatch = (day: string, intervalRevisionId?: string | null) =>
           `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
           (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : "");
