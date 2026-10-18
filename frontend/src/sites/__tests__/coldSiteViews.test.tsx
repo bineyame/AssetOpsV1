@@ -565,7 +565,18 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(text(sources[2])).not.toContain("No gateway diagnostic was available");
     expect(text(sources[4])).toContain("No source-specific record");
     // Run-7 source placement: the inverter/battery row states no declared source; grid reports only in its details.
-    expect(Array.from(sources[1].querySelectorAll("td")).map((c) => text(c))).toEqual(Array(4).fill("No inverter or battery source declared"));
+    expect(Array.from(sources[1].querySelectorAll("th, td")).map((c) => text(c))).toEqual(["Inverter-charger + battery", "Not declared", "No accepted fact", "No inverter or battery feed", "Claim effect not assessed"]);
+    expect(text(Array.from(document.querySelectorAll("[data-source-detail]")).find((g) => g.getAttribute("data-source-detail") === "Inverter-charger + battery")!)).toContain("No inverter or battery source declared");
+    // Run-8 closed What / Affects labels by mock row (the full mapping stays in Source details).
+    const closedCells = sources.map((r) => Array.from(r.querySelectorAll("td")).slice(2).map((c) => text(c)));
+    expect(closedCells).toEqual([
+      ["Chamber temperature", "Temperature"],
+      ["No inverter or battery feed", "Claim effect not assessed"],
+      ["Start result", "Backup"],
+      ["No accepted report for this role", "Claim effect not assessed"],
+      ["No accepted report for this role", "Claim effect not assessed"],
+      ["No accepted report for this role", "Claim effect not assessed"],
+    ]);
     const sourcesPanel = panelTitled("Data sources · data quality, not equipment condition");
     expect(sourcesPanel.querySelectorAll("[data-cold-contact-checked]")).toHaveLength(1);
     expect(text(sourcesPanel).match(/Contact checked at window end/g)).toHaveLength(1);
@@ -629,11 +640,12 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const records = panelTitled("Accepted records behind the conclusions");
     const visible = () => Array.from(records.querySelectorAll<HTMLElement>("[data-accepted-record]")).filter((r) => !r.hidden);
     expect(visible()).toHaveLength(3);
-    // Run-7 time copy: Sent and Received are UTC with a visible suffix; only Measured (EAT) is East Africa Time.
+    // Run-7 time copy: Sent (UTC) and Received (UTC) headers over bare clock values; only Measured (EAT) is East Africa Time.
     const cells = visible()[0].querySelectorAll("td");
     expect(cells[1].textContent).toBe(eatTime("2026-10-06T16:19:00Z"));
-    expect(cells[2].textContent).toBe("16:19:01 UTC");
-    expect(cells[3].textContent).toBe("16:19:02 UTC");
+    expect(cells[2].textContent).toBe("16:19:01");
+    expect(cells[3].textContent).toBe("16:19:02");
+    expect(Array.from(records.querySelectorAll("thead th")).map((h) => h.textContent)).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
     expect(records.querySelector("[data-cold-more]")).toBeNull();
     const details = records.querySelectorAll("details");
     expect(details).toHaveLength(1);

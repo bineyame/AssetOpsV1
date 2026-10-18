@@ -81,3 +81,51 @@
   margin: 0 0 4px;
   font-size: 13px;
 }
+
+/*
+ * Run-8 closed-panel compaction, 1440 px (route-scoped; no text scaling, no hidden columns). At phone width the
+ * tables keep their own horizontal scroll with the min-widths above.
+ */
+@media (min-width: 641px) {
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(1) { width: 24%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(2) { width: 17%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(3) { width: 13%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(4) { width: 26%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(5) { width: 20%; }
+
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] td > * {
+    white-space: nowrap;
+  }
+
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(1) { width: 28%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(2) { width: 9%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(3) { width: 17%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(4) { width: 14%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(5) { width: 16%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(6) { width: 16%; }
+
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td) {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  [data-cold-view="cold-evidence-analysis"] .cold-panel-link,
+  [data-cold-view="cold-evidence-analysis"] [data-disclosure="cold-site-record-details"] {
+    margin-top: 6px;
+  }
+
+  /* How a claim limit is set: the gap before Claim details is 2 px tighter. */
+  [data-cold-view="cold-evidence-analysis"] [data-claim-prose] + [data-disclosure="cold-site-claim-details"] {
+    margin-top: -2px;
+  }
+}

@@ -138,6 +138,17 @@ const SOURCE_ROWS: { label: string; roles: string[]; undeclared?: string; other?
   { label: "Transfer switch", roles: ["transfer_result"] },
   { label: "Loading / door log", roles: ["door_event"] },
 ];
+/**
+ * Run-8 closed-panel compaction: short navigation labels for the closed `Data sources` table, by mock row. The full
+ * role names, quality, contact and every affected capability stay in `Source details`.
+ */
+const CLOSED_SOURCE: Record<string, { what: string; primary: string[]; affects: string }> = {
+  "Chamber probe": { what: "Chamber temperature", primary: ["chamber_temperature"], affects: "Temperature" },
+  "Generator controller": { what: "Start result", primary: ["backup_start_event"], affects: "Backup" },
+  "Compressor meter": { what: "Compressor state", primary: ["compressor_state"], affects: "Cooling" },
+  "Transfer switch": { what: "Transfer position", primary: ["transfer_result"], affects: "Backup" },
+  "Loading / door log": { what: "Door/loading context", primary: ["door_event"], affects: "Temperature · cooling" },
+};
 const OTHER_SOURCE_NAME: Record<string, string> = {
   grid_state: "Grid meter",
   grid_power_event: "Grid meter",
@@ -793,9 +804,10 @@ function EvidenceScreen(p: ScreenProps) {
                       return (
                         <tr key={row.label} data-source-row={row.label}>
                           <th scope="row">{row.label}</th>
-                          {[0, 1, 2, 3].map((i) => (
-                            <td key={i}>{row.undeclared}</td>
-                          ))}
+                          <td>Not declared</td>
+                          <td>No accepted fact</td>
+                          <td>No inverter or battery feed</td>
+                          <td>Claim effect not assessed</td>
                         </tr>
                       );
                     }
@@ -811,7 +823,10 @@ function EvidenceScreen(p: ScreenProps) {
                         </tr>
                       );
                     }
-                    const provides = bound.filter((s) => s.accepted_count > 0).map((s) => roleName(s.role));
+                    const closed = CLOSED_SOURCE[row.label];
+                    const provided = bound.filter((s) => s.accepted_count > 0).map((s) => s.role);
+                    const closedWhat =
+                      provided.length === 0 ? "No accepted report for this role" : provided.some((r) => closed.primary.includes(r)) ? closed.what : "Other recorded roles";
                     return (
                       <tr key={row.label} data-source-row={row.label}>
                         <th scope="row">{row.label}</th>
@@ -821,8 +836,8 @@ function EvidenceScreen(p: ScreenProps) {
                         <td>
                           <Badge tone="neutral">{qualityChip(bound)}</Badge>
                         </td>
-                        <td>{provides.length === 0 ? "No accepted report for this role" : provides.join(", ")}</td>
-                        <td>{affects(caps, bound.map((s) => s.role))}</td>
+                        <td>{closedWhat}</td>
+                        <td>{closed.affects}</td>
                       </tr>
                     );
                   })}
@@ -924,11 +939,19 @@ const recordValue = (v: string) => (/^[A-Z][A-Z0-9_]*$/.test(v) ? plainCode(v) :
 /** Run-7 density ruling: the first three selected accepted records, as the mock table shows three. */
 const RECORDS_SHOWN = 3;
 
-/** Run-7 time copy: `Sent` and `Received` are UTC clock times with a per-cell `UTC` suffix. */
+/** Run-8 time copy: `Sent (UTC)` and `Received (UTC)` headers over bare `HH:MM:SS` UTC clock cells. */
 function utcClock(value: string | null | undefined): string {
   const d = date(value);
-  return d === null ? NOT_RECORDED : `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`;
+  return d === null ? NOT_RECORDED : `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 }
+
+/** Shortest truthful first-cell label; the bound source name and kind stay in Record details. */
+const RECORD_LABEL: Record<string, string> = {
+  chamber_temperature: "Chamber temperature",
+  backup_start_event: "Generator start result",
+  compressor_state: "Compressor running",
+};
+const recordLabel = (role: string): string => RECORD_LABEL[role] ?? roleLabel(role);
 
 const CLAIM_SENTENCES = [
   "Each claim needs accepted readings and enough coverage for the selected window. A missing or conflicting input limits what can be concluded.",
@@ -972,7 +995,7 @@ function AnalysisScreen(p: ScreenProps) {
             <DataTable labelledBy="cold-site-records-heading">
               <thead>
                 <tr>
-                  {["Source · reading", "Value", "Measured (EAT)", "Sent", "Received", "Record"].map((h) => (
+                  {["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"].map((h) => (
                     <th key={h} scope="col">
                       {h}
                     </th>
@@ -989,7 +1012,7 @@ function AnalysisScreen(p: ScreenProps) {
                 ) : (
                   rows.map((r, index) => (
                     <tr key={r.evidence_id} data-accepted-record={r.evidence_id} hidden={!expanded && index >= RECORDS_SHOWN}>
-                      <th scope="row">{r.role === null ? NOT_RECORDED : roleLabel(r.role)}</th>
+                      <th scope="row">{r.role === null ? NOT_RECORDED : recordLabel(r.role)}</th>
                       <td>{r.value_display === null ? NOT_RECORDED : `${recordValue(r.value_display)}${r.unit === null ? "" : ` ${r.unit}`}`}</td>
                       <td>{eatTime(r.source_time) ?? NOT_RECORDED}</td>
                       <td>{utcClock(r.sent_at)}</td>
@@ -1034,6 +1057,7 @@ function AnalysisScreen(p: ScreenProps) {
                       <span className="cold-site-line">
                         Record <code data-vocabulary-exempt="source-reference">{r.evidence_id}</code>
                         {r.role === null ? null : ` · ${roleLabel(r.role)}`}
+                        {` · Kind: ${r.kind}`}
                       </span>
                       <span className="cold-site-line">
                         Quality: {r.quality === null ? NOT_RECORDED : plainCode(r.quality)} · Use: {r.exclusion === null ? "Not classified" : reasonWord(r.exclusion)} · Assessment:{" "}
