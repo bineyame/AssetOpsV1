@@ -669,13 +669,19 @@ function qualityText(sources: ColdSource[]): string {
 }
 
 /** Run-7: several channels in one closed row are summarized only when their states agree. */
+const CONTACT_CHIP: Record<string, string> = { RECENT: "Recent", STALE: "Old", NEVER: "Never", UNKNOWN: "Unknown" };
 function contactChip(sources: ColdSource[]): string {
-  const words = new Set(sources.map((s) => CONTACT_WORDS[s.contact] ?? CONTACT_WORDS.UNKNOWN));
-  return words.size === 1 ? [...words][0] : "Mixed source contact";
+  const words = new Set(sources.map((s) => CONTACT_CHIP[s.contact] ?? CONTACT_CHIP.UNKNOWN));
+  return words.size === 1 ? [...words][0] : "Mixed";
 }
+/** Run-9 D1: table summary only; Source details keeps the full quality wording. */
 function qualityChip(sources: ColdSource[]): string {
-  const words = new Set(sources.map((s) => qualityText([s])));
-  return words.size === 1 ? [...words][0] : "Mixed accepted quality";
+  const good = sources.reduce((n, s) => n + s.quality.good_count, 0);
+  const other = sources.reduce((n, s) => n + s.quality.other_count, 0);
+  if (good + other === 0) return "No fact";
+  if (other === 0) return "Good";
+  if (good === 0) return "Limited";
+  return "Mixed";
 }
 
 /** One `(source_id, role)` channel inside `Source details` (Run-7 density ruling). */
@@ -791,7 +797,7 @@ function EvidenceScreen(p: ScreenProps) {
               <DataTable labelledBy="cold-site-sources-heading">
                 <thead>
                   <tr>
-                    {["Source", "Status at window end", "Quality", "What it provides", "Affects"].map((h) => (
+                    {["Source", "Contact at window end", "Accepted quality", "What it provides", "Affects"].map((h) => (
                       <th key={h} scope="col">
                         {h}
                       </th>
@@ -804,8 +810,12 @@ function EvidenceScreen(p: ScreenProps) {
                       return (
                         <tr key={row.label} data-source-row={row.label}>
                           <th scope="row">{row.label}</th>
-                          <td>Not declared</td>
-                          <td>No accepted fact</td>
+                          <td>
+                            <Badge tone="neutral">Not declared</Badge>
+                          </td>
+                          <td>
+                            <Badge tone="neutral">No fact</Badge>
+                          </td>
                           <td>No inverter or battery feed</td>
                           <td>Claim effect not assessed</td>
                         </tr>
@@ -817,7 +827,9 @@ function EvidenceScreen(p: ScreenProps) {
                         <tr key={row.label} data-source-row={row.label}>
                           <th scope="row">{row.label}</th>
                           <td>No source-specific record</td>
-                          <td>No accepted fact</td>
+                          <td>
+                            <Badge tone="neutral">No fact</Badge>
+                          </td>
                           <td>No accepted report for this role</td>
                           <td>Claim effect not assessed</td>
                         </tr>
@@ -1023,10 +1035,10 @@ function AnalysisScreen(p: ScreenProps) {
                         ) : (
                           <span data-record-target="unavailable">
                             Record{" "}
-                            <code className="cold-site-clip" title={r.evidence_id} data-vocabulary-exempt="source-reference">
+                            <code className="cold-site-clip" title={r.evidence_id} aria-label={r.evidence_id} data-vocabulary-exempt="source-reference">
                               {r.evidence_id}
-                            </code>{" "}
-                            · Analysis view not available for this cold record
+                            </code>
+                            <span className="cold-site-line">No analysis link</span>
                           </span>
                         )}
                       </td>
@@ -1058,6 +1070,7 @@ function AnalysisScreen(p: ScreenProps) {
                         Record <code data-vocabulary-exempt="source-reference">{r.evidence_id}</code>
                         {r.role === null ? null : ` · ${roleLabel(r.role)}`}
                         {` · Kind: ${r.kind}`}
+                        {` · Target: ${plainCode(r.record_target_state)}`}
                       </span>
                       <span className="cold-site-line">
                         Quality: {r.quality === null ? NOT_RECORDED : plainCode(r.quality)} · Use: {r.exclusion === null ? "Not classified" : reasonWord(r.exclusion)} · Assessment:{" "}

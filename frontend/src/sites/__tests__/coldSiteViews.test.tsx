@@ -558,14 +558,14 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(text(rows[3])).toContain("Thermal exposure does not prove product loss.");
     const sources = Array.from(panelTitled("Data sources · data quality, not equipment condition").querySelectorAll("[data-source-row]"));
     expect(sources.map((r) => r.getAttribute("data-source-row"))).toEqual(["Chamber probe", "Inverter-charger + battery", "Generator controller", "Compressor meter", "Transfer switch", "Loading / door log"]);
-    expect(text(sources[0])).toContain("Recent source contact");
-    expect(text(sources[0])).toContain("Accepted facts · good quality");
-    expect(text(sources[2])).toContain("Source contact unknown");
+    expect(Array.from(sources[0].querySelectorAll("td")).slice(0, 2).map((c) => text(c))).toEqual(["Recent", "Good"]);
+    expect(Array.from(panelTitled("Data sources · data quality, not equipment condition").querySelectorAll("thead th")).map((c) => text(c))).toEqual(["Source", "Contact at window end", "Accepted quality", "What it provides", "Affects"]);
+    expect(text(sources[2])).toContain("Unknown");
     // Run-7: the Q-R5 limitation moves from the closed cell into the row's Source details.
     expect(text(sources[2])).not.toContain("No gateway diagnostic was available");
     expect(text(sources[4])).toContain("No source-specific record");
     // Run-7 source placement: the inverter/battery row states no declared source; grid reports only in its details.
-    expect(Array.from(sources[1].querySelectorAll("th, td")).map((c) => text(c))).toEqual(["Inverter-charger + battery", "Not declared", "No accepted fact", "No inverter or battery feed", "Claim effect not assessed"]);
+    expect(Array.from(sources[1].querySelectorAll("th, td")).map((c) => text(c))).toEqual(["Inverter-charger + battery", "Not declared", "No fact", "No inverter or battery feed", "Claim effect not assessed"]);
     expect(text(Array.from(document.querySelectorAll("[data-source-detail]")).find((g) => g.getAttribute("data-source-detail") === "Inverter-charger + battery")!)).toContain("No inverter or battery source declared");
     // Run-8 closed What / Affects labels by mock row (the full mapping stays in Source details).
     const closedCells = sources.map((r) => Array.from(r.querySelectorAll("td")).slice(2).map((c) => text(c)));
@@ -607,11 +607,10 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     await settledScreen();
     const sourcesPanel = panelTitled("Data sources · data quality, not equipment condition");
     const row = (label: string) => sourcesPanel.querySelector(`[data-source-row="${label}"]`)!;
-    expect(text(row("Generator controller"))).toContain("Mixed source contact");
-    expect(text(row("Generator controller"))).toContain("Mixed accepted quality");
-    expect(text(row("Generator controller"))).not.toContain("Recent source contact");
-    expect(text(row("Chamber probe"))).toContain("Recent source contact");
-    expect(text(row("Chamber probe"))).not.toContain("No source contact recorded");
+    expect(Array.from(row("Generator controller").querySelectorAll("td")).slice(0, 2).map((c) => text(c))).toEqual(["Mixed", "Mixed"]);
+    expect(Array.from(row("Chamber probe").querySelectorAll("td")).slice(0, 2).map((c) => text(c))).toEqual(["Recent", "Good"]);
+    // R1: a bound role with zero accepted facts never shows a role label as if a report had been accepted.
+    expect(text(row("Loading / door log"))).not.toContain("Door/loading context");
     const chamber = text(sourcesPanel.querySelector('[data-source-detail="Chamber probe"]')!);
     expect(chamber).toContain("Ambient probe");
     expect(chamber).toContain("Configured source, no accepted report");
@@ -623,7 +622,14 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const row = panelTitled("Accepted records behind the conclusions").querySelector(`[data-accepted-record="${id(11)}"]`)!;
     expect(text(row)).toContain("4.6 degC");
     expect(text(row)).toContain(eatTime("2026-10-06T16:19:00Z")!);
-    expect(text(row)).toContain(`Record ${id(11)} · Analysis view not available for this cold record`);
+    expect(text(row)).toContain(`Record ${id(11)}`);
+    expect(text(row)).toContain("No analysis link");
+    expect(text(row)).not.toContain("Analysis view not available for this cold record");
+    expect(row.querySelector("code")?.getAttribute("aria-label")).toBe(id(11));
+    const detail = text(panelTitled("Accepted records behind the conclusions").querySelector(`[data-record-detail="${id(11)}"]`)!);
+    expect(detail).toContain(id(11));
+    expect(detail).toContain("Target: Unavailable");
+    expect(detail).toContain("Analysis view not available for this cold record");
     expect(row.querySelector("a")).toBeNull();
     expect(text(panelTitled("How a claim limit is set"))).toContain("Accepted chamber readings, the selected temperature policy and enough coverage to bound an excursion.");
     const claim = panelTitled("How a claim limit is set");
