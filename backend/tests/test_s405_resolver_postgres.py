@@ -205,10 +205,10 @@ class TestTruthTableOnStoredBindings:
             {"accepted_evidence_id": lost[0], "detail": sp.PUBLICATION_NOT_FOUND}],
             key=lambda d: d["accepted_evidence_id"])
         assert r["problematic_accepted_evidence_ids"] == sorted(plain + lost)
-        with engine.connect() as c:  # rolled back: the constraints and the original rows are intact
+        with engine.connect() as c:  # rolled back: constraints (4 + W2-04 scope_unique) and rows intact
             assert c.execute(text("SELECT count(*) FROM batch_publication_link")).scalar_one() == 2
             assert c.execute(text("SELECT count(*) FROM pg_constraint WHERE conname LIKE "
-                                  "'batch_publication_link_%'")).scalar_one() == 4
+                                  "'batch_publication_link_%'")).scalar_one() == 5
 
 
 def publishing_submit(policy):
