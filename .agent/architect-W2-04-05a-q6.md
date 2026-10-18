@@ -1,0 +1,10 @@
+# Architect request - W2-04 commit-4 layout/copy rulings + W2-05a pending wording (2026-10-18). One call. No code.
+
+Owner (verbatim): "stay faithful to the mock-up in ui/ux and align technial desgin accordingly. there should not be drfit" and "the architect should not let important things be decided by the implementer by a vague guide".
+A. W2-04 (handoff `.agent/W2-04-phase-handoff.md` "Run 7", copied; captures on branch task/W2-04-cold-site-evidence-money `.agent/W2-04-evidence/`):
+ 1. Height outliers vs the v69 mock: cold-evidence Data sources 3.25x, Analysis panel 1 2.01x, Analysis panel 2 4.68x, Financials bridge 1.63x. These come from the spec/ledger requiring more lines than the mock shows. The mock leads: specify exact compaction for each to within ~1.3x (what stays visible in the mock's form; what moves into ONE closed disclosure per panel), amending the copy ledger accordingly. Accept an overage only with a stated honest-data reason (real rows the mock does not have).
+ 2. cold-evidence status chip: literal six-state rule shows "Evidence unknown" on the excursion replay beside "3 full · 1 limited" and Overview's "Limited" - contradiction. Specify the rule.
+ 3. Source-row mapping (`SOURCE_ROWS`): grid_state, grid_power_event, backup_bus_state placed in "Inverter-charger + battery" (no inverter device in the v4 mapping); ambient_temperature and manual_temperature in "Chamber probe". Specify exactly per the mock rows.
+ 4. Implementer-chosen copy (rule each): window/cutoff line in each route's status strip in place of the mock's date bar; attention link labels "Open Finding →", "Performance › Backup →", "Evidence →"; Temperature and Backup card detail lines; Analysis paging "Show all N accepted records"/"Show more accepted records"; causal-strip times UTC with only "Measured (EAT)" in EAT.
+B. W2-05a (`.agent/W2-05a-pending-rulings.md`): rule items 1-3 (label "Configured mapping" vs "Configured source roles:"; schedule-state word set; reporting-cell text).
+Edit `.agent/W2-04-build-spec.md` and `.agent/W2-05a-build-spec.md` in place; amend `D-2026-10-18-w2-04-buildspec` and `D-2026-10-18-w2-05-buildspec`. Print a 5-line summary.
