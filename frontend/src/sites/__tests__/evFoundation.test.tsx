@@ -503,6 +503,35 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect((rows3[2] as Element).querySelectorAll("[data-ev-charger-detail]")).toHaveLength(2);
   });
 
+  it("ev-sld states the five schedule words and the configured-role cell exactly", async () => {
+    const c0 = STOCKED.chargers[0]!;
+    const con = (enabled: boolean, weekly?: never[]) => ({ ...c0.connectors[0]!, enabled_schedule: { ...schedule(enabled), ...(weekly ? { weekly } : {}) } });
+    const cases: Array<[string, EvFoundationReadModel["chargers"][number]["connectors"]]> = [
+      ["disabled", [con(false), con(false)]],
+      ["no service hours", [con(true, []), con(true, [])]],
+      ["service hours set", [con(true), con(true)]],
+      ["mixed schedules", [con(true), con(false)]],
+      ["no schedule declared", []],
+    ];
+    for (const [word, connectors] of cases) {
+      renderEv(`${BASE}/sld`, loaded({ ...STOCKED, chargers: [{ ...c0, connectors }] }));
+      await settledScreen();
+      const row = panelTitled("What each part does").querySelector('tr[data-ev-part="charger"]') as Element;
+      expect(text(row.querySelector("div.muted") as Element)).toContain(` · ${word} · `);
+      cleanup();
+    }
+    renderEv(`${BASE}/sld`, loaded(STOCKED));
+    await settledScreen();
+    const stocked = panelTitled("What each part does").querySelector('tr[data-ev-part="charger"]') as Element;
+    expect(text(stocked.querySelectorAll("td")[1] as Element)).toBe("5 configured source roles");
+    cleanup();
+    renderEv(`${BASE}/sld`, loaded({ ...STOCKED, bindings: [] }));
+    await settledScreen();
+    const none = panelTitled("What each part does").querySelector('tr[data-ev-part="charger"]') as Element;
+    expect(text(none.querySelectorAll("td")[1] as Element)).toBe("No configured source roles");
+    expect(text(none)).toContain("No mapped source roles");
+  });
+
   it("ev-sld leaves a missing feed and import meter in their slots while chargers and connectors stay visible", async () => {
     const noFeed: EvFoundationReadModel = {
       ...MISSING_ROLE,

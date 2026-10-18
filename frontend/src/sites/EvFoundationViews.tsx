@@ -856,14 +856,14 @@ function ChargerRow({ slot, chargers, names, roleCount, mapped, clockBound }: { 
               {extra || chargers.length > 1 ? <strong>{`${label(charger, k)} · ${charger.max_kw === null ? "Rating not declared" : `${charger.max_kw} kW`}`}</strong> : null}
               {charger.connectors.map((c, i) => (
                 <div key={c.asset_id ?? i} className="muted" data-ev-part="connector">
-                  {`${connectorName(c, names, i)} · ${c.max_kw === null ? "rating not declared" : `${c.max_kw} kW`} · service hours ${scheduleText(c)} · clock bound ${clockBound(c)} · Configured source roles: ${mapped(c.asset_id).replace(/^Mapped: /, "")}`}
+                  {`${connectorName(c, names, i)} · ${c.max_kw === null ? "rating not declared" : `${c.max_kw} kW`} · service hours ${scheduleText(c)} · clock bound ${clockBound(c)} · Configured source roles: ${mapped(c.asset_id).replace(/^Mapped: /, "").replace(NOT_DECLARED, "none")}`}
                 </div>
               ))}
             </div>
           ))}
         </details>
       </td>
-      <td>{rolesTotal === 0 ? NOT_DECLARED : count(rolesTotal, "configured source role")}</td>
+      <td>{rolesTotal === 0 ? "No configured source roles" : count(rolesTotal, "configured source role")}</td>
     </tr>
   );
 }
