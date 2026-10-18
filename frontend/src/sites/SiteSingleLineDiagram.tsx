@@ -1530,7 +1530,7 @@ export function ColdTopologyDiagram({
 
 /*
  * The mock's single line diagram grammar (`sld()` in the v6.9 mock): a supply row on the left (grid source,
- * load-manager box, main breaker) into the AC bus, one feeder row per charger (feeder breaker, kWh meter,
+ * source-side meter and load-manager box holding the direct import meter, main breaker) into the AC bus, one feeder row per charger (feeder breaker, kWh meter,
  * charger), a depot auxiliary feeder, and the monitoring row. The declared feed is the bus; feed -> meter ->
  * charger lines use the AC style and charger -> connector the signal (monitoring) style. A slot with nothing
  * declared stays in place as "Not declared"; every reporting dot is unknown.
@@ -1547,13 +1547,6 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
   const H = monY + 70;
   const feedName = read.feed.asset_id === null ? null : (names.get(read.feed.asset_id) ?? "Site feed");
   const meterName = read.feed.meter_asset_id === null ? null : (names.get(read.feed.meter_asset_id) ?? "Import meter");
-  const meterParents = new Set(
-    (read.topology?.edges ?? [])
-      .filter((e) => e.medium === "AC")
-      .map((e) => ({ from: read.topology?.nodes.find((n) => n.node_id === e.from_node), to: read.topology?.nodes.find((n) => n.node_id === e.to_node) }))
-      .filter((p) => p.from?.asset_id === read.feed.meter_asset_id && p.from?.asset_id !== null)
-      .map((p) => p.to?.asset_id ?? null),
-  );
   const monitors: { key: string; label: string }[] = [
     ...Array.from(new Set(read.bindings.map((b) => b.asset_id))).map((id) => ({
       key: id ?? "unknown",
@@ -1584,34 +1577,36 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
           {read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Import limit ${read.feed.limit_kw} kW`}
         </text>
         <line x1={busX} x2={busX} y1={busTop} y2={busBot} className={feedName === null ? "ev-sld__bus ev-sld__bus--missing" : "ev-sld__bus"} />
-        {/* Supply row: grid source and load manager are not part of the EV Foundation. */}
+        {/* Supply row (mock order): grid source, then the source-side meter box holding the direct import meter, then the main breaker slot. */}
         <g data-ev-slot="grid">
           <rect x={20} y={top} width={96} height={52} rx={4} className="ev-sld__box ev-sld__box--missing" />
           <text x={20} y={top + 68} className="ev-sld__label">Grid supply</text>
           <text x={20} y={top + 82} className="ev-sld__small">{NOT_DECLARED}</text>
         </g>
-        <line x1={116} x2={290} y1={cy0} y2={cy0} className="ev-sld__ac ev-sld__ac--missing" />
+        <line x1={116} x2={290} y1={cy0} y2={cy0} className="ev-sld__ac" />
         <g data-ev-slot="load-manager">
-          <rect x={290} y={top} width={190} height={52} rx={5} className="ev-sld__box ev-sld__box--missing" />
-          <text x={385} y={top + 22} textAnchor="middle" className="ev-sld__label">Load manager</text>
-          <text x={385} y={top + 39} textAnchor="middle" className="ev-sld__small">{NOT_DECLARED}</text>
-          {dot(476, top + 4, "lm-dot")}
+          <rect x={290} y={top - 4} width={190} height={60} rx={5} className={meterName === null ? "ev-sld__box ev-sld__box--missing" : "ev-sld__box"} />
+          <text x={385} y={top + 12} textAnchor="middle" className="ev-sld__label">Site meter &amp; load manager</text>
+          <text x={385} y={top + 29} textAnchor="middle" className="ev-sld__small" data-ev-slot="import-meter">
+            {meterName === null ? `Import meter · ${NOT_DECLARED}` : `${meterName}${read.feed.limit_kw === null ? "" : ` · ${read.feed.limit_kw} kW`}`}
+          </text>
+          <text x={385} y={top + 45} textAnchor="middle" className="ev-sld__small">Load manager · Not declared</text>
+          {dot(476, top, "lm-dot")}
         </g>
-        <line x1={480} x2={busX} y1={cy0} y2={cy0} className="ev-sld__ac ev-sld__ac--missing" />
+        <line x1={480} x2={busX} y1={cy0} y2={cy0} className="ev-sld__ac" />
         {breaker(570, cy0, "Main CB not declared", "main-cb")}
         {read.chargers.map((charger, j) => {
           const y = top + j * rowF;
           const cy = y + 20;
-          const fedByMeter = charger.asset_id !== null && meterParents.has(charger.asset_id);
           const name = (charger.asset_id === null ? undefined : names.get(charger.asset_id)) ?? `Charger ${j + 1}`;
           return (
             <g key={charger.asset_id ?? j} data-ev-slot="feeder">
               <line x1={busX} x2={748} y1={cy} y2={cy} className="ev-sld__ac" />
               {breaker(700, cy, "CB not declared", `cb-${j}`)}
-              <rect x={748} y={cy - 13} width={40} height={26} rx={3} className={fedByMeter ? "ev-sld__meter" : "ev-sld__meter ev-sld__box--missing"} data-ev-slot="meter" />
+              <rect x={748} y={cy - 13} width={40} height={26} rx={3} className="ev-sld__meter ev-sld__box--missing" data-ev-slot="meter" />
               <text x={768} y={cy + 4} textAnchor="middle" className="ev-sld__small ev-sld__strong">kWh</text>
               <text x={768} y={cy + 26} textAnchor="middle" className="ev-sld__small">
-                {fedByMeter && meterName !== null ? meterName : "Meter not declared"}
+                {NOT_DECLARED}
               </text>
               {dot(786, cy - 13, `m-${j}`)}
               <line x1={788} x2={806} y1={cy} y2={cy} className="ev-sld__ac" />
@@ -1676,7 +1671,7 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
         <span><span className="ev-sld__legend-dot ev-sld__legend-dot--unknown" aria-hidden="true" />Reporting not assessed</span>
       </figcaption>
       <p className="not-available-yet v69-chart-note" data-ev-sld-undeclared="">
-        Grid supply, load manager, breakers and depot auxiliary are not declared in this version and are drawn as empty slots; every reporting dot is unknown.
+        Grid supply, breakers, feeder meters and depot auxiliary are not declared in this version and are drawn as empty slots. The Site import meter, when declared, sits in the source-side box. Every reporting dot is unknown.
       </p>
     </figure>
   );

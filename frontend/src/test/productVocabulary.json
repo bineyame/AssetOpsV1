@@ -90,6 +90,22 @@
     {
       "text": "battery power converter (PCS)",
       "why": "Section 4: Analysis may add the abbreviation after its plain meaning."
+    },
+    {
+      "text": "Session identity mapping",
+      "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."
+    },
+    {
+      "text": "Grid supply + load manager",
+      "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."
+    },
+    {
+      "text": "Site meter & load manager",
+      "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."
+    },
+    {
+      "text": "Load manager · Not declared",
+      "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."
     }
   ],
   "exemptions": {
@@ -131,9 +147,10 @@
       {"text": "generator ran", "why": "D-2026-10-16-w1-ux: ordinary operational wording such as the generator ran is allowed."},
       {"text": "generator running", "why": "D-2026-10-16-w1-ux: ordinary operational wording."},
       {"text": "generator run time", "why": "D-2026-10-16-w1-ux: ordinary operational wording."},
-      {"text": "Session identity mapping", "why": "D-2026-10-18-w2-05-buildspec: the ev-foundation panel 2 mock row label the build spec keeps verbatim (exact phrase only; pending Architect confirmation in the W2-05a packet)."},
-      {"text": "No scenario tariff in use", "why": "D-2026-10-18-w2-05-buildspec: the exact gap copy the build spec names for the EV revenue-assumption and tariff slots (exact phrase only; pending Architect confirmation in the W2-05a packet)."},
-      {"text": "load manager", "why": "D-2026-10-18-w2-05-buildspec: the ev-sld mock part name (feed + load manager) the build spec keeps (exact phrase only; pending Architect confirmation in the W2-05a packet)."}
+      {"text": "Session identity mapping", "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."},
+      {"text": "Grid supply + load manager", "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."},
+      {"text": "Site meter & load manager", "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."},
+      {"text": "Load manager · Not declared", "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."}
     ],
     "disclosure": {
       "why": "D-2026-10-16-w1-ux-disclosure: the exact narrower list for prose inside the closed How this was worked out disclosure, including its summary. Individually labelled exact values are removed only at their own positions.",

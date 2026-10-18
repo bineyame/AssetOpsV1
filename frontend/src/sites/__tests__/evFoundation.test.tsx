@@ -339,7 +339,7 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(text(operating)).toContain("Not assessed");
     expect(text(operating)).toContain("Mapped");
     expect(text(operating)).toContain("Configured clock error bound: 30 s; not an observed clock check");
-    expect(text(operating)).toContain("No scenario tariff in use");
+    expect(text(operating)).toContain("No tariff set for estimates");
     // No mock fixture numbers.
     expect(text(main())).not.toMatch(/EV-DEMO-01|\$0\.30|GW-EV-01/);
   });
@@ -370,7 +370,7 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(text(table)).toContain("Unconfirmed");
     expect(text(table)).toContain("Commissioning unconfirmed");
     expect(text(table)).toContain("Not connected");
-    expect(text(table)).toContain("No scenario tariff in use");
+    expect(text(table)).toContain("No tariff set for estimates");
     const gateway = panelTitled("Gateway status · edge-ev-001");
     const metrics = Array.from(gateway.querySelectorAll("[data-ev-gateway-metric]")).map((m) => m.getAttribute("data-ev-gateway-metric"));
     expect(metrics).toEqual(["status", "availability", "completeness", "clock"]);
@@ -402,6 +402,11 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(text(table)).toContain("Site import limit not declared");
     expect(text(table)).toContain("Needs a source: connector status for Connector c2");
     expect(text(table)).toContain("Needs a source: site import power (optional)");
+    // QO: exactly the four mock rows; gaps are supporting detail in rows 1 and 2.
+    const rows = Array.from(table.querySelectorAll("tbody tr"));
+    expect(rows.map((r) => r.querySelector("th")?.textContent)).toEqual(["Connectors and site limit", "Connector status points", "Billing integration", "Tariff"]);
+    expect(text(rows[0] as Element)).toContain("Needs a source: site import power (optional)");
+    expect(text(rows[1] as Element)).toContain("Needs a source: connector status for Connector c2");
     expect(text(table)).not.toMatch(/ev_connector_state|STATUS_NOT_BOUND/);
     const gateway = panelTitled("Gateway status · edge-ev-001");
     expect(text(gateway)).toContain("No gateway contact recorded");
@@ -444,20 +449,47 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(text(diagram)).toContain("SITE FEED");
     expect(text(diagram)).toContain("Import limit 80 kW");
     expect(text(diagram)).toContain("Site import meter");
+    // QN: the direct import meter sits in the source-side box (before the bus), with the load manager function not declared.
+    const source = diagram.querySelector('[data-ev-slot="load-manager"]') as Element;
+    expect(text(source)).toContain("Site meter & load manager");
+    expect(text(source)).toContain("Site import meter · 80 kW");
+    expect(text(source)).toContain("Load manager · Not declared");
+    // Feeder kWh slots stay in their mock positions and are not declared; no declared AC line is dashed.
+    const feederMeters = Array.from(diagram.querySelectorAll('[data-ev-slot="meter"]'));
+    expect(feederMeters).toHaveLength(1);
+    for (const m of feederMeters) expect(m.getAttribute("class")).toContain("ev-sld__box--missing");
+    expect(diagram.querySelectorAll(".ev-sld__ac--missing")).toHaveLength(1);
     expect(diagram.querySelectorAll('[data-ev-monitor="part"]')).toHaveLength(3);
     expect(diagram.querySelector('[data-ev-monitor="billing"]')).not.toBeNull();
     const parts = panelTitled("What each part does");
     expect(Array.from(parts.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Part", "Role at this site", "What it reports"]);
     expect(Array.from(parts.querySelectorAll("tbody th")).map((th) => th.textContent)).toEqual([
-      "Site feed + load manager",
+      "Grid supply + load manager",
       "Charger 1",
-      "Connector c1",
-      "Connector c2",
+      "Charger 2",
       "Depot auxiliary",
     ]);
-    expect(text(parts)).toContain("Site import limit 80 kW; power sharing: function not recorded");
-    expect(text(parts)).toContain("Mapped: session events, fault events, connector status, energy metering, connector power");
+    expect(text(parts)).toContain("Site import limit 80 kW; power sharing: Not declared");
+    expect(text(parts)).toContain("Connector c1 · Mapped: session events, fault events, connector status, energy metering, connector power");
     expect(text(parts)).toContain("A mapped channel is configuration, not proof of reporting");
+  });
+
+  it("ev-sld keeps four part rows: a missing second charger is Not declared and extra chargers join the second charger row", async () => {
+    renderEv(`${BASE}/sld`, loaded(STOCKED));
+    await settledScreen();
+    const rows = Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"));
+    expect(rows).toHaveLength(4);
+    expect(text(rows[2] as Element)).toBe("Charger 2Not declaredNot declared");
+    cleanup();
+    const three: EvFoundationReadModel = {
+      ...STOCKED,
+      chargers: [STOCKED.chargers[0]!, { ...STOCKED.chargers[0]!, asset_id: "asset-chg-b", connectors: [] }, { ...STOCKED.chargers[0]!, asset_id: "asset-chg-c", connectors: [] }],
+    };
+    renderEv(`${BASE}/sld`, loaded(three));
+    await settledScreen();
+    const rows3 = Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"));
+    expect(rows3).toHaveLength(4);
+    expect(text(rows3[2] as Element).match(/kW charging/g)).toHaveLength(2);
   });
 
   it("ev-sld leaves a missing feed and import meter in their slots while chargers and connectors stay visible", async () => {
@@ -473,10 +505,11 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     await settledScreen();
     const diagram = panelTitled(SITE_NAME);
     expect(text(diagram)).toContain("AC FEED · NOT DECLARED");
-    expect(text(diagram)).toContain("Meter not declared");
+    expect(text(diagram.querySelector('[data-ev-slot="load-manager"]') as Element)).toContain("Import meter · Not declared");
     expect(text(diagram)).toContain("Charger 1");
     expect(diagram.querySelectorAll('[data-ev-slot="connector"]')).toHaveLength(2);
-    expect(text(panelTitled("What each part does"))).toContain("Site feed + load manager");
+    expect(text(panelTitled("What each part does"))).toContain("Grid supply + load manager");
+    expect(Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"))).toHaveLength(4);
   });
 
   it("keeps the W1 vocabulary on every route and exact IDs only in closed contextual detail", async () => {

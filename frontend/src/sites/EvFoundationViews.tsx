@@ -47,7 +47,7 @@ export const COMMISSIONING_UNCONFIRMED = "Commissioning unconfirmed";
 export const NOT_ASSESSED = "Not assessed";
 export const FUNCTION_NOT_RECORDED = "Function not recorded";
 export const NO_LIVE_FLOW = "Live power flow is not observed here";
-export const NO_TARIFF = "No scenario tariff in use";
+export const NO_TARIFF = "No tariff set for estimates";
 export const NOT_CONNECTED = "Not connected";
 export const EMPTY_SELECTION = "No EV Foundation for this selection";
 export const FORBIDDEN = "Source details are not available for this Site";
@@ -504,7 +504,8 @@ function EvModelView(props: ViewProps) {
 
 /* ev-readiness ---------------------------------------------------------------- */
 
-const CONNECTOR_AREA_CODES = new Set(["CONNECTOR_NOT_DECLARED", "FEED_OR_LIMIT_MISSING"]);
+/** Row 1 (Connectors and site limit): connector, Site feed, import meter and limit gaps. Every other gap is row 2 detail. */
+const CONNECTOR_AREA_CODES = new Set(["CONNECTOR_NOT_DECLARED", "FEED_OR_LIMIT_MISSING", "METER_NOT_BOUND", "SITE_IMPORT_NOT_BOUND"]);
 /** Notices shown in their own slots (gateway status, Confirmed column), not as table rows. */
 const NOTICE_CODES = new Set(["SOURCE_NOT_CONTACTED", "COMMISSIONING_UNCONFIRMED"]);
 
@@ -525,8 +526,7 @@ function EvReadinessView(props: ViewProps) {
       </ul>
     );
   const connectorNeeds = messages.filter((m) => CONNECTOR_AREA_CODES.has(m.code)).map((m) => needText(m, names));
-  const statusNeeds = messages.filter((m) => m.code === "STATUS_NOT_BOUND").map((m) => needText(m, names));
-  const other = messages.filter((m) => !CONNECTOR_AREA_CODES.has(m.code) && m.code !== "STATUS_NOT_BOUND" && !NOTICE_CODES.has(m.code));
+  const statusNeeds = messages.filter((m) => !CONNECTOR_AREA_CODES.has(m.code) && !NOTICE_CODES.has(m.code)).map((m) => needText(m, names));
   const statusMapped = fullyBound(read, "ev_connector_state");
 
   const contact = read.contact;
@@ -601,19 +601,6 @@ function EvReadinessView(props: ViewProps) {
                 <Link to={props.assumptionsHref}>Assumptions →</Link>
               </td>
             </tr>
-            {other.map((m) => (
-              <tr key={`${m.code}|${m.role}|${m.component_id}`} data-ev-readiness-row="other">
-                <th scope="row">{evRoleLabel(m.role)}</th>
-                <td>
-                  <Badge tone="config-gap">{NEEDS_A_SOURCE}</Badge>
-                </td>
-                <td>{confirmed}</td>
-                <td>{needText(m, names)}</td>
-                <td>
-                  <Link to={props.viewHref("sld")}>Single line diagram →</Link>
-                </td>
-              </tr>
-            ))}
           </tbody>
         </DataTable>
         <p className="v69-chart-note" data-ev-commissioning="">
@@ -774,16 +761,16 @@ function EvSldView(props: ViewProps) {
           </thead>
           <tbody>
             <tr data-ev-part="feed">
-              <th scope="row">{feedName === null ? "Site feed" : feedName} + load manager</th>
+              <th scope="row">Grid supply + load manager</th>
               <td>
                 {feedName === null
                   ? NOT_DECLARED
-                  : `${read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Site import limit ${read.feed.limit_kw} kW`}; power sharing: ${FUNCTION_NOT_RECORDED.toLowerCase()}`}
+                  : `${feedName} · ${read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Site import limit ${read.feed.limit_kw} kW`}; power sharing: ${NOT_DECLARED}`}
               </td>
               <td>{siteImport.length === 0 ? NOT_DECLARED : "Mapped: site import power"}</td>
             </tr>
-            {read.chargers.map((charger, ci) => (
-              <ChargerRows key={charger.asset_id ?? ci} charger={charger} index={ci} names={names} mapped={mapped} />
+            {[0, 1].map((slot) => (
+              <ChargerRow key={slot} slot={slot} chargers={slot === 1 ? read.chargers.slice(1) : read.chargers.slice(0, 1)} first={slot === 0} names={names} mapped={mapped} />
             ))}
             <tr data-ev-part="auxiliary">
               <th scope="row">Depot auxiliary</th>
@@ -812,22 +799,46 @@ function EvSldView(props: ViewProps) {
   );
 }
 
-function ChargerRows({ charger, index, names, mapped }: { charger: EvFoundationReadModel["chargers"][number]; index: number; names: Map<string, string>; mapped: (id: string | null) => string }) {
-  const name = (charger.asset_id === null ? undefined : names.get(charger.asset_id)) ?? `Charger ${index + 1}`;
-  return (
-    <>
+/** One of the mock's two charger rows: its declared chargers (extra chargers join the second row), with their connectors inside. */
+function ChargerRow({ slot, chargers, first, names, mapped }: { slot: number; chargers: EvFoundationReadModel["chargers"]; first: boolean; names: Map<string, string>; mapped: (id: string | null) => string }) {
+  const label = (charger: EvFoundationReadModel["chargers"][number] | undefined, k: number) =>
+    charger === undefined ? `Charger ${slot + 1}` : ((charger.asset_id === null ? undefined : names.get(charger.asset_id)) ?? `Charger ${slot + k + 1}`);
+  if (chargers.length === 0) {
+    return (
       <tr data-ev-part="charger">
-        <th scope="row">{name}</th>
-        <td>{charger.max_kw === null ? FUNCTION_NOT_RECORDED : `${charger.max_kw} kW charging · ${charger.connectors.length} connector${charger.connectors.length === 1 ? "" : "s"}`}</td>
-        <td>{mapped(charger.asset_id)}</td>
+        <th scope="row">{label(undefined, 0)}</th>
+        <td>{NOT_DECLARED}</td>
+        <td>{NOT_DECLARED}</td>
       </tr>
-      {charger.connectors.map((connector, i) => (
-        <tr key={connector.asset_id ?? i} data-ev-part="connector">
-          <th scope="row">{connectorName(connector, names, i)}</th>
-          <td>{`${connector.max_kw === null ? "Rating not declared" : `${connector.max_kw} kW`} · service hours ${scheduleText(connector)}`}</td>
-          <td>{mapped(connector.asset_id)}</td>
-        </tr>
-      ))}
-    </>
+    );
+  }
+  return (
+    <tr data-ev-part="charger">
+      <th scope="row">{label(chargers[0], 0)}</th>
+      <td>
+        {chargers.map((charger, k) => (
+          <div key={charger.asset_id ?? k}>
+            {chargers.length > 1 || !first ? <strong>{label(charger, k)}: </strong> : null}
+            {charger.max_kw === null ? FUNCTION_NOT_RECORDED : `${charger.max_kw} kW charging`}
+            {` · ${charger.connectors.length} connector${charger.connectors.length === 1 ? "" : "s"}`}
+            {charger.connectors.map((c, i) => (
+              <div key={c.asset_id ?? i} className="muted" data-ev-part="connector">
+                {`${connectorName(c, names, i)} · ${c.max_kw === null ? "rating not declared" : `${c.max_kw} kW`} · service hours ${scheduleText(c)}`}
+              </div>
+            ))}
+          </div>
+        ))}
+      </td>
+      <td>
+        {chargers.map((charger, k) => (
+          <div key={charger.asset_id ?? k}>
+            {mapped(charger.asset_id) === NOT_DECLARED ? "Charger reports: Not declared" : mapped(charger.asset_id)}
+            {charger.connectors.map((c, i) => (
+              <div key={c.asset_id ?? i} className="muted">{`${connectorName(c, names, i)} · ${mapped(c.asset_id)}`}</div>
+            ))}
+          </div>
+        ))}
+      </td>
+    </tr>
   );
 }
