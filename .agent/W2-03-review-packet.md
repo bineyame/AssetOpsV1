@@ -172,3 +172,5 @@ The height table above is not re-measured; the changes add one tab entry above t
 
 Checks: `npx.cmd tsc --noEmit` exit 0; `coldRoutes` 26 passed; `test_w203_cold_rules.py` 8 passed; `check-all` 10/10 guards;
 full `npm.cmd test` and the w203 replay+rules rerun results below.
+
+Final runs: full `npm.cmd test` 85 files / 2182 passed (159 s); `pytest tests/test_w203_cold_replay_postgres.py tests/test_w203_cold_rules.py` on real Postgres 22 passed, 0 skipped (344 s). Backend production code changed only in a docstring (`cold_reads.py`), so no full backend suite was rerun.
