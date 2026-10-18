@@ -33,7 +33,7 @@ import { COLD_ASSESSMENT_LOADING, refusalText } from "./ColdAssessmentViews";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";
 import { roleLabel } from "./ColdFoundationViews";
-import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, windowText } from "./coldFormat";
+import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, hm, windowText } from "./coldFormat";
 import "./w2-cold-site.css";
 
 /*
@@ -448,7 +448,8 @@ function stripEvents(o: ColdOverviewRead): TimelineEvent[] {
     const name = STEP_LABELS[s.step] ?? plainCode(s.step);
     return {
       key: s.step,
-      time: s.at === null ? "—" : `${eatTime(s.at)?.slice(0, 5)} EAT`,
+      // UTC like the chamber chart beside it; only the Analysis `Measured (EAT)` column is East Africa Time.
+      time: s.at === null ? "—" : hm(s.at),
       title: `${name} · ${STEP_CHIP[s.state] ?? plainCode(s.state)}`,
       detail: s.state === "MISSING" ? `No accepted ${name.toLowerCase()} report for this chain` : (limitText(s.limitation) ?? undefined),
       tone: s.state === "OBSERVED" ? undefined : s.state === "CONTRADICTORY" ? "danger" : "gap",
@@ -832,6 +833,9 @@ function EvidenceScreen(p: ScreenProps) {
 
 /* ---------- cold-evidence-analysis ---------- */
 
+/** A state or event outcome (e.g. `LOST`) in plain words; a number is shown as recorded. */
+const recordValue = (v: string) => (/^[A-Z][A-Z0-9_]*$/.test(v) ? plainCode(v) : v);
+
 /** Rows shown before the rest are opened (the mock table shows three; W1 lists show four, SiteWorkActions). */
 const RECORDS_SHOWN = 4;
 
@@ -893,7 +897,7 @@ function AnalysisScreen(p: ScreenProps) {
                           <code data-vocabulary-exempt="source-reference">{r.assessment_revision_id ?? NOT_RECORDED}</code>
                         </small>
                       </th>
-                      <td>{r.value_display === null ? NOT_RECORDED : `${r.value_display}${r.unit === null ? "" : ` ${r.unit}`}`}</td>
+                      <td>{r.value_display === null ? NOT_RECORDED : `${recordValue(r.value_display)}${r.unit === null ? "" : ` ${r.unit}`}`}</td>
                       <td>{eatTime(r.source_time) ?? NOT_RECORDED}</td>
                       <td>{eatTime(r.sent_at) ?? NOT_RECORDED}</td>
                       <td>{eatTime(r.received_at) ?? NOT_RECORDED}</td>
