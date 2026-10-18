@@ -78,6 +78,15 @@ These implementation-ready packets sequence the binding `D-2026-10-17-w2-design`
 | W2-03 cold assessment | [W2-03](W2-03-cold-assessment.md) | `0022` cold episodes, bounded assessment and Findings, late recompute and four exact v69 routes; after merged W2-02 | Done 2026-10-18 (merged; re-review ACCEPT) |
 | W2-04 cold Site/evidence/money | [W2-04](W2-04-cold-site-evidence-money.md) | `0023` unpriced cold consequence and selected Site/evidence/financial reads, five exact v69 routes; after reviewed/merged W2-03 | M; implementation-ready; USER_REVIEW_REQUIRED true via later owner W2 walkthrough; two phases |
 
+## W2 EV charging planning packets
+
+These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev`, `D-2026-10-18-w2-mockup-authority` and `D-2026-10-18-w2-05-buildspec`. Planning assigns existing registry `task` pointers only; independent review and the later owner W2 walkthrough remain required.
+
+| Slice | Packet | Exit and predecessor | Review |
+| --- | --- | --- | --- |
+| W2-05a EV Foundation | [W2-05a](W2-05a-ev-foundation.md) | `0024` effective EV roles, topology, selected read and three exact v69 routes; after W2-01/W2-00 and W2-04 `0023` migration | S; implementation-ready; two phases; USER_REVIEW_REQUIRED true |
+| W2-05b EV producer | [W2-05b](W2-05b-ev-producer.md) | Frozen six-case EV Lab Stage/Commit through v4 gateway and S2 accepted evidence; after W2-05a and W2-02 | M; implementation-ready; two phases; USER_REVIEW_REQUIRED true |
+
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 
 | Tooling lane | Task | Activation | Status |
