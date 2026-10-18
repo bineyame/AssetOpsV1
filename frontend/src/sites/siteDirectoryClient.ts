@@ -116,7 +116,8 @@ function isComponentProperty(value: unknown): boolean {
   return (
     typeof property.property_key === "string" &&
     typeof property.display_name === "string" &&
-    typeof property.value === "number" &&
+    // W2-05a: the one state-valued property (`ev-connector-enabled`) carries unit `state` and a string value.
+    (typeof property.value === "number" || (property.unit === "state" && typeof property.value === "string")) &&
     typeof property.unit === "string" &&
     typeof property.kind === "string" &&
     typeof property.source === "string" &&

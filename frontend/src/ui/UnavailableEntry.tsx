@@ -38,3 +38,17 @@ export function UnavailableChip({ label }: { label: string }) {
     </li>
   );
 }
+
+/**
+ * W2-05a: one unbuilt in-page link entry of a v69 attention row (for example an Action the mock links to that this
+ * build cannot open), in the mock link's position. Same semantics as a tab or chip: a muted list item, not a control.
+ */
+export function UnavailableLinkEntry({ label }: { label: string }) {
+  return (
+    <ul className="v69-unavailable-links">
+      <li className="v69-unavailable-link" aria-label={`${label}, ${IN_PAGE_UNAVAILABLE_STATUS}`} data-link-unavailable={label}>
+        {`${label} · ${IN_PAGE_UNAVAILABLE_STATUS}`}
+      </li>
+    </ul>
+  );
+}

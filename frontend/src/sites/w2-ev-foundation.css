@@ -1,0 +1,173 @@
+/*
+ * W2-05a: the configured EV single line diagram, ported from the v6.9 mock `.sld` grammar
+ * (`frontend/mockups/v69/mockups.css`). Line style names the connection medium; a dashed box is a slot
+ * with nothing declared; every reporting dot is the unknown marker (never green or amber here).
+ */
+.ev-sld {
+  margin: 0;
+}
+
+.ev-sld__svg {
+  display: block;
+  width: 100%;
+  max-width: 1060px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.ev-sld__svg text {
+  font-family: inherit;
+}
+
+.ev-sld__label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #17243b;
+}
+
+.ev-sld__small {
+  font-size: 10px;
+  fill: #617087;
+}
+
+.ev-sld__strong {
+  font-weight: 700;
+  fill: #16233f;
+}
+
+.ev-sld__head {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  fill: #1d3f6e;
+}
+
+.ev-sld__glyph {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #16233f;
+}
+
+.ev-sld__bus {
+  stroke: #1d3f6e;
+  stroke-width: 7;
+  stroke-linecap: round;
+}
+
+.ev-sld__bus--missing {
+  stroke: #cbd5e1;
+  stroke-dasharray: 10 6;
+}
+
+.ev-sld__ac {
+  stroke: #16233f;
+  stroke-width: 2;
+}
+
+.ev-sld__ac--missing {
+  stroke: #8a9bb3;
+  stroke-dasharray: 4 4;
+}
+
+.ev-sld__signal {
+  fill: none;
+  stroke: #3d7a8c;
+  stroke-width: 1.4;
+  stroke-dasharray: 2 4;
+}
+
+.ev-sld__sym {
+  fill: #fff;
+  stroke: #16233f;
+  stroke-width: 1.6;
+}
+
+.ev-sld__box {
+  fill: #eef5f8;
+  stroke: #3d7a8c;
+  stroke-width: 1.4;
+}
+
+.ev-sld__meter,
+.ev-sld__load {
+  fill: #fff;
+  stroke: #16233f;
+  stroke-width: 1.5;
+}
+
+.ev-sld__box--missing {
+  fill: #fff;
+  stroke: #8a9bb3;
+  stroke-dasharray: 4 3;
+}
+
+/* Reporting not assessed: a grey ring, distinct from the mock's dashed "not connected" marker. */
+.ev-sld__dot {
+  fill: #e6eaf0;
+  stroke: #8a9bb3;
+  stroke-width: 1.6;
+}
+
+.ev-sld__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+  font-size: var(--text-panel-note);
+  color: var(--text-secondary);
+}
+
+.ev-sld__key {
+  display: inline-block;
+  width: 22px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-top: 2px solid #16233f;
+}
+
+.ev-sld__key--dc {
+  border-top: 2px dashed #b4691f;
+}
+
+.ev-sld__key--signal {
+  border-top: 2px dotted #3d7a8c;
+}
+
+.ev-sld__legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+
+.ev-sld__legend-dot--good {
+  background: #2f8f6f;
+}
+
+.ev-sld__legend-dot--gap {
+  background: #d6a052;
+}
+
+.ev-sld__legend-dot--none {
+  background: #fff;
+  border: 1.5px dashed #8a9bb3;
+}
+
+.ev-sld__legend-dot--unknown {
+  background: #e6eaf0;
+  border: 1.5px solid #8a9bb3;
+}
+
+/* The unbuilt Action entry in an attention row: muted text in the link's position, not a control. */
+.v69-unavailable-links {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.v69-unavailable-link {
+  color: var(--text-muted);
+  font-size: var(--text-panel-note);
+}

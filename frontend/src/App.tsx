@@ -68,6 +68,7 @@ import {
   type SiteFoundationClient,
 } from "./sites/siteFoundationClient";
 import { createColdFoundationClient, type ColdFoundationClient } from "./sites/coldFoundationClient";
+import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFoundationClient";
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import {
   createSiteEvidenceClient,
@@ -98,6 +99,7 @@ const defaultSiteOverview = createSiteOverviewClient();
 const defaultSiteAnalytics = createSiteAnalyticsClient();
 const defaultSiteFoundation = createSiteFoundationClient();
 const defaultColdFoundation = createColdFoundationClient();
+const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 
 /**
@@ -164,6 +166,8 @@ export interface AppProps {
   siteFoundation?: SiteFoundationClient;
   /** W2-01: the selected cold-chain configuration read, used when the Site is COLDCHAIN. */
   coldFoundation?: ColdFoundationClient;
+  /** W2-05a: the selected EV Foundation read. */
+  evFoundation?: EvFoundationClient;
   /** W2-03: the selected cold assessment reads, used for a COLDCHAIN Site's Performance and Finding routes. */
   coldAssessment?: ColdAssessmentClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
@@ -188,6 +192,7 @@ export function App({
   siteFindingIndex,
   siteFoundation = defaultSiteFoundation,
   coldFoundation = defaultColdFoundation,
+  evFoundation = defaultEvFoundation,
   coldAssessment = defaultColdAssessment,
   siteTemplateLineage,
   now,
@@ -235,6 +240,7 @@ export function App({
                 detail={siteDetail}
                 foundation={siteFoundation}
                 coldFoundation={coldFoundation}
+                evFoundation={evFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
                 gatewayHealth={siteEvidence.gatewayHealth}
@@ -248,6 +254,7 @@ export function App({
                 detail={siteDetail}
                 foundation={siteFoundation}
                 coldFoundation={coldFoundation}
+                evFoundation={evFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
                 gatewayHealth={siteEvidence.gatewayHealth}

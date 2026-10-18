@@ -4,6 +4,8 @@ import { Badge, DataTable, MissingClaim, MissingClaimSvg } from "../ui";
 import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape, type ComponentIconSymbol } from "./componentIcons";
 import type { SiteDetailReadModel } from "./siteReadModel";
 import type { ColdBinding, ColdFoundationReadModel, ColdTopologyNode } from "./coldFoundationClient";
+import type { EvFoundationReadModel } from "./evFoundationClient";
+import { connectorName, LIMIT_NOT_DECLARED, NO_CONNECTOR_DECLARED, NOT_DECLARED } from "./evWords";
 import {
   COMPONENT_TYPE_LABELS,
   CONNECTION_MEDIUM_LABELS,
@@ -1522,6 +1524,160 @@ export function ColdTopologyDiagram({
         <span><span className="cold-sld__key cold-sld__key--signal" aria-hidden="true" />Sensing</span>
         <span><span className="gw-dot gw-dot--none" aria-hidden="true" />Reporting not assessed here</span>
       </figcaption>
+    </figure>
+  );
+}
+
+/*
+ * The mock's single line diagram grammar (`sld()` in the v6.9 mock): a supply row on the left (grid source,
+ * load-manager box, main breaker) into the AC bus, one feeder row per charger (feeder breaker, kWh meter,
+ * charger), a depot auxiliary feeder, and the monitoring row. The declared feed is the bus; feed -> meter ->
+ * charger lines use the AC style and charger -> connector the signal (monitoring) style. A slot with nothing
+ * declared stays in place as "Not declared"; every reporting dot is unknown.
+ */
+export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadModel; names: Map<string, string> }) {
+  const W = 1000;
+  const top = 46;
+  const rowF = 86;
+  const busX = 640;
+  const feeders = read.chargers.length + 1;
+  const busTop = top - 6;
+  const busBot = top + Math.max(100, feeders * rowF) - 30;
+  const monY = busBot + 52;
+  const H = monY + 70;
+  const feedName = read.feed.asset_id === null ? null : (names.get(read.feed.asset_id) ?? "Site feed");
+  const meterName = read.feed.meter_asset_id === null ? null : (names.get(read.feed.meter_asset_id) ?? "Import meter");
+  const meterParents = new Set(
+    (read.topology?.edges ?? [])
+      .filter((e) => e.medium === "AC")
+      .map((e) => ({ from: read.topology?.nodes.find((n) => n.node_id === e.from_node), to: read.topology?.nodes.find((n) => n.node_id === e.to_node) }))
+      .filter((p) => p.from?.asset_id === read.feed.meter_asset_id && p.from?.asset_id !== null)
+      .map((p) => p.to?.asset_id ?? null),
+  );
+  const monitors: { key: string; label: string }[] = [
+    ...Array.from(new Set(read.bindings.map((b) => b.asset_id))).map((id) => ({
+      key: id ?? "unknown",
+      label: (id === null ? undefined : names.get(id)) ?? "Unnamed part",
+    })),
+    { key: "billing", label: "Billing system" },
+  ];
+  const mw = (W - 40 - (monitors.length - 1) * 12) / monitors.length;
+  const dot = (x: number, y: number, key: string) => <circle key={key} cx={x} cy={y} r={5.5} className="ev-sld__dot" data-ev-dot="unknown" />;
+  const breaker = (x: number, y: number, label: string, key: string) => (
+    <g key={key} data-ev-breaker="not-declared">
+      <circle cx={x - 11} cy={y} r={3.2} className="ev-sld__sym" />
+      <circle cx={x + 11} cy={y} r={3.2} className="ev-sld__sym" />
+      <path d={`M${x - 11} ${y - 3}Q${x} ${y - 15} ${x + 11} ${y - 3}`} className="ev-sld__sym" />
+      <text x={x} y={y - 19} textAnchor="middle" className="ev-sld__small">
+        {label}
+      </text>
+    </g>
+  );
+  const cy0 = top + 26;
+  return (
+    <figure className="ev-sld" data-ev-diagram="">
+      <svg className="ev-sld__svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Configured single line diagram: ${read.chargers.length} charger${read.chargers.length === 1 ? "" : "s"}, configuration only`}>
+        <text x={busX} y={14} textAnchor="middle" className="ev-sld__head" data-ev-slot="bus">
+          {feedName === null ? "AC FEED · NOT DECLARED" : feedName.toUpperCase()}
+        </text>
+        <text x={busX} y={30} textAnchor="middle" className="ev-sld__small">
+          {read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Import limit ${read.feed.limit_kw} kW`}
+        </text>
+        <line x1={busX} x2={busX} y1={busTop} y2={busBot} className={feedName === null ? "ev-sld__bus ev-sld__bus--missing" : "ev-sld__bus"} />
+        {/* Supply row: grid source and load manager are not part of the EV Foundation. */}
+        <g data-ev-slot="grid">
+          <rect x={20} y={top} width={96} height={52} rx={4} className="ev-sld__box ev-sld__box--missing" />
+          <text x={20} y={top + 68} className="ev-sld__label">Grid supply</text>
+          <text x={20} y={top + 82} className="ev-sld__small">{NOT_DECLARED}</text>
+        </g>
+        <line x1={116} x2={290} y1={cy0} y2={cy0} className="ev-sld__ac ev-sld__ac--missing" />
+        <g data-ev-slot="load-manager">
+          <rect x={290} y={top} width={190} height={52} rx={5} className="ev-sld__box ev-sld__box--missing" />
+          <text x={385} y={top + 22} textAnchor="middle" className="ev-sld__label">Load manager</text>
+          <text x={385} y={top + 39} textAnchor="middle" className="ev-sld__small">{NOT_DECLARED}</text>
+          {dot(476, top + 4, "lm-dot")}
+        </g>
+        <line x1={480} x2={busX} y1={cy0} y2={cy0} className="ev-sld__ac ev-sld__ac--missing" />
+        {breaker(570, cy0, "Main CB not declared", "main-cb")}
+        {read.chargers.map((charger, j) => {
+          const y = top + j * rowF;
+          const cy = y + 20;
+          const fedByMeter = charger.asset_id !== null && meterParents.has(charger.asset_id);
+          const name = (charger.asset_id === null ? undefined : names.get(charger.asset_id)) ?? `Charger ${j + 1}`;
+          return (
+            <g key={charger.asset_id ?? j} data-ev-slot="feeder">
+              <line x1={busX} x2={748} y1={cy} y2={cy} className="ev-sld__ac" />
+              {breaker(700, cy, "CB not declared", `cb-${j}`)}
+              <rect x={748} y={cy - 13} width={40} height={26} rx={3} className={fedByMeter ? "ev-sld__meter" : "ev-sld__meter ev-sld__box--missing"} data-ev-slot="meter" />
+              <text x={768} y={cy + 4} textAnchor="middle" className="ev-sld__small ev-sld__strong">kWh</text>
+              <text x={768} y={cy + 26} textAnchor="middle" className="ev-sld__small">
+                {fedByMeter && meterName !== null ? meterName : "Meter not declared"}
+              </text>
+              {dot(786, cy - 13, `m-${j}`)}
+              <line x1={788} x2={806} y1={cy} y2={cy} className="ev-sld__ac" />
+              <rect x={806} y={cy - 16} width={32} height={32} rx={4} className="ev-sld__load" />
+              <text x={822} y={cy + 5} textAnchor="middle" className="ev-sld__glyph">{String(j + 1)}</text>
+              <text x={848} y={cy - 2} className="ev-sld__label">{name}</text>
+              <text x={848} y={cy + 13} className="ev-sld__small">
+                {`${charger.max_kw === null ? "rating not declared" : `${charger.max_kw} kW`} · ${
+                  charger.connectors.length === 0 ? NO_CONNECTOR_DECLARED : `${charger.connectors.length} connector${charger.connectors.length === 1 ? "" : "s"}`
+                }`}
+              </text>
+              {charger.connectors.length === 0 ? null : (
+                <path d={`M822 ${cy + 16}V${cy + 36}H${848 + (charger.connectors.length - 1) * 76}`} className="ev-sld__signal" data-ev-edge="signal" />
+              )}
+              {charger.connectors.map((c, i) => (
+                <g key={c.asset_id ?? i} data-ev-slot="connector">
+                  <rect x={848 + i * 76} y={cy + 26} width={70} height={20} rx={3} className="ev-sld__box" />
+                  <text x={883 + i * 76} y={cy + 40} textAnchor="middle" className="ev-sld__small ev-sld__strong">
+                    {connectorName(c, names, i)}
+                  </text>
+                </g>
+              ))}
+            </g>
+          );
+        })}
+        {(() => {
+          const j = read.chargers.length;
+          const cy = top + j * rowF + 20;
+          return (
+            <g data-ev-slot="auxiliary">
+              <line x1={busX} x2={806} y1={cy} y2={cy} className="ev-sld__ac ev-sld__ac--missing" />
+              {breaker(700, cy, "CB not declared", "cb-aux")}
+              <rect x={806} y={cy - 16} width={32} height={32} rx={4} className="ev-sld__load ev-sld__box--missing" />
+              <text x={822} y={cy + 5} textAnchor="middle" className="ev-sld__glyph">A</text>
+              <text x={848} y={cy - 2} className="ev-sld__label">Depot auxiliary</text>
+              <text x={848} y={cy + 13} className="ev-sld__small">{NOT_DECLARED}</text>
+            </g>
+          );
+        })()}
+        <line x1={20} x2={W - 20} y1={monY - 14} y2={monY - 14} className="ev-sld__signal" />
+        <text x={20} y={monY - 22} className="ev-sld__head">MONITORING &amp; COMMUNICATION</text>
+        {monitors.map((m, k) => {
+          const x = 20 + k * (mw + 12);
+          return (
+            <g key={m.key} data-ev-monitor={m.key === "billing" ? "billing" : "part"}>
+              <line x1={x + mw / 2} x2={x + mw / 2} y1={monY - 14} y2={monY} className="ev-sld__signal" />
+              <rect x={x} y={monY} width={mw} height={40} rx={4} className={m.key === "billing" ? "ev-sld__box ev-sld__box--missing" : "ev-sld__box"} />
+              <text x={x + mw / 2} y={monY + 24} textAnchor="middle" className="ev-sld__label">{m.label}</text>
+              {dot(x + mw - 8, monY + 8, `mon-${m.key}`)}
+            </g>
+          );
+        })}
+      </svg>
+      <figcaption className="ev-sld__legend">
+        <span><span className="ev-sld__key ev-sld__key--ac" aria-hidden="true" />AC power</span>
+        <span><span className="ev-sld__key ev-sld__key--dc" aria-hidden="true" />DC power</span>
+        <span><span className="ev-sld__key ev-sld__key--signal" aria-hidden="true" />Monitoring</span>
+        <span>◠ Circuit breaker</span>
+        <span><span className="ev-sld__legend-dot ev-sld__legend-dot--good" aria-hidden="true" />Reporting</span>
+        <span><span className="ev-sld__legend-dot ev-sld__legend-dot--gap" aria-hidden="true" />Gap in selected window</span>
+        <span><span className="ev-sld__legend-dot ev-sld__legend-dot--none" aria-hidden="true" />Not connected</span>
+        <span><span className="ev-sld__legend-dot ev-sld__legend-dot--unknown" aria-hidden="true" />Reporting not assessed</span>
+      </figcaption>
+      <p className="not-available-yet v69-chart-note" data-ev-sld-undeclared="">
+        Grid supply, load manager, breakers and depot auxiliary are not declared in this version and are drawn as empty slots; every reporting dot is unknown.
+      </p>
     </figure>
   );
 }
