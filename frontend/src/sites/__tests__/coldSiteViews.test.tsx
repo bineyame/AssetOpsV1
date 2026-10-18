@@ -615,6 +615,9 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(text(row)).toContain(`Record ${id(11)} · Analysis view not available for this cold record`);
     expect(row.querySelector("a")).toBeNull();
     expect(text(panelTitled("How a claim limit is set"))).toContain("Accepted chamber readings, the selected temperature policy and enough coverage to bound an excursion.");
+    const claim = panelTitled("How a claim limit is set");
+    expect(text(claim.querySelector("[data-claim-record-pointer]")!)).toBe("Accepted record IDs for this assessment are in Record details.");
+    expect(text(claim)).not.toContain("Listed by exact ID");
   });
 
   it("analysis: first three records, 'Show all {total}' from the full count, then only 'Show more'; closed Record and Claim details", async () => {
@@ -698,6 +701,15 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
       "CurrencyNot declaredDisplaying a priced consequence",
     ]);
     expect(main().querySelector("form, input, select, textarea")).toBeNull();
+  });
+
+  it("assumptions: the pending sentence sits on the date bar's second line and no status strip is added", async () => {
+    const pending = { ...assumptions(true), currentness: { ...assumptions(true).currentness, state: "PENDING_RECOMPUTE" } } as ColdAssumptionsRead;
+    renderCold(ROUTES[4][1], { ...STOCKED, assumptions: ok(pending) });
+    await settledScreen();
+    const cutoff = main().querySelector(".site-date-bar__cutoff")!;
+    expect(text(cutoff)).toMatch(/^Selected evidence through .+ · New evidence is waiting to be assessed$/);
+    expect(main().querySelector(".status-strip")).toBeNull();
   });
 });
 

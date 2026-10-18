@@ -1065,6 +1065,7 @@ function AnalysisScreen(p: ScreenProps) {
               ))}
             </div>
             <Disclosure summary="Claim details" name="cold-site-claim-details">
+              {a!.accepted_records.items.length === 0 ? null : (<p className="prose" data-claim-record-pointer>Accepted record IDs for this assessment are in Record details.</p>)}
               {a!.claim_rules.map((rule) => (
                 <div className="cold-site-rule" key={rule.rule_id} data-claim-rule={rule.rule_id}>
                   <p className="prose">
@@ -1080,7 +1081,6 @@ function AnalysisScreen(p: ScreenProps) {
                       ["Result", rule.result === null ? NOT_ASSESSED : plainCode(rule.result), "result"],
                       ["Source", a!.source_provenance.classification === null ? "Unknown" : classificationWord(a!.source_provenance.classification), "source"],
                       ["Evidence cutoff", utc(a!.window.known_at), "cutoff"],
-                      ["Accepted records", "Listed by exact ID in Record details", "records"],
                       ...(rule.limitation === null ? [] : ([["Limit", plainLimitation(rule.limitation), "limit"]] as [string, string, string][])),
                     ]}
                   />
