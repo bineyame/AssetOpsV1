@@ -1492,3 +1492,112 @@ class ColdReadService:
                     "episode_revision_id": claim.get("episode_revision_id"), "revisions": history}
         return self._read(work)
 
+
+    # --- W2-04 commit 3: caller-connection reads for `analytics/cold_site_reads.py` ---------------------------
+    # `.agent/W2-04-build-spec.md` "Five API reads" and "How does the API keep one snapshot?": the Site read
+    # composes every part on the one REPEATABLE READ connection `within` opens. All SELECT-only.
+
+    def within(self, work: Callable[[Connection], Any]) -> Any:
+        """Run `work(c)` in one REPEATABLE READ transaction; a store failure is `ColdReadUnavailable` (503)."""
+        return self._read(work)
+
+    def selection_on(self, c: Connection, t: UUID, s: UUID, code: str, lo: datetime | None, hi: datetime | None,
+                     known_at: datetime | None) -> dict[str, Any]:
+        return self._snapshot(c, t, s, code, lo, hi, known_at)
+
+    def envelope_on(self, snap: dict[str, Any], analytics: tuple[str, ...]) -> dict[str, Any]:
+        return self._envelope(snap, analytics)
+
+    def temperature_on(self, c: Connection, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
+        return self._temperature(c, t, s, code, lo, hi, known_at)
+
+    def backup_on(self, c: Connection, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
+        return self._backup(c, t, s, code, lo, hi, known_at)
+
+    def current_findings_on(self, c: Connection, snap: dict[str, Any]) -> list[dict[str, Any]]:
+        """Every cold Finding of the selected window, each at its latest revision known at the cutoff."""
+        if snap["lo"] is None or snap["known"] is None or not snap["selected"]:
+            return []
+        return [self._item(c, snap, row, self._revisions(c, snap, row[0], True)[0])
+                for row in self._finding_ids(c, snap, None, None)]
+
+    @staticmethod
+    def basis_revisions_on(c: Connection, t: UUID, s: UUID, assessment_revision_id: UUID) -> dict[str, Any]:
+        """The selected assessment revision's `created_at`, its run's Foundation revisions (`id, valid_from,
+        valid_to`) and its run's bound channels (`source_id, role, gateway_id`; a cold run stores its exact
+        `signal_binding_revision` IDs in `binding_set_revision_ids`), by exact stored IDs."""
+        row = c.execute(text(
+            "SELECT ar.created_at, r.foundation_revision_ids, r.binding_set_revision_ids FROM assessment_revision ar "
+            "JOIN analytic_run_assessment x ON x.assessment_revision_id = ar.id JOIN analytic_run r ON r.id = x.run_id "
+            "WHERE ar.tenant_id = :t AND ar.site_id = :s AND ar.id = :a ORDER BY r.knowledge_cutoff DESC LIMIT 1"),
+            {"t": t, "s": s, "a": assessment_revision_id}).first()
+        if row is None:
+            return {"created_at": None, "foundations": [], "bindings": []}
+        foundation_ids = row[1] if isinstance(row[1], list) else json.loads(row[1])
+        binding_set_ids = row[2] if isinstance(row[2], list) else json.loads(row[2])
+        foundations = c.execute(text(
+            "SELECT id, valid_from, valid_to FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+            "AND id = ANY(:ids) ORDER BY valid_from, id"),
+            {"t": t, "s": s, "ids": [UUID(str(i)) for i in foundation_ids]}).all()
+        bindings = c.execute(text(
+            "SELECT DISTINCT source_id, role, gateway_id FROM signal_binding_revision WHERE tenant_id = :t "
+            "AND site_id = :s AND id = ANY(:ids) ORDER BY role, source_id"),
+            {"t": t, "s": s, "ids": [UUID(str(i)) for i in binding_set_ids]}).all()
+        return {"created_at": row[0], "foundations": [tuple(f) for f in foundations],
+                "bindings": [tuple(b) for b in bindings]}
+
+    @staticmethod
+    def accepted_on(c: Connection, t: UUID, s: UUID, ids: list[str], after: tuple[datetime, UUID] | None = None,
+                    limit: int | None = None) -> list[dict[str, Any]]:
+        """Exact accepted public records by stored ID, ordered `(source_time, id)`, paged after the tuple."""
+        if not ids:
+            return []
+        sql = ("SELECT id, record_kind, source_time, received_at, published_at, quality, role, source_id, "
+               "envelope_sha256, normalized_value_text, normalized_unit, outcome FROM accepted_evidence "
+               "WHERE tenant_id = :t AND site_id = :s AND id = ANY(:ids) ")
+        p: dict[str, Any] = {"t": t, "s": s, "ids": sorted({UUID(str(i)) for i in ids}, key=str)}
+        if after is not None:
+            sql += "AND (source_time, id) > (:at, :aid) "
+            p.update(at=after[0], aid=after[1])
+        sql += "ORDER BY source_time, id"
+        if limit is not None:
+            sql += " LIMIT :n"
+            p["n"] = limit + 1
+        names = ("id", "record_kind", "source_time", "received_at", "published_at", "quality", "role", "source_id",
+                 "envelope_sha256", "normalized_value_text", "normalized_unit", "outcome")
+        return [dict(zip(names, r)) for r in c.execute(text(sql), p).all()]
+
+    @staticmethod
+    def source_facts_on(c: Connection, t: UUID, s: UUID, lo: datetime, hi: datetime,
+                        known: datetime) -> dict[tuple[UUID, str], tuple[int, datetime]]:
+        """(source_id, role) -> (accepted count, latest `source_time`) of the accepted records in `[lo, hi)`
+        whose disposition was committed at or before the cutoff."""
+        rows = c.execute(text(
+            "SELECT e.source_id, e.role, count(*), max(e.source_time) FROM accepted_evidence e "
+            "JOIN ingestion_disposition d ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+            "WHERE e.tenant_id = :t AND e.site_id = :s AND e.source_time >= :lo AND e.source_time < :hi "
+            "AND d.decided_at <= :k GROUP BY e.source_id, e.role"),
+            {"t": t, "s": s, "lo": lo, "hi": hi, "k": known}).all()
+        return {(r[0], r[1]): (int(r[2]), r[3]) for r in rows}
+
+    @staticmethod
+    def source_contacts_on(c: Connection, t: UUID, s: UUID, gateway_ids: list[UUID],
+                           cutoff: datetime) -> dict[UUID, dict[str, Any]]:
+        """Commit-3 Architect ruling (source contact): per registered gateway, its latest diagnostic received at or
+        before `cutoff` (`min(known_at, to)`), in the S2 order (received_at, then sequence), with the gateway's
+        declared diagnostic cadence. A gateway with no such diagnostic is absent from the result."""
+        if not gateway_ids:
+            return {}
+        rows = c.execute(text(
+            "SELECT DISTINCT ON (d.gateway_id) d.gateway_id, d.id, d.received_at, d.last_device_contact_by_source, "
+            "d.clock_offset_ms, g.diagnostic_cadence_seconds FROM gateway_diagnostic d JOIN gateway g "
+            "ON g.tenant_id = d.tenant_id AND g.site_id = d.site_id AND g.id = d.gateway_id "
+            "WHERE d.tenant_id = :t AND d.site_id = :s AND d.gateway_id = ANY(:g) AND d.received_at <= :k "
+            "ORDER BY d.gateway_id, d.received_at DESC, d.diagnostic_sequence DESC"),
+            {"t": t, "s": s, "g": sorted(set(gateway_ids), key=str), "k": cutoff}).all()
+        out = {}
+        for r in rows:
+            contacts = r[3] if isinstance(r[3], dict) else json.loads(r[3])
+            out[r[0]] = {"diagnostic_id": r[1], "received_at": r[2], "contacts": contacts,
+                         "clock_offset_ms": r[4], "cadence_seconds": r[5]}
+        return out

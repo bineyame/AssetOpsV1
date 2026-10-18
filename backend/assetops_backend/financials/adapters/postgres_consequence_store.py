@@ -591,6 +591,39 @@ class PostgresConsequenceStore:
             finally:
                 conn.close()
 
+    # W2-04 commit 3: read-only heads and pending work on the caller's connection (the cold Site read's one
+    # REPEATABLE READ snapshot, `.agent/W2-04-build-spec.md` "Five API reads"). SELECT-only.
+
+    @staticmethod
+    def cold_heads_on(c: Connection, tenant_id: UUID, site_id: UUID,
+                      finding_revision_ids: list[str]) -> list[dict[str, Any]]:
+        """Per (exact selected FindingRevision, kind), its highest consequence revision. Only the FindingRevision
+        IDs selected at the cutoff are read, so no newer Finding or its money is mixed into an older cutoff; the
+        consequence is derived after its Finding, so its `created_at` is not compared with the evidence cutoff."""
+        if not finding_revision_ids:
+            return []
+        return [dict(r._mapping) for r in c.execute(text(
+            "SELECT DISTINCT ON (finding_revision_id, kind) id, finding_revision_id, episode_revision_id, "
+            "assessment_revision_id, revision_no, kind, state, reason, window_start, window_end, room_asset_id, "
+            "overlap_group, quantity_unit, quantity_low, quantity_high, amount_low, amount_high, currency, "
+            "consequence_basis_sha256, source_classification, limitation, created_at FROM cold_consequence_revision "
+            "WHERE tenant_id = :t AND site_id = :s AND finding_revision_id = ANY(:f) "
+            "ORDER BY finding_revision_id, kind, revision_no DESC"),
+            {"t": tenant_id, "s": site_id, "f": sorted({UUID(str(x)) for x in finding_revision_ids}, key=str)})]
+
+    @staticmethod
+    def cold_pending_on(c: Connection, tenant_id: UUID, site_id: UUID, lo: datetime,
+                        hi: datetime) -> list[dict[str, Any]]:
+        """Cold work overlapping the half-open window with no SUCCEEDED attempt, with its latest outcome."""
+        return [dict(r._mapping) for r in c.execute(text(
+            "SELECT w.id, w.enqueued_at, last.outcome AS last_outcome FROM cold_consequence_work w "
+            "LEFT JOIN LATERAL (SELECT a.outcome FROM cold_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+            "AND a.site_id = w.site_id AND a.work_id = w.id ORDER BY a.attempt_no DESC LIMIT 1) last ON true "
+            "WHERE w.tenant_id = :t AND w.site_id = :s AND w.window_start < :hi AND w.window_end > :lo "
+            "AND NOT EXISTS (SELECT 1 FROM cold_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+            "AND a.site_id = w.site_id AND a.work_id = w.id AND a.outcome = 'SUCCEEDED') ORDER BY w.enqueued_at, w.id"),
+            {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi})]
+
     def cold_rows(self, tenant_id: UUID, site_id: UUID) -> dict[str, list[dict[str, Any]]]:
         """Raw cold consequence rows of one Site (tests and diagnostics)."""
         scope = {"t": tenant_id, "s": site_id}

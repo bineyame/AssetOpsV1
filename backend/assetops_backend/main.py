@@ -49,10 +49,12 @@ from assetops_backend.finding_api import ACCESS_BASIS, build_finding_router, dev
 from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.source_health_api import build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
+from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
 from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
+from assetops_backend.cold_site_api import build_cold_site_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.actions.site_index import ActionIndexService
@@ -64,6 +66,7 @@ from assetops_backend.financials.composition import (
     CONSEQUENCE_UNAVAILABLE,
     AssumptionStoreUnavailable,
     build_assumption_read_service,
+    build_cold_consequence_store,
     build_consequence_history_service,
     build_consequence_read_service,
 )
@@ -386,6 +389,13 @@ def create_app(
     if cold_reads is not None:
         app.router.on_shutdown.append(cold_reads.dispose)
     app.include_router(build_cold_assessment_router(registry, cold_reads))
+    # W2-04: the five cold Site reads over the same W2-03 read service and the cold consequence store's
+    # caller-connection heads; one REPEATABLE READ snapshot per request, typed 503 without a database.
+    cold_consequences = build_cold_consequence_store(database_url()) if cold_reads is not None else None
+    if cold_consequences is not None:
+        app.router.on_shutdown.append(cold_consequences.dispose)
+    app.include_router(build_cold_site_router(
+        registry, None if cold_reads is None else ColdSiteReadService(cold_reads, cold_consequences)))
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))
