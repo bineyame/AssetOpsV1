@@ -1,12 +1,12 @@
 {
-  "revision": "4c106b60",
-  "captured_at": "2026-10-18T15:10:55.564Z",
+  "revision": "b9b79493",
+  "captured_at": "2026-10-18T16:24:54.250Z",
   "pairs": [
     {
       "screen": "cold",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold",
       "app_image": "cold-stocked-1440-app.png",
       "mock_image": "cold-stocked-1440-mock.png",
@@ -22,35 +22,35 @@
           {
             "title": "What happened · power → cooling → product conditions",
             "x": 248,
-            "y": 489,
+            "y": 473,
             "w": 1145,
             "h": 252
           },
           {
             "title": "Chamber temperature",
             "x": 248,
-            "y": 759,
+            "y": 743,
             "w": 725,
             "h": 386
           },
           {
             "title": "Needs attention",
             "x": 991,
-            "y": 759,
+            "y": 743,
             "w": 403,
             "h": 386
           },
           {
             "title": "Bounded money consequence",
             "x": 248,
-            "y": 1163,
+            "y": 1147,
             "w": 725,
             "h": 185
           },
           {
             "title": "Next step",
             "x": 991,
-            "y": 1163,
+            "y": 1147,
             "w": 403,
             "h": 185
           }
@@ -109,7 +109,7 @@
       "screen": "cold",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold",
       "app_image": "cold-stocked-390-app.png",
       "mock_image": "cold-stocked-390-mock.png",
@@ -125,35 +125,35 @@
           {
             "title": "What happened · power → cooling → product conditions",
             "x": 16,
-            "y": 961,
+            "y": 945,
             "w": 358,
             "h": 557
           },
           {
             "title": "Chamber temperature",
             "x": 16,
-            "y": 1537,
+            "y": 1521,
             "w": 358,
             "h": 277
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 1830,
+            "y": 1814,
             "w": 358,
             "h": 249
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2094,
+            "y": 2078,
             "w": 358,
             "h": 227
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 2338,
+            "y": 2322,
             "w": 358,
             "h": 182
           }
@@ -212,7 +212,7 @@
       "screen": "cold-evidence",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold-evidence",
       "app_image": "cold-evidence-stocked-1440-app.png",
       "mock_image": "cold-evidence-stocked-1440-mock.png",
@@ -235,14 +235,14 @@
             "x": 248,
             "y": 743,
             "w": 725,
-            "h": 689
+            "h": 508
           },
           {
             "title": "Most useful next evidence",
             "x": 991,
             "y": 743,
             "w": 403,
-            "h": 689
+            "h": 508
           }
         ],
         "overflowX": 0
@@ -283,7 +283,7 @@
       "screen": "cold-evidence",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold-evidence",
       "app_image": "cold-evidence-stocked-390-app.png",
       "mock_image": "cold-evidence-stocked-390-mock.png",
@@ -306,12 +306,12 @@
             "x": 16,
             "y": 972,
             "w": 358,
-            "h": 641
+            "h": 572
           },
           {
             "title": "Most useful next evidence",
             "x": 16,
-            "y": 1629,
+            "y": 1560,
             "w": 358,
             "h": 231
           }
@@ -354,7 +354,7 @@
       "screen": "cold-evidence-analysis",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
       "mock_hash": "#/cold-evidence-analysis",
       "app_image": "cold-evidence-analysis-stocked-1440-app.png",
       "mock_image": "cold-evidence-analysis-stocked-1440-mock.png",
@@ -368,15 +368,15 @@
             "title": "Accepted records behind the conclusions",
             "x": 248,
             "y": 339,
-            "w": 1160,
-            "h": 373
+            "w": 1145,
+            "h": 423
           },
           {
             "title": "How a claim limit is set",
             "x": 248,
-            "y": 730,
-            "w": 1160,
-            "h": 193
+            "y": 780,
+            "w": 1145,
+            "h": 191
           }
         ],
         "overflowX": 0
@@ -409,7 +409,7 @@
       "screen": "cold-evidence-analysis",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
       "mock_hash": "#/cold-evidence-analysis",
       "app_image": "cold-evidence-analysis-stocked-390-app.png",
       "mock_image": "cold-evidence-analysis-stocked-390-mock.png",
@@ -464,7 +464,7 @@
       "screen": "cold-financials",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold-financials",
       "app_image": "cold-financials-stocked-1440-app.png",
       "mock_image": "cold-financials-stocked-1440-mock.png",
@@ -535,7 +535,7 @@
       "screen": "cold-financials",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold-financials",
       "app_image": "cold-financials-stocked-390-app.png",
       "mock_image": "cold-financials-stocked-390-mock.png",
@@ -606,7 +606,7 @@
       "screen": "cold-assumptions",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold-assumptions",
       "app_image": "cold-assumptions-stocked-1440-app.png",
       "mock_image": "cold-assumptions-stocked-1440-mock.png",
@@ -645,7 +645,7 @@
       "screen": "cold-assumptions",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/cold-assumptions",
       "app_image": "cold-assumptions-stocked-390-app.png",
       "mock_image": "cold-assumptions-stocked-390-mock.png",
@@ -684,7 +684,7 @@
       "screen": "temperature",
       "case": "stocked",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/temperature",
       "app_image": "temperature-stocked-1440-app.png",
       "mock_image": "temperature-stocked-1440-mock.png",
@@ -755,7 +755,7 @@
       "screen": "temperature",
       "case": "stocked",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "mock_hash": "#/temperature",
       "app_image": "temperature-stocked-390-app.png",
       "mock_image": "temperature-stocked-390-mock.png",
@@ -826,7 +826,7 @@
       "screen": "cold",
       "case": "empty",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold",
       "app_image": "cold-empty-1440-app.png",
       "mock_image": "cold-empty-1440-mock.png",
@@ -929,7 +929,7 @@
       "screen": "cold",
       "case": "empty",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold",
       "app_image": "cold-empty-390-app.png",
       "mock_image": "cold-empty-390-mock.png",
@@ -945,35 +945,35 @@
           {
             "title": "What happened · power → cooling → product conditions",
             "x": 16,
-            "y": 913,
+            "y": 897,
             "w": 358,
             "h": 142
           },
           {
             "title": "Chamber temperature",
             "x": 16,
-            "y": 1073,
+            "y": 1057,
             "w": 358,
             "h": 119
           },
           {
             "title": "Needs attention",
             "x": 16,
-            "y": 1208,
+            "y": 1192,
             "w": 358,
             "h": 96
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 1320,
+            "y": 1304,
             "w": 358,
             "h": 131
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 1467,
+            "y": 1451,
             "w": 358,
             "h": 96
           }
@@ -1032,7 +1032,7 @@
       "screen": "cold-evidence",
       "case": "empty",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold-evidence",
       "app_image": "cold-evidence-empty-1440-app.png",
       "mock_image": "cold-evidence-empty-1440-mock.png",
@@ -1103,7 +1103,7 @@
       "screen": "cold-evidence",
       "case": "empty",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold-evidence",
       "app_image": "cold-evidence-empty-390-app.png",
       "mock_image": "cold-evidence-empty-390-mock.png",
@@ -1174,7 +1174,7 @@
       "screen": "cold-evidence-analysis",
       "case": "empty",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
       "mock_hash": "#/cold-evidence-analysis",
       "app_image": "cold-evidence-analysis-empty-1440-app.png",
       "mock_image": "cold-evidence-analysis-empty-1440-mock.png",
@@ -1189,12 +1189,12 @@
             "x": 248,
             "y": 339,
             "w": 1160,
-            "h": 191
+            "h": 169
           },
           {
             "title": "How a claim limit is set",
             "x": 248,
-            "y": 548,
+            "y": 526,
             "w": 1160,
             "h": 96
           }
@@ -1229,7 +1229,7 @@
       "screen": "cold-evidence-analysis",
       "case": "empty",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
       "mock_hash": "#/cold-evidence-analysis",
       "app_image": "cold-evidence-analysis-empty-390-app.png",
       "mock_image": "cold-evidence-analysis-empty-390-mock.png",
@@ -1284,7 +1284,7 @@
       "screen": "cold-financials",
       "case": "empty",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold-financials",
       "app_image": "cold-financials-empty-1440-app.png",
       "mock_image": "cold-financials-empty-1440-mock.png",
@@ -1355,7 +1355,7 @@
       "screen": "cold-financials",
       "case": "empty",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold-financials",
       "app_image": "cold-financials-empty-390-app.png",
       "mock_image": "cold-financials-empty-390-mock.png",
@@ -1426,7 +1426,7 @@
       "screen": "cold-assumptions",
       "case": "empty",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold-assumptions",
       "app_image": "cold-assumptions-empty-1440-app.png",
       "mock_image": "cold-assumptions-empty-1440-mock.png",
@@ -1465,7 +1465,7 @@
       "screen": "cold-assumptions",
       "case": "empty",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/cold-assumptions",
       "app_image": "cold-assumptions-empty-390-app.png",
       "mock_image": "cold-assumptions-empty-390-mock.png",
@@ -1504,7 +1504,7 @@
       "screen": "temperature",
       "case": "empty",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/temperature",
       "app_image": "temperature-empty-1440-app.png",
       "mock_image": "temperature-empty-1440-mock.png",
@@ -1575,7 +1575,7 @@
       "screen": "temperature",
       "case": "empty",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "mock_hash": "#/temperature",
       "app_image": "temperature-empty-390-app.png",
       "mock_image": "temperature-empty-390-mock.png",
@@ -1646,7 +1646,7 @@
       "screen": "cold",
       "case": "refused",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold",
       "app_image": "cold-refused-1440-app.png",
       "mock_image": "cold-refused-1440-mock.png",
@@ -1749,7 +1749,7 @@
       "screen": "cold",
       "case": "refused",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold",
       "app_image": "cold-refused-390-app.png",
       "mock_image": "cold-refused-390-mock.png",
@@ -1852,7 +1852,7 @@
       "screen": "cold-evidence",
       "case": "refused",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold-evidence",
       "app_image": "cold-evidence-refused-1440-app.png",
       "mock_image": "cold-evidence-refused-1440-mock.png",
@@ -1923,7 +1923,7 @@
       "screen": "cold-evidence",
       "case": "refused",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold-evidence",
       "app_image": "cold-evidence-refused-390-app.png",
       "mock_image": "cold-evidence-refused-390-mock.png",
@@ -1937,21 +1937,21 @@
           {
             "title": "What we can conclude now",
             "x": 16,
-            "y": 358,
+            "y": 348,
             "w": 358,
             "h": 119
           },
           {
             "title": "Data sources · data quality, not equipment condition",
             "x": 16,
-            "y": 495,
+            "y": 486,
             "w": 358,
             "h": 160
           },
           {
             "title": "Most useful next evidence",
             "x": 16,
-            "y": 671,
+            "y": 661,
             "w": 358,
             "h": 96
           }
@@ -1994,7 +1994,7 @@
       "screen": "cold-evidence-analysis",
       "case": "refused",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
       "mock_hash": "#/cold-evidence-analysis",
       "app_image": "cold-evidence-analysis-refused-1440-app.png",
       "mock_image": "cold-evidence-analysis-refused-1440-mock.png",
@@ -2049,7 +2049,7 @@
       "screen": "cold-evidence-analysis",
       "case": "refused",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
       "mock_hash": "#/cold-evidence-analysis",
       "app_image": "cold-evidence-analysis-refused-390-app.png",
       "mock_image": "cold-evidence-analysis-refused-390-mock.png",
@@ -2104,7 +2104,7 @@
       "screen": "cold-financials",
       "case": "refused",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold-financials",
       "app_image": "cold-financials-refused-1440-app.png",
       "mock_image": "cold-financials-refused-1440-mock.png",
@@ -2175,7 +2175,7 @@
       "screen": "cold-financials",
       "case": "refused",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold-financials",
       "app_image": "cold-financials-refused-390-app.png",
       "mock_image": "cold-financials-refused-390-mock.png",
@@ -2246,7 +2246,7 @@
       "screen": "cold-assumptions",
       "case": "refused",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold-assumptions",
       "app_image": "cold-assumptions-refused-1440-app.png",
       "mock_image": "cold-assumptions-refused-1440-mock.png",
@@ -2285,7 +2285,7 @@
       "screen": "cold-assumptions",
       "case": "refused",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/financials/assumptions?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/cold-assumptions",
       "app_image": "cold-assumptions-refused-390-app.png",
       "mock_image": "cold-assumptions-refused-390-mock.png",
@@ -2324,7 +2324,7 @@
       "screen": "temperature",
       "case": "refused",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/temperature",
       "app_image": "temperature-refused-1440-app.png",
       "mock_image": "temperature-refused-1440-mock.png",
@@ -2395,7 +2395,7 @@
       "screen": "temperature",
       "case": "refused",
       "viewport": "390x900",
-      "app_url": "http://localhost:6100/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "app_url": "http://localhost:6104/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
       "mock_hash": "#/temperature",
       "app_image": "temperature-refused-390-app.png",
       "mock_image": "temperature-refused-390-mock.png",
