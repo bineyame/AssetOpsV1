@@ -9,7 +9,6 @@ import {
   CausalTimeline,
   DataTable,
   Disclosure,
-  ExactReferences,
   KeyValues,
   MetricCard,
   MetricCards,
@@ -1179,14 +1178,7 @@ function FinancialsScreen(p: ScreenProps) {
                   const withheld = c.state === "WITHHELD";
                   return (
                     <tr key={c.id} data-consequence-row={c.kind}>
-                      <th scope="row">
-                        {`Bounded chamber temperature exposure: ${boundText(c.quantity_bounds.low)}–${boundText(c.quantity_bounds.high)} degC_min`}
-                        {[c.reason, c.limitation].filter(Boolean).map((t) => (
-                          <small className="cold-site-detail" key={t}>
-                            {plainLimitation(t!)}
-                          </small>
-                        ))}
-                      </th>
+                      <th scope="row">{`Bounded chamber temperature exposure: ${boundText(c.quantity_bounds.low)}–${boundText(c.quantity_bounds.high)} degC_min`}</th>
                       <td>Stock value × product response rule — not declared</td>
                       <td>{withheld ? "Withheld" : "Not priced"}</td>
                       <td>
@@ -1211,22 +1203,49 @@ function FinancialsScreen(p: ScreenProps) {
                 )}
               </tbody>
             </DataTable>
-            <ExactReferences
-              name="cold-site-basis-references"
-              references={exposures.flatMap((c, i) => {
-                const b = c.exact_basis;
-                const n = exposures.length > 1 ? ` ${i + 1}` : "";
-                return [
-                  { label: `Finding version${n}`, value: b.finding_revision_id },
-                  { label: `Episode version${n}`, value: b.episode_revision_id },
-                  { label: `Assessment version${n}`, value: b.assessment_revision_id },
-                  { label: `Accepted records${n}`, value: b.evidence_ids.length === 0 ? null : b.evidence_ids.join(", ") },
-                  { label: `Source check${n}`, value: b.source_gate_sha256 },
-                  { label: `Assumption versions${n}`, value: b.assumption_revision_ids.length === 0 ? null : b.assumption_revision_ids.join(", ") },
-                  { label: `Consequence basis${n}`, value: b.consequence_basis_sha256 },
-                ];
-              })}
-            />
+            {exposures.length === 0 && start === null ? null : (
+              <Disclosure summary="Basis details" name="cold-site-basis-details">
+                {exposures.map((c, i) => {
+                  const bs = c.exact_basis;
+                  const code = (v: string | null) => (v === null ? NOT_RECORDED : <code data-vocabulary-exempt="source-reference">{v}</code>);
+                  const rows: [string, ReactNode][] = [
+                    ["Quantity bounds", `${boundText(c.quantity_bounds.low)}–${boundText(c.quantity_bounds.high)} degC_min`],
+                    ["Reason", c.reason === null ? NOT_RECORDED : plainLimitation(c.reason)],
+                    ["Limitation", c.limitation === null ? NOT_RECORDED : plainLimitation(c.limitation)],
+                    ["Finding version", code(bs.finding_revision_id)],
+                    ["Episode version", code(bs.episode_revision_id)],
+                    ["Assessment version", code(bs.assessment_revision_id)],
+                    ["Accepted records", bs.evidence_ids.length === 0 ? NOT_RECORDED : code(bs.evidence_ids.join(", "))],
+                    ["Source gate", code(bs.source_gate_sha256)],
+                    ["Assumption versions", bs.assumption_revision_ids.length === 0 ? NOT_RECORDED : code(bs.assumption_revision_ids.join(", "))],
+                    ["Consequence basis", code(bs.consequence_basis_sha256)],
+                  ];
+                  return (
+                    <div className="cold-site-group" key={c.id} data-basis-detail={c.id}>
+                      <p>
+                        <strong>{exposures.length > 1 ? `Product exposure ${i + 1}` : "Product exposure"}</strong>
+                      </p>
+                      <dl className="exact-references__list">
+                        {rows.map(([label, v]) => (
+                          <div className="exact-references__row" key={label}>
+                            <dt>{label}</dt>
+                            <dd>{v}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  );
+                })}
+                {start === null ? null : (
+                  <div className="cold-site-group" data-basis-detail="BACKUP_GAP">
+                    <p>
+                      <strong>Observed backup start failure</strong>
+                    </p>
+                    <p>No stored consequence or exact cost basis for this row.</p>
+                  </div>
+                )}
+              </Disclosure>
+            )}
           </>
         )}
       </Panel>

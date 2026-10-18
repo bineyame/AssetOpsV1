@@ -670,7 +670,17 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const bridge = panelTitled("What happened → what it means in money");
     expect(text(bridge)).toContain("Bounded chamber temperature exposure: 50–Unknown bound degC_min");
     expect(text(bridge)).toContain("Observed backup start failure");
-    expect(bridge.querySelector("details[data-exact-references]")?.textContent).toContain(id(911));
+    // Run-7: one closed 'Basis details' disclosure holds the exact basis; closed cells carry no reason or ID.
+    const basis = bridge.querySelectorAll("details");
+    expect(basis).toHaveLength(1);
+    expect((basis[0] as HTMLDetailsElement).open).toBe(false);
+    expect(basis[0].querySelector("summary")?.textContent).toBe("Basis details");
+    expect(basis[0].textContent).toContain(id(911));
+    expect(basis[0].textContent).toContain("The excursion has no recorded end, so its total exposure has no upper bound.");
+    expect(text(basis[0])).toContain("No stored consequence or exact cost basis for this row.");
+    const table = bridge.querySelector("table")!;
+    expect(text(table)).not.toContain("The excursion has no recorded end");
+    expect(text(table)).not.toContain(id(911));
     expect(text(panelTitled("Assumptions in use"))).toContain("Not declared");
     expect(screen.getByRole("link", { name: "Review assumptions" }).getAttribute("href")).toBe(`/sites/COLD-001/financials/assumptions${Q}`);
     expect(text(panelTitled("Not included"))).toContain("Chamber temperature alone does not establish spoilage or stock loss.");
