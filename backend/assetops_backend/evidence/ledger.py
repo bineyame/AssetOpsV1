@@ -43,6 +43,8 @@ from assetops_contracts.source_envelope_v4 import (
 
 #: S3's first analytic consumes this queue; S2-02 only enqueues (questions-1 Q4).
 RECOMPUTE_DOMAIN = "dispatch"
+#: W2-03: a new accepted v4 record bound to a `cold-roles-1` role enqueues the cold assessment job.
+COLD_RECOMPUTE_DOMAIN = "cold_chain"
 
 ACKNOWLEDGED_SNAPSHOT_SCHEMA = "assetops.acquisition-snapshot/1"
 

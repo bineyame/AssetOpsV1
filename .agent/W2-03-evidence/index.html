@@ -1,0 +1,73 @@
+<!doctype html><meta charset="utf-8"><title>W1 fidelity pairs</title><style>body{font:13px system-ui;margin:16px}.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}img{width:100%;border:1px solid #ccc}figure{margin:0}</style>
+<p>Revision 8facadf7 · captured 2026-10-18T10:30:48.832Z</p><section><h2>temperature (stocked) · 1440x1000</h2>
+<p>App: Temperature with operating context | Excursion context | How each limit is set<br>Mock: Temperature with operating context | Excursion context | Claim boundary</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance</figcaption><img src="temperature-stocked-1440-app.png"></figure>
+<figure><figcaption>Mock #/temperature</figcaption><img src="temperature-stocked-1440-mock.png"></figure></div></section>
+<section><h2>temperature (stocked) · 390x900</h2>
+<p>App: Temperature with operating context | Excursion context | How each limit is set<br>Mock: Temperature with operating context | Excursion context | Claim boundary</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance</figcaption><img src="temperature-stocked-390-app.png"></figure>
+<figure><figcaption>Mock #/temperature</figcaption><img src="temperature-stocked-390-mock.png"></figure></div></section>
+<section><h2>temperature (empty) · 1440x1000</h2>
+<p>App: Temperature with operating context | Excursion context | How each limit is set<br>Mock: Temperature with operating context | Excursion context | Claim boundary</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z</figcaption><img src="temperature-empty-1440-app.png"></figure>
+<figure><figcaption>Mock #/temperature</figcaption><img src="temperature-empty-1440-mock.png"></figure></div></section>
+<section><h2>temperature (empty) · 390x900</h2>
+<p>App: Temperature with operating context | Excursion context | How each limit is set<br>Mock: Temperature with operating context | Excursion context | Claim boundary</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z</figcaption><img src="temperature-empty-390-app.png"></figure>
+<figure><figcaption>Mock #/temperature</figcaption><img src="temperature-empty-390-mock.png"></figure></div></section>
+<section><h2>temperature (refused) · 1440x1000</h2>
+<p>App: Temperature with operating context | Excursion context | How each limit is set<br>Mock: Temperature with operating context | Excursion context | Claim boundary</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z</figcaption><img src="temperature-refused-1440-app.png"></figure>
+<figure><figcaption>Mock #/temperature</figcaption><img src="temperature-refused-1440-mock.png"></figure></div></section>
+<section><h2>temperature (refused) · 390x900</h2>
+<p>App: Temperature with operating context | Excursion context | How each limit is set<br>Mock: Temperature with operating context | Excursion context | Claim boundary</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z</figcaption><img src="temperature-refused-390-app.png"></figure>
+<figure><figcaption>Mock #/temperature</figcaption><img src="temperature-refused-390-mock.png"></figure></div></section>
+<section><h2>coldbackup (stocked) · 1440x1000</h2>
+<p>App: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step<br>Mock: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance/backup</figcaption><img src="coldbackup-stocked-1440-app.png"></figure>
+<figure><figcaption>Mock #/coldbackup</figcaption><img src="coldbackup-stocked-1440-mock.png"></figure></div></section>
+<section><h2>coldbackup (stocked) · 390x900</h2>
+<p>App: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step<br>Mock: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance/backup</figcaption><img src="coldbackup-stocked-390-app.png"></figure>
+<figure><figcaption>Mock #/coldbackup</figcaption><img src="coldbackup-stocked-390-mock.png"></figure></div></section>
+<section><h2>coldbackup (empty) · 1440x1000</h2>
+<p>App: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step<br>Mock: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z</figcaption><img src="coldbackup-empty-1440-app.png"></figure>
+<figure><figcaption>Mock #/coldbackup</figcaption><img src="coldbackup-empty-1440-mock.png"></figure></div></section>
+<section><h2>coldbackup (empty) · 390x900</h2>
+<p>App: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step<br>Mock: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z</figcaption><img src="coldbackup-empty-390-app.png"></figure>
+<figure><figcaption>Mock #/coldbackup</figcaption><img src="coldbackup-empty-390-mock.png"></figure></div></section>
+<section><h2>coldbackup (refused) · 1440x1000</h2>
+<p>App: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step<br>Mock: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z</figcaption><img src="coldbackup-refused-1440-app.png"></figure>
+<figure><figcaption>Mock #/coldbackup</figcaption><img src="coldbackup-refused-1440-mock.png"></figure></div></section>
+<section><h2>coldbackup (refused) · 390x900</h2>
+<p>App: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step<br>Mock: What the chain shows | Reconstructed event chain | Backup event chains | Evidence by causal step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/performance/backup?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z</figcaption><img src="coldbackup-refused-390-app.png"></figure>
+<figure><figcaption>Mock #/coldbackup</figcaption><img src="coldbackup-refused-390-mock.png"></figure></div></section>
+<section><h2>cold-finding (stocked) · 1440x1000</h2>
+<p>App: Bounded conclusion | Operational context | Recommended next step<br>Mock: Bounded conclusion | Operational context | Recommended next step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c</figcaption><img src="cold-finding-stocked-1440-app.png"></figure>
+<figure><figcaption>Mock #/cold-finding</figcaption><img src="cold-finding-stocked-1440-mock.png"></figure></div></section>
+<section><h2>cold-finding (stocked) · 390x900</h2>
+<p>App: Bounded conclusion | Operational context | Recommended next step<br>Mock: Bounded conclusion | Operational context | Recommended next step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-00000000017c</figcaption><img src="cold-finding-stocked-390-app.png"></figure>
+<figure><figcaption>Mock #/cold-finding</figcaption><img src="cold-finding-stocked-390-mock.png"></figure></div></section>
+<section><h2>cold-finding (refused) · 1440x1000</h2>
+<p>App: Bounded conclusion | Operational context | Recommended next step<br>Mock: Bounded conclusion | Operational context | Recommended next step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-0000000fffff</figcaption><img src="cold-finding-refused-1440-app.png"></figure>
+<figure><figcaption>Mock #/cold-finding</figcaption><img src="cold-finding-refused-1440-mock.png"></figure></div></section>
+<section><h2>cold-finding (refused) · 390x900</h2>
+<p>App: Bounded conclusion | Operational context | Recommended next step<br>Mock: Bounded conclusion | Operational context | Recommended next step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-0000000fffff</figcaption><img src="cold-finding-refused-390-app.png"></figure>
+<figure><figcaption>Mock #/cold-finding</figcaption><img src="cold-finding-refused-390-mock.png"></figure></div></section>
+<section><h2>cold-finding-excursion (stocked) · 1440x1000</h2>
+<p>App: Bounded conclusion | Temperature | Recommended next step<br>Mock: Bounded conclusion | Temperature | Recommended next step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-000000000176</figcaption><img src="cold-finding-excursion-stocked-1440-app.png"></figure>
+<figure><figcaption>Mock #/cold-finding-excursion</figcaption><img src="cold-finding-excursion-stocked-1440-mock.png"></figure></div></section>
+<section><h2>cold-finding-excursion (stocked) · 390x900</h2>
+<p>App: Bounded conclusion | Temperature | Recommended next step<br>Mock: Bounded conclusion | Temperature | Recommended next step</p>
+<div class="pair"><figure><figcaption>App http://localhost:6101/sites/COLD-LAB-001/findings/00000003-0000-4000-8000-000000000176</figcaption><img src="cold-finding-excursion-stocked-390-app.png"></figure>
+<figure><figcaption>Mock #/cold-finding-excursion</figcaption><img src="cold-finding-excursion-stocked-390-mock.png"></figure></div></section>

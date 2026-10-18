@@ -271,6 +271,9 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   "cold-foundation": "Cold room · stored configuration for the period shown",
   "cold-readiness": "Definition, commissioning and gateway readiness",
   "cold-sld": "Cold room · single line diagram",
+  // W2-03: the cold Performance screens' mock subtitles (no illustrative values in them).
+  temperature: "Performance · temperature policy and bounded exposure",
+  coldbackup: "Performance · grid outage to cooling-service recovery",
   // W1-F5a: Health and the carry-1 site-level screens (sitefindings, financials, assumptions).
   health: "Health · site-level asset-condition summary",
   sitefindings: "Findings · conclusions about this site and the limits of their evidence",

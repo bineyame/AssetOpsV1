@@ -17,6 +17,8 @@ import { Link } from "react-router-dom";
 import { DataTable } from "../ui";
 import { readablePeriod, readableTime } from "./findingPresentation";
 import type { CoverageInput, SegmentInputs, Span, TimeWindow } from "./siteAnalyticsClient";
+import type { ColdTemperatureRead } from "./coldAssessmentClient";
+import { date, deg, hm, num as coldNum, range } from "./coldFormat";
 
 // --- shared -----------------------------------------------------------------------
 
@@ -867,3 +869,120 @@ export function CoverageByInput({ inputs, unobserved, words }: CoverageByInputPr
     </div>
   );
 }
+
+/* ---------- W2-03: cold temperature chart (policy band, sampled points, explicit gaps) ---------- */
+
+const CHART_W = 640;
+const CHART_H = 220;
+const PAD = { l: 40, r: 12, t: 12, b: 26 };
+const BRIDGE_MS = 10 * 60 * 1000;
+
+export function ColdTemperatureChart({ read, label }: { read: ColdTemperatureRead; label: string }) {
+  const from = date(read.window.from);
+  const to = date(read.window.to);
+  const points = read.points
+    .map((p) => ({ t: date(p.at), v: coldNum(p.value), p }))
+    .filter((x): x is { t: Date; v: number; p: (typeof read.points)[number] } => x.t !== null && x.v !== null);
+  if (from === null || to === null || points.length === 0) {
+    return (
+      <p className="not-available-yet v69-chart-note" data-panel-gap="cold-temperature-chart">
+        No accepted chamber probe reading in this window, so no temperature line is drawn.
+      </p>
+    );
+  }
+  const low = coldNum(read.policy?.low_deg_c);
+  const high = coldNum(read.policy?.high_deg_c);
+  const values = [...points.map((x) => x.v), ...(low === null ? [] : [low]), ...(high === null ? [] : [high])];
+  const yMin = Math.floor(Math.min(...values) - 1);
+  const yMax = Math.ceil(Math.max(...values) + 1);
+  const x = (t: Date) => PAD.l + ((t.getTime() - from.getTime()) / (to.getTime() - from.getTime())) * (CHART_W - PAD.l - PAD.r);
+  const y = (v: number) => PAD.t + ((yMax - v) / (yMax - yMin)) * (CHART_H - PAD.t - PAD.b);
+  const segments: string[] = [];
+  let current: string[] = [];
+  points.forEach((pt, i) => {
+    if (i > 0 && pt.t.getTime() - points[i - 1].t.getTime() > BRIDGE_MS) {
+      segments.push(current.join(" "));
+      current = [];
+    }
+    current.push(`${x(pt.t).toFixed(1)},${y(pt.v).toFixed(1)}`);
+  });
+  segments.push(current.join(" "));
+  const ticks: Date[] = [];
+  for (let t = Math.ceil(from.getTime() / 900000) * 900000; t < to.getTime(); t += 900000) ticks.push(new Date(t));
+  const step = yMax - yMin > 8 ? 2 : 1;
+  const yTicks: number[] = [];
+  for (let v = Math.ceil(yMin / step) * step; v <= yMax; v += step) yTicks.push(v);
+  // The confirmed excursion's span, from its latest possible start to its latest end (or the window end while open).
+  const x0 = read.excursions[0] === undefined ? null : date(read.excursions[0].start_bounds.latest ?? read.excursions[0].start_bounds.earliest);
+  const x1 = read.excursions[0] === undefined ? null : (date(read.excursions[0].end_bounds.latest) ?? to);
+  const excursion =
+    x0 === null || x1 === null
+      ? null
+      : {
+          x0: x(x0),
+          x1: x(x1),
+          label: `${read.excursions[0].direction === "LOW" ? "Below" : "Above"} policy ${range(read.excursions[0].duration_bounds.low, read.excursions[0].duration_bounds.high, "min").replace(/^At least/, "at least")}`,
+        };
+  return (
+    <figure className="assessment-graphic cold-chart" data-cold-chart="temperature">
+      <svg viewBox={`0 0 ${CHART_W} ${CHART_H}`} role="img" aria-label={label} preserveAspectRatio="xMidYMid meet">
+        {low !== null && high !== null ? (
+          <rect className="cold-chart__band" x={PAD.l} y={y(high)} width={CHART_W - PAD.l - PAD.r} height={Math.max(0, y(low) - y(high))} />
+        ) : null}
+        {read.gaps.map((gap) => {
+          const a = date(gap.start);
+          const b = date(gap.end);
+          if (a === null || b === null) return null;
+          return (
+            <rect key={`${gap.start}-${gap.end}`} className="cold-chart__gap" data-cold-gap-shade={gap.start ?? ""} x={x(a)} y={PAD.t} width={Math.max(2, x(b) - x(a))} height={CHART_H - PAD.t - PAD.b}>
+              <title>{`No usable reading ${hm(gap.start)}–${hm(gap.end)}`}</title>
+            </rect>
+          );
+        })}
+        {yTicks.map((v) => (
+          <g key={`y-${v}`}>
+            <line className="cold-chart__grid" x1={PAD.l} x2={CHART_W - PAD.r} y1={y(v)} y2={y(v)} />
+            <text className="cold-chart__axis" x={PAD.l - 4} y={y(v) + 4} textAnchor="end">{`${v}°`}</text>
+          </g>
+        ))}
+        {excursion === null ? null : (
+          <g data-cold-excursion-shade>
+            <rect className="cold-chart__excursion" x={excursion.x0} y={PAD.t} width={Math.max(2, excursion.x1 - excursion.x0)} height={CHART_H - PAD.t - PAD.b} />
+            <text className="cold-chart__excursion-label" x={(excursion.x0 + excursion.x1) / 2} y={PAD.t + 12} textAnchor="middle">
+              {excursion.label}
+            </text>
+          </g>
+        )}
+        {[low, high].map((v) =>
+          v === null ? null : <line key={`limit-${v}`} className="cold-chart__limit" x1={PAD.l} x2={CHART_W - PAD.r} y1={y(v)} y2={y(v)} />,
+        )}
+        {segments.map((s) => (
+          <polyline key={s} className="cold-chart__line" points={s} />
+        ))}
+        {points.map((pt) => (
+          <circle
+            key={pt.p.evidence_id}
+            className={high !== null && pt.v > high ? "cold-chart__point cold-chart__point--out" : low !== null && pt.v < low ? "cold-chart__point cold-chart__point--out" : "cold-chart__point"}
+            cx={x(pt.t)}
+            cy={y(pt.v)}
+            r={3.5}
+            data-cold-point={pt.p.at}
+          >
+            <title>{`${hm(pt.p.at)} · ${deg(pt.v)}`}</title>
+          </circle>
+        ))}
+        {ticks.map((t) => (
+          <text key={t.toISOString()} className="cold-chart__axis" x={x(t)} y={CHART_H - 8} textAnchor="middle">
+            {hm(t.toISOString())}
+          </text>
+        ))}
+      </svg>
+      <figcaption className="cold-chart__legend">
+        <span className="cold-chart__key cold-chart__key--line">Chamber temperature</span>
+        <span className="cold-chart__key cold-chart__key--band">Policy band</span>
+        {read.gaps.length > 0 ? <span className="cold-chart__key cold-chart__key--gap">No usable reading</span> : null}
+      </figcaption>
+    </figure>
+  );
+}
+

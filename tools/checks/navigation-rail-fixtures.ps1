@@ -118,6 +118,7 @@ function Invoke-NavigationRailFixturesCheck {
     $component = "frontend/src/ui/UnavailableEntry.tsx"
     $frames = "frontend/src/shell/SiteAnalyticsFrames.tsx"
     $index = "frontend/src/sites/SiteFindingIndex.tsx"
+    $cold = "frontend/src/sites/ColdAssessmentViews.tsx"
     try {
         $inPageCases = @(
             @{ Name = "baseline: the real tree passes"; Expect = $null; Modules = $modules },
@@ -133,6 +134,10 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '') },
             @{ Name = "Alternatives loses its declared unavailable entry"; Expect = "the W1 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames 'label: "Alternatives", unavailable: true' 'label: "Alternatives", href: "/x"') },
+            @{ Name = "the cold Cooling entry is dropped"; Expect = "the W1 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Cooling" />' '') },
+            @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Recommendation" />' '') },
             @{ Name = "a lens chip with a computed label"; Expect = "non-literal label";
                Modules = (Set-ModuleLines $modules $index '<UnavailableChip label="Risks" />' '<UnavailableChip label={lens} />') },
             @{ Name = "the component is missing (fail closed)"; Expect = "check is vacuous";

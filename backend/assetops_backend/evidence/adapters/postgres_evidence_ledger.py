@@ -25,7 +25,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Callable, Sequence
 from uuid import UUID, uuid4
 
@@ -34,6 +34,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
 
 from assetops_backend.evidence.ledger import (
+    COLD_RECOMPUTE_DOMAIN,
     RECOMPUTE_DOMAIN,
     Accepted,
     AcceptedAsBasis,
@@ -53,6 +54,7 @@ from assetops_backend.evidence.publication import (
     Registered,
 )
 from assetops_backend.evidence.source_provenance import LinkRow
+from assetops_backend.sites.binding_roles import COLD_ROLES_1
 from assetops_contracts.ingestion_receipt_v2 import (
     IngestionReceiptV2,
     ReceiptCounts,
@@ -60,6 +62,10 @@ from assetops_contracts.ingestion_receipt_v2 import (
     ReceiptRejection,
 )
 from assetops_contracts.source_envelope_v4 import event_identity_sha256
+
+#: W2-03: accepted v4 roles that make a Site's cold assessment stale (the `cold-roles-1` channel roles).
+COLD_ROLE_NAMES = frozenset(r.role for r in COLD_ROLES_1)
+_COLD_BRIDGE = timedelta(minutes=10)
 
 #: W2-00: the only unique violations a savepoint turns into a reread; any other integrity error propagates.
 _COLLISION_INDEXES = frozenset({"accepted_event_identity_unique", "accepted_ev_start_unique"})
@@ -444,6 +450,8 @@ class PostgresEvidenceLedger:
             tally = {"ACCEPTED": 0, "DUPLICATE": 0, "REJECTED": 0, "CONFLICT": 0}
             accepted: list[Accepted] = []
             first_new: UUID | None = None
+            cold: list[Accepted] = []
+            first_cold: UUID | None = None
             for ordinal in range(start, end):
                 decision = decide_one(ordinal, envelopes[ordinal])
                 outcome, evidence_id, rejection_id = self._persist(c, row, decision, decided_at)
@@ -452,6 +460,11 @@ class PostgresEvidenceLedger:
                 if outcome == "ACCEPTED" and not decision.is_v4:  # type: ignore[union-attr]
                     accepted.append(decision)  # type: ignore[arg-type]
                     first_new = first_new or evidence_id
+                # W2-03: only a new accepted v4 record bound to a cold role enqueues cold work (a late one too);
+                # a duplicate, conflict or rejected ordinal is never ACCEPTED here and enqueues nothing.
+                if outcome == "ACCEPTED" and decision.is_v4 and decision.binding.role in COLD_ROLE_NAMES:  # type: ignore[union-attr]
+                    cold.append(decision)  # type: ignore[arg-type]
+                    first_cold = first_cold or evidence_id
                 c.execute(
                     text(
                         "INSERT INTO ingestion_disposition (batch_id, ordinal, tenant_id, site_id, message_id, "
@@ -481,6 +494,10 @@ class PostgresEvidenceLedger:
             window = recompute_window(accepted)
             if window is not None:
                 self._coalesce_job(c, row.tenant_id, row.site_id, window, first_new, decided_at)
+            cold_window = recompute_window(cold)
+            if cold_window is not None:
+                self._coalesce_job(c, row.tenant_id, row.site_id, cold_window, first_cold, decided_at,
+                                   domain=COLD_RECOMPUTE_DOMAIN)
             return "COMPLETED" if done else "IN_PROGRESS"
 
         return self._run(work, write=True)
@@ -605,11 +622,12 @@ class PostgresEvidenceLedger:
         )
         return rejection_id
 
-    def _coalesce_job(self, c, tenant_id, site_id, window, cause: UUID | None, now: datetime) -> None:
+    def _coalesce_job(self, c, tenant_id, site_id, window, cause: UUID | None, now: datetime, *,
+                      domain: str = RECOMPUTE_DOMAIN) -> None:
         start, end = window
         c.execute(
             text("SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || ':' || :d, 0))"),
-            {"site": site_id, "d": RECOMPUTE_DOMAIN},
+            {"site": site_id, "d": domain},
         )
         job = c.execute(
             text(
@@ -617,17 +635,25 @@ class PostgresEvidenceLedger:
                 "AND status = 'PENDING' AND window_start <= :end AND window_end >= :start "
                 "ORDER BY window_start LIMIT 1 FOR UPDATE"
             ),
-            {"site": site_id, "d": RECOMPUTE_DOMAIN, "start": start, "end": end},
+            # W2-03: cold work coalesces across the cold rules' ten-minute bridge, so a probe series published
+            # tick by tick stays one bracketed work window instead of one window per five-minute batch.
+            {"site": site_id, "d": domain, "start": start - _COLD_BRIDGE if domain == COLD_RECOMPUTE_DOMAIN else start,
+             "end": end + _COLD_BRIDGE if domain == COLD_RECOMPUTE_DOMAIN else end},
         ).first()
         if job is None:
+            # A cold job's ID comes from Postgres, not the process `uuid4`: the cold enqueue (W2-03) must not
+            # consume the identifier sequence the registered W2-02 replays pin their accepted IDs to.
             c.execute(
                 text(
                     "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, "
                     "cause_evidence_id, status, available_at, created_at) "
-                    "VALUES (:id, :t, :site, :d, :start, :end, :cause, 'PENDING', :now, :now)"
+                    + ("VALUES (gen_random_uuid(), " if domain == COLD_RECOMPUTE_DOMAIN else "VALUES (:id, ")
+                    + ":t, :site, :d, :start, :end, :cause, 'PENDING', :now, :now)"
                 ),
-                {"id": uuid4(), "t": tenant_id, "site": site_id, "d": RECOMPUTE_DOMAIN, "start": start,
-                 "end": end, "cause": cause, "now": now},
+                {"id": uuid4(), "t": tenant_id, "site": site_id, "d": domain, "start": start,
+                 "end": end, "cause": cause, "now": now} if domain != COLD_RECOMPUTE_DOMAIN else
+                {"t": tenant_id, "site": site_id, "d": domain, "start": start, "end": end, "cause": cause,
+                 "now": now},
             )
             return
         # S4-07: widening also lifts `available_at` to at least the decision instant. A scheduled lease's cutoff
@@ -969,17 +995,7 @@ class PostgresEvidenceLedger:
     # resolver to name as broken, never silently dropped. Another tenant's rows are never reported.
 
     def link_rows(self, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[LinkRow]:
-        def work(c: Connection) -> list[LinkRow]:
-            rows = c.execute(_LINKS, {"t": tenant_id, "s": site_id, "ids": [str(i) for i in evidence_ids]}).all()
-            return [LinkRow(
-                requested_id=r.requested_id, in_scope=r.in_scope, in_tenant_elsewhere=r.in_tenant_elsewhere,
-                batch_id=r.batch_id,
-                evidence_gateway_source=None if r.e_gateway is None else (r.e_gateway, r.e_source),
-                batch=_commitment(r, "b"), link_publication_id=r.l_pub, link=_commitment(r, "l"),
-                publication=_commitment(r, "p"), source_class=r.source_class, fixture_id=r.fixture_id,
-                fixture_version=r.fixture_version, run_id=r.run_id, run_identity_sha256=r.run_identity_sha256)
-                for r in rows]
-        return self._run(work)
+        return self._run(lambda c: link_rows_on(c, tenant_id, site_id, evidence_ids))
 
     def finding_revision_evidence(self, tenant_id: UUID, site_id: UUID,
                                   finding_revision_id: UUID) -> list[str] | None:
@@ -1051,6 +1067,20 @@ _COLD_REPLAY_PUBLICATIONS = text(
     "LEFT JOIN ingestion_batch b ON b.id = l.batch_id "
     "WHERE p.tenant_id = :t AND p.site_id = :s AND p.source_class = 'REGISTERED_SIMULATION' AND p.run_id = :run "
     "ORDER BY p.recorded_at, p.id")
+
+
+def link_rows_on(c: Connection, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[LinkRow]:
+    """S4-05 link rows read on the caller's connection (W2-03: the cold assessment selects its source gate in the
+    same transaction as its evidence)."""
+    rows = c.execute(_LINKS, {"t": tenant_id, "s": site_id, "ids": [str(i) for i in evidence_ids]}).all()
+    return [LinkRow(
+        requested_id=r.requested_id, in_scope=r.in_scope, in_tenant_elsewhere=r.in_tenant_elsewhere,
+        batch_id=r.batch_id,
+        evidence_gateway_source=None if r.e_gateway is None else (r.e_gateway, r.e_source),
+        batch=_commitment(r, "b"), link_publication_id=r.l_pub, link=_commitment(r, "l"),
+        publication=_commitment(r, "p"), source_class=r.source_class, fixture_id=r.fixture_id,
+        fixture_version=r.fixture_version, run_id=r.run_id, run_identity_sha256=r.run_identity_sha256)
+        for r in rows]
 
 
 _LINKS = text(

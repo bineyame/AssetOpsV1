@@ -170,10 +170,13 @@ class TestAdmission:
         assert power["record_kind"] == "POWER_LOSS"
         assert (start["session_id"], start["connector_id"], str(start["asset_id"])) == (
             "sess-1", ASSET_CODE, v4.kit.binding(*TEMPLATE)["asset_id"])
-        assert rows(engine, "SELECT * FROM recompute_job") == []
+        # W2-00 ruling 5 kept: v4 records enqueue no dispatch job. W2-03: a v4 record bound to a cold-roles-1
+        # role (the chamber probe here) enqueues cold work only.
+        assert rows(engine, "SELECT * FROM recompute_job WHERE domain <> 'cold_chain'") == []
         v3 = v4.submit(v4.kit.pv(1, first=50))
         assert decisions(v3.receipt) == [("ACCEPTED", None, None)]
-        assert [j["domain"] for j in rows(engine, "SELECT domain FROM recompute_job")] == ["dispatch"]
+        assert [j["domain"] for j in rows(engine, "SELECT domain FROM recompute_job "
+                                                  "WHERE domain <> 'cold_chain'")] == ["dispatch"]
 
     def test_a_valid_header_batch_completes_with_one_persisted_ordinal_refusal_each(self, v4, engine) -> None:
         def v3_event(seq):
@@ -551,7 +554,7 @@ class TestMigration0020:
             evidence_count = len(rows(engine, "SELECT 1 FROM accepted_evidence"))
             with pytest.raises(DBAPIError, match=refused):
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0021_w2_cold_config"
+            assert head(engine) == "0022_w2_cold_assessment"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
@@ -599,7 +602,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0021_w2_cold_config" and v3_reads() == before_reads
+        assert head(engine) == "0022_w2_cold_assessment" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])

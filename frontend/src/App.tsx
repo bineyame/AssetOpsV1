@@ -68,6 +68,7 @@ import {
   type SiteFoundationClient,
 } from "./sites/siteFoundationClient";
 import { createColdFoundationClient, type ColdFoundationClient } from "./sites/coldFoundationClient";
+import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
@@ -97,6 +98,7 @@ const defaultSiteOverview = createSiteOverviewClient();
 const defaultSiteAnalytics = createSiteAnalyticsClient();
 const defaultSiteFoundation = createSiteFoundationClient();
 const defaultColdFoundation = createColdFoundationClient();
+const defaultColdAssessment = createColdAssessmentClient();
 
 /**
  * Route table.
@@ -162,6 +164,8 @@ export interface AppProps {
   siteFoundation?: SiteFoundationClient;
   /** W2-01: the selected cold-chain configuration read, used when the Site is COLDCHAIN. */
   coldFoundation?: ColdFoundationClient;
+  /** W2-03: the selected cold assessment reads, used for a COLDCHAIN Site's Performance and Finding routes. */
+  coldAssessment?: ColdAssessmentClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -184,6 +188,7 @@ export function App({
   siteFindingIndex,
   siteFoundation = defaultSiteFoundation,
   coldFoundation = defaultColdFoundation,
+  coldAssessment = defaultColdAssessment,
   siteTemplateLineage,
   now,
   coldScenarios,
@@ -277,6 +282,7 @@ export function App({
                   detail={siteDetail}
                   analytics={siteAnalytics}
                   sitesPath={SITES_PATH}
+                  coldAssessment={coldAssessment}
                 />
               }
             />
@@ -304,7 +310,7 @@ export function App({
             <Route
               key={path}
               path={path}
-              element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />}
+              element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} />}
             />
           ))}
           <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} />} />

@@ -146,3 +146,31 @@ missing transfer step, and that no product/spoilage claim appears. Rulings neede
 Added in commit 5: deviations 16-21 above. Specifically, the mock's Cooling subtab and the cold Finding Recommendation tab
 are withheld (the unbuilt-entry guard needs a ruling), and the mock row "Loading / batch" renders "Stock loading / batch"
 (capture tool treats "Loading" as a loading page). Architect rulings requested: 1, 16, 18.
+
+## Fix round (review `.agent/W2-03-review.md`: RETURN, 2 Medium, 5 Low; q3 rulings for deviations 16 and 18)
+
+Commit `8facadf7` (code and tests) plus the recapture commit. Deviations 16 and 18 are now **applied as ruled**; their
+"pending" status above is superseded.
+
+| Item | Change | Proof |
+|---|---|---|
+| M1 | `establishes(step, chain)` says "after recovery" for the probe only when `coolingRunning(chain)`; otherwise "Chamber temperature after the compressor record". | `coldRoutes.test.tsx`: backup-failed has no "after recovery"; a chain with a RUNNING compressor does. |
+| M2 | `attest(built, unattested=, until=)`. New `test_unattested_probe_source_excluded_through_intake[no-attestation, attested-until-19:25]`: probe readings arrive through real intake; every unattested probe reading links `EXCLUDED/CLOCK_UNATTESTED`, none `SUPPORT`, and `known_points` equals the attested count (< 13). | Passes on Postgres (52 s with 3 neighbours). |
+| M2 unbound | **Not drivable through intake.** S2 refuses a record outside its binding period at acceptance (`evidence/ledger.py:375` `_outside_periods` -> `OUTSIDE_BINDING_PERIOD`), so no accepted row can carry that state; the adapter's `in_force` check is defence in depth. Stays a pure-rule test (`test_suspect_clock_skew_unbound_excluded`). Recorded as a deviation. | n/a |
+| Dev 16 | Cooling (Temperature / Cooling / Backup) and Recommendation (Overview / Recommendation) render through `UnavailableTab` as "X · Not available yet" text: no link, tab stop, handler or role. Guard `Get-InPageUnavailableEntryFailures` expected list extended by exactly `Cooling` and `Recommendation`; two new fixtures (drop either) prove it can fail. | `coldRoutes` q3 tests (order, aria-label, no focusable/role/disabled, no cooling/recommendation href, selected live tab); `navigation-truthfulness` passes with new fixtures. |
+| Dev 18 | Panel title "How each limit is set" (one `APPROVED_TITLE_CHANGES` entry `temperature:3`); columns "Power to compressor" / "Compressor response"; source label "Generated test data" with adjacent "From a registered test run; not readings from physical equipment." Source class stays in the labelled detail. | `coldRoutes`: title, all eight column labels in order, label plus adjacent sentence, no "Claim boundary" / "Registered simulation". The vocabulary-scan allowance is now only that one ruled sentence verbatim (its word "run" is on the W1 list); the old four-word allowance is gone. |
+| L3 | "Above policy · At least 45 min". | asserted |
+| L4 | Result chip: red (`cold-result--danger`) for OBSERVED_FAILURE, amber for CONTRADICTORY, neutral otherwise (local CSS around the neutral Badge; shared Badge untouched). | asserted on class |
+| L5 | Late-reading replay asserts 19:25 present, HIGH (> 4.0) and SUPPORT, 19:20 absent. | replay test |
+| L6 | `test_low_excursion_peak_is_minimum` (peak 0.9, durations 20 and 30, BOUNDED). | passes |
+| L7 | `cold_reads.py` docstring names `postgres_assessment_store.py:ColdReadService`. | n/a |
+
+Captures: all nine pairs recaptured at 1440 and 390 (`W1_REVISION` = fix revision), 108/108 claims, same API/web ports 9701/6101,
+CDP 9712, on a private test DB seeded by the real backup-failed replay (throwaway seed test, deleted; DB dropped, servers stopped).
+Viewed: `coldbackup-stocked` 1440 (tab row, plain columns, red chip, probe row) and `cold-finding-stocked` 390 (Recommendation text-only entry).
+The height table above is not re-measured; the changes add one tab entry above the panels and relabel text only.
+
+Checks: `npx.cmd tsc --noEmit` exit 0; `coldRoutes` 26 passed; `test_w203_cold_rules.py` 8 passed; `check-all` 10/10 guards;
+full `npm.cmd test` and the w203 replay+rules rerun results below.
+
+Final runs: full `npm.cmd test` 85 files / 2182 passed (159 s); `pytest tests/test_w203_cold_replay_postgres.py tests/test_w203_cold_rules.py` on real Postgres 22 passed, 0 skipped (344 s). Backend production code changed only in a docstring (`cold_reads.py`), so no full backend suite was rerun.
