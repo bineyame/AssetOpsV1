@@ -1,92 +1,144 @@
-# W2-04 phase handoff - run 1 (spec commit 1, partial; STOPPED for Architect questions)
+# W2-04 phase handoff - run 2 (spec commit 1 COMPLETE)
 
-Branch `task/W2-04-cold-site-evidence-money`, commit `11abf439` (on top of `d9d13255`). Not merged.
+Branch `task/W2-04-cold-site-evidence-money`. Spec commit 1 is three commits:
 
-## Landed
+- `11abf439`: the 0023 schema (run 1).
+- `07e51a0d`: 1a, aligning 0023 with the Architect's Q1-Q10 rulings (`.agent/W2-04-build-spec.md`, section "Final
+  Architect rulings").
+- `527d5342`: 1b, the rule-8 policy and probes.
 
-- `backend/migrations/versions/0023_w2_cold_consequence.py`: four scoped append-only tables, unpriced CHECK
-  (amount/currency NULL), `batch_publication_link_scope_unique`, `cold_consequence_dirty_key()` +
-  `cold_consequence_enqueue()` (the only `INSERT INTO cold_consequence_work`, `ON CONFLICT (tenant_id, site_id,
-  dirty_key_sha256) DO NOTHING`), three triggers (cold FindingRevision `WHEN domain='cold_chain'`, cold episode
-  revision, `batch_publication_link`) each taking `ENQUEUE_LOCK` first, idempotent backfill of latest heads,
-  refusing downgrade. No `ASSUMPTION_PUBLISHED` cause.
-- `backend/tests/test_w204_cold_migration.py` (8 tests passing on private `assetops_w204_test`): money bytes,
-  constraints, triggers, functions and `load_input` read unchanged across 0022<->0023; scoped FKs, CHECKs, uniques;
-  work/attempt shape; append-only on all four; canonical dirty key equals Python `canonical_json` SHA; source-gate
-  link enqueues only heads citing that batch; backfill latest-only + idempotent; downgrade refusal.
-- Head literal `0022`->`0023` in 7 older tests. `test_w203_cold_migration_postgres.py`: `HEAD`=0023, and its 0022
-  downgrade tests clear the W2-04 work rows first (`CLEAR_W204`). Run: w203 migration + s4 evidence-work, 18 passed.
+Nothing is merged. The private DB is `assetops_w204_test`. The environment lives in the scratchpad file
+`w204env.sh`. It sets PYTHONPATH, `ASSETOPS_TEST_DATABASE_URL`, `ASSETOPS_GUARD_PYTHON` and `PY`, then changes into
+`backend`.
 
-## Open questions for the Architect (owner rule: implementer makes no interpretive choice)
+## Landed in this run
 
-The committed migration already contains a provisional answer for Q1-Q8, so the build could continue. Each one
-must be ruled on, and changed if the ruling differs, before step 1 is complete.
+### 0023 changes (`backend/migrations/versions/0023_w2_cold_consequence.py`)
 
-1. **Work window/room per cause.** The spec says "its selected Site/window/room". Provisional: a FindingRevision
-   uses `assessment_revision(NEW.assessment_revision_id).window_start/window_end` and `finding.subject_asset_id`. An
-   episode revision uses its `assessment_revision_id` window and `cold_episode.asset_id`. Is that the window
-   intended, or should it be `window_assessment_revision_id` or the episode bounds?
-2. **Source-gate "cold heads".** Provisional: the latest revision per cold episode citing the batch through
-   `cold_episode_evidence`, together with the latest cold FindingRevision per Finding citing it through
-   `finding_revision_evidence`. Should episodes alone count, or both?
-3. **Dirty-key canonical spelling.** Provisional: JSON array of strings, with UUIDs as lowercase hyphenated text
-   and instants as `YYYY-MM-DDTHH:MM:SSZ` (second precision, matching `source_envelope.instant_text`). Confirm the
-   precision.
-4. **`degC_min` null-bound rule.** "Null bounds only when the technical claim is limited/withheld". Provisional
-   CHECK: both bounds non-null, OR `state='WITHHELD'`, OR `limitation IS NOT NULL`. Is "limited" meant as
-   `limitation IS NOT NULL`?
-5. **Integrity extras the spec does not list.** Provisional, all added: a scoped self-FK on `prior_revision_id`, a
-   CHECK `(revision_no=1) = (prior_revision_id IS NULL)`, a kind<->model pairing CHECK, `room_asset_id NOT NULL`
-   with a scoped `asset` FK (on both revision and work), and nullable `cold_consequence_evidence.reason`
-   (mirroring `cold_episode_evidence`). Keep or drop each?
-6. **"Server created_at/finished_at".** Provisional: `DEFAULT clock_timestamp()` on revision `created_at`, evidence
-   `created_at` (a column the spec did not list), work `enqueued_at` and attempt `finished_at`. Store code is to
-   omit these columns. Should the links have `created_at`, and is a DEFAULT enough, or is a trigger that forces
-   the server value required?
-7. **`source_classification` domain.** Provisional: free nonempty text. Should it be constrained to the S4-05
-   values (`AUTHORED_DEMONSTRATION|REGISTERED_SIMULATION|...`)? If so, give the exact set.
-8. **Failed enqueue.** If the assessment window is empty or the room is missing, the trigger raises and rolls back
-   the W2-03 assessment/Finding transaction, which matches 0012's pattern. Confirm that, or say to skip.
-9. **Rule-8 "migration trigger ON CONFLICT ... DO NOTHING" pass probe.** `configuration-persistence.ps1` scans only
-   `backend/assetops_backend/` (migrations are skipped at line ~786), so a probe appended to a migration would pass
-   vacuously. The proposed fix adds a rule-8 text check on `0023_w2_cold_consequence.py`: every
-   `INSERT INTO cold_consequence_work` must carry exactly that DO NOTHING arbiter, there must be at least one, and
-   any `DO UPDATE` fails. The pass and fail probes would then mutate that migration file. Approve that, or name
-   the intended mechanism.
-10. **Fail-closed "inserts seen" for the three cold consequence tables.** Requiring at least one consequence-store
-    INSERT per table would fail commit 1, because the store methods arrive in commit 2. Proposal: add the probe-name
-    and owner fail-closed checks in commit 1 and the inserts-seen check in commit 2. Approve?
+- **Q1, room:** `cold_consequence_room(tenant, site, assessment_revision_id)` takes the one `COLD_ROOM` component of
+  the Foundation listed in `analytic_run.foundation_revision_ids` for the assessment's run. It maps that component
+  to a scoped `asset` by `asset_code`.
+  - This is the same lookup as `postgres_assessment_store.py:cold_inputs` `asset_of(room)`, which W2-03 uses for
+    `ColdPolicy.room_asset_id`.
+  - All three triggers and both backfills use it.
+  - The episode asset and the Finding subject are no longer used, so the generator is never stored.
+- **Q8:** zero rooms, or more than one, raises and rolls back the W2-03 append. An empty window fails the work CHECK.
+- **Q3:** `cold_consequence_instant(timestamptz)` writes whole seconds, or `.ffffff` when the microseconds are
+  nonzero. `cold_consequence_dirty_key` uses it.
+- **Q2:** every head subquery (max-revision, link and evidence) is scoped by tenant and Site.
+- **Q7:** a CHECK limits `source_classification` to `AUTHORED_DEMONSTRATION`, `REGISTERED_SIMULATION`, `MIXED` and
+  `UNKNOWN`.
+- **Q4, Q5, Q6:** accepted as built; no change.
 
-## Remaining steps (in spec order)
+### Tests
 
-1. After the ruling, adjust 0023 and its tests as needed. Then do rule 8: add the three cold tables to
-   `$consequenceTables` (line ~670) and a separate `cold_consequence_work` trigger-only refusal next to the
-   `financial_consequence_work` one (line ~918). Add the per-table cold insert-only and no-DO-UPDATE checks, the Q9
-   migration check, and probe-name fail-closed checks next to the W2-03 block (line ~1077). In
-   `tools/writer_guard_probes.py`, add the `controls cold_consequence_* insert` controls (CONSEQUENCE) and the
-   foreign/runtime-work/UPDATE/DELETE/DO UPDATE fail probes. Prove non-vacuous with
-   `python tools/writer_guard_probes.py --seam <names>` on a clean tree. Commit.
-2. Spec commit 2: `financials/cold_consequence.py:derive,basis_sha256`, cold methods on
-   `PostgresConsequenceStore`, `financials/cold_recompute.py:ColdConsequenceWorker.run,process_one`, and
-   `test_w204_cold_consequence.py` + `test_w204_cold_worker.py` (six W2-02 replays via S2 -> W2-03).
-3. Spec commit 3: `analytics/cold_site_reads.py`, `cold_site_api.py` (five GETs), `main.py` wiring,
-   `test_w204_cold_reads.py`.
-4. Spec commit 4: frontend client, five views, `w2-cold-site.css`, `coldSiteViews.test.tsx` with
-   `expectV69Panels`, and 1440/390 captures with `tools/w1-fidelity-evidence.mjs`.
-5. Spec commit 5: registry nodes, guards, one full backend suite and host suite, frontend, check-all, review
-   packet, task `in_review`, ACTIVE_CONTEXT/CODE_STATE.
+- `test_w203_cold_migration_postgres.py:Ctx` now builds `cold_room_assessment()`: a superseded Foundation valid
+  only in 2000 that names `assets[0]` as `COLD_ROOM`, plus copies of the run and the assessment.
+  - `ctx.assessment` and `ctx.run` are now the copies.
+  - `ctx.mini_assessment` is the original, which resolves no room.
+  - `ctx.room` is `assets[0]`.
+  - `insert_revision(..., assessment=)` takes an override.
+- `test_w204_cold_migration.py` adds:
+  - Q3 golden vectors, SQL against Python, for whole-second and fractional windows.
+  - Q1: EXCURSION and START_RESPONSE episodes and Findings all store the chamber room, never the generator.
+  - Q8: an unresolvable room raises and rolls back.
+  - Q7: two refused classes.
+- Results:
+  - The w204 and w203 migration tests: 16 passed.
+  - `test_w203_cold_replay_postgres.py`: 14 passed. That replay fires the triggers against the real COLD-LAB-001
+    Foundation, so a room-resolution failure would have raised.
 
-Environment: private DB `assetops_w204_test` (created). The env script pattern is in the build brief.
+### Rule 8 (`tools/checks/configuration-persistence.ps1`)
 
-## Retro-ruling corrections to fold in (coordinator, `D-2026-10-18-w2-retro-rulings`, merged from main at `d6a01683`)
+- The three tables in `$coldConsequenceTables` are appended to `$consequenceTables`. Their only owner is
+  `postgres_consequence_store.py`.
+- Each of them also gets its own insert-only check (failure text: "Cold consequence table '...' is insert-only").
+- They are on the DO UPDATE refusal list.
+- `cold_consequence_work` is trigger-only: any runtime verb against it fails.
+- Owner and migration existence, and probe-name registration, fail closed.
+- The Q9 migration-text check runs after stripping comments and the docstring:
+  - at least one `INSERT INTO cold_consequence_work` must exist;
+  - each must carry exactly one `ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING`;
+  - the file has no `DO UPDATE`.
+- `$coldConsequenceInsertsSeen` counts the owner's INSERTs per table. It is not asserted yet (Q10 stages that to
+  commit 2).
 
-Do these as their own separate commit, with the frontend work (step 4), and list both in the review packet. The
-exact text is in `.agent/W2-retro-rulings.md` rows "Deviation 14" and "Deviation 17" (lines 39 and 42).
-- **Dev 14 (CORRECT).** Cold Evidence Analysis links render only after an integration test proves that the exact
-  `record`/`assessment` target shows the selected cold ID in the existing Evidence Analysis route, preserving
-  Site, window and cutoff. Until then, show the reference as labelled text with the gap "Analysis view not
-  available for this cold record". Never render a dead link. Finding and evidence destinations stay independent.
-- **Dev 17 (CORRECT).** Restore the mock's exact "Loading / batch" row label (W2-03 currently says "Stock loading
-  / batch"). Keep "Not established" when there is no loading record. Fix the capture/settling detector so it
-  matches the real loading-state element or the exact loading sentences, not any text containing "Loading". Then
-  recapture the affected cold screens.
+### Probes (`tools/writer_guard_probes.py`)
+
+- 12 per-table probes: a foreign insert from the Finding store, plus update, delete and upsert.
+- 6 `cold cold_consequence_work runtime <verb>` probes: insert, update, delete, truncate, merge and copy.
+- 5 `cold work migration ...` probes, each a temporary replace or append on the 0023 file, restored afterwards.
+- 4 controls that must pass.
+
+## Probe evidence
+
+On `527d5342`, run with `--seam` on a clean tree:
+
+- 23 of 23 fail probes were CAUGHT.
+- 4 of 4 controls were ALLOWED.
+- "tree restored", exit 0.
+- The seam guard passes on the clean tree.
+
+## Next run: spec commit 2 (pure derivation, store, worker)
+
+Read these spec sections first: "Money schema `0023` and rules" (its last three paragraphs), "Implementer dry-read:
+exact backend behavior", and Q4, Q5, Q6 and Q10.
+
+1. **Pure module.** Create `financials/cold_consequence.py` with `derive` and `basis_sha256`. No SQL and no driver.
+   - Put a Python `selected_instant` here using the Q3 spelling. Have `test_w204_cold_migration._z` reuse it.
+   - Put the overlap-group helper here as well: `'cold:' + sha256(canonical [t,s,ws,we,room])`.
+   - Use `canonical_json` from `contracts/assetops_contracts/source_envelope.py`.
+2. **Store.** Add cold methods to `financials/adapters/postgres_consequence_store.py`, the only allowed INSERT
+   owner.
+   - Leave out the server-time columns (Q6).
+   - Check that the predecessor is the same Finding and kind (Q5).
+   - Leave the mini-grid methods unchanged.
+3. **Worker.** Create `financials/cold_recompute.py` with `ColdConsequenceWorker.run` and `process_one`, written
+   against store protocols.
+   - The store holds the lock `pg_advisory_xact_lock(hashtextextended('cold_consequence:' || work_id, 0))`.
+   - Use `retry_due_at` from `recompute.py`.
+   - Write a FAILED attempt in a fresh transaction.
+   - When an episode trigger yields no consequence, write a success attempt with `[]` IDs.
+   - A basis mismatch fails with `COLD_BASIS_MISMATCH`.
+4. **Q10 assertion.** In rule 8, require each `$coldConsequenceInsertsSeen[...]` to be at least 1, beside the
+   provenance loop near line 1062.
+   - Write it so it fails with a "vacuous" message.
+   - Prove it is not vacuous by removing one store INSERT on a committed tree.
+5. **Tests.** Write `test_w204_cold_consequence.py` and `test_w204_cold_worker.py`.
+   - Run the six W2-02 replays through S2 and then W2-03, reusing the `chain` fixture from
+     `test_w203_cold_replay_postgres.py` and W2-02.
+   - Assert Q6: server times lie inside the transaction interval.
+   - Cover race, retry, idempotence and the failed attempt.
+6. **Finish.** Rerun the cold probe set and the inserts-seen mutation. Commit, then write the handoff.
+
+After commit 2, continue in spec order:
+
+- **Commit 3:** the reads and API.
+- **Commit 4:** the frontend.
+- **Commit 5:** final guards, suites and the review packet.
+
+The retro-ruling corrections below go in their own commit alongside commit 4.
+
+## Retro-ruling corrections (carried forward, unchanged)
+
+The exact text is in `.agent/W2-retro-rulings.md`, rows "Deviation 14" and "Deviation 17". List both in the review
+packet.
+
+- **Dev 14.** A cold Analysis link may render only after an integration test proves that the exact
+  `record`/`assessment` target shows the selected cold ID in the existing Evidence Analysis route. The proof must
+  show that Site, window and cutoff are preserved.
+  - Until that proof exists, show the reference as labelled text with "Analysis view not available for this cold
+    record".
+  - Never render a dead link.
+- **Dev 17.** Restore the mock's exact "Loading / batch" row label, and keep "Not established" when there is no
+  loading record.
+  - Make the capture/settling detector match the real loading-state element, or the exact loading sentences, rather
+    than any text containing "Loading".
+  - Recapture the affected cold screens.
+
+## Open risks
+
+- `cold_consequence_room` relies on W2-03 `record_cold_assessment` writing the Foundation ID into
+  `analytic_run.foundation_revision_ids`. If W2-03 stops doing that, every cold append is refused (fail closed).
+- W2-05a is building in parallel, and this run edited the shared files `configuration-persistence.ps1` and
+  `writer_guard_probes.py`. Merge carefully. Before any full backend suite, confirm no other pytest is running.
