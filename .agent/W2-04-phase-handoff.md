@@ -77,3 +77,16 @@ must be ruled on, and changed if the ruling differs, before step 1 is complete.
    packet, task `in_review`, ACTIVE_CONTEXT/CODE_STATE.
 
 Environment: private DB `assetops_w204_test` (created). The env script pattern is in the build brief.
+
+## Retro-ruling corrections to fold in (coordinator, `D-2026-10-18-w2-retro-rulings`, merged from main at `d6a01683`)
+
+Do these as their own separate commit, with the frontend work (step 4), and list both in the review packet. The
+exact text is in `.agent/W2-retro-rulings.md` rows "Deviation 14" and "Deviation 17" (lines 39 and 42).
+- **Dev 14 (CORRECT).** Cold Evidence Analysis links render only after an integration test proves that the exact
+  `record`/`assessment` target shows the selected cold ID in the existing Evidence Analysis route, preserving
+  Site, window and cutoff. Until then, show the reference as labelled text with the gap "Analysis view not
+  available for this cold record". Never render a dead link. Finding and evidence destinations stay independent.
+- **Dev 17 (CORRECT).** Restore the mock's exact "Loading / batch" row label (W2-03 currently says "Stock loading
+  / batch"). Keep "Not established" when there is no loading record. Fix the capture/settling detector so it
+  matches the real loading-state element or the exact loading sentences, not any text containing "Loading". Then
+  recapture the affected cold screens.
