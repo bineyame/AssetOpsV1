@@ -50,6 +50,7 @@ import {
 } from "./shell/operatorSiteRoutes";
 import type { RunSetupClient } from "./shell/runSetupClient";
 import type { ColdScenarioChoiceClient } from "./shell/coldScenarioChoiceClient";
+import type { EvScenarioChoiceClient } from "./shell/evScenarioChoiceClient";
 import type { ScenarioCatalogClient } from "./shell/scenarioCatalogClient";
 import {
   simulatorLabRoutes,
@@ -180,6 +181,8 @@ export interface AppProps {
   now?: () => Date;
   /** W2-02: the gated cold-chain choice read; still gated by `flags`. */
   coldScenarios?: ColdScenarioChoiceClient;
+  /** W2-05b: the gated EV test-run choice read; still gated by `flags`. */
+  evScenarios?: EvScenarioChoiceClient;
 }
 
 export function App({
@@ -202,6 +205,7 @@ export function App({
   siteTemplateLineage,
   now,
   coldScenarios,
+  evScenarios,
 }: AppProps) {
   // Resolved once from the gate: closed, the site surfaces get no lineage read
   // and show the recorded template alone.
@@ -376,6 +380,7 @@ export function App({
         templateLineage,
         siteFoundation,
         coldScenarios,
+        evScenarios,
       ).map((route) => (
         <Route key={route.path} path={route.path} element={route.element} />
       ))}

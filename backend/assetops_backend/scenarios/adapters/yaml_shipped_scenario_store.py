@@ -33,6 +33,11 @@ from assetops_backend.scenarios.cold_parsing import (
     is_cold_document,
     parse_cold_scenario_document,
 )
+from assetops_backend.scenarios.ev_parsing import (
+    EvScenarioDefinition,
+    is_ev_document,
+    parse_ev_scenario_document,
+)
 from assetops_backend.scenarios.models import ScenarioDefinition
 from assetops_backend.scenarios.identity import scenario_id_key
 from assetops_backend.scenarios.ports import (
@@ -70,14 +75,16 @@ class ReadOnlyYamlScenarioStore:
     def store_name(self) -> str:
         return STORE_NAME
 
-    def list_scenarios(self) -> tuple[ScenarioDefinition | ColdScenarioDefinition, ...]:
+    def list_scenarios(self) -> tuple[ScenarioDefinition | ColdScenarioDefinition | EvScenarioDefinition, ...]:
         """Every shipped document, dispatched by its exact `schema` key.
 
         W2-02 (`D-2026-10-17-w2-02-buildspec`): a `schema: cold-scenario/1`
         document is parsed by the separate strict cold parser and never by the
-        legacy timeline parser; every other document is a legacy definition.
+        legacy timeline parser; W2-05b: a `schema: ev-scenario/1` document is parsed by the
+        strict EV parser and its scenario ID must equal its file basename. Every other document
+        is a legacy definition.
         """
-        records: list[ScenarioDefinition | ColdScenarioDefinition] = []
+        records: list[ScenarioDefinition | ColdScenarioDefinition | EvScenarioDefinition] = []
         seen: dict[str, str] = {}
         for path in _document_paths(self._root, store_name=STORE_NAME):
             record = _read_shipped(path)
@@ -92,7 +99,7 @@ class ReadOnlyYamlScenarioStore:
         return tuple(records)
 
 
-def _read_shipped(path: Path) -> ScenarioDefinition | ColdScenarioDefinition:
+def _read_shipped(path: Path) -> ScenarioDefinition | ColdScenarioDefinition | EvScenarioDefinition:
     try:
         if path.stat().st_size > MAX_DOCUMENT_BYTES:
             return read_scenario_record(path, store_name=STORE_NAME, origin=ORIGIN)
@@ -111,4 +118,12 @@ def _read_shipped(path: Path) -> ScenarioDefinition | ColdScenarioDefinition:
         ) from error
     if is_cold_document(document):
         return parse_cold_scenario_document(document, source=f"{STORE_NAME}:{path.name}", origin=ORIGIN)
+    if is_ev_document(document):
+        definition = parse_ev_scenario_document(document, source=f"{STORE_NAME}:{path.name}", origin=ORIGIN)
+        if definition.scenario_id != path.stem:
+            raise ScenarioConfigurationInvalid(
+                f"EV scenario {STORE_NAME}:{path.name}: scenario_id {definition.scenario_id!r} "
+                f"must equal the file basename {path.stem!r}"
+            )
+        return definition
     return read_scenario_record(path, store_name=STORE_NAME, origin=ORIGIN)

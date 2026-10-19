@@ -472,6 +472,10 @@ def create_app(
                 # S2-01a: an imported code is set up from its registered
                 # Foundation + SignalBinding basis, never from the YAML Site.
                 registered_bases=RegisteredLabBasis(registry),
+                # W2-05b: the EV choice list requires a Lab owner principal (Q10). As for the cold
+                # replay below, no production owner principal exists, so production answers 403.
+                ev_access=development_access,
+                ev_owner=no_owner_principal,
             )
         )
         # W2-02: the explicit-run cold replay read. No production owner principal exists, so every production

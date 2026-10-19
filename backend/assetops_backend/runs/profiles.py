@@ -2061,6 +2061,47 @@ COLD_PUBLICATION_PROFILE = PublicationProfile(
     publication_clock="RUN_VIRTUAL",
 )
 
+#: W2-05b (`D-2026-10-18-w2-05-buildspec`, Q12). The EV charger pack: two declared connectors under one
+#: shared Site import limit, stepped once a minute by the simulator's `packs/ev_charger.py`. Selected only by
+#: an `ev-scenario/1` document through the EV-only run freeze path, never by a legacy timeline scenario.
+EV_CHARGER_MODEL = ModelProfile(
+    model_profile_id="ev-charger",
+    model_profile_version=1,
+    display_name="EV charger and shared import model",
+    statement=(
+        "Two declared connectors share the Site import limit. The model steps connector state, session "
+        "events and metered energy once a minute from frozen Site configuration and scenario forcing."
+    ),
+    supported_states=(),
+)
+
+#: Q12: the public connector state vocabulary of `ev-charger/1`. These are values of one connector state,
+#: not world-state keys, so they are not `SupportedState` declarations.
+EV_CONNECTOR_STATES: tuple[str, ...] = ("UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED")
+
+#: Q12. `record_channels` is not the full measurement allowlist: the seven tuples per connector and the
+#: Site import tuple come from the selected 05a binding; actual source IDs come from that binding and the
+#: actual gateway is `GW-EV-LAB-01`. These two strings describe the Lab.
+EV_PUBLICATION_PROFILE = PublicationProfile(
+    publication_profile_id="ev-publication",
+    publication_profile_version=1,
+    display_name="EV charging publication profile",
+    statement=(
+        "Connector states and session events are reported as observed; five-minute energy deltas, power "
+        "and Site import pass through the registered simulated gateway."
+    ),
+    device_signal_cadence_minutes=5,
+    simulator_source_id="simulator-lab-source",
+    gateway_id="simulator-lab-gateway",
+    record_channels=(
+        ("c1-charger-controller", "session-event"),
+        ("c1-connector-controller", "fault-event"),
+        ("c2-charger-controller", "session-event"),
+        ("c2-connector-controller", "fault-event"),
+    ),
+    publication_clock="RUN_VIRTUAL",
+)
+
 MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINIMAL_FUEL_TANK_MODEL,
     DAYTIME_MINI_GRID_MODEL,
@@ -2070,6 +2111,7 @@ MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINI_GRID_V4_MODEL,
     MINI_GRID_V5_MODEL,
     COLD_THERMAL_MODEL,
+    EV_CHARGER_MODEL,
 )
 
 PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
@@ -2081,6 +2123,7 @@ PUBLICATION_PROFILES: tuple[PublicationProfile, ...] = (
     REGISTERED_KOBO_PUBLICATION_PROFILE_V3,
     REGISTERED_KOBO_PUBLICATION_PROFILE_V4,
     COLD_PUBLICATION_PROFILE,
+    EV_PUBLICATION_PROFILE,
 )
 
 

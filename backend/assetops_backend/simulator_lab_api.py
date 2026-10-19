@@ -125,6 +125,7 @@ from assetops_backend.scenarios.execution import (
     state_transition_inputs,
 )
 from assetops_backend.scenarios.cold_parsing import COLD_SITE_CODE, ColdScenarioDefinition
+from assetops_backend.scenarios.ev_parsing import EV_SITE_CODE, EvScenarioDefinition
 from assetops_backend.scenarios.identity import (
     SCENARIO_ID_RULE,
     validate_scenario_id,
@@ -149,6 +150,7 @@ from assetops_backend.scenarios.service import (
     ScenarioDetailService,
     scenario_site_needs,
 )
+from assetops_backend.sites.identity import validate_site_id
 from assetops_backend.sites.lineage import assess_template_lineage
 from assetops_backend.sites.models import SiteTemplate
 from assetops_backend.sites.ports import (
@@ -238,6 +240,20 @@ COLD_SCENARIO_LABELS = {
     "cold-late-reading": "Late reading",
     "cold-contradictory": "Contradictory",
 }
+#: W2-05b: the registered EV Lab choices for one selected Site (`D-2026-10-18-w2-05-buildspec`, Q8-Q11).
+EV_SCENARIOS_ROUTE = "/ev-scenarios"
+#: The six EV catalog labels, in catalog order (Q9); every other row field comes from the parsed document.
+EV_SCENARIO_LABELS = {
+    "ev-complete": "Complete session",
+    "ev-interrupted": "Interrupted session",
+    "ev-fault": "Fault before charging",
+    "ev-missing-meter": "Missing meter report",
+    "ev-late-record": "Late session end",
+    "ev-contradictory": "Contradictory session ends",
+}
+#: (request, site_code) -> 401, 403 or None (the Finding-route `Access` seam); and the Lab owner-role check.
+EvCatalogAccess = Callable[[Request, str], "int | None"]
+EvCatalogOwner = Callable[[Request, str], bool]
 RUN_PROFILES_ROUTE = "/run-profiles"
 CREATE_RUN_ROUTE = "/runs"
 RUNS_ROUTE = "/runs"
@@ -2412,6 +2428,8 @@ def build_simulator_lab_router(
     *,
     imported_site_check: Callable[[str], None] | None = None,
     registered_bases: RegisteredBasisPort | None = None,
+    ev_access: EvCatalogAccess | None = None,
+    ev_owner: EvCatalogOwner | None = None,
 ) -> APIRouter:
     """Build the gated router around the injected ports.
 
@@ -2619,7 +2637,7 @@ def build_simulator_lab_router(
         return {
             "scenarios": [
                 scenario_public_summary(scenario) for scenario in saved
-                if not isinstance(scenario, ColdScenarioDefinition)
+                if not isinstance(scenario, (ColdScenarioDefinition, EvScenarioDefinition))
             ]
         }
 
@@ -2679,6 +2697,90 @@ def build_simulator_lab_router(
             ],
         }
 
+    @router.get(EV_SCENARIOS_ROUTE)
+    def list_ev_scenarios(request: Request) -> Any:
+        """The six EV Lab choices, only for the registered `EV-LAB-001` Site (Q10, Q11).
+
+        401 `UNAUTHENTICATED` without a principal; 422 `EV_SCENARIO_PARAMETER_INVALID` unless exactly one
+        well-formed `site_id`; 403 `SITE_SCOPE_FORBIDDEN` for a non-owner or out-of-scope caller (no rows);
+        404 `SITE_NOT_FOUND` for an unknown Site. A known non-EV Site, or one without a shipped matching
+        choice, is 200 with an empty list. An unreadable registration store is 503 `SITE_STORE_UNAVAILABLE`
+        and an unreadable scenario store 503 `SCENARIO_STORE_UNAVAILABLE`, never an empty success.
+        """
+        params = request.query_params.multi_items()
+        site_id = params[0][1] if len(params) == 1 and params[0][0] == "site_id" else ""
+        if ev_access is None or ev_access(request, site_id) == 401:
+            raise HTTPException(
+                status_code=401,
+                detail=_refusal("UNAUTHENTICATED", "Sign in to list the EV test runs."),
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        try:
+            validate_site_id(site_id)
+        except SiteConfigurationInvalid as error:
+            raise HTTPException(
+                status_code=422,
+                detail=_refusal(
+                    "EV_SCENARIO_PARAMETER_INVALID", f"Exactly one well-formed 'site_id' is required. {error}"
+                ),
+            ) from error
+        if ev_access(request, site_id) == 403 or ev_owner is None or not ev_owner(request, site_id):
+            raise HTTPException(
+                status_code=403,
+                detail=_refusal("SITE_SCOPE_FORBIDDEN", f"No Lab owner access to Site {site_id!r}."),
+            )
+        try:
+            registered = registered_bases is not None and registered_bases.registered(site_id)
+            if not registered:
+                repository.get_site(site_id)
+        except SiteNotFound as error:
+            raise HTTPException(
+                status_code=404,
+                detail=_refusal("SITE_NOT_FOUND", f"No Site {site_id!r} in this tenant."),
+            ) from error
+        except SiteAwaitingMigration:
+            registered = False
+        except (SiteStoreUnavailable, SiteConfigurationInvalid, SiteIdentityConflict) as error:
+            raise HTTPException(
+                status_code=503, detail=_refusal(REFUSAL_STORE_UNAVAILABLE, str(error))
+            ) from error
+        if not registered or site_id != EV_SITE_CODE:
+            return {"site_id": site_id, "scenarios": []}
+        try:
+            saved = scenario_catalog.list_scenarios()
+        except (
+            ScenarioIdentityConflict,
+            ScenarioConfigurationInvalid,
+            ScenarioStoreUnavailable,
+        ) as error:
+            raise HTTPException(
+                status_code=503,
+                detail=_refusal(REFUSAL_SCENARIO_STORE_UNAVAILABLE, str(error)),
+            ) from error
+        shipped = {
+            scenario.scenario_id: scenario for scenario in saved
+            if isinstance(scenario, EvScenarioDefinition) and scenario.site_code == site_id
+        }
+        return {
+            "site_id": site_id,
+            "scenarios": [
+                {
+                    "scenario_id": scenario.scenario_id,
+                    "scenario_version": scenario.version,
+                    "display_name": label,
+                    "schema": scenario.schema,
+                    "model_profile": scenario.model_profile,
+                    "publication_profile": scenario.publication_profile,
+                    "observation_profile": scenario.observation_profile,
+                    "window": scenario.window,
+                    "seed": scenario.seed,
+                    "site_code": scenario.site_code,
+                }
+                for scenario_id, label in EV_SCENARIO_LABELS.items()
+                if (scenario := shipped.get(scenario_id)) is not None
+            ],
+        }
+
     @router.get(SCENARIO_DETAIL_ROUTE)
     def read_scenario(scenario_id: str) -> dict[str, object]:
         """Return one saved scenario and what it needs of a site.
@@ -2707,7 +2809,7 @@ def build_simulator_lab_router(
 
         try:
             scenario = scenario_detail.get_scenario(scenario_id)
-            if isinstance(scenario, ColdScenarioDefinition):
+            if isinstance(scenario, (ColdScenarioDefinition, EvScenarioDefinition)):
                 raise ScenarioNotFound(scenario_id)
         except ScenarioNotFound as error:
             raise HTTPException(

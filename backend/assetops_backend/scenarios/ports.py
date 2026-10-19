@@ -29,10 +29,12 @@ from assetops_backend.scenarios.models import ScenarioDefinition
 
 if TYPE_CHECKING:
     from assetops_backend.scenarios.cold_parsing import ColdScenarioDefinition
+    from assetops_backend.scenarios.ev_parsing import EvScenarioDefinition
 
 #: W2-02 (`D-2026-10-17-w2-02-buildspec`): the typed union the shipped store returns; a
 #: `cold-scenario/1` document is its own strict type, never a legacy timeline definition.
-AnyScenarioDefinition = Union[ScenarioDefinition, "ColdScenarioDefinition"]
+#: W2-05b: `ev-scenario/1` is a third strict type (`D-2026-10-18-w2-05-buildspec`).
+AnyScenarioDefinition = Union[ScenarioDefinition, "ColdScenarioDefinition", "EvScenarioDefinition"]
 
 
 class ScenarioRepositoryError(Exception):

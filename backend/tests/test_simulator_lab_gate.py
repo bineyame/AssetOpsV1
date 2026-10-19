@@ -23,6 +23,8 @@ SCENARIOS_PATH = "/api/simulator-lab/scenarios"
 SCENARIO_DETAIL_PATH = "/api/simulator-lab/scenarios/{scenario_id}"
 # W2-02: the registered cold-chain Lab choices for one selected Site.
 COLD_SCENARIOS_PATH = "/api/simulator-lab/cold-scenarios"
+# W2-05b: the registered EV Lab choices for one selected Site.
+EV_SCENARIOS_PATH = "/api/simulator-lab/ev-scenarios"
 # W2-02: the explicit-run cold replay read is Lab-gated (`.agent/W2-02-build-spec.md` commit 4).
 COLD_REPLAY_PATH = "/api/sites/{site_code}/cold/replay"
 RUN_PROFILES_PATH = "/api/simulator-lab/run-profiles"
@@ -80,6 +82,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     SCENARIOS_PATH,
     SCENARIO_DETAIL_PATH,
     COLD_SCENARIOS_PATH,
+    EV_SCENARIOS_PATH,
     RUN_PROFILES_PATH,
     CREATE_RUN_PATH,
     RUN_DETAIL_PATH,

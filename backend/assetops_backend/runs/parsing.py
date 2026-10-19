@@ -1245,6 +1245,20 @@ def _parse_cold_identity(
     }
 
 
+_EV_PROFILE_IDS = ("ev-charger", "ev-publication")
+
+
+def _require_ev_identity(profiles: Mapping[str, Any], document_profile: Mapping[str, Any]) -> None:
+    """W2-05b (Q5-Q7): an EV run must carry the scenario and `ev-observation` identity; legacy runs omit it."""
+    if (profiles.get("model_profile_id") not in _EV_PROFILE_IDS
+            and profiles.get("publication_profile_id") not in _EV_PROFILE_IDS):
+        return
+    if document_profile.get("observation_profile_id") != "ev-observation":
+        raise _bad(
+            "an EV run freezes scenario_sha256 and the ev-observation profile identity and digest."
+        )
+
+
 def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
     site = _mapping(raw.get("site"), where="deterministic_identity")
     scenario = _mapping(raw.get("scenario"), where="deterministic_identity")
@@ -1262,6 +1276,7 @@ def _parse_identity(raw: Mapping[str, Any]) -> DeterministicIdentity:
     )
 
     cold_scenario, cold_profile = _parse_cold_identity(scenario, profiles)
+    _require_ev_identity(profiles, cold_profile)
 
     history = _entries(raw, "intervention_history", where="deterministic_identity")
     for entry in history:

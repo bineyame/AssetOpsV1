@@ -222,11 +222,16 @@ COLD_SCENARIO_DOCUMENTS = {
     "cold-normal", "cold-excursion", "cold-backup-failed", "cold-missing-probe", "cold-late-reading",
     "cold-contradictory",
 }
+#: W2-05b: the registered EV Lab's `ev-scenario/1` documents are a third strict type
+#: (`test_w205b_ev_scenarios.py`), not legacy timeline definitions an owner copies.
+EV_SCENARIO_DOCUMENTS = {
+    "ev-complete", "ev-interrupted", "ev-fault", "ev-missing-meter", "ev-late-record", "ev-contradictory",
+}
 
 SHIPPED_DOCUMENTS = sorted(
     path
     for path in SHIPPED_SCENARIOS.glob("*.yaml")
-    if path.stem not in NEVER_SHIPPED_AS_V1 | COLD_SCENARIO_DOCUMENTS
+    if path.stem not in NEVER_SHIPPED_AS_V1 | COLD_SCENARIO_DOCUMENTS | EV_SCENARIO_DOCUMENTS
 )
 
 
@@ -235,7 +240,7 @@ def test_the_shipped_documents_were_found() -> None:
     assert {path.stem for path in SHIPPED_DOCUMENTS} == set(FROZEN_V1_SAMPLE)
     assert {
         path.stem for path in SHIPPED_SCENARIOS.glob("*.yaml")
-    } == set(FROZEN_V1_SAMPLE) | NEVER_SHIPPED_AS_V1 | COLD_SCENARIO_DOCUMENTS
+    } == set(FROZEN_V1_SAMPLE) | NEVER_SHIPPED_AS_V1 | COLD_SCENARIO_DOCUMENTS | EV_SCENARIO_DOCUMENTS
 
 
 @pytest.mark.parametrize(
