@@ -124,3 +124,11 @@ and `ev.py`, commit 2a, then 3b (store `ev_*` methods, `PostgresFindingStore.ev_
   `postgres_finding_store.py:ev_apply`; worker `assessment_worker.py:EvAssessmentWorker`; factory
   `analytics/composition.py:build_ev_assessment_worker`. Result JSON per spec Q14 (`assessment_revision.result`) and
   Finding `claim` per Q15 are what commit 4 reads; currentness from overlapping PENDING/LEASED/FAILED `ev_charging` jobs.
+
+## Run 6 (3b verification, 2026-10-19)
+
+- Private `w206v_test`, dropped after (also dropped leftover `w206q4_test`). Focused+adjacent for d556b02c:
+  `test_w206_ev_{store,enqueue,publication_enqueue,migration}_postgres`, `test_w206_ev_vector_cases`,
+  `test_w206_ev_session_rules`, `test_w204_cold_worker`, `test_w200_{source_events,binding_metadata,receipt_bytes}`,
+  `test_s4_finding_store_postgres`, `TestIdentityHardening::test_migration_0005_refuses_to_freeze_a_drifted_asset_code`:
+  138 passed, 0 failed (390 s). `tools/check-all.ps1` 10/10. No code fixes needed. No full suite.
