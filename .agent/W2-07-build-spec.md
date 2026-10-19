@@ -124,3 +124,354 @@ Use fixed table layout at 1440. Contact chips `Recent/Old/Never/Unknown/Mixed/No
 | All routes errors/gaps | 401 `Sign in to view EV evidence.`; 403 `You do not have access to this EV evidence.`; 404 `This EV Site or record was not found.`; 503 `EV evidence is temporarily unavailable. Retry.`; 422 `Choose a valid UTC start and end, up to 31 days.`; 409 `Selection changed. Reload this view.`; valid empty uses the route-specific empty phrase above; pending/historical use shared strip. Error copy is keyed by typed response, not guessed from null data. |
 
 W2-04 Run 9 M5 chip tones apply with EV values: green Full/Good/Recent and a completed fully covered session; amber Limited/Old/Never/Mixed/Not declared and observed abort/incomplete; red Contradictory; neutral None/No fact/Unknown, count, provenance and claim-level chips. Use its exact green `#e3f4ed/#166b50/#b5dfcd`, amber `#fff1d9/#8e580c/#c9a24a`, red `#fcebea/#a13838/#d26565` background/text/border in route-scoped `ev-tone--*` badge selectors, with neutral inherited. Do not color a source as equipment health. W2-04 Run 9 M4 null Source is exactly `No linked page for this item`; D2 unavailable Record is exactly the short closed label plus full disclosure sentence above. All unsupported mock navigation is static `{label} · Not available yet` with accessible name `{label}, Not available yet`, no href, handler or tab stop as W2-05a r2 ruled. Tests assert these words, row/header counts, heights and the absence of invented values across stocked, empty, pending, unpriced, historical and refused states.
+
+## Concrete-artifact closure (2026-10-19)
+
+This section is the copy source for commits 1–5. It resolves the remaining literal choices in the earlier closure. `0025_w2_ev_session` must be the installed parent before this migration is used. Fixture IDs below are test constants, never product defaults.
+
+### 1. Migration `0026_w2_ev_money`: body and downgrade
+
+The following is the migration body. Keep `revision`, `down_revision`, `branch_labels`, and `depends_on` exactly as shown. The two original 0010 constraints were inline and PostgreSQL names them `financial_assumption_revision_assumption_key_check` and `financial_assumption_revision_unit_check`; assert those names in the catalog before dropping. The value, currency, author, assignment and diesel/fuel constraints are untouched. `numeric` is used without a scale so the product can store the exact Decimal product.
+
+```python
+"""W2-07: authored EV tariff and append-only Site gross scenario."""
+from alembic import op
+
+revision = "0026_w2_ev_money"
+down_revision = "0025_w2_ev_session"
+branch_labels = None
+depends_on = None
+
+SCHEMA = r"""
+ALTER TABLE financial_assumption_revision DROP CONSTRAINT financial_assumption_revision_assumption_key_check;
+ALTER TABLE financial_assumption_revision DROP CONSTRAINT financial_assumption_revision_unit_check;
+ALTER TABLE financial_assumption_revision ADD CONSTRAINT financial_assumption_revision_assumption_key_check
+  CHECK (assumption_key IN ('diesel_price_per_litre','ev_gross_tariff_per_kwh'));
+ALTER TABLE financial_assumption_revision ADD CONSTRAINT financial_assumption_revision_unit_check
+  CHECK ((assumption_key='diesel_price_per_litre' AND unit='currency/L') OR
+         (assumption_key='ev_gross_tariff_per_kwh' AND unit='currency/kWh'));
+ALTER TABLE financial_assumption_revision ADD CONSTRAINT financial_assumption_revision_ev_positive
+  CHECK (assumption_key <> 'ev_gross_tariff_per_kwh' OR value > 0);
+
+CREATE TABLE ev_consequence_revision (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL,
+ finding_revision_id uuid NULL, assessment_revision_id uuid NOT NULL,
+ revision_no integer NOT NULL CHECK (revision_no > 0),
+ basis_sha256 text NOT NULL CHECK (basis_sha256 ~ '^[0-9a-f]{64}$'),
+ technical_input_sha256 text NOT NULL CHECK (technical_input_sha256 ~ '^[0-9a-f]{64}$'),
+ formula_version text NOT NULL DEFAULT 'ev-gross-tariff/1' CHECK (formula_version='ev-gross-tariff/1'),
+ window_start timestamptz NOT NULL, window_end timestamptz NOT NULL,
+ quantity_kwh numeric NULL, tariff_revision_id uuid NULL,
+ tariff_assumption_key text GENERATED ALWAYS AS ('ev_gross_tariff_per_kwh') STORED,
+ tariff_value numeric NULL,
+ currency text NULL, amount numeric NULL,
+ state text NOT NULL CHECK (state IN ('ESTIMATED','UNPRICED','WITHHELD')),
+ reason text NOT NULL CHECK (length(btrim(reason))>0),
+ source_gate text NOT NULL CHECK (source_gate IN ('AUTHORED_DEMONSTRATION','REGISTERED_SIMULATION','MIXED','UNKNOWN')),
+ overlap_group text NOT NULL CHECK (length(btrim(overlap_group))>0), recorded_at timestamptz NOT NULL,
+ CONSTRAINT ev_consequence_revision_site_fk FOREIGN KEY (tenant_id,site_id) REFERENCES site(tenant_id,id),
+ CONSTRAINT ev_consequence_revision_finding_fk FOREIGN KEY (tenant_id,site_id,finding_revision_id) REFERENCES finding_revision(tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_revision_assessment_fk FOREIGN KEY (tenant_id,site_id,assessment_revision_id) REFERENCES assessment_revision(tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_revision_tariff_fk FOREIGN KEY (tenant_id,site_id,tariff_assumption_key,tariff_revision_id) REFERENCES financial_assumption_revision(tenant_id,site_id,assumption_key,id),
+ CONSTRAINT ev_consequence_revision_scope_unique UNIQUE (tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_revision_basis_unique UNIQUE (tenant_id,site_id,window_start,window_end,basis_sha256),
+ CONSTRAINT ev_consequence_revision_number_unique UNIQUE (tenant_id,site_id,window_start,window_end,revision_no),
+ CONSTRAINT ev_consequence_revision_window CHECK (window_start<window_end),
+ CONSTRAINT ev_consequence_revision_quantity CHECK (quantity_kwh IS NULL OR (quantity_kwh>=0 AND quantity_kwh<'Infinity'::numeric)),
+ CONSTRAINT ev_consequence_revision_tariff_value CHECK (tariff_value IS NULL OR (tariff_value>0 AND tariff_value<'Infinity'::numeric)),
+ CONSTRAINT ev_consequence_revision_amount CHECK (amount IS NULL OR (amount>=0 AND amount<'Infinity'::numeric)),
+ CONSTRAINT ev_consequence_revision_currency CHECK (currency IS NULL OR currency ~ '^[A-Z]{3}$'),
+ CONSTRAINT ev_consequence_revision_state CHECK
+  ((state='ESTIMATED' AND quantity_kwh IS NOT NULL AND tariff_revision_id IS NOT NULL
+     AND tariff_value IS NOT NULL AND currency IS NOT NULL AND amount IS NOT NULL
+     AND amount=quantity_kwh*tariff_value)
+   OR (state IN ('UNPRICED','WITHHELD') AND amount IS NULL AND currency IS NULL))
+);
+CREATE INDEX ev_consequence_revision_recorded ON ev_consequence_revision(site_id,recorded_at DESC,id);
+CREATE INDEX ev_consequence_revision_window_head ON ev_consequence_revision(site_id,window_start,window_end,revision_no DESC);
+CREATE TABLE ev_consequence_session (
+ tenant_id uuid NOT NULL, site_id uuid NOT NULL, consequence_revision_id uuid NOT NULL,
+ session_revision_id uuid NOT NULL, included_kwh numeric NOT NULL,
+ PRIMARY KEY (tenant_id,site_id,consequence_revision_id,session_revision_id),
+ CONSTRAINT ev_consequence_session_consequence_fk FOREIGN KEY (tenant_id,site_id,consequence_revision_id) REFERENCES ev_consequence_revision(tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_session_session_fk FOREIGN KEY (tenant_id,site_id,session_revision_id) REFERENCES ev_session_revision(tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_session_quantity CHECK (included_kwh>=0 AND included_kwh<'Infinity'::numeric)
+);
+CREATE INDEX ev_consequence_session_session ON ev_consequence_session(tenant_id,site_id,session_revision_id);
+CREATE TABLE ev_consequence_evidence (
+ tenant_id uuid NOT NULL, site_id uuid NOT NULL, consequence_revision_id uuid NOT NULL, evidence_id uuid NOT NULL,
+ PRIMARY KEY (tenant_id,site_id,consequence_revision_id,evidence_id),
+ CONSTRAINT ev_consequence_evidence_consequence_fk FOREIGN KEY (tenant_id,site_id,consequence_revision_id) REFERENCES ev_consequence_revision(tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_evidence_accepted_fk FOREIGN KEY (tenant_id,site_id,evidence_id) REFERENCES accepted_evidence(tenant_id,site_id,id)
+);
+CREATE INDEX ev_consequence_evidence_evidence ON ev_consequence_evidence(tenant_id,site_id,evidence_id);
+CREATE TABLE ev_consequence_work (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL,
+ window_start timestamptz NOT NULL, window_end timestamptz NOT NULL,
+ dirty_basis_sha256 text NOT NULL CHECK (dirty_basis_sha256 ~ '^[0-9a-f]{64}$'),
+ created_at timestamptz NOT NULL,
+ CONSTRAINT ev_consequence_work_site_fk FOREIGN KEY (tenant_id,site_id) REFERENCES site(tenant_id,id),
+ CONSTRAINT ev_consequence_work_window CHECK (window_start<window_end),
+ CONSTRAINT ev_consequence_work_scope_unique UNIQUE (tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_work_dirty_unique UNIQUE (tenant_id,site_id,window_start,window_end,dirty_basis_sha256)
+);
+CREATE INDEX ev_consequence_work_pending ON ev_consequence_work(site_id,created_at,id);
+CREATE TABLE ev_consequence_work_attempt (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL, work_id uuid NOT NULL,
+ attempt_no integer NOT NULL CHECK (attempt_no>0),
+ outcome text NOT NULL CHECK (outcome IN ('SUCCEEDED','FAILED')),
+ error_code text NULL, started_at timestamptz NOT NULL, finished_at timestamptz NOT NULL,
+ CONSTRAINT ev_consequence_attempt_work_fk FOREIGN KEY (tenant_id,site_id,work_id) REFERENCES ev_consequence_work(tenant_id,site_id,id),
+ CONSTRAINT ev_consequence_attempt_no_unique UNIQUE (tenant_id,site_id,work_id,attempt_no),
+ CONSTRAINT ev_consequence_attempt_error CHECK ((outcome='FAILED')=(error_code IS NOT NULL AND length(btrim(error_code))>0)),
+ CONSTRAINT ev_consequence_attempt_time CHECK (started_at<=finished_at)
+);
+CREATE UNIQUE INDEX ev_consequence_attempt_one_success ON ev_consequence_work_attempt(tenant_id,site_id,work_id) WHERE outcome='SUCCEEDED';
+CREATE INDEX ev_consequence_attempt_work ON ev_consequence_work_attempt(tenant_id,site_id,work_id,attempt_no DESC);
+CREATE TRIGGER ev_consequence_revision_append_only BEFORE UPDATE OR DELETE ON ev_consequence_revision FOR EACH ROW EXECUTE FUNCTION ledger_append_only();
+CREATE TRIGGER ev_consequence_session_append_only BEFORE UPDATE OR DELETE ON ev_consequence_session FOR EACH ROW EXECUTE FUNCTION ledger_append_only();
+CREATE TRIGGER ev_consequence_evidence_append_only BEFORE UPDATE OR DELETE ON ev_consequence_evidence FOR EACH ROW EXECUTE FUNCTION ledger_append_only();
+CREATE TRIGGER ev_consequence_work_append_only BEFORE UPDATE OR DELETE ON ev_consequence_work FOR EACH ROW EXECUTE FUNCTION ledger_append_only();
+CREATE TRIGGER ev_consequence_work_attempt_append_only BEFORE UPDATE OR DELETE ON ev_consequence_work_attempt FOR EACH ROW EXECUTE FUNCTION ledger_append_only();
+
+CREATE FUNCTION ev_consequence_tariff_key() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.tariff_revision_id IS NOT NULL AND NOT EXISTS
+  (SELECT 1 FROM financial_assumption_revision r WHERE r.tenant_id=NEW.tenant_id
+   AND r.site_id=NEW.site_id AND r.id=NEW.tariff_revision_id
+   AND r.assumption_key='ev_gross_tariff_per_kwh' AND r.value=NEW.tariff_value
+   AND (NEW.currency IS NULL OR r.currency=NEW.currency)) THEN
+   RAISE EXCEPTION 'EV consequence tariff must be a same-Site EV tariff revision';
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER ev_consequence_tariff_key BEFORE INSERT ON ev_consequence_revision FOR EACH ROW EXECUTE FUNCTION ev_consequence_tariff_key();
+
+CREATE FUNCTION ev_consequence_enqueue(p_tenant uuid,p_site uuid,p_from timestamptz,p_to timestamptz,p_cause text,p_id uuid)
+RETURNS void LANGUAGE plpgsql AS $$
+DECLARE d text;
+BEGIN
+ IF p_from IS NULL OR p_to IS NULL OR p_from>=p_to THEN RETURN; END IF;
+ -- The worker recalculates from the selected heads; this SHA identifies a dirtiness event, not a money basis.
+ d := encode(sha256(convert_to(jsonb_build_array(p_tenant::text,p_site::text,p_from,p_to,p_cause,p_id::text)::text,'UTF8')),'hex');
+ INSERT INTO ev_consequence_work(id,tenant_id,site_id,window_start,window_end,dirty_basis_sha256,created_at)
+ VALUES (gen_random_uuid(),p_tenant,p_site,p_from,p_to,d,clock_timestamp())
+ ON CONFLICT (tenant_id,site_id,window_start,window_end,dirty_basis_sha256) DO NOTHING;
+END $$;
+CREATE FUNCTION ev_consequence_on_session() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE w record;
+BEGIN
+ SELECT a.window_start,a.window_end INTO w FROM assessment_revision a
+ WHERE a.tenant_id=NEW.tenant_id AND a.site_id=NEW.site_id AND a.id=NEW.assessment_revision_id;
+ PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'SESSION_REVISION',NEW.id);
+ RETURN NEW;
+END $$;
+CREATE TRIGGER ev_consequence_dirty_session AFTER INSERT ON ev_session_revision FOR EACH ROW EXECUTE FUNCTION ev_consequence_on_session();
+CREATE FUNCTION ev_consequence_on_assessment() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+ IF NEW.analytic_id='ev-session/1' THEN
+  PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,NEW.window_start,NEW.window_end,'ASSESSMENT_REVISION',NEW.id);
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER ev_consequence_dirty_assessment AFTER INSERT ON assessment_revision FOR EACH ROW EXECUTE FUNCTION ev_consequence_on_assessment();
+CREATE FUNCTION ev_consequence_on_tariff() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE w record;
+BEGIN
+ IF NEW.assumption_key='ev_gross_tariff_per_kwh' THEN
+  FOR w IN SELECT DISTINCT a.window_start,a.window_end FROM assessment_revision a
+   WHERE a.tenant_id=NEW.tenant_id AND a.site_id=NEW.site_id AND a.analytic_id='ev-session/1'
+    AND a.window_start < coalesce(NEW.valid_to,'infinity'::timestamptz) AND NEW.valid_from < a.window_end LOOP
+    PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'TARIFF_REVISION',NEW.id);
+  END LOOP;
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER ev_consequence_dirty_tariff AFTER INSERT ON financial_assumption_revision FOR EACH ROW EXECUTE FUNCTION ev_consequence_on_tariff();
+CREATE FUNCTION ev_consequence_on_source_gate() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE w record;
+BEGIN
+ IF NOT EXISTS (SELECT 1 FROM accepted_evidence e WHERE e.tenant_id=NEW.tenant_id
+  AND e.site_id=NEW.site_id AND e.batch_id=NEW.batch_id
+  AND ((e.family='EVENT' AND e.record_kind LIKE 'EV_%')
+    OR (e.family='MEASUREMENT' AND e.measurement='INTERVAL_DELTA' AND e.connector_id IS NOT NULL))) THEN
+  RETURN NEW;
+ END IF;
+ FOR w IN SELECT DISTINCT a.window_start,a.window_end FROM assessment_revision a
+  WHERE a.tenant_id=NEW.tenant_id AND a.site_id=NEW.site_id AND a.analytic_id='ev-session/1' LOOP
+  PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'SOURCE_GATE',NEW.batch_id);
+ END LOOP;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER ev_consequence_dirty_source_gate AFTER INSERT ON batch_publication_link FOR EACH ROW EXECUTE FUNCTION ev_consequence_on_source_gate();
+CREATE FUNCTION ev_consequence_on_accepted() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE w record;
+BEGIN
+ IF (NEW.family='EVENT' AND NEW.record_kind LIKE 'EV_%')
+    OR (NEW.family='MEASUREMENT' AND NEW.measurement='INTERVAL_DELTA' AND NEW.connector_id IS NOT NULL) THEN
+  FOR w IN SELECT DISTINCT a.window_start,a.window_end FROM assessment_revision a
+   WHERE a.tenant_id=NEW.tenant_id AND a.site_id=NEW.site_id AND a.analytic_id='ev-session/1'
+    AND a.window_start<=NEW.source_time AND NEW.source_time<a.window_end LOOP
+    PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'ACCEPTED_EV',NEW.id);
+  END LOOP;
+ END IF;
+ RETURN NEW;
+END $$;
+CREATE TRIGGER ev_consequence_dirty_accepted AFTER INSERT ON accepted_evidence FOR EACH ROW EXECUTE FUNCTION ev_consequence_on_accepted();
+-- Existing 0025 windows receive work even if their session rows preceded this migration.
+SELECT ev_consequence_enqueue(a.tenant_id,a.site_id,a.window_start,a.window_end,'BACKFILL',a.id)
+FROM assessment_revision a WHERE a.analytic_id='ev-session/1';
+"""
+
+def upgrade() -> None:
+    op.execute(SCHEMA)
+
+def downgrade() -> None:
+    op.execute("""
+    DO $$ BEGIN
+      IF EXISTS (SELECT 1 FROM financial_assumption_revision WHERE assumption_key='ev_gross_tariff_per_kwh')
+         OR EXISTS (SELECT 1 FROM financial_assumption_assignment WHERE assumption_key='ev_gross_tariff_per_kwh')
+         OR EXISTS (SELECT 1 FROM ev_consequence_revision) OR EXISTS (SELECT 1 FROM ev_consequence_session)
+         OR EXISTS (SELECT 1 FROM ev_consequence_evidence) OR EXISTS (SELECT 1 FROM ev_consequence_work)
+         OR EXISTS (SELECT 1 FROM ev_consequence_work_attempt) THEN
+        RAISE EXCEPTION 'Downgrade of 0026_w2_ev_money refused: EV tariff or consequence history exists';
+      END IF;
+    END $$;
+    DROP TRIGGER ev_consequence_dirty_accepted ON accepted_evidence;
+    DROP TRIGGER ev_consequence_dirty_source_gate ON batch_publication_link;
+    DROP TRIGGER ev_consequence_dirty_tariff ON financial_assumption_revision;
+    DROP TRIGGER ev_consequence_dirty_assessment ON assessment_revision;
+    DROP TRIGGER ev_consequence_dirty_session ON ev_session_revision;
+    DROP FUNCTION ev_consequence_on_accepted(); DROP FUNCTION ev_consequence_on_source_gate();
+    DROP FUNCTION ev_consequence_on_tariff(); DROP FUNCTION ev_consequence_on_assessment();
+    DROP FUNCTION ev_consequence_on_session();
+    DROP FUNCTION ev_consequence_enqueue(uuid,uuid,timestamptz,timestamptz,text,uuid);
+    DROP TABLE ev_consequence_work_attempt; DROP TABLE ev_consequence_work;
+    DROP TABLE ev_consequence_evidence; DROP TABLE ev_consequence_session; DROP TABLE ev_consequence_revision;
+    DROP FUNCTION ev_consequence_tariff_key();
+    ALTER TABLE financial_assumption_revision DROP CONSTRAINT financial_assumption_revision_ev_positive;
+    ALTER TABLE financial_assumption_revision DROP CONSTRAINT financial_assumption_revision_assumption_key_check;
+    ALTER TABLE financial_assumption_revision DROP CONSTRAINT financial_assumption_revision_unit_check;
+    ALTER TABLE financial_assumption_revision ADD CONSTRAINT financial_assumption_revision_assumption_key_check
+      CHECK (assumption_key IN ('diesel_price_per_litre'));
+    ALTER TABLE financial_assumption_revision ADD CONSTRAINT financial_assumption_revision_unit_check
+      CHECK (unit='currency/L');
+    """)
+```
+
+The generated tariff key makes the 0010 four-column scoped key a real FK. It has no writer input; the insert trigger also checks the immutable tariff value and currency.
+
+Existing tests with literal heads/counts: `backend/tests/test_w205a_ev_migration.py` (`HEAD` from 0024 to 0026 only for upgrade-to-head assertions; direct 0024 downgrade assertions still target 0024), `backend/tests/test_w204_cold_migration.py` (`HEAD` and five new append-only tables when testing upgraded head), `backend/tests/test_w203_cold_migration_postgres.py` (head/count if asserting head), and `backend/tests/test_w205a_ev_migration.py` index-count comparison across 0024 must still count only the 0024 index. Search `rg '0024_w2_ev_config|0025_w2_ev_session|pg_constraint|pg_trigger|assumption_key_check|unit_check' backend/tests` before edit; update exact assertions, never replace them with lower bounds. New migration test is `backend/tests/test_w207_ev_money_postgres.py`.
+
+### 2. Selected-read wire examples and derivation
+
+These five **stocked** examples are a single test snapshot of the W2-05b `complete` c1 case at the final cutoff, with a separately authored test tariff `0.27775 KES/kWh` valid 08:00–16:00. The UUIDs are stable fixture constants for these examples only. Times are UTC; the UI converts only `source_time` to EAT for the labelled measured column. `known_at` is the captured committed disposition watermark. JSON decimal values remain strings at full precision. `links` always contains the five keys; null is a tested lack of a proved destination.
+
+```json
+{"site_id":"00000000-0000-4000-8000-000000000701","window":{"from":"2026-10-06T08:00:00.000000Z","to":"2026-10-06T09:00:00.000000Z","known_at":"2026-10-06T09:05:00.000000Z"},"currentness":{"state":"CURRENT","watermark":"2026-10-06T09:05:00.000000Z","latest_relevant_evidence_at":"2026-10-06T09:05:00.000000Z","pending_since":null},"source_provenance":{"class":"REGISTERED_SIMULATION","as_of":"2026-10-06T09:05:00.000000Z","limitation":"Registered test reports; not physical charger observations."},"limitations":["Availability and charger condition are not assessed."],"status":{"state":"OBSERVED_SESSIONS","claim_level":"OBSERVED","as_of":"2026-10-06T09:05:00.000000Z","limitation":null},"objective":{"text":"Let depot vehicles charge when scheduled, within the configured Site import limit.","configured_service_window":{"from":"2026-10-06T08:00:00.000000Z","to":"2026-10-06T16:00:00.000000Z"},"site_import_limit_kw":"80","as_of":"2026-10-06T09:05:00.000000Z","limitation":"Configuration is not a measured service result."},"denominator":{"started":1,"completed":1,"observed_abort":0,"incomplete":0,"contradictory":0,"orphan":0,"confirmed_delivery":1,"fault_aborted":0,"as_of":"2026-10-06T09:05:00.000000Z","limitation":null},"energy":{"supported_kwh":"30.000","complete_kwh":"30.000","partial_kwh":"0.000","unknown_seconds":0,"as_of":"2026-10-06T09:05:00.000000Z","limitation":null},"site_power":{"observed_peak_kw":null,"configured_limit_kw":"80","coverage":{"known_seconds":0,"expected_seconds":3600,"ratio":"0"},"claim_limit":"UNKNOWN","as_of":"2026-10-06T09:05:00.000000Z","limitation":"No accepted Site import intervals cover this window."},"findings":{"count":0,"items":[],"as_of":"2026-10-06T09:05:00.000000Z","limitation":null},"needs_attention":[],"consequence_summary":{"state":"ESTIMATED","quantity_kwh":"30.000","amount":"8.33250000","currency":"KES","overlap_group":"ev:1f8e1ed8c9548a09747bcb275e8b879a3c573d45128587729db534d94a52183f","as_of":"2026-10-06T09:05:00.000000Z","limitation":"Gross tariff scenario; not cash collected."},"links":{"self":"/sites/EV-LAB-001/ev","evidence":"/sites/EV-LAB-001/ev/evidence","analysis":"/sites/EV-LAB-001/ev/evidence/analysis","finding":null,"financials":"/sites/EV-LAB-001/ev/financials"}}
+```
+
+`GET /ev/overview` is the first object. Its `overlap_group` is the SHA-256 of the canonical five-element array with test tenant `00000000-0000-4000-8000-000000000700`, Site `00000000-0000-4000-8000-000000000701`, window 08:00–09:00 UTC and tariff revision `00000000-0000-4000-8000-000000000732`.
+
+```json
+{"site_id":"00000000-0000-4000-8000-000000000701","window":{"from":"2026-10-06T08:00:00.000000Z","to":"2026-10-06T09:00:00.000000Z","known_at":"2026-10-06T09:05:00.000000Z"},"currentness":{"state":"CURRENT","watermark":"2026-10-06T09:05:00.000000Z","latest_relevant_evidence_at":"2026-10-06T09:05:00.000000Z","pending_since":null},"source_provenance":{"class":"REGISTERED_SIMULATION","as_of":"2026-10-06T09:05:00.000000Z","limitation":"Registered test reports; not physical charger observations."},"limitations":[],"capabilities":[{"claim":"SESSION_OUTCOME","state":"SUPPORTED","required_roles":["session_event"],"missing_roles":[],"coverage":{"known_seconds":1800,"expected_seconds":1800,"ratio":"1"},"accepted_evidence_ids":["00000000-0000-4000-8000-000000000711","00000000-0000-4000-8000-000000000712"],"as_of":"2026-10-06T09:05:00.000000Z","limitation":null},{"claim":"SERVICE_STATE","state":"UNAVAILABLE","required_roles":["connector_status"],"missing_roles":["connector_status"],"coverage":{"known_seconds":0,"expected_seconds":3600,"ratio":"0"},"accepted_evidence_ids":[],"as_of":"2026-10-06T09:05:00.000000Z","limitation":"Availability is not assessed."},{"claim":"DELIVERED_ENERGY","state":"SUPPORTED","required_roles":["session_event","connector_meter_delta"],"missing_roles":[],"coverage":{"known_seconds":1800,"expected_seconds":1800,"ratio":"1"},"accepted_evidence_ids":["00000000-0000-4000-8000-000000000713"],"as_of":"2026-10-06T09:05:00.000000Z","limitation":null},{"claim":"FAULT_ASSOCIATION","state":"UNAVAILABLE","required_roles":["session_event","fault_event"],"missing_roles":["fault_event"],"coverage":{"known_seconds":0,"expected_seconds":1800,"ratio":"0"},"accepted_evidence_ids":[],"as_of":"2026-10-06T09:05:00.000000Z","limitation":"Cause is not established."},{"claim":"SITE_POWER_CONTEXT","state":"UNAVAILABLE","required_roles":["site_import"],"missing_roles":["site_import"],"coverage":{"known_seconds":0,"expected_seconds":3600,"ratio":"0"},"accepted_evidence_ids":[],"as_of":"2026-10-06T09:05:00.000000Z","limitation":null},{"claim":"POWER_CONSTRAINT","state":"UNAVAILABLE","required_roles":["site_import","requested_power","allocated_limit"],"missing_roles":["site_import","requested_power","allocated_limit"],"coverage":{"known_seconds":0,"expected_seconds":3600,"ratio":"0"},"accepted_evidence_ids":[],"as_of":"2026-10-06T09:05:00.000000Z","limitation":null},{"claim":"GROSS_TARIFF_SCENARIO","state":"SUPPORTED","required_roles":["connector_meter_delta","ev_gross_tariff_per_kwh"],"missing_roles":[],"coverage":{"known_seconds":1800,"expected_seconds":1800,"ratio":"1"},"accepted_evidence_ids":["00000000-0000-4000-8000-000000000713"],"as_of":"2026-10-06T09:05:00.000000Z","limitation":"Gross scenario only."}],"sources":[{"slot":"CONNECTOR_1","asset_id":"00000000-0000-4000-8000-000000000721","display_name":"Connector 1","contact":{"state":"UNKNOWN","checked_at":"2026-10-06T09:00:00.000000Z","last_seen_at":null},"quality":{"state":"GOOD","accepted_count":9},"roles":["session_event","connector_meter_delta"],"as_of":"2026-10-06T09:05:00.000000Z","limitation":"No source-specific contact diagnostic."},{"slot":"CONNECTOR_2","asset_id":"00000000-0000-4000-8000-000000000722","display_name":"Connector 2","contact":{"state":"UNKNOWN","checked_at":"2026-10-06T09:00:00.000000Z","last_seen_at":null},"quality":{"state":"NO_FACT","accepted_count":0},"roles":["session_event","connector_meter_delta"],"as_of":"2026-10-06T09:05:00.000000Z","limitation":"No accepted report for this role."},{"slot":"SITE_METER","asset_id":null,"display_name":"Site meter","contact":{"state":"UNKNOWN","checked_at":"2026-10-06T09:00:00.000000Z","last_seen_at":null},"quality":{"state":"NO_FACT","accepted_count":0},"roles":["site_import"],"as_of":"2026-10-06T09:05:00.000000Z","limitation":"No accepted Site import report."},{"slot":"BILLING","asset_id":null,"display_name":"Billing system","contact":{"state":"UNKNOWN","checked_at":"2026-10-06T09:00:00.000000Z","last_seen_at":null},"quality":{"state":"NO_FACT","accepted_count":0},"roles":[],"as_of":"2026-10-06T09:05:00.000000Z","limitation":"No accepted payment feed."}],"next_evidence":[{"code":"STATUS_GAP","text":"Recover connector status history","why":"Needed before connector availability can be assessed.","link":"/sites/EV-LAB-001/ev/evidence/analysis"},{"code":"SITE_IMPORT_GAP","text":"Record Site import power","why":"Needed for Site power context.","link":"/sites/EV-LAB-001/ev/evidence/analysis"},{"code":"BILLING_GAP","text":"Connect billing records","why":"Needed before any amount can be stated as collected.","link":"/sites/EV-LAB-001/ev/financials"}],"links":{"self":"/sites/EV-LAB-001/ev/evidence","evidence":"/sites/EV-LAB-001/ev/evidence","analysis":"/sites/EV-LAB-001/ev/evidence/analysis","finding":null,"financials":"/sites/EV-LAB-001/ev/financials"}}
+```
+
+The second object is `GET /ev/evidence`. The accepted count 9 is START + END + seven deltas in the complete vector; IDs 711–713 are **selectors for golden examples only**. The real golden file resolves all nine actual accepted IDs from W2-06's pinned vector, never collapses seven meter IDs to 713.
+
+```json
+{"site_id":"00000000-0000-4000-8000-000000000701","window":{"from":"2026-10-06T08:00:00.000000Z","to":"2026-10-06T09:00:00.000000Z","known_at":"2026-10-06T09:05:00.000000Z"},"currentness":{"state":"CURRENT","watermark":"2026-10-06T09:05:00.000000Z","latest_relevant_evidence_at":"2026-10-06T09:05:00.000000Z","pending_since":null},"source_provenance":{"class":"REGISTERED_SIMULATION","as_of":"2026-10-06T09:05:00.000000Z","limitation":"Registered test reports; not physical charger observations."},"limitations":[],"items":[{"evidence_id":"00000000-0000-4000-8000-000000000711","source_label":"Connector 1 · session start","role":"session_event","record_kind":"START","value_display":"Session started","unit":null,"source_time":"2026-10-06T08:01:00.000000Z","sent_at":"2026-10-06T08:01:01.000000Z","received_at":"2026-10-06T09:05:00.000000Z","quality":"GOOD","use":"SUPPORT","reason":null,"record_target_state":"UNAVAILABLE","links":{"self":null,"evidence":null,"analysis":null,"finding":null,"financials":null}}],"claim_rules":[{"claim":"SESSION_OUTCOME","required_roles":["session_event"],"observed_roles":["session_event"],"missing_roles":[],"coverage":{"known_seconds":1800,"expected_seconds":1800,"ratio":"1"},"result":"SUPPORTED","accepted_evidence_ids":["00000000-0000-4000-8000-000000000711","00000000-0000-4000-8000-000000000712"],"source_class":"REGISTERED_SIMULATION","known_at":"2026-10-06T09:05:00.000000Z","limitation":null}],"next_cursor":null,"links":{"self":"/sites/EV-LAB-001/ev/evidence/analysis","evidence":"/sites/EV-LAB-001/ev/evidence","analysis":"/sites/EV-LAB-001/ev/evidence/analysis","finding":null,"financials":"/sites/EV-LAB-001/ev/financials"}}
+```
+
+The third object is `GET /ev/evidence/analysis?limit=1`; the full first page uses `limit=20` and has all nine accepted rows, sorted `(source_time,evidence_id)`. `next_cursor` becomes the encoded last tuple when more rows exist. No synthetic gap is in `items`. The example's unsupported Record target deliberately stays null.
+
+```json
+{"site_id":"00000000-0000-4000-8000-000000000701","window":{"from":"2026-10-06T08:00:00.000000Z","to":"2026-10-06T09:00:00.000000Z","known_at":"2026-10-06T09:05:00.000000Z"},"currentness":{"state":"CURRENT","watermark":"2026-10-06T09:05:00.000000Z","latest_relevant_evidence_at":"2026-10-06T09:05:00.000000Z","pending_since":null},"source_provenance":{"class":"REGISTERED_SIMULATION","as_of":"2026-10-06T09:05:00.000000Z","limitation":"Registered test reports; not physical charger observations."},"limitations":["Gross tariff scenario; not cash collected."],"consequence":{"revision_id":"00000000-0000-4000-8000-000000000731","state":"ESTIMATED","reason":"ELIGIBLE_COMPLETE_INTERVALS","quantity_kwh":"30.000","tariff_revision_id":"00000000-0000-4000-8000-000000000732","tariff_value":"0.27775","currency":"KES","amount":"8.33250000","overlap_group":"ev:1f8e1ed8c9548a09747bcb275e8b879a3c573d45128587729db534d94a52183f","recorded_at":"2026-10-06T09:05:00.000000Z","source_gate":"REGISTERED_SIMULATION","session_revision_ids":["00000000-0000-4000-8000-000000000733"],"evidence_ids":["00000000-0000-4000-8000-000000000713"]},"not_included":["lost_sales","collections","margin","repair","warranty"],"next_cursor":null,"links":{"self":"/sites/EV-LAB-001/ev/financials","evidence":"/sites/EV-LAB-001/ev/evidence","analysis":"/sites/EV-LAB-001/ev/evidence/analysis","finding":null,"financials":"/sites/EV-LAB-001/ev/financials"}}
+```
+
+The fourth object is `GET /ev/financials`; expand its seven interval evidence IDs in the pinned golden file as above. `next_cursor=null` means no older consequence in this selection.
+
+```json
+{"site_id":"00000000-0000-4000-8000-000000000701","window":{"from":"2026-10-06T08:00:00.000000Z","to":"2026-10-06T09:00:00.000000Z","known_at":"2026-10-06T09:05:00.000000Z"},"currentness":{"state":"CURRENT","watermark":"2026-10-06T09:05:00.000000Z","latest_relevant_evidence_at":"2026-10-06T09:05:00.000000Z","pending_since":null},"source_provenance":{"class":"REGISTERED_SIMULATION","as_of":"2026-10-06T09:05:00.000000Z","limitation":"Registered test reports; not physical charger observations."},"limitations":[],"tariff":{"revision_id":"00000000-0000-4000-8000-000000000732","value":"0.27775","currency":"KES","unit":"currency/kWh","basis":"AUTHORED_ESTIMATE","valid_from":"2026-10-06T08:00:00.000000Z","valid_to":"2026-10-06T09:00:00.000000Z","recorded_at":"2026-10-06T08:00:00.000000Z"},"billing_state":"NO_RECORD","missing_keys":[],"links":{"self":"/sites/EV-LAB-001/ev/financial-assumptions","evidence":"/sites/EV-LAB-001/ev/evidence","analysis":"/sites/EV-LAB-001/ev/evidence/analysis","finding":null,"financials":"/sites/EV-LAB-001/ev/financials"}}
+```
+
+The fifth object is `GET /ev/financial-assumptions`. `basis` comes from the published 0010 revision; no billing or currency default is generated.
+
+For a **valid empty window**, all five endpoints share this exact common prefix: `{"site_id":"00000000-0000-4000-8000-000000000701","window":{"from":"2026-10-07T08:00:00.000000Z","to":"2026-10-07T16:00:00.000000Z","known_at":"2026-10-07T16:00:00.000000Z"},"currentness":{"state":"UNKNOWN","watermark":null,"latest_relevant_evidence_at":null,"pending_since":null},"source_provenance":{"class":"UNKNOWN","as_of":"2026-10-07T16:00:00.000000Z","limitation":"No accepted EV record in this window."},"limitations":["No accepted EV record in this window."]}`. Append these exact route fields: overview `status={state:NO_SESSIONS_OBSERVED,claim_level:UNKNOWN,as_of:null,limitation:"No accepted session start."}`, objective from configuration as stocked, denominator all eight counters zero with `as_of:null,limitation:"No session assessment."`, energy all quantities null and unknown_seconds null with same as_of/limitation, site_power peak null/configured limit `"80"`/coverage `0/28800/"0"`/UNKNOWN with same as_of/limitation, findings zero/empty with same as_of/limitation, needs_attention empty, consequence_summary `state:UNPRICED,quantity_kwh:null,amount:null,currency:null,overlap_group:null,as_of:null,limitation:"No gross tariff scenario assessed."`; evidence `capabilities:[]`, four configured source rows with UNKNOWN contact, NO_FACT/0 quality and no accepted roles, `next_evidence:[]`; Analysis `items:[],claim_rules:[],next_cursor:null`; Financials `consequence:null,not_included:["lost_sales","collections","margin","repair","warranty"],next_cursor:null`; Assumptions `tariff:null,billing_state:"NO_RECORD",missing_keys:["ev_gross_tariff_per_kwh"]`. Each appends the same five-key `links` object with its own `self` and proved Evidence/Analysis/Financials routes. Do not turn absent accepted reports into offline contact.
+
+For a **pending** selection, use the stocked common keys but `currentness={state:"PENDING_RECOMPUTE",watermark:"2026-10-06T09:05:00.000000Z",latest_relevant_evidence_at:"2026-10-06T09:05:00.000000Z",pending_since:"2026-10-06T09:05:00.000000Z"}`. At 09:00, the late-record session is INCOMPLETE; overview denominator `started:1,completed:0,observed_abort:0,incomplete:1,contradictory:0,orphan:0,confirmed_delivery:0,fault_aborted:0`, energy `supported_kwh:"30.000",complete_kwh:null,partial_kwh:"30.000",unknown_seconds:0`; overview consequence_summary `WITHHELD` with null amount/currency and limitation `New evidence is being assessed.` Evidence changes SESSION_OUTCOME and DELIVERED_ENERGY to LIMITED; `missing_roles` includes `session_terminal`, Analysis contains accepted rows but not the held END at 09:00 and gains that actual END at 09:05; Financials selected current consequence is `null` until a settled revision, while any old revision is history only; Assumptions still shows the same tariff. A pending HTTP response is 200, never a false empty or a current prior amount.
+
+For **refusal**, each of the five endpoints returns the same exact error envelope for its typed reason: 401 `{"error":{"code":"UNAUTHENTICATED","message":"Sign in to view EV evidence."}}`; 403 `{"error":{"code":"SITE_SCOPE_FORBIDDEN","message":"You do not have access to this EV evidence."}}`; 404 `{"error":{"code":"SITE_NOT_FOUND","message":"This EV Site or record was not found."}}`; 409 `{"error":{"code":"EV_CURSOR_BASIS_CHANGED","message":"Selection changed. Reload this view."}}`; 422 `{"error":{"code":"EV_WINDOW_INVALID","message":"Choose a valid UTC start and end, up to 31 days."}}`; 503 `{"error":{"code":"EV_READ_UNAVAILABLE","message":"EV evidence is temporarily unavailable. Retry."}}`. The 403 disclosure variant uses `EV_SOURCE_DISCLOSURE_FORBIDDEN` with the same 403 message; the 404 record variant uses `EV_RECORD_NOT_FOUND` with the same 404 message. Other 409 and 422 codes in the prior closure use their status's same visible message. Refusals have no Site data keys.
+
+| Field | Exact derivation, including null rule |
+| --- | --- |
+| `window,currentness` | Valid paired query and captured committed S2 disposition watermark; default known_at is that watermark. PENDING if intersecting W2-06/07 work lacks a successful current basis; HISTORICAL if an exact older cutoff is selected; STALE_SOURCE only from source-specific freshness. Never infer status from the host clock alone. |
+| `source_provenance,limitations` | S4-05 class over the exact accepted ID set; mixed/unknown is explicit. An empty accepted set is UNKNOWN. Each limitation is a plain selected reason, never a mock sentence. |
+| `status,denominator,findings` | Latest settled W2-06 full-window `assessment_revision.result` and current supported Finding heads, with their creation time. Counts are independent of pagination. No assessment produces null as_of and zero counts with a limitation. |
+| `objective` | Effective W2-05a Foundation schedule and import limit; absent limit is null and says `Site limit not declared`. Configuration as_of is the effective revision time, not a measured health fact. |
+| `energy` | Distinct SUPPORT intervals from selected W2-06 session heads, complete subset by `energy_complete`, partial subset separately, unknown union seconds from W2-06; contradictory support is null. No report means null quantity, not 0. |
+| `site_power` | Accepted aligned Site import means and effective limit. Peak null without qualifying intervals; coverage known/expected in integer seconds and exact Decimal ratio. No requested+allocated+site import alignment means CONTEXT_ONLY or UNKNOWN, never a causal constraint claim. |
+| `needs_attention,next_evidence` | First applicable fixed priority in the previous closure, using selected pending/Finding/missing-role/tariff evidence; link null unless selected target is proved. No item returns `[]`. |
+| `capabilities` | Seven fixed claim rows in the order in the stocked example. State/coverage comes from selected role evidence, not source contact. Accepted IDs are exact ledger IDs, including all seven meter IDs for the complete case. |
+| `sources` | Four v69 slots from effective binding and source-specific contact diagnostics; quality count from selected accepted facts. Undeclared billing is NOT_CONNECTED only if configuration proves absence; otherwise NO_RECORD. |
+| `items,claim_rules,next_cursor` | Accepted public ledger records at cutoff, ordered `(source_time,evidence_id)` and W2-06 use/reason; W2-04 exact-link integration test gates record target. Cursor is the canonical selection/basis/last tuple. No synthetic missing report in `items`. |
+| `consequence` | Latest immutable Site/window 0026 revision whose basis matches selected settled sessions/tariff/source; absent means null. History uses cursor, current never sums Findings. `session_revision_ids,evidence_ids` come from scoped link tables. |
+| `tariff,billing_state,missing_keys` | 0010 effective assignment at both valid and recorded cutoff, not a billing price. Billing state from configured accepted payment feed, never inferred from absent data alone. Missing tariff is null and key is listed once. |
+| `links` | Exact selected Site routes and proved record destination; fixed keys `self,evidence,analysis,finding,financials`, each string or null. Preserve from/to/known_at when creating a link. |
+
+### 3. Gross tariff worked vectors
+
+Formula version `ev-gross-tariff/1`: `quantity_kwh = sum(distinct eligible accepted meter interval kWh)` as exact Decimal; `amount = quantity_kwh * selected_tariff.value` as exact Decimal. No storage, hash or JSON rounding. The UI rounds to two minor units **half even** for KES display only and prefixes the selected ISO currency code (`KES 8.33`). The authored tariff is `0.27775 KES/kWh`, valid for every eligible half-open interval, recorded before the selected cutoff. Keep `"8.33250000"` in JSON and numeric storage. `currency/kWh` is the stored unit; the display string uses `KES/kWh`. This is a gross tariff scenario, never cash collected.
+
+| W2-05b case | W2-06 selected energy | Scenario quantity | Exact amount with the authored test tariff | Expected state/reason |
+| --- | ---: | ---: | ---: | --- |
+| complete | 30.000 complete | 30.000 | 8.33250000 | ESTIMATED / ELIGIBLE_COMPLETE_INTERVALS |
+| interrupted | 15.000 pre-abort, complete active span | 15.000 | 4.16625000 | ESTIMATED / ELIGIBLE_COMPLETE_INTERVALS; unmet demand unknown |
+| fault-before-start | c2 10.000; no c1 START | 10.000 | 2.77750000 | ESTIMATED / ELIGIBLE_COMPLETE_INTERVALS; c1 contributes none |
+| missing-meter | 25.000 partial; 300 unknown seconds | null | null | UNPRICED / INCOMPLETE_ENERGY |
+| late-record at 09:00 | 30.000 partial, END held | null | null | WITHHELD / PENDING_RECOMPUTE when late END arrives; historical 09:00 stays incomplete |
+| late-record at 09:05 after settled recompute | 30.000 complete | 30.000 | 8.33250000 | ESTIMATED / ELIGIBLE_COMPLETE_INTERVALS, new basis/revision |
+| contradictory | raw accepted 30.000, excluded | null | null | WITHHELD / CONTRADICTORY_EVIDENCE |
+
+No tariff: otherwise eligible cases are `UNPRICED/TARIFF_MISSING` and all amount/currency fields null. A half-open tariff gap or two selected revision IDs across included intervals: `UNPRICED/PRICE_GAP_OR_CHANGE`. A wrong ISO code is rejected by publication before money recompute; two valid different currencies likewise yield `PRICE_GAP_OR_CHANGE`. MIXED/UNKNOWN source, pending, stale or historical-as-current uses the earlier WITHHELD priority. Numeric zero is permitted only for a witnessed full-coverage zero-delta session; a missing session has null quantity.
+
+### 4. Five v69 route sheets: closed copy, disclosures and measured bounds
+
+All routes keep the v69 Site heading, Overview/Performance/Financials/Evidence local navigation, selected Site/window strip and the existing shared panel frame. The numbered panels below are the **entire** main panel list, in DOM order. Do not add an answer card or reorder a pair. All panels are closed initially. The panel height is measured border box at 1440 CSS px; the ceiling is 1.3× the mock. At 390, stack pairs and scroll tables horizontally at a readable minimum width, preserving every header and cell. No ellipsis-only values. All amount text comes from a selected Decimal field; all time display is derived from the selected UTC instant, with EAT conversion only where the header says EAT.
+
+| Route; panel; mock → maximum px | Exact closed content and feeding response fields | Disclosure content; width and wrapping |
+| --- | --- | --- |
+| `ev`; **1 What happened on the service day**; 238→309 | Seven v69 chronology positions. Only `analysis.items` whose kind is accepted START/FAULT/ABORT/END get `{HH:MM UTC} · {event label} · Record {short ID}`. The expected absent terminal is `End record missing`, from W2-06 `reason_codes`, and is styled as a gap, never as an accepted event. Other unused positions `No accepted event`. The objective sentence uses `objective.text`; supporting sentence uses `status.limitation` and cannot claim the Site supply was exonerated. Footer `Review sessions →` is a proved selected Sessions link. | One closed `Event details` disclosure lists each exact accepted evidence ID, source/received instants, use and reason. Full width 1161 px. Seven short chronology cells wrap at words; IDs remain accessible by full name. More than seven actual accepted events go inside this disclosure. |
+| `ev`; **2 Charging activity and site power**; 356→463 | Chart legend `Connector energy`, `Site import`, `Configured limit`; interval deltas from W2-06 selected `ev_meter_interval`, import points from `site_power`, cap from `site_power.configured_limit_kw`. Gaps say `No accepted report`. Caption `Power is operating context, not proof of charger condition or cause.` Footer `Open single line diagram →` only if the selected SLD destination exists. | `Chart details` gives per-series source IDs, exact covered intervals and `site_power.coverage`, with `No accepted report` for missing slots. Left width 735 px; paired with panel 3 at 408 px; 1.8:1 desktop grid. Axis labels never silently interpolate a gap. |
+| `ev`; **3 Needs attention**; 356→463 | First three `needs_attention[]` in fixed priority, each `text`, `limitation`, and proved `link`. Code labels exactly `New evidence pending`, `Fault-aborted session`, `End record missing`, `Meter or source gap`, `No tariff set for estimates`; null link `No linked page for this item`. Empty `No recorded attention item for this window`. | `Attention details` holds further selected items with exact reason/as_of/link. Right width 408 px; ordinary text wraps. State badges use tone table below. |
+| `ev`; **4 Bounded money consequence**; 193→251 | `consequence_summary.amount/currency/state`: `KES 8.33 gross tariff estimate` for the worked case, `Unpriced`, `Withheld`, or `No gross tariff scenario assessed` for null consequence. Sentence `Gross tariff estimate for {quantity_kwh} kWh delivered with complete coverage. Not cash collected.` only for ESTIMATED; otherwise selected `limitation`. Footer `Open financial bridge →` from `links.financials`. | `Scenario details` shows exact unrounded amount, tariff revision, source gate, overlap group and historical label when selected. Left 735 px. Amount nowrap; prose wraps. |
+| `ev`; **5 Next step**; 193→251 | Heading/paragraph from first `next_evidence.text/why`, else `No recorded next step`; button slot `Review recommendation · Not available yet` is static, no href. | No disclosure; right 408 px. Text wraps at words. |
+| `ev-evidence`; **1 What we can conclude now**; 336→437 | Header order `Capability | Evidence | What we can say | What is missing | Next step`; fixed widths `19/13/27/25/16%`. Four rows in mock order: `Session outcomes`, `Connector availability`, `Delivered energy`, `Cause of interruption`. `capabilities` maps to `Full/Limited/None/Contradictory` badges. Row sentences are the earlier visible-copy ledger, fed by `denominator`, `energy`, exact Finding and `missing_roles`. Availability says `Not assessed`; no invented percentage. Footer `Evidence readiness is not equipment condition`. | `Capability details` discloses all seven claim rules, accepted IDs, required/observed roles, coverage, source class, cutoff and limitation. Header and ordinary cells wrap; only short badge word nowrap. Full 1161 px. |
+| `ev-evidence`; **2 Data sources · data quality, not equipment condition**; 336→437 | Four rows: Connector 1, Connector 2, Site meter, Billing system, bound to `sources[].slot/display_name`. Header order `SOURCE | CONTACT AT WINDOW END | ACCEPTED QUALITY | WHAT IT PROVIDES | AFFECTS`, fixed `26/16/16/23/19%`. Contact from `sources[].contact`: `Recent/Old/Never/Unknown/Mixed`, `No source-specific record` in detail; `Not declared` only on proved absent binding. Quality from `sources[].quality`: `Good/Limited/Mixed/No fact`. Closed What: `Sessions and status` only when accepted, Site meter `Import power` only when accepted, otherwise `No accepted report for this role`; Billing `No payment feed`. Closed Affects: `Sessions`, `Sessions`, `Site power`, `Collections not assessed`. Footer `Contact checked at window end {to}`. | `Source details` contains full bound source/role, exact diagnostic and accepted counts/times, quality and limitations; never asserts charger health. Desktop panel width 735 px, with panel 3 at 408 px. At 390 minimum table width 640 px. Headers/ordinary text wrap; only contact/quality chip text nowrap. No blanket `td > *` nowrap. |
+| `ev-evidence`; **3 Most useful next evidence**; 336→437 | Three rows from `next_evidence[0..2]` with exact `text`, `why`, proved link or `No linked page for this item`. Unfilled row: `No further evidence request recorded`. Notice outside panels: `Record-level detail and each claim limit are in Evidence › Analysis.` with exact selected Analysis link. | `Evidence request details` identifies missing role and current claim effect. Right 408 px; full text wraps. No managed Action promise. |
+| `ev-evidence-analysis`; **1 Accepted records behind the conclusions**; 266→345 | Headers `SOURCE · READING | VALUE | MEASURED (EAT) | SENT (UTC) | RECEIVED (UTC) | RECORD`; fixed widths `28/9/17/14/16/16%`. Initially first three real `items`, ordered `(source_time,evidence_id)`, no synthetic gap. `source_label`, `value_display` + unit, EAT `source_time`, UTC HH:MM:SS `sent_at/received_at`; null Sent `Not recorded`. Record `Record {short evidence_id}`, second line `No analysis link` if `record_target_state=UNAVAILABLE`. Empty `No accepted EV records in this window`. Footer `Measured time is kept even when a report arrives late`. | One closed `Record details` disclosure includes full evidence ID, full UTC instants, quality/use/reason, source provenance and exact link state; unavailable line is `Analysis view not available for this EV record`. Desktop full width 1161 px; table minimum 900 px at 390 with scroll. Header/ordinary text wraps, time cells/short ID nowrap. At desktop only use 6 px cell vertical padding and line-height 1.25 as W2-04 M2 if needed to hit 345 px. |
+| `ev-evidence-analysis`; **2 How a claim limit is set**; 148→193 | Two blocks exactly: `Each capability lists the readings it needs. Missing readings narrow the conclusion to covered periods; gaps are shown.` and `Source reporting is not equipment condition.` If `claim_rules=[]`, instead `Claim limit not assessed`. Selected capability chip summary is from `claim_rules[].result/coverage`, never invented. | One `Claim details` disclosure lists each rule's required/observed/missing role, coverage, accepted IDs, source class, known_at and limitation. Full 1161 px; reduce only this panel's disclosure gap by 2 px if it exceeds 193 px, following W2-04 Run 8. |
+| `ev-financials`; **1 What happened → what it means in money**; 285→371 | Headers `What happened | How it becomes money | Consequence | Basis | Confidence | Source`; fixed `23/18/17/12/13/17%`. First row from `consequence`: `{quantity_kwh} kWh delivered with complete coverage`, `{quantity_kwh} kWh × {tariff_value} {currency}/kWh`, `{currency} {rounded amount} gross estimate`, `Scenario`, `Metered with complete coverage`, exact Sessions source or `No linked page for this item`. If null: one row `No eligible delivered-energy consequence | Tariff not declared | Unpriced | Not assessed | Not assessed | No linked page for this item`. Additional explanatory rows only with selected interrupted Finding (`Lost demand not established`) or explicit repair gap (`No accepted repair or warranty cost record`), both amount null. Footer source instruction only with proved link. | `Basis details` gives unrounded Decimal, seven meter IDs, exact session revision, tariff revision/assignment, source class, excluded intervals, limitation and historical status. Full 1161 px; headers/ordinary text wrap, currency amount and badges nowrap; table minimum 900 px at 390. |
+| `ev-financials`; **2 Assumptions in use**; 234→304 | Three key/value rows in order: `Tariff` from `tariff.value/currency/basis` or `Not declared`; `Billing / collections` from `billing_state` as `Not connected` only if configuration proves absence else `No record`; `Currency` from selected tariff or `Not declared`. Button `Review assumptions` to selected read-only route. | `Assumption details` shows tariff revision, unit, valid/recorded time and source. Width 735 px, paired 408 px. Values wrap except short badge. |
+| `ev-financials`; **3 Not included**; 234→304 | `Lost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.` from fixed `not_included` keys, each present exactly once. No roll-up link unless a selected contract proves it. | No disclosure. Width 408 px; prose wraps. |
+| `ev-assumptions`; **1 Financial assumptions**; 272→354 | Headers `Assumption | Value | Used for`; fixed `32/25/43%`. Rows `Tariff | {value} {currency}/kWh · {basis} or Not declared | Translating metered energy`, `Billing / collections | Not connected or No record | Cash collection not assessed`, `Currency | {currency} or Not declared | Scenario display currency`. Values from `tariff,billing_state,missing_keys`. Footer `Site-scoped business context · changes keep the earlier version`. Outside notice `Changing the tariff re-translates the same metered energy. It does not change what was measured.` | `Assumption details` gives exact revision, valid/recorded range, authored basis and source for tariff; gaps are labelled. Full 1161 px; at 390 table minimum 600 px and scroll. Header/ordinary text wrap; currency token nowrap. |
+
+**Chip tone ledger.** Route-scoped `.badge.ev-tone--green` uses background `#e3f4ed`, text `#166b50`, border `#b5dfcd`; `.badge.ev-tone--amber` uses `#fff1d9/#8e580c/#c9a24a`; `.badge.ev-tone--red` uses `#fcebea/#a13838/#d26565`; neutral inherits `.badge--neutral`. Green: `Full`, `Good`, `Recent`, `Evidence supported`, completed with complete coverage. Amber: `Limited`, `Old`, `Never`, `Mixed`, `Not declared`, `Evidence limited`, observed abort, incomplete, `Unpriced`, `Withheld`. Red: `Contradictory`, `Evidence contradictory`. Neutral: `None`, `No fact`, `Unknown`, `Evidence unknown`, counts, provenance, claim level, and unbuilt route labels. Contact colour describes contact only. Do not recolour shared provenance/lifecycle/origin/configuration badges.
+
+All five routes use these exact common visible states: missing link `No linked page for this item`; unsupported mock destination `{label} · Not available yet` as noninteractive text with accessible name `{label}, Not available yet`; PENDING strip `New evidence is being assessed`; HISTORICAL strip `Historical selection · {known_at} UTC`; empty is the route-specific wording above. 401/403/404/409/422/503 copy is the exact refusal mapping in section 2, never an empty panel. Existing `UnavailableLinkEntry` owns static unsupported tabs. A detail disclosure may grow beyond the closed height, but the initial closed border box stays within its listed ceiling unless a captured actual selected row and reason is entered in the review packet.
+
+### 5. Fixture file and assertions
+
+Create `backend/tests/fixtures/w2/ev-w207-golden.json` as sorted-key, two-space UTF-8 JSON with final LF, schema `ev-w207-golden/1`. It has `site` (the W2-05a `EV-LAB-001` effective Foundation and IDs), `tariff_publication` (authorized API request with key `ev_gross_tariff_per_kwh`, value `0.27775`, currency `KES`, unit `currency/kWh`, basis `AUTHORED_ESTIMATE`, valid `[2026-10-06T08:00:00.000000Z,2026-10-06T09:00:00.000000Z)`, idempotency key `w207-golden-tariff-1`), `cases` keyed by the six W2-05b manifest names, `negative_prices`, and `responses`. Each case cites its existing manifest path and W2-06 vector `records` by actual accepted ID; it does not duplicate or invent a public report. `responses` pins the five selected GET bodies in section 2 after replacing illustrative IDs with the actual W2-06 vector IDs and calculated SHA. The fixture writer resolves those IDs from ordinary persisted batch dispositions; it must fail if the selectors are ambiguous. No `private_world`, forcing, invented interval or direct DB seed is permitted.
+
+| Fixture case | Assert against persisted selected read and 0026 links |
+| --- | --- |
+| `complete` | Seven SUPPORT meter links exactly once, `30.000` complete, ESTIMATED `8.33250000`, correct Site/window/price revision and overlap hash, no Finding money sum. |
+| `interrupted` | Four pre-abort SUPPORT deltas, `15.000`, ESTIMATED `4.16625000`, Finding has START/FAULT/ABORT but money has no lost demand. |
+| `fault` | c1 pre-start FAULT and CLEAR are context only; only c2 three SUPPORT intervals, `10.000`, ESTIMATED `2.77750000`; no c1 session/consequence link. |
+| `missing-meter` | Six accepted SUPPORT deltas sum `25.000` partial, uncovered union 300 seconds, `energy_complete=false`, no priced session, UNPRICED/INCOMPLETE_ENERGY, amount null. |
+| `late-record` | At 09:00 held END absent from accepted IDs, INCOMPLETE and no current amount; at 09:05 actual END accepted and new settled revision `30.000`/`8.33250000`; old cutoff remains historical and never becomes current. |
+| `contradictory` | Both END IDs CONTEXT, seven meter reports EXCLUDED, raw accepted `30.000` but supported/complete quantity null, WITHHELD/CONTRADICTORY_EVIDENCE, amount null. |
+| `negative_prices` | No tariff -> TARIFF_MISSING; valid half-open gap or two revisions -> PRICE_GAP_OR_CHANGE; unsupported currency code refused by publication; MIXED/UNKNOWN source -> SOURCE_GATE; pending -> PENDING_RECOMPUTE; duplicate accepted interval ID -> CONTRADICTORY_EVIDENCE; no accepted interval -> null quantity; witnessed zero delta -> numeric zero eligible. |
+
+For every case assert: exact response keys including explicit nulls; route and cursor stability across reload; full-window denominator independent of Analysis page size; no synthetic accepted gap; seven capabilities and four source slots in mock order; valid empty versus typed 403/404/503; no mock values (`$0.30`, `$36`, `120 kWh`, `F-130`, `SES-011`, `ACT-061`) in responses; exact source/record link proof; correct W2-04 Run 9 tone and closed Record copy; all five panel counts/order/heights at 1440 and accessible scroll at 390. Test migration constraint and trigger cases named in section 1, including one real accepted EV INSERT, one tariff INSERT, one source-gate INSERT, backfill, duplicate enqueue, one successful work attempt, retry after FAILED, and downgrade refusal. No source contact chip may be inferred from gateway online state.
