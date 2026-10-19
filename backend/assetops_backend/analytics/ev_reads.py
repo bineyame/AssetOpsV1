@@ -15,7 +15,7 @@ import binascii
 import json
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Any
+from typing import Any, Iterable
 from uuid import UUID
 
 from assetops_backend.analytics.assessment_inputs import iso
@@ -62,11 +62,22 @@ def energy_complete(state: str, supported_kwh: Decimal | None, unknown_meter_sec
     return supported_kwh is not None and unknown_meter_seconds == 0
 
 
-def completeness(reason_codes: list[str], unknown_meter_seconds: int | None) -> dict[str, bool]:
-    codes = set(reason_codes)
-    return {"start": "MISSING_START" not in codes, "terminal": "MISSING_TERMINAL" not in codes,
-            "meter": unknown_meter_seconds == 0 and "METER_GAP" not in codes,
-            "clock": "CLOCK_UNATTESTED" not in codes}
+def completeness(state: str, unknown_meter_seconds: int | None, evidence: Iterable[tuple[str | None, str, str | None]],
+                 intervals: Iterable[tuple[str, str | None]]) -> dict[str, bool]:
+    """r8 M2: the four booleans from the exact selected revision's uses only. `evidence` is `(record_kind, use,
+    reason)` of its `ev_session_evidence` rows and `intervals` `(use, reason)` of its `ev_meter_interval` rows; a
+    SUPPORT row is `use='SUPPORT' AND reason IS NULL`. Reason codes explain a missing chip but never create one.
+    A SUPPORT row has passed the R4 clock gate, so `clock` needs a SUPPORT START and no linked CLOCK_UNATTESTED
+    exclusion."""
+    events, meters = list(evidence), list(intervals)
+    support = {kind for kind, use, reason in events if use == "SUPPORT" and reason is None}
+    start = "EV_SESSION_START" in support
+    unattested = any(reason == "CLOCK_UNATTESTED" for _k, _u, reason in events)         or any(reason == "CLOCK_UNATTESTED" for _u, reason in meters)
+    return {"start": start,
+            "terminal": bool(support & {"EV_SESSION_END", "EV_SESSION_ABORT"}),
+            "meter": any(use == "SUPPORT" and reason is None for use, reason in meters)
+            and unknown_meter_seconds == 0 and state != "CONTRADICTORY",
+            "clock": start and not unattested}
 
 
 def encode_cursor(lo: datetime, hi: datetime, known: datetime, basis: str, last_time: datetime,

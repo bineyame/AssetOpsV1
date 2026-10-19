@@ -215,19 +215,20 @@ function energy(s: EvSessionItem): string {
   return `${s.supported_kwh} kWh · ${s.energy_complete === true ? "complete" : "partial"}`;
 }
 
-/** Present facts, then known gaps, from `completeness` and `reason_codes` only. */
+/**
+ * Present facts, then known gaps (r8 M2): the four `completeness` booleans come from the selected revision's
+ * SUPPORT uses; a missing chip is explained, never inferred present from an absent reason code.
+ */
 export function completenessChips(s: EvSessionItem): string[] {
   const c = s.completeness;
   const present = [c.start ? "Start" : null, c.terminal ? "Terminal" : null, c.meter ? "Meter" : null, c.clock ? "Clock" : null];
   const gaps = [
-    c.terminal ? null : "No end record",
+    c.terminal ? null : s.state === "CONTRADICTORY" ? "Competing end records" : "No end record",
     c.meter
       ? null
-      : s.unknown_meter_seconds === null
-        ? s.state === "CONTRADICTORY"
-          ? "Meter coverage unknown"
-          : null
-        : `Meter gap: ${s.unknown_meter_seconds} s`,
+      : s.state !== "CONTRADICTORY" && s.unknown_meter_seconds !== null && s.unknown_meter_seconds > 0
+        ? `Meter gap: ${s.unknown_meter_seconds} s`
+        : "Meter coverage unknown",
     c.clock ? null : "Clock not attested",
   ];
   return [...present, ...gaps].filter((x): x is string => x !== null);

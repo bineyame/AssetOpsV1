@@ -124,7 +124,7 @@ const STATES = {
     session(12, { energy_complete: false, unknown_meter_seconds: 600, reason_codes: ["METER_GAP"], completeness: { start: true, terminal: true, meter: false, clock: true } }),
   ], { confirmed_delivery: 0 }),
   contradictory: sessions("CURRENT", "CONTRADICTORY", [
-    session(13, { state: "CONTRADICTORY", end_at: null, energy_complete: null, unknown_meter_seconds: null, reason_codes: ["CONTRADICTORY_TERMINAL"], completeness: { start: true, terminal: true, meter: false, clock: true } }),
+    session(13, { state: "CONTRADICTORY", end_at: null, energy_complete: null, unknown_meter_seconds: null, reason_codes: ["CONTRADICTORY_TERMINAL"], completeness: { start: true, terminal: false, meter: false, clock: true } }),
   ], { completed: 0, contradictory: 1, confirmed_delivery: 0 }),
   empty: sessions("CURRENT", "NO_SESSIONS_OBSERVED", [], { started: 0, completed: 0, confirmed_delivery: 0, orphan: 1 }),
   pendingLate: sessions("PENDING_RECOMPUTE", "OBSERVED_SESSIONS", [
@@ -314,6 +314,15 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(cells[3]).toBe("Contradictory");
     expect(cells[4]).toContain("Meter coverage unknown");
     expect(outcomeBadge().className).toContain("ev-tone--red");
+  });
+
+  it("contradictory_row_has_no_terminal_chip", async () => {
+    renderEv(SESSIONS, ok(STATES.contradictory));
+    await settledScreen();
+    const chips = Array.from(document.querySelectorAll("tbody tr")[0].querySelectorAll("td")[4].querySelectorAll(".ev-chip")).map((x) => x.textContent);
+    expect(chips).toEqual(["Start", "Clock", "Competing end records", "Meter coverage unknown"]);
+    expect(chips).not.toContain("Terminal");
+    expect(chips).not.toContain("No end record");
   });
 
   it("empty and orphan: settled zero starts says so, with the orphan context", async () => {

@@ -2181,6 +2181,23 @@ class EvReadService:
         names = self._display_names(c, snap)
         q = self._query(snap)
         provenance = snap["provenance"]
+        # r8 M2: completeness from the exact selected revisions' uses, in the same read snapshot.
+        revision_ids = [r[4] for r in rows]
+        uses: dict[Any, list] = {x: [] for x in revision_ids}
+        meters: dict[Any, list] = {x: [] for x in revision_ids}
+        if revision_ids:
+            for rid, kind, use, why in c.execute(text(
+                    "SELECT x.revision_id, CASE WHEN e.family = 'EVENT' THEN e.record_kind END, x.use, x.reason "
+                    "FROM ev_session_evidence x JOIN accepted_evidence e ON e.tenant_id = x.tenant_id "
+                    "AND e.site_id = x.site_id AND e.id = x.evidence_id WHERE x.tenant_id = :t AND x.site_id = :s "
+                    "AND x.revision_id = ANY(CAST(:ids AS uuid[]))"),
+                    {"t": snap["t"], "s": snap["s"], "ids": [str(x) for x in revision_ids]}).all():
+                uses[rid].append((kind, use, why))
+            for rid, use, why in c.execute(text(
+                    "SELECT revision_id, use, reason FROM ev_meter_interval WHERE tenant_id = :t AND site_id = :s "
+                    "AND revision_id = ANY(CAST(:ids AS uuid[]))"),
+                    {"t": snap["t"], "s": snap["s"], "ids": [str(x) for x in revision_ids]}).all():
+                meters[rid].append((use, why))
         items = []
         for r in rows:
             reasons = list(_ev_json(r[17]) or ())
@@ -2194,7 +2211,7 @@ class EvReadService:
                 "end_bounds": {"earliest": _ev_plain(r[12]), "latest": _ev_plain(r[13])},
                 "supported_kwh": _ev_plain(r[14]), "energy_complete": _ev_energy_complete(r[7], r[14], r[15]),
                 "unknown_meter_seconds": r[15], "reason_codes": reasons, "fault_evidence_id": _ev_plain(r[16]),
-                "finding_id": _ev_plain(fid), "completeness": _ev_completeness(reasons, r[15]),
+                "finding_id": _ev_plain(fid), "completeness": _ev_completeness(r[7], r[15], uses[r[4]], meters[r[4]]),
                 "as_of": _ev_plain(sel["created_at"]), "source_provenance": provenance,
                 "links": {"self": f"/api/sites/{snap['code']}/ev/sessions/{_ev_plain(r[0])}{q}", "evidence": None,
                           "analysis": None,

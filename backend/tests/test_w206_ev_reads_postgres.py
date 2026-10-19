@@ -410,3 +410,54 @@ def test_wider_replacement_never_leaves_exact_window_current_on_stale_head(chain
     assert current["source_provenance"]["basis_sha256"] == heads[-1].basis_sha256
     [item] = current["items"]
     assert item["state"] == "COMPLETED" and _at(item["end_at"]) == datetime(2026, 10, 6, 8, 31, tzinfo=lo.tzinfo)
+
+
+@pytest.mark.parametrize("case, expected", [
+    ("complete", {"start": True, "terminal": True, "meter": True, "clock": True}),
+    ("contradictory", {"start": True, "terminal": False, "meter": False, "clock": True}),
+    ("missing-meter", {"start": True, "terminal": True, "meter": False, "clock": True}),
+])
+def test_completeness_uses_selected_evidence_not_reason_absence(chain, case, expected) -> None:  # noqa: F811
+    """r8 M2: the four booleans come from the selected revision's SUPPORT uses; the contradictory case's terminals
+    are CONTEXT/CONFLICTING_TERMINAL, so no Terminal chip although no MISSING_TERMINAL reason is stored."""
+    built, c = _settled(chain, case)
+    body = get(c, "sessions")
+    asset = str(_connector_asset(built, SELECTED[case])).lower()
+    [item] = [x for x in body["items"] if x["connector_asset_id"] == asset]
+    assert item["completeness"] == expected, case
+    detail = get(c, f"sessions/{item['session_id']}?{_q(body)}")
+    assert detail["completeness"] == expected
+    support = [e for e in detail["evidence"] if e["use"] == "SUPPORT" and e["reason"] is None]
+    if case == "contradictory":
+        assert "MISSING_TERMINAL" not in item["reason_codes"]
+        assert {e["reason"] for e in detail["evidence"] if e["use"] == "CONTEXT"} >= {"CONFLICTING_TERMINAL"}
+        assert len(support) == 1  # the START alone
+    # A revision with no SUPPORT row and no reason code shows no present chip (reason absence creates nothing).
+    from assetops_backend.analytics.ev_reads import completeness
+    assert completeness("COMPLETED", 0, [("EV_SESSION_START", "CONTEXT", None)], [("CONTEXT", None)]) == {
+        "start": False, "terminal": False, "meter": False, "clock": False}
+
+
+def test_finding_evidence_matches_selected_session_support(chain) -> None:  # noqa: F811
+    """r8 M3: the selected Finding revision's evidence is exactly the selected session revision's SUPPORT START,
+    FAULT and ABORT, matched by accepted ID and event kind, and the claim's fault is that FAULT."""
+    built, c = _settled(chain, "interrupted")
+    body = get(c, "sessions")
+    q = _q(body)
+    item = next(x for x in body["items"] if x["finding_id"] is not None)
+    finding = get(c, f"findings/{item['finding_id']}?{q}")
+    session = get(c, f"sessions/{item['session_id']}?{q}")
+    with built.engine.connect() as conn:
+        kinds = {str(i).lower(): k for i, k in conn.execute(text(
+            "SELECT id, record_kind FROM accepted_evidence WHERE site_id = :s AND family = 'EVENT'"),
+            {"s": built.site_id}).all()}
+    support = {e["evidence_id"]: kinds.get(e["evidence_id"]) for e in session["evidence"]
+               if e["use"] == "SUPPORT" and e["reason"] is None}
+    wanted = {"EV_SESSION_START", "EV_CONNECTOR_FAULT", "EV_SESSION_ABORT"}
+    by_kind = {k: i for i, k in support.items() if k in wanted}
+    assert set(by_kind) == wanted
+    cited = sorted(e["evidence_id"] for e in finding["evidence"])
+    assert cited == sorted(by_kind.values())
+    assert finding["claim"]["fault_evidence_id"] == by_kind["EV_CONNECTOR_FAULT"] == item["fault_evidence_id"]
+    vector = _vectors()["interrupted"]["expected"]
+    assert cited == sorted(vector["finding_support_evidence_ids"])
