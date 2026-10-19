@@ -261,3 +261,111 @@ def test_refusals_unknown_and_one_snapshot_paging(chain) -> None:  # noqa: F811
     with built.engine.connect() as conn:
         assert conn.execute(text("SELECT count(*) FROM analytic_run WHERE site_id = :s"),
                             {"s": built.site_id}).scalar_one() >= 1
+
+
+# --- Run 7 rulings (r6): the five confirmed commit-4 choices, each with its named proof. ---
+
+def _iso(value: datetime) -> str:
+    return value.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+def _settled(chain, case: str = "complete"):  # noqa: F811
+    built = chain(case)
+    built.start_release_upload()
+    run_worker(built)
+    return built, client(built)
+
+
+def test_exact_window_does_not_use_covering_selection(chain) -> None:  # noqa: F811
+    built, c = _settled(chain)
+    body = get(c, "sessions")
+    lo, hi, known = (_at(body["window"][k]) for k in ("from", "to", "known_at"))
+    assert body["currentness"]["state"] == "CURRENT" and body["items"]
+    assert get(c, f"sessions?{_q(body)}")["currentness"]["state"] == "CURRENT"
+    # A narrower window the selection covers, and a wider window covering it: neither is the exact selected window.
+    for a, b in ((lo, hi - timedelta(minutes=1)), (lo + timedelta(minutes=1), hi), (lo - timedelta(hours=1), hi)):
+        q = f"from={_iso(a)}&to={_iso(b)}&known_at={_iso(known)}"
+        for route in ("sessions", "findings"):
+            other = get(c, f"{route}?{q}")
+            assert other["currentness"]["state"] == "UNKNOWN" and other["items"] == [], (route, q)
+            assert other["window"]["from"] == _iso(a) and other["window"]["to"] == _iso(b)
+        assert all(get(c, f"sessions?{q}")["denominator"][k] is None for k in COUNTS - {"limitation"})
+        assert error(c, f"sessions/{body['items'][0]['session_id']}?{q}", 404) == "EV_RECORD_NOT_FOUND"
+
+
+def test_ev_source_age_never_emits_stale_source(chain) -> None:  # noqa: F811
+    built, c = _settled(chain, "interrupted")
+    body = get(c, "sessions")
+    # The settled replay window is days older than the wall clock; source age alone never makes it stale.
+    assert _at(body["window"]["to"]) < datetime.now(_at(body["window"]["to"]).tzinfo) - timedelta(days=1)
+    q = _q(body)
+    [item] = [x for x in body["items"] if x["finding_id"] is not None]
+    reads = [body, get(c, f"sessions?{q}"), get(c, f"sessions/{item['session_id']}?{q}"),
+             get(c, f"findings?{q}"), get(c, f"findings/{item['finding_id']}?{q}")]
+    for read in reads:
+        assert read["currentness"]["state"] == "CURRENT", read["currentness"]
+        assert "STALE_SOURCE" not in json.dumps(read)
+
+
+def test_historical_cutoff_precedes_pending_job(chain) -> None:  # noqa: F811
+    built, c = _settled(chain, "late-record")
+    first = get(c, "sessions")
+    first_q = _q(first)
+    [first_item] = first["items"]
+    assert first["currentness"]["state"] == "CURRENT"
+    built.advance_late()  # the late END is accepted and its overlapping job is PENDING, not yet run
+    with built.engine.connect() as conn:
+        jobs = conn.execute(text("SELECT count(*) FROM recompute_job WHERE site_id = :s AND domain = 'ev_charging' "
+                                 "AND status = 'PENDING'"),
+                            {"s": built.site_id}).scalar_one()
+    assert jobs >= 1
+    assert get(c, "sessions")["currentness"]["state"] == "PENDING_RECOMPUTE"
+    for path in (f"sessions?{first_q}", f"sessions/{first_item['session_id']}?{first_q}", f"findings?{first_q}"):
+        old = get(c, path)
+        assert old["currentness"]["state"] == "HISTORICAL", path
+        assert old["currentness"]["limitation"] == "This result reflects records known at the selected cutoff."
+        assert old["window"]["known_at"] == first["window"]["known_at"]
+
+
+def test_repeated_query_key_is_parameter_unknown(chain) -> None:  # noqa: F811
+    built, c = _settled(chain)
+    body = get(c, "sessions")
+    w, sid = body["window"], body["items"][0]["session_id"]
+    cursor = encode_cursor(_at(w["from"]), _at(w["to"]), _at(w["known_at"]),
+                           body["source_provenance"]["basis_sha256"], _at(w["from"]), UUID(int=0))
+    valid = {"from": w["from"], "to": w["to"], "known_at": w["known_at"], "limit": "5", "cursor": cursor}
+    for route, keys in (("sessions", valid), ("findings", valid), (f"sessions/{sid}", ("from", "to", "known_at"))):
+        base = "&".join(f"{k}={valid[k]}" for k in keys)
+        for key in keys:
+            # A repeat of an otherwise permitted key, valid or malformed, is refused before its value is parsed.
+            for extra in (valid[key], "not-a-value"):
+                path = f"{route}?{base}&{key}={extra}"
+                assert error(c, path, 422) == "EV_PARAMETER_UNKNOWN", path
+
+
+def test_only_cursor_basis_change_is_ev_read_409(chain) -> None:  # noqa: F811
+    built, c = _settled(chain, "interrupted")
+    body = get(c, "sessions")
+    q, w = _q(body), body["window"]
+    lo, hi, known = _at(w["from"]), _at(w["to"]), _at(w["known_at"])
+    basis = body["source_provenance"]["basis_sha256"]
+    item = next(x for x in body["items"] if x["finding_id"] is not None)
+    changed = (encode_cursor(lo, hi, known, "0" * 64, lo, UUID(int=0)),  # basis changed
+               encode_cursor(lo, hi, known - timedelta(seconds=1), basis, lo, UUID(int=0)))  # cutoff changed
+    for cursor in changed:
+        for route in ("sessions", "findings"):
+            response = get(c, f"{route}?{q}&cursor={cursor}", 409)
+            assert response == {"error": {"code": "EV_CURSOR_BASIS_CHANGED", "message": response["error"]["message"]}}
+    # Every other non-cursor outcome is not a 409: no selection is 200 UNKNOWN, a scoped miss is 404.
+    none = get(c, "sessions?from=2026-10-01T00:00:00Z&to=2026-10-01T01:00:00Z")
+    assert none["currentness"]["state"] == "UNKNOWN"
+    assert error(c, f"sessions/{uuid4()}?{q}", 404) == "EV_RECORD_NOT_FOUND"
+    assert error(c, f"findings/{uuid4()}?{q}", 404) == "EV_RECORD_NOT_FOUND"
+    for path in (f"sessions/{item['session_id']}?{q}", f"findings/{item['finding_id']}?{q}", f"findings?{q}"):
+        assert c.get(f"/api/sites/{CODE}/ev/{path}").status_code == 200
+    # The unsettled-selection code is not part of the reachable W2-06 contract.
+    import assetops_backend.analytics.adapters.postgres_assessment_store as store
+    import assetops_backend.analytics.ev_reads as rules
+    import assetops_backend.ev_assessment_api as api
+    for module in (api, rules, store):
+        assert "SELECTION_UNSETTLED" not in open(module.__file__, encoding="utf-8").read(), module.__name__
