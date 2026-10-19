@@ -592,3 +592,59 @@ The no-assessment and historical rows follow W2-06 read currentness: `UNKNOWN` p
 Add pure cross-product assertions for R5's incomplete/no-tariff and R6's eligible+incomplete, eligible+contradictory, duplicate interval and two-revision union to `test_exact_selected_session_basis_and_support_eligibility`; assert exact session/evidence links include **only** priced eligible sessions/intervals, while excluded partial IDs remain in the technical/exclusion hash and read detail. Assert the precedence in `test_pending_historical_and_unassessable_source_withhold_current_amount`; route and UI tests assert the literal copy and null amount/currency. A source or pending gate always wins over the quantity/tariff rows.
 
 **Commits 2–5 dry-read.** Commit 2's `financials/ev_money.py` and consequence-store worker can use W2-06's exact caller-connection session basis, the current tariff assignment in the same repeatable-read snapshot, and the precedence above; 0026 already stores the required tariff ID, value, currency and consequence time. Commit 3's five reads must carry W2-06's public envelope unchanged, expose both evidence cutoff and real tariff/consequence publication times, preserve selected accepted IDs and return no current pending/historical amount. Commits 4–5 keep the five mock panel layouts, exact link gates, unavailable destinations, disclosure copy, and navigation inventory, adding the R2 retrospective-scenario sentence and R5/R6 reason copy in existing slots. No further question remains.
+
+## Run 2 rulings (q2)
+
+**R7 — supersedes Run 1 R1. Choose A.** `PostgresEvidenceLedger.open_batch` commits the `batch_publication_link` before `decide_chunk` inserts accepted evidence in separate transactions, possibly across several chunks. Deferring the link trigger to the end of the *open_batch* transaction still sees no accepted row. W2-06 P7's deferred `enqueue_ev_assessment_on_source_gate` likewise returns when the link precedes acceptance; its accepted-row trigger supplies the later assessment enqueue. The cold 0023 `cold_consequence_dirty_on_source_gate` is an immediate link trigger for already existing cold heads citing that batch; ordinary link-first uploads acquire their cold work from the later episode/Finding revisions. Apply the same ordering rule to 0026 without changing the ledger. Keep the committed immediate `ev_consequence_dirty_source_gate AFTER INSERT ON batch_publication_link` and its existing `ev_consequence_on_source_gate()` body for a link inserted after EV acceptance. Replace only `ev_consequence_on_accepted()` with this literal body; its `ACCEPTED_EV` enqueue stays scoped to windows containing the accepted record's source time, while the newly linked `SOURCE_GATE` enqueue uses the existing 0026 source-gate convention of all existing EV assessment windows at the Site. The dirty locator is the batch ID, so multiple accepted rows or chunks produce one `SOURCE_GATE` work row per Site/window/batch through the existing exact scoped conflict arbiter.
+
+```sql
+CREATE FUNCTION ev_consequence_on_accepted() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE w record;
+BEGIN
+ IF (NEW.family='EVENT' AND NEW.record_kind LIKE 'EV_%')
+    OR (NEW.family='MEASUREMENT' AND NEW.measurement='INTERVAL_DELTA' AND NEW.connector_id IS NOT NULL) THEN
+  FOR w IN SELECT DISTINCT a.window_start,a.window_end FROM assessment_revision a
+   WHERE a.tenant_id=NEW.tenant_id AND a.site_id=NEW.site_id AND a.analytic_id='ev-session/1'
+    AND a.window_start<=NEW.source_time AND NEW.source_time<a.window_end LOOP
+    PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'ACCEPTED_EV',NEW.id);
+  END LOOP;
+  IF EXISTS (SELECT 1 FROM batch_publication_link l
+             WHERE l.tenant_id=NEW.tenant_id AND l.site_id=NEW.site_id AND l.batch_id=NEW.batch_id) THEN
+   FOR w IN SELECT DISTINCT a.window_start,a.window_end FROM assessment_revision a
+    WHERE a.tenant_id=NEW.tenant_id AND a.site_id=NEW.site_id AND a.analytic_id='ev-session/1' LOOP
+    PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'SOURCE_GATE',NEW.batch_id);
+   END LOOP;
+  END IF;
+ END IF;
+ RETURN NEW;
+END $$;
+```
+
+The existing `CREATE TRIGGER ev_consequence_dirty_accepted AFTER INSERT ON accepted_evidence FOR EACH ROW EXECUTE FUNCTION ev_consequence_on_accepted();` remains unchanged. Both triggers are immediate `AFTER INSERT FOR EACH ROW` triggers on their respective tables.
+
+In `test_0026_trigger_only_work_and_exact_conflict_constraint`, retain the exact constraint-column and `ARBITER` assertions, the first upload/no-window assertion, assessment/session assertions, tariff assertions and backfill. For the late batch, split the fixture's registered delivery at its existing `open_batch`/`decide_chunk` seam so the test can inspect the committed link before the first accepted row, then finish delivery through `decide_chunk`; do not seed work directly. Use these exact assertions and replace the old `not gate & work_rows(built)` assertion:
+
+```python
+# After the late link's open_batch transaction commits, before decide_chunk:
+gate = expected(built, [(a.window_start, a.window_end, "SOURCE_GATE", late_batch_id) for a in heads])
+assert work_rows(built) == after_run
+assert counted(engine, "SELECT count(*) FROM batch_publication_link WHERE batch_id = :b", b=late_batch_id) == 1
+assert gate.isdisjoint(work_rows(built))
+# After all late accepted chunks commit (late/late_rows/gate as already defined by the test):
+assert late and late_rows and gate
+assert work_rows(built) == after_run | expected(built, late_rows) | gate
+assert all(counted(engine, "SELECT count(*) FROM ev_consequence_work WHERE tenant_id=:t AND site_id=:s "
+                   "AND window_start=:a AND window_end=:b AND dirty_basis_sha256=:d",
+                   t=built.tenant_id, s=built.site_id, a=a, b=b, d=d) == 1 for a, b, d in gate)
+with engine.begin() as c:
+    for a in heads:
+        for _ in range(2):
+            c.execute(text("SELECT ev_consequence_enqueue(:t,:s,:a,:b,'SOURCE_GATE',:i)"),
+                      {"t": built.tenant_id, "s": built.site_id, "a": a.window_start,
+                       "b": a.window_end, "i": late_batch_id})
+assert work_rows(built) == after_run | expected(built, late_rows) | gate
+```
+
+For a committed linked batch with no qualifying accepted EV row, assert its link exists, its qualifying EV accepted-row count is zero, `work_rows(built)` is unchanged, and its expected `SOURCE_GATE` dirty hashes are disjoint from work. The batch may be empty or non-EV-only through the ledger. For an unlinked qualifying EV acceptance, assert its `ACCEPTED_EV` row appears and its `SOURCE_GATE` dirty hashes are disjoint from work. Keep the existing duplicate `TARIFF_REVISION` enqueue assertion. No deferred trigger, ledger transaction change, new work writer, or conflict-target change is authorized.
+
+**Commits 2–3 dry-read:** no further question is open. The Run 1 exact selected assessment, caller-connection read, two-clock tariff basis, precedence, public envelope, stored links and refusal rulings remain operative.

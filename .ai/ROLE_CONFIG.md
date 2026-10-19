@@ -427,7 +427,10 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   UI component choice with 403/404/503 copy, per-panel height budgets against
   measured mock heights with column widths/wrapping, chip tones, null/missing
   copy, and migration index/constraint/downgrade details plus existing-test
-  count updates. W2-05b run 1 still stopped on 14 such questions.
+  count updates. W2-05b run 1 still stopped on 14 such questions. Before the first build run of any new
+  build spec, a fresh Claude reviewer (Opus) dry-reads it as the implementer and checks it
+  against merged code; the Architect closes every item, and a Sonnet check confirms closure.
+  On 2026-10-20 this found 66 questions in the W4-01 and W3-01 specs before any code was written.
 - **Size builder runs to one spec commit each**, with a handoff after each, so
   no run dies mid-commit and the next run reads only the handoff.
 - **Model by risk.** First review of a new build and design-deciding work on
