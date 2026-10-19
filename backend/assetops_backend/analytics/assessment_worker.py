@@ -249,7 +249,10 @@ class ColdAssessmentWorker:
             known = known_at or self.store.cold_watermark(c, tenant_id, site_id)
             if known is None:
                 raise cold.ColdConfigurationRefused("the Site has no committed disposition to assess")
-            return self._project(c, tenant_id, site_id, window, known, job_id=None, selection="EXPLICIT")
+            projection = self._project(c, tenant_id, site_id, window, known, job_id=None, selection="EXPLICIT")
+            if projection is None:
+                raise ev.EvConfigurationRefused("the window has no accepted EV record to assess")
+            return projection
 
     def run_once(self, tenant_id: UUID | None = None, site_id: UUID | None = None) -> JobOutcome | None:
         scope = {} if site_id is None else {"tenant_id": tenant_id, "site_id": site_id}
@@ -317,9 +320,13 @@ class EvAssessmentWorker:
         self.lease, self.max_attempts, self.backoff = lease, max_attempts, backoff
 
     def _project(self, c, tenant_id: UUID, site_id: UUID, window: Window, known_at: datetime, *,
-                 job_id: UUID | None, selection: str) -> EvProjection:
+                 job_id: UUID | None, selection: str) -> EvProjection | None:
         started = self.clock()
         inputs = self.store.ev_inputs(c, tenant_id, site_id, window, known_at)
+        if not inputs.records:
+            # r8/r9 M1: an empty accepted set is never a successful empty assessment; nothing is written and the
+            # read keeps its no-selection UNKNOWN. A job window with no accepted record is simply not projected.
+            return None
         assessed = ev.assess(inputs)
         now = self.clock()
         persisted = self.store.ev_persist(c, inputs, assessed, job_id=job_id, selection=selection, now=now,
@@ -352,9 +359,9 @@ class EvAssessmentWorker:
                 cutoff = self.store.ev_watermark(c, lease.tenant_id, lease.site_id)
                 if cutoff is None:
                     raise ev.EvConfigurationRefused("the Site has no committed disposition to assess")
-                projections = [self._project(c, lease.tenant_id, lease.site_id, w, cutoff, job_id=lease.job_id,
-                                             selection="DEFAULT")
-                               for w in self.store.ev_windows(c, lease)]
+                projections = [p for p in (self._project(c, lease.tenant_id, lease.site_id, w, cutoff,
+                                                         job_id=lease.job_id, selection="DEFAULT")
+                                           for w in self.store.ev_windows(c, lease)) if p is not None]
                 self.store.ev_complete(c, lease)
             return JobOutcome(lease.job_id, "DONE", tuple(projections))  # type: ignore[arg-type]
         except LeaseLost as lost:

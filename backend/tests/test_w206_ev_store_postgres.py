@@ -35,7 +35,7 @@ if URL:
 
     from assetops_backend.analytics import ev
     from assetops_backend.analytics.adapters import postgres_assessment_store
-    from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService, PostgresAssessmentStore
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
     from assetops_backend.analytics.adapters.postgres_finding_store import (
         EV_LIMITATIONS,
         EV_WITHDRAWN,
@@ -44,7 +44,7 @@ if URL:
     from assetops_backend.analytics.assessment_inputs import Window
     from assetops_backend.analytics.assessment_worker import EvAssessmentWorker
     from assetops_backend.analytics.clock_attestation import SYSTEM_ATTESTER, AttestationChange
-    from assetops_backend.analytics.composition import build_ev_assessment_worker
+    from assetops_backend.analytics.composition import build_ev_assessment_worker, build_ev_read_service
 
 EV_TABLES = ("ev_session", "ev_session_revision", "ev_session_evidence", "ev_meter_interval")
 COUNTED = ("analytic_run", "assessment_revision", "analytic_run_selection", "finding", "finding_revision",
@@ -338,7 +338,10 @@ def _failed_job_rolls_back(built: Chain) -> None:
 
     worker = EvAssessmentWorker(build_ev_assessment_worker(URL).store, Boom(), max_attempts=1)
     try:
+        # r9 M1: a job window with no accepted record projects nothing and completes; the next job writes.
         outcome = worker.run_once(built.tenant_id, built.site_id)
+        while outcome is not None and outcome.status == "DONE" and outcome.runs == ():
+            outcome = worker.run_once(built.tenant_id, built.site_id)
     finally:
         _dispose(worker)
     assert outcome is not None and outcome.status == "FAILED"
@@ -395,7 +398,7 @@ def selected_windows(built: Chain) -> set:
 
 
 def exact_read(built: Chain, lo: datetime, hi: datetime) -> dict:
-    reads = EvReadService(URL)
+    reads = build_ev_read_service(URL)
     try:
         return reads.sessions(built.tenant_id, built.site_id, "EV-LAB-001", lo, hi, None, None, 50)
     finally:
@@ -520,3 +523,146 @@ def test_clock_unattested_missing_wrong_epoch_and_expired(chain, monkeypatch) ->
         assert by_device.get(device) == {("EXCLUDED", "CLOCK_UNATTESTED")}, (device, by_device.get(device))
     assert len(meters) == 7 and set(meters) == {("EXCLUDED", "CLOCK_UNATTESTED")}
     assert findings(built) == []
+
+
+# --- r8/r9 M1: the whole accepted set is classified before any per-record correlation ---------------------
+
+LEDGER = "assetops_backend.evidence.adapters.postgres_evidence_ledger"
+
+
+def patch_links(monkeypatch, mutate) -> None:
+    """Rewrite each S4-05 link row the scoped reader returns (worker and read alike) with `mutate(index, row)`;
+    the accepted replay itself is the ordinary registered chain."""
+    import dataclasses
+    import importlib
+
+    module = importlib.import_module(LEDGER)
+    original = getattr(module.link_rows_on, "__wrapped__", module.link_rows_on)  # a repeat replaces, never stacks
+
+    def rows_on(c, tenant_id, site_id, ids):
+        rows = sorted(original(c, tenant_id, site_id, ids), key=lambda r: r.requested_id)
+        return [dataclasses.replace(r, **mutate(n, r)) for n, r in enumerate(rows)]
+
+    rows_on.__wrapped__ = original
+    monkeypatch.setattr(module, "link_rows_on", rows_on)
+
+
+#: The S4-05 link rewrites of the M1 regressions, each with the S4-05 reason it must produce.
+MIXED_RUNS = (lambda n, r: {"run_id": "w206-other-run"} if n % 2 else {}, "MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS")
+BOUND_UNBOUND = (lambda n, r: {"link": None} if n % 2 else {}, "BOUND_AND_UNBOUND")
+ALL_UNBOUND = (lambda n, r: {"link": None}, "NO_POSITIVE_BINDING")
+
+
+def run_refused(built: Chain, reason: str) -> list:
+    """Run every pending EV job; each must be refused before `assess` with the M1 limitation and S4-05 reason."""
+    worker = build_ev_assessment_worker(URL)
+    try:
+        outcomes = worker.run_pending(tenant_id=built.tenant_id, site_id=built.site_id)
+    finally:
+        _dispose(worker)
+    refused = [o for o in outcomes if o.status != "DONE"]
+    # A job window with no accepted record (a configuration enqueue) completes with nothing projected.
+    assert refused and all(o.runs == () for o in outcomes if o.status == "DONE")
+    for o in refused:
+        assert "EvConfigurationRefused" in o.error and ev.SOURCE_UNASSESSABLE in o.error and reason in o.error, o
+    with built.engine.connect() as c:
+        jobs = {r.id: r for r in c.execute(text("SELECT id, status, last_error FROM recompute_job "
+                                                "WHERE site_id = :s AND domain = 'ev_charging'"),
+                                           {"s": built.site_id}).all()}
+    # FAILED/retryable: a failed attempt backs off as PENDING until its last attempt is FAILED.
+    for o in refused:
+        job = jobs[o.job_id]
+        assert job.status in ("PENDING", "FAILED") and reason in job.last_error, job
+    return outcomes
+
+
+def test_mixed_runs_refuse_successful_empty_projection(chain, monkeypatch) -> None:  # noqa: F811
+    """r9 M1-a: a set whose bound records name two runs is MIXED; no run, assessment, session or Finding is written
+    (never a successful zero-start or NO_SESSIONS_OBSERVED projection) and the job stays FAILED/retryable."""
+    built = chain("complete")
+    built.start_release_upload()
+    patch_links(monkeypatch, MIXED_RUNS[0])
+    run_refused(built, MIXED_RUNS[1])
+    assert counts(built) == dict.fromkeys(COUNTED + ("analytic_run_evidence",), 0)
+
+
+@pytest.mark.parametrize("rewrite", (BOUND_UNBOUND, ALL_UNBOUND), ids=("bound-and-unbound", "all-unbound"))
+def test_bound_unbound_and_all_unbound_refuse_projection(chain, monkeypatch, rewrite) -> None:  # noqa: F811
+    """r9 M1-a: bound plus unbound (MIXED) and all-unbound (UNKNOWN) sets refuse projection the same way."""
+    built = chain("complete")
+    built.start_release_upload()
+    patch_links(monkeypatch, rewrite[0])
+    run_refused(built, rewrite[1])
+    assert counts(built) == dict.fromkeys(COUNTED + ("analytic_run_evidence",), 0)
+
+
+def rebind(monkeypatch, which) -> None:
+    """r9 M1-b/M1-c: give the records `which(record)` selects a member binding ID outside the selected set (a wrong
+    effective binding), on the writer's own `ev_inputs` result; links stay the registered coherent class."""
+    import dataclasses
+    from uuid import uuid4
+
+    original = getattr(PostgresAssessmentStore.ev_inputs, "__wrapped__", PostgresAssessmentStore.ev_inputs)
+
+    def ev_inputs(self, *args, **kwargs):
+        inputs = original(self, *args, **kwargs)
+        return dataclasses.replace(inputs, records=tuple(
+            dataclasses.replace(r, binding_revision_id=uuid4()) if which(r) else r for r in inputs.records))
+
+    ev_inputs.__wrapped__ = original
+    monkeypatch.setattr(PostgresAssessmentStore, "ev_inputs", ev_inputs)
+
+
+def unknown_revisions(built: Chain) -> list:
+    with built.engine.connect() as c:
+        return c.execute(text(
+            "SELECT v.id, v.result, v.claim_level, v.window_start, v.window_end FROM assessment_revision v "
+            "WHERE v.site_id = :s AND v.analytic_id = 'ev-session/1' AND v.result->'status'->>'state' = 'UNKNOWN' "
+            "ORDER BY v.window_start"), {"s": built.site_id}).all()
+
+
+def test_coherent_class_wrong_binding_does_not_claim_no_sessions(chain, monkeypatch) -> None:  # noqa: F811
+    """r9 M1-b: a coherent registered set whose every candidate START has a wrong binding persists one selected
+    UNKNOWN assessment (all counts null, orphan included), no session or Finding, and the full-window M1-c
+    `excluded_records` array; a repeat of the same basis is idempotent."""
+    built = chain("complete")
+    built.start_release_upload()
+    rebind(monkeypatch, lambda r: r.kind == ev.START)
+    run_worker(built)
+    rows = unknown_revisions(built)
+    assert rows
+    with built.engine.connect() as c:
+        starts = {str(i).lower(): t for i, t in c.execute(text(
+            "SELECT id, source_time FROM accepted_evidence WHERE site_id = :s AND record_kind = 'EV_SESSION_START'"),
+            {"s": built.site_id}).all()}
+        no_sessions = c.execute(text(
+            "SELECT count(*) FROM assessment_revision WHERE site_id = :s "
+            "AND result->'status'->>'state' = 'NO_SESSIONS_OBSERVED'"), {"s": built.site_id}).scalar_one()
+    assert no_sessions == 0
+    seen: set[str] = set()
+    for _rid, result, claim, lo, hi in rows:
+        assert claim == "UNKNOWN"
+        assert result["status"]["state"] == "UNKNOWN" and result["status"]["claim_level"] == "UNKNOWN"
+        assert result["status"]["limitation"] == ev.BINDING_UNVERIFIED == result["denominator"]["limitation"]
+        assert result["status"]["as_of"] == result["denominator"]["as_of"] is not None
+        assert all(result["denominator"][k] is None for k in postgres_assessment_store._EV_COUNTS)
+        assert "orphan" in result["denominator"] and result["denominator"]["orphan"] is None
+        assert result["session_revision_ids"] == []
+        excluded = result["excluded_records"]
+        assert all(x["reason"] == "SOURCE_UNVERIFIED" for x in excluded)
+        ids = [x["evidence_id"] for x in excluded]
+        assert len(ids) == len(set(ids))
+        assert all(x["record_kind"] == "EV_SESSION_START" for x in excluded)
+        assert [(starts[i], i) for i in ids] == sorted((starts[i], i) for i in ids)
+        seen.update(ids)
+    assert seen and seen <= set(starts)
+    assert all(counts(built)[t] == 0 for t in EV_TABLES + ("finding", "finding_revision"))
+    # The same basis again is idempotent: no new run or revision.
+    before = counts(built)
+    worker = build_ev_assessment_worker(URL)
+    try:
+        again = worker.assess_explicit(built.tenant_id, built.site_id, Window(rows[0].window_start,
+                                                                                rows[0].window_end))
+    finally:
+        _dispose(worker)
+    assert again.run["created"] is False and counts(built) == before

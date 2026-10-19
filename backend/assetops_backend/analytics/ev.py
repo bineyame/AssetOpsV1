@@ -54,6 +54,12 @@ _US_PER_HOUR = 3_600_000_000
 _US_PER_SECOND = 1_000_000
 
 FINDING_TITLE = "Observed EV charging interruption"
+#: r8/r9 M1: the S4-05 whole-set classes on which `ev-session/1` may project (any other set state refuses).
+ASSESSABLE_CLASSES = ("REGISTERED_SIMULATION", "AUTHORED_DEMONSTRATION")
+#: r9 M1-a: the limitation of a MIXED/UNKNOWN accepted set (refused before `assess`; read-side only).
+SOURCE_UNASSESSABLE = "EV source provenance is mixed or unverified; session outcomes cannot be assessed."
+#: r9 M1-b: a coherent positive set whose every candidate START is excluded for its source/binding.
+BINDING_UNVERIFIED = "EV source or binding is unverified; session outcomes cannot be assessed."
 
 
 # --- inputs --------------------------------------------------------------------------------------------------
@@ -294,6 +300,10 @@ class EvAssessment:
     denominator: dict
     status_state: str
     claim_level: str
+    #: r9 M1-b: the stored status/denominator limitation (None for a computed result).
+    limitation: str | None = None
+    #: r9 M1-c: every accepted wrong-binding record of the input set, sorted by (source_time, evidence_id).
+    excluded_records: tuple[dict, ...] = ()
 
 
 # --- digests (Q14/Q15) ---------------------------------------------------------------------------------------
@@ -706,6 +716,10 @@ def _connector_ids(inputs: EvInputs) -> set[UUID]:
     return {c.asset_id for c in inputs.connectors}
 
 
+_DENOMINATOR_KEYS = ("started", "completed", "observed_abort", "incomplete", "contradictory", "orphan",
+                     "confirmed_delivery", "fault_aborted")
+
+
 def assess(inputs: EvInputs) -> EvAssessment:
     """`ev-session/1` over one selection: sessions, orphan terminals, whole-window denominator, claim level."""
     connectors: dict[UUID, EvConnector] = {}
@@ -724,6 +738,17 @@ def assess(inputs: EvInputs) -> EvAssessment:
     orphans = tuple(r.accepted_evidence_id for r in sorted(inputs.records, key=semantic_order_key)
                     if r.kind in TERMINALS and (r.asset_id, r.session_id) not in starts
                     and inputs.window.from_at <= r.source_time < inputs.window.to_at)
+    # r9 M1-c: each accepted record excluded by its exact binding (source gate), once, full input set.
+    unverified = sorted((r for r in inputs.records if _source_reason(r, inputs) is not None),
+                        key=lambda r: (r.source_time, r.id))
+    excluded = tuple({"evidence_id": r.id, "record_kind": r.record_kind, "reason": "SOURCE_UNVERIFIED"}
+                     for r in unverified)
+    # r9 M1-b: no qualifying session, and a candidate START in the window was excluded for its binding.
+    if not sessions and any(r.kind == START and r.session_id is not None and r.session_id.strip() != ""
+                            and inputs.window.from_at <= r.source_time < inputs.window.to_at
+                            for r in unverified):
+        return EvAssessment(assessment_key(inputs.window), (), orphans, dict.fromkeys(_DENOMINATOR_KEYS),
+                            "UNKNOWN", "UNKNOWN", BINDING_UNVERIFIED, excluded)
     counts = {state: sum(1 for s in sessions if s.state == state) for state in STATES}
     denominator = {
         "started": len(sessions),
@@ -749,7 +774,8 @@ def assess(inputs: EvInputs) -> EvAssessment:
         status_state = "OBSERVED_SESSIONS"
     else:
         status_state = "NO_SESSIONS_OBSERVED"
-    return EvAssessment(assessment_key(inputs.window), sessions, orphans, denominator, status_state, claim_level)
+    return EvAssessment(assessment_key(inputs.window), sessions, orphans, denominator, status_state, claim_level,
+                        None, excluded)
 
 
 def plain(value):

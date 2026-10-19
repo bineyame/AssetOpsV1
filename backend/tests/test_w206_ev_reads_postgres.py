@@ -23,17 +23,25 @@ if URL:
     from fastapi.testclient import TestClient
     from sqlalchemy import text
     from test_w206_ev_store_postgres import (
+        ALL_UNBOUND,
         LATE_HI,
         LATE_LO,
+        MIXED_RUNS,
+        _dispose,
         _withdrawal,
         exact_heads,
+        patch_links,
+        rebind,
         run_spying,
         run_worker,
         select_exact,
+        unknown_revisions,
     )
+    from test_w206_ev_store_postgres import counts as stored_counts
     from test_w206_ev_store_postgres import findings as stored_findings
 
     from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService
+    from assetops_backend.analytics.composition import build_ev_assessment_worker, build_ev_read_service
     from assetops_backend.analytics.ev_reads import encode_cursor
     from assetops_backend.ev_assessment_api import build_ev_assessment_router
 
@@ -62,7 +70,8 @@ def client(built, *, site_type="EV_CHARGING", tenant=None, access=None, disclosu
                                tenant=lambda: SimpleNamespace(id=tenant or built.tenant_id))
     kw = {k: v for k, v in (("access", access), ("disclosure", disclosure)) if v is not None}
     app = FastAPI()
-    app.include_router(build_ev_assessment_router(registry, EvReadService(URL) if reads == "real" else reads, **kw))
+    service = build_ev_read_service(URL) if reads == "real" else reads
+    app.include_router(build_ev_assessment_router(registry, service, **kw))
     return TestClient(app)
 
 
@@ -470,3 +479,105 @@ def test_non_ascii_limit_is_422_ev_limit_invalid(chain) -> None:  # noqa: F811
         for raw in ("\u00b2", "\u0663", "\uff15", "1\u00b2"):
             assert error(c, f"{route}?limit={raw}", 422) == "EV_LIMIT_INVALID", (route, raw)
         assert c.get(f"/api/sites/{CODE}/ev/{route}?limit=5").status_code == 200
+
+
+# --- r9 M1: unassessable sources and wrong-binding records on the sessions list ----------------------------
+
+M1_SOURCE = "EV source provenance is mixed or unverified; session outcomes cannot be assessed."
+M1_BINDING = "EV source or binding is unverified; session outcomes cannot be assessed."
+NO_HEAD = "from=2026-10-06T08:05:00Z&to=2026-10-06T08:25:00Z"
+
+
+def _unassessable(body: dict, classification: str) -> None:
+    assert body["currentness"] == {"state": "UNKNOWN", "as_of": None, "limitation": M1_SOURCE}
+    assert body["status"] == {"state": "UNKNOWN", "claim_level": "UNKNOWN", "as_of": None, "limitation": M1_SOURCE}
+    assert all(body["denominator"][k] is None for k in COUNTS - {"limitation"})
+    assert body["denominator"]["limitation"] == M1_SOURCE and body["denominator"]["as_of"] is None
+    assert body["items"] == [] and body["next_cursor"] is None and body["excluded_records"] == []
+    provenance = body["source_provenance"]
+    assert provenance["classification"] == classification and provenance["basis_sha256"] is None
+    assert provenance["evidence_ids"] and provenance["evidence_ids"] == sorted(provenance["evidence_ids"])
+    assert provenance["source_ids"] and provenance["source_ids"] == sorted(provenance["source_ids"])
+    assert body["limitations"] == [M1_SOURCE]
+
+
+def test_unassessable_source_has_unknown_status_and_limitation(chain, monkeypatch) -> None:  # noqa: F811
+    """r9 M1-a: with no exact head the read classifies the window's accepted set itself (MIXED and all-unbound
+    UNKNOWN) and returns 200 UNKNOWN with null counts and basis; a pending prior head keeps its facts with the
+    current class public; an empty set keeps the no-selection copy; a failed link query is 503."""
+    built = chain("late-record")
+    built.start_release_upload()
+    run_worker(built)
+    built.advance_late()
+    patch_links(monkeypatch, MIXED_RUNS[0])
+    before = stored_counts(built)
+    worker = build_ev_assessment_worker(URL)
+    try:
+        outcomes = worker.run_pending(tenant_id=built.tenant_id, site_id=built.site_id)
+    finally:
+        _dispose(worker)
+    assert any(o.status != "DONE" for o in outcomes)
+    assert stored_counts(built) == before  # no assessment write
+    c = client(built)
+    # A prior exact head under the failed job: its stored rows stay, pending, with the set's own class public.
+    pending = get(c, "sessions")
+    assert pending["currentness"]["state"] == "PENDING_RECOMPUTE" and pending["items"]
+    assert pending["source_provenance"]["classification"] == "MIXED"
+    assert pending["source_provenance"]["basis_sha256"] is not None
+    assert M1_SOURCE in pending["limitations"] and pending["status"]["state"] != "UNKNOWN"
+    # No exact head: MIXED.
+    _unassessable(get(c, f"sessions?{NO_HEAD}"), "MIXED")
+    # All unbound: UNKNOWN (the set state), still never NO_SESSIONS_OBSERVED.
+    patch_links(monkeypatch, ALL_UNBOUND[0])
+    _unassessable(get(client(built), f"sessions?{NO_HEAD}"), "UNKNOWN")
+    # Empty accepted set: the r7 no-selection copy, no classification.
+    empty = get(client(built), "sessions?from=2026-10-01T00:00:00Z&to=2026-10-01T01:00:00Z")
+    assert empty["currentness"]["limitation"] == "No selected EV session assessment covers this window yet."
+    assert empty["source_provenance"]["classification"] is None and empty["status"]["limitation"] != M1_SOURCE
+
+    # A failed scoped link query is 503 EV_READ_UNAVAILABLE, never a guessed UNKNOWN.
+    def broken(n, r):
+        raise RuntimeError("link reader down (test)")
+
+    patch_links(monkeypatch, broken)
+    assert error(client(built), f"sessions?{NO_HEAD}", 503) == "EV_READ_UNAVAILABLE"
+    assert stored_counts(built) == before
+
+
+def test_wrong_binding_records_survive_empty_and_paginated_lists(chain, monkeypatch) -> None:  # noqa: F811
+    """r9 M1-b/M1-c: `excluded_records` is the selected assessment's full-window array, present when `items=[]`
+    (M1-b UNKNOWN) and identical on every page of a list with valid sessions."""
+    built = chain("complete")
+    built.start_release_upload()
+    rebind(monkeypatch, lambda r: r.kind == "EV_SESSION_START")
+    run_worker(built)
+    [_rid, result, _claim, lo, hi] = unknown_revisions(built)[0]
+    c = client(built)
+    q = f"from={_iso(lo)}&to={_iso(hi)}"
+    body = get(c, f"sessions?{q}")
+    assert body["currentness"]["state"] == "CURRENT" and body["items"] == []
+    assert body["status"]["state"] == "UNKNOWN" and body["status"]["limitation"] == M1_BINDING
+    assert body["denominator"]["limitation"] == M1_BINDING and body["denominator"]["as_of"] is not None
+    assert all(body["denominator"][k] is None for k in COUNTS - {"limitation", "as_of"})
+    assert body["excluded_records"] == result["excluded_records"] and body["excluded_records"]
+    assert all(x["reason"] == "SOURCE_UNVERIFIED" for x in body["excluded_records"])
+    assert get(c, f"sessions?{q}&limit=1")["excluded_records"] == body["excluded_records"]
+
+    # Valid sessions with an excluded terminal: computed status, the same array on every page.
+    rebind(monkeypatch, lambda r: r.kind == "EV_SESSION_END")
+    wide = (lo.replace(hour=8, minute=0), lo.replace(hour=8, minute=55))
+    select_exact(built, *wide)
+    q = f"from={_iso(wide[0])}&to={_iso(wide[1])}"
+    full = get(c, f"sessions?{q}")
+    known = full["window"]["known_at"]
+    assert full["items"] and full["status"]["state"] != "UNKNOWN" and full["excluded_records"]
+    assert {x["record_kind"] for x in full["excluded_records"]} == {"EV_SESSION_END"}
+    first = get(c, f"sessions?{q}&limit=1")
+    assert first["excluded_records"] == full["excluded_records"]
+    last = first["items"][-1]
+    after = encode_cursor(wide[0], wide[1], _at(known), full["source_provenance"]["basis_sha256"],
+                          _at(last["start_at"]), UUID(last["session_id"]))
+    rest = get(c, f"sessions?{q}&known_at={known}&cursor={after}&limit=1")
+    assert rest["items"] == [] and rest["excluded_records"] == full["excluded_records"]
+    detail = get(c, f"sessions/{last['session_id']}?{q}&known_at={known}")
+    assert any(e["use"] == "EXCLUDED" and e["reason"] == "SOURCE_UNVERIFIED" for e in detail["evidence"])

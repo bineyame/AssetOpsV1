@@ -1261,42 +1261,21 @@ class PostgresAssessmentStore:
                 "valid_to FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s "
                 "AND binding_set_revision_id = :b ORDER BY id"), {**p, "b": set_id}).all())
         attestations = _attestations(c, tenant_id, site_id, k)
-        rows = c.execute(text(
-            "SELECT e.id, e.envelope_sha256, e.source_time, e.interval_start, e.interval_end, e.connector_id, "
-            "e.session_id, e.family, e.record_kind, e.measurement, e.quality, e.normalized_value_text, "
-            "e.normalized_unit, e.event_id, e.outcome, e.asset_id, e.binding_revision_id, e.source_id, "
-            "e.sequence_epoch, e.binding_set_revision_id, e.role, e.device_id, e.signal_id "
-            "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
-            "AND d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' "
-            "WHERE e.tenant_id = :t AND e.site_id = :s AND COALESCE(e.interval_start, e.source_time) < :hi "
-            "AND (CASE WHEN e.interval_end IS NULL THEN e.source_time >= :lo ELSE e.interval_end > :lo END) "
-            "AND e.received_at <= :k AND d.decided_at <= :k ORDER BY e.source_time, e.id"), p).all()
-        # r8 H1: the full scoped session extent anchored by a START inside the window. A same-session terminal
-        # (or fault) outside the window is correlation input for that START; sessions STARTing outside the window
-        # stay context and never enter its denominator (ev.assess counts only STARTs and orphans inside it).
-        anchored = sorted({(r[15], r[6]) for r in rows if r[7] == "EVENT" and r[8] == ev.START
-                           and r[6] is not None and lo <= r[2] < hi and r[15] is not None})
-        if anchored:
-            held = {r[0] for r in rows}
-            late = c.execute(text(
-                "SELECT e.id, e.envelope_sha256, e.source_time, e.interval_start, e.interval_end, e.connector_id, "
-                "e.session_id, e.family, e.record_kind, e.measurement, e.quality, e.normalized_value_text, "
-                "e.normalized_unit, e.event_id, e.outcome, e.asset_id, e.binding_revision_id, e.source_id, "
-                "e.sequence_epoch, e.binding_set_revision_id, e.role, e.device_id, e.signal_id "
-                "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
-                "AND d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' "
-                "WHERE e.tenant_id = :t AND e.site_id = :s AND e.family = 'EVENT' "
-                "AND e.record_kind IN ('EV_SESSION_END', 'EV_SESSION_ABORT', 'EV_CONNECTOR_FAULT') "
-                "AND e.source_time >= :hi AND e.received_at <= :k AND d.decided_at <= :k "
-                "AND (e.asset_id, e.session_id) IN (SELECT * FROM unnest(CAST(:assets AS uuid[]), "
-                "CAST(:sessions AS text[]))) ORDER BY e.source_time, e.id"),
-                {**p, "assets": [str(x[0]) for x in anchored], "sessions": [x[1] for x in anchored]}).all()
-            rows = list(rows) + [r for r in late if r[0] not in held]
+        rows = _ev_rows(c, p)
         ids = [str(r[0]) for r in rows]
         if self._link_rows is None:
             raise ev.EvConfigurationRefused("no S4-05 link reader is configured for the EV source gate")
         links = {row.requested_id: link_of(row)
                  for row in (self._link_rows(c, tenant_id, site_id, ids) if ids else [])}
+        # r8/r9 M1: the whole accepted set is classified first; only a coherent positive class projects. A MIXED or
+        # UNKNOWN non-empty set refuses before `assess`/`ev_persist` (the job stays FAILED/retryable) with the S4-05
+        # reasons and exact IDs as the diagnostic detail. An empty set yields no records (the worker skips it).
+        whole = classify(ids, links)
+        if ids and whole["state"] not in ev.ASSESSABLE_CLASSES:
+            raise ev.EvConfigurationRefused(
+                f"{ev.SOURCE_UNASSESSABLE} class={whole['state']} reasons="
+                + json.dumps([{"code": x["code"], "accepted_evidence_ids": x["accepted_evidence_ids"]}
+                              for x in whole["reasons"]], separators=(",", ":")))
         records = []
         for r in rows:
             lo_r = r[3] if r[3] is not None else r[2]
@@ -1310,12 +1289,13 @@ class PostgresAssessmentStore:
                 measurement=r[9], quality=r[10], value=r[11], unit=r[12], event_id=r[13], outcome=r[14],
                 asset_id=r[15], binding_revision_id=r[16], source_id=None if r[17] is None else str(r[17]),
                 sequence_epoch=r[18], clock_attested=attested,
-                source_class=classify([str(r[0])], links)["state"], binding_set_revision_id=r[19], role=r[20],
+                # r8 M1: the per-record gate is the S4-05 link status and exact binding (`ev._source_reason`).
+                source_class=_ev_link_class(links.get(str(r[0]))), binding_set_revision_id=r[19], role=r[20],
                 device_id=r[21], signal_id=r[22]))
         return ev.EvInputs(
             tenant_id=tenant_id, site_id=site_id, window=w, records=tuple(records), connectors=tuple(connectors),
             foundation_revision_id=f_id, binding_revision_id=set_id,
-            mapping_profile_id=f"{profile[0]}/{profile[1]}", source_class=classify(ids, links)["state"],
+            mapping_profile_id=f"{profile[0]}/{profile[1]}", source_class=whole["state"],
             binding_members=members)
 
     def ev_persist(self, c: Connection, inputs: ev.EvInputs, assessed: ev.EvAssessment, *, job_id: UUID | None,
@@ -1390,9 +1370,11 @@ class PostgresAssessmentStore:
         document = {
             "schema": "ev-session-assessment/1",
             "status": {"state": assessed.status_state, "claim_level": assessed.claim_level, "as_of": as_of,
-                       "limitation": None},
-            "denominator": {**{k: assessed.denominator[k] for k in _EV_COUNTS}, "as_of": as_of, "limitation": None},
+                       "limitation": assessed.limitation},
+            "denominator": {**{k: assessed.denominator[k] for k in _EV_COUNTS}, "as_of": as_of,
+                            "limitation": assessed.limitation},
             "session_revision_ids": sorted(str(x["revision_id"]).lower() for x in plan),
+            "excluded_records": [dict(x) for x in assessed.excluded_records],
             "source_provenance": {"class": inputs.source_class, "as_of": as_of, "limitation": None},
             "limitations": [],
         }
@@ -2042,14 +2024,61 @@ class ColdReadService:
 _ev_plain = ev.plain
 
 
+def _ev_rows(c: Connection, p: dict[str, Any]) -> list:
+    """The accepted rows of one EV window at the cutoff `p['k']` (`ev_inputs`, and the r9 M1-a read classification
+    of exactly the same accepted set): every accepted row touching `[lo,hi)`, plus the r8 H1 late same-session
+    terminals/faults of a START inside it."""
+    lo, hi = p["lo"], p["hi"]
+    rows = c.execute(text(
+        "SELECT e.id, e.envelope_sha256, e.source_time, e.interval_start, e.interval_end, e.connector_id, "
+        "e.session_id, e.family, e.record_kind, e.measurement, e.quality, e.normalized_value_text, "
+        "e.normalized_unit, e.event_id, e.outcome, e.asset_id, e.binding_revision_id, e.source_id, "
+        "e.sequence_epoch, e.binding_set_revision_id, e.role, e.device_id, e.signal_id "
+        "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+        "AND d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' "
+        "WHERE e.tenant_id = :t AND e.site_id = :s AND COALESCE(e.interval_start, e.source_time) < :hi "
+        "AND (CASE WHEN e.interval_end IS NULL THEN e.source_time >= :lo ELSE e.interval_end > :lo END) "
+        "AND e.received_at <= :k AND d.decided_at <= :k ORDER BY e.source_time, e.id"), p).all()
+    # r8 H1: the full scoped session extent anchored by a START inside the window. A same-session terminal
+    # (or fault) outside the window is correlation input for that START; sessions STARTing outside the window
+    # stay context and never enter its denominator (ev.assess counts only STARTs and orphans inside it).
+    anchored = sorted({(r[15], r[6]) for r in rows if r[7] == "EVENT" and r[8] == ev.START
+                       and r[6] is not None and lo <= r[2] < hi and r[15] is not None})
+    if anchored:
+        held = {r[0] for r in rows}
+        late = c.execute(text(
+            "SELECT e.id, e.envelope_sha256, e.source_time, e.interval_start, e.interval_end, e.connector_id, "
+            "e.session_id, e.family, e.record_kind, e.measurement, e.quality, e.normalized_value_text, "
+            "e.normalized_unit, e.event_id, e.outcome, e.asset_id, e.binding_revision_id, e.source_id, "
+            "e.sequence_epoch, e.binding_set_revision_id, e.role, e.device_id, e.signal_id "
+            "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+            "AND d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' "
+            "WHERE e.tenant_id = :t AND e.site_id = :s AND e.family = 'EVENT' "
+            "AND e.record_kind IN ('EV_SESSION_END', 'EV_SESSION_ABORT', 'EV_CONNECTOR_FAULT') "
+            "AND e.source_time >= :hi AND e.received_at <= :k AND d.decided_at <= :k "
+            "AND (e.asset_id, e.session_id) IN (SELECT * FROM unnest(CAST(:assets AS uuid[]), "
+            "CAST(:sessions AS text[]))) ORDER BY e.source_time, e.id"),
+            {**p, "assets": [str(x[0]) for x in anchored], "sessions": [x[1] for x in anchored]}).all()
+        rows = list(rows) + [r for r in late if r[0] not in held]
+    return list(rows)
+
+
+def _ev_link_class(link: Any) -> str | None:
+    """r8 M1: a record's own S4-05 class: its BOUND publication class, else None (never a set state)."""
+    return link.source_class if link is not None and link.status == "BOUND" else None
+
+
 def _ev_json(value: Any) -> Any:
     return json.loads(value) if isinstance(value, str) else value
 
 
 class EvReadService:
     def __init__(self, database_url: str | None = None, *, engine=None,
-                 clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc)) -> None:
+                 clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
+                 link_rows: Callable[..., list] | None = None) -> None:
         self._url, self._engine, self.clock = database_url, engine, clock
+        # r9 M1-a: the S4-05 scoped link reader on the read connection (`evidence.composition`).
+        self._link_rows = link_rows
 
     def _connect(self):
         if self._engine is None:
@@ -2106,8 +2135,16 @@ class EvReadService:
         state = _ev_currentness_state(selected=selected is not None, pending=pending, historical=historical)
         note = {"UNKNOWN": _EV_NO_SELECTION_NOTE, "PENDING_RECOMPUTE": _EV_PENDING_NOTE,
                 "HISTORICAL": _EV_HISTORICAL_NOTE}.get(state)
+        # r9 M1-a: with no exact head, or a pending one, classify exactly the window's accepted EV set at the
+        # cutoff with the worker's S4-05 classifier; a MIXED/UNKNOWN non-empty set is the unassessable source.
+        unassessable = None
+        if lo is not None and known is not None and (selected is None or pending):
+            unassessable = self._unassessable(c, t, s, lo, hi, known)
+        if unassessable is not None and selected is None:
+            note = ev.SOURCE_UNASSESSABLE
         snap: dict[str, Any] = {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known,
-                                "watermark": watermark, "state": state, "note": note, "selected": None}
+                                "watermark": watermark, "state": state, "note": note, "selected": None,
+                                "unassessable": unassessable}
         if selected is not None:
             result = _ev_json(selected[3])
             snap["selected"] = {
@@ -2116,6 +2153,29 @@ class EvReadService:
                 "claim_level": selected[6], "run_id": selected[7], "cutoff": selected[8],
                 "foundation_ids": list(_ev_json(selected[9]) or ())}
         return snap
+
+    def _unassessable(self, c: Connection, t: UUID, s: UUID, lo: datetime, hi: datetime,
+                      known: datetime) -> dict[str, Any] | None:
+        """The S4-05 classification of the window's accepted EV set when it is non-empty and neither positive
+        class (else None). A failed scoped link query is 503 `EV_READ_UNAVAILABLE`, never a guessed UNKNOWN."""
+        rows = _ev_rows(c, {"t": t, "s": s, "k": known, "lo": lo, "hi": hi})
+        ids = sorted({str(r[0]).lower() for r in rows})
+        if not ids:
+            return None
+        if self._link_rows is None:
+            raise EvReadUnavailable("The EV source provenance reader is unavailable.")
+        try:
+            links = {row.requested_id: link_of(row) for row in self._link_rows(c, t, s, ids)}
+        except (OperationalError, DBAPIError):
+            raise
+        except Exception as error:  # noqa: BLE001 - any failed link read is unavailable, never a guess
+            raise EvReadUnavailable(f"The EV source provenance read failed: {error.__class__.__name__}") from error
+        whole = classify(ids, links)
+        if whole["state"] in ev.ASSESSABLE_CLASSES:
+            return None
+        return {"classification": whole["state"], "evidence_ids": ids,
+                "source_ids": sorted({str(r[17]).lower() for r in rows if r[17] is not None}),
+                "reasons": whole["reasons"]}
 
     def _query(self, snap: dict[str, Any]) -> str:
         return f"?from={_ev_plain(snap['lo'])}&to={_ev_plain(snap['hi'])}&known_at={_ev_plain(snap['known'])}"
@@ -2129,6 +2189,19 @@ class EvReadService:
                 "AND id = ANY(CAST(:ids AS uuid[])) AND source_id IS NOT NULL"),
                 {"t": snap["t"], "s": snap["s"], "ids": sel["evidence_ids"]}).scalars()})
         provenance = (sel["result"].get("source_provenance") or {}) if sel else {}
+        bad = snap.get("unassessable")
+        if bad is not None and sel is None:  # r9 M1-a: no exact head; the set's own class, no stored basis
+            return {
+                "site_id": str(snap["s"]).lower(),
+                "window": {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]),
+                           "known_at": _ev_plain(snap["known"])},
+                "currentness": {"state": snap["state"], "as_of": None, "limitation": snap["note"]},
+                "source_provenance": {"classification": bad["classification"], "source_ids": bad["source_ids"],
+                                      "evidence_ids": bad["evidence_ids"], "basis_sha256": None},
+                "limitations": [ev.SOURCE_UNASSESSABLE],
+            }
+        if bad is not None:  # a pending prior head: stored facts stay; the current set's class is public
+            provenance = {**provenance, "class": bad["classification"]}
         return {
             "site_id": str(snap["s"]).lower(),
             "window": {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]), "known_at": _ev_plain(snap["known"])},
@@ -2138,15 +2211,16 @@ class EvReadService:
                                   "evidence_ids": [] if sel is None else list(sel["evidence_ids"]),
                                   "basis_sha256": None if sel is None else sel["basis"]},
             "limitations": ([] if sel is None else list(sel["result"].get("limitations") or ()))
-            + ([snap["note"]] if snap["note"] else []),
+            + ([snap["note"]] if snap["note"] else []) + ([ev.SOURCE_UNASSESSABLE] if bad is not None else []),
         }
 
     @staticmethod
     def _status(snap: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
         sel = snap["selected"]
         if sel is None:
-            return ({"state": "UNKNOWN", "claim_level": "UNKNOWN", "as_of": None, "limitation": _EV_NO_SELECTION_NOTE},
-                    {**{k: None for k in _EV_COUNT_KEYS}, "as_of": None, "limitation": _EV_NO_SELECTION_NOTE})
+            note = ev.SOURCE_UNASSESSABLE if snap.get("unassessable") is not None else _EV_NO_SELECTION_NOTE
+            return ({"state": "UNKNOWN", "claim_level": "UNKNOWN", "as_of": None, "limitation": note},
+                    {**{k: None for k in _EV_COUNT_KEYS}, "as_of": None, "limitation": note})
         status, counts = sel["result"]["status"], sel["result"]["denominator"]
         return ({k: status.get(k) for k in ("state", "claim_level", "as_of", "limitation")},
                 {**{k: counts.get(k) for k in _EV_COUNT_KEYS}, "as_of": counts.get("as_of"),
@@ -2261,7 +2335,11 @@ class EvReadService:
             snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
             status, denominator = self._status(snap)
             items, nxt = self._page(self._sessions(c, snap), snap, body, cursor, limit)
-            return {**body, "status": status, "denominator": denominator, "items": items, "next_cursor": nxt}
+            # r9 M1-c: the selected assessment's full-window wrong-binding records, independent of paging.
+            excluded = [] if snap["selected"] is None else list(snap["selected"]["result"].get("excluded_records")
+                                                                or ())
+            return {**body, "status": status, "denominator": denominator, "excluded_records": excluded,
+                    "items": items, "next_cursor": nxt}
         return self._read(work)
 
     def session(self, tenant_id: UUID, site_id: UUID, code: str, session_id: UUID, lo: datetime | None,
