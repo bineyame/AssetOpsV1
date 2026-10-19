@@ -91,3 +91,36 @@ and `ev.py`, commit 2a, then 3b (store `ev_*` methods, `PostgresFindingStore.ev_
 
 - 0023's cold triggers fire only for `domain='cold_chain'`; the 0012 fuel trigger only for `mini_grid`, so an EV
   FindingRevision enqueues no fuel/cold work (checked by trigger WHEN clauses, not yet by an EV Finding test).
+
+## Run 5 (after q4 merge, 2026-10-19)
+
+- `ef408a1b` spec commit 2 (R12): `test_w205b_ev_replay_postgres.py` Chain gets q4 `decision_clock()` (09:00, 09:05
+  after `advance_late`) for both `PostgresEvidenceLedger(test_decision_clock_override=)` and the ingestion clock;
+  attestation recorded at 08:59; one non-parametrized `test_w206_ev_vector_artifact` (all six chains, `monkeypatch.undo()`
+  between cases) writes (`ASSETOPS_W206_WRITE_VECTORS=1`) or byte-compares the whole
+  `backend/tests/fixtures/w2/ev-w206-vectors.json` once. Records carry the four q4 keys; cases carry `binding_members`.
+  Pure test `backend/tests/test_w206_ev_vector_cases.py` (renamed from the parked `test_w206_ev_vectors.py`: pytest
+  basename collision with `host/tests/test_w206_ev_vectors.py`). Six manifests byte-unchanged (git clean + byte assert).
+  Deviation: existing `test_late_record_cutoff_and_release` asserted `received_at > 09:05`; with the ruled fixed 09:05
+  ingestion clock it is now `>=`.
+- `3a48dc45` P7: 0025 `enqueue_ev_assessment_on_source_gate` deferred constraint trigger on `batch_publication_link`
+  (selected windows meeting the batch's ACCEPTED EV rows or their session extent; cause NULL, at = max decided_at);
+  `PostgresFoundationStore._enqueue_ev_configuration` after joint inserts, before `then(plan)`, EV_CHARGING only, per
+  genuinely changed revision (reading: a split row whose content/bindings SHA equals its derived-from row is not a
+  change). Tests: `test_w206_ev_enqueue_postgres.py::TestEvSourceGateLink` (4), `test_w206_ev_publication_enqueue_postgres.py` (3).
+  `.agent/W2-06-2a-wip/` removed. `0a8f5866` rule 8 exact allowance for that one call (non-vacuity proven both ways).
+- `d556b02c` commit 3b (store `ev_*`, `PostgresFindingStore.ev_apply`, `EvAssessmentWorker`, `build_ev_assessment_worker`,
+  `test_w206_ev_store_postgres.py`) built by a sub-run; its adjacent run/check-all were still in progress at this
+  handoff — rerun before review.
+- Counts (private `w206q4_test`): commit 2: vector artifact write 1 passed, compare 1 passed (220 s); focused+adjacent
+  (`test_w206*`, `test_w203*`, `test_w205*`, `test_s2*`, host vectors) 583 passed, 0 failed, 0 skipped (1123 s).
+  P7: same set + `test_w200_source_events_postgres.py` + publication enqueue 603 passed, 0 failed (1135 s), incl.
+  `test_s2_evidence_ledger_postgres.py::test_migration_0005_refuses_to_freeze_a_drifted_asset_code`.
+  `tools/check-all.ps1` 10/10 after each of ef408a1b and 0a8f5866. No full suites.
+
+## Anchors for commit 4 (added)
+
+- EV store writer/readers: `analytics/adapters/postgres_assessment_store.py` `ev_*` methods (d556b02c); Finding:
+  `postgres_finding_store.py:ev_apply`; worker `assessment_worker.py:EvAssessmentWorker`; factory
+  `analytics/composition.py:build_ev_assessment_worker`. Result JSON per spec Q14 (`assessment_revision.result`) and
+  Finding `claim` per Q15 are what commit 4 reads; currentness from overlapping PENDING/LEASED/FAILED `ev_charging` jobs.
