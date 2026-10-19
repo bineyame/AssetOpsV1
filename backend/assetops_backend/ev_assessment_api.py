@@ -128,7 +128,9 @@ def build_ev_assessment_router(registry: ImportedSiteRegistry, reads: Any | None
         raw = request.query_params.get("limit")
         if raw is None:
             return DEFAULT_LIMIT
-        if not raw.isdigit() or not 1 <= int(raw) <= MAX_LIMIT:
+        # r8 L1: ASCII digits only; `int(raw)` runs only after both checks (a non-ASCII digit such as '²' is
+        # `isdigit()` but not an integer literal).
+        if not (raw.isascii() and raw.isdigit() and 1 <= int(raw) <= MAX_LIMIT):
             raise _Refused(422, "EV_LIMIT_INVALID", f"'limit' must be 1 to {MAX_LIMIT}.")
         return int(raw)
 

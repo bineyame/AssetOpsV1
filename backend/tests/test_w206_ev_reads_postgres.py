@@ -461,3 +461,12 @@ def test_finding_evidence_matches_selected_session_support(chain) -> None:  # no
     assert finding["claim"]["fault_evidence_id"] == by_kind["EV_CONNECTOR_FAULT"] == item["fault_evidence_id"]
     vector = _vectors()["interrupted"]["expected"]
     assert cited == sorted(vector["finding_support_evidence_ids"])
+
+
+def test_non_ascii_limit_is_422_ev_limit_invalid(chain) -> None:  # noqa: F811
+    """r8 L1: a non-ASCII digit is `isdigit()` but not an integer literal; it is 422 EV_LIMIT_INVALID, never 500."""
+    built, c = _settled(chain)
+    for route in ("sessions", "findings"):
+        for raw in ("\u00b2", "\u0663", "\uff15", "1\u00b2"):
+            assert error(c, f"{route}?limit={raw}", 422) == "EV_LIMIT_INVALID", (route, raw)
+        assert c.get(f"/api/sites/{CODE}/ev/{route}?limit=5").status_code == 200
