@@ -1,6 +1,31 @@
-# W2-05b phase handoff - run 3 (spec commits 1-3 built)
+# W2-05b phase handoff - run 4 (commits 1-3 built; q2 corrections applied)
 
 Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged.
+
+
+## Run 4: q2 corrections (`f2eafdee` "W2-05b q2 corrections")
+- N1: `main.create_app(..., ev_access=development_access, ev_owner=no_owner_principal)` passed to
+  `build_simulator_lab_router`. Tests `test_w205b_ev_scenarios.py::composed` (real `create_app` over
+  `InMemoryFoundationStore` with imported `fixtures/w2/ev-lab-001.yaml`): default 403 `SITE_SCOPE_FORBIDDEN`, no rows;
+  injected `code == "EV-LAB-001"` owner 200 with six labels; legacy and COLD-LAB-001 403; injected 401.
+  **Commit 5 still owes**: pass the same `ev_access`/`ev_owner` from `create_app` to the EV replay router, and the
+  walkthrough's isolated ASGI app must call `create_app` with the Site-scoped owner (no global flag).
+- N3: `SimulatorLabFrame.tsx` sibling Panel `EV charging run setup` (`headingId simulator-lab-ev-run-setup-heading`)
+  after the cold panel, before `What this workspace is`; ruled sentence via the Panel `description` prop (renders as
+  the v69 panel sub-line, smaller than the cold panel's body copy - reviewer to confirm this reading of
+  "description"). Cold panel cold-only. Frame test in `simulatorLabWorkspaceEntryPoint.test.tsx` asserts both
+  regions, copy, one link each, and order. Captures (viewed, not committed): scratchpad `cap/app-1440.png`,
+  `app-390.png`, `mock-1440.png`, `mock-390.png`; no overflow (scrollWidth = viewport).
+- N8: `packs/ev_charger.py` `step` refuses ordinals unless exactly `range(prev+1 or 0, +len(forcing))`, and any
+  ordinals at the closing snapshot; `forcing_ordinal` set only when rows applied. Document shape already matched N8.
+  Tests: ordinal guard, ordinal progression (null then carried to 09:00), 09:00 closing snapshot (base 1/3 kW ->
+  `181/3`, `1/3`, `239/3`), fractional final quantum (`81/2`, `27/40`), pinned complete-case digest
+  `6fc2f2a8...14adab2c` over 61 documents with key order and reduced-rational text. Test helper `forced` supplies
+  continuing ordinals so earlier refusal tests still refuse for their own reason.
+- Counts: backend ev_scenarios+lab gate+s1 cutover+scenarios API 155; simulator ev/cold pack+public transform 91;
+  host `test_ev_publication` 27; frontend 5 files 150; `tsc --noEmit` 0; `check-all.ps1` 10/10.
+- Non-vacuous: disabling the ordinal guard fails its test; default `ev_owner` -> True fails 2; `ev_access` ->
+  `development_access` fails the injected-401 test. No seed DB created. Q15-Q17/N9-N12 untouched.
 
 ## Done
 - `59608b3f` commit 1: strict `ev-scenario/1` parser `backend/assetops_backend/scenarios/ev_parsing.py`
