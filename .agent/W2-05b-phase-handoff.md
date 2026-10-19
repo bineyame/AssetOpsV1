@@ -8,7 +8,7 @@ Branch `task/W2-05b-ev-producer` from main `ed57b2f4`, worktree `AssetOpsV1-revi
   (document `window` shape, same-minute forcing kind rank, forcing/observation vocabularies and value
   types, `scenario_version`, observation SHA row form, Lab frame placement and copy, catalog route
   403/404 codes and row shape, profile registry copy, pack states outside the six cases).
-- Focused tests: none run (no code). `toolseck-all.ps1`: 10/10 passed on this head. No tsc (frontend untouched).
+- Focused tests: none run (no code). `tools/check-all.ps1`: 10/10 passed on this head. No tsc (frontend untouched).
 
 ## Anchors for commit 1 (cold precedent to mirror)
 - Parser: `backend/assetops_backend/scenarios/cold_parsing.py` (constants :21-25, key sets :27-33,
