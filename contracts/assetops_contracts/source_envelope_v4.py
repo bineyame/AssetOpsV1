@@ -664,8 +664,10 @@ def _interval(unit: str, *, session: bool = False) -> ChannelMapping:
 
 
 def _ev_connector(prefix: str) -> dict[tuple[str, str], ChannelMapping]:
-    """W2-05a Q1/Q8: one connector's seven exact tuples. Energy requires a session; the other interval channels
-    carry a session when one exists, so the row does not require it."""
+    """W2-05a Q1 and Run 8 M3: one connector's seven exact tuples. Only connector energy (`INTERVAL_DELTA`) carries
+    nonnull `session_id` and `connector_id`. Power, requested power and allocated limit are `INTERVAL_MEAN`, and
+    connector state is a point measurement, each with explicit null for both IDs: the exact effective source
+    binding supplies the connector, and a mean claims no session."""
     return {
         (f"{prefix}-charger-controller", "session-event"): replace(
             _events(*sorted(EV_SESSION_KINDS), session=True), role="ev_session_event"),

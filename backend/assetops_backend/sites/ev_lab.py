@@ -15,7 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any, Callable
 
 from assetops_backend.sites.binding_conversion import plan_requests
@@ -58,8 +58,9 @@ def install_ev_lab(store, *, tenant_slug: str, clock: Callable[[], datetime], so
         legacy_documents=(), clock=clock,
     )
     if not store.binding_sets(result.tenant.id, result.site.id):
-        later = clock() + timedelta(minutes=5)
-        publish_complete_bindings(store, BindingService(store, lambda: later), result.tenant, result.site)
+        # Run 8 M4: no activation delay; the binding service records at the install clock and effective_from is
+        # still the original Foundation's valid_from.
+        publish_complete_bindings(store, BindingService(store, clock), result.tenant, result.site)
     return result
 
 

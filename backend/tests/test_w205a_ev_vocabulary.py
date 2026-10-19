@@ -240,6 +240,29 @@ class TestProperties:
         comp(document, "c1")["properties"][3]["value"] = 0.0
         parse(document)
 
+    @pytest.mark.parametrize("index,key,value", [
+        (6, "ev-clock-error-bound", 86400.0), (2, "ev-meter-resolution", 100000000.0),
+        (3, "ev-meter-error-bound", 100000000.0), (3, "ev-meter-error-bound", 0.0)])
+    def test_unit_range_boundaries_are_inclusive(self, index, key, value) -> None:
+        """Run 8 L3: `s` is bounded to 0..86400 and `kWh` to 0..1e8, inclusive."""
+        document = ev_doc()
+        comp(document, "c1")["properties"][index]["value"] = value
+        parse(document)
+
+    @pytest.mark.parametrize("index,key,value", [
+        (6, "ev-clock-error-bound", 1e300), (6, "ev-clock-error-bound", 86400.001),
+        (6, "ev-clock-error-bound", float("inf")), (6, "ev-clock-error-bound", float("nan")),
+        (2, "ev-meter-resolution", 1e300), (2, "ev-meter-resolution", 100000000.001),
+        (3, "ev-meter-error-bound", float("inf")), (3, "ev-meter-error-bound", -0.001)])
+    def test_unit_range_outliers_and_nonfinite_values_are_refused(self, index, key, value) -> None:
+        document = ev_doc()
+        comp(document, "c1")["properties"][index]["value"] = value
+        with pytest.raises(SiteConfigurationInvalid) as caught:
+            parse(document)
+        # The parser-wide range names the property position; the service maps it to EV_CONFIGURATION_INVALID
+        # (test_w205a_ev_foundation_postgres: test_out_of_range_clock_bound_is_refused_as_ev_configuration_invalid).
+        assert f"properties[{index}].value" in str(caught.value) or "finite" in str(caught.value)
+
     @pytest.mark.parametrize("index,key,value", [(4, "ev-status-cadence", 1.5), (5, "ev-meter-cadence", 5.5)])
     def test_cadence_above_its_ceiling_is_refused(self, index, key, value) -> None:
         document = ev_doc()

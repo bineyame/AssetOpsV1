@@ -250,6 +250,16 @@ function expectPlantRejected(screenId: string, values: Record<string, string>) {
   expectV69Panels(screenId, values);
 }
 
+function expectSldSlots(diagram: Element, expected: { charger2: boolean; rail: string[] }) {
+  expect(diagram.querySelectorAll('[data-ev-slot="feeder"]')).toHaveLength(2);
+  expect(diagram.querySelectorAll('[data-ev-slot="auxiliary"]')).toHaveLength(1);
+  expect(Array.from(diagram.querySelectorAll('[data-ev-slot="feeder"], [data-ev-slot="auxiliary"]')).length).toBe(3);
+  expect(text(diagram.querySelector('[data-ev-feeder="1"]') as Element)).toContain("Feeder 1 CB");
+  expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).toContain("Feeder 2 CB");
+  expect(text(diagram.querySelector('[data-ev-slot="auxiliary"]') as Element)).toContain("Feeder 3 CB");
+  expect(Array.from(diagram.querySelectorAll("[data-ev-monitor]")).map((m) => text(m).replace("Not declared", ""))).toEqual(expected.rail);
+}
+
 const ROUTES = [
   ["ev-foundation", "", {}],
   ["ev-readiness", "/readiness", { gateway: "edge-ev-001" }],
@@ -443,7 +453,8 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     for (const slot of ["bus", "grid", "load-manager", "feeder", "meter", "connector", "auxiliary"]) {
       expect(diagram.querySelector(`[data-ev-slot="${slot}"]`), slot).not.toBeNull();
     }
-    expect(diagram.querySelectorAll('[data-ev-breaker="not-declared"]')).toHaveLength(3);
+    expect(diagram.querySelectorAll('[data-ev-breaker="not-declared"]')).toHaveLength(4);
+    expect(Array.from(diagram.querySelectorAll('[data-ev-slot="feeder"]')).map((f) => f.getAttribute("data-ev-declared"))).toEqual(["yes", "no"]);
     expect(diagram.querySelectorAll('[data-ev-edge="signal"]')).toHaveLength(1);
     expect(Array.from(diagram.querySelectorAll("[data-ev-dot]")).every((d) => d.getAttribute("data-ev-dot") === "unknown")).toBe(true);
     expect(text(diagram)).toContain("SITE FEED");
@@ -456,11 +467,13 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(text(source)).toContain("Load manager · Not declared");
     // Feeder kWh slots stay in their mock positions and are not declared; no declared AC line is dashed.
     const feederMeters = Array.from(diagram.querySelectorAll('[data-ev-slot="meter"]'));
-    expect(feederMeters).toHaveLength(1);
+    expect(feederMeters).toHaveLength(2);
     for (const m of feederMeters) expect(m.getAttribute("class")).toContain("ev-sld__box--missing");
     expect(diagram.querySelectorAll(".ev-sld__ac--missing")).toHaveLength(1);
-    expect(diagram.querySelectorAll('[data-ev-monitor="part"]')).toHaveLength(3);
-    expect(diagram.querySelector('[data-ev-monitor="billing"]')).not.toBeNull();
+    expectSldSlots(diagram, { charger2: true, rail: ["Connector 1", "Connector 2", "Site meter", "Billing system"] });
+    expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).toContain("Charger 2 · Not declared");
+    expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).toContain("Rating not declared · No connector declared");
+    expect(text(diagram.querySelector('[data-ev-slot="auxiliary"]') as Element)).toContain("Depot auxiliary · Not declared");
     const parts = panelTitled("What each part does");
     expect(Array.from(parts.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Part", "Role at this site", "What it reports"]);
     expect(Array.from(parts.querySelectorAll("tbody th")).map((th) => th.textContent)).toEqual([
@@ -469,7 +482,7 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
       "Not declared",
       "Depot auxiliary",
     ]);
-    expect(text(parts)).toContain("Site import limit 80 kW; power sharing: Not declared");
+    expect(text(parts)).toContain("Site import limit 80 kW; Load manager · Not declared");
     // Compact closed lines; the connector facts sit in a closed in-cell disclosure labelled as configuration.
     const chargerRow = parts.querySelector('tr[data-ev-part="charger"]') as Element;
     expect(text(chargerRow.querySelector("[data-ev-charger-summary]") as Element)).toBe("Charger 1 · 60 kW");
@@ -501,6 +514,63 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(rows3).toHaveLength(4);
     expect(text(rows3[2] as Element)).toContain("2 additional chargers");
     expect((rows3[2] as Element).querySelectorAll("[data-ev-charger-detail]")).toHaveLength(2);
+  });
+
+  it("ev-sld keeps three feeder slots and four ordered rail positions: zero chargers, three chargers, reversed bindings", async () => {
+    renderEv(`${BASE}/sld`, loaded({ ...STOCKED, chargers: [], bindings: [] }));
+    await settledScreen();
+    let diagram = panelTitled(SITE_NAME);
+    expectSldSlots(diagram, { charger2: true, rail: ["Connector 1", "Connector 2", "Site meter", "Billing system"] });
+    expect(Array.from(diagram.querySelectorAll('[data-ev-slot="feeder"]')).map((f) => f.getAttribute("data-ev-declared"))).toEqual(["no", "no"]);
+    expect(text(diagram.querySelector('[data-ev-feeder="1"]') as Element)).toContain("Charger 1 · Not declared");
+    expect(diagram.querySelectorAll('[data-ev-slot="connector"]')).toHaveLength(0);
+    cleanup();
+    const three: EvFoundationReadModel = {
+      ...STOCKED,
+      chargers: [STOCKED.chargers[0]!, { ...STOCKED.chargers[0]!, asset_id: "asset-chg-b", connectors: [] }, { ...STOCKED.chargers[0]!, asset_id: "asset-chg-c", connectors: [] }],
+    };
+    renderEv(`${BASE}/sld`, loaded(three));
+    await settledScreen();
+    diagram = panelTitled(SITE_NAME);
+    expect(diagram.querySelectorAll('[data-ev-slot="feeder"]')).toHaveLength(2);
+    expect(diagram.querySelectorAll('[data-ev-slot="auxiliary"]')).toHaveLength(1);
+    const slot2 = text(diagram.querySelector('[data-ev-feeder="2"]') as Element);
+    expect(slot2).toContain("Additional chargers");
+    expect(Array.from((diagram.querySelector('[data-ev-feeder="2"]') as Element).querySelectorAll(".ev-sld__label")).map((l) => l.textContent)).toEqual(["Additional chargers"]);
+    expect(slot2).toContain("120 kW");
+    expect(slot2).toContain("Charger 2, Charger 3");
+    cleanup();
+    // The rail follows the declared connector order, not binding order or role.
+    renderEv(`${BASE}/sld`, loaded({ ...STOCKED, bindings: [...STOCKED.bindings].reverse() }));
+    await settledScreen();
+    diagram = panelTitled(SITE_NAME);
+    expectSldSlots(diagram, { charger2: true, rail: ["Connector 1", "Connector 2", "Site meter", "Billing system"] });
+    expect(Array.from(diagram.querySelectorAll('[data-ev-slot="connector"]')).map((c) => text(c))).toEqual(["Connector c1", "Connector c2"]);
+    expect(Array.from(diagram.querySelectorAll("[data-ev-dot]")).every((d) => d.getAttribute("data-ev-dot") === "unknown")).toBe(true);
+  });
+
+  it("ev-readiness shows Financials, Assumptions and Health as unavailable entries, and keeps supported links live", async () => {
+    for (const read of [STOCKED, MISSING_ROLE]) {
+      renderEv(`${BASE}/readiness`, loaded(read));
+      await settledScreen();
+      const m = main();
+      const panels = Array.from(m.querySelectorAll("section.panel")) as HTMLElement[];
+      expect(panels.length).toBeGreaterThan(0);
+      for (const [label, count] of [["Financials", 1], ["Assumptions", 1], ["Health › Data sources", 2]] as const) {
+        const entries = Array.from(m.querySelectorAll(`[data-link-unavailable="${label}"]`)) as HTMLElement[];
+        expect(entries, label).toHaveLength(count);
+        for (const entry of entries) {
+          expect(entry.textContent).toBe(`${label} · Not available yet`);
+          expectUnavailableEntry(entry.closest("ul") as HTMLElement, label);
+        }
+        for (const panel of panels) expect(within(panel).queryByRole("link", { name: new RegExp(`^${label}`) })).toBeNull();
+      }
+      for (const panel of panels) expect(panel.querySelectorAll('a[href*="financials"], a[href*="assumptions"], a[href*="health"]')).toHaveLength(0);
+      expect(within(m).getAllByRole("link", { name: /Single line diagram/ }).length).toBeGreaterThan(0);
+      expect(within(m).getAllByRole("link", { name: /Evidence/ }).length).toBeGreaterThan(0);
+      expect(within(m).getAllByRole("link", { name: /Site model/ }).length).toBeGreaterThan(0);
+      cleanup();
+    }
   });
 
   it("ev-sld states the five schedule words and the configured-role cell exactly", async () => {
@@ -548,6 +618,9 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(text(diagram.querySelector('[data-ev-slot="load-manager"]') as Element)).toContain("Import meter · Not declared");
     expect(text(diagram)).toContain("Charger 1");
     expect(diagram.querySelectorAll('[data-ev-slot="connector"]')).toHaveLength(2);
+    expectSldSlots(diagram, { charger2: true, rail: ["Connector 1", "Connector 2", "Site meter", "Billing system"] });
+    const feedPart = panelTitled("What each part does").querySelector('tr[data-ev-part="feed"]') as Element;
+    expect(text(feedPart.querySelectorAll("td")[0] as Element)).toBe("Not declared; Load manager · Not declared");
     expect(text(panelTitled("What each part does"))).toContain("Grid supply + load manager");
     expect(Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"))).toHaveLength(4);
   });

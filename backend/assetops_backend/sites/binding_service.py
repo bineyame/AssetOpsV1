@@ -306,6 +306,19 @@ def validate_bindings(
                     "does not choose among them.",
                 )
 
+    if role_set == ROLE_SET_EV_1:
+        # W2-05a Run 8 M2 (`D-2026-10-18-w2-05-buildspec`): an EV binding set needs a declared connector in
+        # every covering Foundation revision; neither sources nor requests create one. Empty and Site-import-only
+        # requests are refused here, so a published Site import cadence is never null.
+        if any(
+            not any(c.get("component_type") == "EV_CONNECTOR" for c in (row.content.get("components") or ()))
+            for row in foundation
+        ):
+            problem(
+                "BINDING_EV_CONNECTOR_NOT_DECLARED", None,
+                "An EV binding set needs at least one declared connector in every covering Foundation revision.",
+            )
+
     rows: list[BindingRow] = []
     channels: set[tuple[str, str]] = set()
     single: dict[tuple[str, str | None], int] = {}

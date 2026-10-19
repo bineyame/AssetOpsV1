@@ -197,3 +197,104 @@ def test_legacy_w200_tuples_cannot_bind_under_the_ev_profile(store) -> None:
         requests = [r for r in template.values() if r is not model]
         requests.append(BindingRequest(**{**model.__dict__, "device_id": device, "signal_id": signal}))
         assert "BINDING_CHANNEL_V4_UNKNOWN" in _refused_codes(store, result, requests)
+
+
+# --- Run 8 M2: connector-free binding refusal --------------------------------------------------------------
+
+
+def _publish_connector_free_revision(store, result, effective_from: datetime) -> None:
+    def without_connectors(content, _version):
+        changed = json.loads(json.dumps(content))
+        gone = {c["component_id"] for c in changed["components"] if c["component_type"] == "EV_CONNECTOR"}
+        assert gone
+        changed["components"] = [c for c in changed["components"] if c["component_id"] not in gone]
+        changed.pop("connector_enable_schedules", None)
+        topology = changed["topology"]
+        nodes = {n["node_id"] for n in topology["nodes"] if n["component_id"] in gone}
+        topology["nodes"] = [n for n in topology["nodes"] if n["node_id"] not in nodes]
+        topology["connections"] = [e for e in topology["connections"] if e["from_node"] not in nodes and e["to_node"] not in nodes]
+        changed["devices"] = [d for d in changed.get("devices") or () if d.get("component_id") not in gone]
+        return changed
+
+    FoundationService(store, "demo", Clock(NOW - timedelta(hours=1)))._publish_content_change(
+        result.tenant, result.site, effective_from=effective_from,
+        note="W2-05a test: no connector declared.", unchanged=lambda _c: None, change=without_connectors)
+
+
+def test_binding_set_without_a_declared_connector_is_refused_and_writes_nothing(store) -> None:
+    result = install(store)
+    _publish_connector_free_revision(store, result, MISSING_LIMIT_FROM)
+    complete = complete_requests(store, result)
+    site_import = [r for r in complete if r.role == "ev_site_import"]
+    assert len(site_import) == 1
+    before = store.binding_sets(result.tenant.id, result.site.id)
+    for requests, effective_from in [
+        ([], MISSING_LIMIT_FROM + timedelta(days=1)),
+        (site_import, MISSING_LIMIT_FROM + timedelta(days=1)),
+        # A period that starts on the connector-bearing revision but overlaps the connector-free one.
+        (complete, datetime(2026, 10, 5, tzinfo=timezone.utc)),
+    ]:
+        with pytest.raises(BindingRefused) as caught:
+            BindingService(store, Clock(NOW - timedelta(minutes=30))).publish(
+                result.tenant, result.site, requests=requests, effective_from=effective_from, note="refused",
+                role_set="ev-roles-1")
+        [problem] = [p for p in caught.value.problems if p["code"] == "BINDING_EV_CONNECTOR_NOT_DECLARED"]
+        assert problem["binding"] == ""
+        assert problem["message"] == ("An EV binding set needs at least one declared connector in every covering "
+                                      "Foundation revision.")
+        assert store.binding_sets(result.tenant.id, result.site.id) == before
+
+
+def test_binding_set_with_declared_connectors_still_publishes(store) -> None:
+    result = install(store)
+    before = len(store.binding_sets(result.tenant.id, result.site.id))
+    published = BindingService(store, Clock(NOW - timedelta(hours=1))).publish(
+        result.tenant, result.site,
+        requests=[r for r in complete_requests(store, result) if r.role != "ev_connector_power"],
+        effective_from=MISSING_METER_FROM, note="W2-05a test: connector-bearing set.", role_set="ev-roles-1")
+    assert published is not None
+    assert len(store.binding_sets(result.tenant.id, result.site.id)) > before
+
+
+def test_ev_lab_install_publishes_without_an_activation_delay(store) -> None:
+    """Run 8 M4: bindings are readable at the install clock; a later Foundation revision is allowed immediately;
+    a reinstall writes no extra binding revision."""
+    clock_at = NOW - timedelta(hours=3)
+    result = install(store)
+    [binding_set] = store.binding_sets(result.tenant.id, result.site.id)
+    assert binding_set.valid_from == ORIGINAL_FROM
+    assert binding_set.recorded_at == clock_at
+    assert isinstance(snapshot_at(store, result, clock_at), Snapshot)
+    def without_limit(content, _version):
+        changed = json.loads(json.dumps(content))
+        next(c for c in changed["components"] if c["component_type"] == "AC_BUS").pop("properties")
+        return changed
+
+    FoundationService(store, "demo", Clock(clock_at))._publish_content_change(
+        result.tenant, result.site, effective_from=MISSING_LIMIT_FROM,
+        note="W2-05a test: later revision at the install clock.", unchanged=lambda _c: None, change=without_limit)
+    sets_before = len(store.binding_sets(result.tenant.id, result.site.id))
+    install_ev_lab(store, tenant_slug="demo", clock=Clock(clock_at))
+    assert len(store.binding_sets(result.tenant.id, result.site.id)) == sets_before
+
+
+def test_out_of_range_clock_bound_is_refused_as_ev_configuration_invalid(store) -> None:
+    """Run 8 L3: `ev-clock-error-bound: 1e300` refuses `EV_CONFIGURATION_INVALID` naming its property position."""
+    from assetops_backend.sites.foundation_service import FoundationRefused
+
+    result = install(store)
+
+    def huge(content, _version):
+        changed = json.loads(json.dumps(content))
+        connector = next(c for c in changed["components"] if c["component_type"] == "EV_CONNECTOR")
+        next(p for p in connector["properties"] if p["property_key"] == "ev-clock-error-bound")["value"] = 1e300
+        return changed
+
+    before = len(store.revisions(result.tenant.id, result.site.id))
+    with pytest.raises(FoundationRefused) as caught:
+        FoundationService(store, "demo", Clock(NOW - timedelta(hours=1)))._publish_content_change(
+            result.tenant, result.site, effective_from=MISSING_LIMIT_FROM, note="refused",
+            unchanged=lambda _c: None, change=huge)
+    assert caught.value.code == "EV_CONFIGURATION_INVALID"
+    assert "ev-clock-error-bound" in str(caught.value) or "properties[" in str(caught.value)
+    assert len(store.revisions(result.tenant.id, result.site.id)) == before

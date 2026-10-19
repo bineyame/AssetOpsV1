@@ -195,6 +195,10 @@ UNIT_RANGES: dict[str, tuple[float, float]] = {
     "degC": (-40.0, 60.0),
     "kW": (0.0, 100000.0),
     "min": (0.0, 100000.0),
+    # W2-05a Run 8 L3: finite safety bounds for the EV seconds and energy units (the EV validator still
+    # requires a positive clock bound, resolution and error bound).
+    "s": (0.0, 86400.0),
+    "kWh": (0.0, 100000000.0),
 }
 
 MAX_IDENTIFIER_LENGTH = 64

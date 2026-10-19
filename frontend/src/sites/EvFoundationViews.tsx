@@ -587,7 +587,7 @@ function EvReadinessView(props: ViewProps) {
               </td>
               <td>Payment records feed</td>
               <td>
-                <Link to={props.financialsHref}>Financials →</Link>
+                <UnavailableLinkEntry label="Financials" />
               </td>
             </tr>
             <tr data-ev-readiness-row="tariff">
@@ -598,7 +598,7 @@ function EvReadinessView(props: ViewProps) {
               </td>
               <td>Confirmed tariff</td>
               <td>
-                <Link to={props.assumptionsHref}>Assumptions →</Link>
+                <UnavailableLinkEntry label="Assumptions" />
               </td>
             </tr>
           </tbody>
@@ -622,7 +622,7 @@ function EvReadinessView(props: ViewProps) {
         heading={`Gateway status · ${props.gateway}`}
         headingId="ev-gateway-heading"
         description={`How site data reaches AssetOps · configuration selected ${formatInstant(read.selected_at)} · gateway contact only, not charger health`}
-        actions={<Link to={props.healthHref}>Health › Data sources →</Link>}
+        actions={<UnavailableLinkEntry label="Health › Data sources" />}
       >
         {health === null ? <p>Loading the site's gateway contact.</p> : null}
         <MetricCards label="Gateway contact" data={{ "data-ev-gateway-metrics": "" }}>
@@ -678,9 +678,9 @@ function EvReadinessView(props: ViewProps) {
             <p className="not-available-yet v69-chart-note" data-ev-source-contact="">
               {SOURCE_CONTACT_UNAVAILABLE}: no per-source contact is read, so no source is shown as reporting.
             </p>
-            <p className="v69-chart-note">
-              <Link to={props.viewHref("sld")}>Single line diagram →</Link> <Link to={props.healthHref}>Health › Data sources →</Link>
-            </p>
+            <div className="v69-chart-note">
+              <Link to={props.viewHref("sld")}>Single line diagram →</Link> <UnavailableLinkEntry label="Health › Data sources" />
+            </div>
             <ExactReferences
               name="ev-source-references"
               variant="tech"
@@ -769,9 +769,7 @@ function EvSldView(props: ViewProps) {
             <tr data-ev-part="feed">
               <th scope="row">Grid supply + load manager</th>
               <td>
-                {feedName === null
-                  ? NOT_DECLARED
-                  : `${feedName} · ${read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Site import limit ${read.feed.limit_kw} kW`}; power sharing: ${NOT_DECLARED}`}
+                {`${feedName === null ? NOT_DECLARED : `${feedName} · ${read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Site import limit ${read.feed.limit_kw} kW`}`}; Load manager · ${NOT_DECLARED}`}
               </td>
               <td>{siteImport.length === 0 ? NOT_DECLARED : "Mapped: site import power"}</td>
             </tr>

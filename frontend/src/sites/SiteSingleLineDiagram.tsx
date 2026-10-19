@@ -5,7 +5,7 @@ import { COMPONENT_ICON_HEIGHT, COMPONENT_ICON_WIDTH, ComponentIconShape, type C
 import type { SiteDetailReadModel } from "./siteReadModel";
 import type { ColdBinding, ColdFoundationReadModel, ColdTopologyNode } from "./coldFoundationClient";
 import type { EvFoundationReadModel } from "./evFoundationClient";
-import { connectorName, LIMIT_NOT_DECLARED, NO_CONNECTOR_DECLARED, NOT_DECLARED } from "./evWords";
+import { connectorName, LIMIT_NOT_DECLARED, NO_CONNECTOR_DECLARED, NOT_DECLARED, RATING_NOT_DECLARED } from "./evWords";
 import {
   COMPONENT_TYPE_LABELS,
   CONNECTION_MEDIUM_LABELS,
@@ -1540,19 +1540,23 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
   const top = 46;
   const rowF = 86;
   const busX = 640;
-  const feeders = read.chargers.length + 1;
+  const feeders = 3; // the mock keeps three feeder slots: Charger 1, Charger 2, Depot auxiliary (H1)
   const busTop = top - 6;
   const busBot = top + Math.max(100, feeders * rowF) - 30;
   const monY = busBot + 52;
   const H = monY + 70;
   const feedName = read.feed.asset_id === null ? null : (names.get(read.feed.asset_id) ?? "Site feed");
   const meterName = read.feed.meter_asset_id === null ? null : (names.get(read.feed.meter_asset_id) ?? "Import meter");
-  const monitors: { key: string; label: string }[] = [
-    ...Array.from(new Set(read.bindings.map((b) => b.asset_id))).map((id) => ({
-      key: id ?? "unknown",
-      label: (id === null ? undefined : names.get(id)) ?? "Unnamed part",
-    })),
-    { key: "billing", label: "Billing system" },
+  // Fixed rail positions (H1): Connector 1, Connector 2, Site meter, Billing system. Connector order is the Foundation's
+  // declared charger/connector order with the connector asset ID as tie breaker, never binding role or UUID order.
+  const declaredConnectors = read.chargers.flatMap((charger, ci) => charger.connectors.map((c, i) => ({ c, ci, i })));
+  declaredConnectors.sort((x, y) => x.ci - y.ci || x.i - y.i || (x.c.asset_id ?? "").localeCompare(y.c.asset_id ?? ""));
+  const connectorAt = (k: number) => declaredConnectors[k]?.c ?? null;
+  const monitors: { key: string; label: string; declared: boolean }[] = [
+    { key: "connector-1", label: "Connector 1", declared: connectorAt(0) !== null },
+    { key: "connector-2", label: "Connector 2", declared: connectorAt(1) !== null },
+    { key: "site-meter", label: "Site meter", declared: read.feed.meter_asset_id !== null },
+    { key: "billing", label: "Billing system", declared: false },
   ];
   const mw = (W - 40 - (monitors.length - 1) * 12) / monitors.length;
   const dot = (x: number, y: number, key: string) => <circle key={key} cx={x} cy={y} r={5.5} className="ev-sld__dot" data-ev-dot="unknown" />;
@@ -1569,7 +1573,7 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
   const cy0 = top + 26;
   return (
     <figure className="ev-sld" data-ev-diagram="">
-      <svg className="ev-sld__svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Configured single line diagram: ${read.chargers.length} charger${read.chargers.length === 1 ? "" : "s"}, configuration only`}>
+      <svg className="ev-sld__svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Configured single line diagram: ${read.chargers.length} declared charger${read.chargers.length === 1 ? "" : "s"}, configuration only`}>
         <text x={busX} y={14} textAnchor="middle" className="ev-sld__head" data-ev-slot="bus">
           {feedName === null ? "AC FEED · NOT DECLARED" : feedName.toUpperCase()}
         </text>
@@ -1595,14 +1599,20 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
         </g>
         <line x1={480} x2={busX} y1={cy0} y2={cy0} className="ev-sld__ac" />
         {breaker(570, cy0, "Main CB not declared", "main-cb")}
-        {read.chargers.map((charger, j) => {
+        {[0, 1].map((j) => {
+          const group = j === 0 ? read.chargers.slice(0, 1) : read.chargers.slice(1);
           const y = top + j * rowF;
           const cy = y + 20;
-          const name = (charger.asset_id === null ? undefined : names.get(charger.asset_id)) ?? `Charger ${j + 1}`;
+          const connectors = group.flatMap((ch) => ch.connectors);
+          const groupName = (ch: (typeof group)[number], n: number) => (ch.asset_id === null ? undefined : names.get(ch.asset_id)) ?? `Charger ${n}`;
+          const declared = group.length > 0;
+          const name = group.length === 0 ? `Charger ${j + 1} · ${NOT_DECLARED}` : group.length === 1 ? groupName(group[0], j + 1) : "Additional chargers";
+          const rating = group.length === 0 || group.some((ch) => ch.max_kw === null) ? RATING_NOT_DECLARED : `${group.reduce((t, ch) => t + Number(ch.max_kw ?? 0), 0)} kW`;
+          const detail = group.length > 1 ? group.map((ch, n) => groupName(ch, j + 1 + n)).join(", ") : null;
           return (
-            <g key={charger.asset_id ?? j} data-ev-slot="feeder">
+            <g key={`feeder-${j}`} data-ev-slot="feeder" data-ev-feeder={String(j + 1)} data-ev-declared={declared ? "yes" : "no"}>
               <line x1={busX} x2={748} y1={cy} y2={cy} className="ev-sld__ac" />
-              {breaker(700, cy, "CB not declared", `cb-${j}`)}
+              {breaker(700, cy, `Feeder ${j + 1} CB`, `cb-${j}`)}
               <rect x={748} y={cy - 13} width={40} height={26} rx={3} className="ev-sld__meter ev-sld__box--missing" data-ev-slot="meter" />
               <text x={768} y={cy + 4} textAnchor="middle" className="ev-sld__small ev-sld__strong">kWh</text>
               <text x={768} y={cy + 26} textAnchor="middle" className="ev-sld__small">
@@ -1610,18 +1620,16 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
               </text>
               {dot(786, cy - 13, `m-${j}`)}
               <line x1={788} x2={806} y1={cy} y2={cy} className="ev-sld__ac" />
-              <rect x={806} y={cy - 16} width={32} height={32} rx={4} className="ev-sld__load" />
+              <rect x={806} y={cy - 16} width={32} height={32} rx={4} className={declared ? "ev-sld__load" : "ev-sld__load ev-sld__box--missing"} />
               <text x={822} y={cy + 5} textAnchor="middle" className="ev-sld__glyph">{String(j + 1)}</text>
               <text x={848} y={cy - 2} className="ev-sld__label">{name}</text>
               <text x={848} y={cy + 13} className="ev-sld__small">
-                {`${charger.max_kw === null ? "rating not declared" : `${charger.max_kw} kW`} · ${
-                  charger.connectors.length === 0 ? NO_CONNECTOR_DECLARED : `${charger.connectors.length} connector${charger.connectors.length === 1 ? "" : "s"}`
-                }`}
+                {`${rating} · ${connectors.length === 0 ? NO_CONNECTOR_DECLARED : `${connectors.length} connector${connectors.length === 1 ? "" : "s"}`}${detail === null ? "" : ` · ${detail}`}`}
               </text>
-              {charger.connectors.length === 0 ? null : (
-                <path d={`M822 ${cy + 16}V${cy + 36}H${848 + (charger.connectors.length - 1) * 76}`} className="ev-sld__signal" data-ev-edge="signal" />
+              {connectors.length === 0 ? null : (
+                <path d={`M822 ${cy + 16}V${cy + 36}H${848 + (connectors.length - 1) * 76}`} className="ev-sld__signal" data-ev-edge="signal" />
               )}
-              {charger.connectors.map((c, i) => (
+              {connectors.map((c, i) => (
                 <g key={c.asset_id ?? i} data-ev-slot="connector">
                   <rect x={848 + i * 76} y={cy + 26} width={70} height={20} rx={3} className="ev-sld__box" />
                   <text x={883 + i * 76} y={cy + 40} textAnchor="middle" className="ev-sld__small ev-sld__strong">
@@ -1633,16 +1641,14 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
           );
         })}
         {(() => {
-          const j = read.chargers.length;
-          const cy = top + j * rowF + 20;
+          const cy = top + 2 * rowF + 20;
           return (
             <g data-ev-slot="auxiliary">
               <line x1={busX} x2={806} y1={cy} y2={cy} className="ev-sld__ac ev-sld__ac--missing" />
-              {breaker(700, cy, "CB not declared", "cb-aux")}
+              {breaker(700, cy, "Feeder 3 CB", "cb-aux")}
               <rect x={806} y={cy - 16} width={32} height={32} rx={4} className="ev-sld__load ev-sld__box--missing" />
               <text x={822} y={cy + 5} textAnchor="middle" className="ev-sld__glyph">A</text>
-              <text x={848} y={cy - 2} className="ev-sld__label">Depot auxiliary</text>
-              <text x={848} y={cy + 13} className="ev-sld__small">{NOT_DECLARED}</text>
+              <text x={848} y={cy - 2} className="ev-sld__label">{`Depot auxiliary · ${NOT_DECLARED}`}</text>
             </g>
           );
         })()}
@@ -1651,10 +1657,13 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
         {monitors.map((m, k) => {
           const x = 20 + k * (mw + 12);
           return (
-            <g key={m.key} data-ev-monitor={m.key === "billing" ? "billing" : "part"}>
+            <g key={m.key} data-ev-monitor={m.key}>
               <line x1={x + mw / 2} x2={x + mw / 2} y1={monY - 14} y2={monY} className="ev-sld__signal" />
               <rect x={x} y={monY} width={mw} height={40} rx={4} className={m.key === "billing" ? "ev-sld__box ev-sld__box--missing" : "ev-sld__box"} />
-              <text x={x + mw / 2} y={monY + 24} textAnchor="middle" className="ev-sld__label">{m.label}</text>
+              <text x={x + mw / 2} y={monY + (m.declared ? 24 : 20)} textAnchor="middle" className="ev-sld__label">{m.label}</text>
+              {m.declared ? null : (
+                <text x={x + mw / 2} y={monY + 34} textAnchor="middle" className="ev-sld__small">{NOT_DECLARED}</text>
+              )}
               {dot(x + mw - 8, monY + 8, `mon-${m.key}`)}
             </g>
           );
