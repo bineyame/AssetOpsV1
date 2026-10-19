@@ -122,7 +122,7 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
   );
 }
 
-function refusalText(read: Exclude<ColdRead<unknown>, { status: "loaded" }>): { key: string; title: string; body: string } {
+export function refusalText(read: Exclude<ColdRead<unknown>, { status: "loaded" }>): { key: string; title: string; body: string } {
   if (read.status === "refused" && read.httpStatus === 403) {
     return {
       key: "forbidden",
@@ -175,9 +175,11 @@ function EvidenceLine({ finding, links }: { finding: ColdFindingDetailRead; link
         </Link>
       ))}
       <span aria-hidden="true">·</span>
-      <Link to={links.analysis(finding.assessment_revision_id)} data-analysis-link={finding.assessment_revision_id}>
-        Open the assessment →
-      </Link>
+      {/* Retro correction 14 (spec Q-R9): no integration test proves an Analysis target renders this cold assessment,
+          so its exact ID is labelled text with the unavailable gap, never a guessed link. */}
+      <span data-analysis-unavailable={finding.assessment_revision_id}>
+        Assessment <code data-vocabulary-exempt="source-reference">{finding.assessment_revision_id}</code> · Analysis view not available for this cold record
+      </span>
     </p>
   );
 }
@@ -379,8 +381,8 @@ function TemperaturePanels({
                     "outage",
                   ],
                   ["Door opening", door.length === 0 ? "No record" : `Door record ${door.map((d) => hm(d.as_of)).join(", ")} · context only`, "door"],
-                  // The capture tool treats any "Loading" text as a page still loading (W2-01 deviation 6 precedent).
-                  ["Stock loading / batch", NOT_RECORDED, "loading"],
+                  // Retro correction 17: the exact mock label; the capture settle detector matches only the loading sentences.
+                  ["Loading / batch", "Not established", "loading"],
                   ["Defrost", NOT_RECORDED, "defrost"],
                 ]}
               />

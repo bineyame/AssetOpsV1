@@ -5439,7 +5439,7 @@ async function t028Journey({ labOff }) {
     }
     return { scanned, violations: out };
   })(${JSON.stringify({ terms: list.terms, glosses: list.glosses, exemptions: list.exemptions })})`;
-  const SETTLED = `(() => !!document.querySelector("main") && !/Loading/.test(document.body.innerText))()`;
+  const SETTLED = `(() => !!document.querySelector("main") && ![...document.querySelectorAll("main p")].some((p) => /^Loading [^.]+\\.$/.test(p.textContent.trim())))()`;
   const scanPath = async (name, path, waitFor = "main", act = null) => {
     await visit(cdp, path, 1280, 800, waitFor);
     await waitUntil(SETTLED, 10000);

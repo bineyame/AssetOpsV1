@@ -441,7 +441,11 @@ describe("W2-03: cold Finding detail", () => {
     await settledScreen();
     expect(panelTitled("Recommended next step").textContent).toContain("No recorded next step");
     expect(panelTitled("Operational context").querySelectorAll("[data-timeline-event]")).toHaveLength(8);
-    expect(panelTitled("Operational context").querySelector(`[data-analysis-link="${id(51)}"]`)).not.toBeNull();
+    // Retro correction 14: the assessment is labelled text with the unavailable gap, never a link.
+    const analysis = panelTitled("Operational context").querySelector(`[data-analysis-unavailable="${id(51)}"]`);
+    expect(analysis?.textContent).toContain("Analysis view not available for this cold record");
+    expect(analysis?.closest("a")).toBeNull();
+    expect(panelTitled("Operational context").querySelector('a[href*="assessment="]')).toBeNull();
     expect(panelTitled("Bounded conclusion").textContent).toContain("Transfer to backup".toLowerCase());
     cleanup();
     renderCold(ROUTES[3][1], STOCKED);

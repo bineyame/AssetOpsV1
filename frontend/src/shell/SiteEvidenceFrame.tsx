@@ -10,6 +10,9 @@ import { localView } from "../sites/findingPresentation";
 import { deriveSiteView } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
+import type { ColdSiteClient } from "../sites/coldSiteClient";
+import { coldSiteScreen } from "./coldSiteRoutes";
 import { siteDetailHref, sitePerformanceHref } from "./operatorSiteRoutes";
 
 /** The heading id the Evidence landmark is labelled by. */
@@ -33,6 +36,9 @@ export interface SiteEvidenceFrameProps {
   evidence: SiteEvidenceClient;
   analytics?: SiteAnalyticsClient;
   sitesPath: string;
+  /** W2-04: a COLDCHAIN Site renders `cold-evidence` / `cold-evidence-analysis` (`?view=analysis`) from these reads. */
+  coldSite?: ColdSiteClient;
+  coldAssessment?: ColdAssessmentClient;
 }
 
 export function SiteEvidenceFrame({
@@ -40,6 +46,8 @@ export function SiteEvidenceFrame({
   evidence,
   analytics,
   sitesPath,
+  coldSite,
+  coldAssessment,
 }: SiteEvidenceFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
   const result = useSiteRecord(siteId, detail);
@@ -94,6 +102,18 @@ export function SiteEvidenceFrame({
   }
 
   const site = result.site;
+
+  if (site.site_type === "COLDCHAIN" && coldSite !== undefined && coldAssessment !== undefined) {
+    return coldSiteScreen({
+      view: localView(params) === "analysis" ? "analysis" : "evidence",
+      site,
+      params,
+      coldSite,
+      coldAssessment,
+      tabs: <OperatorSiteTabs siteId={siteId} current="Evidence" />,
+      sitesPath,
+    });
+  }
 
   return (
     <main aria-labelledby={SITE_EVIDENCE_HEADING_ID}>

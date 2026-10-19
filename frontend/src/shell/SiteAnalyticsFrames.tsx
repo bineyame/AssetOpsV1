@@ -32,6 +32,8 @@ import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
 import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
+import type { ColdSiteClient } from "../sites/coldSiteClient";
+import { coldSiteScreen } from "./coldSiteRoutes";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
@@ -614,6 +616,32 @@ const DEFAULT_FINANCIALS = createFinancialsClient();
 const FINANCIALS_SECTIONS_LABEL = "Financials sections";
 
 /**
+ * The Financials subtab row (Overview, Assumptions, and the mock's Scenarios as "Not available yet" text). W2-04:
+ * a cold Site's Financials screens reuse it with the selected window (`search`) carried in both links.
+ */
+export function FinancialsSections({ siteId, view, search = "" }: { siteId: string; view: "overview" | "assumptions"; search?: string }) {
+  return (
+    <nav className="site-tabs site-subtabs" aria-label={FINANCIALS_SECTIONS_LABEL}>
+      <ol className="site-tabs__list">
+        {(
+          [
+            ["overview", "Overview", `${siteFinancialsHref(siteId)}${search}`],
+            ["assumptions", "Assumptions", `${siteFinancialAssumptionsHref(siteId)}${search}`],
+          ] as const
+        ).map(([id, label, href]) => (
+          <li className="site-tabs__item" key={id}>
+            <Link className="site-tabs__link" to={href} data-financials-section={id} aria-current={id === view ? "page" : undefined}>
+              {label}
+            </Link>
+          </li>
+        ))}
+        <UnavailableTab label="Scenarios" />
+      </ol>
+    </nav>
+  );
+}
+
+/**
  * S4-02a: Site > Financials (Overview with the Finding bridge) and Financials > Assumptions. W1-F5b
  * (D-2026-10-17-f5-subtabs-and-contact): the mock's Scenarios subtab is shown in its place as "Not available yet"
  * text, never a link or a route (G-05 is still unbuilt).
@@ -623,17 +651,35 @@ export function SiteFinancialsFrame({
   sitesPath,
   view,
   financials = DEFAULT_FINANCIALS,
+  coldSite,
+  coldAssessment,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   view: "overview" | "assumptions";
   financials?: FinancialsClient;
+  /** W2-04: a COLDCHAIN Site renders `cold-financials` / `cold-assumptions` from these reads (read-only). */
+  coldSite?: ColdSiteClient;
+  coldAssessment?: ColdAssessmentClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
+  const [params] = useSearchParams();
   const title = view === "assumptions" ? "Financial assumptions" : "Financials";
   return (
     <SiteScoped siteId={siteId} detail={detail} title={title} headingId={SITE_FINANCIALS_HEADING_ID}>
       {(site) => {
+        if (site.site_type === "COLDCHAIN" && coldSite !== undefined && coldAssessment !== undefined) {
+          return coldSiteScreen({
+            view: view === "assumptions" ? "assumptions" : "financials",
+            site,
+            params,
+            sections: <FinancialsSections siteId={site.site_id} view={view} search={coldWindowSearch(coldWindowFromParams(params))} />,
+            coldSite,
+            coldAssessment,
+            tabs: <OperatorSiteTabs siteId={siteId} current="Financials" />,
+            sitesPath,
+          });
+        }
         const links: FinancialsLinks = {
           finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
           evidence: (findingId, rev) => siteFindingViewHref(site.site_id, findingId, "evidence", rev),
@@ -663,28 +709,7 @@ export function SiteFinancialsFrame({
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
             <OperatorSiteTabs siteId={siteId} current="Financials" />
-            <nav className="site-tabs site-subtabs" aria-label={FINANCIALS_SECTIONS_LABEL}>
-              <ol className="site-tabs__list">
-                {(
-                  [
-                    ["overview", "Overview", siteFinancialsHref(site.site_id)],
-                    ["assumptions", "Assumptions", siteFinancialAssumptionsHref(site.site_id)],
-                  ] as const
-                ).map(([id, label, href]) => (
-                  <li className="site-tabs__item" key={id}>
-                    <Link
-                      className="site-tabs__link"
-                      to={href}
-                      data-financials-section={id}
-                      aria-current={id === view ? "page" : undefined}
-                    >
-                      {label}
-                    </Link>
-                  </li>
-                ))}
-                <UnavailableTab label="Scenarios" />
-              </ol>
-            </nav>
+            <FinancialsSections siteId={site.site_id} view={view} />
             {view === "assumptions" ? (
               <SiteAssumptions siteId={site.site_id} client={financials} links={links} />
             ) : (

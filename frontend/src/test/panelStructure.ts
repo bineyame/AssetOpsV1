@@ -46,8 +46,8 @@ function text(element: Element): string {
 }
 
 const PANEL_SELECTOR = "section.panel, .panel, [data-headline-card]";
-/** Page chrome above the content: breadcrumbs, page heading, tabs, subtabs. */
-const CHROME_SELECTOR = "nav, header.page-header";
+/** Chrome: navigation, the page header and the Site date-bar slot (W2-04 Run-7 date-bar ruling). */
+const CHROME_SELECTOR = "nav, header.page-header, .site-date-bar";
 /**
  * The only v69 patterns permitted between the chrome and panel 1. W1-F2 added
  * `.v69-objective`, the mock's `.objective` line between status and cards.

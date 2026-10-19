@@ -973,7 +973,7 @@ export function ColdTemperatureChart({ read, label }: { read: ColdTemperatureRea
         ))}
         {ticks.map((t) => (
           <text key={t.toISOString()} className="cold-chart__axis" x={x(t)} y={CHART_H - 8} textAnchor="middle">
-            {hm(t.toISOString())}
+            {`${hm(t.toISOString())} UTC`}
           </text>
         ))}
       </svg>

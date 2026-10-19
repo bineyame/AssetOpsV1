@@ -61,11 +61,11 @@ Tools: `checks/configuration-persistence.ps1`, `writer_guard_probes.py`, three e
 | Cross-tenant refusal, 31-day/limit/cursor/errors, worker failure/retry/idempotence/concurrency | Met - reads/worker tests |
 | Rule 8: only `postgres_consequence_store.py` cold INSERTs | Met - probes 129 CAUGHT / 0 MISSED at `4c106b60`; backend code unchanged since |
 | `expectV69Panels` per owned route, stocked/empty/refused + planted failure | Met - `coldSiteViews.test.tsx` |
-| Side-by-side 1440/390 captures for every route | Met - 18 pairs, 216/216 claims, `ea93a306` (`.agent/W2-04-evidence`) |
-| Panels <= ~1.3x mock at 1440 or stated reason | Not met for Accepted records (1.59); see D2 |
-| No set/order/title/grid/prominence mismatch | Met per capture tool; visual overlap D1 is open |
+| Side-by-side 1440/390 captures for every route | Met - 18 pairs, 216/216 claims, recaptured after the Run-9 fixes (`.agent/W2-04-evidence`) |
+| Panels <= ~1.3x mock at 1440 or stated reason | Met after D2 (Accepted records 1.29) |
+| No set/order/title/grid/prominence mismatch | Met per capture tool; D1 closed (no overlap, viewed) |
 
-## App vs mock heights (stocked, 1440, disclosures closed; capture `ea93a306`)
+## App vs mock heights (stocked, 1440, disclosures closed; capture `HEAD_REV`)
 
 | Route | Panel | App | Mock | Ratio |
 | --- | --- | --- | --- | --- |
@@ -73,43 +73,45 @@ Tools: `checks/configuration-persistence.ps1`, `writer_guard_probes.py`, three e
 | cold | Chamber temperature / Needs attention | 386 | 373 | 1.03 |
 | cold | Bounded money consequence / Next step | 185 | 193 | 0.96 |
 | cold-evidence | What we can conclude now | 386 | 336 | 1.15 |
-| cold-evidence | Data sources / Most useful next evidence (row) | 508 | 438 | 1.16 (target <=569: met) |
-| cold-evidence-analysis | Accepted records | 423 | 266 | 1.59 (target <=345: NOT met) |
+| cold-evidence | Data sources / Most useful next evidence (row) | 545 | 438 | 1.24 (target <=569: met) |
+| cold-evidence-analysis | Accepted records | 344 | 266 | 1.29 (target <=345: met) |
 | cold-evidence-analysis | How a claim limit is set | 191 | 148 | 1.29 (target <=192: met) |
 | cold-financials | What happened → money | 300 | 234 | 1.28 |
 | cold-financials | Assumptions in use / Not included | 291 | 234 | 1.24 |
 | cold-assumptions | Financial assumptions | 315 | 279 | 1.13 |
 | temperature (W2-03) | How each limit is set | 225 | 120 | 1.88 - W2-03 follow-up, not this slice |
 
-Chamber Affects (1 line) and inverter cells (<=2 lines): met. Most useful next evidence: content unchanged (card
-stretches to the shared grid row, as in the mock). 390: no page overflow on any route (`overflowX 0`).
+390: no page overflow on any route (`overflowX 0`). `cold-evidence-stocked-1440-app.png` and
+`cold-evidence-analysis-stocked-1440-app.png` viewed: no clipping, overlap or ellipsis in Data sources (headers wrap on two
+lines, closed chips Unknown/Not declared/Good/No fact on one line); Record IDs keep their existing 12ch visual shortening.
 
-## Known deviations / open defects (need Architect ruling; no compaction beyond the ruling was applied)
+## Run-9 fix table (Architect D-2026-10-18-w2-04-buildspec, spec section "Run-9 ruling")
 
-- D1 (High, visible). `cold-evidence` Data sources at 1440: with the ruled fixed widths (Status 17%, Quality 13%)
-  and one-line chips, `Source contact unknown` is clipped and `Accepted facts · good quality` overflows over the
-  What column; the header `STATUS AT WINDOW END` runs into `QUALITY`. See `cold-evidence-stocked-1440-app.png`.
-  The ruling's two constraints (widths and one-line chips) cannot both hold for these strings.
-- D2 (Medium). Accepted records 423 px vs <=345. Each Record cell wraps to three lines (`Record 00000002-0…` +
-  `· Analysis view not available for this cold record`), so all three rows exceed the ruled "no first-three row
-  exceeds two text lines". Keeping the Q-R9 limitation in the cell (as ruled) at 16% width cannot fit two lines.
-  Options for the Architect: move the limitation to Record details, or widen the Record column.
+| Item | Fix | Where |
+| --- | --- | --- |
+| D1 | Widths 26/16/16/23/19; headers Source, Contact at window end, Accepted quality, What it provides, Affects (shared CSS shows them uppercase and wraps them here); closed chips Recent/Old/Never/Unknown/Mixed, Not declared, Good/Limited/Mixed/No fact; blanket `td > * nowrap` replaced by nowrap on `.badge` only | `coldSiteViews.tsx`, `w2-cold-site.css` |
+| R1 | Unbound and bound-no-fact roles read `No accepted report for this role` (role label only with an accepted fact); Source details keeps `Configured source, no accepted report`; test asserts no `Door/loading context` for a zero-fact bound row | same, `coldSiteViews.test.tsx` |
+| R2 | Data sources / next-evidence row measured 545 px (<=569) | capture |
+| D2 | Closed Record cell: `Record {short id}` (full id as aria-label) + `No analysis link`; limitation, full id and `Target: Unavailable` moved to Record details; PROVED still uses its exact link. Panel was 370 px after the copy move alone, so records-table line spacing is 1.25 (line spacing only, no text scaling, 6 px spacing kept) -> 344 px | same |
+
+## Known deviations
+
+- D1, D2, R1, R2 are closed. No unruled decision remains; the 1.25 line-height is the only measured lever beyond the
+  copy ruling and is within the ruled "no text scaling / keep 6 px spacing" limits - flag for the Reviewer.
 - D3. Capture data differ from the mock illustration (seeded excursion replay; rows are Chamber/Ambient/Grid power).
 
-## Checks run
 
-| Check | Revision | Result |
-| --- | --- | --- |
-| Capture seed: throwaway `test_zz_capseed.py` (excursion chain → W2-03 run → W2-04 drain) on `assetops_w204cap_test` | `b9b79493` | 1 passed; file deleted |
-| `tools/w1-fidelity-evidence.mjs`, 18 targets x 2 widths, API 9704 / vite 6104 / CDP 9714 | `b9b79493` (code) | 216/216 claims passed |
-| Full backend, real Postgres, `-n 2 --dist loadfile --no-loadscope-reorder --junitxml`, `assetops_w204_test` | `ea93a306` | 2822 passed, 1 failed, wall 1643 s; JUnit cases=2823 skipped=0 failed=1 |
-| Failure: `test_s405_resolver_postgres.py::...::test_broken_links_are_named_and_precede_mixed` - `assert 5 == 4` on `pg_constraint LIKE 'batch_publication_link_%'` (0023 adds `batch_publication_link_scope_unique`) | fixed `f6f10777` | file rerun serially: 9 passed |
-| Host suite `pytest host/tests` | `ea93a306` | NOT COMPLETED - the runner was killed by Claude Code for low system memory; not restarted per that notice |
-| Full `npm.cmd test` | `f6f10777` | 86 files / 2225 passed |
-| `tools/check-all.ps1` | `f6f10777` | All 10 guards passed |
+## Checks run (final revision `6177f1dc`; docs-only commit after it)
 
-Not rerun after `f6f10777`: the full backend suite (only one test line changed) and the host suite. A clean full
-backend + host run on the final revision remains outstanding and should be run when memory allows.
+| Check | Result |
+| --- | --- |
+| Capture seed (throwaway excursion chain -> W2-03 run -> W2-04 drain, `assetops_w204cap_test`; file deleted) + `tools/w1-fidelity-evidence.mjs`, 18 targets x 2 widths, API 9704 / vite 6104 / CDP 9714 | 216/216 claims passed |
+| Full backend, real Postgres, `-n 2 --dist loadfile --no-loadscope-reorder --junitxml`, `assetops_w204_test`, keep-awake | 2823 passed, wall 1720 s; JUnit cases=2823 skipped=0 failed=0 |
+| Host suite `pytest host/tests` (run after, serially) | 708 passed, wall 637 s |
+| Full frontend `vitest` | 86 files / 2225 passed (one `npm.cmd test` run hit 1 failure under load; the rerun and the sites/shell run were clean) |
+| `tools/check-all.ps1` | All 10 guards passed |
+
+The earlier `test_s405_resolver_postgres` failure was fixed in `f6f10777` and passes in this run.
 
 ## Residual risk
 
@@ -122,3 +124,33 @@ backend + host run on the final revision remains outstanding and should be run w
 
 D1 overlap on Evidence › Overview Data sources; D2 Accepted records height; R1 unbound-row copy; financials stay
 unpriced with `Not included` explicit; no Action/Incident/repair implied.
+
+## Run 9 fix round (review r1 M1-M5, L1-L2)
+
+Frontend-only; no backend change. Fix head is the commit after `8fecec5a` (see git log).
+
+| Finding | Fix | Proof |
+| --- | --- | --- |
+| M3 | `git rm x` (stray uvicorn log) | file gone |
+| M1 | Unbound Affects cell uses `CLOSED_SOURCE[row.label].affects` (Compressor `Cooling`, Transfer `Backup`, Loading `Temperature · cooling`); the undeclared inverter row keeps `Claim effect not assessed`. Wrong assertion at old `coldSiteViews.test.tsx:575-582` corrected | `coldSiteViews.test.tsx` evidence test |
+| M2 | Approved as ruled; existing panel-scoped 1.25 rule kept, no CSS change | Accepted records 344 px (limit 345) |
+| M4 | `No linked page for this item` (non-interactive) replaces `Finding link not available` | new null-link test (no anchor) |
+| M5 | `Badge` gains optional `className`; `toneClass` maps the Run-9 table (Contact, Quality, capability, evidence strip) to `cold-tone--green/amber/red`; three selectors appended to `w2-cold-site.css`. `w2-cold-assessment.css` untouched (W2-03 follow-up) | new tone-class test (green, amber, red, neutral for Unknown / No fact / None / Evidence unknown) |
+| L1 | `quantityPhrase`: `{low}–{high} °C-minutes`, `at least {low} °C-minutes (upper bound unknown)`, `Exposure amount not established`; used in the Exposure cell (`Chamber temperature exposure: ...`), card note and Basis details; `boundText` removed | new test over all three cases; no `degC_min` / `Unknown bound` in main |
+| L2 | One accepted non-primary role renders `roleName` (`Generator state`); 0 accepted `No accepted report for this role`; the multi-role string is unreachable with current row roles (no row has two non-primary roles) | new test |
+
+Capture: new throwaway DB `w204fix_test` (excursion chain, W2-03 run, W2-04 drain), API 9704 / vite 6104 / CDP 9714, then
+dropped and servers stopped. Stocked pairs for cold, cold-evidence, cold-evidence-analysis and cold-financials recaptured at
+1440 and 390 (48/48 claims; viewed cold-evidence and cold-financials at 1440). Other pairs are unchanged by this round.
+Raw run: `.agent/W2-04-evidence/evidence-run9-recapture.json`.
+
+| Panel (stocked 1440, closed) | App | Mock | Limit |
+| --- | --- | --- | --- |
+| Data sources | 545 | 438 | 569 |
+| Accepted records | 344 | 266 | 345 |
+| How a claim limit is set | 191 | 148 | 192 |
+| Financials bridge panel | 300 | 234 | n/a (1.28x) |
+
+Checks: full frontend `npm.cmd test` 86 files / 2228 passed; `tsc --noEmit` clean; `tools/check-all.ps1` all 10 guards pass.
+Backend and host suites not rerun (no backend change).
+Open: W2-03 chip tones (`w2-cold-assessment.css`) go to the W2-03 follow-up.

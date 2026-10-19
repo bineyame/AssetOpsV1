@@ -489,7 +489,7 @@ class TestDatabaseImmutability:
                 command.downgrade(config, "0016_action_store")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0022_w2_cold_assessment")
+                    "0023_w2_cold_consequence")
                 assert c.execute(text("SELECT id FROM evidence_publication")).scalar_one() == reg.publication_id
         finally:
             command.upgrade(config, "head")

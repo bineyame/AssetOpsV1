@@ -5857,3 +5857,14 @@ Branch `task/W2-03-cold-assessment` (base main `e74309db`; spec `.agent/W2-03-bu
 - Frontend: `sites/coldAssessmentClient.ts`, `sites/ColdAssessmentViews.tsx` (`ColdPerformanceFrame`, `ColdFindingFrame`), `sites/coldAssessmentWords.ts`, `sites/coldFormat.ts`; chart `ColdTemperatureChart` in `sites/assessmentGraphics.tsx` (overflow guard). COLDCHAIN switches in `shell/SiteAnalyticsFrames.tsx` (`SitePerformanceFrame` temperature/backup, `SiteFindingFrame` by kind), `coldAssessment` prop on `App`.
 - Tests: `backend/tests/test_w203_cold_{rules,migration_postgres,replay_postgres,reads_postgres}.py`, `frontend/src/sites/__tests__/coldRoutes.test.tsx`; captures `.agent/W2-03-evidence/`.
 - Open: Cooling subtab and cold Finding Recommendation tab withheld (unbuilt-entry ruling); `Claim boundary` title and mock columns `Power to load`/`Load response` and "Registered simulation" sit on the W1 vocabulary list (filtered in the test, ruling requested); no production source-disclosure policy; no manual-recovery/operational-log source; Analysis link targets the existing evidence Analysis view.
+
+## W2-04 - cold Site, evidence and unpriced consequence (built, in_review)
+
+Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `.agent/W2-04-build-spec.md` incl. Run-5/7/8 rulings). Packet `.agent/W2-04-review-packet.md`; handoff `.agent/W2-04-phase-handoff.md`.
+
+- Migration `0023_w2_cold_consequence`: append-only `cold_consequence_revision`, `_evidence`, `_work`, `_work_attempt`; trigger-only work on cold FindingRevision/episode revision and source-gate link; adds `batch_publication_link_scope_unique`; guarded downgrade.
+- Money: `financials/cold_consequence.py` (pure rules: `PRODUCT_EXPOSURE` degC_min bounds, open episode null high + `OPEN_EPISODE_UPPER_UNKNOWN`, no price/currency), `financials/cold_recompute.py` worker (advisory lock, SUCCEEDED/FAILED attempts); sole writer `adapters/postgres_consequence_store.py`.
+- Reads `cold_site_api.py` + `analytics/cold_site_reads.py`: `/api/sites/{code}/cold/{overview,evidence,evidence/analysis,financials,financial-assumptions}`; `accepted_records.total_count` via `PostgresAssessmentStore.accepted_count_on`.
+- Frontend: `sites/coldSiteViews.tsx` (five routes, `SelectedWindowBar`, `SOURCE_ROWS`, `RECORD_LABEL`), `sites/coldSiteClient.ts`, `sites/w2-cold-site.css` (route-scoped 1440 widths), `shell/coldSiteRoutes.tsx`.
+- Tests: `backend/tests/test_w204_cold_{migration,consequence,worker,reads}.py`, `frontend/src/sites/__tests__/coldSiteViews.test.tsx`; captures `.agent/W2-04-evidence/`.
+- Open: Data sources chips overflow at the ruled widths (D1); Accepted records 423/345 px, Record cell wraps 3 lines (D2); unbound-row closed What copy (R1); Q-R9 record links unproven; `SOURCE_GATE_CHANGED` path untested; host suite and a final full backend run outstanding; W2-03 `How each limit is set` 225/120 follow-up.
