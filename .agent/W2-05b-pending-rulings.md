@@ -110,3 +110,16 @@ manifests.
   transition or allocation. A 1 kW quantum is cut to `min(1, headroom, remaining)`, so fractional
   requests/limits are fully allocated. Private exact kWh renders as an integer or `p/q`. `forcing_ordinal`
   is the zero-based ordinal of the last forcing row applied at or before the boundary (null before any).
+
+## Run 3 (2026-10-19): commit 3 question (blocks the admitted-Stage proof)
+
+- **Q15 public UNPLUGGED state vs the 05a ENUM map.** Q12/Q14 and the commit 3 closure say the public
+  connector `STATE_AT_INSTANT` value is one of `UNPLUGGED|PLUGGED|AUTHORIZING|CHARGING|FAULTED`. The
+  published 05a binding (`backend/conversions/ev-lab-001-bindings.json`, rows `c1/c2-connector-controller/
+  state`) has ENUM map labels `AVAILABLE, PLUGGED, AUTHORIZING, CHARGING, FAULTED, DISABLED`, matching
+  `sites/binding_roles.py:43` `EV_CONNECTOR_STATES`. Gateway admission (`gateway/assetops_gateway/
+  service.py:931-934` `_check_report_v2`) holds any value not in the map as `INVALID_ENUM`, so every run's
+  08:00 c1/c2 `UNPLUGGED` state report would refuse Stage (`PUBLICATION_REFUSED`). 05b may not change the
+  05a fixture/binding. Which: (a) the public transform reports the pack's `UNPLUGGED` as `AVAILABLE`
+  (pack and private documents keep `UNPLUGGED`); (b) a new 05a binding revision adding an `UNPLUGGED`
+  label; or (c) another rule?

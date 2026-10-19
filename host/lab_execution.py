@@ -2338,6 +2338,18 @@ class HostLabExecution:
         Ordinary reports group by ascending `published_at` (source time + 3 s), report order kept inside a
         group; each held report is a `DelayedReport` released at its `published_at` by `advance_publication`.
         The schedule says the world reached its last ordinary instant (20:00:03), complete, 61 boundaries."""
+        return self._stage_registered_v2_reports(run, reports, "cold")
+
+    def _stage_registered_virtual_ev(self, run: SimulationRun, reports) -> str | None:
+        """W2-05b commit 3: the EV branch, through the same registered v2 path as cold.
+
+        `reports` are `ev_publication.EvReport`s in the commit 3 series order. Ordinary reports publish at
+        source time + 3 s; the held late END is a `DelayedReport` released at 09:05 with its unchanged source
+        time, report key and text. `GatewayService` alone allocates envelope sequence/message and SQLite
+        outbox; a gateway ordinal refusal comes back as the refusal string (`PUBLICATION_REFUSED`)."""
+        return self._stage_registered_v2_reports(run, reports, "EV")
+
+    def _stage_registered_v2_reports(self, run: SimulationRun, reports, label: str) -> str | None:
         basis = run.registered_basis
         if self._gateway is None:
             return "registered publication refused: no gateway is configured for this host"
@@ -2346,7 +2358,7 @@ class HostLabExecution:
         except ScheduleUnreadable as unreadable:
             return f"registered publication refused: {unreadable}"
         if existing is not None:
-            return "registered publication refused: a cold publication schedule already exists for this run"
+            return f"registered publication refused: a {label} publication schedule already exists for this run"
         ordinary: dict[str, list[str]] = {}
         delayed: list[DelayedReport] = []
         for report in reports:

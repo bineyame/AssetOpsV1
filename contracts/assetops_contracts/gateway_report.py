@@ -309,3 +309,26 @@ def cold_report_key(
     """`cold:` + SHA-256 of canonical `(scenario_sha256, device_id, signal_id, source_time, record_kind,
     event_id, interval_start)`: deterministic, so a retransmission carries the same key."""
     return _cold_digest([scenario_sha256, device_id, signal_id, source_time, record_kind, event_id, interval_start])
+
+
+def ev_event_id(*, scenario_sha256: str, device_id: str, signal_id: str, transition_ordinal: int) -> str:
+    """W2-05b: `ev-` + lowercase SHA-256 of canonical `[scenario_sha256, device_id, signal_id, transition_ordinal]`.
+
+    The ordinal increases per device/signal, ADD included, and never depends on publication time."""
+    return _cold_digest([scenario_sha256, device_id, signal_id, transition_ordinal], "ev-")
+
+
+def ev_report_key(
+    *,
+    scenario_sha256: str,
+    device_id: str,
+    signal_id: str,
+    source_time: str,
+    record_kind: str | None,
+    event_id: str | None,
+    interval_start: str | None,
+) -> str:
+    """W2-05b: the cold report-key identity inputs in an `ev:` namespace - `ev:` + SHA-256 of canonical
+    `(scenario_sha256, device_id, signal_id, source_time, record_kind, event_id, interval_start)`."""
+    return _cold_digest([scenario_sha256, device_id, signal_id, source_time, record_kind, event_id, interval_start],
+                        "ev:")
