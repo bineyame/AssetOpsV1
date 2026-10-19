@@ -1,0 +1,90 @@
+/*
+ * W2-06 commit 5: the EV `sessions` and `ev-finding` screens. Everything is scoped to `[data-ev-view]`
+ * (`.agent/W2-06-build-spec.md` "Commit 5": 6 px cell padding and 1.25 line height only in these EV panels,
+ * mock column widths 20/16/12/13/22/17%, 1.8:1 paired panels, route-scoped outcome tones).
+ */
+
+[data-ev-view] .data-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 640px;
+}
+[data-ev-view] .data-table th,
+[data-ev-view] .data-table td {
+  padding: 6px;
+  line-height: 1.25;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: normal;
+  vertical-align: top;
+}
+[data-ev-view] col[data-ev-col="Session / connector"] { width: 20%; }
+[data-ev-view] col[data-ev-col="Period"] { width: 16%; }
+[data-ev-view] col[data-ev-col="Energy"] { width: 12%; }
+[data-ev-view] col[data-ev-col="Outcome"] { width: 13%; }
+[data-ev-view] col[data-ev-col="Evidence completeness"] { width: 22%; }
+[data-ev-view] col[data-ev-col="Next step"] { width: 17%; }
+
+[data-ev-view] .ev-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+[data-ev-view] .ev-chip {
+  white-space: nowrap;
+}
+
+[data-ev-view] .badge.ev-tone--green {
+  background: #e3f4ed;
+  color: #166b50;
+  border-color: #b5dfcd;
+}
+[data-ev-view] .badge.ev-tone--amber {
+  background: #fff1d9;
+  color: #8e580c;
+  border-color: #c9a24a;
+}
+[data-ev-view] .badge.ev-tone--red {
+  background: #fcebea;
+  color: #a13838;
+  border-color: #d26565;
+}
+
+[data-ev-view] .ev-strip__note {
+  margin-left: 6px;
+}
+[data-ev-view] .ev-note,
+[data-ev-view] .ev-record-line {
+  margin: 8px 0 0;
+  font-size: var(--text-panel-note);
+  line-height: 1.25;
+}
+[data-ev-view] .ev-show-all {
+  margin-top: 6px;
+  font: inherit;
+  font-size: var(--text-panel-note);
+}
+[data-ev-view] [data-disclosure] {
+  margin-top: 8px;
+}
+[data-ev-view] .v69-unavailable-inline {
+  color: var(--text-muted);
+  font-size: var(--text-panel-note);
+}
+
+@media (min-width: 1101px) {
+  [data-ev-view] .ev-pair {
+    grid-template-columns: minmax(0, 1.8fr) minmax(270px, 1fr);
+  }
+}
+
+/* Measured compaction (1440 capture): prose lines in these EV panels sit 6 px apart, not a paragraph gap. */
+[data-ev-view] .panel .prose {
+  margin: 6px 0 0;
+}
+[data-ev-view] .panel .v69-big-claim + .prose {
+  margin-top: 8px;
+}
+[data-ev-view] .ev-lines {
+  line-height: 1.5;
+}

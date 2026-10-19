@@ -225,6 +225,15 @@ _V4_TABLE_BY_ROLE_SET = {
 }
 
 
+def v4_mapping_profile(role_set: str) -> tuple[str, int] | None:
+    """W2-06 Q8: the one registered public mapping profile `(id, version)` whose closed channel table this role
+    set's bindings are checked against, or None when the role set has no such table or it is not exactly one
+    registered profile."""
+    table = _V4_TABLE_BY_ROLE_SET.get(role_set)
+    found = [key for key, value in V4_CHANNEL_MAPPINGS_BY_PROFILE.items() if value is table]
+    return found[0] if table is not None and len(found) == 1 else None
+
+
 def _declared_signals(content: Mapping[str, Any]) -> dict[tuple[str, str], str]:
     return {
         (device["device_id"], signal["signal_id"]): signal["unit"]

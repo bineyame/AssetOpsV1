@@ -25,7 +25,7 @@ from types import ModuleType
 from typing import Any, Callable
 from uuid import UUID
 
-from assetops_backend.analytics import cold, dispatch_v3
+from assetops_backend.analytics import cold, dispatch_v3, ev
 from assetops_backend.analytics.assessment_inputs import (
     BRACKET,
     AnalyticInputSet,
@@ -249,7 +249,10 @@ class ColdAssessmentWorker:
             known = known_at or self.store.cold_watermark(c, tenant_id, site_id)
             if known is None:
                 raise cold.ColdConfigurationRefused("the Site has no committed disposition to assess")
-            return self._project(c, tenant_id, site_id, window, known, job_id=None, selection="EXPLICIT")
+            projection = self._project(c, tenant_id, site_id, window, known, job_id=None, selection="EXPLICIT")
+            if projection is None:
+                raise ev.EvConfigurationRefused("the window has no accepted EV record to assess")
+            return projection
 
     def run_once(self, tenant_id: UUID | None = None, site_id: UUID | None = None) -> JobOutcome | None:
         scope = {} if site_id is None else {"tenant_id": tenant_id, "site_id": site_id}
@@ -264,6 +267,102 @@ class ColdAssessmentWorker:
                                              selection="DEFAULT")
                                for w in self.store.cold_windows(c, lease)]
                 self.store.cold_complete(c, lease)
+            return JobOutcome(lease.job_id, "DONE", tuple(projections))  # type: ignore[arg-type]
+        except LeaseLost as lost:
+            return JobOutcome(lease.job_id, "LEASE_LOST", error=str(lost))
+        except Exception as error:  # noqa: BLE001 - every failure rolls back and is recorded on the job
+            reason = f"{type(error).__name__}: {error}"[:500]
+            status = self.store.fail_job(lease, reason, self.clock(), max_attempts=self.max_attempts,
+                                         backoff=self.backoff)
+            return JobOutcome(lease.job_id, status, error=reason)
+
+    def run_pending(self, limit: int = 100, tenant_id: UUID | None = None,
+                    site_id: UUID | None = None) -> list[JobOutcome]:
+        out: list[JobOutcome] = []
+        while len(out) < limit:
+            outcome = self.run_once(tenant_id, site_id)
+            if outcome is None:
+                break
+            out.append(outcome)
+        return out
+
+
+# --- ev_charging (W2-06 commit 3) ----------------------------------------------------------------------------
+
+EV_DOMAIN = "ev_charging"
+
+
+@dataclass(frozen=True)
+class EvProjection:
+    """One window's `ev-session/1` projection: the persisted run/revision (`created` false on an identical
+    basis), the pure assessment, the session revisions written or reused, and the Finding revisions appended."""
+
+    window: Window
+    known_at: datetime
+    run: dict
+    assessment: Any
+    sessions: tuple[dict, ...]
+    finding_revision_ids: tuple[UUID, ...]
+
+
+class EvAssessmentWorker:
+    """`ev-session/1` projection (`.agent/W2-06-build-spec.md` commit 3, Q10-Q13).
+
+    One SQLAlchemy transaction per job (or explicit request) rechecks the lease, reads the committed watermark,
+    the effective configuration, S4-05 class and clock attestations with the accepted rows, assesses, persists the
+    run, assessment revision, sessions and Findings and completes the job before commit. Any failure rolls all of
+    it back and records a retryable job failure outside that transaction."""
+
+    def __init__(self, store, findings, *, clock: Callable[[], datetime] = utc_now,
+                 lease: timedelta = timedelta(minutes=5), max_attempts: int = 3,
+                 backoff: timedelta = timedelta(seconds=30)) -> None:
+        self.store, self.findings, self.clock = store, findings, clock
+        self.lease, self.max_attempts, self.backoff = lease, max_attempts, backoff
+
+    def _project(self, c, tenant_id: UUID, site_id: UUID, window: Window, known_at: datetime, *,
+                 job_id: UUID | None, selection: str) -> EvProjection | None:
+        started = self.clock()
+        inputs = self.store.ev_inputs(c, tenant_id, site_id, window, known_at)
+        if not inputs.records:
+            # r8/r9 M1: an empty accepted set is never a successful empty assessment; nothing is written and the
+            # read keeps its no-selection UNKNOWN. A job window with no accepted record is simply not projected.
+            return None
+        assessed = ev.assess(inputs)
+        now = self.clock()
+        persisted = self.store.ev_persist(c, inputs, assessed, job_id=job_id, selection=selection, now=now,
+                                          started=started)
+        sessions: list[dict] = []
+        revisions: list[UUID] = []
+        if persisted["created"]:
+            sessions = self.store.ev_sessions(c, inputs, assessed, persisted, now)
+            revisions = self.findings.ev_apply(c, inputs, sessions, persisted, now)
+        return EvProjection(window, known_at, persisted, assessed, tuple(sessions), tuple(revisions))
+
+    def assess_explicit(self, tenant_id: UUID, site_id: UUID, window: Window,
+                        known_at: datetime | None = None) -> EvProjection:
+        """One explicit window at `known_at` (default: the Site's committed disposition watermark); EXPLICIT, so
+        it never replaces the DEFAULT selection."""
+        with self.store.transaction() as c:
+            known = known_at or self.store.ev_watermark(c, tenant_id, site_id)
+            if known is None:
+                raise ev.EvConfigurationRefused("the Site has no committed disposition to assess")
+            return self._project(c, tenant_id, site_id, window, known, job_id=None, selection="EXPLICIT")
+
+    def run_once(self, tenant_id: UUID | None = None, site_id: UUID | None = None) -> JobOutcome | None:
+        scope = {} if site_id is None else {"tenant_id": tenant_id, "site_id": site_id}
+        lease = self.store.lease_job(EV_DOMAIN, self.clock(), self.lease, max_attempts=self.max_attempts, **scope)
+        if lease is None:
+            return None
+        try:
+            with self.store.transaction() as c:
+                self.store.ev_still_mine(c, lease)
+                cutoff = self.store.ev_watermark(c, lease.tenant_id, lease.site_id)
+                if cutoff is None:
+                    raise ev.EvConfigurationRefused("the Site has no committed disposition to assess")
+                projections = [p for p in (self._project(c, lease.tenant_id, lease.site_id, w, cutoff,
+                                                         job_id=lease.job_id, selection="DEFAULT")
+                                           for w in self.store.ev_windows(c, lease)) if p is not None]
+                self.store.ev_complete(c, lease)
             return JobOutcome(lease.job_id, "DONE", tuple(projections))  # type: ignore[arg-type]
         except LeaseLost as lost:
             return JobOutcome(lease.job_id, "LEASE_LOST", error=str(lost))

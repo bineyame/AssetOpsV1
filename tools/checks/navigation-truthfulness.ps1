@@ -719,14 +719,16 @@ function Get-OperatorRailFailures {
 # W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the unbuilt entries of the named
 # v69 in-page rows - Finding > Alternatives, Financials > Scenarios, Work >
 # Incidents and Maintenance, and (W2-03 q3, D-2026-10-18-w2-03-answers) the cold
-# Performance > Cooling and cold Finding > Recommendation - and the Site Findings lens chips Cost, Risks and
+# Performance > Cooling and cold Finding > Recommendation; W2-06 r7 P8 adds the EV
+# Performance > Availability and Energy / site power and EV Finding > Recommendation
+# (so Recommendation appears twice, once per Finding frame) - and the Site Findings lens chips Cost, Risks and
 # Opportunities render as "Not available yet" text through one component,
 # frontend/src/ui/UnavailableEntry.tsx. This is a narrow exception to the
 # absent-tab rule above, never a general one:
 #   - the component is not a control (no to, href, handler, tab stop, button,
 #     link, role or disabled state);
-#   - the entries rendered through it are exactly the declared inventory, each
-#     once, with literal labels (the one dynamic use is FindingSections, whose
+#   - the entries rendered through it are exactly the declared multiset (a
+#     closed inventory: spelling and multiplicity both matter), with literal labels (the one dynamic use is FindingSections, whose
 #     entries are declared as `label: "...", unavailable: true`);
 #   - nothing else may render it.
 # Parameters exist so the fixtures can feed mutated modules; with none, the
@@ -738,7 +740,10 @@ function Get-InPageUnavailableEntryFailures {
     $failures = New-Object System.Collections.Generic.List[string]
     $componentPath = "frontend/src/ui/UnavailableEntry.tsx"
     $dynamicOwner = "frontend/src/sites/SiteFindingEvidence.tsx"
-    $expectedTabs = @("Alternatives", "Scenarios", "Incidents", "Maintenance", "Cooling", "Recommendation")
+    # W1-plus-W2 closed multiset (W2-06 r7 P8): Recommendation x 2 (cold and EV Finding
+    # frames), every other entry once.
+    $expectedTabs = @("Alternatives", "Scenarios", "Incidents", "Maintenance", "Cooling",
+        "Recommendation", "Recommendation", "Availability", "Energy / site power")
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
     if ($null -eq $Modules) {
@@ -809,8 +814,8 @@ function Get-InPageUnavailableEntryFailures {
         $want = @($pair[1] | Sort-Object)
         if (($got -join "|") -ne ($want -join "|")) {
             $failures.Add(("The unbuilt in-page $($pair[0]) entries are '$($pair[2] -join ", ")'; " +
-                "the W1 inventory is exactly '$($pair[1] -join ", ")', each once " +
-                "(D-2026-10-17-f5-subtabs-and-contact). An entry becomes live only with " +
+                "the W1-plus-W2 inventory is exactly the multiset '$($pair[1] -join ", ")' " +
+                "(D-2026-10-17-f5-subtabs-and-contact, W2-06 r7 P8). An entry becomes live only with " +
                 "a reviewed, truthful destination; a new unbuilt entry is a ruling, not a " +
                 "cleanup.")) | Out-Null
         }

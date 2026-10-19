@@ -171,12 +171,14 @@ class TestAdmission:
         assert (start["session_id"], start["connector_id"], str(start["asset_id"])) == (
             "sess-1", ASSET_CODE, v4.kit.binding(*TEMPLATE)["asset_id"])
         # W2-00 ruling 5 kept: v4 records enqueue no dispatch job. W2-03: a v4 record bound to a cold-roles-1
-        # role (the chamber probe here) enqueues cold work only.
-        assert rows(engine, "SELECT * FROM recompute_job WHERE domain <> 'cold_chain'") == []
+        # role (the chamber probe here) enqueues cold work only. W2-06: the accepted EV session START (an
+        # ev-roles-1 record) enqueues ev_charging work through the 0025 deferred trigger, never dispatch work.
+        assert rows(engine, "SELECT * FROM recompute_job WHERE domain NOT IN ('cold_chain', 'ev_charging')") == []
+        assert rows(engine, "SELECT 1 FROM recompute_job WHERE domain = 'ev_charging'")
         v3 = v4.submit(v4.kit.pv(1, first=50))
         assert decisions(v3.receipt) == [("ACCEPTED", None, None)]
         assert [j["domain"] for j in rows(engine, "SELECT domain FROM recompute_job "
-                                                  "WHERE domain <> 'cold_chain'")] == ["dispatch"]
+                                                  "WHERE domain NOT IN ('cold_chain', 'ev_charging')")] == ["dispatch"]
 
     def test_a_valid_header_batch_completes_with_one_persisted_ordinal_refusal_each(self, v4, engine) -> None:
         def v3_event(seq):
@@ -501,7 +503,7 @@ def remove_test_blockers(engine) -> None:
         "DELETE FROM ingestion_disposition d USING evidence_rejection r WHERE d.rejection_id = r.id "
         "AND r.kind IN ('EVENT_ID_CONFLICT','SESSION_ID_CONFLICT')",
         "DELETE FROM evidence_rejection WHERE kind IN ('EVENT_ID_CONFLICT','SESSION_ID_CONFLICT')",
-        "DELETE FROM recompute_job WHERE domain = 'cold_chain'",
+        "DELETE FROM recompute_job WHERE domain IN ('cold_chain', 'ev_charging')",
     ))
     remove_test_events(engine)
 
@@ -552,9 +554,12 @@ class TestMigration0020:
             first = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1")])
             assert first.receipt.counts.accepted == 2
             evidence_count = len(rows(engine, "SELECT 1 FROM accepted_evidence"))
+            # W2-06: 0025 sits above 0020 and refuses first while the START's ev_charging work exists.
+            assert rows(engine, "SELECT 1 FROM recompute_job WHERE domain = 'ev_charging'")
+            _delete_as_replica(engine, ("DELETE FROM recompute_job WHERE domain = 'ev_charging'",))
             with pytest.raises(DBAPIError, match=refused):
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0024_w2_ev_config"
+            assert head(engine) == "0025_w2_ev_session"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
@@ -603,7 +608,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0024_w2_ev_config" and v3_reads() == before_reads
+        assert head(engine) == "0025_w2_ev_session" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])

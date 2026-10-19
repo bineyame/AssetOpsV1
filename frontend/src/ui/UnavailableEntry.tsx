@@ -52,3 +52,17 @@ export function UnavailableLinkEntry({ label }: { label: string }) {
     </ul>
   );
 }
+
+/**
+ * W2-06: the same status inline, for a table cell or a status strip where a list block cannot sit (an EV session
+ * row's Next step with no proved destination). Muted text, not a control; with a `label`, it reads
+ * "{label} · Not available yet".
+ */
+export function UnavailableInline({ label }: { label?: string }) {
+  const text = label === undefined ? IN_PAGE_UNAVAILABLE_STATUS : `${label} · ${IN_PAGE_UNAVAILABLE_STATUS}`;
+  return (
+    <span className="v69-unavailable-inline" data-link-unavailable={label ?? "next-step"}>
+      {text}
+    </span>
+  );
+}

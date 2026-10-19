@@ -22,6 +22,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from assetops_backend.analytics.assessment_inputs import sha256_json
+from assetops_backend.analytics import ev
 from assetops_backend.analytics.cold import plain
 from assetops_backend.analytics.dispatch import CANDIDATE, INDETERMINATE, NECESSARY
 from assetops_backend.analytics.finding_episode import (
@@ -39,6 +40,13 @@ COLD_MATCHER_VERSION = "cold-episode/1"
 COLD_MECHANISMS = {"EXCURSION": "COLD_EXCURSION", "START_RESPONSE": "COLD_START_FAILURE"}
 COLD_TITLES = {"EXCURSION": "Cold room temperature outside its policy band",
                "START_RESPONSE": "Backup generator did not start when the grid failed"}
+
+
+#: W2-06 Q15 EV interruption Finding: matcher version and the exact limitation sentences.
+EV_MATCHER_VERSION = "1"
+EV_LIMITATIONS = ("A connector fault and session abort were observed; component cause and unmet demand remain unknown.",
+                  "Charger hardware failure, vehicle fault and lost revenue are not established by these records.")
+EV_WITHDRAWN = "The current selected evidence no longer supports this interruption."
 
 
 def _num(x) -> str:
@@ -632,4 +640,121 @@ class PostgresFindingStore:
             c.execute(text("INSERT INTO finding_revision_evidence (finding_revision_id, evidence_id, tenant_id, "
                            "site_id) VALUES (:r, :e, :t, :s)"),
                       [{"r": rid, "e": e, "t": tenant_id, "s": site_id} for e in support])
+        return rid
+
+    # --- ev_charging (W2-06 commit 3, Q15): EV interruption Findings on the EV worker's connection --------------
+    # This module alone inserts EV `finding`, `finding_revision`, `finding_revision_assessment` and
+    # `finding_revision_evidence`, on the caller's transaction; it never inserts the EV session tables. A Finding
+    # is opened only for an exact same-session START/FAULT/ABORT; a later basis without that support appends
+    # NO_LONGER_SUPPORTED and keeps the Finding row and history.
+
+    def ev_apply(self, c: Connection, inputs, sessions: list[dict[str, Any]], persisted: dict[str, Any],
+                 now: datetime) -> list[UUID]:
+        """Open, revise or withdraw the EV interruption Finding of each session of one new assessment revision,
+        and withdraw a supported Finding anchored in the window whose session this basis no longer materializes."""
+        t, s, w = inputs.tenant_id, inputs.site_id, inputs.window
+        written: list[UUID] = []
+        keys: set[str] = set()
+        for row in sessions:
+            session = row["session"]
+            keys.add(session.finding_key_sha256)
+            held = c.execute(text(
+                "SELECT id FROM finding WHERE tenant_id = :t AND site_id = :s AND domain = 'ev_charging' "
+                "AND finding_key = :k"), {"t": t, "s": s, "k": session.finding_key_sha256}).first()
+            latest = None if held is None else self._ev_latest(c, t, s, held[0])
+            if session.qualified_fault_abort:
+                support = sorted(i for i, _ in session.finding_support)
+                if held is None:
+                    fid = uuid4()
+                    c.execute(text(
+                        "INSERT INTO finding (id, tenant_id, site_id, finding_key, domain, mechanism, analytic_id, "
+                        "generator_asset_id, subject_asset_id, anchor_start, anchor_assessment_revision_id, "
+                        "cohort_sha256, matcher_version, recurs_after_finding_id, split_from_finding_id, opened_at, "
+                        "created_at) VALUES (:id, :t, :s, :k, 'ev_charging', :m, :a, NULL, :subject, :anchor, :ar, "
+                        "NULL, :mv, NULL, NULL, :now, :now)"),
+                        {"id": fid, "t": t, "s": s, "k": session.finding_key_sha256, "m": ev.MECHANISM,
+                         "a": ev.SESSION_ANALYTIC, "subject": session.connector_asset_id, "anchor": session.start_at,
+                         "ar": persisted["revision_id"], "mv": EV_MATCHER_VERSION, "now": now})
+                    transition = "OPENED"
+                else:
+                    fid = held[0]
+                    if latest is not None and latest["basis"] == persisted["basis"]:
+                        continue  # this exact basis is already recorded
+                    changed = latest is None or latest["support"] != support
+                    transition = "SUPPORT_CHANGED" if changed else "BASIS_REFRESHED"
+                claim = ev.plain({
+                    "session_id": row["session_id"], "external_session_id": session.external_session_id,
+                    "connector_asset_id": session.connector_asset_id, "start_at": session.start_at,
+                    "abort_at": session.end_at, "fault_evidence_id": session.fault_evidence_id,
+                    "supported_kwh": session.supported_kwh, "energy_complete": session.energy_complete})
+                written.append(self._ev_revision(
+                    c, t, s, fid, persisted, transition, "SUPPORTED", "OBSERVED", session.start_at, session.end_at,
+                    claim, list(EV_LIMITATIONS), session.finding_support_sha256, support, now))
+            elif latest is not None and latest["lifecycle"] == "SUPPORTED" and latest["basis"] != persisted["basis"]:
+                written.append(self._ev_withdraw(c, t, s, held[0], latest, persisted, now))
+        # A supported Finding anchored in this window whose session this basis no longer materializes.
+        for fid, key in c.execute(text(
+                "SELECT id, finding_key FROM finding WHERE tenant_id = :t AND site_id = :s AND domain = 'ev_charging' "
+                "AND anchor_start >= :lo AND anchor_start < :hi ORDER BY anchor_start, id"),
+                {"t": t, "s": s, "lo": w.from_at, "hi": w.to_at}).all():
+            if key in keys:
+                continue
+            latest = self._ev_latest(c, t, s, fid)
+            if latest is not None and latest["lifecycle"] == "SUPPORTED" and latest["basis"] != persisted["basis"]:
+                written.append(self._ev_withdraw(c, t, s, fid, latest, persisted, now))
+        return written
+
+    @staticmethod
+    def _ev_latest(c: Connection, t: UUID, s: UUID, finding_id: UUID) -> dict[str, Any] | None:
+        row = c.execute(text(
+            "SELECT id, lifecycle, basis_sha256, episode_start, episode_end, claim, limitations FROM finding_revision "
+            "WHERE tenant_id = :t AND site_id = :s AND finding_id = :f ORDER BY revision_no DESC LIMIT 1"),
+            {"t": t, "s": s, "f": finding_id}).first()
+        if row is None:
+            return None
+        support = sorted(str(e) for e in c.execute(text(
+            "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s "
+            "AND finding_revision_id = :r"), {"t": t, "s": s, "r": row[0]}).scalars())
+        claim = row[5] if isinstance(row[5], dict) else json.loads(row[5])
+        return {"id": row[0], "lifecycle": row[1], "basis": row[2], "start": row[3], "end": row[4], "claim": claim,
+                "support": support}
+
+    def _ev_withdraw(self, c: Connection, t: UUID, s: UUID, finding_id: UUID, latest: dict[str, Any],
+                     persisted: dict[str, Any], now: datetime) -> UUID:
+        """NO_LONGER_SUPPORTED: identity and last supported bounds kept; fault, quantity and completeness null; no
+        support links."""
+        claim = {**latest["claim"], "fault_evidence_id": None, "supported_kwh": None, "energy_complete": None}
+        return self._ev_revision(c, t, s, finding_id, persisted, "NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED",
+                                 "UNKNOWN", latest["start"], latest["end"], claim,
+                                 list(EV_LIMITATIONS) + [EV_WITHDRAWN], ev.EMPTY_SUPPORT_SHA256, [], now)
+
+    @staticmethod
+    def _ev_revision(c: Connection, t: UUID, s: UUID, finding_id: UUID, persisted: dict[str, Any],
+                     transition: str, lifecycle: str, claim_level: str, start: datetime, end: datetime,
+                     claim: dict[str, Any], limitations: list[str], support_sha: str, support: list[str],
+                     now: datetime) -> UUID:
+        n = c.execute(text("SELECT coalesce(max(revision_no), 0) + 1 FROM finding_revision WHERE tenant_id = :t "
+                           "AND site_id = :s AND finding_id = :f"), {"t": t, "s": s, "f": finding_id}).scalar_one()
+        rid = uuid4()
+        c.execute(text(
+            "INSERT INTO finding_revision (id, tenant_id, site_id, finding_id, domain, revision_no, transition, "
+            "lifecycle, claim_level, title, mechanism, matcher_version, analytic_id, model_version, "
+            "assessment_revision_id, analytic_run_id, window_assessment_revision_id, episode_start, episode_end, "
+            "candidate_minutes, necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, "
+            "support_sha256, cited_evidence_sha256, input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, "
+            "'ev_charging', :n, :tr, :life, :claim_level, :title, :m, :mv, :a, :model, :ar, :run, NULL, :es, :ee, "
+            "NULL, NULL, NULL, CAST(:claim AS jsonb), CAST(:limits AS jsonb), :b, :sup, :sup, :b, :now)"),
+            {"id": rid, "t": t, "s": s, "f": finding_id, "n": n, "tr": transition, "life": lifecycle,
+             "claim_level": claim_level, "title": ev.FINDING_TITLE, "m": ev.MECHANISM, "mv": EV_MATCHER_VERSION,
+             "a": ev.SESSION_ANALYTIC, "model": ev.MODEL_VERSION, "ar": persisted["revision_id"],
+             "run": persisted["run_id"], "es": start, "ee": end, "claim": json.dumps(claim),
+             "limits": json.dumps(limitations), "b": persisted["basis"], "sup": support_sha, "now": now})
+        c.execute(text(
+            "INSERT INTO finding_revision_assessment (finding_revision_id, assessment_revision_id, tenant_id, site_id, "
+            "analytic_run_id, scope, is_primary) VALUES (:r, :a, :t, :s, :run, 'WINDOW', true)"),
+            {"r": rid, "a": persisted["revision_id"], "t": t, "s": s, "run": persisted["run_id"]})
+        if support:
+            c.execute(text("INSERT INTO finding_revision_evidence (finding_revision_id, evidence_id, tenant_id, "
+                           "site_id) VALUES (:r, :e, :t, :s)"),
+                      [{"r": rid, "e": e, "t": t, "s": s} for e in support])
         return rid

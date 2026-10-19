@@ -29,7 +29,7 @@ import sys
 import types
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
@@ -55,6 +55,9 @@ if URL:
     from sqlalchemy import create_engine, text
     from sqlalchemy.engine import make_url
 
+    from assetops_backend.analytics.adapters import postgres_assessment_store
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.clock_attestation import SYSTEM_ATTESTER, AttestationChange
     from assetops_backend.cold_replay_api import development_owner, no_owner_principal
     from assetops_backend.ev_replay import EvReplayService
     from assetops_backend.ev_replay_api import build_ev_replay_router
@@ -101,6 +104,13 @@ INSTALL_AT = datetime(2026, 10, 6, 6, 0, tzinfo=timezone.utc)
 SETUP_AT = datetime(2026, 10, 6, 7, 0, tzinfo=timezone.utc)
 WINDOW = {"start": "2026-10-06T08:00:00Z", "end": "2026-10-06T09:00:00Z", "end_exclusive": True}
 RELEASE = "2026-10-06T09:05:00Z"
+#: W2-06 q3 P1: the SYSTEM simulated clock attestation validity for every EV-LAB-001 source.
+ATTEST_FROM = datetime(2026, 10, 6, 0, 0, tzinfo=timezone.utc)
+ATTEST_TO = datetime(2026, 10, 8, 0, 0, tzinfo=timezone.utc)
+#: W2-06 q4 Q4-1: the fixed test decision/ingestion clock per phase and the simulated attestation's record instant.
+FIRST_DECISION = datetime(2026, 10, 6, 9, 0, 0, tzinfo=timezone.utc)
+LATE_DECISION = datetime(2026, 10, 6, 9, 5, 0, tzinfo=timezone.utc)
+ATTESTED_AT = datetime(2026, 10, 6, 8, 59, 0, tzinfo=timezone.utc)
 MANIFEST_KEYS = ("schema", "site_code", "scenario_id", "scenario_sha256", "model_profile", "publication_profile",
                  "observation_profile", "observation_sha256", "seed", "foundation_revision_id",
                  "binding_revision_id", "window", "envelope_sha256", "batch_sha256", "receipt_dispositions",
@@ -216,6 +226,12 @@ class Chain:
     central: object = None
     credential: str | None = None
     released: list = field(default_factory=list)
+    late: bool = False
+
+    def decision_clock(self) -> datetime:
+        """W2-06 q4 Q4-1: 09:00 through the first release, 09:05 once `advance_late()` begins. It is both the S2
+        decision clock and the batch ingestion clock, so `received_at <= decided_at` in every chunk of a phase."""
+        return LATE_DECISION if self.late else FIRST_DECISION
 
     def open(self) -> "Chain":
         url = make_url(URL)
@@ -243,7 +259,42 @@ class Chain:
             source_publisher=publisher_for(URL),
             ev_inputs=StoreEvInputs(self.store, build_scenario_repository()),
         )
+        self.attest()
         return self
+
+    def attest(self) -> None:
+        """W2-06 q3 P1 (the `test_w203_cold_replay_postgres.py:attest` precedent): the SYSTEM attester's simulated
+        clock attestation for every registered source of the built Site, for the gateway epoch `ev-<case>`,
+        recorded before any upload. The real allocator is bound to the store module only during the call, so the
+        counter-pinned manifest IDs do not shift."""
+        with self.engine.connect() as c:
+            sources = c.execute(text("SELECT s.id FROM source s JOIN gateway g ON g.id = s.gateway_id "
+                                     "WHERE g.site_id = :s ORDER BY s.id"), {"s": self.site_id}).scalars().all()
+        assert sources
+        store = PostgresAssessmentStore(URL)
+        patched = postgres_assessment_store.uuid4
+        postgres_assessment_store.uuid4 = uuid.uuid4
+        try:
+            for n, source in enumerate(sources):
+                change = AttestationChange(
+                    event_kind="RECORDED", source_id=UUID(str(source)), sequence_epoch=f"ev-{self.case}",
+                    idempotency_key=f"w206-{self.case}-{n}", channel="SYSTEM_CLI", authority="lab-simulated-clock",
+                    label="SIMULATED demonstration clock (W2-06)", max_utc_error=timedelta(seconds=5),
+                    valid_from=ATTEST_FROM, valid_to=ATTEST_TO)
+                store.record_clock_attestation(self.tenant_id, self.site_id, change, SYSTEM_ATTESTER,
+                                               ATTESTED_AT, domain="ev_charging")
+        finally:
+            postgres_assessment_store.uuid4 = patched
+            store._engine.dispose()
+        with self.engine.connect() as c:
+            rows = c.execute(text(
+                "SELECT source_id, sequence_epoch, event_kind, proof_class, valid_from, valid_to "
+                "FROM source_clock_attestation WHERE tenant_id = :t AND site_id = :s ORDER BY source_id"),
+                {"t": self.tenant_id, "s": self.site_id}).all()
+        # One RECORDED simulated proof per registered source, for exactly this case's gateway epoch.
+        assert [r.source_id for r in rows] == list(sources)
+        assert {(r.sequence_epoch, r.event_kind, r.proof_class, r.valid_from, r.valid_to) for r in rows} == {
+            (f"ev-{self.case}", "RECORDED", "SIMULATED", ATTEST_FROM, ATTEST_TO)}
 
     def _gateway(self) -> None:
         with self.engine.connect() as c:
@@ -265,7 +316,8 @@ class Chain:
         install_gateway_tls_boundary(central_app)
         central_app.include_router(build_evidence_router(
             IngestionService(None, _NoSites()), _NoSites(),  # type: ignore[arg-type]
-            batch_ingestion=BatchIngestionService(PostgresEvidenceLedger(URL), lambda: datetime.now(timezone.utc)),
+            batch_ingestion=BatchIngestionService(
+                PostgresEvidenceLedger(URL, test_decision_clock_override=self.decision_clock), self.decision_clock),
             gateway_principals=StoreGatewayPrincipals(PostgresGatewayAccess(URL))))
         central = TestClient(central_app, base_url="https://testserver")
 
@@ -299,6 +351,7 @@ class Chain:
             pass
 
     def advance_late(self) -> None:
+        self.late = True
         self.host.advance_publication(self.run, RELEASE)
         self.release_and_upload()
 
@@ -539,6 +592,285 @@ def _check_types(document: dict) -> None:
     assert a["unknown_meter_seconds"] is None or type(a["unknown_meter_seconds"]) is int
 
 
+# --- W2-06 R12: the exact vector artifact produced from this persisted chain -------------------------------
+#
+# `.agent/W2-06-build-spec.md` "R12: exact vector artifact (Q1-Q9)". Rows come from the persisted publication ->
+# batch -> disposition chain; each accepted envelope is paired to exactly one DeviceReport V2 of
+# `host.ev_publication.ev_reports` by complete report-field projection equality and to the gateway's own
+# report-admission key. `expected` is the R12 table with ID selectors expanded mechanically on `records`.
+
+VECTORS = ROOT / "backend" / "tests" / "fixtures" / "w2" / "ev-w206-vectors.json"
+VECTOR_SCHEMA = "ev-w206-vectors/1"
+RECORD_KEYS = ("report_key", "report_sha256", "batch_external_id", "ordinal", "accepted_evidence_id",
+               "envelope_sha256", "source_time", "interval_start", "interval_end", "connector_id", "session_id",
+               "family", "record_kind", "measurement", "quality", "value", "unit", "event_id", "outcome", "asset_id",
+               "binding_revision_id", "source_id", "sequence_epoch", "clock_attested", "source_class",
+               "binding_set_revision_id", "role", "device_id", "signal_id")  # q4 Q4-2: the four added row keys
+MEMBER_KEYS = ("binding_revision_id", "binding_set_revision_id", "role", "asset_id", "source_id", "device_id",
+               "signal_id", "valid_from", "valid_to")
+CASE_KEYS = ("binding_members", "expected", "first_cutoff", "manifest", "records", "selected_connector", "window")
+EXPECTED_KEYS = ("state", "start_at", "end_at", "start_bounds", "end_bounds", "supported_kwh", "energy_complete",
+                 "unknown_meter_seconds", "reason_codes", "fault_evidence_id", "finding_support_evidence_ids",
+                 "raw_accepted_kwh", "intervals")
+PROJECTION = ("device_id", "signal_id", "source_time", "interval_start", "interval_end", "family", "measurement",
+              "value", "unit", "quality", "unavailable_reason", "session_id", "connector_id", "record_kind",
+              "event_id", "correlation_id", "component_id", "actor", "outcome")
+METER_ERROR = "0.002"  # R6/Q7: 2 x the fixture's per-boundary ev-meter-error-bound 0.001
+_COMPLETE = (("01", "05", "4.000"), ("05", "10", "5.000"), ("10", "15", "5.000"), ("15", "20", "5.000"),
+             ("20", "25", "5.000"), ("25", "30", "5.000"), ("30", "31", "1.000"))
+
+
+def _hm(hhmm: str) -> str:
+    return f"2026-10-06T{hhmm}:00Z"
+
+
+def _point(hhmm: str | None) -> dict | None:
+    return None if hhmm is None else {"earliest": _hm(hhmm), "latest": _hm(hhmm)}
+
+
+def _table(state, start, end, start_b, end_b, supported, complete, unknown, reasons, fault, support, raw, meters,
+           use="SUPPORT", reason=None) -> dict:
+    """One literal R12 table row; selectors stay symbolic (`(kind, HH:MM)`) until expanded on `records`."""
+    return {"state": state, "start_at": start, "end_at": end, "start_bounds": start_b, "end_bounds": end_b,
+            "supported_kwh": supported, "energy_complete": complete, "unknown_meter_seconds": unknown,
+            "reason_codes": reasons, "fault_evidence_id": fault, "finding_support_evidence_ids": support,
+            "raw_accepted_kwh": raw,
+            "intervals": [(f"08:{a}", f"08:{b}", kwh, use, reason) for a, b, kwh in meters]}
+
+
+_START = ("EV_SESSION_START", "08:01")
+R12_TABLE = {
+    "complete": _table("COMPLETED", "08:01", "08:31", _point("08:01"), _point("08:31"), "30.000", True, 0, [],
+                       None, [], "30.000", _COMPLETE),
+    "interrupted": _table("OBSERVED_ABORT", "08:01", "08:16", _point("08:01"), _point("08:16"), "15.000", True, 0,
+                          [], ("EV_CONNECTOR_FAULT", "08:16"),
+                          [_START, ("EV_CONNECTOR_FAULT", "08:16"), ("EV_SESSION_ABORT", "08:16")], "15.000",
+                          (("01", "05", "4.000"), ("05", "10", "5.000"), ("10", "15", "5.000"),
+                           ("15", "16", "1.000"))),
+    "fault": _table("COMPLETED", "08:11", "08:21", _point("08:11"), _point("08:21"), "10.000", True, 0, [], None,
+                    [], "10.000", (("11", "15", "4.000"), ("15", "20", "5.000"), ("20", "21", "1.000"))),
+    "missing-meter": _table("COMPLETED", "08:01", "08:31", _point("08:01"), _point("08:31"), "25.000", False, 300,
+                            ["METER_GAP"], None, [], "25.000", tuple(m for m in _COMPLETE if m[0] != "10")),
+    "late-record": _table("COMPLETED", "08:01", "08:31", _point("08:01"), _point("08:31"), "30.000", True, 0, [],
+                          None, [], "30.000", _COMPLETE),
+    "contradictory": _table("CONTRADICTORY", "08:01", None, _point("08:01"),
+                            {"earliest": _hm("08:30"), "latest": _hm("08:31")}, None, None, None,
+                            ["CONFLICTING_TERMINAL"], None, [], "30.000", _COMPLETE,
+                            use="EXCLUDED", reason="CONFLICTING_TERMINAL"),
+}
+#: The late-record first cutoff (09:00): END absent, INCOMPLETE, `"30.000"` partial over the observed span.
+LATE_FIRST = _table("INCOMPLETE", "08:01", None, _point("08:01"), None, "30.000", False, 0, ["MISSING_TERMINAL"],
+                    None, [], "30.000", _COMPLETE)
+
+
+def watermark(built: Chain) -> datetime:
+    """The committed disposition watermark of the Site (`cold_watermark`'s query): the selected knowledge cutoff."""
+    with built.engine.connect() as c:
+        return c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t "
+                              "AND site_id = :s"), {"t": built.tenant_id, "s": built.site_id}).scalar_one()
+
+
+def _vector_text(document: dict) -> str:
+    return json.dumps(document, sort_keys=True, indent=2, ensure_ascii=False) + "\n"
+
+
+def _gateway_admission(built: Chain, message_id: str) -> tuple[str, str]:
+    """The gateway's own (report_key, report_sha256) for one admitted message (its `report_admission` row)."""
+    import sqlite3
+
+    database = built.tmp / "gateway" / "gateway.sqlite3"
+    with sqlite3.connect(f"file:{database.as_posix()}?mode=ro", uri=True) as db:
+        rows = db.execute("SELECT report_key, report_sha256 FROM report_admission WHERE message_id = ?",
+                          (message_id,)).fetchall()
+    assert len(rows) == 1, (message_id, rows)
+    return rows[0]
+
+
+def _run_reports(built: Chain) -> list:
+    basis = built.run.registered_basis
+    revision = next(r for r in built.store.revisions(built.tenant_id, built.site_id)
+                    if str(r.id) == basis.foundation_revision_id)
+    inputs = StoreEvInputs(built.store, build_scenario_repository())
+    binding = inputs.binding_revision(built.tenant_id, built.site_id, UUID(basis.binding_set_revision_id))
+    verified = verify_ev_inputs(built.run, revision, binding, definition(built.case))
+    return list(ev_reports(verified.definition, verified.channels,
+                           ev_execution(verified.definition, verified.parameters)))
+
+
+def vector_records(built: Chain, document: dict) -> list[dict]:
+    """Q1: every accepted public report in persisted publication order, paired one-to-one and fully asserted."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import _attestations
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
+    from assetops_backend.evidence.source_provenance import classify, link_of
+    from assetops_contracts.gateway_report import parse_device_report_v2_text
+    from assetops_contracts.source_envelope_v4 import parse_canonical_envelope_v4_text
+
+    reports = _run_reports(built)
+    parsed = [(r, parse_device_report_v2_text(r.report_text)) for r in reports]
+    envelopes = _envelopes(built)
+    # Q1: the manifest's complete disposition triples, accepted-ID order and envelope SHA sequence.
+    assert [(b, o, a) for (b, o, _, _, a, _) in envelopes] == \
+        [(d["batch_external_id"], d["ordinal"], d["accepted_evidence_id"]) for d in document["receipt_dispositions"]]
+    assert [a for (_, _, _, d, a, _) in envelopes if d == "ACCEPTED"] == document["accepted_evidence_ids"]
+    assert [sha(t) for (_, _, t, _, _, _) in envelopes] == document["envelope_sha256"]
+    used: set[str] = set()
+    out = []
+    with built.engine.connect() as c:
+        # q3 P1: proof recorded by the selected knowledge cutoff (the committed disposition watermark).
+        attestations = _attestations(c, built.tenant_id, built.site_id, watermark(built))
+        for batch_id, ordinal, envelope_text, decision, accepted_id, _ in envelopes:
+            if decision != "ACCEPTED":
+                continue
+            envelope = parse_canonical_envelope_v4_text(envelope_text)
+            projection = tuple(getattr(envelope, k) for k in PROJECTION)
+            matches = [(r, p) for r, p in parsed if tuple(getattr(p, k) for k in PROJECTION) == projection]
+            assert len(matches) == 1, (accepted_id, len(matches))
+            report, device_report = matches[0]
+            assert report.report_key == device_report.report_key and report.report_key not in used
+            used.add(report.report_key)
+            report_sha = sha(report.report_text)
+            assert _gateway_admission(built, envelope.message_id) == (report.report_key, report_sha)
+            row = c.execute(text(
+                "SELECT e.id, e.ordinal, b.external_batch_id, e.envelope_sha256, e.envelope_text, e.message_id, "
+                "e.source_time, e.interval_start, e.interval_end, e.connector_id, e.session_id, e.family, "
+                "e.record_kind, e.measurement, e.quality, e.normalized_value_text, e.normalized_unit, e.event_id, "
+                "e.outcome, e.asset_id, e.binding_revision_id, e.source_id, e.sequence_epoch, e.device_id, "
+                "e.signal_id, e.binding_set_revision_id, e.role FROM accepted_evidence e JOIN ingestion_batch b ON b.id = e.batch_id "
+                "WHERE e.tenant_id = :t AND e.site_id = :s AND e.id = :id"),
+                {"t": built.tenant_id, "s": built.site_id, "id": accepted_id}).one()
+            # Accepted ledger fields agree with the paired envelope (never reconstructed from the report).
+            assert (str(row.id), row.ordinal, row.external_batch_id) == (accepted_id, ordinal, batch_id)
+            assert row.envelope_text == envelope_text and row.envelope_sha256 == sha(envelope_text)
+            assert (row.message_id, row.sequence_epoch) == (envelope.message_id, envelope.sequence_epoch)
+            assert (row.device_id, row.signal_id) == (envelope.device_id, envelope.signal_id)
+            for column, value in (("source_time", envelope.source_time), ("interval_start", envelope.interval_start),
+                                  ("interval_end", envelope.interval_end)):
+                stored = getattr(row, column)
+                assert (stored is None) == (value is None) and (stored is None or stored == _instant(value)), column
+            assert (row.family, row.record_kind, row.measurement, row.quality, row.event_id, row.outcome,
+                    row.connector_id, row.session_id) == \
+                (envelope.family, envelope.record_kind, envelope.measurement, envelope.quality, envelope.event_id,
+                 envelope.outcome, envelope.connector_id, envelope.session_id)
+            # q3 P1: the attestation covers source, epoch and the full measurement interval (or the instant).
+            lo = row.interval_start if row.interval_start is not None else row.source_time
+            hi = row.interval_end if row.interval_end is not None else row.source_time
+            attested = any(str(a.source_id) == str(row.source_id) and a.sequence_epoch == row.sequence_epoch
+                           and a.covers(lo, hi) for a in attestations)
+            links = {r.requested_id: link_of(r) for r in link_rows_on(c, built.tenant_id, built.site_id,
+                                                                        [accepted_id])}
+            out.append({
+                "report_key": report.report_key, "report_sha256": report_sha, "batch_external_id": batch_id,
+                "ordinal": ordinal, "accepted_evidence_id": accepted_id, "envelope_sha256": row.envelope_sha256,
+                "source_time": envelope.source_time, "interval_start": envelope.interval_start,
+                "interval_end": envelope.interval_end, "connector_id": row.connector_id,
+                "session_id": row.session_id, "family": row.family, "record_kind": row.record_kind,
+                "measurement": row.measurement, "quality": row.quality, "value": row.normalized_value_text,
+                "unit": row.normalized_unit, "event_id": row.event_id, "outcome": row.outcome,
+                "asset_id": str(row.asset_id), "binding_revision_id": str(row.binding_revision_id),
+                "source_id": str(row.source_id), "sequence_epoch": row.sequence_epoch, "clock_attested": attested,
+                "source_class": classify([accepted_id], links)["state"],
+                # q4 Q4-2: from the accepted ledger row, never from report text or a reconstructed binding.
+                "binding_set_revision_id": str(row.binding_set_revision_id), "role": row.role,
+                "device_id": row.device_id, "signal_id": row.signal_id,
+            })
+    return out
+
+
+def _connector_asset(built: Chain, code: str) -> str:
+    with built.engine.connect() as c:
+        return str(c.execute(text("SELECT id FROM asset WHERE tenant_id = :t AND site_id = :s AND asset_code = :c"),
+                             {"t": built.tenant_id, "s": built.site_id, "c": code}).scalar_one())
+
+
+def expand(table: dict, records: list[dict], connector_asset: str) -> dict:
+    """R12: the table row with ID selectors expanded on the unique matching row of the selected connector/session;
+    zero or multiple matches fail."""
+    [start] = [r for r in records if r["asset_id"] == connector_asset and r["record_kind"] == "EV_SESSION_START"
+               and r["source_time"] == _hm(table["start_at"])]
+    session = start["session_id"]
+
+    def event(selector) -> str:
+        kind, hhmm = selector
+        found = [r for r in records if r["asset_id"] == connector_asset and r["record_kind"] == kind
+                 and r["source_time"] == _hm(hhmm) and r["session_id"] in (session, None)]
+        assert len(found) == 1, (selector, len(found))
+        return found[0]["accepted_evidence_id"]
+
+    def meter(lo: str, hi: str, kwh: str, use: str, reason) -> dict:
+        found = [r for r in records if r["asset_id"] == connector_asset and r["family"] == "MEASUREMENT"
+                 and r["measurement"] == "INTERVAL_DELTA" and r["session_id"] == session
+                 and r["interval_start"] == _hm(lo) and r["interval_end"] == _hm(hi)]
+        assert len(found) == 1, ((lo, hi), len(found))
+        assert Decimal(found[0]["value"]) == Decimal(kwh) and found[0]["unit"] == "kWh", found[0]
+        return {"evidence_id": found[0]["accepted_evidence_id"], "connector_asset_id": found[0]["asset_id"],
+                "start_at": _hm(lo), "end_at": _hm(hi), "kwh": kwh, "error_bound_kwh": METER_ERROR, "use": use,
+                "reason": reason}
+
+    expanded = {**table, "start_at": _hm(table["start_at"]),
+                "end_at": None if table["end_at"] is None else _hm(table["end_at"]),
+                "fault_evidence_id": None if table["fault_evidence_id"] is None else event(table["fault_evidence_id"]),
+                "finding_support_evidence_ids": sorted(event(s) for s in table["finding_support_evidence_ids"]),
+                "intervals": [meter(*m) for m in table["intervals"]]}
+    assert tuple(sorted(expanded)) == tuple(sorted(EXPECTED_KEYS))
+    return expanded
+
+
+def binding_members(built: Chain, set_id: str) -> list[dict]:
+    """q4 Q4-2: every immutable `signal_binding_revision` member of the case's effective selected set, ordered by
+    lowercase member ID; each member's set ID equals the manifest's selected set ID."""
+    from assetops_backend.financials.fuel_cost import iso
+
+    with built.engine.connect() as c:
+        rows = c.execute(text(
+            "SELECT id, binding_set_revision_id, role, asset_id, source_id, device_id, signal_id, valid_from, "
+            "valid_to FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s "
+            "AND binding_set_revision_id = :b"), {"t": built.tenant_id, "s": built.site_id, "b": set_id}).all()
+    assert rows
+    members = sorted(({"binding_revision_id": str(r.id).lower(),
+                       "binding_set_revision_id": str(r.binding_set_revision_id).lower(), "role": r.role,
+                       "asset_id": None if r.asset_id is None else str(r.asset_id).lower(),
+                       "source_id": str(r.source_id).lower(), "device_id": r.device_id, "signal_id": r.signal_id,
+                       "valid_from": iso(r.valid_from), "valid_to": None if r.valid_to is None else iso(r.valid_to)}
+                      for r in rows), key=lambda m: m["binding_revision_id"])
+    assert all(m["binding_set_revision_id"] == set_id.lower() for m in members)
+    assert all(tuple(sorted(m)) == tuple(sorted(MEMBER_KEYS)) for m in members)
+    return members
+
+
+def vector_case(built: Chain, document: dict, first_ids: list[str] | None,
+                first_known_at: datetime | None) -> dict:
+    from assetops_backend.financials.fuel_cost import iso
+
+    records = vector_records(built, document)
+    assert [r["accepted_evidence_id"] for r in records] == document["accepted_evidence_ids"]
+    assert all(tuple(sorted(r)) == tuple(sorted(RECORD_KEYS)) for r in records)
+    members = binding_members(built, document["binding_revision_id"])
+    member_ids = {m["binding_revision_id"] for m in members}
+    assert all(r["binding_set_revision_id"] == document["binding_revision_id"] for r in records)
+    assert all(r["binding_revision_id"] in member_ids for r in records)
+    connector = SELECTED[built.case]
+    asset = _connector_asset(built, connector)
+    first = None
+    if built.case == "late-record":
+        assert first_ids is not None
+        visible = [r for r in records if r["accepted_evidence_id"] in set(first_ids)]
+        assert [r["accepted_evidence_id"] for r in visible] == first_ids
+        assert not [r for r in visible if r["record_kind"] == "EV_SESSION_END"]
+        # q3 P6 / q4 Q4-1: the queried first committed watermark and the sorted accepted IDs (held END absent).
+        first = {**expand(LATE_FIRST, visible, asset), "known_at": iso(first_known_at),
+                 "accepted_evidence_ids": sorted(first_ids)}
+    case = {"manifest": f"contract-fixtures/w2/ev/{built.case}.json", "window": document["window"],
+            "selected_connector": connector, "records": records, "binding_members": members,
+            "expected": expand(R12_TABLE[built.case], records, asset), "first_cutoff": first}
+    assert tuple(sorted(case)) == CASE_KEYS
+    return case
+
+
+def vector_document(cases: dict) -> dict:
+    assert tuple(cases) == CASES
+    return {"schema": VECTOR_SCHEMA, "cases": cases}
+
+
 # --- the six proofs -------------------------------------------------------------------------------------
 
 
@@ -555,6 +887,8 @@ def test_six_registered_replays(chain, case) -> None:
     document = pinned(case, produced)
     # The second clean database reproduces the pinned first one byte for byte.
     assert canonical_file(produced) == canonical_file(document)
+    # W2-06 q3 P1: the clock attestation recorded before upload leaves every manifest byte unchanged.
+    assert (MANIFESTS / f"{case}.json").read_bytes() == canonical_file(produced).encode("utf-8")
     _check_types(document)
     assert document["schema"] == "ev-replay-manifest/1" and document["site_code"] == EV
     assert document["seed"] == 20517 and document["window"] == WINDOW
@@ -602,6 +936,47 @@ def test_six_registered_replays(chain, case) -> None:
         assert first_replay["public_digest"] != replay["public_digest"]
 
 
+def test_w206_ev_vector_artifact(chain, monkeypatch) -> None:
+    """W2-06 q4 Q4-3: all six chains in case order, each manifest and persisted publication -> batch ->
+    disposition chain checked, the whole vector file assembled in memory, then written once
+    (`ASSETOPS_W206_WRITE_VECTORS=1`) or byte-compared once. Per-case assertions name the failing case."""
+    from assetops_backend.financials.fuel_cost import iso
+
+    cases: dict[str, dict] = {}
+    for case in CASES:
+        built = chain(case)
+        try:
+            built.start_release_upload()
+            first = None
+            if case == "late-record":
+                first_replay = built.replay()
+                first_known_at = watermark(built)
+                assert iso(first_known_at) == "2026-10-06T09:00:00.000000Z", case
+                first = (first_replay["accepted_record_ids"], first_known_at)
+                built.advance_late()
+                assert iso(watermark(built)) == "2026-10-06T09:05:00.000000Z", case
+            else:
+                assert iso(watermark(built)) == "2026-10-06T09:00:00.000000Z", case
+            produced = manifest(built, built.replay())
+            document = pinned(case, produced)
+            assert (MANIFESTS / f"{case}.json").read_bytes() == canonical_file(produced).encode("utf-8"), case
+            cases[case] = vector_case(built, document, *(first or (None, None)))
+        finally:
+            built.close()
+            monkeypatch.undo()  # the next case's `hold_uuids` counter replaces the real allocator afresh
+    rendered = _vector_text(vector_document(cases)).encode("utf-8")
+    if os.environ.get("ASSETOPS_W206_WRITE_VECTORS") == "1":
+        VECTORS.parent.mkdir(parents=True, exist_ok=True)
+        VECTORS.write_bytes(rendered)
+    pinned_bytes = VECTORS.read_bytes()
+    assert not pinned_bytes.startswith(b"\xef\xbb\xbf") and b"\r" not in pinned_bytes
+    assert pinned_bytes.endswith(b"\n") and not pinned_bytes.endswith(b"\n\n")
+    pinned_document = json.loads(pinned_bytes.decode("utf-8"))
+    for case in CASES:
+        assert _vector_text(pinned_document["cases"][case]) == _vector_text(cases[case]), case
+    assert pinned_bytes == rendered
+
+
 def test_late_record_cutoff_and_release(chain) -> None:
     """Q30: the held END is PENDING and absent at 09:00; at 09:05 it is released once, unchanged, and accepted."""
     built = chain("late-record")
@@ -626,7 +1001,7 @@ def test_late_record_cutoff_and_release(chain) -> None:
     assert envelope["timing"]["source_time"] == _t(31) == report["source_time"]
     assert envelope["payload"]["event_id"] == report["event_id"]
     assert envelope["timing"]["published_at"] >= RELEASE
-    assert batch["received_at"] > datetime(2026, 10, 6, 9, 5, tzinfo=timezone.utc)
+    assert batch["received_at"] == LATE_DECISION  # r5 R5-1: exactly the fixed 09:05 ingestion clock of the late phase
     assert batch["batch_id"] not in first["batch_ids"]
     final = built.replay()
     assert len(final["publication_ids"]) == len(final["batch_ids"]) > len(first["batch_ids"])

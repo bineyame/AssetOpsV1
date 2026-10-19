@@ -71,6 +71,7 @@ import {
 import { createColdFoundationClient, type ColdFoundationClient } from "./sites/coldFoundationClient";
 import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFoundationClient";
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
+import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import {
   createSiteEvidenceClient,
@@ -103,6 +104,7 @@ const defaultSiteFoundation = createSiteFoundationClient();
 const defaultColdFoundation = createColdFoundationClient();
 const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
+const defaultEvAssessment = createEvAssessmentClient();
 const defaultColdSite = createColdSiteClient();
 
 /**
@@ -173,6 +175,8 @@ export interface AppProps {
   evFoundation?: EvFoundationClient;
   /** W2-03: the selected cold assessment reads, used for a COLDCHAIN Site's Performance and Finding routes. */
   coldAssessment?: ColdAssessmentClient;
+  /** W2-06: the selected EV session reads, used for an EV_CHARGING Site's Performance/Sessions and Finding routes. */
+  evAssessment?: EvAssessmentClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
   coldSite?: ColdSiteClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
@@ -201,6 +205,7 @@ export function App({
   coldFoundation = defaultColdFoundation,
   evFoundation = defaultEvFoundation,
   coldAssessment = defaultColdAssessment,
+  evAssessment = defaultEvAssessment,
   coldSite = defaultColdSite,
   siteTemplateLineage,
   now,
@@ -303,6 +308,7 @@ export function App({
                   analytics={siteAnalytics}
                   sitesPath={SITES_PATH}
                   coldAssessment={coldAssessment}
+                  evAssessment={evAssessment}
                 />
               }
             />
@@ -330,7 +336,7 @@ export function App({
             <Route
               key={path}
               path={path}
-              element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} />}
+              element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} evAssessment={evAssessment} />}
             />
           ))}
           <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} />} />

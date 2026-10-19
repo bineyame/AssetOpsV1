@@ -33,6 +33,8 @@ import { SitePerformance } from "../sites/SitePerformance";
 import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
+import { EvFindingFrame, EvSessionsFrame, evFindingHref } from "../sites/EvAssessmentViews";
+import type { EvAssessmentClient } from "../sites/evAssessmentClient";
 import { coldSiteScreen } from "./coldSiteRoutes";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
@@ -143,12 +145,15 @@ export function SitePerformanceFrame({
   analytics,
   sitesPath,
   coldAssessment,
+  evAssessment,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
   /** W2-03: the selected cold assessment reads; a COLDCHAIN Site renders `temperature` / `coldbackup` from them. */
   coldAssessment?: ColdAssessmentClient;
+  /** W2-06: the selected EV session reads; an EV_CHARGING Site renders `sessions` from them. */
+  evAssessment?: EvAssessmentClient;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
   const [params] = useSearchParams();
@@ -164,6 +169,25 @@ export function SitePerformanceFrame({
     >
       {(site) => {
         const coldView = capabilityId === undefined ? "temperature" : COLD_PERFORMANCE_VIEWS[capabilityId];
+        if (site.site_type === "EV_CHARGING" && evAssessment !== undefined && (capabilityId === undefined || capabilityId === "sessions")) {
+          const window = coldWindowFromParams(params);
+          return (
+            <EvSessionsFrame
+              siteId={site.site_id}
+              siteName={site.display_name}
+              mode={deriveSiteView(site).sourceMode}
+              window={window}
+              client={evAssessment}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" />}
+              parentTrail={[
+                { label: "Sites", to: sitesPath },
+                { label: site.display_name, to: siteDetailHref(site.site_id) },
+              ]}
+              sessionsHref={`${sitePerformanceHref(site.site_id, "sessions")}${coldWindowSearch(window)}`}
+              findingHref={evFindingHref((id) => siteFindingHref(site.site_id, id), window)}
+            />
+          );
+        }
         if (site.site_type === "COLDCHAIN" && coldAssessment !== undefined && coldView !== undefined) {
           const window = coldWindowFromParams(params);
           return (
@@ -447,6 +471,7 @@ export function SiteFindingFrame({
   findings = DEFAULT_FINDINGS,
   actions = DEFAULT_ACTIONS,
   coldAssessment,
+  evAssessment,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
@@ -454,6 +479,8 @@ export function SiteFindingFrame({
   actions?: ActionClient;
   /** W2-03: a COLDCHAIN Site's Finding renders `cold-finding` or `cold-finding-excursion` by its kind. */
   coldAssessment?: ColdAssessmentClient;
+  /** W2-06: an EV_CHARGING Site's Finding renders `ev-finding` from the selected EV reads. */
+  evAssessment?: EvAssessmentClient;
 }) {
   const { siteId, findingId, findingView } = useParams<{ siteId: string; findingId: string; findingView?: string }>();
   const [params] = useSearchParams();
@@ -470,6 +497,23 @@ export function SiteFindingFrame({
     <SiteScoped siteId={siteId} detail={detail} title="Finding" headingId={SITE_FINDING_HEADING_ID}>
       {(site) => {
         const id = findingId ?? "";
+        if (site.site_type === "EV_CHARGING" && evAssessment !== undefined && findingView === undefined) {
+          return (
+            <EvFindingFrame
+              siteId={site.site_id}
+              siteName={site.display_name}
+              findingId={id}
+              window={coldWindowFromParams(params)}
+              client={evAssessment}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" />}
+              parentTrail={[
+                { label: "Sites", to: sitesPath },
+                { label: site.display_name, to: siteDetailHref(site.site_id) },
+                { label: "Findings", to: siteFindingsHref(site.site_id) },
+              ]}
+            />
+          );
+        }
         if (site.site_type === "COLDCHAIN" && coldAssessment !== undefined && findingView === undefined) {
           const window = coldWindowFromParams(params);
           return (

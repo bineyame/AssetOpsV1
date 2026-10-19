@@ -673,8 +673,35 @@ class PostgresFoundationStore:
                     )
             for row in plan.binding_set_inserts:
                 self._insert_binding_set(connection, tenant_id, site_id, row)
+            self._enqueue_ev_configuration(connection, tenant_id, site_id, plan)
             if then is not None:
                 then(plan)
             return plan
 
         return self._run(work, write=True, connection=connection)
+
+    @staticmethod
+    def _enqueue_ev_configuration(
+        connection: Connection, tenant_id: UUID, site_id: UUID, plan: ConfigurationPlan
+    ) -> None:
+        """W2-06 q3 P7 as amended by r5 R5-2: on an EV_CHARGING Site, every inserted Foundation or binding-set
+        revision (including an equal-SHA split, whose new revision ID still replaces the selected identity) dirties
+        the EV assessment over its `[valid_from, valid_to)` through the SQL `ev_enqueue_configuration`, on this
+        publishing connection, so publication and enqueue commit or roll back together. No analytics import."""
+        if not (bool(plan.revision_inserts) or bool(plan.binding_set_inserts)):
+            return
+        site_type = connection.execute(
+            text("SELECT site_type FROM site WHERE tenant_id = :tenant_id AND id = :site_id"),
+            {"tenant_id": tenant_id, "site_id": site_id},
+        ).scalar_one()
+        if site_type != "EV_CHARGING":
+            return
+        changed = [(r.valid_from, r.valid_to) for r in plan.revision_inserts] + [
+            (r.valid_from, r.valid_to) for r in plan.binding_set_inserts
+        ]
+        for valid_from, valid_to in changed:
+            connection.execute(
+                text("SELECT ev_enqueue_configuration(:tenant_id, :site_id, :valid_from, :valid_to, :at)"),
+                {"tenant_id": tenant_id, "site_id": site_id, "valid_from": valid_from, "valid_to": valid_to,
+                 "at": plan.superseded_at},
+            )
