@@ -106,7 +106,8 @@ def _read_case(c: TestClient, built, case: str, vector: dict) -> dict:
     body = get(c, "sessions")
     assert ENVELOPE | {"status", "denominator", "excluded_records", "items", "next_cursor"} == set(body)
     assert set(body["denominator"]) == COUNTS and set(body["currentness"]) == {"state", "as_of", "limitation"}
-    assert set(body["source_provenance"]) == {"classification", "source_ids", "evidence_ids", "basis_sha256"}
+    assert set(body["source_provenance"]) == {"classification", "source_ids", "evidence_ids", "basis_sha256", "reasons"}
+    assert body["source_provenance"]["reasons"] == []  # r10 N2: a coherent positive source has no reasons
     assert body["source_provenance"]["classification"] == "REGISTERED_SIMULATION"
     assert body["source_provenance"]["evidence_ids"] == sorted(body["source_provenance"]["evidence_ids"])
     asset = str(_connector_asset(built, SELECTED[case])).lower()

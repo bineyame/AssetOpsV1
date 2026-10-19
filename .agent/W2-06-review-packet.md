@@ -81,3 +81,10 @@ UI slice: hold the merge for the owner walkthrough. The r9 UI states (M1-a/b/c, 
 
 ## User review
 UI slice: build and review now, hold the merge for the owner walkthrough (W1/W2 practice). P8 must be ruled before merge.
+
+## Closing round (r10, L3)
+- r10 N2: `source_provenance.reasons: [{code, accepted_evidence_ids}]` on the EV envelope (`postgres_assessment_store.py` `_unassessable`/`_envelope`): classifier order, internal detail keys dropped, `[]` for empty and coherent sets; with a pending prior head `classification`, `evidence_ids`, `source_ids`, `reasons` describe the current accepted set, `basis_sha256` stays the prior stored basis. UI: one `Source reason: {sentence} Accepted record IDs: {ids|None}.` line per reason in the source detail (and the pending-rows disclosure), rendered as paragraphs in the disclosure's extra block, so they follow the Source class/ID rows rather than sitting between them (ExactReferences keys rows by label). Closes re-review L4.
+- Tests: extended `test_unassessable_source_has_unknown_status_and_limitation` (mixed, all-unbound, pending, empty); added `test_empty_job_window_completes_without_assessment` (N1) and `unassessable_source_discloses_reasons_and_ids`.
+- L3 (r7 P7): `NextStep` shows `Open Finding · Not available yet` on a pending row only when it has a Finding; a pending row without one renders as the non-pending no-Finding row (asserted in `pending_and_historical_currentness`).
+- Scope: additive EV read and UI only; full backend and host suites NOT rerun. W2-05b manifests and R12 vectors untouched (see check below).
+- N1/N3 need no further code (N3 deferred to W2-07).
