@@ -673,8 +673,48 @@ class PostgresFoundationStore:
                     )
             for row in plan.binding_set_inserts:
                 self._insert_binding_set(connection, tenant_id, site_id, row)
+            self._enqueue_ev_configuration(connection, tenant_id, site_id, plan)
             if then is not None:
                 then(plan)
             return plan
 
         return self._run(work, write=True, connection=connection)
+
+    @staticmethod
+    def _enqueue_ev_configuration(
+        connection: Connection, tenant_id: UUID, site_id: UUID, plan: ConfigurationPlan
+    ) -> None:
+        """W2-06 q3 P7: on an EV_CHARGING Site, each genuinely changed Foundation or binding-set revision dirties
+        the EV assessment over its `[valid_from, valid_to)` through the SQL `ev_enqueue_configuration`, on this
+        publishing connection, so publication and enqueue commit or roll back together. No analytics import."""
+        def genuinely_changed(table: str, digest: str, row, row_digest: str) -> bool:
+            # A row re-stating its derived-from revision's exact content over a split period is not a change.
+            if row.derived_from_revision_id is None:
+                return True
+            before = connection.execute(
+                text(f"SELECT {digest} FROM {table} WHERE tenant_id = :tenant_id AND site_id = :site_id AND id = :id"),
+                {"tenant_id": tenant_id, "site_id": site_id, "id": row.derived_from_revision_id},
+            ).scalar()
+            return before != row_digest
+
+        changed = [
+            (r.valid_from, r.valid_to) for r in plan.revision_inserts
+            if genuinely_changed("foundation_revision", "content_sha256", r, r.content_sha256)
+        ] + [
+            (r.valid_from, r.valid_to) for r in plan.binding_set_inserts
+            if genuinely_changed("signal_binding_set_revision", "bindings_sha256", r, r.bindings_sha256)
+        ]
+        if not changed:
+            return
+        site_type = connection.execute(
+            text("SELECT site_type FROM site WHERE tenant_id = :tenant_id AND id = :site_id"),
+            {"tenant_id": tenant_id, "site_id": site_id},
+        ).scalar_one()
+        if site_type != "EV_CHARGING":
+            return
+        for valid_from, valid_to in changed:
+            connection.execute(
+                text("SELECT ev_enqueue_configuration(:tenant_id, :site_id, :valid_from, :valid_to, :at)"),
+                {"tenant_id": tenant_id, "site_id": site_id, "valid_from": valid_from, "valid_to": valid_to,
+                 "at": plan.superseded_at},
+            )

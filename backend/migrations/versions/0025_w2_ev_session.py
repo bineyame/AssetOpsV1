@@ -385,9 +385,70 @@ CREATE CONSTRAINT TRIGGER enqueue_ev_assessment AFTER INSERT ON accepted_evidenc
     DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
     WHEN (NEW.role IN ({EV_ROLE_LIST}))
     EXECUTE FUNCTION enqueue_ev_assessment();
+
+-- q3 P7: an appended source-publication link changes the source gate of the batch's accepted EV rows. At deferred
+-- firing, join the exact scoped link to its publication, the batch's accepted EV rows and their ACCEPTED
+-- dispositions; every already selected ev-session/1 window intersecting an affected row's bracket or its session's
+-- full accepted extent (P8) is enqueued with its selected bounds. A link before any accepted row, or a row without
+-- an ACCEPTED disposition (P8), finds nothing; the accepted-row trigger supplies the first enqueue.
+CREATE FUNCTION enqueue_ev_assessment_on_source_gate() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+    decided timestamptz;
+    w record;
+BEGIN
+    SELECT max(d.decided_at) INTO decided
+    FROM evidence_publication p
+    JOIN accepted_evidence e ON e.tenant_id = NEW.tenant_id AND e.site_id = NEW.site_id AND e.batch_id = NEW.batch_id
+    JOIN ingestion_disposition d ON d.tenant_id = e.tenant_id AND d.site_id = e.site_id AND d.batch_id = e.batch_id
+        AND d.ordinal = e.ordinal AND d.decision = 'ACCEPTED' AND d.accepted_evidence_id = e.id
+    WHERE p.tenant_id = NEW.tenant_id AND p.site_id = NEW.site_id AND p.id = NEW.publication_id
+      AND e.role IN ({EV_ROLE_LIST});
+    IF decided IS NULL THEN
+        RETURN NULL;
+    END IF;
+    PERFORM pg_advisory_xact_lock(hashtextextended(NEW.site_id::text || ':' || 'ev_charging', 0));
+    FOR w IN
+        WITH affected AS (
+            SELECT e.asset_id, e.session_id,
+                   ev_enqueue_floor(coalesce(e.interval_start, e.source_time)) AS lo,
+                   ev_enqueue_ceil(coalesce(e.interval_end, e.source_time + interval '1 microsecond')) AS hi
+            FROM accepted_evidence e
+            JOIN ingestion_disposition d ON d.tenant_id = e.tenant_id AND d.site_id = e.site_id
+                AND d.batch_id = e.batch_id AND d.ordinal = e.ordinal AND d.decision = 'ACCEPTED'
+                AND d.accepted_evidence_id = e.id
+            WHERE e.tenant_id = NEW.tenant_id AND e.site_id = NEW.site_id AND e.batch_id = NEW.batch_id
+              AND e.role IN ({EV_ROLE_LIST})
+        ), spans AS (
+            SELECT a.lo, a.hi FROM affected a
+            UNION ALL
+            SELECT ev_enqueue_floor(min(coalesce(x.interval_start, x.source_time))),
+                   ev_enqueue_ceil(max(coalesce(x.interval_end, x.source_time + interval '1 microsecond')))
+            FROM affected a
+            JOIN accepted_evidence x ON x.tenant_id = NEW.tenant_id AND x.site_id = NEW.site_id
+                AND x.asset_id = a.asset_id AND x.session_id = a.session_id
+            WHERE a.session_id IS NOT NULL
+            GROUP BY a.asset_id, a.session_id
+        )
+        SELECT DISTINCT s.window_start, s.window_end FROM analytic_run_selection s
+        WHERE s.tenant_id = NEW.tenant_id AND s.site_id = NEW.site_id AND s.analytic_id = 'ev-session/1'
+          AND EXISTS (SELECT 1 FROM spans x WHERE s.window_start < x.hi AND s.window_end > x.lo)
+        ORDER BY s.window_start, s.window_end
+    LOOP
+        PERFORM ev_enqueue_window(NEW.tenant_id, NEW.site_id, w.window_start, w.window_end, NULL, decided);
+    END LOOP;
+    RETURN NULL;
+END;
+$$;
+
+CREATE CONSTRAINT TRIGGER enqueue_ev_assessment_on_source_gate AFTER INSERT ON batch_publication_link
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
+    EXECUTE FUNCTION enqueue_ev_assessment_on_source_gate();
 """
 
 DROP_ENQUEUE = """
+DROP TRIGGER enqueue_ev_assessment_on_source_gate ON batch_publication_link;
+DROP FUNCTION enqueue_ev_assessment_on_source_gate();
 DROP TRIGGER enqueue_ev_assessment ON accepted_evidence;
 DROP FUNCTION enqueue_ev_assessment();
 DROP FUNCTION ev_enqueue_configuration(uuid, uuid, timestamptz, timestamptz, timestamptz);

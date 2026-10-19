@@ -82,6 +82,12 @@ class Ev:
             "accepted_evidence_id, rejection_id, decided_at) VALUES (:b, :o, :t, :s, :m, :d, :e, NULL, :at)"),
             self.ctx.p(b=self.batch, o=self.ordinal, m=msg, d=decision, e=eid, at=decided))
 
+    @staticmethod
+    def pending_on(c, site_id: UUID) -> list[dict]:
+        return [dict(r._mapping) for r in c.execute(text(
+            "SELECT window_start, window_end FROM recompute_job WHERE site_id = :s AND domain = 'ev_charging' "
+            "AND status = 'PENDING' ORDER BY window_start"), {"s": site_id})]
+
     def accept(self, **kw) -> UUID:
         with self.engine.begin() as c:
             return self.write(c, **kw)
@@ -101,6 +107,22 @@ class Ev:
                 "AND (CAST(:st AS text) IS NULL OR status = :st) ORDER BY window_start, created_at"),
                 {"s": self.ctx.s, "st": status})]
 
+    def link(self, c) -> None:
+        """q3 P7: append the source-publication link of the fixture batch on `c` (W2-04 test precedent)."""
+        b = c.execute(text("SELECT * FROM ingestion_batch WHERE id = :b"), {"b": self.batch}).mappings().one()
+        pid = uuid4()
+        p = {"p": pid, "b": b["id"], "t": b["tenant_id"], "s": b["site_id"], "g": b["gateway_id"],
+             "src": b["source_id"], "x": b["external_batch_id"], "h": b["payload_sha256"]}
+        c.execute(text(
+            "INSERT INTO evidence_publication (id, tenant_id, site_id, gateway_id, source_id, external_batch_id, "
+            "payload_sha256, source_class, fixture_id, fixture_version, actor_kind, actor_id, authorization_basis, "
+            "channel, publication_trigger, recorded_at) VALUES (:p, :t, :s, :g, :src, :x, :h, "
+            "'AUTHORED_DEMONSTRATION', 'w206', '1', 'SYSTEM', 'test', 'test', 'SYSTEM_FIXTURE', 'test', now())"), p)
+        c.execute(text(
+            "INSERT INTO batch_publication_link (batch_id, publication_id, tenant_id, site_id, gateway_id, "
+            "source_id, external_batch_id, payload_sha256, linked_at) VALUES (:b, :p, :t, :s, :g, :src, :x, :h, "
+            "now())"), p)
+
     def set_status(self, job_id: UUID, status: str) -> None:
         with self.engine.begin() as c:
             c.execute(text("UPDATE recompute_job SET status = :st, lease_until = CASE WHEN :st = 'LEASED' "
@@ -111,7 +133,10 @@ class Ev:
 def ev(site, engine):  # noqa: F811
     built = Ev(site, engine)
     yield built
-    _replica(engine, "DELETE FROM recompute_job WHERE domain = 'ev_charging'",
+    _replica(engine, "DELETE FROM batch_publication_link WHERE publication_id IN "
+                     "(SELECT id FROM evidence_publication WHERE fixture_id = 'w206')",
+             "DELETE FROM evidence_publication WHERE fixture_id = 'w206'",
+             "DELETE FROM recompute_job WHERE domain = 'ev_charging'",
              "DELETE FROM analytic_run_selection WHERE analytic_id = 'ev-session/1'",
              f"DELETE FROM ingestion_disposition WHERE ordinal > {ORDINAL}",
              "DELETE FROM accepted_evidence WHERE message_id LIKE 'w206-enq-%'")
@@ -236,3 +261,52 @@ class TestEvEnqueueConfiguration:
                 c, ev.ctx.t, ev.ctx.s, at(8, 7, 30), None, "FOUNDATION_PUBLISHED", at(10, 0))
         (job,) = ev.jobs()
         assert window(job) == (at(8, 5), at(8, 10)) and job["cause_evidence_id"] is None
+
+
+class TestEvSourceGateLink:
+    """q3 P7: the deferred `enqueue_ev_assessment_on_source_gate` constraint trigger on `batch_publication_link`."""
+
+    def _done(self, ev) -> None:
+        for job in ev.jobs("PENDING"):
+            ev.set_status(job["id"], "DONE")
+
+    def test_a_link_dirties_each_selected_window_of_its_accepted_ev_rows(self, ev) -> None:
+        ev.accept(role="ev_session_event", kind="EV_SESSION_START", session="g-1", when=at(8, 1), decided=at(9, 0))
+        ev.accept(role="ev_session_event", kind="EV_SESSION_END", session="g-1", when=at(9, 20), decided=at(9, 30))
+        ev.accept(role="ev_site_import", when=at(12, 2), decided=at(9, 10))
+        self._done(ev)
+        for lo, hi in ((at(8, 0), at(9, 0)), (at(9, 0), at(10, 0)), (at(10, 0), at(11, 0))):
+            ev.select(lo, hi)
+        with ev.engine.begin() as c:
+            ev.link(c)
+        jobs = ev.jobs("PENDING")
+        # The session's full accepted extent (08:01 START to 09:20 END) reaches both of its selected windows; the
+        # 10:00 selection meets no affected row; the 12:02 row has no selected window and seeds nothing.
+        assert [window(j) for j in jobs] == [(at(8, 0), at(9, 0)), (at(9, 0), at(10, 0))]
+        assert all(j["cause_evidence_id"] is None and j["available_at"] == at(9, 30) for j in jobs)
+
+    def test_a_link_without_accepted_ev_rows_enqueues_nothing(self, ev) -> None:
+        ev.select(at(8, 0), at(9, 0))
+        with ev.engine.begin() as c:
+            ev.link(c)
+        assert ev.jobs() == []
+
+    def test_an_ev_row_without_an_accepted_disposition_is_not_a_link_input(self, ev) -> None:
+        with ev.engine.begin() as c:
+            ev.write(c, role="ev_site_import", when=at(8, 2), decided=at(9, 0), disposition=None)
+        ev.select(at(8, 0), at(9, 0))
+        with ev.engine.begin() as c:
+            ev.link(c)
+        assert ev.jobs() == []
+
+    def test_the_link_enqueue_rolls_back_with_its_publication(self, ev) -> None:
+        ev.accept(role="ev_site_import", when=at(8, 2), decided=at(9, 0))
+        self._done(ev)
+        ev.select(at(8, 0), at(9, 0))
+        with pytest.raises(RuntimeError):
+            with ev.engine.begin() as c:
+                ev.link(c)
+                c.execute(text("SET CONSTRAINTS ALL IMMEDIATE"))  # fire the deferred trigger inside the transaction
+                assert [window(j) for j in Ev.pending_on(c, ev.ctx.s)] == [(at(8, 0), at(9, 0))]
+                raise RuntimeError("publication refused")
+        assert ev.jobs("PENDING") == []
