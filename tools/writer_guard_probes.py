@@ -82,8 +82,6 @@ EV_ARBITER = ("keeps exactly the ON CONFLICT (tenant_id, site_id, window_start, 
               "DO NOTHING arbiter")
 EV_NO_INSERT = "Rule 8 found no INSERT INTO ev_consequence_work"
 EV_ARBITER_LINE = "ON CONFLICT (tenant_id,site_id,window_start,window_end,dirty_basis_sha256) DO NOTHING;"
-EV_CONSEQUENCE_TABLES = ("ev_consequence_revision", "ev_consequence_session", "ev_consequence_evidence",
-                         "ev_consequence_work_attempt")
 W200_ARBITER = "ON CONFLICT is allowed only as its three"
 W200_MESSAGE = "keeps the accepted_evidence_message_unique DO NOTHING arbiter"
 W200_ORDER = "rereads collisions in the fixed order message, event, session"
@@ -443,19 +441,52 @@ NEGATIVE += [
 # W2-07 (migration 0026): the consequence store alone INSERTs each EV consequence table, which no module updates,
 # deletes or upserts; ev_consequence_work has no runtime writer at all, and every 0026 INSERT into it keeps the
 # exact scoped dirty-basis DO NOTHING arbiter. Rule 8 requires every one of these names.
-for _table in EV_CONSEQUENCE_TABLES:
-    NEGATIVE += [
-        (f"ev {_table} foreign insert", FINDING,
-         f'_OPS02 = (\n    "INSERT INTO {_table} "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
-         f"writes consequence table '{_table}'"),
-        (f"ev {_table} update", CONSEQUENCE, split(_table, "state = :s WHERE id = :i"),
-         f"EV consequence table '{_table}' is insert-only"),
-        (f"ev {_table} delete", CONSEQUENCE, f'_OPS02 = (\n    "delete from "\n    "{_table} where id = :i"\n)\n',
-         f"EV consequence table '{_table}' is insert-only"),
-        (f"ev {_table} upsert", CONSEQUENCE,
-         f'_OPS02 = (\n    "INSERT INTO {_table} (id, tenant_id) VALUES (:i, :t) "\n'
-         '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
-    ]
+NEGATIVE += [
+    ("ev ev_consequence_revision foreign insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_revision "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes consequence table 'ev_consequence_revision'"),
+    ("ev ev_consequence_revision update", CONSEQUENCE, split("ev_consequence_revision", "state = :s WHERE id = :i"),
+     "EV consequence table 'ev_consequence_revision' is insert-only"),
+    ("ev ev_consequence_revision delete", CONSEQUENCE,
+     '_OPS02 = (\n    "delete from "\n    "ev_consequence_revision where id = :i"\n)\n',
+     "EV consequence table 'ev_consequence_revision' is insert-only"),
+    ("ev ev_consequence_revision upsert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_revision (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("ev ev_consequence_session foreign insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_session "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes consequence table 'ev_consequence_session'"),
+    ("ev ev_consequence_session update", CONSEQUENCE, split("ev_consequence_session", "state = :s WHERE id = :i"),
+     "EV consequence table 'ev_consequence_session' is insert-only"),
+    ("ev ev_consequence_session delete", CONSEQUENCE,
+     '_OPS02 = (\n    "delete from "\n    "ev_consequence_session where id = :i"\n)\n',
+     "EV consequence table 'ev_consequence_session' is insert-only"),
+    ("ev ev_consequence_session upsert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_session (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("ev ev_consequence_evidence foreign insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_evidence "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes consequence table 'ev_consequence_evidence'"),
+    ("ev ev_consequence_evidence update", CONSEQUENCE, split("ev_consequence_evidence", "state = :s WHERE id = :i"),
+     "EV consequence table 'ev_consequence_evidence' is insert-only"),
+    ("ev ev_consequence_evidence delete", CONSEQUENCE,
+     '_OPS02 = (\n    "delete from "\n    "ev_consequence_evidence where id = :i"\n)\n',
+     "EV consequence table 'ev_consequence_evidence' is insert-only"),
+    ("ev ev_consequence_evidence upsert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_evidence (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    ("ev ev_consequence_work_attempt foreign insert", FINDING,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_work_attempt "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
+     "writes consequence table 'ev_consequence_work_attempt'"),
+    ("ev ev_consequence_work_attempt update", CONSEQUENCE, split("ev_consequence_work_attempt", "state = :s WHERE id = :i"),
+     "EV consequence table 'ev_consequence_work_attempt' is insert-only"),
+    ("ev ev_consequence_work_attempt delete", CONSEQUENCE,
+     '_OPS02 = (\n    "delete from "\n    "ev_consequence_work_attempt where id = :i"\n)\n',
+     "EV consequence table 'ev_consequence_work_attempt' is insert-only"),
+    ("ev ev_consequence_work_attempt upsert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_work_attempt (id, tenant_id) VALUES (:i, :t) "\n'
+     '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+]
 NEGATIVE += [
     ("ev ev_consequence_work runtime insert", CONSEQUENCE,
      '_OPS02 = (\n    "INSERT INTO ev_consequence_work (id, tenant_id) "\n    "VALUES (:i, :t) ON CONFLICT '
@@ -550,9 +581,14 @@ WRITER_CONTROLS: list[tuple[str, str, str]] = [
      'ON CONFLICT (tenant_id, site_id, dirty_key_sha256) DO NOTHING;\n"""\n'),
     # W2-07: one allowed multiline INSERT per EV consequence table in the consequence store, and a second
     # arbitrated work INSERT in the 0026 migration text (must pass).
-    *[(f"controls ev {_table} insert", CONSEQUENCE,
-       f'_OPS02 = (\n    "INSERT INTO {_table} (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n')
-      for _table in EV_CONSEQUENCE_TABLES],
+    ("controls ev ev_consequence_revision insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_revision (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls ev ev_consequence_session insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_session (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls ev ev_consequence_evidence insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_evidence (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
+    ("controls ev ev_consequence_work_attempt insert", CONSEQUENCE,
+     '_OPS02 = (\n    "INSERT INTO ev_consequence_work_attempt (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'),
     ("controls ev work migration trigger insert", EV_MIGRATION,
      '_OPS02 = """\nINSERT INTO ev_consequence_work (id) VALUES (gen_random_uuid())\n'
      'ON CONFLICT (tenant_id, site_id, window_start, window_end, dirty_basis_sha256) DO NOTHING;\n"""\n'),
