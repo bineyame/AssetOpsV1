@@ -31,3 +31,27 @@ No implementer decisions were taken in commit 5. The migration follows the spec 
 
 ## Residual risk
 writer_guard_probes unrun to completion; backend full-suite zero-failed rests on one environmental failure fixed by rerunning one file; missing-role readiness 1.31x.
+
+## Run 8 fix round (review r1; rulings in build spec "Run 8 rulings")
+
+Code head: see the final commit of this branch; code last changed in `W2-05a Run 8: widen EV SLD viewBox`.
+
+| Finding | Fix | Proof |
+|---|---|---|
+| H1 | `EvSingleLineDiagram`: three fixed feeder slots (Feeder 1 CB/Charger 1, Feeder 2 CB/Charger 2, Feeder 3 CB/Depot auxiliary); empty slot 2 reads `Charger 2 · Not declared`, `Rating not declared · No connector declared`; more than one extra charger folds into slot 2 as `Additional chargers` with names listed; rail fixed `Connector 1`, `Connector 2`, `Site meter`, `Billing system` by declared charger/connector order (asset-ID tie break), undeclared positions say `Not declared`; viewBox widened 1000 to 1090 after the capture showed slot-2/auxiliary text clipped | `evFoundation.test.tsx` (stocked, missing-feed, zero-charger, three-charger, reversed bindings) |
+| M1 | Financials, Assumptions, Health > Data sources (header action and footer) use `UnavailableLinkEntry`; Site model, Single line diagram, Evidence links stay live | new test: labels, non-navigation, no mini-grid hrefs in panels, live links, stocked and missing-role |
+| M2 | `validate_bindings`: `BINDING_EV_CONNECTOR_NOT_DECLARED` (empty binding index, exact message) when any covering revision has no `EV_CONNECTOR` | Postgres tests: empty, Site-import-only, overlap with a connector-free revision (no binding revision written); valid set still publishes |
+| M3 | `_ev_connector` docstring corrected; parser, 0020 CHECK and 0024 unchanged | `test_source_envelope_v4.py`: null-correlated `interval mean` and `state point` accepted, either nonnull ID refused (`CORRELATION_INVALID`) |
+| M4 | `install_ev_lab` publishes at the install clock; no +5 min | Postgres test: recorded_at = install clock, snapshot readable at once, later Foundation revision allowed, reinstall writes no extra binding revision |
+| L1 | accepted as bounded exception (missing-role readiness 1.31x earlier; now panel 1 is 359/313 = 1.15, gateway 1.21 missing-role); 390 px viewed, no clipping | captures |
+| L2 | `IN_PAGE_UNAVAILABLE_STATUS` exemption decision/reason names the W2-05a placements | check-all missing-claim scan passes (39 tagged, 10 baselined) |
+| L3 | `UNIT_RANGES` adds `s` 0..86400 and `kWh` 0..1e8 | vocabulary tests (boundaries inclusive, 1e300, inf, nan, negative refused); Postgres: 1e300 clock bound refuses `EV_CONFIGURATION_INVALID` and writes no revision |
+| L4 | part cell ends `Load manager · Not declared`; `power sharing` text deleted | stocked and missing-feed assertions |
+
+Heights at 1440 (app / mock): foundation 1.22 / 1.22; readiness panel 1 1.15, gateway 1.27 (1.21 missing-role); sld diagram 539/552 = 0.98 (three feeder slots now drawn), parts table 370/287 = 1.29. Recaptured all 9 pairs at 1440/390 (108/108 claims, stocked `at=2026-10-06`, missing-role `2026-10-08`, empty `2026-09-01`); viewed ev-sld stocked/missing-role/empty and ev-readiness missing-role/stocked at 390. Private DB `w205r8cap_test` seeded by `install_ev_lab` plus one gap revision; no wait needed (M4); DB dropped, servers (9734/6134/CDP 9735) stopped. Capture app URLs are `/sites/EV-LAB-001/foundation[/readiness|/sld]`.
+
+Checks: frontend `npm.cmd test` 87 files, 2252 passed; `tsc --noEmit` 0; `tools/check-all.ps1` 10/10. Backend focused (vocabulary + EV Foundation Postgres) green; gateway v4 file 66 passed. Full real-Postgres backend suite at the final code revision, `-n 2 --dist loadfile`, private `w205r8_test` (dropped): 2960 passed, JUnit failures 0, errors 0, skipped 0, 1609 s. `var/sites/mg-001.yaml` was present and was deleted afterwards. Host suite not run: no host code changed.
+
+Writer-guard probes: WAIVED per the Run 8 ruling (no rule-8 guard, SQL writer or accepted-evidence write path changed). This is a waiver, not a pass; 05b keeps its own gate.
+
+Open points: (1) the ruling calls `UnavailableLinkEntry` "focusable", but the existing component (and `expectUnavailableEntry`) is deliberately not a tab stop; I kept the component unchanged. (2) The M2 mutation proof (disable the check, watch the new tests fail) was blocked by the permission classifier, so non-vacuity of the M2 tests is not demonstrated by mutation; they assert the code, empty binding index, and unchanged binding-set list. (3) L4 missing-feed copy is `Not declared; Load manager · Not declared`.
