@@ -143,7 +143,16 @@ def insert_ev_finding(engine, ctx, *, generator=None, subject="connector", minut
 def ev_triggers(engine) -> int:  # noqa: F811
     return scalar(engine, "SELECT count(*) FROM pg_trigger WHERE tgname IN ('ev_session_append_only', "
                   "'ev_session_revision_append_only', 'ev_session_evidence_append_only', "
-                  "'ev_meter_interval_append_only')")
+                  "'ev_meter_interval_append_only', 'enqueue_ev_assessment')")
+
+
+EV_FUNCTIONS = ("enqueue_ev_assessment", "ev_enqueue_configuration", "ev_enqueue_window", "ev_enqueue_ceil",
+                "ev_enqueue_floor")
+
+
+def ev_functions(engine) -> int:  # noqa: F811
+    return scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname IN ("
+                  + ", ".join(f"'{f}'" for f in EV_FUNCTIONS) + ")")
 
 
 class TestMigration0025:
@@ -152,7 +161,7 @@ class TestMigration0025:
 
         Ctx(site, engine)
         assert head(engine) == HEAD
-        assert all(table_exists(engine, t) for t in EV) and ev_triggers(engine) == 4
+        assert all(table_exists(engine, t) for t in EV) and ev_triggers(engine) == 5 and ev_functions(engine) == 5
         subject, minutes = constraint(engine, "finding_domain_subject"), constraint(engine, "finding_revision_domain_minutes")
         for definition in (subject, minutes):
             assert "'mini_grid'" in definition and "'cold_chain'" in definition and "'ev_charging'" in definition
@@ -166,7 +175,7 @@ class TestMigration0025:
         try:
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS
-            assert not any(table_exists(engine, t) for t in EV) and ev_triggers(engine) == 0
+            assert not any(table_exists(engine, t) for t in EV) and ev_triggers(engine) == 0 and ev_functions(engine) == 0
             for name in ("finding_domain_subject", "finding_revision_domain_minutes"):
                 restored = constraint(engine, name)
                 assert "'ev_charging'" not in restored

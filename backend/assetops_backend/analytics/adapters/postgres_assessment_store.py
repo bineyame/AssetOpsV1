@@ -761,6 +761,18 @@ class PostgresAssessmentStore:
     # one transaction for assessment, episodes, Findings and job completion. This module alone inserts the
     # analytic and episode rows; the Finding store alone inserts Finding rows.
 
+    @staticmethod
+    def ev_enqueue_configuration(c: Connection, tenant_id: UUID, site_id: UUID, valid_from: datetime,
+                                 valid_to: datetime | None, cause: str, now: datetime) -> None:
+        """W2-06 Q12: on the publishing connection, after an effective EV Foundation, binding/mapping or S4-05
+        source-gate change, dirty every already selected `ev-session/1` window intersecting `[valid_from,
+        valid_to)` (open-ended when `valid_to` is None), each separately; with none, seed `valid_from`'s five-minute
+        bracket. The coalescing is migration 0025's `ev_enqueue_window`, shared with the accepted-evidence trigger;
+        `cause_evidence_id` stays NULL (`recompute_job` has no column for the textual `cause`). It commits or rolls
+        back with the caller's publication."""
+        c.execute(text("SELECT ev_enqueue_configuration(:t, :s, :f, :to, :now)"),
+                  {"t": tenant_id, "s": site_id, "f": valid_from, "to": valid_to, "now": now})
+
     def transaction(self):
         """One write transaction on the store's engine, for the cold worker to share across both stores."""
         return self._connect_engine().begin()

@@ -16,6 +16,11 @@ All four tables are append-only through the repository's `ledger_append_only()` 
 arm (connector subject, NULL generator, NULL dispatch minutes). `finding_revision_bounds`,
 `finding_revision_minigrid_bounds` and `recompute_job.domain` (text, no CHECK) are unchanged.
 
+Spec commit 3 (Run 2 ruling Q10-Q12) adds the `ev_charging` enqueue: the deferred constraint trigger
+`enqueue_ev_assessment` on `accepted_evidence` and the functions `ev_enqueue_floor`, `ev_enqueue_ceil`,
+`ev_enqueue_window` and `ev_enqueue_configuration` (the last called only through
+`PostgresAssessmentStore.ev_enqueue_configuration`). The downgrade drops them after its refusal check.
+
 Downgrade refuses while any EV session row, EV Finding/revision or `ev_charging` recompute job exists; otherwise it
 restores the exact 0022 CHECK definitions and drops only the objects this revision created. No cascade, no deletion.
 
@@ -228,6 +233,169 @@ END;
 $$;
 """
 
+# W2-06 Run 2 ruling Q10-Q11 (`.agent/W2-06-build-spec.md` "Q10-Q13: enqueue and worker"): the S2 accepted-evidence
+# writer is unchanged; a DEFERRABLE INITIALLY DEFERRED constraint trigger on `accepted_evidence` enqueues
+# `recompute_job.domain='ev_charging'` before commit for a newly accepted row bound to an `ev-roles-1` role. A
+# duplicate receipt inserts no accepted row, so it fires nothing. Job IDs come from `gen_random_uuid()` so the
+# W2-05b pinned Python UUID sequence does not shift. Every enqueue holds the Site/domain advisory transaction lock
+# with the exact key of the ledger's and the assessment store's job lock (`<site>:ev_charging`).
+#
+# Base brackets are five-minute UTC-epoch aligned and half-open: a row spans `[interval_start or source_time,
+# interval_end or source_time + 1us)`, bracketed outward. Targets are every selected `ev-session/1` window
+# (`analytic_run_selection`) intersecting the dirty span, each enqueued separately, plus each base bracket no selected
+# target wholly contains. A target merges into one PENDING `ev_charging` job within the ten-minute bridge, only when
+# the merged window stays within 31 days and intersects at most one selected window (disjoint selections are never
+# coalesced); widening lifts `available_at` to at least the decision instant (S4-07). LEASED, FAILED and DONE jobs are
+# never merge candidates: a new PENDING job is added beside them.
+EV_ROLES = ("ev_session_event", "ev_connector_fault", "ev_connector_state", "ev_connector_energy",
+            "ev_connector_power", "ev_site_import", "ev_requested_power", "ev_allocated_limit")
+EV_ROLE_LIST = ", ".join(f"'{r}'" for r in EV_ROLES)
+
+ENQUEUE = rf"""
+CREATE FUNCTION ev_enqueue_floor(p timestamptz) RETURNS timestamptz
+LANGUAGE sql IMMUTABLE AS $$
+    SELECT 'epoch'::timestamptz + floor(extract(epoch FROM p) / 300) * interval '300 seconds'
+$$;
+
+CREATE FUNCTION ev_enqueue_ceil(p timestamptz) RETURNS timestamptz
+LANGUAGE sql IMMUTABLE AS $$
+    SELECT 'epoch'::timestamptz + ceil(extract(epoch FROM p) / 300) * interval '300 seconds'
+$$;
+
+-- One target window into the PENDING ev_charging queue (caller holds the Site/domain lock; taking it again is a
+-- no-op within the transaction).
+CREATE FUNCTION ev_enqueue_window(p_tenant_id uuid, p_site_id uuid, p_lo timestamptz, p_hi timestamptz,
+                                  p_cause uuid, p_at timestamptz) RETURNS void
+LANGUAGE plpgsql AS $$
+DECLARE
+    job record;
+BEGIN
+    PERFORM pg_advisory_xact_lock(hashtextextended(p_site_id::text || ':' || 'ev_charging', 0));
+    SELECT j.id, j.window_start, j.window_end INTO job FROM recompute_job j
+    WHERE j.site_id = p_site_id AND j.tenant_id = p_tenant_id AND j.domain = 'ev_charging' AND j.status = 'PENDING'
+      AND j.window_start <= p_hi + interval '10 minutes' AND j.window_end >= p_lo - interval '10 minutes'
+      AND greatest(j.window_end, p_hi) - least(j.window_start, p_lo) <= interval '31 days'
+      AND (SELECT count(*) FROM (SELECT DISTINCT s.window_start, s.window_end FROM analytic_run_selection s
+                                 WHERE s.tenant_id = p_tenant_id AND s.site_id = p_site_id
+                                   AND s.analytic_id = 'ev-session/1'
+                                   AND s.window_start < greatest(j.window_end, p_hi)
+                                   AND s.window_end > least(j.window_start, p_lo)) AS sel) <= 1
+    ORDER BY j.window_start, j.id LIMIT 1 FOR UPDATE;
+    IF NOT FOUND THEN
+        INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, cause_evidence_id,
+                                   status, available_at, created_at)
+        VALUES (gen_random_uuid(), p_tenant_id, p_site_id, 'ev_charging', p_lo, p_hi, p_cause, 'PENDING', p_at, p_at);
+        RETURN;
+    END IF;
+    UPDATE recompute_job SET window_start = least(job.window_start, p_lo), window_end = greatest(job.window_end, p_hi),
+        available_at = greatest(available_at, p_at)
+    WHERE id = job.id;
+END;
+$$;
+
+-- Configuration change (Q12): every already selected ev-session/1 window intersecting the change's validity, each
+-- separately; if none exists, the change instant's (valid_from) five-minute bracket. No cause evidence.
+CREATE FUNCTION ev_enqueue_configuration(p_tenant_id uuid, p_site_id uuid, p_from timestamptz, p_to timestamptz,
+                                         p_at timestamptz) RETURNS void
+LANGUAGE plpgsql AS $$
+DECLARE
+    w record;
+    seen boolean := false;
+BEGIN
+    PERFORM pg_advisory_xact_lock(hashtextextended(p_site_id::text || ':' || 'ev_charging', 0));
+    FOR w IN SELECT DISTINCT s.window_start, s.window_end FROM analytic_run_selection s
+             WHERE s.tenant_id = p_tenant_id AND s.site_id = p_site_id AND s.analytic_id = 'ev-session/1'
+               AND s.window_end > p_from AND (p_to IS NULL OR s.window_start < p_to)
+             ORDER BY s.window_start, s.window_end LOOP
+        PERFORM ev_enqueue_window(p_tenant_id, p_site_id, w.window_start, w.window_end, NULL, p_at);
+        seen := true;
+    END LOOP;
+    IF NOT seen THEN
+        PERFORM ev_enqueue_window(p_tenant_id, p_site_id, ev_enqueue_floor(p_from),
+                                  ev_enqueue_ceil(p_from + interval '1 microsecond'), NULL, p_at);
+    END IF;
+END;
+$$;
+
+CREATE FUNCTION enqueue_ev_assessment() RETURNS trigger
+LANGUAGE plpgsql AS $$
+DECLARE
+    decided timestamptz;
+    start_time timestamptz;
+    r_lo timestamptz := ev_enqueue_floor(coalesce(NEW.interval_start, NEW.source_time));
+    r_hi timestamptz := ev_enqueue_ceil(coalesce(NEW.interval_end, NEW.source_time + interval '1 microsecond'));
+    s_lo timestamptz;
+    s_hi timestamptz;
+    span_lo timestamptz;
+    span_hi timestamptz;
+    w record;
+BEGIN
+    -- The disposition FK references this accepted row, which is uncommitted until this deferred firing, so a
+    -- matching ACCEPTED disposition can only come from the same transaction. Without one (no S2 decision) the
+    -- row enqueues nothing.
+    SELECT d.decided_at INTO decided FROM ingestion_disposition d
+    WHERE d.batch_id = NEW.batch_id AND d.ordinal = NEW.ordinal AND d.decision = 'ACCEPTED'
+      AND d.tenant_id = NEW.tenant_id AND d.site_id = NEW.site_id AND d.accepted_evidence_id = NEW.id;
+    IF NOT FOUND THEN
+        RETURN NULL;
+    END IF;
+    PERFORM pg_advisory_xact_lock(hashtextextended(NEW.site_id::text || ':' || 'ev_charging', 0));
+    span_lo := r_lo;
+    span_hi := r_hi;
+    IF NEW.session_id IS NOT NULL THEN
+        -- The accepted START by its exact indexed key (accepted_ev_start_unique), then the session's accepted extent.
+        SELECT e.source_time INTO start_time FROM accepted_evidence e
+        WHERE e.tenant_id = NEW.tenant_id AND e.site_id = NEW.site_id AND e.asset_id = NEW.asset_id
+          AND e.session_id = NEW.session_id AND e.family = 'EVENT' AND e.record_kind = 'EV_SESSION_START';
+        IF FOUND THEN
+            s_lo := ev_enqueue_floor(start_time);
+            s_hi := ev_enqueue_ceil(start_time + interval '1 microsecond');
+        END IF;
+        SELECT least(span_lo, ev_enqueue_floor(min(coalesce(e.interval_start, e.source_time)))),
+               greatest(span_hi, ev_enqueue_ceil(max(coalesce(e.interval_end,
+                                                              e.source_time + interval '1 microsecond'))))
+        INTO span_lo, span_hi FROM accepted_evidence e
+        WHERE e.site_id = NEW.site_id AND e.asset_id = NEW.asset_id AND e.session_id = NEW.session_id
+          AND e.tenant_id = NEW.tenant_id;
+    END IF;
+    FOR w IN SELECT DISTINCT s.window_start, s.window_end FROM analytic_run_selection s
+             WHERE s.tenant_id = NEW.tenant_id AND s.site_id = NEW.site_id AND s.analytic_id = 'ev-session/1'
+               AND s.window_start < span_hi AND s.window_end > span_lo
+             ORDER BY s.window_start, s.window_end LOOP
+        PERFORM ev_enqueue_window(NEW.tenant_id, NEW.site_id, w.window_start, w.window_end, NEW.id, decided);
+    END LOOP;
+    IF NOT EXISTS (SELECT 1 FROM analytic_run_selection s
+                   WHERE s.tenant_id = NEW.tenant_id AND s.site_id = NEW.site_id AND s.analytic_id = 'ev-session/1'
+                     AND s.window_start < span_hi AND s.window_end > span_lo
+                     AND s.window_start <= r_lo AND s.window_end >= r_hi) THEN
+        PERFORM ev_enqueue_window(NEW.tenant_id, NEW.site_id, r_lo, r_hi, NEW.id, decided);
+    END IF;
+    IF s_lo IS NOT NULL AND NOT EXISTS (
+            SELECT 1 FROM analytic_run_selection s
+            WHERE s.tenant_id = NEW.tenant_id AND s.site_id = NEW.site_id AND s.analytic_id = 'ev-session/1'
+              AND s.window_start < span_hi AND s.window_end > span_lo
+              AND s.window_start <= s_lo AND s.window_end >= s_hi) THEN
+        PERFORM ev_enqueue_window(NEW.tenant_id, NEW.site_id, s_lo, s_hi, NEW.id, decided);
+    END IF;
+    RETURN NULL;
+END;
+$$;
+
+CREATE CONSTRAINT TRIGGER enqueue_ev_assessment AFTER INSERT ON accepted_evidence
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW
+    WHEN (NEW.role IN ({EV_ROLE_LIST}))
+    EXECUTE FUNCTION enqueue_ev_assessment();
+"""
+
+DROP_ENQUEUE = """
+DROP TRIGGER enqueue_ev_assessment ON accepted_evidence;
+DROP FUNCTION enqueue_ev_assessment();
+DROP FUNCTION ev_enqueue_configuration(uuid, uuid, timestamptz, timestamptz, timestamptz);
+DROP FUNCTION ev_enqueue_window(uuid, uuid, timestamptz, timestamptz, uuid, timestamptz);
+DROP FUNCTION ev_enqueue_ceil(timestamptz);
+DROP FUNCTION ev_enqueue_floor(timestamptz);
+"""
+
 DOWNGRADE = """
 DROP TABLE ev_meter_interval;
 DROP TABLE ev_session_evidence;
@@ -240,9 +408,11 @@ def upgrade() -> None:
     op.execute(EV_SCHEMA)
     op.execute(APPEND_ONLY)
     op.execute(_domain_checks(DOMAIN_SUBJECT_0025, DOMAIN_MINUTES_0025))
+    op.execute(ENQUEUE)
 
 
 def downgrade() -> None:
     op.execute(REFUSE_IF_USED)
+    op.execute(DROP_ENQUEUE)
     op.execute(_domain_checks(DOMAIN_SUBJECT_0022, DOMAIN_MINUTES_0022))
     op.execute(DOWNGRADE)

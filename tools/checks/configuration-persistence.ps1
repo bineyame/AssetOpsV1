@@ -717,6 +717,11 @@ function Invoke-ConfigurationPersistenceCheck {
     $provenanceTables = @('evidence_publication', 'batch_publication_link')
     $ledgerConflictAllowed = "(?i)\bON\s+CONFLICT\s+ON\s+CONSTRAINT\s+(?:batch_refusal_identity|ingestion_batch_external_unique|accepted_evidence_message_unique)\s+DO\s+NOTHING\b"
     $provenanceInsertsSeen = @{ 'evidence_publication' = 0; 'batch_publication_link' = 0 }
+    # W2-06 Q12 (migration 0025): `ev_enqueue_configuration`/`ev_enqueue_window` write recompute_job inside the
+    # database, so SQL calling them is a recompute_job write. Only the assessment store issues it (through
+    # `PostgresAssessmentStore.ev_enqueue_configuration`); other modules call that Python method, never the SQL.
+    $evEnqueueSql = '(?i)\b(?:SELECT|PERFORM|CALL)\s+(?:ev_enqueue_[a-z_]+|enqueue_ev_assessment)\s*\('
+    $evEnqueueSqlSeen = 0
     # W2-04: per-table owner INSERTs into the cold consequence tables (Q10: each asserted >= 1 below).
     $coldConsequenceInsertsSeen = @{ 'cold_consequence_revision' = 0; 'cold_consequence_evidence' = 0
         'cold_consequence_work_attempt' = 0 }
@@ -814,6 +819,15 @@ function Invoke-ConfigurationPersistenceCheck {
             if ($line -match "$provVerb\s+$provName" -or
                     ($line -match "$provVerb\s*`$" -and $nextLine -match "(?i)^\s*$provName")) {
                 $failures.Add("$provRefusal; $($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            # Source lines, not extracted clauses: the extractor splits at write heads, and this write is a SELECT.
+            if ($line -match $evEnqueueSql) {
+                if ($module.Path -eq $assessWriter) { $evEnqueueSqlSeen++ }
+                else {
+                    $failures.Add(("Only $assessWriter calls the 0025 EV enqueue SQL functions (a recompute_job " +
+                        "write); call PostgresAssessmentStore.ev_enqueue_configuration instead; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
             }
             if ($module.Path -eq $actionWriter -and $line -match $actionForbidden) {
                 $failures.Add("The Action store never updates, deletes, truncates, upserts or runs DDL; " +
@@ -1085,6 +1099,10 @@ function Invoke-ConfigurationPersistenceCheck {
         $failures.Add(("The evidence ledger rereads collisions in the fixed order message, event, session: exactly one " +
             "line '$rereadOrderExpected' in $ledgerWriter (found $($rereadOrderLines.Count): " +
             "$($rereadOrderLines -join ' | ')).")) | Out-Null
+    }
+    if ($evEnqueueSqlSeen -lt 1) {
+        $failures.Add(("Rule 8 found no EV enqueue SQL call in $assessWriter, so the sole-caller check is " +
+            "vacuous. Update the check, do not delete it.")) | Out-Null
     }
     foreach ($table in $provenanceTables) {
         if ($provenanceInsertsSeen[$table] -lt 1) {
