@@ -59,3 +59,24 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
 - R1 not applied: its premise fails (`.agent/W2-07-pending-rulings.md` R7, with empirical failing trial). Commits
   2-3 not started. Resume: apply the R7 ruling to 0026 + the trigger test, then build commit 2 from the anchors above.
 - Private DB `w207b_test` dropped at end of run.
+
+## Run 3 (2026-10-20): q2 R7 landed; stopped at context budget before commit 2
+
+- Landed `69ea6aee` (q2 R7): `0026_w2_ev_money.py` `ev_consequence_on_accepted()` replaced by the literal R7 body
+  (immediate link trigger and its body unchanged). `test_0026_trigger_only_work_and_exact_conflict_constraint`
+  splits the late delivery by wrapping `PostgresEvidenceLedger.decide_chunk` (monkeypatch; first call per batch
+  snapshots work + link count), then asserts the R7 literal set: pre-decide work == after_run, link==1, gate
+  disjoint; post == after_run | late ACCEPTED_EV | gate; one row per gate hash; double re-enqueue unchanged.
+- Linked non-EV batch: the registered late phase delivers exactly one (EV) batch, so the test uses the first
+  upload's committed linked batches with zero qualifying EV rows (work stayed empty across that upload); asserts
+  link==1 and their SOURCE_GATE hashes disjoint from final work. No later linked non-EV batch is reachable through
+  the registered fixture without a new publication path (noted, not decided).
+- Unlinked EV acceptance: helper `unpublished_ev_upload` re-seals one late EV envelope (new sequence/message_id and
+  event_id or value) as an unpublished upload via `BatchIngestionService` + the same ledger; runs last (after
+  backfill) because it makes the Site source MIXED; asserts ACCEPTED_EV only, no SOURCE_GATE, no link.
+- Non-vacuity: removing the R7 `IF EXISTS ... SOURCE_GATE` block fails the test (missing gate rows); reverted.
+- Resume: spec commit 2 from the "Commit 2 anchors" above plus q1 R2/R5/R6 and the reconciliation's
+  "Commits 2-3" (exact-bounds selection). Commit 3 after. Private DB `w207c_test` dropped at end of run.
+- Evidence (`69ea6aee`): `test_w207_ev_money_postgres.py` 5 passed; adjacent `test_w206_ev_store_postgres.py` +
+  `test_w205b_ev_replay_postgres.py` + `test_w204_cold_migration.py` 37 passed (12m13s); `tools/check-all.ps1`
+  all 10 guards passed. Full backend/host suites not run (by brief).
