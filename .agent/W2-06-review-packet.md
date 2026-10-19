@@ -88,3 +88,4 @@ UI slice: build and review now, hold the merge for the owner walkthrough (W1/W2 
 - L3 (r7 P7): `NextStep` shows `Open Finding · Not available yet` on a pending row only when it has a Finding; a pending row without one renders as the non-pending no-Finding row (asserted in `pending_and_historical_currentness`).
 - Scope: additive EV read and UI only; full backend and host suites NOT rerun. W2-05b manifests and R12 vectors untouched (see check below).
 - N1/N3 need no further code (N3 deferred to W2-07).
+- Verification at final revision: `test_w206_ev_*` 132 passed + 6 six-replay failures from the envelope key-set assertion (fixed, 6 passed rerun); frontend 90 files / 2323 passed; build ok; check-all 10/10; no `test_s4_05*` files exist; vectors/manifests untouched.
