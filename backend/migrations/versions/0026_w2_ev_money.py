@@ -206,6 +206,13 @@ BEGIN
     AND a.window_start<=NEW.source_time AND NEW.source_time<a.window_end LOOP
     PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'ACCEPTED_EV',NEW.id);
   END LOOP;
+  IF EXISTS (SELECT 1 FROM batch_publication_link l
+             WHERE l.tenant_id=NEW.tenant_id AND l.site_id=NEW.site_id AND l.batch_id=NEW.batch_id) THEN
+   FOR w IN SELECT DISTINCT a.window_start,a.window_end FROM assessment_revision a
+    WHERE a.tenant_id=NEW.tenant_id AND a.site_id=NEW.site_id AND a.analytic_id='ev-session/1' LOOP
+    PERFORM ev_consequence_enqueue(NEW.tenant_id,NEW.site_id,w.window_start,w.window_end,'SOURCE_GATE',NEW.batch_id);
+   END LOOP;
+  END IF;
  END IF;
  RETURN NEW;
 END $$;

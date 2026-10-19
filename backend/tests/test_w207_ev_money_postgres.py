@@ -430,7 +430,47 @@ def ev_accepted(built) -> list:
             "IS NOT NULL)) ORDER BY id"), {"s": built.site_id}).all()
 
 
-def test_0026_trigger_only_work_and_exact_conflict_constraint(chain) -> None:  # noqa: F811
+def unpublished_ev_upload(built, linked_batch_id) -> tuple[UUID, UUID]:
+    """Re-seal one qualifying EV envelope of a linked batch under a new sequence and event identity, as an upload with
+    no publication, through `BatchIngestionService` and the same `PostgresEvidenceLedger`; return (accepted, batch)."""
+    import dataclasses
+
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+    from assetops_backend.evidence.ledger_service import BatchIngestionService
+    from assetops_backend.evidence.ledger import GatewayPrincipal
+    from assetops_contracts.ingestion_batch_v2 import parse_canonical_batch_v2_text, seal_batch_v2
+    from assetops_contracts.source_envelope_v3 import v3_message_id
+    from assetops_contracts.source_envelope_v4 import canonical_envelope_v4_text, parse_canonical_envelope_v4_text
+
+    with built.engine.connect() as c:
+        body = c.execute(text("SELECT batch_text FROM ingestion_batch WHERE id = :b"), {"b": linked_batch_id}).scalar_one()
+    batch = parse_canonical_batch_v2_text(body)
+    envelope = next(e for e in map(parse_canonical_envelope_v4_text, batch.envelopes)
+                    if (e.family == "EVENT" and e.record_kind.startswith("EV_"))
+                    or (e.family == "MEASUREMENT" and e.measurement == "INTERVAL_DELTA" and e.connector_id))
+    sequence = envelope.sequence + 100000
+    changed = dataclasses.replace(
+        envelope, sequence=sequence, message_id=v3_message_id(
+            site_id=envelope.site_id, gateway_id=envelope.gateway_id, source_id=envelope.source_id,
+            sequence_epoch=envelope.sequence_epoch, sequence=sequence),
+        **({"event_id": f"{envelope.event_id}-unlinked"} if envelope.family == "EVENT" else
+           {"value": str(Decimal(envelope.value) + Decimal("0.001"))}))
+    _, sealed = seal_batch_v2(
+        site_id=batch.site_id, gateway_id=batch.gateway_id, source_id=batch.source_id, source_mode=batch.source_mode,
+        foundation_version=batch.foundation_version, foundation_valid_from=batch.foundation_valid_from,
+        binding_set_id=batch.binding_set_id, binding_version=batch.binding_version,
+        snapshot_sha256=batch.snapshot_sha256, envelope_texts=[canonical_envelope_v4_text(changed)])
+    principal = GatewayPrincipal(tenant_id=built.tenant_id, site_id=built.site_id, gateway_id=UUID(batch.gateway_id),
+                                 mode=batch.source_mode)
+    receipt = BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=built.decision_clock),
+                                    built.decision_clock).submit(principal, sealed.encode("utf-8")).receipt
+    [accepted] = [d.evidence_id for d in receipt.dispositions if d.decision == "ACCEPTED"]
+    with built.engine.connect() as c:
+        return UUID(str(accepted)), c.execute(text("SELECT batch_id FROM accepted_evidence WHERE id = :i"),
+                                              {"i": UUID(str(accepted))}).scalar_one()
+
+
+def test_0026_trigger_only_work_and_exact_conflict_constraint(chain, monkeypatch) -> None:  # noqa: F811
     from alembic import command
 
     from test_w206_ev_store_postgres import run_worker
@@ -463,23 +503,61 @@ def test_0026_trigger_only_work_and_exact_conflict_constraint(chain) -> None:  #
                          + [(s.window_start, s.window_end, "SESSION_REVISION", s.id) for s in sessions])
     assert work_rows(built) == after_run
 
-    # The late END: one real accepted EV INSERT and one real source-gate (batch link) INSERT per existing window.
+    # The late END, split at the ledger's open_batch/decide_chunk seam (q2 R7): the committed link precedes the first
+    # accepted row of its batch, so the link trigger finds no EV row; the accepted-row trigger enqueues SOURCE_GATE.
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+
+    before_decide: dict = {}
+    original = PostgresEvidenceLedger.decide_chunk
+
+    def inspected(self, batch, *args, **kwargs):
+        if batch.id not in before_decide:
+            before_decide[batch.id] = (work_rows(built), counted(
+                engine, "SELECT count(*) FROM batch_publication_link WHERE batch_id = :b", b=batch.id))
+        return original(self, batch, *args, **kwargs)
+
+    monkeypatch.setattr(PostgresEvidenceLedger, "decide_chunk", inspected)
     built.advance_late()
+    monkeypatch.setattr(PostgresEvidenceLedger, "decide_chunk", original)
     late = [r for r in ev_accepted(built) if r.id not in first_accepted]
-    assert late
     late_rows = [(a.window_start, a.window_end, "ACCEPTED_EV", e.id) for e in late for a in heads
                  if a.window_start <= e.source_time < a.window_end]
-    assert late_rows
-    # The ledger inserts a batch's `batch_publication_link` before that batch's accepted rows, so the literal 0026
-    # source-gate trigger finds no accepted EV row yet and enqueues nothing for an ordinary new batch; the accepted
-    # trigger carries it (W2-07 pending ruling R1). The real link INSERT still ran through the trigger:
-    gate = expected(built, [(a.window_start, a.window_end, "SOURCE_GATE", b) for b in {e.batch_id for e in late}
-                            for a in heads])
-    assert work_rows(built) == after_run | expected(built, late_rows) and not gate & work_rows(built)
-    with engine.connect() as c:
-        assert c.execute(text("SELECT count(*) FROM batch_publication_link WHERE batch_id = ANY(:b)"),
-                         {"b": list({e.batch_id for e in late})}).scalar_one() == len({e.batch_id for e in late})
+    late_batches = sorted({e.batch_id for e in late})
+    assert len(late_batches) == 1, late_batches
+    [late_batch_id] = late_batches
+    gate = expected(built, [(a.window_start, a.window_end, "SOURCE_GATE", late_batch_id) for a in heads])
+    # After the late link's open_batch transaction commits, before decide_chunk:
+    pre_work, pre_links = before_decide[late_batch_id]
+    assert pre_work == after_run
+    assert pre_links == 1
+    assert gate.isdisjoint(pre_work)
+    # After all late accepted chunks commit:
+    assert late and late_rows and gate
+    assert work_rows(built) == after_run | expected(built, late_rows) | gate
+    assert all(counted(engine, "SELECT count(*) FROM ev_consequence_work WHERE tenant_id=:t AND site_id=:s "
+                       "AND window_start=:a AND window_end=:b AND dirty_basis_sha256=:d",
+                       t=built.tenant_id, s=built.site_id, a=a, b=b, d=d) == 1 for a, b, d in gate)
+    with engine.begin() as c:
+        for a in heads:
+            for _ in range(2):
+                c.execute(text("SELECT ev_consequence_enqueue(:t,:s,:a,:b,'SOURCE_GATE',:i)"),
+                          {"t": built.tenant_id, "s": built.site_id, "a": a.window_start,
+                           "b": a.window_end, "i": late_batch_id})
+    assert work_rows(built) == after_run | expected(built, late_rows) | gate
 
+    # Committed linked batches with no qualifying accepted EV row (non-EV records through the ledger): the registered
+    # late phase delivers one EV batch only, so these are the first upload's non-EV batches (work stayed empty then).
+    with engine.connect() as c:
+        quiet = list(c.execute(text(
+            "SELECT b.id FROM ingestion_batch b WHERE b.site_id = :s AND b.id <> :late AND NOT EXISTS (SELECT 1 FROM "
+            "accepted_evidence e WHERE e.batch_id = b.id AND ((e.family = 'EVENT' AND e.record_kind LIKE 'EV_%') OR "
+            "(e.family = 'MEASUREMENT' AND e.measurement = 'INTERVAL_DELTA' AND e.connector_id IS NOT NULL)))"),
+            {"s": built.site_id, "late": late_batch_id}).scalars())
+    assert quiet and late_batch_id not in quiet
+    for b in quiet:
+        assert counted(engine, "SELECT count(*) FROM batch_publication_link WHERE batch_id = :b", b=b) == 1
+        assert expected(built, [(a.window_start, a.window_end, "SOURCE_GATE", b) for a in heads]).isdisjoint(
+            work_rows(built))
     # One real tariff INSERT enqueues every overlapping EV window; a diesel price would not.
     before_tariff = work_rows(built)
     tariff = publish(built.tenant_id, built.site_id, valid_from=datetime(2026, 10, 6, 8, tzinfo=timezone.utc),
@@ -508,7 +586,20 @@ def test_0026_trigger_only_work_and_exact_conflict_constraint(chain) -> None:  #
     finally:
         if head(engine) != HEAD:
             command.upgrade(config, "head")
-    assert work_rows(built) == expected(built, [(a.window_start, a.window_end, "BACKFILL", a.id) for a in heads])
+    backfilled = expected(built, [(a.window_start, a.window_end, "BACKFILL", a.id) for a in heads])
+    assert work_rows(built) == backfilled
+
+    # An unlinked qualifying EV acceptance (an unpublished upload through the same ledger) enqueues only ACCEPTED_EV.
+    # Last: it makes the Site's EV source MIXED, so no worker runs after it.
+    unlinked_id, unlinked_batch = unpublished_ev_upload(built, late_batch_id)
+    assert counted(engine, "SELECT count(*) FROM batch_publication_link WHERE batch_id = :b", b=unlinked_batch) == 0
+    unlinked_rows = expected(built, [(a.window_start, a.window_end, "ACCEPTED_EV", unlinked_id) for a in heads
+                                     if a.window_start <= scalar(engine, "SELECT source_time FROM accepted_evidence "
+                                                                 "WHERE id = :i", i=unlinked_id) < a.window_end])
+    assert unlinked_rows
+    assert work_rows(built) == backfilled | unlinked_rows
+    assert expected(built, [(a.window_start, a.window_end, "SOURCE_GATE", unlinked_batch) for a in heads]).isdisjoint(
+        work_rows(built))
 
 
 def pg_harness_dispose(built) -> None:
