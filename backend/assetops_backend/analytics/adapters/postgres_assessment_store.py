@@ -1125,24 +1125,51 @@ class PostgresAssessmentStore:
 
     @staticmethod
     def ev_windows(c: Connection, lease: JobLease) -> list[Window]:
-        """The assessment windows of an EV job (Q11): its window aligned outward to five-minute UTC brackets; with
-        one intersecting selected `ev-session/1` window, that window expanded by the job's brackets (so a late
-        record re-assesses the selected window that contains its START); several intersecting selections are each
-        assessed separately, never merged."""
+        """The assessment windows of an EV job (r8 H1): every exact selected `ev-session/1` window intersecting the
+        full leased job bounds is re-assessed at its exact bounds (never widened, merged or replaced by a covering
+        window); the job interval minus those selections is aligned outward to five-minute UTC brackets, the
+        selected intervals are subtracted again, and each nonempty remainder piece is its own window. Output is
+        deduplicated by exact bounds; the worker assesses and selects all of them before completing the job."""
         lo, hi = lease.window.start, lease.window.end
-        start = lo - ((lo - _COLD_EPOCH) % _EV_BRACKET)
-        rest = (hi - _COLD_EPOCH) % _EV_BRACKET
-        end = hi if rest == timedelta(0) else hi + (_EV_BRACKET - rest)
-        selected = c.execute(text(
+
+        def align(a: datetime, b: datetime) -> tuple[datetime, datetime]:
+            start = a - ((a - _COLD_EPOCH) % _EV_BRACKET)
+            rest = (b - _COLD_EPOCH) % _EV_BRACKET
+            return start, (b if rest == timedelta(0) else b + (_EV_BRACKET - rest))
+
+        def subtract(pieces: list[tuple[datetime, datetime]],
+                     cuts: list[tuple[datetime, datetime]]) -> list[tuple[datetime, datetime]]:
+            for a, b in cuts:
+                out: list[tuple[datetime, datetime]] = []
+                for x, y in pieces:
+                    if b <= x or a >= y:
+                        out.append((x, y))
+                        continue
+                    if x < a:
+                        out.append((x, a))
+                    if b < y:
+                        out.append((b, y))
+                pieces = out
+            return pieces
+
+        hull_lo, hull_hi = align(lo, hi)
+        # Selected windows near the job: those intersecting the job are re-headed; those intersecting only the
+        # aligned brackets are subtracted from the remainder so no new window overlaps an existing selection.
+        near = [(a, b) for a, b in c.execute(text(
             "SELECT DISTINCT window_start, window_end FROM analytic_run_selection WHERE tenant_id = :t "
             "AND site_id = :s AND analytic_id = :a AND window_start < :hi AND window_end > :lo ORDER BY 1, 2"),
-            {"t": lease.tenant_id, "s": lease.site_id, "a": ev.SESSION_ANALYTIC, "lo": start, "hi": end}).all()
-        if not selected:
-            return [Window(start, end)]
-        if len(selected) == 1:
-            a, b = selected[0]
-            return [Window(min(start, a), max(end, b))]
-        return [Window(a, b) for a, b in selected]
+            {"t": lease.tenant_id, "s": lease.site_id, "a": ev.SESSION_ANALYTIC, "lo": hull_lo, "hi": hull_hi}).all()]
+        selected = [(a, b) for a, b in near if a < hi and b > lo]
+        remainder: list[tuple[datetime, datetime]] = []
+        for x, y in subtract([(lo, hi)], selected):
+            remainder.extend(subtract([align(x, y)], near))
+        out: list[Window] = []
+        seen: set[tuple[datetime, datetime]] = set()
+        for a, b in sorted(selected + remainder):
+            if a < b and (a, b) not in seen:
+                seen.add((a, b))
+                out.append(Window(a, b))
+        return out
 
     def ev_inputs(self, c: Connection, tenant_id: UUID, site_id: UUID, window: Window,
                   known_at: datetime) -> ev.EvInputs:
@@ -1244,6 +1271,27 @@ class PostgresAssessmentStore:
             "WHERE e.tenant_id = :t AND e.site_id = :s AND COALESCE(e.interval_start, e.source_time) < :hi "
             "AND (CASE WHEN e.interval_end IS NULL THEN e.source_time >= :lo ELSE e.interval_end > :lo END) "
             "AND e.received_at <= :k AND d.decided_at <= :k ORDER BY e.source_time, e.id"), p).all()
+        # r8 H1: the full scoped session extent anchored by a START inside the window. A same-session terminal
+        # (or fault) outside the window is correlation input for that START; sessions STARTing outside the window
+        # stay context and never enter its denominator (ev.assess counts only STARTs and orphans inside it).
+        anchored = sorted({(r[15], r[6]) for r in rows if r[7] == "EVENT" and r[8] == ev.START
+                           and r[6] is not None and lo <= r[2] < hi and r[15] is not None})
+        if anchored:
+            held = {r[0] for r in rows}
+            late = c.execute(text(
+                "SELECT e.id, e.envelope_sha256, e.source_time, e.interval_start, e.interval_end, e.connector_id, "
+                "e.session_id, e.family, e.record_kind, e.measurement, e.quality, e.normalized_value_text, "
+                "e.normalized_unit, e.event_id, e.outcome, e.asset_id, e.binding_revision_id, e.source_id, "
+                "e.sequence_epoch, e.binding_set_revision_id, e.role, e.device_id, e.signal_id "
+                "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+                "AND d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' "
+                "WHERE e.tenant_id = :t AND e.site_id = :s AND e.family = 'EVENT' "
+                "AND e.record_kind IN ('EV_SESSION_END', 'EV_SESSION_ABORT', 'EV_CONNECTOR_FAULT') "
+                "AND e.source_time >= :hi AND e.received_at <= :k AND d.decided_at <= :k "
+                "AND (e.asset_id, e.session_id) IN (SELECT * FROM unnest(CAST(:assets AS uuid[]), "
+                "CAST(:sessions AS text[]))) ORDER BY e.source_time, e.id"),
+                {**p, "assets": [str(x[0]) for x in anchored], "sessions": [x[1] for x in anchored]}).all()
+            rows = list(rows) + [r for r in late if r[0] not in held]
         ids = [str(r[0]) for r in rows]
         if self._link_rows is None:
             raise ev.EvConfigurationRefused("no S4-05 link reader is configured for the EV source gate")

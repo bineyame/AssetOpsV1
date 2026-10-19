@@ -35,7 +35,7 @@ if URL:
 
     from assetops_backend.analytics import ev
     from assetops_backend.analytics.adapters import postgres_assessment_store
-    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService, PostgresAssessmentStore
     from assetops_backend.analytics.adapters.postgres_finding_store import (
         EV_LIMITATIONS,
         EV_WITHDRAWN,
@@ -354,6 +354,116 @@ def _failed_job_rolls_back(built: Chain) -> None:
                       datetime(2026, 10, 6, 9, 30, tzinfo=timezone.utc))
     finally:
         retry._engine.dispose()
+
+
+# --- r8 H1: exact selected windows re-head at their exact bounds ------------------------------------------
+
+LATE_LO = datetime(2026, 10, 6, 8, 0, tzinfo=timezone.utc)
+#: The late-record START is 08:01 and its late END 08:31 (accepted at 09:05): an exact selected window ending at
+#: 08:30 puts that terminal past the selected end, through the ordinary registered replay (no manifest change).
+LATE_HI = datetime(2026, 10, 6, 8, 30, tzinfo=timezone.utc)
+
+
+def select_exact(built: Chain, lo: datetime, hi: datetime) -> None:
+    """A DEFAULT selection of exactly `[lo,hi)` at the committed cutoff, written by the production EV writer over
+    the accepted replay (the shape any earlier job's window would have left)."""
+    worker = build_ev_assessment_worker(URL)
+    try:
+        with worker.store.transaction() as c:
+            cutoff = worker.store.ev_watermark(c, built.tenant_id, built.site_id)
+            worker._project(c, built.tenant_id, built.site_id, Window(lo, hi), cutoff, job_id=None,
+                            selection="DEFAULT")
+    finally:
+        _dispose(worker)
+
+
+def exact_heads(built: Chain, lo: datetime, hi: datetime) -> list:
+    with built.engine.connect() as c:
+        return c.execute(text(
+            "SELECT s.run_id, s.job_id, v.id AS revision_id, v.revision_no, v.basis_sha256 "
+            "FROM analytic_run_selection s JOIN analytic_run_assessment x ON x.run_id = s.run_id "
+            "JOIN assessment_revision v ON v.id = x.assessment_revision_id WHERE s.site_id = :s "
+            "AND s.analytic_id = 'ev-session/1' AND s.window_start = :lo AND s.window_end = :hi ORDER BY s.seq"),
+            {"s": built.site_id, "lo": lo, "hi": hi}).all()
+
+
+def selected_windows(built: Chain) -> set:
+    with built.engine.connect() as c:
+        return {(r[0], r[1]) for r in c.execute(text(
+            "SELECT DISTINCT window_start, window_end FROM analytic_run_selection WHERE site_id = :s "
+            "AND analytic_id = 'ev-session/1'"), {"s": built.site_id}).all()}
+
+
+def exact_read(built: Chain, lo: datetime, hi: datetime) -> dict:
+    reads = EvReadService(URL)
+    try:
+        return reads.sessions(built.tenant_id, built.site_id, "EV-LAB-001", lo, hi, None, None, 50)
+    finally:
+        reads.dispose()
+
+
+def run_spying(built: Chain, lo: datetime, hi: datetime) -> tuple[list, dict]:
+    """Run every pending EV job; while each is LEASED (inside `ev_windows`), read the exact window's state."""
+    worker = build_ev_assessment_worker(URL)
+    seen: dict = {"windows": [], "status": [], "state": []}
+    original = worker.store.ev_windows
+
+    def spy(c, lease):
+        windows = original(c, lease)
+        seen["windows"].append([(w.start, w.end) for w in windows])
+        with built.engine.connect() as r:
+            seen["status"].append(r.execute(text("SELECT status FROM recompute_job WHERE id = :j"),
+                                            {"j": lease.job_id}).scalar_one())
+        seen["state"].append(exact_read(built, lo, hi)["currentness"]["state"])
+        return windows
+
+    worker.store.ev_windows = spy
+    try:
+        return run_worker(built, worker), seen
+    finally:
+        _dispose(worker)
+
+
+def test_late_terminal_past_selected_end_reheads_exact_window(chain) -> None:  # noqa: F811
+    built = chain("late-record")
+    built.start_release_upload()
+    run_worker(built)
+    select_exact(built, LATE_LO, LATE_HI)
+    [before] = exact_heads(built, LATE_LO, LATE_HI)
+    first = exact_read(built, LATE_LO, LATE_HI)
+    assert first["currentness"]["state"] == "CURRENT"
+    assert [i["state"] for i in first["items"]] == ["INCOMPLETE"] and first["items"][0]["end_at"] is None
+    preexisting = selected_windows(built)
+    built.advance_late()
+    _outcomes, seen = run_spying(built, LATE_LO, LATE_HI)
+    # The old head is pending while the job is leased; the exact window is re-assessed at its exact bounds.
+    assert seen["status"] and set(seen["status"]) == {"LEASED"}
+    assert set(seen["state"]) == {"PENDING_RECOMPUTE"}
+    assert any((LATE_LO, LATE_HI) in windows for windows in seen["windows"])
+    # Nothing new stands in for the exact key: every covering window the job assessed was already selected.
+    for windows in seen["windows"]:
+        assert all((a, b) in preexisting for a, b in windows if a <= LATE_LO and LATE_HI <= b
+                   and (a, b) != (LATE_LO, LATE_HI))
+    heads = exact_heads(built, LATE_LO, LATE_HI)
+    assert heads[0].run_id == before.run_id and len(heads) == 2
+    after = heads[-1]
+    assert after.job_id is not None and after.revision_no == before.revision_no + 1
+    assert after.basis_sha256 != before.basis_sha256
+    # No covering-only selection was written by the job in place of the exact key.
+    with built.engine.connect() as c:
+        written = c.execute(text(
+            "SELECT window_start, window_end FROM analytic_run_selection WHERE site_id = :s AND job_id = :j"),
+            {"s": built.site_id, "j": after.job_id}).all()
+    assert (LATE_LO, LATE_HI) in [(w[0], w[1]) for w in written]
+    assert all((w[0], w[1]) in preexisting for w in written
+               if w[0] <= LATE_LO and LATE_HI <= w[1] and (w[0], w[1]) != (LATE_LO, LATE_HI))
+    read = exact_read(built, LATE_LO, LATE_HI)
+    assert read["currentness"]["state"] == "CURRENT"
+    assert read["source_provenance"]["basis_sha256"] == after.basis_sha256
+    [item] = read["items"]
+    # The late same-session terminal outside the selected end is correlation input for the START inside it.
+    assert item["state"] == "COMPLETED" and ev.plain(_instant(item["end_at"])) == "2026-10-06T08:31:00.000000Z"
+    assert read["denominator"]["started"] == 1 and read["denominator"]["orphan"] == 0
 
 
 # --- clock proof ------------------------------------------------------------------------------------------

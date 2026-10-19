@@ -22,7 +22,15 @@ if URL:
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
     from sqlalchemy import text
-    from test_w206_ev_store_postgres import _withdrawal, run_worker
+    from test_w206_ev_store_postgres import (
+        LATE_HI,
+        LATE_LO,
+        _withdrawal,
+        exact_heads,
+        run_spying,
+        run_worker,
+        select_exact,
+    )
     from test_w206_ev_store_postgres import findings as stored_findings
 
     from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService
@@ -369,3 +377,36 @@ def test_only_cursor_basis_change_is_ev_read_409(chain) -> None:  # noqa: F811
     import assetops_backend.ev_assessment_api as api
     for module in (api, rules, store):
         assert "SELECTION_UNSETTLED" not in open(module.__file__, encoding="utf-8").read(), module.__name__
+
+
+def test_wider_replacement_never_leaves_exact_window_current_on_stale_head(chain) -> None:  # noqa: F811
+    """r8 H1: a later wider DEFAULT selection over the exact key never supersedes the exact head by itself; the job
+    that brings the late terminal re-heads every intersecting exact selection before any reads CURRENT."""
+    built, c = _settled(chain, "late-record")
+    lo, hi, wide = LATE_LO, LATE_HI, LATE_HI + timedelta(minutes=5)
+    select_exact(built, lo, hi)
+    select_exact(built, lo, wide)  # the wider/replacing selection, written after the exact one
+    q = f"from={_iso(lo)}&to={_iso(hi)}"
+    stale = get(c, f"sessions?{q}")
+    [old_head] = exact_heads(built, lo, hi)
+    assert stale["currentness"]["state"] == "CURRENT"
+    assert stale["source_provenance"]["basis_sha256"] == old_head.basis_sha256
+    assert [i["state"] for i in stale["items"]] == ["INCOMPLETE"]
+    built.advance_late()
+    pending = get(c, f"sessions?{q}")
+    assert pending["currentness"]["state"] == "PENDING_RECOMPUTE"
+    assert pending["source_provenance"]["basis_sha256"] == old_head.basis_sha256
+    _outcomes, seen = run_spying(built, lo, hi)
+    assert set(seen["status"]) == {"LEASED"} and set(seen["state"]) == {"PENDING_RECOMPUTE"}
+    # One job transaction re-heads both exact keys; neither stands in for the other.
+    assert any({(lo, hi), (lo, wide)} <= set(windows) for windows in seen["windows"])
+    heads = exact_heads(built, lo, hi)
+    assert heads[0].run_id == old_head.run_id and heads[-1].revision_no == old_head.revision_no + 1
+    assert heads[-1].basis_sha256 != old_head.basis_sha256 and heads[-1].job_id is not None
+    assert exact_heads(built, lo, wide)[-1].job_id == heads[-1].job_id
+    current = get(c, f"sessions?{q}")
+    assert current["currentness"]["state"] == "CURRENT"
+    assert current["window"]["from"] == _iso(lo) and current["window"]["to"] == _iso(hi)
+    assert current["source_provenance"]["basis_sha256"] == heads[-1].basis_sha256
+    [item] = current["items"]
+    assert item["state"] == "COMPLETED" and _at(item["end_at"]) == datetime(2026, 10, 6, 8, 31, tzinfo=lo.tzinfo)
