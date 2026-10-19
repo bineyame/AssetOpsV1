@@ -373,6 +373,19 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(cardValues()).toEqual(["Pending recompute", "Pending recompute", "Pending recompute", "Pending recompute"]);
     cleanup();
 
+    // r7 P7 / L3: a pending row with no Finding renders exactly what the same non-pending row renders.
+    const noFinding = { ...INTERRUPTED_ROW, finding_id: null, links: { ...INTERRUPTED_ROW.links, finding: null } };
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok({ ...pendingLinked, items: [noFinding] }));
+    await settledScreen();
+    const pendingNoFinding = rowCells()[5];
+    expect(pendingNoFinding).toBe("Not available yet");
+    expect(document.querySelector("tbody a")).toBeNull();
+    cleanup();
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok({ ...pendingLinked, ...envelope("CURRENT"), items: [noFinding] }));
+    await settledScreen();
+    expect(rowCells()[5]).toBe(pendingNoFinding);
+    cleanup();
+
     // A settled current response with the proved link renders it.
     renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok({ ...pendingLinked, ...envelope("CURRENT") }));
     await settledScreen();

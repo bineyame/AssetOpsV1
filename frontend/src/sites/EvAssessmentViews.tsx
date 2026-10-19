@@ -240,7 +240,8 @@ export function completenessChips(s: EvSessionItem): string[] {
 
 function NextStep({ s, pending, findingHref }: { s: EvSessionItem; pending: boolean; findingHref: (findingId: string) => string }) {
   // r7 P7: a pending recompute never offers the prior Finding as a current destination.
-  if (pending) return <UnavailableInline label="Open Finding" />;
+  const hasFinding = s.links.finding !== null || s.finding_id !== null;
+  if (pending) return hasFinding ? <UnavailableInline label="Open Finding" /> : <UnavailableInline />;
   if (s.links.finding !== null && s.finding_id !== null) {
     return <Link to={findingHref(s.finding_id)}>Open Finding →</Link>;
   }
