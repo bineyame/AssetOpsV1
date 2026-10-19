@@ -35,7 +35,7 @@ coldbackup "Evidence by causal step" 554/332 unchanged (out of scope).
 
 ## Captures
 `.agent/W2-03-followup-evidence/` (`index.html`, `evidence.json`), `W1_REVISION` = capture-time head, 108/108 claims.
-Q2 recapture (temperature only): throwaway DB `w203fu2_test` seeded by backup-failed replay, API 9744, vite 6144, CDP 9754; DB dropped, servers stopped; captures in temp, not committed. Earlier captures: throwaway DB `w203fu_test` seeded excursion chain then W2-03 run (seed test deleted); API 9724, vite 6124, CDP 9734; DB dropped, servers stopped.
+Q2 recapture (temperature only): throwaway DB `w203fu2_test` seeded by backup-failed replay, API 9744, vite 6144, CDP 9754; DB dropped, servers stopped; images overwrite temperature-stocked-{1440,390}-{app,mock}.png in the evidence folder (evidence.json measurements for those pairs are from the earlier capture). Earlier captures: throwaway DB `w203fu_test` seeded excursion chain then W2-03 run (seed test deleted); API 9724, vite 6124, CDP 9734; DB dropped, servers stopped.
 Site COLD-LAB-001, window [2026-10-06T19:00Z, 20:05Z), start Finding ...000176, excursion Finding ...000170 (prefix 00000002-0000-4000-8000-).
 Cases: temperature and coldbackup stocked/empty (2026-10-05)/refused (from>to); cold-finding stocked/refused (unknown ID); cold-finding-excursion stocked. Each at 1440 and 390, app + mock. Stocked 1440 temperature, excursion and coldbackup viewed. Green chip not visible in this seed (start failed, excursion); green proven in tests only.
 
