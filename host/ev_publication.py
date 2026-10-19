@@ -369,6 +369,7 @@ def _snapshot_rows(run: SimulationRun, binding_revision: Any, revision: Any) -> 
         raise _refuse("the re-read binding revision rows differ from the frozen snapshot rows")
     codes = {m.mapping_id: m.component_id for m in run.deterministic_identity.signal_mappings}
     types = {c.get("component_id"): c.get("component_type") for c in revision.content.get("components") or ()}
+    devices = list(revision.content.get("devices") or ())
     code_of_asset: dict[Any, str] = {}
     asset_of_code: dict[str, Any] = {}
     rows = []
@@ -376,6 +377,17 @@ def _snapshot_rows(run: SimulationRun, binding_revision: Any, revision: Any) -> 
         code = codes.get(row["binding_revision_id"])
         if code is None or code not in types:
             raise _refuse(f"binding {row['binding_revision_id']} has no frozen Foundation component")
+        # q5 N13: the frozen Foundation's own device declaration owns the component, so a consistent c1/c2
+        # swap in the run mappings disagrees with it and refuses before Stage.
+        declared = [d for d in devices if isinstance(d, dict) and d.get("device_id") == row["device_id"]]
+        signals = [] if len(declared) != 1 else [
+            s for s in declared[0].get("signals") or () if isinstance(s, dict) and s.get("signal_id") == row["signal_id"]]
+        if len(declared) != 1 or len(signals) != 1:
+            raise _refuse(f"device {row['device_id']} signal {row['signal_id']} is not declared exactly once "
+                          "in the frozen Foundation")
+        if declared[0].get("component_id") != code:
+            raise _refuse(f"binding {row['binding_revision_id']} maps {row['device_id']} to {code}, but the frozen "
+                          f"Foundation declares it on {declared[0].get('component_id')}")
         connector_role = row["role"] != "ev_site_import"
         if connector_role != (types[code] == "EV_CONNECTOR"):
             raise _refuse(f"binding {row['binding_revision_id']} ({row['role']}) is bound to {code}, a {types[code]}")

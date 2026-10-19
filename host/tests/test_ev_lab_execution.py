@@ -268,7 +268,7 @@ def test_the_late_end_is_pending_at_nine_and_released_once_at_nine_oh_five(tmp_p
 @pytest.mark.parametrize("damage", ["no_port", "revision_missing", "revision_changed", "binding_missing",
                                     "binding_bytes_changed", "binding_row_changed", "scenario_missing",
                                     "scenario_changed", "mapping_missing", "mapping_wrong_type",
-                                    "store_unreadable"])
+                                    "mapping_swapped", "store_unreadable"])
 def test_unreconstructible_inputs_refuse_before_any_stage(tmp_path, world, damage) -> None:
     from assetops_backend.sites.foundation_content import content_digest
 
@@ -305,6 +305,15 @@ def test_unreconstructible_inputs_refuse_before_any_stage(tmp_path, world, damag
         moved = tuple(replace(m, component_id="c1") if m.component_id == "site-meter-1" else m
                       for m in identity.signal_mappings)
         run = replace(run, deterministic_identity=replace(identity, signal_mappings=moved))
+    elif damage == "mapping_swapped":
+        # q5 N13: every c1/c2 mapping component swapped consistently; only the frozen Foundation's device
+        # declarations disagree.
+        identity = run.deterministic_identity
+        other = {"c1": "c2", "c2": "c1"}
+        swapped = tuple(replace(m, component_id=other.get(m.component_id, m.component_id))
+                        for m in identity.signal_mappings)
+        assert swapped != identity.signal_mappings
+        run = replace(run, deterministic_identity=replace(identity, signal_mappings=swapped))
     else:
         class _Broken(_Inputs):
             def binding_revision(self, *args):
@@ -317,6 +326,15 @@ def test_unreconstructible_inputs_refuse_before_any_stage(tmp_path, world, damag
     assert refused.value.kind == "FROZEN_RUN_NOT_RECONSTRUCTIBLE"
     assert gateway.groups == [] and _no_schedule(tmp_path)
     assert host.projection(run).status == "NOT_STARTED"
+
+
+def test_the_unchanged_frozen_fixture_reaches_stage(tmp_path, world) -> None:
+    """q5 N13 positive: the frozen run, binding snapshot and Foundation device declarations agree."""
+    run = _draft(world, "complete")
+    gateway = _Gateway()
+    host = _host(tmp_path, _Inputs(world), gateway)
+    assert host.start(run).status == "COMPLETED"
+    assert gateway.groups and not _no_schedule(tmp_path)
 
 
 def _ids(store):
