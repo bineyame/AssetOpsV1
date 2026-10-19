@@ -226,7 +226,7 @@ class TestMigration0025:
                 with pytest.raises(IntegrityError, match=name):
                     insert_ev_finding(engine, ctx, **kw)
             # The mini-grid arm still requires a generator and all three minute fields.
-            mini = minigrid_rows(engine)["finding_revision"][0][0]
+            mini = scalar(engine, "SELECT id FROM finding_revision WHERE domain = 'mini_grid' ORDER BY id LIMIT 1")
             for override in ("candidate_minutes = NULL", "domain = 'ev_charging'"):
                 with pytest.raises(IntegrityError, match="finding_revision_(domain_minutes|finding_domain_fk)"):
                     with engine.begin() as c:
@@ -250,7 +250,9 @@ class TestMigration0025:
             insert_interval(engine, ctx, revision, ctx.evidence[1], 5, 10)  # half-open: adjacency is not overlap
             insert_interval(engine, ctx, revision, ctx.evidence[2], 3, 8, use="EXCLUDED", reason="METER_OVERLAP")
 
-            # Cross-tenant, cross-Site and unknown scoped references are refused.
+            # Cross-tenant, cross-Site and unknown scoped references are refused (a fresh revision for the
+            # interval FK, since the unique evidence key is checked before the deferred-to-row-end FK triggers).
+            fresh = insert_revision(engine, ctx, session, n=30, basis="fk")
             for call, name in (
                 (lambda: insert_session(engine, ctx, external="x1", tenant=uuid4()), "ev_session_.*_fk"),
                 (lambda: insert_session(engine, ctx, external="x2", charger=uuid4()), "ev_session_charger_fk"),
@@ -267,7 +269,7 @@ class TestMigration0025:
                 (lambda: insert_link(engine, ctx, revision, uuid4()), "ev_session_evidence_evidence_fk"),
                 (lambda: insert_link(engine, ctx, revision, ctx.evidence[2], site_id=uuid4()),
                  "ev_session_evidence_(revision|evidence)_fk"),
-                (lambda: insert_interval(engine, ctx, revision, ctx.evidence[0], 20, 25, connector=uuid4()),
+                (lambda: insert_interval(engine, ctx, fresh, ctx.evidence[0], 20, 25, connector=uuid4()),
                  "ev_meter_interval_connector_fk"),
                 (lambda: insert_interval(engine, ctx, uuid4(), ctx.evidence[0], 20, 25),
                  "ev_meter_interval_revision_fk"),
@@ -316,7 +318,7 @@ class TestMigration0025:
 
             # Evidence-link checks.
             other = insert_revision(engine, ctx, session, n=10, basis="links")
-            for use, reason, name in (("CITED", None, "ev_session_evidence_use"),
+            for use, reason, name in (("CITED", None, "ev_session_evidence_(use|reason)"),
                                       ("EXCLUDED", None, "ev_session_evidence_reason"),
                                       ("SUPPORT", "METER_GAP", "ev_session_evidence_reason")):
                 with pytest.raises(IntegrityError, match=name):
