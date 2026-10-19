@@ -1,7 +1,8 @@
 """W2-06 commit 2: pure `ev-session/1` correlation rules over hand-built accepted records.
 
 Authority: `.agent/W2-06-build-spec.md` "Total ordering and state table", "Coverage and JSON", Run 1 rulings
-R1-R9 and Run 2 rulings Q2-Q7, Q14, Q15. Every row of the state table is exercised here; the pinned public
+R1-R9, Run 2 rulings Q2-Q7, Q14, Q15 and Run 3 rulings P1-P5.
+Every row of the state table is exercised here; the pinned public
 vectors are checked separately once `ev-w206-vectors.json` lands.
 """
 
@@ -30,9 +31,11 @@ BINDING = UUID("00000000-0000-4000-8000-0000000000b0")
 OTHER_BINDING = UUID("00000000-0000-4000-8000-0000000000b9")
 PROFILE = "simulator-lab-gateway-ev/1"
 SOURCE_CLASS = "REGISTERED_SIMULATION"
+SOURCE = UUID("00000000-0000-4000-8000-0000000000a1")
 S = "S-1"
 
 _ids = count(1)
+_IDENTITY = ("binding_revision_id", "binding_set_revision_id", "role", "source_id", "device_id", "signal_id")
 
 
 def at(minute: int, second: int = 0, micro: int = 0) -> datetime:
@@ -46,9 +49,15 @@ def _record(**fields) -> ev.EvRecord:
                 accepted_evidence_id=UUID(int=0x1000 + n), envelope_sha256=f"{n:064x}", interval_start=None,
                 interval_end=None, connector_id=None, session_id=None, record_kind=None, measurement=None,
                 quality="GOOD", value=None, unit=None, event_id=None, outcome=None, asset_id=C1,
-                binding_revision_id=BINDING, source_id="gw", sequence_epoch=1, clock_attested=True,
-                source_class=SOURCE_CLASS)
+                sequence_epoch=1, clock_attested=True, source_class=SOURCE_CLASS)
     base.update(fields)
+    # q3 P2: by default the accepted row's identity is exactly its asset's member of the selected set.
+    found = MEMBERS.get(base["asset_id"])
+    identity = dict.fromkeys(_IDENTITY) if found is None else dict(
+        binding_revision_id=found.binding_revision_id, binding_set_revision_id=BINDING, role=found.role,
+        source_id=str(found.source_id), device_id=found.device_id, signal_id=found.signal_id)
+    for key, value in identity.items():
+        base.setdefault(key, value)
     return ev.EvRecord(**base)
 
 
@@ -75,14 +84,28 @@ def connector(asset: UUID) -> ev.EvConnector:
     return ev.EvConnector(asset_id=asset, charger_asset_id=CHARGER, connector_id=None,
                           max_power_kw=Decimal("60.0"), meter_resolution_kwh=Decimal("0.001"),
                           meter_error_bound_kwh=Decimal("0.001"), clock_error_bound_s=Decimal("30.0"),
-                          status_cadence_min=Decimal("1.0"), meter_cadence_min=Decimal("5.0"))
+                          status_cadence_min=Decimal("1.0"), meter_cadence_min=Decimal("5.0"),
+                          charger_max_power_kw=Decimal("120.0"))
 
 
-def inputs(*records: ev.EvRecord, known_at: datetime | None = None) -> ev.EvInputs:
+def member(asset: UUID, n: int, **kw) -> ev.EvBindingMember:
+    fields = dict(binding_revision_id=UUID(int=0xB100 + n), binding_set_revision_id=BINDING, role=f"role-{n}",
+                  asset_id=asset, source_id=SOURCE, device_id=f"dev-{n}", signal_id=f"sig-{n}",
+                  valid_from=at(-120), valid_to=None)
+    fields.update(kw)
+    return ev.EvBindingMember(**fields)
+
+
+MEMBERS = {C1: member(C1, 1), C2: member(C2, 2), METER: member(METER, 3)}
+
+
+def inputs(*records: ev.EvRecord, known_at: datetime | None = None,
+           members: tuple[ev.EvBindingMember, ...] | None = None) -> ev.EvInputs:
     return ev.EvInputs(tenant_id=TENANT, site_id=SITE,
                        window=ev.EvWindow(at(0), at(60), known_at or at(60)), records=tuple(records),
                        connectors=(connector(C1), connector(C2)), foundation_revision_id=FOUNDATION,
-                       binding_revision_id=BINDING, mapping_profile_id=PROFILE, source_class=SOURCE_CLASS)
+                       binding_revision_id=BINDING, mapping_profile_id=PROFILE, source_class=SOURCE_CLASS,
+                       binding_members=tuple(MEMBERS.values()) if members is None else members)
 
 
 def run(*records: ev.EvRecord) -> ev.EvAssessment:
@@ -359,11 +382,16 @@ def test_site_import_and_connector_means_are_context_when_intersecting() -> None
     assert not linked(s, power) and not linked(s, other)
 
 
-def test_start_before_window_creates_no_session_and_its_end_is_not_orphan() -> None:
+def test_start_before_window_is_context_and_its_in_window_end_is_an_orphan() -> None:
+    """q3 P5: an orphan is a terminal without a qualifying START in the selected window; a pre-window START is
+    context, not a new attempt."""
     early = event("EV_SESSION_START", at(-5))
     end = event("EV_SESSION_END", at(3))
     result = run(early, end)
-    assert result.sessions == () and result.orphan_terminal_ids == ()
+    assert result.sessions == () and result.orphan_terminal_ids == (end.accepted_evidence_id,)
+    assert result.denominator["started"] == 0 and result.denominator["orphan"] == 1
+    assert ev.run_input_rows(inputs(early, end), result) == sorted(
+        [r.id, r.envelope_sha256, "CONTEXT", None] for r in (early, end))
 
 
 def test_clear_idle_plugged_and_zero_power_never_synthesize_sessions() -> None:
@@ -410,8 +438,12 @@ def test_finding_key_configuration_and_cohort_digests() -> None:
                                          str(s.first_start_evidence_id)])
     assert ev.cohort_sha256() == ev.EMPTY_SUPPORT_SHA256 == _sha([])
     selection = inputs()
-    assert ev.configuration_sha256(selection, {"k": "v"}) == _sha(
-        [str(FOUNDATION), str(BINDING), PROFILE, SOURCE_CLASS, {"k": "v"}])
+    policy = {"ev-charger-max-power": "120.0", "ev-connector-max-power": "60.0", "ev-meter-resolution": "0.001",
+              "ev-meter-error-bound": "0.001", "ev-clock-error-bound": "30.0", "ev-status-cadence": "1.0",
+              "ev-meter-cadence": "5.0"}
+    document = {"connectors": {str(C1): policy, str(C2): policy}}
+    assert ev.policy_document(selection) == document
+    assert ev.configuration_sha256(selection) == _sha([str(FOUNDATION), str(BINDING), PROFILE, SOURCE_CLASS, document])
 
 
 def test_basis_rows_deduplicate_by_id_and_refuse_two_uses() -> None:
@@ -443,3 +475,165 @@ def test_module_is_pure() -> None:
     source = open(ev.__file__, encoding="utf-8").read()
     for forbidden in ("sqlalchemy", "psycopg", "assetops_simulator", "datetime.now", "utcnow"):
         assert forbidden not in source
+
+
+# --- q3 P2: binding membership ---------------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("change", [
+    {"binding_revision_id": UUID(int=0xB199)},              # missing member
+    {"binding_set_revision_id": OTHER_BINDING},             # row names another set revision
+    {"role": "other-role"}, {"device_id": "other-dev"}, {"signal_id": "other-sig"},
+    {"source_id": "00000000-0000-4000-8000-0000000000a9"},  # another source
+    {"binding_revision_id": UUID(int=0xB102)},              # the C2 member on a C1 row: asset mismatch
+])
+def test_meter_whose_binding_is_not_the_exact_member_is_source_unverified(change: dict) -> None:
+    start, end = event("EV_SESSION_START", at(1)), event("EV_SESSION_END", at(3))
+    bad = meter(at(1), at(2), "1", **change)
+    s = only(run(start, end, bad, meter(at(2), at(3), "1")))
+    assert use(s, bad) == ("EXCLUDED", "SOURCE_UNVERIFIED")
+    assert "SOURCE_UNVERIFIED" in s.reason_codes and s.supported_kwh == Decimal("1.000")
+
+
+def test_foreign_or_stale_member_never_verifies_and_start_fails_closed() -> None:
+    start, end = event("EV_SESSION_START", at(1)), event("EV_SESSION_END", at(3))
+    foreign = (member(C1, 1, binding_set_revision_id=OTHER_BINDING), MEMBERS[C2], MEMBERS[METER])
+    assert ev.assess(inputs(start, end, members=foreign)).sessions == ()
+    stale = (member(C1, 1, valid_to=at(2)), MEMBERS[C2], MEMBERS[METER])
+    s = only(ev.assess(inputs(start, end, members=stale)))   # START at 08:01 valid; END at 08:03 is not
+    assert use(s, end) == ("EXCLUDED", "SOURCE_UNVERIFIED") and s.state == "INCOMPLETE"
+    later = (member(C1, 1, valid_from=at(2)), MEMBERS[C2], MEMBERS[METER])
+    assert ev.assess(inputs(start, end, members=later)).sessions == ()
+    with pytest.raises(ev.EvConfigurationRefused):
+        ev.assess(inputs(start, end, members=(MEMBERS[C1], MEMBERS[C1])))
+
+
+def test_selected_set_revision_is_the_basis_binding_and_rows_carry_member_ids() -> None:
+    start, end = event("EV_SESSION_START", at(1)), event("EV_SESSION_END", at(2))
+    assert start.binding_revision_id == MEMBERS[C1].binding_revision_id != BINDING
+    selection = inputs(start, end)
+    assert selection.configuration_row()[1] == str(BINDING)
+    assert only(ev.assess(selection)).state == "COMPLETED"
+
+
+# --- q3 P3: whole-run input rows -------------------------------------------------------------------------------
+
+
+def test_run_input_rows_cover_every_selected_record_with_run_only_context() -> None:
+    start, end = event("EV_SESSION_START", at(1)), event("EV_SESSION_END", at(3))
+    m = meter(at(1), at(3), "2")
+    unlinked = event("EV_CONNECTOR_FAULT", at(40), session=None, asset_id=C2)
+    selection = inputs(start, end, m, unlinked)
+    result = ev.assess(selection)
+    rows = ev.run_input_rows(selection, result)
+    assert rows == sorted([[r.id, r.envelope_sha256, "SUPPORT", None] for r in (start, end, m)]
+                          + [[unlinked.id, unlinked.envelope_sha256, "CONTEXT", None]])
+    config = [str(FOUNDATION), str(BINDING), PROFILE, "ev-session/1", "1", "2026-10-06T08:00:00.000000Z",
+              "2026-10-06T09:00:00.000000Z", "2026-10-06T09:00:00.000000Z", SOURCE_CLASS]
+    assert ev.run_input_sha256(selection, result) == _sha([rows, config])
+    assert ev.run_input_sha256(selection, result) != only(result).basis_sha256
+
+
+def test_run_rows_doubly_linked_differently_are_context_and_identical_pairs_are_kept() -> None:
+    a_start, a_end = event("EV_SESSION_START", at(1), session="A"), event("EV_SESSION_END", at(10), session="A")
+    b_start, b_end = event("EV_SESSION_START", at(2), session="B"), event("EV_SESSION_END", at(10), session="B")
+    site = mean(at(3), at(4), "10", asset_id=METER)       # CONTEXT/null in both sessions: identical pair kept
+    own = meter(at(3), at(4), "1", session="A")           # SUPPORT in A, CONNECTOR_MISMATCH in B
+    selection = inputs(a_start, a_end, b_start, b_end, site, own)
+    result = ev.assess(selection)
+    by_session = {s.external_session_id: s for s in result.sessions}
+    assert use(by_session["A"], site) == use(by_session["B"], site) == ("CONTEXT", None)
+    assert use(by_session["A"], own) == ("SUPPORT", None)
+    assert use(by_session["B"], own) == ("EXCLUDED", "CONNECTOR_MISMATCH")
+    rows = {r[0]: r[2:] for r in ev.run_input_rows(selection, result)}
+    assert rows[site.id] == ["CONTEXT", None] and rows[own.id] == ["CONTEXT", None]
+    assert rows[a_start.id] == ["SUPPORT", None]
+    links = {(link.use, link.reason) for s in result.sessions for link in s.links
+             if link.evidence_id == own.accepted_evidence_id}
+    assert ("CONTEXT", None) not in links      # the run-only pair is never a session link
+
+
+def test_run_rows_refuse_one_id_with_two_envelope_digests() -> None:
+    start = event("EV_SESSION_START", at(1))
+    twin = ev.EvRecord(**{**start.__dict__, "envelope_sha256": "f" * 64})
+    with pytest.raises(ValueError):
+        ev.run_input_rows(inputs(start, twin), ev.assess(inputs(start)))
+    with pytest.raises(ValueError):
+        ev.run_input_rows(inputs(twin), ev.assess(inputs(start)))
+
+
+# --- q3 P4: configuration policy -------------------------------------------------------------------------------
+
+
+def test_policy_keeps_exact_decimal_text_and_refuses_a_missing_required_property() -> None:
+    c1 = ev.EvConnector(**{**connector(C1).__dict__, "max_power_kw": Decimal("7.40"),
+                           "meter_error_bound_kwh": Decimal("0E-3")})
+    selection = ev.EvInputs(**{**inputs().__dict__, "connectors": (c1,)})
+    entry = ev.policy_document(selection)["connectors"][str(C1)]
+    assert tuple(sorted(entry)) == tuple(sorted(ev.POLICY_KEYS)) and len(entry) == 7
+    assert (entry["ev-connector-max-power"], entry["ev-meter-error-bound"]) == ("7.40", "0.000")
+    for missing in ("charger_max_power_kw", "status_cadence_min", "meter_cadence_min"):
+        broken = ev.EvConnector(**{**connector(C1).__dict__, missing: None})
+        with pytest.raises(ev.EvConfigurationRefused):
+            ev.configuration_sha256(ev.EvInputs(**{**inputs().__dict__, "connectors": (broken,)}))
+
+
+# --- q3 P5: ratified readings ----------------------------------------------------------------------------------
+
+
+def test_straddle_applies_to_events_before_start_not_to_means_or_states_beginning_at_start() -> None:
+    start, end = event("EV_SESSION_START", at(5)), event("EV_SESSION_END", at(8))
+    at_start = state(at(5), "CHARGING")
+    from_start = mean(at(5), at(6), "7")
+    early_clear = event("EV_CONNECTOR_CLEAR", at(4, 40))
+    s = only(run(start, end, at_start, from_start, early_clear, meter(at(5), at(8), "3")))
+    assert use(s, at_start) == use(s, from_start) == ("CONTEXT", None)
+    assert use(s, early_clear) == ("EXCLUDED", "CLOCK_UNATTESTED")
+
+
+def test_two_faults_near_abort_support_nothing_and_open_no_finding() -> None:
+    start, abort = event("EV_SESSION_START", at(1)), event("EV_SESSION_ABORT", at(3))
+    f1, f2 = event("EV_CONNECTOR_FAULT", at(2, 50)), event("EV_CONNECTOR_FAULT", at(3, 10))
+    result = run(start, abort, f1, f2, *full_meters(1, 3))
+    s = only(result)
+    assert use(s, f1) == use(s, f2) == ("CONTEXT", None)
+    assert s.fault_evidence_id is None and s.finding_support == () and s.finding_support_sha256 is None
+    assert result.denominator["fault_aborted"] == 0
+
+
+@pytest.mark.parametrize("quality", ["SUSPECT", "BAD", "UNAVAILABLE"])
+def test_non_good_start_creates_no_session_and_its_terminal_is_orphan(quality: str) -> None:
+    start, end = event("EV_SESSION_START", at(1), quality=quality), event("EV_SESSION_END", at(3))
+    result = run(start, end)
+    assert result.sessions == () and result.orphan_terminal_ids == (end.accepted_evidence_id,)
+
+
+def test_second_start_for_the_session_is_context_conflicting_start() -> None:
+    start, again, end = (event("EV_SESSION_START", at(1)), event("EV_SESSION_START", at(2)),
+                         event("EV_SESSION_END", at(3)))
+    s = only(run(start, again, end))
+    assert use(s, again) == ("CONTEXT", "CONFLICTING_START") and "CONFLICTING_START" in s.reason_codes
+
+
+def test_fault_replay_shape_c1_fault_and_clear_are_run_context_not_a_session() -> None:
+    fault, clear = (event("EV_CONNECTOR_FAULT", at(0), session=None),
+                    event("EV_CONNECTOR_CLEAR", at(5), session=None))
+    start, end = (event("EV_SESSION_START", at(11), asset_id=C2, session="S-2"),
+                  event("EV_SESSION_END", at(21), asset_id=C2, session="S-2"))
+    selection = inputs(fault, clear, start, end, meter(at(11), at(21), "10", asset_id=C2, session="S-2"))
+    result = ev.assess(selection)
+    assert [s.connector_asset_id for s in result.sessions] == [C2]
+    rows = {r[0]: r[2:] for r in ev.run_input_rows(selection, result)}
+    assert rows[fault.id] == rows[clear.id] == ["CONTEXT", None]
+
+
+# --- q3 P1 (pure side): clock proof is consumed, never inferred ------------------------------------------------
+
+
+def test_unattested_start_or_terminal_is_clock_unattested() -> None:
+    start, end = event("EV_SESSION_START", at(1), clock_attested=False), event("EV_SESSION_END", at(3))
+    result = run(start, end)
+    assert result.sessions == () and result.orphan_terminal_ids == (end.accepted_evidence_id,)
+    start, end = event("EV_SESSION_START", at(1)), event("EV_SESSION_END", at(3), clock_attested=False)
+    s = only(run(start, end))
+    assert use(s, end) == ("EXCLUDED", "CLOCK_UNATTESTED") and s.state == "INCOMPLETE"

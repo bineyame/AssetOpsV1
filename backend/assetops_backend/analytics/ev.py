@@ -1,7 +1,8 @@
 """Pure EV charging-session correlation: `ev-session/1` (W2-06 commit 2).
 
 Authority: `.agent/W2-06-build-spec.md` "Pre-build closure" (Canonical input, Total ordering and state table,
-Coverage and JSON), "Run 1 rulings (q1)" R1-R12 and "Run 2 rulings (q2)" Q2-Q9, Q14 and Q15.
+Coverage and JSON), "Run 1 rulings (q1)" R1-R12 and "Run 2 rulings (q2)" Q2-Q9, Q14 and Q15,
+and "Run 3 rulings (q3)" P1-P5.
 
 The rules read only accepted public records that the caller has already selected for one Site, one fixed
 half-open window `[from_at, to_at)` and one knowledge cutoff `known_at` (records visible at the cutoff), together
@@ -73,8 +74,10 @@ def _uuid(value: Any) -> UUID | None:
 @dataclass(frozen=True)
 class EvRecord:
     """One accepted public record as selected; fields match the `ev-w206-vectors/1` row keys (Q1). `asset_id` and
-    `binding_revision_id` are the effective `ev-roles-1` binding at source time (None when unbound); `value` is the
-    accepted normalized decimal (or state) text."""
+    `binding_revision_id` are the accepted row's bound asset and **member** binding ID (q3 P2; None when unbound);
+    `value` is the accepted normalized decimal (or state) text. `clock_attested` (q3 P1) is true only when an
+    effective clock attestation recorded by the knowledge cutoff covers this row's `source_id`, `sequence_epoch`
+    and full measurement interval; this module only consumes the boolean."""
 
     report_key: str | None
     report_sha256: str | None
@@ -101,6 +104,11 @@ class EvRecord:
     sequence_epoch: Any
     clock_attested: bool
     source_class: str | None
+    #: q3 P2: the accepted row's `binding_set_revision_id` and channel identity, compared with its member binding.
+    binding_set_revision_id: UUID | None = None
+    role: str | None = None
+    device_id: str | None = None
+    signal_id: str | None = None
 
     @classmethod
     def from_row(cls, row: Mapping[str, Any]) -> "EvRecord":
@@ -117,6 +125,8 @@ class EvRecord:
             asset_id=_uuid(row.get("asset_id")), binding_revision_id=_uuid(row.get("binding_revision_id")),
             source_id=row.get("source_id"), sequence_epoch=row.get("sequence_epoch"),
             clock_attested=bool(row["clock_attested"]), source_class=row.get("source_class"),
+            binding_set_revision_id=_uuid(row.get("binding_set_revision_id")), role=row.get("role"),
+            device_id=row.get("device_id"), signal_id=row.get("signal_id"),
         )
 
     @property
@@ -156,6 +166,8 @@ class EvConnector:
     clock_error_bound_s: Decimal
     status_cadence_min: Decimal | None = None
     meter_cadence_min: Decimal | None = None
+    #: q3 P4: `ev-charger-max-power` (kW) of the connector's actual parent charger.
+    charger_max_power_kw: Decimal | None = None
 
     @property
     def tolerance(self) -> timedelta:
@@ -172,6 +184,25 @@ class EvConfigurationRefused(Exception):
 
 
 @dataclass(frozen=True)
+class EvBindingMember:
+    """q3 P2: one immutable member `signal_binding_revision` row of the selected `ev-roles-1` binding-set
+    revision, as `ev_inputs` reads it on the writer's transaction."""
+
+    binding_revision_id: UUID
+    binding_set_revision_id: UUID
+    role: str
+    asset_id: UUID | None
+    source_id: UUID
+    device_id: str
+    signal_id: str
+    valid_from: datetime
+    valid_to: datetime | None
+
+    def valid_at(self, t: datetime) -> bool:
+        return self.valid_from <= t and (self.valid_to is None or t < self.valid_to)
+
+
+@dataclass(frozen=True)
 class EvInputs:
     """One Site/window/cutoff selection: accepted records and the exact effective configuration."""
 
@@ -181,9 +212,20 @@ class EvInputs:
     records: tuple[EvRecord, ...]
     connectors: tuple[EvConnector, ...]
     foundation_revision_id: UUID
+    #: q3 P2: the selected binding-SET revision; each record's `binding_revision_id` names one of `binding_members`.
     binding_revision_id: UUID
     mapping_profile_id: str
     source_class: str
+    binding_members: tuple[EvBindingMember, ...] = ()
+
+    def member(self, binding_revision_id: UUID | None) -> EvBindingMember | None:
+        """The effective member of the selected set with this ID (None when missing or foreign)."""
+        found = [m for m in self.binding_members if m.binding_revision_id == binding_revision_id]
+        if len(found) > 1:
+            raise EvConfigurationRefused(f"binding member {binding_revision_id} is selected twice")
+        if not found or found[0].binding_set_revision_id != self.binding_revision_id:
+            return None
+        return found[0]
 
     def configuration_row(self) -> list:
         """R8/Q14 outer configuration array of every basis/run digest."""
@@ -282,16 +324,65 @@ def basis_sha256(links: Iterable[EvLink], inputs: EvInputs) -> str:
     return _sha([evidence_rows(links), inputs.configuration_row()])
 
 
-def run_input_sha256(links: Iterable[EvLink], inputs: EvInputs) -> str:
-    """Q14 run `input_sha256`: same document over all selected window input rows supplied by the caller."""
-    return basis_sha256(links, inputs)
+def run_input_rows(inputs: EvInputs, assessment: "EvAssessment") -> list[list]:
+    """q3 P3: one `[accepted_id, envelope_sha256, use, reason]` row per selected accepted record, sorted by ID.
+    A record linked by the sessions with exactly one distinct use/reason keeps that pair; an unlinked record, or
+    one linked with different pairs by two sessions, is the literal run-only `"CONTEXT", null` (never written into
+    `ev_session_evidence`). One ID with two envelope digests is refused."""
+    envelopes: dict[str, str] = {}
+    for r in inputs.records:
+        if envelopes.setdefault(r.id, r.envelope_sha256) != r.envelope_sha256:
+            raise ValueError(f"evidence {r.id} carries two envelope digests")
+    pairs: dict[str, set[tuple[str, str | None]]] = {}
+    for session in assessment.sessions:
+        for link in session.links:
+            key = str(link.evidence_id).lower()
+            if envelopes.get(key) != link.envelope_sha256:
+                raise ValueError(f"evidence {key} carries two envelope digests")
+            pairs.setdefault(key, set()).add((link.use, link.reason))
+    rows = []
+    for key in sorted(envelopes):
+        found = pairs.get(key, set())
+        use, reason = next(iter(found)) if len(found) == 1 else ("CONTEXT", None)
+        rows.append([key, envelopes[key], use, reason])
+    return rows
 
 
-def configuration_sha256(inputs: EvInputs, policy: Any) -> str:
-    """Q14 `sha256(canonical_json([foundation, binding_set, mapping_profile, source_class, policy]))`; the
-    caller supplies the exact effective policy document."""
+def run_input_sha256(inputs: EvInputs, assessment: "EvAssessment") -> str:
+    """Q14 run `input_sha256` over the complete q3 P3 rows built from `inputs.records` and the session links."""
+    return _sha([run_input_rows(inputs, assessment), inputs.configuration_row()])
+
+
+#: q3 P4: the exact literal policy keys of one connector.
+POLICY_KEYS = ("ev-charger-max-power", "ev-connector-max-power", "ev-meter-resolution", "ev-meter-error-bound",
+               "ev-clock-error-bound", "ev-status-cadence", "ev-meter-cadence")
+
+
+def policy_document(inputs: EvInputs) -> dict:
+    """q3 P4: `{"connectors": {<lowercase connector asset UUID>: {seven literal keys}}}` from the selected
+    configuration, every value exact decimal text `format(Decimal, "f")`; canonical key ordering supplies the
+    order. All seven are required Foundation properties (`sites.ev_foundation` CHARGER_REQUIRED /
+    CONNECTOR_REQUIRED), so a missing value refuses the configuration."""
+    connectors: dict[str, dict] = {}
+    for c in inputs.connectors:
+        values = dict(zip(POLICY_KEYS, (c.charger_max_power_kw, c.max_power_kw, c.meter_resolution_kwh,
+                                        c.meter_error_bound_kwh, c.clock_error_bound_s, c.status_cadence_min,
+                                        c.meter_cadence_min)))
+        missing = sorted(k for k, v in values.items() if v is None)
+        if missing:
+            raise EvConfigurationRefused(f"connector {c.asset_id} lacks required properties {missing}")
+        key = str(c.asset_id).lower()
+        if key in connectors:
+            raise EvConfigurationRefused(f"connector {c.asset_id} is configured twice")
+        connectors[key] = {k: format(Decimal(v), "f") for k, v in values.items()}
+    return {"connectors": connectors}
+
+
+def configuration_sha256(inputs: EvInputs) -> str:
+    """Q14 `sha256(canonical_json([foundation, binding_set, mapping_profile, source_class, policy]))` with the
+    q3 P4 policy document built from `inputs`."""
     return _sha([str(inputs.foundation_revision_id).lower(), str(inputs.binding_revision_id).lower(),
-                 inputs.mapping_profile_id, inputs.source_class, policy])
+                 inputs.mapping_profile_id, inputs.source_class, policy_document(inputs)])
 
 
 def cohort_sha256() -> str:
@@ -339,9 +430,14 @@ def _scale(resolution: Decimal) -> Decimal:
 
 
 def _source_reason(r: EvRecord, inputs: EvInputs) -> tuple[str, str] | None:
-    """R4 step 1: source gate or binding not effective (EXCLUDED)."""
-    if (r.asset_id is None or r.binding_revision_id != inputs.binding_revision_id
-            or r.source_class != inputs.source_class):
+    """R4 step 1 (q3 P2): source gate, or the record's binding is not an effective member of the selected set with
+    the exact role, asset, source/device/signal identity and validity at source time (EXCLUDED)."""
+    member = inputs.member(r.binding_revision_id)
+    if (r.asset_id is None or member is None or r.binding_set_revision_id != inputs.binding_revision_id
+            or member.role != r.role or member.asset_id != r.asset_id
+            or str(member.source_id).lower() != str(r.source_id).lower()
+            or member.device_id != r.device_id or member.signal_id != r.signal_id
+            or not member.valid_at(r.source_time) or r.source_class != inputs.source_class):
         return ("EXCLUDED", "SOURCE_UNVERIFIED")
     return None
 
@@ -624,9 +720,9 @@ def assess(inputs: EvInputs) -> EvAssessment:
     sessions = tuple(_session(r, inputs, connectors[r.asset_id])
                      for r in sorted(starts.values(), key=semantic_order_key))
 
-    started_keys = {(r.asset_id, r.session_id) for r in inputs.records if r.kind == START}
+    # q3 P5: an orphan is a terminal without a qualifying START for its connector/session in the window.
     orphans = tuple(r.accepted_evidence_id for r in sorted(inputs.records, key=semantic_order_key)
-                    if r.kind in TERMINALS and (r.asset_id, r.session_id) not in started_keys
+                    if r.kind in TERMINALS and (r.asset_id, r.session_id) not in starts
                     and inputs.window.from_at <= r.source_time < inputs.window.to_at)
     counts = {state: sum(1 for s in sessions if s.state == state) for state in STATES}
     denominator = {
