@@ -26,7 +26,9 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
 
-from assetops_backend.analytics import cold
+from assetops_contracts.source_envelope_v4 import V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION
+
+from assetops_backend.analytics import cold, ev
 from assetops_backend.analytics.cold_reads import (
     FUTURE_NOTE,
     HISTORICAL_NOTE,
@@ -76,7 +78,9 @@ from assetops_backend.evidence.source_provenance import (
     classify,
     link_of,
 )
-from assetops_backend.sites.binding_roles import ROLE_SET_COLD_1
+from assetops_backend.financials.fuel_cost import iso
+from assetops_backend.sites.binding_roles import EV_ROLES_1, ROLE_SET_COLD_1, ROLE_SET_EV_1
+from assetops_backend.sites.binding_service import v4_mapping_profile
 
 _EVIDENCE = (
     "SELECT e.id, e.envelope_sha256, e.batch_id, e.gateway_id, e.source_id, e.sequence_epoch, e.sequence, "
@@ -106,6 +110,16 @@ _REVISION_COLUMNS = ("v.id, v.analytic_id, v.model_version, v.assessment_key, v.
 _KNOWN = "recorded_at <= :k AND (superseded_at IS NULL OR superseded_at > :k)"
 _OVERLAPS = "valid_from < :hi AND (valid_to IS NULL OR valid_to > :lo)"
 _COLD_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+#: W2-06: EV job brackets are five-minute UTC-epoch aligned; one EV assessment window spans at most 31 days.
+_EV_BRACKET = timedelta(minutes=5)
+_EV_MAX_WINDOW = timedelta(days=31)
+#: q3 P4: the declared unit each connector/charger policy property must carry (no conversion is guessed).
+_EV_UNITS = {"ev-charger-max-power": "kW", "ev-connector-max-power": "kW", "ev-meter-resolution": "kWh",
+             "ev-meter-error-bound": "kWh", "ev-clock-error-bound": "s", "ev-status-cadence": "min",
+             "ev-meter-cadence": "min"}
+#: Q14: the whole-window denominator counts of the stored EV result.
+_EV_COUNTS = ("started", "completed", "observed_abort", "incomplete", "contradictory", "orphan",
+              "confirmed_delivery", "fault_aborted")
 _ASSESS_LOCK = "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || :suffix, 0))"
 _JOB_LOCK = "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || ':' || :d, 0))"
 
@@ -1076,6 +1090,338 @@ class PostgresAssessmentStore:
                            "evidence_id, use, reason) VALUES (:r, :t, :s, :e, :u, :why)"),
                       [{"r": rid, "t": t, "s": s, "e": e, "u": u, "why": why} for e, u, why in links])
         return {**result, "revision_id": rid, "revision_no": n, "created": True}
+
+
+    # --- ev_charging (W2-06 commit 3): ev-session/1 on the EV worker's connection --------------------------------
+    # `.agent/W2-06-build-spec.md` commit 3, Q10-Q14 and q3 P1-P4. Every EV method takes the caller's connection:
+    # the EV worker owns one transaction for selection, run, assessment, sessions, Findings and job completion. This
+    # module alone inserts the analytic and EV session rows; the Finding store alone inserts Finding rows.
+
+    @staticmethod
+    def ev_watermark(c: Connection, tenant_id: UUID, site_id: UUID) -> datetime | None:
+        """The latest committed disposition instant of the Site: the default EV `known_at`."""
+        return PostgresAssessmentStore.cold_watermark(c, tenant_id, site_id)
+
+    def ev_still_mine(self, c: Connection, lease: JobLease) -> None:
+        self._still_mine(c, lease)
+
+    @staticmethod
+    def ev_complete(c: Connection, lease: JobLease) -> None:
+        PostgresAssessmentStore.cold_complete(c, lease)
+
+    @staticmethod
+    def ev_windows(c: Connection, lease: JobLease) -> list[Window]:
+        """The assessment windows of an EV job (Q11): its window aligned outward to five-minute UTC brackets; with
+        one intersecting selected `ev-session/1` window, that window expanded by the job's brackets (so a late
+        record re-assesses the selected window that contains its START); several intersecting selections are each
+        assessed separately, never merged."""
+        lo, hi = lease.window.start, lease.window.end
+        start = lo - ((lo - _COLD_EPOCH) % _EV_BRACKET)
+        rest = (hi - _COLD_EPOCH) % _EV_BRACKET
+        end = hi if rest == timedelta(0) else hi + (_EV_BRACKET - rest)
+        selected = c.execute(text(
+            "SELECT DISTINCT window_start, window_end FROM analytic_run_selection WHERE tenant_id = :t "
+            "AND site_id = :s AND analytic_id = :a AND window_start < :hi AND window_end > :lo ORDER BY 1, 2"),
+            {"t": lease.tenant_id, "s": lease.site_id, "a": ev.SESSION_ANALYTIC, "lo": start, "hi": end}).all()
+        if not selected:
+            return [Window(start, end)]
+        if len(selected) == 1:
+            a, b = selected[0]
+            return [Window(min(start, a), max(end, b))]
+        return [Window(a, b) for a, b in selected]
+
+    def ev_inputs(self, c: Connection, tenant_id: UUID, site_id: UUID, window: Window,
+                  known_at: datetime) -> ev.EvInputs:
+        """Accepted records whose measurement touches `[from,to)` known at `known_at`, the one effective Foundation
+        and `ev-roles-1` binding set covering the window (connectors with their single parent charger and exact
+        properties, q3 P4; every member binding, q3 P2), the registered public mapping profile (Q8), clock
+        attestation per row (q3 P1) and the exact S4-05 source class. Anything missing, duplicated or overlapping
+        refuses (fail closed)."""
+        lo, hi, k = window.start, window.end, known_at
+        if hi - lo > _EV_MAX_WINDOW:
+            raise ev.EvConfigurationRefused("an EV assessment window spans at most 31 days")
+        w = ev.EvWindow(lo, hi, k)
+        p = {"t": tenant_id, "s": site_id, "k": k, "lo": lo, "hi": hi}
+        profile = v4_mapping_profile(ROLE_SET_EV_1)
+        if profile != (V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION):
+            raise ev.EvConfigurationRefused(f"the {ROLE_SET_EV_1} mapping table is not the registered public profile")
+        foundations = c.execute(text(
+            f"SELECT id, version, valid_from, valid_to, content FROM foundation_revision WHERE tenant_id = :t "
+            f"AND site_id = :s AND {_KNOWN} AND {_OVERLAPS}"), p).all()
+        if len(foundations) != 1:
+            raise ev.EvConfigurationRefused(
+                f"{len(foundations)} effective Foundation revisions overlap the window; exactly one is required")
+        f_id, f_version, f_from, f_to, content = foundations[0]
+        if f_from > lo or (f_to is not None and f_to < hi):
+            raise ev.EvConfigurationRefused(f"Foundation v{f_version} does not cover the whole window")
+        content = content if isinstance(content, dict) else json.loads(content)
+        assets = {r[0]: r[1] for r in c.execute(text(
+            "SELECT asset_code, id FROM asset WHERE tenant_id = :t AND site_id = :s"), p).all()}
+        components = {x.get("component_id"): x for x in content.get("components") or ()}
+        topology = content.get("topology") or {}
+        node_component = {n.get("node_id"): n.get("component_id") for n in topology.get("nodes") or ()}
+        parents: dict[str, list[str]] = {}
+        for edge in topology.get("connections") or ():
+            if edge.get("medium") == "SIGNAL":
+                parents.setdefault(node_component.get(edge.get("to_node")), []).append(
+                    node_component.get(edge.get("from_node")))
+
+        def asset_of(component: dict[str, Any]) -> UUID:
+            code = component.get("component_id")
+            if code not in assets:
+                raise ev.EvConfigurationRefused(f"component {code} has no Site asset")
+            return assets[code]
+
+        def number(component: dict[str, Any], key: str) -> Decimal:
+            items = [i for i in component.get("properties") or () if i.get("property_key") == key]
+            if len(items) != 1 or items[0].get("value") is None:
+                raise ev.EvConfigurationRefused(f"{component.get('component_id')} has no single {key}")
+            item, unit = items[0], _EV_UNITS[key]
+            if item.get("unit") != unit:
+                raise ev.EvConfigurationRefused(f"{key} is declared in {item.get('unit')}, not {unit}")
+            try:
+                return Decimal(str(item["value"]))
+            except InvalidOperation as error:
+                raise ev.EvConfigurationRefused(f"{key} is not a number") from error
+
+        connectors = []
+        for cid, component in sorted(components.items(), key=lambda kv: str(kv[0])):
+            if component.get("component_type") != "EV_CONNECTOR":
+                continue
+            chargers = [x for x in parents.get(cid, [])
+                        if (components.get(x) or {}).get("component_type") == "EV_CHARGER"]
+            if len(chargers) != 1 or len(parents.get(cid, [])) != 1:
+                raise ev.EvConfigurationRefused(f"connector {cid} does not have exactly one parent charger")
+            charger = components[chargers[0]]
+            connectors.append(ev.EvConnector(
+                asset_id=asset_of(component), charger_asset_id=asset_of(charger), connector_id=cid,
+                max_power_kw=number(component, "ev-connector-max-power"),
+                meter_resolution_kwh=number(component, "ev-meter-resolution"),
+                meter_error_bound_kwh=number(component, "ev-meter-error-bound"),
+                clock_error_bound_s=number(component, "ev-clock-error-bound"),
+                status_cadence_min=number(component, "ev-status-cadence"),
+                meter_cadence_min=number(component, "ev-meter-cadence"),
+                charger_max_power_kw=number(charger, "ev-charger-max-power")))
+        if not connectors:
+            raise ev.EvConfigurationRefused("the Foundation declares no EV connector")
+        sets = c.execute(text(
+            f"SELECT id, valid_from, valid_to FROM signal_binding_set_revision WHERE tenant_id = :t "
+            f"AND site_id = :s AND role_set = :rs AND {_KNOWN} AND {_OVERLAPS}"), {**p, "rs": ROLE_SET_EV_1}).all()
+        if len(sets) != 1:
+            raise ev.EvConfigurationRefused(
+                f"{len(sets)} effective {ROLE_SET_EV_1} binding sets overlap the window; exactly one is required")
+        set_id, set_from, set_to = sets[0]
+        if set_from > lo or (set_to is not None and set_to < hi):
+            raise ev.EvConfigurationRefused(f"the {ROLE_SET_EV_1} binding set does not cover the whole window")
+        members = tuple(ev.EvBindingMember(
+            binding_revision_id=r[0], binding_set_revision_id=r[1], role=r[2], asset_id=r[3], source_id=r[4],
+            device_id=r[5], signal_id=r[6], valid_from=r[7], valid_to=r[8]) for r in c.execute(text(
+                "SELECT id, binding_set_revision_id, role, asset_id, source_id, device_id, signal_id, valid_from, "
+                "valid_to FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND binding_set_revision_id = :b ORDER BY id"), {**p, "b": set_id}).all())
+        attestations = _attestations(c, tenant_id, site_id, k)
+        rows = c.execute(text(
+            "SELECT e.id, e.envelope_sha256, e.source_time, e.interval_start, e.interval_end, e.connector_id, "
+            "e.session_id, e.family, e.record_kind, e.measurement, e.quality, e.normalized_value_text, "
+            "e.normalized_unit, e.event_id, e.outcome, e.asset_id, e.binding_revision_id, e.source_id, "
+            "e.sequence_epoch, e.binding_set_revision_id, e.role, e.device_id, e.signal_id "
+            "FROM accepted_evidence e JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+            "AND d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' "
+            "WHERE e.tenant_id = :t AND e.site_id = :s AND COALESCE(e.interval_start, e.source_time) < :hi "
+            "AND (CASE WHEN e.interval_end IS NULL THEN e.source_time >= :lo ELSE e.interval_end > :lo END) "
+            "AND e.received_at <= :k AND d.decided_at <= :k ORDER BY e.source_time, e.id"), p).all()
+        ids = [str(r[0]) for r in rows]
+        if self._link_rows is None:
+            raise ev.EvConfigurationRefused("no S4-05 link reader is configured for the EV source gate")
+        links = {row.requested_id: link_of(row)
+                 for row in (self._link_rows(c, tenant_id, site_id, ids) if ids else [])}
+        records = []
+        for r in rows:
+            lo_r = r[3] if r[3] is not None else r[2]
+            hi_r = r[4] if r[4] is not None else r[2]
+            attested = any(str(a.source_id) == str(r[17]) and a.sequence_epoch == r[18] and a.covers(lo_r, hi_r)
+                           for a in attestations)
+            records.append(ev.EvRecord(
+                report_key=None, report_sha256=None, batch_external_id=None, ordinal=None,
+                accepted_evidence_id=r[0], envelope_sha256=r[1], source_time=r[2], interval_start=r[3],
+                interval_end=r[4], connector_id=r[5], session_id=r[6], family=r[7], record_kind=r[8],
+                measurement=r[9], quality=r[10], value=r[11], unit=r[12], event_id=r[13], outcome=r[14],
+                asset_id=r[15], binding_revision_id=r[16], source_id=None if r[17] is None else str(r[17]),
+                sequence_epoch=r[18], clock_attested=attested,
+                source_class=classify([str(r[0])], links)["state"], binding_set_revision_id=r[19], role=r[20],
+                device_id=r[21], signal_id=r[22]))
+        return ev.EvInputs(
+            tenant_id=tenant_id, site_id=site_id, window=w, records=tuple(records), connectors=tuple(connectors),
+            foundation_revision_id=f_id, binding_revision_id=set_id,
+            mapping_profile_id=f"{profile[0]}/{profile[1]}", source_class=classify(ids, links)["state"],
+            binding_members=members)
+
+    def ev_persist(self, c: Connection, inputs: ev.EvInputs, assessed: ev.EvAssessment, *, job_id: UUID | None,
+                   selection: str, now: datetime, started: datetime | None = None) -> dict[str, Any]:
+        """Q14: the run, run evidence, the window's assessment revision and, for a DEFAULT run, its selection. The
+        identical idempotency key `(Site, ev-session/1, window, input_sha256, model 1)` returns the existing IDs
+        and appends nothing (a DEFAULT selection only if another run heads that window). A new run plans each
+        session's revision (an identical session basis reuses its revision) so the immutable result can list
+        them."""
+        t, s, w = inputs.tenant_id, inputs.site_id, inputs.window
+        c.execute(text(_ASSESS_LOCK), {"site": s, "suffix": ":ev-assessment"})
+        basis = ev.run_input_sha256(inputs, assessed)
+        key = assessed.assessment_key
+        scope = {"t": t, "s": s, "a": ev.SESSION_ANALYTIC, "ws": w.from_at, "we": w.to_at}
+
+        def select(run_id: UUID) -> None:
+            if selection != "DEFAULT":
+                return
+            head = c.execute(text(
+                "SELECT run_id FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
+                "AND window_start = :ws AND window_end = :we ORDER BY selected_at DESC LIMIT 1"), scope).first()
+            if head is None or head[0] != run_id:
+                c.execute(text(
+                    "INSERT INTO analytic_run_selection (tenant_id, site_id, analytic_id, window_start, window_end, "
+                    "run_id, job_id, selected_at) VALUES (:t, :s, :a, :ws, :we, :r, :job, :now)"),
+                    {**scope, "r": run_id, "job": job_id, "now": now})
+
+        held = c.execute(text(
+            "SELECT r.id, x.assessment_revision_id FROM analytic_run r JOIN analytic_run_assessment x "
+            "ON x.run_id = r.id WHERE r.tenant_id = :t AND r.site_id = :s AND r.analytic_id = :a "
+            "AND r.model_version = :m AND r.window_start = :ws AND r.window_end = :we AND r.input_sha256 = :b"),
+            {**scope, "m": ev.MODEL_VERSION, "b": basis}).first()
+        if held is not None:
+            select(held[0])
+            return {"run_id": held[0], "revision_id": held[1], "created": False, "basis": basis,
+                    "assessment_key": key, "previous_revision_id": None, "plan": []}
+        configuration = ev.configuration_sha256(inputs)
+        run_id, revision_id = uuid4(), uuid4()
+        ids = sorted({r.id for r in inputs.records})
+        decided = c.execute(text(
+            "SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t AND site_id = :s "
+            "AND decision = 'ACCEPTED' AND accepted_evidence_id = ANY(CAST(:ids AS uuid[]))"),
+            {"t": t, "s": s, "ids": ids}).scalar() if ids else None
+        required = sorted(r.role for r in EV_ROLES_1 if r.required)
+        present = {m.role for m in inputs.binding_members}
+        missing = [r for r in required if r not in present]
+        c.execute(text(
+            "INSERT INTO analytic_run (id, tenant_id, site_id, analytic_id, model_version, window_start, "
+            "window_end, knowledge_cutoff, input_sha256, cohort_status, cohort_sha256, cohort, "
+            "configuration_sha256, foundation_revision_ids, binding_set_revision_ids, role_coverage, watermarks, "
+            "selection, job_id, status, started_at, completed_at) VALUES (:id, :t, :s, :a, :m, :ws, :we, :k, :b, "
+            "'NOT_APPLICABLE', :cohort_sha, '[]'::jsonb, :cfg, CAST(:fids AS jsonb), CAST(:bids AS jsonb), "
+            "CAST(:roles AS jsonb), CAST(:marks AS jsonb), :sel, :job, 'COMPLETED', :started, :now)"),
+            {**scope, "id": run_id, "m": ev.MODEL_VERSION, "k": w.known_at, "b": basis,
+             "cohort_sha": ev.cohort_sha256(), "cfg": configuration,
+             "fids": json.dumps([str(inputs.foundation_revision_id).lower()]),
+             "bids": json.dumps([str(inputs.binding_revision_id).lower()]),
+             "roles": json.dumps({"required_roles": required, "missing_roles": missing, "covered": not missing}),
+             "marks": json.dumps({"accepted_decided_at": None if decided is None else iso(decided),
+                                  "known_at": iso(w.known_at), "source_class": inputs.source_class}),
+             "sel": selection, "job": job_id, "started": started or now, "now": now})
+        if ids:
+            c.execute(text("INSERT INTO analytic_run_evidence (run_id, evidence_id, tenant_id, site_id) "
+                           "VALUES (:r, :e, :t, :s)"),
+                      [{"r": run_id, "e": e, "t": t, "s": s} for e in ids])
+        plan = [self._ev_plan(c, t, s, session) for session in assessed.sessions]
+        latest = c.execute(text(
+            "SELECT id, revision_no FROM assessment_revision WHERE tenant_id = :t AND site_id = :s "
+            "AND analytic_id = :a AND assessment_key = :key ORDER BY revision_no DESC LIMIT 1"),
+            {**scope, "key": key}).first()
+        as_of = iso(now)
+        document = {
+            "schema": "ev-session-assessment/1",
+            "status": {"state": assessed.status_state, "claim_level": assessed.claim_level, "as_of": as_of,
+                       "limitation": None},
+            "denominator": {**{k: assessed.denominator[k] for k in _EV_COUNTS}, "as_of": as_of, "limitation": None},
+            "session_revision_ids": sorted(str(x["revision_id"]).lower() for x in plan),
+            "source_provenance": {"class": inputs.source_class, "as_of": as_of, "limitation": None},
+            "limitations": [],
+        }
+        c.execute(text(
+            "INSERT INTO assessment_revision (id, tenant_id, site_id, analytic_id, model_version, "
+            "assessment_key, revision_no, analytic_run_id, window_start, window_end, claim_level, result, "
+            "evidence_ids, basis_sha256, created_at) VALUES (:id, :t, :s, :a, :m, :key, :n, :run, :ws, :we, "
+            ":claim, CAST(:result AS jsonb), CAST(:ids AS jsonb), :b, :now)"),
+            {**scope, "id": revision_id, "m": ev.MODEL_VERSION, "key": key,
+             "n": 1 if latest is None else latest[1] + 1, "run": run_id, "claim": assessed.claim_level,
+             "result": json.dumps(document), "ids": json.dumps(ids), "b": basis, "now": now})
+        c.execute(text("INSERT INTO analytic_run_assessment (run_id, assessment_revision_id, tenant_id, site_id, "
+                       "scope) VALUES (:r, :a, :t, :s, 'WINDOW')"),
+                  {"r": run_id, "a": revision_id, "t": t, "s": s})
+        select(run_id)
+        return {"run_id": run_id, "revision_id": revision_id, "created": True, "basis": basis,
+                "assessment_key": key, "previous_revision_id": None if latest is None else latest[0], "plan": plan}
+
+    @staticmethod
+    def _ev_plan(c: Connection, t: UUID, s: UUID, session: ev.EvSession) -> dict[str, Any]:
+        """The stable session ID (existing, or new for its first START) and the revision of `session`: the stored
+        revision with this exact session basis, else a new one numbered after the latest."""
+        found = c.execute(text(
+            "SELECT id FROM ev_session WHERE tenant_id = :t AND site_id = :s AND charger_asset_id = :ch "
+            "AND connector_asset_id = :co AND external_session_id = :x"),
+            {"t": t, "s": s, "ch": session.charger_asset_id, "co": session.connector_asset_id,
+             "x": session.external_session_id}).first()
+        if found is None:
+            return {"session": session, "session_id": uuid4(), "new_session": True, "revision_id": uuid4(),
+                    "revision_no": 1, "created": True}
+        same = c.execute(text(
+            "SELECT id, revision_no FROM ev_session_revision WHERE tenant_id = :t AND site_id = :s "
+            "AND session_id = :e AND basis_sha256 = :b"),
+            {"t": t, "s": s, "e": found[0], "b": session.basis_sha256}).first()
+        if same is not None:
+            return {"session": session, "session_id": found[0], "new_session": False, "revision_id": same[0],
+                    "revision_no": same[1], "created": False}
+        n = c.execute(text("SELECT coalesce(max(revision_no), 0) + 1 FROM ev_session_revision WHERE tenant_id = :t "
+                           "AND site_id = :s AND session_id = :e"), {"t": t, "s": s, "e": found[0]}).scalar_one()
+        return {"session": session, "session_id": found[0], "new_session": False, "revision_id": uuid4(),
+                "revision_no": n, "created": True}
+
+    @staticmethod
+    def ev_sessions(c: Connection, inputs: ev.EvInputs, assessed: ev.EvAssessment, persisted: dict[str, Any],
+                    now: datetime) -> list[dict[str, Any]]:
+        """The planned session heads and revisions of one new assessment revision, each new revision with its
+        exact evidence links (one use/reason per accepted ID) and representable meter intervals. Returns the plan
+        rows (session, IDs, `created`) for the Finding store."""
+        t, s = inputs.tenant_id, inputs.site_id
+        for row in persisted["plan"]:
+            session: ev.EvSession = row["session"]
+            if row["new_session"]:
+                c.execute(text(
+                    "INSERT INTO ev_session (id, tenant_id, site_id, charger_asset_id, connector_asset_id, "
+                    "external_session_id, first_start_evidence_id, anchor_time, created_at) VALUES (:i, :t, :s, "
+                    ":ch, :co, :x, :first, :at, :now)"),
+                    {"i": row["session_id"], "t": t, "s": s, "ch": session.charger_asset_id,
+                     "co": session.connector_asset_id, "x": session.external_session_id,
+                     "first": session.first_start_evidence_id, "at": session.anchor_time, "now": now})
+            if not row["created"]:
+                continue
+            c.execute(text(
+                "INSERT INTO ev_session_revision (id, tenant_id, site_id, session_id, revision_no, "
+                "assessment_revision_id, analytic_run_id, basis_sha256, state, start_at, end_at, start_earliest, "
+                "start_latest, end_earliest, end_latest, supported_kwh, unknown_meter_seconds, fault_evidence_id, "
+                "reason_codes, created_at) VALUES (:i, :t, :s, :e, :n, :a, :run, :b, :state, :start, :end, :se, "
+                ":sl, :ee, :el, :kwh, :unknown, :fault, CAST(:reasons AS jsonb), :now)"),
+                {"i": row["revision_id"], "t": t, "s": s, "e": row["session_id"], "n": row["revision_no"],
+                 "a": persisted["revision_id"], "run": persisted["run_id"], "b": session.basis_sha256,
+                 "state": session.state, "start": session.start_at, "end": session.end_at,
+                 "se": session.start_bounds[0], "sl": session.start_bounds[1], "ee": session.end_bounds[0],
+                 "el": session.end_bounds[1],
+                 "kwh": None if session.supported_kwh is None else format(session.supported_kwh, "f"),
+                 "unknown": session.unknown_meter_seconds, "fault": session.fault_evidence_id,
+                 "reasons": json.dumps(list(session.reason_codes)), "now": now})
+            if session.links:
+                c.execute(text(
+                    "INSERT INTO ev_session_evidence (tenant_id, site_id, revision_id, evidence_id, use, reason) "
+                    "VALUES (:t, :s, :r, :e, :u, :why)"),
+                    [{"t": t, "s": s, "r": row["revision_id"], "e": link.evidence_id, "u": link.use,
+                      "why": link.reason} for link in session.links])
+            if session.intervals:
+                c.execute(text(
+                    "INSERT INTO ev_meter_interval (id, tenant_id, site_id, revision_id, connector_asset_id, "
+                    "evidence_id, start_at, end_at, kwh, error_bound_kwh, use, reason) VALUES (:i, :t, :s, :r, :co, "
+                    ":e, :lo, :hi, :kwh, :err, :u, :why)"),
+                    [{"i": uuid4(), "t": t, "s": s, "r": row["revision_id"], "co": i.connector_asset_id,
+                      "e": i.evidence_id, "lo": i.start_at, "hi": i.end_at, "kwh": format(i.kwh, "f"),
+                      "err": format(i.error_bound_kwh, "f"), "u": i.use, "why": i.reason} for i in session.intervals])
+        return [{k: row[k] for k in ("session", "session_id", "revision_id", "revision_no", "created")}
+                for row in persisted["plan"]]
 
 
 def _cold_value(raw: str | None) -> Decimal | str | None:

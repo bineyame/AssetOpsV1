@@ -109,6 +109,13 @@ def build_cold_assessment_worker(database_url: str | None):
     return ColdAssessmentWorker(build_postgres_assessment_store(database_url), PostgresFindingStore(database_url))
 
 
+
+def build_ev_assessment_worker(database_url: str | None):
+    """W2-06 Q13: the EV worker over the assessment and Finding stores (one shared transaction per job)."""
+    from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
+    from assetops_backend.analytics.assessment_worker import EvAssessmentWorker
+    return EvAssessmentWorker(build_postgres_assessment_store(database_url), PostgresFindingStore(database_url))
+
 def finding_fence_moved_type() -> type:
     """`FindingFenceMoved`, for a caller that classifies a failed match without importing the adapter."""
     from assetops_backend.analytics.adapters.postgres_finding_store import FindingFenceMoved
