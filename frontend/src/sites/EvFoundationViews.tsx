@@ -769,7 +769,7 @@ function EvSldView(props: ViewProps) {
             <tr data-ev-part="feed">
               <th scope="row">Grid supply + load manager</th>
               <td>
-                {`${feedName === null ? NOT_DECLARED : `${feedName} · ${read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Site import limit ${read.feed.limit_kw} kW`}`}; Load manager · ${NOT_DECLARED}`}
+                {`${feedName === null ? `Grid supply · ${NOT_DECLARED}` : `${feedName} · ${read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `Site import limit ${read.feed.limit_kw} kW`}`}; Load manager · ${NOT_DECLARED}`}
               </td>
               <td>{siteImport.length === 0 ? NOT_DECLARED : "Mapped: site import power"}</td>
             </tr>

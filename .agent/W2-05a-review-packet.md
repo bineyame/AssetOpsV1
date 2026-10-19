@@ -55,3 +55,14 @@ Checks: frontend `npm.cmd test` 87 files, 2252 passed; `tsc --noEmit` 0; `tools/
 Writer-guard probes: WAIVED per the Run 8 ruling (no rule-8 guard, SQL writer or accepted-evidence write path changed). This is a waiver, not a pass; 05b keeps its own gate.
 
 Open points: (1) the ruling calls `UnavailableLinkEntry` "focusable", but the existing component (and `expectUnavailableEntry`) is deliberately not a tab stop; I kept the component unchanged. (2) The M2 mutation proof (disable the check, watch the new tests fail) was blocked by the permission classifier, so non-vacuity of the M2 tests is not demonstrated by mutation; they assert the code, empty binding index, and unchanged binding-set list. (3) L4 missing-feed copy is `Not declared; Load manager · Not declared`.
+
+## Run 8 confirmations (r2)
+
+| Item | Result | Proof |
+|---|---|---|
+| M1 | `UnavailableLinkEntry` unchanged; visible `{label} · Not available yet`, `aria-label` `{label}, Not available yet`, no tabIndex/link/handler | `evFoundation.test.tsx` readiness test: visible text, aria-label, no tabindex/focusables, click does not change location, plus the shared `expectUnavailableEntry` checklist |
+| L4 | missing-feed cell is exactly `Grid supply · Not declared; Load manager · Not declared`; declared-feed cell still ends `Load manager · Not declared` | assertions at stocked (line ~485) and missing-feed (line ~623) |
+| H1 | viewBox `0 0 1090 396` ratified; no change | confirmed in `SiteSingleLineDiagram.tsx` |
+| Recapture | not needed: missing-role fixture declares the feed asset (limit null), so its cell is unchanged; the L4 string only renders for a feed with no asset, which is not a captured state | no servers or DB used |
+
+Checks: frontend vitest 87 files / 2269 tests passed; tsc --noEmit clean; check-all 10/10 guards passed.

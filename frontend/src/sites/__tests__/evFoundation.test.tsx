@@ -562,6 +562,12 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
         for (const entry of entries) {
           expect(entry.textContent).toBe(`${label} · Not available yet`);
           expectUnavailableEntry(entry.closest("ul") as HTMLElement, label);
+          expect(entry.getAttribute("aria-label"), label).toBe(`${label}, Not available yet`);
+          expect(entry.hasAttribute("tabindex"), label).toBe(false);
+          expect(entry.querySelector("a, button, [tabindex]"), label).toBeNull();
+          const before = window.location.href;
+          entry.click();
+          expect(window.location.href, label).toBe(before);
         }
         for (const panel of panels) expect(within(panel).queryByRole("link", { name: new RegExp(`^${label}`) })).toBeNull();
       }
@@ -620,7 +626,7 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(diagram.querySelectorAll('[data-ev-slot="connector"]')).toHaveLength(2);
     expectSldSlots(diagram, { charger2: true, rail: ["Connector 1", "Connector 2", "Site meter", "Billing system"] });
     const feedPart = panelTitled("What each part does").querySelector('tr[data-ev-part="feed"]') as Element;
-    expect(text(feedPart.querySelectorAll("td")[0] as Element)).toBe("Not declared; Load manager · Not declared");
+    expect(text(feedPart.querySelectorAll("td")[0] as Element)).toBe("Grid supply · Not declared; Load manager · Not declared");
     expect(text(panelTitled("What each part does"))).toContain("Grid supply + load manager");
     expect(Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"))).toHaveLength(4);
   });
