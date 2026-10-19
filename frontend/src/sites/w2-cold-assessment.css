@@ -131,3 +131,39 @@
   color: #6b4a07;
   border-color: #c9a24a;
 }
+
+/* D-2026-10-19-w2-03-followup: closed-panel compaction. */
+[data-cold-view="temperature"] .panel:has(#cold-claim-boundary-heading) .panel__body > .prose {
+  margin-bottom: 0;
+}
+[data-cold-view="temperature"] [data-disclosure="cold-claim-references"],
+[data-cold-view="cold-finding"] [data-disclosure="cold-finding-references"],
+[data-cold-view="cold-finding-excursion"] [data-disclosure="cold-finding-references"] {
+  margin-top: 8px;
+}
+[data-cold-view="temperature"] [data-disclosure="cold-claim-references"] > .disclosure__summary,
+[data-cold-view="cold-finding"] [data-disclosure="cold-finding-references"] > .disclosure__summary,
+[data-cold-view="cold-finding-excursion"] [data-disclosure="cold-finding-references"] > .disclosure__summary {
+  padding: 4px 10px;
+}
+[data-cold-view="cold-finding"] .cold-finding-pair,
+[data-cold-view="cold-finding-excursion"] .cold-finding-pair {
+  align-items: start;
+}
+[data-cold-view="cold-finding"] .cold-operational-missing {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* M5 chip tones for W2-03 state/result badges. */
+.cold-temperature-tone--green.badge {
+  background: #e3f4ed;
+  color: #166b50;
+  border-color: #b5dfcd;
+}
+.cold-temperature-tone--amber.badge {
+  background: #fff1d9;
+  color: #8e580c;
+  border-color: #c9a24a;
+}

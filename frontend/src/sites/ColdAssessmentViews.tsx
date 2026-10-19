@@ -240,7 +240,12 @@ function TemperatureStatus({ read }: { read: ColdTemperatureRead | null }) {
   const expected = read.coverage.expected_points;
   return (
     <StatusBar label="Temperature state">
-      <Badge tone="neutral">{temperatureStateWord(read.state)}</Badge>{" "}
+      <Badge
+        tone="neutral"
+        className={read.state === "NO_EXCURSION_OBSERVED" ? "cold-temperature-tone--green" : read.state === "OBSERVED_EXCURSION" || read.state === "CONTRADICTORY" ? "cold-temperature-tone--amber" : undefined}
+      >
+        {temperatureStateWord(read.state)}
+      </Badge>{" "}
       <Badge tone="neutral">{known === null ? "Coverage not assessed" : `Coverage: ${known} / ${expected} readings`}</Badge>{" "}
       {[
         policy === null ? "Policy not recorded" : `Policy ${decimal(policy.low_deg_c) ?? "?"}–${decimal(policy.high_deg_c) ?? "?"} °C`,
@@ -419,11 +424,23 @@ function TemperaturePanels({
           <>
             <p className="prose">
               {x !== undefined
-                ? `The accepted probe readings support a ${claimWord(x.claim_level).toLowerCase()} temperature excursion ${limit.word} policy. Product quality or spoilage conclusions need product identity, an exposure policy and further evidence.`
+                ? `Accepted probe readings support a ${claimWord(x.claim_level).toLowerCase()} excursion ${limit.word} policy. Product quality or spoilage conclusions need product identity, exposure policy and more evidence.`
                 : read.state === "NO_EXCURSION_OBSERVED"
                   ? "The accepted probe readings stay within policy for this window. This says nothing about product condition."
                   : "The accepted probe readings do not support a temperature conclusion for this window."}
             </p>
+            <ExactReferences
+              name="cold-claim-references"
+              references={[
+                { label: "Source classification", value: read.source_provenance.classification },
+                { label: "Source IDs", value: read.source_provenance.source_ids.join(", ") || null },
+                { label: "Assessment versions", value: read.currentness.watermark.assessment_revision_ids.join(", ") || null },
+                { label: "Assessment basis", value: read.source_provenance.basis_sha256 },
+                { label: "Evidence time", value: read.window.known_at },
+                { label: "Records not used", value: excluded.map((e) => e.evidence_id).join(", ") || null },
+              ]}
+              extra={
+                <>
             <p className="v69-chart-note" data-cold-claim-facts>
               {[
                 read.coverage.known_points === null
@@ -440,16 +457,8 @@ function TemperaturePanels({
                 <li key={text}>{plainLimitation(text)}</li>
               ))}
             </ul>
-            <ExactReferences
-              name="cold-claim-references"
-              references={[
-                { label: "Source classification", value: read.source_provenance.classification },
-                { label: "Source IDs", value: read.source_provenance.source_ids.join(", ") || null },
-                { label: "Assessment versions", value: read.currentness.watermark.assessment_revision_ids.join(", ") || null },
-                { label: "Assessment basis", value: read.source_provenance.basis_sha256 },
-                { label: "Evidence time", value: read.window.known_at },
-                { label: "Records not used", value: excluded.map((e) => e.evidence_id).join(", ") || null },
-              ]}
+                </>
+              }
             />
           </>
         )}
@@ -503,12 +512,20 @@ function chainSentence(chain: ColdChainRead | undefined, contradicted: boolean):
   return "The start response cannot be established from the accepted records.";
 }
 
+function resultTone(result: string | null | undefined): string {
+  return result === "OBSERVED_FAILURE" ? "danger" : result === "CONTRADICTORY" ? "warning" : "neutral";
+}
+
 function BackupStatus({ read }: { read: ColdBackupRead | null }) {
   if (read === null) return null;
   const chain = read.chains[0];
   return (
     <StatusBar label="Backup chain state">
-      <Badge tone="neutral">{chain === undefined ? NOT_ASSESSED : startResultWord(chain.result)}</Badge>{" "}
+      <span className={`cold-result cold-result--${resultTone(chain?.result)}`} data-cold-result={chain?.result ?? "UNKNOWN"}>
+        <Badge tone="neutral" className={chain?.result === "OBSERVED_SUCCESS" ? "cold-temperature-tone--green" : undefined}>
+          {chain === undefined ? NOT_ASSESSED : startResultWord(chain.result)}
+        </Badge>
+      </span>{" "}
       <Badge tone="neutral">Evidence: {claimWord(read.claim_level)}</Badge>{" "}
       {[
         `${read.chains.length === 1 ? "One outage" : `${read.chains.length} outages`} in the selected window`,
@@ -631,8 +648,10 @@ function BackupPanels({
                     <td>{stepCell(stepOf(c, "COMPRESSOR"), "Running")}</td>
                     <td>{x === undefined ? (temperature?.state === "NO_EXCURSION_OBSERVED" ? "Within policy" : NOT_ASSESSED) : `${limitOf(temperature!, x.direction).word === "above" ? "Above" : "Below"} policy · ${range(x.duration_bounds.low, x.duration_bounds.high, "min")}`}</td>
                     <td>
-                      <span className={`cold-result cold-result--${c.result === "OBSERVED_FAILURE" ? "danger" : c.result === "CONTRADICTORY" ? "warning" : "neutral"}`} data-cold-result={c.result}>
-                        <Badge tone="neutral">{startResultWord(c.result)}</Badge>
+                      <span className={`cold-result cold-result--${resultTone(c.result)}`} data-cold-result={c.result}>
+                        <Badge tone="neutral" className={c.result === "OBSERVED_SUCCESS" ? "cold-temperature-tone--green" : undefined}>
+                          {startResultWord(c.result)}
+                        </Badge>
                       </span>
                     </td>
                   </tr>
@@ -887,7 +906,7 @@ function StartFindingPanels({ finding, backup, links }: { finding: ColdFindingDe
           <Link to={links.backup}>Inspect the backup chain →</Link>
         </p>
       </Panel>
-      <div className="panel-pair">
+      <div className="panel-pair cold-finding-pair">
         <Panel heading="Operational context" headingId="cold-operational-heading">
           {chain !== null ? (
             <CausalTimeline events={chainTimeline(chain, links)} label="Reconstructed event chain" />
@@ -896,15 +915,19 @@ function StartFindingPanels({ finding, backup, links }: { finding: ColdFindingDe
               {backup.status === "loaded" ? "The selected backup chain does not include this start request." : refusalText(backup).body}
             </Gap>
           )}
-          <KeyValues
-            label="Operational context"
-            rows={[
-              ["Missing steps", missing.length === 0 ? "None" : missing.map((s) => stepLabel(s)).join(", "), "missing"],
-              ["Versions", versionsLine(finding), "versions"],
-            ]}
+          <p className="cold-operational-missing" data-cold-missing-steps>
+            {missing.length === 0 ? "Missing steps: None" : `Missing steps: ${missing.map((s) => stepLabel(s)).join(", ")}`}
+          </p>
+          <ExactReferences
+            name="cold-finding-references"
+            references={findingReferences(finding)}
+            extra={
+              <>
+                <KeyValues label="Operational context" rows={[["Versions", versionsLine(finding), "versions"]]} />
+                <EvidenceLine finding={finding} links={links} />
+              </>
+            }
           />
-          <EvidenceLine finding={finding} links={links} />
-          <ExactReferences name="cold-finding-references" references={findingReferences(finding)} />
         </Panel>
         <NextStepPanel links={[{ href: links.backup, label: "Open the Backup view →" }]} related={null} />
       </div>
@@ -947,7 +970,7 @@ function ExcursionFindingPanels({
           <Link to={links.temperature}>Inspect the temperature readings →</Link>
         </p>
       </Panel>
-      <div className="panel-pair">
+      <div className="panel-pair cold-finding-pair">
         <Panel heading="Temperature" headingId="cold-finding-temperature-heading">
           {t === null ? (
             <Gap id="cold-finding-temperature-heading">{temperature.status === "loaded" ? "" : refusalText(temperature).body}</Gap>
@@ -957,15 +980,22 @@ function ExcursionFindingPanels({
               {gapNotes(t)}
             </>
           )}
-          <KeyValues
-            label="Temperature"
-            rows={[
-              ["Peak observed", deg(peak), "peak"],
-              ["Exposure size", range(dm.low, dm.high, "°C·min"), "exposure"],
-            ]}
+          <ExactReferences
+            name="cold-finding-references"
+            references={findingReferences(finding)}
+            extra={
+              <>
+                <KeyValues
+                  label="Temperature"
+                  rows={[
+                    ["Peak observed", deg(peak), "peak"],
+                    ["Exposure size", range(dm.low, dm.high, "°C·min"), "exposure"],
+                  ]}
+                />
+                <EvidenceLine finding={finding} links={links} />
+              </>
+            }
           />
-          <EvidenceLine finding={finding} links={links} />
-          <ExactReferences name="cold-finding-references" references={findingReferences(finding)} />
         </Panel>
         <NextStepPanel
           links={[{ href: links.temperature, label: "Open the Temperature view →" }]}
