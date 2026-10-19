@@ -34,11 +34,32 @@ Branch `task/W2-06-ev-assessment` (worktree `AssetOpsV1-review5`), from main `3c
 - Focused + adjacent (`test_w206*`, `test_w203*`, `test_w205*`, `test_s2*`) on private `w206q1_test` (dropped);
   `tools/check-all.ps1` 10/10 passed. 486 passed, 0 skipped (JUnit), 927 s.
 
-## Stopped: R12 vectors and commits 2–3 not started
+## Run 3 (after q2 merge, 2026-10-19)
 
-`.agent/W2-06-pending-rulings.md` "run 2 (q2)" Q1–Q15. Q1 blocks the R12 vector file (no report→accepted-ID
-pairing in the manifests); Q3–Q8 block the pure correlation; Q10–Q15 block the writer. Resume with: R12 vectors +
-host test, then commit 2, then commit 3, each against the q2 rulings.
+- `27ceef76` commit 2b: pure `backend/assetops_backend/analytics/ev.py` (`EvInputs`, `EvRecord.from_row`,
+  `EvConnector`, `EvWindow`, `assess(inputs)->EvAssessment` with `.sessions/.denominator/.claim_level/.status_state/
+  .orphan_terminal_ids`; `EvSession` carries links, intervals, `basis_sha256`, `finding_key_sha256`,
+  `finding_support_sha256`; helpers `assessment_key`, `run_input_sha256`, `configuration_sha256`, `cohort_sha256`,
+  `EMPTY_SUPPORT_SHA256`, `plain`); `SESSION_ANALYTIC` declared in `analytics/declaration.py`.
+  `test_w206_ev_session_rules.py` 42 passed.
+- `0eeb57ef` commit 3a: 0025 `ENQUEUE`/`DROP_ENQUEUE` (`ev_enqueue_floor/ceil/window/configuration`,
+  `enqueue_ev_assessment` deferred constraint trigger on `accepted_evidence`); `PostgresAssessmentStore.
+  ev_enqueue_configuration` (above `transaction`); rule 8 `$evEnqueueSql` (non-vacuity proven);
+  `test_w206_ev_enqueue_postgres.py` 16 tests; `test_w200_source_events_postgres.py` adjusted for EV jobs.
+  Publish-path wiring NOT done (P7).
+- Parked, uncommitted, in `.agent/W2-06-2a-wip/`: `W2-06-2a-wip.patch` (vector producer inside
+  `test_w205b_ev_replay_postgres.py::test_six_registered_replays`, `git apply --check` clean), generated
+  `ev-w206-vectors.json` (destination `backend/tests/fixtures/w2/`, all `clock_attested=false`),
+  `test_w206_ev_vectors.py` (destination `host/tests/`), `W2-06-ev-vector-tests.py.txt` (destination
+  `backend/tests/test_w206_ev_vectors.py`; 9 of 10 fail against the parked file on P1/P2).
+- Checks at `0eeb57ef`: `test_w206*`, `test_w203*`, `test_w205*`, `test_s2*` on private `w206r3_test` (dropped): 544 passed, 0 failed, 0 skipped (JUnit), 963 s; `tools/check-all.ps1` 10/10 passed.
+
+## Stopped: pending rulings q3 (P1-P8)
+
+`.agent/W2-06-pending-rulings.md` "run 3 (q3)". P1 (EV clock attestation source) blocks the vector fixture and
+3b's inputs; P2-P4 block 3b hashing/inputs; P7 blocks publish wiring. Resume: apply rulings to the parked 2a work
+and `ev.py`, commit 2a, then 3b (store `ev_*` methods, `PostgresFindingStore.ev_apply`, `EvAssessmentWorker`,
+`build_ev_assessment_worker`, `test_w206_ev_store_postgres.py`), then P7 wiring.
 
 ## Anchors for commit 4 (selected reads)
 

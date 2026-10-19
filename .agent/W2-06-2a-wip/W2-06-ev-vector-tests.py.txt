@@ -1,0 +1,152 @@
+"""W2-06 commit 2 (pending vectors): `ev-session/1` against the pinned public vectors (R12/Q1).
+
+Save as `backend/tests/test_w206_ev_vectors.py` once `backend/tests/fixtures/w2/ev-w206-vectors.json` lands.
+Reads the pinned file only; never imports `assetops_simulator`. Assumed `first_cutoff` shape (adjust to the
+landed file): `{known_at, accepted_evidence_ids, <expected keys>}`.
+PENDING: rows carry per-binding `binding_revision_id`, not the binding-set revision ev.py compares (see report).
+"""
+
+from __future__ import annotations
+
+import json
+from datetime import datetime
+from decimal import Decimal
+from pathlib import Path
+from uuid import UUID
+
+import pytest
+
+from assetops_backend.analytics import ev
+
+VECTORS = Path(__file__).parent / "fixtures" / "w2" / "ev-w206-vectors.json"
+CASES = ("complete", "interrupted", "fault", "missing-meter", "late-record", "contradictory")
+#: The vectors pin no charger ID (Q1: never fabricated); only the Finding key uses it and it is not asserted here.
+CHARGER = UUID(int=0)
+
+
+def _document() -> dict:
+    return json.loads(VECTORS.read_text(encoding="utf-8"))
+
+
+def _instant(text: str) -> datetime:
+    return datetime.fromisoformat(text.replace("Z", "+00:00"))
+
+
+def _connectors(rows: list[ev.EvRecord]) -> tuple[ev.EvConnector, ...]:
+    assets = {}
+    for r in rows:
+        if r.connector_id is not None and r.asset_id is not None:
+            assert assets.setdefault(r.connector_id, r.asset_id) == r.asset_id
+    return tuple(ev.EvConnector(asset_id=a, charger_asset_id=CHARGER, connector_id=code,
+                                max_power_kw=Decimal("60.0"), meter_resolution_kwh=Decimal("0.001"),
+                                meter_error_bound_kwh=Decimal("0.001"), clock_error_bound_s=Decimal("30.0"),
+                                status_cadence_min=Decimal("1.0"), meter_cadence_min=Decimal("5.0"))
+                 for code, a in sorted(assets.items()))
+
+
+def _inputs(case: dict, rows: list[ev.EvRecord], known_at: datetime) -> ev.EvInputs:
+    manifest = json.loads((Path(__file__).parents[2] / case["manifest"]).read_text(encoding="utf-8"))
+    classes = {r.source_class for r in rows}
+    assert len(classes) == 1
+    window = case["window"]
+    return ev.EvInputs(tenant_id=UUID(int=1), site_id=UUID(int=2),
+                       window=ev.EvWindow(_instant(window["start"]), _instant(window["end"]), known_at),
+                       records=tuple(rows), connectors=_connectors(rows),
+                       foundation_revision_id=UUID(manifest["foundation_revision_id"]),
+                       binding_revision_id=UUID(manifest["binding_revision_id"]), mapping_profile_id="simulator-lab-gateway-ev/1",
+                       source_class=classes.pop())
+
+
+def _selected(result: ev.EvAssessment, rows: list[ev.EvRecord], code: str) -> ev.EvSession:
+    asset = next(r.asset_id for r in rows if r.connector_id == code)
+    found = [s for s in result.sessions if s.connector_asset_id == asset]
+    assert len(found) == 1
+    return found[0]
+
+
+def _actual(session: ev.EvSession, rows: list[ev.EvRecord]) -> dict:
+    raw = sum((Decimal(r.value) for r in rows
+               if r.session_id == session.external_session_id and r.measurement == "INTERVAL_DELTA"
+               and r.asset_id == session.connector_asset_id), Decimal(0))
+    return {
+        "state": session.state,
+        "start_at": ev.plain(session.start_at),
+        "end_at": ev.plain(session.end_at),
+        "start_bounds": {"earliest": ev.plain(session.start_bounds[0]), "latest": ev.plain(session.start_bounds[1])},
+        "end_bounds": {"earliest": ev.plain(session.end_bounds[0]), "latest": ev.plain(session.end_bounds[1])},
+        "supported_kwh": ev.plain(session.supported_kwh),
+        "energy_complete": session.energy_complete,
+        "unknown_meter_seconds": session.unknown_meter_seconds,
+        "reason_codes": list(session.reason_codes),
+        "fault_evidence_id": ev.plain(session.fault_evidence_id),
+        "finding_support_evidence_ids": sorted(i for i, _ in session.finding_support),
+        "raw_accepted_kwh": format(raw.quantize(Decimal("0.001")), "f"),
+        "intervals": [ev.plain(i) for i in session.intervals],
+    }
+
+
+def _normalize(expected: dict) -> dict:
+    """Instants compared as instants (vector text may omit microseconds)."""
+    def fix(value):
+        if isinstance(value, str) and value.endswith("Z") and "T" in value:
+            return ev.plain(_instant(value))
+        if isinstance(value, dict):
+            return {k: fix(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [fix(v) for v in value]
+        return value
+    return fix(expected)
+
+
+def test_vector_file_has_exactly_the_six_cases() -> None:
+    document = _document()
+    assert document["schema"] == "ev-w206-vectors/1"
+    assert tuple(sorted(document["cases"])) == tuple(sorted(CASES))
+
+
+@pytest.mark.parametrize("name", CASES)
+def test_case_expected_is_reproduced_exactly(name: str) -> None:
+    case = _document()["cases"][name]
+    rows = [ev.EvRecord.from_row(r) for r in case["records"]]
+    result = ev.assess(_inputs(case, rows, _instant(case["window"]["known_at"])
+                               if "known_at" in case["window"] else _instant(case["window"]["end"])))
+    session = _selected(result, rows, case["selected_connector"])
+    expected = _normalize(case["expected"])
+    actual = _actual(session, rows)
+    expected_intervals = sorted(expected.pop("intervals"), key=lambda i: (i["start_at"], i["evidence_id"]))
+    assert actual.pop("intervals") == expected_intervals
+    assert actual == expected
+
+
+def test_fault_case_c1_has_no_session() -> None:
+    case = _document()["cases"]["fault"]
+    rows = [ev.EvRecord.from_row(r) for r in case["records"]]
+    result = ev.assess(_inputs(case, rows, _instant(case["window"]["end"])))
+    c1 = next(r.asset_id for r in rows if r.connector_id == "c1")
+    assert all(s.connector_asset_id != c1 for s in result.sessions)
+    assert result.denominator["fault_aborted"] == 0
+
+
+def test_contradictory_raw_sum_is_separate_from_null_assessment() -> None:
+    case = _document()["cases"]["contradictory"]
+    rows = [ev.EvRecord.from_row(r) for r in case["records"]]
+    session = _selected(ev.assess(_inputs(case, rows, _instant(case["window"]["end"]))), rows, "c1")
+    assert session.supported_kwh is None and session.unknown_meter_seconds is None
+    assert _actual(session, rows)["raw_accepted_kwh"] == "30.000"
+
+
+def test_late_record_first_cutoff_is_incomplete_then_completed() -> None:
+    case = _document()["cases"]["late-record"]
+    cutoff = case["first_cutoff"]
+    accepted = set(cutoff["accepted_evidence_ids"])
+    rows = [ev.EvRecord.from_row(r) for r in case["records"]]
+    first_rows = [r for r in rows if r.id in accepted]
+    assert len(first_rows) == len(rows) - 1
+    first = _selected(ev.assess(_inputs(case, first_rows, _instant(cutoff["known_at"]))), first_rows, "c1")
+    actual = _actual(first, first_rows)
+    actual.pop("intervals")
+    expected = _normalize({k: v for k, v in cutoff.items() if k not in ("known_at", "accepted_evidence_ids")})
+    expected.pop("intervals", None)
+    assert {k: actual[k] for k in expected} == expected
+    final = _selected(ev.assess(_inputs(case, rows, _instant(case["window"]["end"]))), rows, "c1")
+    assert final.state == "COMPLETED" and final.basis_sha256 != first.basis_sha256

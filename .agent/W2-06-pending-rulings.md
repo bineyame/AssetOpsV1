@@ -197,3 +197,62 @@ inputs and exact configuration": same row form as the session basis over all win
 NO_LONGER_SUPPORTED; `matcher_version`; `claim` JSON (commit 4's detail `claim` keys?); exact `limitations`
 sentence(s) ("component cause and unmet demand are unknown"); `finding_revision.basis_sha256` = session basis or run
 input; `cited_evidence_sha256`; `finding.anchor_start` (START time?) and `anchor_assessment_revision_id`.
+
+# W2-06 pending rulings — run 3 (q3), 2026-10-19
+
+Run 3 landed `27ceef76` (commit 2b, pure `analytics/ev.py` + state-table tests) and `0eeb57ef` (commit 3a, enqueue
+trigger + `ev_enqueue_configuration`). Stopped before the vector fixture (2a) and the writer/worker (3b). Unruled
+points, all at once:
+
+## Vectors / pure correlation (block 2a and the 3b replay tests)
+
+- **P1 clock attestation source (blocking).** The W2-05b EV replay chain records no `source_clock_attestation`
+  (only W2-03 cold's test records one via SYSTEM_ATTESTER `record_clock_attestation`). Honestly derived, every
+  vector row is `clock_attested=false`, so under R4 every record is EXCLUDED `CLOCK_UNATTESTED`, contradicting the
+  q2 table (SUPPORT/null, `[]`). Options: (A) producer records the SYSTEM simulated attestation per EV lab source as
+  cold does (consumes held uuid4s: shifts pinned W2-05b IDs/manifests, or runs after the manifest comparison with a
+  later `recorded_at`); (B) keep `false` and revise the expected table; (C) other. 3b's `ev_inputs` reads the same
+  source, so this also fixes the writer's input.
+- **P2 binding identity check.** Row `binding_revision_id` is a per-binding ID, not the binding-set revision (c1 rows
+  in `complete` carry two IDs, neither the manifest set revision). `ev.py` compares to the set revision, so all rows
+  would be `SOURCE_UNVERIFIED`. Options: input carries the set of effective binding IDs of the set revision; or
+  compare set revision only.
+- **P3 run-input use/reason for unlinked or doubly linked rows.** Q14 run SHA rows are `[id,envelope,use,reason]`
+  for all window inputs incl. orphan/context, but no use/reason is ruled for a record linked to no session, or
+  linked with different uses by two sessions. `ev.run_input_sha256` currently takes caller-supplied rows.
+- **P4 `policy` key names** inside `configuration_sha256` (ratings, resolution/error, clock bound, cadences) are not
+  fixed; caller-supplied today.
+- **P5 ratify implementer readings in `ev.py`:** 30 s straddle applied only in `[START-30s,START)`; two FAULTs both
+  within 30 s of ABORT -> neither supports, no Finding; non-GOOD START creates no session; second accepted START
+  linked CONTEXT `CONFLICTING_START`; orphan = terminal with no START for that connector+session; negative/nonfinite
+  delta gets no `ev_meter_interval` row (DDL forbids it) but still a session-evidence EXCLUDED `METER_INVALID` link.
+- **P6 vector-file shape:** (a) `first_cutoff` written as the 13 expected keys plus `known_at` and
+  `accepted_evidence_ids` (rows carry no `received_at`; without the ID list the 09:00 set cannot be rebuilt) — or
+  13 keys only; (b) `finding_support_evidence_ids` table order START,FAULT,ABORT vs ID-sorted; (c) `source_id` =
+  ledger source UUID vs envelope external source ID; (d) `unit` = `normalized_unit` vs `original_unit` (identical
+  here); (e) no `expected` key exists for non-interval record uses (contradictory ENDs CONTEXT, fault-case c1
+  FAULT/CLEAR context) — add a key or leave to rule tests; (f) write per case + per-case byte compare + whole-file
+  check vs one whole-file write.
+
+## Enqueue wiring (blocks the rest of 3a; 3b can proceed without it)
+
+- **P7 publish-path wiring vs guards.** Q12 says call `ev_enqueue_configuration` on the publishing connection from
+  `evidence_publication`/`batch_publication_link` append, `PostgresFoundationStore.publish_configuration` and
+  `BindingService.publish`. But (i) the evidence ledger may not import analytics (`tools/checks/dependency-direction.ps1:365-372`)
+  and those rows have no validity span — options: 0025 trigger on `batch_publication_link` like 0023's cold trigger,
+  injected callable, or a span ruling; (ii) `sites/adapters` may not import `analytics.adapters` and the Foundation
+  store does not know the Site type — options: pass via `FoundationService`'s existing `then` hook, constructor
+  parameter on store/`FoundationService`/`BindingService` wired in `main.py`, or Site-type check in SQL in the store;
+  (iii) `BindingService.publish` (`sites/binding_service.py:720`) has no transaction hook today.
+- **P8 ratify 3a readings:** missing ACCEPTED disposition at deferred firing -> no enqueue (not raise; raising breaks
+  w200's raw-SQL copy); "enqueue each selected window separately" read as a merge never joins two distinct selected
+  windows nor exceeds 31 days, bridge comparison inclusive; "change instant" = `valid_from`; `cause` text is not
+  stored (`recompute_job` has no column); a session row dirties selected windows overlapping the session's full
+  accepted extent, not only START..new row. Out-of-brief edit: `test_w200_source_events_postgres.py` now excludes
+  `ev_charging` from its no-dispatch-job assertions, asserts EV START enqueues, and clears EV jobs before its 0020
+  downgrade refusal steps.
+
+## Not started
+
+3b: `ev_inputs/ev_persist/ev_sessions/ev_windows/ev_watermark/ev_still_mine/ev_complete`, `PostgresFindingStore.ev_apply`,
+`EvAssessmentWorker`, `build_ev_assessment_worker`, `test_w206_ev_store_postgres.py`. Depends on P1-P4.
