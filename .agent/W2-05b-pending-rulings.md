@@ -82,3 +82,31 @@ pre-review sweep of commits 3-5.
   does a CHARGING connector paused by grid interruption (or allocated 0) stay `CHARGING`?
 
 No commits contain product code; branch head is the handoff/rulings commit only.
+
+## Run 2 (2026-10-19): Q1-Q14 ruled and built. Non-blocking interpretation notes
+
+Commits 1 and 2 follow the nearest precedent where the rulings are silent. Each note says what was built,
+so the Architect can confirm or reverse it. None blocks commit 3. N8 should be settled before commit 5 pins
+manifests.
+
+- **N1 production 403.** `main.py` composes the EV choice route with `development_access` +
+  `no_owner_principal`, like the cold replay. The running app therefore answers 403, and the Lab shows
+  `EV test runs are not available for this Site`, until an owner principal exists. Should the owner
+  walkthrough have a dev owner composition?
+- **N2 envelope and order.** EV catalog refusals use the Lab router's `{detail:{code,message}}`, not the
+  replay's `{error:{...}}`. Check order: 401, then 422 (`site_id`), then 403, then 404/registration.
+- **N3 Lab link placement.** `Set up an EV charging run` sits inside the existing `Cold-chain run setup`
+  panel, under the cold link, because no EV panel heading or description is ruled.
+- **N4 client states.** For a Site whose detail is not `EV_CHARGING`, the screen shows the empty copy and
+  makes no API call. Site detail `not_found` uses the 404 copy, and `unavailable` uses the 503 copy with
+  Retry. API 401/422/other non-OK answers map to the unavailable copy.
+- **N5 model profile.** `EV_CHARGER_MODEL.supported_states=()`, as for cold. The five Q12 state strings are
+  `EV_CONNECTOR_STATES`, because `SupportedState` declares world-state keys, not values.
+- **N6 parser literals.** The window and seed must equal the Q1/Q5 literals exactly. Forcing and observation
+  `time` must fall on a minute boundary. REQUEST_KW is bounded by a 60 kW parser constant.
+- **N7 pack schedule.** Outside the 08:00-16:00 UTC enable schedule, allocation pauses at 0 (no terminal),
+  like a grid pause.
+- **N8 private digest shape (pinned later).** The closing boundary (09:00) is a snapshot only: no forcing,
+  transition or allocation. A 1 kW quantum is cut to `min(1, headroom, remaining)`, so fractional
+  requests/limits are fully allocated. Private exact kWh renders as an integer or `p/q`. `forcing_ordinal`
+  is the zero-based ordinal of the last forcing row applied at or before the boundary (null before any).
