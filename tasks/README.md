@@ -89,6 +89,15 @@ These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev
 | W2-06 EV assessment | [W2-06](W2-06-ev-assessment.md) | `0025` immutable session correlation, supported meter sum, bounded fault Finding, late recompute and two exact v69 routes; after reviewed/merged W2-05b | Done 2026-10-20 (merged; review ACCEPT WITH FIXES, fixes r7-r10, re-review ACCEPT; owner W2 walkthrough non-blocking) |
 | W2-07 EV Site/evidence/money | [W2-07](W2-07-ev-site-evidence-money.md) | `0026` shared selected EV projections, exact gross tariff scenario and five exact v69 routes; after reviewed/merged W2-06 | M; implementation-ready; two phases; USER_REVIEW_REQUIRED true |
 
+## Post-W2 step 1 planning packets
+
+`D-2026-10-20-post-w2-sequence` in `.agent/post-W2-sequence.md` binds the two lanes after reviewed W2-07 merges. These packets are **planned; build spec pending**, not implementation authorization. Each requires concrete artifact closure, independent spec review and the owner wave-start scope/core-panel gate before build.
+
+| Lane and slice | Packet | Exit and predecessor | Status |
+| --- | --- | --- | --- |
+| A · W4-01 Work-case core | [W4-01](W4-01-work-case-core.md) | `0027` shared Incident/Maintenance/WorkEvent/OperationalRecord contract, case APIs and thin `sitework-incidents`/`sitework-maintenance` lists; after reviewed/merged W2-07 | planned; build spec pending; USER_REVIEW_REQUIRED true |
+| B · W3-01 Estate claim and Action roots | [W3-01](W3-01-estate-claim-action-roots.md) | Schema-free scoped global `findings`, `findings-cost`, `findings-risks`, `findings-opportunities`, `actions` over existing W1 rows; after reviewed/merged W2-07; independent of W4-01 | planned; build spec pending; USER_REVIEW_REQUIRED true |
+
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 
 | Tooling lane | Task | Activation | Status |
