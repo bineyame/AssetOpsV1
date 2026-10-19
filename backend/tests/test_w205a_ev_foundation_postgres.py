@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -298,3 +299,183 @@ def test_out_of_range_clock_bound_is_refused_as_ev_configuration_invalid(store) 
     assert caught.value.code == "EV_CONFIGURATION_INVALID"
     assert "ev-clock-error-bound" in str(caught.value) or "properties[" in str(caught.value)
     assert len(store.revisions(result.tenant.id, result.site.id)) == before
+
+
+#: W2-05b q3 Q15: the corrected map's normal publication, effective before the 6 October run window.
+CORRECTED_FROM = datetime(2026, 10, 5, tzinfo=timezone.utc)
+OLD_STATE_MAP = {v: v for v in ("AVAILABLE", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")}
+
+
+def _state_maps(snapshot) -> list[dict]:
+    return [r["conversion"]["parameters"]["map"] for r in json.loads(snapshot.body)["bindings"]
+            if r["role"] == "ev_connector_state"]
+
+
+def test_an_old_map_stays_immutable_and_the_corrected_revision_is_selected(store) -> None:
+    """q3 Q15: an already published 05a map without `UNPLUGGED` is never patched; a new normal publication
+    carries the seven-label map and is the revision selected for the 6 October window."""
+    from dataclasses import replace
+
+    from assetops_backend.sites.composition import read_site_import_source
+    from assetops_backend.sites.ev_lab import FIXTURE_PATH
+    from assetops_backend.sites.foundation_service import ImportSource, import_site
+
+    source = read_site_import_source(FIXTURE_PATH)
+    result = import_site(store, tenant_slug="demo", configured_tenant_slug="demo",
+                         source=ImportSource(path="var/sites/ev-lab-001.yaml", sha256=source.sha256,
+                                             record=source.record),
+                         legacy_documents=(), clock=Clock(NOW - timedelta(hours=3)))
+    corrected = complete_requests(store, result)
+    old = [replace(r, conversion={"kind": "ENUM", "parameters": {"map": OLD_STATE_MAP}})
+           if r.role == "ev_connector_state" else r for r in corrected]
+    BindingService(store, Clock(NOW - timedelta(hours=2))).publish(
+        result.tenant, result.site, requests=old, effective_from=ORIGINAL_FROM,
+        note="W2-05b test: the first 05a map.", role_set="ev-roles-1")
+    early = datetime(2026, 10, 2, tzinfo=timezone.utc)
+    before = snapshot_at(store, result, early)
+    assert isinstance(before, Snapshot) and _state_maps(before) == [OLD_STATE_MAP] * 2
+    BindingService(store, Clock(NOW - timedelta(hours=1))).publish(
+        result.tenant, result.site, requests=corrected, effective_from=CORRECTED_FROM,
+        note="W2-05b q3 Q15: state map labels UNPLUGGED.", role_set="ev-roles-1")
+    # The first revision row keeps its id, map and pinned bytes; the later publication only adds rows.
+    [first] = [s for s in store.binding_sets(result.tenant.id, result.site.id) if s.id == before.binding_set.id]
+    assert (first.snapshot_sha256, first.snapshot_canonical) == (before.sha256, before.body)
+    assert _state_maps(snapshot_at(store, result, early)) == [OLD_STATE_MAP] * 2
+    window = snapshot_at(store, result, datetime(2026, 10, 6, 8, tzinfo=timezone.utc))
+    assert isinstance(window, Snapshot) and window.sha256 != before.sha256
+    assert _state_maps(window) == [{v: v for v in (
+        "AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")}] * 2
+    assert selected(store, result, datetime(2026, 10, 6, 8, tzinfo=timezone.utc)).valid_from == CORRECTED_FROM
+
+
+# --- q4 Q19: the corrected map's normal re-publication on an already installed EV-LAB-001 ---------------------
+
+BACKEND_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _install_with_state_map(store, state_map=OLD_STATE_MAP):
+    """An installation made with the first 05a file: the import plus one binding revision without UNPLUGGED."""
+    from dataclasses import replace
+
+    from assetops_backend.sites.composition import read_site_import_source
+    from assetops_backend.sites.ev_lab import FIXTURE_PATH
+    from assetops_backend.sites.foundation_service import ImportSource, import_site
+
+    source = read_site_import_source(FIXTURE_PATH)
+    result = import_site(store, tenant_slug="demo", configured_tenant_slug="demo",
+                         source=ImportSource(path="var/sites/ev-lab-001.yaml", sha256=source.sha256,
+                                             record=source.record),
+                         legacy_documents=(), clock=Clock(NOW - timedelta(hours=3)))
+    old = [replace(r, conversion={"kind": "ENUM", "parameters": {"map": state_map}})
+           if r.role == "ev_connector_state" else r for r in complete_requests(store, result)]
+    BindingService(store, Clock(NOW - timedelta(hours=3))).publish(
+        result.tenant, result.site, requests=old, effective_from=ORIGINAL_FROM,
+        note=binding_fixture()["note"], role_set="ev-roles-1")
+    return result
+
+
+def _ev_draft(store, *, knowledge_at=None):
+    from run_fixtures import FakeRuns, FakeScenarios, FakeSites
+
+    from assetops_backend.runs.profiles import EV_CHARGER_MODEL, EV_PUBLICATION_PROFILE
+    from assetops_backend.runs.registered_basis import RegisteredLabBasis
+    from assetops_backend.runs.service import RunSetupService
+    from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import ReadOnlyYamlScenarioStore
+    from assetops_backend.sites.cutover import ImportedSiteRegistry
+
+    runs = FakeRuns()
+    shipped = ReadOnlyYamlScenarioStore(Path(BACKEND_DIR).parent / "config" / "scenarios")
+    setup = RunSetupService(
+        runs, FakeSites(()), FakeScenarios(tuple(s for s in shipped.list_scenarios() if s.scenario_id == "ev-complete")),
+        model_profiles=(EV_CHARGER_MODEL,), publication_profiles=(EV_PUBLICATION_PROFILE,),
+        now=lambda: "2026-10-17T12:00:00Z",
+        registered_bases=RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, "demo", Clock(NOW)))))
+    request = {
+        "site_id": "EV-LAB-001", "foundation_version": 1, "scenario_id": "ev-complete", "scenario_version": 1,
+        "interval": {"start_time": "2026-10-06T08:00:00Z", "end_time": "2026-10-06T09:00:00Z"},
+        "timestep_minutes": 1, "seed": 20517, "model_profile": {"profile_id": "ev-charger", "profile_version": 1},
+        "publication_profile": {"profile_id": "ev-publication", "profile_version": 1}, "run_inputs": [],
+    }
+    if knowledge_at is not None:
+        request["knowledge_at"] = knowledge_at
+    return setup.create_draft_run(request), runs
+
+
+def test_republish_corrected_bindings_on_an_old_installation(store) -> None:
+    from assetops_backend.runs.refusals import RunSetupRefused
+    from assetops_backend.sites.ev_lab import CORRECTED_NOTE, republish_corrected_bindings
+
+    result = _install_with_state_map(store)
+    [old] = store.binding_sets(result.tenant.id, result.site.id)
+    old_bytes = (old.id, old.snapshot_sha256, old.snapshot_canonical)
+    window = datetime(2026, 10, 6, 8, tzinfo=timezone.utc)
+    assert _state_maps(snapshot_at(store, result, window)) == [OLD_STATE_MAP] * 2
+    # q4 Q18: a Draft against the old selected map refuses before any run exists.
+    with pytest.raises(RunSetupRefused) as caught:
+        _ev_draft(store)
+    assert caught.value.kind == "VERSION_UNAVAILABLE"
+
+    acted_at = NOW - timedelta(hours=1)
+    outcome = republish_corrected_bindings(store, tenant_slug="demo", clock=Clock(acted_at))
+    assert outcome.published
+    sets = store.binding_sets(result.tenant.id, result.site.id)
+    [kept] = [s for s in sets if s.id == old.id]
+    assert (kept.id, kept.snapshot_sha256, kept.snapshot_canonical) == old_bytes
+    current = sorted((s for s in sets if s.superseded_at is None), key=lambda s: s.valid_from)
+    assert [(s.valid_from, s.valid_to) for s in current] == [(ORIGINAL_FROM, CORRECTED_FROM), (CORRECTED_FROM, None)]
+    assert _state_maps(snapshot_at(store, result, datetime(2026, 10, 2, tzinfo=timezone.utc))) == [OLD_STATE_MAP] * 2
+    corrected = current[1]
+    assert (corrected.recorded_at, corrected.change_note) == (acted_at, CORRECTED_NOTE)
+    assert (outcome.revision_id, outcome.snapshot_sha256) == (str(corrected.id), corrected.snapshot_sha256)
+    assert outcome.snapshot_sha256 != old.snapshot_sha256
+    assert all("UNPLUGGED" in m for m in _state_maps(snapshot_at(store, result, window)))
+
+    # Idempotent: a second run publishes nothing and names the same corrected revision.
+    again = republish_corrected_bindings(store, tenant_slug="demo", clock=Clock(NOW))
+    assert (again.published, again.revision_id, again.snapshot_sha256) == (
+        False, outcome.revision_id, outcome.snapshot_sha256)
+    assert len(store.binding_sets(result.tenant.id, result.site.id)) == len(sets)
+
+    # A fresh 6 October Draft freezes the corrected revision; the old selected map (as known before the
+    # correction) still refuses.
+    run, _ = _ev_draft(store)
+    assert (run.registered_basis.binding_set_revision_id, run.registered_basis.snapshot_sha256) == (
+        outcome.revision_id, outcome.snapshot_sha256)
+    with pytest.raises(RunSetupRefused) as caught:
+        _ev_draft(store, knowledge_at=(acted_at - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%SZ"))
+    assert caught.value.kind == "VERSION_UNAVAILABLE"
+
+
+def test_republish_on_a_fresh_corrected_install_is_a_no_change(store) -> None:
+    from assetops_backend.sites.ev_lab import republish_corrected_bindings
+
+    result = install(store)
+    [only] = store.binding_sets(result.tenant.id, result.site.id)
+    outcome = republish_corrected_bindings(store, tenant_slug="demo", clock=Clock(NOW))
+    assert (outcome.published, outcome.revision_id, outcome.snapshot_sha256) == (
+        False, str(only.id), only.snapshot_sha256)
+    assert len(store.binding_sets(result.tenant.id, result.site.id)) == 1
+
+
+def test_republish_refuses_a_later_independent_publication(store) -> None:
+    from assetops_backend.sites.ev_lab import EvLabRepublishRefused, republish_corrected_bindings
+
+    result = _install_with_state_map(store)
+    BindingService(store, Clock(NOW - timedelta(hours=2))).publish(
+        result.tenant, result.site, requests=complete_requests(store, result),
+        effective_from=datetime(2026, 10, 7, tzinfo=timezone.utc), note="independent", role_set="ev-roles-1")
+    before = len(store.binding_sets(result.tenant.id, result.site.id))
+    with pytest.raises(EvLabRepublishRefused, match="later binding publication"):
+        republish_corrected_bindings(store, tenant_slug="demo", clock=Clock(NOW))
+    assert len(store.binding_sets(result.tenant.id, result.site.id)) == before
+
+
+def test_republish_refuses_a_map_that_is_not_the_known_first_one(store) -> None:
+    from assetops_backend.sites.ev_lab import EvLabRepublishRefused, republish_corrected_bindings
+
+    five = {v: v for v in ("PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")}
+    result = _install_with_state_map(store, five)
+    before = len(store.binding_sets(result.tenant.id, result.site.id))
+    with pytest.raises(EvLabRepublishRefused, match="not the known first"):
+        republish_corrected_bindings(store, tenant_slug="demo", clock=Clock(NOW))
+    assert len(store.binding_sets(result.tenant.id, result.site.id)) == before

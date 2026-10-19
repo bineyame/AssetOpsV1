@@ -61,8 +61,9 @@ class TestRoleSet:
             ("ev_requested_power", "EV_CONNECTOR", "kW", "NUMBER", "PER_ASSET", False),
             ("ev_allocated_limit", "EV_CONNECTOR", "kW", "NUMBER", "PER_ASSET", False),
         }
+        # W2-05b q3 Q15: the corrected seven-value vocabulary keeps the pack's UNPLUGGED.
         assert ROLES["ev_connector_state"].enum_states == (
-            "AVAILABLE", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
+            "AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
         assert set(br.EV_CADENCE_PROPERTY_BY_ROLE) == set(ROLES)
 
     def test_older_role_sets_are_unchanged(self) -> None:
@@ -95,6 +96,18 @@ class TestConversions:
             is None
         assert br.conversion_problem(state, "state", {"kind": "ENUM", "parameters": {"map": {"x": "RUNNING"}}})
         assert br.conversion_problem(ROLES["ev_session_event"], "event", IDENTITY) is None
+
+    def test_the_seven_value_state_map_validates(self) -> None:
+        """q3 Q15: every one of the seven labels maps to itself, and the fixture's c1/c2 maps are exactly that."""
+        state = ROLES["ev_connector_state"]
+        seven = ("AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
+        assert br.conversion_problem(state, "state", {"kind": "ENUM", "parameters": {"map": {
+            v: v for v in seven}}}) is None
+        assert br.conversion_problem(state, "state", {"kind": "ENUM", "parameters": {"map": {
+            "UNPLUGGED": "UNPLUGGED"}}}) is None
+        maps = [b["conversion"]["parameters"]["map"] for b in json.loads(CONVERSION.read_text("utf-8"))["bindings"]
+                if b["role"] == "ev_connector_state"]
+        assert [list(m.items()) for m in maps] == [[(v, v) for v in seven]] * 2
 
 
 class TestClosedTable:

@@ -12,7 +12,7 @@ persists what this module decides, and `ledger_service.py` orchestrates it.
   revisions are immutable original registrations, not today's mutable names
   (S2-02 AC3/AC4, technical design section 1).
 * `decide` turns one canonical V3 envelope into an acceptance with central
-  normalization (IDENTITY or ENUM of the selected binding) or a specific
+  normalization (IDENTITY, ENUM, or W2-05b's EV-energy IDENTITY_KWH of the selected binding) or a specific
   rejection. It never infers a mapping that the referenced set does not hold.
 """
 
@@ -28,6 +28,7 @@ from assetops_contracts.ingestion_receipt_v2 import IngestionReceiptV2
 from assetops_contracts.source_envelope import EnvelopeRejected
 from assetops_contracts.source_envelope_v3 import (
     SourceEnvelopeV3,
+    is_canonical_decimal,
     text_sha256,
 )
 from assetops_contracts.source_envelope_v4 import (
@@ -301,10 +302,24 @@ def _within(instant: datetime, start: datetime, end: datetime | None) -> bool:
     return start <= instant and (end is None or instant < end)
 
 
+#: W2-05b q3 Q17: the one binding shape `IDENTITY_KWH` normalizes.
+IDENTITY_KWH = "IDENTITY_KWH"
+IDENTITY_KWH_ROLE = "ev_connector_energy"
+KWH_UNIT = "kWh"
+
+
 def _normalize(binding: BindingBasis, value: str | None) -> tuple[str | None, str | None, str | None]:
     """(normalized value, conversion kind, refusal kind) under the selected binding's conversion."""
     kind = binding.conversion.get("kind")
     if kind == "IDENTITY":
+        return value, kind, None
+    if kind == IDENTITY_KWH:
+        # W2-05b q3 Q17: the unchanged canonical kWh decimal, only for the selected EV energy binding shape. It is
+        # never a counter or a unit conversion; the v4 delta/session/connector checks stay authoritative.
+        if (binding.role != IDENTITY_KWH_ROLE or binding.source_unit != KWH_UNIT
+                or binding.canonical_unit != KWH_UNIT or binding.conversion.get("parameters") != {}
+                or (value is not None and not is_canonical_decimal(value))):
+            return None, kind, "CONVERSION_UNSUPPORTED"
         return value, kind, None
     if kind == "ENUM":
         mapping = binding.conversion.get("parameters", {}).get("map", {})

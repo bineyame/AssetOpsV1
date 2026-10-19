@@ -10,6 +10,11 @@ import {
   createColdScenarioChoiceClient,
   type ColdScenarioChoiceClient,
 } from "./coldScenarioChoiceClient";
+import { EvRunSetupFrame } from "./EvRunSetupFrame";
+import {
+  createEvScenarioChoiceClient,
+  type EvScenarioChoiceClient,
+} from "./evScenarioChoiceClient";
 import { RunSetupFrame } from "./RunSetupFrame";
 import { RunsFrame } from "./RunsFrame";
 import { ScenarioFrame } from "./ScenarioFrame";
@@ -112,6 +117,10 @@ export const RUN_DETAIL_PATH = `${RUNS_PATH}/:runId`;
  *  choices for that Site; it never enters the legacy scenario run setup. */
 export const COLD_RUN_SETUP_PATH = `${SIMULATOR_LAB_PATH}/cold-run-setup`;
 
+/** W2-05b: the EV charging run setup. Site first, then the registered EV test
+ *  runs for an EV_CHARGING Site; it never enters the legacy scenario run setup. */
+export const EV_RUN_SETUP_PATH = `${SIMULATOR_LAB_PATH}/ev-run-setup`;
+
 /** The gated template and create APIs, spelled here for the same chokepoint
  *  reason. The operator Sites API is not a simulator path and is not spelled
  *  here: it is never gated. */
@@ -120,6 +129,8 @@ export const CREATE_SITE_API_PATH = "/api/simulator-lab/sites";
 export const SCENARIOS_API_PATH = "/api/simulator-lab/scenarios";
 /** W2-02: the registered cold-chain choices for one selected Site. */
 export const COLD_SCENARIOS_API_PATH = "/api/simulator-lab/cold-scenarios";
+/** W2-05b: the registered EV test runs for one selected Site. */
+export const EV_SCENARIOS_API_PATH = "/api/simulator-lab/ev-scenarios";
 export const RUN_PROFILES_API_PATH = "/api/simulator-lab/run-profiles";
 export const RUNS_API_PATH = "/api/simulator-lab/runs";
 /** T025f: each site's recorded template lineage against the shipped catalog.
@@ -268,6 +279,7 @@ export function simulatorLabRoutes(
   templateLineage?: SiteTemplateLineageClient,
   siteFoundation?: Pick<SiteFoundationClient, "getFoundation">,
   coldScenarios?: ColdScenarioChoiceClient,
+  evScenarios?: EvScenarioChoiceClient,
 ): GatedRoute[] {
   if (!flags.simulatorLab.enabled) {
     return [];
@@ -292,6 +304,7 @@ export function simulatorLabRoutes(
           siteTemplatesPath={SITE_TEMPLATES_PATH}
           addSiteEntryPoints={simulatorLabAddSiteEntryPoints(flags)}
           coldRunSetupPath={COLD_RUN_SETUP_PATH}
+          evRunSetupPath={EV_RUN_SETUP_PATH}
         />,
       ),
     },
@@ -399,6 +412,24 @@ export function simulatorLabRoutes(
           // its API path from this one.
           coldScenarios={
             coldScenarios ?? createColdScenarioChoiceClient(COLD_SCENARIOS_API_PATH)
+          }
+          runSetup={runSetup}
+          simulatorLabPath={SIMULATOR_LAB_PATH}
+          {...(siteFoundation === undefined ? {} : { siteFoundation })}
+        />,
+      ),
+    },
+    {
+      path: EV_RUN_SETUP_PATH,
+      element: inLabShell(
+        <EvRunSetupFrame
+          siteDirectory={siteDirectory}
+          siteDetail={siteDetail}
+          {...(templateLineage === undefined ? {} : { templateLineage })}
+          // Built here rather than at module load: the client module imports
+          // its API path from this one.
+          evScenarios={
+            evScenarios ?? createEvScenarioChoiceClient(EV_SCENARIOS_API_PATH)
           }
           runSetup={runSetup}
           simulatorLabPath={SIMULATOR_LAB_PATH}

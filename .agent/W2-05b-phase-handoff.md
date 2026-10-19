@@ -1,47 +1,213 @@
-# W2-05b phase handoff - run 1 (stopped on rulings; no product code)
+# W2-05b phase handoff - run 7 (q5 applied; commit 5 part 1 built; manifests blocked on Q26-Q31)
 
-Branch `task/W2-05b-ev-producer` from main `ed57b2f4`, worktree `AssetOpsV1-review5`.
+Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged. main merged in (q5 rulings).
+
+## Run 7 commits
+- `2d6c165b` "W2-05b q5 fixes": N13 in `host/ev_publication.py:_snapshot_rows` - every snapshot row's
+  device/signal must be declared exactly once in the frozen Foundation `content.devices`, and the device's
+  `component_id` must equal the frozen mapping component. Tests in `host/tests/test_ev_lab_execution.py`:
+  `mapping_swapped` refusal (no schedule, no gateway admission) and `test_the_unchanged_frozen_fixture_reaches_stage`.
+  N14-N17 ratified, no change. Non-vacuous: disabling the component check fails the swap test.
+- `fe84204e` commit 5 part 1: `backend/assetops_backend/ev_replay.py` (`EvReplayService`, cold mirror for the EV
+  pair), `ev_replay_api.py` (`build_ev_replay_router`, `EV_REPLAY_ROUTE`, RUN_ID_PATTERN 422, ruled messages),
+  ledger `ev_replay_rows`/`ev_replay_run_referenced` with `_run(..., snapshot=True)` (REPEATABLE READ, READ ONLY,
+  one connection), `evidence/composition.py` `_EvReplayReader`/`build_ev_replay_reader`, `main.py` mounts the router
+  with `access=ev_access, owner=ev_owner` (N1). Tests `backend/tests/test_w205b_ev_replay_api.py` (19): shape, digest,
+  empty run, 422 grammar, ladder, wrong tenant/Site, 503 cases, non-EV run, narrow reader, N1 default 403 / injected
+  owner passes for EV-LAB-001 (503: no ledger in that composition) / wrong Site 403 / injected 401. Non-vacuous:
+  composing `no_owner_principal` instead of `ev_owner` fails the injected-owner test.
+- Registry: `A-ev-world.task`/`I-ev-world.task` were already `W2-05b`; checker passes in `check-all`.
+
+## Run 7 counts
+- host `test_ev_lab_execution.py` + `test_ev_publication.py` 72 passed; backend `test_w205b_ev_replay_api.py` 19.
+- `check-all.ps1` 10/10 at `fe84204e`. No full suites run (final revision not reached). Frontend untouched.
+
+## Blocked (see pending rulings Q26-Q31)
+- Manifest `assertions` derivation per case. Not built: `backend/tests/test_w205b_ev_replay_postgres.py`
+  (chain mirrors `test_w202_cold_replay_postgres.py`: `install_ev_lab`, Draft via `RegisteredLabBasis`, host with
+  `ev_inputs=StoreEvInputs(...)`, real gateway process, `release_registered`, `advance_publication(run,
+  "2026-10-06T09:05:00Z")`, injected-owner `create_app` 200 over the DB), the six `contract-fixtures/w2/ev/*.json`,
+  writer-guard probes, full backend and host suites, review packet.
+
+## Run 6 record
+
+Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged.
+
+## Run 6 commits
+- `6c1a9a3c` q4 Q18/Q19. Q18: `runs/service.py:_create_ev_draft` calls `_ev_state_maps_publishable(selection)`
+  (module end) before `_freeze_document_draft`; refusal `VERSION_UNAVAILABLE` + `EV_STATE_MAP_REFUSAL` (exact
+  ruled sentence). Q19: `sites/ev_lab.py:republish_corrected_bindings` (+ `RepublishResult`,
+  `EvLabRepublishRefused`, `CORRECTED_EFFECTIVE_FROM` 2026-10-05, `CORRECTED_NOTE`), CLI
+  `--republish-corrected-bindings`. Tests: `test_w205b_ev_scenarios.py` (FakeRegistered now serves the real
+  corrected selection `corrected_selection()`; Q18 old/corrected/9 malformed/extra-labels/tamper; Q19 in-memory),
+  `test_w205a_ev_foundation_postgres.py` (Q19 old install -> republish -> idempotent -> fresh Draft corrected,
+  old knowledge_at refuses; fresh install no-change; later independent publication and unknown map refuse).
+- `548ca728` commit 4. `simulator/.../kernel/execute.py` `EV_PROFILE_PAIR`, `execution_path_for` -> `EV`
+  (half pair refuses); `host/execution_adapter.py:model_for` refuses EV. New `host/ev_lab.py`: `EvInputs`/
+  `StoreEvInputs` (`binding_revision` reads historical rows by ID), `EV_NOTES`, `ev_draft_projection`,
+  `ev_terminal_projection`, `EV_ARTIFACT_KEYS` (33, ruled order), `render_ev_artifact`/`parse_ev_artifact`/
+  `verify_ev_artifact`, `ev_delay_event_id`. `host/ev_publication.py`: `ev_parameters` (Q22), `_snapshot_rows`
+  (Q23), `verify_ev_inputs`, `ev_series_digest_of_texts`. `host/lab_execution.py`: `parse_ev_document`,
+  schema-7 dispatch in `parse_projection`, `YamlExecutionArtifacts.write_ev`/`read_ev` (one document, checked
+  against the run)/EV `read_history`, `ev_inputs=` ctor arg, `_is_ev`, `_stored`, `_start_ev`,
+  `_verified_ev_schedule` (called in `advance_publication`), `_stage_registered_v2_reports(..., delay_id)`.
+  `host/lab_app.py` composes `StoreEvInputs`. Tests: new `host/tests/test_ev_lab_execution.py` (42).
+
+## Run 6 counts (private DB `w205b_run6_test`, created with createdb, dropped)
+- backend `test_s2_*`, `test_w200_*`, `test_w202_*`, `test_w205*`: 503 passed (`test_w205b_ev_scenarios` 90,
+  `test_w205a_ev_foundation_postgres` 20). gateway suite 260; simulator ev pack/transform + cold pack 94; host
+  EV lab/publication, cold dispatch/lab/publication, post-run release, publication delay, t026, w203: 147;
+  contracts 6. `check-all.ps1` 10/10. Frontend untouched (no tsc).
+- Non-vacuous: Q18 check off fails 11 scenario tests; artifact-vs-run check, schedule verification, `ev-delay-`
+  ID and the equal-rating rule each fail their test when disabled.
+
+## Pending
+- Non-blocking notes N13-N17 in `.agent/W2-05b-pending-rulings.md` (swapped-mapping cross-check, schedule
+  mismatch code, Q19 later-publication reading, Q18 c1/c2 identity, Commit proof deferred to commit 5).
+- Nothing blocks commit 5.
+
+## Anchors for commit 5 (on `548ca728`)
+- Replay model: `backend/assetops_backend/cold_replay.py` `ColdReplayService` :56, `replay` :61,
+  `_linked_batch` :149, `_envelopes` :160; `cold_replay_api.py:build_cold_replay_router` :41.
+- Ledger SELECTs: `evidence/adapters/postgres_evidence_ledger.py` `cold_replay_rows` :1037,
+  `cold_replay_run_referenced` :1050, generic `_run` :145 (default isolation; EV needs REPEATABLE READ, READ ONLY).
+  Narrow reader: `evidence/composition.py` `_ColdReplayReader` :41, `build_cold_replay_reader` :56.
+- `main.py`: cold replay import :57, `create_app` `ev_access`/`ev_owner` :179-180, Lab router :470 (passes
+  them :487-488), cold replay mount near :492. N1 owed: pass the same `ev_access`/`ev_owner` to
+  `build_ev_replay_router`; walkthrough ASGI app calls `create_app` with the Site-scoped owner.
+- Real Commit path for manifests: host `release_registered` (`lab_execution.py`, COMPLETED gate) ->
+  gateway release/outbox -> S2 Batch V2/receipt; restart release `advance_publication` -> `_release`.
+- Manifests go to `contract-fixtures/w2/ev/*.json` (only `cold/` exists today). Registry: set
+  `A-ev-world.task`/`I-ev-world.task` to W2-05b (task file line 23) and run the registry checker.
+
+## Run 5 record
+
+
+## Run 5: q3 fixes (`21745982` "W2-05b q3 fixes")
+- Q15: `sites/binding_roles.py` `EV_CONNECTOR_STATES` seven values; both `conversions/ev-lab-001-bindings.json`
+  state maps seven identity labels. Gateway admits 08:00 c1/c2 `UNPLUGGED` unchanged; an old map without it
+  holds `INVALID_ENUM` (Stage -> PUBLICATION_REFUSED). Tests: roles seven-value map, foundation-postgres old
+  revision row keeps id/sha/bytes and the 2026-10-05 corrected revision is selected for 08:00, ev_scenarios
+  real `RegisteredLabBasis` Draft freezes the corrected revision/snapshot SHA.
+- Q17: `gateway/.../snapshot.py` accepts `IDENTITY_KWH` only for `ev_connector_energy`, kWh->kWh, `{}`;
+  service unchanged (non-ENUM canonical-decimal passthrough). `evidence/ledger.py:_normalize` returns the
+  unchanged decimal + `IDENTITY_KWH` for that shape, else `CONVERSION_UNSUPPORTED`.
+- Q16: `transform.py` `EvPublicRecord.fault_episode=(asset_code, fault_ordinal)` latched per connector;
+  `contracts gateway_report.ev_fault_episode_id`; `host/ev_publication.py:_correlation` uses S else episode.
+- N10: tests for connector-mean splits at 08:01/08:31 and the nonterminating-mean refusal. N9/N11/N12 already
+  matched the build (ratified).
+- Counts: gateway suite 260; simulator ev pack/transform/cold 94; host EV+cold/t026/w203/delay/release 91;
+  backend `test_s2_*`, `test_w200_*`, `test_w205*` on private `w205b_run5_test` 415 (DB dropped); contracts 6;
+  `check-all.ps1` 10/10. Frontend untouched (no tsc).
+- Non-vacuous: dropping the snapshot role check fails 3 gateway tests; the ledger role check fails 1; a
+  constant fault episode fails 2 transform/host tests.
+
+## Pending (see `.agent/W2-05b-pending-rulings.md`)
+- Q18 Draft refusal against an old selected map; Q19 upgrade publication for an installed EV-LAB-001.
+- Q20-Q25 block commit 4: schema-7 keys, schedule location, Foundation->EvParameters, binding rows source
+  for `ev_channels`, EV notes/history, delay ID prefix.
+- **Still owed from N1 (commit 5):** pass `create_app`'s `ev_access`/`ev_owner` to the EV replay router, and the
+  walkthrough's isolated ASGI app calls `create_app` with the Site-scoped owner (no global flag).
+
+## Anchors for commit 4 (refreshed on `21745982`)
+- `host/lab_execution.py`: `start` :2187 (cold dispatch :2205 via `_is_cold` :2128 -> `execution_path` in
+  `host/execution_adapter.py:138`); `_start_cold` :2266 is the model; `_stage_registered_virtual_ev` :2343;
+  `_not_started` :2134; artifact read dispatch by `artifact_schema_version` :1651; `YamlExecutionArtifacts.
+  write_cold` :1896, `read_history` cold branch :1936.
+- `host/cold_lab.py`: `ColdInputs`/`StoreColdInputs` :50-80, `_base` :93, projections :125/:137, schema-6
+  render/parse :173/:219, `delay_event_id` :276. `host/cold_publication.py:verify_cold_inputs` :83 (content SHA
+  check :97). `host/lab_app.py` `cold_inputs=` composition. `packs/ev_charger.py:EvParameters` :70.
+
+## Anchors for commit 5
+- Replay beside `backend/assetops_backend/cold_replay.py` / `cold_replay_api.py`; mounted in `main.py` :493
+  (`build_cold_replay_router`, `no_owner_principal` import :57); Lab router composed :470.
+
+## Run 4 record
+
+Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged.
+
+
+## Run 4: q2 corrections (`f2eafdee` "W2-05b q2 corrections")
+- N1: `main.create_app(..., ev_access=development_access, ev_owner=no_owner_principal)` passed to
+  `build_simulator_lab_router`. Tests `test_w205b_ev_scenarios.py::composed` (real `create_app` over
+  `InMemoryFoundationStore` with imported `fixtures/w2/ev-lab-001.yaml`): default 403 `SITE_SCOPE_FORBIDDEN`, no rows;
+  injected `code == "EV-LAB-001"` owner 200 with six labels; legacy and COLD-LAB-001 403; injected 401.
+  **Commit 5 still owes**: pass the same `ev_access`/`ev_owner` from `create_app` to the EV replay router, and the
+  walkthrough's isolated ASGI app must call `create_app` with the Site-scoped owner (no global flag).
+- N3: `SimulatorLabFrame.tsx` sibling Panel `EV charging run setup` (`headingId simulator-lab-ev-run-setup-heading`)
+  after the cold panel, before `What this workspace is`; ruled sentence via the Panel `description` prop (renders as
+  the v69 panel sub-line, smaller than the cold panel's body copy - reviewer to confirm this reading of
+  "description"). Cold panel cold-only. Frame test in `simulatorLabWorkspaceEntryPoint.test.tsx` asserts both
+  regions, copy, one link each, and order. Captures (viewed, not committed): scratchpad `cap/app-1440.png`,
+  `app-390.png`, `mock-1440.png`, `mock-390.png`; no overflow (scrollWidth = viewport).
+- N8: `packs/ev_charger.py` `step` refuses ordinals unless exactly `range(prev+1 or 0, +len(forcing))`, and any
+  ordinals at the closing snapshot; `forcing_ordinal` set only when rows applied. Document shape already matched N8.
+  Tests: ordinal guard, ordinal progression (null then carried to 09:00), 09:00 closing snapshot (base 1/3 kW ->
+  `181/3`, `1/3`, `239/3`), fractional final quantum (`81/2`, `27/40`), pinned complete-case digest
+  `6fc2f2a8...14adab2c` over 61 documents with key order and reduced-rational text. Test helper `forced` supplies
+  continuing ordinals so earlier refusal tests still refuse for their own reason.
+- Counts: backend ev_scenarios+lab gate+s1 cutover+scenarios API 155; simulator ev/cold pack+public transform 91;
+  host `test_ev_publication` 27; frontend 5 files 150; `tsc --noEmit` 0; `check-all.ps1` 10/10.
+- Non-vacuous: disabling the ordinal guard fails its test; default `ev_owner` -> True fails 2; `ev_access` ->
+  `development_access` fails the injected-401 test. No seed DB created. Q15-Q17/N9-N12 untouched.
 
 ## Done
-- Read task, build spec (dry-read + Run 8 amendment), EV design §3, ROLE_CONFIG sections, cold producer.
-- Spec commits 1 and 2 **not started**: 14 unruled items in `.agent/W2-05b-pending-rulings.md`
-  (document `window` shape, same-minute forcing kind rank, forcing/observation vocabularies and value
-  types, `scenario_version`, observation SHA row form, Lab frame placement and copy, catalog route
-  403/404 codes and row shape, profile registry copy, pack states outside the six cases).
-- Focused tests: none run (no code). `tools/check-all.ps1`: 10/10 passed on this head. No tsc (frontend untouched).
+- `59608b3f` commit 1: strict `ev-scenario/1` parser `backend/assetops_backend/scenarios/ev_parsing.py`
+  (Q1-Q7), six `config/scenarios/ev-*.yaml`, loader dispatch + basename check
+  (`scenarios/adapters/yaml_shipped_scenario_store.py` `_read_shipped`), union in `scenarios/ports.py`;
+  `runs/profiles.py` `EV_CHARGER_MODEL`, `EV_CONNECTOR_STATES`, `EV_PUBLICATION_PROFILE` (Q12);
+  `runs/service.py` `_create_ev_draft` + shared `_freeze_document_draft` (cold refactored onto it, bytes
+  unchanged), EV profiles refused on legacy scenarios; `runs/parsing.py` `_require_ev_identity`;
+  `simulator_lab_api.py` `list_ev_scenarios` (`EV_SCENARIOS_ROUTE`, `EV_SCENARIO_LABELS`, kw `ev_access`,
+  `ev_owner`), legacy list/detail exclude EV; `main.py` composes `development_access` + `no_owner_principal`.
+  Frontend: `EvRunSetupFrame.tsx`, `evScenarioChoiceClient.ts`, `EV_RUN_SETUP_PATH`/`EV_SCENARIOS_API_PATH`
+  and route in `simulatorLabRoutes.tsx`, `App.tsx` `evScenarios` prop, Lab link in `SimulatorLabFrame.tsx`.
+- `1d7bfd7c` commit 2: pure pack `simulator/assetops_simulator/packs/ev_charger.py` (Q2/Q3/Q13/Q14).
+- `110f66de` commit 3: `ev-publication/1`+`ev-observation/1` transform appended to
+  `simulator/assetops_simulator/observation/transform.py` (`EvChannel`, `EvPublicRecord`, `ev_public_records`,
+  `ev_decimal_text`, `ev_rounded_kwh`); `gateway_report.py` `ev_event_id`/`ev_report_key`; `gateway/mappings.py`
+  `EV_V4_GATEWAY_MAPPINGS` + `("ev-publication",1)` in `gateway_mapping_for` (other versions LookupError);
+  `host/ev_publication.py` (`ev_channels(binding rows)` -> `EvBindingRefused`, `ev_execution(definition,
+  EvParameters)`, `report_of`, `ev_reports`, `EvReport`, `ev_series_digest`); `host/lab_execution.py`
+  `_stage_registered_virtual_ev` sharing `_stage_registered_v2_reports` with cold (cold bytes/message unchanged).
 
-## Anchors for commit 1 (cold precedent to mirror)
-- Parser: `backend/assetops_backend/scenarios/cold_parsing.py` (constants :21-25, key sets :27-33,
-  `scenario_digest` :100, `observation_sha256` :104, `parse_cold_scenario_document` :124). Errors are
-  `ScenarioConfigurationInvalid` (`scenarios/ports.py:57`); union `AnyScenarioDefinition` :35.
-- Loader dispatch: `scenarios/adapters/yaml_shipped_scenario_store.py:95-113`.
-- Catalog route: `simulator_lab_api.py` `COLD_SCENARIOS_ROUTE` :231, labels :233, handler :2626-2681 in
-  `build_simulator_lab_router` :2403; legacy list excludes cold :2618-2623, detail :2710; mounted
-  `main.py:462`. Tests `backend/tests/test_w202_cold_scenarios_api.py`.
-- Freeze: `runs/service.py` `_create_cold_draft` :491 (request-vs-document :518-534, SHA :574, obs
-  :559/:589-591), routing :425-437, `_resolve_scenario` :713/:725. Fields already exist:
-  `runs/models.py` `FrozenScenarioBinding.scenario_sha256` :342, `FrozenProfileBinding.observation_*`
-  :375; `runs/parsing.py` `_render_present` :1219 omits None, `_parse_cold_identity` :1224 (all-or-none,
-  `_COLD_PROFILE_KEYS` :1216) - needs an EV-aware variant. Fingerprint `runs/source_publication.py:27`.
-- Profiles: `runs/profiles.py` `COLD_THERMAL_MODEL` :2026, `COLD_PUBLICATION_PROFILE` :2043, tuples :2064/:2075.
-- Frontend: `frontend/src/shell/simulatorLabRoutes.tsx` :113/:122/:270/:392-405,
-  `coldScenarioChoiceClient.ts` (:49 shape check, :61), `ColdRunSetupFrame.tsx` (:58 copy, :139-156 stale
-  drop), `SimulatorLabFrame.tsx:92-100`; tests `coldRunSetup.test.tsx`, `coldScenarioChoiceClient.test.ts`.
-- EV inputs from 05a: `sites/ev_lab.py:25` `EV_LAB_SITE_CODE`; `contracts/.../source_envelope_v4.py:600`
-  `V4_EV_MAPPING_PROFILE_ID`; fixture `backend/tests/fixtures/w2/ev-lab-001.yaml`.
+## Focused counts (this run)
+- `backend/tests/test_w205b_ev_scenarios.py` 73 passed; adjacent backend (run setup, scenarios, cold API/
+  identity, lab gate, fingerprints, binds, profile users) 820 passed after inventory updates.
+- host adjacent (cold lab execution/dispatch, contract9 gate, s6 replay) 42 passed, 2 skipped (pre-existing).
+- `simulator/tests/test_ev_pack.py` 73 passed; `test_cold_pack.py` 6 passed.
+- frontend `evRunSetup.test.tsx` 13 + `evScenarioChoiceClient.test.ts` 12 passed; adjacent shell suites
+  (cold setup/client, Lab gate, entry point, rail, routes, runs, catalog, vocabulary) 329 passed.
+- `tsc --noEmit` exit 0. `tools/check-all.ps1`: 10/10 passed on `1d7bfd7c`.
+- Non-vacuous: removing `_require_ev_identity` and the START-twice guard each fails its test.
 
-## Anchors for commit 2
-- Pack precedent `simulator/assetops_simulator/packs/cold.py` (`MODEL_PROFILE` :31, `ColdState` :174,
-  `ColdPack` :253, `run_window` :441); `packs/errors.py:10`; test `simulator/tests/test_cold_pack.py`.
-- Kernel `simulator/assetops_simulator/kernel/execute.py` `COLD_PROFILE_PAIR` :1972,
-  `execution_path_for` :1979; host `host/execution_adapter.py:127-161`, `host/lab_execution.py`
-  `_is_cold` :2128 / start branch :2205; observation `observation/transform.py:350`.
+## Run 3 focused counts (commit 3, `110f66de`)
+- `gateway/tests/test_ev_v4_admission.py` 14; gateway suite 249 passed. `simulator/tests/test_ev_public_transform.py`
+  7 (+ ev/cold pack 79). `host/tests/test_ev_publication.py` 27; host cold lab/publication + t026 dispatch 40.
+- backend adjacent on private `w205b_run3_test` (S2 ledger/gateway access/receipt/registered basis/commit API/
+  rejection placement, W2-00 binding metadata/receipt bytes/source events, `test_w205b_ev_scenarios`, all
+  `test_w205a_ev_*`): 324 passed; DB dropped. Frontend untouched (no tsc). `tools/check-all.ps1` 10/10.
+- Non-vacuous: disabling the DROP, the no-session fault refusal, or the mean channels each fails a test.
 
-## Anchors for commit 3 (public transform / v4 mapping / gateway Stage)
-- `simulator/assetops_simulator/gateway/mappings.py:175,189` (cold mapping keyed `("cold-publication",1)`);
-  `contracts/assetops_contracts/source_envelope_v4.py:600,685,693` (EV mapping tables);
-  `contracts/assetops_contracts/gateway_report.py:DeviceReportV2`; `host/cold_publication.py`;
-  `host/lab_execution.py:_stage_registered_virtual_cold` :2335.
+## Blocking for commit 4 (see `.agent/W2-05b-pending-rulings.md`)
+- **Q15** public `UNPLUGGED` is not a label of the 05a state ENUM map: the gateway holds it `INVALID_ENUM`, so a
+  real Stage refuses at 08:00. **Q17** the 05a energy rows' `IDENTITY_KWH` conversion is unsupported by the gateway
+  snapshot reader (activation refuses) and the S2 ledger. Commit 4's admitted Stage cannot pass until both are
+  ruled. Tests characterize both (host test offers energy as IDENTITY; UNPLUGGED asserted HELD) and must be
+  flipped when ruled. Q16 (fault correlation without S) does not affect the six documents. Notes N9-N12 added.
+- N3/N8 rulings are with the Architect; this run did not touch them.
 
-## Next
-Architect rules Q1-Q14 (amend the build spec), then a fresh run builds commit 1, then commit 2.
+## Anchors for commit 4 (artifact, delayed schedule, restart, Commit)
+- Dispatch: `host/lab_execution.py` `start` :2187 dispatches cold at :2206 via `_is_cold` :2128; mirror with an EV
+  branch and `_start_ev` beside `_start_cold` :2266 (verify inputs -> `ev_execution` -> `ev_reports` ->
+  `_stage_registered_virtual_ev` -> terminal projection -> artifact). `PhysicallyUnacceptable` and binding refusal
+  before Stage map to `FROZEN_RUN_NOT_RECONSTRUCTIBLE`; Stage refusal string -> `ExecutionFailure(kind=
+  "PUBLICATION_REFUSED")` as cold :2311.
+- Inputs: model on `host/cold_publication.py:verify_cold_inputs` and `host/cold_lab.py` `ColdInputs`/
+  `StoreColdInputs` :50-80; compose in `host/lab_app.py:85` (`cold_inputs=`) an `ev_inputs` port that re-reads the
+  exact Foundation revision, the effective binding revision rows (`device_id,signal_id,role,asset_code` for
+  `ev_channels`) and the scenario by ID/SHA. Foundation -> `EvParameters` mapping is still to write
+  (`packs/ev_charger.py:72` fields; frozen values in build spec "Registered fixture").
+- Artifact: `YamlExecutionArtifacts.write_cold` :1896 and `cold_lab.py` render/parse :173/:219 are the schema-6
+  precedent for schema 7 `execution_kind:"EV"`; `cold_lab.delay_event_id` :276 is already used by the EV Stage.
+- Digests: `EvRun.content_digest()` (private, N8 pending) and `ev_series_digest(reports)`.

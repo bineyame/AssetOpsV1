@@ -88,13 +88,14 @@ def shipped_documents() -> list[tuple[Path, dict[str, Any]]]:
     """Every shipped legacy timeline document.
 
     W2-02: `schema: cold-scenario/1` documents are a separate strict type with their own digest
-    (`test_w202_cold_scenario.py`); they carry no legacy version/fingerprint pin.
+    (`test_w202_cold_scenario.py`); they carry no legacy version/fingerprint pin. W2-05b: neither do
+    `schema: ev-scenario/1` documents (`test_w205b_ev_scenarios.py`).
     """
     paths = sorted(SHIPPED_SCENARIO_ROOT.glob("*.yaml"))
     documents = [
         (path, yaml.safe_load(path.read_text(encoding="utf-8"))) for path in paths
     ]
-    return [(path, doc) for path, doc in documents if doc.get("schema") != "cold-scenario/1"]
+    return [(path, doc) for path, doc in documents if doc.get("schema") not in ("cold-scenario/1", "ev-scenario/1")]
 
 
 def fingerprint_failure(

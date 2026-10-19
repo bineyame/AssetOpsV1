@@ -244,6 +244,8 @@ describe("workspace entry point: enabled", () => {
       ["/simulator-lab/create-site", "+ Add site"],
       // W2-02: the Lab's way into the cold-chain run setup.
       ["/simulator-lab/cold-run-setup", "Set up a cold-chain run"],
+      // W2-05b: the Lab's way into the EV charging run setup.
+      ["/simulator-lab/ev-run-setup", "Set up an EV charging run"],
       ["/", "Back to the operator shell"],
     ]);
   });
@@ -265,5 +267,45 @@ describe("workspace entry point: enabled", () => {
     expect(
       within(main).getByText(/Simulator truth is never product evidence/i),
     ).toBeInTheDocument();
+  });
+
+  it("shows the cold-chain and EV charging setups as two separate panels before the workspace notes (W2-05b N3)", () => {
+    renderAt(SIMULATOR_LAB_PATH, ENABLED);
+
+    const main = screen.getByRole("main");
+    const cold = within(main).getByRole("region", { name: "Cold-chain run setup" });
+    const ev = within(main).getByRole("region", { name: "EV charging run setup" });
+    const notes = within(main).getByRole("region", { name: "What this workspace is" });
+
+    expect(
+      within(cold).getByText(
+        "Choose a site, then one of the cold scenarios registered for it, and create a draft run from that scenario's own values.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(cold)
+        .getAllByRole("link")
+        .map((link) => [link.getAttribute("href"), link.textContent]),
+    ).toEqual([["/simulator-lab/cold-run-setup", "Set up a cold-chain run"]]);
+
+    expect(
+      within(ev).getByRole("heading", { level: 2, name: "EV charging run setup" }),
+    ).toBeInTheDocument();
+    expect(
+      within(ev).getByText(
+        "Choose a site, then one of the EV test runs registered for it, and create a draft run from that test run's fixed values.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      within(ev)
+        .getAllByRole("link")
+        .map((link) => [link.getAttribute("href"), link.textContent]),
+    ).toEqual([["/simulator-lab/ev-run-setup", "Set up an EV charging run"]]);
+
+    // Immediately after the cold-chain panel and before "What this workspace is".
+    const panels = Array.from(main.querySelectorAll("section.panel"));
+    const coldAt = panels.indexOf(cold);
+    expect(panels.indexOf(ev)).toBe(coldAt + 1);
+    expect(panels.indexOf(notes)).toBe(coldAt + 2);
   });
 });

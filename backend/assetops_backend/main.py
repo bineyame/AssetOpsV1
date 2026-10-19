@@ -55,6 +55,8 @@ from assetops_backend.cold_foundation_api import build_cold_foundation_router
 from assetops_backend.ev_foundation_api import build_ev_foundation_router
 from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
+from assetops_backend.ev_replay import EvReplayService
+from assetops_backend.ev_replay_api import build_ev_replay_router
 from assetops_backend.cold_site_api import build_cold_site_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
@@ -83,6 +85,7 @@ from assetops_backend.config import (
 )
 from assetops_backend.evidence.composition import (
     build_cold_replay_reader,
+    build_ev_replay_reader,
     build_comparison_reports,
     build_performance_comparison_reports,
     build_evidence_ledger,
@@ -119,7 +122,7 @@ from assetops_backend.runs.profiles import (
 )
 from assetops_backend.scenarios.composition import build_scenario_repository
 from assetops_backend.scenarios.ports import ScenarioDefinitionRepository
-from assetops_backend.simulator_lab_api import build_simulator_lab_router
+from assetops_backend.simulator_lab_api import EvCatalogAccess, EvCatalogOwner, build_simulator_lab_router
 from assetops_backend.scheduling.composition import SCHEDULE_UNAVAILABLE
 from assetops_backend.site_overview.composition import build_site_overview_read
 from assetops_backend.site_overview.route import SiteOverviewRoute
@@ -176,6 +179,8 @@ def create_app(
     gateway_access: GatewayAccessStore | None = None,
     comparison_reports=None,
     gateway_clock: Callable[[], datetime] | None = None,
+    ev_access: EvCatalogAccess = development_access,
+    ev_owner: EvCatalogOwner = no_owner_principal,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -237,6 +242,12 @@ def create_app(
     that injects its own Site repository and no Foundation store is a
     legacy-only test composition: no code is imported there and the
     Foundation routes answer that no store is composed.
+
+    W2-05b N1: `ev_access` and `ev_owner` default to `development_access` and
+    `no_owner_principal`, so the production EV choice list answers 403 (no
+    verified Lab-owner principal exists). The owner walkthrough's isolated app
+    injects a Site-scoped owner check for `EV-LAB-001`; nothing here reads a
+    global flag that would grant every Site.
     """
     resolved_flags = load_feature_flags() if flags is None else flags
 
@@ -472,6 +483,12 @@ def create_app(
                 # S2-01a: an imported code is set up from its registered
                 # Foundation + SignalBinding basis, never from the YAML Site.
                 registered_bases=RegisteredLabBasis(registry),
+                # W2-05b: the EV choice list requires a Lab owner principal (Q10). As for the cold
+                # replay below, no production owner principal exists, so production answers 403 by
+                # default; only an explicitly injected local composition (the owner walkthrough's
+                # isolated app, N1) passes a Site-scoped owner check here.
+                ev_access=ev_access,
+                ev_owner=ev_owner,
             )
         )
         # W2-02: the explicit-run cold replay read. No production owner principal exists, so every production
@@ -479,6 +496,11 @@ def create_app(
         app.include_router(build_cold_replay_router(
             ColdReplayService(build_cold_replay_reader(database_url()), runs) if database_url() else None,
             registry.ledger_scope, access=development_access, owner=no_owner_principal))
+        # W2-05b N1: the EV replay read uses the same injected `ev_access`/`ev_owner` as the EV choice list, so
+        # production answers 403 and only the owner walkthrough's isolated composition reads under one principal.
+        app.include_router(build_ev_replay_router(
+            EvReplayService(build_ev_replay_reader(database_url()), runs) if database_url() else None,
+            registry.ledger_scope, access=ev_access, owner=ev_owner))
 
     return app
 

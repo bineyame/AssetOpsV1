@@ -524,3 +524,48 @@ class TestHttpBoundary:
         assert client.post("/api/ingestion/batches", content=changed, headers=auth).status_code == 409
         assert client.post("/api/ingestion/batches", content="{}", headers=auth).status_code == 422
         assert client.get("/api/ingestion/batches/unknown", headers=auth).status_code == 404
+
+
+class TestIdentityKwhNormalization:
+    """W2-05b q3 Q17: `_normalize` passes the canonical kWh decimal through as `IDENTITY_KWH` only for the
+    selected `ev_connector_energy` kWh-to-kWh binding with empty parameters; every other shape refuses."""
+
+    @staticmethod
+    def _energy(**changes):
+        from assetops_backend.evidence.ledger import BindingBasis
+
+        basis = BindingBasis(
+            binding_revision_id=uuid4(), device_id="c1-connector-meter", signal_id="energy", source_id="src",
+            asset_id=uuid4(), role="ev_connector_energy", source_unit="kWh", canonical_unit="kWh",
+            conversion={"kind": "IDENTITY_KWH", "parameters": {}}, asset_code="c1",
+        )
+        return replace(basis, **changes)
+
+    def test_the_one_shape_is_an_unchanged_passthrough(self) -> None:
+        from assetops_backend.evidence.ledger import _normalize
+
+        assert _normalize(self._energy(), "0.125") == ("0.125", "IDENTITY_KWH", None)
+        assert _normalize(self._energy(), "15") == ("15", "IDENTITY_KWH", None)
+
+    @pytest.mark.parametrize("changes,value", [
+        ({"role": "ev_connector_power"}, "1"),
+        ({"source_unit": "Wh"}, "1"),
+        ({"canonical_unit": "MWh"}, "1"),
+        ({"conversion": {"kind": "IDENTITY_KWH", "parameters": {"scale": "1"}}}, "1"),
+        ({"conversion": {"kind": "IDENTITY_KWH"}}, "1"),
+        ({}, "0.1250"),
+        ({}, "1e3"),
+    ])
+    def test_a_foreign_or_malformed_use_refuses(self, changes, value) -> None:
+        from assetops_backend.evidence.ledger import _normalize
+
+        assert _normalize(self._energy(**changes), value) == (None, "IDENTITY_KWH", "CONVERSION_UNSUPPORTED")
+
+    def test_older_conversions_are_unchanged(self) -> None:
+        from assetops_backend.evidence.ledger import _normalize
+
+        identity = self._energy(role="pv_power", source_unit="kW", canonical_unit="kW",
+                                conversion={"kind": "IDENTITY", "parameters": {}})
+        assert _normalize(identity, "1.5") == ("1.5", "IDENTITY", None)
+        assert _normalize(self._energy(conversion={"kind": "SCALE", "parameters": {}}), "1") == (
+            None, "SCALE", "CONVERSION_UNSUPPORTED")

@@ -44,12 +44,15 @@ export interface SimulatorLabFrameProps {
   addSiteEntryPoints: WorkspaceEntryPoint[];
   /** W2-02: the cold-chain run setup, supplied by the gated route module. */
   coldRunSetupPath: string;
+  /** W2-05b: the EV charging run setup, supplied by the gated route module. */
+  evRunSetupPath: string;
 }
 
 export function SimulatorLabFrame({
   siteTemplatesPath,
   addSiteEntryPoints,
   coldRunSetupPath,
+  evRunSetupPath,
 }: SimulatorLabFrameProps) {
   return (
     <main aria-labelledby="simulator-lab-heading">
@@ -98,6 +101,21 @@ export function SimulatorLabFrame({
         </p>
         <p>
           <Link to={coldRunSetupPath}>Set up a cold-chain run</Link>
+        </p>
+      </Panel>
+
+      {/*
+        W2-05b N3: the EV setup entry is its own sibling panel, after the
+        cold-chain setup and before "What this workspace is". Neither setup
+        entry is one of the v69 Lab's four proof stages.
+      */}
+      <Panel
+        heading="EV charging run setup"
+        headingId="simulator-lab-ev-run-setup-heading"
+        description="Choose a site, then one of the EV test runs registered for it, and create a draft run from that test run's fixed values."
+      >
+        <p>
+          <Link to={evRunSetupPath}>Set up an EV charging run</Link>
         </p>
       </Panel>
 

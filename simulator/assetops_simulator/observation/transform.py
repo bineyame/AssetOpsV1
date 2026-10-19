@@ -52,7 +52,7 @@ from __future__ import annotations
 
 import decimal
 from dataclasses import dataclass, replace as _replace
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fractions import Fraction
 
 from assetops_contracts.observation import (
@@ -419,4 +419,271 @@ def cold_observations(records: tuple, observations: tuple = ()) -> tuple[ColdObs
         out.append(ColdObservation(added, None, o.at + latency, ordinal, added=True))
     out.sort(key=lambda x: (x.published_at, x.record.source_time, x.record.device_id, x.record.signal_id,
                             x.transition_ordinal or 0))
+    return tuple(out)
+
+
+# --- ev-publication/1 and ev-observation/1 (W2-05b) ------------------------------------------------------------
+#
+# A closed public transform for the `ev-charger/1` pack (`D-2026-10-18-w2-05-buildspec` commit 3). It reads only
+# the pack's boundary documents and emitted events plus the scenario's observation rows; private requests,
+# forcing and the oracle never leave it except as the mapped observed channels. Device/signal IDs and the bound
+# connector asset are inputs from the effective binding, never constructed here.
+#
+# - Connector state at every boundary (61 for one hour, closing boundary included), one per connector per
+#   boundary: transitions at one instant collapse into the boundary's observed state.
+# - Session START/END/ABORT and connector FAULT/CLEAR at their boundary, with the scoped session token.
+# - Connector energy `INTERVAL_DELTA` on aligned five-minute half-open slots, split at the connector's session
+#   boundaries, only for started-session subintervals (zero while a started session pauses): cumulative kWh is
+#   rounded half-even to 0.001 at both ends before differencing.
+# - Connector power, requested power, allocated limit and Site import `INTERVAL_MEAN` on the same slots, split
+#   at session boundaries (the connector's for connector channels, any connector's for Site import).
+# - `published_at = source_time + 3 s`. `ev-observation/1`: DROP removes an energy report after it is built
+#   (its 300 s stay unknown); HOLD keeps source time, ordinal and identity and publishes at `release_at`; ADD
+#   creates a distinct GOOD `EV_SESSION_END` for the active scoped session on the next session-event ordinal.
+
+_UTC = timezone.utc
+EV_PUBLICATION_PROFILE = ("ev-publication", 1)
+EV_OBSERVATION_PROFILE = ("ev-observation", 1)
+EV_LATENCY_SECONDS = 3
+EV_SLOT = timedelta(minutes=5)
+_MILLI = decimal.Decimal("0.001")
+#: The logical connector channels of `simulator-lab-gateway-ev/1`, in the commit 3 equal-time order.
+EV_CONNECTOR_CHANNELS = ("state", "session-event", "fault-event", "energy", "power", "requested-power",
+                         "allocated-limit")
+EV_SITE_CHANNEL = "import"
+_EV_CHANNEL_RANK = {name: rank for rank, name in enumerate(EV_CONNECTOR_CHANNELS + (EV_SITE_CHANNEL,))}
+_EV_SESSION_KIND = {"START": ("EV_SESSION_START", "STARTED"), "END": ("EV_SESSION_END", "COMPLETED"),
+                    "ABORT": ("EV_SESSION_ABORT", "ABORTED")}
+_EV_FAULT_KIND = {"FAULT": ("EV_CONNECTOR_FAULT", "FAULTED"), "CLEAR": ("EV_CONNECTOR_CLEAR", "CLEARED")}
+#: The private mean source of each connector mean channel (connector power is the allocated draw).
+_EV_MEAN_KEYS = (("power", "allocated_kw"), ("requested-power", "requested_kw"), ("allocated-limit", "allocated_kw"))
+
+
+@dataclass(frozen=True)
+class EvChannel:
+    """One bound public channel: the binding's device/signal and the bound connector asset (None for the Site)."""
+
+    device_id: str
+    signal_id: str
+    connector_id: str | None
+
+
+@dataclass(frozen=True)
+class EvPublicRecord:
+    """One public EV report before its gateway v2 serialization. `connector` is the pack connector (`c1`/`c2`)
+    or None for the Site meter; `channel` a logical channel name; `transition_ordinal` is one-based per channel."""
+
+    connector: str | None
+    channel: str
+    device_id: str
+    signal_id: str
+    source_time: datetime
+    family: str
+    measurement: str | None
+    interval_start: datetime | None
+    value: str | None
+    unit: str | None
+    record_kind: str | None
+    outcome: str | None
+    session_id: str | None
+    connector_id: str | None
+    component_id: str | None
+    transition_ordinal: int
+    published_at: datetime
+    held: bool = False
+    added: bool = False
+    #: q3 Q16: a FAULT/CLEAR without an active session correlates with its fault episode, named here as
+    #: `(bound connector asset_code, zero-based count of actual FAULT transitions on it)`; the report mapping
+    #: hashes it with the scenario SHA. None for every other record, and for a FAULT/CLEAR that carries S.
+    fault_episode: tuple[str, int] | None = None
+
+
+def ev_decimal_text(value: Fraction) -> str:
+    """Canonical public decimal of an exact value; a value without a finite decimal is refused."""
+    with decimal.localcontext() as ctx:
+        ctx.prec = 60
+        q = decimal.Decimal(value.numerator) / decimal.Decimal(value.denominator)
+    if Fraction(q) != value:
+        raise ValueError(f"{value} has no exact decimal text")
+    text = format(q.normalize(), "f")
+    return "0" if text in ("-0", "0") else text
+
+
+def ev_rounded_kwh(value: Fraction) -> decimal.Decimal:
+    """Cumulative kWh rounded half-even to 0.001 (the meter bound at each boundary)."""
+    with decimal.localcontext() as ctx:
+        ctx.prec = 60
+        exact = decimal.Decimal(value.numerator) / decimal.Decimal(value.denominator)
+        return exact.quantize(_MILLI, rounding=decimal.ROUND_HALF_EVEN)
+
+
+def _ev_at(text: str) -> datetime:
+    return datetime.strptime(text, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=_UTC)
+
+
+def _ev_split(start: datetime, end: datetime, cuts: set) -> list[tuple[datetime, datetime]]:
+    points = [start] + sorted(c for c in cuts if start < c < end) + [end]
+    return list(zip(points, points[1:]))
+
+
+def _ev_mean(boundaries: list[datetime], a: datetime, b: datetime, value) -> Fraction:
+    """The exact time mean over `[a, b)` of a value constant across each minute `[boundary, next)`."""
+    ia, ib = boundaries.index(a), boundaries.index(b)
+    return sum((value(i) for i in range(ia, ib)), Fraction(0)) / (ib - ia)
+
+
+def ev_public_records(
+    run: object,
+    *,
+    channels: dict,
+    observations: tuple = (),
+) -> tuple[EvPublicRecord, ...]:
+    """Apply `ev-publication/1` and `ev-observation/1` to one `EvRun`.
+
+    `run` is `assetops_simulator.packs.ev_charger.EvRun`; its boundary documents are one minute apart, the last
+    the closing snapshot. `channels` maps `(connector, channel)` (and `(None, "import")`) to the bound
+    `EvChannel`. `observations` rows carry `time`, `kind`, `connector`, `action`, `release_at` (datetimes).
+    Returns the series in the commit 3 order: source time, connector (c1, c2, then the Site), channel rank,
+    per-channel ordinal.
+    """
+    documents = run.documents
+    if len(documents) < 2:
+        raise ValueError("an EV run has at least one minute and its closing boundary")
+    boundaries = [_ev_at(d["boundary"]) for d in documents]
+    start, end = boundaries[0], boundaries[-1]
+    connectors = tuple(c["connector"] for c in documents[0]["connectors"])
+    latency = timedelta(seconds=EV_LATENCY_SECONDS)
+    ordinals: dict = {}
+    built: list[EvPublicRecord] = []
+
+    def bound(connector, name: str) -> EvChannel:
+        try:
+            return channels[(connector, name)]
+        except KeyError:
+            raise ValueError(f"no bound channel for {connector}/{name}") from None
+
+    def emit(connector, name: str, source_time: datetime, **fields) -> EvPublicRecord:
+        b = bound(connector, name)
+        ordinal = ordinals.get((connector, name), 0) + 1
+        ordinals[(connector, name)] = ordinal
+        values = {"family": "MEASUREMENT", "measurement": None, "interval_start": None, "value": None,
+                  "unit": None, "record_kind": None, "outcome": None, "session_id": None, "connector_id": None,
+                  "component_id": None}
+        values.update(fields)
+        record = EvPublicRecord(connector=connector, channel=name, device_id=b.device_id, signal_id=b.signal_id,
+                                source_time=source_time, transition_ordinal=ordinal,
+                                published_at=source_time + latency, **values)
+        built.append(record)
+        return record
+
+    def doc(index: int, connector: str) -> dict:
+        return next(c for c in documents[index]["connectors"] if c["connector"] == connector)
+
+    # Started-session spans per connector: [start boundary, terminal boundary or None, session token].
+    spans: dict = {c: [] for c in connectors}
+    for event in run.events:
+        if event.kind == "START":
+            spans[event.connector].append([event.at, None, event.session_id])
+        elif event.kind in ("END", "ABORT"):
+            open_spans = [s for s in spans[event.connector] if s[2] == event.session_id and s[1] is None]
+            if not open_spans:
+                raise ValueError(f"{event.kind} at {event.at} closes no started session")
+            open_spans[0][1] = event.at
+    cuts = {c: {t for span in spans[c] for t in span[:2] if t is not None} for c in connectors}
+    all_cuts = set().union(*cuts.values())
+
+    fault_counts: dict = {c: 0 for c in connectors}
+    latched_episode: dict = {}
+    events_at: dict = {}
+    for event in run.events:
+        events_at.setdefault(event.at, []).append(event)
+    for index, at in enumerate(boundaries):
+        for connector in connectors:
+            emit(connector, "state", at, measurement="STATE_AT_INSTANT", value=doc(index, connector)["state"],
+                 unit="state")
+            for event in events_at.get(at, ()):
+                if event.connector != connector:
+                    continue
+                if event.kind in _EV_SESSION_KIND:
+                    (kind, outcome), name = _EV_SESSION_KIND[event.kind], "session-event"
+                elif event.kind in _EV_FAULT_KIND:
+                    (kind, outcome), name = _EV_FAULT_KIND[event.kind], "fault-event"
+                else:
+                    raise ValueError(f"{event.kind} is not an ev-charger/1 event")
+                asset = bound(connector, name).connector_id
+                episode = None
+                if event.kind == "FAULT":
+                    # q3 Q16: every actual FAULT transition opens an episode; the ordinal counts them per connector.
+                    latched_episode[connector] = (asset, fault_counts[connector])
+                    fault_counts[connector] += 1
+                if event.kind in _EV_FAULT_KIND and event.session_id is None:
+                    if connector not in latched_episode:
+                        raise ValueError(f"{event.kind} at {event.at} on {connector} follows no FAULT")
+                    episode = latched_episode[connector]
+                emit(connector, name, at, family="EVENT", record_kind=kind, outcome=outcome,
+                     session_id=event.session_id, connector_id=asset, component_id=asset, fault_episode=episode)
+
+    slot_start = start
+    while slot_start < end:
+        slot_end = min(slot_start + EV_SLOT, end)
+        for connector in connectors:
+            asset = bound(connector, "energy").connector_id
+            for a, b in _ev_split(slot_start, slot_end, cuts[connector]):
+                for span_start, span_end, session in spans[connector]:
+                    if span_start <= a and (span_end is None or b <= span_end):
+                        before = Fraction(doc(boundaries.index(a), connector)["energy_kwh"])
+                        after = Fraction(doc(boundaries.index(b), connector)["energy_kwh"])
+                        delta = ev_rounded_kwh(after) - ev_rounded_kwh(before)
+                        if delta < 0:
+                            raise ValueError(f"{connector} energy decreases over [{a}, {b})")
+                        emit(connector, "energy", b, measurement="INTERVAL_DELTA", interval_start=a,
+                             value=ev_decimal_text(Fraction(delta)), unit="kWh", session_id=session,
+                             connector_id=asset)
+        for connector in connectors:
+            for name, key in _EV_MEAN_KEYS:
+                for a, b in _ev_split(slot_start, slot_end, cuts[connector]):
+                    mean = _ev_mean(boundaries, a, b, lambda i, c=connector, k=key: Fraction(doc(i, c)[k]))
+                    emit(connector, name, b, measurement="INTERVAL_MEAN", interval_start=a, unit="kW",
+                         value=ev_decimal_text(mean))
+        for a, b in _ev_split(slot_start, slot_end, all_cuts):
+            mean = _ev_mean(boundaries, a, b, lambda i: Fraction(documents[i]["site_import_kw"]))
+            emit(None, EV_SITE_CHANNEL, b, measurement="INTERVAL_MEAN", interval_start=a, unit="kW",
+                 value=ev_decimal_text(mean))
+        slot_start = slot_end
+
+    # ev-observation/1: public reports only, never the world.
+    drops = {(o.time, o.connector) for o in observations if o.kind == "ENERGY_REPORT" and o.action == "DROP"}
+    holds = {(o.time, o.connector): o.release_at for o in observations
+             if o.kind == "EV_SESSION_END" and o.action == "HOLD"}
+    used: set = set()
+    out: list[EvPublicRecord] = []
+    for record in list(built):
+        key = (record.source_time, record.connector)
+        if record.channel == "energy" and key in drops:
+            used.add(("DROP",) + key)
+            continue
+        if record.channel == "session-event" and record.record_kind == "EV_SESSION_END" and key in holds:
+            used.add(("HOLD",) + key)
+            out.append(_replace(record, published_at=holds[key], held=True))
+            continue
+        out.append(record)
+    for o in observations:
+        if o.action in ("DROP", "HOLD"):
+            if (o.action, o.time, o.connector) not in used:
+                raise ValueError(f"{o.action} {o.kind} at {o.time} on {o.connector} matches no public report")
+            continue
+        if o.kind != "EV_SESSION_END" or o.action != "ADD":
+            raise ValueError(f"{o.kind}/{o.action} is not an ev-observation/1 row")
+        if o.time not in boundaries:
+            raise ValueError(f"an added EV_SESSION_END at {o.time} is not on a boundary")
+        session = doc(boundaries.index(o.time), o.connector)["session_id"]
+        if session is None:
+            raise ValueError(f"an added EV_SESSION_END at {o.time} on {o.connector} has no active session")
+        asset = bound(o.connector, "session-event").connector_id
+        added = emit(o.connector, "session-event", o.time, family="EVENT", record_kind="EV_SESSION_END",
+                     outcome="COMPLETED", session_id=session, connector_id=asset, component_id=asset)
+        out.append(_replace(added, added=True))
+    rank = {c: i for i, c in enumerate(connectors)}
+    out.sort(key=lambda r: (r.source_time, rank.get(r.connector, len(connectors)), _EV_CHANNEL_RANK[r.channel],
+                            r.transition_ordinal))
     return tuple(out)

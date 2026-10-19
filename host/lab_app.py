@@ -43,6 +43,7 @@ from assetops_backend.sites.composition import build_foundation_store
 
 from lab_execution import HostLabExecution
 from cold_lab import StoreColdInputs
+from ev_lab import StoreEvInputs
 from gateway_publication import RegisteredGatewayPublisher
 from assetops_gateway.ipc import GatewayLink
 
@@ -83,6 +84,8 @@ def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI
             gateway=gateway_from_environment(),
             source_publisher=publisher_for(database_url()),
             cold_inputs=StoreColdInputs(overrides.get("foundation_store"), overrides["scenario_repository"]),
+            # W2-05b q4 Q23: the EV re-read port over the same two objects.
+            ev_inputs=StoreEvInputs(overrides.get("foundation_store"), overrides["scenario_repository"]),
         )
     return create_app(resolved, execution=execution, **overrides)
 

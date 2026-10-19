@@ -29,8 +29,12 @@ from typing import Any
 
 ACQUISITION_SNAPSHOT_SCHEMA_V1 = "assetops.acquisition-snapshot/1"
 SUPPORTED_SNAPSHOT_SCHEMAS = frozenset({ACQUISITION_SNAPSHOT_SCHEMA_V1})
-SUPPORTED_CONVERSIONS = frozenset({"IDENTITY", "ENUM"})
+SUPPORTED_CONVERSIONS = frozenset({"IDENTITY", "ENUM", "IDENTITY_KWH"})
 STATE_UNIT = "state"
+#: W2-05b q3 Q17: `IDENTITY_KWH` is read only on EV connector energy, kWh to kWh, with no parameters.
+IDENTITY_KWH = "IDENTITY_KWH"
+IDENTITY_KWH_ROLE = "ev_connector_energy"
+KWH_UNIT = "kWh"
 
 _DIGEST = re.compile(r"[0-9a-f]{64}")
 _REGISTERED_INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z")
@@ -295,6 +299,13 @@ def verify_snapshot(
         if kind == "IDENTITY":
             if params != {} or row["source_unit"] != row["canonical_unit"]:
                 raise SnapshotRefused("UNSUPPORTED_CONVERSION", f"{where}.conversion", "IDENTITY keeps the unit")
+        elif kind == IDENTITY_KWH:
+            if (params != {} or row["role"] != IDENTITY_KWH_ROLE
+                    or row["source_unit"] != KWH_UNIT or row["canonical_unit"] != KWH_UNIT):
+                raise SnapshotRefused(
+                    "UNSUPPORTED_CONVERSION", f"{where}.conversion",
+                    "IDENTITY_KWH applies only to ev_connector_energy, kWh to kWh, with no parameters",
+                )
         else:
             mapped = _exact(params, {"map"}, f"{where}.conversion.parameters")["map"]
             if not isinstance(mapped, dict) or not mapped or row["canonical_unit"] != STATE_UNIT:

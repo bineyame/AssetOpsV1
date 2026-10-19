@@ -207,6 +207,25 @@ def test_activation_refusals(gateway, build, kind: str) -> None:
     assert caught.value.kind == kind
 
 
+@pytest.mark.parametrize("change", [
+    {"conversion": {"kind": "IDENTITY_KWH", "parameters": {}}},
+    {"conversion": {"kind": "IDENTITY_KWH", "parameters": {}}, "source_unit": "kWh", "canonical_unit": "kWh"},
+    {"conversion": {"kind": "IDENTITY_KWH", "parameters": {}}, "source_unit": "kWh", "canonical_unit": "kWh",
+     "role": "ev_connector_power"},
+])
+def test_identity_kwh_outside_ev_connector_energy_refuses_activation(gateway, change) -> None:
+    """W2-05b q3 Q17: `IDENTITY_KWH` is read only for `ev_connector_energy`, kWh to kWh, with no parameters;
+    a v3 row (or any other role) offering it keeps `UNSUPPORTED_CONVERSION` and nothing activates."""
+    from conftest import _rows
+
+    rows = _rows()
+    rows[2] = rows[2] | change
+    text, claimed = snapshot(rows=rows)
+    with pytest.raises(SnapshotRefused) as caught:
+        gateway.activate(text, claimed)
+    assert (caught.value.kind, caught.value.field) == ("UNSUPPORTED_CONVERSION", "bindings[2].conversion")
+
+
 def _rehash(text: str) -> tuple[str, ClaimedReferences]:
     _, claimed = snapshot()
     import hashlib

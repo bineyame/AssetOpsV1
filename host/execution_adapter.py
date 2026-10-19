@@ -136,8 +136,9 @@ EXECUTABLE_MODELS: tuple[ModelSpec, ...] = (
 
 
 def execution_path(run: SimulationRun) -> str:
-    """W2-02: `COLD` for the frozen `cold-thermal/1` + `cold-publication/1` pair, `MODEL_SPEC` for every
-    older pair. A half-cold pair is refused, never resolved to either path."""
+    """W2-02: `COLD` for the frozen `cold-thermal/1` + `cold-publication/1` pair, W2-05b: `EV` for
+    `ev-charger/1` + `ev-publication/1`, `MODEL_SPEC` for every older pair. A half pair is refused, never
+    resolved to any path."""
     frozen = run.deterministic_identity.profiles
     try:
         return execution_path_for(
@@ -158,7 +159,13 @@ def model_for(run: SimulationRun) -> ModelSpec:
     A cold run never resolves a ModelSpec: it executes through the cold pack (`ColdExecution`).
     """
     frozen = run.deterministic_identity.profiles
-    if execution_path(run) == "COLD":
+    path = execution_path(run)
+    if path == "EV":
+        raise FrozenRunNotReconstructible(
+            f"Run {run.run_id} froze the EV pair {frozen.model_profile_id}/{frozen.model_profile_version}, which "
+            "executes through the EV pack and has no model specification."
+        )
+    if path == "COLD":
         raise FrozenRunNotReconstructible(
             f"Run {run.run_id} froze the cold-chain pair {frozen.model_profile_id}/"
             f"{frozen.model_profile_version}, which executes through the cold pack and has no model "

@@ -122,6 +122,7 @@ from assetops_backend.runs.profiles import (
     state_authority,
 )
 from assetops_backend.runs.refusals import refuse
+from assetops_contracts.source_envelope_v4 import V4_EV_CHANNEL_MAPPINGS, canonical_binding_metadata
 from assetops_backend.runs.timezones import (
     TimeZoneDatabaseUnavailable,
     TimeZoneNotFound,
@@ -140,6 +141,12 @@ from assetops_backend.scenarios.cold_parsing import (
     COLD_PUBLICATION_PROFILE,
     ColdScenarioDefinition,
     observation_sha256,
+)
+from assetops_backend.scenarios.ev_parsing import (
+    EV_MODEL_PROFILE,
+    EV_OBSERVATION_PROFILE,
+    EV_PUBLICATION_PROFILE,
+    EvScenarioDefinition,
 )
 from assetops_backend.scenarios.execution import (
     CANONICAL_UNITS,
@@ -426,6 +433,9 @@ class RunSetupService:
         if isinstance(scenario, ColdScenarioDefinition):
             # W2-02: a cold document never reaches the legacy timeline freeze.
             return self._create_cold_draft(request, site, selection, scenario)
+        if isinstance(scenario, EvScenarioDefinition):
+            # W2-05b: an EV document never reaches the legacy timeline freeze.
+            return self._create_ev_draft(request, site, selection, scenario)
         model = self._resolve_model_profile(request)
         publication = self._resolve_publication_profile(request)
         if (model.model_profile_id == COLD_MODEL_PROFILE.split("/")[0]
@@ -434,6 +444,13 @@ class RunSetupService:
             raise refuse(
                 "VERSION_UNAVAILABLE",
                 "Cold-chain profiles run only from a cold-scenario/1 document. Profiles are not substituted.",
+            )
+        if (model.model_profile_id == EV_MODEL_PROFILE.split("/")[0]
+                or publication.publication_profile_id == EV_PUBLICATION_PROFILE.split("/")[0]):
+            # W2-05b: an EV profile never freezes against a legacy scenario, half-EV or whole.
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                "EV charging profiles run only from an ev-scenario/1 document. Profiles are not substituted.",
             )
 
         self._refuse_site_without_topology(site)
@@ -554,9 +571,109 @@ class RunSetupService:
                 f"{request.timestep_minutes}-minute steps.",
             )
 
+        return self._freeze_document_draft(
+            request, site, selection,
+            scenario_id=scenario.scenario_id,
+            scenario_version=scenario.version,
+            scenario_sha256=scenario.scenario_sha256,
+            observation_profile=COLD_OBSERVATION_PROFILE,
+            observation_digest=observation_sha256(scenario),
+        )
+
+    # --- W2-05b: the EV-only freeze -------------------------------------------
+
+    def _create_ev_draft(
+        self,
+        request: RunSetupRequest,
+        site: SiteRecord,
+        selection: RegisteredSiteSelection | None,
+        scenario: EvScenarioDefinition,
+    ) -> SimulationRun:
+        """Freeze an `ev-scenario/1` run (`D-2026-10-18-w2-05-buildspec`, Q1-Q7).
+
+        Registered Site only, and the request must equal the EV document exactly: Site, scenario version 1,
+        model and publication profiles, seed, window, one-minute timestep. Anything else is refused before
+        Draft. The identity carries the scenario and observation digests and the selected revisions, never
+        Foundation values or private forcing; the host re-reads and verifies both at execution.
+        """
+        name = scenario.scenario_id
+        if selection is None or site.site_id != scenario.site_code:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} is a {scenario.schema} document for the registered Site "
+                f"{scenario.site_code}; site {request.site_id} is not that registered Site.",
+            )
+        if request.scenario_version != scenario.version:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} is saved at version {scenario.version}, and this request names "
+                f"version {request.scenario_version}.",
+            )
+        requested_model = f"{request.model_profile_id}/{request.model_profile_version}"
+        requested_publication = (
+            f"{request.publication_profile_id}/{request.publication_profile_version}"
+        )
+        if (
+            requested_model != scenario.model_profile
+            or requested_publication != scenario.publication_profile
+            or scenario.model_profile != EV_MODEL_PROFILE
+            or scenario.publication_profile != EV_PUBLICATION_PROFILE
+        ):
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} runs only with {scenario.model_profile} and "
+                f"{scenario.publication_profile}; this request selects {requested_model} and "
+                f"{requested_publication}. Profiles are not substituted.",
+            )
+        if scenario.observation_profile != EV_OBSERVATION_PROFILE:
+            raise refuse(
+                "VERSION_UNAVAILABLE",
+                f"Scenario {name} names observation profile {scenario.observation_profile}, which "
+                "this build does not have.",
+            )
+        if request.seed != scenario.seed:
+            raise refuse(
+                "REQUEST_INVALID",
+                f"Scenario {name} fixes seed {scenario.seed}; this request names {request.seed}.",
+            )
+        if (
+            request.start_time != scenario.start
+            or request.end_time != scenario.end
+            or request.timestep_minutes != 1
+        ):
+            raise refuse(
+                "INTERVAL_INVALID",
+                f"Scenario {name} runs [{scenario.start}, {scenario.end}) in one-minute steps; this "
+                f"request names [{request.start_time}, {request.end_time}) in "
+                f"{request.timestep_minutes}-minute steps.",
+            )
+        if not _ev_state_maps_publishable(selection):
+            raise refuse("VERSION_UNAVAILABLE", EV_STATE_MAP_REFUSAL)
+        return self._freeze_document_draft(
+            request, site, selection,
+            scenario_id=scenario.scenario_id,
+            scenario_version=scenario.version,
+            scenario_sha256=scenario.scenario_sha256,
+            observation_profile=EV_OBSERVATION_PROFILE,
+            observation_digest=scenario.observation_sha256,
+        )
+
+    def _freeze_document_draft(
+        self,
+        request: RunSetupRequest,
+        site: SiteRecord,
+        selection: RegisteredSiteSelection,
+        *,
+        scenario_id: str,
+        scenario_version: int,
+        scenario_sha256: str,
+        observation_profile: str,
+        observation_digest: str,
+    ) -> SimulationRun:
+        """The shared freeze of a strict-document run (cold W2-02, EV W2-05b): digests and revisions only."""
         model = self._resolve_model_profile(request)
         publication = self._resolve_publication_profile(request)
-        observation_id, observation_version = COLD_OBSERVATION_PROFILE.split("/")
+        observation_id, observation_version = observation_profile.split("/")
 
         identity = DeterministicIdentity(
             site=FrozenSiteBinding(
@@ -568,10 +685,10 @@ class RunSetupService:
                 template_lineage=_freeze_template_lineage(site),
             ),
             scenario=FrozenScenarioBinding(
-                scenario_id=scenario.scenario_id,
-                scenario_version=scenario.version,
+                scenario_id=scenario_id,
+                scenario_version=scenario_version,
                 resolved_parameters=(),
-                scenario_sha256=scenario.scenario_sha256,
+                scenario_sha256=scenario_sha256,
             ),
             interval=FrozenInterval(
                 start_time=request.start_time,
@@ -588,7 +705,7 @@ class RunSetupService:
                 execution_contract_version=EXECUTION_CONTRACT_VERSION,
                 observation_profile_id=observation_id,
                 observation_profile_version=int(observation_version),
-                observation_sha256=observation_sha256(scenario),
+                observation_sha256=observation_digest,
             ),
             initialization_inputs=(),
             causes=(),
@@ -712,7 +829,7 @@ class RunSetupService:
 
     def _resolve_scenario(
         self, request: RunSetupRequest
-    ) -> ScenarioDefinition | ColdScenarioDefinition:
+    ) -> ScenarioDefinition | ColdScenarioDefinition | EvScenarioDefinition:
         try:
             scenario = self._scenarios.get_scenario(request.scenario_id)
         except ScenarioNotFound as error:
@@ -722,8 +839,8 @@ class RunSetupService:
                 "saved, so there is nothing for a run to execute.",
             ) from error
 
-        if isinstance(scenario, ColdScenarioDefinition):
-            # Checked, with the rest of the cold document, by the cold-only freeze.
+        if isinstance(scenario, (ColdScenarioDefinition, EvScenarioDefinition)):
+            # Checked, with the rest of the strict document, by the cold-only or EV-only freeze.
             return scenario
 
         if scenario.version.scenario_version != request.scenario_version:
@@ -3739,3 +3856,51 @@ def _refuse_a_delay_that_reorders(
                     f"and overrides occur at {inside} inside it: they would be "
                     "released together. Release order is not modelled (T026A).",
                 )
+
+
+#: q4 Q18: the exact Draft refusal against a selected binding revision whose connector state maps cannot publish
+#: every emitted `ev-charger/1` state.
+EV_STATE_MAP_REFUSAL = (
+    "The selected EV binding revision cannot publish all five connector states; publish the corrected EV "
+    "binding map before creating this run."
+)
+EV_ROLE_SET = "ev-roles-1"
+
+
+def _ev_state_maps_publishable(selection: RegisteredSiteSelection) -> bool:
+    """q4 Q18: the selected snapshot has exactly one c1 and one c2 `ev_connector_state` row on its closed
+    `simulator-lab-gateway-ev/1` tuple, `state` units, an `ENUM` conversion, and identity entries for all five
+    pack states (other labels may remain). The basis SHA was already checked by `RegisteredBasis`; this reads
+    only its frozen bytes and never selects another revision."""
+    import json
+
+    from assetops_backend.runs.profiles import EV_CONNECTOR_STATES
+
+    try:
+        document = json.loads(selection.basis.snapshot_canonical)
+        if document["mapping"]["role_set"] != EV_ROLE_SET:
+            return False
+        codes = {m.mapping_id: m.component_id for m in selection.signal_mappings}
+        found: set[str] = set()
+        for row in document["bindings"]:
+            if row.get("role") != "ev_connector_state":
+                continue
+            code = codes.get(row.get("binding_revision_id"))
+            if code not in ("c1", "c2") or code in found:
+                return False
+            key = (row["device_id"], row["signal_id"])
+            mapping = V4_EV_CHANNEL_MAPPINGS.get(key)
+            if (mapping is None or mapping.role != "ev_connector_state" or key[0].split("-", 1)[0] != code
+                    or row["source_unit"] != "state" or row["canonical_unit"] != "state"
+                    or canonical_binding_metadata(row) != canonical_binding_metadata(mapping.metadata())):
+                return False
+            conversion = row["conversion"]
+            labels = conversion["parameters"]["map"]
+            if conversion["kind"] != "ENUM" or not isinstance(labels, dict):
+                return False
+            if any(labels.get(state) != state for state in EV_CONNECTOR_STATES):
+                return False
+            found.add(code)
+        return found == {"c1", "c2"}
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False

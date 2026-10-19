@@ -29,7 +29,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from assetops_contracts.source_envelope import SourceMappingEntry, SourceMappingSet
-from assetops_contracts.source_envelope_v4 import V4_COLD_CHANNEL_MAPPINGS, ChannelMapping
+from assetops_contracts.source_envelope_v4 import (
+    V4_COLD_CHANNEL_MAPPINGS,
+    V4_EV_CHANNEL_MAPPINGS,
+    V4_EV_MAPPING_PROFILE_ID,
+    V4_EV_MAPPING_PROFILE_VERSION,
+    ChannelMapping,
+)
 
 SIMULATOR_LAB_GATEWAY_MAPPINGS = SourceMappingSet(
     mapping_set_id="simulator-lab-gateway-fuel",
@@ -171,8 +177,24 @@ COLD_V4_GATEWAY_MAPPINGS = V4MappingSet(
     ),
 )
 
-#: W2-02: the cold publication profile publishes through the schema-4 mapping only.
-_V4_MAPPING_BY_PUBLICATION_PROFILE = {("cold-publication", 1): COLD_V4_GATEWAY_MAPPINGS}
+#: W2-05b (`D-2026-10-18-w2-05-buildspec` commit 3): `simulator-lab-gateway-ev/1`, schema 4, the 05a closed
+#: 15-tuple table exactly - c1/c2 session-event, fault-event, state, requested-power, allocated-limit, energy,
+#: power, plus site-meter/import. Never the unsuffixed W2-00 compatibility tuples.
+EV_V4_GATEWAY_MAPPINGS = V4MappingSet(
+    mapping_id=V4_EV_MAPPING_PROFILE_ID,
+    mapping_version=V4_EV_MAPPING_PROFILE_VERSION,
+    envelope_schema=4,
+    channels=tuple(sorted(V4_EV_CHANNEL_MAPPINGS.items())),
+)
+
+#: W2-02: the cold publication profile publishes through the schema-4 mapping only; W2-05b adds the EV
+#: publication profile's distinct closed mapping.
+_V4_MAPPING_BY_PUBLICATION_PROFILE = {
+    ("cold-publication", 1): COLD_V4_GATEWAY_MAPPINGS,
+    ("ev-publication", 1): EV_V4_GATEWAY_MAPPINGS,
+}
+#: Profiles that publish only through a schema-4 mapping: an unregistered version never falls back.
+_V4_ONLY_PUBLICATION_PROFILES = frozenset({"cold-publication", "ev-publication"})
 
 
 def gateway_mapping_for(
@@ -180,12 +202,13 @@ def gateway_mapping_for(
 ) -> SourceMappingSet | V4MappingSet:
     """The gateway mapping a run frozen under this publication profile uses.
 
-    W2-02 dispatches `cold-publication/1` explicitly to its schema-4 mapping; every older profile keeps its
+    W2-02 dispatches `cold-publication/1` and W2-05b `ev-publication/1` explicitly to their schema-4 mappings
+    (another version of either refuses); every older profile keeps its
     schema-1 mapping and default, unchanged.
     """
     key = (publication_profile_id, publication_profile_version)
     if key in _V4_MAPPING_BY_PUBLICATION_PROFILE:
         return _V4_MAPPING_BY_PUBLICATION_PROFILE[key]
-    if publication_profile_id == "cold-publication":
+    if publication_profile_id in _V4_ONLY_PUBLICATION_PROFILES:
         raise LookupError(f"no gateway mapping for {publication_profile_id}/{publication_profile_version}")
     return _MAPPING_BY_PUBLICATION_PROFILE.get(key, SIMULATOR_LAB_GATEWAY_MAPPINGS)

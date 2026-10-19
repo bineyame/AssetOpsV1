@@ -482,6 +482,8 @@ describe("simulator lab gate: enabled", () => {
       "/simulator-lab/scenarios/:scenarioId/run-setup",
       // W2-02: the cold-chain run setup, beside the legacy one.
       "/simulator-lab/cold-run-setup",
+      // W2-05b: the EV charging run setup, beside the cold-chain one.
+      "/simulator-lab/ev-run-setup",
     ]);
   });
 
@@ -819,6 +821,8 @@ describe("simulator lab gate: runs are unavailable in both states", () => {
       ["/simulator-lab/create-site", "+ Add site"],
       // W2-02: the Lab's way into the cold-chain run setup.
       ["/simulator-lab/cold-run-setup", "Set up a cold-chain run"],
+      // W2-05b: the Lab's way into the EV charging run setup.
+      ["/simulator-lab/ev-run-setup", "Set up an EV charging run"],
       ["/", "Back to the operator shell"],
     ]);
   });

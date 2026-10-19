@@ -1970,6 +1970,9 @@ def _record_boundary(world: _World) -> None:
 # `Execution` path unchanged.
 
 COLD_PROFILE_PAIR = (("cold-thermal", 1), ("cold-publication", 1))
+#: W2-05b commit 4: the `ev-charger/1` + `ev-publication/1` pair dispatches to the host's EV branch, exactly as
+#: the cold pair does; a half-EV pair refuses.
+EV_PROFILE_PAIR = (("ev-charger", 1), ("ev-publication", 1))
 
 
 class ProfilePairMismatch(ValueError):
@@ -1977,12 +1980,14 @@ class ProfilePairMismatch(ValueError):
 
 
 def execution_path_for(model: tuple[str, int], publication: tuple[str, int]) -> str:
-    """`COLD` for the cold pair, `MODEL_SPEC` for every older pair; a half-cold pair refuses."""
-    cold_model, cold_publication = COLD_PROFILE_PAIR
-    if (model, publication) == COLD_PROFILE_PAIR:
-        return "COLD"
-    if model[0] == cold_model[0] or publication[0] == cold_publication[0]:
-        raise ProfilePairMismatch(f"no execution path for model {model} with publication {publication}")
+    """`COLD` for the cold pair, `EV` for the EV pair, `MODEL_SPEC` for every older pair; a half-cold or
+    half-EV pair refuses."""
+    for path, pair in (("COLD", COLD_PROFILE_PAIR), ("EV", EV_PROFILE_PAIR)):
+        if (model, publication) == pair:
+            return path
+    for pair_model, pair_publication in (COLD_PROFILE_PAIR, EV_PROFILE_PAIR):
+        if model[0] == pair_model[0] or publication[0] == pair_publication[0]:
+            raise ProfilePairMismatch(f"no execution path for model {model} with publication {publication}")
     return "MODEL_SPEC"
 
 
