@@ -1,6 +1,56 @@
-# W2-05b phase handoff - run 5 (commits 1-3 built; q2 and q3 applied; commit 4 blocked on Q20-Q25)
+# W2-05b phase handoff - run 6 (commits 1-4 built; q4 Q18-Q25 applied; commit 5 next)
 
 Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged.
+
+## Run 6 commits
+- `6c1a9a3c` q4 Q18/Q19. Q18: `runs/service.py:_create_ev_draft` calls `_ev_state_maps_publishable(selection)`
+  (module end) before `_freeze_document_draft`; refusal `VERSION_UNAVAILABLE` + `EV_STATE_MAP_REFUSAL` (exact
+  ruled sentence). Q19: `sites/ev_lab.py:republish_corrected_bindings` (+ `RepublishResult`,
+  `EvLabRepublishRefused`, `CORRECTED_EFFECTIVE_FROM` 2026-10-05, `CORRECTED_NOTE`), CLI
+  `--republish-corrected-bindings`. Tests: `test_w205b_ev_scenarios.py` (FakeRegistered now serves the real
+  corrected selection `corrected_selection()`; Q18 old/corrected/9 malformed/extra-labels/tamper; Q19 in-memory),
+  `test_w205a_ev_foundation_postgres.py` (Q19 old install -> republish -> idempotent -> fresh Draft corrected,
+  old knowledge_at refuses; fresh install no-change; later independent publication and unknown map refuse).
+- `548ca728` commit 4. `simulator/.../kernel/execute.py` `EV_PROFILE_PAIR`, `execution_path_for` -> `EV`
+  (half pair refuses); `host/execution_adapter.py:model_for` refuses EV. New `host/ev_lab.py`: `EvInputs`/
+  `StoreEvInputs` (`binding_revision` reads historical rows by ID), `EV_NOTES`, `ev_draft_projection`,
+  `ev_terminal_projection`, `EV_ARTIFACT_KEYS` (33, ruled order), `render_ev_artifact`/`parse_ev_artifact`/
+  `verify_ev_artifact`, `ev_delay_event_id`. `host/ev_publication.py`: `ev_parameters` (Q22), `_snapshot_rows`
+  (Q23), `verify_ev_inputs`, `ev_series_digest_of_texts`. `host/lab_execution.py`: `parse_ev_document`,
+  schema-7 dispatch in `parse_projection`, `YamlExecutionArtifacts.write_ev`/`read_ev` (one document, checked
+  against the run)/EV `read_history`, `ev_inputs=` ctor arg, `_is_ev`, `_stored`, `_start_ev`,
+  `_verified_ev_schedule` (called in `advance_publication`), `_stage_registered_v2_reports(..., delay_id)`.
+  `host/lab_app.py` composes `StoreEvInputs`. Tests: new `host/tests/test_ev_lab_execution.py` (42).
+
+## Run 6 counts (private DB `w205b_run6_test`, created with createdb, dropped)
+- backend `test_s2_*`, `test_w200_*`, `test_w202_*`, `test_w205*`: 503 passed (`test_w205b_ev_scenarios` 90,
+  `test_w205a_ev_foundation_postgres` 20). gateway suite 260; simulator ev pack/transform + cold pack 94; host
+  EV lab/publication, cold dispatch/lab/publication, post-run release, publication delay, t026, w203: 147;
+  contracts 6. `check-all.ps1` 10/10. Frontend untouched (no tsc).
+- Non-vacuous: Q18 check off fails 11 scenario tests; artifact-vs-run check, schedule verification, `ev-delay-`
+  ID and the equal-rating rule each fail their test when disabled.
+
+## Pending
+- Non-blocking notes N13-N17 in `.agent/W2-05b-pending-rulings.md` (swapped-mapping cross-check, schedule
+  mismatch code, Q19 later-publication reading, Q18 c1/c2 identity, Commit proof deferred to commit 5).
+- Nothing blocks commit 5.
+
+## Anchors for commit 5 (on `548ca728`)
+- Replay model: `backend/assetops_backend/cold_replay.py` `ColdReplayService` :56, `replay` :61,
+  `_linked_batch` :149, `_envelopes` :160; `cold_replay_api.py:build_cold_replay_router` :41.
+- Ledger SELECTs: `evidence/adapters/postgres_evidence_ledger.py` `cold_replay_rows` :1037,
+  `cold_replay_run_referenced` :1050, generic `_run` :145 (default isolation; EV needs REPEATABLE READ, READ ONLY).
+  Narrow reader: `evidence/composition.py` `_ColdReplayReader` :41, `build_cold_replay_reader` :56.
+- `main.py`: cold replay import :57, `create_app` `ev_access`/`ev_owner` :179-180, Lab router :470 (passes
+  them :487-488), cold replay mount near :492. N1 owed: pass the same `ev_access`/`ev_owner` to
+  `build_ev_replay_router`; walkthrough ASGI app calls `create_app` with the Site-scoped owner.
+- Real Commit path for manifests: host `release_registered` (`lab_execution.py`, COMPLETED gate) ->
+  gateway release/outbox -> S2 Batch V2/receipt; restart release `advance_publication` -> `_release`.
+- Manifests go to `contract-fixtures/w2/ev/*.json` (only `cold/` exists today). Registry: set
+  `A-ev-world.task`/`I-ev-world.task` to W2-05b (task file line 23) and run the registry checker.
+
+## Run 5 record
+
 
 ## Run 5: q3 fixes (`21745982` "W2-05b q3 fixes")
 - Q15: `sites/binding_roles.py` `EV_CONNECTOR_STATES` seven values; both `conversions/ev-lab-001-bindings.json`

@@ -201,3 +201,23 @@ Commit 4's spec leaves these shapes and sources to the builder; each is a design
 - **Q25 delayed-report ID prefix.** Commit 3 uses `cold_lab.delay_event_id` (`cold-delay-` + SHA-256 of the
   report key) for the held EV END. Keep that for EV, or an `ev-delay-` prefix? It is persisted in the
   schedule and pinned by commit 5 manifests only indirectly.
+
+## Run 6 (2026-10-19): q4 Q18-Q25 applied; commit 4 built. Non-blocking notes (built where the ruling is silent)
+
+- **N13 swapped frozen mapping.** `_snapshot_rows` derives `asset_code` from the run's frozen `signal_mappings`
+  and cross-checks existence/type in the frozen Foundation and asset/code one-to-one. A run whose c1/c2 mappings
+  were swapped consistently passes those checks (only the run identity would differ). The Foundation `devices`
+  device->component declaration could be cross-checked too; not built because unruled.
+- **N14 schedule mismatch code.** q4 Q21 says verify schedule run/snapshot/held key/text/source time/state
+  against run and artifact "before release" without a code; a mismatch refuses `PUBLICATION_SCHEDULE_UNREADABLE`
+  (the existing closed-refusal kind), an unreadable artifact `ARTIFACT_UNREADABLE`. Only `advance_publication`
+  verifies; `publication_schedule` reads as cold does.
+- **N15 Q19 "independent later publication".** Refuses when any current binding revision starting after the
+  selected one has rows that differ from it; Foundation-aligned unchanged copies are allowed (BindingService
+  reaches through them). Also refuses a selected revision starting after 2026-10-05.
+- **N16 Q18 c1/c2 identity.** A state row's connector is the frozen `signal_mappings` component of its
+  `binding_revision_id`; its `(device_id, signal_id)` must be the closed table's state tuple whose device
+  prefix is that connector, with the closed entry's v4 metadata.
+- **N17 Commit proof in commit 4.** Host tests prove the COMPLETED readiness gate reaches `gateway.release` and
+  FAILED refuses `COMMIT_NOT_READY` (fake gateway); the real seal/outbox/Batch V2/receipt path is proven by the
+  commit 5 manifest generation as the spec orders.
