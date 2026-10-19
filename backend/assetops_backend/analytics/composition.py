@@ -127,3 +127,10 @@ def build_cold_read_service(database_url: str):
     from assetops_backend.analytics.adapters.postgres_assessment_store import ColdReadService
 
     return ColdReadService(database_url)
+
+
+def build_ev_read_service(database_url: str):
+    """W2-06 commit 4: the selected EV session and Finding read (read-only Postgres adapter)."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService
+
+    return EvReadService(database_url)

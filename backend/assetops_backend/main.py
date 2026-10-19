@@ -36,7 +36,7 @@ from fastapi import APIRouter, FastAPI
 from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.composition import build_assessment_store
 from assetops_backend.analytics.composition import build_claim_limit_read_service
-from assetops_backend.analytics.composition import build_cold_read_service
+from assetops_backend.analytics.composition import build_cold_read_service, build_ev_read_service
 from assetops_backend.analytics.ports import AssessmentStore
 from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.analytics.composition import (build_dispatch_read_service, build_finding_index_service,
@@ -52,6 +52,7 @@ from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
+from assetops_backend.ev_assessment_api import build_ev_assessment_router
 from assetops_backend.ev_foundation_api import build_ev_foundation_router
 from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
@@ -404,6 +405,11 @@ def create_app(
     if cold_reads is not None:
         app.router.on_shutdown.append(cold_reads.dispose)
     app.include_router(build_cold_assessment_router(registry, cold_reads))
+    # W2-06: selected EV session and EV Finding reads; typed 503 without a database.
+    ev_reads = build_ev_read_service(database_url()) if database_url() else None
+    if ev_reads is not None:
+        app.router.on_shutdown.append(ev_reads.dispose)
+    app.include_router(build_ev_assessment_router(registry, ev_reads))
     # W2-04: the five cold Site reads over the same W2-03 read service and the cold consequence store's
     # caller-connection heads; one REPEATABLE READ snapshot per request, typed 503 without a database.
     cold_consequences = build_cold_consequence_store(database_url()) if cold_reads is not None else None

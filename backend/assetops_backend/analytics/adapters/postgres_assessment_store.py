@@ -42,6 +42,20 @@ from assetops_backend.analytics.cold_reads import (
     decode_cursor,
     encode_cursor,
 )
+from assetops_backend.analytics.ev_reads import (
+    COUNT_KEYS as _EV_COUNT_KEYS,
+    HISTORICAL_NOTE as _EV_HISTORICAL_NOTE,
+    NO_SELECTION_NOTE as _EV_NO_SELECTION_NOTE,
+    PENDING_NOTE as _EV_PENDING_NOTE,
+    EvReadRefused,
+    EvReadUnavailable,
+    check_cursor as _ev_check_cursor,
+    completeness as _ev_completeness,
+    currentness_state as _ev_currentness_state,
+    decode_cursor as _ev_decode_cursor,
+    encode_cursor as _ev_encode_cursor,
+    energy_complete as _ev_energy_complete,
+)
 from assetops_backend.analytics.assessment_inputs import (
     BRACKET,
     CONTROL_BATTERY_RESERVE,
@@ -1969,3 +1983,320 @@ class ColdReadService:
             out[r[0]] = {"diagnostic_id": r[1], "received_at": r[2], "contacts": contacts,
                          "clock_offset_ms": r[4], "cadence_seconds": r[5]}
         return out
+
+
+# --- W2-06 commit 4: the selected EV session and Finding read (read-only; rules in `analytics/ev_reads.py`) -----
+# One REPEATABLE READ, READ ONLY transaction per request: the committed disposition watermark, the resolved cutoff,
+# the selected `ev-session/1` assessment of the exact window, its stored Q14 result and session revisions, their
+# links, the Finding revisions of that assessment and the overlapping PENDING/LEASED/FAILED `ev_charging` jobs.
+
+
+_ev_plain = ev.plain
+
+
+def _ev_json(value: Any) -> Any:
+    return json.loads(value) if isinstance(value, str) else value
+
+
+class EvReadService:
+    def __init__(self, database_url: str | None = None, *, engine=None,
+                 clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc)) -> None:
+        self._url, self._engine, self.clock = database_url, engine, clock
+
+    def _connect(self):
+        if self._engine is None:
+            self._engine = create_engine(self._url, pool_pre_ping=True)
+        return self._engine.connect().execution_options(isolation_level="REPEATABLE READ")
+
+    def dispose(self) -> None:
+        if self._engine is not None:
+            self._engine.dispose()
+
+    def _read(self, work: Callable[[Connection], Any]) -> Any:
+        try:
+            with self._connect() as c, c.begin():
+                c.execute(text("SET TRANSACTION READ ONLY"))
+                return work(c)
+        except (OperationalError, DBAPIError) as error:
+            raise EvReadUnavailable(f"The EV assessment store is unavailable: {error.__class__.__name__}") from error
+
+    # --- the one snapshot --------------------------------------------------------------------------------------
+
+    def _snapshot(self, c: Connection, t: UUID, s: UUID, code: str, lo: datetime | None, hi: datetime | None,
+                  known_at: datetime | None) -> dict[str, Any]:
+        p = {"t": t, "s": s, "a": ev.SESSION_ANALYTIC}
+        watermark = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t "
+                                   "AND site_id = :s"), p).scalar()
+        if known_at is not None and watermark is not None and known_at > watermark:
+            raise EvReadRefused(422, "EV_TIME_INVALID",
+                                "'known_at' is later than the latest committed evidence cutoff.")
+        known = known_at or watermark
+        if lo is None and known is not None:  # the paired default: the latest selected EV window at the cutoff
+            row = c.execute(text(
+                "SELECT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
+                "ON r.id = sel.run_id WHERE sel.tenant_id = :t AND sel.site_id = :s AND sel.analytic_id = :a "
+                "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"), {**p, "k": known}).first()
+            if row is not None:
+                lo, hi = row[0], row[1]
+        selected = None
+        if lo is not None and known is not None:
+            selected = c.execute(text(
+                "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, ar.created_at, "
+                "ar.claim_level, r.id, r.knowledge_cutoff, r.foundation_revision_ids FROM analytic_run_selection sel "
+                "JOIN analytic_run r ON r.id = sel.run_id JOIN analytic_run_assessment x ON x.run_id = r.id "
+                "JOIN assessment_revision ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t "
+                "AND sel.site_id = :s AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
+                "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
+                {**p, "lo": lo, "hi": hi, "k": known}).first()
+        pending = False
+        if selected is not None:
+            pending = c.execute(text(
+                "SELECT EXISTS (SELECT 1 FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
+                "AND domain = 'ev_charging' AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi "
+                "AND window_end > :lo)"), {**p, "lo": lo, "hi": hi}).scalar_one()
+        historical = known_at is not None and watermark is not None and known_at < watermark
+        state = _ev_currentness_state(selected=selected is not None, pending=pending, historical=historical)
+        note = {"UNKNOWN": _EV_NO_SELECTION_NOTE, "PENDING_RECOMPUTE": _EV_PENDING_NOTE,
+                "HISTORICAL": _EV_HISTORICAL_NOTE}.get(state)
+        snap: dict[str, Any] = {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known,
+                                "watermark": watermark, "state": state, "note": note, "selected": None}
+        if selected is not None:
+            result = _ev_json(selected[3])
+            snap["selected"] = {
+                "revision_id": selected[0], "revision_no": selected[1], "basis": selected[2], "result": result,
+                "evidence_ids": sorted(str(x).lower() for x in _ev_json(selected[4])), "created_at": selected[5],
+                "claim_level": selected[6], "run_id": selected[7], "cutoff": selected[8],
+                "foundation_ids": list(_ev_json(selected[9]) or ())}
+        return snap
+
+    def _query(self, snap: dict[str, Any]) -> str:
+        return f"?from={_ev_plain(snap['lo'])}&to={_ev_plain(snap['hi'])}&known_at={_ev_plain(snap['known'])}"
+
+    def _envelope(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any]:
+        sel = snap["selected"]
+        source_ids: list[str] = []
+        if sel is not None and sel["evidence_ids"]:
+            source_ids = sorted({str(x).lower() for x in c.execute(text(
+                "SELECT DISTINCT source_id FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s "
+                "AND id = ANY(CAST(:ids AS uuid[])) AND source_id IS NOT NULL"),
+                {"t": snap["t"], "s": snap["s"], "ids": sel["evidence_ids"]}).scalars()})
+        provenance = (sel["result"].get("source_provenance") or {}) if sel else {}
+        return {
+            "site_id": str(snap["s"]).lower(),
+            "window": {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]), "known_at": _ev_plain(snap["known"])},
+            "currentness": {"state": snap["state"], "as_of": None if sel is None else _ev_plain(sel["created_at"]),
+                            "limitation": snap["note"]},
+            "source_provenance": {"classification": provenance.get("class"), "source_ids": source_ids,
+                                  "evidence_ids": [] if sel is None else list(sel["evidence_ids"]),
+                                  "basis_sha256": None if sel is None else sel["basis"]},
+            "limitations": ([] if sel is None else list(sel["result"].get("limitations") or ()))
+            + ([snap["note"]] if snap["note"] else []),
+        }
+
+    @staticmethod
+    def _status(snap: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+        sel = snap["selected"]
+        if sel is None:
+            return ({"state": "UNKNOWN", "claim_level": "UNKNOWN", "as_of": None, "limitation": _EV_NO_SELECTION_NOTE},
+                    {**{k: None for k in _EV_COUNT_KEYS}, "as_of": None, "limitation": _EV_NO_SELECTION_NOTE})
+        status, counts = sel["result"]["status"], sel["result"]["denominator"]
+        return ({k: status.get(k) for k in ("state", "claim_level", "as_of", "limitation")},
+                {**{k: counts.get(k) for k in _EV_COUNT_KEYS}, "as_of": counts.get("as_of"),
+                 "limitation": counts.get("limitation")})
+
+    # --- sessions ----------------------------------------------------------------------------------------------
+
+    def _sessions(self, c: Connection, snap: dict[str, Any], session_id: UUID | None = None) -> list[dict[str, Any]]:
+        sel = snap["selected"]
+        if sel is None:
+            return []
+        ids = list(sel["result"].get("session_revision_ids") or ())
+        if not ids:
+            return []
+        sql = ("SELECT e.id, e.external_session_id, e.charger_asset_id, e.connector_asset_id, v.id, v.revision_no, "
+               "v.basis_sha256, v.state, v.start_at, v.end_at, v.start_earliest, v.start_latest, v.end_earliest, "
+               "v.end_latest, v.supported_kwh, v.unknown_meter_seconds, v.fault_evidence_id, v.reason_codes, "
+               "a.asset_code FROM ev_session_revision v JOIN ev_session e ON e.tenant_id = v.tenant_id "
+               "AND e.site_id = v.site_id AND e.id = v.session_id JOIN asset a ON a.tenant_id = e.tenant_id "
+               "AND a.site_id = e.site_id AND a.id = e.connector_asset_id WHERE v.tenant_id = :t AND v.site_id = :s "
+               "AND v.id = ANY(CAST(:ids AS uuid[])) ")
+        p: dict[str, Any] = {"t": snap["t"], "s": snap["s"], "ids": ids}
+        if session_id is not None:
+            sql += "AND e.id = :e "
+            p["e"] = session_id
+        rows = c.execute(text(sql + "ORDER BY v.start_at, e.id"), p).all()
+        findings = {claim_session: fid for fid, claim_session in c.execute(text(
+            "SELECT f.id, fr.claim->>'session_id' FROM finding_revision fr JOIN finding f ON f.tenant_id = "
+            "fr.tenant_id AND f.site_id = fr.site_id AND f.id = fr.finding_id WHERE fr.tenant_id = :t "
+            "AND fr.site_id = :s AND f.domain = 'ev_charging' AND fr.assessment_revision_id = :ar "
+            "AND fr.lifecycle = 'SUPPORTED'"), {"t": snap["t"], "s": snap["s"], "ar": sel["revision_id"]}).all()}
+        names = self._display_names(c, snap)
+        q = self._query(snap)
+        provenance = snap["provenance"]
+        items = []
+        for r in rows:
+            reasons = list(_ev_json(r[17]) or ())
+            fid = findings.get(str(r[0]).lower())
+            items.append({
+                "session_id": _ev_plain(r[0]), "external_session_id": r[1], "charger_asset_id": _ev_plain(r[2]),
+                "connector_asset_id": _ev_plain(r[3]), "connector_display_name": names.get(r[18]),
+                "revision_id": _ev_plain(r[4]), "revision_no": r[5], "basis_sha256": r[6], "state": r[7],
+                "start_at": _ev_plain(r[8]), "end_at": _ev_plain(r[9]),
+                "start_bounds": {"earliest": _ev_plain(r[10]), "latest": _ev_plain(r[11])},
+                "end_bounds": {"earliest": _ev_plain(r[12]), "latest": _ev_plain(r[13])},
+                "supported_kwh": _ev_plain(r[14]), "energy_complete": _ev_energy_complete(r[7], r[14], r[15]),
+                "unknown_meter_seconds": r[15], "reason_codes": reasons, "fault_evidence_id": _ev_plain(r[16]),
+                "finding_id": _ev_plain(fid), "completeness": _ev_completeness(reasons, r[15]),
+                "as_of": _ev_plain(sel["created_at"]), "source_provenance": provenance,
+                "links": {"self": f"/api/sites/{snap['code']}/ev/sessions/{_ev_plain(r[0])}{q}", "evidence": None,
+                          "analysis": None,
+                          "finding": None if fid is None else f"/api/sites/{snap['code']}/ev/findings/{_ev_plain(fid)}{q}",
+                          "financials": None},
+                "_sort": (r[8], r[0])})
+        return items
+
+    def _display_names(self, c: Connection, snap: dict[str, Any]) -> dict[str, str]:
+        """asset_code -> the selected Foundation revision's component `display_name` (the scoped connector label)."""
+        ids = snap["selected"]["foundation_ids"]
+        if len(ids) != 1:
+            return {}
+        content = c.execute(text("SELECT content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+                                 "AND id = :f"), {"t": snap["t"], "s": snap["s"], "f": UUID(str(ids[0]))}).scalar()
+        content = _ev_json(content) or {}
+        return {x.get("component_id"): x.get("display_name") for x in content.get("components") or ()
+                if isinstance(x.get("display_name"), str)}
+
+    def _open(self, c: Connection, t: UUID, s: UUID, code: str, lo, hi, known_at) -> tuple[dict, dict]:
+        snap = self._snapshot(c, t, s, code, lo, hi, known_at)
+        body = self._envelope(c, snap)
+        snap["provenance"] = body["source_provenance"]
+        return snap, body
+
+    @staticmethod
+    def _page(items: list[dict[str, Any]], snap: dict[str, Any], body: dict[str, Any], cursor: str | None,
+              limit: int) -> tuple[list[dict[str, Any]], str | None]:
+        if cursor is not None:
+            doc, last_time, last_id = _ev_decode_cursor(cursor)
+            if snap["lo"] is None or snap["known"] is None:
+                raise EvReadRefused(409, "EV_CURSOR_BASIS_CHANGED",
+                                    "No selected EV window matches this cursor; reload the first page.")
+            _ev_check_cursor(doc, snap["lo"], snap["hi"], snap["known"], body["source_provenance"]["basis_sha256"])
+            items = [x for x in items if (x["_sort"][0], str(x["_sort"][1])) > (last_time, str(last_id))]
+        page, more = items[:limit], len(items) > limit
+        nxt = None
+        if more:
+            at, last = page[-1]["_sort"]
+            nxt = _ev_encode_cursor(snap["lo"], snap["hi"], snap["known"], body["source_provenance"]["basis_sha256"],
+                                at, last)
+        return [{k: v for k, v in x.items() if k != "_sort"} for x in page], nxt
+
+    def sessions(self, tenant_id: UUID, site_id: UUID, code: str, lo: datetime | None, hi: datetime | None,
+                 known_at: datetime | None, cursor: str | None, limit: int) -> dict[str, Any]:
+        def work(c):
+            snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
+            status, denominator = self._status(snap)
+            items, nxt = self._page(self._sessions(c, snap), snap, body, cursor, limit)
+            return {**body, "status": status, "denominator": denominator, "items": items, "next_cursor": nxt}
+        return self._read(work)
+
+    def session(self, tenant_id: UUID, site_id: UUID, code: str, session_id: UUID, lo: datetime | None,
+                hi: datetime | None, known_at: datetime | None) -> dict[str, Any] | None:
+        def work(c):
+            snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
+            found = self._sessions(c, snap, session_id)
+            if not found:
+                return None
+            item = {k: v for k, v in found[0].items() if k != "_sort"}
+            p = {"t": tenant_id, "s": site_id, "r": UUID(item["revision_id"])}
+            evidence = [{"evidence_id": _ev_plain(r[0]), "content_sha256": r[1], "use": r[2], "reason": r[3],
+                         "source_time": _ev_plain(r[4]), "received_at": _ev_plain(r[5])} for r in c.execute(text(
+                "SELECT x.evidence_id, e.envelope_sha256, x.use, x.reason, e.source_time, e.received_at "
+                "FROM ev_session_evidence x JOIN accepted_evidence e ON e.tenant_id = x.tenant_id "
+                "AND e.site_id = x.site_id AND e.id = x.evidence_id WHERE x.tenant_id = :t AND x.site_id = :s "
+                "AND x.revision_id = :r ORDER BY e.source_time, x.evidence_id"), p).all()]
+            intervals = [{"evidence_id": _ev_plain(r[0]), "start_at": _ev_plain(r[1]), "end_at": _ev_plain(r[2]),
+                          "kwh": _ev_plain(r[3]), "error_bound_kwh": _ev_plain(r[4]), "use": r[5], "reason": r[6]}
+                         for r in c.execute(text(
+                             "SELECT evidence_id, start_at, end_at, kwh, error_bound_kwh, use, reason "
+                             "FROM ev_meter_interval WHERE tenant_id = :t AND site_id = :s AND revision_id = :r "
+                             "ORDER BY start_at, evidence_id"), p).all()]
+            history = [{"revision_id": _ev_plain(r[0]), "revision_no": r[1], "basis_sha256": r[2], "state": r[3],
+                        "created_at": _ev_plain(r[4])} for r in c.execute(text(
+                "SELECT v.id, v.revision_no, v.basis_sha256, v.state, v.created_at FROM ev_session_revision v "
+                "JOIN analytic_run r ON r.tenant_id = v.tenant_id AND r.site_id = v.site_id AND r.id = "
+                "v.analytic_run_id WHERE v.tenant_id = :t AND v.site_id = :s AND v.session_id = :e "
+                "AND r.knowledge_cutoff <= :k ORDER BY v.revision_no"),
+                {"t": tenant_id, "s": site_id, "e": session_id, "k": snap["known"]}).all()]
+            status, denominator = self._status(snap)
+            return {**body, "status": status, "denominator": denominator, **item, "evidence": evidence,
+                    "meter_intervals": intervals, "history": history}
+        return self._read(work)
+
+    # --- Findings ----------------------------------------------------------------------------------------------
+
+    def _findings(self, c: Connection, snap: dict[str, Any], finding_id: UUID | None = None) -> list[dict[str, Any]]:
+        """The Finding revisions of the selected assessment revision: SUPPORTED ones for the list; for one ID, its
+        revision at that assessment whatever its lifecycle (a withdrawal is then read as history)."""
+        sel = snap["selected"]
+        if sel is None:
+            return []
+        sql = ("SELECT f.id, fr.id, fr.revision_no, fr.basis_sha256, fr.claim, fr.title, fr.claim_level, "
+               "fr.lifecycle, fr.created_at, f.anchor_start, fr.limitations FROM finding_revision fr JOIN finding f "
+               "ON f.tenant_id = fr.tenant_id AND f.site_id = fr.site_id AND f.id = fr.finding_id "
+               "WHERE fr.tenant_id = :t AND fr.site_id = :s AND f.domain = 'ev_charging' "
+               "AND fr.assessment_revision_id = :ar ")
+        p: dict[str, Any] = {"t": snap["t"], "s": snap["s"], "ar": sel["revision_id"]}
+        if finding_id is None:
+            sql += "AND fr.lifecycle = 'SUPPORTED' "
+        else:
+            sql += "AND f.id = :f "
+            p["f"] = finding_id
+        q = self._query(snap)
+        items = []
+        for r in c.execute(text(sql + "ORDER BY f.anchor_start, f.id"), p).all():
+            claim = _ev_json(r[4]) or {}
+            items.append({
+                "finding_id": _ev_plain(r[0]), "revision_id": _ev_plain(r[1]), "revision_no": r[2], "basis_sha256": r[3],
+                "session_id": claim.get("session_id"), "title": r[5], "claim_level": r[6], "lifecycle": r[7],
+                "as_of": _ev_plain(r[8]),
+                "links": {"self": f"/api/sites/{snap['code']}/ev/findings/{_ev_plain(r[0])}{q}", "evidence": None,
+                          "analysis": None, "finding": None, "financials": None},
+                "_claim": claim, "_limitations": list(_ev_json(r[10]) or ()), "_sort": (r[9], r[0])})
+        return items
+
+    def findings(self, tenant_id: UUID, site_id: UUID, code: str, lo: datetime | None, hi: datetime | None,
+                 known_at: datetime | None, cursor: str | None, limit: int) -> dict[str, Any]:
+        def work(c):
+            snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
+            rows = [{k: v for k, v in x.items() if k not in ("_claim", "_limitations")}
+                    for x in self._findings(c, snap)]
+            items, nxt = self._page(rows, snap, body, cursor, limit)
+            return {**body, "items": items, "next_cursor": nxt}
+        return self._read(work)
+
+    def finding(self, tenant_id: UUID, site_id: UUID, code: str, finding_id: UUID, lo: datetime | None,
+                hi: datetime | None, known_at: datetime | None) -> dict[str, Any] | None:
+        def work(c):
+            snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
+            found = self._findings(c, snap, finding_id)
+            if not found:
+                return None
+            row = found[0]
+            evidence = [{"evidence_id": _ev_plain(r[0]), "content_sha256": r[1], "source_time": _ev_plain(r[2]),
+                         "received_at": _ev_plain(r[3])} for r in c.execute(text(
+                "SELECT x.evidence_id, e.envelope_sha256, e.source_time, e.received_at FROM "
+                "finding_revision_evidence x JOIN accepted_evidence e ON e.id = x.evidence_id "
+                "AND e.tenant_id = :t AND e.site_id = :s WHERE x.finding_revision_id = :r "
+                "ORDER BY e.source_time, x.evidence_id"),
+                {"t": tenant_id, "s": site_id, "r": UUID(row["revision_id"])}).all()]
+            history = [{"revision_id": _ev_plain(r[0]), "revision_no": r[1], "transition": r[2], "lifecycle": r[3],
+                        "created_at": _ev_plain(r[4])} for r in c.execute(text(
+                "SELECT fr.id, fr.revision_no, fr.transition, fr.lifecycle, fr.created_at FROM finding_revision fr "
+                "JOIN analytic_run r ON r.tenant_id = fr.tenant_id AND r.site_id = fr.site_id "
+                "AND r.id = fr.analytic_run_id WHERE fr.tenant_id = :t AND fr.site_id = :s AND fr.finding_id = :f "
+                "AND r.knowledge_cutoff <= :k ORDER BY fr.revision_no"),
+                {"t": tenant_id, "s": site_id, "f": finding_id, "k": snap["known"]}).all()]
+            item = {k: v for k, v in row.items() if not k.startswith("_")}
+            return {**body, **item, "claim": row["_claim"], "evidence": evidence, "history": history,
+                    "limitations": row["_limitations"]}
+        return self._read(work)
