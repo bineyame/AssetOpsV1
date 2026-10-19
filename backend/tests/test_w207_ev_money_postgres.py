@@ -356,6 +356,50 @@ class TestMigration0026:
             remove_money(engine)
             remove_sessions(engine)
 
+    def test_r3_store_publishes_ev_tariff_and_public_post_stays_401(self, site, engine) -> None:  # noqa: F811
+        # q1 R3: the fixture publication is a store request under SYSTEM_PUBLISHER/SYSTEM_FIXTURE, never HTTP.
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        from assetops_backend.financial_api import build_financial_assumption_router
+
+        ctx = Ctx(site, engine)
+        try:
+            prices = PostgresAssumptionStore(URL)
+            try:
+                published = prices.publish(ctx.t, ctx.s, publication(idem="w207-r3-store"), SYSTEM_PUBLISHER)
+            finally:
+                prices.dispose()
+            assert isinstance(published.revision_id, UUID) and published.recorded_at.tzinfo is not None
+            assert not published.replayed and published.change_kind == "INITIAL"
+            row = scalar(engine, "SELECT channel || '|' || assumption_key || '|' || unit || '|' || value::text "
+                                 "|| '|' || currency FROM financial_assumption_revision WHERE id = :i",
+                         i=published.revision_id)
+            assert row == f"SYSTEM_FIXTURE|{EV_KEY}|currency/kWh|0.27775|KES"
+            before = counted(engine, "SELECT count(*) FROM financial_assumption_revision")
+            app = FastAPI()
+            app.include_router(build_financial_assumption_router(lambda code: ("EV-LAB-001", ctx.t, ctx.s)))
+            response = TestClient(app).post("/api/sites/EV-LAB-001/financial-assumptions", json={
+                "assumption_key": EV_KEY, "value": "0.27775", "currency": "KES"})
+            assert response.status_code == 401 and response.json()["detail"]["code"] == "UNAUTHENTICATED"
+            assert counted(engine, "SELECT count(*) FROM financial_assumption_revision") == before
+        finally:
+            remove_money(engine)
+
+
+def test_r4_ev_currency_and_value_validation_is_ev_only() -> None:
+    # q1 R4: active ISO-4217 and strictly positive for the EV key only; diesel keeps its shape rule and zero.
+    from assetops_backend.financials.assumptions import validate
+
+    validate(publication())  # KES accepted
+    for kw, code in (({"currency": "ABC"}, "CURRENCY_NOT_ISO"), ({"value": "0"}, "VALUE_NOT_POSITIVE"),
+                     ({"value": "-1"}, "VALUE_NOT_POSITIVE")):
+        with pytest.raises(PublicationRefused) as refused:
+            validate(publication(**kw))
+        assert refused.value.code == code
+    validate(publication(key="diesel_price_per_litre", currency="ABC", value="1.30"))
+    validate(publication(key="diesel_price_per_litre", currency="ABC", value="0"))
+
 
 # --- commit 1: trigger-only work through the registered EV path (recreates the module database: keep last) ---------
 
