@@ -301,16 +301,30 @@ class TestMigration0025:
                 ({"supported_kwh": "NaN"}, "ev_session_revision_supported_kwh"),
                 ({"supported_kwh": "Infinity"}, "ev_session_revision_supported_kwh"),
                 ({"unknown_meter_seconds": -1}, "ev_session_revision_unknown_seconds"),
+                # R1 (q1): only CONTRADICTORY carries the null quantity pair, and it must carry both nulls.
+                ({"unknown_meter_seconds": None}, "ev_session_revision_quantity_state"),
+                ({"state": "INCOMPLETE", "end_at": None, "unknown_meter_seconds": None},
+                 "ev_session_revision_quantity_state"),
+                ({"state": "CONTRADICTORY", "supported_kwh": None, "unknown_meter_seconds": 0},
+                 "ev_session_revision_quantity_state"),
+                ({"state": "CONTRADICTORY", "supported_kwh": "30.000", "unknown_meter_seconds": None},
+                 "ev_session_revision_quantity_state"),
+                ({"state": "CONTRADICTORY", "supported_kwh": "0.000", "unknown_meter_seconds": None},
+                 "ev_session_revision_quantity_state"),
                 ({"reason_codes": '{"code": "METER_GAP"}'}, "ev_session_revision_reason_codes_array"),
             ):
                 kw = {"n": 9, "basis": f"check-{name}-{sorted(over)}", **over}
                 with pytest.raises(IntegrityError, match=name):
                     insert_revision(engine, ctx, session, **kw)
-            # INCOMPLETE without end, CONTRADICTORY with an observed end retained as context, null quantity.
+            # INCOMPLETE without end; CONTRADICTORY (R1) with null end and the null quantity pair.
             insert_revision(engine, ctx, session, n=2, basis="incomplete", state="INCOMPLETE", end_at=None,
                             supported_kwh="30.000", unknown_meter_seconds=0, reason_codes='["MISSING_TERMINAL"]')
             insert_revision(engine, ctx, session, n=3, basis="contradictory", state="CONTRADICTORY",
-                            supported_kwh=None, reason_codes='["CONFLICTING_TERMINAL"]')
+                            end_at=None, supported_kwh=None, unknown_meter_seconds=None,
+                            reason_codes='["CONFLICTING_TERMINAL"]')
+            # R1: an unambiguous state with no SUPPORT delta stores NULL energy but integer unknown seconds.
+            insert_revision(engine, ctx, session, n=5, basis="no-support", state="INCOMPLETE", end_at=None,
+                            supported_kwh=None, unknown_meter_seconds=0, reason_codes='["MISSING_TERMINAL"]')
             with pytest.raises(IntegrityError, match="ev_session_revision_basis_unique"):
                 insert_revision(engine, ctx, session, n=4, basis="basis-1")
             with pytest.raises(IntegrityError, match="ev_session_revision_no_unique"):

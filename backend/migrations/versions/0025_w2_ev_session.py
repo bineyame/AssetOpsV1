@@ -117,7 +117,7 @@ CREATE TABLE ev_session_revision (
     end_earliest timestamptz NULL,
     end_latest timestamptz NULL,
     supported_kwh numeric NULL,
-    unknown_meter_seconds integer NOT NULL,
+    unknown_meter_seconds integer NULL,
     fault_evidence_id uuid NULL,
     reason_codes jsonb NOT NULL,
     created_at timestamptz NOT NULL,
@@ -144,7 +144,11 @@ CREATE TABLE ev_session_revision (
         end_earliest IS NULL OR end_latest IS NULL OR end_earliest <= end_latest),
     CONSTRAINT ev_session_revision_supported_kwh CHECK (
         supported_kwh IS NULL OR (supported_kwh >= 0 AND supported_kwh < 'Infinity'::numeric)),
-    CONSTRAINT ev_session_revision_unknown_seconds CHECK (unknown_meter_seconds >= 0),
+    CONSTRAINT ev_session_revision_unknown_seconds CHECK
+        (unknown_meter_seconds IS NULL OR unknown_meter_seconds >= 0),
+    CONSTRAINT ev_session_revision_quantity_state CHECK
+        ((state = 'CONTRADICTORY' AND supported_kwh IS NULL AND unknown_meter_seconds IS NULL)
+         OR (state <> 'CONTRADICTORY' AND unknown_meter_seconds IS NOT NULL)),
     CONSTRAINT ev_session_revision_reason_codes_array CHECK (jsonb_typeof(reason_codes) = 'array'),
     CONSTRAINT ev_session_revision_no_unique UNIQUE (tenant_id, site_id, session_id, revision_no),
     CONSTRAINT ev_session_revision_basis_unique UNIQUE (tenant_id, site_id, session_id, basis_sha256),
