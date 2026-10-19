@@ -1,3 +1,7 @@
+# Resume note — fix round r9 (2026-10-20, tip after `c18acc34`)
+
+Done: r9 M1-a/b/c `dd3b0b53`, M3 wire `26718e5d`, UI `0b2e12cd`, key-set test fixes `2ae3da82` `c18acc34`. Verified at `c18acc34`: focused EV, frontend 2322 + build, check-all 10/10, backend 3234 (0 skipped), host 787. Captures refreshed (byte-identical). Packet updated. Next: review; notes N1-N3 in pending rulings "fix round r9". `w206i_test` dropped.
+
 # Resume note — fix round r7/r8 (2026-10-19, tip after `a17026f1`)
 
 Built: r7 P5/P7/P8 `0b06acfc`; r8 H1 `3bdcabec`; r8 M2 + M3 backend test `37da7b0b`; L1 + L2 `a17026f1`. check-all 10/10 at tip.

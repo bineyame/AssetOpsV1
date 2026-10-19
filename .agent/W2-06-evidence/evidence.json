@@ -1,6 +1,6 @@
 {
-  "revision": "b53569f9..61b3c602+commit5-worktree",
-  "captured_at": "2026-10-19T17:06:09.514Z",
+  "revision": "c18acc34",
+  "captured_at": "2026-10-19T21:15:58.762Z",
   "pairs": [
     {
       "screen": "sessions",
@@ -202,7 +202,7 @@
       "screen": "ev-finding",
       "case": "interrupted",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6134/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025d?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
       "mock_hash": "#/ev-finding",
       "app_image": "ev-finding-interrupted-1440-app.png",
       "app": {
@@ -273,7 +273,7 @@
       "screen": "ev-finding",
       "case": "interrupted",
       "viewport": "390x900",
-      "app_url": "http://localhost:6134/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025d?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025b?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
       "mock_hash": "#/ev-finding",
       "app_image": "ev-finding-interrupted-390-app.png",
       "app": {

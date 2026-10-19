@@ -8,7 +8,7 @@ const [, , OUT, REV] = process.argv;
 const BASE = "http://localhost:6134";
 const PORT = 9735;
 const Q = "from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z";
-const FINDING = "00000502-0000-4000-8000-00000000025d";
+const FINDING = "00000502-0000-4000-8000-00000000025b";
 const SCREENS = [
   { screen: "sessions", app: `/sites/EV-LAB-001/performance/sessions?${Q}`, mock: "#/sessions" },
   { screen: "ev-finding", app: `/sites/EV-LAB-001/findings/${FINDING}?${Q}`, mock: "#/ev-finding" },
