@@ -247,3 +247,19 @@ would be inventing a test-only classifier. Exact questions:
 - **Q31 zero vs null.** For fully covered sessions (complete, interrupted, fault c2, late-record final) is
   `unknown_meter_seconds` `0` or null; and for `interrupted`, `abort_at` and `fault_at` both 08:16 with
   `end_at` null, `energy_complete` true at 15.000?
+
+## Run 8 (2026-10-19): q6 applied; commit 5 complete. Non-blocking notes (nothing was built on them)
+
+- **N18 walkthrough ASGI app.** Commit-5 dry-read item 3 says "the isolated walkthrough ASGI app calls
+  `create_app(..., ev_access=<its authenticated access>, ev_owner=<Site-scoped EV-LAB-001 owner>)` once for both
+  catalog and replay". No EV walkthrough app or `tools/*walkthrough*.py` for W2-05b exists on the branch, and the
+  task file places the owner walkthrough later ("later owner W2 walkthrough uses stored replay"). Run 8 built no
+  walkthrough app; the composition seam is proven by `test_w205b_ev_replay_api.py` (default 403, injected owner,
+  wrong Site 403, injected 401) and `test_w205b_ev_replay_postgres.py::test_owner_scope_and_error_responses`
+  (`create_app` default 403 over the real DB). Question: is the walkthrough app owed by 05b, or by the later owner
+  W2 walkthrough task?
+- **N19 "S2 delta/connector" proof.** Read as the ledger's existing `EV_CONNECTOR_MISMATCH` refusal on a GOOD
+  `INTERVAL_DELTA` whose `connector_id` is the c2 asset on the c1 meter channel (task file: "Prove S2 EV
+  connector/delta refusals"); the ledger has no separate delta-overlap conflict. The event/session conflicts are
+  `EVENT_ID_CONFLICT` (accepted START's event ID, other source time) and `SESSION_ID_CONFLICT` (new event ID, same
+  session/connector START). Confirm no further delta conflict kind is expected.
