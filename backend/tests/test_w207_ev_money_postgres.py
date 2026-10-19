@@ -1,0 +1,474 @@
+"""W2-07: migration `0026_w2_ev_money` (commit 1) against Postgres.
+
+`.agent/W2-07-build-spec.md` "Concrete-artifact closure (2026-10-19)" section 1 and "Post-W2-06 reconciliation
+(2026-10-20)" commit 1: the authored EV tariff key, five append-only scoped EV consequence tables, trigger-only work
+with the exact scoped `ON CONFLICT (tenant_id,site_id,window_start,window_end,dirty_basis_sha256) DO NOTHING` target,
+backfill and a guarded downgrade that refuses while any EV tariff or 0026 row exists. Schema-level rows written here
+(revisions, links, attempts) only exercise constraints; the product writer arrives with commit 2.
+
+The mini-grid `site` tests run first; the registered EV `chain` test recreates the module database, so it runs last.
+Requires ASSETOPS_TEST_DATABASE_URL.
+"""
+
+from __future__ import annotations
+
+import os
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from uuid import UUID, uuid4
+
+import pytest
+
+URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
+pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+
+if URL:
+    from sqlalchemy import text
+    from sqlalchemy.exc import DBAPIError, IntegrityError
+    from test_s1_bindings_postgres import _alembic, engine, store  # noqa: F401
+    from test_s4_consequence_store_postgres import _release_connections, site  # noqa: F401
+    from test_w203_cold_migration_postgres import T0, _replica, _sha, constraint, head, minigrid_rows, scalar, table_exists
+    from test_w205b_ev_replay_postgres import chain  # noqa: F401
+    from test_w206_ev_migration_postgres import Ctx, insert_revision, insert_session
+
+    from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
+    from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
+
+HEAD = "0026_w2_ev_money"
+PREVIOUS = "0025_w2_ev_session"
+REFUSED = "Downgrade of 0026_w2_ev_money refused"
+EV_MONEY = ("ev_consequence_revision", "ev_consequence_session", "ev_consequence_evidence", "ev_consequence_work",
+            "ev_consequence_work_attempt")
+EV_KEY = "ev_gross_tariff_per_kwh"
+DIRTY_KEY = "ev_consequence_work_dirty_unique"
+ARBITER = "ON CONFLICT (tenant_id,site_id,window_start,window_end,dirty_basis_sha256) DO NOTHING"
+TRIGGERS = ("ev_consequence_dirty_session", "ev_consequence_dirty_assessment", "ev_consequence_dirty_tariff",
+            "ev_consequence_dirty_source_gate", "ev_consequence_dirty_accepted", "ev_consequence_tariff_key") + tuple(
+    f"{t}_append_only" for t in EV_MONEY)
+FUNCTIONS = ("ev_consequence_enqueue", "ev_consequence_on_session", "ev_consequence_on_assessment",
+             "ev_consequence_on_tariff", "ev_consequence_on_source_gate", "ev_consequence_on_accepted",
+             "ev_consequence_tariff_key")
+
+
+# --- helpers -----------------------------------------------------------------------------------------------------
+
+
+def publication(*, value="0.27775", currency="KES", valid_from=T0, valid_to=T0 + timedelta(hours=8),
+                idem="w207-tariff-1", key=EV_KEY) -> "Publication":
+    return Publication(assumption_key=key, currency=currency, value=Decimal(value), basis="AUTHORED_ESTIMATE",
+                       source_reference="W2-07 authored test tariff", valid_from=valid_from, valid_to=valid_to,
+                       change_kind="INITIAL", correction_reason=None, expected_prior_revision_id=None,
+                       idempotency_key=idem, channel="SYSTEM_FIXTURE", provenance={})
+
+
+def publish(tenant: UUID, site_id: UUID, **kw) -> UUID:
+    prices = PostgresAssumptionStore(URL)
+    try:
+        return prices.publish(tenant, site_id, publication(**kw), SYSTEM_PUBLISHER).revision_id
+    finally:
+        prices.dispose()
+
+
+def refused_code(tenant: UUID, site_id: UUID, **kw) -> str:
+    prices = PostgresAssumptionStore(URL)
+    try:
+        with pytest.raises(PublicationRefused) as refused:
+            prices.publish(tenant, site_id, publication(**kw), SYSTEM_PUBLISHER)
+        return refused.value.code
+    finally:
+        prices.dispose()
+
+
+def remove_money(engine) -> None:  # noqa: F811
+    _replica(engine, "DELETE FROM ev_consequence_work_attempt", "DELETE FROM ev_consequence_work",
+             "DELETE FROM ev_consequence_evidence", "DELETE FROM ev_consequence_session",
+             "DELETE FROM ev_consequence_revision",
+             f"DELETE FROM financial_assumption_assignment WHERE assumption_key = '{EV_KEY}'",
+             f"DELETE FROM financial_assumption_revision WHERE assumption_key = '{EV_KEY}'")
+
+
+def remove_sessions(engine) -> None:  # noqa: F811
+    _replica(engine, "DELETE FROM ev_meter_interval", "DELETE FROM ev_session_evidence",
+             "DELETE FROM ev_session_revision", "DELETE FROM ev_session")
+
+
+def financial_constraints(engine) -> dict:  # noqa: F811
+    """Every constraint on the 0010-0012 financial tables except the two widened key/unit CHECKs and the EV-only
+    positive CHECK: byte-identical across 0025 and 0026."""
+    with engine.connect() as c:
+        return {r[0]: r[1] for r in c.execute(text(
+            "SELECT conrelid::regclass::text || '.' || conname, pg_get_constraintdef(oid) FROM pg_constraint "
+            "WHERE conrelid::regclass::text LIKE 'financial\\_%' AND conname NOT IN ("
+            "'financial_assumption_revision_assumption_key_check', 'financial_assumption_revision_unit_check', "
+            "'financial_assumption_revision_ev_positive')"))}
+
+
+def counted(engine, sql, **params) -> int:  # noqa: F811
+    return int(scalar(engine, sql, **params))
+
+
+def insert_consequence(engine, ctx, *, state="UNPRICED", quantity=None, tariff=None, value=None, currency=None,
+                       amount=None, basis="c-1", revision_no=1, site_id=None, finding=None):  # noqa: F811
+    cid = uuid4()
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO ev_consequence_revision (id, tenant_id, site_id, finding_revision_id, assessment_revision_id, "
+            "revision_no, basis_sha256, technical_input_sha256, window_start, window_end, quantity_kwh, "
+            "tariff_revision_id, tariff_value, currency, amount, state, reason, source_gate, overlap_group, "
+            "recorded_at) VALUES (:i, :t, :s, :f, :a, :n, :b, :ti, :ws, :we, CAST(:q AS numeric), :tr, "
+            "CAST(:v AS numeric), :cur, CAST(:amt AS numeric), :state, 'TARIFF_MISSING', 'REGISTERED_SIMULATION', "
+            ":og, now())"),
+            {"i": cid, "t": ctx.t, "s": site_id or ctx.s, "f": finding, "a": ctx.assessment, "n": revision_no,
+             "b": _sha(basis), "ti": _sha(f"technical:{basis}"), "ws": T0, "we": T0 + timedelta(hours=1),
+             "q": quantity, "tr": tariff, "v": value, "cur": currency, "amt": amount, "state": state,
+             "og": "ev:" + _sha(f"overlap:{basis}")})
+    return cid
+
+
+def insert_attempt(engine, ctx, work_id, n, outcome="SUCCEEDED", error=None):  # noqa: F811
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO ev_consequence_work_attempt (id, tenant_id, site_id, work_id, attempt_no, outcome, "
+            "error_code, started_at, finished_at) VALUES (gen_random_uuid(), :t, :s, :w, :n, :o, :e, now(), now())"),
+            ctx.p(w=work_id, n=n, o=outcome, e=error))
+
+
+def raises(engine, sql, params, error=IntegrityError, match=None) -> None:  # noqa: F811
+    with pytest.raises(error, match=match):
+        with engine.begin() as c:
+            c.execute(text(sql), params)
+
+
+def downgrade_refused(site, engine) -> None:  # noqa: F811
+    from alembic import command
+
+    config = _alembic()
+    site.store.dispose()
+    site.prices.dispose()
+    engine.dispose()
+    with pytest.raises(DBAPIError, match=REFUSED):
+        command.downgrade(config, PREVIOUS)
+    assert head(engine) == HEAD and all(table_exists(engine, t) for t in EV_MONEY)  # nothing dropped
+
+
+def dirty(engine, tenant, site_id, start, end, cause, locator) -> str:  # noqa: F811
+    """The dirty-event SHA the 0026 enqueue function computes (identifies the event, not a money basis)."""
+    return scalar(engine, "SELECT encode(sha256(convert_to(jsonb_build_array(CAST(:t AS text), CAST(:s AS text), "
+                          "CAST(:a AS timestamptz), CAST(:b AS timestamptz), CAST(:c AS text), CAST(:i AS text))::text, "
+                          "'UTF8')), 'hex')", t=str(tenant), s=str(site_id), a=start, b=end, c=cause, i=str(locator))
+
+
+# --- commit 1: schema, key and downgrade -------------------------------------------------------------------------
+
+
+class TestMigration0026:
+    def test_0026_follows_installed_0025_and_preserves_diesel(self, site, engine) -> None:  # noqa: F811
+        from alembic import command
+        from alembic.script import ScriptDirectory
+
+        ctx = Ctx(site, engine)
+        script = ScriptDirectory.from_config(_alembic())
+        assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
+        assert head(engine) == HEAD
+        assert constraint(engine, "financial_assumption_revision_assumption_key_check") == (
+            "CHECK ((assumption_key = ANY (ARRAY['diesel_price_per_litre'::text, 'ev_gross_tariff_per_kwh'::text])))")
+        assert constraint(engine, "financial_assumption_revision_unit_check") == (
+            "CHECK ((((assumption_key = 'diesel_price_per_litre'::text) AND (unit = 'currency/L'::text)) OR "
+            "((assumption_key = 'ev_gross_tariff_per_kwh'::text) AND (unit = 'currency/kWh'::text))))")
+        assert constraint(engine, "financial_assumption_revision_ev_positive") == (
+            "CHECK (((assumption_key <> 'ev_gross_tariff_per_kwh'::text) OR (value > (0)::numeric)))")
+        assert constraint(engine, "ev_consequence_revision_tariff_fk") == (
+            "FOREIGN KEY (tenant_id, site_id, tariff_assumption_key, tariff_revision_id) REFERENCES "
+            "financial_assumption_revision(tenant_id, site_id, assumption_key, id)")
+        assert counted(engine, "SELECT count(*) FROM pg_trigger WHERE tgname = ANY(:n)", n=list(TRIGGERS)) == 11
+        assert counted(engine, "SELECT count(*) FROM pg_proc WHERE proname = ANY(:n)", n=list(FUNCTIONS)) == 7
+
+        # Diesel publication and reads are unchanged; the EV key is authored, positive and ISO-coded only.
+        site.publish("v1")
+        diesel = scalar(engine, "SELECT unit FROM financial_assumption_revision WHERE assumption_key = "
+                                "'diesel_price_per_litre' ORDER BY revision_no LIMIT 1")
+        assert diesel == "currency/L"
+        assert refused_code(ctx.t, ctx.s, currency="ABC") == "CURRENCY_NOT_ISO"
+        assert refused_code(ctx.t, ctx.s, currency="kes") == "CURRENCY_NOT_ISO"
+        assert refused_code(ctx.t, ctx.s, value="0") == "VALUE_NOT_POSITIVE"
+        assert refused_code(ctx.t, ctx.s, value="-0.1") == "VALUE_NOT_POSITIVE"
+        assert refused_code(ctx.t, ctx.s, key="ev_tariff") == "UNKNOWN_ASSUMPTION_KEY"
+        diesel_id = scalar(engine, "SELECT id FROM financial_assumption_revision WHERE assumption_key = "
+                                   "'diesel_price_per_litre' ORDER BY revision_no LIMIT 1")
+        with engine.connect() as c:
+            columns = [r[0] for r in c.execute(text(
+                "SELECT column_name FROM information_schema.columns WHERE table_name = 'financial_assumption_revision' "
+                "ORDER BY ordinal_position"))]
+        override = {"id": "gen_random_uuid()", "assumption_key": f"'{EV_KEY}'", "unit": ":unit",
+                    "value": "CAST(:value AS numeric)", "idempotency_key": "'raw-ev'", "prior_revision_id": "NULL"}
+        copy = (f"INSERT INTO financial_assumption_revision ({', '.join(columns)}) SELECT "
+                + ", ".join(override.get(col, col) for col in columns)
+                + " FROM financial_assumption_revision WHERE id = :d")
+        raises(engine, copy, {"d": diesel_id, "unit": "currency/L", "value": "0.3"},
+               match="financial_assumption_revision_unit_check")
+        raises(engine, copy, {"d": diesel_id, "unit": "currency/kWh", "value": "0"},
+               match="financial_assumption_revision_ev_positive")
+        tariff = publish(ctx.t, ctx.s)
+        stored = scalar(engine, "SELECT unit || ' ' || value::text || ' ' || currency FROM "
+                                "financial_assumption_revision WHERE id = :i", i=tariff)
+        assert stored == "currency/kWh 0.27775 KES"
+        assert counted(engine, "SELECT count(*) FROM ev_consequence_work") == 0  # no EV assessment on this Site
+        at_head = financial_constraints(engine)
+        before_rows = minigrid_rows(engine)
+        key_check = constraint(engine, "financial_assumption_revision_assumption_key_check")
+
+        # An EV tariff alone refuses the downgrade; nothing is dropped or deleted.
+        downgrade_refused(site, engine)
+        remove_money(engine)
+        config = _alembic()
+        try:
+            command.downgrade(config, PREVIOUS)  # genuinely empty: allowed
+            assert head(engine) == PREVIOUS and not any(table_exists(engine, t) for t in EV_MONEY)
+            assert counted(engine, "SELECT count(*) FROM pg_trigger WHERE tgname = ANY(:n)", n=list(TRIGGERS)) == 0
+            assert counted(engine, "SELECT count(*) FROM pg_proc WHERE proname = ANY(:n)", n=list(FUNCTIONS)) == 0
+            assert constraint(engine, "financial_assumption_revision_assumption_key_check") == (
+                "CHECK ((assumption_key = 'diesel_price_per_litre'::text))")
+            assert constraint(engine, "financial_assumption_revision_unit_check") == "CHECK ((unit = 'currency/L'::text))"
+            assert constraint(engine, "financial_assumption_revision_ev_positive") is None
+            assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
+            assert scalar(engine, "SELECT count(*) FROM financial_assumption_revision WHERE id = :d", d=diesel_id) == 1
+            command.upgrade(config, "head")
+        finally:
+            if head(engine) != HEAD:
+                command.upgrade(config, "head")
+        assert constraint(engine, "financial_assumption_revision_assumption_key_check") == key_check
+        assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
+
+        # Backfilled or trigger work alone, and a consequence revision alone, each refuse the downgrade.
+        session = insert_session(engine, ctx)
+        insert_revision(engine, ctx, session)
+        assert counted(engine, "SELECT count(*) FROM ev_consequence_work") == 1
+        try:
+            downgrade_refused(site, engine)
+        finally:
+            remove_money(engine)
+            remove_sessions(engine)
+        insert_consequence(engine, ctx)
+        assert counted(engine, "SELECT count(*) FROM ev_consequence_work") == 0
+        try:
+            downgrade_refused(site, engine)
+        finally:
+            remove_money(engine)
+        assert head(engine) == HEAD
+
+    def test_0026_scoped_constraints_state_arithmetic_and_append_only(self, site, engine) -> None:  # noqa: F811
+        ctx = Ctx(site, engine)
+        tariff = publish(ctx.t, ctx.s)
+        site.publish("v1")
+        diesel = scalar(engine, "SELECT id FROM financial_assumption_revision WHERE assumption_key = "
+                                "'diesel_price_per_litre' ORDER BY revision_no LIMIT 1")
+        try:
+            estimated = insert_consequence(engine, ctx, state="ESTIMATED", quantity="30.000", tariff=tariff,
+                                           value="0.27775", currency="KES", amount="8.33250000", basis="est")
+            assert scalar(engine, "SELECT amount::text FROM ev_consequence_revision WHERE id = :i",
+                          i=estimated) == "8.33250000"
+            assert scalar(engine, "SELECT tariff_assumption_key FROM ev_consequence_revision WHERE id = :i",
+                          i=estimated) == EV_KEY
+            bad = [
+                # ESTIMATED needs every field and the exact unrounded product.
+                (dict(state="ESTIMATED", quantity="30.000", tariff=tariff, value="0.27775", currency="KES",
+                      amount="8.33"), "ev_consequence_revision_state"),
+                (dict(state="ESTIMATED", quantity=None, tariff=tariff, value="0.27775", currency="KES",
+                      amount="8.33250000"), "ev_consequence_revision_state"),
+                # UNPRICED/WITHHELD never carry an amount or currency.
+                (dict(state="UNPRICED", quantity="30.000", amount="0"), "ev_consequence_revision_state"),
+                (dict(state="WITHHELD", currency="KES"), "ev_consequence_revision_state"),
+                (dict(quantity="NaN"), "ev_consequence_revision_quantity"),
+                (dict(quantity="-1"), "ev_consequence_revision_quantity"),
+                (dict(state="WITHHELD", value="0"), "ev_consequence_revision_tariff_value"),
+                (dict(state="WITHHELD", currency="kes"), "ev_consequence_revision_currency"),  # CHECKs by name
+                # A diesel revision is not an EV tariff (insert trigger before the generated-key scoped FK), and a
+                # value/currency mismatch is refused.
+                (dict(state="UNPRICED", tariff=diesel, value="1.25"), "same-Site EV tariff revision"),
+                (dict(state="UNPRICED", tariff=tariff, value="0.3"), "same-Site EV tariff revision"),
+                (dict(state="ESTIMATED", quantity="1", tariff=tariff, value="0.27775", currency="USD",
+                      amount="0.27775"), "same-Site EV tariff revision"),
+                (dict(site_id=uuid4()), "ev_consequence_revision_site_fk"),
+                (dict(basis="est"), "ev_consequence_revision_basis_unique"),
+                (dict(basis="other", revision_no=1), "ev_consequence_revision_number_unique"),
+            ]
+            for i, (kw, name) in enumerate(bad):
+                kw = {"basis": f"bad-{i}", "revision_no": 100 + i, **kw}
+                with pytest.raises(DBAPIError, match=name):
+                    insert_consequence(engine, ctx, **kw)
+            with pytest.raises(DBAPIError, match="revision_no"):
+                insert_consequence(engine, ctx, basis="zero", revision_no=0)
+
+            # Scoped links: a foreign Site never reaches this Site's revision, session or evidence.
+            session = insert_session(engine, ctx)
+            srev = insert_revision(engine, ctx, session)
+            with engine.begin() as c:
+                c.execute(text("INSERT INTO ev_consequence_session (tenant_id, site_id, consequence_revision_id, "
+                               "session_revision_id, included_kwh) VALUES (:t, :s, :c, :r, 30.000)"),
+                          ctx.p(c=estimated, r=srev))
+                c.execute(text("INSERT INTO ev_consequence_evidence (tenant_id, site_id, consequence_revision_id, "
+                               "evidence_id) VALUES (:t, :s, :c, :e)"), ctx.p(c=estimated, e=ctx.evidence[0]))
+            other = uuid4()
+            raises(engine, "INSERT INTO ev_consequence_session (tenant_id, site_id, consequence_revision_id, "
+                           "session_revision_id, included_kwh) VALUES (:t, :o, :c, :r, 1)",
+                   ctx.p(o=other, c=estimated, r=srev), match="ev_consequence_session_consequence_fk")
+            raises(engine, "INSERT INTO ev_consequence_session (tenant_id, site_id, consequence_revision_id, "
+                           "session_revision_id, included_kwh) VALUES (:t, :s, :c, :r, -1)",
+                   ctx.p(c=estimated, r=srev), match="ev_consequence_session_quantity")
+            raises(engine, "INSERT INTO ev_consequence_session (tenant_id, site_id, consequence_revision_id, "
+                           "session_revision_id, included_kwh) VALUES (:t, :s, :c, :r, 1)",
+                   ctx.p(c=estimated, r=uuid4()), match="ev_consequence_session_session_fk")
+            raises(engine, "INSERT INTO ev_consequence_evidence (tenant_id, site_id, consequence_revision_id, "
+                           "evidence_id) VALUES (:t, :s, :c, :e)", ctx.p(c=estimated, e=uuid4()),
+                   match="ev_consequence_evidence_accepted_fk")
+            raises(engine, "INSERT INTO ev_consequence_evidence (tenant_id, site_id, consequence_revision_id, "
+                           "evidence_id) VALUES (:t, :s, :c, :e)", ctx.p(c=estimated, e=ctx.evidence[0]),
+                   match="ev_consequence_evidence_pkey")
+
+            # Work comes from the session-revision trigger; attempts are append-only with one success.
+            work = scalar(engine, "SELECT id FROM ev_consequence_work")
+            assert counted(engine, "SELECT count(*) FROM ev_consequence_work") == 1
+            insert_attempt(engine, ctx, work, 1, "FAILED", "INPUT_UNAVAILABLE")
+            raises(engine, "INSERT INTO ev_consequence_work_attempt (id, tenant_id, site_id, work_id, attempt_no, "
+                           "outcome, error_code, started_at, finished_at) VALUES (gen_random_uuid(), :t, :s, :w, 2, "
+                           "'FAILED', NULL, now(), now())", ctx.p(w=work), match="ev_consequence_attempt_error")
+            raises(engine, "INSERT INTO ev_consequence_work_attempt (id, tenant_id, site_id, work_id, attempt_no, "
+                           "outcome, error_code, started_at, finished_at) VALUES (gen_random_uuid(), :t, :s, :w, 2, "
+                           "'SUCCEEDED', 'X', now(), now())", ctx.p(w=work), match="ev_consequence_attempt_error")
+            raises(engine, "INSERT INTO ev_consequence_work_attempt (id, tenant_id, site_id, work_id, attempt_no, "
+                           "outcome, error_code, started_at, finished_at) VALUES (gen_random_uuid(), :t, :s, :w, 1, "
+                           "'SUCCEEDED', NULL, now(), now())", ctx.p(w=work), match="ev_consequence_attempt_no_unique")
+            insert_attempt(engine, ctx, work, 2)
+            with pytest.raises(IntegrityError, match="ev_consequence_attempt_one_success"):
+                insert_attempt(engine, ctx, work, 3)
+            raises(engine, "INSERT INTO ev_consequence_work_attempt (id, tenant_id, site_id, work_id, attempt_no, "
+                           "outcome, error_code, started_at, finished_at) VALUES (gen_random_uuid(), :t, :s, :w, 4, "
+                           "'FAILED', 'X', now(), now() - interval '1 second')", ctx.p(w=work),
+                   match="ev_consequence_attempt_time")
+
+            for table in EV_MONEY:
+                for statement in (f"UPDATE {table} SET tenant_id = tenant_id", f"DELETE FROM {table}"):
+                    with pytest.raises(DBAPIError, match="append-only"):
+                        with engine.begin() as c:
+                            c.execute(text(statement))
+                assert counted(engine, f"SELECT count(*) FROM {table}") >= 1, table
+        finally:
+            remove_money(engine)
+            remove_sessions(engine)
+
+
+# --- commit 1: trigger-only work through the registered EV path (recreates the module database: keep last) ---------
+
+
+def work_rows(built) -> set[tuple]:
+    with built.engine.connect() as c:
+        return {(r.window_start, r.window_end, r.dirty_basis_sha256) for r in c.execute(text(
+            "SELECT window_start, window_end, dirty_basis_sha256 FROM ev_consequence_work WHERE tenant_id = :t "
+            "AND site_id = :s"), {"t": built.tenant_id, "s": built.site_id})}
+
+
+def assessments(built) -> list:
+    with built.engine.connect() as c:
+        return c.execute(text("SELECT id, window_start, window_end FROM assessment_revision WHERE site_id = :s "
+                              "AND analytic_id = 'ev-session/1' ORDER BY id"), {"s": built.site_id}).all()
+
+
+def expected(built, rows) -> set[tuple]:
+    return {(a, b, dirty(built.engine, built.tenant_id, built.site_id, a, b, cause, locator))
+            for a, b, cause, locator in rows}
+
+
+def ev_accepted(built) -> list:
+    with built.engine.connect() as c:
+        return c.execute(text(
+            "SELECT id, source_time, batch_id FROM accepted_evidence WHERE site_id = :s AND ((family = 'EVENT' AND "
+            "record_kind LIKE 'EV_%') OR (family = 'MEASUREMENT' AND measurement = 'INTERVAL_DELTA' AND connector_id "
+            "IS NOT NULL)) ORDER BY id"), {"s": built.site_id}).all()
+
+
+def test_0026_trigger_only_work_and_exact_conflict_constraint(chain) -> None:  # noqa: F811
+    from alembic import command
+
+    from test_w206_ev_store_postgres import run_worker
+
+    built = chain("late-record")
+    engine = built.engine
+    with engine.connect() as c:
+        columns = c.execute(text(
+            "SELECT array_agg(a.attname ORDER BY k.ord) FROM pg_constraint x CROSS JOIN LATERAL "
+            "unnest(x.conkey) WITH ORDINALITY k(attnum, ord) JOIN pg_attribute a ON a.attrelid = x.conrelid "
+            "AND a.attnum = k.attnum WHERE x.conname = :n"), {"n": DIRTY_KEY}).scalar_one()
+        enqueue = c.execute(text("SELECT prosrc FROM pg_proc WHERE proname = 'ev_consequence_enqueue'")).scalar_one()
+    assert list(columns) == ["tenant_id", "site_id", "window_start", "window_end", "dirty_basis_sha256"]
+    assert enqueue.count("ON CONFLICT") == 1 and ARBITER in enqueue
+
+    # Accepted EV rows and their batch links arrive before any EV assessment window exists: no work yet.
+    built.start_release_upload()
+    first_accepted = {r.id for r in ev_accepted(built)}
+    assert first_accepted and work_rows(built) == set()
+
+    # The worker's assessment and session revisions enqueue their exact window (assessment/session triggers).
+    run_worker(built)
+    heads = assessments(built)
+    with engine.connect() as c:
+        sessions = c.execute(text("SELECT r.id, a.window_start, a.window_end FROM ev_session_revision r JOIN "
+                                  "assessment_revision a ON a.id = r.assessment_revision_id WHERE r.site_id = :s"),
+                             {"s": built.site_id}).all()
+    assert heads and sessions
+    after_run = expected(built, [(a.window_start, a.window_end, "ASSESSMENT_REVISION", a.id) for a in heads]
+                         + [(s.window_start, s.window_end, "SESSION_REVISION", s.id) for s in sessions])
+    assert work_rows(built) == after_run
+
+    # The late END: one real accepted EV INSERT and one real source-gate (batch link) INSERT per existing window.
+    built.advance_late()
+    late = [r for r in ev_accepted(built) if r.id not in first_accepted]
+    assert late
+    late_rows = [(a.window_start, a.window_end, "ACCEPTED_EV", e.id) for e in late for a in heads
+                 if a.window_start <= e.source_time < a.window_end]
+    assert late_rows
+    # The ledger inserts a batch's `batch_publication_link` before that batch's accepted rows, so the literal 0026
+    # source-gate trigger finds no accepted EV row yet and enqueues nothing for an ordinary new batch; the accepted
+    # trigger carries it (W2-07 pending ruling R1). The real link INSERT still ran through the trigger:
+    gate = expected(built, [(a.window_start, a.window_end, "SOURCE_GATE", b) for b in {e.batch_id for e in late}
+                            for a in heads])
+    assert work_rows(built) == after_run | expected(built, late_rows) and not gate & work_rows(built)
+    with engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM batch_publication_link WHERE batch_id = ANY(:b)"),
+                         {"b": list({e.batch_id for e in late})}).scalar_one() == len({e.batch_id for e in late})
+
+    # One real tariff INSERT enqueues every overlapping EV window; a diesel price would not.
+    before_tariff = work_rows(built)
+    tariff = publish(built.tenant_id, built.site_id, valid_from=datetime(2026, 10, 6, 8, tzinfo=timezone.utc),
+                     valid_to=datetime(2026, 10, 6, 16, tzinfo=timezone.utc), idem="w207-trigger-tariff")
+    tariff_rows = expected(built, [(a.window_start, a.window_end, "TARIFF_REVISION", tariff) for a in heads])
+    assert work_rows(built) == before_tariff | tariff_rows
+
+    # Duplicate enqueue of an existing dirty event: the exact scoped arbiter keeps one row.
+    a = heads[0]
+    with engine.begin() as c:
+        for _ in range(2):
+            c.execute(text("SELECT ev_consequence_enqueue(:t, :s, :a, :b, 'TARIFF_REVISION', :i)"),
+                      {"t": built.tenant_id, "s": built.site_id, "a": a.window_start, "b": a.window_end, "i": tariff})
+    assert work_rows(built) == before_tariff | tariff_rows
+
+    # Backfill: with 0026 rows cleared the downgrade is allowed; upgrade enqueues one BACKFILL row per EV assessment.
+    run_worker(built)
+    heads = assessments(built)
+    remove_money(engine)
+    config = _alembic()
+    pg_harness_dispose(built)
+    try:
+        command.downgrade(config, PREVIOUS)
+        assert head(engine) == PREVIOUS
+        command.upgrade(config, "head")
+    finally:
+        if head(engine) != HEAD:
+            command.upgrade(config, "head")
+    assert work_rows(built) == expected(built, [(a.window_start, a.window_end, "BACKFILL", a.id) for a in heads])
+
+
+def pg_harness_dispose(built) -> None:
+    import pg_harness
+
+    built.engine.dispose()
+    pg_harness.dispose(built.store)

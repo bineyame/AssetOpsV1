@@ -27,8 +27,27 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 from uuid import UUID
 
-ASSUMPTION_KEYS = ("diesel_price_per_litre",)
+ASSUMPTION_KEYS = ("diesel_price_per_litre", "ev_gross_tariff_per_kwh")
 UNIT = "currency/L"
+# W2-07 (migration 0026): the EV gross tariff is the only new key. Its unit is literally `currency/kWh`, its value is
+# strictly positive and its currency must be an active ISO 4217 code; there is no default tariff or currency.
+EV_TARIFF_KEY = "ev_gross_tariff_per_kwh"
+UNITS = {"diesel_price_per_litre": UNIT, EV_TARIFF_KEY: "currency/kWh"}
+# Active ISO 4217 alphabetic codes (list one, current funds and fund codes excluded). EV tariffs only: the diesel
+# publication rule stays the shape check it always had.
+ISO_4217 = frozenset("""
+AED AFN ALL AMD ANG AOA ARS AUD AWG AZN BAM BBD BDT BGN BHD BIF BMD BND BOB BRL BSD BTN BWP BYN BZD CAD CDF CHF CLP
+CNY COP CRC CUP CVE CZK DJF DKK DOP DZD EGP ERN ETB EUR FJD FKP GBP GEL GHS GIP GMD GNF GTQ GYD HKD HNL HTG HUF IDR
+ILS INR IQD IRR ISK JMD JOD JPY KES KGS KHR KMF KPW KRW KWD KYD KZT LAK LBP LKR LRD LSL LYD MAD MDL MGA MKD MMK MNT
+MOP MRU MUR MVR MWK MXN MYR MZN NAD NGN NIO NOK NPR NZD OMR PAB PEN PGK PHP PKR PLN PYG QAR RON RSD RUB RWF SAR SBD
+SCR SDG SEK SGD SHP SLE SOS SRD SSP STN SVC SYP SZL THB TJS TMT TND TOP TRY TTD TWD TZS UAH UGX USD UYU UZS VES VND
+VUV WST XAF XCD XOF XPF YER ZAR ZMW ZWG
+""".split())
+
+
+def unit_for(key: str) -> str:
+    """The stored unit of a supported key (`currency/L` diesel, `currency/kWh` EV tariff)."""
+    return UNITS[key]
 BASES = ("AUTHORED_ESTIMATE", "CONTRACT_RATE", "RECORDED_PURCHASE")
 CHANGE_KINDS = ("INITIAL", "SUCCESSION", "CORRECTION")
 SYSTEM_CHANNELS = ("SYSTEM_CLI", "SYSTEM_FIXTURE")
@@ -100,6 +119,11 @@ def validate(p: Publication) -> None:
         refuse("CURRENCY_NOT_ISO", "Currency must be an ISO 4217 three-letter upper-case code.")
     if not isinstance(p.value, Decimal) or not p.value.is_finite():
         refuse("VALUE_NOT_FINITE", "The price must be a finite authored decimal.")
+    if p.assumption_key == EV_TARIFF_KEY:
+        if p.value <= 0:
+            refuse("VALUE_NOT_POSITIVE", "An EV gross tariff per kWh must be greater than zero.")
+        if p.currency not in ISO_4217:
+            refuse("CURRENCY_NOT_ISO", "Currency must be an active ISO 4217 code.")
     if p.value < 0:
         refuse("VALUE_NEGATIVE", "A price per litre cannot be negative.")
     if p.basis not in BASES:
@@ -143,7 +167,7 @@ def request_sha256(p: Publication, principal: SystemPrincipal, tenant_id: UUID, 
     `authorization_basis` prose and the carrier file's bytes/version are stored but not digested."""
     body = {
         "tenant_id": str(tenant_id), "site_id": str(site_id), "assumption_key": p.assumption_key,
-        "currency": p.currency, "unit": UNIT, "value": str(p.value), "basis": p.basis,
+        "currency": p.currency, "unit": UNITS.get(p.assumption_key, UNIT), "value": str(p.value), "basis": p.basis,
         "source_reference": p.source_reference,
         "valid_from": p.valid_from.isoformat(), "valid_to": None if p.valid_to is None else p.valid_to.isoformat(),
         "change_kind": p.change_kind, "correction_reason": p.correction_reason,

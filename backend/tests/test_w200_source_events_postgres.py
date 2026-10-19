@@ -559,7 +559,7 @@ class TestMigration0020:
             _delete_as_replica(engine, ("DELETE FROM recompute_job WHERE domain = 'ev_charging'",))
             with pytest.raises(DBAPIError, match=refused):
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0025_w2_ev_session"
+            assert head(engine) == "0026_w2_ev_money"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
@@ -608,7 +608,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0025_w2_ev_session" and v3_reads() == before_reads
+        assert head(engine) == "0026_w2_ev_money" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])
