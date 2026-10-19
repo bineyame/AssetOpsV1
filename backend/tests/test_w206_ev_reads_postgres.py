@@ -173,7 +173,8 @@ def test_six_replays_read_through_the_selected_api(chain, case) -> None:  # noqa
         assert finding["finding_id"] == item["finding_id"] and finding["lifecycle"] == "SUPPORTED"
         assert finding["claim"]["session_id"] == item["session_id"]
         assert set(finding["claim"]) == {"session_id", "external_session_id", "connector_asset_id", "start_at",
-                                         "abort_at", "fault_evidence_id", "supported_kwh", "energy_complete"}
+                                         "abort_at", "fault_evidence_id", "supported_kwh", "energy_complete",
+                                         "start_evidence_id", "abort_evidence_id"}  # r9 M3: read-time only
         assert sorted(e["evidence_id"] for e in finding["evidence"]) == \
             vector["expected"]["finding_support_evidence_ids"]
         assert [h["transition"] for h in finding["history"]] == ["OPENED"]
