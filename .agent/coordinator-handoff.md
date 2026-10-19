@@ -431,3 +431,5 @@ A fresh coordinator starts from this file; do not re-derive what it states.
 
 - Owner approved a two-lane post-W2 plan; Architect turns it into the binding sequence when W2 closes: `.agent/owner-post-W2-parallel-plan-2026-10-18.md`.
 - W2: W2-00..03 merged (`b486af76`); W2-04 building (review2); W2-05a/05b packets + specs being written (gap-planning).
+
+40. 2026-10-19. W2-04 merged (`e0214e20`; closeout `5c53a3bc`). W2-03 follow-up merged (`c25aba2e`; Lows in backlog). W2-05a merged (closeout `ed57b2f4`; writer-guard probe run waived per Run 8). Wave 2: 6/8. W2-05b build started in `AssetOpsV1-review5` on `task/W2-05b-ev-producer` (commits 1-2 this run, handoff `.agent/W2-05b-phase-handoff.md`). W2-06 then W2-07 are strictly serial after 05b (migrations 0025/0026). `codex exec` must always run with `< /dev/null` (ROLE_CONFIG `b18650a3`). Free worktrees: review2, review3, review.
