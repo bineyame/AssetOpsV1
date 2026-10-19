@@ -49,3 +49,13 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
 
 - R2 decides whether any replay case can be ESTIMATED. R1: source-gate trigger is inert for ordinary batches.
 - Rule-8 probes run against a committed tree only (`tools/writer_guard_probes.py` refuses a dirty `backend/`).
+
+## Run 2 (2026-10-20): stopped on pending ruling R7
+
+- Landed `7cbe440c`: q1 R3 (`TestMigration0026::test_r3_store_publishes_ev_tariff_and_public_post_stays_401`:
+  store publish under SYSTEM_PUBLISHER/SYSTEM_FIXTURE returns ID/`recorded_at`; unauthenticated POST 401, no new
+  revision) and q1 R4 (`test_r4_ev_currency_and_value_validation_is_ev_only`: KES ok, ABC/0/-1 EV refused, diesel
+  ABC/0 still valid). No product code changed (R4 validation was already in commit 1). Both tests pass.
+- R1 not applied: its premise fails (`.agent/W2-07-pending-rulings.md` R7, with empirical failing trial). Commits
+  2-3 not started. Resume: apply the R7 ruling to 0026 + the trigger test, then build commit 2 from the anchors above.
+- Private DB `w207b_test` dropped at end of run.

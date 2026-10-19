@@ -64,3 +64,26 @@ supported partial kWh separately"; contradictory evidence withholds. For a mixed
 **A** incomplete sessions are excluded and the eligible subset is ESTIMATED; any CONTRADICTORY session (or a
 duplicate interval ID) withholds the whole window (`WITHHELD/CONTRADICTORY_EVIDENCE`); **B** price the eligible subset
 in both cases and only exclude the contradictory session; **C** any non-eligible session makes the window UNPRICED.
+
+## R7 (High, blocks commit 2 start): q1 R1's premise does not hold — open (run 2, 2026-10-20)
+
+q1 R1 assumes "the ledger inserts the link before accepted rows in one transaction". It does not. In
+`backend/assetops_backend/evidence/adapters/postgres_evidence_ledger.py`, `open_batch` (`:287`, link INSERT at
+`:336`) and `decide_chunk` (`:430`, accepted INSERT in `_persist` `:531`) each run in their own
+`_run(write=True)` -> `engine.begin()` transaction (`:145-149`); `ledger_service.py:147` and `:183` call them
+separately (and `decide_chunk` per chunk). A `DEFERRABLE INITIALLY DEFERRED` constraint trigger therefore fires at
+`open_batch`'s commit, when the batch still has no accepted row, and enqueues nothing.
+
+Empirical proof (trial on top of `7cbe440c`, reverted, not committed): R1's exact trigger text plus R1's
+equality assertion in `test_0026_trigger_only_work_and_exact_conflict_constraint` fails — the expected
+`SOURCE_GATE` row for window 08:00-09:05 of the late batch is absent (`Extra items in the right set`).
+
+Options (Architect to choose; none implemented):
+- A. Leave `ev_consequence_dirty_source_gate` as committed (link-time; inert for ordinary batches, live for a link
+  added to a batch that already has EV rows) and additionally enqueue `SOURCE_GATE` from the existing
+  `ev_consequence_on_accepted` when `NEW.batch_id` has a `batch_publication_link` (dirty locator = batch_id, so the
+  scoped `ON CONFLICT ... DO NOTHING` keeps one row per window/batch across chunks). Test: none before the batch's
+  first accepted EV row commits, one per window after, none on re-enqueue, none for a linked batch without EV rows.
+- B. Keep commit 1 as-is (accepted trigger's `ACCEPTED_EV` work carries ordinary batches) and restate R1's test as
+  "no SOURCE_GATE row for an ordinary batch; ACCEPTED_EV row present".
+- C. Change the ledger so link and accepted rows share one transaction — out of W2-07 scope (S2 ledger seam).
