@@ -142,12 +142,19 @@ class PostgresEvidenceLedger:
             self._engine = create_engine(self._database_url, pool_pre_ping=True)
         return self._engine
 
-    def _run(self, work, *, write: bool = False):
+    def _run(self, work, *, write: bool = False, snapshot: bool = False):
         engine = self._connect_engine()
         try:
             if write:
                 with engine.begin() as connection:
                     return work(connection)
+            if snapshot:
+                # W2-05b q4: every SELECT of `work` shares one REPEATABLE READ, READ ONLY database snapshot.
+                with engine.connect() as connection:
+                    connection = connection.execution_options(isolation_level="REPEATABLE READ",
+                                                              postgresql_readonly=True)
+                    with connection.begin():
+                        return work(connection)
             with engine.connect() as connection:
                 return work(connection)
         except (OperationalError, ProgrammingError) as error:
@@ -1054,6 +1061,32 @@ class PostgresEvidenceLedger:
                                   "AND run_id = :run LIMIT 1"),
                              {"t": tenant_id, "s": site_id, "run": run_id}).first() is not None
         return self._run(work)
+
+
+    # --- W2-05b EV replay reads (SELECT only; the service is assetops_backend/ev_replay.py) ----------------
+    # The cold replay reads above, mirrored: same scoping and LEFT joins. Publications and dispositions are read
+    # on one connection under REPEATABLE READ, READ ONLY, so both SELECTs share one database snapshot.
+
+    def ev_replay_rows(self, tenant_id: UUID, site_id: UUID, run_id: str) -> dict:
+        def work(c: Connection) -> dict:
+            publications = [dict(r._mapping) for r in c.execute(_COLD_REPLAY_PUBLICATIONS,
+                                                                 {"t": tenant_id, "s": site_id, "run": run_id}).all()]
+            batch_ids = [p["b_id"] for p in publications if p["b_id"] is not None]
+            dispositions = [] if not batch_ids else [dict(r._mapping) for r in c.execute(text(
+                "SELECT CAST(batch_id AS text) AS batch_id, ordinal, decision, "
+                "CAST(accepted_evidence_id AS text) AS accepted_evidence_id FROM ingestion_disposition "
+                "WHERE tenant_id = :t AND site_id = :s AND batch_id = ANY(CAST(:ids AS uuid[])) "
+                "ORDER BY batch_id, ordinal"), {"t": tenant_id, "s": site_id, "ids": batch_ids}).all()]
+            return {"publications": publications, "dispositions": dispositions}
+        return self._run(work, snapshot=True)
+
+    def ev_replay_run_referenced(self, tenant_id: UUID, site_id: UUID, run_id: str) -> bool:
+        """Whether any publication of this tenant Site names `run_id` (a missing run it references is a 503)."""
+        def work(c: Connection) -> bool:
+            return c.execute(text("SELECT 1 FROM evidence_publication WHERE tenant_id = :t AND site_id = :s "
+                                  "AND run_id = :run LIMIT 1"),
+                             {"t": tenant_id, "s": site_id, "run": run_id}).first() is not None
+        return self._run(work, snapshot=True)
 
 
 _COLD_REPLAY_PUBLICATIONS = text(

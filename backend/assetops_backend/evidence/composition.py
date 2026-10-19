@@ -58,6 +58,26 @@ def build_cold_replay_reader(database_url: str | None) -> _ColdReplayReader:
     return _ColdReplayReader(PostgresEvidenceLedger(database_url))
 
 
+
+class _EvReplayReader:
+    """W2-05b: exactly the ledger's two SELECT-only `ev_replay_*` reads, no writer method."""
+
+    __slots__ = ("_ledger",)
+
+    def __init__(self, ledger: PostgresEvidenceLedger) -> None:
+        self._ledger = ledger
+
+    def ev_replay_rows(self, tenant_id, site_id, run_id: str) -> dict:
+        return self._ledger.ev_replay_rows(tenant_id, site_id, run_id)
+
+    def ev_replay_run_referenced(self, tenant_id, site_id, run_id: str) -> bool:
+        return self._ledger.ev_replay_run_referenced(tenant_id, site_id, run_id)
+
+
+def build_ev_replay_reader(database_url: str | None) -> _EvReplayReader:
+    """W2-05b: the EV replay reader, narrowed to the SELECT-only `ev_replay_*` reads. Lazy."""
+    return _EvReplayReader(PostgresEvidenceLedger(database_url))
+
 def build_link_rows_reader():
     """W2-03: the S4-05 link-row reader that runs on a caller's connection (the cold assessment's source gate)."""
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
