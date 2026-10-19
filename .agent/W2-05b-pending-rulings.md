@@ -123,3 +123,28 @@ manifests.
   05a fixture/binding. Which: (a) the public transform reports the pack's `UNPLUGGED` as `AVAILABLE`
   (pack and private documents keep `UNPLUGGED`); (b) a new 05a binding revision adding an `UNPLUGGED`
   label; or (c) another rule?
+- **Q16 fault/clear correlation without a scoped session.** v4 `_validate_event` requires `correlation_id` on
+  every event; commit 3 says FAULT/CLEAR carry "S only if one is active" and "no session inference from a
+  fault without S". A FAULT from UNPLUGGED, or the CLEAR after a started-session fault (S cleared), has no S.
+  What `correlation_id` do those reports carry (e.g. `ev-` + SHA-256 of `[scenario_sha256,"fault",
+  connector, ordinal]`)? None of the six documents reaches this; the transform refuses it for now
+  (`ValueError`, `test_a_fault_without_a_scoped_session_is_not_published_pending_q16`).
+- **Q17 `IDENTITY_KWH` is not a gateway or ledger conversion.** The 05a energy rows publish conversion
+  `IDENTITY_KWH`; `gateway/assetops_gateway/snapshot.py:32` `SUPPORTED_CONVERSIONS={IDENTITY,ENUM}` refuses the
+  whole snapshot at activation (`UNSUPPORTED_CONVERSION at bindings[n].conversion.kind`), and
+  `evidence/ledger.py:309` names only IDENTITY/ENUM. So no real EV snapshot can activate, and commit 4's
+  registered Stage cannot run. Is 05b to add `IDENTITY_KWH` (exact kWh decimal passthrough, no counter
+  interpretation, design section 3) to the gateway snapshot reader and S2 ledger conversion, keeping v1/v3/cold
+  bytes unchanged? Tests offer the energy rows as `IDENTITY` meanwhile and pin the refusal
+  (`test_the_published_energy_conversion_is_refused_at_activation_pending_q17`).
+
+Run 3 non-blocking notes (commit 3 built where the rulings are silent):
+- **N9 closing-boundary state.** State reports cover all 61 boundaries per connector (09:00 included, as cold
+  publishes its closing boundary): 122 per run.
+- **N10 split means.** Connector power/requested/allocated means split at that connector's START/END/ABORT
+  instants inside a slot; Site import splits at any connector's. Connector power and allocated limit both
+  report the allocated kW. A mean without a finite decimal refuses.
+- **N11 Site import order.** At equal source time Site import sorts after both connectors (connector key c1,
+  c2, then Site), then channel rank, then per-channel ordinal.
+- **N12 component and connector IDs** are the binding row `asset_code` (`c1`/`c2`), matching S2's
+  `EV_CONNECTOR_MISMATCH` comparison with `binding.asset_code`.
