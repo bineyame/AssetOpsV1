@@ -132,3 +132,41 @@ and `ev.py`, commit 2a, then 3b (store `ev_*` methods, `PostgresFindingStore.ev_
   `test_w206_ev_session_rules`, `test_w204_cold_worker`, `test_w200_{source_events,binding_metadata,receipt_bytes}`,
   `test_s4_finding_store_postgres`, `TestIdentityHardening::test_migration_0005_refuses_to_freeze_a_drifted_asset_code`:
   138 passed, 0 failed (390 s). `tools/check-all.ps1` 10/10. No code fixes needed. No full suite.
+
+## Run 7 (r5 + spec commit 4, 2026-10-19) — PARTIAL: stopped at context budget before commit 5
+
+- `981830ea` r5 R5-1 (`received_at == LATE_DECISION`) and R5-2 (`_enqueue_ev_configuration`: no SHA check, every
+  inserted Foundation/binding-set row enqueues on an EV_CHARGING Site). New
+  `test_w206_ev_publication_enqueue_postgres.py::test_equal_sha_split_requeues_selected_ev_window[foundation|binding_set]`
+  (split recorded 08:59:30 so the 09:00 re-run selects it; effective 10:00; xmin proves same transaction; rollback;
+  no-op request; worker re-run basis = split ID). Non-vacuity: old predicate restored -> both params FAIL; restored.
+  `test_foundation_property_publication_enqueues_on_its_connection` now expects the equal-SHA segment's bracket too.
+  Focused: publication file 5 passed; `test_late_record_cutoff_and_release` 1 passed.
+- `41f32db2` commit 4: `backend/assetops_backend/ev_assessment_api.py:build_ev_assessment_router` (mounted in
+  `main.py` after the cold router, `build_ev_read_service` in `analytics/composition.py`); pure rules
+  `analytics/ev_reads.py`; `EvReadService` at the end of `analytics/adapters/postgres_assessment_store.py` (the
+  architecture guard allows the DB driver only in the listed adapters). Exact-window selection (no covering match);
+  both bounds omitted -> latest selected EV window at the cutoff. Currentness: UNKNOWN (no selection) > HISTORICAL
+  (explicit known_at < watermark) > PENDING_RECOMPUTE (overlapping PENDING/LEASED/FAILED) > CURRENT; STALE_SOURCE is
+  never emitted. Findings list = SUPPORTED revisions of the selected assessment revision; Finding detail = that
+  Finding's revision at the selected assessment whatever its lifecycle (withdrawn reads as NO_LONGER_SUPPORTED with
+  history), else 404. Session `connector_display_name` = selected Foundation component `display_name`
+  ("Connector c1"). `EV_SELECTION_UNSETTLED` is never raised (no exact-revision parameter exists). Duplicate keys use
+  `EV_PARAMETER_UNKNOWN`. `tests/test_w206_ev_reads_postgres.py` 7 passed (286 s): six replays through the API
+  (late pending -> historical, withdrawn Finding, followed `links.finding`) + every refusal/paging rule.
+  `tools/check-all.ps1` 10/10 at 41f32db2.
+
+## Resume: spec commit 5, then verification and packet (dispatch steps 3-5)
+
+- API shapes for the client: sessions list `{site_id,window,currentness{state,as_of,limitation},source_provenance
+  {classification,source_ids,evidence_ids,basis_sha256},limitations,status,denominator{8 counts,as_of,limitation},
+  items,next_cursor}`; item keys as r5 example plus `finding_id`, `completeness`; detail adds `evidence`,
+  `meter_intervals`, `history`, `status`, `denominator`. Findings list items `{finding_id,revision_id,revision_no,
+  basis_sha256,session_id,title,claim_level,lifecycle,as_of,links}`; detail adds `claim,evidence,history,limitations`
+  (Finding limitations replace the envelope's). Connector display for the Finding page: follow
+  `/ev/sessions/{claim.session_id}` with the same window query.
+- Frontend anchors still to survey: `frontend/src/sites/coldAssessmentClient.ts`, `ColdAssessmentViews.tsx`,
+  `__tests__/coldRoutes.test.tsx`, `expectV69Panels`, `frontend/docs/architecture/v69-rendered-panels.json`
+  (`sessions`, `ev-finding`), copy = spec "Commit 5" ledger as overridden by r5 state copy.
+- Verification DB `w206f_test` was created and dropped this run; recreate for the final serial full backend + host
+  suites. `var/sites/mg-001.yaml` copied from plan2 (untracked, ignored).
