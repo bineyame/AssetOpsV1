@@ -424,7 +424,7 @@ function TemperaturePanels({
           <>
             <p className="prose">
               {x !== undefined
-                ? `The accepted probe readings support a ${claimWord(x.claim_level).toLowerCase()} temperature excursion ${limit.word} policy. Product quality or spoilage conclusions need product identity, an exposure policy and further evidence.`
+                ? `Accepted probe readings support a ${claimWord(x.claim_level).toLowerCase()} excursion ${limit.word} policy. Product quality or spoilage conclusions need product identity, exposure policy and more evidence.`
                 : read.state === "NO_EXCURSION_OBSERVED"
                   ? "The accepted probe readings stay within policy for this window. This says nothing about product condition."
                   : "The accepted probe readings do not support a temperature conclusion for this window."}

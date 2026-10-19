@@ -481,7 +481,7 @@ describe("W2-03 follow-up: closed panels keep the primary form, one disclosure h
   const withGap = { ...STOCKED_TEMPERATURE, gaps: [{ start: at(15), end: at(30), reason: "MISSING_PROBE", expected_points: 4, received_points: 0 }] };
 
   it.each([
-    ["excursion", STOCKED_TEMPERATURE, "support a bounded temperature excursion above policy. Product quality or spoilage conclusions need product identity, an exposure policy and further evidence."],
+    ["excursion", STOCKED_TEMPERATURE, "Accepted probe readings support a bounded excursion above policy. Product quality or spoilage conclusions need product identity, exposure policy and more evidence."],
     ["within policy", { ...STOCKED_TEMPERATURE, state: "NO_EXCURSION_OBSERVED", excursions: [] }, "stay within policy for this window. This says nothing about product condition."],
     ["unknown", { ...STOCKED_TEMPERATURE, state: "UNKNOWN", excursions: [] }, "do not support a temperature conclusion for this window."],
   ] as const)("temperature claim panel (%s): sentence closed, facts and limits in the disclosure", async (_name, read, sentence) => {
