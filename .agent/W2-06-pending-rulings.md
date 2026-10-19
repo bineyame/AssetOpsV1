@@ -256,3 +256,35 @@ points, all at once:
 
 3b: `ev_inputs/ev_persist/ev_sessions/ev_windows/ev_watermark/ev_still_mine/ev_complete`, `PostgresFindingStore.ev_apply`,
 `EvAssessmentWorker`, `build_ev_assessment_worker`, `test_w206_ev_store_postgres.py`. Depends on P1-P4.
+
+# W2-06 pending rulings — run 4 (q4)
+
+Run 4 sub-run A landed `255ccbae` (q3 P2-P5 in pure `analytics/ev.py` + 63 rule tests) and `a3138bfb` (q3 P1
+attestation in `test_w205b_ev_replay_postgres.py:Chain.attest`; six manifests byte-unchanged). Spec commit 2 (R12
+vectors) is NOT landed: the parked producer `.agent/W2-06-2a-wip/W2-06-2a-wip.patch` is updated to P1 (clock proof
+from `_attestations` at the committed disposition watermark over the full measurement interval) and P6 (sorted
+Finding support IDs and first-cutoff IDs, actual first watermark). A write-mode trial on a private DB passed 6/6 with
+every vector row `clock_attested=true` and the six manifests unchanged; the trial file was discarded. Blocking points:
+
+- **Q4-1 first-cutoff `known_at` is not reproducible (blocks pinning).** P6 requires `first_cutoff.known_at` = the
+  actual first committed disposition watermark, and ordinary mode to byte-compare the whole file. The W2-05b chain's
+  `ingestion_disposition.decided_at` is the database `clock_timestamp()` (`PostgresEvidenceLedger._decision_instant`;
+  the chain sets no `test_decision_clock_override`), so the trial wrote `2026-10-19T14:32:53.211221Z`; every run
+  differs and the byte comparison can never pass. Options: (A) fix the chain's S2 decision clock with
+  `PostgresEvidenceLedger.test_decision_clock_override` at a ruled instant sequence (manifests carry no `decided_at`;
+  `received_at` stays the ingestion clock) — the ruling must name the instants; (B) pin `known_at` as a symbolic
+  marker and assert the real watermark per run; (C) other.
+- **Q4-2 P2 identity data is absent from the vector rows (blocks the backend pure vector test).** P2 makes
+  `ev._source_reason` require the row's `binding_set_revision_id`, `role`, `device_id`, `signal_id` and the selected
+  set's member rows (`EvInputs.binding_members`). Q1 fixes the row key set "exactly" (none of those four keys) and
+  the case keys (no member list), so the pure test cannot build valid inputs: every row would be
+  `EXCLUDED/SOURCE_UNVERIFIED`. (A trial that synthesized members from the rows reproduced all six `expected` objects
+  exactly, so this is the only gap.) Options: (A) add the four accepted-row keys to each record and a case-level
+  `binding_members` array (the selected set's `signal_binding_revision` rows: id, set id, role, asset, source,
+  device, signal, valid_from, valid_to); (B) another source for the member rows; (C) other.
+- **Q4-3 confirm whole-file write mechanics (reading, not yet built).** "Writes once ... byte-compares the whole file
+  once ... no subset run may skip" read as: one non-parametrized test that runs all six chains, writes the whole file
+  once under `ASSETOPS_W206_WRITE_VECTORS=1`, byte-compares once otherwise, with per-case assertions inside (adds
+  about 2.5 minutes), instead of the parked per-case writes inside `test_six_registered_replays`. Also: render
+  `first_cutoff.end_bounds` as JSON `null` (the R12 cell "end/end bounds null") while pure `EvSession.end_bounds`
+  is `(None, None)`; and `known_at` text via `financials.fuel_cost.iso` (six fractional digits).
