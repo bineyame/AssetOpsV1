@@ -278,6 +278,8 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   // W2-03: the cold Performance screens' mock subtitles (no illustrative values in them).
   temperature: "Performance · temperature policy and bounded exposure",
   coldbackup: "Performance · grid outage to cooling-service recovery",
+  // W2-06: the EV Sessions screen's mock subtitle (no illustrative values in it).
+  sessions: "Performance · charging sessions and delivered service",
   // W1-F5a: Health and the carry-1 site-level screens (sitefindings, financials, assumptions).
   health: "Health · site-level asset-condition summary",
   sitefindings: "Findings · conclusions about this site and the limits of their evidence",

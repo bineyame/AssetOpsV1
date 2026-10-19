@@ -288,3 +288,18 @@ every vector row `clock_attested=true` and the six manifests unchanged; the tria
   about 2.5 minutes), instead of the parked per-case writes inside `test_six_registered_replays`. Also: render
   `first_cutoff.end_bounds` as JSON `null` (the R12 cell "end/end bounds null") while pure `EvSession.end_bounds`
   is `(None, None)`; and `known_at` text via `financials.fuel_cost.iso` (six fractional digits).
+
+# W2-06 pending rulings — run 8 (commit 5 builder), 2026-10-19
+
+Commit 5 is built with an interim answer in each slot below; none changes data, routes or the backend. Each needs an
+Architect ruling (confirm the interim, or pick another option). Captures: `.agent/W2-06-evidence/`.
+
+| # | Slot not fixed by spec / r5 / r6 | Interim built | Options |
+| --- | --- | --- | --- |
+| P1 | `sessions` panel 1 subtitle (mock: "120 kWh is the summed metered energy in complete records ..."); the ledger names no copy and r5 forbids mock aggregates | `Energy summary · Not available yet` (inline gap, `UnavailableInline`) | (a) keep gap; (b) a ruled sentence over `denominator` fields only; (c) drop the subtitle slot |
+| P2 | `sessions` strip claim link `Inspect session lineage` (no proved evidence target) | in-place gap `Inspect session lineage · Not available yet` in the strip action slot (r5 null-link rule) | (a) keep; (b) omit until a target is proved |
+| P3 | "short" ID form (session external IDs are 67-char `ev-<sha>`; Finding/record UUIDs) | external session IDs over 12 chars: first 11 + `…`; UUIDs: first 8; full value as accessible name and in the panel disclosure | (a) keep prefix; (b) suffix; (c) other length |
+| P4 | Bounded conclusion big claim: ledger `Session {id} stopped after an observed connector fault.` vs r5 stocked sentence | r5 sentence when SUPPORTED with START/FAULT/ABORT; ledger kWh line and limit line kept below it | (a) keep; (b) ledger sentence first, r5 sentence as prose |
+| P5 | Big claim for a non-supported (withdrawn) Finding or claim without exact START/FAULT/ABORT | the Finding's first stored limitation, else `Unknown` | (a) keep; (b) fixed sentence |
+| P6 | `sessions` table and panels 2/3 body when currentness is `UNKNOWN` (no selection) | panel 1: server `currentness.limitation`; panels 2/3: `Unknown`; cards `Unknown`; no zero counts | (a) keep; (b) a ruled sentence |
+| P7 | Pending (`PENDING_RECOMPUTE`) rows and Finding link | prior rows and `Open Finding →` stay visible under the strip's pending sentence; strip word `Evidence pending`, cards `Pending recompute`, Finding strip `Evidence pending` | (a) keep; (b) hide the Finding link while pending |

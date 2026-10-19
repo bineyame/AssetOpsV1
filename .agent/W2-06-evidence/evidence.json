@@ -1,0 +1,344 @@
+{
+  "revision": "b53569f9..61b3c602+commit5-worktree",
+  "captured_at": "2026-10-19T17:06:09.514Z",
+  "pairs": [
+    {
+      "screen": "sessions",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/sessions",
+      "app_image": "sessions-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Session service records",
+            "x": 248,
+            "y": 440,
+            "w": 1160,
+            "h": 183
+          },
+          {
+            "title": "How to read the denominator",
+            "x": 248,
+            "y": 641,
+            "w": 734,
+            "h": 167
+          },
+          {
+            "title": "Cause remains bounded",
+            "x": 1000,
+            "y": 641,
+            "w": 408,
+            "h": 167
+          }
+        ],
+        "cols": [
+          224,
+          179,
+          134,
+          146,
+          246,
+          190
+        ],
+        "tableScroll": {
+          "client": 1120,
+          "scroll": 1120
+        },
+        "rowHeights": [
+          32
+        ],
+        "overflowX": 0,
+        "clipped": 0,
+        "height": 1000
+      },
+      "mock_image": "sessions-interrupted-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Session service records",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "How to read the denominator",
+            "x": 234,
+            "y": 901,
+            "w": 735,
+            "h": 142
+          },
+          {
+            "title": "Cause remains bounded",
+            "x": 987,
+            "y": 901,
+            "w": 408,
+            "h": 142
+          }
+        ],
+        "cols": [
+          249,
+          154,
+          107,
+          153,
+          257,
+          202
+        ],
+        "tableScroll": {
+          "client": 1121,
+          "scroll": 1121
+        },
+        "rowHeights": [
+          51,
+          51,
+          51,
+          51
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1109
+      }
+    },
+    {
+      "screen": "sessions",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/performance/sessions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/sessions",
+      "app_image": "sessions-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Session service records",
+            "x": 16,
+            "y": 730,
+            "w": 343,
+            "h": 221
+          },
+          {
+            "title": "How to read the denominator",
+            "x": 16,
+            "y": 969,
+            "w": 343,
+            "h": 188
+          },
+          {
+            "title": "Cause remains bounded",
+            "x": 16,
+            "y": 1173,
+            "w": 343,
+            "h": 150
+          }
+        ],
+        "cols": [
+          128,
+          102,
+          77,
+          83,
+          141,
+          109
+        ],
+        "tableScroll": {
+          "client": 303,
+          "scroll": 640
+        },
+        "rowHeights": [
+          55
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1364
+      },
+      "mock_image": "sessions-interrupted-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Session service records",
+            "x": 15,
+            "y": 1008,
+            "w": 345,
+            "h": 485
+          },
+          {
+            "title": "How to read the denominator",
+            "x": 15,
+            "y": 1511,
+            "w": 345,
+            "h": 163
+          },
+          {
+            "title": "Cause remains bounded",
+            "x": 15,
+            "y": 1692,
+            "w": 345,
+            "h": 163
+          }
+        ],
+        "cols": [
+          135,
+          67,
+          68,
+          98,
+          149,
+          80
+        ],
+        "tableScroll": {
+          "client": 305,
+          "scroll": 596
+        },
+        "rowHeights": [
+          62,
+          80,
+          80,
+          79
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1949
+      }
+    },
+    {
+      "screen": "ev-finding",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025d?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-finding",
+      "app_image": "ev-finding-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 248,
+            "y": 308,
+            "w": 1160,
+            "h": 249
+          },
+          {
+            "title": "Operational context",
+            "x": 248,
+            "y": 574,
+            "w": 734,
+            "h": 254
+          },
+          {
+            "title": "Recommended next step",
+            "x": 1000,
+            "y": 574,
+            "w": 408,
+            "h": 254
+          }
+        ],
+        "cols": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": 0,
+        "clipped": 0,
+        "height": 1000
+      },
+      "mock_image": "ev-finding-interrupted-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 234,
+            "y": 367,
+            "w": 1161,
+            "h": 209
+          },
+          {
+            "title": "Operational context",
+            "x": 234,
+            "y": 593,
+            "w": 735,
+            "h": 232
+          },
+          {
+            "title": "Recommended next step",
+            "x": 987,
+            "y": 593,
+            "w": 408,
+            "h": 232
+          }
+        ],
+        "cols": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1001
+      }
+    },
+    {
+      "screen": "ev-finding",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/findings/00000502-0000-4000-8000-00000000025d?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-finding",
+      "app_image": "ev-finding-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 16,
+            "y": 469,
+            "w": 343,
+            "h": 358
+          },
+          {
+            "title": "Operational context",
+            "x": 16,
+            "y": 844,
+            "w": 343,
+            "h": 254
+          },
+          {
+            "title": "Recommended next step",
+            "x": 16,
+            "y": 1114,
+            "w": 343,
+            "h": 169
+          }
+        ],
+        "cols": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1323
+      },
+      "mock_image": "ev-finding-interrupted-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Bounded conclusion",
+            "x": 15,
+            "y": 640,
+            "w": 345,
+            "h": 287
+          },
+          {
+            "title": "Operational context",
+            "x": 15,
+            "y": 946,
+            "w": 345,
+            "h": 232
+          },
+          {
+            "title": "Recommended next step",
+            "x": 15,
+            "y": 1196,
+            "w": 345,
+            "h": 193
+          }
+        ],
+        "cols": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1483
+      }
+    }
+  ]
+}
