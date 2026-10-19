@@ -421,6 +421,13 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   gap/empty/unavailable/refused copy, limitation and reason sentences, notices)
   and the exact response field that feeds it, per mock element. W2-04 commit 3
   left seven response fields empty for want of wording or shape.
+  The dry-read covers **every** spec commit, not only the first, and also
+  settles: JSON shapes/keys/types, a total order for same-time events, full
+  state-transition tables including unreached states, hash input row forms,
+  UI component choice with 403/404/503 copy, per-panel height budgets against
+  measured mock heights with column widths/wrapping, chip tones, null/missing
+  copy, and migration index/constraint/downgrade details plus existing-test
+  count updates. W2-05b run 1 still stopped on 14 such questions.
 - **Size builder runs to one spec commit each**, with a handoff after each, so
   no run dies mid-commit and the next run reads only the handoff.
 - **Model by risk.** First review of a new build and design-deciding work on
