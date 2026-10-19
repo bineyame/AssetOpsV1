@@ -512,7 +512,7 @@ function chainSentence(chain: ColdChainRead | undefined, contradicted: boolean):
   return "The start response cannot be established from the accepted records.";
 }
 
-function resultTone(result: string | undefined): string {
+function resultTone(result: string | null | undefined): string {
   return result === "OBSERVED_FAILURE" ? "danger" : result === "CONTRADICTORY" ? "warning" : "neutral";
 }
 
