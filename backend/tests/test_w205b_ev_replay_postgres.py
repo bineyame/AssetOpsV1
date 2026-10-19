@@ -1001,7 +1001,7 @@ def test_late_record_cutoff_and_release(chain) -> None:
     assert envelope["timing"]["source_time"] == _t(31) == report["source_time"]
     assert envelope["payload"]["event_id"] == report["event_id"]
     assert envelope["timing"]["published_at"] >= RELEASE
-    assert batch["received_at"] >= LATE_DECISION  # q4 Q4-1: the fixed 09:05 ingestion clock of the late phase
+    assert batch["received_at"] == LATE_DECISION  # r5 R5-1: exactly the fixed 09:05 ingestion clock of the late phase
     assert batch["batch_id"] not in first["batch_ids"]
     final = built.replay()
     assert len(final["publication_ids"]) == len(final["batch_ids"]) > len(first["batch_ids"])
