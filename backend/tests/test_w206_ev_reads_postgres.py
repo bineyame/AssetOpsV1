@@ -104,7 +104,7 @@ def _session_matches(item: dict, expected: dict) -> None:
 
 def _read_case(c: TestClient, built, case: str, vector: dict) -> dict:
     body = get(c, "sessions")
-    assert ENVELOPE | {"status", "denominator", "items", "next_cursor"} == set(body)
+    assert ENVELOPE | {"status", "denominator", "excluded_records", "items", "next_cursor"} == set(body)
     assert set(body["denominator"]) == COUNTS and set(body["currentness"]) == {"state", "as_of", "limitation"}
     assert set(body["source_provenance"]) == {"classification", "source_ids", "evidence_ids", "basis_sha256"}
     assert body["source_provenance"]["classification"] == "REGISTERED_SIMULATION"
