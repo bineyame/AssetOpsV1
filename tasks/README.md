@@ -76,7 +76,7 @@ These implementation-ready packets sequence the binding `D-2026-10-17-w2-design`
 | W2-01 cold Foundation | [W2-01](W2-01-cold-foundation.md) | Effective cold roles, topology, selected read and three exact v69 Site routes; `0021` after `0020`; UI phase waits for W1-F1 merge | Done 2026-10-17 (merged; re-review ACCEPT) |
 | W2-02 cold producer | [W2-02](W2-02-cold-producer.md) | Frozen cold pack and six scenarios through Lab Stage/Commit, authenticated gateway v4 and S2 receipts; after merged W2-01 | Done 2026-10-18 (merged; re-review ACCEPT) |
 | W2-03 cold assessment | [W2-03](W2-03-cold-assessment.md) | `0022` cold episodes, bounded assessment and Findings, late recompute and four exact v69 routes; after merged W2-02 | Done 2026-10-18 (merged; re-review ACCEPT) |
-| W2-04 cold Site/evidence/money | [W2-04](W2-04-cold-site-evidence-money.md) | `0023` unpriced cold consequence and selected Site/evidence/financial reads, five exact v69 routes; after reviewed/merged W2-03 | M; implementation-ready; USER_REVIEW_REQUIRED true via later owner W2 walkthrough; two phases |
+| W2-04 cold Site/evidence/money | [W2-04](W2-04-cold-site-evidence-money.md) | `0023` unpriced cold consequence and selected Site/evidence/financial reads, five exact v69 routes; after reviewed/merged W2-03 | Done 2026-10-19 (merged; re-review ACCEPT) |
 
 ## W2 EV charging planning packets
 
