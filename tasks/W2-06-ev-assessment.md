@@ -1,6 +1,6 @@
 # W2-06 — EV session assessment and Finding
 
-Status: implementation-ready (planned). Size M; two phases. Branch `task/W2-06-ev-assessment` from reviewed and merged W2-05b. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. Exit: immutable public-evidence session assessments, a bounded fault-abort Finding, late recompute, and the exact `sessions` and `ev-finding` v6.9 surfaces.
+Status: done (merged 2026-10-20, d4d13735; re-review ACCEPT); was implementation-ready (planned). Size M; two phases. Branch `task/W2-06-ev-assessment` from reviewed and merged W2-05b. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. Exit: immutable public-evidence session assessments, a bounded fault-abort Finding, late recompute, and the exact `sessions` and `ev-finding` v6.9 surfaces.
 
 ## Binding and dependency
 

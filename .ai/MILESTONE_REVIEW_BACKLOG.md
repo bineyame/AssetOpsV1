@@ -2298,3 +2298,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 
 - L1: `frontend/src/shell/SimulatorLabFrame.tsx:112-116` EV Lab panel sentence in Panel `description` slot (~11 px) vs cold panel sentence (~14 px); Architect picks one slot for both in the post-all-waves UI/UX pass.
 - L2: final full backend JUnit cited across two runs (`bd967b59` 3096/1 gate-inventory failure; test-only fix `70a46d55`, file 20/20); no rerun per ROLE_CONFIG Token Efficiency.
+
+## W2-06 Lows (UI/UX pass)
+- L1: the M1-a "Source reason: …" lines render as paragraphs after the Source class and ID rows, not inline between them, because `ExactReferences` keys its rows by label (`frontend/src/sites/EvAssessmentViews.tsx`). Placement was not ruled; it is a cosmetic choice.
+- L2: the per-record M1-c sentence is deferred to the W2-07 `ev-evidence-analysis` route (r10 N3).
+- L3: layout evidence covers the interrupted state only; the other states are covered by jsdom tests.
