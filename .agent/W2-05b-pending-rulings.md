@@ -165,3 +165,39 @@ Run 3 non-blocking notes (commit 3 built where the rulings are silent):
   corrected map when the selected revision's state maps lack `UNPLUGGED`, or (b) a separate operator command;
   and which `effective_from` (the original `valid_from` 2026-10-01T00:00:00Z, or another instant before
   2026-10-06T08:00:00Z) and note text. Tests use 2026-10-05T00:00:00Z only as a test value.
+
+## Run 5: commit 4 questions (block commit 4; run stopped after `W2-05b q3 fixes`)
+
+Commit 4's spec leaves these shapes and sources to the builder; each is a design choice.
+
+- **Q20 schema-7 artifact keys.** Cold schema 6 is the exact 28-key tuple `host/cold_lab.py:_COLD_KEYS`
+  plus a second document after `HISTORY_MARKER` (`cold-private/1` minute records). For EV give the exact
+  ordered key tuple of the schema-7 document: which of the cold keys stay (all 28?), the names/types of the
+  added "frozen IDs/SHAs" (e.g. `foundation_revision_id`, `foundation_content_sha256`,
+  `binding_set_revision_id`, `snapshot_sha256`), the private digest key (reuse `content_digest`?), and the
+  "canonical public report texts/keys" (key name; element shape e.g. `{report_key,report_text}`; series order;
+  held END included?). Is there a second document after `HISTORY_MARKER` (spec: private documents are not
+  persisted), or none?
+- **Q21 schedule location on restart.** Spec says both "Use the existing `PublicationSchedule` serializer, not
+  separate EV storage" and "Restart reads terminal status and schedule from artifact". Cold keeps the schedule
+  in `JsonPublicationSchedules` (`host/publication_schedule.py`) beside the schema-6 artifact. Does EV do the
+  same (schedule file, artifact holds status only), or embed the serialized schedule inside the schema-7
+  artifact (under which key)?
+- **Q22 Foundation -> `EvParameters`.** `simulator/.../packs/ev_charger.py:EvParameters` has one
+  `site_limit_kw`, `base_load_kw`, `connector_rating_kw`, `charger_rating_kw`, `enabled_from/enabled_to`
+  (UTC time of day). The fixture has `feed-1 ev-site-import-limit 80.0 kW`, `charger-1 ev-charger-max-power
+  60.0`, per-connector `ev-connector-max-power 60.0`, `connector_enable_schedules` per connector with a weekly
+  TUESDAY 08:00-16:00 `Etc/UTC` row, and no base-load property. Rule: the property-to-field map; the base
+  load source (constant 0 or refuse when absent); what to do when c1/c2 ratings or schedules differ or a
+  connector is disabled (refuse FROZEN_RUN_NOT_RECONSTRUCTIBLE?); whether the weekday must match the run date;
+  and the float-to-exact conversion (`Fraction(str(80.0))`).
+- **Q23 binding rows for `ev_channels`.** Read `(device_id, signal_id, role, asset_code)` from the frozen
+  basis `snapshot_canonical` (hash-verified), or re-read the binding revision rows from the Foundation store by
+  `binding_set_revision_id` and compare its `snapshot_sha256`? Snapshot rows carry `asset_id`, so the
+  `asset_code` lookup source (frozen Foundation revision components vs registrations) also needs naming.
+- **Q24 EV projection copy and history.** Cold projections carry `COLD_NOTES` (user-visible, cold-specific
+  sentence) and `read_history` answers `HISTORY_UNAVAILABLE` for cold. Give the exact EV notes tuple (or
+  `()`), and confirm EV history is `HISTORY_UNAVAILABLE`.
+- **Q25 delayed-report ID prefix.** Commit 3 uses `cold_lab.delay_event_id` (`cold-delay-` + SHA-256 of the
+  report key) for the held EV END. Keep that for EV, or an `ev-delay-` prefix? It is persisted in the
+  schedule and pinned by commit 5 manifests only indirectly.

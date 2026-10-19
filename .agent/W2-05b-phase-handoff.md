@@ -1,4 +1,47 @@
-# W2-05b phase handoff - run 4 (commits 1-3 built; q2 corrections applied)
+# W2-05b phase handoff - run 5 (commits 1-3 built; q2 and q3 applied; commit 4 blocked on Q20-Q25)
+
+Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged.
+
+## Run 5: q3 fixes (`21745982` "W2-05b q3 fixes")
+- Q15: `sites/binding_roles.py` `EV_CONNECTOR_STATES` seven values; both `conversions/ev-lab-001-bindings.json`
+  state maps seven identity labels. Gateway admits 08:00 c1/c2 `UNPLUGGED` unchanged; an old map without it
+  holds `INVALID_ENUM` (Stage -> PUBLICATION_REFUSED). Tests: roles seven-value map, foundation-postgres old
+  revision row keeps id/sha/bytes and the 2026-10-05 corrected revision is selected for 08:00, ev_scenarios
+  real `RegisteredLabBasis` Draft freezes the corrected revision/snapshot SHA.
+- Q17: `gateway/.../snapshot.py` accepts `IDENTITY_KWH` only for `ev_connector_energy`, kWh->kWh, `{}`;
+  service unchanged (non-ENUM canonical-decimal passthrough). `evidence/ledger.py:_normalize` returns the
+  unchanged decimal + `IDENTITY_KWH` for that shape, else `CONVERSION_UNSUPPORTED`.
+- Q16: `transform.py` `EvPublicRecord.fault_episode=(asset_code, fault_ordinal)` latched per connector;
+  `contracts gateway_report.ev_fault_episode_id`; `host/ev_publication.py:_correlation` uses S else episode.
+- N10: tests for connector-mean splits at 08:01/08:31 and the nonterminating-mean refusal. N9/N11/N12 already
+  matched the build (ratified).
+- Counts: gateway suite 260; simulator ev pack/transform/cold 94; host EV+cold/t026/w203/delay/release 91;
+  backend `test_s2_*`, `test_w200_*`, `test_w205*` on private `w205b_run5_test` 415 (DB dropped); contracts 6;
+  `check-all.ps1` 10/10. Frontend untouched (no tsc).
+- Non-vacuous: dropping the snapshot role check fails 3 gateway tests; the ledger role check fails 1; a
+  constant fault episode fails 2 transform/host tests.
+
+## Pending (see `.agent/W2-05b-pending-rulings.md`)
+- Q18 Draft refusal against an old selected map; Q19 upgrade publication for an installed EV-LAB-001.
+- Q20-Q25 block commit 4: schema-7 keys, schedule location, Foundation->EvParameters, binding rows source
+  for `ev_channels`, EV notes/history, delay ID prefix.
+- **Still owed from N1 (commit 5):** pass `create_app`'s `ev_access`/`ev_owner` to the EV replay router, and the
+  walkthrough's isolated ASGI app calls `create_app` with the Site-scoped owner (no global flag).
+
+## Anchors for commit 4 (refreshed on `21745982`)
+- `host/lab_execution.py`: `start` :2187 (cold dispatch :2205 via `_is_cold` :2128 -> `execution_path` in
+  `host/execution_adapter.py:138`); `_start_cold` :2266 is the model; `_stage_registered_virtual_ev` :2343;
+  `_not_started` :2134; artifact read dispatch by `artifact_schema_version` :1651; `YamlExecutionArtifacts.
+  write_cold` :1896, `read_history` cold branch :1936.
+- `host/cold_lab.py`: `ColdInputs`/`StoreColdInputs` :50-80, `_base` :93, projections :125/:137, schema-6
+  render/parse :173/:219, `delay_event_id` :276. `host/cold_publication.py:verify_cold_inputs` :83 (content SHA
+  check :97). `host/lab_app.py` `cold_inputs=` composition. `packs/ev_charger.py:EvParameters` :70.
+
+## Anchors for commit 5
+- Replay beside `backend/assetops_backend/cold_replay.py` / `cold_replay_api.py`; mounted in `main.py` :493
+  (`build_cold_replay_router`, `no_owner_principal` import :57); Lab router composed :470.
+
+## Run 4 record
 
 Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged.
 
