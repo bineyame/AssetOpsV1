@@ -148,3 +148,20 @@ Run 3 non-blocking notes (commit 3 built where the rulings are silent):
   c2, then Site), then channel rank, then per-channel ordinal.
 - **N12 component and connector IDs** are the binding row `asset_code` (`c1`/`c2`), matching S2's
   `EV_CONNECTOR_MISMATCH` comparison with `binding.asset_code`.
+
+## Run 5 (2026-10-19): q3 applied; open questions from Q15 (do not block commit 4)
+
+- **Q18 Draft refusal against an old selected state map.** q3 Q15: "Refuse Draft or Stage against an old
+  selected map that lacks `UNPLUGGED`". Stage refuses already (gateway holds `UNPLUGGED` as `INVALID_ENUM` ->
+  FAILED/`PUBLICATION_REFUSED`; `gateway/tests/test_ev_v4_admission.py::test_unplugged_is_held_under_the_old_map_that_lacks_it`).
+  The Draft check is not built because its shape is unruled: (a) which refusal kind (`VERSION_UNAVAILABLE`,
+  `REQUEST_INVALID`, or a `BLOCKED` Draft with a blocking reason as `_publication_reasons` does) and the exact
+  message; (b) the check reads the selected basis `snapshot_canonical` c1/c2 `ev_connector_state` maps in
+  `runs/service.py:_create_ev_draft` and requires all five Q12 pack states as labels - confirm "lacks
+  `UNPLUGGED`" means "lacks any of the five" or exactly `UNPLUGGED`.
+- **Q19 upgrade of an already installed EV-LAB-001.** `sites/ev_lab.py:install_ev_lab` publishes only when no
+  binding set exists, so a database installed with the first 05a map keeps it. q3 says it "needs a new normal
+  binding publication, effective before the 6 October run window". Which: (a) `install_ev_lab` publishes the
+  corrected map when the selected revision's state maps lack `UNPLUGGED`, or (b) a separate operator command;
+  and which `effective_from` (the original `valid_from` 2026-10-01T00:00:00Z, or another instant before
+  2026-10-06T08:00:00Z) and note text. Tests use 2026-10-05T00:00:00Z only as a test value.

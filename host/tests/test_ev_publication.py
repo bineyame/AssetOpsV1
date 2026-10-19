@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections import Counter
 from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
@@ -206,10 +205,9 @@ def _canonical(document: object) -> str:
     return json.dumps(document, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
-def _gateway(tmp_path: Path, *, as_published: bool = False) -> tuple[GatewayService, str]:
-    """An in-process gateway activated with the 05a rows. Unless `as_published`, the energy rows' 05a
-    `IDENTITY_KWH` conversion is offered as `IDENTITY`, because the gateway snapshot reader supports only
-    IDENTITY/ENUM (pending ruling Q17, `.agent/W2-05b-pending-rulings.md`)."""
+def _gateway(tmp_path: Path) -> tuple[GatewayService, str]:
+    """An in-process gateway activated with the corrected 05a rows as published: the seven-label state map
+    (q3 Q15) and the energy rows' `IDENTITY_KWH` conversion (q3 Q17)."""
     from datetime import datetime, timezone
 
     service = GatewayService(tmp_path / "gateway.sqlite3", clock=lambda: datetime(2026, 10, 8, tzinfo=timezone.utc))
@@ -220,8 +218,6 @@ def _gateway(tmp_path: Path, *, as_published: bool = False) -> tuple[GatewayServ
         row = {"binding_revision_id": "ev-rev-1", "device_id": b["device_id"], "signal_id": b["signal_id"],
                "source_id": SOURCE, "gateway_id": GATEWAY, "asset_id": None, "role": b["role"],
                "source_unit": b["source_unit"], "canonical_unit": b["canonical_unit"], "conversion": b["conversion"]}
-        if not as_published and b["conversion"]["kind"] == "IDENTITY_KWH":
-            row["conversion"] = {"kind": "IDENTITY", "parameters": {}}
         row.update(V4_EV_CHANNEL_MAPPINGS[(b["device_id"], b["signal_id"])].metadata())
         rows.append(row)
     rows.sort(key=lambda r: (r["device_id"], r["signal_id"]))
@@ -247,34 +243,87 @@ def _gateway(tmp_path: Path, *, as_published: bool = False) -> tuple[GatewayServ
     return service, claimed.snapshot_sha256
 
 
-def test_the_published_energy_conversion_is_refused_at_activation_pending_q17(tmp_path) -> None:
-    from assetops_gateway.snapshot import SnapshotRefused
-
-    with pytest.raises(SnapshotRefused) as refused:
-        _gateway(tmp_path, as_published=True)
-    assert refused.value.kind == "UNSUPPORTED_CONVERSION"
+def test_the_published_bindings_activate_as_published(tmp_path) -> None:
+    """q3 Q15/Q17: the 05a energy rows keep `IDENTITY_KWH` and both state maps label all seven states."""
+    assert {b["conversion"]["kind"] for b in BINDINGS if b["role"] == "ev_connector_energy"} == {"IDENTITY_KWH"}
+    for b in BINDINGS:
+        if b["role"] == "ev_connector_state":
+            assert b["conversion"]["parameters"]["map"] == {s: s for s in (
+                "AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")}
+    _gateway(tmp_path)
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_the_whole_series_admits_except_the_pending_unplugged_state(tmp_path, case) -> None:
-    """Every report admits through the v4 branch except connector state `UNPLUGGED`, which the 05a ENUM map
-    does not label (pending ruling Q15, `.agent/W2-05b-pending-rulings.md`)."""
+def test_the_whole_series_admits(tmp_path, case) -> None:
+    """Every report admits through the v4 branch, the 08:00 `UNPLUGGED` states (q3 Q15) and kWh energy deltas
+    (q3 Q17) included."""
     _, reports = _series(case)
     gateway, sha = _gateway(tmp_path)
-    outcomes = Counter()
     for r in reports:
         admission = gateway.admit(r.report_text, snapshot_sha256=sha, lab_run_ref="lab-run-ev")
-        document = json.loads(r.report_text)
-        if document["signal_id"] == "state" and document["value"] == "UNPLUGGED":
-            assert (admission.outcome, admission.kind) == ("HELD", "INVALID_ENUM")
-        else:
-            assert admission.outcome == "ADMITTED", (document, admission)
-        outcomes[admission.outcome] += 1
-    assert outcomes["ADMITTED"] > 0
+        assert admission.outcome == "ADMITTED", (r.report_text, admission)
     with GatewayReader(tmp_path / "gateway.sqlite3") as reader:
         envelopes = [parse_canonical_envelope_v4_text(e.envelope_text) for e in reader.run_stage("lab-run-ev").envelopes]
-    assert len(envelopes) == outcomes["ADMITTED"]
+    assert len(envelopes) == len(reports)
     assert {e.source_id for e in envelopes} == {SOURCE}
+    at_start = [(e.device_id, e.value) for e in envelopes
+                if e.signal_id == "state" and e.source_time == "2026-10-06T08:00:00Z"]
+    assert len(at_start) == 2 and {d for d, _ in at_start} == {"c1-connector-controller", "c2-connector-controller"}
+    assert ("c2-connector-controller", "UNPLUGGED") in at_start
+    assert all(e.unit == "kWh" for e in envelopes if e.measurement == "INTERVAL_DELTA")
+
+
+def _fault_reports(rows):
+    from datetime import datetime, timedelta, timezone
+
+    from assetops_simulator.observation.transform import ev_public_records
+    from assetops_simulator.packs.ev_charger import FORCING_KIND_RANK, EvChargerPack, EvForcingRow, run_window
+    from ev_publication import report_of
+
+    t0 = datetime(2026, 10, 6, 8, tzinfo=timezone.utc)
+    forcing = tuple(EvForcingRow(t0 + timedelta(minutes=m), k, c, v)
+                    for m, k, c, v in sorted(rows, key=lambda r: (r[0], r[2], FORCING_KIND_RANK[r[1]])))
+    run = run_window(EvChargerPack(DEFAULT_PARAMETERS, scenario_sha256="f" * 64), start=t0,
+                     end=t0 + timedelta(minutes=60), forcing=forcing)
+    records = ev_public_records(run, channels=dict(ev_channels(BINDINGS)))
+    return [report_of(r, "f" * 64) for r in records]
+
+
+def test_a_sessionless_fault_and_clear_publish_with_the_episode_correlation(tmp_path) -> None:
+    """q3 Q16: FAULT from UNPLUGGED, its CLEAR, a later FAULT, and a CLEAR after a started-session ABORT."""
+    from assetops_contracts.gateway_report import device_report_v2_text, ev_fault_episode_id
+
+    def episode(connector, ordinal):
+        return ev_fault_episode_id(scenario_sha256="f" * 64, connector_id=connector, fault_ordinal=ordinal)
+
+    rows = [(0, "FAULT", "c1", "LATCH"), (5, "CLEAR", "c1", "CLEAR"), (9, "FAULT", "c1", "LATCH"),
+            (12, "CLEAR", "c1", "CLEAR"),
+            (0, "PLUG", "c2", "session-1"), (0, "AUTHORIZE", "c2", "ACCEPT"), (1, "REQUEST_KW", "c2", "60"),
+            (10, "FAULT", "c2", "LATCH"), (20, "CLEAR", "c2", "CLEAR")]
+    reports = _fault_reports(rows)
+    session = next(r.session_id for r in reports if r.record_kind == "EV_SESSION_START")
+    faults = [(r.source_time[11:16], r.record_kind, r.correlation_id, r.session_id, r.component_id,
+               r.connector_id) for r in reports if r.signal_id == "fault-event"]
+    assert faults == [
+        ("08:00", "EV_CONNECTOR_FAULT", episode("c1", 0), None, "c1", "c1"),
+        ("08:05", "EV_CONNECTOR_CLEAR", episode("c1", 0), None, "c1", "c1"),
+        ("08:09", "EV_CONNECTOR_FAULT", episode("c1", 1), None, "c1", "c1"),
+        ("08:10", "EV_CONNECTOR_FAULT", session, session, "c2", "c2"),
+        ("08:12", "EV_CONNECTOR_CLEAR", episode("c1", 1), None, "c1", "c1"),
+        ("08:20", "EV_CONNECTOR_CLEAR", episode("c2", 0), None, "c2", "c2"),
+    ]
+    assert not [r for r in reports if r.session_id is not None and r.session_id.startswith("ev-")
+                and r.session_id in {episode(c, n) for c in ("c1", "c2") for n in (0, 1)}]
+    gateway, sha = _gateway(tmp_path)
+    for r in reports:
+        text = device_report_v2_text(r)
+        assert parse_device_report_v2_text(text) == r
+        assert gateway.admit(text, snapshot_sha256=sha, lab_run_ref="lab-run-ev-q16").outcome == "ADMITTED"
+    with GatewayReader(tmp_path / "gateway.sqlite3") as reader:
+        envelopes = [parse_canonical_envelope_v4_text(e.envelope_text)
+                     for e in reader.run_stage("lab-run-ev-q16").envelopes]
+    assert [(e.correlation_id, e.session_id) for e in envelopes if e.signal_id == "fault-event"] == [
+        (f[2], f[3]) for f in faults]
 
 
 # --- the registered Stage branch ------------------------------------------------------------------------------

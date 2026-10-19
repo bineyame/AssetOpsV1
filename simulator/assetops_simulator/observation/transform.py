@@ -492,6 +492,10 @@ class EvPublicRecord:
     published_at: datetime
     held: bool = False
     added: bool = False
+    #: q3 Q16: a FAULT/CLEAR without an active session correlates with its fault episode, named here as
+    #: `(bound connector asset_code, zero-based count of actual FAULT transitions on it)`; the report mapping
+    #: hashes it with the scenario SHA. None for every other record, and for a FAULT/CLEAR that carries S.
+    fault_episode: tuple[str, int] | None = None
 
 
 def ev_decimal_text(value: Fraction) -> str:
@@ -588,6 +592,8 @@ def ev_public_records(
     cuts = {c: {t for span in spans[c] for t in span[:2] if t is not None} for c in connectors}
     all_cuts = set().union(*cuts.values())
 
+    fault_counts: dict = {c: 0 for c in connectors}
+    latched_episode: dict = {}
     events_at: dict = {}
     for event in run.events:
         events_at.setdefault(event.at, []).append(event)
@@ -604,13 +610,18 @@ def ev_public_records(
                     (kind, outcome), name = _EV_FAULT_KIND[event.kind], "fault-event"
                 else:
                     raise ValueError(f"{event.kind} is not an ev-charger/1 event")
-                if event.session_id is None:
-                    # Pending ruling Q16 (`.agent/W2-05b-pending-rulings.md`): v4 requires a correlation ID and
-                    # none is ruled for a fault/clear without an active scoped session. No six-case run has one.
-                    raise ValueError(f"{event.kind} at {event.at} on {connector} has no scoped session to correlate")
                 asset = bound(connector, name).connector_id
+                episode = None
+                if event.kind == "FAULT":
+                    # q3 Q16: every actual FAULT transition opens an episode; the ordinal counts them per connector.
+                    latched_episode[connector] = (asset, fault_counts[connector])
+                    fault_counts[connector] += 1
+                if event.kind in _EV_FAULT_KIND and event.session_id is None:
+                    if connector not in latched_episode:
+                        raise ValueError(f"{event.kind} at {event.at} on {connector} follows no FAULT")
+                    episode = latched_episode[connector]
                 emit(connector, name, at, family="EVENT", record_kind=kind, outcome=outcome,
-                     session_id=event.session_id, connector_id=asset, component_id=asset)
+                     session_id=event.session_id, connector_id=asset, component_id=asset, fault_episode=episode)
 
     slot_start = start
     while slot_start < end:

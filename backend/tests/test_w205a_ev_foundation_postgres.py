@@ -298,3 +298,50 @@ def test_out_of_range_clock_bound_is_refused_as_ev_configuration_invalid(store) 
     assert caught.value.code == "EV_CONFIGURATION_INVALID"
     assert "ev-clock-error-bound" in str(caught.value) or "properties[" in str(caught.value)
     assert len(store.revisions(result.tenant.id, result.site.id)) == before
+
+
+#: W2-05b q3 Q15: the corrected map's normal publication, effective before the 6 October run window.
+CORRECTED_FROM = datetime(2026, 10, 5, tzinfo=timezone.utc)
+OLD_STATE_MAP = {v: v for v in ("AVAILABLE", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")}
+
+
+def _state_maps(snapshot) -> list[dict]:
+    return [r["conversion"]["parameters"]["map"] for r in json.loads(snapshot.body)["bindings"]
+            if r["role"] == "ev_connector_state"]
+
+
+def test_an_old_map_stays_immutable_and_the_corrected_revision_is_selected(store) -> None:
+    """q3 Q15: an already published 05a map without `UNPLUGGED` is never patched; a new normal publication
+    carries the seven-label map and is the revision selected for the 6 October window."""
+    from dataclasses import replace
+
+    from assetops_backend.sites.composition import read_site_import_source
+    from assetops_backend.sites.ev_lab import FIXTURE_PATH
+    from assetops_backend.sites.foundation_service import ImportSource, import_site
+
+    source = read_site_import_source(FIXTURE_PATH)
+    result = import_site(store, tenant_slug="demo", configured_tenant_slug="demo",
+                         source=ImportSource(path="var/sites/ev-lab-001.yaml", sha256=source.sha256,
+                                             record=source.record),
+                         legacy_documents=(), clock=Clock(NOW - timedelta(hours=3)))
+    corrected = complete_requests(store, result)
+    old = [replace(r, conversion={"kind": "ENUM", "parameters": {"map": OLD_STATE_MAP}})
+           if r.role == "ev_connector_state" else r for r in corrected]
+    BindingService(store, Clock(NOW - timedelta(hours=2))).publish(
+        result.tenant, result.site, requests=old, effective_from=ORIGINAL_FROM,
+        note="W2-05b test: the first 05a map.", role_set="ev-roles-1")
+    early = datetime(2026, 10, 2, tzinfo=timezone.utc)
+    before = snapshot_at(store, result, early)
+    assert isinstance(before, Snapshot) and _state_maps(before) == [OLD_STATE_MAP] * 2
+    BindingService(store, Clock(NOW - timedelta(hours=1))).publish(
+        result.tenant, result.site, requests=corrected, effective_from=CORRECTED_FROM,
+        note="W2-05b q3 Q15: state map labels UNPLUGGED.", role_set="ev-roles-1")
+    # The first revision row keeps its id, map and pinned bytes; the later publication only adds rows.
+    [first] = [s for s in store.binding_sets(result.tenant.id, result.site.id) if s.id == before.binding_set.id]
+    assert (first.snapshot_sha256, first.snapshot_canonical) == (before.sha256, before.body)
+    assert _state_maps(snapshot_at(store, result, early)) == [OLD_STATE_MAP] * 2
+    window = snapshot_at(store, result, datetime(2026, 10, 6, 8, tzinfo=timezone.utc))
+    assert isinstance(window, Snapshot) and window.sha256 != before.sha256
+    assert _state_maps(window) == [{v: v for v in (
+        "AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")}] * 2
+    assert selected(store, result, datetime(2026, 10, 6, 8, tzinfo=timezone.utc)).valid_from == CORRECTED_FROM

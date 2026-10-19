@@ -447,3 +447,63 @@ def test_an_unregistered_site_and_legacy_scenario_with_ev_profiles_refuse() -> N
     with pytest.raises(RunSetupRefused) as caught:
         setup.create_draft_run(legacy)
     assert caught.value.kind == "VERSION_UNAVAILABLE" and store.written == []
+
+
+# --- q3 Q15: the corrected binding revision is the one selected and frozen --------------------------------------
+
+
+def _ev_store_with_old_then_corrected_map():
+    """EV-LAB-001 imported, its first map published without `UNPLUGGED`, then the corrected map as a new
+    normal publication effective 5 October (before the run window)."""
+    from datetime import timedelta
+
+    from assetops_backend.sites.binding_conversion import plan_requests
+    from assetops_backend.sites.binding_service import BindingService
+    from assetops_backend.sites.ev_lab import binding_fixture
+
+    store = InMemoryFoundationStore()
+    source = read_import_source(str(EV_FIXTURE))
+    result = import_site(store, tenant_slug=DEVELOPMENT_TENANT_SLUG, configured_tenant_slug=DEVELOPMENT_TENANT_SLUG,
+                         source=ImportSource(path="var/sites/ev-lab-001.yaml", sha256=source.sha256,
+                                             record=source.record),
+                         legacy_documents=(), clock=lambda: NOW - timedelta(hours=3))
+    original = store.revisions(result.tenant.id, result.site.id)[0]
+    asset_ids = {a.asset_code: str(a.id) for a in store.registrations(result.tenant.id, result.site.id).assets}
+    corrected = binding_fixture()
+    old = copy.deepcopy(corrected)
+    for b in old["bindings"]:
+        if b["role"] == "ev_connector_state":
+            del b["conversion"]["parameters"]["map"]["UNPLUGGED"]
+    for fixture, effective, at in ((old, original.valid_from, 2),
+                                   (corrected, datetime(2026, 10, 5, tzinfo=timezone.utc), 1)):
+        requests, _, _ = plan_requests(fixture, result.site, original.content.get("signal_mappings") or (), asset_ids)
+        BindingService(store, lambda at=at: NOW - timedelta(hours=at)).publish(
+            result.tenant, result.site, requests=requests, effective_from=effective, note="q3 Q15 test",
+            role_set="ev-roles-1")
+    return store, result
+
+
+def test_the_draft_freezes_the_corrected_binding_revision_and_its_snapshot() -> None:
+    from assetops_backend.runs.registered_basis import RegisteredLabBasis
+    from assetops_backend.sites.cutover import ImportedSiteRegistry
+    from assetops_backend.sites.foundation_service import FoundationService
+
+    store, result = _ev_store_with_old_then_corrected_map()
+    runs = FakeRuns()
+    setup = RunSetupService(
+        runs, FakeSites(()), FakeScenarios((ev("complete"),)),
+        model_profiles=(EV_CHARGER_MODEL,), publication_profiles=(EV_PUBLICATION_PROFILE,),
+        now=lambda: "2026-10-07T12:00:00Z",
+        registered_bases=RegisteredLabBasis(ImportedSiteRegistry(
+            FoundationService(store, DEVELOPMENT_TENANT_SLUG, lambda: NOW))),
+    )
+    run = setup.create_draft_run(ev_request())
+    current = [s for s in store.binding_sets(result.tenant.id, result.site.id)
+               if s.superseded_at is None and s.valid_from == datetime(2026, 10, 5, tzinfo=timezone.utc)]
+    assert len(current) == 1
+    frozen = run.registered_basis
+    assert (frozen.binding_set_revision_id, frozen.snapshot_sha256) == (str(current[0].id),
+                                                                         current[0].snapshot_sha256)
+    maps = [b["conversion"]["parameters"]["map"] for b in json.loads(frozen.snapshot_canonical)["bindings"]
+            if b["role"] == "ev_connector_state"]
+    assert len(maps) == 2 and all("UNPLUGGED" in m and len(m) == 7 for m in maps)

@@ -23,6 +23,7 @@ from assetops_contracts.gateway_report import (
     DeviceReportV2,
     device_report_v2_text,
     ev_event_id,
+    ev_fault_episode_id,
     ev_report_key,
     parse_device_report_v2_text,
 )
@@ -170,9 +171,20 @@ def report_of(record: EvPublicRecord, scenario_sha256: str) -> DeviceReportV2:
         device_id=record.device_id, signal_id=record.signal_id, source_time=source_time, family="EVENT",
         measurement=None, interval_start=None, interval_end=None, value=None, unit=None, quality="GOOD",
         unavailable_reason=None, record_kind=record.record_kind, event_id=event_id,
-        correlation_id=record.session_id, component_id=record.component_id, actor="CONTROLLER",
+        correlation_id=_correlation(record, scenario_sha256), component_id=record.component_id, actor="CONTROLLER",
         outcome=record.outcome, session_id=record.session_id, connector_id=record.connector_id,
     )
+
+
+def _correlation(record: EvPublicRecord, scenario_sha256: str) -> str:
+    """q3 Q16: S when the event carries one; otherwise the FAULT/CLEAR's fault-episode identity."""
+    if record.session_id is not None:
+        return record.session_id
+    if record.fault_episode is None:
+        raise ValueError(f"{record.record_kind} at {_text(record.source_time)} carries no session or fault episode")
+    connector_id, fault_ordinal = record.fault_episode
+    return ev_fault_episode_id(scenario_sha256=scenario_sha256, connector_id=connector_id,
+                               fault_ordinal=fault_ordinal)
 
 
 def ev_reports(

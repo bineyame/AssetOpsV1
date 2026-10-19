@@ -49,6 +49,7 @@
         "parameters": {
           "map": {
             "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
             "PLUGGED": "PLUGGED",
             "AUTHORIZING": "AUTHORIZING",
             "CHARGING": "CHARGING",
@@ -149,6 +150,7 @@
         "parameters": {
           "map": {
             "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
             "PLUGGED": "PLUGGED",
             "AUTHORIZING": "AUTHORIZING",
             "CHARGING": "CHARGING",

@@ -18,6 +18,7 @@ from assetops_contracts.gateway_report import (
     cold_report_key,
     device_report_v2_text,
     ev_event_id,
+    ev_fault_episode_id,
     ev_report_key,
 )
 from assetops_contracts.source_envelope_v4 import (
@@ -26,6 +27,7 @@ from assetops_contracts.source_envelope_v4 import (
     parse_canonical_envelope_v4_text,
 )
 from assetops_gateway.service import GatewayReader, GatewayService
+from assetops_gateway.snapshot import SnapshotRefused
 
 from conftest import GATEWAY, SRC_GEN, snapshot
 
@@ -34,8 +36,10 @@ RUN = "lab-run-ev-1"
 AT = "2026-10-06T08:05:00Z"
 START = "2026-10-06T08:00:00Z"
 SESSION = "ev-" + "5" * 64
-#: The 05a `ev-lab-001-bindings.json` state labels (`sites/binding_roles.py` `EV_CONNECTOR_STATES`).
-ENUM_LABELS = ("AVAILABLE", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
+#: The corrected (q3 Q15) `ev-lab-001-bindings.json` state labels (`sites/binding_roles.py` `EV_CONNECTOR_STATES`).
+ENUM_LABELS = ("AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
+#: The first 05a map, which lacks `UNPLUGGED`; an already published revision keeps it.
+OLD_ENUM_LABELS = ("AVAILABLE", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
 _V4_ID = re.compile(r"[A-Za-z0-9._-]+")
 
 
@@ -46,12 +50,14 @@ def _unit(device: str, signal: str) -> str:
     return entry.allowed_units[0]
 
 
-def _row(device: str, signal: str, *, role: str | None = None) -> dict:
+def _row(device: str, signal: str, *, role: str | None = None, labels: tuple[str, ...] = ENUM_LABELS) -> dict:
     entry = V4_EV_CHANNEL_MAPPINGS[(device, signal)]
     unit = _unit(device, signal)
     conversion = {"kind": "IDENTITY", "parameters": {}}
     if signal == "state":
-        conversion = {"kind": "ENUM", "parameters": {"map": {label: label for label in ENUM_LABELS}}}
+        conversion = {"kind": "ENUM", "parameters": {"map": {label: label for label in labels}}}
+    elif entry.role == "ev_connector_energy":
+        conversion = {"kind": "IDENTITY_KWH", "parameters": {}}  # the 05a binding's conversion (q3 Q17)
     row = {
         "binding_revision_id": f"ev-{device}-{signal}", "device_id": device, "signal_id": signal,
         "source_id": SRC_GEN, "gateway_id": GATEWAY, "asset_id": None, "role": role or entry.role,
@@ -194,12 +200,87 @@ def test_wrong_tuple_role_and_correlation_are_held(gateway: GatewayService) -> N
     assert wrong_kind.outcome == "HELD"
 
 
-def test_unplugged_state_is_not_an_enum_label_pending_q15(gateway: GatewayService) -> None:
-    """Pending ruling Q15: the pack's public `UNPLUGGED` is not a label of the 05a state ENUM map."""
+def _at_start(report: DeviceReportV2) -> DeviceReportV2:
+    return replace(report, source_time=START, report_key=ev_report_key(
+        scenario_sha256=SCENARIO, device_id=report.device_id, signal_id=report.signal_id, source_time=START,
+        record_kind=None, event_id=None, interval_start=None))
+
+
+def test_unplugged_state_at_0800_admits_unchanged(gateway: GatewayService, db_path) -> None:
+    """q3 Q15: the pack's `UNPLUGGED` is a label of the corrected map and passes through unchanged."""
     sha = _activate(gateway)
-    held = gateway.admit(device_report_v2_text(_measurement("c1-connector-controller", "state", "UNPLUGGED")),
-                         snapshot_sha256=sha, lab_run_ref=RUN)
+    for c in ("c1", "c2"):
+        report = _at_start(_measurement(f"{c}-connector-controller", "state", "UNPLUGGED"))
+        admitted = gateway.admit(device_report_v2_text(report), snapshot_sha256=sha, lab_run_ref=RUN)
+        assert admitted.outcome == "ADMITTED"
+    envelopes = [parse_canonical_envelope_v4_text(e.envelope_text) for e in _stage(db_path)]
+    assert [(e.device_id, e.source_time, e.value) for e in envelopes] == [
+        ("c1-connector-controller", START, "UNPLUGGED"), ("c2-connector-controller", START, "UNPLUGGED")]
+
+
+def test_unplugged_is_held_under_the_old_map_that_lacks_it(gateway: GatewayService) -> None:
+    """q3 Q15: Stage against an old selected map without `UNPLUGGED` refuses (held INVALID_ENUM)."""
+    rows = [_row(d, s, labels=OLD_ENUM_LABELS) for d, s in sorted(V4_EV_CHANNEL_MAPPINGS)]
+    sha = _activate(gateway, rows)
+    report = _at_start(_measurement("c1-connector-controller", "state", "UNPLUGGED"))
+    held = gateway.admit(device_report_v2_text(report), snapshot_sha256=sha, lab_run_ref=RUN)
     assert (held.outcome, held.kind) == ("HELD", "INVALID_ENUM")
+
+
+ENERGY = ("c1-connector-meter", "energy")
+
+
+@pytest.mark.parametrize("change", [
+    {"conversion": {"kind": "IDENTITY_KWH", "parameters": {"scale": "1"}}},
+    {"source_unit": "Wh"},
+    {"canonical_unit": "MWh"},
+    {"role": "ev_connector_power"},
+])
+def test_identity_kwh_outside_its_one_shape_refuses_activation(gateway: GatewayService, change) -> None:
+    """q3 Q17: `IDENTITY_KWH` only on `ev_connector_energy`, kWh to kWh, with empty parameters."""
+    rows = [_row(d, s) | (change if (d, s) == ENERGY else {}) for d, s in sorted(V4_EV_CHANNEL_MAPPINGS)]
+    with pytest.raises(SnapshotRefused) as refused:
+        _activate(gateway, rows)
+    assert refused.value.kind == "UNSUPPORTED_CONVERSION"
+
+
+def test_identity_kwh_on_a_non_energy_row_refuses_activation(gateway: GatewayService) -> None:
+    power = ("c1-connector-meter", "power")
+    rows = [_row(d, s) | ({"conversion": {"kind": "IDENTITY_KWH", "parameters": {}}} if (d, s) == power else {})
+            for d, s in sorted(V4_EV_CHANNEL_MAPPINGS)]
+    with pytest.raises(SnapshotRefused) as refused:
+        _activate(gateway, rows)
+    assert refused.value.kind == "UNSUPPORTED_CONVERSION"
+
+
+def test_identity_kwh_energy_is_a_canonical_decimal_passthrough(gateway: GatewayService, db_path) -> None:
+    """q3 Q17: the verified binding passes the canonical kWh decimal through unchanged."""
+    sha = _activate(gateway)
+    good = _measurement(*ENERGY, "0.125", session=SESSION, connector="c1")
+    assert gateway.admit(device_report_v2_text(good), snapshot_sha256=sha, lab_run_ref=RUN).outcome == "ADMITTED"
+    (envelope,) = [parse_canonical_envelope_v4_text(e.envelope_text) for e in _stage(db_path)]
+    assert (envelope.value, envelope.unit, envelope.measurement) == ("0.125", "kWh", "INTERVAL_DELTA")
+
+
+def test_a_fault_and_clear_without_a_session_admit_with_the_episode_correlation(
+    gateway: GatewayService, db_path,
+) -> None:
+    """q3 Q16: no S, so the correlation is the fault-episode ID and `session_id` stays null."""
+    sha = _activate(gateway)
+    episode = ev_fault_episode_id(scenario_sha256=SCENARIO, connector_id="c1", fault_ordinal=0)
+    assert re.fullmatch(r"ev-[0-9a-f]{64}", episode)
+    assert episode != ev_fault_episode_id(scenario_sha256=SCENARIO, connector_id="c1", fault_ordinal=1)
+    assert episode != ev_fault_episode_id(scenario_sha256=SCENARIO, connector_id="c2", fault_ordinal=0)
+    fault = replace(_event("c1-connector-controller", "EV_CONNECTOR_FAULT", "FAULTED", "c1", session=None),
+                    correlation_id=episode)
+    clear = replace(_event("c1-connector-controller", "EV_CONNECTOR_CLEAR", "CLEARED", "c1", ordinal=2,
+                           session=None), correlation_id=episode)
+    for report in (fault, clear):
+        admitted = gateway.admit(device_report_v2_text(report), snapshot_sha256=sha, lab_run_ref=RUN)
+        assert admitted.outcome == "ADMITTED"
+    envelopes = [parse_canonical_envelope_v4_text(e.envelope_text) for e in _stage(db_path)]
+    assert [(e.record_kind, e.correlation_id, e.session_id, e.connector_id) for e in envelopes] == [
+        ("EV_CONNECTOR_FAULT", episode, None, "c1"), ("EV_CONNECTOR_CLEAR", episode, None, "c1")]
 
 
 def test_unsuffixed_compatibility_tuples_are_not_in_the_ev_table() -> None:

@@ -40,7 +40,7 @@ GENERATOR_STATES: tuple[str, ...] = ("STOPPED", "STARTING", "RUNNING", "FAILED")
 COMPRESSOR_STATES: tuple[str, ...] = ("OFF", "STARTING", "RUNNING", "FAILED")
 GRID_STATES: tuple[str, ...] = ("AVAILABLE", "LOST")
 BUS_STATES: tuple[str, ...] = ("POWERED", "UNPOWERED")
-EV_CONNECTOR_STATES: tuple[str, ...] = ("AVAILABLE", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
+EV_CONNECTOR_STATES: tuple[str, ...] = ("AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
 
 #: The nonquantitative declared unit of an event channel (`SIGNAL_UNITS`).
 EVENT_UNIT = "event"

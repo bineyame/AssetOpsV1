@@ -97,10 +97,57 @@ def test_observation_rows_that_match_nothing_refuse() -> None:
         ev_public_records(run, channels=CHANNELS, observations=(_obs(45, "EV_SESSION_END", "ADD"),))
 
 
-def test_a_fault_without_a_scoped_session_is_not_published_pending_q16() -> None:
-    run = _run([(0, "FAULT", "c1", "LATCH")])
-    with pytest.raises(ValueError, match="no scoped session"):
-        ev_public_records(run, channels=CHANNELS)
+def _faults(records):
+    return [(r.source_time, r.record_kind, r.session_id, r.connector_id, r.component_id, r.fault_episode)
+            for r in records if r.channel == "fault-event"]
+
+
+def test_a_fault_from_unplugged_correlates_with_its_episode() -> None:
+    # q3 Q16: FAULT then CLEAR without S share episode (c1, 0); a later distinct FAULT opens episode (c1, 1).
+    rows = [(0, "FAULT", "c1", "LATCH"), (5, "CLEAR", "c1", "CLEAR"), (9, "FAULT", "c1", "LATCH"),
+            (12, "FAULT", "c1", "LATCH"), (20, "CLEAR", "c1", "CLEAR")]
+    assert _faults(ev_public_records(_run(rows), channels=CHANNELS)) == [
+        (_at(0), "EV_CONNECTOR_FAULT", None, "c1", "c1", ("c1", 0)),
+        (_at(5), "EV_CONNECTOR_CLEAR", None, "c1", "c1", ("c1", 0)),
+        (_at(9), "EV_CONNECTOR_FAULT", None, "c1", "c1", ("c1", 1)),
+        (_at(20), "EV_CONNECTOR_CLEAR", None, "c1", "c1", ("c1", 1)),
+    ]
+
+
+def test_a_clear_after_a_started_session_abort_uses_the_latched_episode() -> None:
+    # The FAULT carries S (no episode needed); its ABORT clears S, so the CLEAR correlates with episode (c1, 0).
+    rows = SESSION[:3] + [(10, "FAULT", "c1", "LATCH"), (20, "CLEAR", "c1", "CLEAR")]
+    records = ev_public_records(_run(rows), channels=CHANNELS)
+    session = next(r.session_id for r in records if r.record_kind == "EV_SESSION_START")
+    assert _faults(records) == [
+        (_at(10), "EV_CONNECTOR_FAULT", session, "c1", "c1", None),
+        (_at(20), "EV_CONNECTOR_CLEAR", None, "c1", "c1", ("c1", 0)),
+    ]
+    assert not [r for r in records if r.channel == "energy" and r.session_id is None]
+
+
+def test_connector_means_split_at_0801_and_0831() -> None:
+    # q3 N10: each connector mean splits at its START (08:01) and END (08:31) inside the slot; IDs stay null.
+    records = ev_public_records(_run(SESSION), channels=CHANNELS)
+    for name in ("power", "requested-power", "allocated-limit"):
+        spans = [(r.interval_start, r.source_time) for r in records if (r.connector, r.channel) == ("c1", name)]
+        assert spans[:2] == [(_at(0), _at(1)), (_at(1), _at(5))]
+        assert (_at(30), _at(31)) in spans and (_at(31), _at(35)) in spans
+        assert spans == sorted(spans) and all(a < b for a, b in spans)
+        assert all(x[1] == y[0] for x, y in zip(spans, spans[1:]))
+    power = {(r.interval_start, r.source_time): r.value for r in records if (r.connector, r.channel) == ("c1", "power")}
+    assert (power[(_at(0), _at(1))], power[(_at(1), _at(5))], power[(_at(31), _at(35))]) == ("0", "60", "0")
+    c2 = [(r.interval_start, r.source_time) for r in records if (r.connector, r.channel) == ("c2", "power")]
+    assert c2[0] == (_at(0), _at(5))
+    assert all(r.session_id is None and r.connector_id is None for r in records if r.measurement == "INTERVAL_MEAN")
+
+
+def test_a_mean_without_a_finite_decimal_refuses() -> None:
+    # q3 N10: START at 08:02 leaves a three-minute [08:02, 08:05) part; 60, 60, 10 kW averages 130/3.
+    rows = [(1, "PLUG", "c1", "session-1"), (1, "AUTHORIZE", "c1", "ACCEPT"), (2, "REQUEST_KW", "c1", "60"),
+            (4, "REQUEST_KW", "c1", "10"), (31, "UNPLUG", "c1", "END")]
+    with pytest.raises(ValueError, match="no exact decimal text"):
+        ev_public_records(_run(rows), channels=CHANNELS)
 
 
 def test_an_unbound_channel_refuses() -> None:
