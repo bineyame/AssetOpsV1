@@ -1,0 +1,353 @@
+# W4-01 build spec — work-case core and thin Site lists (2026-10-20)
+
+Authority: `tasks/W4-01-work-case-core.md`, `D-2026-10-20-post-w2-sequence`, v6.9 `sitework-incidents` and `sitework-maintenance`. This is the Architect's build contract, not a claim that the mock's INC-203/WR-019 exist. **Start only after independently reviewed W2-07 and `0026_w2_ev_money` are on main, the W4 owner wave-start scope/core-panel gate is recorded, and this spec receives independent review.** On the inspected branch main still ends at `0025_w2_ev_session`; the parent below is an explicit merge precondition. W4-01 is Lane A and the sole owner of migration/router/shell/registry/guard changes. W3-01 has no W4 dependency.
+
+## Commit sequence and exact seam ledger
+
+One builder run and handoff per commit; phases are commits 1–3 (store/API) and 4–5 (Site reads/UI). No builder chooses an omitted contract rule.
+
+1. **`0027_w4_work_cases`**: the literal schema below, upgrade/downgrade/trigger/scoped-FK tests, and rule-8 writer declaration. Start from merged `0026`, assert one Alembic head. No backfill from mock or Lab.
+2. **Domain and writer**: `backend/assetops_backend/work/{model,service,adapters/postgres_work_store}.py`. Service owns validation, authorization, state reduction and exact-link checks. Adapter alone imports SQL driver. It writes one serializable transaction per command, using DB time; accepted-evidence links are checked in scope, never copied from private world. Add `work/composition.py`.
+3. **Case API**: `backend/assetops_backend/work_api.py`, Lane A mount in `main.py`; scoped create, transition, correction, plan, record and detail routes below. Use the existing `finding_api.py:Access,Scope,development_access`, `finding_api.py:ACCESS_BASIS` until a general auth port replaces them. The W1 Action/ActionEvent in `actions/service.py`, `actions/lifecycle.py` stay untouched and separate. Review this phase before UI.
+4. **Selected projections**: `work/site_index.py` and `work/adapters/postgres_work_read.py`; `analytics/finding_index.py:FindingIndexService` and `actions/site_index.py:ActionIndexService` are link/currentness examples, not data sources for case existence. Implement one read-only REPEATABLE READ snapshot with a writer fence, full count before page, UTC cutoff and cursor. Mount Site list route in Lane A `main.py`.
+5. **Two Site views**: `frontend/src/sites/{siteWorkIncidents,siteWorkMaintenance,workClient}.tsx/ts` plus `shell/operatorSiteRoutes.ts`, `shell` route table, `operatorSiteTabs.tsx` Work subrow, navigation guard and reviewed registry panel paths. Use existing `SiteWorkActions` and shared `Disclosure`/`Status` components; do not create a global Incidents/Maintenance root. Capture stocked and empty/unknown at 1440 and 390, then one same-revision full backend suite and independent slice review.
+
+Registry paths to close with the implementation: `A-work-cases`, `A-incident-index`, `A-maintenance-index`, `I-work-store`, `I-incident-read/ui`, `I-maintenance-read/ui`, `D-work-records`; add each owned panel as a reviewed path, run the registry checker. No node is marked resolved merely by this spec.
+
+## Identity, time and frozen domain rules
+
+All IDs are lowercase UUIDs; visible codes are tenant-unique `INC-000001`, `WR-000001`, `PM-000001`, `REC-000001` generated from a DB sequence in the same transaction, never an input. `incident` and `maintenance_work_request` are disjoint typed identities over one `work_case` event/revision grammar; their child rows are mandatory and inserted atomically with the base row. `MaintenancePlan`, `MaintenanceRecord`, `WorkEvent`, `OperationalRecord` have independent UUID identities. A plan can spawn a request only by an explicit authored command. An Incident is not inferred from a Finding, gap, alarm or Action. One primary optional Asset belongs to the same tenant/Site; a case may pin **many** `(finding_id,finding_revision_id)` and `(action_id,selected_event_id)` links through immutable junctions. A case can have zero links. A cited accepted evidence ID must be in the same tenant/Site and accepted before the command's DB time. No source run mode is an attestation.
+
+Every mutation has `actor_kind=USER|SERVICE`, nonblank `actor_id`, `authorization_basis`, `attestation` (human declaration or named service rule), `idempotency_key` (8–128 printable chars), `occurred_at` UTC supplied by the actor, and DB `recorded_at`; service commands must name service, job and rule version in attestation. A backdated `occurred_at` is permitted within 30 days and displayed as such; future >5 minutes is refused. State and history order is **`(recorded_at,id)`**, never occurrence time. A correction appends a new revision with `supersedes_revision_id`; it cannot edit old text, evidence, links, actor or event. This revision chain is linear under row lock. Lists show the latest revision known at cutoff and the state reduced from events recorded by cutoff. At the same timestamp UUID ascending breaks ties. `known_at` cannot be after the request's DB snapshot time. The selected window is half-open UTC `[from,to)` of at most 31 days, membership by incident `occurred_at` or request/plan `recorded_at`; later state changes remain visible at selected `known_at`. Local EAT formatting is presentation only.
+
+Plan and OperationalRecord corrections append a new row with `supersedes_*_id`, a new version UUID/internal public number, and the **same canonical root ID** in `canonical_plan_id`/`canonical_record_id`. The root's visible public code remains the user-facing code; the new version code is audit metadata. Read the latest successor by `(recorded_at,id)` at cutoff, never update the root. Correction requires a nonempty reason and exact current predecessor; concurrent successors refuse 409. OperationalRecord `MANUAL_READING` requires quantity and unit, other kinds may omit them; `period_end` is optional but cannot precede occurrence. `source_document_sha256` is optional because a witnessed statement need not have a file; absence displays `No document attached`. An attested human record never becomes `accepted_evidence` merely through its `ACCEPTED` state (which is unreached in W4).
+
+| Kind | State | Allowed command → state | Unreached/terminal rule |
+| --- | --- | --- | --- |
+| Incident | OPEN | ASSIGN → IN_PROGRESS; CLOSE → CLOSED | CREATED event yields OPEN; no automatic case creation. |
+| Incident | IN_PROGRESS | CLOSE → CLOSED; REOPEN → OPEN | REOPEN from active state is 409. |
+| Incident | CLOSED | REOPEN → OPEN | CLOSED does not mean cause proved or outcome verified. |
+| MaintenanceWorkRequest | OPEN | ASSIGN → IN_PROGRESS; CANCEL → CANCELLED | An Action remains a separate object. |
+| MaintenanceWorkRequest | IN_PROGRESS | COMPLETE → COMPLETED; CANCEL → CANCELLED | COMPLETE requires a MaintenanceRecord ID; no verification assertion. |
+| MaintenanceWorkRequest | COMPLETED | REOPEN → IN_PROGRESS; OPEN_VERIFICATION reserved | `VERIFICATION_WINDOW`, `VERIFIED`, `INEFFECTIVE`, `INCONCLUSIVE` require a frozen outcome plan and later accepted evidence. W4-01 has no evaluator or plan writer: transitions to these states are **unreached and 409**. |
+| MaintenanceWorkRequest | VERIFICATION_WINDOW | REOPEN → IN_PROGRESS | Unreached in W4; later evaluator owns this state. |
+| MaintenanceWorkRequest | CANCELLED | none | Terminal; correction still allowed, transition refused. |
+| MaintenancePlan | DRAFT | ACTIVATE → ACTIVE; CANCEL → CANCELLED are reserved | W4 creates an immutable DRAFT only; those commands return 409 `WORK_TRANSITION_INVALID` until a later reviewed plan-event contract. Due is authored, not derived. |
+| MaintenancePlan | ACTIVE/PAUSED/CANCELLED | PAUSE/ACTIVATE/CANCEL are reserved | Unreached in W4. No auto-created request or performed assertion. |
+| OperationalRecord | SUBMITTED | ACCEPT → ACCEPTED; REJECT → REJECTED are reserved | W4 creates an immutable SUBMITTED record only; commands return 409 until a later reviewed review-event contract. Authored record is not telemetry. |
+| OperationalRecord | ACCEPTED/REJECTED | none | Unreached in W4. A correction appends a lineage successor, retaining the old record. |
+
+An Incident and WorkRequest can cite each other only through their exact stored IDs. `MaintenanceRecord` records activity, not success. `WorkEvent` describes transition/assignment/comment with actor and time; no implicit `VERIFIED`. An OperationalRecord is an authored statement with its own acceptance, never an `accepted_evidence` row unless a separately authorized publication mechanism exists. Source provenance of a case is the **union of exact accepted IDs it explicitly cites** plus any pinned Finding/Action version cited sets; classify via the shared DTO rule in `D-2026-10-20-shared-provenance-dto`. Empty set is UNKNOWN; never borrow the Site's source badge.
+
+`CREATED` occurs once at create and cannot be posted later. `COMMENT` is allowed from OPEN/IN_PROGRESS/CLOSED for Incidents and OPEN/IN_PROGRESS/COMPLETED/VERIFICATION_WINDOW for requests, with no state change; `ASSIGN` on an already active case records a new assignee but remains IN_PROGRESS. `CLOSE`, `REOPEN`, `CANCEL`, `COMPLETE` and `OPEN_VERIFICATION` outside the table's named source state refuse 409. A terminal CANCELLED request accepts a correction to its text but no event. The `WorkEvent` row keeps the exact transition command; the reducer is pure over `(recorded_at,id)` and never reads the mutable plan/status column of another object.
+
+## Literal migration `0027_w4_work_cases`
+
+The following is the complete migration body. SQL identifiers and constraints are binding. `op.execute(SCHEMA)` is one Alembic transaction; `down_revision` must match the installed W2-07 revision exactly. Tables are append-only; the identity table is immutable too. Writers use `INSERT` only. `work_case_revision` and `work_event` are serialized on `work_case` row lock so number and state are unique at command time.
+
+```python
+"""W4-01: immutable authored work identities and history."""
+from alembic import op
+from sqlalchemy import text
+
+revision = "0027_w4_work_cases"
+down_revision = "0026_w2_ev_money"
+branch_labels = None
+depends_on = None
+
+SCHEMA = r"""
+CREATE SEQUENCE work_public_no_seq AS bigint START 1 NO CYCLE;
+CREATE TABLE work_case (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL,
+ kind text NOT NULL CHECK (kind IN ('INCIDENT','MAINTENANCE_REQUEST')),
+ public_no bigint NOT NULL UNIQUE CHECK (public_no>0),
+ public_code text NOT NULL CHECK ((kind='INCIDENT' AND public_code ~ '^INC-[0-9]{6,}$') OR
+                                  (kind='MAINTENANCE_REQUEST' AND public_code ~ '^WR-[0-9]{6,}$')),
+ asset_id uuid NULL,
+ occurred_at timestamptz NOT NULL, created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ actor_kind text NOT NULL CHECK (actor_kind IN ('USER','SERVICE')),
+ actor_id text NOT NULL CHECK (length(btrim(actor_id)) BETWEEN 1 AND 128),
+ authorization_basis text NOT NULL CHECK (length(btrim(authorization_basis)) BETWEEN 1 AND 500),
+ attestation text NOT NULL CHECK (length(btrim(attestation)) BETWEEN 1 AND 1000),
+ create_key text NOT NULL CHECK (length(create_key) BETWEEN 8 AND 128),
+ create_payload_sha256 text NOT NULL CHECK(create_payload_sha256 ~ '^[0-9a-f]{64}$'),
+ CONSTRAINT work_case_site_fk FOREIGN KEY(tenant_id,site_id) REFERENCES site(tenant_id,id),
+ CONSTRAINT work_case_asset_fk FOREIGN KEY(tenant_id,site_id,asset_id) REFERENCES asset(tenant_id,site_id,id),
+ CONSTRAINT work_case_scope UNIQUE(tenant_id,site_id,id),
+ CONSTRAINT work_case_kind_scope UNIQUE(tenant_id,site_id,id,kind),
+ CONSTRAINT work_case_code UNIQUE(tenant_id,public_code),
+ CONSTRAINT work_case_create_once UNIQUE(tenant_id,site_id,create_key)
+);
+CREATE INDEX work_case_site_window ON work_case(tenant_id,site_id,occurred_at DESC,id);
+CREATE INDEX work_case_site_kind ON work_case(tenant_id,site_id,kind,created_at DESC,id);
+CREATE TABLE incident (
+ tenant_id uuid NOT NULL, site_id uuid NOT NULL, id uuid NOT NULL,
+ kind text NOT NULL DEFAULT 'INCIDENT' CHECK(kind='INCIDENT'),
+ incident_key text NOT NULL CHECK(length(btrim(incident_key)) BETWEEN 8 AND 128),
+ PRIMARY KEY(tenant_id,site_id,id),
+ CONSTRAINT incident_case_fk FOREIGN KEY(tenant_id,site_id,id,kind) REFERENCES work_case(tenant_id,site_id,id,kind),
+ CONSTRAINT incident_key_once UNIQUE(tenant_id,site_id,incident_key)
+);
+CREATE TABLE maintenance_work_request (
+ tenant_id uuid NOT NULL, site_id uuid NOT NULL, id uuid NOT NULL,
+ kind text NOT NULL DEFAULT 'MAINTENANCE_REQUEST' CHECK(kind='MAINTENANCE_REQUEST'),
+ request_key text NOT NULL CHECK(length(btrim(request_key)) BETWEEN 8 AND 128),
+ incident_id uuid NULL,
+ PRIMARY KEY(tenant_id,site_id,id),
+ CONSTRAINT maintenance_request_case_fk FOREIGN KEY(tenant_id,site_id,id,kind) REFERENCES work_case(tenant_id,site_id,id,kind),
+ CONSTRAINT maintenance_request_incident_fk FOREIGN KEY(tenant_id,site_id,incident_id) REFERENCES incident(tenant_id,site_id,id),
+ CONSTRAINT maintenance_request_key_once UNIQUE(tenant_id,site_id,request_key)
+);
+CREATE TABLE work_case_revision (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL, case_id uuid NOT NULL,
+ revision_no integer NOT NULL CHECK(revision_no>0), supersedes_revision_id uuid NULL,
+ title text NOT NULL CHECK(length(btrim(title)) BETWEEN 1 AND 200),
+ narrative text NOT NULL CHECK(length(btrim(narrative)) BETWEEN 1 AND 4000),
+ actor_kind text NOT NULL CHECK(actor_kind IN ('USER','SERVICE')),
+ actor_id text NOT NULL CHECK(length(btrim(actor_id)) BETWEEN 1 AND 128),
+ attestation text NOT NULL CHECK(length(btrim(attestation)) BETWEEN 1 AND 1000),
+ idempotency_key text NOT NULL CHECK(length(idempotency_key) BETWEEN 8 AND 128),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ reason text NULL CHECK(reason IS NULL OR length(btrim(reason)) BETWEEN 1 AND 500),
+ recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ CONSTRAINT work_revision_case_fk FOREIGN KEY(tenant_id,site_id,case_id) REFERENCES work_case(tenant_id,site_id,id),
+ CONSTRAINT work_revision_prev_fk FOREIGN KEY(case_id,supersedes_revision_id) REFERENCES work_case_revision(case_id,id),
+ CONSTRAINT work_revision_number UNIQUE(case_id,revision_no),
+ CONSTRAINT work_revision_once UNIQUE(case_id,idempotency_key),
+ CONSTRAINT work_revision_one_successor UNIQUE(supersedes_revision_id),
+ CONSTRAINT work_revision_case_id UNIQUE(case_id,id),
+ CONSTRAINT work_revision_scope UNIQUE(tenant_id,site_id,id)
+);
+CREATE INDEX work_revision_head ON work_case_revision(case_id,revision_no DESC);
+CREATE TABLE work_case_finding_link (
+ tenant_id uuid NOT NULL, site_id uuid NOT NULL, case_revision_id uuid NOT NULL,
+ finding_id uuid NOT NULL, finding_revision_id uuid NOT NULL,
+ PRIMARY KEY(case_revision_id,finding_id,finding_revision_id),
+ CONSTRAINT work_finding_case_fk FOREIGN KEY(tenant_id,site_id,case_revision_id) REFERENCES work_case_revision(tenant_id,site_id,id),
+ CONSTRAINT work_finding_revision_fk FOREIGN KEY(tenant_id,site_id,finding_id,finding_revision_id) REFERENCES finding_revision(tenant_id,site_id,finding_id,id)
+);
+CREATE TABLE work_case_action_link (
+ tenant_id uuid NOT NULL, site_id uuid NOT NULL, case_revision_id uuid NOT NULL,
+ action_id uuid NOT NULL, action_event_id uuid NOT NULL,
+ PRIMARY KEY(case_revision_id,action_id,action_event_id),
+ CONSTRAINT work_action_case_fk FOREIGN KEY(tenant_id,site_id,case_revision_id) REFERENCES work_case_revision(tenant_id,site_id,id),
+ CONSTRAINT work_action_fk FOREIGN KEY(tenant_id,site_id,action_id) REFERENCES action(tenant_id,site_id,id),
+ CONSTRAINT work_action_event_fk FOREIGN KEY(tenant_id,site_id,action_event_id) REFERENCES action_event(tenant_id,site_id,id)
+);
+CREATE TABLE work_case_evidence (
+ tenant_id uuid NOT NULL, site_id uuid NOT NULL, case_revision_id uuid NOT NULL,
+ evidence_id uuid NOT NULL,
+ PRIMARY KEY(case_revision_id,evidence_id),
+ CONSTRAINT work_case_evidence_revision_fk FOREIGN KEY(tenant_id,site_id,case_revision_id)
+   REFERENCES work_case_revision(tenant_id,site_id,id),
+ CONSTRAINT work_case_evidence_accepted_fk FOREIGN KEY(tenant_id,site_id,evidence_id)
+   REFERENCES accepted_evidence(tenant_id,site_id,id)
+);
+CREATE TABLE work_event (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL, case_id uuid NOT NULL,
+ kind text NOT NULL CHECK(kind IN ('CREATED','ASSIGN','CLOSE','REOPEN','CANCEL','COMPLETE','OPEN_VERIFICATION','COMMENT')),
+ payload jsonb NOT NULL DEFAULT '{}'::jsonb,
+ occurred_at timestamptz NOT NULL, recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ actor_kind text NOT NULL CHECK(actor_kind IN ('USER','SERVICE')),
+ actor_id text NOT NULL CHECK(length(btrim(actor_id)) BETWEEN 1 AND 128),
+ authorization_basis text NOT NULL CHECK(length(btrim(authorization_basis)) BETWEEN 1 AND 500),
+ attestation text NOT NULL CHECK(length(btrim(attestation)) BETWEEN 1 AND 1000),
+ idempotency_key text NOT NULL CHECK(length(idempotency_key) BETWEEN 8 AND 128),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ CONSTRAINT work_event_case_fk FOREIGN KEY(tenant_id,site_id,case_id) REFERENCES work_case(tenant_id,site_id,id),
+ CONSTRAINT work_event_once UNIQUE(case_id,idempotency_key),
+ CONSTRAINT work_event_scope UNIQUE(tenant_id,site_id,id)
+);
+CREATE INDEX work_event_order ON work_event(case_id,recorded_at,id);
+CREATE TABLE maintenance_plan (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL, asset_id uuid NULL,
+ public_no bigint NOT NULL UNIQUE CHECK(public_no>0),
+ public_code text NOT NULL CHECK(public_code ~ '^PM-[0-9]{6,}$'),
+ canonical_plan_id uuid NOT NULL,
+ title text NOT NULL CHECK(length(btrim(title)) BETWEEN 1 AND 200),
+ trigger_kind text NOT NULL CHECK(trigger_kind IN ('CALENDAR','RUN_HOURS')),
+ next_due_at timestamptz NULL, next_due_hours numeric NULL,
+ state text NOT NULL CHECK(state IN ('DRAFT','ACTIVE','PAUSED','CANCELLED')),
+ supersedes_plan_id uuid NULL, actor_id text NOT NULL CHECK(length(btrim(actor_id)) BETWEEN 1 AND 128),
+ attestation text NOT NULL CHECK(length(btrim(attestation)) BETWEEN 1 AND 1000),
+ idempotency_key text NOT NULL CHECK(length(idempotency_key) BETWEEN 8 AND 128),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ CONSTRAINT maintenance_plan_site_fk FOREIGN KEY(tenant_id,site_id) REFERENCES site(tenant_id,id),
+ CONSTRAINT maintenance_plan_asset_fk FOREIGN KEY(tenant_id,site_id,asset_id) REFERENCES asset(tenant_id,site_id,id),
+ CONSTRAINT maintenance_plan_prev_fk FOREIGN KEY(tenant_id,site_id,supersedes_plan_id) REFERENCES maintenance_plan(tenant_id,site_id,id),
+ CONSTRAINT maintenance_plan_canonical_fk FOREIGN KEY(tenant_id,site_id,canonical_plan_id) REFERENCES maintenance_plan(tenant_id,site_id,id),
+ CONSTRAINT maintenance_plan_root CHECK((supersedes_plan_id IS NULL AND canonical_plan_id=id) OR supersedes_plan_id IS NOT NULL),
+ CONSTRAINT maintenance_plan_due CHECK ((trigger_kind='CALENDAR' AND next_due_hours IS NULL) OR (trigger_kind='RUN_HOURS' AND next_due_at IS NULL AND (next_due_hours IS NULL OR next_due_hours>=0))),
+ CONSTRAINT maintenance_plan_scope UNIQUE(tenant_id,site_id,id),
+ CONSTRAINT maintenance_plan_code UNIQUE(tenant_id,public_code),
+ CONSTRAINT maintenance_plan_once UNIQUE(tenant_id,site_id,idempotency_key),
+ CONSTRAINT maintenance_plan_one_successor UNIQUE(supersedes_plan_id)
+);
+CREATE INDEX maintenance_plan_site ON maintenance_plan(tenant_id,site_id,recorded_at DESC,id);
+CREATE TABLE maintenance_record (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL, case_id uuid NOT NULL,
+ supersedes_record_id uuid NULL, activity text NOT NULL CHECK(length(btrim(activity)) BETWEEN 1 AND 4000),
+ outcome_note text NULL CHECK(outcome_note IS NULL OR length(btrim(outcome_note)) BETWEEN 1 AND 2000),
+ occurred_at timestamptz NOT NULL, recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ actor_id text NOT NULL CHECK(length(btrim(actor_id)) BETWEEN 1 AND 128),
+ attestation text NOT NULL CHECK(length(btrim(attestation)) BETWEEN 1 AND 1000),
+ idempotency_key text NOT NULL CHECK(length(idempotency_key) BETWEEN 8 AND 128),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ CONSTRAINT maintenance_record_case_fk FOREIGN KEY(tenant_id,site_id,case_id) REFERENCES work_case(tenant_id,site_id,id),
+ CONSTRAINT maintenance_record_prev_fk FOREIGN KEY(tenant_id,site_id,supersedes_record_id) REFERENCES maintenance_record(tenant_id,site_id,id),
+ CONSTRAINT maintenance_record_scope UNIQUE(tenant_id,site_id,id),
+ CONSTRAINT maintenance_record_once UNIQUE(case_id,idempotency_key),
+ CONSTRAINT maintenance_record_one_successor UNIQUE(supersedes_record_id)
+);
+CREATE INDEX maintenance_record_case ON maintenance_record(case_id,recorded_at DESC,id);
+CREATE TABLE operational_record (
+ id uuid PRIMARY KEY, tenant_id uuid NOT NULL, site_id uuid NOT NULL,
+ public_no bigint NOT NULL UNIQUE CHECK(public_no>0),
+ public_code text NOT NULL CHECK(public_code ~ '^REC-[0-9]{6,}$'),
+ canonical_record_id uuid NOT NULL,
+ kind text NOT NULL CHECK(kind IN ('OPERATOR_LOG','MANUAL_READING','SHIFT_NOTE','SITE_VISIT')),
+ body text NOT NULL CHECK(length(btrim(body)) BETWEEN 1 AND 4000),
+ period_end timestamptz NULL, unit text NULL CHECK(unit IS NULL OR length(btrim(unit)) BETWEEN 1 AND 32),
+ quantity numeric NULL CHECK(quantity IS NULL OR (quantity >= 0 AND quantity < 'Infinity'::numeric)),
+ source_document_sha256 text NULL CHECK(source_document_sha256 IS NULL OR source_document_sha256 ~ '^[0-9a-f]{64}$'),
+ correction_reason text NULL CHECK(correction_reason IS NULL OR length(btrim(correction_reason)) BETWEEN 1 AND 500),
+ state text NOT NULL CHECK(state IN ('SUBMITTED','ACCEPTED','REJECTED')),
+ supersedes_record_id uuid NULL, case_id uuid NULL,
+ occurred_at timestamptz NOT NULL, recorded_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+ actor_id text NOT NULL CHECK(length(btrim(actor_id)) BETWEEN 1 AND 128),
+ attestation text NOT NULL CHECK(length(btrim(attestation)) BETWEEN 1 AND 1000),
+ idempotency_key text NOT NULL CHECK(length(idempotency_key) BETWEEN 8 AND 128),
+ payload_sha256 text NOT NULL CHECK(payload_sha256 ~ '^[0-9a-f]{64}$'),
+ CONSTRAINT operational_record_site_fk FOREIGN KEY(tenant_id,site_id) REFERENCES site(tenant_id,id),
+ CONSTRAINT operational_record_case_fk FOREIGN KEY(tenant_id,site_id,case_id) REFERENCES work_case(tenant_id,site_id,id),
+ CONSTRAINT operational_record_prev_fk FOREIGN KEY(tenant_id,site_id,supersedes_record_id) REFERENCES operational_record(tenant_id,site_id,id),
+ CONSTRAINT operational_record_canonical_fk FOREIGN KEY(tenant_id,site_id,canonical_record_id) REFERENCES operational_record(tenant_id,site_id,id),
+ CONSTRAINT operational_record_root CHECK((supersedes_record_id IS NULL AND canonical_record_id=id) OR supersedes_record_id IS NOT NULL),
+ CONSTRAINT operational_record_period CHECK(period_end IS NULL OR period_end >= occurred_at),
+ CONSTRAINT operational_record_quantity CHECK((quantity IS NULL)=(unit IS NULL)),
+ CONSTRAINT operational_record_scope UNIQUE(tenant_id,site_id,id),
+ CONSTRAINT operational_record_code UNIQUE(tenant_id,public_code),
+ CONSTRAINT operational_record_once UNIQUE(tenant_id,site_id,idempotency_key),
+ CONSTRAINT operational_record_one_successor UNIQUE(supersedes_record_id)
+);
+CREATE INDEX operational_record_site ON operational_record(tenant_id,site_id,occurred_at DESC,id);
+CREATE FUNCTION w4_append_only() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'W4 work history is append only' USING ERRCODE='23514'; END $$;
+CREATE TRIGGER work_case_immutable BEFORE UPDATE OR DELETE ON work_case FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER incident_immutable BEFORE UPDATE OR DELETE ON incident FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER maintenance_work_request_immutable BEFORE UPDATE OR DELETE ON maintenance_work_request FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER work_case_finding_link_immutable BEFORE UPDATE OR DELETE ON work_case_finding_link FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER work_case_action_link_immutable BEFORE UPDATE OR DELETE ON work_case_action_link FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER work_revision_immutable BEFORE UPDATE OR DELETE ON work_case_revision FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER work_case_evidence_immutable BEFORE UPDATE OR DELETE ON work_case_evidence FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER work_event_immutable BEFORE UPDATE OR DELETE ON work_event FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER maintenance_plan_immutable BEFORE UPDATE OR DELETE ON maintenance_plan FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER maintenance_record_immutable BEFORE UPDATE OR DELETE ON maintenance_record FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+CREATE TRIGGER operational_record_immutable BEFORE UPDATE OR DELETE ON operational_record FOR EACH ROW EXECUTE FUNCTION w4_append_only();
+"""
+
+def upgrade():
+    op.execute(SCHEMA)
+
+def downgrade():
+    bind = op.get_bind()
+    for table in ("operational_record", "maintenance_record", "maintenance_plan", "work_event", "work_case_evidence", "work_case_action_link", "work_case_finding_link", "work_case_revision", "maintenance_work_request", "incident", "work_case"):
+        if bind.execute(text(f"SELECT 1 FROM {table} LIMIT 1")).first():
+            raise RuntimeError("0027 downgrade requires empty W4 work tables")
+    for table in ("operational_record", "maintenance_record", "maintenance_plan", "work_event", "work_case_evidence", "work_case_action_link", "work_case_finding_link", "work_case_revision", "maintenance_work_request", "incident", "work_case"):
+        op.execute(f"DROP TABLE {table}")
+    op.execute("DROP FUNCTION w4_append_only()")
+    op.execute("DROP SEQUENCE work_public_no_seq")
+```
+
+The service additionally checks mandatory child identity, same-case `COMPLETE` record, exact ActionEvent ownership, case kind and transitions; SQL scoped FKs are a second boundary. A sequence gap on rollback is allowed. `work_case_evidence` stores the complete exact cited set for each case revision, including the initial revision; correction replaces the set rather than applying a delta. Link arrays contain `{"id":"<finding UUID>","revision_id":"<exact revision UUID>"}` and `{"id":"<action UUID>","event_id":"<exact event UUID>"}`, sorted by ID with no duplicate pair; service verifies each event belongs to the named Action. The migration test proves downgrade refuses nonempty data and a clean downgrade leaves 0026 intact; no CASCADE. At installation, check actual 0026 revision spelling. If it differs, amend this spec before building; do not invent a second head.
+
+## API wire and refusals
+
+Routes use bearer principal and existing tenant Site scope; unknown/foreign IDs are 404 without disclosing existence. Body IDs below are test constants, not product seed. `GET /api/sites/{site_code}/work/{kind}?from=...&to=...&known_at=...&limit=50&cursor=...` accepts `kind=incidents|maintenance`; `POST /api/sites/{site_code}/work/cases`; `POST /api/sites/{site_code}/work/cases/{id}/events`; `POST /api/sites/{site_code}/work/cases/{id}/revisions`; `POST /api/sites/{site_code}/work/cases/{id}/records`; `POST /api/sites/{site_code}/work/plans`; `POST /api/sites/{site_code}/work/operational-records`; `GET /api/sites/{site_code}/work/cases/{id}?known_at=...`. `POST` returns 201 with exact object ID, code and revision/event ID; exact idempotent retry returns 200 with the same IDs. A reused key with different canonical JSON SHA-256 is 409.
+
+```json
+{"kind":"INCIDENT","occurred_at":"2026-10-06T16:11:00Z","asset_id":null,"finding_links":[],"action_links":[],"title":"Witnessed start request failed","narrative":"Operator observed a failed start request; cause not established.","cited_accepted_evidence_ids":[],"actor":{"kind":"USER","id":"operator-1","authorization_basis":"SITE_WORK_WRITE","attestation":"I witnessed this event."},"idempotency_key":"w401-incident-001"}
+```
+
+```json
+{"schema_version":"work-case-1","id":"10000000-0000-4000-8000-000000000101","code":"INC-000001","kind":"INCIDENT","site_id":"10000000-0000-4000-8000-000000000001","revision":{"id":"10000000-0000-4000-8000-000000000102","number":1},"event":{"id":"10000000-0000-4000-8000-000000000103","kind":"CREATED","recorded_at":"2026-10-06T16:12:00Z"},"state":"OPEN","source_provenance":{"classification":"UNKNOWN","source_ids":[],"evidence_ids":[],"basis_sha256":null,"reasons":[{"code":"EMPTY_CITATION_SET","accepted_evidence_ids":[]}]}}
+```
+
+```json
+{"kind":"ASSIGN","occurred_at":"2026-10-06T16:20:00Z","payload":{"assignee":"maintenance-lead"},"actor":{"kind":"USER","id":"manager-1","authorization_basis":"SITE_WORK_WRITE","attestation":"Assigned after review."},"idempotency_key":"w401-assign-001"}
+```
+
+The same create route accepts a maintenance request with `{"kind":"MAINTENANCE_REQUEST","occurred_at":"2026-10-06T18:40:00Z","asset_id":"10000000-0000-4000-8000-000000000401","incident_id":"10000000-0000-4000-8000-000000000101","finding_links":[],"action_links":[],"title":"Inspect starter circuit","narrative":"Witnessed failure requires inspection.","cited_accepted_evidence_ids":[],"actor":{"kind":"USER","id":"operator-1","authorization_basis":"SITE_WORK_WRITE","attestation":"I requested inspection."},"idempotency_key":"w401-request-001"}`. It returns `{"schema_version":"work-case-1","id":"10000000-0000-4000-8000-000000000501","code":"WR-000002","kind":"MAINTENANCE_REQUEST","revision":{"id":"10000000-0000-4000-8000-000000000502","number":1},"event":{"id":"10000000-0000-4000-8000-000000000503","kind":"CREATED","recorded_at":"2026-10-06T18:41:00Z"},"state":"OPEN"}` plus the same site/source fields as the Incident response. `incident_id` is legal only for a request and must be same Site. `POST .../records` takes `{"activity":"Starter connection inspected","outcome_note":null,"occurred_at":"2026-10-06T19:00:00Z","actor":{"kind":"USER","id":"tech-1","authorization_basis":"SITE_WORK_WRITE","attestation":"I performed this inspection."},"idempotency_key":"w401-record-001"}` and returns `{"id":"10000000-0000-4000-8000-000000000504","case_id":"10000000-0000-4000-8000-000000000501","recorded_at":"2026-10-06T19:30:00Z","outcome":"UNVERIFIED"}`. `COMPLETE` then names that record ID in event payload; an absent/foreign ID is 422 `WORK_LINK_SCOPE_INVALID`.
+
+`POST .../revisions` takes `{"supersedes_revision_id":"10000000-0000-4000-8000-000000000102","title":"Witnessed start request failed","narrative":"Corrected occurrence note; cause remains unknown.","cited_accepted_evidence_ids":[],"reason":"Corrected operator time note","actor":{"kind":"USER","id":"operator-1","authorization_basis":"SITE_WORK_WRITE","attestation":"I corrected my account."},"idempotency_key":"w401-correct-001"}` and returns `{"case_id":"10000000-0000-4000-8000-000000000101","revision_id":"10000000-0000-4000-8000-000000000104","revision_no":2,"supersedes_revision_id":"10000000-0000-4000-8000-000000000102"}`. The link arrays are copied from the predecessor unless explicitly supplied; an explicit empty array removes current links in the new revision only, never history. `POST .../plans` takes `{"asset_id":null,"title":"Witnessed start test","trigger_kind":"CALENDAR","next_due_at":null,"next_due_hours":null,"actor":{"kind":"USER","id":"manager-1","authorization_basis":"SITE_WORK_WRITE","attestation":"Draft plan for review."},"idempotency_key":"w401-plan-001"}` and returns `{"canonical_plan_id":"10000000-0000-4000-8000-000000000601","public_code":"PM-000003","state":"DRAFT"}`. `POST .../operational-records` takes `{"kind":"OPERATOR_LOG","body":"Generator started by hand","occurred_at":"2026-10-06T16:14:00Z","period_end":null,"unit":null,"quantity":null,"source_document_sha256":null,"case_id":"10000000-0000-4000-8000-000000000101","actor":{"kind":"USER","id":"operator-1","authorization_basis":"SITE_WORK_WRITE","attestation":"I made this log entry."},"idempotency_key":"w401-oprec-001"}` and returns `{"canonical_record_id":"10000000-0000-4000-8000-000000000701","public_code":"REC-000004","state":"SUBMITTED"}`. Values and IDs in this paragraph are test-wire examples only.
+
+For a plan correction, the same `POST .../plans` includes `supersedes_plan_id`, `canonical_plan_id` and `correction_reason`; for an OperationalRecord correction the same `POST .../operational-records` includes `supersedes_record_id`, `canonical_record_id` and `correction_reason`. Omission of those three fields means create. A correction repeats the exact root code in the response while returning its new version UUID. Both routes refuse a non-head predecessor and a mismatched canonical root with 409 `WORK_BASIS_CHANGED`. Store the canonical JSON SHA-256 beside each idempotency key in service transaction logic; the SQL uniques prevent double submission and the service compares payload before returning the prior result. These are the only plan/OperationalRecord mutation shapes in W4; ACTIVATE/ACCEPT are reserved.
+
+```json
+{"schema_version":"site-work-index-1","site_code":"CR-LAB-001","window":{"from":"2026-10-06T16:00:00Z","to":"2026-10-06T17:00:00Z","bounds":"[from, to)"},"known_at":"2026-10-06T17:00:00Z","status":"CURRENT","coverage":{"state":"COMPLETE","reason":null},"source_provenance":{"classification":"UNKNOWN","source_ids":[],"evidence_ids":[],"basis_sha256":null,"reasons":[{"code":"EMPTY_CITATION_SET","accepted_evidence_ids":[]}]},"total_count":1,"rows":[{"case_id":"10000000-0000-4000-8000-000000000101","revision_id":"10000000-0000-4000-8000-000000000102","code":"INC-000001","title":"Witnessed start request failed","occurred_at":"2026-10-06T16:11:00Z","state":"OPEN","asset_id":null,"finding_ids":[],"url":null}],"next_cursor":null,"selection_token":"sha256:example-replace-with-snapshot-token"}
+```
+
+`url:null` is deliberate until W6-01 detail route review; the API detail above is an exact scoped API route, not a product page. A nonempty row does not create a clickable dead end. The read's `status` is `CURRENT` for a consistent authored store snapshot, `HISTORICAL` for a prior explicit cutoff, `PENDING_RECOMPUTE` if a pinned analytic link has overlapping PENDING/LEASED/FAILED work, `STALE_SOURCE` for a cited selected source reported stale, `UNKNOWN` if a linked selection is absent. Authored case count remains a count of persisted cases even when linked analytic status is unknown; do not call the case itself current evidence. `coverage` is COMPLETE/PARTIAL/UNKNOWN per linked selected reads, separate from case-store availability.
+
+| HTTP | Code | Exact response message / UI copy |
+| --- | --- | --- |
+| 401 | `UNAUTHENTICATED` | `Sign in to read work.` / `Sign in to see work at this site.` |
+| 403 | `SITE_SCOPE_FORBIDDEN` | `No access to Site '{code}'.` / `You do not have access to this site's work.` |
+| 403 | `WORK_WRITE_FORBIDDEN` | `This actor cannot change work at this site.` / `You cannot change this work record.` |
+| 404 | `SITE_NOT_FOUND` | `No imported Site '{code}' in this tenant.` / `This site was not found.` |
+| 404 | `WORK_CASE_NOT_FOUND` | `No work case with this ID at this site.` / `This work case was not found at this site.` |
+| 409 | `WORK_EVENT_DUPLICATE_KEY` | `This key was used for different work content.` / `This work change conflicts with an earlier submission.` |
+| 409 | `WORK_TRANSITION_INVALID` | `This transition is not allowed from the selected state.` / `This change is not available from the current state.` |
+| 409 | `WORK_BASIS_CHANGED` | `The work list changed; request page one without a cursor.` / `The list changed. Reload the first page.` |
+| 409 | `WORK_OUTCOME_NOT_SUPPORTED` | `No frozen outcome plan and accepted later evidence support this outcome.` / `Outcome unverified; a witnessed result is still needed.` |
+| 422 | `WORK_INPUT_INVALID` | `A required work field or UTC time is invalid.` / `Check the work details and try again.` |
+| 422 | `WORK_LINK_SCOPE_INVALID` | `A linked record is not in this Site and tenant.` / `One linked record does not belong to this site.` |
+| 422 | `INVALID_CURSOR` | `The cursor is not a work-list cursor.` / `Reload the work list.` |
+| 503 | `WORK_STORE_UNAVAILABLE` | `Work records could not be read or saved.` / `Work records are unavailable right now. Try again.` |
+
+JSON refusals are `{"detail":{"code":"...","message":"...","rows":null,"total_count":null}}` for list requests; mutations omit `rows/total_count`. Do not return 200 empty on 503/403. Validate scope before query shape; then UTC/window/limit/cursor; then snapshot. Limit default 50, max 100. Cursor is URL-safe base64 canonical sorted-key JSON `{v:1,tenant_id,site_id,kind,from,to,known_at,selection_token,after:[occurred_at,id]}`; for maintenance use `created_at` as after time. Bind to full snapshot fence and auth Site set. Malformed is 422, changed basis/scope 409. Sort time descending, UUID ascending. No offset pagination; total and source classification use the **full** selected set.
+
+## Fixture and exact test contract
+
+Create `backend/tests/fixtures/w4/w401-work.json` with sorted keys, UTF-8 final LF, schema `w401-work/1`. Resolve actual `CR-LAB-001` and `MG-DEMO-01` Site/Foundation IDs by public Site reads after W2 merge; fixture stores the resolved IDs and revision IDs at creation. Positive branch: ordinary accepted cold start/request/result IDs from the W2-03 replay, then a human-attested Incident, a request, an activity record and a plan through API; write the exact accepted IDs and pinned Finding revision IDs into the fixture. `outcome` remains `UNVERIFIED`. Negative branches: same-site empty mini-grid, foreign Asset/Finding/Action/event, absent accepted ID, duplicate key with different body, backdated correction, stale linked selection, and unavailable store. Do not seed INC-203/WR-019 or INSERT private Lab state.
+
+Named proof: `backend/tests/test_w401_migration_postgres.py::{test_0027_parent_scoped_fks_append_only_and_clean_downgrade,test_0027_nonempty_downgrade_refuses}`; `backend/tests/test_w401_work_service_postgres.py::{test_incident_attestation_reload_and_exact_links,test_request_complete_stays_unverified,test_transitions_and_correction_total_order,test_foreign_asset_and_evidence_refuse,test_idempotency_payload_conflict,test_plan_draft_version_and_due,test_operational_record_attested_correction}`; `backend/tests/test_w401_site_indexes_postgres.py::{test_site_window_cutoff_and_empty_count,test_pending_link_and_missing_source_keep_gap,test_cursor_fence_and_full_count}`; `frontend/src/sites/__tests__/siteWorkCases.test.tsx::{incident_stocked_empty_and_refused,maintenance_activity_without_outcome,narrow_mock_panels_and_unavailable_links}`. Preserve W1 Action lifecycle tests and W2 cold/EV exact-ID tests. Update any literal Alembic HEAD in `backend/tests/test_w205a_ev_migration.py`, `test_w204_cold_migration.py`, `test_w203_cold_migration_postgres.py`, and W2-07 migration test from `0026` to `0027` **only where asserting upgraded head**; direct-target 0024/0025/0026 assertions stay exact. Count expectation: +11 tables, +11 append-only triggers, +7 explicit indexes, +1 sequence, +1 function; re-count catalog index totals with implicit PK/UNIQUE indexes instead of weakening to `>=`. Focused test count adds exactly 2+7+3 backend nodes and 3 frontend nodes; collection/JUnit must confirm, not guess suite total.
+
+## Per-panel copy and layout dry-read
+
+`frontend/mockups/v69/browser-review.json` measures both target pages at 1440 width and **1101 px page height** (the 1100 viewport floor). A direct Chrome DOM-rectangle measurement of the named screens at 1440/390 gives the table below; heights are pixels, cap is `floor(1.30 × mock)`. These are the panel budgets, and the 1440 whole-page cap is **1431 px**. Re-measure mock and app in the commit-5 capture; a viewport-floor page height is not a panel height. At 390 no page-level horizontal scroll; table alone may scroll with a visible affordance and retained first column. Status and notice wrap to at most two lines each at 1440; no clipped chip.
+
+| Route / piece | 1440 mock → cap | 390 mock → cap |
+| --- | ---: | ---: |
+| Incidents status | 37 → 48 | 91 → 118 |
+| Incidents panel | 316 → 410 | 354 → 460 |
+| Incidents notice | 42 → 54 | 78 → 101 |
+| Maintenance status | 37 → 48 | 91 → 118 |
+| Maintenance panel | 296 → 384 | 316 → 410 |
+| Maintenance notice | 42 → 54 | 78 → 101 |
+
+The mock's 390 whole page is 1215 px for each route (cap 1579 px). App content may be taller only inside these piece caps; the initial state must keep every slot. The stocked replay has more than the mock's zero rows, so show at most the first 5 in the panel with in-panel paging and keep count from the full query.
+
+| Slot | Source field / exact visible copy | Width and behavior |
+| --- | --- | --- |
+| Shared Work subrow | `Actions` (existing route), `Incidents`, `Maintenance`; active route | One row at 1440; 390 horizontally scrollable subrow, no text clipping. Only these two occurrences become interactive. |
+| Status strip | `site.name`, `total_count`, `status`, `coverage`: `Scoped to {site short name} · {n} incidents/maintenance` only when count known; else `Count unknown · work source unavailable`. Detail `Same records and states as the global ... list` becomes `These are work records at this site`; global Manage link is static `Manage in Incidents/Maintenance · Not available yet`. | 100% panel width; status 60%, explanatory 40%; at 390 stack. |
+| Incident panel heading/header | `Incidents at this site`; `Case`=`code · title`, `Window`=`occurred_at` in EAT with UTC in disclosure, `What happened`=`narrative`, `Linked findings`=pinned exact Finding links or `No linked finding`, `State`=reduced event state. | Columns 22/16/29/19/14%; 2-line title/narrative clamp then disclosure, IDs never truncated in disclosure; 390 table min-width 720 px. |
+| Incident empty | `No incidents at this site`; `No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.` from `total_count=0` and COMPLETE store read. | Keep mock empty block, no fake row. |
+| Maintenance panel heading/header | `Maintenance at this site`; `Work request`=`code · title`; `Asset`=same-site asset code/name or `No asset linked`; `Activity`=latest `maintenance_record.activity` or `No activity recorded`; `Outcome`=`Unverified` unless later outcome evaluator exists; `Next evidence`=authored plan criterion or `No next evidence recorded`. | Columns 22/18/23/15/22%; 2-line cells with detail disclosure; 390 min-width 760 px. |
+| Maintenance empty | `No maintenance work at this site`; `No inspection or repair has been raised here in the selected period.` from full count zero. | Keep mock empty block. |
+| Panel subcopy | Incident: `A case links chronology, findings and work without copying them`; maintenance: `Completed work is activity; the outcome is verified separately`. These describe model, no source field. | Under heading, one/two wrapped lines. |
+| Context notice | `Opening a record moves you to its own area; the breadcrumb keeps this site. New work starts from the global create flow with this site filled in.` becomes `Case history is stored with this site. A global work page and create flow are not available yet.` until W6. | Blue/neutral information, no link. |
+| Missing/pending/refused | `No selected source for linked evidence`; `Linked evidence is being reassessed`; 403/404/503 copy from refusal table. Distinguish count zero from unavailable; use source notice from shared DTO. | Amber for pending, red for refusal, neutral for unknown; source class is never an equipment-health chip. |
+
+Chip tones: OPEN/IN_PROGRESS amber, CLOSED/COMPLETED blue, CANCELLED neutral, VERIFICATION_WINDOW blue, UNVERIFIED amber, missing/UNKNOWN neutral, genuine refused red. `Prepared example data` and `Generated test data` use `sourceProvenance.tsx:SOURCE_WORDS` and neutral disclosure, never a green equipment condition. `url:null` and absent Asset/Finding links render text, no href/handler/tab stop. `Work` Site tab remains existing; no new root item.
+
+The closed unavailable multiset before W4 is `Recommendation×2, Alternatives×1, Scenarios×1, Incidents×1, Maintenance×1, Cooling×1, Availability×1, Energy / site power×1`; chips `Cost×1, Risks×1, Opportunities×1`. **After W4 only** remove `Incidents×1` and `Maintenance×1`: tabs are `Recommendation×2, Alternatives×1, Scenarios×1, Cooling×1, Availability×1, Energy / site power×1`; chips unchanged. Update `tools/checks/navigation-truthfulness.ps1` and positive/negative fixtures atomically; retain unavailable **rail** Incidents/Maintenance because W6 owns global routes. W3's later chip removal is independent and must be reconciled when main merges.
+
+## Frozen surface and closeout
+
+At independent ACCEPT and merge, freeze: the six identities and Action separation; states/transition table including unreached outcomes; actor/attestation and DB event order; append-only correction chains; tenant/Site/Asset/exact Finding/Action/evidence links; API paths, JSON keys, codes, cursor and cutoff behavior; provenance rule and selected Site read shapes. W3/W5/W6 consume this version. An amendment names the exact clause, migration/compatibility effect and all lane consumers, then receives an Architect decision and compatibility test before implementation.
+
+Run focused tests at each commit, architecture/workflow/rule-8/navigation/registry checks, frontend typecheck/build, and one same-revision real-Postgres full backend suite with JUnit zero failed/skipped. Private DB name ends `_test`; one full suite at a time. Review packet records revision, migration SHA, fixture exact IDs, both route captures at 1440/390, rectangle measurements, currentness/empty/refusal replay and test-count deltas. Owner W4 result review follows independent review.
