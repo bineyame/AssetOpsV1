@@ -1,6 +1,6 @@
 # W2-05a — EV Foundation, readiness and configured topology
 
-Status: active (activated 2026-10-18 from main `43d20676`, in parallel with W2-04); was implementation-ready (planning, 2026-10-18). Size S; two phases. Branch `task/W2-05a-ev-foundation` from current merged main. USER_REVIEW_REQUIRED: true, after independent slice review in the later owner W2 walkthrough.
+Status: done (merged to main 2026-10-19; review r1 CHANGES, Run 8 fixes, re-review ACCEPT, r2 confirmations; backend 2960 0 skipped, frontend 2269; guards 10/10; writer-guard probe run waived per Run 8); was active (activated 2026-10-18 from main `43d20676`, in parallel with W2-04); was implementation-ready (planning, 2026-10-18). Size S; two phases. Branch `task/W2-05a-ev-foundation` from current merged main. USER_REVIEW_REQUIRED: true, after independent slice review in the later owner W2 walkthrough.
 
 ## Binding design and dependencies
 
