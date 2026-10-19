@@ -334,6 +334,16 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
     ("ev ev_meter_interval upsert", ASSESS,
      '_OPS02 = (\n    "INSERT INTO ev_meter_interval (id, tenant_id) VALUES (:i, :t) "\n'
      '    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n', UPSERT),
+    # W2-06: another product writer inserting an EV session table is caught as a cross-writer write, which holds
+    # only because rule 8 lists the four tables in $assessTables.
+    ("ev ev_session reverse update", FOUNDATION, split("ev_session", "site_id = :s WHERE id = :i"),
+     "writes assessment table 'ev_session'"),
+    ("ev ev_session_revision reverse update", FOUNDATION, split("ev_session_revision", "site_id = :s WHERE id = :i"),
+     "writes assessment table 'ev_session_revision'"),
+    ("ev ev_session_evidence reverse update", FOUNDATION, split("ev_session_evidence", "site_id = :s WHERE id = :i"),
+     "writes assessment table 'ev_session_evidence'"),
+    ("ev ev_meter_interval reverse update", FOUNDATION, split("ev_meter_interval", "site_id = :s WHERE id = :i"),
+     "writes assessment table 'ev_meter_interval'"),
     ("cold finding foreign insert", WORKER,
      '_OPS02 = (\n    "INSERT INTO finding "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n',
      WORKER_WRITER),
