@@ -470,6 +470,27 @@ def test_finding_evidence_matches_selected_session_support(chain) -> None:  # no
     assert finding["claim"]["fault_evidence_id"] == by_kind["EV_CONNECTOR_FAULT"] == item["fault_evidence_id"]
     vector = _vectors()["interrupted"]["expected"]
     assert cited == sorted(vector["finding_support_evidence_ids"])
+    # r9 M3: the read-time START/ABORT IDs are that exact selected SUPPORT/citation join.
+    assert finding["claim"]["start_evidence_id"] == by_kind["EV_SESSION_START"]
+    assert finding["claim"]["abort_evidence_id"] == by_kind["EV_SESSION_ABORT"]
+    # Missing: a session revision outside the selected result (or another session) yields null, never a guess.
+    reads = build_ev_read_service(URL)
+    w = body["window"]
+
+    def missing(conn):
+        snap, _body = reads._open(conn, built.tenant_id, built.site_id, CODE, _at(w["from"]), _at(w["to"]),
+                                  _at(w["known_at"]))
+        [row] = reads._findings(conn, snap, UUID(item["finding_id"]))
+        sel = snap["selected"]
+        no_revisions = {**snap, "selected": {**sel, "result": {**sel["result"], "session_revision_ids": []}}}
+        other = {**row, "_claim": {**row["_claim"], "session_id": str(uuid4())}}
+        return reads._support_ids(conn, no_revisions, row), reads._support_ids(conn, snap, other)
+
+    try:
+        none = {"start_evidence_id": None, "abort_evidence_id": None}
+        assert reads._read(missing) == (none, none)
+    finally:
+        reads.dispose()
 
 
 def test_non_ascii_limit_is_422_ev_limit_invalid(chain) -> None:  # noqa: F811

@@ -2407,6 +2407,33 @@ class EvReadService:
                 "_claim": claim, "_limitations": list(_ev_json(r[10]) or ()), "_sort": (r[9], r[0])})
         return items
 
+    @staticmethod
+    def _support_ids(c: Connection, snap: dict[str, Any], row: dict[str, Any]) -> dict[str, str | None]:
+        """r9 M3 (read-time only): the Finding revision's exact cited IDs joined to the selected session revision's
+        `SUPPORT`/null-reason uses and to the literal accepted `EV_SESSION_START` / `EV_SESSION_ABORT` kind;
+        exactly one ID of a kind, else null for that kind."""
+        session = row["_claim"].get("session_id")
+        revisions = list(snap["selected"]["result"].get("session_revision_ids") or ())
+        found: dict[str, set[str]] = {ev.START: set(), ev.ABORT: set()}
+        if session is not None and revisions:
+            for kind, evidence_id in c.execute(text(
+                    "SELECT e.record_kind, x.evidence_id FROM finding_revision_evidence fe "
+                    "JOIN ev_session_evidence x ON x.evidence_id = fe.evidence_id AND x.tenant_id = :t "
+                    "AND x.site_id = :s JOIN ev_session_revision v ON v.tenant_id = x.tenant_id "
+                    "AND v.site_id = x.site_id AND v.id = x.revision_id JOIN accepted_evidence e "
+                    "ON e.tenant_id = x.tenant_id AND e.site_id = x.site_id AND e.id = x.evidence_id "
+                    "WHERE fe.finding_revision_id = :r AND v.id = ANY(CAST(:revs AS uuid[])) "
+                    "AND CAST(v.session_id AS text) = :session AND x.use = 'SUPPORT' AND x.reason IS NULL "
+                    "AND e.family = 'EVENT' AND e.record_kind IN (:start, :abort)"),
+                    {"t": snap["t"], "s": snap["s"], "r": UUID(row["revision_id"]), "revs": revisions,
+                     "session": str(session).lower(), "start": ev.START, "abort": ev.ABORT}).all():
+                found[kind].add(_ev_plain(evidence_id))
+
+        def one(kind: str) -> str | None:
+            return next(iter(found[kind])) if len(found[kind]) == 1 else None
+
+        return {"start_evidence_id": one(ev.START), "abort_evidence_id": one(ev.ABORT)}
+
     def findings(self, tenant_id: UUID, site_id: UUID, code: str, lo: datetime | None, hi: datetime | None,
                  known_at: datetime | None, cursor: str | None, limit: int) -> dict[str, Any]:
         def work(c):
@@ -2440,6 +2467,7 @@ class EvReadService:
                 "AND r.knowledge_cutoff <= :k ORDER BY fr.revision_no"),
                 {"t": tenant_id, "s": site_id, "f": finding_id, "k": snap["known"]}).all()]
             item = {k: v for k, v in row.items() if not k.startswith("_")}
-            return {**body, **item, "claim": row["_claim"], "evidence": evidence, "history": history,
+            claim = {**row["_claim"], **self._support_ids(c, snap, row)}
+            return {**body, **item, "claim": claim, "evidence": evidence, "history": history,
                     "limitations": row["_limitations"]}
         return self._read(work)
