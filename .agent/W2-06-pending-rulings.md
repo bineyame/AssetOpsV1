@@ -86,3 +86,22 @@ occurrence?).
 - `unknown_meter_seconds` NOT NULL (see R1), `ev_session.external_session_id` "nonblank" = `btrim(...) <> ''`.
 - Migration tests live in `backend/tests/test_w206_ev_migration_postgres.py` (predecessor naming), not in the three
   spec-named W2-06 files, which are for commits 2-4.
+
+## R11 — canonical serializer and digest column (added after code survey)
+
+- "Use the existing canonical JSON serializer (sorted keys, compact, UTF-8, UTC `Z` with fractional digits preserved,
+  Decimal canonical)": no single existing function does all of this. Cold uses
+  `assetops_contracts.source_envelope.canonical_json` (no datetime/Decimal handling) after `cold.plain()` and
+  `assessment_inputs.iso` (always six fractional digits). `financials/cold_consequence.py:selected_instant` keeps
+  fractions only when nonzero. Which instant formatter is binding for the EV basis: `iso` (always `.ffffffZ`) or
+  `selected_instant` (fractions only if present)?
+- The basis row's `content_sha256`: `accepted_evidence` has no such column; its digest is `envelope_sha256`
+  (cold basis uses it). Confirm `content_sha256 := accepted_evidence.envelope_sha256`.
+
+## R12 — where the six-case pure vectors come from
+
+`tools/checks/dependency-direction.ps1` bans `assetops_simulator` imports anywhere under `backend/` (tests
+included), so `test_w206_ev_session_rules.py` cannot run the producer. Confirm the W2-03 precedent: pinned vectors in
+`backend/tests/fixtures/w2/ev-w206-vectors.json`, generated and kept in sync by a host test (like
+`host/tests/test_w203_cold_vectors.py`) from `host/ev_publication.py:ev_reports`, and checked against the
+`contract-fixtures/w2/ev/*.json` assertions.
