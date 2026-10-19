@@ -722,6 +722,10 @@ function Invoke-ConfigurationPersistenceCheck {
     # `PostgresAssessmentStore.ev_enqueue_configuration`); other modules call that Python method, never the SQL.
     $evEnqueueSql = '(?i)\b(?:SELECT|PERFORM|CALL)\s+(?:ev_enqueue_[a-z_]+|enqueue_ev_assessment)\s*\('
     $evEnqueueSqlSeen = 0
+    # W2-06 q3 P7: the Foundation store's EV publication enqueue is the one other allowed caller, and only of
+    # `ev_enqueue_configuration` (SQL function invocation is the guard-compatible allowance; no analytics import).
+    $evPublishEnqueueSql = '(?i)\bSELECT\s+ev_enqueue_configuration\s*\('
+    $evPublishEnqueueSeen = 0
     # W2-04: per-table owner INSERTs into the cold consequence tables (Q10: each asserted >= 1 below).
     $coldConsequenceInsertsSeen = @{ 'cold_consequence_revision' = 0; 'cold_consequence_evidence' = 0
         'cold_consequence_work_attempt' = 0 }
@@ -823,6 +827,7 @@ function Invoke-ConfigurationPersistenceCheck {
             # Source lines, not extracted clauses: the extractor splits at write heads, and this write is a SELECT.
             if ($line -match $evEnqueueSql) {
                 if ($module.Path -eq $assessWriter) { $evEnqueueSqlSeen++ }
+                elseif ($module.Path -eq $pgWriter -and $line -match $evPublishEnqueueSql) { $evPublishEnqueueSeen++ }
                 else {
                     $failures.Add(("Only $assessWriter calls the 0025 EV enqueue SQL functions (a recompute_job " +
                         "write); call PostgresAssessmentStore.ev_enqueue_configuration instead; " +
@@ -1099,6 +1104,10 @@ function Invoke-ConfigurationPersistenceCheck {
         $failures.Add(("The evidence ledger rereads collisions in the fixed order message, event, session: exactly one " +
             "line '$rereadOrderExpected' in $ledgerWriter (found $($rereadOrderLines.Count): " +
             "$($rereadOrderLines -join ' | ')).")) | Out-Null
+    }
+    if ($evPublishEnqueueSeen -lt 1) {
+        $failures.Add(("Rule 8 found no ev_enqueue_configuration call in $pgWriter (W2-06 q3 P7 publication " +
+            "enqueue), so its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
     }
     if ($evEnqueueSqlSeen -lt 1) {
         $failures.Add(("Rule 8 found no EV enqueue SQL call in $assessWriter, so the sole-caller check is " +
