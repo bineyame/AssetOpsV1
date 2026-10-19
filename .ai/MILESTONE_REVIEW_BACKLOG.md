@@ -2293,3 +2293,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L1: `.agent/W2-03-followup-evidence/evidence.json:39` still records temperature claim panel 165 px; q2 recapture measured 142 px (packet only).
 - L2: spec-required 390 capture with disclosures opened is missing; covered by tests and wrapping CSS.
 - L3: `coldRoutes.test.tsx:517` matches missing-step labels by regex, not exact strings; temperature recapture used a different seed.
+
+## W2-05b carried Lows (merged 2026-10-19)
+
+- L1: `frontend/src/shell/SimulatorLabFrame.tsx:112-116` EV Lab panel sentence in Panel `description` slot (~11 px) vs cold panel sentence (~14 px); Architect picks one slot for both in the post-all-waves UI/UX pass.
+- L2: final full backend JUnit cited across two runs (`bd967b59` 3096/1 gate-inventory failure; test-only fix `70a46d55`, file 20/20); no rerun per ROLE_CONFIG Token Efficiency.

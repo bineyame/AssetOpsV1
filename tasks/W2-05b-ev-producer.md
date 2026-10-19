@@ -1,6 +1,6 @@
 # W2-05b — EV causal producer and public replay
 
-Status: implementation-ready (planning, 2026-10-18). Size M; two phases. Branch `task/W2-05b-ev-producer` from merged W2-05a. USER_REVIEW_REQUIRED: true, after independent slice review in the later owner W2 walkthrough. Exit: a registered EV Lab run whose public v4 reports reach ordinary S2 AcceptedEvidence; no W2-06 assessment or Finding is produced here.
+Status: done (merged to main 2026-10-19; rulings q1-q6; review ACCEPT-with-followups; backend full 3096 at bd967b59 with 1 gate-inventory failure fixed test-only in 70a46d55, host 780, frontend 2295; guards 10/10); was implementation-ready (planning, 2026-10-18). Size M; two phases. Branch `task/W2-05b-ev-producer` from merged W2-05a. USER_REVIEW_REQUIRED: true, after independent slice review in the later owner W2 walkthrough. Exit: a registered EV Lab run whose public v4 reports reach ordinary S2 AcceptedEvidence; no W2-06 assessment or Finding is produced here.
 
 ## Binding design and dependencies
 
