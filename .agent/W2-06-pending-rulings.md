@@ -105,3 +105,95 @@ included), so `test_w206_ev_session_rules.py` cannot run the producer. Confirm t
 `backend/tests/fixtures/w2/ev-w206-vectors.json`, generated and kept in sync by a host test (like
 `host/tests/test_w203_cold_vectors.py`) from `host/ev_publication.py:ev_reports`, and checked against the
 `contract-fixtures/w2/ev/*.json` assertions.
+
+---
+
+# W2-06 pending rulings — run 2 (q2), 2026-10-19
+
+Raised after applying q1. Built this run: `13c6ef33` (q1 R1: 0025 `unknown_meter_seconds` nullable with the exact
+`ev_session_revision_unknown_seconds` / `ev_session_revision_quantity_state` text, plus migration tests; R10 ratified
+as built, no change). **Stopped before the R12 vector file and spec commits 2–3**: the points below are not fixed by
+the build spec or the q1 closure, checked against the code. All are batched here; nothing below was decided.
+
+## Vectors (R12) — blocks commit 2
+
+**Q1 — report → accepted evidence ID.** R12 asks the host test to build the vectors from `ev_reports` and the six
+manifests and to "assert exact evidence IDs". The manifests pin `accepted_evidence_ids` and `envelope_sha256` per
+disposition, in batch-external-ID order (`test_w205b_ev_replay_postgres.py:330 batches`, ordered by publication
+`recorded_at`), but nothing pairs an ID with its report, and the gateway V4 envelope (provisioning site/gateway/
+source IDs, case epoch, per-source sequence, published_at) is not in the manifest. Which mechanism?
+(A) host test rebuilds each gateway V4 envelope (`gateway/assetops_gateway/service.py:139 _envelope_v4`, a private
+function, plus the 05b provisioning/epoch/sequence values) and matches `envelope_sha256` to take each ID;
+(B) the W2-05b Postgres chain test also writes the vector file (accepted envelope + ID + digest), i.e. a backend,
+not host, source; (C) vectors use report-key-derived IDs and the exact manifest IDs are asserted only in commit 3's
+replay store test.
+
+**Q2 — vector content.** Which expected outputs each case pins beyond the manifest's ten assertion keys: per-record
+use/reason, interval rows (`kwh`, `error_bound_kwh`), `reason_codes`, bounds, `fault_evidence_id`, Finding support
+IDs, and whether `basis_sha256` is pinned (it depends on Foundation/binding IDs, mapping profile and source class).
+
+## Commit 2 — pure correlation
+
+**Q3 — use of an eligible linked record.** R4/R7 fix exclusion reasons and "Site import CONTEXT only", not
+SUPPORT vs CONTEXT for eligible GOOD/in-force/attested records. Rule the use for: START (per state, incl.
+CONTRADICTORY and INCOMPLETE); the sole END/ABORT; a same-session contemporaneous FAULT on OBSERVED_ABORT, and on
+COMPLETED/INCOMPLETE; CLEAR; meter deltas; connector state, connector power, requested power, allocated limit.
+Is a CONTEXT row's `reason` NULL when it is merely context (no exclusion)?
+
+**Q4 — scope of the 30 s straddle rule.** R4: a record whose uncertainty straddles START is EXCLUDED
+`CLOCK_UNATTESTED`. Every case has a GOOD connector `state` (STATE_AT_INSTANT) at exactly 08:01:00 = START, and
+`INTERVAL_MEAN` power/request/limit reports starting at or near START. If the rule covers measurements, every session
+gains `CLOCK_UNATTESTED` and COMPLETED-complete cannot be `[]` (R9). Does it apply to EVENT-family records only?
+Does a symmetric rule apply near the terminal?
+
+**Q5 — "source interval intersects the observed span".** For STATE_AT_INSTANT (point `source_time`): include iff
+`START <= t < end`, or `<= end`? INTERVAL_MEAN `[a,b)` vs `[START,end)`: half-open overlap? Which span applies to
+CONTRADICTORY (no `end_at`; meters EXCLUDED): `[START, end_bounds.latest)`, or none? INCOMPLETE with no meter
+(zero-length span, R1): link no state/power context?
+
+**Q6 — `supported_kwh` scale.** Reports carry `"4"`, `"5"`, `"1"`; the exact Decimal sum is `30`, the manifests
+say `"30.000"` and R1 says `"0.000"` "with the fixture scale". Is the stored numeric and the vector value quantized
+to the connector's Foundation `ev-meter-resolution` (0.001), or the exact sum stored and the scale applied only on
+read? Same question for `ev_meter_interval.kwh`.
+
+**Q7 — fractional uncovered time.** `unknown_meter_seconds` is an integer; with microsecond source times the
+uncovered union can be fractional. Floor, ceil or half-even? (No fixture case hits it; commit 2 needs a rule.)
+
+**Q8 — `mapping_profile_id` source.** No column stores an effective mapping profile; the only link is the code
+table `V4_EV_MAPPING_PROFILE_ID/VERSION` for `ROLE_SET_EV_1` (`sites/binding_service.py:220`). Read it from that
+table through the effective `ev-roles-1` binding set, from the run's registered publication profile, or elsewhere?
+Exact string form `"{id}/{version}"`?
+
+**Q9 — names (ratify).** Pure module `backend/assetops_backend/analytics/ev.py` beside `cold.py`; host test
+`host/tests/test_w206_ev_vectors.py`, regenerate with `ASSETOPS_W206_WRITE_VECTORS=1` (W2-03 precedent).
+
+## Commit 3 — writer, recompute, Finding
+
+**Q10 — enqueue site vs "No accepted-evidence writer change".** Cold enqueues inside the S2 writer
+(`evidence/adapters/postgres_evidence_ledger.py:501-507 _coalesce_job`). An `ev_charging` branch there conflicts
+with the readiness gate's "No accepted-evidence writer change". Is that branch allowed (job IDs via
+`gen_random_uuid()` like cold, so W2-05b's counter-pinned accepted IDs do not shift), or must the enqueue live
+elsewhere (a 0025 trigger, or a worker-side scan of new accepted rows)?
+
+**Q11 — EV work window.** Cold: five-minute-aligned bracket of accepted source times merged with selected windows
+within a ten-minute bridge (`postgres_assessment_store.py:783 cold_windows`, ledger `_COLD_BRIDGE`). For EV rule the
+alignment unit, coalescing width, merge with selected `ev-session/1` windows, and the late-terminal extension (how
+the START is found — accepted START by tenant/site/connector/`session_id` inside the ledger transaction?). This
+fixes the idempotency window and the read's "latest selected window" (manifests use 08:00–09:00).
+
+**Q12 — config-change enqueue.** "Effective Foundation/binding/mapping/source-gate change" enqueues `ev_charging`,
+but no existing hook enqueues cold on these. Which module (Foundation publish, binding publish, S4-05 link write)
+and which windows (every selected EV window overlapping the new revision's validity)?
+
+**Q13 — worker wiring.** Add `build_ev_assessment_worker` beside `analytics/composition.py:109`; is any runner
+started in commit 3, or is it test-driven only as cold is?
+
+**Q14 — EV `assessment_revision` / `analytic_run` values.** `assessment_key` literal; window `claim_level`; the
+`result` JSON document shape; `evidence_ids` content (all run inputs or linked only); `configuration_sha256` input;
+`role_coverage` and `watermarks` content; and the exact form of the run `input_sha256` ("all selected accepted
+inputs and exact configuration": same row form as the session basis over all window rows?).
+
+**Q15 — EV `finding` / `finding_revision` values.** Exact `title`; `claim_level` (OBSERVED?) for SUPPORTED and for
+NO_LONGER_SUPPORTED; `matcher_version`; `claim` JSON (commit 4's detail `claim` keys?); exact `limitations`
+sentence(s) ("component cause and unmet demand are unknown"); `finding_revision.basis_sha256` = session basis or run
+input; `cited_evidence_sha256`; `finding.anchor_start` (START time?) and `anchor_assessment_revision_id`.

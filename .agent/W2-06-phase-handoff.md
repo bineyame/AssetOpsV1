@@ -1,4 +1,4 @@
-# W2-06 phase handoff — after spec commit 1 (2026-10-19)
+# W2-06 phase handoff — after spec commit 1 and q1 fixes (2026-10-19)
 
 Branch `task/W2-06-ev-assessment` (worktree `AssetOpsV1-review5`), from main `3c4a2ebc`. Not merged.
 
@@ -26,12 +26,29 @@ Branch `task/W2-06-ev-assessment` (worktree `AssetOpsV1-review5`), from main `3c
 - `tools/check-all.ps1`: all 10 guards passed.
 - No full backend/host suite run (brief: memory is low).
 
-## Stopped: commit 2 not started
+## Run 2 (after q1 merge, 2026-10-19)
 
-`.agent/W2-06-pending-rulings.md` R1–R10. R1 is a conflict (contradictory manifest asserts NULL
-`unknown_meter_seconds`/`supported_kwh`; 0025/spec say integer `>=0` and SUPPORT sum). R2–R9 are unruled computations
-of the pure correlation (bounds, INCOMPLETE active span, exclusion-reason mapping, overlap, error bound, linked record
-set, basis literals, reason-code content/order). R10 asks to ratify commit-1 readings.
+- `13c6ef33` q1 R1: 0025 edited in place — `unknown_meter_seconds integer NULL`, exact
+  `ev_session_revision_unknown_seconds` and new `ev_session_revision_quantity_state` CHECK; migration test adds the
+  contradictory null pair, NULL energy with integer seconds, five refusals. R10 ratified as built (no change).
+- Focused + adjacent (`test_w206*`, `test_w203*`, `test_w205*`, `test_s2*`) on private `w206q1_test` (dropped);
+  `tools/check-all.ps1` 10/10 passed. 486 passed, 0 skipped (JUnit), 927 s.
+
+## Stopped: R12 vectors and commits 2–3 not started
+
+`.agent/W2-06-pending-rulings.md` "run 2 (q2)" Q1–Q15. Q1 blocks the R12 vector file (no report→accepted-ID
+pairing in the manifests); Q3–Q8 block the pure correlation; Q10–Q15 block the writer. Resume with: R12 vectors +
+host test, then commit 2, then commit 3, each against the q2 rulings.
+
+## Anchors for commit 4 (selected reads)
+
+- Router pattern: `backend/assetops_backend/cold_assessment_api.py` (`_Refused` :45, `_refusal` :51,
+  `build_cold_assessment_router` :69, `opened` :74, `served` :105); mount beside `main.py:403-406`
+  (`build_cold_read_service` → `build_cold_assessment_router(registry, cold_reads)`).
+- Read helpers: `analytics/cold_reads.py` (`ColdReadUnavailable` :37, `ColdCursorRefused` :41,
+  `currentness_state` :53, `encode_cursor` :66, `decode_cursor` :72); service factory
+  `analytics/composition.py:118 build_cold_read_service`; cold read SQL in `postgres_assessment_store.py` ~:1390-1410.
+- Watermark: `postgres_assessment_store.py:769 cold_watermark`.
 
 ## Anchors for commits 2–3
 
@@ -51,6 +68,5 @@ set, basis literals, reason-code content/order). R10 asks to ratify commit-1 rea
 
 ## Open risks
 
-- If R1 rules NULL unknown seconds, 0025 needs `unknown_meter_seconds` nullable (one-line change + test update).
 - 0023's cold triggers fire only for `domain='cold_chain'`; the 0012 fuel trigger only for `mini_grid`, so an EV
   FindingRevision enqueues no fuel/cold work (checked by trigger WHEN clauses, not yet by an EV Finding test).
