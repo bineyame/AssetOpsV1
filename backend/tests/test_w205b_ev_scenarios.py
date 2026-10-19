@@ -40,7 +40,6 @@ from assetops_backend.simulator_lab_api import build_simulator_lab_router
 from assetops_backend.sites.adapters.import_files import read_import_source
 from assetops_backend.sites.foundation_service import ImportSource, import_site
 from assetops_backend.sites.ports import SiteStoreUnavailable
-from test_w202_cold_run_identity import basis
 
 SCENARIOS = Path(__file__).resolve().parents[2] / "config" / "scenarios"
 EV_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "w2" / "ev-lab-001.yaml"
@@ -356,25 +355,47 @@ def test_legacy_catalog_and_detail_never_serve_ev_documents() -> None:
 # --- the EV-only freeze ------------------------------------------------------------------------------
 
 
+_SELECTION: list[RegisteredSiteSelection] = []
+
+
+def corrected_selection() -> RegisteredSiteSelection:
+    """The real registered selection of a fresh EV-LAB-001 install (corrected seven-label map, q4 Q18)."""
+    if not _SELECTION:
+        from datetime import timedelta
+
+        from assetops_backend.runs.registered_basis import RegisteredLabBasis
+        from assetops_backend.sites.cutover import ImportedSiteRegistry
+        from assetops_backend.sites.ev_lab import install_ev_lab
+        from assetops_backend.sites.foundation_service import FoundationService
+
+        store = InMemoryFoundationStore()
+        install_ev_lab(store, tenant_slug=DEVELOPMENT_TENANT_SLUG, clock=lambda: NOW - timedelta(hours=3))
+        _SELECTION.append(RegisteredLabBasis(ImportedSiteRegistry(
+            FoundationService(store, DEVELOPMENT_TENANT_SLUG, lambda: NOW))).select(
+                EV_SITE, start_time=WINDOW["start"], end_time=WINDOW["end"], knowledge_at=None))
+    return _SELECTION[0]
+
+
 class FakeRegistered:
-    def __init__(self) -> None:
-        self._site = site(site_id=EV_SITE)
+    def __init__(self, selection: RegisteredSiteSelection | None = None) -> None:
+        self._selection = selection
 
     def registered(self, site_id: str) -> bool:
         return site_id == EV_SITE
 
     def select(self, site_id, *, start_time, end_time, knowledge_at) -> RegisteredSiteSelection:
-        return RegisteredSiteSelection(site=self._site, signal_mappings=(), basis=basis())
+        return self._selection or corrected_selection()
 
 
-def ev_service(*, registered: bool = True, case: str = "complete") -> tuple[RunSetupService, FakeRuns]:
+def ev_service(*, registered: bool = True, case: str = "complete",
+               selection: RegisteredSiteSelection | None = None) -> tuple[RunSetupService, FakeRuns]:
     store = FakeRuns()
     return RunSetupService(
         store, FakeSites((site(), site(site_id=EV_SITE))), FakeScenarios((scenario(), ev(case))),
         model_profiles=(model_profile(), EV_CHARGER_MODEL),
         publication_profiles=(publication_profile(), EV_PUBLICATION_PROFILE),
         now=lambda: "2026-10-06T07:00:00Z",
-        registered_bases=FakeRegistered() if registered else None,
+        registered_bases=FakeRegistered(selection) if registered else None,
     ), store
 
 
@@ -405,9 +426,14 @@ def test_ev_run_freezes_both_digests_and_round_trips(case: str) -> None:
     assert identity.profiles.observation_sha256 == definition.observation_sha256
     assert identity.seed == 20517 and identity.interval.timestep_minutes == 1
     assert identity.forcings == () and identity.initialization_inputs == () and identity.causes == ()
-    assert run.registered_basis == basis()
+    assert run.registered_basis == corrected_selection().basis
     document = render_run_document(run)
-    assert all(private not in canonical(document) for private in ("session-1", "REQUEST_KW", "PLUG", "LATCH"))
+    # The frozen snapshot is the registered public map, whose state labels include `PLUGGED`; private forcing
+    # names appear nowhere else and the snapshot carries no session or forcing token.
+    outside = {k: v for k, v in json.loads(canonical(document)).items() if k != "registered_basis"}
+    assert all(private not in canonical(outside) for private in ("session-1", "REQUEST_KW", "PLUG", "LATCH"))
+    assert all(private not in run.registered_basis.snapshot_canonical
+               for private in ("session-1", "REQUEST_KW", "LATCH", '"PLUG"'))
     assert parse_run_document(json.loads(canonical(document)), source="test") == run
 
 
@@ -452,7 +478,7 @@ def test_an_unregistered_site_and_legacy_scenario_with_ev_profiles_refuse() -> N
 # --- q3 Q15: the corrected binding revision is the one selected and frozen --------------------------------------
 
 
-def _ev_store_with_old_then_corrected_map():
+def _ev_store_with_old_then_corrected_map(*, corrected_too: bool = True):
     """EV-LAB-001 imported, its first map published without `UNPLUGGED`, then the corrected map as a new
     normal publication effective 5 October (before the run window)."""
     from datetime import timedelta
@@ -474,8 +500,10 @@ def _ev_store_with_old_then_corrected_map():
     for b in old["bindings"]:
         if b["role"] == "ev_connector_state":
             del b["conversion"]["parameters"]["map"]["UNPLUGGED"]
-    for fixture, effective, at in ((old, original.valid_from, 2),
-                                   (corrected, datetime(2026, 10, 5, tzinfo=timezone.utc), 1)):
+    publications = [(old, original.valid_from, 2)]
+    if corrected_too:
+        publications.append((corrected, datetime(2026, 10, 5, tzinfo=timezone.utc), 1))
+    for fixture, effective, at in publications:
         requests, _, _ = plan_requests(fixture, result.site, original.content.get("signal_mappings") or (), asset_ids)
         BindingService(store, lambda at=at: NOW - timedelta(hours=at)).publish(
             result.tenant, result.site, requests=requests, effective_from=effective, note="q3 Q15 test",
@@ -507,3 +535,114 @@ def test_the_draft_freezes_the_corrected_binding_revision_and_its_snapshot() -> 
     maps = [b["conversion"]["parameters"]["map"] for b in json.loads(frozen.snapshot_canonical)["bindings"]
             if b["role"] == "ev_connector_state"]
     assert len(maps) == 2 and all("UNPLUGGED" in m and len(m) == 7 for m in maps)
+
+
+# --- q4 Q18: a selected map that cannot publish all five states refuses before Draft --------------------------
+
+def _registered(store) -> "RunSetupService":
+    from assetops_backend.runs.registered_basis import RegisteredLabBasis
+    from assetops_backend.sites.cutover import ImportedSiteRegistry
+    from assetops_backend.sites.foundation_service import FoundationService
+
+    return RegisteredLabBasis(ImportedSiteRegistry(FoundationService(store, DEVELOPMENT_TENANT_SLUG, lambda: NOW)))
+
+
+def _selected_old_map() -> RegisteredSiteSelection:
+    store, _ = _ev_store_with_old_then_corrected_map(corrected_too=False)
+    return _registered(store).select(EV_SITE, start_time=WINDOW["start"], end_time=WINDOW["end"], knowledge_at=None)
+
+
+Q18_MESSAGE = ("The selected EV binding revision cannot publish all five connector states; publish the corrected "
+               "EV binding map before creating this run.")
+
+
+def test_an_old_selected_state_map_refuses_before_draft() -> None:
+    old = _selected_old_map()
+    assert all("UNPLUGGED" not in b["conversion"]["parameters"]["map"]
+               for b in json.loads(old.basis.snapshot_canonical)["bindings"] if b["role"] == "ev_connector_state")
+    setup, runs = ev_service(selection=old)
+    with pytest.raises(RunSetupRefused) as caught:
+        setup.create_draft_run(ev_request())
+    assert (caught.value.kind, str(caught.value)) == ("VERSION_UNAVAILABLE", Q18_MESSAGE) or (
+        caught.value.kind == "VERSION_UNAVAILABLE" and Q18_MESSAGE in str(caught.value))
+    assert runs.written == []
+
+
+def test_the_corrected_selected_map_makes_a_ready_draft() -> None:
+    setup, runs = ev_service(selection=corrected_selection())
+    run = setup.create_draft_run(ev_request())
+    assert run.execution_status == "READY" and runs.written == [run]
+
+
+def _rehashed(selection: RegisteredSiteSelection, change) -> RegisteredSiteSelection:
+    from dataclasses import replace
+
+    document = json.loads(selection.basis.snapshot_canonical)
+    change(document)
+    text = json.dumps(document, sort_keys=True, separators=(",", ":"))
+    return replace(selection, basis=replace(selection.basis, snapshot_canonical=text,
+                                            snapshot_sha256=hashlib.sha256(text.encode()).hexdigest()))
+
+
+def _state_rows(document) -> list[dict]:
+    return [b for b in document["bindings"] if b["role"] == "ev_connector_state"]
+
+
+@pytest.mark.parametrize("change", [
+    lambda d: _state_rows(d)[0]["conversion"]["parameters"]["map"].pop("FAULTED"),
+    lambda d: _state_rows(d)[1]["conversion"]["parameters"]["map"].update(CHARGING="PLUGGED"),
+    lambda d: _state_rows(d)[0]["conversion"].update(kind="IDENTITY"),
+    lambda d: _state_rows(d)[0].update(source_unit="kW"),
+    lambda d: d["bindings"].remove(_state_rows(d)[1]),
+    lambda d: _state_rows(d)[1].update(binding_revision_id=_state_rows(d)[0]["binding_revision_id"]),
+    lambda d: _state_rows(d)[0].update(device_id="c2-connector-controller"),
+    lambda d: d["mapping"].update(role_set="cold-roles-1"),
+    lambda d: _state_rows(d)[0]["conversion"].update(parameters={}),
+])
+def test_a_missing_malformed_or_conflicting_state_map_refuses_before_draft(change) -> None:
+    setup, runs = ev_service(selection=_rehashed(corrected_selection(), change))
+    with pytest.raises(RunSetupRefused) as caught:
+        setup.create_draft_run(ev_request())
+    assert caught.value.kind == "VERSION_UNAVAILABLE" and Q18_MESSAGE in str(caught.value)
+    assert runs.written == []
+
+
+def test_the_two_extra_vocabulary_labels_may_remain() -> None:
+    def drop_extras(d):
+        for row in _state_rows(d):
+            for label in ("AVAILABLE", "DISABLED"):
+                row["conversion"]["parameters"]["map"].pop(label)
+    setup, _ = ev_service(selection=_rehashed(corrected_selection(), drop_extras))
+    assert setup.create_draft_run(ev_request()).execution_status == "READY"
+
+
+def test_a_tampered_snapshot_is_a_registered_basis_refusal_not_an_unchecked_map() -> None:
+    from dataclasses import replace
+
+    selection = corrected_selection()
+    old_bytes = _selected_old_map().basis.snapshot_canonical
+    with pytest.raises(ValueError, match="hashes to"):
+        replace(selection.basis, snapshot_canonical=old_bytes)
+
+
+def test_q19_republication_then_a_fresh_draft_freezes_the_corrected_map() -> None:
+    """q4 Q19: the operator action on an old installation makes the 6 October Draft READY on the corrected
+    revision; repeating it is a no-change."""
+    from datetime import timedelta
+
+    from assetops_backend.sites.ev_lab import republish_corrected_bindings
+
+    store, _ = _ev_store_with_old_then_corrected_map(corrected_too=False)
+    with pytest.raises(RunSetupRefused):
+        ev_service(selection=_registered(store).select(
+            EV_SITE, start_time=WINDOW["start"], end_time=WINDOW["end"], knowledge_at=None))[0].create_draft_run(
+                ev_request())
+    outcome = republish_corrected_bindings(store, tenant_slug=DEVELOPMENT_TENANT_SLUG,
+                                           clock=lambda: NOW - timedelta(minutes=30))
+    assert outcome.published
+    assert not republish_corrected_bindings(store, tenant_slug=DEVELOPMENT_TENANT_SLUG, clock=lambda: NOW).published
+    selection = _registered(store).select(EV_SITE, start_time=WINDOW["start"], end_time=WINDOW["end"],
+                                          knowledge_at=None)
+    run = ev_service(selection=selection)[0].create_draft_run(ev_request())
+    assert run.execution_status == "READY"
+    assert run.registered_basis.binding_set_revision_id == outcome.revision_id

@@ -122,6 +122,7 @@ from assetops_backend.runs.profiles import (
     state_authority,
 )
 from assetops_backend.runs.refusals import refuse
+from assetops_contracts.source_envelope_v4 import V4_EV_CHANNEL_MAPPINGS, canonical_binding_metadata
 from assetops_backend.runs.timezones import (
     TimeZoneDatabaseUnavailable,
     TimeZoneNotFound,
@@ -646,6 +647,8 @@ class RunSetupService:
                 f"request names [{request.start_time}, {request.end_time}) in "
                 f"{request.timestep_minutes}-minute steps.",
             )
+        if not _ev_state_maps_publishable(selection):
+            raise refuse("VERSION_UNAVAILABLE", EV_STATE_MAP_REFUSAL)
         return self._freeze_document_draft(
             request, site, selection,
             scenario_id=scenario.scenario_id,
@@ -3853,3 +3856,51 @@ def _refuse_a_delay_that_reorders(
                     f"and overrides occur at {inside} inside it: they would be "
                     "released together. Release order is not modelled (T026A).",
                 )
+
+
+#: q4 Q18: the exact Draft refusal against a selected binding revision whose connector state maps cannot publish
+#: every emitted `ev-charger/1` state.
+EV_STATE_MAP_REFUSAL = (
+    "The selected EV binding revision cannot publish all five connector states; publish the corrected EV "
+    "binding map before creating this run."
+)
+EV_ROLE_SET = "ev-roles-1"
+
+
+def _ev_state_maps_publishable(selection: RegisteredSiteSelection) -> bool:
+    """q4 Q18: the selected snapshot has exactly one c1 and one c2 `ev_connector_state` row on its closed
+    `simulator-lab-gateway-ev/1` tuple, `state` units, an `ENUM` conversion, and identity entries for all five
+    pack states (other labels may remain). The basis SHA was already checked by `RegisteredBasis`; this reads
+    only its frozen bytes and never selects another revision."""
+    import json
+
+    from assetops_backend.runs.profiles import EV_CONNECTOR_STATES
+
+    try:
+        document = json.loads(selection.basis.snapshot_canonical)
+        if document["mapping"]["role_set"] != EV_ROLE_SET:
+            return False
+        codes = {m.mapping_id: m.component_id for m in selection.signal_mappings}
+        found: set[str] = set()
+        for row in document["bindings"]:
+            if row.get("role") != "ev_connector_state":
+                continue
+            code = codes.get(row.get("binding_revision_id"))
+            if code not in ("c1", "c2") or code in found:
+                return False
+            key = (row["device_id"], row["signal_id"])
+            mapping = V4_EV_CHANNEL_MAPPINGS.get(key)
+            if (mapping is None or mapping.role != "ev_connector_state" or key[0].split("-", 1)[0] != code
+                    or row["source_unit"] != "state" or row["canonical_unit"] != "state"
+                    or canonical_binding_metadata(row) != canonical_binding_metadata(mapping.metadata())):
+                return False
+            conversion = row["conversion"]
+            labels = conversion["parameters"]["map"]
+            if conversion["kind"] != "ENUM" or not isinstance(labels, dict):
+                return False
+            if any(labels.get(state) != state for state in EV_CONNECTOR_STATES):
+                return False
+            found.add(code)
+        return found == {"c1", "c2"}
+    except (KeyError, TypeError, ValueError, AttributeError):
+        return False
