@@ -1536,7 +1536,7 @@ export function ColdTopologyDiagram({
  * declared stays in place as "Not declared"; every reporting dot is unknown.
  */
 export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadModel; names: Map<string, string> }) {
-  const W = 1000;
+  const W = 1090;
   const top = 46;
   const rowF = 86;
   const busX = 640;
