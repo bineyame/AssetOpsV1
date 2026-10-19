@@ -510,7 +510,7 @@ M1_BINDING = "EV source or binding is unverified; session outcomes cannot be ass
 NO_HEAD = "from=2026-10-06T08:05:00Z&to=2026-10-06T08:25:00Z"
 
 
-def _unassessable(body: dict, classification: str) -> None:
+def _unassessable(body: dict, classification: str, code: str) -> None:
     assert body["currentness"] == {"state": "UNKNOWN", "as_of": None, "limitation": M1_SOURCE}
     assert body["status"] == {"state": "UNKNOWN", "claim_level": "UNKNOWN", "as_of": None, "limitation": M1_SOURCE}
     assert all(body["denominator"][k] is None for k in COUNTS - {"limitation"})
@@ -521,6 +521,17 @@ def _unassessable(body: dict, classification: str) -> None:
     assert provenance["evidence_ids"] and provenance["evidence_ids"] == sorted(provenance["evidence_ids"])
     assert provenance["source_ids"] and provenance["source_ids"] == sorted(provenance["source_ids"])
     assert body["limitations"] == [M1_SOURCE]
+    _reasons(provenance, code)
+
+
+def _reasons(provenance: dict, code: str) -> None:
+    """r10 N2: ordered `{code, accepted_evidence_ids}` entries only (no internal detail keys) with sorted IDs, and
+    the literal S4-05 code named; every reason's IDs are accepted IDs of the current set."""
+    reasons = provenance["reasons"]
+    assert code in [r["code"] for r in reasons]
+    assert all(set(r) == {"code", "accepted_evidence_ids"} for r in reasons)
+    assert all(r["accepted_evidence_ids"] == sorted(r["accepted_evidence_ids"]) for r in reasons)
+    assert all(set(r["accepted_evidence_ids"]) <= set(provenance["evidence_ids"]) for r in reasons)
 
 
 def test_unassessable_source_has_unknown_status_and_limitation(chain, monkeypatch) -> None:  # noqa: F811
@@ -547,14 +558,16 @@ def test_unassessable_source_has_unknown_status_and_limitation(chain, monkeypatc
     assert pending["source_provenance"]["classification"] == "MIXED"
     assert pending["source_provenance"]["basis_sha256"] is not None
     assert M1_SOURCE in pending["limitations"] and pending["status"]["state"] != "UNKNOWN"
+    _reasons(pending["source_provenance"], MIXED_RUNS[1])  # r10 N2: the current accepted set, basis stays prior
     # No exact head: MIXED.
-    _unassessable(get(c, f"sessions?{NO_HEAD}"), "MIXED")
+    _unassessable(get(c, f"sessions?{NO_HEAD}"), "MIXED", MIXED_RUNS[1])
     # All unbound: UNKNOWN (the set state), still never NO_SESSIONS_OBSERVED.
     patch_links(monkeypatch, ALL_UNBOUND[0])
-    _unassessable(get(client(built), f"sessions?{NO_HEAD}"), "UNKNOWN")
+    _unassessable(get(client(built), f"sessions?{NO_HEAD}"), "UNKNOWN", ALL_UNBOUND[1])
     # Empty accepted set: the r7 no-selection copy, no classification.
     empty = get(client(built), "sessions?from=2026-10-01T00:00:00Z&to=2026-10-01T01:00:00Z")
     assert empty["currentness"]["limitation"] == "No selected EV session assessment covers this window yet."
+    assert empty["source_provenance"]["reasons"] == []
     assert empty["source_provenance"]["classification"] is None and empty["status"]["limitation"] != M1_SOURCE
 
     # A failed scoped link query is 503 EV_READ_UNAVAILABLE, never a guessed UNKNOWN.

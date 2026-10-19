@@ -339,6 +339,33 @@ function ExcludedRecords({ read }: { read: EvSessionsRead }) {
 }
 
 /** r9 M1-a: the unassessable set's actual class and exact accepted/source IDs (no stored basis). */
+const REASON_SENTENCES: Record<string, string> = {
+  EVIDENCE_NOT_FOUND: "Accepted record was not found.",
+  FOREIGN_SITE_EVIDENCE: "Accepted record belongs to another Site.",
+  BROKEN_PUBLICATION_LINK: "Publication link is broken.",
+  NO_POSITIVE_BINDING: "No accepted record has a positive source binding.",
+  BOUND_AND_UNBOUND: "Bound and unbound records are mixed.",
+  CROSSED_SOURCE_CLASSES: "Source classes are mixed.",
+  AUTHORED_FIXTURE_VERSION_CONFLICT: "Authored fixture versions conflict.",
+  MULTIPLE_RUNS_WITHOUT_COMPATIBLE_BASIS: "Registered runs lack a compatible basis.",
+  RUN_IDENTITY_CONFLICT: "Registered run identities conflict.",
+};
+
+/** r10 N2: one literal line per reason, in classifier order, as the disclosure's extra block. */
+function SourceReasons({ read }: { read: EvSessionsRead }) {
+  const reasons = read.source_provenance.reasons ?? [];
+  if (reasons.length === 0) return null;
+  return (
+    <>
+      {reasons.map((r, i) => (
+        <p key={`${r.code}-${i}`} className="ev-source-reason" data-ev-source-reason={r.code}>
+          {`Source reason: ${REASON_SENTENCES[r.code] ?? r.code} Accepted record IDs: ${r.accepted_evidence_ids.length ? r.accepted_evidence_ids.join(", ") : "None"}.`}
+        </p>
+      ))}
+    </>
+  );
+}
+
 function sourceDetail(read: EvSessionsRead) {
   const p = read.source_provenance;
   return [
@@ -357,7 +384,7 @@ function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null;
     body = (
       <>
         <Gap id="ev-records">{read.currentness.limitation ?? "Unknown"}</Gap>
-        {sourceBlocked ? <ExactReferences variant="tech" name="ev-source-detail" references={sourceDetail(read)} /> : null}
+        {sourceBlocked ? <ExactReferences variant="tech" name="ev-source-detail" references={sourceDetail(read)} extra={<SourceReasons read={read} />} /> : null}
       </>
     );
   } else if (read.status.state === "UNKNOWN") {
@@ -386,7 +413,7 @@ function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null;
         ) : null}
         <SessionRows read={read} findingHref={findingHref} />
         {(read.denominator.orphan ?? 0) > 0 ? <p className="ev-note">{EV_COPY.orphan}</p> : null}
-        <ExactReferences variant="tech" name="ev-session-references" references={sessionReferences(read)} extra={read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null} />
+        <ExactReferences variant="tech" name="ev-session-references" references={sourceBlocked && read.currentness.state === "PENDING_RECOMPUTE" ? [...sessionReferences(read), ...sourceDetail(read)] : sessionReferences(read)} extra={<>{sourceBlocked && read.currentness.state === "PENDING_RECOMPUTE" ? <SourceReasons read={read} /> : null}{read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null}</>} />
       </>
     );
   }

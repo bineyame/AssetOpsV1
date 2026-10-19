@@ -448,6 +448,31 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(document.querySelector("tbody")).toBeNull();
   });
 
+  it("unassessable_source_discloses_reasons_and_ids", async () => {
+    // r10 N2: one `Source reason` line per reason in classifier order, full accepted IDs, after `Source class`.
+    const reasons = [
+      { code: "BOUND_AND_UNBOUND", accepted_evidence_ids: [id(701), id(702)] },
+      { code: "CROSSED_SOURCE_CLASSES", accepted_evidence_ids: [] },
+    ];
+    renderEv(SESSIONS, ok({
+      ...STATES.unknown,
+      currentness: { state: "UNKNOWN", as_of: null, limitation: M1_SOURCE },
+      status: { state: "UNKNOWN", claim_level: "UNKNOWN", as_of: null, limitation: M1_SOURCE },
+      denominator: { ...STATES.unknown.denominator, limitation: M1_SOURCE },
+      source_provenance: { classification: "MIXED", source_ids: [id(700)], evidence_ids: [id(701), id(702)], basis_sha256: null, reasons },
+      limitations: [M1_SOURCE],
+    } as EvSessionsRead));
+    await settledScreen();
+    const text = (panelTitled("Session service records").querySelector('[data-disclosure="ev-source-detail"]') as HTMLElement).textContent ?? "";
+    const a = `Source reason: Bound and unbound records are mixed. Accepted record IDs: ${id(701)}, ${id(702)}.`;
+    const b = "Source reason: Source classes are mixed. Accepted record IDs: None.";
+    expect(text.replace(/\s+/g, " ")).toContain(a);
+    expect(text.replace(/\s+/g, " ")).toContain(b);
+    expect(text.indexOf("Source class")).toBeLessThan(text.indexOf("Source reason:"));
+    expect(text.indexOf("Bound and unbound")).toBeLessThan(text.indexOf("Source classes are mixed"));
+    for (const full of [id(701), id(702)]) expect(text).toContain(full);
+  });
+
   it("unassessable source under a pending prior head keeps rows pending with the sentence beneath", async () => {
     renderEv(SESSIONS, ok({ ...STATES.pendingLate, source_provenance: { ...STATES.pendingLate.source_provenance, classification: "MIXED" }, limitations: [PENDING_COPY, M1_SOURCE] }));
     await settledScreen();

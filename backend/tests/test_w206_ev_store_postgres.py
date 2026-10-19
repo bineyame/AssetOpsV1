@@ -666,3 +666,23 @@ def test_coherent_class_wrong_binding_does_not_claim_no_sessions(chain, monkeypa
     finally:
         _dispose(worker)
     assert again.run["created"] is False and counts(built) == before
+
+
+def test_empty_job_window_completes_without_assessment(chain) -> None:  # noqa: F811
+    """r10 N1: a leased `ev_charging` job whose windows hold no accepted EV record is completed DONE with no run
+    IDs; nothing is projected (no run, assessment, selection, session, interval or Finding row)."""
+    built = chain("complete")
+    built.start_release_upload()
+    run_worker(built)  # the Site now has a committed disposition and an assessed window elsewhere
+    when = datetime(2026, 10, 1, 8, 7, 30, tzinfo=timezone.utc)  # a window with no accepted EV record
+    with built.engine.begin() as c:
+        PostgresAssessmentStore.ev_enqueue_configuration(
+            c, built.tenant_id, built.site_id, when, when + timedelta(minutes=1), "FOUNDATION_PUBLISHED", when)
+    before = counts(built)
+    outcomes = run_worker(built)
+    assert outcomes and all(o.runs == () for o in outcomes)
+    assert counts(built) == before
+    with built.engine.connect() as c:
+        statuses = c.execute(text("SELECT status FROM recompute_job WHERE site_id = :s AND domain = 'ev_charging'"),
+                             {"s": built.site_id}).scalars().all()
+    assert statuses and set(statuses) == {"DONE"}

@@ -2175,7 +2175,8 @@ class EvReadService:
             return None
         return {"classification": whole["state"], "evidence_ids": ids,
                 "source_ids": sorted({str(r[17]).lower() for r in rows if r[17] is not None}),
-                "reasons": whole["reasons"]}
+                "reasons": [{"code": r["code"], "accepted_evidence_ids": list(r["accepted_evidence_ids"])}
+                            for r in whole["reasons"]]}
 
     def _query(self, snap: dict[str, Any]) -> str:
         return f"?from={_ev_plain(snap['lo'])}&to={_ev_plain(snap['hi'])}&known_at={_ev_plain(snap['known'])}"
@@ -2197,19 +2198,23 @@ class EvReadService:
                            "known_at": _ev_plain(snap["known"])},
                 "currentness": {"state": snap["state"], "as_of": None, "limitation": snap["note"]},
                 "source_provenance": {"classification": bad["classification"], "source_ids": bad["source_ids"],
-                                      "evidence_ids": bad["evidence_ids"], "basis_sha256": None},
+                                      "evidence_ids": bad["evidence_ids"], "basis_sha256": None,
+                                      "reasons": bad["reasons"]},
                 "limitations": [ev.SOURCE_UNASSESSABLE],
             }
-        if bad is not None:  # a pending prior head: stored facts stay; the current set's class is public
+        reasons: list[dict[str, Any]] = []
+        if bad is not None:  # a pending prior head: stored facts stay; the current accepted set is public (r10 N2)
             provenance = {**provenance, "class": bad["classification"]}
+            source_ids, reasons = bad["source_ids"], bad["reasons"]
         return {
             "site_id": str(snap["s"]).lower(),
             "window": {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]), "known_at": _ev_plain(snap["known"])},
             "currentness": {"state": snap["state"], "as_of": None if sel is None else _ev_plain(sel["created_at"]),
                             "limitation": snap["note"]},
             "source_provenance": {"classification": provenance.get("class"), "source_ids": source_ids,
-                                  "evidence_ids": [] if sel is None else list(sel["evidence_ids"]),
-                                  "basis_sha256": None if sel is None else sel["basis"]},
+                                  "evidence_ids": bad["evidence_ids"] if bad is not None
+                                  else ([] if sel is None else list(sel["evidence_ids"])),
+                                  "basis_sha256": None if sel is None else sel["basis"], "reasons": reasons},
             "limitations": ([] if sel is None else list(sel["result"].get("limitations") or ()))
             + ([snap["note"]] if snap["note"] else []) + ([ev.SOURCE_UNASSESSABLE] if bad is not None else []),
         }

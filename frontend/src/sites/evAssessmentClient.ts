@@ -23,7 +23,7 @@ export interface EvEnvelope {
   site_id: string;
   window: { from: string | null; to: string | null; known_at: string | null };
   currentness: { state: string; as_of: string | null; limitation: string | null };
-  source_provenance: { classification: string | null; source_ids: string[]; evidence_ids: string[]; basis_sha256: string | null };
+  source_provenance: { classification: string | null; source_ids: string[]; evidence_ids: string[]; basis_sha256: string | null; reasons?: { code: string; accepted_evidence_ids: string[] }[] };
   limitations: string[];
 }
 
