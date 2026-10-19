@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 import type { FeatureFlags } from "../config/featureFlags";
 import {
@@ -12,6 +12,10 @@ import type { SiteOverviewClient } from "../sites/siteOverviewClient";
 import { createFindingIndexClient, type FindingIndexClient } from "../sites/findingIndexClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
+import type { ColdSiteClient } from "../sites/coldSiteClient";
+import { useSiteRecord } from "../sites/useSiteRecord";
+import { coldSiteScreen } from "./coldSiteRoutes";
 import {
   findingHref,
   siteEvidenceAcceptedRecordHref,
@@ -88,6 +92,10 @@ export interface SiteDetailFrameProps {
   templateLineage?: SiteTemplateLineageClient;
   /** S5-02: the Site Finding index read behind the Overview's selected-day Finding list. */
   findingIndex?: FindingIndexClient;
+  /** W2-04: the five cold Site reads; a COLDCHAIN Site's Overview renders the `cold` screen from them. */
+  coldSite?: ColdSiteClient;
+  /** W2-04: the W2-03 selected temperature read behind the cold Overview's chamber chart. */
+  coldAssessment?: ColdAssessmentClient;
 }
 
 const DEFAULT_FINDING_INDEX = createFindingIndexClient();
@@ -99,8 +107,24 @@ export function SiteDetailFrame({
   flags,
   templateLineage,
   findingIndex = DEFAULT_FINDING_INDEX,
+  coldSite,
+  coldAssessment,
 }: SiteDetailFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
+  const [params] = useSearchParams();
+  // W2-04: the Site's type selects the cold Overview (the W2-01 Foundation frame's pattern).
+  const record = useSiteRecord(coldSite === undefined ? undefined : siteId, detail);
+  if (record?.status === "loaded" && record.site.site_type === "COLDCHAIN" && coldSite !== undefined && coldAssessment !== undefined) {
+    return coldSiteScreen({
+      view: "overview",
+      site: record.site,
+      params,
+      coldSite,
+      coldAssessment,
+      tabs: <OperatorSiteTabs siteId={siteId} current="Overview" />,
+      sitesPath,
+    });
+  }
 
   return (
     <main aria-labelledby={SITE_DETAIL_HEADING_ID}>

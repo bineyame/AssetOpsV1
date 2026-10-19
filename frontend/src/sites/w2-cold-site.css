@@ -1,0 +1,146 @@
+/*
+ * W2-04: the five cold Site screens (cold, cold-evidence, cold-evidence-analysis, cold-financials,
+ * cold-assumptions). They reuse the shared W1-F1 frame, panel, table, card and attention primitives; only the
+ * small secondary lines inside table cells and the noninteractive "Not available yet" destination are styled here.
+ */
+.cold-site-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted, #5f6b7a);
+}
+
+.cold-site-line {
+  display: block;
+}
+
+.cold-site-noop {
+  color: var(--text-muted, #5f6b7a);
+}
+
+.cold-site-rule + .cold-site-rule {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border, #e3e6ea);
+}
+
+.cold-site-rule .prose {
+  margin-bottom: 8px;
+}
+
+.cold-site-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.cold-site-list li + li {
+  margin-top: 6px;
+}
+
+/* At phone width the cold tables scroll in their own region instead of wrapping each cell into a tall column. */
+@media (max-width: 640px) {
+  table[aria-labelledby^="cold-site-"] th[scope="row"] {
+    min-width: 220px;
+  }
+
+  table[aria-labelledby^="cold-site-"] td {
+    min-width: 150px;
+  }
+}
+
+/* Run-7 date-bar ruling: the selected window and evidence cutoff in the Site date-bar slot below the tabs. */
+.site-date-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--text, #1f2933);
+}
+
+.site-date-bar__cutoff {
+  color: var(--text-muted, #5f6b7a);
+}
+
+/* Run-7 density ruling: one primary line per cell in the closed cold tables. */
+.cold-site-clip {
+  display: inline-block;
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+.cold-site-group + .cold-site-group {
+  margin-top: 12px;
+}
+
+.cold-site-group h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+}
+
+/*
+ * Run-8 closed-panel compaction, 1440 px (route-scoped; no text scaling, no hidden columns). At phone width the
+ * tables keep their own horizontal scroll with the min-widths above.
+ */
+@media (min-width: 641px) {
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(1) { width: 26%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(2) { width: 16%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(3) { width: 16%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(4) { width: 23%; }
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] :is(th, td):nth-child(5) { width: 19%; }
+
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] thead th {
+    white-space: normal;
+    overflow-wrap: normal;
+  }
+
+  [data-cold-view="cold-evidence"] table[aria-labelledby="cold-site-sources-heading"] .badge {
+    white-space: nowrap;
+  }
+
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(1) { width: 28%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(2) { width: 9%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(3) { width: 17%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(4) { width: 14%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(5) { width: 16%; }
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(6) { width: 16%; }
+
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td) {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  /* Run-9 D2: a two-line Record cell stays within the ruled panel height (line spacing only; no text scaling). */
+  [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td) {
+    line-height: 1.25;
+  }
+
+  [data-cold-view="cold-evidence-analysis"] .cold-panel-link,
+  [data-cold-view="cold-evidence-analysis"] [data-disclosure="cold-site-record-details"] {
+    margin-top: 6px;
+  }
+
+  /* How a claim limit is set: the gap before Claim details is 2 px tighter. */
+  [data-cold-view="cold-evidence-analysis"] [data-claim-prose] + [data-disclosure="cold-site-claim-details"] {
+    margin-top: -2px;
+  }
+}
+
+/* Run-9 M5: presentation tones for mapped cold chips (the word stays visible; neutral adds no override). */
+[data-cold-view] .badge.cold-tone--green { background: #e3f4ed; color: #166b50; border-color: #b5dfcd; }
+[data-cold-view] .badge.cold-tone--amber { background: #fff1d9; color: #8e580c; border-color: #c9a24a; }
+[data-cold-view] .badge.cold-tone--red { background: #fcebea; color: #a13838; border-color: #d26565; }

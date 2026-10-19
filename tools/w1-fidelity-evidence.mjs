@@ -167,7 +167,7 @@ try {
     const mockUrl = `${new URL(target.url).origin}/mockups/v69/index.html#/${target.id}`;
     for (const [label, width, height] of WIDTHS) {
       await size(width, height);
-      const appReady = await go(target.url, `document.querySelector("main h2, main [data-page-refusal]") && !document.body.textContent.includes("Loading")`);
+      const appReady = await go(target.url, `document.querySelector("main h2, main [data-page-refusal]") && ![...document.querySelectorAll("main p")].some((p) => /^Loading [^.]+\\.$/.test(p.textContent.trim()))`);
       claim(`${name} ${label}: app rendered its main content`, appReady);
       const app = await js(PANELS);
       await shot(`${name}-${label}-app.png`);

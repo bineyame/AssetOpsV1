@@ -1,6 +1,6 @@
 # W2-04 — Cold Site, evidence and unpriced consequence
 
-Status: implementation-ready (planned). Size M; two phases. Branch `task/W2-04-cold-site-evidence-money` from reviewed/merged W2-03. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. Exit: five exact v69 cold routes backed by selected public evidence, capability limits and immutable unpriced consequence history.
+Status: done (merged to main 2026-10-19; review r1 CHANGES, Run 9 fixes, re-review ACCEPT; backend 2823, host 708, frontend 2228; guards 10/10); was in_review (built Runs 1-9; packet `.agent/W2-04-review-packet.md`; activated 2026-10-18 from main `b486af76`; W2-03 merged); was implementation-ready (planned). Size M; two phases. Branch `task/W2-04-cold-site-evidence-money` from reviewed/merged W2-03. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. Exit: five exact v69 cold routes backed by selected public evidence, capability limits and immutable unpriced consequence history.
 
 ## Binding design and dependencies
 

@@ -554,7 +554,7 @@ class TestMigration0020:
             evidence_count = len(rows(engine, "SELECT 1 FROM accepted_evidence"))
             with pytest.raises(DBAPIError, match=refused):
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0022_w2_cold_assessment"
+            assert head(engine) == "0023_w2_cold_consequence"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
@@ -602,7 +602,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0022_w2_cold_assessment" and v3_reads() == before_reads
+        assert head(engine) == "0023_w2_cold_consequence" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])

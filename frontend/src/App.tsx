@@ -70,6 +70,7 @@ import {
 import { createColdFoundationClient, type ColdFoundationClient } from "./sites/coldFoundationClient";
 import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFoundationClient";
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
+import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
@@ -101,6 +102,7 @@ const defaultSiteFoundation = createSiteFoundationClient();
 const defaultColdFoundation = createColdFoundationClient();
 const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
+const defaultColdSite = createColdSiteClient();
 
 /**
  * Route table.
@@ -170,6 +172,8 @@ export interface AppProps {
   evFoundation?: EvFoundationClient;
   /** W2-03: the selected cold assessment reads, used for a COLDCHAIN Site's Performance and Finding routes. */
   coldAssessment?: ColdAssessmentClient;
+  /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
+  coldSite?: ColdSiteClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -194,6 +198,7 @@ export function App({
   coldFoundation = defaultColdFoundation,
   evFoundation = defaultEvFoundation,
   coldAssessment = defaultColdAssessment,
+  coldSite = defaultColdSite,
   siteTemplateLineage,
   now,
   coldScenarios,
@@ -230,6 +235,8 @@ export function App({
                 flags={flags}
                 templateLineage={templateLineage}
                 findingIndex={siteFindingIndex}
+                coldSite={coldSite}
+                coldAssessment={coldAssessment}
               />
             }
           />
@@ -277,6 +284,8 @@ export function App({
                 evidence={siteEvidence}
                 analytics={siteAnalytics}
                 sitesPath={SITES_PATH}
+                coldSite={coldSite}
+                coldAssessment={coldAssessment}
               />
             }
           />
@@ -307,11 +316,11 @@ export function App({
           />
           <Route
             path={SITE_FINANCIALS_ROUTE_PATH}
-            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="overview" />}
+            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="overview" coldSite={coldSite} coldAssessment={coldAssessment} />}
           />
           <Route
             path={SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH}
-            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="assumptions" />}
+            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="assumptions" coldSite={coldSite} coldAssessment={coldAssessment} />}
           />
           {[SITE_FINDING_ROUTE_PATH, SITE_FINDING_VIEW_ROUTE_PATH].map((path) => (
             <Route

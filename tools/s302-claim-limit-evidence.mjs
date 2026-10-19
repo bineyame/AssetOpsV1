@@ -62,7 +62,7 @@ const ev = async (expression) => (await send("Runtime.evaluate", { expression, r
 async function settle() {
   for (let i = 0; i < 200; i++) {
     await sleep(150);
-    const ok = await ev(`(() => { const s = document.querySelector('[data-claim-limit-section]'); return !!s && !/Loading /.test(document.body.textContent) && !!s.querySelector('[data-claim-limit-state]'); })()`);
+    const ok = await ev(`(() => { const s = document.querySelector('[data-claim-limit-section]'); return !!s && ![...document.querySelectorAll('main p')].some((p) => /^Loading [^.]+\\.$/.test(p.textContent.trim())) && !!s.querySelector('[data-claim-limit-state]'); })()`);
     if (ok) return true;
   }
   return false;
