@@ -1,3 +1,15 @@
+# Resume note — fix round r7/r8 (2026-10-19, tip after `a17026f1`)
+
+Built: r7 P5/P7/P8 `0b06acfc`; r8 H1 `3bdcabec`; r8 M2 + M3 backend test `37da7b0b`; L1 + L2 `a17026f1`. check-all 10/10 at tip.
+Blocked: `.agent/W2-06-pending-rulings.md` "fix round r7/r8" (M1-a/b/c, M3 wire kind). Resume there:
+1. M1 in `postgres_assessment_store.py::ev_inputs` (whole-set `classify` gate, per-record link status) and the read
+   snapshot per the M1-a/b answers; tests named in r8 M1 (three store, one read, one frontend).
+2. M3 UI in `EvAssessmentViews.tsx::FindingPanels` (Record line, ordered disclosure, missing-ID fallback) per the M3
+   answer; `finding_record_line_names_fault_and_discloses_all_support_ids`.
+3. Then the single serial verification from the brief (focused `test_w206_ev_*`, frontend + build, check-all,
+   full backend, host), captures/heights if the UI changed, packet "Fix round (r7/r8)" table completion.
+Test DB `w206h_test` was dropped at the end of this round; recreate it.
+
 # W2-06 phase handoff — after spec commit 1 and q1 fixes (2026-10-19)
 
 Branch `task/W2-06-ev-assessment` (worktree `AssetOpsV1-review5`), from main `3c4a2ebc`. Not merged.
