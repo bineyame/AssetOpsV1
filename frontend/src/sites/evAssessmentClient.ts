@@ -81,9 +81,17 @@ export interface EvSessionItem {
   links: EvLinks;
 }
 
+/** r9 M1-c: one accepted record excluded by its exact source/binding (full-window, independent of paging). */
+export interface EvExcludedRecord {
+  evidence_id: string;
+  record_kind: string | null;
+  reason: string;
+}
+
 export interface EvSessionsRead extends EvEnvelope {
   status: EvStatus;
   denominator: EvDenominator;
+  excluded_records: EvExcludedRecord[];
   items: EvSessionItem[];
   next_cursor: string | null;
 }
@@ -121,6 +129,9 @@ export interface EvFindingClaim {
   start_at: string | null;
   abort_at: string | null;
   fault_evidence_id: string | null;
+  /** r9 M3: read-time only; the selected session revision's exact SUPPORT START / ABORT cited by this Finding. */
+  start_evidence_id: string | null;
+  abort_evidence_id: string | null;
   supported_kwh: string | null;
   energy_complete: boolean | null;
 }
@@ -150,7 +161,9 @@ function isEnvelope(value: unknown): value is EvEnvelope {
 
 const SHAPES = {
   sessions: (v: unknown) =>
-    isEnvelope(v) && isObject((v as EvSessionsRead).status) && isObject((v as EvSessionsRead).denominator) && Array.isArray((v as EvSessionsRead).items),
+    isEnvelope(v) && isObject((v as EvSessionsRead).status) && isObject((v as EvSessionsRead).denominator) &&
+    Array.isArray((v as EvSessionsRead).excluded_records) &&
+    Array.isArray((v as EvSessionsRead).items),
   session: (v: unknown) =>
     isEnvelope(v) && typeof (v as EvSessionDetailRead).session_id === "string" && Array.isArray((v as EvSessionDetailRead).history),
   findings: (v: unknown) => isEnvelope(v) && Array.isArray((v as EvFindingsRead).items),

@@ -69,6 +69,10 @@ export const EV_COPY = {
   withdrawn: "This finding is no longer supported by the selected evidence.",
   unsupported: "The selected records do not support an interruption conclusion.",
   nextStep: "Retrieve charger diagnostics and witness a complete session with start, end and meter records.",
+  /** r9 M1-a: the whole accepted set is MIXED or UNKNOWN. */
+  sourceUnassessable: "EV source provenance is mixed or unverified; session outcomes cannot be assessed.",
+  /** r9 M1-c: one accepted record excluded by its exact source/binding. */
+  recordUnverified: "Source or binding unverified for this record.",
 } as const;
 
 export function evRefusalText(read: Exclude<EvRead<unknown>, { status: "loaded" }>): string {
@@ -320,12 +324,50 @@ function sessionReferences(read: EvSessionsRead) {
   ];
 }
 
+/** r9 M1-c: one closed-disclosure line per excluded accepted record, after the ordinary session references. */
+function ExcludedRecords({ read }: { read: EvSessionsRead }) {
+  if (read.excluded_records.length === 0) return null;
+  return (
+    <>
+      {read.excluded_records.map((x) => (
+        <p key={x.evidence_id} className="ev-excluded" data-ev-excluded={x.evidence_id}>
+          <span aria-label={`Record ${x.evidence_id} · ${EV_COPY.recordUnverified}`}>{`Record ${short(x.evidence_id)} · ${EV_COPY.recordUnverified}`}</span>
+        </p>
+      ))}
+    </>
+  );
+}
+
+/** r9 M1-a: the unassessable set's actual class and exact accepted/source IDs (no stored basis). */
+function sourceDetail(read: EvSessionsRead) {
+  const p = read.source_provenance;
+  return [
+    { label: "Source class", value: p.classification },
+    ...p.evidence_ids.map((v, i) => ({ label: `Accepted record ${i + 1}`, value: v })),
+    ...p.source_ids.map((v, i) => ({ label: `Source ${i + 1}`, value: v })),
+  ];
+}
+
 function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null; gap: string | null; findingHref: (findingId: string) => string }) {
   let body: ReactNode;
+  const sourceBlocked = read !== null && read.limitations.includes(EV_COPY.sourceUnassessable);
   if (read === null) {
     body = <Gap id="ev-records">{gap}</Gap>;
   } else if (read.currentness.state === "UNKNOWN") {
-    body = <Gap id="ev-records">{read.currentness.limitation ?? "Unknown"}</Gap>;
+    body = (
+      <>
+        <Gap id="ev-records">{read.currentness.limitation ?? "Unknown"}</Gap>
+        {sourceBlocked ? <ExactReferences variant="tech" name="ev-source-detail" references={sourceDetail(read)} /> : null}
+      </>
+    );
+  } else if (read.status.state === "UNKNOWN") {
+    // r9 M1-b: a stored UNKNOWN result (never "no sessions" or 0); its limitation above the exact references.
+    body = (
+      <>
+        <Gap id="ev-records">{read.status.limitation ?? "Unknown"}</Gap>
+        <ExactReferences variant="tech" name="ev-session-references" references={sessionReferences(read)} extra={read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null} />
+      </>
+    );
   } else if (read.items.length === 0) {
     body = (
       <>
@@ -336,9 +378,15 @@ function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null;
   } else {
     body = (
       <>
+        {sourceBlocked && read.currentness.state === "PENDING_RECOMPUTE" ? (
+          <>
+            <p className="ev-note" data-ev-pending-note>{EV_COPY.pending}</p>
+            <p className="ev-note" data-ev-source-limitation>{EV_COPY.sourceUnassessable}</p>
+          </>
+        ) : null}
         <SessionRows read={read} findingHref={findingHref} />
         {(read.denominator.orphan ?? 0) > 0 ? <p className="ev-note">{EV_COPY.orphan}</p> : null}
-        <ExactReferences variant="tech" name="ev-session-references" references={sessionReferences(read)} />
+        <ExactReferences variant="tech" name="ev-session-references" references={sessionReferences(read)} extra={read.excluded_records.length > 0 ? <ExcludedRecords read={read} /> : null} />
       </>
     );
   }
@@ -405,7 +453,7 @@ function SessionCards({ read }: { read: EvSessionsRead | null }) {
   const state = read?.currentness.state;
   const value = (n: number | null | undefined) =>
     read === null || state === "UNKNOWN" ? "Unknown" : state === "PENDING_RECOMPUTE" ? "Pending recompute" : count(n);
-  const word = read === null || state === "UNKNOWN" || state === "PENDING_RECOMPUTE";
+  const word = read === null || state === "UNKNOWN" || state === "PENDING_RECOMPUTE" || read.status.state === "UNKNOWN";
   const d = read?.denominator;
   return (
     <MetricCards label="Session outcomes">
@@ -511,7 +559,14 @@ export interface EvFindingFrameProps {
 
 function exactClaim(f: EvFindingDetailRead): boolean {
   const c = f.claim;
-  return f.lifecycle === "SUPPORTED" && c.start_at !== null && c.abort_at !== null && c.fault_evidence_id !== null;
+  return (
+    f.lifecycle === "SUPPORTED" &&
+    c.start_at !== null &&
+    c.abort_at !== null &&
+    c.fault_evidence_id !== null &&
+    c.start_evidence_id !== null &&
+    c.abort_evidence_id !== null
+  );
 }
 
 function deliveredLine(f: EvFindingDetailRead): string {
@@ -548,7 +603,16 @@ function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; ses
     : finding.lifecycle === "NO_LONGER_SUPPORTED"
       ? EV_COPY.withdrawn
       : EV_COPY.unsupported;
-  const record = c.fault_evidence_id;
+  // r9 M3: the closed line names the fault only when the verified trio is complete; the disclosure lists the
+  // available labelled IDs in semantic order, then the analysis gap once.
+  const trio = c.start_evidence_id !== null && c.fault_evidence_id !== null && c.abort_evidence_id !== null;
+  const record = trio ? c.fault_evidence_id : null;
+  const labelled: [string, string | null][] = [
+    ["Start record ID", c.start_evidence_id],
+    ["Fault record ID", c.fault_evidence_id],
+    ["Abort record ID", c.abort_evidence_id],
+  ];
+  const recordIds = labelled.filter((x): x is [string, string] => x[1] !== null);
   return (
     <>
       <Panel heading="Bounded conclusion" headingId="ev-conclusion-heading">
@@ -563,20 +627,33 @@ function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; ses
           )}{" "}
           · <span>No analysis link</span>
         </p>
-        <ExactReferences
-          variant="tech"
-          name="ev-finding-references"
-          references={[
-            { label: "Finding ID", value: finding.finding_id },
-            { label: "Finding revision ID", value: finding.revision_id },
-            { label: "Fault record ID", value: record },
-            { label: EV_COPY.analysisGap, value: record },
-            { label: "Assessment basis (SHA-256)", value: finding.source_provenance.basis_sha256 },
-            { label: "Lifecycle", value: finding.lifecycle },
-            { label: "Selected cutoff", value: finding.window.known_at },
-            ...finding.limitations.map((l, i) => ({ label: `Stored limitation ${i + 1}`, value: l })),
-          ]}
-        />
+        <details className="disclosure exact-references exact-references--tech" data-disclosure="ev-finding-references" data-exact-references>
+          <summary className="disclosure__summary">How this was worked out</summary>
+          <ul className="disclosure__body ev-record-ids" data-ev-record-ids>
+            {recordIds.map(([label, value]) => (
+              <li key={label} data-ev-record-id={label}>
+                {`${label}: `}
+                <code data-vocabulary-exempt="source-reference">{value}</code>
+              </li>
+            ))}
+          </ul>
+          <p className="disclosure__body" data-ev-analysis-gap>{EV_COPY.analysisGap}</p>
+          <dl className="disclosure__body exact-references__list">
+            {[
+              { label: "Finding ID", value: finding.finding_id },
+              { label: "Finding revision ID", value: finding.revision_id },
+              { label: "Assessment basis (SHA-256)", value: finding.source_provenance.basis_sha256 },
+              { label: "Lifecycle", value: finding.lifecycle },
+              { label: "Selected cutoff", value: finding.window.known_at },
+              ...finding.limitations.map((l, i) => ({ label: `Stored limitation ${i + 1}`, value: l })),
+            ].map((reference) => (
+              <div className="exact-references__row" key={reference.label}>
+                <dt>{reference.label}</dt>
+                <dd>{reference.value === null ? "not recorded" : <code data-vocabulary-exempt="source-reference">{reference.value}</code>}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
       </Panel>
       <div className="panel-pair ev-pair">
         <Panel heading="Operational context" headingId="ev-operational-heading">

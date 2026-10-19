@@ -101,6 +101,7 @@ const sessions = (state: string, status: string, items: EvSessionItem[], d: Part
   ...envelope(state),
   status: { state: status, claim_level: "OBSERVED", as_of: "2026-10-06T09:00:01.000000Z", limitation: null },
   denominator: counts(d),
+  excluded_records: [],
   items,
   next_cursor: null,
 });
@@ -165,6 +166,8 @@ const FINDING_DETAIL: EvFindingDetailRead = {
     start_at: "2026-10-06T08:01:00.000000Z",
     abort_at: "2026-10-06T08:20:00.000000Z",
     fault_evidence_id: id(150),
+    start_evidence_id: id(149),
+    abort_evidence_id: id(151),
     supported_kwh: "12.500",
     energy_complete: true,
   },
@@ -218,6 +221,11 @@ function renderEv(path: string, list: EvRead<EvSessionsRead>, finding: EvRead<Ev
 }
 
 const SESSIONS = `/sites/${CODE}/performance/sessions`;
+const EV_COPY_NO_SESSIONS = "No charging sessions were observed in this window.";
+const PENDING_COPY = "New evidence is being assessed. The previous result may change.";
+const M1_SOURCE = "EV source provenance is mixed or unverified; session outcomes cannot be assessed.";
+const M1_BINDING = "EV source or binding is unverified; session outcomes cannot be assessed.";
+const UNVERIFIED = "Source or binding unverified for this record.";
 const FINDING_PATH = `/sites/${CODE}/findings/${FINDING}?from=${FROM}&to=${TO}&known_at=${KNOWN}`;
 const main = () => document.querySelector("main") as HTMLElement;
 const strip = () => (document.querySelector(".status-strip") as HTMLElement).textContent ?? "";
@@ -415,6 +423,88 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(document.querySelector("tbody")).toBeNull();
   });
 
+  it("unassessable_source_never_says_no_sessions", async () => {
+    // r9 M1-a: no exact head and a MIXED accepted set: Unknown everywhere, the exact sentence as the Records gap.
+    const mixed: EvSessionsRead = {
+      ...STATES.unknown,
+      currentness: { state: "UNKNOWN", as_of: null, limitation: M1_SOURCE },
+      status: { state: "UNKNOWN", claim_level: "UNKNOWN", as_of: null, limitation: M1_SOURCE },
+      denominator: { ...STATES.unknown.denominator, limitation: M1_SOURCE },
+      source_provenance: { classification: "MIXED", source_ids: [id(700)], evidence_ids: [id(701), id(702)], basis_sha256: null },
+      limitations: [M1_SOURCE],
+    };
+    renderEv(SESSIONS, ok(mixed));
+    await settledScreen();
+    expectV69Panels("sessions");
+    expect(strip()).toContain("Unknown");
+    expect(cardValues()).toEqual(["Unknown", "Unknown", "Unknown", "Unknown"]);
+    const records = panelTitled("Session service records");
+    expect(records.querySelector("[data-panel-gap]")?.textContent).toContain(M1_SOURCE);
+    const detail = records.querySelector('[data-disclosure="ev-source-detail"]') as HTMLDetailsElement;
+    expect(detail.open).toBe(false);
+    for (const text of ["MIXED", id(700), id(701), id(702)]) expect(detail.textContent).toContain(text);
+    expect(main().textContent).not.toContain("No sessions observed");
+    expect(main().textContent).not.toContain(EV_COPY_NO_SESSIONS);
+    expect(document.querySelector("tbody")).toBeNull();
+  });
+
+  it("unassessable source under a pending prior head keeps rows pending with the sentence beneath", async () => {
+    renderEv(SESSIONS, ok({ ...STATES.pendingLate, source_provenance: { ...STATES.pendingLate.source_provenance, classification: "MIXED" }, limitations: [PENDING_COPY, M1_SOURCE] }));
+    await settledScreen();
+    const records = panelTitled("Session service records");
+    const notes = Array.from(records.querySelectorAll(".ev-note")).map((x) => x.textContent);
+    expect(notes.slice(0, 2)).toEqual([PENDING_COPY, M1_SOURCE]);
+    expect(records.querySelectorAll("tbody tr")).toHaveLength(1);
+  });
+
+  it("wrong_binding_records_have_exact_disclosure", async () => {
+    // r9 M1-b: a stored UNKNOWN (binding) result with no rows; M1-c lines in the closed references.
+    const excluded = [
+      { evidence_id: id(801), record_kind: "EV_SESSION_START", reason: "SOURCE_UNVERIFIED" },
+      { evidence_id: id(802), record_kind: "EV_SESSION_START", reason: "SOURCE_UNVERIFIED" },
+    ];
+    const bindingUnknown: EvSessionsRead = {
+      ...sessions("CURRENT", "UNKNOWN", []),
+      status: { state: "UNKNOWN", claim_level: "UNKNOWN", as_of: "2026-10-06T09:00:01.000000Z", limitation: M1_BINDING },
+      denominator: { ...STATES.unknown.denominator, as_of: "2026-10-06T09:00:01.000000Z", limitation: M1_BINDING },
+      excluded_records: excluded,
+    };
+    renderEv(SESSIONS, ok(bindingUnknown));
+    await settledScreen();
+    expectV69Panels("sessions");
+    expect(strip()).toContain("Unknown");
+    expect(strip()).not.toContain("No sessions observed");
+    expect(cardValues()).toEqual(["Unknown", "Unknown", "Unknown", "Unknown"]);
+    expect(cardValues()).not.toContain("0");
+    const records = panelTitled("Session service records");
+    expect(records.querySelector("[data-panel-gap]")?.textContent).toContain(M1_BINDING);
+    expect(records.textContent).not.toContain(EV_COPY_NO_SESSIONS);
+    const refs = records.querySelector('[data-disclosure="ev-session-references"]') as HTMLDetailsElement;
+    expect(refs.open).toBe(false);
+    // The limitation sits above the disclosure.
+    const gapNode = records.querySelector("[data-panel-gap]") as HTMLElement;
+    expect(gapNode.compareDocumentPosition(refs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const lines = Array.from(refs.querySelectorAll("[data-ev-excluded]")).map((x) => x.textContent);
+    expect(lines).toEqual([`Record ${id(801).slice(0, 8)} · ${UNVERIFIED}`, `Record ${id(802).slice(0, 8)} · ${UNVERIFIED}`]);
+    for (const x of excluded) expect(screen.getByLabelText(`Record ${x.evidence_id} · ${UNVERIFIED}`)).toBeTruthy();
+    expect(refs.querySelector("a, button")).toBeNull();
+    expect(document.querySelector("tbody")).toBeNull();
+  });
+
+  it("valid sessions list excluded records after the ordinary references; none renders no line", async () => {
+    renderEv(SESSIONS, ok({ ...STATES.complete, excluded_records: [{ evidence_id: id(803), record_kind: "EV_SESSION_END", reason: "SOURCE_UNVERIFIED" }] }));
+    await settledScreen();
+    const refs = panelTitled("Session service records").querySelector('[data-disclosure="ev-session-references"]') as HTMLElement;
+    expect(refs.querySelectorAll("[data-ev-excluded]")).toHaveLength(1);
+    const lastRow = Array.from(refs.querySelectorAll(".exact-references__row")).pop() as HTMLElement;
+    expect(lastRow.compareDocumentPosition(refs.querySelector("[data-ev-excluded]") as HTMLElement) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(panelTitled("Session service records").querySelectorAll("tbody tr")).toHaveLength(1);
+    cleanup();
+    renderEv(SESSIONS, ok(STATES.complete));
+    await settledScreen();
+    expect(document.querySelectorAll("[data-ev-excluded]")).toHaveLength(0);
+  });
+
   it("shows four real rows, then Show all", async () => {
     const many = sessions("CURRENT", "OBSERVED_SESSIONS", [10, 11, 12, 13, 14, 15].map((n) => session(n)), { started: 6, completed: 6, confirmed_delivery: 6 });
     renderEv(SESSIONS, ok(many));
@@ -480,6 +570,36 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expect(subtabs("Finding sections")).toEqual([["Overview", false], ["Recommendation", true]]);
     expectInert("Recommendation");
     for (const text of ["F-130", "ACT-061", "CHG-002", "$36", "SES-011"]) expect(main().textContent).not.toContain(text);
+  });
+
+  it("finding_record_line_names_fault_and_discloses_all_support_ids", async () => {
+    renderEv(FINDING_PATH, ok(STATES.interrupted));
+    await settledScreen();
+    const conclusion = panelTitled("Bounded conclusion");
+    const line = conclusion.querySelector("[data-ev-record]") as HTMLElement;
+    expect(line.textContent).toBe(`Record ${id(150).slice(0, 8)} · No analysis link`);
+    expect(screen.getByLabelText(`Record ${id(150)}`)).toBeTruthy();
+    const refs = conclusion.querySelector('[data-disclosure="ev-finding-references"]') as HTMLDetailsElement;
+    expect(refs.open).toBe(false);
+    expect(refs.querySelector("summary")?.textContent).toBe("How this was worked out");
+    const ids = Array.from(refs.querySelectorAll("[data-ev-record-id]")).map((x) => x.textContent);
+    expect(ids).toEqual([`Start record ID: ${id(149)}`, `Fault record ID: ${id(150)}`, `Abort record ID: ${id(151)}`]);
+    const gaps = Array.from(refs.querySelectorAll("*")).filter((x) => x.children.length === 0 && x.textContent === "Analysis view not available for this EV record");
+    expect(gaps).toHaveLength(1);
+    const lastId = refs.querySelectorAll("[data-ev-record-id]")[2];
+    expect(lastId.compareDocumentPosition(gaps[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(conclusion.querySelector("[data-ev-conclusion]")?.getAttribute("data-ev-conclusion")).toBe("supported");
+
+    // A missing ABORT support ID: unsupported conclusion, Record Unknown, only the verified labelled IDs.
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, claim: { ...FINDING_DETAIL.claim, abort_evidence_id: null } }));
+    await settledScreen();
+    const limited = panelTitled("Bounded conclusion");
+    expect(limited.querySelector("[data-ev-conclusion]")?.textContent).toBe("The selected records do not support an interruption conclusion.");
+    expect((limited.querySelector("[data-ev-record]") as HTMLElement).textContent).toBe("Record Unknown · No analysis link");
+    const partial = Array.from(limited.querySelectorAll("[data-ev-record-id]")).map((x) => x.textContent);
+    expect(partial).toEqual([`Start record ID: ${id(149)}`, `Fault record ID: ${id(150)}`]);
+    expect(limited.textContent).not.toContain("Abort record ID");
   });
 
   it("withdrawn Finding is history, not a supported claim", async () => {
