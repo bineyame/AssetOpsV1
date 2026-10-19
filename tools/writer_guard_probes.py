@@ -34,6 +34,8 @@ Sets:
   any of these names is missing.
 - `cold <cold consequence table> owner insert unseen`: W2-04 Q10, the store's one INSERT into that table replaced by a
   SELECT; rule 8's per-table inserts-seen assertion must report the check vacuous.
+- `ev <EV consequence table> owner insert unseen`: W2-07 commit 2, the same vacuity probe for each EV consequence
+  table (rule 8 requires each name).
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -436,6 +438,17 @@ NEGATIVE += [
     for table, columns in (("cold_consequence_revision", "id, tenant_id, site_id, finding_revision_id, "),
                            ("cold_consequence_evidence", "consequence_revision_id, tenant_id, site_id, "),
                            ("cold_consequence_work_attempt", "id, tenant_id, site_id, work_id, "))
+]
+
+# W2-07 (enabled in spec commit 2): the same per-table vacuity probe for each EV consequence table.
+NEGATIVE += [
+    (f"ev {table} owner insert unseen", CONSEQUENCE,
+     ("replace", f'"INSERT INTO {table} ({columns}', f'"SELECT * FROM {table} WHERE ({columns}'),
+     f"Rule 8 found no INSERT INTO {table} in ")
+    for table, columns in (("ev_consequence_revision", "id, tenant_id, site_id, finding_revision_id, "),
+                           ("ev_consequence_session", "tenant_id, site_id, consequence_revision_id, "),
+                           ("ev_consequence_evidence", "tenant_id, site_id, consequence_revision_id, "),
+                           ("ev_consequence_work_attempt", "id, tenant_id, site_id, work_id, "))
 ]
 
 # W2-07 (migration 0026): the consequence store alone INSERTs each EV consequence table, which no module updates,

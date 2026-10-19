@@ -737,6 +737,9 @@ function Invoke-ConfigurationPersistenceCheck {
     # W2-04: per-table owner INSERTs into the cold consequence tables (Q10: each asserted >= 1 below).
     $coldConsequenceInsertsSeen = @{ 'cold_consequence_revision' = 0; 'cold_consequence_evidence' = 0
         'cold_consequence_work_attempt' = 0 }
+    # W2-07 (enabled in spec commit 2): per-table owner INSERTs into the EV consequence tables (each asserted >= 1).
+    $evConsequenceInsertsSeen = @{ 'ev_consequence_revision' = 0; 'ev_consequence_session' = 0
+        'ev_consequence_evidence' = 0; 'ev_consequence_work_attempt' = 0 }
     # W2-00 (D-2026-10-17-w2-00-answers; design section 7): the ledger alone inserts event evidence, rejections and
     # dispositions (recompute_job stays shared with the assessment store). Every INSERT INTO accepted_evidence keeps
     # only the message DO NOTHING arbiter: an event or EV START unique violation is handled by a per-ordinal
@@ -965,10 +968,13 @@ function Invoke-ConfigurationPersistenceCheck {
                         $coldConsequenceInsertsSeen[$target]++
                     }
                 }
-                if ($null -ne $target -and $evConsequenceTables -contains $target -and
-                        $line -notmatch '(?i)^INSERT\s+INTO\b') {
-                    $failures.Add(("EV consequence table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
-                        "MERGE or COPY from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                if ($null -ne $target -and $evConsequenceTables -contains $target) {
+                    if ($line -notmatch '(?i)^INSERT\s+INTO\b') {
+                        $failures.Add(("EV consequence table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE or COPY from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($module.Path -eq $consequenceWriter) {
+                        $evConsequenceInsertsSeen[$target]++
+                    }
                 }
                 if ($target -eq $evConsequenceWork) {
                     $failures.Add(("EV consequence work is written only by the migration 0026 triggers (no runtime " +
@@ -1145,6 +1151,14 @@ function Invoke-ConfigurationPersistenceCheck {
                 "insert-only check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
+    # W2-07 (enabled in spec commit 2): the consequence store must really INSERT into each EV consequence table, so
+    # the per-table insert-only and sole-owner checks above cannot pass on an empty set.
+    foreach ($table in $evConsequenceTables) {
+        if ($evConsequenceInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $consequenceWriter, so the EV consequence " +
+                "insert-only check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
     # W2-03: the cold writer policy fails closed. Each declared owner module must exist, and the rule-8 mutation
     # corpus must keep its pass probe and its foreign-INSERT, UPDATE, DELETE and DO UPDATE fail probes for every cold
     # episode table and for the cold Finding tables, so a removed owner or probe cannot leave the policy unproven.
@@ -1239,7 +1253,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $evProbeNames = @()
     foreach ($table in $evConsequenceTables) {
         $evProbeNames += @("controls ev $table insert", "ev $table foreign insert", "ev $table update",
-            "ev $table delete", "ev $table upsert")
+            "ev $table delete", "ev $table upsert", "ev $table owner insert unseen")
     }
     foreach ($verb in @('insert', 'update', 'delete', 'truncate', 'merge', 'copy')) {
         $evProbeNames += "ev $evConsequenceWork runtime $verb"

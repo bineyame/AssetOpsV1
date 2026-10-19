@@ -1,4 +1,4 @@
-"""W2-07: migration `0026_w2_ev_money` (commit 1) against Postgres.
+"""W2-07: migration `0026_w2_ev_money` (commit 1) and the EV money writer (commit 2) against Postgres.
 
 `.agent/W2-07-build-spec.md` "Concrete-artifact closure (2026-10-19)" section 1 and "Post-W2-06 reconciliation
 (2026-10-20)" commit 1: the authored EV tariff key, five append-only scoped EV consequence tables, trigger-only work
@@ -607,3 +607,266 @@ def pg_harness_dispose(built) -> None:
 
     built.engine.dispose()
     pg_harness.dispose(built.store)
+
+
+# --- commit 2: the EV money writer over the registered replays (each recreates the module database: keep last) -----
+
+GOLDEN_FROM = datetime(2026, 10, 6, 8, 0, tzinfo=timezone.utc)
+GOLDEN_TO = GOLDEN_FROM + timedelta(hours=1)
+#: build spec section 3 / q1 R2 / q3 R8: the six literal replay vectors (state, reason, quantity, amount, links).
+VECTORS = {
+    "complete": ("ESTIMATED", "ELIGIBLE_COMPLETE_INTERVALS", "30.000", "8.33250000", 7),
+    "interrupted": ("ESTIMATED", "ELIGIBLE_COMPLETE_INTERVALS", "15.000", "4.16625000", 4),
+    "fault": ("ESTIMATED", "ELIGIBLE_COMPLETE_INTERVALS", "10.000", "2.77750000", 3),
+    "missing-meter": ("UNPRICED", "INCOMPLETE_ENERGY", None, None, 0),
+    "late-record": ("ESTIMATED", "ELIGIBLE_COMPLETE_INTERVALS", "30.000", "8.33250000", None),
+    "contradictory": ("WITHHELD", "CONTRADICTORY_EVIDENCE", None, None, 0),
+}
+
+
+def golden_tariff(built, **kw) -> UUID:
+    return publish(built.tenant_id, built.site_id, valid_from=GOLDEN_FROM, valid_to=GOLDEN_TO,
+                   idem=kw.pop("idem", "w207-golden-tariff-1"), **kw)
+
+
+def money_worker():
+    from assetops_backend.financials.composition import build_ev_consequence_worker
+
+    return build_ev_consequence_worker(URL)
+
+
+def money(built, worker=None) -> list:
+    own = worker is None
+    worker = worker or money_worker()
+    try:
+        return worker.run_pending(built.tenant_id, built.site_id)
+    finally:
+        if own:
+            worker._store.dispose()
+
+
+def ev_money_rows(built) -> dict:
+    from assetops_backend.financials.adapters.postgres_consequence_store import PostgresConsequenceStore
+
+    store = PostgresConsequenceStore(URL)
+    try:
+        return store.ev_rows(built.tenant_id, built.site_id)
+    finally:
+        store.dispose()
+
+
+def money_head(rows: dict) -> dict:
+    window = [r for r in rows["ev_consequence_revision"]
+              if (r["window_start"], r["window_end"]) == (GOLDEN_FROM, GOLDEN_TO)]
+    assert window, "no consequence for the selected replay window"
+    return max(window, key=lambda r: r["revision_no"])
+
+
+def snapshot_state(built) -> str:
+    from assetops_backend.analytics.composition import build_ev_read_service
+
+    reads = build_ev_read_service(URL)
+    try:
+        return reads._read(lambda c: reads._snapshot(c, built.tenant_id, built.site_id, "EV-LAB-001", GOLDEN_FROM,
+                                                     GOLDEN_TO, None)["state"])
+    finally:
+        reads.dispose()
+
+
+def selected_assessment(built) -> UUID:
+    with built.engine.connect() as c:
+        return c.execute(text(
+            "SELECT x.assessment_revision_id FROM analytic_run_selection sel JOIN analytic_run_assessment x "
+            "ON x.run_id = sel.run_id WHERE sel.site_id = :s AND sel.analytic_id = 'ev-session/1' "
+            "AND sel.window_start = :a AND sel.window_end = :b ORDER BY sel.seq DESC LIMIT 1"),
+            {"s": built.site_id, "a": GOLDEN_FROM, "b": GOLDEN_TO}).scalar_one()
+
+
+def check_links(built, rows: dict, head: dict, expected_links: int | None) -> None:
+    sessions = [r for r in rows["ev_consequence_session"] if r["consequence_revision_id"] == head["id"]]
+    evidence = sorted(str(r["evidence_id"]) for r in rows["ev_consequence_evidence"]
+                      if r["consequence_revision_id"] == head["id"])
+    with built.engine.connect() as c:
+        support = sorted(str(x) for x in c.execute(text(
+            "SELECT evidence_id FROM ev_meter_interval WHERE site_id = :s AND use = 'SUPPORT' "
+            "AND revision_id = ANY(CAST(:ids AS uuid[]))"),
+            {"s": built.site_id, "ids": [str(r["session_revision_id"]) for r in sessions]}).scalars())
+    assert evidence == support and len(set(evidence)) == len(evidence)
+    if expected_links is not None:
+        assert len(evidence) == expected_links
+    if head["state"] != "ESTIMATED":
+        assert sessions == [] and evidence == []
+    else:
+        assert sum((r["included_kwh"] for r in sessions), Decimal(0)) == head["quantity_kwh"]
+
+
+@pytest.mark.parametrize("case", ["complete", "interrupted", "fault", "missing-meter", "late-record", "contradictory"])
+def test_ev_money_replay_vectors_are_exact(chain, case) -> None:  # noqa: F811
+    from test_w206_ev_store_postgres import run_worker
+
+    built = chain(case)
+    built.start_release_upload()
+    run_worker(built)
+    # q1 R2: the tariff is a later-authored retrospective scenario published through the store (SYSTEM_FIXTURE).
+    tariff = golden_tariff(built)
+    if case == "late-record":
+        assert all(o.succeeded for o in money(built))
+        early = money_head(ev_money_rows(built))
+        assert (early["state"], early["reason"], early["amount"], early["currency"]) == (
+            "UNPRICED", "INCOMPLETE_ENERGY", None, None)
+        built.advance_late()
+        # q3 R8: the late END's W2-06 job is unsettled, so every EV money item fails retryably; nothing is appended.
+        pending = money(built)
+        assert pending and all((o.succeeded, o.error_code) == (False, "PENDING_RECOMPUTE") for o in pending)
+        assert len(ev_money_rows(built)["ev_consequence_revision"]) == 1
+        run_worker(built)
+    outcomes = money(built)
+    assert outcomes and all(o.succeeded for o in outcomes), [(o.error_code, o.error_detail) for o in outcomes]
+    rows = ev_money_rows(built)
+    head = money_head(rows)
+    state, reason, quantity, amount, links = VECTORS[case]
+    assert (head["state"], head["reason"]) == (state, reason)
+    assert (None if head["quantity_kwh"] is None else str(head["quantity_kwh"])) == quantity
+    assert (None if head["amount"] is None else str(head["amount"])) == amount
+    assert head["source_gate"] == "REGISTERED_SIMULATION" and head["formula_version"] == "ev-gross-tariff/1"
+    assert head["assessment_revision_id"] == selected_assessment(built)
+    if state == "ESTIMATED":
+        assert (head["tariff_revision_id"], str(head["tariff_value"]), head["currency"]) == (tariff, "0.27775", "KES")
+        assert head["overlap_group"].startswith("ev:") and len(head["overlap_group"]) == 67
+        with built.engine.connect() as c:
+            recorded, valid = c.execute(text(
+                "SELECT r.recorded_at, tstzrange(a.valid_from, a.valid_to, '[)') FROM financial_assumption_revision r "
+                "JOIN financial_assumption_assignment a ON a.revision_id = r.id WHERE r.id = :i "
+                "AND a.recorded_to IS NULL"), {"i": tariff}).one()
+            cutoff = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE site_id = :s"),
+                               {"s": built.site_id}).scalar_one()
+        # Two clocks: the real publication time follows the evidence cutoff; the consequence follows the tariff.
+        assert recorded > cutoff and head["recorded_at"] > recorded
+        assert (valid.lower, valid.upper) == (GOLDEN_FROM, GOLDEN_TO)
+    else:
+        assert (head["tariff_revision_id"], head["tariff_value"], head["currency"], head["amount"]) == (
+            None, None, None, None)
+    check_links(built, rows, head, links)
+    if case == "fault":
+        assert len([r for r in rows["ev_consequence_session"] if r["consequence_revision_id"] == head["id"]]) == 1
+    if case == "late-record":
+        assert head["revision_no"] == 2 and len(rows["ev_consequence_revision"]) == 2
+    # Replay: nothing is pending, and a second pass appends nothing.
+    assert money(built) == [] and ev_money_rows(built)["ev_consequence_revision"] == rows["ev_consequence_revision"]
+    if case == "complete":
+        # q1 R2: a later tariff correction enqueues work and appends a new basis; the first row is not rewritten.
+        prices = PostgresAssumptionStore(URL)
+        try:
+            second = prices.publish(built.tenant_id, built.site_id, Publication(
+                assumption_key=EV_KEY, currency="KES", value=Decimal("0.30000"), basis="AUTHORED_ESTIMATE",
+                source_reference="W2-07 second authored test tariff", valid_from=GOLDEN_FROM, valid_to=GOLDEN_TO,
+                change_kind="CORRECTION", correction_reason="W2-07 second price", expected_prior_revision_id=tariff,
+                idempotency_key="w207-golden-tariff-2", channel="SYSTEM_FIXTURE", provenance={}),
+                SYSTEM_PUBLISHER).revision_id
+        finally:
+            prices.dispose()
+        assert all(o.succeeded for o in money(built))
+        after = ev_money_rows(built)
+        newest = money_head(after)
+        assert (newest["revision_no"], newest["tariff_revision_id"], str(newest["amount"])) == (2, second, "9.00000000")
+        assert newest["basis_sha256"] != head["basis_sha256"]
+        assert newest["technical_input_sha256"] == head["technical_input_sha256"]
+        assert [r for r in after["ev_consequence_revision"] if r["id"] == head["id"]] == [head]
+
+
+def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  # noqa: F811
+    from assetops_backend.financials import ev_money as em
+    from assetops_backend.financials.recompute import retry_due_at
+    from test_w206_ev_store_postgres import run_worker
+
+    built = chain("complete")
+    engine = built.engine
+    built.start_release_upload()
+    run_worker(built)
+    # A previously unpriced exact window: settled complete SUPPORT intervals, no tariff yet.
+    assert all(o.succeeded for o in money(built))
+    unpriced = money_head(ev_money_rows(built))
+    assert (unpriced["state"], unpriced["reason"], unpriced["quantity_kwh"]) == (
+        "UNPRICED", "TARIFF_MISSING", Decimal("30.000"))
+    # The published tariff enqueues its 0026 work through the real trigger; an overlapping wider W2-06 job is PENDING.
+    tariff = golden_tariff(built)
+    pending_work = ev_money_rows(built)
+    pending_ids = [w["id"] for w in pending_work["ev_consequence_work"]
+                   if w["id"] not in {a["work_id"] for a in pending_work["ev_consequence_work_attempt"]
+                                      if a["outcome"] == "SUCCEEDED"}]
+    assert len(pending_ids) == 1
+    work_id = pending_ids[0]
+    job = uuid4()
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
+            "available_at, created_at) VALUES (:j, :t, :s, 'ev_charging', :a, :b, 'PENDING', now(), now())"),
+            {"j": job, "t": built.tenant_id, "s": built.site_id, "a": GOLDEN_FROM - timedelta(hours=1),
+             "b": GOLDEN_TO + timedelta(hours=1)})
+    before = counts_of(built)
+    first = money(built)
+    assert [(o.work_id, o.succeeded, o.error_code, o.consequence_revision_id) for o in first] == [
+        (work_id, False, "PENDING_RECOMPUTE", None)]
+    rows = ev_money_rows(built)
+    assert [r["id"] for r in rows["ev_consequence_revision"]] == [unpriced["id"]]
+    assert [(a["work_id"], a["attempt_no"], a["outcome"], a["error_code"]) for a in rows["ev_consequence_work_attempt"]
+            if a["work_id"] == work_id] == [(work_id, 1, "FAILED", "PENDING_RECOMPUTE")]
+    assert snapshot_state(built) == "PENDING_RECOMPUTE"
+    # The job completes with no new exact assessment/session revision and no new 0026 work row.
+    with engine.begin() as c:
+        c.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job})
+    assert counts_of(built) == before and snapshot_state(built) == "CURRENT"
+    failed = [a for a in rows["ev_consequence_work_attempt"] if a["work_id"] == work_id][0]
+    due = retry_due_at(failed["finished_at"], 1)
+    worker = money_worker()
+    try:
+        early = worker.run(built.tenant_id, built.site_id, 10, now=due - timedelta(microseconds=1))
+        assert (early.outcomes, early.deferred) == ([], 1)
+        report = worker.run(built.tenant_id, built.site_id, 10, now=due)
+    finally:
+        worker._store.dispose()
+    assert [(o.work_id, o.succeeded, o.attempt_no, o.replayed) for o in report.outcomes] == [(work_id, True, 2, False)]
+    rows = ev_money_rows(built)
+    head = money_head(rows)
+    assert (head["revision_no"], head["state"], head["reason"], str(head["quantity_kwh"]), str(head["amount"]),
+            head["currency"], head["tariff_revision_id"]) == (
+        2, "ESTIMATED", "ELIGIBLE_COMPLETE_INTERVALS", "30.000", "8.33250000", "KES", tariff)
+    assert report.outcomes[0].consequence_revision_id == head["id"]
+    check_links(built, rows, head, 7)
+    # The unchanged line-77 forms: same technical input as the unpriced row, basis over the stored tariff.
+    assert head["technical_input_sha256"] == unpriced["technical_input_sha256"]
+    tariff_row = em.TariffAssignment(str(tariff), Decimal("0.27775"), "KES", em.TARIFF_UNIT, GOLDEN_FROM, GOLDEN_TO,
+                                     head["recorded_at"])
+    assessment = str(selected_assessment(built))
+    assert head["basis_sha256"] == em.consequence_basis_sha256(
+        head["technical_input_sha256"], tariff_row, "REGISTERED_SIMULATION", "REGISTERED_SIMULATION", [assessment])
+    assert unpriced["basis_sha256"] == em.consequence_basis_sha256(
+        head["technical_input_sha256"], None, "REGISTERED_SIMULATION", "REGISTERED_SIMULATION", [assessment])
+    # A repeated pass appends no duplicate revision.
+    assert money(built) == [] and len(ev_money_rows(built)["ev_consequence_revision"]) == 2
+
+    # An earlier stored ESTIMATED row is masked while a new overlapping job is pending and restored by basis replay.
+    job2 = uuid4()
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
+            "available_at, created_at) VALUES (:j, :t, :s, 'ev_charging', :a, :b, 'FAILED', now(), now())"),
+            {"j": job2, "t": built.tenant_id, "s": built.site_id, "a": GOLDEN_FROM, "b": GOLDEN_TO})
+        # A dirtiness event for the window through the trigger-owned enqueue function (no basis change).
+        c.execute(text("SELECT ev_consequence_enqueue(:t, :s, :a, :b, 'SESSION_REVISION', :i)"),
+                  {"t": built.tenant_id, "s": built.site_id, "a": GOLDEN_FROM, "b": GOLDEN_TO, "i": uuid4()})
+    assert snapshot_state(built) == "PENDING_RECOMPUTE"
+    masked = money(built)
+    assert [(o.succeeded, o.error_code) for o in masked] == [(False, "PENDING_RECOMPUTE")]
+    with engine.begin() as c:
+        c.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job2})
+    restored = money(built)
+    assert [(o.succeeded, o.replayed, o.consequence_revision_id) for o in restored] == [(True, True, head["id"])]
+    assert snapshot_state(built) == "CURRENT"
+    assert [r["id"] for r in ev_money_rows(built)["ev_consequence_revision"]] == [unpriced["id"], head["id"]]
+
+
+def counts_of(built) -> dict:
+    with built.engine.connect() as c:
+        return {t: c.execute(text(f"SELECT count(*) FROM {t} WHERE site_id = :s"), {"s": built.site_id}).scalar_one()
+                for t in ("assessment_revision", "ev_session_revision", "ev_consequence_work")}
