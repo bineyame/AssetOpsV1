@@ -27,6 +27,8 @@ COLD_SCENARIOS_PATH = "/api/simulator-lab/cold-scenarios"
 EV_SCENARIOS_PATH = "/api/simulator-lab/ev-scenarios"
 # W2-02: the explicit-run cold replay read is Lab-gated (`.agent/W2-02-build-spec.md` commit 4).
 COLD_REPLAY_PATH = "/api/sites/{site_code}/cold/replay"
+# W2-05b commit 5: the explicit-run EV replay read is Lab-gated beside cold (`.agent/W2-05b-build-spec.md`).
+EV_REPLAY_PATH = "/api/sites/{site_code}/ev/replay"
 RUN_PROFILES_PATH = "/api/simulator-lab/run-profiles"
 CREATE_RUN_PATH = "/api/simulator-lab/runs"
 RUN_DETAIL_PATH = "/api/simulator-lab/runs/{run_id}"
@@ -98,6 +100,7 @@ SIMULATOR_LAB_SERVED_PATHS = {
     RUN_PUBLICATION_ADVANCE_PATH,
     GATEWAY_DIAGNOSTICS_PATH,
     COLD_REPLAY_PATH,
+    EV_REPLAY_PATH,
 }
 
 # The same four, with a concrete run identity, for the request-level assertions.
