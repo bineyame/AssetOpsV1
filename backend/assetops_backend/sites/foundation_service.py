@@ -16,6 +16,11 @@ from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
 from assetops_backend.sites.binding_alignment import finalize
+from assetops_backend.sites.ev_foundation import (
+    EV_CONFIGURATION_INVALID,
+    EV_SITE_TYPE,
+    validate_ev_schedule_interval,
+)
 from assetops_backend.sites.foundation_content import (
     CONTENT_SCHEMA_VERSION,
     RESERVE_UNIT,
@@ -134,9 +139,24 @@ class ImportResult:
     created: bool
 
 
+def _value_refusal_code(site_type: str) -> str:
+    """W2-05a: an EV_CHARGING Foundation document refused for any value, topology or schedule rule is an EV
+    configuration error; every other Site type keeps `FOUNDATION_VALUE_INVALID`."""
+    return EV_CONFIGURATION_INVALID if site_type == EV_SITE_TYPE else "FOUNDATION_VALUE_INVALID"
+
+
+def _check_ev_interval(site_type: str, record: Any, valid_from: datetime, valid_to: datetime | None,
+                       source: str) -> None:
+    """W2-05a: the connector enable schedule against the Site zone over this revision's effective interval."""
+    if site_type == EV_SITE_TYPE:
+        validate_ev_schedule_interval(record.foundation, timezone_name=record.timezone, valid_from=valid_from,
+                                      valid_to=valid_to, source=source)
+
+
 def plan_import(tenant: TenantRef, source: ImportSource, now: datetime) -> ImportPlan:
     record = source.record
     foundation = record.foundation
+    _check_ev_interval(record.site_type, record, parse_utc_text(foundation.valid_from), None, source.path)
     site_id = uuid4()
     site = StoredSite(
         id=site_id,
@@ -576,7 +596,7 @@ class FoundationService:
             try:
                 content = change(replaced.content, next_version)
             except SiteConfigurationInvalid as error:
-                raise FoundationRefused("FOUNDATION_VALUE_INVALID", str(error), status=422) from error
+                raise FoundationRefused(_value_refusal_code(site.site_type), str(error), status=422) from error
             changed = RevisionRow(
                 id=uuid4(),
                 version=next_version,
@@ -592,9 +612,11 @@ class FoundationService:
                 change_note=note,
             )
             try:
-                record_at(site, changed)
+                changed_record = record_at(site, changed)
+                _check_ev_interval(site.site_type, changed_record, changed.valid_from, changed.valid_to,
+                                   f"foundation revision {changed.id} (v{changed.version})")
             except SiteConfigurationInvalid as error:
-                raise FoundationRefused("FOUNDATION_VALUE_INVALID", str(error), status=422) from error
+                raise FoundationRefused(_value_refusal_code(site.site_type), str(error), status=422) from error
             inserts.append(changed)
             changed_holder["changed"] = changed
             return PublishPlan(supersede_ids=(replaced.id,), superseded_at=now, inserts=tuple(inserts))

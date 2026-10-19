@@ -554,7 +554,7 @@ class TestMigration0020:
             evidence_count = len(rows(engine, "SELECT 1 FROM accepted_evidence"))
             with pytest.raises(DBAPIError, match=refused):
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0023_w2_cold_consequence"
+            assert head(engine) == "0024_w2_ev_config"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
@@ -564,7 +564,8 @@ class TestMigration0020:
                      normalized_unit="kWh", original_value_text="1.5", normalized_value_text="1.5",
                      interval_start=source_time - timedelta(minutes=5), interval_end=source_time,
                      session_id="sess-1", connector_id=ASSET_CODE)
-            with pytest.raises(DBAPIError, match=refused):
+            # W2-05a: 0024 sits above 0020 and refuses first while an EV measurement exists (its own message).
+            with pytest.raises(DBAPIError, match="Downgrade of 0024_w2_ev_config refused"):
                 command.downgrade(config, "0019_verification_core")
             remove_test_blockers(engine)
 
@@ -602,7 +603,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0023_w2_cold_consequence" and v3_reads() == before_reads
+        assert head(engine) == "0024_w2_ev_config" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])

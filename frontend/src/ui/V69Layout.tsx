@@ -271,6 +271,10 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   "cold-foundation": "Cold room · stored configuration for the period shown",
   "cold-readiness": "Definition, commissioning and gateway readiness",
   "cold-sld": "Cold room · single line diagram",
+  // W2-05a: the EV screens on the W2-01 cold pattern; the mock subtitle's illustrative ratings are not kept.
+  "ev-foundation": "EV charging · stored configuration for the period shown",
+  "ev-readiness": "Definition, commissioning and gateway readiness",
+  "ev-sld": "EV charging · single line diagram",
   // W2-03: the cold Performance screens' mock subtitles (no illustrative values in them).
   temperature: "Performance · temperature policy and bounded exposure",
   coldbackup: "Performance · grid outage to cooling-service recovery",

@@ -17,8 +17,10 @@ numeric text and its exact top-level, `message`, `source`, `mapping` and `timing
 `{source, timing:{source_time,interval_start,interval_end}, payload}`. Transport (`schema`, `message`,
 `mapping`, `timing.published_at`) is excluded, so a retransmitted event under a new message ID compares equal.
 
-`V4_CHANNEL_MAPPINGS` is the closed `simulator-lab-gateway-cold/1` channel table (design section 4) plus the
-two reserved EV tuples. W2-00 owns the table; W2-01/W2-02 publish and emit it (explicit deferral).
+`V4_CHANNEL_MAPPINGS` is the closed v4 channel table: the `simulator-lab-gateway-cold/1` entries (design
+section 4), the two reserved W2-00 EV tuples, and the W2-05a `simulator-lab-gateway-ev/1` exact connector and
+Site-import tuples (`D-2026-10-18-w2-05-buildspec` Q1/Q8). `V4_CHANNEL_MAPPINGS_BY_PROFILE` is the explicit
+profile-to-closed-table lookup; the cold profile, its version and its entries are unchanged.
 
 `read_envelope_header` is the Batch V2 header-only reader for V4 texts (ruling 3): it checks only the message
 identity and the source/mapping fields that batch homogeneity and identity need.
@@ -594,6 +596,9 @@ def header_message_id(text: object) -> str:
 
 V4_MAPPING_PROFILE_ID = "simulator-lab-gateway-cold"
 V4_MAPPING_PROFILE_VERSION = 1
+#: W2-05a Q8: the distinct EV profile EV-LAB-001 binds under; 05b registers its producer.
+V4_EV_MAPPING_PROFILE_ID = "simulator-lab-gateway-ev"
+V4_EV_MAPPING_PROFILE_VERSION = 1
 
 
 @dataclass(frozen=True)
@@ -633,9 +638,9 @@ def _events(*kinds: str, session: bool = False, units: tuple[str, ...] = ()) -> 
     return ChannelMapping("EVENT", None, tuple(kinds), True, session, units)
 
 
-#: Design section 4: the closed cold mapping plus the two reserved EV tuples. Same signal ID on a different
-#: device is not an alias. `simulator-lab-gateway-cold/1`, schema 4.
-V4_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
+#: Design section 4: the closed `simulator-lab-gateway-cold/1` table. Same signal ID on a different device is
+#: not an alias. Schema 4.
+V4_COLD_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
     ("chamber-probe", "temperature"): replace(_point("degC"), role="chamber_temperature"),
     ("ambient-probe", "temperature"): replace(_point("degC"), role="ambient_temperature"),
     ("grid-meter", "state"): replace(_point(DISCRETE_UNIT), role="grid_state"),
@@ -651,9 +656,54 @@ V4_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
     ("grid-meter", "event"): replace(_events("POWER_LOSS", "POWER_RESTORED"), role="grid_power_event"),
     ("operator-log", "temperature-event"): replace(_events("MANUAL_LOG", units=(MANUAL_LOG_UNIT,)),
                                                    role="manual_temperature"),
-    ("charger-controller", "session-event"): _events("EV_SESSION_START", "EV_SESSION_END", "EV_SESSION_ABORT",
-                                                     session=True),
-    ("connector-controller", "fault-event"): _events("EV_CONNECTOR_FAULT", "EV_CONNECTOR_CLEAR"),
+}
+
+
+def _interval(unit: str, *, session: bool = False) -> ChannelMapping:
+    return ChannelMapping("MEASUREMENT", "INTERVAL_MEAN", (), False, session, (unit,))
+
+
+def _ev_connector(prefix: str) -> dict[tuple[str, str], ChannelMapping]:
+    """W2-05a Q1 and Run 8 M3: one connector's seven exact tuples. Only connector energy (`INTERVAL_DELTA`) carries
+    nonnull `session_id` and `connector_id`. Power, requested power and allocated limit are `INTERVAL_MEAN`, and
+    connector state is a point measurement, each with explicit null for both IDs: the exact effective source
+    binding supplies the connector, and a mean claims no session."""
+    return {
+        (f"{prefix}-charger-controller", "session-event"): replace(
+            _events(*sorted(EV_SESSION_KINDS), session=True), role="ev_session_event"),
+        (f"{prefix}-connector-controller", "fault-event"): replace(
+            _events(*sorted(EV_CONNECTOR_KINDS)), role="ev_connector_fault"),
+        (f"{prefix}-connector-controller", "state"): replace(_point(DISCRETE_UNIT), role="ev_connector_state"),
+        (f"{prefix}-connector-controller", "requested-power"): replace(_interval("kW"), role="ev_requested_power"),
+        (f"{prefix}-connector-controller", "allocated-limit"): replace(_interval("kW"), role="ev_allocated_limit"),
+        (f"{prefix}-connector-meter", "energy"): ChannelMapping("MEASUREMENT", "INTERVAL_DELTA", (), False, True,
+                                                                (DELTA_UNIT,), role="ev_connector_energy"),
+        (f"{prefix}-connector-meter", "power"): replace(_interval("kW"), role="ev_connector_power"),
+    }
+
+
+#: W2-05a: the closed `simulator-lab-gateway-ev/1` table - exactly the c1/c2 tuples and the one Site import.
+V4_EV_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
+    **_ev_connector("c1"),
+    **_ev_connector("c2"),
+    ("site-meter", "import"): replace(_interval("kW"), role="ev_site_import"),
+}
+
+#: Every closed v4 tuple: the cold table, the two reserved W2-00 EV tuples (kept for their tests, now labelled
+#: with their EV roles, never bound by EV-LAB-001) and the EV table.
+V4_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
+    **V4_COLD_CHANNEL_MAPPINGS,
+    ("charger-controller", "session-event"): replace(
+        _events("EV_SESSION_START", "EV_SESSION_END", "EV_SESSION_ABORT", session=True), role="ev_session_event"),
+    ("connector-controller", "fault-event"): replace(_events("EV_CONNECTOR_FAULT", "EV_CONNECTOR_CLEAR"),
+                                                     role="ev_connector_fault"),
+    **V4_EV_CHANNEL_MAPPINGS,
+}
+
+#: The explicit profile-to-closed-table lookup (Q8).
+V4_CHANNEL_MAPPINGS_BY_PROFILE: Mapping[tuple[str, int], Mapping[tuple[str, str], ChannelMapping]] = {
+    (V4_MAPPING_PROFILE_ID, V4_MAPPING_PROFILE_VERSION): V4_COLD_CHANNEL_MAPPINGS,
+    (V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION): V4_EV_CHANNEL_MAPPINGS,
 }
 
 V4_BINDING_METADATA_KEYS = ("allowed_record_kinds", "allowed_outcomes", "requires_correlation",

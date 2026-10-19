@@ -544,7 +544,7 @@ def test_event_conflict_counts(chain, monkeypatch) -> None:
         template = found.bindings[("chamber-probe", "temperature")]
         entry = V4_CHANNEL_MAPPINGS[("charger-controller", "session-event")]
         extra = replace_binding(template, device_id="charger-controller", signal_id="session-event",
-                                role="test-session", asset_code="charger-1", source_unit="none", canonical_unit="none",
+                                role=entry.role, asset_code="charger-1", source_unit="none", canonical_unit="none",
                                 conversion={"kind": "IDENTITY", "parameters": {}}, **entry.metadata())
         return replace_basis(found, bindings={**found.bindings, ("charger-controller", "session-event"): extra})
 

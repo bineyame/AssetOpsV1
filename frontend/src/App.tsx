@@ -68,6 +68,7 @@ import {
   type SiteFoundationClient,
 } from "./sites/siteFoundationClient";
 import { createColdFoundationClient, type ColdFoundationClient } from "./sites/coldFoundationClient";
+import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFoundationClient";
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import {
@@ -99,6 +100,7 @@ const defaultSiteOverview = createSiteOverviewClient();
 const defaultSiteAnalytics = createSiteAnalyticsClient();
 const defaultSiteFoundation = createSiteFoundationClient();
 const defaultColdFoundation = createColdFoundationClient();
+const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultColdSite = createColdSiteClient();
 
@@ -166,6 +168,8 @@ export interface AppProps {
   siteFoundation?: SiteFoundationClient;
   /** W2-01: the selected cold-chain configuration read, used when the Site is COLDCHAIN. */
   coldFoundation?: ColdFoundationClient;
+  /** W2-05a: the selected EV Foundation read. */
+  evFoundation?: EvFoundationClient;
   /** W2-03: the selected cold assessment reads, used for a COLDCHAIN Site's Performance and Finding routes. */
   coldAssessment?: ColdAssessmentClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
@@ -192,6 +196,7 @@ export function App({
   siteFindingIndex,
   siteFoundation = defaultSiteFoundation,
   coldFoundation = defaultColdFoundation,
+  evFoundation = defaultEvFoundation,
   coldAssessment = defaultColdAssessment,
   coldSite = defaultColdSite,
   siteTemplateLineage,
@@ -242,6 +247,7 @@ export function App({
                 detail={siteDetail}
                 foundation={siteFoundation}
                 coldFoundation={coldFoundation}
+                evFoundation={evFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
                 gatewayHealth={siteEvidence.gatewayHealth}
@@ -255,6 +261,7 @@ export function App({
                 detail={siteDetail}
                 foundation={siteFoundation}
                 coldFoundation={coldFoundation}
+                evFoundation={evFoundation}
                 sitesPath={SITES_PATH}
                 templateLineage={templateLineage}
                 gatewayHealth={siteEvidence.gatewayHealth}

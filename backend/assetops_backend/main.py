@@ -52,6 +52,7 @@ from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
+from assetops_backend.ev_foundation_api import build_ev_foundation_router
 from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
 from assetops_backend.cold_site_api import build_cold_site_router
@@ -383,6 +384,9 @@ def create_app(
     app.include_router(build_asset_boundary_router(registry))
     # W2-01: selected cold-chain Foundation read; contact from the same gateway-health store.
     app.include_router(build_cold_foundation_router(
+        registry, gateway_access if hasattr(gateway_access, "gateway_health") else None, gateway_clock or utc_now))
+    # W2-05a: selected EV Foundation read; contact from the same gateway-health store.
+    app.include_router(build_ev_foundation_router(
         registry, gateway_access if hasattr(gateway_access, "gateway_health") else None, gateway_clock or utc_now))
     # W2-03: selected cold temperature, backup-chain and cold Finding reads; typed 503 without a database.
     cold_reads = build_cold_read_service(database_url()) if database_url() else None

@@ -25,7 +25,12 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Mapping, Sequence
 from uuid import UUID, uuid4
 
-from assetops_contracts.source_envelope_v4 import V4_CHANNEL_MAPPINGS
+from assetops_contracts.source_envelope_v4 import (
+    V4_CHANNEL_MAPPINGS,
+    V4_CHANNEL_MAPPINGS_BY_PROFILE,
+    V4_EV_MAPPING_PROFILE_ID,
+    V4_EV_MAPPING_PROFILE_VERSION,
+)
 
 from assetops_backend.sites.binding_alignment import (
     SNAPSHOT_SCHEMA_V1,
@@ -38,6 +43,7 @@ from assetops_backend.sites.binding_alignment import (
 from assetops_backend.sites.binding_roles import (
     ROLE_SET_BY_SITE_TYPE,
     ROLE_SET_COLD_1,
+    ROLE_SET_EV_1,
     VERIFICATION_MESSAGES,
     VERIFICATION_POINT_ROLES,
     VERIFICATION_POWER_ROLES,
@@ -50,6 +56,7 @@ from assetops_backend.sites.binding_roles import (
 )
 from assetops_backend.sites.cold_foundation import assets_by_code as cold_assets_by_code
 from assetops_backend.sites.cold_foundation import cold_foundation_document
+from assetops_backend.sites.ev_foundation import ev_blocking_gaps
 from assetops_backend.sites.foundation_content import (
     CURRENT_ROW_GAP_CODES,
     ConfigurationGap,
@@ -210,6 +217,14 @@ class DeclaredSignal:
 # --- validation ------------------------------------------------------------------
 
 
+#: The closed v4 table each v4-publishing role set's channels are checked against. Cold keeps the whole table it
+#: always used; EV binds only the exact `simulator-lab-gateway-ev/1` entries (W2-05a Q1/Q8).
+_V4_TABLE_BY_ROLE_SET = {
+    ROLE_SET_COLD_1: V4_CHANNEL_MAPPINGS,
+    ROLE_SET_EV_1: V4_CHANNEL_MAPPINGS_BY_PROFILE[(V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION)],
+}
+
+
 def _declared_signals(content: Mapping[str, Any]) -> dict[tuple[str, str], str]:
     return {
         (device["device_id"], signal["signal_id"]): signal["unit"]
@@ -291,6 +306,19 @@ def validate_bindings(
                     "does not choose among them.",
                 )
 
+    if role_set == ROLE_SET_EV_1:
+        # W2-05a Run 8 M2 (`D-2026-10-18-w2-05-buildspec`): an EV binding set needs a declared connector in
+        # every covering Foundation revision; neither sources nor requests create one. Empty and Site-import-only
+        # requests are refused here, so a published Site import cadence is never null.
+        if any(
+            not any(c.get("component_type") == "EV_CONNECTOR" for c in (row.content.get("components") or ()))
+            for row in foundation
+        ):
+            problem(
+                "BINDING_EV_CONNECTOR_NOT_DECLARED", None,
+                "An EV binding set needs at least one declared connector in every covering Foundation revision.",
+            )
+
     rows: list[BindingRow] = []
     channels: set[tuple[str, str]] = set()
     single: dict[tuple[str, str | None], int] = {}
@@ -327,6 +355,13 @@ def validate_bindings(
                     "BINDING_ASSET_UNKNOWN", index,
                     f"Asset {req.asset_id} is not a registered asset of {site.site_code}.",
                 )
+        if role_set == ROLE_SET_EV_1 and source is not None and asset is not None and source.asset_id != asset.id:
+            # W2-05a QG (`D-2026-10-18-w2-05-buildspec`): an EV source binds only the asset it is registered to,
+            # compared by registered UUID (a c1 device on the c2 connector, a meter device on another meter).
+            problem(
+                "BINDING_SOURCE_ASSET_MISMATCH", index,
+                f"Device {req.device_id!r} is registered to another asset, not {asset.asset_code}.",
+            )
         role: Role | None = roles.get(req.role)
         if role is None:
             problem("BINDING_ROLE_UNKNOWN", index, f"Role {req.role!r} is not in {role_set}.")
@@ -344,10 +379,11 @@ def validate_bindings(
             why = conversion_problem(role, req.source_unit, req.conversion)
             if why is not None:
                 problem("BINDING_CONVERSION_INVALID", index, f"{name}: {why}.")
-            if role_set == ROLE_SET_COLD_1:
+            if role_set in _V4_TABLE_BY_ROLE_SET:
                 # W2-01 (W2-00 review Low 2, design section 3 channel closure): a channel of the closed v4
-                # table serves exactly the role it names, with exactly the role's event kinds.
-                entry = V4_CHANNEL_MAPPINGS.get(channel)
+                # table serves exactly the role it names, with exactly the role's event kinds. W2-05a: the
+                # same rule for ev-roles-1 against the EV profile's table.
+                entry = _V4_TABLE_BY_ROLE_SET[role_set].get(channel)
                 if entry is not None and entry.role != role.role:
                     problem(
                         "BINDING_CHANNEL_ROLE_MISMATCH", index,
@@ -978,6 +1014,25 @@ def cold_snapshot_gaps(
             for m in messages if m["blocking"]]
 
 
+def ev_snapshot_gaps(
+    foundation: RevisionRow,
+    registrations: Registrations,
+    binding_set: BindingSetRevisionRow,
+) -> list[ConfigurationGap]:
+    """The blocking EV readiness of an EV_CHARGING selection, as snapshot gaps (W2-05a Q2).
+
+    A role set other than ev-roles-1 refuses. Contact, commissioning and optional roles never gate.
+    """
+    if binding_set.role_set != ROLE_SET_EV_1:
+        return [ConfigurationGap(
+            "BINDING_ROLE_SET_UNKNOWN", "binding",
+            f"Role set {binding_set.role_set!r} is not the {ROLE_SET_EV_1} EV role set.")]
+    codes = {a.id: a.asset_code for a in registrations.assets}
+    bound = {(b.role, codes[b.asset_id]) for b in binding_set.bindings if b.asset_id in codes}
+    return [ConfigurationGap(code, subject, message)
+            for code, subject, message in ev_blocking_gaps(foundation.content, bound)]
+
+
 def acquisition_snapshot(
     tenant_id: UUID,
     site: StoredSite,
@@ -1023,6 +1078,10 @@ def acquisition_snapshot(
         # revision and binding set; the MINIGRID gap rule is never applied to it. Every blocking cold
         # readiness message refuses, current or historical.
         gaps = cold_snapshot_gaps(foundation, registrations, binding_set)
+        blocking = gaps
+    elif site.site_type == "EV_CHARGING":
+        # W2-05a Q2: the selected EV rule, never the mini-grid electrical gaps; current or historical.
+        gaps = ev_snapshot_gaps(foundation, registrations, binding_set)
         blocking = gaps
     else:
         gaps = configuration_gaps(site, foundation, registrations)
@@ -1082,6 +1141,6 @@ def acquisition_snapshot(
         foundation_revision_id=foundation.id,
         binding_set=binding_set,
         current=current,
-        current_gaps=() if current or site.site_type == "COLDCHAIN"
+        current_gaps=() if current or site.site_type in ("COLDCHAIN", "EV_CHARGING")
         else tuple(g for g in gaps if g.code in CURRENT_ROW_GAP_CODES),
     )

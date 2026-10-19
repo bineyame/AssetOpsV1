@@ -25,6 +25,7 @@ from typing import Any, Mapping, NoReturn
 
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.sites.cold_foundation import validate_cold_foundation
+from assetops_backend.sites.ev_foundation import EV_SITE_TYPE, validate_ev_foundation
 from assetops_backend.sites.foundation_parsing import (
     FOUNDATION_CONTENT_KEYS,
     parse_component_properties,
@@ -197,6 +198,15 @@ def parse_site_document(document: Mapping[str, Any], *, source: str) -> SiteReco
         # W2-01: the cold section 3 rules run after the shared strict parser, on every import and on
         # every later revision (`record_at` re-parses through here), so a bad cold Foundation is never stored.
         validate_cold_foundation(foundation, source=source, invalid=_invalid)
+    if site_type == EV_SITE_TYPE:
+        # W2-05a: the EV rules run at the same point, for the same reason; the effective-interval schedule check
+        # needs the revision interval and runs in the Foundation service.
+        validate_ev_foundation(foundation, timezone_name=timezone, source=source)
+    elif foundation.connector_enable_schedules is not None:
+        raise SiteConfigurationInvalid(
+            f"'site.foundation.connector_enable_schedules' is declared for a {site_type} Site in {source}; "
+            "only an EV_CHARGING Site declares connector enable schedules."
+        )
 
     return SiteRecord(
         site_id=site_id,
@@ -279,6 +289,7 @@ def render_site_document(record: SiteRecord) -> dict[str, Any]:
                     signal_mappings=record.foundation.signal_mappings,
                     control_assumptions=record.foundation.control_assumptions,
                     site_controls=record.foundation.site_controls,
+                    connector_enable_schedules=record.foundation.connector_enable_schedules,
                 )
             ),
         },
@@ -486,6 +497,7 @@ def _parse_foundation(raw: Any, *, source: str) -> SiteFoundation:
         signal_mappings=content.signal_mappings,
         control_assumptions=content.control_assumptions,
         site_controls=content.site_controls,
+        connector_enable_schedules=content.connector_enable_schedules,
     )
 
 

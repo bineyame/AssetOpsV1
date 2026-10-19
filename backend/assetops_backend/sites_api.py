@@ -185,6 +185,7 @@ def site_detail(record: SiteRecord) -> dict[str, object]:
                     signal_mappings=record.foundation.signal_mappings,
                     control_assumptions=record.foundation.control_assumptions,
                     site_controls=record.foundation.site_controls,
+                    connector_enable_schedules=record.foundation.connector_enable_schedules,
                 )
             ),
         },

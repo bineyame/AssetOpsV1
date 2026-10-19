@@ -13,6 +13,8 @@ import { useSiteRecord } from "../sites/useSiteRecord";
 import { label, SOURCE_MODE_LABELS } from "../sites/siteViewModel";
 import type { ColdFoundationClient } from "../sites/coldFoundationClient";
 import { ColdFoundationFrame } from "../sites/ColdFoundationViews";
+import type { EvFoundationClient } from "../sites/evFoundationClient";
+import { EvFoundationFrame } from "../sites/EvFoundationViews";
 import { Breadcrumbs, PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
@@ -20,6 +22,8 @@ import {
   FOUNDATION_COMPONENT_PARAM,
   siteDetailHref,
   siteEvidenceHref,
+  siteFinancialAssumptionsHref,
+  siteFinancialsHref,
   siteHealthHref,
   siteFoundationHref,
   siteFoundationViewHref,
@@ -35,6 +39,8 @@ export interface SiteFoundationFrameProps {
   foundation: SiteFoundationClient;
   /** W2-01: the selected cold configuration read; a COLDCHAIN Site renders the cold views from it. */
   coldFoundation?: ColdFoundationClient;
+  /** W2-05a: the selected EV Foundation read; an EV_CHARGING Site renders the EV views from it. */
+  evFoundation?: EvFoundationClient;
   sitesPath: string;
   templateLineage?: SiteTemplateLineageClient;
   /** V-01a round 3: the S2 central gateway-contact read shown on Readiness. */
@@ -58,6 +64,7 @@ export function SiteFoundationFrame({
   detail,
   foundation,
   coldFoundation,
+  evFoundation,
   sitesPath,
   templateLineage,
   gatewayHealth,
@@ -142,6 +149,32 @@ export function SiteFoundationFrame({
         parentTrail={[
           { label: "Sites", to: sitesPath },
           { label: record?.status === "loaded" ? record.site.display_name : (state.foundation?.status === "loaded" ? state.foundation.value.site.display_name : siteId), to: siteDetailHref(siteId) },
+        ]}
+      />
+    );
+  }
+  if (evFoundation !== undefined && siteId !== undefined && (recordType === "EV_CHARGING" || foundationType === "EV_CHARGING")) {
+    const siteName = record?.status === "loaded" ? record.site.display_name : (state.foundation?.status === "loaded" ? state.foundation.value.site.display_name : siteId);
+    return (
+      <EvFoundationFrame
+        view={view}
+        siteId={siteId}
+        siteName={siteName}
+        mode={record?.status === "loaded" ? label(record.site.source.mode, SOURCE_MODE_LABELS) : null}
+        selectedAt={at}
+        onSelectAt={selectAt}
+        client={evFoundation}
+        gatewayHealth={gatewayHealth}
+        versions={state.versions?.status === "loaded" ? state.versions.value : null}
+        viewHref={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)}
+        evidenceHref={siteEvidenceHref(siteId)}
+        healthHref={siteHealthHref(siteId)}
+        financialsHref={siteFinancialsHref(siteId)}
+        assumptionsHref={siteFinancialAssumptionsHref(siteId)}
+        tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
+        parentTrail={[
+          { label: "Sites", to: sitesPath },
+          { label: siteName, to: siteDetailHref(siteId) },
         ]}
       />
     );

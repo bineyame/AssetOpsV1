@@ -1,0 +1,1020 @@
+{
+  "revision": "74372665",
+  "captured_at": "2026-10-19T06:42:03.058Z",
+  "pairs": [
+    {
+      "screen": "ev-foundation",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation?at=2026-10-06T12:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "ev-foundation-stocked-1440-app.png",
+      "mock_image": "ev-foundation-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 248,
+            "y": 312,
+            "w": 571,
+            "h": 327
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 837,
+            "y": 312,
+            "w": 571,
+            "h": 327
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 234,
+            "y": 416,
+            "w": 572,
+            "h": 268
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 824,
+            "y": 416,
+            "w": 572,
+            "h": 268
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-foundation",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation?at=2026-10-06T12:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "ev-foundation-stocked-390-app.png",
+      "mock_image": "ev-foundation-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 16,
+            "y": 440,
+            "w": 358,
+            "h": 360
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 16,
+            "y": 815,
+            "w": 358,
+            "h": 348
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 15,
+            "y": 642,
+            "w": 360,
+            "h": 268
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 15,
+            "y": 928,
+            "w": 360,
+            "h": 232
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-foundation",
+      "case": "missing-role",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation?at=2026-10-08T12:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "ev-foundation-missing-role-1440-app.png",
+      "mock_image": "ev-foundation-missing-role-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 248,
+            "y": 312,
+            "w": 571,
+            "h": 327
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 837,
+            "y": 312,
+            "w": 571,
+            "h": 327
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 234,
+            "y": 416,
+            "w": 572,
+            "h": 268
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 824,
+            "y": 416,
+            "w": 572,
+            "h": 268
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-foundation",
+      "case": "missing-role",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation?at=2026-10-08T12:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "ev-foundation-missing-role-390-app.png",
+      "mock_image": "ev-foundation-missing-role-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 16,
+            "y": 440,
+            "w": 358,
+            "h": 360
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 16,
+            "y": 815,
+            "w": 358,
+            "h": 348
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 15,
+            "y": 642,
+            "w": 360,
+            "h": 268
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 15,
+            "y": 928,
+            "w": 360,
+            "h": 232
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-foundation",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "ev-foundation-empty-1440-app.png",
+      "mock_image": "ev-foundation-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 248,
+            "y": 420,
+            "w": 571,
+            "h": 96
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 837,
+            "y": 420,
+            "w": 571,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 234,
+            "y": 416,
+            "w": 572,
+            "h": 268
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 824,
+            "y": 416,
+            "w": 572,
+            "h": 268
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-foundation",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/ev-foundation",
+      "app_image": "ev-foundation-empty-390-app.png",
+      "mock_image": "ev-foundation-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 16,
+            "y": 577,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 16,
+            "y": 705,
+            "w": 358,
+            "h": 113
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Physical site",
+          "Operating interpretation"
+        ],
+        "panels": [
+          {
+            "title": "Physical site",
+            "x": 15,
+            "y": 642,
+            "w": 360,
+            "h": 268
+          },
+          {
+            "title": "Operating interpretation",
+            "x": 15,
+            "y": 928,
+            "w": 360,
+            "h": 232
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-readiness",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/readiness?at=2026-10-06T12:00:00Z",
+      "mock_hash": "#/ev-readiness",
+      "app_image": "ev-readiness-stocked-1440-app.png",
+      "mock_image": "ev-readiness-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-ev-lab-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 334,
+            "w": 1145,
+            "h": 359
+          },
+          {
+            "title": "Gateway status · edge-ev-lab-001",
+            "x": 248,
+            "y": 712,
+            "w": 1145,
+            "h": 710
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-EV-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 313
+          },
+          {
+            "title": "Gateway status · GW-EV-01",
+            "x": 234,
+            "y": 747,
+            "w": 1161,
+            "h": 557
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-readiness",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/readiness?at=2026-10-06T12:00:00Z",
+      "mock_hash": "#/ev-readiness",
+      "app_image": "ev-readiness-stocked-390-app.png",
+      "mock_image": "ev-readiness-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-ev-lab-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 506,
+            "w": 358,
+            "h": 344
+          },
+          {
+            "title": "Gateway status · edge-ev-lab-001",
+            "x": 16,
+            "y": 868,
+            "w": 358,
+            "h": 1749
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-EV-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 669,
+            "w": 360,
+            "h": 393
+          },
+          {
+            "title": "Gateway status · GW-EV-01",
+            "x": 15,
+            "y": 1079,
+            "w": 360,
+            "h": 1126
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-readiness",
+      "case": "missing-role",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/readiness?at=2026-10-08T12:00:00Z",
+      "mock_hash": "#/ev-readiness",
+      "app_image": "ev-readiness-missing-role-1440-app.png",
+      "mock_image": "ev-readiness-missing-role-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-ev-lab-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 334,
+            "w": 1145,
+            "h": 359
+          },
+          {
+            "title": "Gateway status · edge-ev-lab-001",
+            "x": 248,
+            "y": 712,
+            "w": 1145,
+            "h": 675
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-EV-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 313
+          },
+          {
+            "title": "Gateway status · GW-EV-01",
+            "x": 234,
+            "y": 747,
+            "w": 1161,
+            "h": 557
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-readiness",
+      "case": "missing-role",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/readiness?at=2026-10-08T12:00:00Z",
+      "mock_hash": "#/ev-readiness",
+      "app_image": "ev-readiness-missing-role-390-app.png",
+      "mock_image": "ev-readiness-missing-role-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · edge-ev-lab-001",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 506,
+            "w": 358,
+            "h": 418
+          },
+          {
+            "title": "Gateway status · edge-ev-lab-001",
+            "x": 16,
+            "y": 942,
+            "w": 358,
+            "h": 1691
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-EV-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 669,
+            "w": 360,
+            "h": 393
+          },
+          {
+            "title": "Gateway status · GW-EV-01",
+            "x": 15,
+            "y": 1079,
+            "w": 360,
+            "h": 1126
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-readiness",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/ev-readiness",
+      "app_image": "ev-readiness-empty-1440-app.png",
+      "mock_image": "ev-readiness-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · Gateway not read",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 248,
+            "y": 420,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "Gateway status · Gateway not read",
+            "x": 248,
+            "y": 534,
+            "w": 1160,
+            "h": 223
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-EV-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 313
+          },
+          {
+            "title": "Gateway status · GW-EV-01",
+            "x": 234,
+            "y": 747,
+            "w": 1161,
+            "h": 557
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-readiness",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/readiness?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/ev-readiness",
+      "app_image": "ev-readiness-empty-390-app.png",
+      "mock_image": "ev-readiness-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · Gateway not read",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 16,
+            "y": 534,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "Gateway status · Gateway not read",
+            "x": 16,
+            "y": 665,
+            "w": 358,
+            "h": 368
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Readiness and commissioning evidence",
+          "Gateway status · GW-EV-01",
+          "Connected sources",
+          "Effect on readiness and confidence"
+        ],
+        "panels": [
+          {
+            "title": "Readiness and commissioning evidence",
+            "x": 15,
+            "y": 669,
+            "w": 360,
+            "h": 393
+          },
+          {
+            "title": "Gateway status · GW-EV-01",
+            "x": 15,
+            "y": 1079,
+            "w": 360,
+            "h": 1126
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-sld",
+      "case": "stocked",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/sld?at=2026-10-06T12:00:00Z",
+      "mock_hash": "#/ev-sld",
+      "app_image": "ev-sld-stocked-1440-app.png",
+      "mock_image": "ev-sld-stocked-1440-mock.png",
+      "app": {
+        "titles": [
+          "EV charging lab",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "EV charging lab",
+            "x": 248,
+            "y": 334,
+            "w": 1145,
+            "h": 539
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 891,
+            "w": 1145,
+            "h": 370
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Depot Charging Hub · Depot charging hub",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Depot Charging Hub · Depot charging hub",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 552
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 985,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-sld",
+      "case": "stocked",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/sld?at=2026-10-06T12:00:00Z",
+      "mock_hash": "#/ev-sld",
+      "app_image": "ev-sld-stocked-390-app.png",
+      "mock_image": "ev-sld-stocked-390-mock.png",
+      "app": {
+        "titles": [
+          "EV charging lab",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "EV charging lab",
+            "x": 16,
+            "y": 517,
+            "w": 358,
+            "h": 365
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 900,
+            "w": 358,
+            "h": 510
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Depot Charging Hub · Depot charging hub",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Depot Charging Hub · Depot charging hub",
+            "x": 15,
+            "y": 711,
+            "w": 360,
+            "h": 305
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 1034,
+            "w": 360,
+            "h": 411
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-sld",
+      "case": "missing-role",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/sld?at=2026-10-08T12:00:00Z",
+      "mock_hash": "#/ev-sld",
+      "app_image": "ev-sld-missing-role-1440-app.png",
+      "mock_image": "ev-sld-missing-role-1440-mock.png",
+      "app": {
+        "titles": [
+          "EV charging lab",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "EV charging lab",
+            "x": 248,
+            "y": 334,
+            "w": 1145,
+            "h": 539
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 891,
+            "w": 1145,
+            "h": 370
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Depot Charging Hub · Depot charging hub",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Depot Charging Hub · Depot charging hub",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 552
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 985,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-sld",
+      "case": "missing-role",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/sld?at=2026-10-08T12:00:00Z",
+      "mock_hash": "#/ev-sld",
+      "app_image": "ev-sld-missing-role-390-app.png",
+      "mock_image": "ev-sld-missing-role-390-mock.png",
+      "app": {
+        "titles": [
+          "EV charging lab",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "EV charging lab",
+            "x": 16,
+            "y": 517,
+            "w": 358,
+            "h": 365
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 900,
+            "w": 358,
+            "h": 510
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Depot Charging Hub · Depot charging hub",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Depot Charging Hub · Depot charging hub",
+            "x": 15,
+            "y": 711,
+            "w": 360,
+            "h": 305
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 1034,
+            "w": 360,
+            "h": 411
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-sld",
+      "case": "empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/ev-sld",
+      "app_image": "ev-sld-empty-1440-app.png",
+      "mock_image": "ev-sld-empty-1440-mock.png",
+      "app": {
+        "titles": [
+          "EV charging lab",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "EV charging lab",
+            "x": 248,
+            "y": 420,
+            "w": 1160,
+            "h": 96
+          },
+          {
+            "title": "What each part does",
+            "x": 248,
+            "y": 534,
+            "w": 1160,
+            "h": 96
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Depot Charging Hub · Depot charging hub",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Depot Charging Hub · Depot charging hub",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 552
+          },
+          {
+            "title": "What each part does",
+            "x": 234,
+            "y": 985,
+            "w": 1161,
+            "h": 287
+          }
+        ],
+        "overflowX": 0
+      }
+    },
+    {
+      "screen": "ev-sld",
+      "case": "empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6134/sites/EV-LAB-001/foundation/sld?at=2026-09-01T00:00:00Z",
+      "mock_hash": "#/ev-sld",
+      "app_image": "ev-sld-empty-390-app.png",
+      "mock_image": "ev-sld-empty-390-mock.png",
+      "app": {
+        "titles": [
+          "EV charging lab",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "EV charging lab",
+            "x": 16,
+            "y": 588,
+            "w": 358,
+            "h": 113
+          },
+          {
+            "title": "What each part does",
+            "x": 16,
+            "y": 719,
+            "w": 358,
+            "h": 113
+          }
+        ],
+        "overflowX": 0
+      },
+      "mock": {
+        "titles": [
+          "Depot Charging Hub · Depot charging hub",
+          "What each part does"
+        ],
+        "panels": [
+          {
+            "title": "Depot Charging Hub · Depot charging hub",
+            "x": 15,
+            "y": 711,
+            "w": 360,
+            "h": 305
+          },
+          {
+            "title": "What each part does",
+            "x": 15,
+            "y": 1034,
+            "w": 360,
+            "h": 411
+          }
+        ],
+        "overflowX": 0
+      }
+    }
+  ]
+}

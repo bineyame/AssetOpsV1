@@ -121,6 +121,8 @@ REFUSALS = [
     ("cold event", "payload.session_id", "sess-1", False, "CORRELATION_INVALID", "payload.session_id"),
     ("numeric point", "payload.connector_id", "connector-1", False, "CORRELATION_INVALID", "payload.connector_id"),
     ("ev interval delta", "payload.session_id", None, False, "CORRELATION_INVALID", "payload.session_id"),
+    # W2-05a Run 8 M3: a connector mean (power, requested power, allocated limit) claims neither a session nor a connector.
+    ("numeric point", "payload.session_id", "sess-1", False, "CORRELATION_INVALID", "payload.session_id"),
     # delta
     ("ev interval delta", "payload.unit", "Wh", False, "EV_DELTA_UNIT_INVALID", "payload.unit"),
     ("ev interval delta", "timing.interval_start", None, False, "EV_DELTA_INTERVAL_INVALID", "timing.interval_start"),
@@ -228,7 +230,11 @@ def test_header_path_keeps_homogeneity_and_order() -> None:
 
 
 def test_closed_channel_table_holds_the_section_4_tuples_and_two_reserved_ev_tuples() -> None:
-    assert len(V4_CHANNEL_MAPPINGS) == 14
+    # W2-05a adds the exact simulator-lab-gateway-ev/1 tuples (Q1); the cold twelve plus the two reserved stay.
+    from assetops_contracts.source_envelope_v4 import V4_COLD_CHANNEL_MAPPINGS, V4_EV_CHANNEL_MAPPINGS
+
+    assert len(V4_COLD_CHANNEL_MAPPINGS) == 12 and len(V4_EV_CHANNEL_MAPPINGS) == 15
+    assert len(V4_CHANNEL_MAPPINGS) == 14 + 15
     assert V4_CHANNEL_MAPPINGS[("charger-controller", "session-event")].requires_session is True
     assert V4_CHANNEL_MAPPINGS[("connector-controller", "fault-event")].requires_session is False
     assert V4_CHANNEL_MAPPINGS[("operator-log", "temperature-event")].allowed_units == ("degC",)
@@ -284,3 +290,22 @@ def test_gateway_snapshot_refuses_partial_ill_typed_or_unknown_v4_keys(change, f
     with pytest.raises(SnapshotRefused) as caught:
         verify_snapshot(text4, claimed4, PROVISIONING)
     assert caught.value.kind == "MALFORMED_SNAPSHOT" and caught.value.field.endswith(field)
+
+
+def test_v4_connector_mean_accepts_explicit_null_correlation() -> None:
+    """W2-05a Run 8 M3: connector power / requested power / allocated limit are INTERVAL_MEAN, and connector state
+    a point measurement, with explicit null session and connector IDs (the effective source binding supplies the
+    connector); only connector energy carries them."""
+    for name in ("interval mean", "state point"):
+        doc = vector(name)
+        assert doc["payload"]["session_id"] is None and doc["payload"]["connector_id"] is None
+        assert isinstance(parse_canonical_source_envelope_text(text(doc)), SourceEnvelopeV4)
+        for key in ("session_id", "connector_id"):
+            refused(_mut_from(doc, f"payload.{key}", "x-1"), "CORRELATION_INVALID", f"payload.{key}")
+
+
+def _mut_from(doc: dict, path: str, value) -> dict:
+    out = copy.deepcopy(doc)
+    where, key = path.split(".")
+    out[where][key] = value
+    return out

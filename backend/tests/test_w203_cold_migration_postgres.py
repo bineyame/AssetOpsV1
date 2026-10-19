@@ -27,7 +27,7 @@ if URL:
 
     from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
 
-HEAD = "0023_w2_cold_consequence"  # W2-04: 0023 sits above 0022; its cold work rows are cleared first
+HEAD = "0024_w2_ev_config"  # W2-05a: 0024 sits above 0023
 PREVIOUS = "0021_w2_cold_config"
 REFUSED = "Downgrade of 0022_w2_cold_assessment refused"
 COLD = ("cold_episode", "cold_episode_revision", "cold_episode_evidence")
