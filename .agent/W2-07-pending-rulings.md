@@ -87,3 +87,45 @@ Options (Architect to choose; none implemented):
 - B. Keep commit 1 as-is (accepted trigger's `ACCEPTED_EV` work carries ordinary batches) and restate R1's test as
   "no SOURCE_GATE row for an ordinary batch; ACCEPTED_EV row present".
 - C. Change the ledger so link and accepted rows share one transaction — out of W2-07 scope (S2 ledger seam).
+
+## R8 (High, blocks commit 2): a stored `WITHHELD/PENDING_RECOMPUTE` revision cannot be superseded — open (run 4, 2026-10-20)
+
+q1 R5's precedence table makes "overlapping pending/leased/failed work" a **stored** `WITHHELD/PENDING_RECOMPUTE`
+consequence, and the store contract (build spec "0026 schema, writer": "check existing basis before incrementing
+revision"; "identical basis is idempotent") replays an existing basis. Against the code this strands the window:
+
+1. The consequence basis literal (build spec `:77`) is `sha256([technical_input_sha256, tariff id/value/currency,
+   source_class, source_gate, assessment_revision_ids_sorted, formula_version])`; it has no state/reason, and 0026
+   enforces `UNIQUE (tenant_id,site_id,window_start,window_end,basis_sha256)` (`0026_w2_ev_money.py:69`).
+2. "Pending" is any overlapping `ev_charging` job in PENDING/LEASED/FAILED (`postgres_assessment_store.py:2131-2133`),
+   including a job for a wider/neighbouring window that leaves this exact window's evidence unchanged.
+3. When that job completes without changing this window, `ev_persist` finds the identical idempotency key and
+   "returns the existing IDs and appends nothing" (`postgres_assessment_store.py:1301-1305`, `:1331-1335`). No
+   assessment/session revision is appended, so no 0026 trigger enqueues new money work for the window.
+4. Result: the stored `WITHHELD/PENDING_RECOMPUTE` row is the window's head forever. Even if work were re-run, the
+   now-settled ESTIMATED derivation has the **same** basis SHA and replays the WITHHELD row (1); adding state/reason to
+   the hash (as the older prose at build spec `:22` says) avoids that collision but still leaves no re-enqueue (3), and
+   an ESTIMATED -> PENDING -> ESTIMATED flip would replay revision 1 below the head revision 2 (basis unique forbids a
+   revision 3 with revision 1's basis).
+
+The same applies to a pending prior head after an M1-a source refusal (`WITHHELD/SOURCE_GATE` while the job stays
+FAILED). Options (Architect to choose; nothing built):
+- A. The worker never stores a PENDING revision: with an overlapping pending job it appends a FAILED attempt with
+  error code `PENDING_RECOMPUTE` (no revision, work stays selectable, retried under `retry_due_at`); the read derives
+  `WITHHELD/PENDING_RECOMPUTE` and null current amount from W2-06 currentness at read time. Literal SHA form unchanged.
+- B. Store the PENDING revision, add `state,reason` to the basis hash, and have the worker also append a FAILED
+  `PENDING_RECOMPUTE` attempt so the work stays retryable; accept that a later identical settled basis is a new
+  revision (needs a rule for the A->B->A replay below the head, e.g. "head = latest recorded_at, replay never").
+- C. Something else (e.g. a 0026 trigger on `recompute_job` completion) — migration change, out of commit-2 scope.
+
+Smaller confirmations needed for the same commit (implementer's reading in brackets; will build it unless overruled):
+- C1 technical `known_at` = the selected run's `knowledge_cutoff`, not the read watermark [yes; otherwise every
+  unrelated acceptance changes the hash].
+- C2 technical rows (build spec `:77`, 7 columns, no reason column) list SUPPORT intervals of **all** selected
+  sessions, so R6's "excluded partial IDs remain in the technical hash" holds while links carry priced ones only [yes].
+- C3 TARIFF_MISSING when no current EV assignment overlaps **any** included interval (q1 R5 row), even if a tariff
+  exists elsewhere at the Site (earlier "none exists anywhere -> TARIFF_MISSING" superseded) [yes].
+- C4 q1 R2 "records ... real tariff `recorded_at` in the consequence basis": kept out of the literal SHA (immutable
+  per tariff revision ID; read joins it through the stored FK) [yes].
+- C5 `source_gate` column = S4-05 classification of the selected assessment's accepted IDs read through the link-row
+  reader in the worker snapshot; WITHHELD/SOURCE_GATE when it is not assessable or differs from the stored class [yes].

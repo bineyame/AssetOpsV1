@@ -80,3 +80,26 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
 - Evidence (`69ea6aee`): `test_w207_ev_money_postgres.py` 5 passed; adjacent `test_w206_ev_store_postgres.py` +
   `test_w205b_ev_replay_postgres.py` + `test_w204_cold_migration.py` 37 passed (12m13s); `tools/check-all.ps1`
   all 10 guards passed. Full backend/host suites not run (by brief).
+
+## Run 4 (2026-10-20): stopped on pending ruling R8 before commit 2 code
+
+- No product code changed. Commit 2 is blocked on `.agent/W2-07-pending-rulings.md` R8: a stored
+  `WITHHELD/PENDING_RECOMPUTE` revision strands the window (no re-enqueue after an idempotent W2-06 job; literal basis
+  SHA collides with the later settled derivation). C1-C5 there are the implementer's readings for the same commit.
+- Commit 2 build plan (unchanged by R8 except the pending branch): `financials/ev_money.py` pure (R5 precedence incl.
+  read-only HISTORICAL/STALE rows, R6 composition, per-interval tariff coverage -> TARIFF_MISSING/PRICE_GAP, SHA forms
+  build spec `:77` with `fuel_cost.canonical_json`); store `ev_unit` (REPEATABLE READ + `pg_advisory_xact_lock(
+  hashtextextended('ev_consequence:'||work_id,0))`, reuse `EvReadService._snapshot(c,t,s,code,ws,we,None)` at
+  `postgres_assessment_store.py:2102` for exact selection/pending, sessions from `result.session_revision_ids`,
+  SUPPORT `ev_meter_interval` rows + `accepted_evidence.envelope_sha256`, current assignments `recorded_to IS NULL`
+  joined to revision value/currency/unit/recorded_at), `ev_record_failure`, `ev_pending_work` (order `created_at,id`;
+  EV work column is `created_at`, not `enqueued_at`), `ev_claim_site`; attempt/revision times via `clock_timestamp()`
+  in SQL (0026 has no defaults on `started_at/finished_at/recorded_at`). Runner `financials/ev_recompute.py`
+  mirroring `cold_recompute.py`. Rule 8 `evConsequenceInsertsSeen` + `ev ... owner insert unseen` probes.
+- Tests: chain fixture recreates the DB per case (~20 s each); six-case vector test parametrized after the `site`
+  tests. Tariff fixture valid `[2026-10-06T08:00Z,09:00Z)`, `0.27775 KES`, idempotency `w207-golden-tariff-1`.
+- Commit 3 anchors (selected reads): `EvReadService` (`postgres_assessment_store.py:2075`; `_read` `:2092`,
+  `_snapshot` `:2102`, `_envelope` `:2184`, `_status` `:2223`, `_page` `:2320`), pure helpers
+  `analytics/ev_reads.py` (cursor `encode_cursor/decode_cursor/check_cursor`, notes), W2-06 router for error
+  mapping; build-spec "Commits 2–3" reconciliation (`:487-530`) and "Commits 3–5" (`:531-549`) for shapes/codes.
+- No private DB was created this run.
