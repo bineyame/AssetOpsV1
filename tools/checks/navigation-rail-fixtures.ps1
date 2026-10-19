@@ -119,6 +119,7 @@ function Invoke-NavigationRailFixturesCheck {
     $frames = "frontend/src/shell/SiteAnalyticsFrames.tsx"
     $index = "frontend/src/sites/SiteFindingIndex.tsx"
     $cold = "frontend/src/sites/ColdAssessmentViews.tsx"
+    $ev = "frontend/src/sites/EvAssessmentViews.tsx"
     try {
         $inPageCases = @(
             @{ Name = "baseline: the real tree passes"; Expect = $null; Modules = $modules },
@@ -128,16 +129,27 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $component 'data-chip-unavailable=\{label\}' 'data-chip-unavailable={label} onClick={go}') },
             @{ Name = "the entry becomes a disabled button"; Expect = "carries a button";
                Modules = (Set-ModuleLines $modules $component '<li$' '<button') },
-            @{ Name = "an undeclared unbuilt tab is added"; Expect = "the W1 inventory is exactly";
+            @{ Name = "an undeclared unbuilt tab is added"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Maintenance" />' '<UnavailableTab label="Maintenance" /><UnavailableTab label="Reports" />') },
-            @{ Name = "a declared unbuilt tab is dropped"; Expect = "the W1 inventory is exactly";
+            @{ Name = "a declared unbuilt tab is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '') },
-            @{ Name = "Alternatives loses its declared unavailable entry"; Expect = "the W1 inventory is exactly";
+            @{ Name = "Alternatives loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames 'label: "Alternatives", unavailable: true' 'label: "Alternatives", href: "/x"') },
-            @{ Name = "the cold Cooling entry is dropped"; Expect = "the W1 inventory is exactly";
+            @{ Name = "the cold Cooling entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Cooling" />' '') },
-            @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1 inventory is exactly";
+            @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Recommendation" />' '') },
+            # W2-06 r7 P8: the EV entries are part of the closed multiset.
+            @{ Name = "the EV Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '') },
+            @{ Name = "the EV Availability entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Availability" />' '') },
+            @{ Name = "the EV Energy / site power entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Energy / site power" />' '') },
+            @{ Name = "an EV entry is duplicated"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Availability" />' '<UnavailableTab label="Availability" /><UnavailableTab label="Availability" />') },
+            @{ Name = "an arbitrary new EV tab is appended"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Energy / site power" />' '<UnavailableTab label="Energy / site power" /><UnavailableTab label="Tariffs" />') },
             @{ Name = "a lens chip with a computed label"; Expect = "non-literal label";
                Modules = (Set-ModuleLines $modules $index '<UnavailableChip label="Risks" />' '<UnavailableChip label={lens} />') },
             @{ Name = "the component is missing (fail closed)"; Expect = "check is vacuous";

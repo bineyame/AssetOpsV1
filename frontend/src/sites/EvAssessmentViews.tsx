@@ -66,6 +66,8 @@ export const EV_COPY = {
   causeDisclosure: "Requested power, allocated limit, site import and charger diagnostics are needed to test competing explanations.",
   conclusion: "A connector fault and session abort were observed; component cause and unmet demand remain unknown.",
   limit: "The records do not establish charger hardware failure, vehicle fault or lost revenue.",
+  withdrawn: "This finding is no longer supported by the selected evidence.",
+  unsupported: "The selected records do not support an interruption conclusion.",
   nextStep: "Retrieve charger diagnostics and witness a complete session with start, end and meter records.",
 } as const;
 
@@ -231,7 +233,9 @@ export function completenessChips(s: EvSessionItem): string[] {
   return [...present, ...gaps].filter((x): x is string => x !== null);
 }
 
-function NextStep({ s, findingHref }: { s: EvSessionItem; findingHref: (findingId: string) => string }) {
+function NextStep({ s, pending, findingHref }: { s: EvSessionItem; pending: boolean; findingHref: (findingId: string) => string }) {
+  // r7 P7: a pending recompute never offers the prior Finding as a current destination.
+  if (pending) return <UnavailableInline label="Open Finding" />;
   if (s.links.finding !== null && s.finding_id !== null) {
     return <Link to={findingHref(s.finding_id)}>Open Finding →</Link>;
   }
@@ -287,7 +291,7 @@ function SessionRows({ read, findingHref }: { read: EvSessionsRead; findingHref:
                   </span>
                 </td>
                 <td>
-                  <NextStep s={s} findingHref={findingHref} />
+                  <NextStep s={s} pending={read.currentness.state === "PENDING_RECOMPUTE"} findingHref={findingHref} />
                 </td>
               </tr>
             );
@@ -537,7 +541,12 @@ function FindingStrip({ finding, siteName }: { finding: EvFindingDetailRead; sit
 function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; session: EvRead<EvSessionDetailRead> | null }) {
   const c = finding.claim;
   const connector = session !== null && session.status === "loaded" ? session.value.connector_display_name : null;
-  const conclusion = exactClaim(finding) ? EV_COPY.conclusion : (finding.limitations[0] ?? "Unknown");
+  // r7 P5: a withdrawn or otherwise unsupported claim never puts a stored limitation in the BigClaim.
+  const conclusion = exactClaim(finding)
+    ? EV_COPY.conclusion
+    : finding.lifecycle === "NO_LONGER_SUPPORTED"
+      ? EV_COPY.withdrawn
+      : EV_COPY.unsupported;
   const record = c.fault_evidence_id;
   return (
     <>
@@ -562,6 +571,9 @@ function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; ses
             { label: "Fault record ID", value: record },
             { label: EV_COPY.analysisGap, value: record },
             { label: "Assessment basis (SHA-256)", value: finding.source_provenance.basis_sha256 },
+            { label: "Lifecycle", value: finding.lifecycle },
+            { label: "Selected cutoff", value: finding.window.known_at },
+            ...finding.limitations.map((l, i) => ({ label: `Stored limitation ${i + 1}`, value: l })),
           ]}
         />
       </Panel>

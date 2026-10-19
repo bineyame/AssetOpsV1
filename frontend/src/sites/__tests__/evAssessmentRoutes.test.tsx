@@ -223,6 +223,17 @@ const main = () => document.querySelector("main") as HTMLElement;
 const strip = () => (document.querySelector(".status-strip") as HTMLElement).textContent ?? "";
 const cardValues = () => Array.from(document.querySelectorAll("[data-ev-card] .v69-metric__value")).map((x) => x.textContent);
 const rowCells = (n = 0) => Array.from(document.querySelectorAll("tbody tr")[n].querySelectorAll("td")).map((td) => td.textContent);
+const subtabs = (label: string) =>
+  Array.from(document.querySelectorAll(`nav[aria-label="${label}"] li`)).map((li) => [
+    li.getAttribute("data-tab-unavailable") ?? (li.textContent ?? "").trim(),
+    li.hasAttribute("data-tab-unavailable"),
+  ]);
+const expectInert = (label: string) => {
+  const li = document.querySelector(`[data-tab-unavailable="${label}"]`) as HTMLElement;
+  expect(li.textContent).toBe(`${label} · Not available yet`);
+  expect(li.querySelector("a, button, [tabindex]")).toBeNull();
+  expect(li.hasAttribute("tabindex")).toBe(false);
+};
 const outcomeBadge = (n = 0) => document.querySelectorAll("tbody tr")[n].querySelectorAll("td")[3].querySelector(".badge") as HTMLElement;
 
 describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", () => {
@@ -257,6 +268,10 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(cause).toContain("Cause not established from accepted records.");
     expect(cause).toContain("Requested power, allocated limit, site import and charger diagnostics are needed to test competing explanations.");
     expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(2);
+    // r7 P8: exact tab order, live Sessions then the two unbuilt EV entries, noninteractive.
+    expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", true], ["Energy / site power", true]]);
+    expectInert("Availability");
+    expectInert("Energy / site power");
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
       expect(panel.querySelectorAll("details").length).toBeLessThanOrEqual(1);
     }
@@ -323,6 +338,44 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(cardValues()).toEqual(["Pending recompute", "Pending recompute", "Pending recompute", "Pending recompute"]);
     expect(rowCells()[1]).toBe("08:01 UTC – End not recorded");
     expect(rowCells()[4]).toBe("StartMeterClockNo end record");
+    cleanup();
+
+    // r7 P7: a pending row with a nonnull Finding link stays visible but offers no Finding anchor.
+    const pendingLinked = sessions("PENDING_RECOMPUTE", "OBSERVED_SESSIONS", [INTERRUPTED_ROW], {
+      started: 1, completed: 0, observed_abort: 1, fault_aborted: 1, confirmed_delivery: 0,
+    });
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(pendingLinked));
+    await settledScreen();
+    expect(document.querySelectorAll("tbody tr")).toHaveLength(1);
+    expect(rowCells()[0]).toContain("S-11");
+    expect(rowCells()[5]).toBe("Open Finding · Not available yet");
+    expect(document.querySelector("tbody a")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Open Finding →" })).toBeNull();
+    expect(strip()).toContain("Evidence pending");
+    expect(strip()).toContain("New evidence is being assessed. The previous result may change.");
+    expect(cardValues()).toEqual(["Pending recompute", "Pending recompute", "Pending recompute", "Pending recompute"]);
+    cleanup();
+
+    // A settled current response with the proved link renders it.
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok({ ...pendingLinked, ...envelope("CURRENT") }));
+    await settledScreen();
+    expect(screen.getByRole("link", { name: "Open Finding →" })).not.toBeNull();
+    cleanup();
+
+    // A historical response follows only its own selected links.finding.
+    const historicalRows = (finding: string | null) => ({
+      ...pendingLinked,
+      ...envelope("HISTORICAL"),
+      items: [{ ...INTERRUPTED_ROW, links: { ...INTERRUPTED_ROW.links, finding } }],
+    });
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(historicalRows(INTERRUPTED_ROW.links.finding)));
+    await settledScreen();
+    expect(screen.getByRole("link", { name: "Open Finding →" })).not.toBeNull();
+    cleanup();
+    renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(historicalRows(null)));
+    await settledScreen();
+    expect(document.querySelector("tbody a")).toBeNull();
+    expect(rowCells()[5]).toBe("Not available yet");
     cleanup();
 
     renderEv(`${SESSIONS}?from=${FROM}&to=${TO}&known_at=${KNOWN}`, ok(STATES.historicalLate));
@@ -414,6 +467,9 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expect(next.querySelector('[data-link-unavailable="Review recommendation"]')?.textContent).toBe("Review recommendation · Not available yet");
     expect(next.querySelector("a, button")).toBeNull();
     expect(document.querySelector('[data-tab-unavailable="Recommendation"]')).not.toBeNull();
+    // r7 P8: live Overview, then the unbuilt Recommendation entry.
+    expect(subtabs("Finding sections")).toEqual([["Overview", false], ["Recommendation", true]]);
+    expectInert("Recommendation");
     for (const text of ["F-130", "ACT-061", "CHG-002", "$36", "SES-011"]) expect(main().textContent).not.toContain(text);
   });
 
@@ -427,6 +483,28 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expectV69Panels("ev-finding");
     expect(strip()).not.toContain("Observed interruption");
     expect(panelTitled("Bounded conclusion").querySelector("[data-ev-conclusion]")?.getAttribute("data-ev-conclusion")).toBe("limited");
+    // r7 P5: the exact withdrawn literal, never the supported claim; the stored limitation stays in details.
+    const conclusion = panelTitled("Bounded conclusion");
+    expect(conclusion.querySelector("[data-ev-conclusion]")?.textContent).toBe("This finding is no longer supported by the selected evidence.");
+    const details = conclusion.querySelector("details") as HTMLElement;
+    expect(details.textContent).toContain(FINDING_DETAIL.limitations[0]);
+    expect(details.textContent).toContain("NO_LONGER_SUPPORTED");
+    expect(details.textContent).toContain(KNOWN);
+    expect(conclusion.querySelector("[data-ev-conclusion]")?.textContent).not.toContain("A connector fault and session abort were observed");
+  });
+
+  it("supported Finding without the exact START/FAULT/ABORT claim is not an interruption conclusion", async () => {
+    renderEv(FINDING_PATH, ok(STATES.complete), ok({
+      ...FINDING_DETAIL,
+      claim: { ...FINDING_DETAIL.claim, abort_at: null },
+      limitations: ["Abort record not selected."],
+    }));
+    await settledScreen();
+    expectV69Panels("ev-finding");
+    const claim = panelTitled("Bounded conclusion").querySelector("[data-ev-conclusion]");
+    expect(claim?.textContent).toBe("The selected records do not support an interruption conclusion.");
+    expect(claim?.getAttribute("data-ev-conclusion")).toBe("limited");
+    expect(panelTitled("Bounded conclusion").querySelector("details")?.textContent).toContain("Abort record not selected.");
   });
 
   it.each([
