@@ -31,10 +31,12 @@ export interface BadgeProps {
   tone: BadgeTone;
   /** The value from the record. */
   children: ReactNode;
+  /** Optional presentation class (cold chip tones). */
+  className?: string;
 }
 
-export function Badge({ tone, children }: BadgeProps) {
+export function Badge({ tone, children, className }: BadgeProps) {
   // The two Readiness tones carry a CSS shape mark (see primitives.css), so
   // the visible word stays the whole text content.
-  return <span className={`badge badge--${tone}`}>{children}</span>;
+  return <span className={`badge badge--${tone}${className ? ` ${className}` : ""}`}>{children}</span>;
 }

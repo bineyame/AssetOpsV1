@@ -139,3 +139,8 @@
     margin-top: -2px;
   }
 }
+
+/* Run-9 M5: presentation tones for mapped cold chips (the word stays visible; neutral adds no override). */
+[data-cold-view] .badge.cold-tone--green { background: #e3f4ed; color: #166b50; border-color: #b5dfcd; }
+[data-cold-view] .badge.cold-tone--amber { background: #fff1d9; color: #8e580c; border-color: #c9a24a; }
+[data-cold-view] .badge.cold-tone--red { background: #fcebea; color: #a13838; border-color: #d26565; }

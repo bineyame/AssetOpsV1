@@ -659,6 +659,31 @@ function evidenceState(caps: ColdCapability[]): "Contradictory" | "Limited" | "U
 }
 const evidenceChip = (caps: ColdCapability[]) => `Evidence ${evidenceState(caps).toLowerCase()}`;
 
+/** Run-9 M5: presentation tone for the mapped cold chip words only (the word stays visible; neutral adds no class). */
+const COLD_TONE: Record<string, string> = {
+  Recent: "green",
+  Old: "amber",
+  Never: "amber",
+  Mixed: "amber",
+  "Not declared": "amber",
+  Good: "green",
+  Limited: "amber",
+  Full: "green",
+  Contradictory: "red",
+  "Evidence supported": "green",
+  "Evidence limited": "amber",
+  "Evidence contradictory": "red",
+};
+const toneClass = (word: string): string | undefined => (COLD_TONE[word] === undefined ? undefined : `cold-tone--${COLD_TONE[word]}`);
+
+/** Run-9 L1: the quantity phrase from the selected consequence's nullable bounds. */
+function quantityPhrase(b: { low: string | null; high: string | null }): string {
+  const low = decimal(b.low);
+  if (low === null) return "Exposure amount not established";
+  const high = decimal(b.high);
+  return high === null ? `at least ${low} °C-minutes (upper bound unknown)` : `${low}–${high} °C-minutes`;
+}
+
 function qualityText(sources: ColdSource[]): string {
   const good = sources.reduce((n, s) => n + s.quality.good_count, 0);
   const other = sources.reduce((n, s) => n + s.quality.other_count, 0);
@@ -736,7 +761,7 @@ function EvidenceScreen(p: ScreenProps) {
           label="Evidence state"
           action={foundation === null ? <span>Configuration link not available</span> : <Link to={foundation}>Configuration at window end</Link>}
         >
-          <Badge tone="neutral">{evidenceChip(caps)}</Badge> {countSentence(caps)}
+          <Badge tone="neutral" className={toneClass(evidenceChip(caps))}>{evidenceChip(caps)}</Badge> {countSentence(caps)}
           {stateSentence(e) === null ? null : ` · ${stateSentence(e)}`}
         </StatusBar>
       )}
@@ -765,7 +790,7 @@ function EvidenceScreen(p: ScreenProps) {
                   <tr key={row.key} data-capability-row={row.key}>
                     <th scope="row">{row.label}</th>
                     <td>
-                      <Badge tone="neutral">{chip}</Badge>
+                      <Badge tone="neutral" className={toneClass(chip)}>{chip}</Badge>
                     </td>
                     <td>{row.key === "exposure" ? `${SAY[chip]} Thermal exposure does not prove product loss.` : SAY[chip]}</td>
                     <td>{row.key === "exposure" ? `${missText} · Stock identity and value are not declared` : missText}</td>
@@ -811,7 +836,7 @@ function EvidenceScreen(p: ScreenProps) {
                         <tr key={row.label} data-source-row={row.label}>
                           <th scope="row">{row.label}</th>
                           <td>
-                            <Badge tone="neutral">Not declared</Badge>
+                            <Badge tone="neutral" className={toneClass("Not declared")}>Not declared</Badge>
                           </td>
                           <td>
                             <Badge tone="neutral">No fact</Badge>
@@ -831,22 +856,29 @@ function EvidenceScreen(p: ScreenProps) {
                             <Badge tone="neutral">No fact</Badge>
                           </td>
                           <td>No accepted report for this role</td>
-                          <td>Claim effect not assessed</td>
+                          <td>{CLOSED_SOURCE[row.label].affects}</td>
                         </tr>
                       );
                     }
                     const closed = CLOSED_SOURCE[row.label];
                     const provided = bound.filter((s) => s.accepted_count > 0).map((s) => s.role);
+                    const others = [...new Set(provided.filter((r) => !closed.primary.includes(r)))];
                     const closedWhat =
-                      provided.length === 0 ? "No accepted report for this role" : provided.some((r) => closed.primary.includes(r)) ? closed.what : "Other recorded roles";
+                      provided.length === 0
+                        ? "No accepted report for this role"
+                        : provided.some((r) => closed.primary.includes(r))
+                          ? closed.what
+                          : others.length === 1
+                            ? roleName(others[0])
+                            : "Other recorded roles";
                     return (
                       <tr key={row.label} data-source-row={row.label}>
                         <th scope="row">{row.label}</th>
                         <td>
-                          <Badge tone="neutral">{contactChip(bound)}</Badge>
+                          <Badge tone="neutral" className={toneClass(contactChip(bound))}>{contactChip(bound)}</Badge>
                         </td>
                         <td>
-                          <Badge tone="neutral">{qualityChip(bound)}</Badge>
+                          <Badge tone="neutral" className={toneClass(qualityChip(bound))}>{qualityChip(bound)}</Badge>
                         </td>
                         <td>{closedWhat}</td>
                         <td>{closed.affects}</td>
@@ -1133,10 +1165,6 @@ function AnalysisScreen(p: ScreenProps) {
 
 /* ---------- cold-financials ---------- */
 
-function boundText(v: string | null): string {
-  return decimal(v) ?? "Unknown bound";
-}
-
 function FinancialsScreen(p: ScreenProps) {
   const fin = useColdRead(() => p.client.getFinancials(p.siteId, p.window), keyOf(p, "f"));
   const assumptions = useColdRead(() => p.client.getAssumptions(p.siteId, p.window), keyOf(p, "s"));
@@ -1169,7 +1197,7 @@ function FinancialsScreen(p: ScreenProps) {
               value={first === undefined ? NOT_ASSESSED : first.state === "WITHHELD" ? "Withheld" : first.state === "UNPRICED" ? "Unpriced" : NOT_ASSESSED}
               note={
                 first !== undefined && first.state === "UNPRICED"
-                  ? `${boundText(first.quantity_bounds.low)}–${boundText(first.quantity_bounds.high)} degC_min`
+                  ? quantityPhrase(first.quantity_bounds)
                   : first !== undefined && first.state === "WITHHELD"
                     ? (limitText(first.reason) ?? NOT_RECORDED)
                     : "No product exposure consequence assessed"
@@ -1215,14 +1243,14 @@ function FinancialsScreen(p: ScreenProps) {
                   const withheld = c.state === "WITHHELD";
                   return (
                     <tr key={c.id} data-consequence-row={c.kind}>
-                      <th scope="row">{`Bounded chamber temperature exposure: ${boundText(c.quantity_bounds.low)}–${boundText(c.quantity_bounds.high)} degC_min`}</th>
+                      <th scope="row">{`Chamber temperature exposure: ${quantityPhrase(c.quantity_bounds)}`}</th>
                       <td>Stock value × product response rule — not declared</td>
                       <td>{withheld ? "Withheld" : "Not priced"}</td>
                       <td>
                         <Badge tone="neutral">{withheld ? "Withheld" : "Unpriced"}</Badge>
                       </td>
                       <td>{finding === null ? NOT_ASSESSED : claimWord(finding.claim_level)}</td>
-                      <td>{finding === null ? "Finding link not available" : <Link to={findingLink(finding.finding_id)}>{finding.title}</Link>}</td>
+                      <td>{finding === null ? "No linked page for this item" : <Link to={findingLink(finding.finding_id)}>{finding.title}</Link>}</td>
                     </tr>
                   );
                 })}
@@ -1246,7 +1274,7 @@ function FinancialsScreen(p: ScreenProps) {
                   const bs = c.exact_basis;
                   const code = (v: string | null) => (v === null ? NOT_RECORDED : <code data-vocabulary-exempt="source-reference">{v}</code>);
                   const rows: [string, ReactNode][] = [
-                    ["Quantity bounds", `${boundText(c.quantity_bounds.low)}–${boundText(c.quantity_bounds.high)} degC_min`],
+                    ["Quantity bounds", quantityPhrase(c.quantity_bounds)],
                     ["Reason", c.reason === null ? NOT_RECORDED : plainLimitation(c.reason)],
                     ["Limitation", c.limitation === null ? NOT_RECORDED : plainLimitation(c.limitation)],
                     ["Finding version", code(bs.finding_revision_id)],

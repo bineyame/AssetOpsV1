@@ -573,9 +573,9 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
       ["Chamber temperature", "Temperature"],
       ["No inverter or battery feed", "Claim effect not assessed"],
       ["Start result", "Backup"],
-      ["No accepted report for this role", "Claim effect not assessed"],
-      ["No accepted report for this role", "Claim effect not assessed"],
-      ["No accepted report for this role", "Claim effect not assessed"],
+      ["No accepted report for this role", "Cooling"],
+      ["No accepted report for this role", "Backup"],
+      ["No accepted report for this role", "Temperature · cooling"],
     ]);
     const sourcesPanel = panelTitled("Data sources · data quality, not equipment condition");
     expect(sourcesPanel.querySelectorAll("[data-cold-contact-checked]")).toHaveLength(1);
@@ -685,12 +685,78 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(limit).not.toContain("Each claim needs accepted readings");
   });
 
+  it("Run-9: tone classes on mapped cold chips only, and no raw unit token or null sentinel in closed cells", async () => {
+    renderCold(ROUTES[1][1], STOCKED);
+    await settledScreen();
+    const sourceRow = (label: string) => Array.from(document.querySelectorAll("[data-source-row]")).find((r) => r.getAttribute("data-source-row") === label)!;
+    const rowChips = (label: string) => Array.from(sourceRow(label).querySelectorAll(".badge")).map((b) => [text(b), b.className]);
+    expect(rowChips("Chamber probe")).toEqual([
+      ["Recent", "badge badge--neutral cold-tone--green"],
+      ["Good", "badge badge--neutral cold-tone--green"],
+    ]);
+    expect(rowChips("Generator controller")[0]).toEqual(["Unknown", "badge badge--neutral"]);
+    expect(rowChips("Compressor meter")).toEqual([["No fact", "badge badge--neutral"]]);
+    expect(rowChips("Inverter-charger + battery")[0]).toEqual(["Not declared", "badge badge--neutral cold-tone--amber"]);
+    const strip = document.querySelector(".status-strip .badge")!;
+    expect([text(strip), strip.className]).toEqual(["Evidence limited", "badge badge--neutral cold-tone--amber"]);
+    const caps = Array.from(document.querySelectorAll("[data-capability-row]")).map((r) => [text(r.querySelector(".badge")!), r.querySelector(".badge")!.className]);
+    expect(caps).toContainEqual(["Full", "badge badge--neutral cold-tone--green"]);
+    expect(caps).toContainEqual(["Limited", "badge badge--neutral cold-tone--amber"]);
+    cleanup();
+    const states = (state: string) => STOCKED_EVIDENCE.capabilities.map((c) => ({ ...c, state }));
+    renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok({ ...STOCKED_EVIDENCE, capabilities: states("UNAVAILABLE") }) });
+    await settledScreen();
+    expect(Array.from(document.querySelectorAll("[data-capability-row] .badge")).map((b) => [text(b), b.className])).toContainEqual(["None", "badge badge--neutral"]);
+    const unknown = document.querySelector(".status-strip .badge")!;
+    expect([text(unknown), unknown.className]).toEqual(["Evidence unknown", "badge badge--neutral"]);
+    cleanup();
+    renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok({ ...STOCKED_EVIDENCE, capabilities: states("CONTRADICTORY") }) });
+    await settledScreen();
+    const red = document.querySelector(".status-strip .badge")!;
+    expect([text(red), red.className]).toEqual(["Evidence contradictory", "badge badge--neutral cold-tone--red"]);
+  });
+
+  it("Run-9 L2: an accepted non-primary role names itself in closed What", async () => {
+    renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok({ ...STOCKED_EVIDENCE, sources: [source(21, "generator_state", "RECENT", 2)] }) });
+    await settledScreen();
+    const row = Array.from(document.querySelectorAll("[data-source-row]")).find((r) => r.getAttribute("data-source-row") === "Generator controller")!;
+    expect(text(row.querySelectorAll("td")[2])).toBe("Generator state");
+  });
+
+  it("Run-9: financial quantity phrase covers both bounds, lower-only and no lower bound; the null link has ruled copy", async () => {
+    const withBounds = (low: string | null, high: string | null, revision = id(911)) => ({
+      ...STOCKED_FINANCIALS,
+      consequences: [{ ...STOCKED_FINANCIALS.consequences[0], quantity_bounds: { low, high }, exact_basis: { ...STOCKED_FINANCIALS.consequences[0].exact_basis, finding_revision_id: revision } }],
+    });
+    const cases: [string | null, string | null, string][] = [
+      ["10", "50", "10–50 °C-minutes"],
+      ["50", null, "at least 50 °C-minutes (upper bound unknown)"],
+      [null, null, "Exposure amount not established"],
+    ];
+    for (const [low, high, phrase] of cases) {
+      renderCold(ROUTES[3][1], { ...STOCKED, financials: ok(withBounds(low, high)) });
+      await settledScreen();
+      const bridge = panelTitled("What happened → what it means in money");
+      expect(text(bridge.querySelector("[data-consequence-row=\"PRODUCT_EXPOSURE\"] th")!)).toBe(`Chamber temperature exposure: ${phrase}`);
+      expect(text(bridge.querySelector("details")!)).toContain(phrase);
+      expect(text(main())).not.toMatch(/degC_min|Unknown bound/);
+      cleanup();
+    }
+    renderCold(ROUTES[3][1], { ...STOCKED, financials: ok(withBounds("10", "50", id(999))) });
+    await settledScreen();
+    const row = panelTitled("What happened → what it means in money").querySelector("[data-consequence-row=\"PRODUCT_EXPOSURE\"]")!;
+    const cell = row.querySelectorAll("td")[4];
+    expect(text(cell)).toBe("No linked page for this item");
+    expect(cell.querySelector("a")).toBeNull();
+    expect(text(main())).not.toContain("Finding link not available");
+  });
+
   it("financials: one exposure row with its exact basis, the backup gap row and no price", async () => {
     renderCold(ROUTES[3][1], STOCKED);
     await settledScreen();
     expect(text(document.querySelector(".status-strip")!)).toContain("1 consequence line");
     const bridge = panelTitled("What happened → what it means in money");
-    expect(text(bridge)).toContain("Bounded chamber temperature exposure: 50–Unknown bound degC_min");
+    expect(text(bridge)).toContain("Chamber temperature exposure: at least 50 °C-minutes (upper bound unknown)");
     expect(text(bridge)).toContain("Observed backup start failure");
     // Run-7: one closed 'Basis details' disclosure holds the exact basis; closed cells carry no reason or ID.
     const basis = bridge.querySelectorAll("details");
