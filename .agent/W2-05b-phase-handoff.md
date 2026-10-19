@@ -1,4 +1,35 @@
-# W2-05b phase handoff - run 6 (commits 1-4 built; q4 Q18-Q25 applied; commit 5 next)
+# W2-05b phase handoff - run 7 (q5 applied; commit 5 part 1 built; manifests blocked on Q26-Q31)
+
+Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged. main merged in (q5 rulings).
+
+## Run 7 commits
+- `2d6c165b` "W2-05b q5 fixes": N13 in `host/ev_publication.py:_snapshot_rows` - every snapshot row's
+  device/signal must be declared exactly once in the frozen Foundation `content.devices`, and the device's
+  `component_id` must equal the frozen mapping component. Tests in `host/tests/test_ev_lab_execution.py`:
+  `mapping_swapped` refusal (no schedule, no gateway admission) and `test_the_unchanged_frozen_fixture_reaches_stage`.
+  N14-N17 ratified, no change. Non-vacuous: disabling the component check fails the swap test.
+- `fe84204e` commit 5 part 1: `backend/assetops_backend/ev_replay.py` (`EvReplayService`, cold mirror for the EV
+  pair), `ev_replay_api.py` (`build_ev_replay_router`, `EV_REPLAY_ROUTE`, RUN_ID_PATTERN 422, ruled messages),
+  ledger `ev_replay_rows`/`ev_replay_run_referenced` with `_run(..., snapshot=True)` (REPEATABLE READ, READ ONLY,
+  one connection), `evidence/composition.py` `_EvReplayReader`/`build_ev_replay_reader`, `main.py` mounts the router
+  with `access=ev_access, owner=ev_owner` (N1). Tests `backend/tests/test_w205b_ev_replay_api.py` (19): shape, digest,
+  empty run, 422 grammar, ladder, wrong tenant/Site, 503 cases, non-EV run, narrow reader, N1 default 403 / injected
+  owner passes for EV-LAB-001 (503: no ledger in that composition) / wrong Site 403 / injected 401. Non-vacuous:
+  composing `no_owner_principal` instead of `ev_owner` fails the injected-owner test.
+- Registry: `A-ev-world.task`/`I-ev-world.task` were already `W2-05b`; checker passes in `check-all`.
+
+## Run 7 counts
+- host `test_ev_lab_execution.py` + `test_ev_publication.py` 72 passed; backend `test_w205b_ev_replay_api.py` 19.
+- `check-all.ps1` 10/10 at `fe84204e`. No full suites run (final revision not reached). Frontend untouched.
+
+## Blocked (see pending rulings Q26-Q31)
+- Manifest `assertions` derivation per case. Not built: `backend/tests/test_w205b_ev_replay_postgres.py`
+  (chain mirrors `test_w202_cold_replay_postgres.py`: `install_ev_lab`, Draft via `RegisteredLabBasis`, host with
+  `ev_inputs=StoreEvInputs(...)`, real gateway process, `release_registered`, `advance_publication(run,
+  "2026-10-06T09:05:00Z")`, injected-owner `create_app` 200 over the DB), the six `contract-fixtures/w2/ev/*.json`,
+  writer-guard probes, full backend and host suites, review packet.
+
+## Run 6 record
 
 Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged.
 

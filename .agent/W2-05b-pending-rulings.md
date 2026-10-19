@@ -221,3 +221,29 @@ Commit 4's spec leaves these shapes and sources to the builder; each is a design
 - **N17 Commit proof in commit 4.** Host tests prove the COMPLETED readiness gate reaches `gateway.release` and
   FAILED refuses `COMMIT_NOT_READY` (fake gateway); the real seal/outbox/Batch V2/receipt path is proven by the
   commit 5 manifest generation as the spec orders.
+
+## Run 7 (2026-10-19): q5 applied; commit 5 manifest `assertions` questions (block the six manifests)
+
+Built at `fe84204e`: q5 N13 fix (`2d6c165b`), EV replay service/route/reader and N1 replay wiring. Stopped before
+`backend/tests/test_w205b_ev_replay_postgres.py` and `contract-fixtures/w2/ev/*.json`, because the spec fixes the
+`assertions` keys/types ("derive from accepted public rows ... inapplicable values null") but not how each value is
+derived per case. The W2-06 session rules (`.agent/W2-technical-design-ev.md` §4) are not built, so the generator
+would be inventing a test-only classifier. Exact questions:
+
+- **Q26 derivation authority.** Should the test compute `outcome`, `supported_kwh`, `energy_complete` and
+  `unknown_meter_seconds` by a test-only subset of design §4 (START/terminal by session ID, sum of GOOD connector
+  `INTERVAL_DELTA` wholly inside `[START,terminal)`, union of uncovered active 5-minute slots), or pin literal
+  expected values from the design §3 case table and assert only the timestamps from accepted rows?
+- **Q27 `outcome` vocabulary per case.** Is it `COMPLETED` (complete, missing-meter, late-record after release),
+  `OBSERVED_ABORT` (interrupted), `CONTRADICTORY` (contradictory)? For `fault` (c1 never starts; c2 session-2
+  completes) is it `COMPLETED` for session-2, or null because the case has no single session?
+- **Q28 multi-connector `fault` case timestamps.** `start_at`/`end_at` = c2 session-2 START/END (08:11/08:21) and
+  `fault_at`/`clear_at` = c1 08:00/08:05? Confirm the five time keys may describe different connectors.
+- **Q29 `contradictory` values.** `end_at` = genuine 08:31 END, the added 08:30 END, or null? `supported_kwh` = the
+  accepted delta sum (30.000) or null; `energy_complete` null (task says "null-complete"); `unknown_meter_seconds`?
+- **Q30 `first_cutoff_outcome`.** `INCOMPLETE` for `late-record` (from the 09:00 replay before release); for the
+  other five cases null (inapplicable) or equal to `outcome`? Is the late-record manifest pinned after the 09:05
+  release (final `outcome` COMPLETED, 30.000, complete true) with only `first_cutoff_outcome` from 09:00?
+- **Q31 zero vs null.** For fully covered sessions (complete, interrupted, fault c2, late-record final) is
+  `unknown_meter_seconds` `0` or null; and for `interrupted`, `abort_at` and `fault_at` both 08:16 with
+  `end_at` null, `energy_complete` true at 15.000?
