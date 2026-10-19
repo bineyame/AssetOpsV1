@@ -655,10 +655,19 @@ def ev_money_rows(built) -> dict:
         store.dispose()
 
 
+def ev_window(built) -> tuple[datetime, datetime]:
+    """The latest selected exact `ev-session/1` window (the replay's selected window is `[08:00, 09:05)`)."""
+    with built.engine.connect() as c:
+        return tuple(c.execute(text(
+            "SELECT window_start, window_end FROM analytic_run_selection WHERE site_id = :s "
+            "AND analytic_id = 'ev-session/1' ORDER BY seq DESC LIMIT 1"), {"s": built.site_id}).one())
+
+
 def money_head(rows: dict) -> dict:
-    window = [r for r in rows["ev_consequence_revision"]
-              if (r["window_start"], r["window_end"]) == (GOLDEN_FROM, GOLDEN_TO)]
-    assert window, "no consequence for the selected replay window"
+    windows = {(r["window_start"], r["window_end"]) for r in rows["ev_consequence_revision"]}
+    assert len(windows) <= 1, windows
+    window = rows["ev_consequence_revision"]
+    assert window, [(r["window_start"], r["window_end"], r["state"], r["reason"]) for r in rows["ev_consequence_revision"]]
     return max(window, key=lambda r: r["revision_no"])
 
 
@@ -667,8 +676,9 @@ def snapshot_state(built) -> str:
 
     reads = build_ev_read_service(URL)
     try:
-        return reads._read(lambda c: reads._snapshot(c, built.tenant_id, built.site_id, "EV-LAB-001", GOLDEN_FROM,
-                                                     GOLDEN_TO, None)["state"])
+        lo, hi = ev_window(built)
+        return reads._read(lambda c: reads._snapshot(c, built.tenant_id, built.site_id, "EV-LAB-001", lo, hi,
+                                                     None)["state"])
     finally:
         reads.dispose()
 
@@ -679,7 +689,7 @@ def selected_assessment(built) -> UUID:
             "SELECT x.assessment_revision_id FROM analytic_run_selection sel JOIN analytic_run_assessment x "
             "ON x.run_id = sel.run_id WHERE sel.site_id = :s AND sel.analytic_id = 'ev-session/1' "
             "AND sel.window_start = :a AND sel.window_end = :b ORDER BY sel.seq DESC LIMIT 1"),
-            {"s": built.site_id, "a": GOLDEN_FROM, "b": GOLDEN_TO}).scalar_one()
+            dict(zip(("a", "b"), ev_window(built)), s=built.site_id)).scalar_one()
 
 
 def check_links(built, rows: dict, head: dict, expected_links: int | None) -> None:
@@ -796,13 +806,14 @@ def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  
                                       if a["outcome"] == "SUCCEEDED"}]
     assert len(pending_ids) == 1
     work_id = pending_ids[0]
+    lo, hi = ev_window(built)
     job = uuid4()
     with engine.begin() as c:
         c.execute(text(
             "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
             "available_at, created_at) VALUES (:j, :t, :s, 'ev_charging', :a, :b, 'PENDING', now(), now())"),
-            {"j": job, "t": built.tenant_id, "s": built.site_id, "a": GOLDEN_FROM - timedelta(hours=1),
-             "b": GOLDEN_TO + timedelta(hours=1)})
+            {"j": job, "t": built.tenant_id, "s": built.site_id, "a": lo - timedelta(hours=1),
+             "b": hi + timedelta(hours=1)})
     before = counts_of(built)
     first = money(built)
     assert [(o.work_id, o.succeeded, o.error_code, o.consequence_revision_id) for o in first] == [
@@ -851,10 +862,10 @@ def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  
         c.execute(text(
             "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
             "available_at, created_at) VALUES (:j, :t, :s, 'ev_charging', :a, :b, 'FAILED', now(), now())"),
-            {"j": job2, "t": built.tenant_id, "s": built.site_id, "a": GOLDEN_FROM, "b": GOLDEN_TO})
+            {"j": job2, "t": built.tenant_id, "s": built.site_id, "a": lo, "b": hi})
         # A dirtiness event for the window through the trigger-owned enqueue function (no basis change).
         c.execute(text("SELECT ev_consequence_enqueue(:t, :s, :a, :b, 'SESSION_REVISION', :i)"),
-                  {"t": built.tenant_id, "s": built.site_id, "a": GOLDEN_FROM, "b": GOLDEN_TO, "i": uuid4()})
+                  {"t": built.tenant_id, "s": built.site_id, "a": lo, "b": hi, "i": uuid4()})
     assert snapshot_state(built) == "PENDING_RECOMPUTE"
     masked = money(built)
     assert [(o.succeeded, o.error_code) for o in masked] == [(False, "PENDING_RECOMPUTE")]
