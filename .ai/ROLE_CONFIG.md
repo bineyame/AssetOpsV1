@@ -114,8 +114,12 @@ same-named Claude subagent and merging what it returns. Codex is on PATH and
 runs non-interactively:
 
 ```
-codex exec "<the role brief>"
+codex exec "<the role brief>" < /dev/null
 ```
+
+Always close stdin (`< /dev/null`). Without it, `codex exec` can block on
+"Reading additional input from stdin" indefinitely; on 2026-10-18 this stalled
+an Architect call overnight.
 
 **The obligation is the coordinator's, not the subagent's.** On 2026-09-23 the
 Architect correctly flagged three times that it was producing Architect output
