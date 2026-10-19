@@ -2287,3 +2287,9 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - W1-F5b carry 7 (2026-10-17): legacy file-backed Site paths have no 1440/390 fidelity captures because no walkthrough tool serves a file-backed site; covered by structure tests only. Accepted for W1; add a file-backed capture fixture if legacy Sites stay in the product.
 
 - Post-all-waves UI/UX refinement pass (owner, 2026-10-18): W1 accepted conditionally as "close enough for now, will refine after all waves are complete" (`.agent/owner-W1-acceptance-2026-10-18.md`). Schedule one refinement pass over all screens after the final wave; inputs: W1 overages list (`.agent/W1-F5b-evidence/overages.json`), accepted Lows across W1/W2 reviews, F5 carries not done (legacy-Site captures).
+
+## W2-03 follow-up carried Lows (merged 2026-10-19, review ACCEPT)
+
+- L1: `.agent/W2-03-followup-evidence/evidence.json:39` still records temperature claim panel 165 px; q2 recapture measured 142 px (packet only).
+- L2: spec-required 390 capture with disclosures opened is missing; covered by tests and wrapping CSS.
+- L3: `coldRoutes.test.tsx:517` matches missing-step labels by regex, not exact strings; temperature recapture used a different seed.
