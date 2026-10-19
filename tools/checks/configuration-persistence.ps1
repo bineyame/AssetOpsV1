@@ -647,8 +647,12 @@ function Invoke-ConfigurationPersistenceCheck {
     # worker (analytics/assessment_worker.py) owns the one shared transaction across the assessment and Finding
     # stores and the job completion; it writes no table itself.
     $assessTables = @('analytic_run', 'analytic_run_evidence', 'assessment_revision', 'analytic_run_assessment', 'analytic_run_selection',
-        'source_clock_attestation', 'cold_episode', 'cold_episode_revision', 'cold_episode_evidence')
+        'source_clock_attestation', 'cold_episode', 'cold_episode_revision', 'cold_episode_evidence',
+        'ev_session', 'ev_session_revision', 'ev_session_evidence', 'ev_meter_interval')
     $coldEpisodeTables = @('cold_episode', 'cold_episode_revision', 'cold_episode_evidence')
+    # W2-06 (D-2026-10-18-w2-06-07-buildspec, migration 0025) adds the four append-only EV session tables the same
+    # way: the assessment store alone INSERTs them (never UPDATE/DELETE/upsert); EV Findings stay with the Finding store.
+    $evSessionTables = @('ev_session', 'ev_session_revision', 'ev_session_evidence', 'ev_meter_interval')
     $coldTransactionOwner = "$backendRoot/analytics/assessment_worker.py"
     $assessInserts = $assessTables + @('recompute_job')
     $assessUpdates = @(
@@ -888,7 +892,7 @@ function Invoke-ConfigurationPersistenceCheck {
                 # LR-01 attestations, S6-01a Action rows and S4-05a provenance are insert-only: a permitted INSERT
                 # into one of them must not carry an upsert (ON CONFLICT ... DO UPDATE stays in the INSERT clause).
                 if ($null -ne $target -and $line -match '(?i)\bDO\s+UPDATE\b' -and
-                        (@('source_clock_attestation', 'finding', 'finding_revision') + $coldEpisodeTables +
+                        (@('source_clock_attestation', 'finding', 'finding_revision') + $coldEpisodeTables + $evSessionTables +
                             $coldConsequenceTables + $actionTables + $provenanceTables) -contains $target) {
                     $failures.Add(("Insert-only table '$target' is never upserted (no ON CONFLICT DO UPDATE); " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
@@ -1112,6 +1116,16 @@ function Invoke-ConfigurationPersistenceCheck {
             if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
                 $failures.Add(("Rule 8 cold writer probe '$probeName' is missing from tools/writer_guard_probes.py; " +
                     "the cold writer policy is unproven without it.")) | Out-Null
+            }
+        }
+    }
+    # W2-06: the EV session tables fail closed the same way, with their own `ev` probe names.
+    foreach ($table in $evSessionTables) {
+        foreach ($probeName in @("controls ev $table insert", "ev $table foreign insert", "ev $table update",
+                "ev $table delete", "ev $table upsert")) {
+            if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
+                $failures.Add(("Rule 8 EV writer probe '$probeName' is missing from tools/writer_guard_probes.py; " +
+                    "the EV session writer policy is unproven without it.")) | Out-Null
             }
         }
     }
