@@ -164,6 +164,21 @@ from cold_lab import (
     parse_cold_projection,
     render_cold_projection,
 )
+from ev_lab import (
+    EV_ARTIFACT_SCHEMA_VERSION,
+    EvArtifact,
+    EvArtifactUnreadable,
+    EvInputs,
+    ev_delay_event_id,
+    ev_draft_projection,
+    ev_terminal_projection,
+    is_ev_projection,
+    parse_ev_artifact,
+    render_ev_artifact,
+    verify_ev_artifact,
+)
+from ev_publication import ev_execution, ev_reports, ev_series_digest, verify_ev_inputs
+from assetops_contracts.gateway_report import parse_device_report_v2_text
 from gateway_publication import (
     PublicationRefused,
     RegisteredGatewayPublisher,
@@ -1370,6 +1385,8 @@ def render_projection(projection: LabProjection) -> dict[str, object]:
     """
     if is_cold_projection(projection):
         raise ValueError("a cold projection is written only as its schema-6 cold artifact")
+    if is_ev_projection(projection):
+        raise ValueError("an EV projection is written only as its schema-7 EV artifact")
     return {
         # First, so a person opening the file sees which rule wrote it before
         # they see anything the rule decided.
@@ -1616,6 +1633,15 @@ def _parse_reporting_gap(
     )
 
 
+def parse_ev_document(document: dict[str, object]) -> EvArtifact:
+    """A schema-7 EV artifact, strictly parsed; any damage is `ExecutionArtifactUnreadable`."""
+    run_id = str(document.get("run_id", "an execution record with no run id"))
+    try:
+        return parse_ev_artifact(document)
+    except EvArtifactUnreadable as damaged:
+        raise ExecutionArtifactUnreadable(run_id, EV_ARTIFACT_SCHEMA_VERSION, str(damaged)) from damaged
+
+
 def parse_projection(document: dict[str, object]) -> LabProjection:
     """One persisted artifact back as the projection it was written from.
 
@@ -1654,6 +1680,9 @@ def parse_projection(document: dict[str, object]) -> LabProjection:
             return parse_cold_projection(document)
         except ColdArtifactUnreadable as damaged:
             raise ExecutionArtifactUnreadable(run_id, COLD_ARTIFACT_SCHEMA_VERSION, str(damaged)) from damaged
+    if isinstance(document, dict) and document.get("artifact_schema_version") == EV_ARTIFACT_SCHEMA_VERSION:
+        # W2-05b q4 Q20: the EV artifact is its own strict schema; damage reads ARTIFACT_UNREADABLE.
+        return parse_ev_document(document).projection
     layout, marker = _identify_layout(document, run_id)
     failure = document.get("failure")
     try:
@@ -1911,6 +1940,43 @@ class YamlExecutionArtifacts:
         temporary.write_text(text, encoding="utf-8")
         temporary.replace(path)
 
+    def write_ev(self, projection: LabProjection, run: SimulationRun,
+                 public_reports: tuple[tuple[str, str], ...]) -> None:
+        """W2-05b q4 Q20: replace an EV run's artifact whole - ONE schema-7 document, no history marker and no
+        private document."""
+        self._root.mkdir(parents=True, exist_ok=True)
+        path = self._path(projection.run_id)
+        temporary = path.with_suffix(".yaml.partial")
+        text = yaml.safe_dump(render_ev_artifact(projection, run, public_reports), sort_keys=False,
+                              allow_unicode=True)
+        temporary.write_text(text, encoding="utf-8")
+        temporary.replace(path)
+
+    def read_ev(self, run: SimulationRun) -> EvArtifact | None:
+        """An EV run's schema-7 artifact, parsed and checked against the persisted run, or None when absent.
+
+        Anything else on disk for an EV run (another schema, a history marker, a copied ID/SHA that is not the
+        run's) is `ExecutionArtifactUnreadable`."""
+        path = self._path(run.run_id)
+        if not path.exists():
+            return None
+        text = path.read_text(encoding="utf-8")
+        try:
+            document = yaml.safe_load(text)
+        except yaml.YAMLError as error:
+            raise ExecutionArtifactUnreadable(run.run_id, None, f"the EV artifact is not YAML: {error}") from error
+        if HISTORY_MARKER in text or not isinstance(document, dict) or (
+                document.get("artifact_schema_version") != EV_ARTIFACT_SCHEMA_VERSION):
+            raise ExecutionArtifactUnreadable(
+                run.run_id, document.get("artifact_schema_version") if isinstance(document, dict) else None,
+                "an EV run's record is exactly one schema-7 EV artifact")
+        artifact = parse_ev_document(document)
+        try:
+            verify_ev_artifact(artifact, run)
+        except EvArtifactUnreadable as damaged:
+            raise ExecutionArtifactUnreadable(run.run_id, EV_ARTIFACT_SCHEMA_VERSION, str(damaged)) from damaged
+        return artifact
+
     def _texts(self, run_id: str) -> tuple[str, str | None] | None:
         path = self._path(run_id)
         if not path.exists():
@@ -1935,6 +2001,9 @@ class YamlExecutionArtifacts:
         """
         if is_cold_projection(projection):
             # W2-02: the cold minute records are private to the artifact; no legacy history is claimed.
+            return without_history(projection, "HISTORY_UNAVAILABLE")
+        if is_ev_projection(projection):
+            # W2-05b q4 Q24: the schema-7 artifact keeps no history document.
             return without_history(projection, "HISTORY_UNAVAILABLE")
         texts = self._texts(run_id)
         if texts is None or texts[1] is None:
@@ -2007,9 +2076,13 @@ class HostLabExecution:
         # W2-02: the read-only re-read of a cold run's exact frozen Foundation revision and cold scenario
         # document (`cold_lab.ColdInputs`). None refuses every cold start FROZEN_RUN_NOT_RECONSTRUCTIBLE.
         cold_inputs: ColdInputs | None = None,
+        # W2-05b q4 Q23: the read-only re-read of an EV run's exact frozen Foundation revision, binding revision
+        # and EV scenario document (`ev_lab.EvInputs`). None refuses every EV start FROZEN_RUN_NOT_RECONSTRUCTIBLE.
+        ev_inputs: EvInputs | None = None,
     ) -> None:
         self._model = model
         self._cold_inputs = cold_inputs
+        self._ev_inputs = ev_inputs
         self._gateway = gateway
         self._source_publisher = source_publisher
         if schedules is None:
@@ -2039,8 +2112,8 @@ class HostLabExecution:
         pair dispatches to the cold pack.
         """
         try:
-            if execution_path(run) == "COLD":
-                return model_for(run)  # refuses: the cold pair has no model specification
+            if execution_path(run) in ("COLD", "EV"):
+                return model_for(run)  # refuses: the cold and EV pairs have no model specification
             if self._model is not None:
                 return self._model
             return model_for(run)
@@ -2115,7 +2188,7 @@ class HostLabExecution:
             if session is not None:
                 return project(session)
             try:
-                stored = self._artifacts.read(run.run_id)
+                stored = self._stored(run)
             except ExecutionArtifactUnreadable as unreadable:
                 return self._artifact_unreadable(run, unreadable)
             if stored is not None and stored.is_terminal:
@@ -2131,10 +2204,26 @@ class HostLabExecution:
         except FrozenRunNotReconstructible:
             return False
 
+    @staticmethod
+    def _is_ev(run: SimulationRun) -> bool:
+        try:
+            return execution_path(run) == "EV"
+        except FrozenRunNotReconstructible:
+            return False
+
+    def _stored(self, run: SimulationRun) -> LabProjection | None:
+        """The stored projection; an EV run's comes only from its schema-7 artifact, checked against the run."""
+        if self._is_ev(run):
+            artifact = self._artifacts.read_ev(run)
+            return None if artifact is None else artifact.projection
+        return self._artifacts.read(run.run_id)
+
     def _not_started(self, run: SimulationRun) -> LabProjection:
-        """The Draft projection; a cold run's bypasses the legacy `_reporting_for`/`_model_for`."""
+        """The Draft projection; a cold or EV run's bypasses the legacy `_reporting_for`/`_model_for`."""
         if self._is_cold(run):
             return cold_draft_projection(run)
+        if self._is_ev(run):
+            return ev_draft_projection(run)
         return not_started(run, self._reporting_for(run), self._notes(run))
 
     def _artifact_unreadable(
@@ -2163,7 +2252,7 @@ class HostLabExecution:
         first one's identity and overwrite the very result nobody could read.
         """
         try:
-            return self._artifacts.read(run.run_id)
+            return self._stored(run)
         except ExecutionArtifactUnreadable as unreadable:
             raise LabControlRefused(
                 "ARTIFACT_UNREADABLE", run.run_id, str(unreadable)
@@ -2204,6 +2293,8 @@ class HostLabExecution:
                 raise LabControlRefused("INTERRUPTED", run.run_id)
             if self._is_cold(run):
                 return self._start_cold(run)
+            if self._is_ev(run):
+                return self._start_ev(run)
 
             try:
                 model = self._model_for(run)
@@ -2332,6 +2423,83 @@ class HostLabExecution:
         )
         return projection
 
+    def _start_ev(self, run: SimulationRun) -> LabProjection:
+        """W2-05b q4: verify the frozen inputs, execute the whole EV window once, stage it, persist terminal.
+
+        `verify_ev_inputs` -> `ev_execution` -> `ev_reports`/`ev_series_digest` -> `_stage_registered_virtual_ev`
+        -> terminal projection -> schema-7 write. A missing port, record or mismatch, or a world outside
+        `ev-charger/1`, refuses before Stage, schedule or gateway admission. The schedule is written before
+        admission (`_release`); the terminal artifact after the Stage result, FAILED/`PUBLICATION_REFUSED` on a
+        refusal, so Start never executes the run again."""
+        basis = run.registered_basis
+        identity = run.deterministic_identity
+        try:
+            if self._ev_inputs is None:
+                raise FrozenRunNotReconstructible("no EV input reader is composed for this host")
+            if basis is None:
+                raise FrozenRunNotReconstructible("an EV run is registered")
+            try:
+                tenant, site = UUID(str(basis.tenant_id)), UUID(str(basis.site_record_id))
+                revision = self._ev_inputs.foundation_revision(tenant, site, UUID(str(basis.foundation_revision_id)))
+                binding = self._ev_inputs.binding_revision(tenant, site, UUID(str(basis.binding_set_revision_id)))
+                definition = self._ev_inputs.ev_scenario(
+                    identity.scenario.scenario_id, identity.scenario.scenario_version
+                )
+            except FrozenRunNotReconstructible:
+                raise
+            except Exception as unreadable:  # an unreadable store refuses exactly as a missing record does
+                raise FrozenRunNotReconstructible(
+                    f"the frozen EV inputs could not be read: {unreadable}"
+                ) from unreadable
+            verified = verify_ev_inputs(run, revision, binding, definition)
+        except FrozenRunNotReconstructible as broken:
+            raise LabControlRefused("FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id, str(broken)) from broken
+        try:
+            execution = ev_execution(verified.definition, verified.parameters)
+            reports = ev_reports(verified.definition, verified.channels, execution)
+        except (PhysicallyUnacceptable, ValueError) as unacceptable:
+            raise LabControlRefused(
+                "FROZEN_RUN_NOT_RECONSTRUCTIBLE", run.run_id,
+                f"the frozen EV inputs drive the world outside ev-charger/1: {unacceptable}",
+            ) from unacceptable
+        content = execution.content_digest()
+        series = ev_series_digest(reports)
+        refused = self._stage_registered_virtual_ev(run, reports)
+        failure = None
+        if refused is not None:
+            failure = ExecutionFailure(
+                kind="PUBLICATION_REFUSED", subject=run.run_id,
+                statement="Ordinary gateway Stage admission refused before the closing instant.",
+                detail=(refused,),
+            )
+        projection = ev_terminal_projection(
+            run, verified.definition, content_digest=content, series_digest=series,
+            reported_count=len(reports), failure=failure,
+        )
+        self._artifacts.write_ev(projection, run, tuple((r.report_key, r.report_text) for r in reports))
+        return projection
+
+    def _verified_ev_schedule(self, run: SimulationRun, schedule: PublicationSchedule) -> None:
+        """q4 Q21: before a restart release, the stored schedule must match the run and its schema-7 artifact:
+        run, snapshot SHA, and each held report's key, exact text, device/signal, source time, private delay ID
+        and PENDING/RELEASED state. Nothing is rebuilt from the scenario or the pack."""
+        artifact = self._artifacts.read_ev(run)
+        if artifact is None:
+            raise ScheduleUnreadable(run.run_id, "the EV run has a schedule but no execution artifact")
+        texts = dict(artifact.public_reports)
+        if schedule.run_id != run.run_id or schedule.snapshot_sha256 != run.registered_basis.snapshot_sha256:
+            raise ScheduleUnreadable(run.run_id, "it does not name this run's frozen snapshot")
+        for held in schedule.delayed:
+            text = texts.get(held.report_key)
+            if text is None or text != held.report_text:
+                raise ScheduleUnreadable(run.run_id, f"held report {held.report_key} is not the artifact's text")
+            report = parse_device_report_v2_text(text)
+            if ((report.device_id, report.signal_id, report.source_time)
+                    != (held.device_id, held.signal_id, held.source_time)
+                    or held.delay_event_id != ev_delay_event_id(held.report_key)
+                    or held.state not in ("PENDING", "RELEASED")):
+                raise ScheduleUnreadable(run.run_id, f"held report {held.report_key} does not match the artifact")
+
     def _stage_registered_virtual_cold(self, run: SimulationRun, reports) -> str | None:
         """The cold branch of `_stage_registered_virtual`: v2 report texts straight to the gateway.
 
@@ -2346,10 +2514,12 @@ class HostLabExecution:
         `reports` are `ev_publication.EvReport`s in the commit 3 series order. Ordinary reports publish at
         source time + 3 s; the held late END is a `DelayedReport` released at 09:05 with its unchanged source
         time, report key and text. `GatewayService` alone allocates envelope sequence/message and SQLite
-        outbox; a gateway ordinal refusal comes back as the refusal string (`PUBLICATION_REFUSED`)."""
-        return self._stage_registered_v2_reports(run, reports, "EV")
+        outbox; a gateway ordinal refusal comes back as the refusal string (`PUBLICATION_REFUSED`). q4 Q25: the
+        held report's private delay ID is `ev_delay_event_id`."""
+        return self._stage_registered_v2_reports(run, reports, "EV", ev_delay_event_id)
 
-    def _stage_registered_v2_reports(self, run: SimulationRun, reports, label: str) -> str | None:
+    def _stage_registered_v2_reports(self, run: SimulationRun, reports, label: str,
+                                     delay_id=delay_event_id) -> str | None:
         basis = run.registered_basis
         if self._gateway is None:
             return "registered publication refused: no gateway is configured for this host"
@@ -2366,7 +2536,7 @@ class HostLabExecution:
                 delayed.append(DelayedReport(
                     report_key=report.report_key, device_id=report.device_id, signal_id=report.signal_id,
                     source_time=report.source_time, scheduled_release_at=report.published_at,
-                    delay_event_id=delay_event_id(report.report_key), report_text=report.report_text,
+                    delay_event_id=delay_id(report.report_key), report_text=report.report_text,
                 ))
             else:
                 ordinary.setdefault(report.published_at, []).append(report.report_text)
@@ -2875,6 +3045,14 @@ class HostLabExecution:
                 raise LabControlRefused("PUBLICATION_SCHEDULE_MISSING", run.run_id)
             if schedule is None or schedule.clock_instant is None:
                 raise LabControlRefused("NOT_STARTED", run.run_id)
+            if self._is_ev(run):
+                try:
+                    self._verified_ev_schedule(run, schedule)
+                except ScheduleUnreadable as mismatched:
+                    raise LabControlRefused(
+                        "PUBLICATION_SCHEDULE_UNREADABLE", run.run_id, str(mismatched)) from mismatched
+                except ExecutionArtifactUnreadable as unreadable:
+                    raise LabControlRefused("ARTIFACT_UNREADABLE", run.run_id, str(unreadable)) from unreadable
             if instant < schedule.clock_instant:
                 raise LabControlRefused(
                     "PUBLICATION_CLOCK_BACKWARD",
@@ -3190,7 +3368,7 @@ class HostLabExecution:
             outcome = session.execution.outcome
             return "RUNNING" if outcome is None else outcome
         try:
-            stored = self._artifacts.read(run.run_id)
+            stored = self._stored(run)
         except ExecutionArtifactUnreadable:
             return "ARTIFACT_UNREADABLE"
         if stored is None:
