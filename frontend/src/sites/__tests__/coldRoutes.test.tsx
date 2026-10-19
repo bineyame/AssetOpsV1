@@ -455,3 +455,187 @@ describe("W2-03: cold Finding detail", () => {
     expect(panelTitled("Recommended next step").querySelector(`[data-finding-link="${START_FINDING}"]`)).not.toBeNull();
   });
 });
+
+/* D-2026-10-19-w2-03-followup: closed-panel compaction and W2-03 chip tones. */
+describe("W2-03 follow-up: closed panels keep the primary form, one disclosure holds the detail", () => {
+  const disclosureOf = (panel: HTMLElement) => {
+    const found = panel.querySelectorAll("details[data-exact-references]");
+    expect(found).toHaveLength(1);
+    const details = found[0] as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")?.textContent).toBe("How this was worked out");
+    details.open = true;
+    return details;
+  };
+  const outside = (panel: HTMLElement, selector: string) => {
+    const el = panel.querySelector(selector);
+    expect(el).not.toBeNull();
+    expect(el?.closest("details")).toBeNull();
+    return el as HTMLElement;
+  };
+  const closedText = (panel: HTMLElement) =>
+    Array.from(panel.querySelectorAll(".panel__body > *"))
+      .filter((n) => !n.matches("details"))
+      .map((n) => n.textContent)
+      .join(" ");
+  const withGap = { ...STOCKED_TEMPERATURE, gaps: [{ start: at(15), end: at(30), reason: "MISSING_PROBE", expected_points: 4, received_points: 0 }] };
+
+  it.each([
+    ["excursion", STOCKED_TEMPERATURE, "support a bounded temperature excursion above policy. Product quality or spoilage conclusions need product identity, an exposure policy and further evidence."],
+    ["within policy", { ...STOCKED_TEMPERATURE, state: "NO_EXCURSION_OBSERVED", excursions: [] }, "stay within policy for this window. This says nothing about product condition."],
+    ["unknown", { ...STOCKED_TEMPERATURE, state: "UNKNOWN", excursions: [] }, "do not support a temperature conclusion for this window."],
+  ] as const)("temperature claim panel (%s): sentence closed, facts and limits in the disclosure", async (_name, read, sentence) => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(read as ColdTemperatureRead) });
+    await settledScreen();
+    const panel = panelTitled("How each limit is set");
+    expect(outside(panel, ".prose").textContent).toContain(sentence);
+    expect(closedText(panel)).not.toContain("usable");
+    expect(closedText(panel)).not.toContain("No spoilage");
+    const details = disclosureOf(panel);
+    expect(details.getAttribute("data-disclosure")).toBe("cold-claim-references");
+    expect(details.querySelector("[data-cold-claim-facts]")?.textContent).toMatch(/set aside/);
+    expect(details.querySelector("[data-cold-claim-facts]")?.textContent).toContain("13 of 13 expected readings usable");
+    expect(details.querySelector("[data-cold-source]")?.textContent).toBe("Generated test data");
+    expect(details.querySelector("[data-cold-limitations]")?.textContent).toContain("No spoilage");
+    expect(details.querySelector("[data-cold-source-sentence]")?.textContent).toBe("From a registered test run; not readings from physical equipment.");
+    expect(details.textContent).toContain("Records not used");
+  });
+
+  it("temperature claim panel states 'no records set aside' inside the disclosure when empty", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok({ ...STOCKED_TEMPERATURE, excluded: [] }) });
+    await settledScreen();
+    const details = disclosureOf(panelTitled("How each limit is set"));
+    expect(details.querySelector("[data-cold-claim-facts]")?.textContent).toContain("no records set aside");
+  });
+
+  it("start Finding: full chain and missing-step line closed, versions and evidence in the disclosure", async () => {
+    renderCold(ROUTES[2][1], STOCKED);
+    await settledScreen();
+    const panel = panelTitled("Operational context");
+    expect(panel.querySelectorAll("[data-timeline-event]")).toHaveLength(8);
+    for (const e of Array.from(panel.querySelectorAll("[data-timeline-event]"))) expect(e.closest("details")).toBeNull();
+    expect(outside(panel, ".cold-operational-missing").textContent).toMatch(/^Missing steps: .+, .+, .+$/);
+    expect(closedText(panel)).not.toContain("Versions");
+    expect(closedText(panel)).not.toContain("Accepted records");
+    const details = disclosureOf(panel);
+    expect(details.getAttribute("data-disclosure")).toBe("cold-finding-references");
+    expect(details.textContent).toContain("Versions");
+    expect(details.querySelectorAll("[data-evidence-link]").length).toBeGreaterThan(0);
+    expect(details.querySelector(`[data-analysis-unavailable="${id(51)}"]`)?.textContent).toContain("Analysis view not available for this cold record");
+    expect(details.querySelector("a[href*='assessment=']")).toBeNull();
+    const next = panelTitled("Recommended next step");
+    expect(next.querySelector("details")).toBeNull();
+    expect(next.textContent).toContain("No recorded next step. No Action or Recommendation record is linked to this Finding.");
+    expect(next.textContent).toContain("Open the Backup view →");
+    expect(panel.closest(".panel-pair")?.classList.contains("cold-finding-pair")).toBe(true);
+  });
+
+  it("start Finding: missing line reads 'None' when nothing is missing and survives an unreadable chain", async () => {
+    const none = (f: string) => {
+      const d = detailOf(f, "START_RESPONSE");
+      return ok({ ...d, claim: { ...d.claim, missing_steps: [] } });
+    };
+    renderCold(ROUTES[2][1], { ...STOCKED, finding: none });
+    await settledScreen();
+    expect(panelTitled("Operational context").querySelector(".cold-operational-missing")?.textContent).toBe("Missing steps: None");
+    cleanup();
+    renderCold(ROUTES[2][1], { ...STOCKED, backup: DOWN });
+    await settledScreen();
+    const panel = panelTitled("Operational context");
+    expect(panel.querySelectorAll("[data-timeline-event]")).toHaveLength(0);
+    expect(panel.querySelector("[data-panel-gap]")).not.toBeNull();
+    expect(panel.querySelector(".cold-operational-missing")?.textContent).toMatch(/^Missing steps: .+/);
+  });
+
+  it("excursion Finding: chart and gap notes closed, peak/exposure/evidence in the disclosure, next step unchanged", async () => {
+    renderCold(ROUTES[3][1], { ...STOCKED, temperature: ok(withGap as ColdTemperatureRead) });
+    await settledScreen();
+    const panel = panelTitled("Temperature");
+    expect(panel.querySelectorAll("[data-cold-point]")).toHaveLength(13);
+    for (const p of Array.from(panel.querySelectorAll("[data-cold-point]"))) expect(p.closest("details")).toBeNull();
+    outside(panel, "[data-cold-gap]");
+    expect(closedText(panel)).not.toContain("Peak observed");
+    expect(closedText(panel)).not.toContain("Exposure size");
+    const details = disclosureOf(panel);
+    expect(details.getAttribute("data-disclosure")).toBe("cold-finding-references");
+    expect(details.textContent).toContain("Peak observed");
+    expect(details.textContent).toContain("Exposure size");
+    expect(details.textContent).toContain("24.5");
+    expect(details.querySelectorAll("[data-evidence-link]").length).toBeGreaterThan(0);
+    const next = panelTitled("Recommended next step");
+    expect(next.querySelector("details")).toBeNull();
+    expect(next.textContent).toContain("No recorded next step. No Action or Recommendation record is linked to this Finding.");
+    expect(next.textContent).toContain("Open the Temperature view →");
+    expect(next.querySelector(`[data-finding-link="${START_FINDING}"]`)).not.toBeNull();
+    expect(panel.closest(".panel-pair")?.classList.contains("cold-finding-pair")).toBe(true);
+  });
+
+  it("excursion Finding: no related link without a selected start Finding; unreadable chart keeps its gap", async () => {
+    renderCold(ROUTES[3][1], { ...STOCKED, findings: ok({ ...STOCKED_FINDINGS, items: STOCKED_FINDINGS.items.filter((f) => f.kind !== "START_RESPONSE") }), temperature: DOWN });
+    await settledScreen();
+    expect(panelTitled("Recommended next step").querySelector("[data-finding-link]")).toBeNull();
+    expect(panelTitled("Temperature").querySelector("[data-panel-gap]")).not.toBeNull();
+    expect(panelTitled("Temperature").querySelectorAll("details[data-exact-references]")).toHaveLength(1);
+  });
+
+  it("pending and refused states keep the single disclosure rule and their gaps", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok({ ...STOCKED_TEMPERATURE, currentness: { ...STOCKED_TEMPERATURE.currentness, state: "PENDING_RECOMPUTE", pending_since: KNOWN } }) });
+    await settledScreen();
+    expect(panelTitled("How each limit is set").querySelectorAll("details[data-exact-references]")).toHaveLength(1);
+    cleanup();
+    renderCold(ROUTES[0][1], REFUSED);
+    await settledScreen();
+    expect(panelTitled("How each limit is set").querySelector("[data-panel-gap]")).not.toBeNull();
+  });
+});
+
+describe("W2-03 follow-up: M5 chip tones on the selected state and result badge only", () => {
+  const badgeIn = (scope: Element, text: string) => {
+    const b = Array.from(scope.querySelectorAll(".badge")).find((e) => e.textContent?.trim() === text);
+    expect(b, text).toBeDefined();
+    return b as HTMLElement;
+  };
+  const strip = (label: string) => document.querySelector(`[aria-label="${label}"]`) as HTMLElement;
+  const GREEN = "cold-temperature-tone--green";
+  const AMBER = "cold-temperature-tone--amber";
+
+  it.each([
+    ["NO_EXCURSION_OBSERVED", "Within policy", GREEN],
+    ["OBSERVED_EXCURSION", "Outside policy", AMBER],
+    ["CONTRADICTORY", "Readings disagree", AMBER],
+    ["UNKNOWN", "Not assessed", null],
+  ] as const)("temperature state %s reads %s", async (state, word, tone) => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok({ ...STOCKED_TEMPERATURE, state }) });
+    await settledScreen();
+    const bar = strip("Temperature state");
+    const chip = badgeIn(bar, word);
+    expect(chip.classList.contains(GREEN)).toBe(tone === GREEN);
+    expect(chip.classList.contains(AMBER)).toBe(tone === AMBER);
+    if (tone === null) expect(chip.classList.contains("badge--neutral")).toBe(true);
+    const coverage = Array.from(bar.querySelectorAll(".badge")).find((e) => e.textContent?.startsWith("Coverage")) as HTMLElement;
+    expect(coverage.className).not.toMatch(/cold-temperature-tone/);
+  });
+
+  it.each([
+    ["OBSERVED_SUCCESS", "Started", "green"],
+    ["OBSERVED_FAILURE", "Start failed", "danger"],
+    ["CONTRADICTORY", "Results disagree", "warning"],
+    ["UNKNOWN", "Not established", "neutral"],
+  ] as const)("backup result %s reads %s in the status bar and the chain table", async (result, word, tone) => {
+    const chain = { ...STOCKED_BACKUP.chains[0], result };
+    renderCold(ROUTES[1][1], { ...STOCKED, backup: ok({ ...STOCKED_BACKUP, chains: [chain] }) });
+    await settledScreen();
+    const bar = strip("Backup chain state");
+    const table = panelTitled("Backup event chains");
+    for (const scope of [bar, table]) {
+      const wrapper = scope.querySelector(".cold-result") as HTMLElement;
+      const chip = badgeIn(wrapper, word);
+      expect(chip.classList.contains(GREEN)).toBe(tone === "green");
+      expect(chip.classList.contains(AMBER)).toBe(false);
+      expect(wrapper.className).toContain(tone === "green" ? "cold-result--neutral" : `cold-result--${tone}`);
+    }
+    const evidence = Array.from(bar.querySelectorAll(".badge")).find((e) => e.textContent?.startsWith("Evidence:")) as HTMLElement;
+    expect(evidence.className).not.toMatch(/cold-temperature-tone/);
+    expect(evidence.closest(".cold-result")).toBeNull();
+  });
+});
