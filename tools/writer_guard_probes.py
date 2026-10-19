@@ -441,14 +441,20 @@ NEGATIVE += [
 ]
 
 # W2-07 (enabled in spec commit 2): the same per-table vacuity probe for each EV consequence table.
+def _ev_unseen(table: str, columns: str) -> tuple:
+    return (CONSEQUENCE, ("replace", f'"INSERT INTO {table} ({columns}', f'"SELECT * FROM {table} WHERE ({columns}'),
+            f"Rule 8 found no INSERT INTO {table} in ")
+
+
 NEGATIVE += [
-    (f"ev {table} owner insert unseen", CONSEQUENCE,
-     ("replace", f'"INSERT INTO {table} ({columns}', f'"SELECT * FROM {table} WHERE ({columns}'),
-     f"Rule 8 found no INSERT INTO {table} in ")
-    for table, columns in (("ev_consequence_revision", "id, tenant_id, site_id, finding_revision_id, "),
-                           ("ev_consequence_session", "tenant_id, site_id, consequence_revision_id, "),
-                           ("ev_consequence_evidence", "tenant_id, site_id, consequence_revision_id, "),
-                           ("ev_consequence_work_attempt", "id, tenant_id, site_id, work_id, "))
+    ("ev ev_consequence_revision owner insert unseen",
+     *_ev_unseen("ev_consequence_revision", "id, tenant_id, site_id, finding_revision_id, ")),
+    ("ev ev_consequence_session owner insert unseen",
+     *_ev_unseen("ev_consequence_session", "tenant_id, site_id, consequence_revision_id, ")),
+    ("ev ev_consequence_evidence owner insert unseen",
+     *_ev_unseen("ev_consequence_evidence", "tenant_id, site_id, consequence_revision_id, ")),
+    ("ev ev_consequence_work_attempt owner insert unseen",
+     *_ev_unseen("ev_consequence_work_attempt", "id, tenant_id, site_id, work_id, ")),
 ]
 
 # W2-07 (migration 0026): the consequence store alone INSERTs each EV consequence table, which no module updates,

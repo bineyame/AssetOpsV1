@@ -52,8 +52,12 @@ def _at(value: str | None) -> datetime | None:
 
 
 class PostgresConsequenceStore:
-    def __init__(self, database_url: str | None, *, link_rows: Callable[..., list] | None = None) -> None:
+    def __init__(self, database_url: str | None, *, link_rows: Callable[..., list] | None = None,
+                 ev_snapshot: Callable[..., dict] | None = None) -> None:
         self._database_url = database_url
+        # W2-07: W2-06's exact EV selection snapshot on the caller's connection, injected by composition
+        # (`analytics.composition.build_ev_selected_snapshot`), so the EV worker never rebuilds its selection.
+        self._ev_snapshot = ev_snapshot
         self._engine: Engine | None = None
         # W2-04: the S4-05 link-row reader on the caller's connection (`evidence.composition.build_link_rows_reader`),
         # so the cold worker classifies its exact evidence inside its own snapshot.
@@ -662,7 +666,7 @@ class PostgresConsequenceStore:
                 with c.begin():
                     c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('ev_consequence:' || :w, 0))"),
                               {"w": str(work_id)})
-                    yield EvUnit(c, tenant_id, site_id, work_id, self._link_rows)
+                    yield EvUnit(c, tenant_id, site_id, work_id, self._link_rows, self._ev_snapshot)
         except (OperationalError, ProgrammingError) as error:
             raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
 
@@ -938,10 +942,11 @@ class EvUnit:
     """One locked, repeatable-read EV work transaction (see `PostgresConsequenceStore.ev_unit`)."""
 
     def __init__(self, c: Connection, tenant_id: UUID, site_id: UUID, work_id: UUID,
-                 link_rows: Callable[..., list] | None) -> None:
+                 link_rows: Callable[..., list] | None, snapshot: Callable[..., dict] | None) -> None:
         self._c = c
         self._p = {"t": tenant_id, "s": site_id, "w": work_id}
         self._link_rows = link_rows
+        self._snapshot = snapshot
         self.tenant_id, self.site_id, self.work_id = tenant_id, site_id, work_id
         self._started = c.execute(text("SELECT clock_timestamp()")).scalar_one()
 
@@ -965,13 +970,12 @@ class EvUnit:
         """The exact selected `ev-session/1` assessment of the work window at the committed cutoff (W2-06's own
         caller-connection snapshot), its session revisions, all their meter intervals, the S4-05 class of its exact
         accepted IDs and the current EV tariff assignments, in this snapshot. None without an exact selection."""
-        from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService
         from assetops_backend.evidence.source_provenance import classify, link_of
 
         c, ws, we = self._c, work["window_start"], work["window_end"]
-        if self._link_rows is None:
-            raise RuntimeError("no S4-05 link reader is configured for the EV consequence source gate")
-        snap = EvReadService(link_rows=self._link_rows)._snapshot(c, self.tenant_id, self.site_id, "", ws, we, None)
+        if self._link_rows is None or self._snapshot is None:
+            raise RuntimeError("no S4-05 link reader or EV selection snapshot is configured for EV consequences")
+        snap = self._snapshot(c, self.tenant_id, self.site_id, ws, we)
         sel = snap["selected"]
         if sel is None:
             return None

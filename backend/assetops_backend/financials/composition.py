@@ -80,10 +80,14 @@ def build_cold_consequence_worker(database_url: str | None) -> ColdConsequenceWo
 
 
 def build_ev_consequence_store(database_url: str | None) -> PostgresConsequenceStore:
-    """W2-07: the consequence store with the S4-05 link-row reader on its own connection (EV source gate)."""
+    """W2-07: the consequence store with the S4-05 link-row reader (EV source gate) and W2-06's exact EV selection
+    snapshot, both on the worker's own connection."""
+    from assetops_backend.analytics.composition import build_ev_selected_snapshot
     from assetops_backend.evidence.composition import build_link_rows_reader
 
-    return PostgresConsequenceStore(database_url, link_rows=build_link_rows_reader())
+    link_rows = build_link_rows_reader()
+    return PostgresConsequenceStore(database_url, link_rows=link_rows,
+                                    ev_snapshot=build_ev_selected_snapshot(link_rows))
 
 
 def build_ev_consequence_worker(database_url: str | None) -> EvConsequenceWorker:
