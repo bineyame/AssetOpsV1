@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Sequence
 
@@ -17,8 +18,11 @@ import pytest
 import yaml
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from foundation_fakes import InMemoryFoundationStore
 from run_fixtures import FakeRuns, FakeScenarios, FakeSites, model_profile, publication_profile, scenario, site
 
+from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, FeatureFlags
+from assetops_backend.main import create_app
 from assetops_backend.runs.parsing import parse_run_document, render_run_document
 from assetops_backend.runs.ports import RegisteredSiteSelection, RunConfigurationInvalid
 from assetops_backend.runs.profiles import (
@@ -33,10 +37,14 @@ from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import Read
 from assetops_backend.scenarios.ev_parsing import EvScenarioDefinition, parse_ev_scenario_document
 from assetops_backend.scenarios.ports import ScenarioConfigurationInvalid, ScenarioStoreUnavailable
 from assetops_backend.simulator_lab_api import build_simulator_lab_router
+from assetops_backend.sites.adapters.import_files import read_import_source
+from assetops_backend.sites.foundation_service import ImportSource, import_site
 from assetops_backend.sites.ports import SiteStoreUnavailable
 from test_w202_cold_run_identity import basis
 
 SCENARIOS = Path(__file__).resolve().parents[2] / "config" / "scenarios"
+EV_FIXTURE = Path(__file__).resolve().parent / "fixtures" / "w2" / "ev-lab-001.yaml"
+NOW = datetime(2026, 10, 7, 12, 0, 0, tzinfo=timezone.utc)
 CASES = ("complete", "interrupted", "fault", "missing-meter", "late-record", "contradictory")
 LABELS = ("Complete session", "Interrupted session", "Fault before charging", "Missing meter report",
           "Late session end", "Contradictory session ends")
@@ -301,6 +309,42 @@ def test_unreadable_stores_are_unavailable_never_empty() -> None:
     assert response.status_code == 503 and response.json()["detail"]["code"] == "SCENARIO_STORE_UNAVAILABLE"
     sites_down = client(registered=Registered(codes=()), sites=FakeSites(failure=SiteStoreUnavailable("down")))
     assert sites_down.get(ROUTE, params={"site_id": EV_SITE}).status_code == 503
+
+
+def composed(**owner) -> TestClient:
+    """The real `create_app` composition over an in-memory Foundation store holding the imported EV-LAB-001."""
+    store = InMemoryFoundationStore()
+    source = read_import_source(str(EV_FIXTURE))
+    import_site(store, tenant_slug=DEVELOPMENT_TENANT_SLUG, configured_tenant_slug=DEVELOPMENT_TENANT_SLUG,
+                source=ImportSource(path="var/sites/ev-lab-001.yaml", sha256=source.sha256, record=source.record),
+                legacy_documents=(), clock=lambda: NOW)
+    return TestClient(create_app(
+        FeatureFlags(simulator_lab_enabled=True), site_repository=FakeSites((site(),)), foundation_store=store,
+        foundation_clock=lambda: NOW, legacy_documents=lambda: (),
+        scenario_repository=FakeScenarios((scenario(), *(ev(case) for case in CASES))), run_repository=FakeRuns(),
+        **owner,
+    ))
+
+
+def test_the_default_composition_refuses_the_ev_catalog_without_an_owner_principal() -> None:
+    """N1: production keeps `no_owner_principal`; the refusal is 403, never an empty catalog."""
+    response = composed().get(ROUTE, params={"site_id": EV_SITE})
+    assert response.status_code == 403 and "scenarios" not in response.json()
+    assert response.json()["detail"]["code"] == "SITE_SCOPE_FORBIDDEN"
+
+
+def test_an_injected_site_scoped_owner_lists_ev_choices_and_is_refused_for_another_site() -> None:
+    """N1: the walkthrough injects a Site-scoped owner check through `create_app`, never a global grant."""
+    owner = composed(ev_access=lambda request, code: None, ev_owner=lambda request, code: code == EV_SITE)
+    listed = owner.get(ROUTE, params={"site_id": EV_SITE})
+    assert listed.status_code == 200
+    assert [c["display_name"] for c in listed.json()["scenarios"]] == list(LABELS)
+    for other in (site().site_id, "COLD-LAB-001"):
+        wrong_site = owner.get(ROUTE, params={"site_id": other})
+        assert wrong_site.status_code == 403 and "scenarios" not in wrong_site.json()
+        assert wrong_site.json()["detail"]["code"] == "SITE_SCOPE_FORBIDDEN"
+    unauthenticated = composed(ev_access=lambda request, code: 401, ev_owner=lambda request, code: True)
+    assert unauthenticated.get(ROUTE, params={"site_id": EV_SITE}).status_code == 401
 
 
 def test_legacy_catalog_and_detail_never_serve_ev_documents() -> None:

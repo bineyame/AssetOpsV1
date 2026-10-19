@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import replace
 from datetime import datetime, time, timedelta, timezone
 from fractions import Fraction
@@ -18,7 +19,8 @@ import yaml
 
 from assetops_simulator.packs.errors import PhysicallyUnacceptable
 from assetops_simulator.packs.ev_charger import (
-    DEFAULT_PARAMETERS, ConnectorState, EvChargerPack, EvForcingRow, EvState, run_window, scoped_session_id,
+    DEFAULT_PARAMETERS, ConnectorState, EvChargerPack, EvForcingRow, EvState, exact_text, run_window,
+    scoped_session_id,
 )
 
 SCENARIOS = Path(__file__).resolve().parents[2] / "config" / "scenarios"
@@ -157,6 +159,13 @@ def pack(**overrides) -> EvChargerPack:
     return EvChargerPack(replace(DEFAULT_PARAMETERS, **overrides), scenario_sha256=SHA, grid_available=grid)
 
 
+def forced(p: EvChargerPack, state: EvState, rows: tuple[EvForcingRow, ...]):
+    """Step with `rows` and the ordinals that continue `state`'s forcing sequence (N8), so a refusal under test is
+    the cell's own refusal and never the ordinal guard's."""
+    first = 0 if state.forcing_ordinal is None else state.forcing_ordinal + 1
+    return p.step(state, rows, ordinals=tuple(range(first, first + len(rows))))
+
+
 def allocated(minute) -> tuple[Fraction, Fraction]:
     return tuple(c.allocated_kw for c in minute.after.connectors)  # type: ignore[return-value]
 
@@ -222,7 +231,7 @@ def connector_in(state_name: str, *, with_session: bool = True) -> tuple[Connect
 def apply(state: EvState, kind: str, value: str, connector: str = "c1"):
     """Apply one forcing at a later boundary so an AUTHORIZING setup is not completed by the same minute."""
     later = replace(state, minute=T0 + timedelta(minutes=10))
-    return pack().step(later, (EvForcingRow(later.minute, kind, connector, value),))
+    return forced(pack(), later, (EvForcingRow(later.minute, kind, connector, value),))
 
 
 VALUES = {"PLUG": "session-2", "AUTHORIZE ACCEPT": "ACCEPT", "AUTHORIZE DENY": "DENY", "REQUEST_KW": "9",
@@ -308,19 +317,19 @@ def test_a_started_fault_then_clear_returns_unplugged_and_a_new_plug_is_a_new_se
 def test_authorization_completes_at_the_next_boundary_and_is_suppressed_by_unplug_or_fault() -> None:
     p = pack()
     state = EvState.initial(T0)
-    plugged = p.step(state, (EvForcingRow(T0, "PLUG", "c1", "session-1"),
-                             EvForcingRow(T0, "AUTHORIZE", "c1", "ACCEPT")))
+    plugged = forced(p, state, (EvForcingRow(T0, "PLUG", "c1", "session-1"),
+                                EvForcingRow(T0, "AUTHORIZE", "c1", "ACCEPT")))
     assert plugged.events == () and plugged.after.connector("c1").state == "AUTHORIZING"
     started = p.step(plugged.after)
     assert [e.kind for e in started.events] == ["START"]
     for kind, value in (("UNPLUG", "END"), ("FAULT", "LATCH")):
-        suppressed = p.step(plugged.after, (EvForcingRow(at(1), kind, "c1", value),))
+        suppressed = forced(p, plugged.after, (EvForcingRow(at(1), kind, "c1", value),))
         assert "START" not in [e.kind for e in suppressed.events]
 
 
 def test_same_minute_plug_then_fault_keeps_the_unstarted_session() -> None:
-    minute = pack().step(EvState.initial(T0), (EvForcingRow(T0, "PLUG", "c1", "session-1"),
-                                               EvForcingRow(T0, "FAULT", "c1", "LATCH")))
+    minute = forced(pack(), EvState.initial(T0), (EvForcingRow(T0, "PLUG", "c1", "session-1"),
+                                                  EvForcingRow(T0, "FAULT", "c1", "LATCH")))
     c1 = minute.after.connector("c1")
     assert (c1.state, c1.session_id, c1.started) == ("FAULTED", S1, False)
     assert [(e.kind, e.session_id) for e in minute.events] == [("FAULT", S1)]
@@ -355,9 +364,9 @@ def test_start_twice_and_a_second_terminal_are_refused() -> None:
 
 def test_plug_labels_follow_order_without_reuse_or_a_third_plug() -> None:
     with pytest.raises(PhysicallyUnacceptable):
-        pack().step(EvState.initial(T0), (EvForcingRow(T0, "PLUG", "c1", "session-2"),))
+        forced(pack(), EvState.initial(T0), (EvForcingRow(T0, "PLUG", "c1", "session-2"),))
     with pytest.raises(PhysicallyUnacceptable):
-        pack().step(replace(EvState.initial(T0), plugs=2), (EvForcingRow(T0, "PLUG", "c1", "session-1"),))
+        forced(pack(), replace(EvState.initial(T0), plugs=2), (EvForcingRow(T0, "PLUG", "c1", "session-1"),))
 
 
 @pytest.mark.parametrize("rows", [
@@ -370,7 +379,7 @@ def test_plug_labels_follow_order_without_reuse_or_a_third_plug() -> None:
 ])
 def test_unordered_repeated_foreign_or_mistimed_forcing_is_refused(rows) -> None:
     with pytest.raises(PhysicallyUnacceptable):
-        pack().step(EvState.initial(T0), rows)
+        forced(pack(), EvState.initial(T0), rows)
 
 
 def test_window_forcing_must_be_inside_minute_aligned_and_monotone() -> None:
@@ -390,3 +399,92 @@ def test_the_closing_boundary_is_a_snapshot() -> None:
     assert closing.after.minute == T0
     with pytest.raises(PhysicallyUnacceptable):
         pack().step(state, (EvForcingRow(T0, "UNPLUG", "c1", "END"),), transition=False)
+
+
+# --- N8: private digest shape and the ordinal guard --------------------------------------------------
+
+CONNECTOR_KEYS = ["connector", "state", "session_id", "requested_kw", "allocated_kw", "energy_kwh", "fault"]
+DOCUMENT_KEYS = {"boundary", "connectors", "site_available_kw", "site_import_kw", "forcing_ordinal"}
+RATIONAL = r"^(0|[1-9][0-9]*)(/[1-9][0-9]*)?$"
+
+
+def open_session(minute: int = 0) -> tuple[EvForcingRow, ...]:
+    return (EvForcingRow(at(minute), "PLUG", "c1", "session-1"),
+            EvForcingRow(at(minute), "AUTHORIZE", "c1", "ACCEPT"),
+            EvForcingRow(at(minute + 1), "REQUEST_KW", "c1", "60"))
+
+
+def test_the_ordinal_guard_refuses_a_list_that_does_not_continue_the_forcing_rows() -> None:
+    rows = (EvForcingRow(T0, "PLUG", "c1", "session-1"), EvForcingRow(T0, "AUTHORIZE", "c1", "ACCEPT"))
+    later = replace(EvState.initial(T0), forcing_ordinal=4)
+    start = EvState.initial(T0)
+    for state, ordinals in ((start, ()), (start, (0,)), (start, (0, 1, 2)), (start, (1, 2)), (start, (0, 0)),
+                            (start, (1, 0)), (later, (0, 1)), (later, (4, 5)), (later, (5, 7))):
+        with pytest.raises(PhysicallyUnacceptable, match="forcing ordinals"):
+            pack().step(state, rows, ordinals=ordinals)
+    with pytest.raises(PhysicallyUnacceptable, match="forcing ordinals"):
+        pack().step(EvState.initial(T0), (), ordinals=(0,))
+    with pytest.raises(PhysicallyUnacceptable, match="closing boundary"):
+        pack().step(EvState.initial(T0), ordinals=(0,), transition=False)
+    assert pack().step(later, rows, ordinals=(5, 6)).after.forcing_ordinal == 6
+    assert pack().step(EvState.initial(T0), rows, ordinals=(0, 1)).document["forcing_ordinal"] == 1
+
+
+def test_forcing_ordinal_is_null_until_a_row_then_the_last_applied_index_carried_to_the_close() -> None:
+    _, run = run_case("complete")
+    ordinals = {d["boundary"][11:16]: d["forcing_ordinal"] for d in run.documents}
+    assert ordinals["08:00"] == 1 and ordinals["08:01"] == 2 and ordinals["08:30"] == 2
+    assert ordinals["08:31"] == 3 and ordinals["08:59"] == 3 and ordinals["09:00"] == 3
+    late = run_window(pack(), start=T0, end=END, forcing=open_session(5))
+    late_ordinals = [d["forcing_ordinal"] for d in late.documents]
+    assert late_ordinals[:5] == [None] * 5 and late_ordinals[5] == 1 and late_ordinals[6:] == [2] * 55
+
+
+def test_the_closing_09_00_document_snapshots_the_integrated_terminal_state() -> None:
+    p = pack(base_load_kw=Fraction(1, 3))
+    run = run_window(p, start=T0, end=END, forcing=open_session())
+    last_open, closing = run.documents[-2], run.documents[-1]
+    assert (last_open["boundary"], closing["boundary"]) == ("2026-10-06T08:59:00Z", "2026-10-06T09:00:00Z")
+    assert last_open["connectors"][0]["allocated_kw"] == "60" and last_open["connectors"][0]["energy_kwh"] == "58"
+    assert last_open["site_import_kw"] == "181/3"
+    c1 = closing["connectors"][0]
+    assert (c1["state"], c1["allocated_kw"], c1["energy_kwh"]) == ("CHARGING", "0", "59")
+    assert c1["session_id"] == S1 and c1["requested_kw"] == "60"
+    assert closing["site_import_kw"] == "1/3" and closing["site_available_kw"] == "239/3"
+    assert closing["forcing_ordinal"] == 2
+    assert run.minutes[-1].events == ()
+    assert run.final.connector("c1").energy_kwh == sum(
+        (Fraction(d["connectors"][0]["allocated_kw"]) / 60 for d in run.documents[:-1]), Fraction(0)) == 59
+
+
+def test_a_fractional_final_quantum_is_rendered_as_a_reduced_rational() -> None:
+    minute = pack(site_limit_kw=Fraction(161, 2)).step(both_charging())
+    assert allocated(minute) == (Fraction(81, 2), Fraction(40))
+    assert minute.document["connectors"][0]["allocated_kw"] == "81/2"
+    assert minute.document["site_available_kw"] == "161/2" and minute.document["site_import_kw"] == "161/2"
+    closing = pack(site_limit_kw=Fraction(161, 2)).step(minute.after, transition=False)
+    assert closing.document["connectors"][0]["energy_kwh"] == "27/40"  # 81/120 reduced
+    assert closing.document["connectors"][1]["energy_kwh"] == "2/3"
+
+
+def test_the_fixed_private_digest_hashes_all_61_documents_in_the_ruled_shape() -> None:
+    _, run = run_case("complete")
+    documents = run.documents
+    assert len(documents) == 61
+    assert [d["boundary"] for d in documents] == [
+        (T0 + timedelta(minutes=m)).strftime("%Y-%m-%dT%H:%M:%SZ") for m in range(61)]
+    for document in documents:
+        assert set(document) == DOCUMENT_KEYS
+        assert [c["connector"] for c in document["connectors"]] == ["c1", "c2"]
+        assert all(list(c) == CONNECTOR_KEYS for c in document["connectors"])
+        quantities = ("requested_kw", "allocated_kw", "energy_kwh")
+        for text in [document["site_available_kw"], document["site_import_kw"],
+                     *(c[k] for c in document["connectors"] for k in quantities)]:
+            assert isinstance(text, str) and re.match(RATIONAL, text), text
+            assert exact_text(Fraction(text)) == text  # reduced, positive denominator, no decimals
+    canonical = json.dumps(["ev-charger/1", list(documents)], sort_keys=True, separators=(",", ":"),
+                           ensure_ascii=False).encode("utf-8")
+    assert run.content_digest() == hashlib.sha256(canonical).hexdigest() == PINNED_COMPLETE_DIGEST
+
+
+PINNED_COMPLETE_DIGEST = "6fc2f2a87966c869d1476cd05f0e3ac4e24d6e137cfce5780fafb46a14adab2c"

@@ -314,16 +314,27 @@ class EvChargerPack:
 
     def step(self, state: EvState, forcing: tuple[EvForcingRow, ...] = (), *,
              ordinals: tuple[int, ...] = (), transition: bool = True) -> EvMinute:
-        """One boundary. `transition=False` is the closing snapshot: no forcing, transition or allocation."""
+        """One boundary. `transition=False` is the closing snapshot: no forcing, transition or allocation.
+
+        `ordinals` are the zero-based document indexes of `forcing`, one per row, continuing the prior sequence
+        (`state.forcing_ordinal + 1`, or 0 before any row): N8 refuses a missing, short, long, repeated or skipped
+        ordinal list rather than silently record a wrong `forcing_ordinal` in the private digest.
+        """
         t = state.minute
         events: list[EvEvent] = []
         if not transition:
-            if forcing:
+            if forcing or ordinals:
                 raise PhysicallyUnacceptable(f"forcing at the closing boundary {_instant(t)}")
             for c in state.connectors:
                 state = state.with_connector(replace(c, allocated_kw=Fraction(0)))
             self._check(state)
             return EvMinute(self._document(state), (), state)
+        first = 0 if state.forcing_ordinal is None else state.forcing_ordinal + 1
+        if tuple(ordinals) != tuple(range(first, first + len(forcing))):
+            raise PhysicallyUnacceptable(
+                f"forcing ordinals {list(ordinals)} at {_instant(t)} do not continue the forcing sequence "
+                f"from {first} one-for-one with {len(forcing)} row(s)"
+            )
         keys = [(f.at, CONNECTOR_RANK.get(f.connector, -1), FORCING_KIND_RANK.get(f.kind, -1)) for f in forcing]
         for f, key in zip(forcing, keys):
             if f.at != t:
@@ -335,7 +346,7 @@ class EvChargerPack:
         # 1. forcing
         for f in forcing:
             state = self._apply(state, f, events)
-        if ordinals:
+        if forcing:
             state = replace(state, forcing_ordinal=ordinals[-1])
         # 2. authorization completion
         for c in state.connectors:
