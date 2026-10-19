@@ -29,7 +29,7 @@ import sys
 import types
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
@@ -55,6 +55,9 @@ if URL:
     from sqlalchemy import create_engine, text
     from sqlalchemy.engine import make_url
 
+    from assetops_backend.analytics.adapters import postgres_assessment_store
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.clock_attestation import SYSTEM_ATTESTER, AttestationChange
     from assetops_backend.cold_replay_api import development_owner, no_owner_principal
     from assetops_backend.ev_replay import EvReplayService
     from assetops_backend.ev_replay_api import build_ev_replay_router
@@ -101,6 +104,9 @@ INSTALL_AT = datetime(2026, 10, 6, 6, 0, tzinfo=timezone.utc)
 SETUP_AT = datetime(2026, 10, 6, 7, 0, tzinfo=timezone.utc)
 WINDOW = {"start": "2026-10-06T08:00:00Z", "end": "2026-10-06T09:00:00Z", "end_exclusive": True}
 RELEASE = "2026-10-06T09:05:00Z"
+#: W2-06 q3 P1: the SYSTEM simulated clock attestation validity for every EV-LAB-001 source.
+ATTEST_FROM = datetime(2026, 10, 6, 0, 0, tzinfo=timezone.utc)
+ATTEST_TO = datetime(2026, 10, 8, 0, 0, tzinfo=timezone.utc)
 MANIFEST_KEYS = ("schema", "site_code", "scenario_id", "scenario_sha256", "model_profile", "publication_profile",
                  "observation_profile", "observation_sha256", "seed", "foundation_revision_id",
                  "binding_revision_id", "window", "envelope_sha256", "batch_sha256", "receipt_dispositions",
@@ -243,7 +249,42 @@ class Chain:
             source_publisher=publisher_for(URL),
             ev_inputs=StoreEvInputs(self.store, build_scenario_repository()),
         )
+        self.attest()
         return self
+
+    def attest(self) -> None:
+        """W2-06 q3 P1 (the `test_w203_cold_replay_postgres.py:attest` precedent): the SYSTEM attester's simulated
+        clock attestation for every registered source of the built Site, for the gateway epoch `ev-<case>`,
+        recorded before any upload. The real allocator is bound to the store module only during the call, so the
+        counter-pinned manifest IDs do not shift."""
+        with self.engine.connect() as c:
+            sources = c.execute(text("SELECT s.id FROM source s JOIN gateway g ON g.id = s.gateway_id "
+                                     "WHERE g.site_id = :s ORDER BY s.id"), {"s": self.site_id}).scalars().all()
+        assert sources
+        store = PostgresAssessmentStore(URL)
+        patched = postgres_assessment_store.uuid4
+        postgres_assessment_store.uuid4 = uuid.uuid4
+        try:
+            for n, source in enumerate(sources):
+                change = AttestationChange(
+                    event_kind="RECORDED", source_id=UUID(str(source)), sequence_epoch=f"ev-{self.case}",
+                    idempotency_key=f"w206-{self.case}-{n}", channel="SYSTEM_CLI", authority="lab-simulated-clock",
+                    label="SIMULATED demonstration clock (W2-06)", max_utc_error=timedelta(seconds=5),
+                    valid_from=ATTEST_FROM, valid_to=ATTEST_TO)
+                store.record_clock_attestation(self.tenant_id, self.site_id, change, SYSTEM_ATTESTER,
+                                               datetime.now(timezone.utc), domain="ev_charging")
+        finally:
+            postgres_assessment_store.uuid4 = patched
+            store._engine.dispose()
+        with self.engine.connect() as c:
+            rows = c.execute(text(
+                "SELECT source_id, sequence_epoch, event_kind, proof_class, valid_from, valid_to "
+                "FROM source_clock_attestation WHERE tenant_id = :t AND site_id = :s ORDER BY source_id"),
+                {"t": self.tenant_id, "s": self.site_id}).all()
+        # One RECORDED simulated proof per registered source, for exactly this case's gateway epoch.
+        assert [r.source_id for r in rows] == list(sources)
+        assert {(r.sequence_epoch, r.event_kind, r.proof_class, r.valid_from, r.valid_to) for r in rows} == {
+            (f"ev-{self.case}", "RECORDED", "SIMULATED", ATTEST_FROM, ATTEST_TO)}
 
     def _gateway(self) -> None:
         with self.engine.connect() as c:
@@ -555,6 +596,8 @@ def test_six_registered_replays(chain, case) -> None:
     document = pinned(case, produced)
     # The second clean database reproduces the pinned first one byte for byte.
     assert canonical_file(produced) == canonical_file(document)
+    # W2-06 q3 P1: the clock attestation recorded before upload leaves every manifest byte unchanged.
+    assert (MANIFESTS / f"{case}.json").read_bytes() == canonical_file(produced).encode("utf-8")
     _check_types(document)
     assert document["schema"] == "ev-replay-manifest/1" and document["site_code"] == EV
     assert document["seed"] == 20517 and document["window"] == WINDOW
