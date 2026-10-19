@@ -124,3 +124,33 @@ The earlier `test_s405_resolver_postgres` failure was fixed in `f6f10777` and pa
 
 D1 overlap on Evidence › Overview Data sources; D2 Accepted records height; R1 unbound-row copy; financials stay
 unpriced with `Not included` explicit; no Action/Incident/repair implied.
+
+## Run 9 fix round (review r1 M1-M5, L1-L2)
+
+Frontend-only; no backend change. Fix head is the commit after `8fecec5a` (see git log).
+
+| Finding | Fix | Proof |
+| --- | --- | --- |
+| M3 | `git rm x` (stray uvicorn log) | file gone |
+| M1 | Unbound Affects cell uses `CLOSED_SOURCE[row.label].affects` (Compressor `Cooling`, Transfer `Backup`, Loading `Temperature · cooling`); the undeclared inverter row keeps `Claim effect not assessed`. Wrong assertion at old `coldSiteViews.test.tsx:575-582` corrected | `coldSiteViews.test.tsx` evidence test |
+| M2 | Approved as ruled; existing panel-scoped 1.25 rule kept, no CSS change | Accepted records 344 px (limit 345) |
+| M4 | `No linked page for this item` (non-interactive) replaces `Finding link not available` | new null-link test (no anchor) |
+| M5 | `Badge` gains optional `className`; `toneClass` maps the Run-9 table (Contact, Quality, capability, evidence strip) to `cold-tone--green/amber/red`; three selectors appended to `w2-cold-site.css`. `w2-cold-assessment.css` untouched (W2-03 follow-up) | new tone-class test (green, amber, red, neutral for Unknown / No fact / None / Evidence unknown) |
+| L1 | `quantityPhrase`: `{low}–{high} °C-minutes`, `at least {low} °C-minutes (upper bound unknown)`, `Exposure amount not established`; used in the Exposure cell (`Chamber temperature exposure: ...`), card note and Basis details; `boundText` removed | new test over all three cases; no `degC_min` / `Unknown bound` in main |
+| L2 | One accepted non-primary role renders `roleName` (`Generator state`); 0 accepted `No accepted report for this role`; the multi-role string is unreachable with current row roles (no row has two non-primary roles) | new test |
+
+Capture: new throwaway DB `w204fix_test` (excursion chain, W2-03 run, W2-04 drain), API 9704 / vite 6104 / CDP 9714, then
+dropped and servers stopped. Stocked pairs for cold, cold-evidence, cold-evidence-analysis and cold-financials recaptured at
+1440 and 390 (48/48 claims; viewed cold-evidence and cold-financials at 1440). Other pairs are unchanged by this round.
+Raw run: `.agent/W2-04-evidence/evidence-run9-recapture.json`.
+
+| Panel (stocked 1440, closed) | App | Mock | Limit |
+| --- | --- | --- | --- |
+| Data sources | 545 | 438 | 569 |
+| Accepted records | 344 | 266 | 345 |
+| How a claim limit is set | 191 | 148 | 192 |
+| Financials bridge panel | 300 | 234 | n/a (1.28x) |
+
+Checks: full frontend `npm.cmd test` 86 files / 2228 passed; `tsc --noEmit` clean; `tools/check-all.ps1` all 10 guards pass.
+Backend and host suites not rerun (no backend change).
+Open: W2-03 chip tones (`w2-cold-assessment.css`) go to the W2-03 follow-up.
