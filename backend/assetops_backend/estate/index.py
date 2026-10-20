@@ -15,6 +15,7 @@ from assetops_backend.estate.coverage import (
     not_applicable, site_coverage)
 from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
+    cursor_marker,
     decode_cursor, encode_cursor, selection_token, token_time, wire_time)
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
@@ -117,22 +118,21 @@ class EstateIndexService:
             expected.update(lens=req.lens, state_filter=req.state_filter)
         if any(cursor.get(key) != value for key, value in expected.items()):
             raise EstateRefusal("ESTATE_BASIS_CHANGED")
-        at, row_id = cursor_after(cursor)
-        return at, row_id
+        return cursor_after(cursor)
 
     @staticmethod
-    def _cursor(tenant_id: Any, req: EstateRequest, scope: dict[str, Any], token: str, at: datetime,
-                row_id: str) -> str:
+    def _cursor(tenant_id: Any, req: EstateRequest, scope: dict[str, Any], token: str, *after: Any) -> str:
+        """Findings/Actions pass `(at, row_id)` (bytes unchanged); Evidence and Financials pass their ordered marker."""
         payload: dict[str, Any] = {
             "v": 1, "tenant_id": None if tenant_id is None else str(tenant_id).lower(),
             "authorized_site_ids": sorted(x.lower() for x in scope["ids"]), "access_basis": scope["access_basis"],
             "from": token_time(req.from_), "to": token_time(req.to), "known_at": token_time(scope["token_k"]),
-            "selection_token": token, "after": [token_time(at), row_id],
+            "selection_token": token, "after": cursor_marker(req.kind, after),
             "page_one_mode": scope["page_one_mode"]}
         if req.kind == "findings":
             payload.update(lens=req.lens, state_filter=req.state_filter)
         else:
-            payload["kind"] = "actions"
+            payload["kind"] = req.kind
         return encode_cursor(payload)
 
     @staticmethod
