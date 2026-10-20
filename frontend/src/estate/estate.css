@@ -17,7 +17,8 @@
   color: #8e580c;
 }
 
-.estate-state-chips {
+/* Scoped under `.estate-page` so it outranks the later shared `.v69-chips { flex-wrap: wrap }` rule (commit-4 capture). */
+.estate-page .estate-state-chips {
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
