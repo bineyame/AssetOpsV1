@@ -83,16 +83,13 @@ def test_minigrid_pinned_finding_and_action_coverage_on_one_connection(runner) -
         ctx.close()
     assert status == 201
     revision_id = created["revision"]["id"]
-    # The F01 runner writes on its virtual clock (from 2026-10-29), so the coverage cutoff is the runner's last
-    # recorded instant, not the wall-clock read time (see the handoff's F01 virtual-clock note).
-    with runner.engine.connect() as c:
-        k = c.execute(text(
-            "SELECT greatest((SELECT created_at FROM finding_revision WHERE id = :r), "
-            "(SELECT recorded_at FROM action_event WHERE id = :e))"), {"r": frev, "e": action_event}).scalar_one()
     recorded = Recorded()
-    read = reader(recorded, POSITIVE_NOW + timedelta(seconds=1))  # q4-1: the detail reads after the command
+    # q4-1: the F01 runner writes on its virtual clock (from 2026-10-29) and the case is created at the q2 command
+    # clock, so both coverage and detail read at an injected private read instant after the command.
+    read = reader(recorded, POSITIVE_NOW + timedelta(seconds=1))
     try:
-        conn, rows, coverage = coverage_at(read, runner.tenant, runner.site, "KOBO-001", revision_id, k)
+        conn, rows, coverage = coverage_at(read, runner.tenant, runner.site, "KOBO-001", revision_id)
+        coverage_calls = list(recorded.calls)
         detail = WorkDetailService(read).detail(runner.tenant, runner.site, "KOBO-001", created["id"], [])
     finally:
         read.dispose()
@@ -107,8 +104,8 @@ def test_minigrid_pinned_finding_and_action_coverage_on_one_connection(runner) -
     assert coverage["state"] in ("COMPLETE", "PARTIAL") and (coverage["state"] == "COMPLETE") == (
         coverage["reason"] is None)
     # Same connection: every shared read ran on the snapshot's own connection, inside its transaction.
-    assert {name for name, _, _ in recorded.calls} == {"dispatch_days", "finding_index"}
-    assert all(c is conn and inside for _, c, inside in recorded.calls)
+    assert {name for name, _, _ in coverage_calls} == {"dispatch_days", "finding_index"}
+    assert all(c is conn and inside for _, c, inside in coverage_calls)
     # Detail carries the pinned links and Q11 provenance over them.
     assert detail["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev}]
     assert detail["action_links"] == [{"action_id": action_id, "action_event_id": action_event}]
@@ -140,6 +137,44 @@ def test_missing_pin_is_unknown_never_a_head(runner) -> None:  # noqa: F811
     assert coverage["state"] == "UNKNOWN" and coverage["reason"] == "LINK_SELECTION_MISSING"
     assert coverage["links"][0]["state"] == "UNKNOWN" and coverage["links"][0]["selection_token"] is None
 
+
+def test_f01_detail_route_under_private_read_clock(runner) -> None:  # noqa: F811
+    """q4-1: the F01 positive detail through the route, read at an injected private read instant after the q2
+    fixture command; omitted `known_at` sees the pins, a later one is 422, an earlier one hides later rows."""
+    run_case(runner, CASES["F01"])
+    row = public_finding(runner)
+    fid, frev = row["finding_id"], row["finding_revision_id"]
+    action_id, action_event = accepted_action(runner, fid, "w401-route-accept-001")
+    ctx = Ctx(runner, VirtualDbClock(POSITIVE_NOW))
+    try:
+        status, created = ctx.case(incident(
+            "w401-route-incident-001", finding_links=[{"finding_id": fid, "finding_revision_id": frev}],
+            action_links=[{"action_id": action_id, "action_event_id": action_event}], occurred_at=POSITIVE_OCCURRED))
+    finally:
+        ctx.close()
+    assert status == 201, created
+    read_at = datetime(2026, 11, 1, 1, 0, 1, tzinfo=timezone.utc)
+    read = PostgresWorkRead(URL, link_rows=build_link_rows_reader(), ports=_link_read_ports(),
+                            test_read_clock_override=lambda: read_at)
+    app = FastAPI()
+    app.include_router(build_work_router(None, {"KOBO-001": ("KOBO-001", runner.tenant, runner.site)}.get,
+                                         details=WorkDetailService(read)))
+    client = TestClient(app)
+    path = f"/api/sites/KOBO-001/work/cases/{created['id']}"
+    try:
+        now = client.get(path)
+        assert now.status_code == 200, now.text
+        body = now.json()
+        assert body["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev}]
+        assert body["action_links"] == [{"action_id": action_id, "action_event_id": action_event}]
+        assert body["coverage"]["state"] != "UNKNOWN", body["coverage"]
+        later = client.get(path, params={"known_at": "2026-11-01T01:00:02Z"})
+        assert later.status_code == 422 and later.json()["detail"]["code"] == "INVALID_KNOWN_AT", later.text
+        # Before the command instant the case itself is not yet created.
+        early = client.get(path, params={"known_at": "2026-11-01T00:59:59Z"})
+        assert early.status_code == 404 and early.json()["detail"]["code"] == "WORK_CASE_NOT_FOUND", early.text
+    finally:
+        read.dispose()
 
 def test_cold_pinned_link_keeps_its_seq_after_reselection(chain) -> None:  # noqa: F811
     """W3-01 Run 7 q7-1 through W4: a pinned cold link read at explicit cutoff K keeps the seq selected by K
@@ -188,41 +223,3 @@ def test_cold_pinned_link_keeps_its_seq_after_reselection(chain) -> None:  # noq
     assert {name for name, c, inside in recorded.calls} == {"selected_windows", "cold_snapshot"}
     assert all(inside for _, _, inside in recorded.calls)
 
-
-def test_f01_detail_route_under_private_read_clock(runner) -> None:  # noqa: F811
-    """q4-1: the F01 positive detail through the route, read at an injected private read instant after the q2
-    fixture command; omitted `known_at` sees the pins, a later one is 422, an earlier one hides later rows."""
-    run_case(runner, CASES["F01"])
-    row = public_finding(runner)
-    fid, frev = row["finding_id"], row["finding_revision_id"]
-    action_id, action_event = accepted_action(runner, fid, "w401-route-accept-001")
-    ctx = Ctx(runner, VirtualDbClock(POSITIVE_NOW))
-    try:
-        status, created = ctx.case(incident(
-            "w401-route-incident-001", finding_links=[{"finding_id": fid, "finding_revision_id": frev}],
-            action_links=[{"action_id": action_id, "action_event_id": action_event}], occurred_at=POSITIVE_OCCURRED))
-    finally:
-        ctx.close()
-    assert status == 201, created
-    read_at = datetime(2026, 11, 1, 1, 0, 1, tzinfo=timezone.utc)
-    read = PostgresWorkRead(URL, link_rows=build_link_rows_reader(), ports=_link_read_ports(),
-                            test_read_clock_override=lambda: read_at)
-    app = FastAPI()
-    app.include_router(build_work_router(None, {"KOBO-001": ("KOBO-001", runner.tenant, runner.site)}.get,
-                                         details=WorkDetailService(read)))
-    client = TestClient(app)
-    path = f"/api/sites/KOBO-001/work/cases/{created['id']}"
-    try:
-        now = client.get(path)
-        assert now.status_code == 200, now.text
-        body = now.json()
-        assert body["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev}]
-        assert body["action_links"] == [{"action_id": action_id, "action_event_id": action_event}]
-        assert body["coverage"]["state"] != "UNKNOWN", body["coverage"]
-        later = client.get(path, params={"known_at": "2026-11-01T01:00:02Z"})
-        assert later.status_code == 422 and later.json()["detail"]["code"] == "INVALID_KNOWN_AT", later.text
-        # Before the command instant the case itself is not yet created.
-        early = client.get(path, params={"known_at": "2026-11-01T00:59:59Z"})
-        assert early.status_code == 404 and early.json()["detail"]["code"] == "WORK_CASE_NOT_FOUND", early.text
-    finally:
-        read.dispose()
