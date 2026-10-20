@@ -57,7 +57,7 @@ import "./w2-ev-site.css";
 export type EvSiteView = "overview" | "evidence" | "analysis" | "financials" | "assumptions";
 
 export const EV_SITE_HEADING_ID = "ev-site-heading";
-export const EV_SITE_LOADING = "Loading the site's EV evidence.";
+export const EV_SITE_LOADING = "Loading the site's evidence.";
 const NO_LINK = "No linked page for this item";
 const NOT_RECORDED = "Not recorded";
 
