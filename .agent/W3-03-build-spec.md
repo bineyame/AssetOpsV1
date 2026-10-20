@@ -234,3 +234,98 @@ Persisted fixture clock is **2026-10-07T00:00:00Z** (W3-01 frozen). Request `[20
 Literal persisted assertions for the aligned current fixture and each decline variant: `summary.combined_value is None`, `summary.combined_value_state == "NOT_COMPARABLE"`, `money.estate_total is None`, and visible pulse note `Distinct consequence categories · no combined savings total`. Assert every W1/cold/EV `coverage.sites` item and selected-line disclosure uses the same response `window.from`, `window.to`, `window.known_at`, while their selected line windows may differ. Assert distinct represented categories `CANDIDATE_OPERATING_COST_EXPOSURE`, `POTENTIAL_PRODUCT_EXPOSURE`, `GROSS_TARIFF_SCENARIO`; cold remains unpriced, EV Finding row never inherits window money, and the one same-category EV group alone may be COMPARABLE with its exact line keys and bounded amount. Repeat all four decline assertions after (a) the cold later accepted record plus unsettled job, (b) an earlier explicit cutoff, (c) UNKNOWN and MIXED source variants, (d) overlap, and (e) changed grant/page-two 409 (for 409 assert the previous UI data is cleared, since no success response exists). Historical selects only revisions at or before cutoff; the changed grant must not expose the foreign Site. Test a clean complete three-domain variant **without** the unselected empty Site, then add that Site for partial coverage; do not call the partial fixture complete.
 
 The packet's phrase “after the shared migration chain through `0030`” means branch after **reviewed W3-01/02 merge** and whatever single Alembic head then exists; W4-03/`0030` is not a W3-03 input or waiting gate. Lane A verifies the actual one-head chain; `0031` remains unused. This closure changes packet scope only by splitting the read/API builder run and removing the `0030` wait; the task packet is amended below.
+
+## Review closure 2 (2026-10-20)
+
+This amends Review closure (2026-10-20) and closes .agent/W3-03-closure-check.md Q6, Q9, Q24, Q31 and N1–N7. W3-01/02 are still merge prerequisites, not existing implementation claims.
+
+### Q6 — workflow wire
+
+Each Portfolio Finding row adds nullable application_state, resolution_state and verification_outcome, copied verbatim from the exact selected W3-01 Action whose origin Finding ID **and revision ID** match. With no Action, all three and action_id/action_title/action_state are null. application_state is NONE_AT_CUTOFF|PENDING|APPLIED|null; resolution_state is RESOLVED|RESOLUTION_WITHDRAWN|null; verification_outcome is the exact W3-01 selected outcome or null. action_state is a legacy display projection of application_state, never a separate lifecycle input. The workflow line uses first match: surviving RESOLVED plus VERIFIED = “Verified”; RESOLUTION_WITHDRAWN = “Resolution withdrawn”; selected frozen active plan without terminal outcome = “Outcome pending”; PENDING = “Pending”; APPLIED = “Applied”; otherwise “No action yet”. A row without Action displays “Recommendation not accepted”. The plan fact comes from the same selected Action/verification projection. APPLIED alone never proves verification.
+
+### Q9 and N7 — positive producer and literal variant proof
+
+The named W1 positive producer is tools/s402c_late_power_walkthrough.py **Leg B after drain**, with SYSTEM diesel price v1 published by conversions/demo-diesel-price-publications.json --step v1. Its public s5_money_eligible assertion checks exact-head CURRENT + PRICED + MoneyEligibility ELIGIBLE + nonnull current amount. Reuse that reviewed import/publication/dispatch/Finding/consequence worker path and accepted citations in the private W3-03 fixture. Arrange records, price and worker drain at or before frozen 2026-10-07T00:00:00Z, inside [2026-09-30,2026-10-07); capture actual public Finding, consequence, price and accepted IDs and prove positive selected source classification. The walkthrough's real-time clock is not a fixture clock. If this state cannot be produced at the frozen cutoff, stop and return the failed producer step and exact public IDs/read to Architect; never hand-insert a priced head.
+
+The clean fixture has one W1, one cold and two EV authorized Sites; the second EV Site gives W3-02's persisted same-category COMPARABLE gross-tariff group. The foreign tenant is excluded. Construct each variant from that clean fixture with only the named perturbation. F/E/M below means Portfolio coverage.finding_state/evidence_state/money_state. The five card states are in mock order: operating cost, service/product risk, productive use, asset life, verified recovery. The operating-cost category contains the sole W1 eligible line; cold product exposure and EV gross tariff are other categories.
+
+| Variant | status; F/E/M | Five card states | Required selected fact |
+| --- | --- | --- | --- |
+| Clean aligned, all settled | CURRENT; COMPLETE/COMPLETE/COMPLETE | SITE_OWNED / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED | W1 eligible priced; cold UNPRICED; two EV lines in a distinct COMPARABLE gross-tariff group. |
+| (a) Later cold accepted record and unsettled cold job, before drain | PENDING; PARTIAL/PARTIAL/PARTIAL | SITE_OWNED / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED | Cold prior selection is pending, no current cold amount; W1 cost category stays covered. |
+| (b) Explicit earlier cutoff before W1 price and cold/EV latest heads | HISTORICAL; PARTIAL/PARTIAL/PARTIAL | WITHHELD / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED | Only revisions at/before cutoff; no current card amount. Pin a cutoff whose selected roots have this partial membership or use the required UNKNOWN placeholder; never relabel current data historical. |
+| (c1) W1 selected source UNKNOWN, otherwise clean | CURRENT; COMPLETE/COMPLETE/COMPLETE | WITHHELD / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED | W1 line WITHHELD, UNKNOWN_SOURCE, null current amount. |
+| (c2) W1 selected source MIXED, otherwise clean | CURRENT; COMPLETE/COMPLETE/COMPLETE | WITHHELD / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED | W1 line WITHHELD, MIXED_SOURCE, null current amount. |
+| (d) Two otherwise eligible EV heads share persisted technical/cited ID | CURRENT; COMPLETE/COMPLETE/COMPLETE | SITE_OWNED / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED | Gross-tariff group OVERLAPPING_BASIS and null amount; W1 remains Site owned. |
+| (e) Changed grant after page one, old page-two cursor | No success status or coverage; 409 ESTATE_BASIS_CHANGED | No success cards; error detail.value_cards null | Previous UI rows/cards/IDs cleared; no foreign Site exposed. |
+| Separate authorized unselected W303-EMPTY-001 EV Site | UNKNOWN; PARTIAL/PARTIAL/PARTIAL | SITE_OWNED / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED | Empty Site remains in token/matrix; EV category UNKNOWN_COVERAGE; W1 category remains covered. |
+
+For (a), (b) and the empty-Site variant, assert the affected site_coverage state PENDING_RECOMPUTE, HISTORICAL or UNKNOWN respectively and retain selected heads only where they exist. Every successful variant repeats the four closure-1 decline assertions: summary.combined_value null, combined_value_state NOT_COMPARABLE, money.estate_total null, and visible pulse note “Distinct consequence categories · no combined savings total”. For (e), assert the refusal and cleared UI because no success response exists. All success responses use the same requested window and response cutoff across W1/cold/EV, while source event windows may differ.
+
+### Q24 — measured block and page caps
+
+Height maximum = mock + max(24px, ceil(10% of mock)). These are bounding-box caps from .agent/W3-03-mock-measurements.md. Four named-panel maxima in the earlier contract remain binding. Values are mock → maximum px at 1440 and 390 respectively. Compare every actual repeated card/span with its reference slot.
+
+| Block | 1440 | 390 |
+| --- | ---: | ---: |
+| Portfolio name | 16 → 40 | 15 → 39 |
+| Right search/window block | 34 → 58 | 30 → 54 |
+| Breadcrumbs | 15 → 39 | 15 → 39 |
+| Header/title | 61 → 85 | 75 → 99 |
+| Context badge/sentence | 22 → 46 | 49 → 73 |
+| Scope drawer trigger | 15 → 39 | 15 → 39 |
+| Operating-cost card | 175 → 199 | 183 → 207 |
+| Service/product risk card | 175 → 199 | 183 → 207 |
+| Productive-use card | 175 → 199 | 169 → 193 |
+| Asset-life card | 175 → 199 | 169 → 193 |
+| Verified-recovery card | 175 → 199 | 181 → 205 |
+| Pulse spans 1, 2, 3 and 4, each | 16 → 40 | 16 → 40 |
+| Pulse note | 12 → 36 | 12 → 36 |
+| Objectives aside outer block | 709 → 780 | 512 → 564 |
+| Footer energy quantity | 14 → 38 | 29 → 53 |
+| Footer evidence link | 14 → 38 | 14 → 38 |
+| Footer coverage sentence | 14 → 38 | 14 → 38 |
+| Screen foot | 18 → 42 | 58 → 82 |
+| Full document height | 1558 → 1714 | 3192 → 3512 |
+
+The Objectives named panel cap remains 413px at either width; its 390 outer aside block cap of 564px includes the internal scrolling matrix. The other named panel caps are 780/851, 247/272 and 247/328px (1440/390). Document scrollWidth must equal clientWidth; mock references are 1425/1425 at 1440 and 390/390 at 390. Record actual rectangles and document dimensions in commit-2/3 handoffs. A disclosure may scroll internally rather than grow the document past its cap.
+
+### N1–N5 — owner, order, supersession and strings
+
+N1. The appended versioned W3-02 amendment owns the sole estate/evidence_money.py:group_key_for_partition function in W3-02 commit 3. W3-03 imports it; card group_key and W3-02 group/exclusion keys match byte for byte. No Portfolio-local hash.
+
+N2. Operating-cost card is **first match wins** over all selected CANDIDATE_OPERATING_COST_EXPOSURE heads before paging: (1) incomplete applicable category coverage, any ineligible/withheld/conflicting line, or more than one nonempty partition → WITHHELD; (2) exactly one COMPARABLE partition and no other selected category head → COMPARABLE_GROUP; (3) exactly one eligible line in one SINGLE_LINE partition and no other head → SITE_OWNED; (4) exactly one UNPRICED head and no other head → UNPRICED; (5) zero heads and complete category coverage → NO_LINE; (6) any remaining or inconsistent case → WITHHELD. A COMPARABLE partition beside another currency, assumption, period or Site-owned line is WITHHELD; never pick the largest. W3-02 group states and exclusions remain intact. Historical W1 head matches (1).
+
+N3. Supersession index for **every conflicting earlier body line**:
+- L7/L23 “signed” cursor → closure-1 unsigned W3-01 base64url JSON fence (422 bad shape/nonmember; 409 changed basis).
+- L17/L57 overall PARTIAL → closure-1 UNKNOWN; PARTIAL remains a root coverage state only.
+- L31 illustrative coverage.sites with Site metadata/domain/selection IDs → closure-1 exact seven-key W3-01 site_coverage; metadata belongs in scope_disclosure.
+- L33 illustrative card values/destinations → closure-1 card slot table; risk route /findings/risks.
+- L48–L82 old counts/value/row/objective precedence → closure-1 finite mappings and this closure's N2 ordered cost rule, Q6 wire, N5 reasons.
+- L99 “links or query” lens controls → closure-1 in-panel aria-pressed buttons persisting lens=.
+- L114/L134 Portfolio-root 403 clearing → closure-1 401/409/503 clearing; no root 403/404.
+- L136–L147 four-panel-only layout and deferred block measurement → Q24 table here plus earlier named-panel caps.
+- L155 one read/API commit → closure-1 split 1a/1b and N6 allocation below.
+- L156 clearsPrivilegedRowsOn403And503 → clearsPrivilegedRowsOn401And503.
+- L157 four-panel-only layout test → Q24 full block/page proof and renamed rendersMeasuredPanelHierarchyAndScrollContainers.
+- L9 analytics/ev_site_reads.py → **backend/assetops_backend/ev_site_reads.py**, class EvSiteReads; no second-transaction call.
+- L21–L23 Portfolio order is episode_start descending nulls last, site_code_key/site_id/finding_id/finding_revision_id ascending. Portfolio **re-sorts W3-01's canonical full Finding set after the lifecycle filter**, before paging. Its after tuple has five members, unlike W3-01's [timestamp,id].
+
+N4. The last index bullet is the authoritative re-sort/cursor rule; token arrays still come from the unfiltered full selected scope.
+
+N5. Exact objective reason strings by key/state:
+- SERVICE_PRODUCT, BACKUP, ASSET_CONDITION: UNKNOWN “No reviewed objective assessment”; NOT_APPLICABLE “Site configuration proves this objective is not applicable”.
+- COST_CONTROL: REVIEW “Eligible selected operating-cost consequence”; UNASSESSED “No selected operating-cost consequence”; UNKNOWN “Operating-cost basis or coverage is incomplete”; NOT_APPLICABLE “Site configuration proves cost control is not applicable”.
+- EVIDENCE: FULL “All applicable selected capabilities are full”; LIMITED “At least one selected capability is limited”; NONE “At least one selected capability has no support”; UNKNOWN “Evidence selection is missing, historical or unsettled”; NOT_APPLICABLE “Site configuration proves evidence is not applicable”.
+No other key/state pair is emitted without a reviewed producer. For evidence_prompt, incomplete Evidence coverage wins: COVERAGE_INCOMPLETE / “Evidence coverage incomplete”, null Site/code. With complete coverage and either gaps empty or every gap next_step null: NO_GAP / “No selected decision-changing evidence step”, null Site/code; preserve the gaps in disclosure. Only a typed nonnull step gives AVAILABLE.
+
+### N6 — tests assigned to builder commits
+
+| Commit | Tests owned and run before review |
+| --- | --- |
+| 1a, scope/read/API fence | backend/tests/test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids, ::test_foreign_tenant_missing_site_and_grant_fence; backend/tests/test_w303_portfolio_api.py::test_auth_before_parse_and_all_refusals, ::test_cursor_lens_window_cutoff_and_v1_token. Establish exact selection, Portfolio re-sort, five-member cursor and null-on-refusal body. |
+| 1b, full projections | backend/tests/test_w303_portfolio_scope_snapshot_postgres.py::test_page_size_does_not_change_cards_matrix_or_money, ::test_late_revision_pending_historical_and_mixed_source, ::test_evidence_prompt_null_steps_and_coverage_precedence, ::test_ev_footer_first_eligible_and_coverage_warning; backend/tests/test_w303_portfolio_comparison_postgres.py::test_ineligible_overlap_and_unknown_coverage_decline_total, ::test_ev_window_money_has_no_finding_attribution, ::test_operating_cost_first_match_wins_across_partitions. Assert successful Q9 variants here. |
+| 2, main page | frontend/src/estate/__tests__/estatePortfolio.test.tsx::rendersContextFiveCardsPulseAndSelectedRows, ::rendersEveryFindingColumnAndFourLensStates, ::rendersFiveObjectiveRowsForEveryAuthorizedSite, ::rendersTypedEvidencePromptAndExactDestinations, ::clearsPrivilegedRowsOn401And503; frontend/src/estate/__tests__/estatePortfolioRoutes.test.tsx::test_w303_global_route_precedence_and_unavailable_multiset, after Lane A mounts reviewed 1b API. Capture stocked/partial 1440/390 blocks. |
+| 3, lower panels/closeout | frontend/src/estate/__tests__/estatePortfolio.test.tsx::keepsUnsupportedOpportunitySlotsInert, ::rendersChangeDisclosureWithoutRecoveredMoney, ::rendersEmptyPendingHistoricalAndSourceConflict, ::preservesWindowAndCutoffAcrossGlobalRoots, ::rendersMeasuredPanelHierarchyAndScrollContainers, ::rendersEvFooterAndMissingEnergyBasis; tools/layout-evidence.mjs browser proof for every Q24 block at stocked, partial, pending, historical, empty and refusal states at both widths. Run the same-revision full suite/build/guards in the earlier commit-3 plan. |
+
+A named test belongs to the listed commit even if its suite reruns later. The shared group-key test belongs to W3-02 commit 3 under its versioned amendment; W3-03 1b reuses that function.
