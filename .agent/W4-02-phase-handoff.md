@@ -1,61 +1,62 @@
-# W4-02 unit 1 handoff (partial)
+# W4-02 unit 2 handoff (complete) -> unit 3
 
-Branch `task/W4-02-mini-grid-depth`, commit `00a5703a`. Main was fast-forwarded first to `c5a3b5d5`, which carries
-closure 5. Context ran past budget, so this run stops at a partial unit 1. A patch is saved at
-`%TEMP%\claude\0001-W4-02-unit-1-partial-*.patch`.
+Branch `task/W4-02-mini-grid-depth`. Unit 1 product code: `00a5703a`; its q1-ruling-2 test repairs `1c1655ed`..`57aaf24e`
+(see git history of this file for the unit-1 anchors: 0029 migration, roles-4, typed properties, `mini_depth/store.py`,
+rule 8 in `tools/checks/configuration-persistence.ps1`, `backend/tests/mini_depth_probe.py`).
+Unit 2 landed in `0f70936f` (after merging main at `4885e6ad`).
 
-## Spec readings this run applied (I decided nothing; list for review)
-- Unit 1 scope comes from closure 2 Q28 and closure 4 N4: `0029`, roles-4, typed properties, publication enqueue
-  call sites, the store writer, and guard registration. I read B2's authored v4 profile and binding-service mapping,
-  and both closure-5 items (the cold-gate Site-type lookup and the `MG-W402-001` registration), as unit 3, because
-  their named tests need the `MG-W402-001` Site and an authored batch. None of them is built.
-- The 0029 selection table creates `job_id` inside `CREATE TABLE`, then adds `job_id` and its FK with an
-  `ALTER TABLE`, which matches the closure-2 DDL shape.
-- Hours: a job window is `[local_hour AT TZ, +1h)` using `site.timezone`. `mini_enqueue_hour` refuses three
-  things: a window that is not exactly 1 h and aligned to a local hour, a domain outside the four, and a renewable
-  hour other than local 12:00.
-- Configuration enqueue covers `[max(effective_from, at - 5 days), min(coalesce(effective_to, at), at))`. `at` is
-  `plan.superseded_at`, as the EV precedent does. The Foundation store calls it from both `publish()` and
-  `publish_configuration()`, for every inserted Foundation and binding-set revision.
-- Downgrade takes ACCESS EXCLUSIVE on the three mini tables and EXCLUSIVE on `recompute_job`, then counts.
-- S3 is applied as written: `_fence` and `site_window` exclude the mini domains, and `dispatch_jobs` gets
-  `AND domain = 'dispatch'`.
-- The store writer is `mini_depth/store.py` (`PostgresMiniDepthStore.append_selection`). The worker in unit 4 owns
-  lease and settle.
+## Unit 2 anchors
+- `backend/assetops_backend/mini_depth/rules.py` (pure, stdlib only): `Reading`, `Window`, `Bound`, `Coverage`,
+  `series()` (clip/classify one role+asset: COMPLETE|PARTIAL|MISSING|CONFLICT), `RENEWABLE_CONSTRAINTS` (code->copy,
+  stable order), `LIMITATION_ORDER`, `assess_renewable_hour`, `summarize_renewable`, `renewable_rows`,
+  `LoadAsset`, `assess_service_hour` (rows sorted critical DESC, asset_code, asset_id).
+  Values are `Decimal`; JSON shaping is unit 4's `projection.py`. Unit 3 adds fuel/backup rules to this module.
+- `backend/tests/test_w402_rules.py`: `test_interval_coverage_and_nullable_denominators`,
+  `test_service_request_supported_interruptions_and_critical_row`, `test_renewable_hour_headroom_constraints_and_precedence`,
+  `test_renewable_daily_denominator` (4 collected, pure). Unit 3 adds `test_fuel_interval_and_completeness`,
+  `test_backup_chain_order_and_no_event` here.
 
-## Landed (anchors)
-- `backend/migrations/versions/0029_w4_mini_depth.py`: `GATE_ROLES` has the 17 channel roles. `DOMAIN_ROLES` is the
-  B1 matrix. The file holds the functions, the constraint trigger and the guarded downgrade.
-- `sites/binding_roles.py`: `ROLE_SET_MINIGRID_4` and `MINIGRID_ROLES_4`, added to served and verification sets.
-  `analytics/assessment_worker.py` `ROLES_BY_SET` includes roles-4.
-- `sites/models.py`: three properties, `MINIGRID_PROPERTY_CARRIERS` and `MINIGRID_STRICTLY_POSITIVE_PROPERTIES`.
-  `sites/minigrid_foundation.py` validates them, called from `site_parsing.py`.
-- `sites/adapters/postgres_foundation_store.py`: `_enqueue_mini_configuration`.
-- Rule 8 (`tools/checks/configuration-persistence.ps1`) registers `$miniWriter` and `$miniTables` with
-  anti-vacuity, plus mini enqueue SQL limited to the Foundation store. `tools/writer_guard_probes.py` has the mini
-  probes and controls; the probe corpus has not been run.
-- Tests: `backend/tests/test_w402_migration_postgres.py` (9 nodes) and `test_w402_roles_properties.py` (pure,
-  including the dispatch-roles check). Both pass on the private `w402a_test` clone. Current-head literals in the
-  13 named test files now read `0029_w4_mini_depth`. The W4-01 `down_revision` assertion now pins `0027`.
+## Readings applied in unit 2 (for review; none changes a spec rule)
+1. Renewable `used_kw` = sum of bound `feeder_demand` means over the hour (addressed load; closure 2 formula and the
+   mock's "[41, 43] - 20 kW load - 3 kW margin"). `pv_power` must be complete but enters no arithmetic.
+2. Capability bound = time-weighted hour mean of `pv_available_power` +/- `pv-available-uncertainty`, low floored at 0 (Q9).
+3. A role with no usable row is `*_MISSING`; a role with usable rows that leave seconds uncovered adds `COVERAGE_GAP`.
+   Missing `pv_power` or any bound feeder (or no bound feeder) is `PV_USE_MISSING`.
+4. Any two usable rows of one role+asset overlapping in time (a duplicate included) is `CONFLICT`; no row is chosen.
+5. Only GOOD, numeric, `kW`, interval rows cover time; instant, non-GOOD, non-kW or non-numeric rows cover 0 s but are
+   cited. Rows are clipped to the window.
+6. `CHARGE_OBLIGATION_ACTIVE`: complete `storage_charge_requested_power` with any interval mean > 0 (mock: "No charging
+   obligation ... evidenced in eligible windows").
+7. `CRITICAL_SERVICE_DEFICIT`: complete critical requested/delivered with identical interval boundaries and any
+   requested > delivered (no tolerance). A complete but misaligned pair gives `CRITICAL_SERVICE_MISSING`.
+8. **Flag for review:** `HEADROOM_NON_POSITIVE` when the floored headroom *low* is 0 (e.g. 0-1 kW is EXCLUDED); ELIGIBLE
+   needs low > 0. The spec says "positive headroom" without naming the bound.
+9. Contraindicating codes are added whenever their own inputs are complete, even if another term is missing; decision
+   precedence CONFLICT > LIMITED > EXCLUDED > ELIGIBLE (closure 2). `opportunity_kwh` = headroom only when ELIGIBLE.
+10. `eligible_days`/`assessed_days` are both null when no day is completely assessed; only-EXCLUDED days give 0/n.
+    Cards are null without an eligible day. `recurrence_established` only for 5 requested, 5 rows, all assessed.
+11. Row coverage: observed = seconds covered by every required role at once; gaps = the rest;
+    `source_count` = distinct sources of usable rows of those roles. Row/hour `evidence_ids` = every reading passed for
+    the hour (including context such as `battery_soc`); unit 4's input query decides that set.
+12. Service request: per-asset `feeder_requested_power`; only if that is absent, `critical_load_requested_power`
+    readings bound to the same asset qualify it. Partial request coverage is `MISSING`.
+13. Service row assessment: conflict or partial delivery -> LIMITED; delivery missing or request not ACCEPTED -> UNKNOWN;
+    complete and aligned -> SUPPORTED; complete but misaligned -> LIMITED.
+14. Service cards: `delivered_load_kw` only when every bound feeder is complete; `interruptions_seen`/`unserved_kwh`
+    only when every row is SUPPORTED (sum); `critical_delivered_kw` from a complete `critical_load_delivered_power`.
+    No bound feeder -> UNKNOWN with `REQUEST_BASELINE_MISSING`. Status: conflict/gap -> LIMITED; all SUPPORTED -> SUPPORTED.
+15. Deferred, not unit 2: local-noon/local-day window derivation and nonexistent-noon `INVALID_WINDOW` (units 4/5),
+    mixed source class (provenance, unit 5), `AcceptedReading` -> `Reading` adaptation (unit 4 `inputs.py`).
 
-## Checks
-- `tools/check-all.ps1`: all 10 guards passed (architecture, navigation, workflow and missing-claim included).
-- Focused run (16 files, `-n 2`, `w402a_test`): **185 passed, 29 failed**, 11m45s. The private DB and its clones
-  were dropped afterwards.
+## Checks (private DB `w402c_test`, dropped afterwards)
+- `test_w402_rules.py` (4) + `test_w402_roles_properties.py` + job-counting files `test_s2_evidence_ledger_postgres`,
+  `test_w200_source_events_postgres`, `test_s2_gateway_access_postgres`, `test_s3_dispatch_assessment_postgres`,
+  `test_s4_evidence_decided_at_postgres`, `test_s4_schedule_tick_postgres`, `-n 2 --dist loadfile`: 129 passed, 6m44s.
+- `tools/check-all.ps1`: all 10 guards passed.
+- No full suite (not allowed this run).
 
-## Resume here: the 29 failures (none in the w402 files)
-1. **Downgrade-through tests (about 22 nodes).** These include s1 0004, s2 0005, s405, the s4 0011/0015
-   consequence tests, the s4 evidence-work tests, w200 0020, w203, w204, w205a, w206 (four), w207 (two) and w401
-   (two). Their MINIGRID fixtures now leave `mini_*` jobs, so 0029's N5 refusal fires before their own expected
-   message. Each test needs the `ev_charging` precedent at `test_w200_source_events_postgres.py:559`: before each
-   `command.downgrade`, delete `recompute_job WHERE domain LIKE 'mini\_%'` as replica. Do not weaken 0029.
-2. `test_s2_evidence_ledger_postgres.py`: one exact-job assertion (`366 == 1`) is the S4 "exact-job assertion"; scope
-   it to `domain = 'dispatch'`. Three scope/refusal tests compare table-count dicts that now include mini jobs.
-3. `test_w200_source_events_postgres.py`: the dispatch-only job check (line 176) needs the mini domains excluded.
-   The raw-copy accepted row raises 23514 at the former lines 568 and 633-634. Per S4, add the same-transaction
-   ACCEPTED disposition or use an unmapped role.
-
-## Next, still in unit 1
-Fix the 29 tests above and rerun the focused set. Run `python tools/writer_guard_probes.py --seam mini` (the mini
-probe names) on a committed tree. Then commit and go to unit 2. Open question for unit 3:
-`.agent/W4-02-pending-rulings.md` R1 (mixed v3/v4 validation for roles-4).
+## Next: unit 3
+Spec closure 2 Q28 (3): pure fuel/backup rules (closure 1 Q16/Q22, closure 2 fuel paragraph, closure 4 B2 step roles)
+plus authored fixture, conversion and accepted replay: closure 4 B2/S5, closure 5 (`MG-W402-001` registration,
+cold-enqueue Site-type gate) and q1 ruling 1 (mixed v3/v4 predicate for `minigrid-roles-4`). Replay records accepted
+IDs and binding/profile identity only (N4).
