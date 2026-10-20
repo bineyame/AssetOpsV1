@@ -69,7 +69,8 @@
 [data-ev-site-view] .ev-site-chart svg {
   display: block;
   width: 100%;
-  height: 190px;
+  height: auto;
+  max-height: 200px;
 }
 
 [data-ev-site-view] .ev-site-chart__axis {

@@ -492,7 +492,7 @@ function EvPowerChart({ items, from, to, limitKw }: { items: EvAnalysisItem[]; f
   const y = (kw: number) => T + ph - (kw / maxKw) * ph;
   return (
     <figure className="ev-site-chart" data-ev-chart>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Charging activity and Site import, ${hm(from)}–${hm(to)} UTC`} preserveAspectRatio="none">
+      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Charging activity and Site import, ${hm(from)}–${hm(to)} UTC`}>
         <line x1={L} y1={T + ph} x2={W - R} y2={T + ph} className="ev-site-chart__axis" />
         <line x1={L} y1={T} x2={L} y2={T + ph} className="ev-site-chart__axis" />
         <text x={L - 4} y={T + 8} textAnchor="end" className="ev-site-chart__tick">{`${maxKw} kW`}</text>
@@ -587,7 +587,6 @@ function OverviewScreen(p: EvSiteFrameProps) {
           heading="Charging activity and site power"
           headingId="ev-site-power-heading"
           description="Power is operating context, not proof of charger condition or cause."
-          actions={<UnavailableInline label="Open single line diagram" />}
         >
           {refused !== null ? (
             <Gap id="ev-site-power">{refused}</Gap>
@@ -625,6 +624,9 @@ function OverviewScreen(p: EvSiteFrameProps) {
               </Disclosure>
             </>
           )}
+          <p className="ev-site-link">
+            <UnavailableInline label="Open single line diagram" />
+          </p>
         </Panel>
         <Panel heading="Needs attention" headingId="ev-site-attention-heading">
           {refused !== null ? (
@@ -839,7 +841,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
         )}
       </Panel>
       <div className="panel-pair ev-site-pair">
-        <Panel heading="Data sources · data quality, not equipment condition" headingId="ev-site-sources-heading" description="Contact describes source reporting only, never charger health.">
+        <Panel heading="Data sources · data quality, not equipment condition" headingId="ev-site-sources-heading">
           {refused !== null ? (
             <Gap id="ev-site-sources">{refused}</Gap>
           ) : (
