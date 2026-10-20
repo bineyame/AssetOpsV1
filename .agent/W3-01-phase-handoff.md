@@ -278,3 +278,25 @@ fixture clock vs DB `now()` and re-date `site_import`). The golden manifest `w30
 after `k`, with no stored window history, so it can show as outstanding on a historical mini-grid day it did not
 cover at `k`; that day reads pending, not unavailable.
 **Branch released.** Next: Lane A guard domain + `main.py` mount; the remaining mini-grid tests; then review.
+
+## Lane B commit-2 mini-grid tests (2026-10-20): landed; golden manifest blocked on q9; branch released
+Merged main (`e7ab7dbe`, clean). Commit `187a7020`:
+- `test_w301_estate_index_postgres.py` adds `test_late_support_change_recurrence_at_exact_cutoff` (S4 F03/F05: distinct
+  recurrence rows; explicit cutoff unchanged after later revisions; 1 us before the late match -> UNKNOWN, no rows;
+  late accepted evidence -> live PENDING_RECOMPUTE), `test_cost_risk_opportunity_eligibility_without_mock_seed`
+  (unbound PowerSite: UNPRICED and gate-withheld PRICED stay in All, Cost/Risks/Opportunities complete zero),
+  `test_cost_lens_only_exact_eligible_current_rows` (P01 PowerSite: exact PRICED interval in Cost; historical cutoff
+  and stale v4 price leave Cost until recompute), `test_action_event_and_verification_counts_full_basis` (S6 chain:
+  event cutoffs, later-window edges, VERIFIED and 30-day lookback edges, full-basis cards vs page).
+  TEST-SCOPED `pin_read_at` pins `EstateSnapshot.read_at` and `PostgresAssessmentStore._transaction_time` to the
+  fixture clock (S4/S6 fixtures run 2026-10-29..11-02, ahead of the DB clock).
+- Code fix (`estate/coverage.py:_mini_grid`): an overlapping PENDING/LEASED/FAILED job now makes the day
+  PENDING_RECOMPUTE ahead of S3 STALE (spec selection rule + q5 ruling 5); before, late evidence read STALE_SOURCE.
+- Checks (private `w301q_test`, dropped): estate files 17 passed (3 min 5 s): index 9, EV 3, API 5. Mutations after
+  commit, each reverted with `git checkout`: drop the job-pending rule -> late-support test FAILS; drop the CURRENT
+  money check -> Cost test FAILS; `later_end` inclusive -> Action counts test FAILS.
+- check-all: 9/10; the only failure is the expected missing `estate` domain in `configuration-persistence.ps1` (Lane A).
+**Not built:** `backend/tests/fixtures/w3/w301-estate-golden.json` (q9 item 1: fresh UUIDs per replay, separate DBs per
+domain). q9 item 2 (awaiting-verification predicate) is built as-is; its test pins 0 and is marked q9.
+**Branch released.** Next: Architect rules q8 + q9; then a Lane B fix round (rulings + golden); Lane A guard domain and
+`main.py` mount.
