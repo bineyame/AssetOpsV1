@@ -20,12 +20,18 @@ def build_estate_read(database_url: str | None) -> Any:
     from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable, EvReadUnavailable
     from assetops_backend.estate.adapters.postgres_estate_read import PostgresEstateRead
     from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
+    from assetops_backend.ev_site_reads import EvSiteReads
     from assetops_backend.evidence.public_provenance import LinkRowsReads
-    from assetops_backend.financials.composition import build_consequence_read_service
+    from assetops_backend.financials.composition import (
+        build_cold_consequence_store, build_consequence_read_service, build_ev_money_reads)
     from assetops_backend.financials.money_eligibility import MoneyEligibility
 
     findings = build_finding_store(database_url)
     link_rows = build_link_rows_reader()
+    # W3-02 0c: the pinned Site facades share the estate owner's cold/EV read services and run on its connection.
+    cold, ev, ev_money = build_cold_read_service(database_url), build_ev_read_service(database_url), \
+        build_ev_money_reads(link_rows)
 
     def provenance_reads(c: Any) -> Any:  # set resolution on the estate connection only
         return LinkRowsReads(lambda t, s, ids: list(link_rows(c, t, s, ids)))
@@ -34,10 +40,11 @@ def build_estate_read(database_url: str | None) -> Any:
         database_url, findings=findings, assessments=build_postgres_assessment_store(database_url),
         actions=build_action_store(database_url), consequences=build_consequence_read_service(database_url),
         eligibility=MoneyEligibility(build_dispatch_read_service(database_url), findings),
-        cold=build_cold_read_service(database_url), ev=build_ev_read_service(database_url),
-        provenance_reads=provenance_reads,
+        cold=cold, ev=ev, provenance_reads=provenance_reads,
         inconsistent=(ColdPinnedLineageUnavailable, EvPinnedLineageUnavailable, selection_pin_refused()),
-        unavailable=(ColdReadUnavailable, EvReadUnavailable))
+        unavailable=(ColdReadUnavailable, EvReadUnavailable),
+        cold_site=ColdSiteReadService(cold, build_cold_consequence_store(database_url)),
+        ev_site=EvSiteReads(ev, ev_money), ev_money=ev_money)
 
 
 def build_estate_index_service(database_url: str | None) -> EstateIndexService | None:

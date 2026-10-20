@@ -21,6 +21,7 @@ from typing import Any, Callable
 from uuid import UUID
 
 from assetops_backend.analytics.ev import plain
+from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable
 from assetops_backend.financials import ev_money as em
 
 NO_MONEY = "No gross tariff scenario assessed."
@@ -234,11 +235,15 @@ class EvSiteReads:
         ctx["money"] = self._select(ctx)
         return ctx
 
-    def _select(self, ctx: dict[str, Any]) -> dict[str, Any]:
-        """q4: the one shared current-revision selector."""
+    def _select(self, ctx: dict[str, Any], cutoff: datetime | None = None) -> dict[str, Any]:
+        """q4: the one shared current-revision selector. Default (`cutoff` None) unchanged; with a pinned estate
+        `cutoff` (W3-02 0c) a revision recorded after it is never history, and a current head recorded after it
+        is refused (`EvPinnedLineageUnavailable`), never a newer head."""
         c, t, s, snap = ctx["c"], ctx["t"], ctx["s"], ctx["snap"]
         lo, hi, state = snap["lo"], snap["hi"], snap["state"]
         history = [] if lo is None else self._money.history_on(c, t, s, lo, hi)
+        if cutoff is not None:
+            history = [h for h in history if h["recorded_at"] <= cutoff]
         current, guard, derived = None, None, None
         if state == "CURRENT":
             basis = self._money.basis_on(c, t, s, lo, hi, snap["selected"])
@@ -247,6 +252,9 @@ class EvSiteReads:
                 current = self._money.select_on(c, t, s, lo, hi, derived.basis_sha256)
                 if current is None:
                     guard = "STALE_BASIS"
+                elif cutoff is not None and current["recorded_at"] > cutoff:
+                    raise EvPinnedLineageUnavailable(
+                        f"An EV consequence head postdates the pinned cutoff: {current['id']}.")
         elif state in ("HISTORICAL", "PENDING_RECOMPUTE") and history:
             guard = "HISTORICAL_CURRENT_CLAIM" if state == "HISTORICAL" else em.ERROR_PENDING
         return {"current": current, "guard": guard, "derived": derived,
@@ -263,6 +271,46 @@ class EvSiteReads:
                     "overlap_group": None, "recorded_at": None, "tariff_recorded_at": None, "source_gate": None,
                     "session_revision_ids": [], "evidence_ids": [], "limitation": MONEY_COPY[m["guard"]]}
         return self._revision(row, MONEY_COPY.get(row["reason"]))
+
+    # --- pinned estate facades (W3-02 0c) -------------------------------------------------------------------------
+
+    def _pinned_ctx(self, c, snap: dict[str, Any]) -> dict[str, Any]:
+        """The context of one already pinned estate window (an `EvReadService.estate_snapshots_on` result), built
+        without `_ctx`/`open_on`: its one exact session seq selected, its row-local `known` at or before both the
+        selection cutoff and the committed watermark, and the money selected under that cutoff. Anything else is
+        `EvPinnedLineageUnavailable` (the estate's inconsistent selection), never a re-read."""
+        cutoff, seqs = snap.get("selection_cutoff"), snap.get("selection_seqs")
+        known, mark = snap.get("known"), snap.get("watermark")
+        if (cutoff is None or not seqs or len(seqs) != 1 or snap.get("selected") is None or snap.get("lo") is None
+                or snap.get("hi") is None or known is None or known > cutoff or (mark is not None and known > mark)):
+            raise EvPinnedLineageUnavailable("The pinned EV window selection cannot be proved.")
+        ctx = {"c": c, "t": snap["t"], "s": snap["s"], "code": snap["code"], "snap": snap}
+        ctx["money"] = self._select(ctx, cutoff)
+        return ctx
+
+    @staticmethod
+    def _pinned_ids(snap: dict[str, Any]) -> dict[str, Any]:
+        (analytic, seq), = snap["selection_seqs"].items()
+        return {"window_start": plain(snap["lo"]), "window_end": plain(snap["hi"]), "known_at": plain(snap["known"]),
+                "selection_seqs": {analytic: int(seq)},
+                "assessment_revision_id": str(snap["selected"]["revision_id"]).lower(),
+                "evidence_ids": list(snap["selected"]["evidence_ids"])}
+
+    def capabilities_on(self, c, pinned_snap: dict[str, Any]) -> dict[str, Any]:
+        """W3-02 0c: the W2 capability rows of one already pinned estate window on the caller's connection (no
+        `_ctx`, `open_on`, `overview` or `evidence`), with that window's exact selected IDs."""
+        ctx = self._pinned_ctx(c, pinned_snap)
+        return {**self._pinned_ids(pinned_snap), "capabilities": self._capabilities(ctx)}
+
+    def money_on(self, c, pinned_snap: dict[str, Any]) -> dict[str, Any]:
+        """W3-02 0c: the W2 consequence of one already pinned estate window (the stored head DTO, or the transient
+        `revision_id: null` guard, never a stored row) and its stored history recorded by the cutoff, with full IDs
+        (`financials` without `_ctx`, paging or provenance)."""
+        ctx = self._pinned_ctx(c, pinned_snap)
+        m = ctx["money"]
+        return {**self._pinned_ids(pinned_snap), "state": pinned_snap["state"], "guard": m["guard"],
+                "consequence": self._consequence(ctx),
+                "history": [{**self._revision(h, HISTORY_LABEL), "label": HISTORY_LABEL} for h in m["history"]]}
 
     @staticmethod
     def _revision(row: dict[str, Any], limitation: str | None) -> dict[str, Any]:
