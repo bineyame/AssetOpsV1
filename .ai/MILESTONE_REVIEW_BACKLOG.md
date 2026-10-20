@@ -2318,3 +2318,10 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L2: the `WorkSubrow` count assertions live only in `siteWorkCases.test.tsx`, not in `operatorSiteTabs` / `operatorRouteFrames`.
 - L3: the `siteFinancials` typed-409 reload test is a load flake again; it passes alone.
 - L4: test ordering is fragile. A `runner` test placed after a cold `chain` test fails setup with `AdminShutdown`.
+
+## W3-01 Lows
+- L1: the orphaned `FindingsIndex` in `frontend/src/sites/FindingsIndexes.tsx` is carried for deletion (q14).
+- L2: Finding links show the first 8 UUID characters, so patterned fixture IDs render as identical labels ("Finding 00000005" on every row of the estate captures). The same class as W2 audit "shortened IDs look identical". Include it in the W2-F ID-display rule and the post-W6 structural audit.
+- L3: the mini-grid domain is derived from `coverage.match_state`, which is an implicit backend invariant. A wire `domain` field would be sturdier.
+- L4: the accepted limitations are the widened-job overlap (L2 of the commit-2 review), clock-drift residual, zero awaiting-verification count, and the 150 px card waiver.
+- L5: the second inline `except Exception` in the EV store link read was outside L1's scope.

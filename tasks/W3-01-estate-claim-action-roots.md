@@ -1,6 +1,6 @@
 # W3-01 — Estate claim and Action roots
 
-Status: in_review (commit 4 closeout, packet `.agent/W3-01-review-packet.md`; full backend suite runs beside the final review). Lane B, step 1; size M, two phases. Branch `task/W3-01-estate-claim-action-roots` from reviewed, merged W2-07 after `0026`. USER_REVIEW_REQUIRED: true, after independent slice review and at the W3 owner wave checkpoint. This is a scoped index over existing Site records, with **no migration** and no dependency on W4-01.
+Status: done (merged 2026-10-21, b5d0a7d6; final review fix ACCEPTED); was in_review (commit 4 closeout, packet `.agent/W3-01-review-packet.md`; full backend suite runs beside the final review). Lane B, step 1; size M, two phases. Branch `task/W3-01-estate-claim-action-roots` from reviewed, merged W2-07 after `0026`. USER_REVIEW_REQUIRED: true, after independent slice review and at the W3 owner wave checkpoint. This is a scoped index over existing Site records, with **no migration** and no dependency on W4-01.
 
 ## Binding, dependencies and ownership
 
