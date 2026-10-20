@@ -1,5 +1,66 @@
 # W3-02 phase handoff
 
+## 0c (Lane A) - READY FOR REVIEW
+
+Commit `750ce929` on `task/W3-02-estate-evidence-money-basis` (`git merge main` was already up to date at `724c0832`).
+0a/0b files untouched. Branch released. Spec: closure 4, "W1 day source, cold/EV windows and pinned facades",
+third and fourth paragraphs, plus the `0c` row of the per-commit index.
+
+What landed:
+- `analytics/cold_site_reads.py`: `ColdSiteReadService.capabilities_on(c,pinned_snap)` and
+  `money_on(c,pinned_snap,selected_findings)`, with the helpers `_pinned` (the proof check) and `_pinned_ids`.
+  `_money` gains an optional `cutoff`, and the default `None` keeps W2 unchanged.
+- `ev_site_reads.py`: `EvSiteReads.capabilities_on(c,pinned_snap)` and `money_on(c,pinned_snap)`, with the helpers
+  `_pinned_ctx` (built without `_ctx`/`open_on`) and `_pinned_ids`. `_select` gains an optional `cutoff`, and the
+  default `None` keeps W2 unchanged.
+- `financials/consequence_read.py:select_consequence_on` adds `window_start/window_end` (ISO),
+  `quantity_low/quantity_high` (Decimal text), `quantity_unit` and `overlap_group` from the selected head. They are
+  null without a head. The old keys and the cutoff semantics are unchanged.
+- `estate/adapters/postgres_estate_read.py`: `imported_sites` items add `site_code_key`.
+  `PostgresEstateRead.__init__` takes optional `cold_site`, `ev_site` and `ev_money`.
+- `estate/composition.py`: wires `ColdSiteReadService(cold, cold consequence store)`, `EvSiteReads(ev, ev_money)` and
+  `ev_money` onto the same owner, sharing its cold/EV read services. `financials/composition.py` has a new
+  `build_ev_money_reads(link_rows)`, because the architecture guard bans adapter imports outside the financials
+  composition.
+- Tests: `tests/test_w302_pinned_facades.py` (16, pure) covers unprovable pins (cold 7 cases, EV 7 cases) refused
+  as typed errors, a head newer than the cutoff refused, later history/work dropped, `STALE_BASIS` kept as a guard
+  with `revision_id:null`, and the default paths unchanged. `tests/test_w302_pinned_facades_postgres.py` (3) shows
+  that cold and EV facades equal the W2 Site `_capabilities`/money for the same exact window. `_ctx`, `open_on`,
+  `_selected`, `within` and the routes are monkeypatched to fail. The EV case uses a stored, priced head from the
+  W2-07 golden tariff. It also checks that the W1 head fields equal the stored immutable row for revisions 1 and 2,
+  and are null when PENDING.
+
+Checks: on the private DB `w302c_test` I ran the touched tests plus `test_s4_consequence_read`,
+`test_w204_cold_consequence`, `test_w204_cold_reads`, `test_w207_ev_money`, `test_w207_ev_money_postgres`,
+`test_w207_ev_site_reads_postgres`, the `test_w301_{cold,ev}_selection_on_postgres` pair,
+`test_w301_w1_money_snapshot_helpers_postgres` and every `test_w301_estate_*`/`test_w302_estate_cursor` file:
+191 passed, 0 skipped, 30m51s (JUnit 191/0/0/0). That run's code was revision `5c241fa5`. The amend to `750ce929`
+only moved the `EvMoneyReads` construction into `build_ev_money_reads`, and I re-ran
+`test_w301_estate_index_postgres` + the pure facades on it: 36 passed, 0 skipped, 7m03s. The DB was dropped afterwards.
+`check-all`: 11/11 guards passed. No full suite run.
+
+Readings (I am recording these, not making rulings):
+1. A pin counts as "provable" when the snapshot carries `selection_cutoff` and `selection_seqs`, the seqs name
+   exactly the selected analytics (cold) or the one session analytic (EV), it has an exact `lo/hi`, and its
+   row-local `known <= selection_cutoff` and `known <= watermark`. A failure raises `ColdPinnedLineageUnavailable`/
+   `EvPinnedLineageUnavailable`, which composition already maps to `EstateSelectionInconsistent` (409). I did not
+   return an in-band unavailable value.
+2. "Never pick a newer head": a selected cold head (`cold_heads_on` latest per Finding revision/kind) or an EV
+   current head (`select_on`) recorded after `selection_cutoff` (the estate `k`) is refused (409). It is not
+   replaced by an older revision. This fails closed, and a historical estate read after a later recompute
+   therefore refuses. If an older-head fallback is wanted, that needs a ruling.
+3. Under the pin, cold work enqueued after the cutoff does not withhold, and EV history recorded after the cutoff
+   is dropped.
+4. Cold `money_on` returns every selected head of both kinds (`PRODUCT_EXPOSURE` and `RECORDED_REPAIR`), each with
+   `counted` (the W2 latest-per-overlap-group exposure), `finding_revision_id` and its window. `selected_findings`
+   items may carry `revision_id` or `finding_revision_id`.
+5. EV `money_on` returns `consequence` (the W2 `_consequence` DTO), `history` (labelled), `guard` and `state`. The
+   per-row `source_provenance` is not included. Lane B calls `money_row_provenance_on` if it needs it.
+6. I did not rename `cited.power_evidence_ids` to `technical_interval_ids`. That is the commit 3 wire; the docstring
+   records the mapping.
+
+Next: commit 1 (Lane B), after 0a-0c review.
+
 ## 0b (Lane A) - READY FOR REVIEW
 
 Commit `d208faef` on `task/W3-02-estate-evidence-money-basis` (after merging main into `2d36689a`). 0a files
