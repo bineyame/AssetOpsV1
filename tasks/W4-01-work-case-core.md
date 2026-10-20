@@ -1,6 +1,6 @@
 # W4-01 — Work-case core and thin Site lists
 
-Status: planned; build spec pending. Lane A, step 1; size L, with independent build phases. Branch `task/W4-01-work-case-core` from reviewed, merged W2-07 after `0026`. USER_REVIEW_REQUIRED: true, after independent slice review and at the W4 owner wave checkpoint. This packet is a planning boundary, not builder authorization or approval of every v69 panel.
+Status: done (merged 2026-10-20, d76809dd; re-review ACCEPT); was planned; build spec pending. Lane A, step 1; size L, with independent build phases. Branch `task/W4-01-work-case-core` from reviewed, merged W2-07 after `0026`. USER_REVIEW_REQUIRED: true, after independent slice review and at the W4 owner wave checkpoint. This packet is a planning boundary, not builder authorization or approval of every v69 panel.
 
 ## Binding, dependencies and ownership
 
