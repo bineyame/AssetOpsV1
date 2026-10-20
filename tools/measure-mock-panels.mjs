@@ -36,6 +36,12 @@ for (const screen of SCREENS) for (const [w,h] of [[1440,1000],[390,900]]) {
      if(kind==='cards') o.children=[...e.children].map(R);
      const tw=e.querySelector('.table-wrap'); if(tw){o.tableClient=tw.clientWidth;o.tableScroll=tw.scrollWidth; o.rows=[...tw.querySelectorAll('tbody tr')].map(t=>Math.round(t.getBoundingClientRect().height)); o.thead=Math.round(tw.querySelector('thead').getBoundingClientRect().height); o.cols=[...tw.querySelectorAll('thead th')].map(t=>t.textContent+':'+Math.round(t.getBoundingClientRect().width));}
      out.push(o);}
+   const seen=new Set(out.length?[...main.querySelectorAll('.cards,.statusbar,section.panel,.notice')]:[]);
+   const blocks=[]; const walk=(el,d)=>{ for(const e of el.children){ if(seen.has(e)) continue; const b=R(e); if(!b.h) continue;
+       if(d<3 && e.children.length>1 && [...e.children].some(c=>seen.has(c)||c.children.length>1)) walk(e,d+1); else blocks.push(e);} };
+   walk(main,0);
+   for(const e of blocks){ const b=R(e); if(b.h<8) continue;
+     out.push({kind:'block',title:(e.className||e.tagName.toLowerCase())+': '+((e.querySelector('h1,h2,h3,strong')?.textContent||e.textContent).trim().slice(0,60)),...b}); }
    const h1=document.querySelector('h1'); 
    return {h1:h1?.textContent.trim(), pageH:document.documentElement.scrollHeight, docScrollW:document.documentElement.scrollWidth, clientW:document.documentElement.clientWidth, items:out};})()`);
   await send("Emulation.setDeviceMetricsOverride",{width:w,height:h,deviceScaleFactor:1,mobile:w<500});
