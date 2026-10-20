@@ -1,5 +1,5 @@
 # W3-02 0b re-review of fix r1 (commit d160e751, read via git objects only; nothing run)
-n**Coordinator note (2026-10-21):** the stray file was deleted by the coordinator (`git rm`), so 0b is ACCEPTED.
+n**Coordinator note (2026-10-21):** the stray file is already deleted in the fixer's follow-up commit `914f69e0`, so 0b is ACCEPTED.
 
 ## Verdict: REVISE (one mechanical deletion; no Architect ruling needed)
 
