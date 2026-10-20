@@ -1,6 +1,6 @@
 # OPS-03 — full backend suite inside the Compose network
 
-Status: planned; implementation-ready. Tooling only; no product or production semantics change. Branch: `task/OPS-03-suite-in-container` from current main. Independent review required; USER_REVIEW_REQUIRED: false. This runs in the one-full-suite queue and follows the [owner's suite policy](../.agent/owner-test-suite-policy-2026-10-20.md): the first review may run alongside the full suite; a full-suite failure blocks merge. The policy's focused-only exception and full run on merges remain in force.
+Status: in_review. Tooling only; no product or production semantics change. Branch: `task/OPS-03-suite-in-container` from current main. Independent review required; USER_REVIEW_REQUIRED: false. This runs in the one-full-suite queue and follows the [owner's suite policy](../.agent/owner-test-suite-policy-2026-10-20.md): the first review may run alongside the full suite; a full-suite failure blocks merge. The policy's focused-only exception and full run on merges remain in force.
 
 ## Exact build contract
 
