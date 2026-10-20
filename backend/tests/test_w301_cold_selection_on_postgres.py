@@ -112,3 +112,30 @@ def test_cold_cutoff_precedes_reselection_and_revision(chain) -> None:  # noqa: 
     assert all(later["selection_seqs"][a] > first["selection_seqs"][a] for a in first["selection_seqs"])
     assert set(revision_ids(later).values()).isdisjoint(revision_ids(first).values())
     assert again["state"] == "HISTORICAL" and later["state"] == "CURRENT"
+
+
+def test_cold_reselection_of_an_old_run_is_invisible_earlier(chain) -> None:  # noqa: F811
+    """A later selection row naming an already-completed run (its knowledge cutoff and completion are before k1)
+    is excluded at k1 only by `selected_at`. TEST-SCOPED: the row is appended directly (the table is append-only;
+    no current writer reselects an old run), the one shape Run 6 names that the replay cannot produce."""
+    built = opened("late-reading", chain)
+    run(built)
+    svc = ColdReadService(engine=built.engine)
+    t, s, wm = built.tenant_id, built.site_id, watermark(built)
+    k1 = now(built)
+    with built.engine.begin() as conn:
+        conn.execute(text(
+            "INSERT INTO analytic_run_selection (tenant_id, site_id, analytic_id, window_start, window_end, run_id, "
+            "job_id, selected_at) SELECT tenant_id, site_id, analytic_id, window_start, window_end, run_id, NULL, "
+            "clock_timestamp() FROM analytic_run_selection WHERE site_id = :s AND analytic_id = :a "
+            "ORDER BY seq DESC LIMIT 1"), {"s": s, "a": ANALYTICS[0]})
+    k2 = now(built)
+    with snapshot(built) as c:
+        (old,) = svc.estate_snapshots_on(c, t, s, CODE, DAY, DAY + timedelta(days=1), wm, k1)
+        (new,) = svc.estate_snapshots_on(c, t, s, CODE, DAY, DAY + timedelta(days=1), wm, k2)
+        with pytest.raises(SelectionPinRefused):
+            svc._snapshot(c, t, s, CODE, old["lo"], old["hi"], wm, selection_cutoff=k1,
+                          selection_seqs=new["selection_seqs"])
+    assert new["selection_seqs"][ANALYTICS[0]] > old["selection_seqs"][ANALYTICS[0]]
+    assert new["selection_seqs"][ANALYTICS[1]] == old["selection_seqs"][ANALYTICS[1]]
+    assert revision_ids(new) == revision_ids(old)  # the same run: only the selection row differs
