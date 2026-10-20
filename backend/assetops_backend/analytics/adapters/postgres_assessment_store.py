@@ -760,8 +760,7 @@ class PostgresAssessmentStore:
         return {**base, "status": projection.status, "status_reasons": list(projection.reasons),
                 "selection": None if run is None else {
                     "seq": snap.head["seq"], "selected_at": snap.head["selected_at"],
-                    "selected_by_job": snap.head["job_id"], "run_id": run["id"],
-                    "model_version": run["model_version"], "cohort": run["cohort"]},
+                    "selected_by_job": snap.head["job_id"], "run_id": run["id"]},
                 "run_id": None if run is None else run["id"],
                 "assessment_revision_ids": sorted(str(r["id"]) for r in revisions),
                 "window_assessment_revision_id": None if window_rev is None else window_rev["id"],

@@ -1006,8 +1006,13 @@ class PostgresEvidenceLedger:
 
     def finding_revision_evidence(self, tenant_id: UUID, site_id: UUID,
                                   finding_revision_id: UUID) -> list[str] | None:
-        return self._run(lambda c: ProvenanceReadsOn(c).finding_revision_evidence(tenant_id, site_id,
-                                                                                 finding_revision_id))
+        def work(c: Connection) -> list[str] | None:
+            p = {"t": tenant_id, "s": site_id, "r": finding_revision_id}
+            if c.execute(text("SELECT 1 FROM finding_revision WHERE tenant_id = :t AND site_id = :s AND id = :r"),
+                         p).first() is None:
+                return None
+            return self._cited(c, p)
+        return self._run(work)
 
     @staticmethod
     def _cited(c: Connection, p: dict) -> list[str]:
@@ -1017,8 +1022,19 @@ class PostgresEvidenceLedger:
 
     def consequence_inputs(self, tenant_id: UUID, site_id: UUID, consequence_revision_id: UUID
                            ) -> tuple[str, list[str], list[str]] | None:
-        return self._run(lambda c: ProvenanceReadsOn(c).consequence_inputs(tenant_id, site_id,
-                                                                          consequence_revision_id))
+        def work(c: Connection) -> tuple[str, list[str], list[str]] | None:
+            p = {"t": tenant_id, "s": site_id, "c": consequence_revision_id}
+            finding_revision_id = c.execute(text(
+                "SELECT CAST(finding_revision_id AS text) FROM financial_consequence_revision "
+                "WHERE tenant_id = :t AND site_id = :s AND id = :c"), p).scalar_one_or_none()
+            if finding_revision_id is None:
+                return None
+            cited = self._cited(c, {"t": tenant_id, "s": site_id, "r": finding_revision_id})
+            power = list(c.execute(text(
+                "SELECT CAST(evidence_id AS text) FROM financial_consequence_power_interval WHERE tenant_id = :t "
+                "AND site_id = :s AND consequence_revision_id = :c ORDER BY evidence_id"), p).scalars())
+            return finding_revision_id, cited, power
+        return self._run(work)
 
     # --- W2-02 cold replay reads (SELECT only; the service is assetops_backend/cold_replay.py) -------------
     # Publications are scoped by tenant, Site, `REGISTERED_SIMULATION` and the explicit run ID; the link and
@@ -1085,41 +1101,6 @@ _COLD_REPLAY_PUBLICATIONS = text(
     "WHERE p.tenant_id = :t AND p.site_id = :s AND p.source_class = 'REGISTERED_SIMULATION' AND p.run_id = :run "
     "ORDER BY p.recorded_at, p.id")
 
-
-class ProvenanceReadsOn:
-    """W3-01 Run 6 `0b`: the S4-05a `ProvenanceReads` on a caller's connection and transaction, so the estate can
-    build one exact consequence revision's `PublicProvenance` block (its FindingRevision's pinned citations plus
-    its own power intervals) and apply the pure `source_gate` inside its one snapshot. The ledger's own methods
-    run these statements in a transaction of their own."""
-
-    def __init__(self, c: Connection) -> None:
-        self._c = c
-
-    def link_rows(self, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[LinkRow]:
-        return link_rows_on(self._c, tenant_id, site_id, evidence_ids)
-
-    def finding_revision_evidence(self, tenant_id: UUID, site_id: UUID,
-                                  finding_revision_id: UUID) -> list[str] | None:
-        p = {"t": tenant_id, "s": site_id, "r": finding_revision_id}
-        if self._c.execute(text("SELECT 1 FROM finding_revision WHERE tenant_id = :t AND site_id = :s AND id = :r"),
-                           p).first() is None:
-            return None
-        return PostgresEvidenceLedger._cited(self._c, p)
-
-    def consequence_inputs(self, tenant_id: UUID, site_id: UUID, consequence_revision_id: UUID
-                           ) -> tuple[str, list[str], list[str]] | None:
-        c = self._c
-        p = {"t": tenant_id, "s": site_id, "c": consequence_revision_id}
-        finding_revision_id = c.execute(text(
-            "SELECT CAST(finding_revision_id AS text) FROM financial_consequence_revision "
-            "WHERE tenant_id = :t AND site_id = :s AND id = :c"), p).scalar_one_or_none()
-        if finding_revision_id is None:
-            return None
-        cited = PostgresEvidenceLedger._cited(c, {"t": tenant_id, "s": site_id, "r": finding_revision_id})
-        power = list(c.execute(text(
-            "SELECT CAST(evidence_id AS text) FROM financial_consequence_power_interval WHERE tenant_id = :t "
-            "AND site_id = :s AND consequence_revision_id = :c ORDER BY evidence_id"), p).scalars())
-        return finding_revision_id, cited, power
 
 def link_rows_on(c: Connection, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[LinkRow]:
     """S4-05 link rows read on the caller's connection (W2-03: the cold assessment selects its source gate in the
