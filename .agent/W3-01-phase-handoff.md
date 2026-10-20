@@ -38,3 +38,4 @@ Anchors for the resumed run: cold `_envelope` `postgres_assessment_store.py:1655
 injection `analytics/composition.py:build_finding_read_service`, `financials/composition.py:45-63`.
 **Branch released** (Lane A holds nothing). Next: Architect answers q3 and Lane B lands the `dual_blocks`
 empty case; then Lane A resumes the one compatibility commit.
+- Lane B q2/q3: dual_blocks(None, None) now returns the literal six-key EMPTY_CITATION_SET alias plus two null siblings (no signature change); test_pending_dual_blocks updated; 4 passed on w301d_test.

@@ -320,5 +320,9 @@ def test_pending_dual_blocks() -> None:
                                        "pending_source_provenance": pend}
     with pytest.raises(ValueError):
         dual_blocks(sel, {**pend, "basis_sha256": sel["basis_sha256"]})  # never the prior digest on pending
-    with pytest.raises(ValueError):
-        dual_blocks(None, None)  # unruled; see .agent/W3-01-pending-rulings.md
+    empty = dual_blocks(None, None)
+    assert empty == {"source_provenance": {
+        "classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [], "evidence_ids": [],
+        "basis_sha256": None, "reasons": [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]},
+        "selected_source_provenance": None, "pending_source_provenance": None}
+    assert len(empty["source_provenance"]) == 6

@@ -200,11 +200,15 @@ def dual_blocks(selected: Mapping[str, Any] | None, pending: Mapping[str, Any] |
     computed digest); `pending` classifies the full newer accepted set and carries `basis_sha256: null` (build it
     with `cited_set(..., selected_revision_ids=[])`). With pending work `source_provenance` is the compatibility
     alias of `pending_source_provenance`; without it `source_provenance` equals `selected_source_provenance`.
-    Neither block (no selected row and no pending set) is not ruled and is refused (`W3-01-pending-rulings.md`)."""
+    Neither block (no selected row, no pending set; Run 2 ruling 1, Run 3 q3 ruling 1) yields the literal
+    six-key empty alias, equal to `cited_set(t, s, [], [], detail=False)`, and two null siblings."""
     if pending is not None and pending.get("basis_sha256") is not None:
         raise ValueError("A pending source_provenance block has no selected revision, so no digest.")
     if selected is None and pending is None:
-        raise ValueError("No selected row and no pending set: no ruled source_provenance shape.")
+        return {"source_provenance": {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [],
+                                      "evidence_ids": [], "basis_sha256": None,
+                                      "reasons": [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]},
+                "selected_source_provenance": None, "pending_source_provenance": None}
     alias: Mapping[str, Any] = pending if pending is not None else selected  # type: ignore[assignment]
     return {"source_provenance": dict(alias),
             "selected_source_provenance": None if selected is None else dict(selected),
