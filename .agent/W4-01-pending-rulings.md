@@ -76,3 +76,38 @@ synchronous service calls, as in `action_api.py`.
 keep `$workWriter` in `$pgWriters` and add the `$pgReaders` line. Cherry-pick aborted; no prerequisite applied;
 commit 3 not resumed. Question: may the implementer resolve this as the union, then continue the remaining eight
 picks under the same rule for any identical writer-list/reader-list conflicts?
+
+## Run 5 resolution and readings (commit 3 `3353e858` + `99e5fea3`)
+
+Coordinator ruling applied: the `a75b0291` guard conflict resolved to the union; the other picks hit only
+`.agent/W3-01-phase-handoff.md` (HEAD kept). All nine prerequisites applied; SHAs in the handoff.
+
+Readings taken (each implements a ruled item; please confirm or replace):
+1. Cold/EV pin seq: the Finding revision's run window `(analytic_run.window_start, window_end)` is the exact stored
+   window; the shared `selected_windows_on` (cutoff K, evidence cutoff E) gives each domain analytic's greatest
+   eligible seq for that exact window; **all** domain analytics selected for that window are pinned in one
+   `_snapshot` (as `estate_snapshots_on` does), because pinning only the Finding's analytic left cold probe
+   freshness unknowable. The Finding's analytic must be among them and its selected assessment revision must equal
+   `finding_revision.assessment_revision_id`; otherwise the pin is missing (UNKNOWN/LINK_SELECTION_MISSING).
+2. Cold/EV link state is the shared snapshot `state`; mini-grid day mapping: unavailable or UNASSESSED -> UNKNOWN;
+   PENDING, FAILED, STALE_PROJECTION, or CURRENT not covered by the matcher pass (or deferred) -> PENDING_RECOMPUTE;
+   else CURRENT. A link's CURRENT becomes HISTORICAL when `known_at < read_at` (explicit earlier cutoff).
+3. Mini-grid detail window is the pinned Finding's `[episode_start, episode_end)` (end widened by 1 us when equal).
+4. Action link: `action_event` must match `(action_id, id)` and be recorded by K; its root's
+   `origin_finding_revision_id`/`origin_finding_id` is read as the pinned Finding (created by K).
+5. Per-link `selection_token` = `sha256:` of canonical JSON `{version:"work-link-selection/1",kind,id,selected_id,
+   domain,pin,state}`; null when the pin is missing. Commit 4's Q8 fence may replace it with the W1 index fence.
+6. `INVALID_KNOWN_AT` message (no literal in the refusal table): `'known_at' must be one UTC instant no later than
+   the read time.`
+7. Detail `finding_links`/`action_links` items use the request shape (`{finding_id,finding_revision_id}`,
+   `{action_id,action_event_id}`); timestamps use the existing six-digit `m.iso`; `selected_revision.actor_id` is
+   the stored `service:w401-fixture` (the B3 literal's `w401-fixture` predates Q28).
+8. `analytics/composition.py` gains `build_cold_ev_selection_pins()` (composition only; the assessment store file
+   is untouched) because rule 8 bans the adapter import from `work/composition.py`.
+
+Questions (non-blocking for commit-3 review):
+- q4-1. The F01 runner writes on a virtual clock from 2026-10-29, so a real-time detail read sees its pinned
+  revisions as not yet created (coverage UNKNOWN). May the private test harness inject a test-only read instant
+  into `PostgresWorkRead` (like the store's `test_db_clock_override`), or should F01 positive detail wait?
+- q4-2. Commit 2 `finding_pairs_in_scope`/`action_pairs_in_scope` do not require the pinned revision/event to
+  exist by `command_now` (only evidence is bounded). Should the command refuse a pin recorded after its DB instant?
