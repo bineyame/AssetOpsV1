@@ -481,9 +481,10 @@ def test_historical_cutoff_precedes_pending_job(chain) -> None:  # noqa: F811
             "available_at, created_at) VALUES (:j, :t, :s, 'ev_charging', :lo, :hi, 'FAILED', now(), now())"),
             {"j": job, "t": built.tenant_id, "s": built.site_id, "lo": window[0], "hi": window[1]})
     try:
-        explicit = get(c, f"sessions?{_q(current)}&known_at={current['window']['known_at']}")
+        explicit = get(c, f"sessions?{_q(current)}")
         assert explicit["pending_source_provenance"] is None and explicit["currentness"]["state"] != "PENDING_RECOMPUTE"
-        assert get(c, f"sessions?{_q(current)}")["pending_source_provenance"] is not None  # the default read does
+        default = get(c, f"sessions?from={current['window']['from']}&to={current['window']['to']}")
+        assert default["pending_source_provenance"] is not None  # the default read does
     finally:
         with built.engine.begin() as conn:
             conn.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job})
@@ -802,37 +803,39 @@ def test_withdrawn_finding_dropped_session_detail_has_two_id_provenance(chain, m
     """M3.1: the real second-loop withdrawal (the session no longer materializes) reads as 200 history on the
     two-ID selection `{assessment, Finding revision}`; a SUPPORTED revision with a missing session still refuses."""
     from assetops_backend.evidence.public_provenance import ev_withdrawn_finding_row_selection
-    built = chain("fault")
+    built = chain("interrupted")
     built.start_release_upload()
     run_worker(built)
     c = client(built)
     body = get(c, "sessions")
-    [stored] = stored_findings(built)
+    [fid] = [x["finding_id"] for x in body["items"] if x["finding_id"] is not None]
     lo, hi = _at(body["window"]["from"]), _at(body["window"]["to"])
     # a SUPPORTED revision whose session is missing from the selected set still refuses (503)
     head = exact_heads(built, lo, hi)[-1].revision_id
     with built.engine.begin() as conn:
         original = conn.execute(text("SELECT result FROM assessment_revision WHERE id = :r"), {"r": head}).scalar_one()
+        conn.execute(text("SET LOCAL session_replication_role = replica"))
         conn.execute(text("UPDATE assessment_revision SET result = CAST(:v AS jsonb) WHERE id = :r"),
                      {"v": json.dumps({**original, "session_revision_ids": []}), "r": head})
     try:
-        error(c, f"findings/{stored.finding_id}?{_q(body)}", 503)
+        error(c, f"findings/{fid}?{_q(body)}", 503)
     finally:
         with built.engine.begin() as conn:
+            conn.execute(text("SET LOCAL session_replication_role = replica"))
             conn.execute(text("UPDATE assessment_revision SET result = CAST(:v AS jsonb) WHERE id = :r"),
                          {"v": json.dumps(original), "r": head})
     rebind(monkeypatch, lambda r: r.kind == "EV_SESSION_START")
     select_exact(built, lo, hi)
     now = get(c, f"sessions?{_q(body)}")
     assert now["items"] == [] and get(c, f"findings?{_q(now)}")["items"] == []
-    gone = get(c, f"findings/{stored.finding_id}?{_q(now)}")
+    gone = get(c, f"findings/{fid}?{_q(now)}")
     assert gone["lifecycle"] == "NO_LONGER_SUPPORTED"
     assert [h["transition"] for h in gone["history"]] == ["OPENED", "NO_LONGER_SUPPORTED"]
     with built.engine.connect() as conn:
         withdrawn_id, assessment_id, session_id, result = conn.execute(text(
             "SELECT fr.id, fr.assessment_revision_id, fr.claim->>'session_id', ar.result FROM finding_revision fr "
             "JOIN assessment_revision ar ON ar.id = fr.assessment_revision_id WHERE fr.finding_id = :f "
-            "ORDER BY fr.revision_no DESC LIMIT 1"), {"f": stored.finding_id}).one()
+            "ORDER BY fr.revision_no DESC LIMIT 1"), {"f": fid}).one()
         cited = sorted(str(x).lower() for x in conn.execute(text(
             "SELECT evidence_id FROM finding_revision_evidence WHERE finding_revision_id = :r"),
             {"r": withdrawn_id}).scalars().all())
@@ -845,7 +848,7 @@ def test_withdrawn_finding_dropped_session_detail_has_two_id_provenance(chain, m
     selected = sorted(ev_withdrawn_finding_row_selection(assessment_id, withdrawn_id))
     assert prov["basis_sha256"] == basis_sha256(built.tenant_id, built.site_id, selected, cited)
     assert not any(r in json.dumps(prov) for r in old_session_revs)
-    assert get(c, f"findings/{stored.finding_id}?{_q(now)}")["source_provenance"] == prov  # stable
+    assert get(c, f"findings/{fid}?{_q(now)}")["source_provenance"] == prov  # stable
 
 
 def test_public_selected_ev_class_mismatch_unknown(chain) -> None:  # noqa: F811
@@ -861,6 +864,7 @@ def test_public_selected_ev_class_mismatch_unknown(chain) -> None:  # noqa: F811
     changed = {**original, "source_provenance": {**original["source_provenance"], "class": "AUTHORED_DEMONSTRATION"}}
     try:
         with built.engine.begin() as conn:
+            conn.execute(text("SET LOCAL session_replication_role = replica"))
             conn.execute(text("UPDATE assessment_revision SET result = CAST(:v AS jsonb) WHERE id = :r"),
                          {"v": json.dumps(changed), "r": head})
         bad = get(c, "sessions")
@@ -872,6 +876,7 @@ def test_public_selected_ev_class_mismatch_unknown(chain) -> None:  # noqa: F811
         assert bad["pending_source_provenance"] == good["pending_source_provenance"]
     finally:
         with built.engine.begin() as conn:
+            conn.execute(text("SET LOCAL session_replication_role = replica"))
             conn.execute(text("UPDATE assessment_revision SET result = CAST(:v AS jsonb) WHERE id = :r"),
                          {"v": json.dumps(original), "r": head})
     with built.engine.connect() as conn:
