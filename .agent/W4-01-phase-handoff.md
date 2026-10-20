@@ -38,3 +38,8 @@ q3 (6-10) in `.agent/W4-01-pending-rulings.md`.
 
 Answer q3 6-10, then finish commit 3: detail GET, `link_coverage.py` and its adapter reads, and detail tests.
 Review this phase before UI (spec item 3).
+
+## Run 5 (stopped)
+Merged main at `ec91ed70`. Prerequisite cherry-pick `a75b0291` conflicted in `tools/checks/configuration-persistence.ps1`
+(`$pgWriters` list: `$workWriter` vs new `$pgReaders` line); aborted. Resume: after a ruling on the conflict (see
+pending rulings "Run 5 stop"), redo step 2 from `a75b0291`, then finish commit 3 per spec "Run 3 rulings (q3)".

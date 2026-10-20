@@ -67,3 +67,12 @@ body reaches the service as a non-object, so it is 422 only after the principal 
 param, so a malformed ID is 404 `WORK_CASE_NOT_FOUND`, not FastAPI's 422; a Site-store outage inside `scope()`
 stays 500, as on the Action routes, because `main.py` passes only `WORK_UNAVAILABLE`; routes are `async` with
 synchronous service calls, as in `action_api.py`.
+
+## Run 5 stop: cherry-pick conflict (q3 ruling 6)
+
+`main` merged cleanly (`ec91ed70`). Cherry-pick of the first prerequisite `a75b0291` conflicts in
+`tools/checks/configuration-persistence.ps1` at the `$pgWriters` list: HEAD (W4-01 commit 2) appends `$workWriter`;
+`a75b0291` leaves the list without it and adds the `$pgReaders` line below it. Apparent union (not applied):
+keep `$workWriter` in `$pgWriters` and add the `$pgReaders` line. Cherry-pick aborted; no prerequisite applied;
+commit 3 not resumed. Question: may the implementer resolve this as the union, then continue the remaining eight
+picks under the same rule for any identical writer-list/reader-list conflicts?
