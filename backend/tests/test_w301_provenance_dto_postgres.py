@@ -326,3 +326,281 @@ def test_pending_dual_blocks() -> None:
         "basis_sha256": None, "reasons": [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]},
         "selected_source_provenance": None, "pending_source_provenance": None}
     assert len(empty["source_provenance"]) == 6
+
+
+# --- Run 1 ruling 7: the public W1, cold and EV read bodies map to exact selected/cited sets. -------------------
+
+def _ids(values) -> list[str]:
+    return sorted({str(v).lower() for v in values})
+
+
+def _scalars(engine, sql: str, **params) -> list[str]:  # noqa: F811
+    with engine.connect() as c:
+        return _ids(c.execute(text(sql), params).scalars())
+
+
+def _row(engine, sql: str, **params):  # noqa: F811
+    with engine.connect() as c:
+        return c.execute(text(sql), params).one()._mapping
+
+
+def _expect(dto, tenant, site, selected, cited) -> None:
+    """A non-null public block names exactly `cited` and digests exactly `selected` x `cited`."""
+    assert dto is not None and dto["classification"] == dto["state"]
+    assert dto["evidence_ids"] == _ids(cited)
+    assert dto["basis_sha256"] == digest(tenant, site, _ids(selected), _ids(cited))
+
+
+def _replay_factory(module, tag, tmp_path, monkeypatch, opened_chains):
+    """The W2 replay `chain` fixture body (`test_w202`/`test_w205b`), for one test that reads both domains."""
+    def make(case: str):
+        module.hold_uuids(monkeypatch, tag + module.CASES.index(case) + 1)
+        built = module.Chain(case, tmp_path / f"{tag:x}-{case}")
+        opened_chains.append(built)
+        return built.open()
+    return make
+
+
+def _paged(get, path: str, key: str = "items") -> list[dict]:
+    """Every page of a list route at page size 1, following all cursors."""
+    pages, cursor = [], None
+    while True:
+        page = get(f"{path}&limit=1" + (f"&cursor={cursor}" if cursor else ""))
+        pages.append(page)
+        cursor = page["next_cursor"]
+        if not cursor:
+            return pages
+
+
+def _same_at_any_page_size(get, path: str, id_key: str) -> dict[str, dict]:
+    """Page size never changes a row's or the envelope's public block (ruling 7)."""
+    whole = get(f"{path}&limit=200")
+    pages = _paged(get, path)
+    rows = [r for p in pages for r in p["items"]]
+    assert len(rows) == len(whole["items"])
+    by_id = {r[id_key]: r["source_provenance"] for r in whole["items"]}
+    assert {r[id_key]: r["source_provenance"] for r in rows} == by_id
+    for page in pages:
+        for sibling in ("source_provenance", "selected_source_provenance", "pending_source_provenance"):
+            assert page[sibling] == whole[sibling]
+    return by_id
+
+
+def _w1(request) -> None:
+    from test_s405_resolver_postgres import P01, power_site
+
+    from assetops_backend.analytics.composition import build_finding_read_service
+    from assetops_backend.evidence.composition import build_public_provenance
+    from assetops_backend.financials import consequence_history as ch
+    from assetops_backend.financials.composition import build_consequence_history_service
+    from assetops_backend.financials.consequence_read import ConsequenceReadService
+    from money_gate_stub import ELIGIBLE
+
+    store, engine = request.getfixturevalue("store"), request.getfixturevalue("engine")  # noqa: F811
+    s, rev, cid = power_site(store, engine, request.getfixturevalue("capsys"),
+                             request.getfixturevalue("monkeypatch"), lambda d, t: P01)
+    history = build_consequence_history_service(URL)
+    try:
+        t, site, fr, cid = s.tenant, s.site, str(rev["id"]).lower(), str(cid).lower()
+        finding_id = _scalars(engine, "SELECT finding_id FROM finding_revision WHERE id = :r", r=fr)[0]
+        # Scoped DB reads: the Finding's exact citations; the consequence's pinned Finding and power intervals.
+        cited = _scalars(engine, "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t "
+                         "AND site_id = :s AND finding_revision_id = :r", t=t, s=site, r=fr)
+        pin = _scalars(engine, "SELECT finding_revision_id FROM financial_consequence_revision WHERE tenant_id = :t "
+                       "AND site_id = :s AND id = :c", t=t, s=site, c=cid)
+        power = _scalars(engine, "SELECT evidence_id FROM financial_consequence_power_interval "
+                         "WHERE consequence_revision_id = :c", c=cid)
+        assert cited and power and pin == [fr]
+        union = _ids([*cited, *power])
+        body = ConsequenceReadService(s.store, s.prices, eligibility=ELIGIBLE,
+                                      provenance=build_public_provenance(URL)).read(
+            t, site, finding_id, fr, finding_revision_is_latest=True, source_open=True)
+        _expect(body["source_provenance"]["finding_revision"], t, site, [fr], cited)
+        _expect(body["source_provenance"]["consequence_revision"], t, site, [cid, fr], union)
+        assert body["consequence"]["source_provenance"] == body["source_provenance"]["consequence_revision"]
+        _expect(build_finding_read_service(URL).source_provenance(t, site, fr), t, site, [fr], cited)
+
+        def history_rows(limit: str) -> list[dict]:
+            out, after = [], None
+            while True:
+                page = history.read(t, site, "KOBO-001", ch.parse_request(None, after, limit), source_open=True,
+                                    source_reason=None, access_basis="dev")
+                out += page["rows"]
+                after = page.get("next_cursor")
+                if not after:
+                    return out
+        whole, single = history_rows("25"), history_rows("1")
+        mine = [r["source_provenance"] for r in whole if str(r["consequence_revision_id"]).lower() == cid]
+        assert len(mine) == 1
+        _expect(mine[0], t, site, [cid, fr], union)
+        assert [r["source_provenance"] for r in single] == [r["source_provenance"] for r in whole]
+    finally:
+        if hasattr(history, "dispose"):
+            history.dispose()
+        s.prices.dispose()
+        s.store.dispose()
+
+
+def _cold(tmp_path, monkeypatch, opened_chains) -> None:
+    import test_w202_cold_replay_postgres as replay
+    from test_w203_cold_replay_postgres import opened, run
+    from test_w204_cold_consequence import drain
+    from test_w204_cold_reads import W, client
+    from test_w204_cold_reads import get as cold_get
+
+    make = _replay_factory(replay, 0, tmp_path, monkeypatch, opened_chains)
+    seen = {"finding": 0, "consequence": 0}
+    # `normal` is ruling 7's named cold replay; `excursion` adds Finding/consequence rows (reading L-B1).
+    for case in ("normal", "excursion"):
+        built = opened(case, make)
+        run(built)
+        t, site, engine = built.tenant_id, built.site_id, built.engine
+        if _scalars(engine, "SELECT r.id FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+                    "WHERE r.site_id = :s AND f.domain = 'cold_chain'", s=site):
+            drain(built)
+        c = client(built)
+        get = lambda path: cold_get(c, path)  # noqa: E731
+        rows = _same_at_any_page_size(get, f"findings?{W}", "revision_id")
+        body = get(f"findings?{W}&limit=200")
+        # Envelope: every chosen assessment revision; the union of their stored citations.
+        chosen = body["currentness"]["watermark"]["assessment_revision_ids"]
+        assert chosen
+        cited: set = set()
+        for ar in chosen:
+            cited |= set(_row(engine, "SELECT evidence_ids FROM assessment_revision WHERE tenant_id = :t AND "
+                              "site_id = :s AND id = :a", t=t, s=site, a=ar)["evidence_ids"])
+        _expect(body["selected_source_provenance"], t, site, chosen, cited)
+        assert body["pending_source_provenance"] is None
+        assert body["source_provenance"] == body["selected_source_provenance"]
+        # Finding rows: exact `finding_revision_evidence`; selection {fr, pinned episode revision, assessment}.
+        for fr, dto in rows.items():
+            pin = _row(engine, "SELECT r.assessment_revision_id AS ar, er.id AS er, er.assessment_revision_id AS "
+                       "er_ar FROM finding_revision r JOIN cold_episode_revision er ON er.tenant_id = r.tenant_id "
+                       "AND er.site_id = r.site_id AND er.id = CAST(r.claim->>'episode_revision_id' AS uuid) "
+                       "WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :r", t=t, s=site, r=fr)
+            assert pin["ar"] == pin["er_ar"]
+            fcited = _scalars(engine, "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t "
+                              "AND site_id = :s AND finding_revision_id = :r", t=t, s=site, r=fr)
+            assert fcited
+            _expect(dto, t, site, [fr, pin["er"], pin["ar"]], fcited)
+            assert dto["basis_sha256"] != body["selected_source_provenance"]["basis_sha256"]
+            finding_id = next(i["finding_id"] for i in body["items"] if i["revision_id"] == fr)
+            assert get(f"findings/{finding_id}?{W}")["source_provenance"] == dto
+            seen["finding"] += 1
+        # Consequence rows: stored `cold_consequence_evidence` plus the pinned Finding's citations.
+        for row in get(f"financials?{W}")["consequences"]:
+            head = _row(engine, "SELECT finding_revision_id AS fr, episode_revision_id AS er, assessment_revision_id "
+                        "AS ar FROM cold_consequence_revision WHERE tenant_id = :t AND site_id = :s AND id = :c",
+                        t=t, s=site, c=row["id"])
+            ccited = _scalars(engine, "SELECT evidence_id FROM cold_consequence_evidence WHERE tenant_id = :t AND "
+                              "site_id = :s AND consequence_revision_id = :c", t=t, s=site, c=row["id"])
+            ccited += _scalars(engine, "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND "
+                               "site_id = :s AND finding_revision_id = :r", t=t, s=site, r=head["fr"])
+            _expect(row["source_provenance"], t, site, [row["id"], head["fr"], head["er"], head["ar"]], ccited)
+            assert row["source_provenance"]["basis_sha256"] != rows[str(head["fr"]).lower()]["basis_sha256"]
+            seen["consequence"] += 1
+        built.close()
+        opened_chains.remove(built)
+    assert seen["finding"] and seen["consequence"], seen  # proven on non-empty row sets
+
+
+def _ev(tmp_path, monkeypatch, opened_chains) -> None:
+    import test_w205b_ev_replay_postgres as replay
+    from test_w206_ev_reads_postgres import _q
+    from test_w206_ev_store_postgres import run_worker
+    from test_w207_ev_money_postgres import golden_tariff, money
+    from test_w207_ev_site_reads_postgres import client
+    from test_w207_ev_site_reads_postgres import get as ev_get
+
+    make = _replay_factory(replay, 0x0500, tmp_path, monkeypatch, opened_chains)
+    seen = {"envelope": 0, "session": 0, "finding": 0, "money": 0, "priced": 0, "linked": 0}
+    for case in replay.CASES:  # every `contract-fixtures/w2/ev/*.json` replay
+        built = make(case)
+        built.start_release_upload()
+        run_worker(built)
+        assert all(o.succeeded for o in money(built))  # a stored UNPRICED revision
+        golden_tariff(built)
+        assert all(o.succeeded for o in money(built))  # a stored priced revision over the window links
+        t, site, engine = built.tenant_id, built.site_id, built.engine
+        c = client(built)
+        get = lambda path: ev_get(c, path)  # noqa: E731
+        q = _q(get("sessions"))
+        sessions = _same_at_any_page_size(get, f"sessions?{q}", "revision_id")
+        body = get(f"sessions?{q}&limit=200")
+        # Envelope: the selected assessment and all its stored `result.session_revision_ids`.
+        ars = _scalars(engine, "SELECT assessment_revision_id FROM ev_session_revision WHERE tenant_id = :t AND "
+                       "site_id = :s AND id = ANY(CAST(:v AS uuid[]))", t=t, s=site, v=list(sessions))
+        if ars:
+            [ar] = ars
+            a = _row(engine, "SELECT result, evidence_ids FROM assessment_revision WHERE tenant_id = :t AND "
+                     "site_id = :s AND id = :a", t=t, s=site, a=ar)
+            _expect(body["selected_source_provenance"], t, site, [ar, *a["result"]["session_revision_ids"]],
+                    a["evidence_ids"])
+            seen["envelope"] += 1
+        for v, dto in sessions.items():
+            sar = _scalars(engine, "SELECT assessment_revision_id FROM ev_session_revision WHERE id = :v", v=v)
+            union = _scalars(engine, "SELECT evidence_id FROM ev_session_evidence WHERE tenant_id = :t AND "
+                             "site_id = :s AND revision_id = :v UNION SELECT evidence_id FROM ev_meter_interval "
+                             "WHERE tenant_id = :t AND site_id = :s AND revision_id = :v", t=t, s=site, v=v)
+            _expect(dto, t, site, [*sar, v], union)
+            sid = next(i["session_id"] for i in body["items"] if i["revision_id"] == v)
+            assert get(f"sessions/{sid}?{q}")["source_provenance"] == dto
+            seen["session"] += 1
+        # Finding rows: exact citations; selection {assessment, pinned session revision, fr}.
+        findings = _same_at_any_page_size(get, f"findings?{q}", "revision_id")
+        fbody = get(f"findings?{q}&limit=200")
+        for fr, dto in findings.items():
+            r = _row(engine, "SELECT assessment_revision_id AS ar, claim->>'session_id' AS sid FROM finding_revision "
+                     "WHERE tenant_id = :t AND site_id = :s AND id = :r", t=t, s=site, r=fr)
+            result = _row(engine, "SELECT result FROM assessment_revision WHERE id = :a", a=r["ar"])["result"]
+            pinned = _scalars(engine, "SELECT id FROM ev_session_revision WHERE tenant_id = :t AND site_id = :s AND "
+                              "session_id = CAST(:sid AS uuid) AND id = ANY(CAST(:v AS uuid[]))", t=t, s=site,
+                              sid=r["sid"], v=list(result["session_revision_ids"]))
+            assert len(pinned) == 1
+            fcited = _scalars(engine, "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND "
+                              "site_id = :s AND finding_revision_id = :r", t=t, s=site, r=fr)
+            _expect(dto, t, site, [r["ar"], pinned[0], fr], fcited)
+            finding_id = next(i["finding_id"] for i in fbody["items"] if i["revision_id"] == fr)
+            assert get(f"findings/{finding_id}?{q}")["source_provenance"] == dto
+            seen["finding"] += 1
+        # q4 money rows: {revision, stored assessment, every linked session revision} x `ev_consequence_evidence`.
+        whole = get(f"financials?{q}&limit=200")
+        pages = _paged(get, f"financials?{q}")
+        assert [x["source_provenance"] for p in pages for x in p["history"]] == \
+            [x["source_provenance"] for x in whole["history"]]
+        assert all(p["consequence"] == whole["consequence"] for p in pages)
+        stored = [x for x in [whole["consequence"], *whole["history"]] if x and x.get("revision_id")]
+        for row in stored:
+            rid = row["revision_id"]
+            m = _row(engine, "SELECT assessment_revision_id AS ar, finding_revision_id AS fr FROM "
+                     "ev_consequence_revision WHERE tenant_id = :t AND site_id = :s AND id = :r", t=t, s=site, r=rid)
+            assert m["fr"] is None  # the W2-07 window-level shape: no Finding pin enters the set
+            links = _scalars(engine, "SELECT session_revision_id FROM ev_consequence_session WHERE tenant_id = :t "
+                             "AND site_id = :s AND consequence_revision_id = :r", t=t, s=site, r=rid)
+            mcited = _scalars(engine, "SELECT evidence_id FROM ev_consequence_evidence WHERE tenant_id = :t AND "
+                              "site_id = :s AND consequence_revision_id = :r", t=t, s=site, r=rid)
+            _expect(row["source_provenance"], t, site, [rid, m["ar"], *links], mcited)
+            seen["money"] += 1
+            seen["priced"] += bool(mcited)
+            seen["linked"] += bool(links)
+        built.close()
+        opened_chains.remove(built)
+    assert all(seen.values()), seen  # proven on non-empty row sets
+
+
+@pytest.mark.parametrize("surface", ["w1", "cold", "ev"])
+def test_w1_cold_ev_exact_cited_id_mapping(surface, request, tmp_path, monkeypatch) -> None:
+    """Run 1 ruling 7 (with Run 3 q3 and Run 4 q4): the public W1, cold and EV read bodies carry, per represented
+    row and envelope, exactly the selected IDs and full cited set read from the scoped DB, with the digest
+    recomputed independently here and unchanged by page size."""
+    opened_chains: list = []
+    try:
+        if surface == "w1":
+            _w1(request)
+        elif surface == "cold":
+            _cold(tmp_path, monkeypatch, opened_chains)
+        else:
+            _ev(tmp_path, monkeypatch, opened_chains)
+    finally:
+        for built in opened_chains:
+            built.close()
