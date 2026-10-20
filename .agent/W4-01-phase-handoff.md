@@ -1,56 +1,40 @@
-# W4-01 phase handoff - run 3: commit 2 landed (2026-10-20)
+# W4-01 phase handoff - run 4: commit 3 partial (2026-10-20)
 
-Branch `task/W4-01-work-case-core` (worktree `AssetOpsV1-review5`). Commit 1 `4cb89c68`; merge of main `10d0dcc1`
-(`.agent/W3-01-*` conflicts took main's version); **commit 2 `9533d97d`**. The saved patch was applied and removed.
+Branch `task/W4-01-work-case-core` (worktree `AssetOpsV1-review5`). Commit 1 `4cb89c68`, commit 2 `9533d97d`, run-3
+handoff `69fcbf80`; merge of main `dd57d874` (clean); **commit 3 partial `5973ca09`**. Stopped on pending rulings
+q3 (6-10) in `.agent/W4-01-pending-rulings.md`.
 
-## What landed in commit 2
+## What landed in `5973ca09`
 
-- `backend/assetops_backend/work/{model,service,composition}.py`, `work/adapters/postgres_work_store.py`: the q2
-  ruling 4 clock. `PostgresWorkStore(..., test_db_clock_override=None)` (constructor-only); `transaction()` takes ONE
-  `command_now` per command (`SELECT clock_timestamp()` or the injected clock), kept across a 40001 retry, asserted
-  UTC; `_Tx.db_now()` returns it; every W4 INSERT binds `created_at`/`recorded_at` = `:command_now`; the evidence gate
-  is `accepted_evidence_by_command_now` (`received_at <= :command_now` in SQL). Composition never passes the override.
-- `backend/tests/test_w401_work_service_postgres.py` (7 nodes): `VirtualDbClock` + `clocked` fixture (start
-  `2026-11-01T01:00Z`, actor `occurred_at` `2026-11-01T00:59:00Z`); the positive test asserts cited `received_at <=
-  command_now`, case/revision/event stamps `== command_now`, and an early-clock in-scope refusal (422, no rows).
-  Foreign test: F01 public accept, then `run_case(F02)` + `accepted_before_battery_hold(h, f02, "w401-wrong-action-f02")`,
-  DB-read ACCEPTED `action_event` of the second Action (same tenant/Site), wrong pair `(a1, e2)` refuses 422, no rows.
-- `tools/checks/configuration-persistence.ps1`: `work` domain (adapter isolation), `$workWriter` + 11 `$workTables`
-  in `$pgWriters`/`$pgWritesSeen`/`$pgDriverSeen`, sole-owner + insert-only + upsert rules, per-table
-  `$workInsertsSeen` anti-vacuity, fail-closed probe-name presence. `tools/writer_guard_probes.py`: 58 `work ...`
-  negatives + 11 `controls work <table> insert`.
+- `backend/assetops_backend/work_api.py`: `build_work_router(service, scope, unavailable, access, command_access,
+  principal)`; `W401_FIXTURE_SERVICE_PRINCIPAL_ID = "service:w401-fixture"`; `Principal` callback type with
+  `no_service_principal` default. Six POST routes: `/api/sites/{site_code}/work/cases`, `cases/{case_id}/events`,
+  `cases/{case_id}/revisions`, `cases/{case_id}/records`, `plans`, `operational-records`. Order: `access`
+  401/403, scope 404 `SITE_NOT_FOUND`, `command_access` 401/403, no service 503, then the service (q2 reading 2).
+  Refusals are `{"detail":{"code","message"}}`; 201 new, 200 exact retry.
+- `backend/assetops_backend/main.py`: Lane A mount after the Action index router, `build_work_service(database_url())`
+  or None, `(WORK_UNAVAILABLE,)`; no SERVICE principal injected (q3 question 10).
+- `backend/tests/test_w401_work_api.py` (7 nodes): `test_scope_before_shape_401_403_404`,
+  `test_mutation_409_422_and_store_503`, `test_idempotent_200_same_body`,
+  `test_user_actor_403_and_service_attestation_422`, `test_client_authorization_basis_422_and_server_basis_persisted`,
+  `test_path_identity_changes_idempotency_hash`, `test_plan_record_operational_literal_responses` (injected
+  `10000000-...` IDs). Fixture: `imported(store)` plus a test scope dict; second Site via `imported(store, code=...)`.
+
+## Not built (awaiting q3 rulings)
+
+- `GET /api/sites/{site_code}/work/cases/{id}?known_at=` (B3 `work-case-detail-1`) and
+  `work/link_coverage.py:linked_coverage` (Q9): blocked by the no-edit rule on
+  `analytics/adapters/postgres_assessment_store.py` (q3 question 6) and adapter placement (7, 8).
+- `test_list_refusal_has_null_rows_and_total` (question 9).
 
 ## Checks (this run)
 
-- Focused: `tests/test_w401_work_service_postgres.py` on private `w401c_test` (created, then dropped): 7 passed, 35 s.
-- Rule-8 seam guard on the commit: 0 failures.
-- Work probes (`writer_guard_probes.py --seam`, 69 names): 58 CAUGHT, 11 ALLOWED, tree restored, exit 0.
-- `tools/check-all.ps1`: all 10 guards passed on `9533d97d`.
-
-## Readings made in this run (none chosen as product semantics; confirm at review)
-
-1. The DB `clock_timestamp()` value is normalised with `.astimezone(timezone.utc)` before the ruling's UTC assert (a
-   non-UTC session TimeZone would otherwise fail it); the injected clock is asserted as given.
-2. `command_now` is selected inside the first attempt's SERIALIZABLE transaction and reused on retry attempts.
-3. The virtual clock returns its value then advances 1 s per call; the positive test resets it to `01:00Z` right
-   before the successful create so that command's `command_now` is exactly the ruled instant.
-4. All later commands in the positive test (request, record, plan, OperationalRecord) run on the clocked store with
-   `occurred_at` `00:59:00Z`, not machine-time-relative values.
-5. The `received_at > command_now` refusal uses clock `2026-10-29T00:00Z`, `occurred_at` `2026-10-28T23:59Z` and
-   only the cited F01 evidence (no links), and asserts at least one cited row has `received_at` after that instant.
-6. The foreign test's final positive create now pins F01's own pair `(a1, e1)`; no W4 case links the historical
-   second Action.
-7. `evidence_received` was replaced by `accepted_evidence_by_command_now` (predicate in SQL, set comparison in the
-   service), matching the ruling's shape.
-8. Rule 8: a `work` configuration domain was added (rule 1 adapter isolation required it; not named in the spec).
-   The work store reuses `$actionForbidden` (any ON CONFLICT is refused). Probes are per table for foreign INSERT,
-   UPDATE, DELETE, DO UPDATE and owner-insert-unseen; TRUNCATE, MERGE and COPY are one store-level probe each.
-9. Q2 reading 1: no "active state" note existed in code; a clarifying comment was added at the REOPEN cells
-   (`model.py`).
-
-Q2 readings 2-8 are implemented as ruled (unchanged from the patch). No open questions.
+- Focused on private `w401d_test` (created, then dropped): `test_w401_work_api.py` 7 passed (22 s);
+  adjacent `test_w401_work_service_postgres.py` 7 passed (43 s).
+- `create_app()` OpenAPI lists the six work paths.
+- `tools/check-all.ps1`: all 10 guards passed on `5973ca09`.
 
 ## Next
 
-Commit 3 (`work_api.py`, routes, `test_w401_work_api.py` per S25/S27), then UI per the spec. Lane A's W3-01
-prerequisite branch also edits `configuration-persistence.ps1`; merge-resolve both registrations later.
+Answer q3 6-10, then finish commit 3: detail GET, `link_coverage.py` and its adapter reads, and detail tests.
+Review this phase before UI (spec item 3).
