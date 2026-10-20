@@ -102,7 +102,7 @@ These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev
 
 | Lane and slice | Packet | Exit and predecessor | Status |
 | --- | --- | --- | --- |
-| A · W4-01 Work-case core | [W4-01](W4-01-work-case-core.md) | `0027` shared Incident/Maintenance/WorkEvent/OperationalRecord contract, case APIs and thin `sitework-incidents`/`sitework-maintenance` lists; after reviewed/merged W2-07 | planned; build spec pending; USER_REVIEW_REQUIRED true |
+| A · W4-01 Work-case core | [W4-01](W4-01-work-case-core.md) | `0027` shared Incident/Maintenance/WorkEvent/OperationalRecord contract, case APIs and thin `sitework-incidents`/`sitework-maintenance` lists; after reviewed/merged W2-07 | Done 2026-10-20 (merged d76809dd; review REVISE, fix r1, re-review ACCEPT; full suite in container; W3-01 shared provenance/selection prerequisites cherry-picked, W3 money picks reverted per r1 M5) |
 | B · W3-01 Estate claim and Action roots | [W3-01](W3-01-estate-claim-action-roots.md) | Schema-free scoped global `findings`, `findings-cost`, `findings-risks`, `findings-opportunities`, `actions` over existing W1 rows; after reviewed/merged W2-07; independent of W4-01 | planned; build spec pending; USER_REVIEW_REQUIRED true |
 
 | B / W3-02 Estate evidence and money basis | [W3-02](W3-02-estate-evidence-money-basis.md) | Read-only global `globalevidence` and `globalfinancials` over exact W1/W2 Site selections; after reviewed/merged W3-01 and W4-01; `0028` reserved unused | planned; build spec pending; USER_REVIEW_REQUIRED true |

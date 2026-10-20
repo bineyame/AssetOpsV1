@@ -164,6 +164,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # W4-01 commit 2: work cases, events, records, plans and OperationalRecords. Database-only; rule 8
+            # confines its PostgreSQL writer (the tenth). Only its composition imports the adapters.
+            Name        = "work"
+            Package     = "$backendRoot/work"
+            Composition = "$backendRoot/work/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -768,9 +778,21 @@ function Invoke-ConfigurationPersistenceCheck {
     $actionTables = @('action', 'action_basis_assessment', 'action_basis_evidence', 'action_event',
         'action_policy_change', 'action_policy_change_binding', 'verification_plan', 'verification_selection_binding',
         'verification_evaluation_request', 'verification_outcome', 'verification_metric')
+    # W4-01 commit 2 (build spec S25, q1 ruling 3) adds the tenth writer, the work store: the sole runtime writer of
+    # the eleven migration-0027 work tables, INSERT-only (0027 triggers refuse UPDATE/DELETE; no upsert, TRUNCATE,
+    # MERGE, COPY or DDL), and it writes no other table. No other module writes a work table. Each work table must
+    # have at least one owner INSERT in the store (per-table anti-vacuity below).
+    $workWriter = "$backendRoot/work/adapters/postgres_work_store.py"
+    $workTables = @('work_case', 'incident', 'maintenance_work_request', 'work_case_revision', 'work_case_finding_link',
+        'work_case_action_link', 'work_case_evidence', 'work_event', 'maintenance_plan', 'maintenance_record',
+        'operational_record')
+    $workInsertsSeen = @{}
+    foreach ($table in $workTables) { $workInsertsSeen[$table] = 0 }
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
-        $consequenceWriter, $scheduleWriter, $actionWriter)
-    $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py")
+        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter)
+    # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
+    $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
+        "$backendRoot/work/adapters/postgres_work_read.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
@@ -814,10 +836,10 @@ function Invoke-ConfigurationPersistenceCheck {
     }
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
-        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0 }
+        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
-        $actionWriter = $false }
+        $actionWriter = $false; $workWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -861,6 +883,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $actionWriter -and $line -match $actionForbidden) {
                 $failures.Add("The Action store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $workWriter -and $line -match $actionForbidden) {
+                $failures.Add("The work store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($module.Path -eq $ledgerWriter -and $line -match '^\s*_REREAD_ORDER\s*=') {
@@ -937,7 +963,8 @@ function Invoke-ConfigurationPersistenceCheck {
                 # into one of them must not carry an upsert (ON CONFLICT ... DO UPDATE stays in the INSERT clause).
                 if ($null -ne $target -and $line -match '(?i)\bDO\s+UPDATE\b' -and
                         (@('source_clock_attestation', 'finding', 'finding_revision') + $coldEpisodeTables + $evSessionTables +
-                            $coldConsequenceTables + $evConsequenceTables + $actionTables + $provenanceTables) -contains $target) {
+                            $coldConsequenceTables + $evConsequenceTables + $actionTables + $provenanceTables +
+                            $workTables) -contains $target) {
                     $failures.Add(("Insert-only table '$target' is never upserted (no ON CONFLICT DO UPDATE); " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
@@ -969,6 +996,22 @@ function Invoke-ConfigurationPersistenceCheck {
                 if ($module.Path -ne $actionWriter -and $null -ne $target -and $actionTables -contains $target) {
                     $failures.Add(("Only $actionWriter writes Action table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $workWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $workTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The work store only inserts into $($workTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $workTables -contains $target) {
+                    if ($module.Path -ne $workWriter) {
+                        $failures.Add(("Only $workWriter writes work table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b') {
+                        $failures.Add(("Work table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, MERGE or " +
+                            "COPY from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $workInsertsSeen[$target]++
+                    }
                 }
                 if ($module.Path -ne $scheduleWriter -and $null -ne $target -and $scheduleTables -contains $target) {
                     $failures.Add(("Only $scheduleWriter writes schedule table '$target'; " +
@@ -1058,6 +1101,16 @@ function Invoke-ConfigurationPersistenceCheck {
             # (the source-line form of these two rules runs in the driver loop above).
             if ($line -match "$provVerb\s+$provName") {
                 $failures.Add("$provRefusal; $($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $workWriter) {
+                if ($line -match $actionForbidden) {
+                    $failures.Add("The work store never updates, deletes, truncates, upserts or runs DDL; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+                }
+                if ($line -match '(?i)\binsert\s+into\s+([a-z_]+)' -and $workTables -notcontains $Matches[1].ToLowerInvariant()) {
+                    $failures.Add("The work store only inserts into $($workTables -join ', '); " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+                }
             }
             if ($module.Path -eq $actionWriter) {
                 if ($line -match $actionForbidden) {
@@ -1163,6 +1216,14 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($coldConsequenceInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $consequenceWriter, so the cold consequence " +
                 "insert-only check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    # W4-01 commit 2: the work store must really INSERT into each work table, so the per-table insert-only and
+    # sole-owner checks above cannot pass on an empty set.
+    foreach ($table in $workTables) {
+        if ($extractorRan -and $workInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $workWriter, so the work table insert-only check " +
+                "is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
     # W2-07 (enabled in spec commit 2): the consequence store must really INSERT into each EV consequence table, so
@@ -1279,6 +1340,20 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
             $failures.Add(("Rule 8 EV consequence probe '$probeName' is missing from tools/writer_guard_probes.py; " +
                 "the EV consequence writer policy is unproven without it.")) | Out-Null
+        }
+    }
+    # W4-01 commit 2: the work writer policy fails closed the same way: the rule-8 corpus keeps the owner-INSERT
+    # control, the foreign-INSERT, UPDATE, DELETE, DO UPDATE and owner-insert-unseen probes per work table, and the
+    # store-level TRUNCATE, MERGE and COPY probes.
+    $workProbeNames = @('work truncate', 'work merge', 'work copy')
+    foreach ($table in $workTables) {
+        $workProbeNames += @("controls work $table insert", "work $table foreign insert", "work $table update",
+            "work $table delete", "work $table upsert", "work $table owner insert unseen")
+    }
+    foreach ($probeName in $workProbeNames) {
+        if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
+            $failures.Add(("Rule 8 work probe '$probeName' is missing from tools/writer_guard_probes.py; " +
+                "the work writer policy is unproven without it.")) | Out-Null
         }
     }
     # Rule 8 scans runtime modules only, so 0026 is read on its own: comments and the module docstring are removed,

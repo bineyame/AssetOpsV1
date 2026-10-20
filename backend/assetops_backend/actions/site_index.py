@@ -133,6 +133,15 @@ def parse_request(start: str | None, end: str | None, limit: str | None, cursor:
     return ActionIndexRequest(lo, hi, size, None if cursor in (None, "") else decode_cursor(cursor))
 
 
+def window_scope(tenant_id: UUID, site_id: UUID, start: datetime, end: datetime) -> dict[str, str | None]:
+    return {"tenant_id": str(tenant_id), "site_id": str(site_id), "from": _iso(start), "to": _iso(end)}
+
+
+def index_token(scope: dict[str, Any], fence: dict[str, Any]) -> str:
+    """The `sai1-` fence token (also reproduced by the W4-01 work list on its own snapshot connection)."""
+    return "sai1-" + hashlib.sha256(json.dumps({**scope, **fence}, sort_keys=True).encode("utf-8")).hexdigest()
+
+
 def _after(row: dict[str, Any], key: tuple[datetime, str]) -> bool:
     """True when `row` sorts after `key` in `created_at DESC, action_id ASC` order."""
     return row["created_at"] < key[0] or (row["created_at"] == key[0] and str(row["id"]) > key[1])
@@ -150,8 +159,7 @@ class ActionIndexService:
 
     def read(self, tenant_id: UUID, site_id: UUID, site_code: str, request: ActionIndexRequest, *,
              access_basis: str) -> dict[str, Any]:
-        scope = {"tenant_id": str(tenant_id), "site_id": str(site_id), "from": _iso(request.start),
-                 "to": _iso(request.end)}
+        scope = window_scope(tenant_id, site_id, request.start, request.end)
         snap = self.store.site_window(tenant_id, site_id, request.start, request.end)
         read_at = self.clock()
         actions, events = snap["actions"], snap["events"]
@@ -169,7 +177,7 @@ class ActionIndexService:
                                           "nothing is listed. Reload the list.", reason="ACTION_WITHOUT_ACCEPTED",
                                           action_id=key)
         fence = self.fence(actions, events)
-        token = "sai1-" + hashlib.sha256(json.dumps({**scope, **fence}, sort_keys=True).encode("utf-8")).hexdigest()
+        token = index_token(scope, fence)
         after = None
         if request.cursor is not None:
             cur = request.cursor

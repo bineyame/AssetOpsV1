@@ -10,6 +10,7 @@ import {
   FindingsFrame,
   SiteActionFrame,
   SiteWorkFrame,
+  SiteWorkCasesFrame,
   SiteFoundationChangeFrame,
   SiteFoundationChangesFrame,
   SiteFinancialsFrame,
@@ -38,6 +39,8 @@ import {
   SITE_FINDING_VIEW_ROUTE_PATH,
   SITE_FINDINGS_ROUTE_PATH,
   SITE_WORK_ROUTE_PATH,
+  SITE_WORK_INCIDENTS_ROUTE_PATH,
+  SITE_WORK_MAINTENANCE_ROUTE_PATH,
   SITE_PERFORMANCE_ROUTE_PATH,
   SITE_PERFORMANCE_SUBTAB_ROUTE_PATH,
   SITES_PATH,
@@ -365,6 +368,14 @@ export function App({
           <Route path={SITE_ASSETS_ROUTE_PATH} element={<SiteAssetsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_ASSET_ROUTE_PATH} element={<SiteAssetFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_WORK_ROUTE_PATH} element={<SiteWorkFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
+          <Route
+            path={SITE_WORK_INCIDENTS_ROUTE_PATH}
+            element={<SiteWorkCasesFrame key="incidents" kind="incidents" detail={siteDetail} sitesPath={SITES_PATH} />}
+          />
+          <Route
+            path={SITE_WORK_MAINTENANCE_ROUTE_PATH}
+            element={<SiteWorkCasesFrame key="maintenance" kind="maintenance" detail={siteDetail} sitesPath={SITES_PATH} />}
+          />
           {[SITE_ACTION_ROUTE_PATH, SITE_ACTION_VIEW_ROUTE_PATH].map((path) => (
             <Route
               key={path}

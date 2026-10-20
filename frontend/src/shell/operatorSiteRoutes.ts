@@ -265,6 +265,25 @@ export function siteWorkHref(siteId: string, query?: string): string {
   return query ? `${base}?${query}` : base;
 }
 
+/**
+ * W4-01 (`sitework-incidents`, `sitework-maintenance`): the Work subrow's
+ * Incidents and Maintenance lists. The window, the fixed cutoff and the server
+ * cursor ride in the query (`?from=&to=&known_at=&cursor=`); without a window
+ * the page reads the seven complete UTC days ending today.
+ */
+export const SITE_WORK_INCIDENTS_ROUTE_PATH = `${SITE_WORK_ROUTE_PATH}/incidents`;
+export const SITE_WORK_MAINTENANCE_ROUTE_PATH = `${SITE_WORK_ROUTE_PATH}/maintenance`;
+
+export function siteWorkIncidentsHref(siteId: string, query?: string): string {
+  const base = `${siteDetailHref(siteId)}/work/incidents`;
+  return query ? `${base}?${query}` : base;
+}
+
+export function siteWorkMaintenanceHref(siteId: string, query?: string): string {
+  const base = `${siteDetailHref(siteId)}/work/maintenance`;
+  return query ? `${base}?${query}` : base;
+}
+
 export const SITE_ACTION_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/actions/:actionId`;
 export const SITE_ACTION_VIEW_ROUTE_PATH = `${SITE_ACTION_ROUTE_PATH}/:actionView`;
 export const ACTION_CHILD_VIEWS = ["plan", "execution", "evidence", "verification", "history"] as const;

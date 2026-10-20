@@ -2312,3 +2312,9 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L1: a Postgres container created from another worktree bind-mounts that worktree's files. Use `--no-recreate` and never run the bare compose up.
 - L2: a timeout record cannot name the hung test, because `-q` prints no node IDs.
 - L3: stopping the wrapper with Ctrl+C can leave the runner container running. Remove it by its `--name`.
+
+## W4-01 Lows
+- L1: the Action-link null-href vector on missing lineage is not reproduced in tests; the Finding null href is.
+- L2: the `WorkSubrow` count assertions live only in `siteWorkCases.test.tsx`, not in `operatorSiteTabs` / `operatorRouteFrames`.
+- L3: the `siteFinancials` typed-409 reload test is a load flake again; it passes alone.
+- L4: test ordering is fragile. A `runner` test placed after a cold `chain` test fails setup with `AdminShutdown`.

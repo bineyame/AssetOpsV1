@@ -86,7 +86,7 @@ export function ChangesWorkPageHeader({
   headingId,
 }: {
   site: SiteSummary;
-  screen: "changes" | "sitework";
+  screen: "changes" | "sitework" | "sitework-incidents" | "sitework-maintenance";
   headingId: string;
 }) {
   const view = deriveSiteView(site);

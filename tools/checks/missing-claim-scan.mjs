@@ -67,6 +67,20 @@ export const REVIEWED_EXEMPTIONS = [
     decision: 'D-2026-10-17-f5-subtabs-and-contact; W2-05a Run 8 rulings (review r1) M1, L2',
     reason: 'The status of an unbuilt v69 in-page tab or lens chip (the rail rule extended to the named rows), and of the W2-05a EV readiness unavailable destinations: Financials and Assumptions (Next step cells), Health > Data sources (Gateway status header action and Connected sources footer) and the attention row 2 Investigation action; it describes a destination this build has not made, not a missing claim about a site, so it is not a mock_gaps placement.',
   },
+  {
+    file: 'frontend/src/sites/siteWorkCases.tsx',
+    constName: 'WORK_CONTEXT_NOTICE',
+    text: 'Case history is stored with this site. A global work page and create flow are not available yet.',
+    decision: 'W4-01 Run 8 rulings (q8-1)',
+    reason: 'A Site Work notice about an unavailable global work destination and create flow, not missing Site evidence or a Site claim, so it is not a mock_gaps placement.',
+  },
+  {
+    file: 'frontend/src/sites/siteWorkCases.tsx',
+    constName: 'WORK_MANAGE_UNAVAILABLE_STATUS',
+    text: 'Not available yet',
+    decision: 'W4-01 Run 8 rulings (q8-1)',
+    reason: 'The Site Work strip status for the unavailable global Incidents/Maintenance destination and create flow, not missing Site evidence or a Site claim, so it is not a mock_gaps placement.',
+  },
 ];
 
 const toPosix = (p) => p.split(path.sep).join('/');

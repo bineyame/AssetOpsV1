@@ -154,3 +154,11 @@ def build_ev_read_service(database_url: str):
     from assetops_backend.evidence.composition import build_link_rows_reader
 
     return EvReadService(database_url, link_rows=build_link_rows_reader())
+
+
+def build_cold_ev_selection_pins():
+    """W4-01 Run 3 ruling 6: the shared W3 exact-window selection helper (`selected_windows_on`, caller's
+    connection) and its pin refusal type, for a pinned cold/EV `_snapshot` caller outside analytics."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import SelectionPinRefused, selected_windows_on
+
+    return selected_windows_on, SelectionPinRefused

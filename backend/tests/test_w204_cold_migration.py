@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
-HEAD = "0026_w2_ev_money"  # W2-07: 0026 sits above 0025
+HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026
 PREVIOUS = "0022_w2_cold_assessment"
 REFUSED = "Downgrade of 0023_w2_cold_consequence refused"
 TABLES = ("cold_consequence_revision", "cold_consequence_evidence", "cold_consequence_work",

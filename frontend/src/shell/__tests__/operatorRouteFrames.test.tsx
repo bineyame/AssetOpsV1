@@ -113,6 +113,16 @@ describe("operator route frame empty states", () => {
     );
   });
 
+  it.each(["/sites/MG-002/work/incidents", "/sites/MG-002/work/maintenance"])(
+    "W4-01: serves the Site Work list at %s, not the catch-all frame",
+    async (path) => {
+      renderAt(path);
+      await settledScreen();
+
+      expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
+    },
+  );
+
   it("no longer says that no site configuration exists in this build", () => {
     // That was true of the empty T002 frame and is false now: a configured
     // site has a foundation and the product renders it. The copy goes with

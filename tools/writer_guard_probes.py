@@ -36,6 +36,10 @@ Sets:
   SELECT; rule 8's per-table inserts-seen assertion must report the check vacuous.
 - `ev <EV consequence table> owner insert unseen`: W2-07 commit 2, the same vacuity probe for each EV consequence
   table (rule 8 requires each name).
+- `work <table> ...`: W4-01 commit 2 (migration 0027) work tables: a foreign INSERT from the Finding store, an UPDATE,
+  DELETE and DO UPDATE from the work store (sole INSERT-only owner), and `owner insert unseen` (the store's one INSERT
+  replaced by a SELECT; rule 8's per-table inserts-seen assertion must report the check vacuous); `work truncate|merge|
+  copy` from the work store; `controls work <table> insert` must pass. Rule 8 fails closed when any name is missing.
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -58,6 +62,7 @@ FINDING = f"{B}/analytics/adapters/postgres_finding_store.py"
 ASSUMPTION = f"{B}/financials/adapters/postgres_assumption_store.py"
 CONSEQUENCE = f"{B}/financials/adapters/postgres_consequence_store.py"
 ACTION = f"{B}/actions/adapters/postgres_action_store.py"
+WORK = f"{B}/work/adapters/postgres_work_store.py"
 TICK = f"{B}/scheduling/tick.py"
 WORKER = f"{B}/analytics/assessment_worker.py"
 COLD_MIGRATION = "backend/migrations/versions/0023_w2_cold_consequence.py"
@@ -87,6 +92,7 @@ EV_ARBITER_LINE = "ON CONFLICT (tenant_id,site_id,window_start,window_end,dirty_
 W200_ARBITER = "ON CONFLICT is allowed only as its three"
 W200_MESSAGE = "keeps the accepted_evidence_message_unique DO NOTHING arbiter"
 W200_ORDER = "rereads collisions in the fixed order message, event, session"
+WORK_NEVER = "The work store never updates, deletes, truncates, upserts or runs DDL"
 REREAD = "_REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_EVENT_SQL, _REREAD_SESSION_SQL)"
 
 
@@ -552,6 +558,95 @@ CONTROLS = (
 
 
 # Allowed multiline inserts into the tables main added, each in its owning writer (must pass).
+# W4-01 commit 2 (migration 0027): the work store alone INSERTs each work table, which no module updates, deletes,
+# upserts, truncates, merges or copies; each table keeps at least one owner INSERT in the store.
+def _work_foreign(table: str) -> str:
+    return f'_OPS02 = (\n    "INSERT INTO {table} "\n    "(id, tenant_id) VALUES (:i, :t)"\n)\n'
+
+
+def _work_only(table: str) -> str:
+    return f"Work table '{table}' is insert-only"
+
+
+def _work_delete(table: str) -> str:
+    return f'_OPS02 = (\n    "delete from "\n    "{table} where id = :i"\n)\n'
+
+
+def _work_upsert(table: str) -> str:
+    return (f'_OPS02 = (\n    "INSERT INTO {table} (id, tenant_id) VALUES (:i, :t) "\n'
+            f'    "ON CONFLICT (id) DO UPDATE SET tenant_id = :t"\n)\n')
+
+
+def _work_unseen(table: str) -> tuple:
+    return (WORK, ("replace", f'"INSERT INTO {table} (', f'"SELECT * FROM {table} WHERE ('),
+            f"Rule 8 found no INSERT INTO {table} in ")
+
+
+# Rule 8 requires each probe name literally, so every entry is spelled out.
+NEGATIVE += [
+    ("work work_case foreign insert", FINDING, _work_foreign("work_case"), "writes work table 'work_case'"),
+    ("work work_case update", WORK, split("work_case", "site_id = :s WHERE id = :i"), _work_only("work_case")),
+    ("work work_case delete", WORK, _work_delete("work_case"), _work_only("work_case")),
+    ("work work_case upsert", WORK, _work_upsert("work_case"), UPSERT),
+    ("work work_case owner insert unseen", *_work_unseen("work_case")),
+    ("work incident foreign insert", FINDING, _work_foreign("incident"), "writes work table 'incident'"),
+    ("work incident update", WORK, split("incident", "site_id = :s WHERE id = :i"), _work_only("incident")),
+    ("work incident delete", WORK, _work_delete("incident"), _work_only("incident")),
+    ("work incident upsert", WORK, _work_upsert("incident"), UPSERT),
+    ("work incident owner insert unseen", *_work_unseen("incident")),
+    ("work maintenance_work_request foreign insert", FINDING, _work_foreign("maintenance_work_request"), "writes work table 'maintenance_work_request'"),
+    ("work maintenance_work_request update", WORK, split("maintenance_work_request", "site_id = :s WHERE id = :i"), _work_only("maintenance_work_request")),
+    ("work maintenance_work_request delete", WORK, _work_delete("maintenance_work_request"), _work_only("maintenance_work_request")),
+    ("work maintenance_work_request upsert", WORK, _work_upsert("maintenance_work_request"), UPSERT),
+    ("work maintenance_work_request owner insert unseen", *_work_unseen("maintenance_work_request")),
+    ("work work_case_revision foreign insert", FINDING, _work_foreign("work_case_revision"), "writes work table 'work_case_revision'"),
+    ("work work_case_revision update", WORK, split("work_case_revision", "site_id = :s WHERE id = :i"), _work_only("work_case_revision")),
+    ("work work_case_revision delete", WORK, _work_delete("work_case_revision"), _work_only("work_case_revision")),
+    ("work work_case_revision upsert", WORK, _work_upsert("work_case_revision"), UPSERT),
+    ("work work_case_revision owner insert unseen", *_work_unseen("work_case_revision")),
+    ("work work_case_finding_link foreign insert", FINDING, _work_foreign("work_case_finding_link"), "writes work table 'work_case_finding_link'"),
+    ("work work_case_finding_link update", WORK, split("work_case_finding_link", "site_id = :s WHERE id = :i"), _work_only("work_case_finding_link")),
+    ("work work_case_finding_link delete", WORK, _work_delete("work_case_finding_link"), _work_only("work_case_finding_link")),
+    ("work work_case_finding_link upsert", WORK, _work_upsert("work_case_finding_link"), UPSERT),
+    ("work work_case_finding_link owner insert unseen", *_work_unseen("work_case_finding_link")),
+    ("work work_case_action_link foreign insert", FINDING, _work_foreign("work_case_action_link"), "writes work table 'work_case_action_link'"),
+    ("work work_case_action_link update", WORK, split("work_case_action_link", "site_id = :s WHERE id = :i"), _work_only("work_case_action_link")),
+    ("work work_case_action_link delete", WORK, _work_delete("work_case_action_link"), _work_only("work_case_action_link")),
+    ("work work_case_action_link upsert", WORK, _work_upsert("work_case_action_link"), UPSERT),
+    ("work work_case_action_link owner insert unseen", *_work_unseen("work_case_action_link")),
+    ("work work_case_evidence foreign insert", FINDING, _work_foreign("work_case_evidence"), "writes work table 'work_case_evidence'"),
+    ("work work_case_evidence update", WORK, split("work_case_evidence", "site_id = :s WHERE id = :i"), _work_only("work_case_evidence")),
+    ("work work_case_evidence delete", WORK, _work_delete("work_case_evidence"), _work_only("work_case_evidence")),
+    ("work work_case_evidence upsert", WORK, _work_upsert("work_case_evidence"), UPSERT),
+    ("work work_case_evidence owner insert unseen", *_work_unseen("work_case_evidence")),
+    ("work work_event foreign insert", FINDING, _work_foreign("work_event"), "writes work table 'work_event'"),
+    ("work work_event update", WORK, split("work_event", "site_id = :s WHERE id = :i"), _work_only("work_event")),
+    ("work work_event delete", WORK, _work_delete("work_event"), _work_only("work_event")),
+    ("work work_event upsert", WORK, _work_upsert("work_event"), UPSERT),
+    ("work work_event owner insert unseen", *_work_unseen("work_event")),
+    ("work maintenance_plan foreign insert", FINDING, _work_foreign("maintenance_plan"), "writes work table 'maintenance_plan'"),
+    ("work maintenance_plan update", WORK, split("maintenance_plan", "site_id = :s WHERE id = :i"), _work_only("maintenance_plan")),
+    ("work maintenance_plan delete", WORK, _work_delete("maintenance_plan"), _work_only("maintenance_plan")),
+    ("work maintenance_plan upsert", WORK, _work_upsert("maintenance_plan"), UPSERT),
+    ("work maintenance_plan owner insert unseen", *_work_unseen("maintenance_plan")),
+    ("work maintenance_record foreign insert", FINDING, _work_foreign("maintenance_record"), "writes work table 'maintenance_record'"),
+    ("work maintenance_record update", WORK, split("maintenance_record", "site_id = :s WHERE id = :i"), _work_only("maintenance_record")),
+    ("work maintenance_record delete", WORK, _work_delete("maintenance_record"), _work_only("maintenance_record")),
+    ("work maintenance_record upsert", WORK, _work_upsert("maintenance_record"), UPSERT),
+    ("work maintenance_record owner insert unseen", *_work_unseen("maintenance_record")),
+    ("work operational_record foreign insert", FINDING, _work_foreign("operational_record"), "writes work table 'operational_record'"),
+    ("work operational_record update", WORK, split("operational_record", "site_id = :s WHERE id = :i"), _work_only("operational_record")),
+    ("work operational_record delete", WORK, _work_delete("operational_record"), _work_only("operational_record")),
+    ("work operational_record upsert", WORK, _work_upsert("operational_record"), UPSERT),
+    ("work operational_record owner insert unseen", *_work_unseen("operational_record")),
+]
+NEGATIVE += [
+    ("work truncate", WORK, '_OPS02 = "TRUNCATE work_case"\n', WORK_NEVER),
+    ("work merge", WORK, '_OPS02 = "MERGE INTO work_case USING site ON true WHEN MATCHED THEN DO NOTHING"\n',
+     MERGE_COPY),
+    ("work copy", WORK, '_OPS02 = "COPY work_event FROM STDIN"\n', MERGE_COPY),
+]
+
 WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls attestation insert", ASSESS,
      '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id, proof_class) "\n    "VALUES (:i, :p)"\n)\n'),
@@ -611,6 +706,25 @@ WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls ev work migration trigger insert", EV_MIGRATION,
      '_OPS02 = """\nINSERT INTO ev_consequence_work (id) VALUES (gen_random_uuid())\n'
      'ON CONFLICT (tenant_id, site_id, window_start, window_end, dirty_basis_sha256) DO NOTHING;\n"""\n'),
+]
+
+# W4-01 commit 2: one allowed multiline INSERT per work table in the work store (must pass).
+def _work_control(table: str) -> str:
+    return f'_OPS02 = (\n    "INSERT INTO {table} (id, tenant_id, site_id) "\n    "VALUES (:i, :t, :s)"\n)\n'
+
+
+WRITER_CONTROLS += [
+    ("controls work work_case insert", WORK, _work_control("work_case")),
+    ("controls work incident insert", WORK, _work_control("incident")),
+    ("controls work maintenance_work_request insert", WORK, _work_control("maintenance_work_request")),
+    ("controls work work_case_revision insert", WORK, _work_control("work_case_revision")),
+    ("controls work work_case_finding_link insert", WORK, _work_control("work_case_finding_link")),
+    ("controls work work_case_action_link insert", WORK, _work_control("work_case_action_link")),
+    ("controls work work_case_evidence insert", WORK, _work_control("work_case_evidence")),
+    ("controls work work_event insert", WORK, _work_control("work_event")),
+    ("controls work maintenance_plan insert", WORK, _work_control("maintenance_plan")),
+    ("controls work maintenance_record insert", WORK, _work_control("maintenance_record")),
+    ("controls work operational_record insert", WORK, _work_control("operational_record")),
 ]
 
 

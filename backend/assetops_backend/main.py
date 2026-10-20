@@ -66,6 +66,9 @@ from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.actions.site_index import ActionIndexService
 from assetops_backend.action_index_api import build_action_index_router
+from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_work_detail_service, build_work_index_service,
+                                               build_work_service)
+from assetops_backend.work_api import build_work_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
 from assetops_backend.consequence_history_api import build_consequence_history_router
@@ -464,6 +467,12 @@ def create_app(
     app.include_router(build_estate_router(
         build_estate_index_service(database_url()), registry_tenant(registry),
         access=development_access, unavailable=(SiteStoreUnavailable,)))
+    # W4-01 commit 3 (Lane A): Site work commands and the case detail read. No server SERVICE principal is
+    # injected here, so a write is 403; the detail read is available under Site read access.
+    app.include_router(build_work_router(
+        build_work_service(database_url()) if database_url() else None, registry.ledger_scope, (WORK_UNAVAILABLE,),
+        details=build_work_detail_service(database_url()) if database_url() else None,
+        lists=build_work_index_service(database_url()) if database_url() else None))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
     # S4-08: the Site consequence history at one recorded cutoff (read-only). Included before the price reads so
