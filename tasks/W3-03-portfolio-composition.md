@@ -1,6 +1,6 @@
 # W3-03 — Portfolio composition and W3 closeout
 
-Status: planned; build spec pending. Lane B, step 2; size L, three reviewable product commits. Branch `task/W3-03-portfolio-composition` from reviewed and merged W3-01 and W3-02, after the shared migration chain through `0030` has been integrated. USER_REVIEW_REQUIRED: true, after independent slice review at the W3 owner wave checkpoint.
+Status: planned; build spec reviewed and closed, with W3-01/02 merge compatibility and owner wave-start gate still required. Lane B, step 2; size L, four reviewable product commits (1a, 1b, 2, 3). Branch `task/W3-03-portfolio-composition` from reviewed and merged W3-01 and W3-02 at their actual single Alembic head; `0030`/W4-03 is not an input or wait gate. USER_REVIEW_REQUIRED: true, after independent slice review at the W3 owner wave checkpoint.
 
 ## Binding and ownership
 
@@ -17,8 +17,9 @@ Lane B owns new `estate/` Portfolio read, API, page and focused tests. Lane A al
 
 ## One-run commits and review
 
-1. **Portfolio read/API.** Compose full-scope W3-01/02 selections inside one read-only repeatable snapshot, with exact IDs, coverage, ordering, cursor and refusals. Focused real-Postgres tests cover cross-tenant exclusion, page independence, late/cutoff selection and no false comparisons.
-2. **Portfolio main surface.** Context/cards/pulse, ranked Findings, objective matrix and evidence prompt. Prove every cell, chip and route with stocked and partial page tests and 1440/390 captures.
+1a. **Portfolio scope/rows/API foundation.** Compose full-scope W3-01/02 selections inside one read-only repeatable snapshot, with exact IDs, coverage, ordering, token/cursor and refusals. Focused real-Postgres tests cover cross-tenant exclusion, late/cutoff selection and changed grants. Review separately.
+1b. **Portfolio projections/API completion.** Compose full-scope cards, matrix, evidence prompt, progress, money and footer from the same snapshot. Prove page independence, exclusions and no false comparisons. Review separately; Lane A mounts the API after this review.
+2. **Portfolio main surface.** Context/cards/pulse, ranked Findings, objective matrix and evidence prompt. Prove every cell, chip and route with stocked and partial page tests and 1440/390 captures after route mount.
 3. **Opportunity, change and W3 closeout.** Honest lower panels, scope/progress disclosures, footer, global-root cross-links and serial Lane A integration. Prove empty/pending/historical/refusal copy, route precedence, persistence and measured layout. Run one same-revision real-Postgres full backend suite, frontend build and architecture/workflow/rule-8/navigation/registry guards. Independent review precedes owner W3 checkpoint.
 
-Use the build spec's exact wire, state tables, copy ledger, fixture and named tests. This packet is planning authority, not an implementation-ready claim: W3-01/02 merge compatibility, independent spec closure, reviewed registry panel paths and the owner wave-start scope/core-panel gate remain prerequisites.
+Use the build spec's **Review closure (2026-10-20)** as the last-word wire, state, copy, fixture and proof contract; it supersedes conflicting earlier examples. This packet is planning authority, not an implementation-ready claim: W3-01/02 merge compatibility, reviewed registry panel paths and the owner wave-start scope/core-panel gate remain prerequisites.
