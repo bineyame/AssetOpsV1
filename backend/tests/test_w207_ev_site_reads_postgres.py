@@ -390,3 +390,277 @@ def test_six_replays_read_through_the_five_routes(chain, case) -> None:  # noqa:
         late = [x for x in narrow["analysis"]["items"]
                 if x["record_kind"] == "EV_SESSION_END" and _at(x["source_time"]) >= LATE_HI]
         assert late and all(x["use"] is not None for x in late), late
+
+
+# --- q5 commit-3 wire corrections --------------------------------------------------------------------------------
+
+REVISION_KEYS = {"revision_id", "revision_no", "state", "reason", "quantity_kwh", "tariff_revision_id", "tariff_value",
+                 "currency", "amount", "overlap_group", "recorded_at", "tariff_recorded_at", "source_gate",
+                 "session_revision_ids", "evidence_ids", "limitation"}
+SUMMARY_KEYS = {"state", "reason", "quantity_kwh", "amount", "currency", "overlap_group", "as_of", "limitation"}
+ITEM_KEYS = {"evidence_id", "source_label", "role", "record_kind", "value_display", "unit", "source_time", "sent_at",
+             "received_at", "quality", "use", "reason", "session_id", "note", "record_target_state", "links",
+             "interval_start", "interval_end"}
+COVERAGE_UNKNOWN = "Coverage duration cannot be calculated from the selected records."
+NULL_COVERAGE = {"known_seconds": None, "expected_seconds": None, "ratio": None, "unit": None}
+FIXTURE_WINDOW = {"from": "2026-10-06T08:00:00.000000Z", "to": "2026-10-06T16:00:00.000000Z"}
+
+
+def _schedule(cid: str, weekday: str, start: str, end: str) -> dict:
+    return {"connector_asset_id": cid, "time_zone": "Etc/UTC",
+            "weekly": [{"weekday": weekday, "local_start": start, "local_end": end, "utc_offset_minutes": 0}]}
+
+
+def test_objective_resolves_selected_foundation_schedule(chain) -> None:  # noqa: F811
+    from datetime import datetime, timezone
+
+    from assetops_backend.ev_site_reads import objective_windows
+
+    built = _settled(chain)
+    c = client(built)
+    o = get(c, "overview")
+    assets = {x["slot"]: x["asset_id"] for x in get(c, "evidence")["sources"]}
+    objective = o["objective"]
+    assert objective["configured_service_window"] == FIXTURE_WINDOW  # both connectors, deduplicated
+    assert objective["configured_service_windows"] == [
+        {**FIXTURE_WINDOW, "connector_asset_ids": sorted([assets["CONNECTOR_1"], assets["CONNECTOR_2"]])}]
+    assert objective["service_schedule_declared"] is True
+    # A declared weekly schedule with no occurrence in the selection is not missing configuration.
+    wed = get(c, "overview?from=2026-10-07T08:00:00Z&to=2026-10-07T16:00:00Z")["objective"]
+    assert (wed["configured_service_window"], wed["configured_service_windows"], wed["service_schedule_declared"]) == (
+        None, [], True)
+
+    utc = timezone.utc
+    lo, hi = datetime(2026, 10, 6, 8, tzinfo=utc), datetime(2026, 10, 6, 16, tzinfo=utc)
+    ids = {"c1": "a1", "c2": "a2"}
+    # No Foundation, no schedule key, empty weekly lists: not declared.
+    assert objective_windows(None, ids, lo, hi) == (None, [], False)
+    assert objective_windows({"content": {}}, ids, lo, hi) == (None, [], False)
+    assert objective_windows({"content": {"connector_enable_schedules": [
+        {"connector_asset_id": "c1", "time_zone": "Etc/UTC", "weekly": []}]}}, ids, lo, hi) == (None, [], False)
+    # Two different connector schedules: two occurrences in start/end/ID order and no common window.
+    two = {"content": {"connector_enable_schedules": [_schedule("c1", "TUESDAY", "08:00", "16:00"),
+                                                      _schedule("c2", "TUESDAY", "10:00", "14:00")]}}
+    common, windows, declared = objective_windows(two, ids, lo, hi)
+    assert (common, declared) == (None, True)
+    assert windows == [{"from": "2026-10-06T08:00:00.000000Z", "to": "2026-10-06T16:00:00.000000Z",
+                        "connector_asset_ids": ["a1"]},
+                       {"from": "2026-10-06T10:00:00.000000Z", "to": "2026-10-06T14:00:00.000000Z",
+                        "connector_asset_ids": ["a2"]}]
+    # A connector enabled on another weekday keeps the single occurrence from being common to all.
+    other = {"content": {"connector_enable_schedules": [_schedule("c1", "TUESDAY", "08:00", "16:00"),
+                                                        _schedule("c2", "MONDAY", "08:00", "16:00")]}}
+    assert objective_windows(other, ids, lo, hi)[0] is None
+    # A window crossing two occurrences: configured hours are unclipped and both occurrences are listed.
+    same = {"content": {"connector_enable_schedules": [_schedule("c1", "TUESDAY", "08:00", "16:00"),
+                                                       _schedule("c2", "TUESDAY", "08:00", "16:00")]}}
+    common, windows, _ = objective_windows(same, ids, datetime(2026, 10, 6, 12, tzinfo=utc),
+                                           datetime(2026, 10, 13, 12, tzinfo=utc))
+    assert common is None and [(w["from"], w["to"]) for w in windows] == [
+        ("2026-10-06T08:00:00.000000Z", "2026-10-06T16:00:00.000000Z"),
+        ("2026-10-13T08:00:00.000000Z", "2026-10-13T16:00:00.000000Z")]
+    assert all(w["connector_asset_ids"] == ["a1", "a2"] for w in windows)
+
+
+def test_source_contact_uses_bound_source_diagnostics_at_cutoff(chain) -> None:  # noqa: F811
+    import json
+
+    built = _settled(chain)
+    c = client(built)
+    window = get(c, "overview")["window"]
+    hi = min(_at(window["to"]), _at(window["known_at"]))  # the contact cutoff min(to, known_at)
+    slots = {x["slot"]: x["asset_id"] for x in get(c, "evidence")["sources"]}
+    with built.engine.begin() as cx:
+        bindings = cx.execute(text(
+            "SELECT DISTINCT b.asset_id, b.source_id, b.gateway_id, b.role, g.diagnostic_cadence_seconds "
+            "FROM signal_binding_revision b JOIN gateway g ON g.id = b.gateway_id WHERE b.site_id = :s "
+            "AND b.asset_id IS NOT NULL"), {"s": built.site_id}).all()
+        cx.execute(text("DELETE FROM gateway_diagnostic WHERE site_id = :s"), {"s": built.site_id})
+
+    def bound(slot: str, role: str | None = None) -> set:
+        return {(str(b[1]), b[2], b[4]) for b in bindings
+                if str(b[0]) == slots[slot] and (role is None or b[3] == role)}
+
+    c1, meter = bound("CONNECTOR_1"), bound("SITE_METER", "ev_site_import")
+    # Connector 1 aggregates its own bound sources (one per role) on one registered gateway.
+    assert len({x[1] for x in c1}) == 1 and len(meter) == 1, (c1, meter)
+    sources = sorted({x[0] for x in c1})
+    [gateway] = list({x[1] for x in c1})
+    [cadence] = list({x[2] for x in c1})
+    [(meter_source, meter_gateway, _cadence)] = list(meter)
+    seq = iter(range(1, 100))
+
+    def diagnostic(gw, received, contacts) -> UUID:
+        i = uuid4()
+        body = json.dumps({k: None if v is None else _iso(v) for k, v in contacts.items()})
+        with built.engine.begin() as cx:
+            cx.execute(text(
+                "INSERT INTO gateway_diagnostic (id, tenant_id, site_id, gateway_id, sequence_epoch, "
+                "diagnostic_sequence, observed_at, received_at, last_device_contact_by_source, queue_count, "
+                "disk_pressure, mapping_error_count, payload_sha256, diagnostic_text) VALUES (:i, :t, :s, :g, "
+                "'w207-q5', :n, :r, :r, CAST(:c AS jsonb), 0, 'OK', 0, :h, '{}')"),
+                {"i": i, "t": built.tenant_id, "s": built.site_id, "g": gw, "n": next(seq), "r": received,
+                 "c": body, "h": "a" * 64})
+        return i
+
+    def contact(slot: str) -> dict:
+        return {x["slot"]: x for x in get(c, "evidence")["sources"]}[slot]["contact"]
+
+    # No eligible diagnostic: UNKNOWN, never "Not connected".
+    got = contact("CONNECTOR_1")
+    assert (got["state"], got["last_seen_at"], got["diagnostic_id"], got["checked_at"]) == (
+        "UNKNOWN", None, None, _iso(hi))
+    # Another source's contact only: this source is NEVER, from that diagnostic.
+    other = diagnostic(gateway, hi - timedelta(seconds=50), {str(uuid4()): hi - timedelta(seconds=55)})
+    got = contact("CONNECTOR_1")
+    assert (got["state"], got["diagnostic_id"], got["last_seen_at"]) == ("NEVER", str(other), None)
+    # Old: contact older than twice the declared cadence.
+    old_at = hi - timedelta(seconds=2 * cadence + 1)
+    old = diagnostic(gateway, hi - timedelta(seconds=40), {x: old_at for x in sources})
+    got = contact("CONNECTOR_1")
+    assert (got["state"], got["last_seen_at"], got["age_seconds"], got["diagnostic_id"], got["cadence_seconds"]) == (
+        "OLD", _iso(old_at), 2 * cadence + 1, str(old), cadence)
+    # Recent: within twice the cadence, from its own key only.
+    recent = diagnostic(gateway, hi - timedelta(seconds=30), {x: hi - timedelta(seconds=cadence) for x in sources})
+    got = contact("CONNECTOR_1")
+    assert (got["state"], got["age_seconds"], got["diagnostic_id"]) == ("RECENT", cadence, str(recent))
+    assert got["diagnostic_received_at"] == _iso(hi - timedelta(seconds=30))
+    # A diagnostic received after the cutoff is not read.
+    diagnostic(gateway, hi + timedelta(seconds=5), {x: hi + timedelta(seconds=1) for x in sources})
+    assert contact("CONNECTOR_1")["diagnostic_id"] == str(recent)
+    # The meter's own key is absent from its gateway's diagnostic: NEVER, not another source's contact.
+    assert meter_source not in sources and meter_gateway == gateway
+    assert contact("SITE_METER")["state"] == "NEVER"
+    # The slot aggregates proved sources with differing states: MIXED.
+    if len(sources) > 1:
+        diagnostic(gateway, hi - timedelta(seconds=10), {sources[0]: hi - timedelta(seconds=1)})
+        assert contact("CONNECTOR_1")["state"] == "MIXED"
+    billing = contact("BILLING")
+    assert (billing["state"], billing["last_seen_at"]) == ("UNKNOWN", None)
+
+
+def test_claim_coverage_uses_exact_unions_or_null(chain) -> None:  # noqa: F811
+    from datetime import datetime, timezone
+
+    from assetops_backend.ev_site_reads import EvSiteReads
+
+    built = _settled(chain)
+    c = client(built)
+    rules = get(c, "evidence")["capabilities"]
+    assert [x["claim"] for x in rules] == CLAIMS
+    by = {x["claim"]: x for x in rules}
+    lo, hi = ev_window(built)
+    assert by["SITE_POWER_CONTEXT"]["coverage"]["expected_seconds"] == int((hi - lo).total_seconds())
+    for claim in ("SERVICE_STATE", "FAULT_ASSOCIATION"):
+        assert by[claim]["coverage"] == NULL_COVERAGE and by[claim]["limitation"].endswith(COVERAGE_UNKNOWN)
+    assert get(c, "overview")["site_power"]["coverage"] == by["SITE_POWER_CONTEXT"]["coverage"]
+
+    t0 = datetime(2026, 10, 6, 8, tzinfo=timezone.utc)
+
+    def at(m):
+        return t0 + timedelta(minutes=m)
+
+    def row(role, a, b, use=None, session=None):
+        return {"role": role, "interval_start": None if a is None else at(a),
+                "interval_end": None if b is None else at(b), "use": use, "session_id": session,
+                "evidence_id": str(uuid4()), "value": "1"}
+
+    def session(sid, a, b, state="COMPLETED"):
+        return {"session_id": sid, "revision_id": f"r-{sid}", "state": state, "start_at": _iso(at(a)),
+                "end_at": None if b is None else _iso(at(b)), "unknown_meter_seconds": 0, "supported_kwh": "1.000"}
+
+    def caps(accepted, sessions, current=None):
+        ctx = {"snap": {"lo": at(0), "hi": at(60), "known": at(120), "selected": {"created_at": at(90)},
+                        "state": "CURRENT"},
+               "accepted": accepted, "sessions": sessions, "tariffs": [],
+               "money": {"current": current, "guard": None, "history": []}}
+        return {x["claim"]: x for x in EvSiteReads(None, None)._capabilities(ctx)}
+
+    # Duplicate and overlapping Site import intervals count once: [0,20) U [10,30) U [10,30) = 30 of 60 min.
+    imports = [row("ev_site_import", 0, 20), row("ev_site_import", 10, 30), row("ev_site_import", 10, 30)]
+    two = [session("s1", 0, 30), session("s2", 0, 30)]  # two simultaneous connector sessions
+    meters = [row("ev_connector_energy", 0, 30, "SUPPORT", "s1"), row("ev_connector_energy", 0, 30, "SUPPORT", "s1"),
+              row("ev_connector_energy", 0, 15, "SUPPORT", "s2")]
+    events = [row("ev_session_event", None, None, "SUPPORT", "s1"),
+              row("ev_session_event", None, None, "SUPPORT", "s2")]
+    got = caps(imports + meters + events, two)
+    assert list(got) == CLAIMS
+    assert got["SITE_POWER_CONTEXT"]["coverage"] == {"known_seconds": 1800, "expected_seconds": 3600,
+                                                     "ratio": "0.5", "unit": "WINDOW_SECONDS"}
+    assert got["SITE_POWER_CONTEXT"]["state"] == "LIMITED"  # Full needs complete coverage
+    # Session-seconds: each simultaneous session contributes; the duplicate interval within s1 does not.
+    assert got["SESSION_OUTCOME"]["coverage"] == {"known_seconds": 3600, "expected_seconds": 3600, "ratio": "1",
+                                                  "unit": "SESSION_SECONDS"}
+    assert got["SESSION_OUTCOME"]["state"] == "SUPPORTED"
+    assert got["DELIVERED_ENERGY"]["coverage"] == {"known_seconds": 2700, "expected_seconds": 3600,
+                                                   "ratio": "0.75", "unit": "SESSION_SECONDS"}
+    assert got["DELIVERED_ENERGY"]["state"] == "LIMITED"
+    # Missing requested/allocated power: null; absent connector-state intervals: null.
+    assert got["POWER_CONSTRAINT"]["coverage"] == NULL_COVERAGE
+    assert got["POWER_CONSTRAINT"]["state"] == "LIMITED"
+    assert got["SERVICE_STATE"]["coverage"] == NULL_COVERAGE and got["SERVICE_STATE"]["state"] == "UNAVAILABLE"
+    assert got["GROSS_TARIFF_SCENARIO"]["coverage"] == NULL_COVERAGE  # no priced consequence
+    assert got["GROSS_TARIFF_SCENARIO"]["limitation"] == f"Gross scenario only. {COVERAGE_UNKNOWN}"
+    # All three power signals: the intersection of the three unions on one time axis = [15,25), 10 min.
+    power = imports + [row("ev_requested_power", 5, 25), row("ev_allocated_limit", 15, 60)]
+    assert caps(power, [])["POWER_CONSTRAINT"]["coverage"] == {
+        "known_seconds": 600, "expected_seconds": 3600, "ratio": format((Decimal(600) / Decimal(3600)).normalize(), "f"),
+        "unit": "WINDOW_SECONDS"}
+    # An incomplete terminal: no proved span, so session coverage is null and never Full.
+    got = caps(meters + events, [session("s1", 0, 30), session("s2", 0, None, "INCOMPLETE")])
+    for claim in ("SESSION_OUTCOME", "DELIVERED_ENERGY"):
+        assert got[claim]["coverage"] == NULL_COVERAGE and got[claim]["state"] != "SUPPORTED"
+        assert got[claim]["limitation"] == COVERAGE_UNKNOWN
+    # A priced consequence: the complete eligible priced interval union per session.
+    priced = caps(meters + events, two, current={"amount": "1.00", "session_revision_ids": ["r-s1"],
+                                                 "evidence_ids": [meters[0]["evidence_id"]]})
+    assert priced["GROSS_TARIFF_SCENARIO"]["coverage"] == {"known_seconds": 1800, "expected_seconds": 1800,
+                                                           "ratio": "1", "unit": "SESSION_SECONDS"}
+
+
+def test_complete_replay_site_import_and_full_analysis_count(chain) -> None:  # noqa: F811
+    built = _settled(chain)
+    c = client(built)
+    o = get(c, "overview")
+    lo, hi = ev_window(built)
+    power = o["site_power"]
+    assert (power["observed_peak_kw"], power["claim_limit"]) == ("60", "CONTEXT_ONLY")
+    assert power["coverage"]["known_seconds"] > 0
+    assert power["coverage"]["expected_seconds"] == int((hi - lo).total_seconds())
+    assert power["limitation"] != "No accepted Site import intervals cover this window."
+    q = f"from={o['window']['from']}&to={o['window']['to']}&known_at={o['window']['known_at']}"
+    first = get(c, f"evidence/analysis?{q}")
+    assert first["total_count"] == 223 and len(first["items"]) == 50 and first["next_cursor"]
+    every = analysis_all(c, q, 50)
+    assert len({x["evidence_id"] for x in every}) == 223
+    assert every[:50] == first["items"] and analysis_all(c, q, 200) == every
+
+
+def test_analysis_intervals_and_publication_note(chain) -> None:  # noqa: F811
+    built = _settled(chain)
+    tariff = golden_tariff(built)
+    assert all(o.succeeded for o in money(built))
+    c = client(built)
+    reads = all_five(c)
+    window = reads["overview"]["window"]
+    known = window["known_at"]
+    items = analysis_all(c, f"from={window['from']}&to={window['to']}&known_at={known}", 200)
+    assert all(set(x) == ITEM_KEYS for x in items)
+    imports = [x for x in items if x["role"] == "site_import"]
+    events = [x for x in items if x["role"] == "session_event"]
+    assert imports and all(_at(x["interval_start"]) < _at(x["interval_end"]) for x in imports)
+    assert events and all(x["interval_start"] is None and x["interval_end"] is None for x in events)
+    a = reads["assumptions"]
+    recorded = _at(a["tariff"]["recorded_at"])
+    assert a["publication_note"] == (
+        f"Tariff published {recorded.strftime('%Y-%m-%d %H:%M')} UTC; applied as a scenario to the selected "
+        f"delivery window. Evidence through {_at(known).strftime('%Y-%m-%d %H:%M')} UTC.")
+    f = reads["financials"]["consequence"]
+    assert a["consequence_tariff"] == {"revision_id": str(tariff), "value": f["tariff_value"],
+                                       "currency": f["currency"], "recorded_at": f["tariff_recorded_at"]}
+    assert set(f) == REVISION_KEYS and set(reads["overview"]["consequence_summary"]) == SUMMARY_KEYS
+    assert {"configured_service_window", "configured_service_windows"} <= set(reads["overview"]["objective"])
+    # Without a selected current tariff-bearing consequence: explicit nulls.
+    empty = all_five(c, "from=2026-10-07T08:00:00Z&to=2026-10-07T16:00:00Z")
+    assert (empty["assumptions"]["consequence_tariff"], empty["assumptions"]["publication_note"]) == (None, None)
+    assert set(empty["overview"]["consequence_summary"]) == SUMMARY_KEYS

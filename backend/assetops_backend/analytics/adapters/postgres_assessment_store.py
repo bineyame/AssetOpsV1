@@ -2436,6 +2436,35 @@ class EvReadService:
                 "_sort": (r[2], r[0])})
         return out
 
+    def source_bindings_on(self, c: Connection, snap: dict[str, Any]) -> list[tuple[str, str, UUID, str]]:
+        """q5 R2: `(asset_id, source_id, gateway_id, role)` of the selected run's bound channels (its stored
+        `binding_set_revision_ids`, matched as binding or binding-set revision IDs), else the bindings effective at
+        the cutoff over the window; only bindings on a registered gateway, on the caller connection."""
+        if snap["lo"] is None or snap["known"] is None:
+            return []
+        p: dict[str, Any] = {"t": snap["t"], "s": snap["s"], "k": snap["known"], "lo": snap["lo"], "hi": snap["hi"]}
+        ids: list[UUID] = []
+        if snap["selected"] is not None:
+            raw = c.execute(text("SELECT binding_set_revision_ids FROM analytic_run WHERE id = :r"),
+                            {"r": snap["selected"]["run_id"]}).scalar()
+            ids = [UUID(str(x)) for x in _ev_json(raw) or ()]
+        if ids:
+            where, p["ids"] = "(b.id = ANY(:ids) OR b.binding_set_revision_id = ANY(:ids))", ids
+        else:
+            where = ("b.recorded_at <= :k AND (b.superseded_at IS NULL OR b.superseded_at > :k) "
+                     "AND b.valid_from < :hi AND (b.valid_to IS NULL OR b.valid_to > :lo)")
+        rows = c.execute(text(
+            "SELECT DISTINCT b.asset_id, b.source_id, b.gateway_id, b.role FROM signal_binding_revision b "
+            "JOIN gateway g ON g.tenant_id = b.tenant_id AND g.site_id = b.site_id AND g.id = b.gateway_id "
+            f"WHERE b.tenant_id = :t AND b.site_id = :s AND b.asset_id IS NOT NULL AND {where} "
+            "ORDER BY b.asset_id, b.source_id, b.gateway_id, b.role"), p).all()
+        return [(_ev_plain(r[0]), _ev_plain(r[1]), r[2], r[3]) for r in rows]
+
+    def source_contacts_on(self, c: Connection, t: UUID, s: UUID, gateway_ids: list[UUID],
+                           cutoff: datetime) -> dict[UUID, dict[str, Any]]:
+        """q5 R2: the commit-3 per-gateway latest eligible diagnostic at `cutoff` (`ColdReadService`'s query)."""
+        return ColdReadService.source_contacts_on(c, t, s, gateway_ids, cutoff)
+
     def sessions(self, tenant_id: UUID, site_id: UUID, code: str, lo: datetime | None, hi: datetime | None,
                  known_at: datetime | None, cursor: str | None, limit: int) -> dict[str, Any]:
         def work(c):

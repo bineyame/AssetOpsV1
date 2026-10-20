@@ -15,7 +15,7 @@ read guard `WITHHELD/STALE_BASIS` (never inserted).
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Callable
 from uuid import UUID
@@ -74,18 +74,121 @@ KIND_TEXT = {"EV_SESSION_START": "Session started", "EV_SESSION_END": "Session e
              "EV_SESSION_ABORT": "Session aborted", "EV_CONNECTOR_FAULT": "Connector fault",
              "EV_CONNECTOR_CLEAR": "Connector fault cleared"}
 SOURCE_UNVERIFIED_NOTE = "Source or binding unverified for this record."
+#: q5 R3: the limitation of a claim whose interval-level numerator and denominator are not proved.
+COVERAGE_UNKNOWN = "Coverage duration cannot be calculated from the selected records."
+NULL_COVERAGE = {"known_seconds": None, "expected_seconds": None, "ratio": None, "unit": None}
+WEEKDAYS = ("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY")
 
 
 def _dec(value: Any) -> Decimal | None:
     return None if value is None else Decimal(str(value))
 
 
-def _ratio(known: int, expected: int) -> str:
-    return "0" if expected <= 0 or known <= 0 else format((Decimal(known) / Decimal(expected)).normalize(), "f")
+def _union(spans) -> list[tuple[datetime, datetime]]:
+    """Merge half-open spans; an overlap or a duplicate is counted once."""
+    out: list[list[datetime]] = []
+    for a, b in sorted(x for x in spans if x[1] > x[0]):
+        if out and a <= out[-1][1]:
+            out[-1][1] = max(out[-1][1], b)
+        else:
+            out.append([a, b])
+    return [(a, b) for a, b in out]
+
+
+def _intersect(left, right) -> list[tuple[datetime, datetime]]:
+    out, i, j = [], 0, 0
+    while i < len(left) and j < len(right):
+        a, b = max(left[i][0], right[j][0]), min(left[i][1], right[j][1])
+        if b > a:
+            out.append((a, b))
+        if left[i][1] < right[j][1]:
+            i += 1
+        else:
+            j += 1
+    return out
+
+
+def _measure(spans) -> timedelta:
+    return sum((b - a for a, b in spans), timedelta(0))
+
+
+def _seconds(span: timedelta) -> int | float:
+    value = span.total_seconds()
+    return int(value) if value.is_integer() else value
+
+
+def _coverage(known: timedelta, expected: timedelta, unit: str) -> dict[str, Any]:
+    """q5 R3: exact measured coverage; `unit` states WINDOW_SECONDS or summed SESSION_SECONDS."""
+    if expected <= timedelta(0):
+        return dict(NULL_COVERAGE)
+    us = lambda d: Decimal(d // timedelta(microseconds=1))  # noqa: E731
+    return {"known_seconds": _seconds(known), "expected_seconds": _seconds(expected),
+            "ratio": format((us(known) / us(expected)).normalize(), "f"), "unit": unit}
+
+
+def _instant(value: Any) -> datetime | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value
+    try:
+        at = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return at if at.tzinfo is not None else None
+
+
+def service_windows(foundation: dict[str, Any] | None, assets: dict[str, str], lo: datetime | None,
+                    hi: datetime | None) -> list[dict[str, Any]]:
+    """q5 R1: every enabled connector's configured weekly occurrence intersecting `[lo,hi)`, resolved with its
+    declared offset (W2-05a validated it unambiguous), unclipped, deduplicated across connectors, in start/end/ID
+    order. Configuration only, never observed availability."""
+    if foundation is None or lo is None or hi is None:
+        return []
+    found: dict[tuple[datetime, datetime], set[str]] = {}
+    for schedule in foundation["content"].get("connector_enable_schedules") or ():
+        weekly = schedule.get("weekly") or ()
+        asset = assets.get(schedule.get("connector_asset_id"))
+        if not weekly or asset is None:
+            continue
+        for w in weekly:
+            if w.get("weekday") not in WEEKDAYS:
+                continue
+            try:
+                h1, m1 = (int(x) for x in str(w["local_start"]).split(":"))
+                h2, m2 = (int(x) for x in str(w["local_end"]).split(":"))
+                offset = timedelta(minutes=int(w["utc_offset_minutes"]))
+            except (KeyError, ValueError, TypeError):
+                continue
+            first = (lo + offset).date() - timedelta(days=1)
+            day = first + timedelta(days=(WEEKDAYS.index(w["weekday"]) - first.weekday()) % 7)
+            while day <= (hi + offset).date() + timedelta(days=1):
+                base = datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc) - offset
+                start, end = base + timedelta(hours=h1, minutes=m1), base + timedelta(hours=h2, minutes=m2)
+                if end > start and start < hi and end > lo:
+                    found.setdefault((start, end), set()).add(asset)
+                day += timedelta(days=7)
+    return [{"from": plain(a), "to": plain(b),
+             "connector_asset_ids": sorted(ids)} for (a, b), ids in sorted(found.items(),
+                                                                           key=lambda x: (x[0], sorted(x[1])))]
 
 
 def _utc_words(at: datetime) -> str:
     return at.strftime("%Y-%m-%d %H:%M")
+
+
+def objective_windows(foundation: dict[str, Any] | None, assets: dict[str, str], lo: datetime | None,
+                      hi: datetime | None) -> tuple[dict[str, str] | None, list[dict[str, Any]], bool]:
+    """q5 R1: `(configured_service_window, configured_service_windows, service_schedule_declared)`. The single
+    window is nonnull only when exactly one occurrence is common to every enabled connector in the selection;
+    `declared` keeps a declared weekly schedule with no selected overlap distinct from missing configuration."""
+    windows = service_windows(foundation, assets, lo, hi)
+    schedules = [] if foundation is None else foundation["content"].get("connector_enable_schedules") or []
+    declared = any(x.get("weekly") for x in schedules)
+    enabled = {assets.get(x.get("connector_asset_id")) for x in schedules if x.get("weekly")}
+    common = ({"from": windows[0]["from"], "to": windows[0]["to"]}
+              if len(windows) == 1 and set(windows[0]["connector_asset_ids"]) == enabled else None)
+    return common, windows, declared
 
 
 class EvSiteReads:
@@ -176,36 +279,82 @@ class EvSiteReads:
         sel = ctx["snap"]["selected"]
         return None if sel is None else plain(sel["created_at"])
 
-    def _window_seconds(self, ctx: dict[str, Any]) -> int:
+    def _window(self, ctx: dict[str, Any]) -> timedelta:
         snap = ctx["snap"]
-        return 0 if snap["lo"] is None else int((snap["hi"] - snap["lo"]).total_seconds())
+        return timedelta(0) if snap["lo"] is None else snap["hi"] - snap["lo"]
 
-    def _session_seconds(self, ctx: dict[str, Any]) -> tuple[int, int, int]:
-        """(expected, terminal-known, metered-known) seconds over the selected sessions with both ends."""
-        expected = terminal = metered = 0
-        for x in self._sessions(ctx):
-            if x["start_at"] is None or x["end_at"] is None:
-                continue
-            span = int((datetime.fromisoformat(x["end_at"].replace("Z", "+00:00"))
-                        - datetime.fromisoformat(x["start_at"].replace("Z", "+00:00"))).total_seconds())
-            expected += span
-            if x["state"] != "INCOMPLETE":
-                terminal += span
-            metered += max(0, span - (x["unknown_meter_seconds"] or 0)) if x["supported_kwh"] is not None else 0
-        return expected, terminal, metered
-
-    def _site_import(self, ctx: dict[str, Any]) -> tuple[int, Decimal | None]:
-        known, peak = 0, None
+    def _intervals(self, ctx: dict[str, Any], role: str) -> list[tuple[datetime, datetime]]:
+        """The union of accepted, selected (not EXCLUDED) `role` intervals clipped to the window."""
         lo, hi = ctx["snap"]["lo"], ctx["snap"]["hi"]
+        return _union((max(r["interval_start"], lo), min(r["interval_end"], hi)) for r in self._accepted(ctx)
+                      if r["role"] == role and r["use"] != "EXCLUDED"
+                      and r["interval_start"] is not None and r["interval_end"] is not None)
+
+    def _site_import(self, ctx: dict[str, Any]) -> tuple[list[tuple[datetime, datetime]], Decimal | None]:
+        lo, hi = ctx["snap"]["lo"], ctx["snap"]["hi"]
+        peak = None
         for r in self._accepted(ctx):
-            if r["role"] != ROLE_OF["site_import"] or r["interval_start"] is None or r["interval_end"] is None:
-                continue
-            a, b = max(r["interval_start"], lo), min(r["interval_end"], hi)
-            if b > a:
-                known += int((b - a).total_seconds())
+            if (r["role"] == ROLE_OF["site_import"] and r["use"] != "EXCLUDED" and r["interval_start"] is not None
+                    and r["interval_end"] is not None and min(r["interval_end"], hi) > max(r["interval_start"], lo)):
                 value = _dec(r["value"])
                 peak = value if peak is None or (value is not None and value > peak) else peak
-        return known, peak
+        return self._intervals(ctx, ROLE_OF["site_import"]), peak
+
+    def _spans(self, ctx: dict[str, Any]) -> dict[str, tuple[datetime, datetime]] | None:
+        """q5 R3: each selected session's proved active span `[START, END/ABORT)` by session ID; None when any
+        selected session has no proved terminal span (INCOMPLETE or a missing end), or there is no session."""
+        spans = {}
+        for x in self._sessions(ctx):
+            a, b = _instant(x["start_at"]), _instant(x["end_at"])
+            if x["state"] == "INCOMPLETE" or a is None or b is None or b <= a:
+                return None
+            spans[x["session_id"]] = (a, b)
+        return spans or None
+
+    def _session_coverage(self, ctx: dict[str, Any], spans, evidence_ids: set[str] | None) -> dict[str, Any]:
+        """Session-seconds: per session, the accepted SUPPORT connector-meter interval union clipped to its span
+        (restricted to `evidence_ids` when given); duplicates within a session count once."""
+        by_session: dict[str, list[tuple[datetime, datetime]]] = {}
+        for r in self._accepted(ctx):
+            if (r["role"] == ROLE_OF["connector_meter_delta"] and r["use"] == "SUPPORT" and r["session_id"] in spans
+                    and r["interval_start"] is not None and r["interval_end"] is not None
+                    and (evidence_ids is None or r["evidence_id"] in evidence_ids)):
+                a, b = spans[r["session_id"]]
+                by_session.setdefault(r["session_id"], []).append((max(r["interval_start"], a),
+                                                                   min(r["interval_end"], b)))
+        known = sum((_measure(_union(by_session.get(k, ()))) for k in spans), timedelta(0))
+        return _coverage(known, sum((b - a for a, b in spans.values()), timedelta(0)), "SESSION_SECONDS")
+
+    def _claim_coverage(self, ctx: dict[str, Any], claim: str, by_role: dict[str, list[str]]) -> dict[str, Any]:
+        """q5 R3: exact interval unions, else null coverage (never presence of a role alone)."""
+        window = self._window(ctx)
+        if claim == "SITE_POWER_CONTEXT":
+            imports = self._site_import(ctx)[0]
+            return _coverage(_measure(imports), window, "WINDOW_SECONDS") if imports else dict(NULL_COVERAGE)
+        if claim == "POWER_CONSTRAINT":
+            sets = [self._intervals(ctx, ROLE_OF[r]) for r in ("site_import", "requested_power", "allocated_limit")]
+            if not all(sets):
+                return dict(NULL_COVERAGE)
+            return _coverage(_measure(_intersect(_intersect(sets[0], sets[1]), sets[2])), window, "WINDOW_SECONDS")
+        if claim in ("SESSION_OUTCOME", "DELIVERED_ENERGY", "GROSS_TARIFF_SCENARIO"):
+            spans = self._spans(ctx)
+            if spans is None:
+                return dict(NULL_COVERAGE)
+            if claim == "SESSION_OUTCOME":
+                total = sum((b - a for a, b in spans.values()), timedelta(0))
+                return _coverage(total, total, "SESSION_SECONDS")
+            if claim == "DELIVERED_ENERGY":
+                return (self._session_coverage(ctx, spans, None) if "connector_meter_delta" in by_role
+                        else dict(NULL_COVERAGE))
+            row = ctx["money"]["current"]
+            if row is None or row["amount"] is None:
+                return dict(NULL_COVERAGE)
+            revisions = {str(x).lower() for x in row["session_revision_ids"]}
+            priced = {x["session_id"]: spans[x["session_id"]] for x in self._sessions(ctx)
+                      if str(x["revision_id"]).lower() in revisions}
+            return (self._session_coverage(ctx, priced, {str(e).lower() for e in row["evidence_ids"]})
+                    if priced else dict(NULL_COVERAGE))
+        return dict(NULL_COVERAGE)  # SERVICE_STATE, FAULT_ASSOCIATION: no continuous duration claim
 
     def _capabilities(self, ctx: dict[str, Any]) -> list[dict[str, Any]]:
         if "capabilities" in ctx:
@@ -221,9 +370,6 @@ class EvSiteReads:
                 by_role[TARIFF_ROLE] = []
             incomplete = any(x["state"] == "INCOMPLETE" for x in sessions)
             contradictory = any(x["state"] == "CONTRADICTORY" for x in sessions)
-            expected_s, terminal_s, metered_s = self._session_seconds(ctx)
-            window_s = self._window_seconds(ctx)
-            import_s, _peak = self._site_import(ctx)
             known_at = plain(snap["known"])
             for claim, required, cited, limitation, ceiling in CLAIMS:
                 missing = [x for x in required if x not in by_role]
@@ -233,24 +379,18 @@ class EvSiteReads:
                          else "LIMITED" if missing else "SUPPORTED")
                 if state == "SUPPORTED" and ceiling == "LIMITED":
                     state = "LIMITED"
+                coverage = self._claim_coverage(ctx, claim, by_role)
+                if state == "SUPPORTED" and coverage["ratio"] != "1":  # Full needs exact complete coverage
+                    state = "LIMITED"
                 if contradictory and claim in ("SESSION_OUTCOME", "DELIVERED_ENERGY"):
                     state = "CONTRADICTORY"
-                if claim == "SESSION_OUTCOME":
-                    coverage = (terminal_s, expected_s)
-                elif claim in ("DELIVERED_ENERGY", "GROSS_TARIFF_SCENARIO"):
-                    coverage = (metered_s if "connector_meter_delta" in by_role else 0, expected_s)
-                elif claim == "FAULT_ASSOCIATION":
-                    coverage = (expected_s if "fault_event" in by_role else 0, expected_s)
-                elif claim in ("SITE_POWER_CONTEXT", "POWER_CONSTRAINT"):
-                    coverage = (import_s if not missing else 0, window_s)
-                else:
-                    coverage = (0, window_s)
+                if coverage["ratio"] is None:
+                    limitation = COVERAGE_UNKNOWN if limitation is None else f"{limitation} {COVERAGE_UNKNOWN}"
                 ids = sorted({e for role in cited for e in by_role.get(role, ())})
                 rows.append({"claim": claim, "state": state, "required_roles": list(required),
                              "observed_roles": [x for x in required if x in by_role], "missing_roles": missing,
-                             "coverage": {"known_seconds": coverage[0], "expected_seconds": coverage[1],
-                                          "ratio": _ratio(*coverage)},
-                             "accepted_evidence_ids": ids, "as_of": known_at, "limitation": limitation})
+                             "coverage": coverage, "accepted_evidence_ids": ids, "as_of": known_at,
+                             "limitation": limitation})
         ctx["capabilities"] = rows
         return rows
 
@@ -266,6 +406,7 @@ class EvSiteReads:
             no_assessment = status["limitation"] if snap["selected"] is None else None
             foundation = self._reads.foundation_on(c, snap)
             limit_kw, feed_as_of = self._import_limit(foundation)
+            common, windows, declared = objective_windows(foundation, self._assets(c, ctx), snap["lo"], snap["hi"])
             # energy (W2-06 selected session heads; contradictory support is null, no report is null)
             if not sessions:
                 energy = {"supported_kwh": None, "complete_kwh": None, "partial_kwh": None, "unknown_seconds": None,
@@ -282,12 +423,11 @@ class EvSiteReads:
                     "partial_kwh": plain(sum(partial, Decimal("0.000"))),
                     "unknown_seconds": sum(x["unknown_meter_seconds"] or 0 for x in sessions),
                     "as_of": as_of, "limitation": "Accepted EV records conflict." if contradictory else None}
-            window_s = self._window_seconds(ctx)
-            import_s, peak = self._site_import(ctx)
+            imports, peak = self._site_import(ctx)
+            import_s = bool(imports)
             site_power = {
                 "observed_peak_kw": plain(peak), "configured_limit_kw": limit_kw,
-                "coverage": {"known_seconds": import_s, "expected_seconds": window_s,
-                             "ratio": _ratio(import_s, window_s)},
+                "coverage": self._claim_coverage(ctx, "SITE_POWER_CONTEXT", {}),
                 "claim_limit": "CONTEXT_ONLY" if import_s else "UNKNOWN",
                 "as_of": plain(snap["known"]) if import_s else as_of,
                 "limitation": None if import_s else (no_assessment
@@ -305,7 +445,9 @@ class EvSiteReads:
                     "status": status,
                     "objective": {"text": "Let depot vehicles charge when scheduled, within the configured Site "
                                           "import limit.",
-                                  "configured_service_window": None, "site_import_limit_kw": limit_kw,
+                                  "configured_service_window": common,
+                                  "configured_service_windows": windows, "service_schedule_declared": declared,
+                                  "site_import_limit_kw": limit_kw,
                                   "as_of": feed_as_of,
                                   "limitation": "Configuration is not a measured service result."
                                   if limit_kw is not None else "Site limit not declared"},
@@ -368,6 +510,7 @@ class EvSiteReads:
             slots.append(("SITE_METER", meters[0] if len(meters) == 1 else None, "Site meter"))
             sources = []
             checked = plain(snap["known"])
+            contacts = self._contacts(c, ctx)
             for slot, component, fallback in slots:
                 asset = None if component is None else assets.get(component.get("component_id"))
                 facts = [r for r in accepted if asset is not None and r["asset_id"] == asset]
@@ -377,21 +520,78 @@ class EvSiteReads:
                 sources.append({
                     "slot": slot, "asset_id": asset,
                     "display_name": (component or {}).get("display_name") or fallback,
-                    "contact": {"state": "UNKNOWN", "checked_at": checked, "last_seen_at": None},
+                    "contact": contacts(asset, ROLE_OF["site_import"] if slot == "SITE_METER" else None),
                     "quality": {"state": "NO_FACT" if not facts else "GOOD" if good else "DEGRADED",
                                 "accepted_count": len(facts)},
                     "roles": sorted({PUBLIC_ROLE[r["role"]] for r in facts if r["role"] in PUBLIC_ROLE}),
                     "as_of": checked,
-                    "limitation": "No source-specific contact diagnostic." if facts
-                    else "No accepted report for this role."})
+                    "limitation": None if facts else "No accepted report for this role."})
+            for x in sources:
+                if x["limitation"] is None and x["contact"]["state"] == "UNKNOWN":
+                    x["limitation"] = "No source-specific contact diagnostic."
             sources.append({"slot": "BILLING", "asset_id": None, "display_name": "Billing system",
-                            "contact": {"state": "UNKNOWN", "checked_at": checked, "last_seen_at": None},
+                            "contact": contacts(None, None),
                             "quality": {"state": "NO_FACT", "accepted_count": 0}, "roles": [], "as_of": checked,
                             "limitation": "No accepted payment feed."})
             return {**ctx["body"],
                     "capabilities": [{k: v for k, v in x.items() if k != "observed_roles"} for x in capabilities],
                     "sources": sources, "next_evidence": self._next(ctx, capabilities), "links": self._links(ctx, "/evidence")}
         return self._reads.within(work)
+
+    def _contacts(self, c, ctx) -> Callable[[str | None, str | None], dict[str, Any]]:
+        """q5 R2: a slot's source contact from its own bound sources' keys in the latest eligible diagnostic per
+        bound registered gateway at `checked_at=min(to,known_at)`; never charger health, never inferred from
+        silence."""
+        snap = ctx["snap"]
+        checked = None if snap["known"] is None else min(snap["hi"], snap["known"])
+        bindings = [] if checked is None else self._reads.source_bindings_on(c, snap)
+        diagnostics = {} if not bindings else self._reads.source_contacts_on(
+            c, ctx["t"], ctx["s"], sorted({b[2] for b in bindings}, key=str), checked)
+
+        def one(source: str, gateways: set) -> dict[str, Any]:
+            seen = [(g, diagnostics[g]) for g in sorted(gateways, key=str) if g in diagnostics]
+            if not seen or any(d["cadence_seconds"] is None for _, d in seen):
+                return {"state": "UNKNOWN", "last_seen_at": None, "age_seconds": None, "diagnostic_id": None,
+                        "diagnostic_received_at": None, "cadence_seconds": None}
+            best = None
+            for _, d in seen:
+                keyed = {}
+                for key, value in (d["contacts"] or {}).items():
+                    try:
+                        keyed[str(UUID(str(key))).lower()] = value
+                    except ValueError:
+                        continue
+                at = _instant(keyed.get(source))
+                if at is not None and (best is None or at > best[0]):
+                    best = (at, d)
+            if best is None:
+                d = max((d for _, d in seen), key=lambda d: (d["received_at"], str(d["diagnostic_id"])))
+                return {"state": "NEVER", "last_seen_at": None, "age_seconds": None,
+                        "diagnostic_id": plain(d["diagnostic_id"]), "diagnostic_received_at": plain(d["received_at"]),
+                        "cadence_seconds": d["cadence_seconds"]}
+            at, d = best
+            age = max(0, int((checked - at).total_seconds()))
+            return {"state": "RECENT" if age <= 2 * d["cadence_seconds"] else "OLD", "last_seen_at": plain(at),
+                    "age_seconds": age, "diagnostic_id": plain(d["diagnostic_id"]),
+                    "diagnostic_received_at": plain(d["received_at"]), "cadence_seconds": d["cadence_seconds"]}
+
+        def contact(asset: str | None, role: str | None) -> dict[str, Any]:
+            gateways_of: dict[str, set] = {}
+            for b_asset, source, gateway, b_role in bindings:
+                if asset is not None and b_asset == asset and (role is None or b_role == role):
+                    gateways_of.setdefault(source, set()).add(gateway)
+            states = [one(src, gws) for src, gws in sorted(gateways_of.items())]
+            if not states:
+                out = {"state": "UNKNOWN", "last_seen_at": None, "age_seconds": None, "diagnostic_id": None,
+                       "diagnostic_received_at": None, "cadence_seconds": None}
+            elif len({x["state"] for x in states}) == 1:
+                out = max(states, key=lambda x: (x["last_seen_at"] or "", x["diagnostic_received_at"] or ""))
+            else:
+                out = {"state": "MIXED", "last_seen_at": None, "age_seconds": None, "diagnostic_id": None,
+                       "diagnostic_received_at": None, "cadence_seconds": None}
+            return {"state": out["state"], "checked_at": plain(checked), **{k: v for k, v in out.items()
+                                                                           if k != "state"}}
+        return contact
 
     def _assets(self, c, ctx) -> dict[str, str]:
         return self._reads.assets_on(c, ctx["snap"])
@@ -436,7 +636,9 @@ class EvSiteReads:
                     "source_time": plain(r["source_time"]), "sent_at": plain(r["sent_at"]),
                     "received_at": plain(r["received_at"]), "quality": r["quality"], "use": r["use"],
                     "reason": r["reason"], "session_id": r["session_id"],
-                    "note": SOURCE_UNVERIFIED_NOTE if r["reason"] == "SOURCE_UNVERIFIED" else None,
+                    "interval_start": plain(r["interval_start"]), "interval_end": plain(r["interval_end"]),
+                    "note": SOURCE_UNVERIFIED_NOTE if r["use"] == "EXCLUDED" and r["reason"] == "SOURCE_UNVERIFIED"
+                    else None,
                     "record_target_state": "UNAVAILABLE",
                     "links": {"self": None, "evidence": None, "analysis": None, "finding": None, "financials": None},
                     "_sort": r["_sort"]})
