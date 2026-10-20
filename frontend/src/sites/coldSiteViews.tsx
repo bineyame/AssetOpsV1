@@ -31,6 +31,7 @@ import type {
 } from "./coldSiteClient";
 import { COLD_ASSESSMENT_LOADING, refusalText } from "./ColdAssessmentViews";
 import { ColdTemperatureChart } from "./assessmentGraphics";
+import { selectedClassification } from "./sourceProvenance";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";
 import { roleLabel } from "./ColdFoundationViews";
 import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, hm, windowText } from "./coldFormat";
@@ -1110,7 +1111,7 @@ function AnalysisScreen(p: ScreenProps) {
                       </span>
                       <span className="cold-site-line">
                         Source <code data-vocabulary-exempt="source-reference">{r.source_id ?? NOT_RECORDED}</code> ·{" "}
-                        {a!.source_provenance.classification === null ? "Source classification unknown" : classificationWord(a!.source_provenance.classification)}
+                        {selectedClassification(a!) === null ? "Source classification unknown" : classificationWord(selectedClassification(a!))}
                       </span>
                       {r.limitation === null ? null : <span className="cold-site-line">{plainLimitation(r.limitation)}</span>}
                     </li>
@@ -1148,7 +1149,7 @@ function AnalysisScreen(p: ScreenProps) {
                       ["Missing", rule.missing_roles.length === 0 ? "None" : rule.missing_roles.map(roleName).join(", "), "missing"],
                       ["Coverage", decimal(rule.coverage.ratio) ?? NOT_ASSESSED, "coverage"],
                       ["Result", rule.result === null ? NOT_ASSESSED : plainCode(rule.result), "result"],
-                      ["Source", a!.source_provenance.classification === null ? "Unknown" : classificationWord(a!.source_provenance.classification), "source"],
+                      ["Source", selectedClassification(a!) === null ? "Unknown" : classificationWord(selectedClassification(a!)), "source"],
                       ["Evidence cutoff", utc(a!.window.known_at), "cutoff"],
                       ...(rule.limitation === null ? [] : ([["Limit", plainLimitation(rule.limitation), "limit"]] as [string, string, string][])),
                     ]}

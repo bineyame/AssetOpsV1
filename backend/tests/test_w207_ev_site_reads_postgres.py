@@ -832,3 +832,36 @@ def test_analysis_row_words_for_every_role_state_and_event() -> None:
     assert row("C", "ev_connector_state", "STATE", "STATE", "ODD_CODE", "state")[1:] == (UNRECOGNISED_STATE, None)
     assert row("C", "ev_unknown_role", "NUMBER", "X", "5", "kW") == ("C · EV reading", "5", "kW")
     assert row("C", None, "NUMBER", "X", "5", "kW")[0] == "C · EV reading"
+
+
+def test_claim_rules_source_class_is_selected_not_pending(chain, monkeypatch) -> None:  # noqa: F811
+    """W3-01 r1 M2: a claim rule reports the selected assessment's class even while a different current accepted
+    set is pending; the pending class is only the alias."""
+    import dataclasses
+    import importlib
+
+    from test_w206_ev_store_postgres import LEDGER
+
+    built = _settled(chain, "late-record")
+    c = client(built)
+    selected = get(c, "evidence/analysis")
+    assert selected["selected_source_provenance"]["classification"] == "REGISTERED_SIMULATION"
+    assert selected["claim_rules"] and {r["source_class"] for r in selected["claim_rules"]} == {"REGISTERED_SIMULATION"}
+    keep = {str(x).lower() for x in selected["selected_source_provenance"]["evidence_ids"]}
+    built.advance_late()  # a late accepted record: the job is open, the pending set is wider
+    module = importlib.import_module(LEDGER)
+    original = getattr(module.link_rows_on, "__wrapped__", module.link_rows_on)
+
+    def rows_on(conn, tenant_id, site_id, ids):  # only records outside the selected set lose their binding
+        return [dataclasses.replace(r, link=None) if str(r.requested_id).lower() not in keep else r
+                for r in original(conn, tenant_id, site_id, ids)]
+
+    rows_on.__wrapped__ = original
+    monkeypatch.setattr(module, "link_rows_on", rows_on)
+    pending = get(c, "evidence/analysis")
+    assert pending["currentness"]["state"] == "PENDING_RECOMPUTE"
+    assert pending["pending_source_provenance"]["classification"] != "REGISTERED_SIMULATION"
+    assert pending["source_provenance"] == pending["pending_source_provenance"]
+    assert pending["selected_source_provenance"]["classification"] == "REGISTERED_SIMULATION"
+    assert {r["source_class"] for r in pending["claim_rules"]} == {"REGISTERED_SIMULATION"}
+    assert [r["source_class"] for r in pending["claim_rules"]] == [r["source_class"] for r in selected["claim_rules"]]

@@ -696,7 +696,9 @@ class EvSiteReads:
                     "links": {"self": None, "evidence": None, "analysis": None, "finding": None, "financials": None},
                     "_sort": r["_sort"]})
             page, nxt = self._reads.page_on(items, snap, body, "analysis", cursor, limit)
-            source_class = body["source_provenance"]["classification"]
+            # W3-01 r1 M2: a claim rule reports the selected assessment's class; a pending alias never stands in.
+            selected_block = body.get("selected_source_provenance")
+            source_class = None if selected_block is None else selected_block["classification"]
             rules = [{"claim": x["claim"], "required_roles": x["required_roles"],
                       "observed_roles": x["observed_roles"], "missing_roles": x["missing_roles"],
                       "coverage": x["coverage"], "result": x["state"],

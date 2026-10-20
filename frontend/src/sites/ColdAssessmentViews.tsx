@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { selectedSourceBlock } from "./sourceProvenance";
 
 import {
   Badge,
@@ -329,6 +330,7 @@ function TemperaturePanels({
   gap: string | null;
 }) {
   const x = read?.excursions[0];
+  const selSrc = read === null ? null : selectedSourceBlock(read);
   const finding = x === undefined ? null : findingFor(findings, x.episode_id, "EXCURSION");
   const limit = read === null ? { word: "above", value: null } : limitOf(read, x?.direction);
   const lost = grid(backup);
@@ -432,10 +434,10 @@ function TemperaturePanels({
             <ExactReferences
               name="cold-claim-references"
               references={[
-                { label: "Source classification", value: read.source_provenance.classification },
-                { label: "Source IDs", value: read.source_provenance.source_ids.join(", ") || null },
+                { label: "Source classification", value: selSrc?.classification ?? null },
+                { label: "Source IDs", value: selSrc?.source_ids.join(", ") || null },
                 { label: "Assessment versions", value: read.currentness.watermark.assessment_revision_ids.join(", ") || null },
-                { label: "Assessment basis", value: read.source_provenance.basis_sha256 },
+                { label: "Selected source basis (SHA-256)", value: selSrc?.basis_sha256 ?? "Not recorded" },
                 { label: "Evidence time", value: read.window.known_at },
                 { label: "Records not used", value: excluded.map((e) => e.evidence_id).join(", ") || null },
               ]}
@@ -448,9 +450,9 @@ function TemperaturePanels({
                   : `${read.coverage.known_points} of ${read.coverage.expected_points} expected readings usable (${Math.round((num(read.coverage.ratio) ?? 0) * 100)}%)`,
                 excluded.length === 0 ? "no records set aside" : `set aside: ${excluded.map((e) => reasonWord(e.reason).toLowerCase()).join(", ")}`,
               ].join(" · ")}
-              {" · source: "}
-              <span data-cold-source>{classificationWord(read.source_provenance.classification)}</span>
-              {read.source_provenance.classification === "REGISTERED_SIMULATION" ? <> <span data-cold-source-sentence>{SIMULATION_SOURCE_SENTENCE}</span></> : null}
+              {selSrc === null ? null : " · source: "}
+              {selSrc === null ? null : <span data-cold-source>{classificationWord(selSrc.classification)}</span>}
+              {selSrc?.classification === "REGISTERED_SIMULATION" ? <> <span data-cold-source-sentence>{SIMULATION_SOURCE_SENTENCE}</span></> : null}
             </p>
             <ul className="cold-limits" data-cold-limitations>
               {unique(read.limitations).map((text) => (

@@ -241,3 +241,15 @@ export function SourceProvenanceRecord({ provenance }: { provenance: SourceProve
     </>
   );
 }
+
+/** W3-01 r1 M2: the selected-result source block of an envelope. A selection-less read has null; a read that carries no
+ * sibling (a detail read) falls back to its own row block. The pending alias `source_provenance` never stands in. */
+export function selectedSourceBlock<B>(env: { source_provenance: B; selected_source_provenance?: B | null }): B | null {
+  return env.selected_source_provenance !== undefined ? env.selected_source_provenance : env.source_provenance;
+}
+
+/** The selected-result classification, or null for no selection or an UNKNOWN block. */
+export function selectedClassification(env: { source_provenance: { classification: string | null }; selected_source_provenance?: { classification: string | null } | null }): string | null {
+  const c = selectedSourceBlock(env)?.classification ?? null;
+  return c === "UNKNOWN" ? null : c;
+}

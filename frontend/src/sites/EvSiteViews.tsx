@@ -1,5 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { selectedClassification } from "./sourceProvenance";
+import { classificationWord } from "./coldAssessmentWords";
 
 import {
   AttentionList,
@@ -271,7 +273,12 @@ function stateLine(env: EvEnvelope): string | null {
 }
 
 function Provenance({ env }: { env: EvEnvelope }) {
-  if (env.source_provenance.classification !== "REGISTERED_SIMULATION") return null;
+  const pending = env.currentness.state === "PENDING_RECOMPUTE" ? (env.pending_source_provenance ?? null) : null;
+  const pendingNote =
+    pending === null ? null : (
+      <span className="ev-site-strip-note" data-ev-pending-source>{`Current accepted evidence source: ${classificationWord(pending.classification)}`}</span>
+    );
+  if (selectedClassification(env) !== "REGISTERED_SIMULATION") return pendingNote === null ? null : <> {pendingNote}</>;
   return (
     <>
       {" "}
@@ -279,6 +286,7 @@ function Provenance({ env }: { env: EvEnvelope }) {
       <span className="ev-site-strip-note" data-ev-provenance-note>
         Registered test reports; not physical charger observations.
       </span>
+      {pendingNote}
     </>
   );
 }
@@ -793,7 +801,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
                 <ul className="ev-site-list">
                   {caps.map((c) => (
                     <li key={c.claim} data-capability-detail={c.claim}>
-                      {`${CLAIM_LABEL[c.claim] ?? "Claim"}: ${chipOf(c)} · ${coverageText(c.coverage, c.limitation)} · requires ${c.required_roles.map(roleLabel).join(", ")}${c.missing_roles.length > 0 ? ` · missing ${c.missing_roles.map(roleLabel).join(", ")}` : ""} · ${c.accepted_evidence_ids.length} accepted records · source ${e!.source_provenance.classification ?? "Unknown"} · known at ${instant(c.as_of)}${c.limitation ? ` · ${c.limitation}` : ""}`}
+                      {`${CLAIM_LABEL[c.claim] ?? "Claim"}: ${chipOf(c)} · ${coverageText(c.coverage, c.limitation)} · requires ${c.required_roles.map(roleLabel).join(", ")}${c.missing_roles.length > 0 ? ` · missing ${c.missing_roles.map(roleLabel).join(", ")}` : ""} · ${c.accepted_evidence_ids.length} accepted records · source ${selectedClassification(e!) ?? "Unknown"} · known at ${instant(c.as_of)}${c.limitation ? ` · ${c.limitation}` : ""}`}
                     </li>
                   ))}
                 </ul>
@@ -1012,7 +1020,7 @@ function AnalysisScreen(p: EvSiteFrameProps) {
                     <code data-vocabulary-exempt="source-reference">{i.evidence_id}</code>
                     {i.note !== null && i.use === "EXCLUDED" && i.reason === "SOURCE_UNVERIFIED" ? <span data-ev-record-note> {i.note}</span> : null}
                     <span className="ev-site-line">{`${i.source_label} · ${valueText(i)} · measured ${instant(i.source_time)} · sent ${instant(i.sent_at)} · received ${instant(i.received_at)}`}</span>
-                    <span className="ev-site-line">{`Quality ${i.quality ?? NOT_RECORDED} · use ${i.use ?? NOT_RECORDED}${i.reason ? ` · ${i.reason}` : ""} · source ${a!.source_provenance.classification ?? "Unknown"}`}</span>
+                    <span className="ev-site-line">{`Quality ${i.quality ?? NOT_RECORDED} · use ${i.use ?? NOT_RECORDED}${i.reason ? ` · ${i.reason}` : ""} · current accepted evidence source ${a!.source_provenance.classification ?? "Unknown"}`}</span>
                     {i.record_target_state === "UNAVAILABLE" ? <span className="ev-site-line">Analysis view not available for this EV record</span> : null}
                   </li>
                 ))}
@@ -1208,7 +1216,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                   <li>{`Unrounded amount: ${c.amount === null ? "Not assessed" : `${c.currency ?? ""} ${c.amount}`.trim()} · state ${c.state}${c.reason ? ` · ${c.reason}` : ""}`}</li>
                   <li>{`Meter records: ${c.evidence_ids.length === 0 ? "none" : c.evidence_ids.join(", ")}`}</li>
                   <li>{`Session revisions: ${c.session_revision_ids.length === 0 ? "none" : c.session_revision_ids.join(", ")}`}</li>
-                  <li>{`Tariff revision: ${c.tariff_revision_id ?? "Not declared"} · source gate ${c.source_gate ?? NOT_RECORDED} · source ${f!.source_provenance.classification ?? "Unknown"}`}</li>
+                  <li>{`Tariff revision: ${c.tariff_revision_id ?? "Not declared"} · source gate ${c.source_gate ?? NOT_RECORDED} · source ${selectedClassification(f!) ?? "Unknown"}`}</li>
                   {c.limitation ? <li>{c.limitation}</li> : null}
                   {f!.history.map((h) => (
                     <li key={h.revision_id ?? h.recorded_at ?? "history"} data-ev-history={h.revision_id ?? ""}>
@@ -1283,7 +1291,7 @@ function AssumptionsScreen(p: EvSiteFrameProps) {
   if (assumptions === null) return <p>{EV_SITE_LOADING}</p>;
   const s = loaded(assumptions);
   const refused = refusal(assumptions);
-  const extra = s === null ? null : [s.source_provenance.classification === "REGISTERED_SIMULATION" ? "Generated test data" : null, stateLine(s)].filter(Boolean).join(" · ");
+  const extra = s === null ? null : [selectedClassification(s) === "REGISTERED_SIMULATION" ? "Generated test data" : null, stateLine(s)].filter(Boolean).join(" · ");
   return (
     <>
       <WindowBar env={s} extra={extra} />
