@@ -155,3 +155,21 @@ Checks (private `w301i_test`, dropped after): new file 3 passed (33 s). Existing
 **Branch released.** Prerequisite commit `a75b0291`. Next: independent review of this commit; then Lane B retakes the branch for the estate core.
 
 Prerequisite fix r1: applied M1 (DONE job reconstructed at cutoff via min(selected_at); outstanding jobs normalized PENDING; DONE-no-selection and FAILED stay JOB_STATE_AT_CUTOFF_UNKNOWN), L1 (as-of day rule), L2 disclosed (carry to commit-2 packet), L3 confirmed. Tests: snapshot-helpers + S3 dispatch read 13 passed on w301k_test (dropped); check-all 10/10.
+
+## Lane B commit-2 run 2 (2026-10-20): stopped on q6, no code written
+Resumed at `15dae742` (`git merge main`: already up to date; prerequisite `a75b0291` + fix r1 present). Read the
+commit-2 spec, q1-q5, r1, the prerequisite r1 rulings, the token v2 amendment and the W3-02 Run 5 amendment, then
+dry-read the consumed seams. Stopped under the no-decision rule. `.agent/W3-01-pending-rulings.md` (q6) has two
+blocking items:
+1. The cold and EV `_snapshot` reads select only a run whose window covers (cold, `:1728`) or equals (EV, `:2311`)
+   the requested window. Their selection windows are data-bracketed (hourly in the fixtures), so a whole-day
+   estate window selects nothing.
+2. Mini-grid consequence/Cost needs `select_consequence_on`/`for_finding_on`/source gate on the estate
+   connection. These are W3-02 `0a`/`0b`, which are scheduled after W3-01.
+
+Readings 3-9 there cover the auth seam, historical rule, mini-grid state, unsettled-Site rows, read_at, Action
+coverage and the reduce input. No DB was created, and no test or check-all was run, because no code changed.
+**Carry to the commit-2 packet (prerequisite r1 L2, accepted):** a PENDING job's window can be widened in place
+after `k`, and no stored window history records its earlier bounds. Such a job can therefore show as outstanding
+on a historical mini-grid day it did not cover at `k`. That day is reported as pending, not unavailable.
+**Branch released.** Next: the Architect answers q6, then Lane B builds the estate core.
