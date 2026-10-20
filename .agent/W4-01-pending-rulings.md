@@ -111,3 +111,39 @@ Questions (non-blocking for commit-3 review):
   into `PostgresWorkRead` (like the store's `test_db_clock_override`), or should F01 positive detail wait?
 - q4-2. Commit 2 `finding_pairs_in_scope`/`action_pairs_in_scope` do not require the pinned revision/event to
   exist by `command_now` (only evidence is bounded). Should the command refuse a pin recorded after its DB instant?
+
+## Run 6 stop: commit 4 needs q4-1 (2026-10-20, head after `git merge main` = `b36c5b77`)
+
+Merged main cleanly (`b36c5b77`, no `.agent/*` conflict). Commit 4 **not started**; no code changed.
+
+**Blocking: q4-1 is needed by commit 4 itself.** Verified: the DB clock reads `2026-10-20 12:48Z`, while the F01
+runner writes its Finding revisions/Action events on its virtual clock (2026-10-29 onward) and the positive case at
+the q2 test clock `2026-11-01T01:00Z`. The list route takes its read time from `PostgresWorkRead.snapshot`
+(`clock_timestamp()`), defaults `known_at` to it and must refuse a later `known_at` (B8 `INVALID_KNOWN_AT`). So a
+list over F01-pinned cases is empty at the default cutoff and refused at any cutoff that could see them. Two named
+commit-4 nodes depend on a readable pinned F01 link through the list:
+`test_w401_site_indexes_postgres.py::test_pinned_link_survives_later_finding_and_action_heads` (Q7) and
+`::test_pending_link_and_missing_source_keep_gap` (its pending branch needs a real pinned Finding with an
+overlapping PENDING/LEASED/FAILED selection). The commit-3 read test sidestepped this by calling the adapter
+directly at the runner's last instant; a list-route proof cannot. The other nodes (`test_site_window_cutoff_and_empty_count`,
+`test_cursor_fence_and_full_count`, `test_w401_work_api.py::test_list_refusal_has_null_rows_and_total`) can use
+cases written on the real DB clock with no links.
+
+Proposed reading for q4-1 (please confirm or replace): a constructor-only, test-only
+`test_db_read_clock_override: Callable[[], datetime] | None` on `PostgresWorkRead`, mirroring q2 ruling 4: called
+once per `snapshot` in place of `SELECT clock_timestamp()`, timezone-aware UTC asserted, never set by HTTP, env or
+`main.py`; it bounds both detail and list `known_at`. The private harness sets it at or after the last F01/case
+write.
+
+Further commit-4 readings to confirm in the same answer (to avoid a second stop):
+- r1. Q8 `linked_selection_fences[].selection_token`: use the W1 index fence (`finding_index.py` /
+  `actions/site_index.py`) only if a connection-taking token function exists for the work read connection;
+  otherwise keep commit-3 reading 5's `work-link-selection/1` per-link token. Which is binding?
+- r2. List-level `source_provenance`: `PublicProvenance.cited_set(..., detail=False)` over the union of Q11 selected
+  IDs and cited sets of **all** eligible cases before paging; empty union -> UNKNOWN/`EMPTY_CITATION_SET`.
+- r3. List `status`/`coverage`: the B9 precedence maximum over every eligible case's `linked_coverage`;
+  `HISTORICAL` only when explicit `known_at < read_at` and nothing higher; zero cases -> CURRENT/COMPLETE.
+- r4. Row order and cursor `after`: incidents `(occurred_at DESC, id ASC)`, maintenance `(created_at DESC, id ASC)`;
+  cursor bound to `selection_token`, recomputed per page (409 `WORK_BASIS_CHANGED` on difference).
+- r5. Maintenance row `activity`/`record_id`/`outcome_note`: latest same-case `maintenance_record` by
+  `(recorded_at,id)` with `recorded_at <= known_at`.
