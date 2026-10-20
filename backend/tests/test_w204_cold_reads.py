@@ -35,6 +35,8 @@ if URL:
     from test_w204_cold_consequence import drain
 
     from assetops_backend.analytics.adapters.postgres_assessment_store import ColdReadService
+    from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.evidence.public_provenance import basis_sha256, cold_consequence_row_selection
     from assetops_backend.cold_assessment_api import build_cold_assessment_router
     from assetops_backend.financials.composition import build_cold_consequence_store
 
@@ -43,7 +45,10 @@ W = "from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"
 TO = datetime(2026, 10, 6, 20, 5, tzinfo=timezone.utc)
 EMPTY = "from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z"
 ROUTES = ("overview", "evidence", "evidence/analysis", "financials", "financial-assumptions")
-ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "limitations"}
+# W3-01 Run 3 q3: the three literal provenance siblings; each non-null block is the six-key DTO + `detail`.
+ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "selected_source_provenance",
+            "pending_source_provenance", "limitations"}
+DTO = {"classification", "state", "source_ids", "evidence_ids", "basis_sha256", "reasons", "detail"}
 RAW_CODES = tuple(SCREEN_WORDING)
 EXCURSION_ATTENTION = ["COLD_START_FAILURE", "COLD_TRANSFER_UNKNOWN"]  # the excursion replay's chain
 
@@ -57,7 +62,7 @@ def _registry(site_id, tenant_id, site_type="COLDCHAIN"):
 def client(built, *, site_type="COLDCHAIN", tenant=None, access=None, disclosure=None, url=None) -> TestClient:
     registry = _registry(built.site_id, tenant or built.tenant_id, site_type)
     kw = {k: v for k, v in (("access", access), ("disclosure", disclosure)) if v is not None}
-    reads = ColdReadService(url or URL)
+    reads = ColdReadService(url or URL, link_rows=build_link_rows_reader())
     app = FastAPI()
     app.include_router(build_cold_assessment_router(registry, reads, **kw))
     app.include_router(build_cold_site_router(
@@ -208,6 +213,7 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
         assert ENVELOPE <= set(body), route
         assert body["currentness"]["state"] == "CURRENT", (route, body["currentness"])
         assert body["source_provenance"]["classification"] == "REGISTERED_SIMULATION"
+        assert set(body["source_provenance"]) == DTO and body["pending_source_provenance"] is None
         no_raw_code(body)
     known = bodies["overview"]["window"]["known_at"]
 
@@ -325,6 +331,23 @@ def test_excursion_five_reads(chain) -> None:  # noqa: F811
                for k in ("source_gate_sha256", "consequence_basis_sha256"))
     assert basis["finding_revision_id"] in {i["revision_id"] for i in ov["findings"]["items"]}
     assert set(basis["evidence_ids"]) <= set(an["source_provenance"]["evidence_ids"])
+    # W3-01 Run 3 q3: the consequence row's own block cites its stored evidence plus the pinned Finding citations and
+    # selects `{consequence, Finding, episode, assessment}`; it differs from the envelope and the Finding row.
+    with built.engine.connect() as conn:
+        pinned = {str(x).lower() for x in conn.execute(text(
+            "SELECT evidence_id FROM finding_revision_evidence WHERE site_id = :s AND finding_revision_id = :r"),
+            {"s": built.site_id, "r": basis["finding_revision_id"]}).scalars()}
+    cited = sorted(set(basis["evidence_ids"]) | pinned)
+    block = row["source_provenance"]
+    assert set(block) == DTO and block["evidence_ids"] == cited
+    assert block["basis_sha256"] == basis_sha256(built.tenant_id, built.site_id, cold_consequence_row_selection(
+        row["id"], basis["finding_revision_id"], basis["episode_revision_id"], basis["assessment_revision_id"]), cited)
+    assert block["basis_sha256"] != fin["source_provenance"]["basis_sha256"]
+    finding_rows = [i for i in get(c, f"findings?{W}")["items"] if i["revision_id"] == basis["finding_revision_id"]]
+    assert finding_rows and all(set(i["source_provenance"]) == DTO for i in finding_rows)
+    assert all(i["source_provenance"]["basis_sha256"] not in (block["basis_sha256"],
+                                                              ov["source_provenance"]["basis_sha256"])
+               for i in finding_rows)
     for name, href in fin["links"].items():
         assert follow(c, href)["window"]["known_at"] == known, name
 

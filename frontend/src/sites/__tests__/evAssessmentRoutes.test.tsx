@@ -37,6 +37,11 @@ const TO = "2026-10-06T09:00:00.000000Z";
 const KNOWN = "2026-10-06T09:00:00.000000Z";
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const FINDING = id(900);
+// W3-01 (Run 3 q3): the six-key public source DTO with its optional detail.
+const SELECTED_BLOCK = {
+  classification: "REGISTERED_SIMULATION", state: "REGISTERED_SIMULATION", source_ids: [id(2)], evidence_ids: [id(100)],
+  basis_sha256: `sha256:${"b".repeat(64)}`, reasons: [], detail: { state: "REGISTERED_SIMULATION", reasons: [] },
+};
 const BASIS = "b".repeat(64);
 const LINKS_NONE = { self: null, evidence: null, analysis: null, finding: null, financials: null };
 
@@ -56,7 +61,9 @@ function envelope(state = "CURRENT", known = KNOWN): EvEnvelope {
               ? "No selected EV session assessment covers this window yet."
               : null,
     },
-    source_provenance: { classification: "REGISTERED_SIMULATION", source_ids: [id(2)], evidence_ids: [id(100)], basis_sha256: BASIS },
+    source_provenance: SELECTED_BLOCK,
+    selected_source_provenance: SELECTED_BLOCK,
+    pending_source_provenance: null,
     limitations: [],
   };
 }
@@ -608,6 +615,17 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expect(subtabs("Finding sections")).toEqual([["Overview", false], ["Recommendation", true]]);
     expectInert("Recommendation");
     for (const text of ["F-130", "ACT-061", "CHG-002", "$36", "SES-011"]) expect(main().textContent).not.toContain(text);
+  });
+
+  it("W3-01: a pending window sibling does not relabel the Finding row's own source block", async () => {
+    const row = { ...SELECTED_BLOCK, basis_sha256: `sha256:${"c".repeat(64)}` };
+    const pending = { ...SELECTED_BLOCK, classification: "MIXED", state: "MIXED", basis_sha256: `sha256:${"d".repeat(64)}` };
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, source_provenance: row, pending_source_provenance: pending }));
+    await settledScreen();
+    expect(main().getAttribute("data-ev-view")).toBe("ev-finding");
+    const text = main().textContent ?? "";
+    expect(text).toContain(row.basis_sha256);
+    expect(text).not.toContain(pending.basis_sha256);
   });
 
   it("finding_record_line_names_fault_and_discloses_all_support_ids", async () => {

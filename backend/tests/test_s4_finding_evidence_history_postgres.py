@@ -26,6 +26,8 @@ if URL:
     from test_s1_bindings_postgres import engine, store  # noqa: F401
 
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.evidence.composition import build_public_provenance
+    from assetops_backend.evidence.public_provenance import basis_sha256
     from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
     from assetops_backend.analytics.dispatch_read import DispatchReadService
     from assetops_backend.analytics.finding_read import FindingReadService
@@ -35,7 +37,9 @@ SITE = "KOBO-001"
 
 
 def client_for(runner: "CaseRunner", gate_open: bool = True) -> "TestClient":
-    reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)))
+    # W3-01 Run 3 q3: the production composition's public resolver (`build_finding_read_service`).
+    reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)),
+                               build_public_provenance(URL))
     # OTHER-001 is a second Site code in the same tenant with a different Site ID: cross-Site denial.
     scope = {SITE: (SITE, runner.tenant, runner.site), "OTHER-001": ("OTHER-001", runner.tenant, uuid4())}
     app = FastAPI()
@@ -136,6 +140,11 @@ class TestFindingEvidenceAndHistory:
                 cited = {str(e["evidence_id"]) for e in rows["evidence"] if str(e["finding_revision_id"]) == rid}
                 # Complete cited membership across pages; distinct from (and inside) the run input set.
                 assert [x["evidence_id"] for x in records] and {x["evidence_id"] for x in records} == cited
+                # W3-01 Run 3 q3: the selected revision's W1 block with the public keys over its exact citations.
+                sp = body["source_provenance"]
+                assert sp["finding_revision_id"] == rid and sp["evidence_ids"] == sorted(cited)
+                assert sp["classification"] == sp["state"] and "detail" in sp
+                assert sp["basis_sha256"] == basis_sha256(runner.tenant, runner.site, [rid], sorted(cited))
                 assert len(records) == len(cited) == body["counts"]["cited_total"] == body["counts"]["cited_resolved"]
                 runs = {str(a["analytic_run_id"]) for a in cites[rid]}
                 inputs = set().union(*(run_inputs.get(x, set()) for x in runs))

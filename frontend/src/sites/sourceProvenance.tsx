@@ -31,23 +31,54 @@ export interface SourceEvidenceLink {
   broken_detail: string | null;
 }
 
+/** The detail block of a public DTO (`evidence/public_provenance.py` `DETAIL_KEYS`). */
+export interface SourceProvenanceDetail {
+  state?: string;
+  reasons?: SourceReason[];
+  accepted_evidence_ids?: string[];
+  problematic_accepted_evidence_ids?: string[];
+  publication_ids?: string[];
+  source_classes?: string[];
+  fixtures?: { fixture_id: string; fixture_version: string }[];
+  runs?: { run_id: string; run_identity_sha256: string }[];
+  evidence?: SourceEvidenceLink[];
+}
+
+/**
+ * W3-01 (Run 3 q3): one source block. A W1 resolver result keeps its top-level fields and gains the public keys;
+ * a cold/EV set-only DTO has only `classification,state,source_ids,evidence_ids,basis_sha256,reasons` and an
+ * optional `detail`; the fail-closed `unresolved` W1 shape has `state` and `reasons` without the public keys.
+ * Every field is therefore optional and read defensively.
+ */
 export interface SourceProvenance {
-  tenant_id: string;
-  site_id: string;
-  finding_revision_id: string | null;
-  consequence_revision_id: string | null;
-  cited_accepted_evidence_ids: string[];
-  power_accepted_evidence_ids: string[] | null;
+  classification?: string | null;
+  state?: SourceState | string;
+  source_ids?: string[];
+  evidence_ids?: string[];
+  basis_sha256?: string | null;
+  detail?: SourceProvenanceDetail;
+  tenant_id?: string;
+  site_id?: string;
+  finding_revision_id?: string | null;
+  consequence_revision_id?: string | null;
+  cited_accepted_evidence_ids?: string[];
+  power_accepted_evidence_ids?: string[] | null;
   finding_revision_state?: SourceState;
-  state: SourceState;
-  reasons: SourceReason[];
-  accepted_evidence_ids: string[];
-  problematic_accepted_evidence_ids: string[];
-  publication_ids: string[];
-  source_classes: string[];
-  fixtures: { fixture_id: string; fixture_version: string }[];
-  runs: { run_id: string; run_identity_sha256: string }[];
-  evidence: SourceEvidenceLink[];
+  reasons?: SourceReason[];
+  accepted_evidence_ids?: string[];
+  problematic_accepted_evidence_ids?: string[];
+  publication_ids?: string[];
+  source_classes?: string[];
+  fixtures?: { fixture_id: string; fixture_version: string }[];
+  runs?: { run_id: string; run_identity_sha256: string }[];
+  evidence?: SourceEvidenceLink[];
+}
+
+/** The three window siblings a cold/EV envelope carries (Run 1 ruling 5, Run 3 q3). */
+export interface SourceProvenanceBlocks {
+  source_provenance: SourceProvenance;
+  selected_source_provenance?: SourceProvenance | null;
+  pending_source_provenance?: SourceProvenance | null;
 }
 
 /** The pair a money read names: the selected Finding version's set and the consequence version's union. */
@@ -91,6 +122,7 @@ const REASON_WORDS: Record<string, string> = {
   PROVENANCE_NOT_WIRED: "The source record could not be read.",
   PROVENANCE_UNREADABLE: "The source record could not be read.",
   PROVENANCE_REVISION_NOT_FOUND: "The source record could not be read.",
+  SOURCE_CLASS_MISMATCH: "The stored source label does not match the records it cites.",
 };
 
 export function reasonWords(code: string): string {
@@ -100,8 +132,9 @@ export function reasonWords(code: string): string {
 /** The state a reader is shown; a missing block is unknown, never positive. */
 export function sourceState(p: SourceProvenance | null | undefined): SourceState {
   // Review L2: a state this client does not know (e.g. a later attested class) reads as unverified, never throws.
-  const state = p?.state;
-  return state !== undefined && Object.prototype.hasOwnProperty.call(SOURCE_WORDS, state) ? state : "UNKNOWN";
+  // W3-01: the public `classification` first, then the W1 resolver `state`; absent or unrecognized is unknown.
+  const state = p?.classification ?? p?.state;
+  return typeof state === "string" && Object.prototype.hasOwnProperty.call(SOURCE_WORDS, state) ? (state as SourceState) : "UNKNOWN";
 }
 
 function IdList({ title, ids }: { title: string; ids: string[] }) {
@@ -162,6 +195,15 @@ export function SourceProvenanceNotice({
 
 /** The source record behind a result: the method, reasons and the exact registrations, fixtures and runs. */
 export function SourceProvenanceRecord({ provenance }: { provenance: SourceProvenance }) {
+  // W3-01: read the public `detail` when present, else the W1 top-level fields; missing lists are empty.
+  const d = provenance.detail ?? {};
+  const reasons = d.reasons ?? provenance.reasons ?? [];
+  const accepted = d.accepted_evidence_ids ?? provenance.accepted_evidence_ids ?? provenance.evidence_ids ?? [];
+  const problematic = d.problematic_accepted_evidence_ids ?? provenance.problematic_accepted_evidence_ids ?? [];
+  const publications = d.publication_ids ?? provenance.publication_ids ?? [];
+  const fixtures = d.fixtures ?? provenance.fixtures ?? [];
+  const runs = d.runs ?? provenance.runs ?? [];
+  const cited = provenance.cited_accepted_evidence_ids ?? [];
   return (
     <>
       <p data-source-method>
@@ -169,12 +211,12 @@ export function SourceProvenanceRecord({ provenance }: { provenance: SourceProve
         accepted. A result is labelled as prepared or generated only when every one of its records has that same
         registered source.
       </p>
-      {provenance.reasons.length > 0 ? (
+      {reasons.length > 0 ? (
         <ul>
-          {provenance.reasons.map((r) => (
+          {reasons.map((r) => (
             <li key={r.code} data-source-reason={r.code}>
               {reasonWords(r.code)}
-              {r.accepted_evidence_ids.length > 0 ? ` (${r.accepted_evidence_ids.length} records)` : null}
+              {(r.accepted_evidence_ids ?? []).length > 0 ? ` (${(r.accepted_evidence_ids ?? []).length} records)` : null}
             </li>
           ))}
         </ul>
@@ -185,14 +227,14 @@ export function SourceProvenanceRecord({ provenance }: { provenance: SourceProve
       {provenance.consequence_revision_id ? (
         <IdList title="Fuel cost version" ids={[provenance.consequence_revision_id]} />
       ) : null}
-      <IdList title="Source registrations" ids={provenance.publication_ids} />
-      <IdList title="Prepared examples" ids={provenance.fixtures.map((f) => `${f.fixture_id} v${f.fixture_version}`)} />
-      <IdList title="Generated test sets" ids={provenance.runs.map((r) => r.run_id)} />
-      <IdList title="Records whose source is not established" ids={provenance.problematic_accepted_evidence_ids} />
+      <IdList title="Source registrations" ids={publications} />
+      <IdList title="Prepared examples" ids={fixtures.map((f) => `${f.fixture_id} v${f.fixture_version}`)} />
+      <IdList title="Generated test sets" ids={runs.map((r) => r.run_id)} />
+      <IdList title="Records whose source is not established" ids={problematic} />
       <p>
-        {provenance.accepted_evidence_ids.length} accepted records checked
+        {accepted.length} accepted records checked
         {provenance.power_accepted_evidence_ids
-          ? ` (${provenance.cited_accepted_evidence_ids.length} cited by the finding, ${provenance.power_accepted_evidence_ids.length} generator readings used for the cost)`
+          ? ` (${cited.length} cited by the finding, ${provenance.power_accepted_evidence_ids.length} generator readings used for the cost)`
           : ""}
         .
       </p>

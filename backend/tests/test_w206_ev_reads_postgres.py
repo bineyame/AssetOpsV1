@@ -44,9 +44,19 @@ if URL:
     from assetops_backend.analytics.composition import build_ev_assessment_worker, build_ev_read_service
     from assetops_backend.analytics.ev_reads import encode_cursor
     from assetops_backend.ev_assessment_api import build_ev_assessment_router
+    from assetops_backend.evidence.public_provenance import (
+        basis_sha256,
+        ev_envelope_selection,
+        ev_session_row_selection,
+    )
 
 CODE = "EV-LAB-001"
-ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "limitations"}
+# W3-01 Run 3 q3: the three literal provenance siblings; each non-null block is the six-key public DTO + `detail`.
+ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "selected_source_provenance",
+            "pending_source_provenance", "limitations"}
+DTO = {"classification", "state", "source_ids", "evidence_ids", "basis_sha256", "reasons", "detail"}
+EMPTY_ALIAS = {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [], "evidence_ids": [],
+               "basis_sha256": None, "reasons": [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]}
 ITEM = {"session_id", "external_session_id", "charger_asset_id", "connector_asset_id", "connector_display_name",
         "revision_id", "revision_no", "basis_sha256", "state", "start_at", "end_at", "start_bounds", "end_bounds",
         "supported_kwh", "energy_complete", "unknown_meter_seconds", "reason_codes", "fault_evidence_id",
@@ -106,16 +116,84 @@ def _read_case(c: TestClient, built, case: str, vector: dict) -> dict:
     body = get(c, "sessions")
     assert ENVELOPE | {"status", "denominator", "excluded_records", "items", "next_cursor"} == set(body)
     assert set(body["denominator"]) == COUNTS and set(body["currentness"]) == {"state", "as_of", "limitation"}
-    assert set(body["source_provenance"]) == {"classification", "source_ids", "evidence_ids", "basis_sha256", "reasons"}
+    assert set(body["source_provenance"]) == DTO
     assert body["source_provenance"]["reasons"] == []  # r10 N2: a coherent positive source has no reasons
-    assert body["source_provenance"]["classification"] == "REGISTERED_SIMULATION"
+    assert body["source_provenance"]["classification"] == body["source_provenance"]["state"] == "REGISTERED_SIMULATION"
     assert body["source_provenance"]["evidence_ids"] == sorted(body["source_provenance"]["evidence_ids"])
+    # A current read: the alias is the selected block, digesting the selected assessment and its session revisions.
+    assert body["pending_source_provenance"] is None
+    assert body["selected_source_provenance"] == body["source_provenance"]
     asset = str(_connector_asset(built, SELECTED[case])).lower()
     [item] = [x for x in body["items"] if x["connector_asset_id"] == asset]
     assert set(item) == ITEM and set(item["links"]) == LINKS
+    meter_only = _assert_envelope_and_row_digests(built, body, item)
+    _assert_detail_rows(c, built, body, item)
     assert item["connector_display_name"] == f"Connector {SELECTED[case]}"
     assert all(item["links"][k] is None for k in ("evidence", "analysis", "financials"))
-    return {"body": body, "item": item}
+    return {"body": body, "item": item, "meter_only": meter_only}
+
+
+def _stored_basis(built, session_revision_id: str) -> str:
+    """W3-01 Run 3 q3 cursor fence: the selected assessment's private stored basis (never a public DTO digest)."""
+    with built.engine.connect() as conn:
+        return conn.execute(text(
+            "SELECT a.basis_sha256 FROM ev_session_revision v JOIN assessment_revision a "
+            "ON a.tenant_id = v.tenant_id AND a.site_id = v.site_id AND a.id = v.assessment_revision_id "
+            "WHERE v.id = :v"), {"v": session_revision_id}).scalar_one()
+
+
+def _assert_envelope_and_row_digests(built, body: dict, item: dict) -> None:
+    """W3-01 Run 3 q3: the envelope digest selects the assessment and every result session revision; a session row
+    cites the union of its `ev_session_evidence` and `ev_meter_interval` IDs and selects `{assessment, v.id}`."""
+    t, s, v = built.tenant_id, built.site_id, item["revision_id"]
+    with built.engine.connect() as conn:
+        ar = str(conn.execute(text("SELECT assessment_revision_id FROM ev_session_revision WHERE id = :v"),
+                              {"v": v}).scalar_one())
+        session_only = sorted({str(x).lower() for x in conn.execute(text(
+            "SELECT evidence_id FROM ev_session_evidence WHERE tenant_id = :t AND site_id = :s AND revision_id = :v"),
+            {"t": t, "s": s, "v": v}).scalars()})
+        result = conn.execute(text("SELECT result FROM assessment_revision WHERE id = :ar"), {"ar": ar}).scalar_one()
+        union = sorted({str(x).lower() for x in conn.execute(text(
+            "SELECT evidence_id FROM ev_session_evidence WHERE tenant_id = :t AND site_id = :s AND revision_id = :v "
+            "UNION SELECT evidence_id FROM ev_meter_interval WHERE tenant_id = :t AND site_id = :s "
+            "AND revision_id = :v"), {"t": t, "s": s, "v": v}).scalars()})
+    result = json.loads(result) if isinstance(result, str) else result
+    env = body["selected_source_provenance"]
+    assert env["basis_sha256"] == basis_sha256(
+        t, s, ev_envelope_selection(ar, result.get("session_revision_ids") or ()), env["evidence_ids"])
+    row = item["source_provenance"]
+    assert set(row) == DTO and row["evidence_ids"] == union
+    assert row["basis_sha256"] == basis_sha256(t, s, ev_session_row_selection(ar, v), union)
+    assert row["basis_sha256"].startswith("sha256:") and row["basis_sha256"] != env["basis_sha256"]
+    # The Q3 meter vector: a meter interval ID absent from `ev_session_evidence` is cited and changes the digest.
+    meter_only = sorted(set(union) - set(session_only))
+    if meter_only:
+        assert set(meter_only) <= set(row["evidence_ids"])
+        assert row["basis_sha256"] != basis_sha256(t, s, ev_session_row_selection(ar, v), session_only)
+    return meter_only
+
+
+def _assert_detail_rows(c, built, body: dict, item: dict) -> None:
+    """W3-01 Run 3 q2: a detail's top-level `source_provenance` is the represented row's block; its two siblings stay
+    the window envelope's. Every selected EV Finding row carries its own block over its exact pinned citations."""
+    q = _q(body)
+    detail = get(c, f"sessions/{item['session_id']}?{q}")
+    assert detail["source_provenance"] == item["source_provenance"]
+    assert detail["selected_source_provenance"] == body["selected_source_provenance"]
+    assert detail["pending_source_provenance"] == body["pending_source_provenance"]
+    findings = get(c, f"findings?{q}")
+    assert findings["source_provenance"] == body["source_provenance"]  # list top-level stays the envelope alias
+    for f in findings["items"]:
+        row = f["source_provenance"]
+        assert set(row) == DTO and row["basis_sha256"].startswith("sha256:")
+        with built.engine.connect() as conn:
+            cited = sorted({str(x).lower() for x in conn.execute(text(
+                "SELECT evidence_id FROM finding_revision_evidence WHERE finding_revision_id = :r"),
+                {"r": f["revision_id"]}).scalars()})
+        assert row["evidence_ids"] == cited and row != body["source_provenance"]
+        one = get(c, f"findings/{f['finding_id']}?{q}")
+        assert one["source_provenance"] == row
+        assert one["selected_source_provenance"] == body["selected_source_provenance"]
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -183,7 +261,8 @@ def test_six_replays_read_through_the_selected_api(chain, case) -> None:  # noqa
                                              "and unmet demand remain unknown.")
         assert [x["finding_id"] for x in findings["items"]] == [item["finding_id"]]
         assert set(findings["items"][0]) == {"finding_id", "revision_id", "revision_no", "basis_sha256",
-                                             "session_id", "title", "claim_level", "lifecycle", "as_of", "links"}
+                                             "session_id", "title", "claim_level", "lifecycle", "as_of",
+                                             "source_provenance", "links"}
         # Withdrawal (the FAULT source's clock proof revoked): the Finding leaves the list and the session; its
         # detail at the new selection is history only.
         _withdrawal(built, stored_findings(built)[0])
@@ -218,7 +297,9 @@ def test_refusals_unknown_and_one_snapshot_paging(chain) -> None:  # noqa: F811
     q = _q(body)
     w = body["window"]
     lo, hi, known = _at(w["from"]), _at(w["to"]), _at(w["known_at"])
-    basis = body["source_provenance"]["basis_sha256"]
+    basis = _stored_basis(built, item["revision_id"])
+    assert body["source_provenance"]["basis_sha256"].startswith("sha256:") and body["source_provenance"][
+        "basis_sha256"] != basis  # the public digest is never the cursor fence
 
     # 401/403/404/503 seams, before any record lookup.
     deny = client(built, access=lambda request, code: 401).get(f"/api/sites/{CODE}/ev/sessions")
@@ -295,6 +376,39 @@ def _settled(chain, case: str = "complete"):  # noqa: F811
     return built, client(built)
 
 
+def test_session_row_cites_meter_interval_outside_session_evidence(chain) -> None:  # noqa: F811
+    """W3-01 Run 3 q3 meter vector: a session revision's row block cites the union of its `ev_session_evidence` and
+    `ev_meter_interval` IDs (no `use`/page filter); a meter ID absent from the session evidence is cited and moves
+    the row digest while the envelope digest is unchanged."""
+    built, c = _settled(chain)
+    body = get(c, "sessions")
+    item = body["items"][0]
+    before = item["source_provenance"]
+    t, s, v = built.tenant_id, built.site_id, item["revision_id"]
+    with built.engine.begin() as conn:
+        cited = {str(x).lower() for x in conn.execute(text(
+            "SELECT evidence_id FROM ev_session_evidence WHERE revision_id = :v UNION "
+            "SELECT evidence_id FROM ev_meter_interval WHERE revision_id = :v"), {"v": v}).scalars()}
+        extra = next(str(x).lower() for x in conn.execute(text(
+            "SELECT id FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s ORDER BY id"),
+            {"t": t, "s": s}).scalars() if str(x).lower() not in cited)
+        conn.execute(text(
+            "INSERT INTO ev_meter_interval (id, tenant_id, site_id, revision_id, connector_asset_id, evidence_id, "
+            "start_at, end_at, kwh, error_bound_kwh, use, reason) VALUES (:i, :t, :s, :v, :co, :e, :lo, :hi, 0, 0, "
+            "'EXCLUDED', 'TEST_METER_ONLY')"), {"i": uuid4(), "t": t, "s": s, "v": v, "co": item["connector_asset_id"],
+                                   "e": extra, "lo": _at(body["window"]["from"]), "hi": _at(body["window"]["to"])})
+    after_body = get(c, f"sessions?{_q(body)}")
+    after = next(x for x in after_body["items"] if x["revision_id"] == v)["source_provenance"]
+    assert extra in after["evidence_ids"] and extra not in before["evidence_ids"]
+    assert after["evidence_ids"] == sorted(cited | {extra})
+    assert after["basis_sha256"] != before["basis_sha256"]
+    with built.engine.connect() as conn:
+        ar = str(conn.execute(text("SELECT assessment_revision_id FROM ev_session_revision WHERE id = :v"),
+                              {"v": v}).scalar_one())
+    assert after["basis_sha256"] == basis_sha256(t, s, ev_session_row_selection(ar, v), after["evidence_ids"])
+    assert after_body["source_provenance"]["basis_sha256"] == body["source_provenance"]["basis_sha256"]
+
+
 def test_exact_window_does_not_use_covering_selection(chain) -> None:  # noqa: F811
     built, c = _settled(chain)
     body = get(c, "sessions")
@@ -351,7 +465,7 @@ def test_repeated_query_key_is_parameter_unknown(chain) -> None:  # noqa: F811
     body = get(c, "sessions")
     w, sid = body["window"], body["items"][0]["session_id"]
     cursor = encode_cursor(_at(w["from"]), _at(w["to"]), _at(w["known_at"]),
-                           body["source_provenance"]["basis_sha256"], _at(w["from"]), UUID(int=0))
+                           _stored_basis(built, body["items"][0]["revision_id"]), _at(w["from"]), UUID(int=0))
     valid = {"from": w["from"], "to": w["to"], "known_at": w["known_at"], "limit": "5", "cursor": cursor}
     for route, keys in (("sessions", valid), ("findings", valid), (f"sessions/{sid}", ("from", "to", "known_at"))):
         base = "&".join(f"{k}={valid[k]}" for k in keys)
@@ -367,8 +481,10 @@ def test_only_cursor_basis_change_is_ev_read_409(chain) -> None:  # noqa: F811
     body = get(c, "sessions")
     q, w = _q(body), body["window"]
     lo, hi, known = _at(w["from"]), _at(w["to"]), _at(w["known_at"])
-    basis = body["source_provenance"]["basis_sha256"]
     item = next(x for x in body["items"] if x["finding_id"] is not None)
+    basis = _stored_basis(built, item["revision_id"])
+    same = encode_cursor(lo, hi, known, basis, lo, UUID(int=0))
+    assert get(c, f"sessions?{q}&cursor={same}")["items"]  # the same stored selection pages on
     changed = (encode_cursor(lo, hi, known, "0" * 64, lo, UUID(int=0)),  # basis changed
                encode_cursor(lo, hi, known - timedelta(seconds=1), basis, lo, UUID(int=0)))  # cutoff changed
     for cursor in changed:
@@ -401,12 +517,17 @@ def test_wider_replacement_never_leaves_exact_window_current_on_stale_head(chain
     stale = get(c, f"sessions?{q}")
     [old_head] = exact_heads(built, lo, hi)
     assert stale["currentness"]["state"] == "CURRENT"
-    assert stale["source_provenance"]["basis_sha256"] == old_head.basis_sha256
+    # W3-01 Run 3 q3: the public digest is the selected block over the old head; the stored basis is private.
+    assert _stored_basis(built, stale["items"][0]["revision_id"]) == old_head.basis_sha256
+    stale_digest = stale["selected_source_provenance"]["basis_sha256"]
+    assert stale_digest.startswith("sha256:") and stale["source_provenance"]["basis_sha256"] == stale_digest
     assert [i["state"] for i in stale["items"]] == ["INCOMPLETE"]
     built.advance_late()
     pending = get(c, f"sessions?{q}")
     assert pending["currentness"]["state"] == "PENDING_RECOMPUTE"
-    assert pending["source_provenance"]["basis_sha256"] == old_head.basis_sha256
+    assert pending["selected_source_provenance"]["basis_sha256"] == stale_digest
+    assert pending["pending_source_provenance"]["basis_sha256"] is None
+    assert pending["source_provenance"] == pending["pending_source_provenance"]
     _outcomes, seen = run_spying(built, lo, hi)
     assert set(seen["status"]) == {"LEASED"} and set(seen["state"]) == {"PENDING_RECOMPUTE"}
     # One job transaction re-heads both exact keys; neither stands in for the other.
@@ -418,7 +539,9 @@ def test_wider_replacement_never_leaves_exact_window_current_on_stale_head(chain
     current = get(c, f"sessions?{q}")
     assert current["currentness"]["state"] == "CURRENT"
     assert current["window"]["from"] == _iso(lo) and current["window"]["to"] == _iso(hi)
-    assert current["source_provenance"]["basis_sha256"] == heads[-1].basis_sha256
+    assert _stored_basis(built, current["items"][0]["revision_id"]) == heads[-1].basis_sha256
+    assert current["pending_source_provenance"] is None
+    assert current["source_provenance"]["basis_sha256"] not in (None, stale_digest)
     [item] = current["items"]
     assert item["state"] == "COMPLETED" and _at(item["end_at"]) == datetime(2026, 10, 6, 8, 31, tzinfo=lo.tzinfo)
 
@@ -517,7 +640,10 @@ def _unassessable(body: dict, classification: str, code: str) -> None:
     assert all(body["denominator"][k] is None for k in COUNTS - {"limitation"})
     assert body["denominator"]["limitation"] == M1_SOURCE and body["denominator"]["as_of"] is None
     assert body["items"] == [] and body["next_cursor"] is None and body["excluded_records"] == []
+    # W3-01 Run 3 q1: the overlapping failed job's pending block names the window's accepted set; no selected head.
     provenance = body["source_provenance"]
+    assert body["selected_source_provenance"] is None and provenance == body["pending_source_provenance"]
+    assert set(provenance) == DTO
     assert provenance["classification"] == classification and provenance["basis_sha256"] is None
     assert provenance["evidence_ids"] and provenance["evidence_ids"] == sorted(provenance["evidence_ids"])
     assert provenance["source_ids"] and provenance["source_ids"] == sorted(provenance["source_ids"])
@@ -530,7 +656,8 @@ def _reasons(provenance: dict, code: str) -> None:
     the literal S4-05 code named; every reason's IDs are accepted IDs of the current set."""
     reasons = provenance["reasons"]
     assert code in [r["code"] for r in reasons]
-    assert all(set(r) == {"code", "accepted_evidence_ids"} for r in reasons)
+    # W3-01: public reasons are the resolver's canonical reasons (Lane B DTO), so typed extras may follow.
+    assert all({"code", "accepted_evidence_ids"} <= set(r) for r in reasons)
     assert all(r["accepted_evidence_ids"] == sorted(r["accepted_evidence_ids"]) for r in reasons)
     assert all(set(r["accepted_evidence_ids"]) <= set(provenance["evidence_ids"]) for r in reasons)
 
@@ -542,6 +669,7 @@ def test_unassessable_source_has_unknown_status_and_limitation(chain, monkeypatc
     built = chain("late-record")
     built.start_release_upload()
     run_worker(built)
+    settled_digest = get(client(built), "sessions")["selected_source_provenance"]["basis_sha256"]
     built.advance_late()
     patch_links(monkeypatch, MIXED_RUNS[0])
     before = stored_counts(built)
@@ -557,7 +685,10 @@ def test_unassessable_source_has_unknown_status_and_limitation(chain, monkeypatc
     pending = get(c, "sessions")
     assert pending["currentness"]["state"] == "PENDING_RECOMPUTE" and pending["items"]
     assert pending["source_provenance"]["classification"] == "MIXED"
-    assert pending["source_provenance"]["basis_sha256"] is not None
+    # W3-01 Run 3 q1: the pending block has a null digest; the selected prior head's digest is unchanged.
+    assert pending["source_provenance"] == pending["pending_source_provenance"]
+    assert pending["pending_source_provenance"]["basis_sha256"] is None
+    assert pending["selected_source_provenance"]["basis_sha256"] == settled_digest
     assert M1_SOURCE in pending["limitations"] and pending["status"]["state"] != "UNKNOWN"
     _reasons(pending["source_provenance"], MIXED_RUNS[1])  # r10 N2: the current accepted set, basis stays prior
     # No exact head: MIXED.
@@ -568,8 +699,25 @@ def test_unassessable_source_has_unknown_status_and_limitation(chain, monkeypatc
     # Empty accepted set: the r7 no-selection copy, no classification.
     empty = get(client(built), "sessions?from=2026-10-01T00:00:00Z&to=2026-10-01T01:00:00Z")
     assert empty["currentness"]["limitation"] == "No selected EV session assessment covers this window yet."
-    assert empty["source_provenance"]["reasons"] == []
-    assert empty["source_provenance"]["classification"] is None and empty["status"]["limitation"] != M1_SOURCE
+    # W3-01 Run 3 q1: the literal six-key empty alias with two null siblings.
+    assert empty["source_provenance"] == EMPTY_ALIAS and empty["status"]["limitation"] != M1_SOURCE
+    assert empty["selected_source_provenance"] is None and empty["pending_source_provenance"] is None
+    # A nonempty no-head window without an overlapping job: the same empty alias; `_unassessable` still supplies
+    # the limitation.
+    with built.engine.begin() as conn:
+        open_jobs = conn.execute(text(
+            "SELECT id, status FROM recompute_job WHERE site_id = :s AND domain = 'ev_charging' "
+            "AND status IN ('PENDING','LEASED','FAILED')"), {"s": built.site_id}).all()
+        conn.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = ANY(:ids)"),
+                     {"ids": [j.id for j in open_jobs]})
+    assert open_jobs
+    no_job = get(client(built), f"sessions?{NO_HEAD}")
+    assert no_job["source_provenance"] == EMPTY_ALIAS
+    assert no_job["selected_source_provenance"] is None and no_job["pending_source_provenance"] is None
+    assert no_job["currentness"] == {"state": "UNKNOWN", "as_of": None, "limitation": M1_SOURCE}
+    with built.engine.begin() as conn:
+        for j in open_jobs:
+            conn.execute(text("UPDATE recompute_job SET status = :st WHERE id = :i"), {"st": j.status, "i": j.id})
 
     # A failed scoped link query is 503 EV_READ_UNAVAILABLE, never a guessed UNKNOWN.
     def broken(n, r):
@@ -611,7 +759,7 @@ def test_wrong_binding_records_survive_empty_and_paginated_lists(chain, monkeypa
     first = get(c, f"sessions?{q}&limit=1")
     assert first["excluded_records"] == full["excluded_records"]
     last = first["items"][-1]
-    after = encode_cursor(wide[0], wide[1], _at(known), full["source_provenance"]["basis_sha256"],
+    after = encode_cursor(wide[0], wide[1], _at(known), _stored_basis(built, last["revision_id"]),
                           _at(last["start_at"]), UUID(last["session_id"]))
     rest = get(c, f"sessions?{q}&known_at={known}&cursor={after}&limit=1")
     assert rest["items"] == [] and rest["excluded_records"] == full["excluded_records"]

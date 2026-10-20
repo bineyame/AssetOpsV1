@@ -38,6 +38,14 @@ def build_source_provenance(database_url: str | None) -> SourceProvenanceResolve
     return SourceProvenanceResolver(PostgresEvidenceLedger(database_url))
 
 
+def build_public_provenance(database_url: str | None):
+    """W3-01 (`D-2026-10-20-shared-provenance-dto`, Run 3 reading 4): the public DTO resolver over the ledger reads,
+    W1-compatible for `finding_revision`/`consequence_revision`. Lazy like the ledger."""
+    from assetops_backend.evidence.public_provenance import PublicProvenance
+
+    return PublicProvenance(PostgresEvidenceLedger(database_url))
+
+
 class _ColdReplayReader:
     """W2-02 review L5: exactly the ledger's two SELECT-only `cold_replay_*` reads, no writer method."""
 

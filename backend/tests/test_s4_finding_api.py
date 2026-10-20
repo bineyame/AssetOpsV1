@@ -171,3 +171,43 @@ class TestPerformanceCutoverGate:
             raise Down("comparison store down")
         response = client(Reads(body=body()), gate=broken).get(URL)
         assert response.status_code == 503 and response.json()["detail"]["code"] == "FINDING_STORE_UNAVAILABLE"
+
+
+def test_w301_source_provenance_wrappers_pass_public_blocks_and_keep_fail_closed_fallbacks() -> None:
+    """W3-01 Run 3 q3: the Finding API wrappers carry the composed resolver's W1-compatible public block verbatim
+    (the consequence block keeps its string Finding ID); unwired, failing or missing revisions keep the old
+    fail-closed `unresolved` keys and never gain public keys."""
+    from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance
+
+    t, s, fr, cid = uuid4(), uuid4(), uuid4(), uuid4()
+    block = {"state": "REGISTERED_SIMULATION", "classification": "REGISTERED_SIMULATION", "source_ids": ["g"],
+             "evidence_ids": ["e"], "basis_sha256": "sha256:" + "a" * 64, "reasons": [], "detail": {},
+             "finding_revision_id": fr, "consequence_revision_id": cid}
+
+    class Public:
+        def finding_revision(self, *a):
+            return block
+
+        def consequence_revision(self, *a):
+            return block
+
+    class Broken:
+        def finding_revision(self, *a):
+            raise RuntimeError("down")
+
+        consequence_revision = finding_revision
+
+    class Missing:
+        def finding_revision(self, *a):
+            return None
+
+        consequence_revision = finding_revision
+
+    assert finding_provenance(Public(), t, s, fr) == block
+    assert consequence_provenance(Public(), t, s, fr, cid) == {**block, "finding_revision_id": str(fr)}
+    public_keys = {"classification", "source_ids", "evidence_ids", "basis_sha256", "detail"}
+    for resolver, code in ((None, "PROVENANCE_NOT_WIRED"), (Broken(), "PROVENANCE_UNREADABLE"),
+                           (Missing(), "PROVENANCE_REVISION_NOT_FOUND")):
+        for fallback in (finding_provenance(resolver, t, s, fr), consequence_provenance(resolver, t, s, fr, cid)):
+            assert fallback["state"] == "UNKNOWN" and fallback["reasons"][0]["code"] == code
+            assert not (public_keys & set(fallback))

@@ -54,6 +54,17 @@ def test_d_action_records_walkthrough_and_contract(runner) -> None:
     assert rec["pre_accept_available"]["body"]["system_demo_capability"]["manifest_id"] == \
         "recommendation:1#a/eligible-F01"
     assert rec["pre_accept_unavailable"]["body"]["unavailable"]["code"] == "SOC_NOT_ABOVE_HEADROOM"
+    # W3-01 Run 3 q3: the recommendation keeps its pinned origin Finding's W1 block (not an Action set; the estate
+    # Action set is W3 commit 2). The production Finding composition adds the public keys to that same block.
+    from assetops_backend.analytics.composition import build_finding_read_service
+
+    origin_body = rec["pre_accept_available"]["body"]
+    origin_source = origin_body["source_provenance"]
+    assert origin_source["finding_revision_id"] == origin_body["revision_id"]
+    composed = build_finding_read_service(URL).source_provenance(runner.tenant, runner.site, origin_body["revision_id"])
+    assert set(origin_source) - {"reasons"} <= set(composed) and composed["state"] == origin_source["state"]
+    assert {"classification", "evidence_ids", "basis_sha256", "detail"} <= set(composed)
+    assert composed["evidence_ids"] == sorted(origin_source["accepted_evidence_ids"])
     assert rec["capability_denied"]["body"]["system_demo_capability"]["allowed"] is False
     assert [rec[k]["status"] for k in ("accept_created", "accept_replayed", "accept_conflict_already_accepted",
                                        "accept_capability_denied")] == [201, 200, 409, 403]

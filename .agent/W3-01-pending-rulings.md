@@ -41,3 +41,5 @@ the uncommitted diff is saved as `.agent/W3-01-lane-a-partial.patch` (see the ph
    no-head reads keep `UNKNOWN` currentness and the `_unassessable` limitation.
 6. **Failed link reads.** Both cold and EV bind `link_rows` through one helper that maps any non-DB exception
    to the route's unavailable error (DB errors already map in `_read`); a missing reader is also unavailable.
+
+**q4 answered** in `.agent/W3-01-build-spec.md` Run 4 rulings; built in the Lane A compatibility commit. No open Lane A question.

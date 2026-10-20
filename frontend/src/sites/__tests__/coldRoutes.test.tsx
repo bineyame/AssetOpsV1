@@ -179,7 +179,13 @@ const detailOf = (findingId: string, kind: string): ColdFindingDetailRead => ({
 /** A valid window with no selected assessment: 200 UNKNOWN, null values, empty arrays. */
 const EMPTY_ENVELOPE = envelope("UNKNOWN", {
   currentness: { state: "UNKNOWN", watermark: { decided_at: KNOWN, assessment_revision_ids: [] }, latest_relevant_evidence_at: null, pending_since: null },
-  source_provenance: { classification: null, source_ids: [], evidence_ids: [], basis_sha256: null },
+  // W3-01 (Run 3 q3): no selection and no job is the literal six-key empty alias with two null siblings.
+  source_provenance: {
+    classification: "UNKNOWN", state: "UNKNOWN", source_ids: [], evidence_ids: [], basis_sha256: null,
+    reasons: [{ code: "EMPTY_CITATION_SET", accepted_evidence_ids: [] }],
+  },
+  selected_source_provenance: null,
+  pending_source_provenance: null,
   limitations: ["No selected cold assessment covers this window yet."],
 });
 const EMPTY_TEMPERATURE: ColdTemperatureRead = { ...EMPTY_ENVELOPE, policy: null, points: [], gaps: [], excursions: [], excluded: [], coverage: { known_points: null, expected_points: null, ratio: null } };

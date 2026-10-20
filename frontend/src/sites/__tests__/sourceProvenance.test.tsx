@@ -119,3 +119,66 @@ describe("S4-05b stored source provenance notice", () => {
     },
   );
 });
+
+describe("W3-01 public source DTO compatibility", () => {
+  const setOnly = (classification: string, patch: Partial<SourceProvenance> = {}): SourceProvenance => ({
+    classification,
+    state: classification,
+    source_ids: ["src-1"],
+    evidence_ids: ["ev-1", "ev-2", "ev-3"],
+    basis_sha256: "sha256:" + "a".repeat(64),
+    reasons: [],
+    ...patch,
+  });
+
+  it("renders a six-key set-only block without runtime errors and counts its evidence IDs", () => {
+    const el = shown(setOnly("REGISTERED_SIMULATION"));
+    expect(el).toHaveAttribute("data-source-provenance", "REGISTERED_SIMULATION");
+    expect(el).toHaveTextContent("Generated test data.");
+    expect(el).toHaveTextContent("3 accepted records checked.");
+  });
+
+  it("reads detail lists before top-level ones and names the class mismatch reason", () => {
+    const el = shown(
+      setOnly("UNKNOWN", {
+        reasons: [{ code: "SOURCE_CLASS_MISMATCH", accepted_evidence_ids: ["ev-1"], persisted_class: "MIXED" }],
+        detail: {
+          state: "UNKNOWN",
+          reasons: [{ code: "SOURCE_CLASS_MISMATCH", accepted_evidence_ids: ["ev-1"] }],
+          accepted_evidence_ids: ["ev-1"],
+          publication_ids: ["pub-9"],
+        },
+      }),
+    );
+    expect(el).toHaveAttribute("data-source-provenance", "UNKNOWN");
+    expect(el.querySelector("[data-source-reason='SOURCE_CLASS_MISMATCH']")).toHaveTextContent(
+      "The stored source label does not match the records it cites. (1 records)",
+    );
+    expect(el).toHaveTextContent("pub-9");
+    expect(el).toHaveTextContent("1 accepted records checked.");
+  });
+
+  it("falls back to the W1 state when classification is absent and to unknown for an unrecognized class", () => {
+    const w1 = block("AUTHORED_DEMONSTRATION");
+    delete (w1 as { classification?: unknown }).classification;
+    expect(shown(w1)).toHaveAttribute("data-source-provenance", "AUTHORED_DEMONSTRATION");
+    expect(shown(setOnly("ATTESTED_FIELD"))).toHaveAttribute("data-source-provenance", "UNKNOWN");
+    const unresolved = { state: "UNKNOWN", reasons: [{ code: "PROVENANCE_UNREADABLE", accepted_evidence_ids: [] }] };
+    const el = shown(unresolved as SourceProvenance);
+    expect(el).toHaveAttribute("data-source-provenance", "UNKNOWN");
+    expect(el).toHaveTextContent("0 accepted records checked.");
+  });
+
+  it("the empty-citation alias renders as unverified with its reason", () => {
+    const el = shown(
+      setOnly("UNKNOWN", {
+        source_ids: [],
+        evidence_ids: [],
+        basis_sha256: null,
+        reasons: [{ code: "EMPTY_CITATION_SET", accepted_evidence_ids: [] }],
+      }),
+    );
+    expect(el).toHaveAttribute("data-source-provenance", "UNKNOWN");
+    expect(el.querySelector("[data-source-reason='EMPTY_CITATION_SET']")).toHaveTextContent("This version cites no records.");
+  });
+});

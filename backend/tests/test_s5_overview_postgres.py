@@ -36,6 +36,7 @@ if URL:
     from assetops_backend.scheduling.health import HealthThresholds
     from assetops_backend.scheduling.tick import TickLimits
     from assetops_backend.site_overview.composition import build_site_overview_read
+    from assetops_backend.evidence.public_provenance import basis_sha256
     from assetops_backend.site_overview.route import SiteOverviewRoute
     from assetops_backend.sites.ports import SiteNotFound
 
@@ -183,6 +184,12 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         assert "demonstration" not in money
         assert money["source_provenance"]["state"] == "AUTHORED_DEMONSTRATION", money["source_provenance"]
         assert money["source_provenance"]["fixtures"] == [{"fixture_id": P02[0], "fixture_version": P02[1]}]
+        # W3-01 Run 3 q3: the exact inner consequence block of the W1 pair, now with the public keys.
+        mp = money["source_provenance"]
+        assert mp["classification"] == "AUTHORED_DEMONSTRATION" and mp["evidence_ids"] == sorted(mp["accepted_evidence_ids"])
+        assert mp["consequence_revision_id"] == money["consequence_revision_id"]
+        assert mp["basis_sha256"] == basis_sha256(w.r.tenant, w.r.site, [money["consequence_revision_id"],
+                                                                     money["finding_revision_id"]], mp["evidence_ids"])
         assert money["source_gate"]["permits_current_money"] is True and money["withheld_reasons"] == []
         assert money["finding_revision_id"] == str(r3["id"]) != str(r2["id"])
         head = w.read(r3)["consequence"]
@@ -208,6 +215,7 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         assert unsourced["eligibility"]["state"] == "ELIGIBLE"
         no_amount(unsourced, "MIXED_OR_UNKNOWN_SOURCE")
         assert unsourced["source_provenance"]["state"] == "UNKNOWN"
+        assert not ({"classification", "evidence_ids", "basis_sha256", "detail"} & set(unsourced["source_provenance"]))
         assert "MIXED_OR_UNKNOWN_SOURCE" in unsourced["withheld_reasons"]
 
         # Architect LR-01 deviations item 2: a stopped schedule leaves the raw gate ELIGIBLE and blocks the amount.
