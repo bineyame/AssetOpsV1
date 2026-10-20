@@ -133,3 +133,20 @@ estate core needs the answer; the prerequisite API serves either.
 10. Summary basis is the lens set ignoring the state filter; `total_count` follows the state filter. Awaiting
     verification counts Actions matched by exact origin (Finding, revision) over the lens basis.
 11. `covered_site_count` counts CURRENT/HISTORICAL; the Action root also counts NOT_APPLICABLE Sites as covered.
+
+## q9 (Lane B commit-2 mini-grid tests, 2026-10-20): golden manifest blocked; one reading to confirm
+
+1. **Golden manifest `w301-estate-golden/1` (blocking).** Every replay mints fresh UUIDs (KOBO-001's `site_id`
+   differed on each run here), so a checked-in file that "pins exact IDs from public reads at creation" cannot
+   match any later run, and the cold, EV and mini-grid replays each build their own DB, so no single estate body
+   holds all three Sites. Options: (a) the golden pins bodies with symbolic refs (for example
+   `{"$ref": "KOBO-001/F05/revision/3"}`), resolved at test time from public reads, with one branch file per
+   domain; (b) a once-recorded reference artifact that no test compares; (c) deterministic fixture UUIDs (changes
+   the W1/W2 harnesses, outside Lane B). Not built until ruled.
+2. **Awaiting verification (reading, built as-is).** The estate counts an Action only while its frozen plan's
+   later window is open at `k` (`later_start <= k < later_end`), not RESOLVED, and its origin
+   (Finding, revision) is the selected head (q8 reading 10). In the only real S6 chain, the apply's settle
+   re-revises F01, so the origin is never the selected head once a plan exists, and the card is always 0
+   (`test_action_event_and_verification_counts_full_basis` pins 0 and is marked q9). The spec text reads "a frozen
+   verification window and no terminal outcome". Options: (a) keep as built; (b) match by origin Finding with any
+   selected revision; (c) also drop the open-window requirement (any frozen, unresolved plan).

@@ -25,7 +25,15 @@ if URL:
     from test_w202_cold_replay_postgres import chain  # noqa: F401 - the W2-02 replay fixture
     from test_w203_cold_replay_postgres import opened, run
 
-    from assetops_backend.analytics.adapters.postgres_assessment_store import selected_windows_on
+    from test_s1_bindings_postgres import engine, store  # noqa: F401 - the S4/S6 mini-grid fixtures
+    from test_s4_consequence_store_postgres import POWER_DAY, STATE_DAY, PowerSite
+    from test_s4_finding_store_postgres import CaseRunner, run_case
+    from test_s6_action_store_postgres import CASES as S4_CASES
+
+    import pg_harness
+    from assetops_backend.analytics.adapters.postgres_assessment_store import (
+        PostgresAssessmentStore, selected_windows_on)
+    from assetops_backend.estate.adapters import postgres_estate_read
     from assetops_backend.estate.composition import build_estate_read
     from assetops_backend.estate.index import EstateIndexService
     from assetops_backend.estate.scope import decode_cursor, encode_cursor
@@ -285,3 +293,333 @@ def test_cursor_scope_window_lens_and_fence(chain) -> None:  # noqa: F811
     built.advance_late()
     run(built)
     assert refused(**day, limit=1, cursor=cursor) == (409, "ESTATE_BASIS_CHANGED")
+
+
+# --- mini-grid: the S4 Finding/money chain and the S6 Action/verification chain --------------------------------
+
+def pin_read_at(monkeypatch, present) -> None:
+    """TEST-SCOPED: the S4/S6 fixtures run on a fixture clock ahead of the database clock (`SETUP_AT` 2026-10-29,
+    `T_ACCEPT` 2026-11-01). Pin the estate snapshot's read time, and the dispatch helper's live-or-historical test,
+    to the fixture's present `present()`, as the q5 helper tests pin `_transaction_time`. Every query, cutoff,
+    selection and rule stays real; only "now" is the fixture's."""
+    real = postgres_estate_read.EstateSnapshot
+
+    class Pinned(real):
+        def __init__(self, owner, c, read_at) -> None:
+            super().__init__(owner, c, present())
+
+    monkeypatch.setattr(postgres_estate_read, "EstateSnapshot", Pinned)
+    monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: present()))
+
+
+def day_of(day: str) -> dict:
+    start = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
+    return {"from": iso(start), "to": iso(start + timedelta(days=1))}
+
+
+def revisions(engine, finding_id) -> list[tuple]:
+    with engine.connect() as c:
+        return [tuple(r) for r in c.execute(text(
+            "SELECT CAST(id AS text), revision_no, created_at FROM finding_revision WHERE finding_id = :f "
+            "ORDER BY revision_no"), {"f": finding_id})]
+
+
+@pytest.fixture()
+def mini(store, engine, monkeypatch):  # noqa: F811
+    runner = CaseRunner(store, engine)
+    pin_read_at(monkeypatch, lambda: runner.now + timedelta(minutes=1))
+    imported_before(engine, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    yield runner, Estate(engine, runner.tenant)
+    pg_harness.dispose(runner.findings)
+
+
+def rows_of(body: dict) -> list[tuple]:
+    return [(r["finding_id"], r["finding_revision_id"], r["lifecycle"], r["episode_start"]) for r in body["rows"]]
+
+
+def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
+    """S4 F03 (recurrence) and F05 (a later support change: SUPPORTED -> UNCONFIRMED -> NO_LONGER_SUPPORTED) read
+    through the estate. Distinct recurrence rows keep their own Findings; each explicit cutoff keeps its exact selected
+    revision, rows and token after later revisions land; one microsecond before the match pass that recorded the
+    late revision the Site is UNKNOWN (the new selection is not yet matched), never the superseded row; late accepted
+    evidence makes the live read pending while the earlier cutoff is unchanged."""
+    runner, estate = mini
+    run_case(runner, S4_CASES["F03"])
+    recur = estate.ok("findings", **day_of("2026-10-11"))
+    assert recur["status"] == "CURRENT" and recur["coverage"]["state"] == "COMPLETE"
+    (a, b) = rows_of(recur)
+    assert a[0] != b[0] and (a[2], b[2]) == ("SUPPORTED", "SUPPORTED")
+    assert (a[3], b[3]) == ("2026-10-11T09:30:00Z", "2026-10-11T08:00:00Z")  # episode_start desc
+    assert recur["total_count"] == 2 and recur["summary"]["supported_findings"] == 2
+
+    steps = S4_CASES["F05"]["steps"]
+    for step in steps[:3]:  # deliver, assess, match: SUPPORTED
+        runner.step(step)
+    day = day_of("2026-10-21")
+    ((finding_id, rev1, lifecycle, _),) = rows_of(estate.ok("findings", **day))
+    assert lifecycle == "SUPPORTED"
+    for step in steps[3:6]:  # minimum runtime 120, assess, match: UNCONFIRMED
+        runner.step(step)
+    (r1, _, c1), (rev2, _, c2) = revisions(runner.engine, finding_id)
+    assert r1 == rev1
+    at_c2 = estate.ok("findings", **day, known_at=iso(c2))
+    for step in steps[6:]:  # runtime 0, reserve 45, assess, match: NO_LONGER_SUPPORTED; then an empty retry
+        runner.step(step)
+    (_, _, _), (_, _, _), (rev3, _, c3) = revisions(runner.engine, finding_id)
+    again = estate.ok("findings", **day, known_at=iso(c2))
+    before = estate.ok("findings", **day, known_at=iso(c3 - timedelta(microseconds=1)))
+    exact = estate.ok("findings", **day, known_at=iso(c3))
+    live = estate.ok("findings", **day)
+    # The late revision does not rewrite the explicit earlier cutoff: same rows, coverage and token.
+    assert at_c2["status"] == "HISTORICAL" and rows_of(at_c2) == [(finding_id, rev2, "UNCONFIRMED",
+                                                                    "2026-10-21T08:00:00Z")]
+    assert again["rows"] == at_c2["rows"] and again["selection_token"] == at_c2["selection_token"]
+    assert again["coverage"] == at_c2["coverage"] and again["summary"] == at_c2["summary"]
+    assert at_c2["summary"]["supported_findings"] == 0 and at_c2["total_count"] == 1
+    # One microsecond before the late match: the new selection is unmatched, the Site is UNKNOWN with no rows and
+    # null totals, never the superseded UNCONFIRMED row.
+    (site,) = before["coverage"]["sites"]
+    assert (site["state"], site["match_state"]) == ("UNKNOWN", "PENDING")
+    assert before["rows"] == [] and before["total_count"] is None
+    assert all(v is None for v in before["summary"].values())
+    # At the exact cutoff and live: the NO_LONGER_SUPPORTED revision, in All, outside Supported.
+    assert rows_of(exact) == rows_of(live) == [(finding_id, rev3, "NO_LONGER_SUPPORTED", "2026-10-21T08:00:00Z")]
+    assert exact["status"] == "HISTORICAL" and live["status"] == "CURRENT"
+    assert live["summary"]["supported_findings"] == 0 and live["summary"]["basis_count"] == 1
+    assert estate.ok("findings", **day, state="supported")["rows"] == []
+    gone = estate.ok("findings", **day, state="no_longer_supported")
+    assert rows_of(gone) == rows_of(live) and gone["summary"] == live["summary"]
+    assert len({rev1, rev2, rev3}) == 3 and c1 < c2 < c3
+    # Late accepted evidence on the day: the live read is pending; the exact earlier cutoff is unchanged.
+    runner.step({"do": "deliver", "decided": "2026-10-30T16:00:00Z", "blocks": [
+        {"from": "2026-10-21T10:00:00Z", "to": "2026-10-21T10:00:00Z", "soc": "50", "only": ["soc"]}]})
+    pending = estate.ok("findings", **day)
+    (site,) = pending["coverage"]["sites"]
+    assert pending["status"] == site["state"] == "PENDING_RECOMPUTE" and site["job_state"] == "PENDING"
+    assert pending["total_count"] is None and all(v is None for v in pending["summary"].values())
+    held = estate.ok("findings", **day, known_at=iso(c3))
+    assert held["rows"] == exact["rows"] and held["selection_token"] == exact["selection_token"]
+    assert held["coverage"] == exact["coverage"] and held["status"] == "HISTORICAL"
+
+
+def power_estate(store, engine, capsys, monkeypatch, policy=None):  # noqa: F811
+    """The S4-03 `PowerSite` (a priced power-day Finding, a state-only Finding on 2026-10-08) and its consequence
+    worker. `policy` is the S4-05 `publishing_submit` source policy; None keeps the ordinary unbound power path."""
+    from test_w301_w1_money_snapshot_helpers_postgres import Rig
+
+    if policy is not None:
+        from test_s405_resolver_postgres import publishing_submit
+        monkeypatch.setattr(CaseRunner, "submit", publishing_submit(policy))
+    site = PowerSite(store, engine, capsys)
+    pin_read_at(monkeypatch, lambda: site.runner.now + timedelta(minutes=1))
+    imported_before(engine, site.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    return site, Rig(site, engine), Estate(engine, site.tenant)
+
+
+def consequence_row(engine, revision_id) -> tuple:
+    with engine.connect() as c:
+        return tuple(c.execute(text(
+            "SELECT CAST(finding_revision_id AS text), state, CAST(amount_low AS text), CAST(amount_high AS text), "
+            "currency FROM financial_consequence_revision WHERE id = :r"), {"r": revision_id}).one())
+
+
+LENSES = ("all", "cost", "risks", "opportunities")
+
+
+def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
+    """One canonical Finding set underlies all four lenses. Without a stored risk or opportunity producer those
+    lenses are truthfully empty over complete coverage (zero only after a complete read); an unpriced Finding and a
+    stored PRICED amount whose source gate withholds money (unbound power) stay in All and never enter Cost."""
+    site, rig, estate = power_estate(store, engine, capsys, monkeypatch)
+    try:
+        days = {"from": iso(POWER_DAY), "to": iso(STATE_DAY + timedelta(days=1))}
+        rig.run()  # no price yet: the power-day consequence is UNPRICED
+        power = site.on(POWER_DAY)
+        day = {"from": iso(POWER_DAY), "to": iso(POWER_DAY + timedelta(days=1))}
+        unpriced = estate.ok("findings", **day)
+        ((row,),) = (unpriced["rows"],)
+        assert row["finding_revision_id"] == str(power["id"]) and row["consequence"]["state"] == "UNPRICED"
+        assert row["consequence"]["amount"] is None and row["lens_flags"] == []
+        assert estate.ok("findings", **day, lens="cost")["rows"] == []
+        site.publish("v1")
+        rig.run()  # a stored PRICED revision, but the power evidence is unbound: the source gate withholds money
+        bodies = {lens: estate.ok("findings", **day, lens=lens) for lens in LENSES}
+        ((row,),) = (bodies["all"]["rows"],)
+        stored = consequence_row(engine, row["consequence"]["source_revision_id"])
+        assert stored[:2] == (str(power["id"]), "PRICED") and stored[4] == "USD"
+        assert row["consequence"] == {"state": "UNKNOWN", "amount": None, "currency": None,
+                                      "source_revision_id": row["consequence"]["source_revision_id"]}
+        assert row["source_provenance"]["state"] != "AUTHORED_DEMONSTRATION" and row["lens_flags"] == []
+        for lens in ("cost", "risks", "opportunities"):
+            body = bodies[lens]
+            assert body["lens"] == lens and body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
+            assert body["rows"] == [] and body["total_count"] == 0 and body["summary"]["supported_findings"] == 0
+            assert body["coverage"] == bodies["all"]["coverage"]
+        # The three-day read: the 2026-10-07 day has no assessment, so the Site is UNKNOWN and no lens is a zero.
+        for lens in LENSES:
+            gap = estate.ok("findings", **days, lens=lens)
+            assert gap["coverage"]["sites"][0]["state"] == "UNKNOWN" and gap["total_count"] is None
+        # No mock seed: real labels only, no F-code, no risk/opportunity flag on any row.
+        state_day = estate.ok("findings", **{"from": iso(STATE_DAY), "to": iso(STATE_DAY + timedelta(days=1))})
+        for body in (*bodies.values(), state_day):
+            assert "F-109" not in str(body) and "MG-DEMO" not in str(body)
+            for r in body["rows"]:
+                assert r["finding_label"] == f"Finding {r['finding_id'][:8]}"
+                assert not {"RISK", "OPPORTUNITY"} & set(r["lens_flags"])
+                assert (r["priority"], r["confidence"], r["confidence_reasons"]) == (None, None, [])
+        assert state_day["rows"][0]["consequence"]["state"] == "UNPRICED"
+        assert (state_day["summary"]["high_priority"], state_day["summary"]["low_confidence"]) == (None, None)
+    finally:
+        site.prices.dispose()
+        site.store.dispose()
+
+
+def test_cost_lens_only_exact_eligible_current_rows(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
+    """W7: Cost lists only the exact selected Finding revision's CURRENT, ELIGIBLE, source-permitted PRICED
+    consequence, as its stored interval (no sum); the state-only Finding stays in All as Unpriced; an explicit
+    earlier cutoff and a stale price selection are UNKNOWN and leave Cost until the consequence is recomputed."""
+    from test_s405_publication_postgres import P01
+
+    site, rig, estate = power_estate(store, engine, capsys, monkeypatch, lambda device, texts: P01)
+    try:
+        site.publish("v1", "v2", "v3")
+        rig.run()
+        power, state = site.on(POWER_DAY), site.on(STATE_DAY)
+        day = {"from": iso(POWER_DAY), "to": iso(POWER_DAY + timedelta(days=1))}
+        whole, cost = estate.ok("findings", **day), estate.ok("findings", **day, lens="cost")
+        ((row,),) = (cost["rows"],)
+        assert whole["rows"] == cost["rows"] and cost["status"] == "CURRENT"
+        consequence = row["consequence"]
+        stored = consequence_row(engine, consequence["source_revision_id"])
+        assert row["finding_revision_id"] == str(power["id"]) == stored[0] and stored[1] == "PRICED"
+        assert row["lens_flags"] == ["COST"] and consequence["state"] == "PRICED"
+        assert (consequence["amount_low"], consequence["amount_high"], consequence["currency"]) == stored[2:]
+        assert consequence["amount"] == consequence["amount_low"]  # the interval's low bound, never a sum
+        assert row["source_provenance"]["state"] == "AUTHORED_DEMONSTRATION"
+        assert cost["total_count"] == 1 and cost["summary"]["basis_count"] == 1
+        # The state-only Finding: in All as Unpriced, absent from Cost (a complete zero).
+        other = {"from": iso(STATE_DAY), "to": iso(STATE_DAY + timedelta(days=1))}
+        ((unpriced,),) = (estate.ok("findings", **other)["rows"],)
+        assert unpriced["finding_revision_id"] == str(state["id"]) and unpriced["consequence"]["state"] == "UNPRICED"
+        none = estate.ok("findings", **other, lens="cost")
+        assert none["rows"] == [] and none["total_count"] == 0 and none["coverage"]["state"] == "COMPLETE"
+        # An explicit earlier cutoff never makes a current-money claim: UNKNOWN with the same revision, out of Cost.
+        then = iso(site.runner.now)
+        old_all, old_cost = estate.ok("findings", **day, known_at=then), estate.ok("findings", **day, known_at=then,
+                                                                                  lens="cost")
+        assert old_all["status"] == "HISTORICAL" and old_cost["rows"] == [] and old_cost["total_count"] == 0
+        assert old_all["rows"][0]["consequence"] == {"state": "UNKNOWN", "amount": None, "currency": None,
+                                                     "source_revision_id": consequence["source_revision_id"]}
+        # A backdated price correction: the stored amount is STALE until recomputed, so it leaves Cost.
+        site.publish("v4")
+        stale = estate.ok("findings", **day)
+        assert stale["rows"][0]["consequence"]["state"] == "UNKNOWN" and stale["rows"][0]["lens_flags"] == []
+        assert stale["rows"][0]["consequence"]["source_revision_id"] == consequence["source_revision_id"]
+        assert estate.ok("findings", **day, lens="cost")["rows"] == []
+        rig.run()
+        again = estate.ok("findings", **day, lens="cost")
+        ((fresh,),) = (again["rows"],)
+        assert fresh["consequence"]["state"] == "PRICED"
+        assert fresh["consequence"]["source_revision_id"] != consequence["source_revision_id"]
+        assert consequence_row(engine, fresh["consequence"]["source_revision_id"])[0] == str(power["id"])
+    finally:
+        site.prices.dispose()
+        site.store.dispose()
+
+
+def at(value: str) -> datetime:
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def test_action_event_and_verification_counts_full_basis(store, engine, monkeypatch) -> None:  # noqa: F811
+    """The S6 chain (F01 accepted, applied, plan frozen, later selection bound, evaluated VERIFIED with labelled
+    TEST-SCOPED complete windows; then F02 accepted) read through the estate Action root. Each cutoff selects the
+    latest event recorded by it and reduces through the W1 reducer; the cards count the full basis, never a page;
+    the verification window and 30-day lookback switch at their exact persisted instants; ActionEvent OBSERVED is
+    never a verification."""
+    from test_s6_verification_evaluator_postgres import (
+        CLOSED, bound_plan, complete_windows, evaluate, proposal_of, store_accept, verifying)
+
+    runner = CaseRunner(store, engine)
+    run_case(runner, S4_CASES["F01"])
+    run_case(runner, S4_CASES["F02"])
+    h = verifying(runner)
+    pin: dict = {"at": None}
+    pin_read_at(monkeypatch, lambda: pin["at"] or max(h.clock.at, runner.now) + timedelta(minutes=1))
+    imported_before(engine, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    estate = Estate(engine, runner.tenant)
+    window = {"from": "2026-11-01T00:00:00Z", "to": "2026-11-03T00:00:00Z"}
+    f01_day = {"from": "2026-10-06T00:00:00Z", "to": "2026-10-07T00:00:00Z"}
+
+    def actions(**params) -> tuple[dict, list[tuple]]:
+        body = estate.ok("actions", **window, **params)
+        return body, [(r["action_id"], r["application_state"], r["resolution_state"], r["verification_outcome"])
+                      for r in body["rows"]]
+
+    def card(body: dict) -> tuple:
+        s = body["summary"]
+        return s["open_actions"], s["verification_window"], s["verified_in_30_days"], s["basis_count"]
+
+    try:
+        p2 = proposal_of(h, "2026-10-08")
+        complete_windows(monkeypatch, h)
+        action_id, plan, _ = bound_plan(runner, h)
+        with engine.connect() as c:
+            events = [tuple(r) for r in c.execute(text(
+                "SELECT kind, recorded_at, CAST(id AS text) FROM action_event WHERE action_id = :a "
+                "ORDER BY recorded_at, id"), {"a": action_id})]
+        accepted_at = next(e[1] for e in events if e[0] == "ACCEPTED")
+        applied_at = next(e[1] for e in events if e[0] == "APPLIED")
+        start, end = at(plan["later_start"]), at(plan["later_end"])
+        # Event cutoffs: the selected event and the reduced state switch at the APPLIED event's recorded instant.
+        none, none_rows = actions(known_at=iso(accepted_at - timedelta(microseconds=1)))
+        assert none_rows == [] and none["total_count"] == 0 and card(none) == (0, 0, 0, 0)
+        pending, rows = actions(known_at=iso(applied_at - timedelta(microseconds=1)))
+        assert rows == [(action_id, "PENDING", None, None)] and card(pending) == (1, 0, 0, 1)
+        applied, rows = actions(known_at=iso(applied_at))
+        assert rows == [(action_id, "APPLIED", None, None)] and applied["status"] == "HISTORICAL"
+        assert applied["rows"][0]["selected_event_id"] != pending["rows"][0]["selected_event_id"]
+        assert applied["selection_token"] != pending["selection_token"]
+        # The frozen plan's later window counts from later_start, inclusive, to later_end, exclusive.
+        assert card(actions(known_at=iso(start - timedelta(microseconds=1)))[0]) == (1, 0, 0, 1)
+        assert card(actions(known_at=iso(start))[0]) == (1, 1, 0, 1)
+        assert card(actions(known_at=iso(end - timedelta(microseconds=1)))[0]) == (1, 1, 0, 1)
+        assert card(actions(known_at=iso(end))[0]) == (1, 0, 0, 1)
+        # q9 (pending ruling): Awaiting verification matches the exact origin (Finding, revision); the apply's
+        # settle re-revises F01, so its selected revision is no longer the Action's origin and the card is 0 here.
+        in_window = estate.ok("findings", **f01_day, known_at=iso(start))
+        assert in_window["summary"]["awaiting_verification"] == 0
+        with engine.connect() as c:
+            origin = c.execute(text("SELECT CAST(origin_finding_revision_id AS text) FROM action WHERE id = :a"),
+                               {"a": action_id}).scalar_one()
+        assert [r["finding_revision_id"] for r in in_window["rows"]] != [origin]
+        at_accept = estate.ok("findings", **f01_day, known_at=iso(accepted_at))
+        assert [r["finding_revision_id"] for r in at_accept["rows"]] == [origin]  # no plan yet: still 0
+        assert at_accept["summary"]["awaiting_verification"] == 0
+        # VERIFIED: RESOLVED closes the Action; the 30-day lookback counts the outcome's recorded instant.
+        h.clock.at = CLOSED + timedelta(hours=1)
+        outcome = evaluate(h, action_id, "eval-0001").json()["outcome"]
+        assert outcome["outcome"] == "VERIFIED"
+        verified, rows = actions()
+        assert rows == [(action_id, "APPLIED", "RESOLVED", "VERIFIED")] and card(verified) == (0, 0, 1, 1)
+        decided = at(outcome["recorded_at"])
+        assert card(actions(known_at=iso(decided - timedelta(microseconds=1)))[0]) == (1, 0, 0, 1)
+        assert verified["selection_token"] != applied["selection_token"]
+        # A second Action (F02, accepted, not applied) is open; the cards count both over the full basis.
+        made = store_accept(h, runner, p2, "accept-f02", datetime(2026, 11, 2, 12, 30, tzinfo=timezone.utc))
+        assert made is not None
+        h.clock.at = datetime(2026, 11, 2, 13, 0, tzinfo=timezone.utc)
+        both, rows = actions()
+        assert [r[1:] for r in rows] == [("PENDING", None, None), ("APPLIED", "RESOLVED", "VERIFIED")]
+        assert card(both) == (1, 0, 1, 2) and both["total_count"] == 2 and both["status"] == "CURRENT"
+        page, _ = actions(limit=1)
+        assert page["summary"] == both["summary"] and len(page["rows"]) == 1 and page["next_cursor"]
+        assert page["selection_token"] == both["selection_token"]
+        assert both["summary"]["due_overdue"] is None  # W1 has no authored due date
+        # The 30-day lookback at its exact far edge (the read time pinned 30 days after the decision).
+        pin["at"] = decided + timedelta(days=30, minutes=1)
+        assert card(actions(known_at=iso(decided + timedelta(days=30)))[0])[2] == 1
+        assert card(actions(known_at=iso(decided + timedelta(days=30, microseconds=1)))[0])[2] == 0
+    finally:
+        h.close()
+        pg_harness.dispose(runner.findings)

@@ -83,7 +83,12 @@ def _mini_grid(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: 
     statuses: set[str] = set()
     selected_days = []
     for day in days:
-        statuses |= {j.get("status") for j in day.get("jobs") or ()}
+        day_jobs = {j.get("status") for j in day.get("jobs") or ()}
+        statuses |= day_jobs
+        if day_jobs & {"PENDING", "LEASED", "FAILED"}:
+            # q5 ruling 5 / spec "Selection rule": overlapping PENDING/LEASED/FAILED work is PENDING_RECOMPUTE,
+            # ahead of the day's S3 STALE (late accepted evidence marks current coverage pending).
+            pending = True
         selection = day.get("selection")
         if not day.get("available") or selection is None:
             unknown, provable = True, False
