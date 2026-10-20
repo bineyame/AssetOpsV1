@@ -147,3 +147,33 @@ Further commit-4 readings to confirm in the same answer (to avoid a second stop)
   cursor bound to `selection_token`, recomputed per page (409 `WORK_BASIS_CHANGED` on difference).
 - r5. Maintenance row `activity`/`record_id`/`outcome_note`: latest same-case `maintenance_record` by
   `(recorded_at,id)` with `recorded_at <= known_at`.
+
+## q7 - commit-4 questions (run 8, head after main merge; no commit-4 code written)
+
+Surveyed against q5/q6. Builder stops here per "decide nothing"; each item names the reading it would apply.
+
+- q7-1. **Asset label column.** B1 says `asset_label` = `asset.code · asset.name`, but `asset`
+  (`migrations/versions/0001_foundation_identity.py:95`) has `asset_code, asset_type, attributes` and **no
+  `name`**. Options: `asset_code` alone; `asset_code · asset_type`; `attributes->>'name'` when present else code.
+  Which is binding?
+- q7-2. **Action `sai1-` fence window.** W1's token is `"sai1-"+sha256(json.dumps({tenant_id,site_id,from,to} +
+  ActionIndexService.fence(actions,events), sort_keys=True))` (`actions/site_index.py:146-172`) over Actions
+  *created* in the index window. Reading: compute it with `PostgresActionStore.site_window_on(c,t,s,from,to,K)`
+  (new `LinkReadPorts.action_window`, wired via `actions/composition.build_action_store(None)`) over the **list
+  window `[from,to)`**, without requiring the pinned Action to be created inside that window (a case window need
+  not contain the Action's creation; requiring membership makes F01-style links UNKNOWN). Confirm, or require
+  membership (else null/UNKNOWN)?
+- q7-3. **Mini-grid Action link token.** q6-2 makes mini-grid Finding links null/UNKNOWN (no full `sfi1-` port
+  exists; builder will not build one in commit 4). For an Action link whose origin Finding is mini-grid, reading:
+  token = the at-cutoff `sai1-` fence (Q8 Action object), state = origin pin's `link_state` (CURRENT possible).
+  Or is it null/UNKNOWN because the origin Finding's W1 token is not reproducible?
+- q7-4. **Missing-lineage list provenance shape (q5 r2).** `PublicProvenance.cited_set` has no
+  missing-lineage input. Reading: when any eligible case has a pinned link whose revision/event/origin is absent at K,
+  the list `source_provenance` is the `cited_set` DTO of the full union with `classification/state` forced
+  `UNKNOWN` and `reasons` = `[{"code":"LINK_SELECTION_MISSING","accepted_evidence_ids":[]}]` (basis_sha256 left as
+  computed over the union). Confirm, or name the exact DTO (and whether row provenance gets the same guard).
+- q7-5. **List refusal messages.** S15 names `INVALID_WINDOW`/`INVALID_LIMIT` codes but no literal messages.
+  Reading: reuse `actions/site_index.py:86-131` literals (`` `from` must be before `to`. ``, `The window may span
+  at most 31 days.`, `` `limit` must be an integer from 1 to 100. ``, ISO/UTC instant messages), and the refusal
+  table's literals for `INVALID_CURSOR`/`WORK_BASIS_CHANGED`. Also: list paths registered as two literal routes
+  `/work/incidents` and `/work/maintenance` (no `{kind}` param, so `/work/cases` cannot collide). Confirm.
