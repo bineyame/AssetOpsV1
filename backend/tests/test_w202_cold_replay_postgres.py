@@ -76,7 +76,7 @@ if URL:
     from assetops_backend.runs.registered_basis import RegisteredLabBasis
     from assetops_backend.runs.registered_release import publisher_for
     from assetops_backend.runs.service import RunSetupService
-    from assetops_backend.scenarios.composition import build_scenario_repository
+    from scenario_cache import cached_scenario_repository
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
     from assetops_backend.sites.cold_lab import install_cold_lab
     from assetops_backend.sites.cutover import ImportedSiteRegistry
@@ -195,7 +195,7 @@ class Chain:
             gateway=RegisteredGatewayPublisher(self.process.link),
             schedules=JsonPublicationSchedules(self.tmp / "schedules"),
             source_publisher=publisher_for(URL),
-            cold_inputs=StoreColdInputs(self.store, build_scenario_repository()),
+            cold_inputs=StoreColdInputs(self.store, cached_scenario_repository()),
         )
         return self
 

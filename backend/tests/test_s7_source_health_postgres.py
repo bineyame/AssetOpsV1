@@ -227,7 +227,7 @@ class TestRefusals:
         assert rig.read(access=lambda request, code: 403).status_code == 403
 
     def test_store_failure_is_503_without_a_claim(self, rig) -> None:
-        down = PostgresGatewayAccess("postgresql+psycopg://assetops:wrong@127.0.0.1:1/assetops_none_test")
+        down = PostgresGatewayAccess("postgresql+psycopg://assetops:wrong@127.0.0.1:1/assetops_none_test?connect_timeout=2")
         answer = rig.read(store=down)
         assert answer.status_code == 503
         assert answer.json()["detail"]["code"] == "SOURCE_HEALTH_UNAVAILABLE"

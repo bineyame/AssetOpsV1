@@ -148,7 +148,7 @@ def test_typed_errors_and_unknown_200(chain) -> None:  # noqa: F811
     assert client(built).get(f"/api/sites/OTHER/cold/temperature?{W}").status_code == 404
     assert error(client(built, site_type="MINIGRID"), f"temperature?{W}", 404) == "SITE_NOT_FOUND"
     assert error(client(built, access=lambda r, code: 401), f"temperature?{W}", 401) == "UNAUTHENTICATED"
-    down = client(built, url="postgresql+psycopg://nobody:x@127.0.0.1:1/none")
+    down = client(built, url="postgresql+psycopg://nobody:x@127.0.0.1:1/none?connect_timeout=2")
     assert error(down, f"temperature?{W}", 503) == "COLD_READ_UNAVAILABLE"
     assert error(down, f"findings?{W}", 503) == "COLD_READ_UNAVAILABLE"
 
