@@ -48,3 +48,38 @@ change after revisions exist needs a new model version. Please rule before step 
    limitation; else UNKNOWN. "Cited source gate resolves" is taken as satisfied by the Q13 gated selection. Thus
    fuel (tank instants) and backup (instant roles) are always UNKNOWN in W4-02. Accept?
 6. **`cards.start_success_count`** stays the rule's count (only `outage_count` is nulled per q3 8). Accept?
+
+## q7 (unit 4 step 4, `1e4baa8c`/`a2953175`): the S7 tick stage needs DDL outside 0029's catalog (BLOCKS the stage)
+
+`mini_depth/worker.py` is built (lease -> inputs -> projection -> `append_selection(job_id)` -> `settle_mini_job`
+in one REPEATABLE READ transaction; CLI `run-pending`, `reconcile`). The S7 `mini` stage is **not** built:
+
+1. **Persisted stage shape.** Closure 4 S7 says to add the stage result "to the tick's persisted/report shape".
+   `schedule_site_head.stage` is `CHECK (stage IN ('IDLE','S3','S4','CONSEQUENCE'))` (`0013_schedule_state.py:65`),
+   so `ScheduleStore.set_stage(..., "MINI")` (the per-stage claim check every stage uses, `tick.py:_site`) fails,
+   and there are no `mini_processed/mini_deferred/mini_failed` columns (S3 has `s3_processed/s3_deferred`;
+   `last_failure_stage` is unconstrained text). Closure 2's 0029 catalog delta is closed ("three SQL functions and one
+   constraint trigger ... no `recompute_job` DDL") and names no `schedule_site_head` change. Options: (a) extend
+   0029 with the CHECK widening and three counter columns (and `record_mini` on the schedule store, the schedule
+   writer); (b) a new migration 0030; (c) report-only: the stage result goes into `TickReport`/`as_json` only and
+   the Site claim is checked with the existing `S3` stage value. Which?
+2. **Discovery.** `discover` selects Sites from `live_jobs(dispatch_v3.ANALYTIC_ID, 'dispatch')`. "Discovery includes
+   Sites with pending mini work" needs a four-domain live-job read; the assessment store owns `recompute_job` reads.
+   Confirm a new `PostgresAssessmentStore.live_mini_jobs(tenant?, site?)` (PENDING/LEASED, and FAILED until a later
+   selection, per closure 1 Q3 currentness) feeding `select_sites` as `live_jobs` do.
+3. **Budgets.** Proposed `TickLimits.mini_jobs_per_site=10`, `mini_seconds=120` (< the worker's 5-minute lease, like
+   S3), the existing `statement_timeout_ms` (must stay below `mini_seconds`), and `site_lease_seconds` += `mini_seconds`.
+   Confirm or give values.
+
+Readings applied in step 4 (for review; none changes a spec rule):
+- R1 `inputs.input_sha256` now returns `sha256:<hex>`: 0029's column CHECK (spec line 88) requires it; step 3 returned
+  bare hex, which the writer would refuse.
+- R2 A refused input set (`MiniInputsRefused`, e.g. `CONFIGURATION_MISSING`) fails the job through `fail_mini_job`
+  (RETRY with back-off, FAILED on the last attempt; `last_error` starts with the code), as the Dispatch worker does
+  for every error. No UNKNOWN revision is persisted for a refusal.
+- R3 `reconcile` assesses each first-occurrence Site-local hour wholly inside `[from,to)`, all four domains
+  (renewable at local noon only, as 0029's enqueue functions), one transaction per hour at its DB `clock_timestamp()`
+  cutoff, appending `backfill=True` selections with `job_id=null`; it reads/writes no job.
+- R4 The CLI subcommand is `run-pending` as specified, but its name is derived from `MiniDepthWorker.run_pending`:
+  `tools/checks/run-setup.ps1` bans a quoted `run-` literal outside `runs/identity.py`. Accept, or should the guard
+  allow this one CLI spelling?
