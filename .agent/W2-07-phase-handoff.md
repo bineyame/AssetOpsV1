@@ -103,3 +103,36 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
   `analytics/ev_reads.py` (cursor `encode_cursor/decode_cursor/check_cursor`, notes), W2-06 router for error
   mapping; build-spec "Commits 2–3" reconciliation (`:487-530`) and "Commits 3–5" (`:531-549`) for shapes/codes.
 - No private DB was created this run.
+
+## Run 5 (2026-10-20): spec commit 2 landed (q1 R2/R5/R6, q2, q3 R8 + C1-C5)
+
+- Landed `94c1a2f2` + `4f34e3e2` + `1ce20550` (snapshot injection fix; line numbers below shift by ~+5 in the store). Pure `financials/ev_money.py` (`derive` :200, `conflicts` :162, `select_tariff`
+  :184, line-77 forms `technical_rows` :126 / `technical_input_sha256` :144 / `consequence_basis_sha256` :149 /
+  `overlap_group` :156). Store `postgres_consequence_store.py`: `ev_unit` :659, `ev_record_failure` :669,
+  `ev_pending_work` :685 (`created_at,id`), `ev_claim_site` :702, `ev_rows` :727, `_ev_attempt` :924, `EvUnit` :937
+  (`pending` :956 = R8 literal predicate; `basis` :964 calls the injected `ev_snapshot` =
+  `analytics.composition.build_ev_selected_snapshot` (`EvReadService._snapshot(c,t,s,"",lo,hi,None)`; rule 8 bans
+  a direct analytics-adapter import);
+  `append` :1009 window lock, basis replay before `revision_no`). Runner `financials/ev_recompute.py`
+  (`EvConsequenceWorker`); composition `build_ev_consequence_store/_worker`. Rule 8 `evConsequenceInsertsSeen` +
+  four `ev <table> owner insert unseen` probes (required by name).
+- Readings applied (not new rulings): line-77 `source_class` = selected stored `result.source_provenance.class`,
+  `source_gate` = C5 classified class; tariff fields enter the basis only when ESTIMATED; links (session/evidence)
+  only for ESTIMATED (C2 "priced"); WITHHELD/INCOMPLETE quantity null; UNPRICED tariff rows keep eligible kWh.
+  Contradiction = CONTRADICTORY session, EXCLUDED `METER_OVERLAP`, one evidence ID under two sessions, or
+  overlapping SUPPORT intervals on one connector. No exact selection / no session -> empty SUCCEEDED attempt.
+- The replay's selected EV window is `[08:00, 09:05)` (not 09:00); tests read it via `ev_window` (:658). The golden
+  tariff `[08:00, 09:00)` covers every eligible interval. R8 test inserts/UPDATEs a `recompute_job` row directly and
+  calls `ev_consequence_enqueue` for the no-basis-change dirtiness event (existing test precedent).
+- Commit 3 anchors: reads in `EvReadService` (`postgres_assessment_store.py:2075`, `_read` :2092, `_snapshot` :2102,
+  `_envelope` :2184, `_sessions` :2236) unchanged by commit 2. Current consequence for a read: recompute the basis
+  with `EvUnit.basis` logic + `ev_money.derive` on the read connection (both SELECT-only/pure) and select the stored
+  revision whose `basis_sha256` matches; none -> STALE_BASIS read guard. Do not use "highest revision_no": a basis
+  replay (R8) may make an older revision current again. Pending/historical mask via `_snapshot` state.
+  Extend `test_pending_retry_settles_without_new_assessment_revision` (:787) with the five-read null current
+  amount + pending copy (deferred: the reads do not exist in commit 2).
+- Evidence (`1ce20550`): `test_w207_ev_money.py` 2 passed; `test_w207_ev_money_postgres.py` 12 passed (six vectors
+  exact + R8 regression); adjacent run on `4f34e3e2` (w207 x2, w206 store, w205b replay, w204 cold migration/worker,
+  s4 consequence store/recompute) 81 passed in 17m37s; after the fix w207 x2 + w204 cold worker 18 passed;
+  `tools/check-all.ps1` all 10 guards passed; probes `ev <4 tables> owner insert unseen` CAUGHT, control ALLOWED.
+  Full suites not run (by brief). Private DB `w207e_test` dropped.
