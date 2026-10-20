@@ -88,6 +88,7 @@ These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev
 | W2-05b EV producer | [W2-05b](W2-05b-ev-producer.md) | Frozen six-case EV Lab Stage/Commit through v4 gateway and S2 accepted evidence; after W2-05a and W2-02 | Done 2026-10-19 (merged; review ACCEPT-with-followups) |
 | W2-06 EV assessment | [W2-06](W2-06-ev-assessment.md) | `0025` immutable session correlation, supported meter sum, bounded fault Finding, late recompute and two exact v69 routes; after reviewed/merged W2-05b | Done 2026-10-20 (merged; review ACCEPT WITH FIXES, fixes r7-r10, re-review ACCEPT; owner W2 walkthrough non-blocking) |
 | W2-07 EV Site/evidence/money | [W2-07](W2-07-ev-site-evidence-money.md) | `0026` shared selected EV projections, exact gross tariff scenario and five exact v69 routes; after reviewed/merged W2-06 | Done 2026-10-20 (merged; review REVISE, fix r1, re-review ACCEPT; owner W2 walkthrough non-blocking) |
+| W2-F structural corrections | [W2-F](W2-F-structural-fixes.md) | Audit H1/M2–M14 across existing cold/EV screens; schema-free, after W4-01 then W3-01 merge, before first W5 build | Planned; Lane A; independent review and structural re-audit gate merge/W5 |
 
 ## W3 estate planning packets
 
