@@ -1,0 +1,401 @@
+"""W3-02 commit 1: the estate Evidence root, `GET /api/estate/evidence`, over the one W3-01 estate snapshot (pure).
+
+Every row, card, gap group and selection-token array is computed from the full authorized selected set before
+paging (`.agent/W3-02-build-spec.md` closures 1-5). The snapshot is
+`estate/adapters/postgres_evidence_money_read.py`'s bound read: every call it makes runs on the one read-only
+REPEATABLE READ estate connection; nothing here opens a connection, reads a page or writes.
+
+Rows, per display capability (closure 1 Q3, closure 4 "W1 day source, cold/EV windows"):
+- mini-grid: one `GENERATOR_SUPPORT@YYYY-MM-DD` row per UTC day intersecting `[from, to)`, reduced by Lane A's
+  `reduce_day` from every selected interval revision of `ClaimLimitReadService.claim_limit_on`;
+- cold-chain / EV charging: four rows per selected stored window (`temperature@<ws>/<we>` ...), from the pinned
+  `capabilities_on` facades; a Site with no selected window has four unsuffixed `UNASSESSED` placeholders.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any, Callable
+from urllib.parse import quote, urlencode
+
+from assetops_backend.analytics import cold, dispatch_v3
+from assetops_backend.analytics import claim_limit_read as w1
+from assetops_backend.analytics.cold_site_reads import EXC, START
+from assetops_backend.ev_site_reads import CLAIMS as EV_CLAIMS, NEXT_EVIDENCE as EV_NEXT, TARIFF_ROLE, EvSiteReads
+from assetops_backend.estate.coverage import (
+    COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
+    not_applicable, site_coverage)
+from assetops_backend.estate.index import (
+    EstateIndexService, _coverage_site, _coverage_state, _status, _token_site)
+from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, token_time, wire_time
+from assetops_backend.sites.binding_roles import COLD_ROLES_1, MINIGRID_ROLES
+
+EVIDENCE_SCHEMA = "estate-evidence-1"
+EVIDENCE_ORDER = "site_code_key asc, site_id asc, capability_key asc"
+EMPTY_SCOPE, EMPTY = "EMPTY_SCOPE", "EMPTY"
+FULL, LIMITED, NONE, CONTRADICTORY = "FULL", "LIMITED", "NONE", "CONTRADICTORY"
+UNASSESSED = "UNASSESSED"
+DOMAIN_LABEL = {MINI_GRID: "mini-grid", COLD: "cold-chain", EV: "EV charging"}
+CURRENT_VIEW = "Opens current Site view"
+HISTORICAL_AS_OF = "Historical as of {known_at}"
+NO_CURRENT_CEILING = "No current ceiling"
+Admit = Callable[[str], bool]
+
+#: W2 capability state -> estate readiness (closure 1 "Snapshot, sources and identity").
+READINESS = {"SUPPORTED": FULL, "LIMITED": LIMITED, "UNAVAILABLE": NONE, "CONTRADICTORY": CONTRADICTORY}
+
+#: W1 (closure 1 Q3): one display capability per selected UTC day.
+W1_KEY, W1_LABEL = w1.CAPABILITY_KEY, "Generator support"
+#: Closure 2 Q4: the literal W1 role labels and their source constants.
+W1_ROLE_LABEL = {w1.GEN: next(r.label for r in MINIGRID_ROLES if r.role == w1.GEN),
+                 **{role: dispatch_v3.LABELS[role] for role in (w1.LOAD, w1.PV, w1.DIS, w1.SOC)}}
+W1_GAP_TEXT = {"MISSING_ROLE": ("Missing {label}", "Record {label}"),
+               "GENERATOR_UNOBSERVED": ("Generator state not observed", "Record generator state"),
+               "POOR_QUALITY": ("Poor quality {label}", "Repair {label} readings"),
+               "CONFLICTING": ("Conflicting {label}", "Resolve conflicting {label} records")}
+
+#: Closure 1 Q3: cold display rows as `coldSiteViews.tsx:CAP_ROWS`; each cites its owning analytic only.
+COLD_ROWS = (("temperature", "Temperature compliance", ("TEMPERATURE_POINT", "EXCURSION_BOUNDS"), EXC),
+             ("backup", "Backup response", ("BACKUP_START_RESULT", "TRANSFER_POSITION"), START),
+             ("cooling", "Cooling recovery", ("COOLING_RESPONSE",), START),
+             ("exposure", "Product exposure", ("PRODUCT_EXPOSURE",), EXC))
+COLD_ROLE_LABEL = {r.role: r.label for r in COLD_ROLES_1}
+
+#: Closure 1 Q3: EV display rows as `EvSiteViews.tsx:CAP_ROWS`; the other three `CLAIMS` stay in disclosure.
+EV_ROWS = (("sessions", "Session outcomes", ("SESSION_OUTCOME",)),
+           ("availability", "Connector availability", ("SERVICE_STATE",)),
+           ("energy", "Delivered energy", ("DELIVERED_ENERGY",)),
+           ("cause", "Cause of interruption", ("FAULT_ASSOCIATION",)))
+EV_SUPPORTING = tuple(c[0] for c in EV_CLAIMS if c[0] not in {x for row in EV_ROWS for x in row[2]})
+#: Closure 1 Q4: EV typed gaps in `NEXT_EVIDENCE` order (BILLING_GAP excluded), their gap label and the missing
+#: roles that make a claim affected by the code.
+EV_GAP_LABEL = {"TERMINAL_GAP": "Missing session end report", "METER_GAP": "Missing connector meter intervals",
+                "STATUS_GAP": "Missing connector status history",
+                "INDEPENDENT_POWER_GAP": "Missing independent power readings",
+                "SITE_IMPORT_GAP": "Missing Site import power", "TARIFF_GAP": "Missing EV tariff"}
+EV_GAP_ROLES = {"TERMINAL_GAP": {"session_terminal"}, "METER_GAP": {"connector_meter_delta"},
+                "STATUS_GAP": {"connector_status"}, "INDEPENDENT_POWER_GAP": {"requested_power", "allocated_limit"},
+                "SITE_IMPORT_GAP": {"site_import"}, "TARIFF_GAP": {TARIFF_ROLE}}
+EV_GAP_ORDER = tuple(code for code in EV_NEXT if code in EV_GAP_LABEL)
+
+NO_PROVENANCE = {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [], "evidence_ids": [],
+                 "basis_sha256": None, "reasons": []}
+
+
+def _ids(values: Any) -> list[str]:
+    return sorted({str(v).lower() for v in values or () if v is not None})
+
+
+def group_readiness(states: list[str]) -> str:
+    """Closure 4: a grouped row is FULL only when every constituent is FULL; otherwise CONTRADICTORY > NONE >
+    LIMITED > UNKNOWN. A W2 state outside the reviewed enum is UNKNOWN."""
+    mapped = [READINESS.get(s, UNKNOWN) for s in states]
+    if mapped and all(m == FULL for m in mapped):
+        return FULL
+    for state in (CONTRADICTORY, NONE, LIMITED):
+        if state in mapped:
+            return state
+    return UNKNOWN
+
+
+def _site_href(code: str) -> str:
+    return f"/sites/{quote(code, safe='')}"
+
+
+def window_links(code: str, domain: str, snap: dict[str, Any] | None, evidence_cutoff: datetime | None,
+                 k: datetime) -> dict[str, Any]:
+    """Closure 5 B5: a cold/EV row link carries only its own pinned `lo`/`hi` and row-local `known`, and only when
+    `known` equals the passed Site evidence cutoff and is at or before both the estate cutoff and the committed
+    watermark. Anything unprovable (and every placeholder) is the base Site route, `Opens current Site view`."""
+    base = _site_href(code)
+    if snap is not None:
+        lo, hi, known, mark = snap.get("lo"), snap.get("hi"), snap.get("known"), snap.get("watermark")
+        if (lo is not None and hi is not None and known is not None and evidence_cutoff is not None
+                and known == evidence_cutoff and known <= k and (mark is None or known <= mark)):
+            path = f"{base}/evidence" if domain == COLD else f"{base}/ev/evidence"
+            query = urlencode([("from", cold.plain(lo)), ("to", cold.plain(hi)), ("known_at", cold.plain(known))])
+            return {"site": base, "site_readiness": f"{path}?{query}", "site_readiness_label": None}
+    return {"site": base, "site_readiness": base, "site_readiness_label": CURRENT_VIEW}
+
+
+def _gap(domain: str, code: str, role: str | None, label: str, step: str) -> dict[str, Any]:
+    return {"key": (domain, code, role or ""), "domain": domain, "gap_code": code, "missing_role": role,
+            "label": label, "next_step": step}
+
+
+def w1_gap(code: str, role: str) -> dict[str, Any]:
+    label = W1_ROLE_LABEL.get(role, role)  # closure 2 Q4: an unknown typed role uses its exact ID
+    text, step = W1_GAP_TEXT[code]
+    return _gap(MINI_GRID, code, role, text.format(label=label), step.format(label=label))
+
+
+def cold_gap(role: str) -> dict[str, Any]:
+    label = COLD_ROLE_LABEL.get(role, role)
+    return _gap(COLD, "MISSING_ROLE", role, f"Missing {label}", f"Connect or record {label}")
+
+
+def ev_gap(code: str) -> dict[str, Any]:
+    return _gap(EV, code, None, EV_GAP_LABEL[code], EV_NEXT[code][0])
+
+
+def _row(site: dict[str, Any], domain: str, key: str, label: str, **values: Any) -> dict[str, Any]:
+    row = {"site_id": str(site["site_id"]), "site_code": site["site_code"], "site_name": site["site_name"],
+           "domain": domain, "domain_label": DOMAIN_LABEL[domain], "capability_key": key, "capability_label": label,
+           "window_start": None, "window_end": None, "raw_state": UNASSESSED, "readiness": UNKNOWN,
+           "current_ceiling": None, "ceiling": None, "ceiling_source": "NONE", "next_evidence": None,
+           "gap_codes": [], "selected_revision_ids": [], "source_provenance": dict(NO_PROVENANCE),
+           "links": {"site": _site_href(site["site_code"]), "site_readiness": _site_href(site["site_code"]),
+                     "site_readiness_label": CURRENT_VIEW},
+           "disclosure": {"capability_key": key, "constituents": [], "reasons": [], "historical": None},
+           "_key": (str(site["site_code_key"]), str(site["site_id"]).lower(), key), "_gaps": [],
+           "_cited": [], "_assessments": []}
+    row.update(values)
+    return row
+
+
+def _with_gaps(row: dict[str, Any], gaps: list[dict[str, Any]]) -> None:
+    """A row's typed gaps; `next_evidence` is the first sorted typed step affecting it (closure 1 Q4)."""
+    ordered = sorted({g["key"]: g for g in gaps}.values(), key=lambda g: g["key"])
+    row["_gaps"] = ordered
+    row["gap_codes"] = sorted({g["gap_code"] for g in ordered})
+    row["next_evidence"] = ordered[0]["next_step"] if ordered else None
+
+
+def _historical(row: dict[str, Any], k: datetime, readiness: str, statements: list[str] | None = None) -> None:
+    """0b ruling M3, applied to every domain: IDs kept, every current claim cleared; CONTRADICTORY only from a
+    selected as-of conflict, else UNKNOWN. Historical reasons stay in labelled disclosure, never current gaps."""
+    row.update(raw_state=HISTORICAL, readiness=CONTRADICTORY if readiness == CONTRADICTORY else UNKNOWN,
+               current_ceiling=None, ceiling=None, ceiling_source="NONE", next_evidence=None, gap_codes=[], _gaps=[])
+    row["disclosure"]["historical"] = {
+        "label": HISTORICAL_AS_OF.format(known_at=wire_time(k)),
+        "statements": statements or [HISTORICAL_AS_OF.format(known_at=wire_time(k)), NO_CURRENT_CEILING]}
+
+
+# --- mini-grid -------------------------------------------------------------------------------------------------
+
+def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, k: datetime) -> list[dict[str, Any]]:
+    s = site["site_id"]
+    rows = []
+    for day in snap.dispatch_days(t, s, req.from_, req.to, k):
+        revision = (day.get("window_assessment_revision_id")
+                    if day.get("available") and day.get("selection") is not None else None)
+        projection = snap.claim_limit_on(t, s, day["day"], revision, k)
+        reduced = w1.reduce_day(projection)
+        key = f"{W1_KEY}@{day['day'].isoformat()}"
+        row = _row(site, MINI_GRID, key, W1_LABEL, window_start=wire_time(day["window_start"]),
+                   window_end=wire_time(day["window_end"]))
+        row["disclosure"].update(
+            constituents=reduced["interval_ceilings"],
+            window_assessment_revision_id=None if reduced["window_assessment_revision_id"] is None
+            else str(reduced["window_assessment_revision_id"]),
+            reasons=list(reduced["reasons"]) or list(projection.get("reasons") or ()))
+        if not projection["available"]:  # closure 1 Q1: unreconstructable -> UNKNOWN, no IDs fabricated
+            row.update(raw_state=UNKNOWN)
+        elif revision is None:
+            row.update(raw_state=UNASSESSED)
+        else:
+            assessments = _ids(reduced["assessment_revision_ids"])
+            row.update(selected_revision_ids=assessments, _cited=_ids(reduced["accepted_evidence_ids"]),
+                       _assessments=assessments + _ids([reduced["window_assessment_revision_id"]]))
+            if reduced["currentness"] == w1.HISTORICAL:
+                _historical(row, k, reduced["state"], reduced["historical_statements"] or None)
+                row["disclosure"]["historical"]["gaps"] = [
+                    {k2: v for k2, v in w1_gap(g["gap_code"], g["missing_role"]).items() if k2 != "key"}
+                    for g in reduced["historical_gaps"]]
+            else:
+                current = projection.get("currentness") == CURRENT
+                row.update(raw_state=reduced["state"] if current else projection.get("currentness") or UNKNOWN,
+                           readiness=reduced["state"])
+                if reduced["ceiling_source"] == "W1_CLAIM_LIMIT":
+                    row.update(current_ceiling=reduced["ceiling_statement"], ceiling=reduced["current_ceiling"],
+                               ceiling_source="W1_CLAIM_LIMIT")
+                if current:
+                    _with_gaps(row, [w1_gap(g["gap_code"], g["missing_role"]) for g in reduced["gaps"]])
+        rows.append(row)
+    return rows
+
+
+# --- cold-chain and EV -----------------------------------------------------------------------------------------
+
+def _window_state(snap: Any, site_state: str, window_state: str | None) -> str:
+    if snap.basis_historical:
+        return HISTORICAL
+    if site_state == PENDING or window_state == PENDING:
+        return PENDING
+    if site_state == STALE or window_state == STALE:
+        return STALE
+    return CURRENT if window_state == CURRENT else UNKNOWN
+
+
+def _shape_window_row(row: dict[str, Any], state: str, readiness: str, limitations: list[str],
+                      source: str, gaps: list[dict[str, Any]], k: datetime) -> None:
+    if state == HISTORICAL:
+        _historical(row, k, readiness)
+        return
+    if state != CURRENT:  # pending/stale/unknown: the prior selected row is disclosure history, no current claim
+        row.update(raw_state=state, readiness=UNKNOWN)
+        row["disclosure"]["prior_selection"] = {"readiness": readiness, "limitation": " ".join(limitations) or None}
+        return
+    row.update(raw_state=readiness, readiness=readiness)
+    if limitations:
+        row.update(current_ceiling=" ".join(limitations), ceiling_source=source)
+    _with_gaps(row, gaps)
+
+
+def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: EstateRequest, k: datetime,
+                  site_state: str) -> list[dict[str, Any]]:
+    s, code = site["site_id"], site["site_code"]
+    layout = COLD_ROWS if domain == COLD else EV_ROWS
+    evidence_cutoff = snap.evidence_cutoff(t, s, k)
+    pinned = [] if evidence_cutoff is None else snap.pinned_windows(t, s, domain, req.from_, req.to,
+                                                                    evidence_cutoff, k)
+    if not pinned:  # closure 4: four unsuffixed UNKNOWN placeholders, never a zero
+        return [_row(site, domain, spec[0], spec[1]) for spec in layout]
+    rows = []
+    for pin in pinned:
+        suffix = f"@{token_time(pin['lo'])}/{token_time(pin['hi'])}"
+        links = window_links(code, domain, pin, evidence_cutoff, k)
+        state = _window_state(snap, site_state, pin.get("state"))
+        if domain == COLD:
+            read = snap.cold_capabilities(pin)
+            caps = {c["claim"]: c for c in read["capabilities"]}
+            for key, label, claims, analytic in COLD_ROWS:
+                parts = [caps[c] for c in claims if c in caps]
+                revision = read["assessment_revision_ids"].get(analytic)
+                row = _row(site, domain, key + suffix, label, window_start=wire_time(pin["lo"]),
+                           window_end=wire_time(pin["hi"]), links=links,
+                           selected_revision_ids=_ids([revision]), _assessments=_ids([revision]),
+                           _cited=_ids(read["evidence_by_analytic"].get(analytic)))
+                row["disclosure"]["constituents"] = [
+                    {"claim": p["claim"], "state": p["state"], "missing_roles": list(p["missing_roles"]),
+                     "limitation": p["limitation"], "assessment_revision_id": revision} for p in parts]
+                readiness = group_readiness([p["state"] for p in parts])
+                limitations = list(dict.fromkeys(p["limitation"] for p in parts if p["limitation"]))
+                gaps = [cold_gap(role) for p in parts for role in p["missing_roles"]]
+                _shape_window_row(row, state, readiness, limitations, "COLD_LIMITATION", gaps, k)
+                rows.append(row)
+        else:
+            read = snap.ev_capabilities(pin)
+            caps = {c["claim"]: c for c in read["capabilities"]}
+            missing = {role for c in read["capabilities"] for role in c["missing_roles"]}
+            power = set(caps["POWER_CONSTRAINT"]["missing_roles"]) if "POWER_CONSTRAINT" in caps else set()
+            codes = [c for c in EvSiteReads._next_candidates(missing, power, read["unknown_meter"])
+                     if c in EV_GAP_LABEL]
+            supporting = [{"claim": caps[c]["claim"], "state": caps[c]["state"],
+                           "missing_roles": list(caps[c]["missing_roles"]), "limitation": caps[c]["limitation"],
+                           "accepted_evidence_ids": list(caps[c]["accepted_evidence_ids"])}
+                          for c in EV_SUPPORTING if c in caps]
+            revision = read["assessment_revision_id"]
+            for key, label, claims in EV_ROWS:
+                parts = [caps[c] for c in claims if c in caps]
+                cited = _ids([e for p in parts for e in p["accepted_evidence_ids"]])
+                row = _row(site, domain, key + suffix, label, window_start=wire_time(pin["lo"]),
+                           window_end=wire_time(pin["hi"]), links=links,
+                           selected_revision_ids=_ids([revision]), _assessments=_ids([revision]),
+                           _cited=_ids(read["evidence_ids"]) if not parts else cited)
+                row["disclosure"].update(constituents=[
+                    {"claim": p["claim"], "state": p["state"], "missing_roles": list(p["missing_roles"]),
+                     "limitation": p["limitation"], "accepted_evidence_ids": list(p["accepted_evidence_ids"]),
+                     "assessment_revision_id": revision} for p in parts], supporting_claims=supporting)
+                readiness = group_readiness([p["state"] for p in parts])
+                limitations = list(dict.fromkeys(p["limitation"] for p in parts if p["limitation"]))
+                affected = {r for p in parts for r in p["missing_roles"]}
+                gaps = [ev_gap(c) for c in codes if EV_GAP_ROLES[c] & affected
+                        or (c == "METER_GAP" and read["unknown_meter"] and "DELIVERED_ENERGY" in claims)]
+                _shape_window_row(row, state, readiness, limitations, "EV_LIMITATION", gaps, k)
+                rows.append(row)
+            window = rows[-len(EV_ROWS):]
+            placed = {g["gap_code"] for r in window for g in r["_gaps"]}
+            if state == CURRENT:  # a code affecting only supporting claims still groups, unlocking no display row
+                window[0]["_window_gaps"] = [ev_gap(c) for c in codes if c not in placed]
+    return rows
+
+
+# --- the service -----------------------------------------------------------------------------------------------
+
+def _groups(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Closure 1 Q4 / 0b ruling: one group per `(domain, gap_code, missing_role)` over the full unpaged rows,
+    unioning Site IDs/codes and the affected capability keys; sorted by key, Sites by code. No priority."""
+    held: dict[tuple, dict[str, Any]] = {}
+    for row in rows:
+        for gap, unlocks in [*((g, True) for g in row["_gaps"]), *((g, False) for g in row.get("_window_gaps", ()))]:
+            group = held.setdefault(gap["key"], {**{k: v for k, v in gap.items() if k != "key"},
+                                                 "_sites": {}, "unlocks": set(), "link": None})
+            group["_sites"][row["site_id"]] = (row["_key"][0], row["site_code"])
+            if unlocks:
+                group["unlocks"].add(row["capability_key"])
+    out = []
+    for key in sorted(held):
+        group = held[key]
+        sites = sorted(group.pop("_sites").items(), key=lambda item: (item[1][0], item[0]))
+        out.append({"domain": group["domain"], "gap_code": group["gap_code"], "missing_role": group["missing_role"],
+                    "label": group["label"], "site_ids": [sid for sid, _ in sites],
+                    "site_codes": [c for _, (_, c) in sites], "unlocks": sorted(group["unlocks"]),
+                    "next_step": group["next_step"], "link": None})
+    return out
+
+
+class EstateEvidenceService(EstateIndexService):
+    """The Evidence root over the shared W3-01 authorization, cutoff, fence, cursor and envelope (no fork)."""
+
+    def evidence(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
+        return self._read(lambda snap: self._evidence(snap, tenant_id, req, admit))
+
+    def _evidence(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
+        scope = self._scope(snap, tenant_id, req, admit)
+        k = scope["k"]
+        per_site, rows = [], []
+        for site in scope["sites"]:
+            domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
+            if domain is None:
+                per_site.append((site, NOT_APPLICABLE, not_applicable(), []))
+                continue
+            cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k)
+            site_rows = (mini_grid_rows(snap, tenant_id, site, req, k) if domain == MINI_GRID
+                         else windowed_rows(snap, tenant_id, site, domain, req, k, cov["state"]))
+            for row in site_rows:
+                if row["_assessments"]:
+                    row["source_provenance"] = snap.cited_provenance(tenant_id, site["site_id"], row["_cited"],
+                                                                     row["selected_revision_ids"])
+            per_site.append((site, domain, cov, site_rows))
+            rows += site_rows
+        rows.sort(key=lambda r: r["_key"])
+        token_sites = []
+        for site, domain, cov, site_rows in per_site:
+            arrays = {"selected_finding_revision_ids": [], "selected_action_event_ids": [],
+                      "selected_consequence_revision_ids": [], "selected_assumption_revision_ids": [],
+                      "selected_assessment_revision_ids": _ids(x for r in site_rows for x in r["_assessments"]),
+                      "cited_accepted_evidence_ids": _ids(x for r in site_rows for x in r["_cited"])}
+            token_sites.append(_token_site(site, domain, {**cov, **arrays}))
+        token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["token_k"], None, None,
+                                token_sites)
+        after = self._fence(tenant_id, req, scope, token)
+        start = 0 if after is None else resume_after([r["_key"] for r in rows], after)
+        page = rows[start:start + req.limit]
+        last = page[-1] if start + req.limit < len(rows) else None
+        states = [cov["state"] for _, domain, cov, _ in per_site if domain != NOT_APPLICABLE]
+        empty = not scope["sites"]
+        status = EMPTY_SCOPE if empty else _status(scope["historical"], states)
+        coverage_state = EMPTY if empty else _coverage_state([cov["state"] for _, _, cov, _ in per_site])
+        complete = empty or (status == CURRENT and coverage_state == "COMPLETE")
+        counts = {r: sum(1 for x in rows if x["readiness"] == r) for r in (FULL, LIMITED, NONE, UNKNOWN)}
+        contradictory = any(r["readiness"] == CONTRADICTORY for r in rows)
+        summary: dict[str, Any] = {
+            "limited_site_count": (len({r["site_id"] for r in rows if r["readiness"] == LIMITED})
+                                   if complete and not contradictory else None),
+            "priority_gap_count": None, "unsupported_claim_count": None, "capability_count": len(rows),
+            "full_count": counts[FULL] if complete else None, "limited_count": counts[LIMITED] if complete else None,
+            "none_count": counts[NONE] if complete else None, "unknown_count": counts[UNKNOWN] if complete else None}
+        if scope["historical"]:  # W3-01 q12 ruling 1: a HISTORICAL response carries `as_of`
+            summary["as_of"] = wire_time(k)
+        covered = sum(1 for s in states if s in COVERED)
+        body = self._envelope(EVIDENCE_SCHEMA, tenant_id, req, scope, covered, status,
+                              {"state": coverage_state,
+                               "sites": [_coverage_site(site, cov) for site, _, cov, _ in per_site]})
+        body.update({"summary": summary, "order": EVIDENCE_ORDER, "total_count": len(rows),
+                     "rows": [{k2: v for k2, v in r.items() if not k2.startswith("_")} for r in page],
+                     "gaps": _groups(rows),
+                     "next_cursor": None if last is None else self._cursor(tenant_id, req, scope, token,
+                                                                          *last["_key"]),
+                     "selection_token": token})
+        return body
