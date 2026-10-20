@@ -383,3 +383,27 @@ Revisions: code/tests `dc573bd9` (and earlier r1 commits); the separate cherry-p
 
 Readings made (flag for review): (1) a live page two keeps the live Site state (mini-grid gate) but the Site `state` label is HISTORICAL when its cutoff precedes read time (cold/EV unchanged; mini-grid relabelled except UNKNOWN). (2) STALE test sets the stored day status through a wrapper over `dispatch_days` (a DONE job without a completion selection makes the day unavailable; jobs are never deleted). (3) L2 test re-dates the revision of the last selection by one second (triggers disabled in the test transaction) because the worker stamps revision, assessment and selection with one transaction time; a natural gap does not exist. (4) historical changed-selection control uses a forged selection digest plus a grant change, not a mutated stored revision. (5) Forced clock: named step clocks used as request cutoffs stay unshifted; echoed read instants are unshifted before comparison to the literal manifest. (6) the second inline catch-all in the EV store (`except Exception` near the EV inline link read, ~line 2497) is left as is (not named by L1). (7) golden mini-grid test disposes the module engine pool because the `mixed` branch re-creates the DB.
 Limits carried: widened-job historical overlap (Run 6 reading 4); golden is a digest canonicalizer plus whole-response comparison, not an independent selection oracle.
+
+## Lane B q12 + commit 3 (2026-10-20): five estate roots landed; Lane A integration next; branch released
+Merged main (`d84fe26f`, clean). Commits:
+- `8c7be299` q12 items 1-2:
+  - `coverage.py`: `_mini_grid` continuation overwrite removed; `_windowed`/`_actions` Site state from `basis_historical`.
+  - `index.py`: `summary.as_of` on every HISTORICAL response (q13 reading 1); golden `withdrawal-day-before-selection-unknown` gains `as_of`.
+  - Page-two tests compare full Site coverage incl. `state`, row `status`, `as_of`, top-level HISTORICAL. Covered: work fence, live pending, stale, explicit historical, cursor, and a new Actions page two in the counts test.
+  - L2 assertion replaced exactly.
+- `5a72feea` commit 3: `frontend/src/estate/{estateClient.ts,estateShared.tsx,findingIndex.tsx,actionIndex.tsx,estate.css}`, `__tests__/{estateFixtures.ts,estateRoots.test.tsx}` (3 named tests, `expectV69Panels` for all five screens). Pages export `EstateFindingsPage({lens,client?})`, `EstateActionsPage({client?})`, `ESTATE_FINDING_LENS_PATHS`, `ESTATE_ACTIONS_PATH`.
+Checks:
+- Private `w301x_test` (dropped). Estate api/coverage/index/index-ev/golden plus the guard tests, run across one full pass and reruns after each fix:
+  - `test_late_support...` 1 passed after its as_of fix.
+  - Index/api/ev 33 passed with that 1 failure (now fixed).
+  - Golden 6 passed.
+  - The page-two subset 20 passed.
+  - No full backend suite.
+- Frontend: tsc clean; full suite 92 files / 2345 passed; estate 3 passed. check-all 11/11 after the table rename; the architecture check passed on rerun.
+- Mutations, each reverted with `git checkout`, each FAILS:
+  - `_windowed` back to `snapshot.historical`: the work-fence test fails.
+  - Historical consequence copy dropped: `estateRoots` fails.
+  - Pending chip relabelled historical: `estateRoots` fails.
+  - Lens tab keeping the cursor: `estateRoots` fails.
+**Open:** q13 in `.agent/W3-01-pending-rulings.md` (2 questions: full-basis state-chip set; cold/EV Finding link destination; 12 readings, reading 1 golden `as_of` needs confirmation).
+**Next:** Lane A commit-3 integration per `.agent/W3-01-lane-a-requests.md` "Commit-3" section (routes, App `estateIndex` prop, Actions rail + nav guard, registry, three shell tests). Then commit-3 review, then commit 4 captures. **Branch released.**
