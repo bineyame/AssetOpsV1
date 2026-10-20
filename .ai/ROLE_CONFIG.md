@@ -431,6 +431,7 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   build spec, a fresh Claude reviewer (Opus) dry-reads it as the implementer and checks it
   against merged code; the Architect closes every item, and a Sonnet check confirms closure.
   On 2026-10-20 this found 66 questions in the W4-01 and W3-01 specs before any code was written.
+- **Mock measurements before the spec.** Codex cannot drive Chrome in its sandbox (W3-02, 2026-10-20). Before an Architect spec request, the coordinator runs `node tools/measure-mock-panels.mjs <out-dir> <screen-id>...` and commits the measurements as `.agent/<slice>-mock-measurements.md`. The request must cite that file for the 1440/390 panel budgets.
 - **Size builder runs to one spec commit each**, with a handoff after each, so
   no run dies mid-commit and the next run reads only the handoff.
 - **Model by risk.** First review of a new build and design-deciding work on
