@@ -736,7 +736,7 @@ class PostgresAssessmentStore:
                         {"t": tenant_id, "s": site_id, "j": job["id"]}).scalar_one()
                 if selected is None:
                     unavailable.append(f"JOB_STATE_AT_CUTOFF_UNKNOWN: job {job['id']} is {job['status']} now and "
-                                       "no stored record shows its state at the cutoff")
+                                       "no stored completion selection establishes its state at the cutoff")
                 elif selected > known_at:
                     outstanding.append({**job, "status": "PENDING"})  # completed only after the cutoff
             snap = replace(snap, jobs=outstanding)
