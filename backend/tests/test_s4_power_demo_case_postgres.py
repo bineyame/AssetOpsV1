@@ -14,6 +14,7 @@ import os
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 
@@ -216,6 +217,64 @@ def test_s405b_fresh_p01_publication_binds_every_cited_and_power_id(store, engin
     finally:
         for s in stores:
             s.dispose()
+
+
+def test_source_state_compatibility_all_w1_consumers(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
+    """W3-01 Run 3 q3 (W1 rows of the dry-read map): every W1 reader keeps its resolver fields and gains the public
+    keys through the composition injection, with independent Finding/consequence digests over their own selected
+    sets; an unwired or missing revision keeps the fail-closed `unresolved` shape with no fabricated public keys."""
+    from assetops_backend.analytics.composition import build_finding_read_service
+    from assetops_backend.evidence.composition import build_public_provenance
+    from assetops_backend.evidence.provenance_read import consequence_provenance, finding_provenance
+    from assetops_backend.evidence.public_provenance import basis_sha256
+    from assetops_backend.financials import consequence_history as ch
+    from assetops_backend.financials.composition import build_consequence_history_service
+
+    runner, legacy, stores = p01(store, engine, capsys, monkeypatch, lambda device, texts: P01_FIXTURE)
+    prices, cstore = stores
+    public = build_public_provenance(URL)
+    findings = build_finding_read_service(URL)
+    history_service = build_consequence_history_service(URL)
+    try:
+        t, s = runner.tenant, runner.site
+        fr_id, c_id = legacy["consequence"]["finding_revision_id"], legacy["consequence"]["id"]
+        with engine.connect() as c:
+            finding_id = c.execute(text("SELECT finding_id FROM finding_revision WHERE id = :r"), {"r": fr_id}).scalar_one()
+        reads = ConsequenceReadService(cstore, prices, eligibility=ELIGIBLE, provenance=public)
+        body = reads.read(t, s, finding_id, fr_id, finding_revision_is_latest=True, source_open=True)
+        finding, union = body["source_provenance"]["finding_revision"], body["source_provenance"]["consequence_revision"]
+        old_finding = legacy["source_provenance"]["finding_revision"]
+        old_union = legacy["source_provenance"]["consequence_revision"]
+        public_keys = {"classification", "state", "source_ids", "evidence_ids", "basis_sha256", "reasons", "detail"}
+        for new, old in ((finding, old_finding), (union, old_union)):
+            assert set(old) <= set(new) and public_keys <= set(new)
+            assert {k: new[k] for k in old if k != "reasons"} == {k: old[k] for k in old if k != "reasons"}
+            assert new["classification"] == new["state"] == "AUTHORED_DEMONSTRATION"
+            assert new["evidence_ids"] == sorted(old["accepted_evidence_ids"]) and new["reasons"] == []
+            assert new["detail"]["accepted_evidence_ids"] == old["accepted_evidence_ids"]
+        assert finding["basis_sha256"] == basis_sha256(t, s, [fr_id], finding["evidence_ids"])
+        assert union["basis_sha256"] == basis_sha256(t, s, [c_id, fr_id], union["evidence_ids"])
+        assert finding["basis_sha256"] != union["basis_sha256"]
+        assert union["finding_revision_state"] == "AUTHORED_DEMONSTRATION"
+        assert body["consequence"]["source_provenance"] == union
+        # The W1 Finding reader (`FindingReadService.source_provenance`) returns the same Finding block.
+        assert findings.source_provenance(t, s, fr_id) == finding
+        # Consequence history rows carry the consequence block of each revision through the same composition.
+        req = ch.parse_request(None, None, "25")
+        rows = history_service.read(t, s, "KOBO-001", req, source_open=True, source_reason=None,
+                                    access_basis="dev")["rows"]
+        mine = [r for r in rows if str(r["consequence_revision_id"]) == str(c_id)]
+        assert mine and mine[0]["source_provenance"]["basis_sha256"] == union["basis_sha256"]
+        # Fallbacks: unwired and missing revisions keep the old fail-closed keys; no public key is invented.
+        for fallback in (finding_provenance(None, t, s, fr_id), consequence_provenance(None, t, s, fr_id, c_id),
+                         finding_provenance(public, t, s, uuid4())):
+            assert fallback["state"] == "UNKNOWN" and fallback["reasons"][0]["code"].startswith("PROVENANCE_")
+            assert not ({"classification", "source_ids", "evidence_ids", "basis_sha256", "detail"} & set(fallback))
+    finally:
+        if hasattr(history_service, "dispose"):
+            history_service.dispose()
+        for st in stores:
+            st.dispose()
 
 
 def test_s405b_an_ordinary_contextual_id_makes_the_finding_and_union_mixed(store, engine, capsys, monkeypatch) -> None:  # noqa: F811

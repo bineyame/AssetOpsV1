@@ -23,9 +23,15 @@ export interface EvEnvelope {
   site_id: string;
   window: { from: string | null; to: string | null; known_at: string | null };
   currentness: { state: string; as_of: string | null; limitation: string | null };
-  source_provenance: { classification: string | null; source_ids: string[]; evidence_ids: string[]; basis_sha256: string | null; reasons?: { code: string; accepted_evidence_ids: string[] }[] };
+  /** W3-01 (Run 3 q3): the pending-or-selected alias; on a detail read, the represented row's own block. */
+  source_provenance: EvSourceBlock;
+  selected_source_provenance?: EvSourceBlock | null;
+  pending_source_provenance?: EvSourceBlock | null;
   limitations: string[];
 }
+
+/** W3-01: the public source DTO (six keys plus optional `detail`). */
+export type EvSourceBlock = { classification: string | null; state?: string; source_ids: string[]; evidence_ids: string[]; basis_sha256: string | null; reasons?: { code: string; accepted_evidence_ids: string[] }[]; detail?: Record<string, unknown> };
 
 export interface EvStatus {
   state: string;

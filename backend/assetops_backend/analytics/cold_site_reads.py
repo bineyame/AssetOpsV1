@@ -244,7 +244,7 @@ class ColdSiteReadService:
     def overview(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(snap, (EXC, START))
+            body = self._reads.envelope_on(c, snap, (EXC, START))
             temp = self._reads.temperature_on(c, t, s, code, lo, hi, known_at)
             back = self._reads.backup_on(c, t, s, code, lo, hi, known_at)
             exc, st = snap["selected"].get(EXC), snap["selected"].get(START)
@@ -398,7 +398,7 @@ class ColdSiteReadService:
     def evidence(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(snap, (EXC, START))
+            body = self._reads.envelope_on(c, snap, (EXC, START))
             links = {"analysis": self._link(snap, "evidence/analysis"),
                      "temperature": self._link(snap, "temperature"), "backup": self._link(snap, "backup-chain"),
                      "foundation": None if snap["hi"] is None else (  # Q-R6: the Foundation read takes `at=to`
@@ -501,8 +501,8 @@ class ColdSiteReadService:
                  limit: int = DEFAULT_LIMIT) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(snap, (EXC, START))
-            basis = body["source_provenance"]["basis_sha256"] or "none"
+            body = self._reads.envelope_on(c, snap, (EXC, START))
+            basis = self._reads.selected_basis(snap, (EXC, START)) or "none"
             after = None if cursor is None else decode_cursor(cursor, basis)
             links = {"evidence": self._link(snap, "evidence"), "findings": self._link(snap, "findings")}
             if not snap["selected"]:
@@ -574,7 +574,7 @@ class ColdSiteReadService:
     def financials(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(snap, (EXC, START))
+            body = self._reads.envelope_on(c, snap, (EXC, START))
             links = {"assumptions": self._link(snap, "financial-assumptions"),
                      "findings": self._link(snap, "findings"), "evidence": self._link(snap, "evidence")}
             if not snap["selected"]:
@@ -584,7 +584,10 @@ class ColdSiteReadService:
             if any(h["reason"] == "SOURCE_GATE_WITHHELD" for h in money["heads"]):
                 codes.append("SOURCE_GATE_WITHHELD")
             known = _plain(snap["known"])
-            return {**body, "consequences": [self._consequence_row(h, money) for h in money["counted"]],
+            # W3-01 Run 3 q3: each row carries its own DTO (stored evidence IDs union pinned Finding citations).
+            rows = [{**self._consequence_row(h, money),
+                     "source_provenance": self._reads.consequence_provenance_on(c, snap, h)} for h in money["counted"]]
+            return {**body, "consequences": rows,
                     "not_included": [{"code": code_, "text": NOT_INCLUDED_TEXT[code_], "as_of": known,
                                       "limitation": None} for code_ in codes],
                     "links": links}
@@ -595,7 +598,7 @@ class ColdSiteReadService:
     def assumptions(self, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         def work(c):
             snap = self._selected(c, t, s, code, lo, hi, known_at)
-            body = self._reads.envelope_on(snap, (EXC, START))
+            body = self._reads.envelope_on(c, snap, (EXC, START))
             return {**body, "items": [], "missing_keys": list(MISSING_KEYS),
                     "publication_state": "NOT_SUPPORTED_IN_W2", "currency_state": "UNDECLARED",
                     "links": {"financials": self._link(snap, "financials")}}

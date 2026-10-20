@@ -722,10 +722,16 @@ class EvSiteReads:
     def financials(self, t: UUID, s: UUID, code: str, lo, hi, known_at, cursor: str | None, limit: int) -> dict:
         def work(c):
             ctx = self._ctx(c, t, s, code, lo, hi, known_at)
-            history = [{**self._revision(h, HISTORY_LABEL), "label": HISTORY_LABEL,
+            # W3-01 Run 4 q4 ruling 1: each stored row (current or history) carries its own window-level DTO;
+            # a synthetic guard (`revision_id: null`) has none.
+            row_dto = lambda r: self._reads.money_row_provenance_on(c, ctx["snap"], r)  # noqa: E731
+            history = [{**self._revision(h, HISTORY_LABEL), "label": HISTORY_LABEL, "source_provenance": row_dto(h),
                         "_sort": (h["recorded_at"], h["id"])} for h in ctx["money"]["history"]]
             page, nxt = self._reads.page_on(history, ctx["snap"], ctx["body"], "financials", cursor, limit)
-            return {**ctx["body"], "consequence": self._consequence(ctx), "history": page,
+            consequence = self._consequence(ctx)
+            if consequence is not None and consequence["revision_id"] is not None:
+                consequence["source_provenance"] = row_dto(ctx["money"]["current"])
+            return {**ctx["body"], "consequence": consequence, "history": page,
                     "not_included": list(NOT_INCLUDED), "next_cursor": nxt, "links": self._links(ctx, "/financials")}
         return self._reads.within(work)
 

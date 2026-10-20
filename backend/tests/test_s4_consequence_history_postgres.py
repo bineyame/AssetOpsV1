@@ -37,7 +37,8 @@ if URL:
     from money_gate_stub import AUTHORED
 
     from assetops_backend.consequence_history_api import build_consequence_history_router
-    from assetops_backend.evidence.composition import build_source_provenance
+    from assetops_backend.evidence.composition import build_public_provenance, build_source_provenance
+    from assetops_backend.evidence.public_provenance import basis_sha256
     from assetops_backend.financial_read_api import build_financial_read_router
     from assetops_backend.financials import consequence_history as ch
     from assetops_backend.financials.assumption_read import AssumptionReadService
@@ -168,10 +169,23 @@ class TestRealRows:
 
     def test_real_resolver_without_published_evidence_withholds_every_amount(self, rig) -> None:
         built(rig)
-        body = history(rig, provenance=build_source_provenance(URL))
+        # W3-01 Run 3 q3: the production composition injects the public resolver; each row's block keeps its W1
+        # fields and gains the public keys, digesting its own `{consequence_revision.id, finding_revision.id}` set.
+        body = history(rig, provenance=build_public_provenance(URL))
         assert {r["recorded_amount"]["disposition"] for r in body["rows"] if r["state"] == "PRICED"} == {
             "MIXED_OR_UNKNOWN_SOURCE"}
         assert {r["source_provenance"]["state"] for r in body["rows"]} == {"UNKNOWN"}
+        for r in body["rows"]:
+            p = r["source_provenance"]
+            assert p["classification"] == "UNKNOWN" and p["finding_revision_state"] == "UNKNOWN"
+            assert p["evidence_ids"] == sorted(p["accepted_evidence_ids"])
+            assert p["basis_sha256"] == basis_sha256(rig.site.tenant, rig.site.site,
+                                                     [r["consequence_revision_id"], p["finding_revision_id"]],
+                                                     p["evidence_ids"])
+        assert len({r["source_provenance"]["basis_sha256"] for r in body["rows"]}) == len(body["rows"])
+        legacy = history(rig, provenance=build_source_provenance(URL))
+        assert [r["source_provenance"]["state"] for r in legacy["rows"]] == [
+            r["source_provenance"]["state"] for r in body["rows"]]
 
     def test_foreign_site_reads_nothing_and_a_foreign_cursor_is_refused(self, rig) -> None:
         built(rig)

@@ -32,7 +32,10 @@ export interface ColdEnvelope {
     latest_relevant_evidence_at: string | null;
     pending_since: string | null;
   };
-  source_provenance: { classification: string | null; source_ids: string[]; evidence_ids: string[]; basis_sha256: string | null };
+  /** W3-01 (Run 3 q3): the pending-or-selected alias plus the two window siblings; each a public source DTO. */
+  source_provenance: ColdSourceBlock;
+  selected_source_provenance?: ColdSourceBlock | null;
+  pending_source_provenance?: ColdSourceBlock | null;
   limitations: string[];
 }
 
@@ -262,3 +265,6 @@ export function createColdAssessmentClient(basePath: string = SITES_API_PATH): C
       read(`${base(siteId)}/findings/${encodeURIComponent(findingId)}${coldWindowSearch(window)}`, SHAPES.finding),
   };
 }
+
+/** W3-01: the public source DTO (six keys plus optional `detail`). */
+export type ColdSourceBlock = { classification: string | null; state?: string; source_ids: string[]; evidence_ids: string[]; basis_sha256: string | null; reasons?: { code: string; accepted_evidence_ids: string[] }[]; detail?: Record<string, unknown> };
