@@ -39,3 +39,18 @@ injection `analytics/composition.py:build_finding_read_service`, `financials/com
 **Branch released** (Lane A holds nothing). Next: Architect answers q3 and Lane B lands the `dual_blocks`
 empty case; then Lane A resumes the one compatibility commit.
 - Lane B q2/q3: dual_blocks(None, None) now returns the literal six-key EMPTY_CITATION_SET alias plus two null siblings (no signature change); test_pending_dual_blocks updated; 4 passed on w301d_test.
+
+## Lane A compatibility run 2 (2026-10-20): stopped on q4, no code committed
+Resumed at `9239fb45` (Lane B both-null `dual_blocks` present). Built the q3 map except EV money, then stopped:
+`.agent/W3-01-pending-rulings.md` q4 item 1 (EV money rows have `finding_revision_id` always NULL, so the
+literal q3 refusal would 503 every stored EV money read); items 2-6 are readings built into the patch.
+Partial diff (uncommitted code, reverted from the tree): `.agent/W3-01-lane-a-partial.patch`
+(`git apply` on this branch). It covers: `evidence/composition.py:build_public_provenance`; W1 injection in
+`analytics/composition.py` (+ `build_cold_read_service` `link_rows`) and `financials/composition.py`; cold
+`ColdReadService` (`_public`, `selected_basis`, `_pending_ids`, `_provenance_blocks`, `_envelope(c, ...)`,
+`envelope_on(c, ...)`, row DTO in `_item`, detail override, `consequence_provenance_on`); `cold_site_reads.py`
+(`envelope_on(c, ...)`, private cursor basis, `consequences[].source_provenance`); EV (`job` flag in
+`_snapshot`, `_provenance_blocks`, `_envelope`, session union row DTO, Finding row DTO, `_page(basis)`,
+`page_on` route|basis). Imports verified; no test, DB or check-all run yet.
+Not yet done: EV money row blocks (`ev_site_reads.py`, `EvMoneyReads._with_links`) pending q4; all q3 test
+changes; `frontend/src/sites/sourceProvenance.tsx` + its tests. **Branch released** (Lane A holds nothing).
