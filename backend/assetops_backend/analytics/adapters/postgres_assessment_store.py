@@ -16,8 +16,8 @@ under the same advisory lock the ledger uses to coalesce.
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from dataclasses import asdict, dataclass, replace
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 from uuid import UUID, uuid4
@@ -28,7 +28,9 @@ from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
 
 from assetops_contracts.source_envelope_v4 import V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION
 
-from assetops_backend.analytics import cold, ev
+from assetops_backend.analytics import cold, dispatch_v3, ev
+from assetops_backend.analytics.assessment_worker import DISPATCH_ROLES, DOMAIN as DISPATCH_DOMAIN, input_basis
+from assetops_backend.analytics.dispatch_read import day_window, derive_status
 from assetops_backend.analytics.cold_reads import (
     FUTURE_NOTE,
     HISTORICAL_NOTE,
@@ -631,7 +633,10 @@ class PostgresAssessmentStore:
         return self._snapshot(work)
 
     def _window(self, c: Connection, query: EvidenceQuery, analytic_id: str,
-                basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> WindowSnapshot:
+                basis: Callable[[EvidenceQueryResult], tuple[str | None, str]], *,
+                cutoff: datetime | None = None, all_jobs: bool = False) -> WindowSnapshot:
+        """`cutoff` (W3-01 q5) keeps only the selection, assessment key heads and jobs recorded at or before it;
+        `all_jobs` returns every overlapping job whatever its status, for the caller to reconstruct at the cutoff."""
         w = query.window
         rng = query.read_range
         rows = c.execute(text(_EVIDENCE), {
@@ -643,21 +648,25 @@ class PostgresAssessmentStore:
             query, readings, config.bindings, config.controls, config.role_sets, config.limits,
             _attestations(c, query.tenant_id, query.site_id, query.knowledge_at)))
         p = {"t": query.tenant_id, "s": query.site_id, "a": analytic_id, "ws": w.start, "we": w.end,
-             "d": query.domain, "lo": rng.start, "hi": rng.end}
+             "d": query.domain, "lo": rng.start, "hi": rng.end, "k": cutoff}
+
+        def by(column: str) -> str:
+            return "" if cutoff is None else f" AND {column} <= :k"
         head = c.execute(text(
             "SELECT seq, selected_at, job_id, run_id FROM analytic_run_selection WHERE tenant_id = :t "
-            "AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we "
+            f"AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we{by('selected_at')} "
             "ORDER BY seq DESC LIMIT 1"), p).first()
         jobs = c.execute(text(
             "SELECT id, status, window_start, window_end, attempts, last_error, created_at, available_at "
             "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
-            f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
+            f"AND {'TRUE' if all_jobs else _LIVE_JOBS} AND window_start < :hi AND window_end >= :lo{by('created_at')} "
             "ORDER BY created_at, id"), p).all()
         run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
         keys = c.execute(text(
             "SELECT DISTINCT ON (assessment_key) assessment_key, id, revision_no, claim_level, created_at "
             "FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
-            "AND window_start = :ws AND window_end = :we ORDER BY assessment_key, revision_no DESC"), p).all()
+            f"AND window_start = :ws AND window_end = :we{by('created_at')} "
+            "ORDER BY assessment_key, revision_no DESC"), p).all()
         read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
         return WindowSnapshot(
             reading_count=len(readings), current_input_sha256=input_sha, current_configuration_sha256=config_sha,
@@ -668,6 +677,89 @@ class PostgresAssessmentStore:
             key_heads=[dict(zip(("assessment_key", "id", "revision_no", "claim_level", "created_at"), k))
                        for k in keys],
             read_at=read_at)
+
+    # --- W3-01 Run 5 (q5): S3 dispatch day selection on a caller-owned connection, at a cutoff -----------
+
+    def select_dispatch_days_on(self, c: Connection, tenant_id: UUID, site_id: UUID, from_: datetime,
+                                to: datetime, known_at: datetime) -> list[dict[str, Any]]:
+        """One S3 dispatch result for each UTC day intersecting `[from_, to)`, as of `known_at`, on `c` (no
+        transaction of its own). Each day reuses the S3 selector (`_window`) with `EvidenceQuery(knowledge_at=
+        known_at)`: the accepted basis is decided by then, the selection, assessment key heads and jobs are
+        recorded by then, and the selected run and its revisions must be recorded by then. A day with no
+        selection by then is returned with `selection=None` and its at-cutoff status. A day the stored records
+        cannot reconstruct at the cutoff is returned `available=False` with its reasons and no selection, never
+        a current day labelled historical. Job status is a mutable column with no transition time: below the
+        transaction time a job counts as outstanding at the cutoff when it is PENDING or LEASED now, as finished
+        when one of its selections is recorded by then, and otherwise makes the day unavailable. At or after
+        the transaction time the jobs are read exactly as the S3 read does."""
+        if from_ >= to:
+            return []
+        live = known_at >= self._transaction_time(c)
+
+        def basis(result: EvidenceQueryResult) -> tuple[str | None, str]:
+            inputs, config_sha = input_basis(result, dispatch_v3)
+            return (None if inputs.cohort.status == "EMPTY" else inputs.input_sha256), config_sha
+
+        days: list[dict[str, Any]] = []
+        day = from_.astimezone(timezone.utc).date()
+        while (window := day_window(day)).start < to:
+            if window.end > from_:
+                days.append(self._dispatch_day_on(c, tenant_id, site_id, day, window, known_at, live, basis))
+            day += timedelta(days=1)
+        return days
+
+    @staticmethod
+    def _transaction_time(c: Connection) -> datetime:
+        """The caller's transaction time: at or after it, a job's present status is its status at the cutoff."""
+        return c.execute(text("SELECT now()")).scalar_one()
+
+    def _dispatch_day_on(self, c: Connection, tenant_id: UUID, site_id: UUID, day: date, window: Window,
+                         known_at: datetime, live: bool,
+                         basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> dict[str, Any]:
+        query = EvidenceQuery(tenant_id, site_id, DISPATCH_DOMAIN, window, known_at, roles=DISPATCH_ROLES)
+        snap = self._window(c, query, dispatch_v3.ANALYTIC_ID, basis, cutoff=known_at, all_jobs=not live)
+        unavailable: list[str] = []
+        if not live:
+            outstanding = []
+            for job in snap.jobs:
+                if job["status"] in ("PENDING", "LEASED"):
+                    outstanding.append(job)
+                elif job["status"] == "DONE" and c.execute(text(
+                        "SELECT EXISTS (SELECT 1 FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
+                        "AND job_id = :j AND selected_at <= :k)"),
+                        {"t": tenant_id, "s": site_id, "j": job["id"], "k": known_at}).scalar_one():
+                    continue
+                else:
+                    unavailable.append(f"JOB_STATE_AT_CUTOFF_UNKNOWN: job {job['id']} is {job['status']} now and "
+                                       "no stored record shows its state at the cutoff")
+            snap = replace(snap, jobs=outstanding)
+        run = snap.run
+        if run is not None:
+            if run["completed_at"] is None or run["completed_at"] > known_at:
+                unavailable.append(f"SELECTED_RUN_AFTER_CUTOFF: run {run['id']} was recorded after the cutoff")
+            if any(r["created_at"] > known_at for r in run["revisions"]):
+                unavailable.append(f"SELECTED_REVISION_AFTER_CUTOFF: run {run['id']} cites a revision recorded "
+                                   "after the cutoff")
+        base = {"day": day, "window_start": window.start, "window_end": window.end, "known_at": known_at,
+                "available": not unavailable, "unavailable_reasons": unavailable}
+        if unavailable:
+            return {**base, "status": None, "status_reasons": [], "selection": None, "run_id": None,
+                    "assessment_revision_ids": [], "window_assessment_revision_id": None,
+                    "accepted_reading_count": None, "input_sha256": None, "configuration_sha256": None,
+                    "accepted_watermarks": None, "jobs": []}
+        projection = derive_status(snap, dispatch_v3.MODEL_VERSION)
+        revisions = [] if run is None else run["revisions"]
+        window_rev = next((r for r in revisions if r.get("scope") == "WINDOW"), None)
+        return {**base, "status": projection.status, "status_reasons": list(projection.reasons),
+                "selection": None if run is None else {
+                    "seq": snap.head["seq"], "selected_at": snap.head["selected_at"],
+                    "selected_by_job": snap.head["job_id"], "run_id": run["id"]},
+                "run_id": None if run is None else run["id"],
+                "assessment_revision_ids": sorted(str(r["id"]) for r in revisions),
+                "window_assessment_revision_id": None if window_rev is None else window_rev["id"],
+                "accepted_reading_count": snap.reading_count, "input_sha256": snap.current_input_sha256,
+                "configuration_sha256": snap.current_configuration_sha256,
+                "accepted_watermarks": None if run is None else run["watermarks"], "jobs": snap.jobs}
 
     def run_detail(self, tenant_id: UUID, site_id: UUID, run_id: UUID) -> dict[str, Any] | None:
         return self._snapshot(lambda c: self._run_detail(c, tenant_id, site_id, run_id))

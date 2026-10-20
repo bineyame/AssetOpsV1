@@ -760,6 +760,7 @@ function Invoke-ConfigurationPersistenceCheck {
         'verification_evaluation_request', 'verification_outcome', 'verification_metric')
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter)
+    $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
@@ -820,12 +821,15 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($module in $backendModules) {
         if (-not $module.Path.StartsWith("$backendRoot/")) { continue }
         $isWriter = $pgWriters -contains $module.Path
+        # W3-01 q5 ruling 3: a read-only estate adapter may import the driver; it is never a writer, and the
+        # `if (-not $isWriter)` SQL-write refusal below still rejects every extracted write in it.
+        $isPgReader = $pgReaders -contains $module.Path
         $lineNumber = 0
         foreach ($line in $module.Lines) {
             $lineNumber++
             if ($line -match $dbDriver) {
                 if ($isWriter) { $pgDriverSeen[$module.Path] = $true }
-                else {
+                elseif (-not $isPgReader) {
                     $failures.Add(("Database driver imported outside $($pgWriters -join ' and ') in " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }

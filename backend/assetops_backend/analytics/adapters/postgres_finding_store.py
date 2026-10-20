@@ -57,6 +57,15 @@ class FindingStoreUnavailable(RuntimeError):
     pass
 
 
+class FindingPinRefused(LookupError):
+    """W3-01 q5: a pinned Finding revision is missing from this tenant/Site or was created after the cutoff."""
+
+    def __init__(self, missing: list[str], later: list[str], known_at: datetime) -> None:
+        super().__init__(f"Finding revision pins refused at {known_at.isoformat()}: missing {missing}, "
+                         f"created after the cutoff {later}.")
+        self.missing, self.later, self.known_at = missing, later, known_at
+
+
 class FindingFenceMoved(RuntimeError):
     """A selection or recompute job changed between the matcher's read and its write."""
 
@@ -466,56 +475,99 @@ class PostgresFindingStore:
         this domain/analytic with its merge, split and recurrence links, every window's current selection
         sequence, the latest completed pass of this matcher version, and the writer fence."""
         def work(c: Connection) -> dict[str, Any]:
-            p = {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "m": MATCHER_VERSION}
-            heads = [dict(r._mapping) for r in c.execute(text(
-                "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS finding_revision_id, r.revision_no, "
-                "r.transition, r.lifecycle, r.claim_level, r.title, r.matcher_version, r.model_version, "
-                "r.assessment_revision_id, r.analytic_run_id, r.window_assessment_revision_id, r.episode_start, "
-                "r.episode_end, r.limitations, r.created_at AS revision_created_at, f.domain, f.analytic_id, "
-                "f.cohort_sha256, f.anchor_start, f.recurs_after_finding_id, f.split_from_finding_id, "
-                "(SELECT m.canonical_finding_id FROM finding_merge m WHERE m.tenant_id = f.tenant_id "
-                "AND m.superseded_finding_id = f.id) AS merged_into_finding_id "
-                "FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
-                "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = :d AND f.analytic_id = :a "
-                "ORDER BY r.finding_id, r.revision_no DESC"), p)]
-            merges = [dict(r._mapping) for r in c.execute(text(
-                "SELECT superseded_finding_id, canonical_finding_id, finding_revision_id FROM finding_merge "
-                "WHERE tenant_id = :t AND site_id = :s ORDER BY created_at, superseded_finding_id"), p)]
-            seqs = {r[0]: int(r[1]) for r in c.execute(text(
-                "SELECT window_start, max(seq) FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
-                "AND analytic_id = :a GROUP BY window_start"), p)}
-            row = c.execute(text("SELECT id, selection_seq, completed_at, deferred_window_starts "
-                                 "FROM finding_match_pass WHERE tenant_id = :t "
-                                 "AND site_id = :s AND analytic_id = :a AND matcher_version = :m "
-                                 "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"), p).one_or_none()
-            deferred = [] if row is None else list(row[3] or [])
-            match_pass = None if row is None else {"match_pass_id": str(row[0]), "matcher_version": MATCHER_VERSION,
-                                                   "matched_through_selection_seq": int(row[1]),
-                                                   "match_completed_at": row[2]}
-            return {"heads": heads, "merges": merges, "selection_seqs": seqs, "match_pass": match_pass,
-                    "deferred_windows": deferred, "fence": self._fence(c, tenant_id, site_id, analytic_id)}
+            snap = self._index_snapshot(c, tenant_id, site_id, domain, analytic_id, None)
+            del snap["selected_runs"]
+            return {**snap, "fence": self._fence(c, tenant_id, site_id, analytic_id)}
         return self._read(work)
 
     def index_lineage(self, tenant_id: UUID, site_id: UUID, revision_ids: list[UUID]) -> dict[str, Any]:
         """Exact stored lineage of the selected immutable revisions on one index page: cited assessment
         revisions and runs (with their configuration selection) and cited accepted-evidence IDs."""
-        def work(c: Connection) -> dict[str, Any]:
-            p = {"t": tenant_id, "s": site_id, "ids": [str(x) for x in revision_ids]}
-            cites = [dict(r._mapping) for r in c.execute(text(
-                "SELECT finding_revision_id, assessment_revision_id, analytic_run_id, scope, is_primary "
-                "FROM finding_revision_assessment WHERE tenant_id = :t AND site_id = :s "
-                "AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY scope DESC, assessment_revision_id"), p)]
-            evidence = [dict(r._mapping) for r in c.execute(text(
-                "SELECT finding_revision_id, evidence_id FROM finding_revision_evidence WHERE tenant_id = :t "
-                "AND site_id = :s AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY evidence_id"), p)]
-            runs = [dict(r._mapping) for r in c.execute(text(
-                "SELECT id, model_version, input_sha256, configuration_sha256, cohort_sha256, "
-                "foundation_revision_ids, binding_set_revision_ids, knowledge_cutoff FROM analytic_run "
-                "WHERE tenant_id = :t AND site_id = :s AND id IN (SELECT analytic_run_id FROM "
-                "finding_revision_assessment WHERE finding_revision_id = ANY(CAST(:ids AS uuid[]))) "
-                "ORDER BY window_start, id"), p)]
-            return {"assessments": cites, "evidence": evidence, "runs": runs}
-        return self._read(work)
+        return self._read(lambda c: self._index_lineage(c, tenant_id, site_id, revision_ids))
+
+    # ---- W3-01 Run 5 (q5): the same reads on a caller-owned connection, at an explicit cutoff ----
+    # None of these opens, begins or commits a transaction; the caller's REPEATABLE READ snapshot is the read.
+
+    def fence_on(self, c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str) -> Fence:
+        """The existing live writer fence on `c`. It is a current writer fence, not a historical matcher proof."""
+        return self._fence(c, tenant_id, site_id, analytic_id)
+
+    def index_snapshot_on(self, c: Connection, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str,
+                          known_at: datetime) -> dict[str, Any]:
+        """The Site Finding index as of `known_at`, on `c`: per Finding the latest revision created by then
+        (stored `revision_no` orders the eligible revisions), merge links created by then, each window's latest
+        selection by then (`selected_runs` names its run) and the latest pass of this matcher version completed
+        by then, with that pass's deferred windows. No writer fence: see `fence_on`."""
+        return {**self._index_snapshot(c, tenant_id, site_id, domain, analytic_id, known_at), "known_at": known_at}
+
+    def index_lineage_on(self, c: Connection, tenant_id: UUID, site_id: UUID, revision_ids: list[UUID],
+                         known_at: datetime) -> dict[str, Any]:
+        """Exact stored lineage of exactly these pinned revisions, on `c`. Refuses (FindingPinRefused) when a
+        pinned revision is missing from this tenant/Site or was created after `known_at`."""
+        ids = [str(x) for x in revision_ids]
+        found = {str(r[0]): r[1] for r in c.execute(text(
+            "SELECT id, created_at FROM finding_revision WHERE tenant_id = :t AND site_id = :s "
+            "AND id = ANY(CAST(:ids AS uuid[]))"), {"t": tenant_id, "s": site_id, "ids": ids})}
+        missing = sorted(x for x in set(ids) if x not in found)
+        later = sorted(x for x, at in found.items() if at > known_at)
+        if missing or later:
+            raise FindingPinRefused(missing, later, known_at)
+        return self._index_lineage(c, tenant_id, site_id, revision_ids)
+
+    @staticmethod
+    def _index_snapshot(c: Connection, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str,
+                        known_at: datetime | None) -> dict[str, Any]:
+        p = {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "m": MATCHER_VERSION, "k": known_at}
+
+        def by(column: str) -> str:
+            return "" if known_at is None else f" AND {column} <= :k"
+        heads = [dict(r._mapping) for r in c.execute(text(
+            "SELECT DISTINCT ON (r.finding_id) r.finding_id, r.id AS finding_revision_id, r.revision_no, "
+            "r.transition, r.lifecycle, r.claim_level, r.title, r.matcher_version, r.model_version, "
+            "r.assessment_revision_id, r.analytic_run_id, r.window_assessment_revision_id, r.episode_start, "
+            "r.episode_end, r.limitations, r.created_at AS revision_created_at, f.domain, f.analytic_id, "
+            "f.cohort_sha256, f.anchor_start, f.recurs_after_finding_id, f.split_from_finding_id, "
+            "(SELECT m.canonical_finding_id FROM finding_merge m WHERE m.tenant_id = f.tenant_id "
+            f"AND m.superseded_finding_id = f.id{by('m.created_at')}) AS merged_into_finding_id "
+            "FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+            "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = :d AND f.analytic_id = :a"
+            f"{by('r.created_at')} ORDER BY r.finding_id, r.revision_no DESC"), p)]
+        merges = [dict(r._mapping) for r in c.execute(text(
+            "SELECT superseded_finding_id, canonical_finding_id, finding_revision_id FROM finding_merge "
+            f"WHERE tenant_id = :t AND site_id = :s{by('created_at')} ORDER BY created_at, superseded_finding_id"), p)]
+        selected = c.execute(text(
+            "SELECT DISTINCT ON (window_start) window_start, seq, run_id FROM analytic_run_selection "
+            f"WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a{by('selected_at')} "
+            "ORDER BY window_start, seq DESC"), p).all()
+        row = c.execute(text("SELECT id, selection_seq, completed_at, deferred_window_starts "
+                             "FROM finding_match_pass WHERE tenant_id = :t "
+                             f"AND site_id = :s AND analytic_id = :a AND matcher_version = :m{by('completed_at')} "
+                             "ORDER BY selection_seq DESC, completed_at DESC LIMIT 1"), p).one_or_none()
+        deferred = [] if row is None else list(row[3] or [])
+        match_pass = None if row is None else {"match_pass_id": str(row[0]), "matcher_version": MATCHER_VERSION,
+                                               "matched_through_selection_seq": int(row[1]),
+                                               "match_completed_at": row[2]}
+        return {"heads": heads, "merges": merges, "selection_seqs": {r[0]: int(r[1]) for r in selected},
+                "selected_runs": {r[0]: r[2] for r in selected}, "match_pass": match_pass,
+                "deferred_windows": deferred}
+
+    @staticmethod
+    def _index_lineage(c: Connection, tenant_id: UUID, site_id: UUID, revision_ids: list[UUID]) -> dict[str, Any]:
+        p = {"t": tenant_id, "s": site_id, "ids": [str(x) for x in revision_ids]}
+        cites = [dict(r._mapping) for r in c.execute(text(
+            "SELECT finding_revision_id, assessment_revision_id, analytic_run_id, scope, is_primary "
+            "FROM finding_revision_assessment WHERE tenant_id = :t AND site_id = :s "
+            "AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY scope DESC, assessment_revision_id"), p)]
+        evidence = [dict(r._mapping) for r in c.execute(text(
+            "SELECT finding_revision_id, evidence_id FROM finding_revision_evidence WHERE tenant_id = :t "
+            "AND site_id = :s AND finding_revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY evidence_id"), p)]
+        runs = [dict(r._mapping) for r in c.execute(text(
+            "SELECT id, model_version, input_sha256, configuration_sha256, cohort_sha256, "
+            "foundation_revision_ids, binding_set_revision_ids, knowledge_cutoff FROM analytic_run "
+            "WHERE tenant_id = :t AND site_id = :s AND id IN (SELECT analytic_run_id FROM "
+            "finding_revision_assessment WHERE finding_revision_id = ANY(CAST(:ids AS uuid[]))) "
+            "ORDER BY window_start, id"), p)]
+        return {"assessments": cites, "evidence": evidence, "runs": runs}
 
     # --- cold_chain (W2-03): Findings on the cold worker's connection ----------------------------------------
     # `.agent/W2-03-build-spec.md` commit 3: this module alone inserts cold `finding`, `finding_revision`,
