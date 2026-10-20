@@ -333,9 +333,13 @@ class EvSiteReads:
 
     def capabilities_on(self, c, pinned_snap: dict[str, Any]) -> dict[str, Any]:
         """W3-02 0c: the W2 capability rows of one already pinned estate window on the caller's connection (no
-        `_ctx`, `open_on`, `overview` or `evidence`), with that window's exact selected IDs."""
+        `_ctx`, `open_on`, `overview` or `evidence`), with that window's exact selected IDs. `unknown_meter`
+        (W3-02 c1-q2) is whether any exact selected session has positive unknown meter seconds, from the same
+        cached context (no second snapshot or transaction)."""
         ctx = self._pinned_ctx(c, pinned_snap)
-        return {**self._pinned_ids(pinned_snap), "capabilities": self._capabilities(ctx)}
+        capabilities = self._capabilities(ctx)
+        unknown_meter = any((session.get("unknown_meter_seconds") or 0) > 0 for session in self._sessions(ctx))
+        return {**self._pinned_ids(pinned_snap), "capabilities": capabilities, "unknown_meter": unknown_meter}
 
     def money_on(self, c, pinned_snap: dict[str, Any]) -> dict[str, Any]:
         """W3-02 0c: the W2 consequence of one already pinned estate window (the stored head DTO, or the transient

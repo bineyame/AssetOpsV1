@@ -196,6 +196,37 @@ def test_ev_facades_match_the_w2_site_window(chain, monkeypatch) -> None:  # noq
         assert money["state"] == p["state"]
 
 
+@pytest.mark.parametrize("case", ["complete", "missing-meter"])
+def test_ev_capabilities_on_exposes_unknown_meter_of_the_selected_sessions(chain, monkeypatch, case) -> None:  # noqa: F811
+    """W3-02 c1-q2: `unknown_meter` is whether an exact selected session has positive unknown meter seconds, from
+    the same pinned context on the caller's connection (no `_ctx` or second snapshot)."""
+    built = chain(case)
+    built.start_release_upload()
+    run_worker(built)
+    wm, k = clocks(built)
+    link_rows = build_link_rows_reader()
+    reads = EvReadService(engine=built.engine, link_rows=link_rows)
+    site = EvSiteReads(reads, EvMoneyReads(link_rows))
+    t, s = built.tenant_id, built.site_id
+    with snapshot(built.engine) as c:
+        day = c.execute(text("SELECT min(window_start) FROM analytic_run_selection WHERE site_id = :s"),
+                        {"s": s}).scalar_one()
+        pinned = reads.estate_snapshots_on(c, t, s, EV_CODE, day_of(day), day_of(day) + timedelta(days=1), wm, k)
+        expected = []
+        for p in pinned:
+            ctx = site._pinned_ctx(c, p)
+            expected.append((site._capabilities(ctx),
+                             [session.get("unknown_meter_seconds") for session in site._sessions(ctx)]))
+        forbid(monkeypatch, site, "_ctx", "overview", "evidence", "financials")
+        forbid(monkeypatch, reads, "open_on", "within", "_read")
+        got = [site.capabilities_on(c, p) for p in pinned]
+    assert pinned and len(got) == len(expected)
+    for caps, (want_caps, seconds) in zip(got, expected):
+        assert caps["capabilities"] == want_caps
+        assert caps["unknown_meter"] is any((x or 0) > 0 for x in seconds)
+    assert any(caps["unknown_meter"] for caps in got) is (case == "missing-meter")
+
+
 def ev_pinned_read(built, wm, k) -> dict:
     """One pinned EV estate read at (`wm`, K) of the selected session window, with the basis derived at K."""
     link_rows = build_link_rows_reader()

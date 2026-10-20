@@ -355,9 +355,11 @@ class ClaimLimitReadService:
     # --- W3-02 0b: connection-taking W1 interval projection at a cutoff (build spec closure 4, W1 day source) ---
 
     def claim_limit_on(self, c: Any, tenant_id: UUID, site_id: UUID, day: date, revision_id: UUID | None,
-                       known_at: datetime) -> dict[str, Any]:
+                       known_at: datetime, *, basis_mode: str | None = None) -> dict[str, Any]:
         """The claim limit of each selected INTERVAL revision of one UTC day, as of `known_at`, on the caller's
-        connection `c`. It never calls `read()` or `claim_limit_snapshot()` (both open their own transaction).
+        connection `c`. `basis_mode` (W3-02 c1-q7) is a caller's frozen presentation/currentness mode: `"live"`
+        never labels the day HISTORICAL from `known_at` versus this transaction's time (a live cursor's page two),
+        `"historical"` always does (0b M3); `None` keeps the direct-call comparison below. It never calls `read()` or `claim_limit_snapshot()` (both open their own transaction).
 
         `revision_id` is the day's WINDOW revision (every INTERVAL revision of its run is projected) or `None`
         for no selection; a non-window revision is refused 422. An explicit `known_at` earlier than the captured
@@ -436,7 +438,10 @@ class ClaimLimitReadService:
         members = {str(r) for r in selected["assessment_revision_ids"]}
         selected_here = (selected["run_id"] is not None and str(selected["run_id"]) == str(run["id"])
                          and str(revision["id"]) in members)
-        historical_day = known_at < selected["transaction_time"]
+        if basis_mode not in (None, "live", "historical"):
+            raise ValueError(f"unknown basis_mode {basis_mode!r}")
+        historical_day = (basis_mode == "historical" if basis_mode is not None
+                          else known_at < selected["transaction_time"])
         out = []
         for interval in sorted(intervals, key=lambda r: str(r["id"])):
             in_selection = selected_here and str(interval["id"]) in members

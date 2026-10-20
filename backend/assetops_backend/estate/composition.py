@@ -52,6 +52,22 @@ def build_estate_index_service(database_url: str | None) -> EstateIndexService |
     return None if not database_url else EstateIndexService(build_estate_read(database_url))
 
 
+def build_estate_evidence_service(database_url: str | None) -> Any:
+    """W3-02: None without a product database (the router answers 503, never an empty estate)."""
+    if not database_url:
+        return None
+    from assetops_backend.analytics.claim_limit_read import ClaimLimitReadService, ClaimLimitRefusal
+    from assetops_backend.estate.adapters.postgres_evidence_money_read import PostgresEvidenceMoneyRead
+    from assetops_backend.estate.evidence_money import EstateEvidenceService
+
+    base = build_estate_read(database_url)
+    keys = ("findings", "assessments", "actions", "consequences", "eligibility", "cold", "ev", "provenance_reads",
+            "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money")
+    return EstateEvidenceService(PostgresEvidenceMoneyRead(
+        database_url, claim_limits=ClaimLimitReadService(base.assessments), claim_limit_refused=(ClaimLimitRefusal,),
+        **{k: getattr(base, k) for k in keys}))
+
+
 def registry_tenant(registry: Any) -> Callable[[], UUID | None]:
     """The server's configured tenant from `ImportedSiteRegistry.tenant()`; never a client-supplied ID."""
     def tenant() -> UUID | None:

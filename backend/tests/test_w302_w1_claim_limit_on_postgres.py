@@ -264,3 +264,40 @@ def test_w1_second_transaction_entry_points_are_trapped(reads) -> None:
                  lambda: store._connect_engine()):
         with pytest.raises(AssertionError, match="opened its own transaction"):
             call()
+
+
+def test_w1_frozen_basis_mode_overrides_the_transaction_time_comparison(runner, reads, monkeypatch) -> None:
+    """W3-02 c1-q7: a live cursor's page two (a later transaction, the same `known_at` and selection) keeps the
+    live day; an explicit historical basis is HISTORICAL even when `known_at` equals the transaction time."""
+    runner.step(F06["steps"][0])  # deliver
+    runner.step(F06["steps"][1])  # assess: the day's selection
+    cutoff = runner.now
+
+    def clock(at):
+        monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: at))
+
+    store, service, forbid = reads
+    with caller_snapshot(runner.engine) as c:
+        forbid()
+        (d, _, _), = projected(service, store, c, runner.tenant, runner.site, F06_DAY, F06_DAY + timedelta(days=1),
+                               cutoff)
+        rev = d["window_assessment_revision_id"]
+
+        def on(at, **kw):
+            clock(at)
+            return service.claim_limit_on(c, runner.tenant, runner.site, F06_DAY.date(), rev, cutoff, **kw)
+
+        live_page_one = on(cutoff)
+        page_two_default = on(cutoff + timedelta(hours=1))
+        page_two_live = on(cutoff + timedelta(hours=1), basis_mode="live")
+        historical_now = on(cutoff, basis_mode="historical")
+        with pytest.raises(ValueError):
+            on(cutoff, basis_mode="current")
+    assert live_page_one["currentness"] != HISTORICAL and live_page_one["intervals"]
+    assert any(i["current_positive_claim"] for i in live_page_one["intervals"])
+    # without the frozen mode the later transaction relabels the identical selection HISTORICAL
+    assert page_two_default["currentness"] == HISTORICAL
+    assert page_two_live == live_page_one and reduce_day(page_two_live) == reduce_day(live_page_one)
+    assert historical_now == page_two_default and historical_now["currentness"] == HISTORICAL
+    assert all(i["currentness"] == HISTORICAL and i["ceiling"] is None and i["historical_ceiling"] is not None
+               for i in historical_now["intervals"])
