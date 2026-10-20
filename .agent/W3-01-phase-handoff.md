@@ -366,3 +366,20 @@ Checks (private `w301t_test`, dropped): estate files + `tools/checks/test_estate
 read clock is `max(S4 fixture now + 1 min, DB now)`; after 2026-10-30 the cold watermark/KOBO literals may move.
 
 **Branch released.** Next: independent review of commit 2, `a75b0291..HEAD`.
+
+## Commit-2 fix round r1 (2026-10-20)
+
+Revisions: code/tests `dc573bd9` (and earlier r1 commits); the separate cherry-pick commit is `7ff49e0c` (W2-06 EV test, q1 ruling 3). Private DB `w301v_test` (dropped). check-all 11/11 (the new estate-guard step is the 11th).
+
+| Finding | Fix | Test |
+|---|---|---|
+| M1 / q11-B 1 | cursor field `page_one_mode` (`live`/`historical`) in `scope.py` keys + `decode_cursor`, set in `index._scope` (`snap.basis_historical`), carried by `_cursor`; coverage gates/rows/work fence use `basis_historical`, response label keeps `snapshot.historical` | `test_live_pending_minigrid_page_two_keeps_basis`, `test_live_stale_minigrid_page_two_keeps_basis[STALE_PROJECTION,PENDING]`, `test_explicit_historical_open_job_page_two_keeps_basis[PENDING,LEASED,FAILED]`, `test_historical_minigrid_outstanding_marker_page_two_keeps_basis`, `test_cursor_page_one_mode_shape`, work-fence test asserts `live` |
+| Forced clock | `Replay`/`pin_read_at`/mixed `max` shifted 30 days | `test_w301_golden_clock_plus_30_days[mini_grid,mixed]` PASS 2026-10-20 at `dc573bd9` (full file 6 passed) |
+| L1 | catch-all removed from `_bound_link_rows`; typed `ColdPinned/EvPinnedLineageUnavailable`; composition passes typed + `SelectionPinRefused` (via `analytics.composition.selection_pin_refused()`, guard-clean); new `unavailable=` mapping to 503 | `test_link_reader_programming_error_is_not_selection_409`, `test_typed_lineage_refusal_retries_once_then_409`, `test_absent_link_reader_and_broad_unavailable_are_503` |
+| L2 | `_cold_window` filters revisions to the window's selected assessments | `test_cold_revision_waits_for_its_selected_assessment` |
+| L3 | q11-A 1-4 / q11-B 1 names as ruled (record is the build-spec rulings) | n/a |
+| L4 | injected-service connection proof; golden oracle limit stated | `test_estate_injected_reads_share_one_connection` |
+| q11-A 2 | guard tests run over an isolated temp copy; W3-02 reader path removed from `$pgReaders`; check-all step names the three tests | `tools/checks/test_estate_guard.py` (3 passed) |
+
+Readings made (flag for review): (1) a live page two keeps the live Site state (mini-grid gate) but the Site `state` label is HISTORICAL when its cutoff precedes read time (cold/EV unchanged; mini-grid relabelled except UNKNOWN). (2) STALE test sets the stored day status through a wrapper over `dispatch_days` (a DONE job without a completion selection makes the day unavailable; jobs are never deleted). (3) L2 test re-dates the revision of the last selection by one second (triggers disabled in the test transaction) because the worker stamps revision, assessment and selection with one transaction time; a natural gap does not exist. (4) historical changed-selection control uses a forged selection digest plus a grant change, not a mutated stored revision. (5) Forced clock: named step clocks used as request cutoffs stay unshifted; echoed read instants are unshifted before comparison to the literal manifest. (6) the second inline catch-all in the EV store (`except Exception` near the EV inline link read, ~line 2497) is left as is (not named by L1). (7) golden mini-grid test disposes the module engine pool because the `mixed` branch re-creates the DB.
+Limits carried: widened-job historical overlap (Run 6 reading 4); golden is a digest canonicalizer plus whole-response comparison, not an independent selection oracle.
