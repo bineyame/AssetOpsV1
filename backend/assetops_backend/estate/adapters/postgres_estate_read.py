@@ -37,11 +37,12 @@ class PostgresEstateRead:
     def __init__(self, database_url: str | None, *, findings: Any, assessments: Any, actions: Any,
                  consequences: Any, eligibility: Any, cold: Any, ev: Any,
                  provenance_reads: Callable[[Connection], Any],
-                 inconsistent: tuple[type[BaseException], ...] = (), engine: Any = None) -> None:
+                 inconsistent: tuple[type[BaseException], ...] = (),
+                 unavailable: tuple[type[BaseException], ...] = (), engine: Any = None) -> None:
         self._url, self._engine = database_url, engine
         self.findings, self.assessments, self.actions = findings, assessments, actions
         self.consequences, self.eligibility, self.cold, self.ev = consequences, eligibility, cold, ev
-        self.provenance_reads, self.inconsistent = provenance_reads, inconsistent
+        self.provenance_reads, self.inconsistent, self.unavailable = provenance_reads, inconsistent, unavailable
 
     def _connect(self):
         if self._engine is None:
@@ -63,6 +64,8 @@ class PostgresEstateRead:
             raise EstateStoreUnavailable(f"The estate store is unavailable: {error.__class__.__name__}") from error
         except self.inconsistent as error:  # an exact pin refused inside the one transaction
             raise EstateSelectionInconsistent(str(error)) from error
+        except self.unavailable as error:  # a broad W2 read failure is a store outage, never a selection conflict
+            raise EstateStoreUnavailable(f"The estate store is unavailable: {error.__class__.__name__}") from error
 
 
 class EstateSnapshot:
@@ -71,6 +74,7 @@ class EstateSnapshot:
 
     def __init__(self, owner: PostgresEstateRead, c: Connection, read_at: datetime) -> None:
         self._o, self._c, self.read_at, self.historical, self.continuation = owner, c, read_at, False, False
+        self.basis_historical = False  # page one's mode: the selection basis, apart from the response label
 
     def _public(self) -> PublicProvenance:
         return PublicProvenance(self._o.provenance_reads(self._c))
@@ -93,8 +97,8 @@ class EstateSnapshot:
             "AND decided_at <= :k"), {"t": t, "s": s, "k": k}).scalar_one()
 
     def open_jobs(self, t: UUID, s: UUID, domain: str, from_: datetime, to: datetime, k: datetime) -> list[str]:
-        """Overlapping unsettled recompute work created by the requested cutoff: live reads, and the work-state fence
-        of a cursor continuation (q10 ruling 3), never an explicit historical selection without a cursor."""
+        """Overlapping unsettled recompute work created by the requested cutoff: the work fence of a live basis, on
+        page one and every continuation; never a historical basis (c2 r1 M1)."""
         return list(self._c.execute(text(
             "SELECT status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
             "AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :to AND window_end > :from "
@@ -186,14 +190,17 @@ class EstateSnapshot:
         selected = snap["selected"]
         seqs = snap["selection_seqs"]
         top = max(selected, key=lambda a: (seqs[a], a))
+        chosen = {str(x.revision_id).lower() for x in selected.values()}
         findings = []
         for row in cold._finding_ids(self._c, snap, None, None):
             revisions = cold._revisions(self._c, snap, row[0], False)
             created = self._created(t, s, [r[0] for r in revisions])
-            eligible = [r for r in revisions if created[str(r[0]).lower()] <= k]
+            # c2 r1 L2: the latest revision created by the cutoff whose assessment this window selected; a newer
+            # revision of an unselected assessment waits for its selection.
+            eligible = [r for r in revisions if created[str(r[0]).lower()] <= k and str(r[8]).lower() in chosen]
             if not eligible:
                 continue
-            rev = eligible[0]  # latest by revision_no among revisions created by the requested cutoff
+            rev = eligible[0]  # latest by revision_no
             item = cold._item(self._c, snap, row, rev)
             claim = item["claim"] or {}
             anchor = self._c.execute(text(

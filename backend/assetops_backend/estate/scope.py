@@ -41,7 +41,7 @@ KEYS = {"scope": ("from", "to", "known_at"),
         "findings": ("from", "to", "known_at", "lens", "state", "limit", "cursor"),
         "actions": ("from", "to", "known_at", "limit", "cursor")}
 _FINDING_CURSOR_KEYS = {"v", "tenant_id", "authorized_site_ids", "access_basis", "from", "to", "known_at", "lens",
-                        "state_filter", "selection_token", "after"}
+                        "state_filter", "selection_token", "after", "page_one_mode"}
 _ACTION_CURSOR_KEYS = (_FINDING_CURSOR_KEYS - {"lens", "state_filter"}) | {"kind"}
 
 
@@ -192,6 +192,7 @@ def decode_cursor(kind: str, value: str) -> dict[str, Any]:
     keys = _ACTION_CURSOR_KEYS if kind == "actions" else _FINDING_CURSOR_KEYS
     ok = (isinstance(payload, dict) and set(payload) == keys and payload.get("v") == 1
           and (kind != "actions" or payload.get("kind") == "actions")
+          and payload.get("page_one_mode") in ("live", "historical")
           and all(isinstance(payload.get(k), str) for k in ("access_basis", "from", "to", "known_at",
                                                              "selection_token"))
           and (payload.get("tenant_id") is None or isinstance(payload["tenant_id"], str))

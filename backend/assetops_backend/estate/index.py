@@ -92,13 +92,17 @@ class EstateIndexService:
                 raise EstateRefusal("ESTATE_BASIS_CHANGED")
             k = cursor_k
         token_k = k
-        snap.historical = k < read_at
+        snap.historical = k < read_at  # the response label (Run 8 ruling 2)
         snap.continuation = cursor is not None
+        # c2 r1 M1: the selection basis is page one's mode, carried by the cursor; a continuation never re-derives it.
+        snap.basis_historical = (snap.historical if cursor is None
+                                 else cursor["page_one_mode"] == "historical")
         candidates = [] if tenant_id is None else snap.imported_sites(tenant_id, req.to)
         sites = [s for s in candidates if admit(s["site_code"])]
         ids = [str(s["site_id"]) for s in sites]
         return {"k": k, "token_k": token_k, "historical": snap.historical, "sites": sites, "ids": ids,
-                "cursor": cursor, "access_basis": access_basis(tenant_id, ids)}
+                "cursor": cursor, "page_one_mode": "historical" if snap.basis_historical else "live",
+                "access_basis": access_basis(tenant_id, ids)}
 
     @staticmethod
     def _fence(tenant_id: Any, req: EstateRequest, scope: dict[str, Any], token: str) -> tuple | None:
@@ -123,7 +127,8 @@ class EstateIndexService:
             "v": 1, "tenant_id": None if tenant_id is None else str(tenant_id).lower(),
             "authorized_site_ids": sorted(x.lower() for x in scope["ids"]), "access_basis": scope["access_basis"],
             "from": token_time(req.from_), "to": token_time(req.to), "known_at": token_time(scope["token_k"]),
-            "selection_token": token, "after": [token_time(at), row_id]}
+            "selection_token": token, "after": [token_time(at), row_id],
+            "page_one_mode": scope["page_one_mode"]}
         if req.kind == "findings":
             payload.update(lens=req.lens, state_filter=req.state_filter)
         else:

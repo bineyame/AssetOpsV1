@@ -72,7 +72,7 @@ def _intersects(start: datetime | None, end: datetime | None, from_: datetime, t
 # --- mini-grid --------------------------------------------------------------------------------------------
 
 def _mini_grid(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: datetime) -> dict[str, Any]:
-    historical = snapshot.historical
+    historical = snapshot.basis_historical
     watermark = snapshot.evidence_cutoff(t, s, k)
     days = snapshot.dispatch_days(t, s, from_, to, k)
     index = snapshot.finding_index(t, s, k)
@@ -208,7 +208,7 @@ def _windowed(snapshot: Any, t: Any, s: Any, domain: str, from_: datetime, to: d
     # ruling 3: a cursor continuation keeps page one's work-state fence, the same overlap/domain predicate with
     # `created_at <= cursor_known_at`, so an unchanged open job is not a selection change; the Site state and the
     # selected rows stay historical.
-    fenced = not snapshot.historical or snapshot.continuation
+    fenced = not snapshot.basis_historical
     jobs = set(snapshot.open_jobs(t, s, domain, from_, to, k)) if fenced else set()
     freshness = "NOT_APPLICABLE" if domain == EV else "UNKNOWN"
     if not windows:
@@ -219,7 +219,7 @@ def _windowed(snapshot: Any, t: Any, s: Any, domain: str, from_: datetime, to: d
     if domain == COLD:
         freshness = "STALE" if stale_probe else "UNKNOWN" if any(w.get("probe_fresh") is None for w in windows) \
             else "RECENT"
-    if snapshot.historical:
+    if snapshot.basis_historical:
         state = HISTORICAL
     elif jobs or PENDING in states:
         state = PENDING
@@ -308,7 +308,7 @@ def _actions(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: da
             "_open": reduced["application"] in ("PENDING", "APPLIED") and not resolved,
             "_verification_window": in_window and not resolved,
             "_verified_recent": verified_at is not None and k - VERIFIED_LOOKBACK <= verified_at <= k})
-    state = HISTORICAL if snapshot.historical else CURRENT
+    state = HISTORICAL if snapshot.basis_historical else CURRENT
     return {"selection_id": None, "watermark": None, "match_state": "NOT_APPLICABLE",
             "job_state": "NOT_APPLICABLE", "source_freshness": "NOT_APPLICABLE", "state": state, "rows": rows,
             "selected_finding_revision_ids": sorted(origins), "selected_action_event_ids": sorted(events),

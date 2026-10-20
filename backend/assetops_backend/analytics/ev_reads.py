@@ -34,6 +34,10 @@ class EvReadUnavailable(Exception):
     """The EV read store cannot be reached; the route answers 503, never an empty success."""
 
 
+class EvPinnedLineageUnavailable(EvReadUnavailable):
+    """An exact pinned session/Finding/assessment lineage of a selected EV row cannot be read (estate 409)."""
+
+
 class EvReadRefused(Exception):
     """A typed refusal raised inside the snapshot (cursor, cutoff)."""
 
