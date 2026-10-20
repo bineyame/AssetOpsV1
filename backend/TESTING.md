@@ -146,6 +146,42 @@ $skipped | ForEach-Object { "$($_.classname)::$($_.name) - $($_.skipped.message)
 A full run is valid proof only when `skipped` is 0 and `failed` is 0. A skip
 whose message names `ASSETOPS_TEST_DATABASE_URL` means the database was unset.
 
+## Full suite inside the Compose network (OPS-03)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\run-backend-suite-in-container.ps1
+```
+
+The wrapper runs the same pytest command (`-n 2 --dist loadfile
+--no-loadscope-reorder -q --durations=30`) in the one-shot `backend-test-runner`
+service (`docker-compose.test.yml`, image `python:3.12.7-slim-bookworm`,
+profile `test`, no published ports) on the `assetopsv1` project network, so the
+suite reaches Postgres as `postgres:5432` instead of through Docker Desktop's
+Windows port forward. The worktree is bind-mounted at `/workspace`; the Linux
+venv and pip cache live in the named volumes `assetops-test-venv` and
+`assetops-test-pip-cache` and are reinstalled only when the Python version or a
+`pyproject.toml` (backend, contracts, simulator, gateway) changes. The wrapper
+checks the Postgres container's Compose project label, starts it only if absent
+(`up -d --no-recreate --wait`; the runner itself starts with `--no-deps`),
+never recreates, stops or removes it, holds keep-awake for its own PID, and
+never prints the database URL or password.
+
+Each attempt writes to its own `var/test-results/OPS-03/<run-id>/`:
+`junit.xml` (use it in the zero-skip proof above in place of
+`.pytest-junit.xml`), `console.log`, `wall-time.txt`, `connections.csv` and
+`connections-peak.txt` (`pg_stat_activity` sampled every 5 s: server-wide,
+client backends, and the runner container's own sessions). The pytest wall time
+is capped at `-CapMinutes` (default 120, twice the expected wall below); a run
+past the cap writes `timeout.txt` (non-idle `pg_stat_activity`, runner
+processes, console tail), is killed, and exits 124. The exit code is pytest's
+otherwise. `tools/check-all.ps1` still runs separately on Windows.
+
+The host commands above remain the supported fallback. Node IDs are identical
+in both: the owner-only credential test
+(`test_s2_gateway_access_postgres.py::TestProvisioning::test_a_protected_dacl_that_grants_another_account_is_refused`)
+checks a Windows DACL on Windows and, on Linux, that a `0644` file is refused
+and a `0600` file accepted by `verify_owner_only`.
+
 ## Timing
 
 Measured on this Windows host (Docker Desktop Postgres 16), serial, full
