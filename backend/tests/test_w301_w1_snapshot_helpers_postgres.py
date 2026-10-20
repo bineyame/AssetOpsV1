@@ -147,10 +147,35 @@ def test_dispatch_days_on_selects_each_day_at_cutoff(runner, monkeypatch) -> Non
         # the live day matches the S3 read of the same day
         live = DispatchReadService(store).window(runner.tenant, runner.site, F06_DAY.date())
         assert live["selection"]["run_id"] == now[1]["run_id"] and live["status"] == now[1]["status"]
-        # before the job finished, its state at that time is not recorded: an explicit unavailable day
+        # before the job finished, it was outstanding (completion selected it only afterwards)
         gap = early[1]
-        assert not gap["available"] and gap["status"] is None and gap["selection"] is None
-        assert any(r.startswith("JOB_STATE_AT_CUTOFF_UNKNOWN") for r in gap["unavailable_reasons"])
+        assert gap["available"] is True and gap["selection"] is None and gap["run_id"] is None
+        assert gap["status"] == "PENDING" and gap["unavailable_reasons"] == []
+        assert [j["status"] for j in gap["jobs"]] == ["PENDING"] and len(gap["jobs"]) == 1
+        job_id = gap["jobs"][0]["id"]
+        assert any(r.startswith("RECOMPUTE_OUTSTANDING") and str(job_id) in r for r in gap["status_reasons"])
+    finally:
+        pg_harness.dispose(store)
+
+
+def test_dispatch_days_on_done_empty_job_is_unavailable(runner, monkeypatch) -> None:
+    runner.step(F06["steps"][0])  # deliver: the recompute job is recorded, still unselected
+    queued = runner.now
+    present = queued + timedelta(hours=1)
+    monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: present))
+    with runner.engine.begin() as c:  # a DONE job with zero selections: its completion time is not recorded
+        assert c.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE site_id = :s"),
+                         {"s": runner.site}).rowcount >= 1
+        assert c.execute(text("SELECT count(*) FROM analytic_run_selection WHERE site_id = :s"),
+                         {"s": runner.site}).scalar_one() == 0
+    store = PostgresAssessmentStore(URL)
+    try:
+        with caller_snapshot(runner.engine) as c:
+            days = store.select_dispatch_days_on(c, runner.tenant, runner.site, F06_DAY,
+                                                 F06_DAY + timedelta(days=1), queued)
+        day = days[0]
+        assert day["available"] is False and day["status"] is None and day["selection"] is None
+        assert any(r.startswith("JOB_STATE_AT_CUTOFF_UNKNOWN") for r in day["unavailable_reasons"])
     finally:
         pg_harness.dispose(store)
 
