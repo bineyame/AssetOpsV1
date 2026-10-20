@@ -354,7 +354,8 @@ describe("W4-01: Site > Work > Maintenance", () => {
     }
     expect(text(done.querySelector("[data-work-outcome-note]"))).toBe("No outcome recorded");
     expect(text(cancelled.querySelector("[data-work-outcome-note]"))).toBe("Duplicate request");
-    expect(text(open.querySelectorAll("td")[1])).toBe("No asset linked");
+    expect(text(open.querySelectorAll("td")[1].firstElementChild)).toBe("No asset linked");
+    expect(open.querySelectorAll("td")[1].querySelector("a")).toBeNull();
     expect(text(open.querySelector("[data-work-activity]"))).toBe("No activity recorded");
     expect(open.querySelector("[data-work-state]")?.getAttribute("data-work-tone")).toBe("amber");
     expect(cancelled.querySelector("[data-work-state]")?.getAttribute("data-work-tone")).toBe("neutral");
