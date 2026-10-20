@@ -112,7 +112,8 @@ Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects 
 
 | Tooling lane | Task | Activation | Status |
 | --- | --- | --- | --- |
-| Backend test turnaround | [OPS-01](OPS-01-backend-test-speed.md) | Immediately after reviewed/merged S4-02d, ahead of ordinary next-work ranking; outside W1 core scoring | Done 2026-10-15 (merged; review ACCEPT; full suite -n 2 ~8 min); M in two phases; independent review, no owner UI checkpoint |
+| Backend test turnaround | [OPS-01](OPS-01-backend-test-speed.md) | Immediately after reviewed/merged S4-02d, ahead of ordinary next-work ranking; outside W1 core scoring | Done 2026-10-15 (merged; review ACCEPT; full suite -n 2 ~8 min); post-W2 follow-up done 2026-10-20 (merged; review ACCEPT; W2-expanded suite ~57 min, `.agent/OPS-01-post-w2-report.md`); M in two phases; independent review, no owner UI checkpoint |
+| Suite inside container | [OPS-03](OPS-03-suite-in-container.md) | Run the real-Postgres full suite inside the Docker network to remove the ~7x port-forward round-trip cost measured by the OPS-01 post-W2 follow-up (`.agent/OPS-01-post-w2-report.md`); same node IDs, zero skips, same guards; target ~30 min from ~57 | planned; implementation-ready; queued 2026-10-20 by owner; tooling only, runs in the shared suite queue alongside the lanes; non-UI |
 
 ## Mock-gap closure queue
 
