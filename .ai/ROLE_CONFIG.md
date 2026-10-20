@@ -396,6 +396,10 @@ coordinator's:
   (no existing module, guard, router/shell/registry or shared DTO) and no
   schema may skip the full suite: focused tests plus check-all suffice, with
   that scope recorded in the packet. Merges to main keep the full run.
+  The default full-suite command is `tools/run-backend-suite-in-container.ps1`
+  (OPS-03, about 42-50 min, cap 100 min); the host command in `backend/TESTING.md`
+  is the fallback. Never run a bare `docker compose up` for tests: it can
+  recreate the shared `assetopsv1-postgres-1`.
 - **Mechanical sub-steps run on Sonnet.** Work fixed by an agreed contract or
   handoff - tests written against a settled interface, an AC-by-AC evidence
   pass, closeout records - is dispatched with `model: sonnet`, like fix rounds.

@@ -2,3 +2,5 @@
 # (a Windows checkout with core.autocrlf=true otherwise writes CRLF and the byte comparisons fail).
 contract-fixtures/w2/ev/*.json text eol=lf
 backend/tests/fixtures/w2/ev-w206-vectors.json text eol=lf
+# OPS-03: the container runner script is executed by Linux sh; CRLF would break it.
+tools/run-backend-suite-in-container.sh text eol=lf

@@ -2307,3 +2307,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W2-07 Lows (UI/UX pass)
 - L1: `test_0026_trigger_only_work_and_exact_conflict_constraint` still uses `remove_money` for its backfill downgrade; the r1 no-delete ruling covers only the empty-downgrade probe.
 - L2: `siteFinancials.test.tsx` 409 history-reload test failed once in a full frontend run under load, then passed in four isolated runs; watch for flakiness.
+
+## OPS-03 Lows
+- L1: a Postgres container created from another worktree bind-mounts that worktree's files. Use `--no-recreate` and never run the bare compose up.
+- L2: a timeout record cannot name the hung test, because `-q` prints no node IDs.
+- L3: stopping the wrapper with Ctrl+C can leave the runner container running. Remove it by its `--name`.

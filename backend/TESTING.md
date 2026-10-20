@@ -146,6 +146,42 @@ $skipped | ForEach-Object { "$($_.classname)::$($_.name) - $($_.skipped.message)
 A full run is valid proof only when `skipped` is 0 and `failed` is 0. A skip
 whose message names `ASSETOPS_TEST_DATABASE_URL` means the database was unset.
 
+## Full suite inside the Compose network (OPS-03)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\run-backend-suite-in-container.ps1
+```
+
+The wrapper runs the same pytest command (`-n 2 --dist loadfile
+--no-loadscope-reorder -q --durations=30`) in the one-shot `backend-test-runner`
+service (`docker-compose.test.yml`, image `python:3.12.7-slim-bookworm`,
+profile `test`, no published ports) on the `assetopsv1` project network, so the
+suite reaches Postgres as `postgres:5432` instead of through Docker Desktop's
+Windows port forward. The worktree is bind-mounted at `/workspace`; the Linux
+venv and pip cache live in the named volumes `assetops-test-venv` and
+`assetops-test-pip-cache` and are reinstalled only when the Python version or a
+`pyproject.toml` (backend, contracts, simulator, gateway) changes. The wrapper
+checks the Postgres container's Compose project label, starts it only if absent
+(`up -d --no-recreate --wait`; the runner itself starts with `--no-deps`),
+never recreates, stops or removes it, holds keep-awake for its own PID, and
+never prints the database URL or password.
+
+Each attempt writes to its own `var/test-results/OPS-03/<run-id>/`:
+`junit.xml` (use it in the zero-skip proof above in place of
+`.pytest-junit.xml`), `console.log`, `wall-time.txt`, `connections.csv` and
+`connections-peak.txt` (`pg_stat_activity` sampled every 5 s: server-wide,
+client backends, and the runner container's own sessions). The pytest wall time
+is capped at `-CapMinutes` (default 100, twice the measured expected wall in Timing); a run
+past the cap writes `timeout.txt` (non-idle `pg_stat_activity`, runner
+processes, console tail), is killed, and exits 124. The exit code is pytest's
+otherwise. `tools/check-all.ps1` still runs separately on Windows.
+
+The host commands above remain the supported fallback. Node IDs are identical
+in both: the owner-only credential test
+(`test_s2_gateway_access_postgres.py::TestProvisioning::test_a_protected_dacl_that_grants_another_account_is_refused`)
+checks a Windows DACL on Windows and, on Linux, that a `0644` file is refused
+and a `0600` file accepted by `verify_owner_only`.
+
 ## Timing
 
 Measured on this Windows host (Docker Desktop Postgres 16), serial, full
@@ -160,6 +196,12 @@ compare only back-to-back runs in a quiet window.
 | `-n 3 --dist loadfile` (OPS-01 phase 2, one run) | 6.5 min; peak 41 sessions | 2128 passed; not repeated, so not the default |
 | W2-expanded suite, `-n 2 --dist loadfile --no-loadscope-reorder`, before the post-W2 follow-up (main `6c53b3c5`) | did not finish: 83% at the 30-min cap, then still in the W2 EV modules at a 60-min cap; peak 60 and 65 sessions | 3268 tests collected; four refusal tests each waited psycopg's 130 s default connect timeout on Windows, and every replay chain re-parsed all shipped scenario YAML |
 | W2-expanded suite, same command, after the OPS-01 post-W2 follow-up | 57.7 min, 56.4 min; peak 62 and 67 sessions (68 and 73 server-wide) | 3268 passed, 0 skipped, 0 failed both times; node IDs identical to the before collection |
+| Same suite and command in the Compose runner (OPS-03 wrapper, `python:3.12.7-slim-bookworm`) | 46.5 min, 49.7 min (pytest wall, two consecutive runs); peak 58 and 56 runner sessions (73 and 67 server-wide, other lanes included) | 3268 passed, 0 skipped, 0 failed both times; node IDs identical to the host collection; first run also installed the venv (about 15 min of slow downloads, cached afterwards) |
+
+Expected container full run (`tools\run-backend-suite-in-container.ps1`): about
+50 min; its default cap is 100 min (`-CapMinutes`). The remaining time is the
+same product-path work listed below; removing the port forward saves about
+8-10 min against the host run.
 
 Expected `-n 2` full run (W2-expanded suite, 3268 tests): about 50-60 min; cap at
 120 min. The remaining time is product-path work, chiefly the cold/EV replay
