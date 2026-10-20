@@ -110,3 +110,26 @@ known_at, selection_cutoff)`; the tests pass `known_at` = clamped watermark (W2 
 `selection_cutoff` = the unclamped requested cutoff. Options: (a) confirm that split (the clamp applies only to
 `known_at`/`knowledge_cutoff`; selection filters use the requested estate cutoff); (b) another rule. Lane B's
 estate core needs the answer; the prerequisite API serves either.
+
+## q8 (Lane B commit-2 core, 2026-10-20): readings built, none blocking; confirm at review
+
+1. An unsupported `state` value is 422 `INVALID_LENS` (the refusal table has no state code).
+2. The cursor carries its page-one cutoff, which is the token `known_at`. An explicit `known_at` must repeat it to
+   the wire second; a default-cutoff page two reads live at its own read time, so any selection change since page
+   one changes the token (409). `HISTORICAL` only when the request supplies `known_at < read_at`.
+3. `PRICED` consequence adds `amount_low`/`amount_high` decimal strings (W7 interval); `amount` = `amount_low`.
+4. No consequence revision is `UNPRICED` with a null `source_revision_id` (`No consequence recorded`); cold rows are
+   `UNPRICED` with the stored cold consequence ID or null; EV rows `UNPRICED`/null (window money has no Finding pin).
+5. Finding rows add `episode_start` and `status` (the row Site's state) for the B3 row tones.
+6. Cold/EV pending: an estate-level overlapping open-job query with `created_at <= requested known_at` (live reads
+   only); the W2 snapshot's own job query is bounded by the evidence cutoff and misses later-created work.
+7. Episode bounds: cold `cold_episode.anchor_time` to `cold_episode_revision.upper_end`; EV `ev_session.anchor_time`
+   to the pinned session revision `end_at`; a null end is open through `known_at`.
+8. Mini-grid: any requested day without an available selection makes the Site `UNKNOWN`; freshness from day
+   statuses; `selection_id` is the latest selected day's window assessment; `committed_watermark` is the Run 7
+   evidence cutoff for every domain.
+9. Refused pins (`LookupError` from `index_lineage_on` / `estate_snapshots_on`) and `ColdReadUnavailable` /
+   `EvReadUnavailable` are 409 `ESTATE_SELECTION_INCONSISTENT` after one retry; DB failures are 503.
+10. Summary basis is the lens set ignoring the state filter; `total_count` follows the state filter. Awaiting
+    verification counts Actions matched by exact origin (Finding, revision) over the lens basis.
+11. `covered_site_count` counts CURRENT/HISTORICAL; the Action root also counts NOT_APPLICABLE Sites as covered.
