@@ -258,3 +258,7 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
 - Plan: new `frontend/src/sites/evSiteClient.ts` (five reads), `frontend/src/sites/EvSiteViews.tsx` (one frame, five
   views, modelled on `coldSiteViews.tsx::ColdSiteFrame`), `frontend/src/sites/w2-ev-site.css`, routes in
   `operatorSiteRoutes.ts` + `App.tsx`, tests `frontend/src/sites/__tests__/evSiteMoneyRoutes.test.tsx`.
+- Run 9 landed UI (`frontend/src/sites/{evSiteClient.ts,EvSiteViews.tsx,w2-ev-site.css}`, `shell/evSiteRoutes.tsx`,
+  routes in `operatorSiteRoutes.ts`/`App.tsx`) and 5 passing tests in `evSiteMoneyRoutes.test.tsx`. Next: captures
+  (reuse `.agent/W2-06-evidence/{seed.py,capture.mjs}` into `.agent/W2-07-evidence/`), height table, full frontend
+  suite/build, then final verification and packet.
