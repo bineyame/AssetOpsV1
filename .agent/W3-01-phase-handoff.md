@@ -173,3 +173,108 @@ coverage and the reduce input. No DB was created, and no test or check-all was r
 after `k`, and no stored window history records its earlier bounds. Such a job can therefore show as outstanding
 on a historical mini-grid day it did not cover at `k`. That day is reported as pending, not unavailable.
 **Branch released.** Next: the Architect answers q6, then Lane B builds the estate core.
+
+## Lane A q6 prerequisites (2026-10-20): four commits, each ready for its own review
+Merged main at start (Run 6 rulings, W3-02 amendment) and again after `0b` (W4-01 Run 3 ruling 6; `.agent/*` only).
+No `estate/` module written. Private DB `w301m_test` (dropped after).
+
+1. **`2a1b59cf` prereq re-review Low.** `postgres_assessment_store.py:_dispatch_day_on`: the
+   `JOB_STATE_AT_CUTOFF_UNKNOWN` reason now ends `no stored completion selection establishes its state at the
+   cutoff` (code and outcome unchanged). Test asserts the exact suffix and absence of the old phrase.
+   Reading 1a: the old phrase was followed by "at the cutoff"; the whole tail was replaced so the text does not
+   read "at the cutoff at the cutoff". Checks: snapshot-helpers + S3 dispatch read 13 passed.
+2. **`c55dadd4` `0a`.** `ConsequenceReadService.select_consequence_on(c,t,s,finding_revision_id,known_at)`;
+   adapters `PostgresAssumptionStore.snapshot_on`, `PostgresConsequenceStore.load_input_on(..., known_at=None)`
+   and `selected_on` (public `snapshot`/`load_input` now wrap them, same SQL). Returns `consequence_revision_id`,
+   `revision_no`, `consequence_state`, `currentness{state,reasons}`, `amount_low/high`, `currency`, `basis`,
+   `price`, `cited{assessment_revision_ids,assumption_revision_ids,power_evidence_ids,price_revision_id}`.
+   Readings: 2a `financial_consequence_revision` has no `created_at`; its insert time `recorded_at`
+   (`clock_timestamp()`) is the `<= :k` filter, order `(revision_no DESC, id DESC)`. 2b inputs at `:k`: the
+   FindingRevision `created_at <= k`, power readings with `ingestion_disposition.decided_at <= k`, the price
+   timeline `snapshot_on(recorded_at=k)`. 2c states: no revision at `:k`/foreign -> `UNKNOWN`
+   `FINDING_REVISION_NOT_AT_CUTOFF`; no consequence by `:k` -> `PENDING` `NO_CONSEQUENCE_AT_CUTOFF`; head without
+   assessment links -> `UNKNOWN CONSEQUENCE_LINEAGE_MISSING`; PRICED head whose price revision is not recorded by
+   `:k` -> `UNKNOWN PRICE_NOT_AT_CUTOFF`; not the Finding's latest revision at `:k` -> `HISTORICAL`; else W1
+   basis comparison -> `CURRENT`/`STALE` with W1 reasons. Amount null for UNKNOWN/PENDING, stored amount
+   otherwise (presentation and Cost eligibility stay the estate's). 2d W1's `source_open`/`AUDIT_ONLY` input is
+   not part of the signature; the caller's day/source gates replace it. 2e the state is basis currentness at
+   `:k`; the live-vs-historical label is the caller's (`read_at`). Tests: `test_consequence_on_excludes_later_
+   revision_and_price`, `test_consequence_on_exact_finding_pin_and_stale_basis` (also HISTORICAL after
+   supersession). They use `EarlySite` (PowerSite with the fixture clock one day behind the DB clock, since
+   prices/consequences are DB-clocked and Findings fixture-clocked). Regressions: 7 consequence/assumption
+   files 80 passed. Mutations (reverted): drop consequence `recorded_at` cutoff; price snapshot at `None` -> both
+   tests FAIL.
+3. **`da15d71f` `0b`.** `MoneyEligibility.for_finding_on(c,t,s,finding_id,known_at)` (new keyword `days`,
+   default `windows.store`); `PostgresFindingStore.money_revision_on` (claim + generator); the q5 day dict's
+   `selection` gains `model_version` and `cohort` (additive); `ProvenanceReadsOn(c)` in
+   `postgres_evidence_ledger.py` (the ledger's `finding_revision_evidence`/`consequence_inputs` delegate to it).
+   Source gate on `c`: `source_gate(estate_projection(PublicProvenance(ProvenanceReadsOn(c)).consequence_revision(
+   t,s,cid)))`. Readings: 3a the judged revision is the Finding's latest at `:k` (`index_snapshot_on` head, W1
+   rule). 3b a day is matched when the pass completed by `:k` reached that day's selected seq and did not defer
+   its window. 3c an unavailable day adds `HISTORICAL_DAY_UNAVAILABLE: ...` and forces `PENDING_REASSESSMENT`;
+   no revision/foreign Site -> `NO_FINDING_REVISION_AT_CUTOFF`; refused pin -> `FINDING_PIN_REFUSED`; DB errors
+   propagate (the shared transaction is aborted anyway). 3d the result adds `known_at`. Tests:
+   `test_money_eligibility_on_uses_cutoff_days_and_refuses_unknown` (LR-01 Walk; live == W1 ELIGIBLE, k2 PENDING
+   with LIVE_JOB, k1 == W1 as read at k1), `test_money_source_gate_exact_citations` (block == W1 resolver block,
+   evidence = Finding cited ∪ power IDs, AUTHORED permits), plus control `test_money_source_gate_mixed_union_
+   withholds` (separate test: two PowerSites cannot share one test's store). Regressions: 9 files 74 passed.
+   Mutations (reverted): days read at the live cutoff; power IDs dropped -> tests FAIL.
+4. **`4442d33c` cold/EV pinned mode (q6 Blocker 1, shape per W4-01 Run 3 ruling 6).**
+   `ColdReadService._snapshot` / `EvReadService._snapshot(c,t,s,code,lo,hi,known_at,*,selection_cutoff=None,
+   selection_seqs=None)`; default path SQL untouched; pinned mode: exact window, `sel.seq` pin,
+   `selected_at/completed_at/created_at <= selection_cutoff`, same-tenant/Site run join, snapshot adds
+   `selection_seqs` and `selection_cutoff`; inconsistent pin raises `SelectionPinRefused` (LookupError, the
+   caller's 409). Module `selected_windows_on(c,t,s,analytics,from_,to,cutoff)` (intersection predicate, greatest
+   qualifying seq per exact key, sorted `(ws,we,analytic,seq)`); wrappers `estate_snapshots_on(c,t,s,code,from_,to,
+   known_at,selection_cutoff)` on both services (cold groups both analytics per exact window). Readings: 4a pinned
+   SQL uses window equality (exact stored key), not the covering predicate. 4b **open question Q7-1**
+   (`.agent/W3-01-pending-rulings.md`): the selection filters on the clamped watermark select nothing on the
+   fixtures (selections are written after the last decided evidence), so the API keeps `known_at` (clamped) and
+   `selection_cutoff` (requested) separate; tests use that split. 4c the four q6-named estate tests
+   (`test_w301_estate_index_postgres.py`, tokens/409/page invariants) need the estate core; this commit has
+   adapter-level tests instead: `test_w301_cold_selection_on_postgres.py` (day intersection vs the empty whole-day
+   Site read; reselection invisible at the earlier cutoff; pin refusal) and `test_w301_ev_selection_on_postgres.py`
+   (same, plus two windows in one day, EV unclamped `known_at` still 422, clamped + later selection cutoff no 422).
+   Finding-row estate rules (episode intersection, `finding_revision.created_at <= k`, EV withdrawal) stay in
+   Lane B's projection.
+   Follow-up test commits on the same unit (review with `4442d33c`): `8d73c035` (EV: a selection written after k0
+   over committed evidence is absent/refused at k0) and `9956b6b8` (cold: a test-appended reselection of an old,
+   completed run is invisible and refused at the earlier cutoff; the one shape no writer produces today).
+   Checks: the 2 new files + `test_w203_cold_reads`, `test_w206_ev_reads`, `test_w207_ev_site_reads`,
+   `test_w301_provenance_dto`, `test_w301_w1_snapshot_helpers`: 63 passed (38 min); new cold reselection test
+   passed after. Mutations (reverted): drop `selected_at` from `selected_windows_on`, drop it from the pinned SQL
+   -> `test_cold_reselection_of_an_old_run_is_invisible_earlier` FAILS for each (the earlier late-reading/EV
+   tests alone did not catch them, because `knowledge_cutoff`/`completed_at` also excluded those rows).
+
+check-all (once, at the end): 10/10 PASS. DB `w301m_test` dropped. No full suite run (per dispatch).
+**Branch released.** Ready for separate review, in order: `2a1b59cf`, `c55dadd4`, `da15d71f`,
+`4442d33c` (+`8d73c035`, `9956b6b8`). Open: Q7-1 (selection cutoff vs clamped watermark) for Lane B's core.
+
+Prerequisite Lows fix: select_consequence_on returns HISTORICAL for a superseded FindingRevision with no consequence (W1 precedence); cold/EV `_snapshot` raise ValueError for selection_seqs without selection_cutoff and for unknown cold analytic keys, and SelectionPinRefused when pinned with no evidence basis; Run 7 q7-1 applied to `selected_windows_on` (new `evidence_cutoff` keyword bounds only run knowledge_cutoff; estate_snapshots_on passes known_at as it and returns [] when None). Private DB w301o_test: 17 passed (4 files); check-all 10/10.
+
+## Lane B commit-2 core (2026-10-20): landed, partial on mini-grid DB tests; branch released to Lane A
+Merged main (up to date at `381cf1a2`). Commits `0b56f150`, `58b00bb6`, the HISTORICAL assert, `c951dd8b`.
+- `estate/scope.py` strict parser/refusals/access basis/`estate-selection/2` token/cursor; `estate/coverage.py`
+  `site_coverage(snapshot,t,s,domain,from_,to,known_at)` (mini-grid days+matcher+money gates, pinned cold/EV windows
+  with the q7 split, Action reduce); `estate/index.py` full-set rows/summaries/token before paging;
+  `estate/adapters/postgres_estate_read.py` one READ ONLY REPEATABLE READ snapshot over the Lane A `*_on` helpers;
+  `estate/composition.py` (`build_estate_index_service`, `registry_tenant`); `estate_api.py` (`build_estate_router`).
+- Tests (private `w301p_test` + harness clones, all dropped): `test_w301_estate_api.py` 5 passed (refusals, empty
+  zeros, token v2 + W20 D3 digest literal, pure mini-grid gates, Action reduce); `test_w301_estate_index_postgres.py`
+  5 passed (cold: q7 reselection proof, day intersection, outside-day UNKNOWN, scope/foreign/missing Site, cursor
+  fence); `test_w301_estate_index_ev_postgres.py` 3 passed (EV day intersection, multiwindow dedupe/fence, q7).
+- Mutations after commit (reverted with `git checkout`): drop the token from the cursor fence -> cursor test FAILS;
+  serve mini-grid rows from an unsettled Site -> pure gate test FAILS; cold historical state -> CURRENT -> q7 test FAILS.
+- check-all: 9/10; the one failure is the expected missing `estate` guard domain (Lane A, `.agent/W3-01-lane-a-requests.md`).
+- Readings q8 1-11 in `.agent/W3-01-pending-rulings.md` (non-blocking). Test notes: cold and EV replays each build
+  their own DB, so the "same estate" cold+EV tests are split by file; tests re-date `site_import.imported_at`
+  (replays import at today's DB time, after their 2026-10-06 data); EV `decided_at` is fixture-clocked, so its q7
+  test compares rows/IDs/coverage without the watermark, while cold proves whole-token equality.
+**Not built (resume here, Lane B):** mini-grid Postgres tests `test_late_support_change_recurrence_at_exact_cutoff`,
+`test_cost_risk_opportunity_eligibility_without_mock_seed`, `test_action_event_and_verification_counts_full_basis`,
+`test_cost_lens_only_exact_eligible_current_rows` (S4 `CaseRunner`/S6 harness/`PowerSite` chains; mind their
+fixture clock vs DB `now()` and re-date `site_import`). The golden manifest `w301-estate-golden.json` is not built.
+**Carry to the commit-2 packet (prerequisite r1 L2, accepted):** a PENDING job's window can be widened in place
+after `k`, with no stored window history, so it can show as outstanding on a historical mini-grid day it did not
+cover at `k`; that day reads pending, not unavailable.
+**Branch released.** Next: Lane A guard domain + `main.py` mount; the remaining mini-grid tests; then review.
