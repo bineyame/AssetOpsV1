@@ -95,3 +95,18 @@ below. Both come from the merged code, not from the spec text alone.
    selected event is the latest `(recorded_at,id)` event, and the reduced state comes from
    `actions/lifecycle.reduce` as `actions/site_index.py` uses it. Verification counts read `verification_plan` /
    `verification_outcome` directly on the estate connection (`recorded_at <= known_at`).
+
+## q7 (Lane A q6-prerequisite run, 2026-10-20): one question, non-blocking for the prerequisites
+
+**Q7-1. Which cutoff bounds `selected_at` in the pinned cold/EV mode?** Run 6 Blocker 1 sets the selection
+filters (`sel.selected_at`, `r.completed_at`, `ar.created_at <= :k`) on `:k` = the estate cutoff *clamped to the
+Site's latest evidence watermark*. Measured on the W2 fixtures, every cold/EV selection is written after the last
+decided evidence: cold `late-reading` watermark 10:46:40.131, selections 10:46:40.383/.518; EV watermark is the
+replay's decided time (2026-10-06 09:00) while selections carry the DB clock (2026-10-20). With the clamped `:k`,
+a live estate read therefore selects **nothing** (proved: `test_cold_day_intersection_selects_exact_windows`
+asserts `selected_windows_on(..., watermark) == []`). The prerequisite keeps the two inputs separate:
+`_snapshot(..., known_at, *, selection_cutoff, selection_seqs)` and `estate_snapshots_on(c,t,s,code,from_,to,
+known_at, selection_cutoff)`; the tests pass `known_at` = clamped watermark (W2 grammar, no `EV_TIME_INVALID`) and
+`selection_cutoff` = the unclamped requested cutoff. Options: (a) confirm that split (the clamp applies only to
+`known_at`/`knowledge_cutoff`; selection filters use the requested estate cutoff); (b) another rule. Lane B's
+estate core needs the answer; the prerequisite API serves either.
