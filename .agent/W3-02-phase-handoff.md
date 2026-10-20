@@ -135,3 +135,4 @@ Readings (I am recording these, not making rulings):
 4. A changed cutoff is refused 409 inside `_scope` (W3-01 behaviour), before `_fence`.
 
 Next: `0b` (Lane A, W1 day projection), after 0a has its independent review.
+- 0b fix r1: W3-02 0b fix r1 — trap now patches _snapshot/_run/_connect_engine (mutation via _run: 4 failed, reverted); window-only revision mode (non-window 422 REVISION_NOT_WINDOW); HISTORICAL day shape/copy, conflict precedence, gap key (mini_grid, code, role) per rulings; 63 passed on w302d_test.
