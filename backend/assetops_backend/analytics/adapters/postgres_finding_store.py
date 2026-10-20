@@ -515,6 +515,17 @@ class PostgresFindingStore:
         return self._index_lineage(c, tenant_id, site_id, revision_ids)
 
     @staticmethod
+    def money_revision_on(c: Connection, tenant_id: UUID, site_id: UUID,
+                          finding_revision_id: UUID) -> dict[str, Any] | None:
+        """W3-01 Run 6 `0b`: the stored claim and Finding generator of one exact revision of this Site, on `c`
+        (the money gate's `series_limits`/`end_reason` and generator inputs); None when it is not this Site's."""
+        row = c.execute(text(
+            "SELECT r.claim, f.generator_asset_id FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+            "AND f.tenant_id = r.tenant_id AND f.site_id = r.site_id WHERE r.tenant_id = :t AND r.site_id = :s "
+            "AND r.id = :r"), {"t": tenant_id, "s": site_id, "r": finding_revision_id}).first()
+        return None if row is None else {"claim": row.claim, "generator_asset_id": row.generator_asset_id}
+
+    @staticmethod
     def _index_snapshot(c: Connection, tenant_id: UUID, site_id: UUID, domain: str, analytic_id: str,
                         known_at: datetime | None) -> dict[str, Any]:
         p = {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "m": MATCHER_VERSION, "k": known_at}
