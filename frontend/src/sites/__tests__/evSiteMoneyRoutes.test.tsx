@@ -99,7 +99,11 @@ interface Opts {
   schedule?: "common" | "none" | "outside" | "vary";
   gross?: EvCoverage;
   empty?: boolean;
+  noNote?: boolean;
+  capList?: EvCapability[];
+  reversedFaultIds?: boolean;
 }
+const PUBLICATION_NOTE = "Tariff published 2026-10-06 09:30 UTC; applied as a scenario to the selected delivery window. Evidence through 2026-10-06 09:00 UTC.";
 
 function overview(o: Opts = {}): EvOverviewRead {
   const c = o.consequence === undefined ? CONSEQUENCE : o.consequence;
@@ -157,7 +161,7 @@ function source(slot: string, display: string, state: string, by: { id: number; 
 function evidence(o: Opts = {}): EvEvidenceRead {
   return {
     ...env(o.state),
-    capabilities: o.empty ? [] : caps(o.gross),
+    capabilities: o.empty ? [] : (o.capList ?? caps(o.gross)),
     sources: [
       source("CONNECTOR_1", "Connector c1", "MIXED", [{ id: 31, state: "RECENT" }, { id: 32, state: "OLD" }, { id: 33, state: "RECENT" }]),
       source("CONNECTOR_2", "Connector c2", "RECENT", [{ id: 34, state: "RECENT" }]),
@@ -176,7 +180,7 @@ function evidence(o: Opts = {}): EvEvidenceRead {
 
 function item(n: number, over: Partial<EvAnalysisItem> = {}): EvAnalysisItem {
   return {
-    evidence_id: id(n), source_label: "Connector c1 · session_event", role: "session_event", record_kind: "EV_SESSION_START",
+    evidence_id: id(n), source_label: "Connector c1 · session", role: "session_event", record_kind: "EV_SESSION_START",
     value_display: "Session started", unit: null, source_time: `2026-10-06T08:${String(n % 60).padStart(2, "0")}:00.000000Z`,
     sent_at: null, received_at: "2026-10-06T08:59:01.000000Z", quality: "GOOD", use: "SUPPORT", reason: null, session_id: id(500),
     interval_start: null, interval_end: null, note: null, record_target_state: "UNAVAILABLE", links: NO_LINKS, ...over,
@@ -188,15 +192,16 @@ function analysis(o: Opts = {}): EvAnalysisRead {
     ? []
     : [
         item(101),
-        item(102, { record_kind: "EV_SESSION_END", value_display: "Session ended" }),
-        item(103, { role: "connector_meter_delta", record_kind: "EV_CONNECTOR_ENERGY", value_display: "1.250", unit: "kWh", interval_start: "2026-10-06T08:05:00.000000Z", interval_end: "2026-10-06T08:10:00.000000Z" }),
-        item(104, { role: "site_import", record_kind: "EV_SITE_IMPORT", source_label: "Site meter · site_import", value_display: "60", unit: "kW", interval_start: "2026-10-06T08:00:00.000000Z", interval_end: "2026-10-06T08:15:00.000000Z" }),
+        item(102, { source_label: "Connector c2 · session", record_kind: "EV_SESSION_END", value_display: "Session ended" }),
+        item(103, { source_label: "Connector c2 · energy", role: "connector_meter_delta", record_kind: "EV_CONNECTOR_ENERGY", value_display: "1.250", unit: "kWh", interval_start: "2026-10-06T08:05:00.000000Z", interval_end: "2026-10-06T08:10:00.000000Z" }),
+        item(104, { role: "site_import", record_kind: "EV_SITE_IMPORT", source_label: "Site meter · site import", value_display: "60", unit: "kW", interval_start: "2026-10-06T08:00:00.000000Z", interval_end: "2026-10-06T08:15:00.000000Z" }),
+        item(105, { source_label: "Connector c1 · connector status", role: "connector_status", record_kind: "STATE", value_display: "Authorizing" }),
         item(450, { use: "EXCLUDED", reason: "SOURCE_UNVERIFIED", note: "Source or binding unverified for this record.", session_id: null }),
       ];
   return {
     ...env(o.state), items, total_count: items.length,
     excluded_records: o.empty ? [] : [{ evidence_id: UNVERIFIED_ID, record_kind: "EV_SESSION_START", reason: "SOURCE_UNVERIFIED" }],
-    claim_rules: o.empty ? [] : caps(o.gross).map((c) => ({ claim: c.claim, required_roles: c.required_roles, observed_roles: [], missing_roles: c.missing_roles, coverage: c.coverage, result: c.state, accepted_evidence_ids: c.accepted_evidence_ids, source_class: "REGISTERED_SIMULATION", known_at: KNOWN, limitation: c.limitation })),
+    claim_rules: o.empty ? [] : (o.capList ?? caps(o.gross)).map((c) => ({ claim: c.claim, required_roles: c.required_roles, observed_roles: [], missing_roles: c.missing_roles, coverage: c.coverage, result: c.state, accepted_evidence_ids: c.accepted_evidence_ids, source_class: "REGISTERED_SIMULATION", known_at: KNOWN, limitation: c.limitation })),
     next_cursor: null, links: links("/evidence/analysis"),
   };
 }
@@ -211,9 +216,9 @@ function financials(o: Opts = {}): EvFinancialsRead {
 }
 
 function assumptions(o: Opts = {}): EvAssumptionsRead {
-  const tariff = o.consequence === null ? null : { revision_id: id(800), value: "0.2777", currency: "KES", unit: "currency/kWh", basis: "Authored test tariff", valid_from: "2026-10-01T00:00:00.000000Z", valid_to: null, recorded_at: "2026-10-06T07:00:00.000000Z" };
+  const tariff = o.consequence === null ? null : { revision_id: id(800), value: "0.2777", currency: "KES", unit: "currency/kWh", basis: "AUTHORED_ESTIMATE", valid_from: "2026-10-01T00:00:00.000000Z", valid_to: null, recorded_at: "2026-10-06T09:30:00.000000Z" };
   return {
-    ...env(o.state), tariff, tariff_revision_count: tariff === null ? 0 : 1, publication_note: null,
+    ...env(o.state), tariff, tariff_revision_count: tariff === null ? 0 : 1, publication_note: o.noNote === true ? null : PUBLICATION_NOTE,
     consequence_tariff: tariff === null ? null : { revision_id: tariff.revision_id, value: tariff.value, currency: tariff.currency, recorded_at: tariff.recorded_at },
     billing_state: "NO_RECORD", missing_keys: tariff === null ? ["ev_gross_tariff_per_kwh"] : [], links: links("/financial-assumptions"),
   };
@@ -334,16 +339,87 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-evidence-analysis"], client());
     expect(subtabs("Evidence sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Analysis", "page"]]);
-    expect(strip()).toContain("5 accepted records");
+    expect(strip()).toContain("6 accepted records");
     const headers = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("thead th")).map((th) => th.textContent);
     expect(headers).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
     const first = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody tr")[0].children).map((c) => c.textContent);
-    expect(first).toEqual(["Connector c1 · session_event", "Session started", "11:41:00", "Not recorded", "08:59:01", `Record ${id(101).slice(0, 8)} · No analysis link`]);
+    expect(first).toEqual(["Connector c1 · session", "Session started", "11:41:00", "Not recorded", "08:59:01", `Record ${id(101).slice(0, 8)} · No analysis link`]);
+    // Review r1 M3: plain first-cell and value words, never a role code or enum in a visible cell.
+    const recordsPanel = panelTitled("Accepted records behind the conclusions");
+    const closed = Array.from(recordsPanel.querySelectorAll("tbody tr"));
+    expect(closed.map((r) => r.querySelector("th")?.textContent)).toEqual(["Connector c1 · session", "Connector c2 · session", "Connector c2 · energy"]);
+    expect(closed.map((r) => r.querySelectorAll("td")[0].textContent)).toEqual(["Session started", "Session ended", "1.250 kWh"]);
+    expect(recordsPanel.querySelector(`[data-record-detail="${id(105)}"]`)?.textContent).toContain("Connector c1 · connector status · Authorizing");
+    expect(recordsPanel.textContent).not.toMatch(/connector_status|session_event|AUTHORIZING|EV_SESSION_START/);
     const claim = panelTitled("How a claim limit is set");
     expect(claim.querySelector("[data-claim-prose]")?.textContent).toBe(
       "Each capability lists the readings it needs. Missing readings narrow the conclusion to covered periods; gaps are shown.Source reporting is not equipment condition.",
     );
     expect(claim.querySelector('[data-claim-rule="GROSS_TARIFF_SCENARIO"]')?.textContent).toContain("Gross tariff scenario: Full · 1800/1800 session-seconds covered");
+  });
+
+  it("claim_details_use_plain_capability_and_chip_words", async () => {
+    const all = [
+      cap("SESSION_OUTCOME", "SUPPORTED", SESSION_COV),
+      cap("SERVICE_STATE", "LIMITED"),
+      cap("DELIVERED_ENERGY", "UNAVAILABLE", NULL_COV, ["connector_meter_delta"]),
+      cap("FAULT_ASSOCIATION", "CONTRADICTORY"),
+      cap("SITE_POWER_CONTEXT", "SUPPORTED", WINDOW_COV),
+      cap("POWER_CONSTRAINT", "LIMITED"),
+      cap("GROSS_TARIFF_SCENARIO", "UNAVAILABLE"),
+    ];
+    await renderAt(PATHS["ev-evidence-analysis"], client({ capList: all }));
+    const claim = panelTitled("How a claim limit is set");
+    const rules = Array.from(claim.querySelectorAll("[data-claim-rule]")).map((r) => (r.firstChild?.textContent ?? "").split(" · ")[0]);
+    expect(rules).toEqual([
+      "Session outcomes: Full", "Connector availability: Limited", "Delivered energy: None", "Cause of interruption: Contradictory",
+      "Site power context: Full", "Site power constraint: Limited", "Gross tariff scenario: None",
+    ]);
+    expect(claim.textContent).not.toMatch(/SESSION_OUTCOME|SERVICE_STATE|SUPPORTED|UNAVAILABLE|CONTRADICTORY/);
+    // Review r1 L2: four rows and four counts; the three other claims never change the chip or the count.
+    cleanup();
+    await renderAt(PATHS["ev-evidence"], client({ capList: all }));
+    expect(panelTitled("What we can conclude now").querySelectorAll("tbody tr")).toHaveLength(4);
+    expect(strip()).toContain("Evidence contradictory");
+    expect(strip()).toContain("4 capabilities · 1 full · 1 limited · 1 none · 1 contradictory · no single score");
+    cleanup();
+    const supported = [
+      cap("SESSION_OUTCOME", "SUPPORTED", SESSION_COV), cap("SERVICE_STATE", "SUPPORTED", SESSION_COV),
+      cap("DELIVERED_ENERGY", "SUPPORTED", SESSION_COV), cap("FAULT_ASSOCIATION", "SUPPORTED", SESSION_COV),
+      cap("SITE_POWER_CONTEXT", "UNAVAILABLE"), cap("POWER_CONSTRAINT", "LIMITED"), cap("GROSS_TARIFF_SCENARIO", "LIMITED"),
+    ];
+    await renderAt(PATHS["ev-evidence"], client({ capList: supported }));
+    expect(strip()).toContain("Evidence supported");
+    expect(strip()).toContain("4 capabilities · 4 full · 0 limited · 0 none · no single score");
+    cleanup();
+    await renderAt(PATHS["ev-evidence"], client());
+    expect(strip()).toContain("4 capabilities · 2 full · 0 limited · 2 none · no single score");
+  });
+
+  it("same_instant_fault_precedes_abort_in_chronology", async () => {
+    const same = "2026-10-06T08:16:00.000000Z";
+    const reversed = {
+      ...analysis(),
+      items: [
+        item(101),
+        item(902, { record_kind: "EV_SESSION_ABORT", value_display: "Session aborted", source_time: same }),
+        item(901, { role: "fault_event", record_kind: "EV_CONNECTOR_FAULT", value_display: "Connector fault", source_time: same }),
+      ],
+      total_count: 3,
+    };
+    await renderAt(PATHS.ev, { ...client(), getAnalysis: vi.fn(() => Promise.resolve(ok(reversed))) });
+    const text = Array.from(panelTitled("What happened on the service day").querySelectorAll(".v69-timeline > li")).map((li) => li.textContent ?? "");
+    const fault = text.findIndex((t) => t.includes("Connector fault"));
+    const abort = text.findIndex((t) => t.includes("Session aborted"));
+    expect(fault).toBeGreaterThanOrEqual(0);
+    expect(fault).toBeLessThan(abort);
+    // Analysis keeps its served (source_time, evidence_id) order.
+    cleanup();
+    const served = { ...reversed, items: [reversed.items[0], reversed.items[2], reversed.items[1]] };
+    await renderAt(PATHS["ev-evidence-analysis"], { ...client(), getAnalysis: vi.fn(() => Promise.resolve(ok(served))) });
+    const rows = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody tr")).map((r) => r.textContent ?? "");
+    expect(rows[1]).toContain("Connector fault");
+    expect(rows[2]).toContain("Session aborted");
   });
 
   it("unknown_pending_historical_are_not_current_zero", async () => {
@@ -397,7 +473,12 @@ describe("W2-07 EV Site routes", () => {
     expect(row).toEqual(["30.000 kWh delivered with complete coverage", "30.000 kWh × 0.2777 KES/kWh", "KES 8.33 gross estimate", "Scenario", "Metered with complete coverage", "Sessions ↗"]);
     expect(bridge.querySelector('[data-disclosure="ev-site-basis-details"]')?.textContent).toContain("KES 8.331000");
     const assumptionsPanel = panelTitled("Assumptions in use");
-    expect(assumptionsPanel.textContent).toContain("0.2777 KES/kWh · Authored test tariff");
+    expect(assumptionsPanel.textContent).toContain("0.2777 KES/kWh · Authored estimate");
+    expect(assumptionsPanel.textContent).not.toContain("AUTHORED_ESTIMATE");
+    // Review r1 M4: both clocks sit in the Assumption details, never as a claim the tariff was known at known_at.
+    const finDetails = assumptionsPanel.querySelector('[data-disclosure="ev-site-assumption-details"]') as HTMLElement;
+    expect(finDetails.textContent).toContain(PUBLICATION_NOTE);
+    expect(finDetails.textContent).toContain("Authored estimate");
     expect(assumptionsPanel.textContent).toContain("No record");
     expect(within(assumptionsPanel).getByRole("link", { name: "Review assumptions" }).getAttribute("href")).toBe(`${PATHS["ev-assumptions"]}${Q}`);
     expect(panelTitled("Not included").querySelector(".prose")?.textContent).toBe("Lost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.");
@@ -421,9 +502,17 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ consequence: null }));
     expect(Array.from(panelTitled("What happened → what it means in money").querySelectorAll('[data-bridge-row="none"] > *')).map((c) => c.textContent)).toEqual([
-      "No eligible delivered-energy consequence", "Tariff not declared", "Unpriced", "Not assessed", "Not assessed", "No linked page for this item",
+      "No eligible delivered-energy consequence", "Tariff not declared", "No gross tariff scenario assessed", "Not assessed", "Not assessed", "No linked page for this item",
     ]);
     expect(strip()).toContain("Currency not declared");
+    expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("No gross tariff scenario assessed");
+
+    // Review r1 L1: a stored UNPRICED consequence still says Unpriced; a null-note fixture shows no sentence.
+    cleanup();
+    await renderAt(PATHS["ev-financials"], client({ noNote: true, consequence: { ...GUARD("TARIFF_MISSING", "No published EV tariff covers the eligible delivery."), state: "UNPRICED" } }));
+    expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("Unpriced");
+    expect(panelTitled("What happened → what it means in money").querySelector('[data-bridge-row="scenario"]')?.textContent).toContain("Unpriced");
+    expect(main().querySelector('[data-disclosure="ev-site-assumption-details"]')?.textContent ?? "").not.toContain("Tariff published");
 
     // Assumptions tab.
     cleanup();
@@ -432,12 +521,23 @@ describe("W2-07 EV Site routes", () => {
     expect(subtabs("Financials sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Assumptions", "page"]]);
     const table = panelTitled("Financial assumptions");
     expect(Array.from(table.querySelectorAll("tbody tr")).map((r) => Array.from(r.children).map((c) => c.textContent))).toEqual([
-      ["Tariff", "0.2777 KES/kWh · Authored test tariff", "Translating metered energy"],
+      ["Tariff", "0.2777 KES/kWh · Authored estimate", "Translating metered energy"],
       ["Billing / collections", "No record", "Cash collection not assessed"],
       ["Currency", "KES", "Scenario display currency"],
     ]);
     expect(main().querySelector('[data-ev-notice="assumptions"]')?.textContent).toBe("Changing the tariff re-translates the same metered energy. It does not change what was measured.");
+    expect(table.textContent).not.toContain("AUTHORED_ESTIMATE");
+    expect((main().querySelector('[data-disclosure="ev-site-assumption-details"]') as HTMLElement).textContent).toContain(PUBLICATION_NOTE);
+    expect(main().querySelector("[data-ev-publication-note]")?.textContent).toBe(PUBLICATION_NOTE);
+    cleanup();
+    await renderAt(PATHS["ev-assumptions"], client({ noNote: true }));
+    expect(main().querySelector("[data-ev-publication-note]")).toBeNull();
+    expect(main().textContent).not.toContain("Tariff published");
+    // Review r1 M2: half even on the absolute value, every discarded digit inspected.
+    expect(money2("8.325")).toBe("8.32");
     expect(money2("8.335")).toBe("8.34");
+    expect(money2("8.32500001")).toBe("8.33");
+    expect(money2("-8.325")).toBe("-8.32");
     expect(money2("8.331000")).toBe("8.33");
   });
 

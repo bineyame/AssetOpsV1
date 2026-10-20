@@ -44,9 +44,19 @@ if URL:
     from assetops_backend.analytics.ev_reads import encode_cursor
     from assetops_backend.ev_assessment_api import build_ev_assessment_router
     from assetops_backend.ev_site_api import build_ev_site_router
+    from assetops_backend.ev_site_reads import (
+        KIND_TEXT,
+        NEXT_EVIDENCE,
+        SOURCE_SUFFIX,
+        STATE_TEXT,
+        UNKNOWN_SOURCE_SUFFIX,
+        UNRECOGNISED_STATE,
+        EvSiteReads,
+    )
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication
     from assetops_backend.financials.composition import build_ev_site_read_service
+    from assetops_backend.sites.binding_roles import EV_CONNECTOR_STATES, EV_ROLES_1
 
 CODE = "EV-LAB-001"
 ROUTES = {"overview": "overview", "evidence": "evidence", "analysis": "evidence/analysis",
@@ -156,7 +166,7 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     imports = [x for x in accepted if x["role"] == "site_import"]
     power = o["site_power"]
     assert imports and power["claim_limit"] == "CONTEXT_ONLY"  # the replay records Site import intervals
-    assert Decimal(power["observed_peak_kw"]) == max(Decimal(x["value_display"]) for x in imports)
+    assert Decimal(power["observed_peak_kw"]) == max(Decimal(str(x["value_display"])) for x in imports)
     assert power["coverage"]["expected_seconds"] == int((hi - lo).total_seconds())
     assert 0 < power["coverage"]["known_seconds"] <= power["coverage"]["expected_seconds"]
     summary = o["consequence_summary"]
@@ -195,6 +205,11 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     assert delivered["state"] == "SUPPORTED" and set(f["evidence_ids"]) <= set(delivered["accepted_evidence_ids"])
     assert [x["slot"] for x in e["sources"]] == ["CONNECTOR_1", "CONNECTOR_2", "SITE_METER", "BILLING"]
     assert all(x["contact"]["state"] == "UNKNOWN" for x in e["sources"]) and len(e["next_evidence"]) <= 3
+    # Review r1 L3: the served rows are the first three of the deduplicated ranked candidates.
+    served = [x["code"] for x in e["next_evidence"]]
+    ranked = ["TERMINAL_GAP", "METER_GAP", "STATUS_GAP", "INDEPENDENT_POWER_GAP", "SITE_IMPORT_GAP", "TARIFF_GAP",
+              "BILLING_GAP"]
+    assert len(set(served)) == len(served) and served == sorted(served, key=ranked.index)
     an = reads["analysis"]
     keys = [(x["source_time"], x["evidence_id"]) for x in accepted]
     assert keys == sorted(keys) and an["total_count"] == len(accepted) and an["items"] == accepted[:50]
@@ -716,6 +731,20 @@ def test_analysis_intervals_and_publication_note(chain) -> None:  # noqa: F811
     events = [x for x in items if x["role"] == "session_event"]
     assert imports and all(_at(x["interval_start"]) < _at(x["interval_end"]) for x in imports)
     assert events and all(x["interval_start"] is None and x["interval_end"] is None for x in events)
+    # Review r1 M3: plain first-cell words and values from the accepted records; no role code, enum or " state".
+    suffix = {"session_event": "session", "connector_meter_delta": "energy", "site_import": "site import",
+              "connector_status": "connector status", "fault_event": "connector fault",
+              "requested_power": "requested power", "allocated_limit": "allocated power limit"}
+    for x in items:
+        assert x["source_label"].endswith(f" · {suffix.get(x['role'], 'EV reading')}"), x["source_label"]
+        if x["record_kind"] in KIND_TEXT:
+            assert x["value_display"] == KIND_TEXT[x["record_kind"]] and x["unit"] is None
+        if x["role"] == "connector_status":
+            assert x["value_display"] in STATE_TEXT.values() and x["unit"] is None
+        if x["role"] in ("connector_meter_delta", "site_import"):
+            assert x["unit"] in ("kWh", "kW") and Decimal(str(x["value_display"])) >= 0
+    assert any(x["source_label"].endswith(" · session") for x in items)
+    assert any(x["source_label"].endswith(" · energy") for x in items)
     a = reads["assumptions"]
     recorded = _at(a["tariff"]["recorded_at"])
     assert a["publication_note"] == (
@@ -730,3 +759,66 @@ def test_analysis_intervals_and_publication_note(chain) -> None:  # noqa: F811
     empty = all_five(c, "from=2026-10-07T08:00:00Z&to=2026-10-07T16:00:00Z")
     assert (empty["assumptions"]["consequence_tariff"], empty["assumptions"]["publication_note"]) == (None, None)
     assert set(empty["overview"]["consequence_summary"]) == SUMMARY_KEYS
+
+
+def test_next_evidence_candidates_rank_and_first_three() -> None:
+    """Review r1 L3: the ruled candidate rank, deduplicated, before the first-three slice."""
+    cand = EvSiteReads._next_candidates
+    everything = {"session_terminal", "connector_meter_delta", "connector_status", "site_import", "ev_gross_tariff_per_kwh"}
+    many = cand(everything, {"requested_power", "allocated_limit"}, True)
+    assert many == ["TERMINAL_GAP", "METER_GAP", "STATUS_GAP", "INDEPENDENT_POWER_GAP", "SITE_IMPORT_GAP",
+                    "TARIFF_GAP", "BILLING_GAP"]
+    assert many[:3] == ["TERMINAL_GAP", "METER_GAP", "STATUS_GAP"] and len(many[:3]) == 3
+    # Independent power outranks Site import, tariff and billing; terminal, meter and status outrank it.
+    only = cand({"site_import", "ev_gross_tariff_per_kwh"}, {"requested_power"}, False)
+    assert only == ["INDEPENDENT_POWER_GAP", "SITE_IMPORT_GAP", "TARIFF_GAP", "BILLING_GAP"]
+    assert cand({"connector_status"}, {"allocated_limit"}, False)[:2] == ["STATUS_GAP", "INDEPENDENT_POWER_GAP"]
+    # An unknown-meter session alone yields the meter gap; both power roles observed yields no rank-4 item.
+    assert cand(set(), set(), True) == ["METER_GAP", "BILLING_GAP"]
+    assert "INDEPENDENT_POWER_GAP" not in cand({"site_import"}, set(), False)
+    assert cand(set(), set(), False) == ["BILLING_GAP"]
+    assert NEXT_EVIDENCE["INDEPENDENT_POWER_GAP"] == (
+        "Record requested and allocated power",
+        "Independent requested and allocated readings are needed before a power constraint can be assessed.",
+        "analysis")
+
+
+def test_analysis_plain_mapping_tables_are_complete() -> None:
+    """Review r1 M3: every accepted role, state and event kind has a plain word; none falls back to a code."""
+    roles = {r.role: r for r in EV_ROLES_1}
+    assert SOURCE_SUFFIX == {
+        "ev_session_event": "session", "ev_connector_fault": "connector fault", "ev_connector_state": "connector status",
+        "ev_connector_energy": "energy", "ev_connector_power": "connector power", "ev_site_import": "site import",
+        "ev_requested_power": "requested power", "ev_allocated_limit": "allocated power limit"}
+    assert set(SOURCE_SUFFIX) == set(roles) and UNKNOWN_SOURCE_SUFFIX == "EV reading"
+    assert STATE_TEXT == {"AVAILABLE": "Available", "UNPLUGGED": "Unplugged", "PLUGGED": "Plugged in",
+                          "AUTHORIZING": "Authorizing", "CHARGING": "Charging", "FAULTED": "Faulted",
+                          "DISABLED": "Disabled"}
+    assert set(STATE_TEXT) == set(EV_CONNECTOR_STATES) and UNRECOGNISED_STATE == "State not recognised"
+    assert KIND_TEXT == {"EV_SESSION_START": "Session started", "EV_SESSION_END": "Session ended",
+                         "EV_SESSION_ABORT": "Session aborted", "EV_CONNECTOR_FAULT": "Connector fault",
+                         "EV_CONNECTOR_CLEAR": "Connector fault cleared"}
+    kinds = {k for name in ("ev_session_event", "ev_connector_fault") for k in roles[name].event_kinds}
+    assert set(KIND_TEXT) == kinds
+
+
+def test_analysis_row_words_for_every_role_state_and_event() -> None:
+    """Review r1 M3: the row builder's plain first cell and value for all eight roles, seven states, five events."""
+    row = EvSiteReads._row_words
+    assert row("Connector c1", "ev_connector_state", "STATE", "STATE", "AUTHORIZING", "state") == (
+        "Connector c1 · connector status", "Authorizing", None)
+    assert row("Connector c2", "ev_session_event", "EVENT", "EV_SESSION_START", None, None) == (
+        "Connector c2 · session", "Session started", None)
+    assert row("Connector c2", "ev_connector_energy", "INTERVAL_DELTA", "EV_CONNECTOR_ENERGY", "1.250", "kWh") == (
+        "Connector c2 · energy", "1.250", "kWh")
+    for state, word in STATE_TEXT.items():
+        assert row("C", "ev_connector_state", "STATE", "STATE", state, "state")[1:] == (word, None)
+    for kind, word in KIND_TEXT.items():
+        role = "ev_session_event" if kind.startswith("EV_SESSION") else "ev_connector_fault"
+        assert row("C", role, "EVENT", kind, None, None)[1:] == (word, None)
+    for role, suffix in SOURCE_SUFFIX.items():
+        assert row("C", role, "NUMBER", "X", "5", "kW")[0] == f"C · {suffix}"
+    assert row("C", "ev_connector_state", "STATE", "STATE", None, "state")[1:] == (None, None)
+    assert row("C", "ev_connector_state", "STATE", "STATE", "ODD_CODE", "state")[1:] == (UNRECOGNISED_STATE, None)
+    assert row("C", "ev_unknown_role", "NUMBER", "X", "5", "kW") == ("C · EV reading", "5", "kW")
+    assert row("C", None, "NUMBER", "X", "5", "kW")[0] == "C · EV reading"

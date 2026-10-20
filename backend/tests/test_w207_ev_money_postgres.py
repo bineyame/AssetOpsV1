@@ -213,31 +213,10 @@ class TestMigration0026:
                                 "financial_assumption_revision WHERE id = :i", i=tariff)
         assert stored == "currency/kWh 0.27775 KES"
         assert counted(engine, "SELECT count(*) FROM ev_consequence_work") == 0  # no EV assessment on this Site
-        at_head = financial_constraints(engine)
-        before_rows = minigrid_rows(engine)
-        key_check = constraint(engine, "financial_assumption_revision_assumption_key_check")
-
-        # An EV tariff alone refuses the downgrade; nothing is dropped or deleted.
+        # An EV tariff alone refuses the downgrade; nothing is dropped or deleted (the successful empty downgrade is
+        # `test_0026_empty_downgrade_on_a_fresh_site_restores_diesel_only_checks`, on a separate fresh Site).
         downgrade_refused(site, engine)
-        remove_money(engine)
-        config = _alembic()
-        try:
-            command.downgrade(config, PREVIOUS)  # genuinely empty: allowed
-            assert head(engine) == PREVIOUS and not any(table_exists(engine, t) for t in EV_MONEY)
-            assert counted(engine, "SELECT count(*) FROM pg_trigger WHERE tgname = ANY(:n)", n=list(TRIGGERS)) == 0
-            assert counted(engine, "SELECT count(*) FROM pg_proc WHERE proname = ANY(:n)", n=list(FUNCTIONS)) == 0
-            assert constraint(engine, "financial_assumption_revision_assumption_key_check") == (
-                "CHECK ((assumption_key = 'diesel_price_per_litre'::text))")
-            assert constraint(engine, "financial_assumption_revision_unit_check") == "CHECK ((unit = 'currency/L'::text))"
-            assert constraint(engine, "financial_assumption_revision_ev_positive") is None
-            assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
-            assert scalar(engine, "SELECT count(*) FROM financial_assumption_revision WHERE id = :d", d=diesel_id) == 1
-            command.upgrade(config, "head")
-        finally:
-            if head(engine) != HEAD:
-                command.upgrade(config, "head")
-        assert constraint(engine, "financial_assumption_revision_assumption_key_check") == key_check
-        assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
+        assert scalar(engine, "SELECT count(*) FROM financial_assumption_revision WHERE id = :t", t=tariff) == 1
 
         # Backfilled or trigger work alone, and a consequence revision alone, each refuse the downgrade.
         session = insert_session(engine, ctx)
@@ -255,6 +234,49 @@ class TestMigration0026:
         finally:
             remove_money(engine)
         assert head(engine) == HEAD
+
+    def test_0026_empty_downgrade_on_a_fresh_site_restores_diesel_only_checks(self, site, engine) -> None:  # noqa: F811
+        # Review r1 L5: a fresh Site on a fresh 0026 database, before any EV tariff, assignment, consequence, work or
+        # attempt row exists; no delete, replica-role DELETE or trigger bypass manufactures the empty state.
+        from alembic import command
+
+        site.publish("v1")  # diesel/fuel rows exist before the downgrade
+        assert head(engine) == HEAD
+        guarded = (
+            f"SELECT count(*) FROM financial_assumption_revision WHERE assumption_key = '{EV_KEY}'",
+            f"SELECT count(*) FROM financial_assumption_assignment WHERE assumption_key = '{EV_KEY}'",
+            "SELECT count(*) FROM ev_consequence_revision", "SELECT count(*) FROM ev_consequence_session",
+            "SELECT count(*) FROM ev_consequence_evidence", "SELECT count(*) FROM ev_consequence_work",
+            "SELECT count(*) FROM ev_consequence_work_attempt")
+        assert [counted(engine, sql) for sql in guarded] == [0] * 7
+        diesel = counted(engine, "SELECT count(*) FROM financial_assumption_revision WHERE assumption_key = "
+                                 "'diesel_price_per_litre'")
+        assert diesel >= 1
+        at_head = financial_constraints(engine)
+        before_rows = minigrid_rows(engine)
+        key_check = constraint(engine, "financial_assumption_revision_assumption_key_check")
+        config = _alembic()
+        site.store.dispose()
+        site.prices.dispose()
+        engine.dispose()
+        try:
+            command.downgrade(config, PREVIOUS)
+            assert head(engine) == PREVIOUS == "0025_w2_ev_session" and not any(table_exists(engine, t) for t in EV_MONEY)
+            assert counted(engine, "SELECT count(*) FROM pg_trigger WHERE tgname = ANY(:n)", n=list(TRIGGERS)) == 0
+            assert counted(engine, "SELECT count(*) FROM pg_proc WHERE proname = ANY(:n)", n=list(FUNCTIONS)) == 0
+            assert constraint(engine, "financial_assumption_revision_assumption_key_check") == (
+                "CHECK ((assumption_key = 'diesel_price_per_litre'::text))")
+            assert constraint(engine, "financial_assumption_revision_unit_check") == "CHECK ((unit = 'currency/L'::text))"
+            assert constraint(engine, "financial_assumption_revision_ev_positive") is None
+            assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
+            assert counted(engine, "SELECT count(*) FROM financial_assumption_revision WHERE assumption_key = "
+                                   "'diesel_price_per_litre'") == diesel
+            command.upgrade(config, "head")
+        finally:
+            if head(engine) != HEAD:
+                command.upgrade(config, "head")
+        assert constraint(engine, "financial_assumption_revision_assumption_key_check") == key_check
+        assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
 
     def test_0026_scoped_constraints_state_arithmetic_and_append_only(self, site, engine) -> None:  # noqa: F811
         ctx = Ctx(site, engine)

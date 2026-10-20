@@ -114,6 +114,8 @@ const ATTENTION: Record<string, string> = {
 const SLOT_LABEL: Record<string, string> = { CONNECTOR_1: "Connector 1", CONNECTOR_2: "Connector 2", SITE_METER: "Site meter", BILLING: "Billing system" };
 const SLOT_AFFECTS: Record<string, string> = { CONNECTOR_1: "Sessions", CONNECTOR_2: "Sessions", SITE_METER: "Site power", BILLING: "Collections not assessed" };
 const EVENT_KINDS = ["EV_SESSION_START", "EV_CONNECTOR_FAULT", "EV_SESSION_ABORT", "EV_SESSION_END"];
+/** Review r1 L4: the same-instant chronology order (the array order of `EVENT_KINDS`). */
+const kindRank = (kind: string | null) => (kind === null ? EVENT_KINDS.length : EVENT_KINDS.indexOf(kind));
 const TONE: Record<string, "green" | "amber" | "red"> = {
   Full: "green",
   Good: "green",
@@ -148,15 +150,19 @@ function hms(value: string | null | undefined): string {
 }
 const instant = (value: string | null | undefined) => (value ? `${value}` : NOT_RECORDED);
 
-/** Display rounding of an exact Decimal string to two places, half up, without passing through a float. */
+/** Display rounding of an exact Decimal string to two places, half even on the absolute value, without a float. */
 export function money2(value: string): string {
   const negative = value.startsWith("-");
   const [whole, frac = ""] = (negative ? value.slice(1) : value).split(".");
-  const digits = (frac + "000").slice(0, 3);
-  let cents = BigInt(whole || "0") * 100n + BigInt(digits.slice(0, 2));
-  if (Number(digits[2]) >= 5) cents += 1n;
+  const padded = frac.padEnd(2, "0");
+  let cents = BigInt(whole || "0") * 100n + BigInt(padded.slice(0, 2));
+  const rest = padded.slice(2);
+  if (/[1-9]/.test(rest)) {
+    const half = rest[0] === "5" && !/[1-9]/.test(rest.slice(1));
+    if (rest[0] > "5" || (rest[0] === "5" && !half) || (half && cents % 2n === 1n)) cents += 1n;
+  }
   const text = `${cents / 100n}.${String(cents % 100n).padStart(2, "0")}`;
-  return negative ? `-${text}` : text;
+  return negative && cents !== 0n ? `-${text}` : text;
 }
 
 /** q6 R3: the unit-specific coverage wording, or the claim's own limitation when coverage is unproved. */
@@ -249,8 +255,9 @@ function Gap({ id, children }: { id: string; children: ReactNode }) {
 
 /* ---------- shared strip pieces ---------- */
 
-/** Evidence aggregate over the seven ordered capabilities (copy ledger "Shared strip"). */
-export function evidenceAggregate(states: string[]): "Evidence supported" | "Evidence limited" | "Evidence contradictory" | "Evidence unknown" {
+/** Evidence aggregate over the four mock-visible capabilities (review r1 L2; copy ledger "Shared strip"). */
+export function evidenceAggregate(caps: EvCapability[]): "Evidence supported" | "Evidence limited" | "Evidence contradictory" | "Evidence unknown" {
+  const states = CAP_ROWS.map((r) => caps.find((c) => c.claim === r.claim)?.state ?? "UNAVAILABLE");
   if (states.length === 0 || states.every((s) => s === "UNAVAILABLE")) return "Evidence unknown";
   if (states.includes("CONTRADICTORY")) return "Evidence contradictory";
   if (states.every((s) => s === "SUPPORTED")) return "Evidence supported";
@@ -423,7 +430,7 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
   const p = o.site_power;
   const peak = p.observed_peak_kw === null ? "Unknown" : `${p.observed_peak_kw} kW observed peak`;
   const powerNote = p.observed_peak_kw === null ? (p.limitation ?? "No accepted Site import report") : coverageText(p.coverage, p.limitation);
-  const word = evidenceAggregate(caps.map((c) => c.state));
+  const word = evidenceAggregate(caps);
   const window = o.window;
   return (
     <MetricCards columns={5} label="EV charging conditions">
@@ -434,7 +441,7 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
       <MetricCard
         label={<Link to={sel(routes.evidence, window)}>Evidence</Link>}
         value={word.replace("Evidence ", "").replace(/^./, (c) => c.toUpperCase())}
-        note={caps.length === 0 ? "Evidence coverage not assessed" : `${caps.length} capabilities · no single score`}
+        note={caps.length === 0 ? "Evidence coverage not assessed" : `${CAP_ROWS.length} capabilities · no single score`}
         tone="muted"
         assessment
         data={{ "data-ev-card": "evidence" }}
@@ -448,7 +455,12 @@ const CHRONOLOGY_SLOTS = 7;
 function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: TimelineEvent[]; extra: EvAnalysisItem[] } {
   const accepted = items
     .filter((i) => i.record_kind !== null && EVENT_KINDS.includes(i.record_kind) && i.use !== "EXCLUDED")
-    .sort((a, b) => (a.source_time ?? "").localeCompare(b.source_time ?? "") || a.evidence_id.localeCompare(b.evidence_id));
+    .sort(
+      (a, b) =>
+        (a.source_time ?? "").localeCompare(b.source_time ?? "") ||
+        kindRank(a.record_kind) - kindRank(b.record_kind) ||
+        a.evidence_id.localeCompare(b.evidence_id),
+    );
   const room = incomplete ? CHRONOLOGY_SLOTS - 1 : CHRONOLOGY_SLOTS;
   const shown = accepted.slice(0, room);
   const events: TimelineEvent[] = shown.map((i) => ({
@@ -491,7 +503,7 @@ function OverviewScreen(p: EvSiteFrameProps) {
         <>
           <WindowBar env={o} />
           <StatusBar label="EV Site state" action={<Link to={sel(routes.evidence, o.window)}>Inspect evidence</Link>}>
-            <Chip word={evidenceAggregate(caps.map((c) => c.state))} />
+            <Chip word={evidenceAggregate(caps)} />
             <Provenance env={o} />
             <StateNote env={o} />
           </StatusBar>
@@ -719,7 +731,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
   const analysisHref = e === null ? null : evSiteUiHref(e.links.analysis, routes);
   const financialsHref = e === null ? null : evSiteUiHref(e.links.financials, routes);
   const sessionsHref = e === null ? null : sel(routes.sessions, e.window);
-  const word = evidenceAggregate(caps.map((c) => c.state));
+  const word = evidenceAggregate(caps);
   const rowChips = CAP_ROWS.map((r) => chipOf(capOf(caps, r.claim)));
   const count = (w: string) => rowChips.filter((c) => c === w).length;
   const checked = e?.sources.find((s) => s.contact.checked_at !== null)?.contact.checked_at ?? null;
@@ -1059,13 +1071,18 @@ function AnalysisScreen(p: EvSiteFrameProps) {
 
 /* ---------- ev-financials ---------- */
 
+/** Review r1 M1: the stored tariff basis in plain words; an unrecognised basis is not shown as a code. */
+const BASIS_TEXT: Record<string, string> = { AUTHORED_ESTIMATE: "Authored estimate" };
+const basisText = (basis: string) => BASIS_TEXT[basis] ?? "Basis not recognised";
+const NO_SCENARIO = "No gross tariff scenario assessed";
+
 function tariffText(t: EvAssumptionsRead["tariff"]): string {
-  return t === null ? "Not declared" : `${t.value} ${t.currency}/kWh${t.basis ? ` · ${t.basis}` : ""}`;
+  return t === null ? "Not declared" : `${t.value} ${t.currency}/kWh${t.basis ? ` · ${basisText(t.basis)}` : ""}`;
 }
 const billingText = (state: string | undefined) => (state === "NOT_CONNECTED" ? "Not connected" : "No record");
 
 function consequenceWord(c: EvConsequence | null): string {
-  if (c === null) return "Unpriced";
+  if (c === null) return NO_SCENARIO;
   if (c.state === "ESTIMATED" && c.amount !== null && c.currency !== null) return `${c.currency} ${money2(c.amount)} gross estimate`;
   return c.state === "WITHHELD" ? "Withheld" : "Unpriced";
 }
@@ -1107,7 +1124,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
       {f === null ? null : (
         <MetricCards columns={4} label="EV money translation">
           <MetricCard label="Delivered energy" value={energyKwh === null ? "Unknown" : `${energyKwh} kWh`} note="Metered, complete sessions" data={{ "data-ev-fin-card": "energy" }} />
-          <MetricCard label="Gross tariff estimate" value={estimated ? `${c!.currency} ${money2(c!.amount!)}` : c?.state === "WITHHELD" ? "Withheld" : "Unpriced"} note="Gross scenario · not cash collected" data={{ "data-ev-fin-card": "gross" }} />
+          <MetricCard label="Gross tariff estimate" value={estimated ? `${c!.currency} ${money2(c!.amount!)}` : c === null ? NO_SCENARIO : c.state === "WITHHELD" ? "Withheld" : "Unpriced"} note="Gross scenario · not cash collected" data={{ "data-ev-fin-card": "gross" }} />
           <MetricCard label="Lost revenue" value="Unknown" note="Unmet demand not established" data={{ "data-ev-fin-card": "lost" }} />
           <MetricCard label="Collections" value="Not recorded" note="No accepted payment record" data={{ "data-ev-fin-card": "collections" }} />
         </MetricCards>
@@ -1137,7 +1154,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                     <th scope="row">No eligible delivered-energy consequence</th>
                     <td>Tariff not declared</td>
                     <td>
-                      <Chip word="Unpriced" />
+                      <Chip word={NO_SCENARIO} />
                     </td>
                     <td>Not assessed</td>
                     <td>Not assessed</td>
@@ -1250,9 +1267,10 @@ function AssumptionDetails({ s }: { s: EvAssumptionsRead | null }) {
     <ul className="ev-site-list">
       <li>
         Tariff revision <code data-vocabulary-exempt="source-reference">{t.revision_id}</code>
-        {` · ${t.unit} · ${t.basis ?? "Basis not recorded"}`}
+        {` · ${t.unit} · ${t.basis ? basisText(t.basis) : "Basis not recorded"}`}
       </li>
       <li>{`Valid ${instant(t.valid_from)} to ${t.valid_to ?? "open"} · recorded ${instant(t.recorded_at)} · ${s.tariff_revision_count} published revisions`}</li>
+      {s.publication_note === null ? null : <li data-ev-assumption-publication-note>{s.publication_note}</li>}
       <li>{`Billing / collections: ${billingText(s.billing_state)} · source: published Site financial assumption`}</li>
     </ul>
   );

@@ -64,6 +64,9 @@ NEXT_EVIDENCE = {
     "METER_GAP": ("Recover connector meter intervals", "Needed before delivered energy is complete.", "analysis"),
     "STATUS_GAP": ("Recover connector status history", "Needed before connector availability can be assessed.",
                    "analysis"),
+    "INDEPENDENT_POWER_GAP": ("Record requested and allocated power",
+                              "Independent requested and allocated readings are needed before a power constraint "
+                              "can be assessed.", "analysis"),
     "SITE_IMPORT_GAP": ("Record Site import power", "Needed for Site power context.", "analysis"),
     "TARIFF_GAP": ("Publish an EV gross tariff", "Needed before a gross tariff scenario can be estimated.",
                    "financials"),
@@ -73,6 +76,16 @@ NEXT_EVIDENCE = {
 KIND_TEXT = {"EV_SESSION_START": "Session started", "EV_SESSION_END": "Session ended",
              "EV_SESSION_ABORT": "Session aborted", "EV_CONNECTOR_FAULT": "Connector fault",
              "EV_CONNECTOR_CLEAR": "Connector fault cleared"}
+#: Review r1 M3: the plain suffix of the first Analysis cell, by accepted binding role (all eight `EV_ROLES_1`).
+SOURCE_SUFFIX = {"ev_session_event": "session", "ev_connector_fault": "connector fault",
+                 "ev_connector_state": "connector status", "ev_connector_energy": "energy",
+                 "ev_connector_power": "connector power", "ev_site_import": "site import",
+                 "ev_requested_power": "requested power", "ev_allocated_limit": "allocated power limit"}
+UNKNOWN_SOURCE_SUFFIX = "EV reading"
+#: Review r1 M3: the plain word of each connector state (`sites/binding_roles.EV_CONNECTOR_STATES`).
+STATE_TEXT = {"AVAILABLE": "Available", "UNPLUGGED": "Unplugged", "PLUGGED": "Plugged in",
+              "AUTHORIZING": "Authorizing", "CHARGING": "Charging", "FAULTED": "Faulted", "DISABLED": "Disabled"}
+UNRECOGNISED_STATE = "State not recognised"
 SOURCE_UNVERIFIED_NOTE = "Source or binding unverified for this record."
 #: q5 R3: the limitation of a claim whose interval-level numerator and denominator are not proved.
 COVERAGE_UNKNOWN = "Coverage duration cannot be calculated from the selected records."
@@ -614,26 +627,47 @@ class EvSiteReads:
     def _assets(self, c, ctx) -> dict[str, str]:
         return self._reads.assets_on(c, ctx["snap"])
 
-    def _next(self, ctx, capabilities) -> list[dict[str, Any]]:
-        if not capabilities:
-            return []
-        missing = {role for x in capabilities for role in x["missing_roles"]}
-        sessions = self._sessions(ctx)
+    @staticmethod
+    def _next_candidates(missing: set, power_missing: set, unknown_meter: bool) -> list[str]:
+        """Review r1 L3: every candidate in the ruled rank, deduplicated; the caller takes the first three."""
         codes = []
         if "session_terminal" in missing:
             codes.append("TERMINAL_GAP")
-        if "connector_meter_delta" in missing or any((x["unknown_meter_seconds"] or 0) > 0 for x in sessions):
+        if "connector_meter_delta" in missing or unknown_meter:
             codes.append("METER_GAP")
         if "connector_status" in missing:
             codes.append("STATUS_GAP")
+        if "requested_power" in power_missing or "allocated_limit" in power_missing:
+            codes.append("INDEPENDENT_POWER_GAP")
         if "site_import" in missing:
             codes.append("SITE_IMPORT_GAP")
         if TARIFF_ROLE in missing:
             codes.append("TARIFF_GAP")
         codes.append("BILLING_GAP")
+        return list(dict.fromkeys(codes))
+
+    def _next(self, ctx, capabilities) -> list[dict[str, Any]]:
+        if not capabilities:
+            return []
+        missing = {role for x in capabilities for role in x["missing_roles"]}
+        power = {role for x in capabilities if x["claim"] == "POWER_CONSTRAINT" for role in x["missing_roles"]}
+        sessions = self._sessions(ctx)
+        codes = self._next_candidates(missing, power, any((x["unknown_meter_seconds"] or 0) > 0 for x in sessions))
         links = self._links(ctx, "/evidence")
         return [{"code": code, "text": NEXT_EVIDENCE[code][0], "why": NEXT_EVIDENCE[code][1],
                  "link": links[NEXT_EVIDENCE[code][2]]} for code in codes[:3]]
+
+    @staticmethod
+    def _row_words(label: str, role: str | None, family: str, kind: str | None, value: Any,
+                   unit: str | None) -> tuple[str, Any, str | None]:
+        """Review r1 M3: the plain first cell and value of an accepted record. Events and connector states show the
+        ruled words (no unit); numeric readings keep their exact value and unit; no raw code is shown."""
+        source_label = f"{label} · {SOURCE_SUFFIX.get(role, UNKNOWN_SOURCE_SUFFIX)}"
+        if family == "EVENT":
+            return source_label, KIND_TEXT.get(kind), None
+        if role == "ev_connector_state":
+            return source_label, None if value is None else STATE_TEXT.get(str(value), UNRECOGNISED_STATE), None
+        return source_label, value, unit
 
     def analysis(self, t: UUID, s: UUID, code: str, lo, hi, known_at, cursor: str | None, limit: int) -> dict:
         def work(c):
@@ -645,12 +679,13 @@ class EvSiteReads:
             for r in accepted:
                 kind = r["record_kind"]
                 label = names.get(r["asset_id"]) or "EV source"
+                source_label, value_display, unit = self._row_words(
+                    label, r["role"], r["family"], kind, r["value"], r["unit"])
                 items.append({
                     "evidence_id": r["evidence_id"],
-                    "source_label": f"{label} · {PUBLIC_ROLE.get(r['role'], r['role'] or 'record')}",
+                    "source_label": source_label,
                     "role": PUBLIC_ROLE.get(r["role"], r["role"]), "record_kind": kind,
-                    "value_display": KIND_TEXT.get(kind) if r["family"] == "EVENT" else r["value"],
-                    "unit": None if r["family"] == "EVENT" else r["unit"],
+                    "value_display": value_display, "unit": unit,
                     "source_time": plain(r["source_time"]), "sent_at": plain(r["sent_at"]),
                     "received_at": plain(r["received_at"]), "quality": r["quality"], "use": r["use"],
                     "reason": r["reason"], "session_id": r["session_id"],
