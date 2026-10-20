@@ -101,6 +101,7 @@ from assetops_backend.evidence.public_provenance import (
     dual_blocks,
     ev_envelope_selection,
     ev_finding_row_selection,
+    ev_withdrawn_finding_row_selection,
     ev_session_row_selection,
 )
 from assetops_backend.financials.fuel_cost import iso
@@ -1632,20 +1633,22 @@ class ColdReadService:
                     result = r[3] if isinstance(r[3], dict) else json.loads(r[3])
                     ids = r[4] if isinstance(r[4], list) else json.loads(r[4])
                     selected[analytic] = ColdSelected(analytic, r[0], r[1], r[2], result, list(ids), r[5], r[6], r[7])
+        # W3-01 r1 M3.2: an explicit historical cutoff precedes pending-job selection (job status has no as-of
+        # ledger); a current read ignores a job created after the requested `known_at`.
+        historical = known_at is not None and watermark is not None and known_at < watermark
         pending_since = None
-        if lo is not None:
+        if lo is not None and not historical and known is not None:
             pending_since = c.execute(text(
                 "SELECT min(created_at) FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
                 "AND domain = :d AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi "
-                "AND window_end > :lo"),
-                {**p, "d": cold.DOMAIN, "lo": lo - cold.MAX_BRIDGE, "hi": hi + cold.MAX_BRIDGE}).scalar()
+                "AND window_end > :lo AND (CAST(:k AS timestamptz) IS NULL OR created_at <= :k)"),
+                {**p, "d": cold.DOMAIN, "lo": lo - cold.MAX_BRIDGE, "hi": hi + cold.MAX_BRIDGE, "k": known_at}).scalar()
         exc = selected.get(cold.EXCURSION_ANALYTIC)
         support = [UUID(x["evidence_id"]) for x in (exc.result.get("links") or [])
                    if x["use"] == "SUPPORT"] if exc else []
         evidence = self._evidence(c, t, s, support + [UUID(x["evidence_id"]) for x in self._other_links(selected)])
         probes = sorted((evidence[e] for e in support if e in evidence), key=lambda e: (e["source_time"], e["id"]))
         latest_probe = probes[-1]["source_time"] if probes else None
-        historical = known_at is not None and watermark is not None and known_at < watermark
         any_selected = exc or selected.get(cold.START_RESPONSE_ANALYTIC)
         window_to = any_selected.window_end if any_selected else None
         state = currentness_state(pending=pending_since is not None, historical=historical,
@@ -2211,14 +2214,14 @@ class EvReadService:
                 {**p, "lo": lo, "hi": hi, "k": known}).first()
         # W3-01 Run 3 q1: the overlapping job is read whenever the window exists, with or without a selected head;
         # it gates only the public pending block when nothing is selected (currentness is unchanged).
+        historical = known_at is not None and watermark is not None and known_at < watermark
         job = False
-        if lo is not None:
+        if lo is not None and not historical and known is not None:
             job = c.execute(text(
                 "SELECT EXISTS (SELECT 1 FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
                 "AND domain = 'ev_charging' AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi "
-                "AND window_end > :lo)"), {**p, "lo": lo, "hi": hi}).scalar_one()
+                "AND window_end > :lo AND (CAST(:k AS timestamptz) IS NULL OR created_at <= :k))"), {**p, "lo": lo, "hi": hi, "k": known_at}).scalar_one()
         pending = selected is not None and job
-        historical = known_at is not None and watermark is not None and known_at < watermark
         state = _ev_currentness_state(selected=selected is not None, pending=pending, historical=historical)
         note = {"UNKNOWN": _EV_NO_SELECTION_NOTE, "PENDING_RECOMPUTE": _EV_PENDING_NOTE,
                 "HISTORICAL": _EV_HISTORICAL_NOTE}.get(state)
@@ -2652,7 +2655,7 @@ class EvReadService:
         if sel is None:
             return []
         sql = ("SELECT f.id, fr.id, fr.revision_no, fr.basis_sha256, fr.claim, fr.title, fr.claim_level, "
-               "fr.lifecycle, fr.created_at, f.anchor_start, fr.limitations FROM finding_revision fr JOIN finding f "
+               "fr.lifecycle, fr.created_at, f.anchor_start, fr.limitations, fr.transition FROM finding_revision fr JOIN finding f "
                "ON f.tenant_id = fr.tenant_id AND f.site_id = fr.site_id AND f.id = fr.finding_id "
                "WHERE fr.tenant_id = :t AND fr.site_id = :s AND f.domain = 'ev_charging' "
                "AND fr.assessment_revision_id = :ar ")
@@ -2678,8 +2681,12 @@ class EvReadService:
         items = []
         for r in found:
             claim = _ev_json(r[4]) or {}
-            pinned = by_session.get(str(claim.get("session_id")).lower(), [])
-            if len(pinned) != 1:
+            pinned = by_session.get(str(claim.get("session_id")).lower(), []) if claim.get("session_id") is not None else []
+            # W3-01 r1 M3.1: only a withdrawal (lifecycle and transition NO_LONGER_SUPPORTED) whose stored session has
+            # zero matches in the selected assessment's full session set reads on the two-ID selection.
+            withdrawn_dropped = (len(pinned) == 0 and claim.get("session_id") is not None
+                                 and r[7] == "NO_LONGER_SUPPORTED" and r[11] == "NO_LONGER_SUPPORTED")
+            if len(pinned) != 1 and not withdrawn_dropped:
                 raise EvReadUnavailable("An EV Finding revision's pinned session revision cannot be read.")
             cited = [str(x).lower() for x in c.execute(text(
                 "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s "
@@ -2688,8 +2695,10 @@ class EvReadService:
                 "finding_id": _ev_plain(r[0]), "revision_id": _ev_plain(r[1]), "revision_no": r[2], "basis_sha256": r[3],
                 "session_id": claim.get("session_id"), "title": r[5], "claim_level": r[6], "lifecycle": r[7],
                 "as_of": _ev_plain(r[8]),
-                "source_provenance": public.cited_set(snap["t"], snap["s"], sorted(cited),
-                                                      ev_finding_row_selection(sel["revision_id"], pinned[0], r[1])),
+                "source_provenance": public.cited_set(
+                    snap["t"], snap["s"], sorted(cited),
+                    ev_withdrawn_finding_row_selection(sel["revision_id"], r[1]) if withdrawn_dropped
+                    else ev_finding_row_selection(sel["revision_id"], pinned[0], r[1])),
                 "links": {"self": f"/api/sites/{snap['code']}/ev/findings/{_ev_plain(r[0])}{q}", "evidence": None,
                           "analysis": None, "finding": None, "financials": None},
                 "_claim": claim, "_limitations": list(_ev_json(r[10]) or ()), "_sort": (r[9], r[0])})

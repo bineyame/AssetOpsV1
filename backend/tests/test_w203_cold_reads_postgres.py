@@ -284,3 +284,47 @@ def test_pending_historical_reload(chain) -> None:  # noqa: F811
     now = get(c, f"findings/{finding['finding_id']}?{W}")
     assert [r["transition"] for r in now["revisions"]] == ["SUPPORT_CHANGED", "OPENED"]
     assert get(c, f"temperature?{W}") == after  # reload is stable
+
+
+def _siblings(body: dict) -> tuple:
+    return (body["source_provenance"], body["selected_source_provenance"], body["pending_source_provenance"])
+
+
+@needs_db
+def test_historical_cutoff_precedes_pending_job(chain) -> None:  # noqa: F811
+    """W3-01 r1 M3.2: an explicit historical cutoff never shows a pending job; a non-historical cutoff before a
+    later job's created_at does not gate pending provenance either."""
+    built = opened("late-reading", chain)
+    run(built)
+    c = client(built)
+    before = get(c, f"temperature?{W}")
+    cutoff = before["window"]["known_at"]
+    url = f"temperature?{W}&known_at={cutoff}"
+    first = get(c, url)
+    assert first["currentness"]["state"] == "CURRENT"
+    built.advance_late()  # an overlapping job is now open (created after the cutoff)
+    during = get(c, url)
+    assert during["currentness"]["state"] == "HISTORICAL" and during["currentness"]["pending_since"] is None
+    assert _siblings(during) == _siblings(first) and during["pending_source_provenance"] is None
+    run(built)
+    # the cutoff is now strictly before the watermark: explicit historical, still no pending block
+    after = get(c, url)
+    assert after["currentness"]["state"] == "HISTORICAL" and after["currentness"]["pending_since"] is None
+    assert _siblings(after) == _siblings(first)
+    assert after["selected_source_provenance"]["basis_sha256"] == first["selected_source_provenance"]["basis_sha256"]
+    # a non-historical explicit known_at (the watermark) before a later job's created_at: no pending block
+    now = get(c, f"temperature?{W}")
+    watermark = now["window"]["known_at"]
+    job = uuid4()
+    with built.engine.begin() as conn:
+        conn.execute(text(
+            "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
+            "available_at, created_at) VALUES (:j, :t, :s, 'cold_chain', '2026-10-06T19:00:00Z', "
+            "'2026-10-06T20:05:00Z', 'FAILED', now(), now())"), {"j": job, "t": built.tenant_id, "s": built.site_id})
+    try:
+        explicit = get(c, f"temperature?{W}&known_at={watermark}")
+        assert explicit["currentness"]["pending_since"] is None and explicit["pending_source_provenance"] is None
+        assert get(c, f"temperature?{W}")["pending_source_provenance"] is not None  # the default read does gate
+    finally:
+        with built.engine.begin() as conn:
+            conn.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job})

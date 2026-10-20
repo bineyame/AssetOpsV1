@@ -188,6 +188,12 @@ def ev_finding_row_selection(assessment_revision_id: UUID | str, ev_session_revi
     return _ids([assessment_revision_id, ev_session_revision_id, finding_revision_id])
 
 
+def ev_withdrawn_finding_row_selection(assessment_revision_id: UUID | str, finding_revision_id: UUID | str) -> list[str]:
+    """W3-01 r1 M3.1: a withdrawn EV Finding whose claim session was dropped from the selected assessment:
+    `{assessment_revision.id, finding_revision.id}`; no session revision is selected."""
+    return _ids([assessment_revision_id, finding_revision_id])
+
+
 # --- Rulings 5 and 6: pending dual blocks and the estate projection. -------------------------------------------
 
 def estate_projection(dto: Mapping[str, Any]) -> dict[str, Any]:
