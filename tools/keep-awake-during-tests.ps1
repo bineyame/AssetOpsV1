@@ -5,7 +5,10 @@
 # display idle timeout, and display-off enters Modern Standby ("Reason: Idle Timeout", System event 506),
 # which throttles the run while wall time advances (main-tick-cost: a 240 s tick budget ran out, 47 min suite).
 # Exits after -IdleMinutes with no pytest process, or after -MaxHours.
-param([int]$IdleMinutes = 20, [int]$MaxHours = 12)
+# -WatchProcessId (OPS-03): also counts as active while that host process lives, because container pytest
+# runs no host python.exe. tools/run-backend-suite-in-container.ps1 passes its own PID. Without it the
+# behaviour is unchanged.
+param([int]$IdleMinutes = 20, [int]$MaxHours = 12, [int]$WatchProcessId = 0)
 
 Add-Type -Namespace Win32 -Name Power -MemberDefinition @'
 [DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint esFlags);
@@ -22,6 +25,9 @@ try {
     while ((Get-Date) -lt $deadline) {
         $running = Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
             Where-Object { $_.CommandLine -match 'pytest' }
+        if (-not $running -and $WatchProcessId -gt 0) {
+            $running = Get-Process -Id $WatchProcessId -ErrorAction SilentlyContinue
+        }
         if ($running) { $lastSeen = Get-Date }
         elseif (((Get-Date) - $lastSeen).TotalMinutes -ge $IdleMinutes) { break }
         Start-Sleep -Seconds 60
