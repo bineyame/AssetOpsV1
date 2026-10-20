@@ -645,3 +645,44 @@ describe("W2-03 follow-up: M5 chip tones on the selected state and result badge 
     expect(evidence.closest(".cold-result")).toBeNull();
   });
 });
+
+describe("W3-01 r1 M1/M2: selected versus pending source copy on the cold claim references", () => {
+  const SEL = { classification: "REGISTERED_SIMULATION", state: "REGISTERED_SIMULATION", source_ids: ["cold-backup-failed"], evidence_ids: [id(100)], basis_sha256: `sha256:${"e".repeat(64)}`, reasons: [] };
+  const PEND = { classification: "MIXED", state: "MIXED", source_ids: ["other-run"], evidence_ids: [id(100), id(101)], basis_sha256: null, reasons: [] };
+  const pendingTemperature = (selected: typeof SEL | null) => ({
+    ...STOCKED_TEMPERATURE,
+    currentness: { ...STOCKED_TEMPERATURE.currentness, state: "PENDING_RECOMPUTE", pending_since: KNOWN },
+    source_provenance: PEND,
+    selected_source_provenance: selected,
+    pending_source_provenance: PEND,
+  }) as unknown as ColdTemperatureRead;
+  const claimRefs = () => panelTitled("How each limit is set").querySelector('[data-disclosure="cold-claim-references"]') as HTMLElement;
+
+  it("selected_source_basis_survives_pending", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(SEL)) });
+    await settledScreen();
+    expect(claimRefs().textContent).toContain("Selected source basis (SHA-256)");
+    expect(claimRefs().textContent).toContain(SEL.basis_sha256);
+    expect(claimRefs().textContent).not.toContain("Assessment basis");
+    cleanup();
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(null)) });
+    await settledScreen();
+    expect(claimRefs().textContent).toContain("Selected source basis (SHA-256)Not recorded");
+  });
+
+  it("pending_source_does_not_relabel_cold_claim_or_site_rows", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(SEL)) });
+    await settledScreen();
+    expect(claimRefs().querySelector("[data-cold-source]")?.textContent).toBe("Generated test data");
+    expect(claimRefs().querySelector("[data-cold-source-sentence]")).not.toBeNull();
+    expect(claimRefs().textContent).toContain("cold-backup-failed");
+    expect(claimRefs().textContent).not.toContain("other-run");
+    cleanup();
+    // no selected assessment: no selected-result source or simulation copy
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(null)) });
+    await settledScreen();
+    expect(claimRefs().querySelector("[data-cold-source]")).toBeNull();
+    expect(claimRefs().querySelector("[data-cold-source-sentence]")).toBeNull();
+    expect(claimRefs().textContent).not.toContain("other-run");
+  });
+});

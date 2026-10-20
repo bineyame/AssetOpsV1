@@ -621,3 +621,53 @@ describe("W2-07 EV Site routes", () => {
     expect(screen.getByRole("link", { name: "Analysis" }).getAttribute("href")).toBe(`${PATHS["ev-evidence-analysis"]}${Q}`);
   });
 });
+
+describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () => {
+  const SEL = { classification: "REGISTERED_SIMULATION", state: "REGISTERED_SIMULATION", source_ids: [id(2)], evidence_ids: [], basis_sha256: `sha256:${BASIS}`, reasons: [] };
+  const PENDING = { ...SEL, classification: "MIXED", state: "MIXED", basis_sha256: null };
+  const siblings = (selected: typeof SEL | null) => ({ source_provenance: PENDING, selected_source_provenance: selected, pending_source_provenance: PENDING });
+  const withEnv = (extra: Record<string, unknown>): EvSiteClient => {
+    const base = client();
+    const wrap = <T extends EvEnvelope,>(read: () => Promise<EvRead<T>>) => vi.fn(() => read().then((r) => (r.status === "loaded" ? ok({ ...r.value, ...extra, currentness: { ...r.value.currentness, state: "PENDING_RECOMPUTE" } }) : r)));
+    return {
+      ...base,
+      getOverview: wrap(base.getOverview as never) as never,
+      getEvidence: wrap(base.getEvidence as never) as never,
+      getAnalysis: wrap(base.getAnalysis as never) as never,
+      getFinancials: wrap(base.getFinancials as never) as never,
+      getAssumptions: wrap(base.getAssumptions as never) as never,
+    };
+  };
+
+  it("selected_claim_rules_and_money_lines_ignore_pending_class", async () => {
+    await renderAt(PATHS["ev-evidence"], withEnv(siblings(SEL)));
+    const details = main().querySelector('[data-disclosure="ev-site-capability-details"]') as HTMLElement;
+    expect(details.textContent).toContain("source REGISTERED_SIMULATION");
+    expect(details.textContent).not.toContain("source MIXED");
+    cleanup();
+    await renderAt(PATHS["ev-financials"], withEnv(siblings(SEL)));
+    expect(main().textContent).toContain("source REGISTERED_SIMULATION");
+    expect(main().textContent).not.toContain("source MIXED");
+    cleanup();
+    await renderAt(PATHS["ev-assumptions"], withEnv(siblings(SEL)));
+    expect(main().textContent).toContain("Generated test data");
+    cleanup();
+    // no selected assessment: Unknown, and no selected-result badge; the pending class is never a claim result
+    await renderAt(PATHS["ev-evidence"], withEnv(siblings(null)));
+    const none = main().querySelector('[data-disclosure="ev-site-capability-details"]') as HTMLElement;
+    expect(none.textContent).toContain("source Unknown");
+    expect(none.textContent).not.toContain("source MIXED");
+    cleanup();
+    await renderAt(PATHS["ev-assumptions"], withEnv(siblings(null)));
+    expect(main().textContent).not.toContain("Generated test data");
+  });
+
+  it("current_accepted_record_line_names_pending_class", async () => {
+    await renderAt(PATHS["ev-evidence-analysis"], withEnv(siblings(SEL)));
+    const row = main().querySelector(`[data-record-detail="${UNVERIFIED_ID}"]`) as HTMLElement;
+    expect(row.textContent).toContain("current accepted evidence source MIXED");
+    expect(row.textContent).not.toContain("source REGISTERED_SIMULATION");
+    const rule = main().querySelector("[data-claim-rule]") as HTMLElement;
+    expect(rule.textContent).toContain("source REGISTERED_SIMULATION");
+  });
+});
