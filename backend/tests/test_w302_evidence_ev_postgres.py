@@ -55,3 +55,19 @@ def test_w302_evidence_ev_window_rows_links_and_gaps(chain) -> None:  # noqa: F8
                for g in body["gaps"])
     assert body["summary"]["capability_count"] == body["total_count"]
     assert body["summary"]["full_count"] is not None  # complete and current: truth counts are present
+
+
+def test_w302_evidence_ev_meter_gap_from_unknown_meter_seconds(chain) -> None:  # noqa: F811
+    """c1-q2: a selected session with positive unknown meter seconds gives the estate METER_GAP group through the
+    public `capabilities_on` `unknown_meter`, unlocking that window's energy row; the token carries the selected
+    session revision IDs (c1-q3(5))."""
+    built, estate, day = settled(chain, "missing-meter")
+    evidence = Evidence(built.engine, built.tenant_id)
+    body = evidence.ok(**{"from": iso(day), "to": iso(day + timedelta(days=1))}, limit=100)
+    assert body["status"] == "CURRENT" and body["coverage"]["state"] == "COMPLETE"
+    meter = [g for g in body["gaps"] if g["gap_code"] == "METER_GAP"]
+    assert len(meter) == 1 and meter[0]["domain"] == "ev_charging" and meter[0]["missing_role"] is None
+    assert meter[0]["site_ids"] == [str(built.site_id).lower()]
+    assert meter[0]["unlocks"] and all(key.startswith("energy@") for key in meter[0]["unlocks"])
+    rows = {r["capability_key"]: r for r in body["rows"]}
+    assert all("METER_GAP" in rows[key]["gap_codes"] for key in meter[0]["unlocks"])

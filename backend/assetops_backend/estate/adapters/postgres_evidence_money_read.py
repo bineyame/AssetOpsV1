@@ -48,11 +48,13 @@ class EvidenceMoneySnapshot(EstateSnapshot):
     """W3-01 `EstateSnapshot` reads plus the W3-02 connection-taking projections, every one on `self._c`."""
 
     def claim_limit_on(self, t: UUID, s: UUID, day: date, window_revision_id: Any,
-                       k: datetime) -> dict[str, Any]:
+                       k: datetime, basis_mode: str) -> dict[str, Any]:
         """0b: one UTC day's selected interval claim limits at `k`; a refused stored lineage is an inconsistent
-        selection (409 after the W3-01 retry), never a guessed row."""
+        selection (409 after the W3-01 retry), never a guessed row. `basis_mode` is the estate request's frozen
+        `page_one_mode` (c1-q7), so a live cursor's page two never relabels an identical live day HISTORICAL."""
         try:
-            return self._o.claim_limits.claim_limit_on(self._c, t, s, day, window_revision_id, k)
+            return self._o.claim_limits.claim_limit_on(self._c, t, s, day, window_revision_id, k,
+                                                       basis_mode=basis_mode)
         except self._o.claim_limit_refused as error:
             raise EstateSelectionInconsistent(str(error)) from error
 
@@ -80,10 +82,9 @@ class EvidenceMoneySnapshot(EstateSnapshot):
         return {**read, "evidence_by_analytic": by}
 
     def ev_capabilities(self, pin: dict[str, Any]) -> dict[str, Any]:
-        """0c `EvSiteReads.capabilities_on`, plus whether any selected session has unknown meter seconds (the W2
-        `METER_GAP` input of `_next_candidates`). The pinned facade does not expose sessions, so this reads them
-        over the same pinned context (pending ruling W3-02 c1-q2)."""
+        """0c `EvSiteReads.capabilities_on`, whose public `unknown_meter` is the W2 `METER_GAP` input of
+        `_next_candidates` (c1-q2), plus the pinned selected assessment's exact session revision IDs (selected
+        basis for the selection token, c1-q3(5))."""
         read = self._o.ev_site.capabilities_on(self._c, pin)
-        ev_site = self._o.ev_site
-        sessions = ev_site._sessions(ev_site._pinned_ctx(self._c, pin))
-        return {**read, "unknown_meter": any((x.get("unknown_meter_seconds") or 0) > 0 for x in sessions)}
+        sessions = sorted({str(x).lower() for x in (pin["selected"]["result"].get("session_revision_ids") or ())})
+        return {**read, "session_revision_ids": sessions}

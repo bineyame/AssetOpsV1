@@ -29,7 +29,7 @@ READ_AT = datetime(2026, 10, 20, 12, tzinfo=timezone.utc)
 WINDOW = {"from": "2026-10-13T00:00:00Z", "to": "2026-10-20T00:00:00Z"}
 D0 = datetime(2026, 10, 13, tzinfo=timezone.utc)
 CUT = datetime(2026, 10, 20, 6, tzinfo=timezone.utc)
-A = {n: f"20000000-0000-4000-8000-0000000000{n:02d}" for n in range(1, 40)}
+A = {n: f"20000000-0000-4000-8000-0000000000{n:02d}" for n in range(1, 50)}
 
 
 def site(sid, code, kind):
@@ -79,7 +79,8 @@ def pin(lo, state="CURRENT"):
 
 
 class FakeSnapshot:
-    def __init__(self, sites=SITES, *, cold_pins=None, ev_pins=None, days=None, historical=False):
+    def __init__(self, sites=SITES, *, cold_pins=None, ev_pins=None, days=None, historical=False,
+                 unknown_meter=False, sessions=(A[40],)):
         self.read_at, self.historical, self.continuation = READ_AT, False, False
         self.basis_historical, self._sites = historical, list(sites)
         self.cold_pins = [pin(D0), pin(D0 + timedelta(days=1))] if cold_pins is None else cold_pins
@@ -91,7 +92,8 @@ class FakeSnapshot:
                     {"code": "LIMITED", "text": "role-less"}])], window=A[2])),
             (date(2026, 10, 14), projection(date(2026, 10, 14), [], currentness="UNASSESSED")),
         ]
-        self.provenance_calls = []
+        self.provenance_calls, self.basis_modes = [], []
+        self.unknown_meter, self.sessions = unknown_meter, list(sessions)
 
     def imported_sites(self, t, to):
         return self._sites
@@ -105,7 +107,8 @@ class FakeSnapshot:
                  "available": p["available"], "selection": {"seq": 1} if p["intervals"] else None,
                  "window_assessment_revision_id": p["window_assessment_revision_id"]} for d, p in self.days]
 
-    def claim_limit_on(self, t, s, day, revision, k):
+    def claim_limit_on(self, t, s, day, revision, k, basis_mode):
+        self.basis_modes.append(basis_mode)
         return dict(self.days)[day]
 
     def pinned_windows(self, t, s, domain, from_, to, cutoff, k):
@@ -119,7 +122,8 @@ class FakeSnapshot:
                 "capabilities": cold_caps(states, {"EXCURSION_BOUNDS": ["cold_policy_low"]} if n == 0 else {})}
 
     def ev_capabilities(self, p):
-        return {"assessment_revision_id": A[8], "evidence_ids": [A[30]], "unknown_meter": False,
+        return {"assessment_revision_id": A[8], "evidence_ids": [A[30]], "unknown_meter": self.unknown_meter,
+                "session_revision_ids": self.sessions,
                 "capabilities": ev_caps({"SERVICE_STATE": ["connector_status"],
                                          "POWER_CONSTRAINT": ["requested_power", "allocated_limit"]})}
 
@@ -315,7 +319,25 @@ def test_w302_evidence_typed_gaps_exclude_billing() -> None:
     assert all(r["current_ceiling"] is None and r["gap_codes"] == [] and r["selected_revision_ids"]
                for r in cold_rows)
     assert {r["readiness"] for r in cold_rows} == {"UNKNOWN", "CONTRADICTORY"}
-    assert all(g["domain"] == "mini_grid" for g in hist["gaps"])  # the W1 day here is a CURRENT fake
+    # c1-q1: the estate basis labels the W1 day HISTORICAL too, even though its fake projection is CURRENT.
+    day = next(r for r in hist["rows"] if r["capability_key"] == "GENERATOR_SUPPORT@2026-10-13")
+    assert (day["raw_state"], day["readiness"], day["current_ceiling"], day["gap_codes"]) == (
+        "HISTORICAL", "UNKNOWN", None, [])
+    assert day["disclosure"]["historical"]["label"] == "Historical as of 2026-10-20T06:00:00Z"
+    assert day["selected_revision_ids"] and hist["gaps"] == []
+
+
+def test_w302_evidence_meter_gap_and_frozen_basis_mode() -> None:
+    """c1-q2: the public `unknown_meter` gives METER_GAP on the energy row; c1-q7: W1 receives the frozen basis."""
+    snap = FakeSnapshot(unknown_meter=True)
+    body = get(client(FakeStore(snap)), {**WINDOW, "limit": 100}).json()
+    meter = next(g for g in body["gaps"] if g["gap_code"] == "METER_GAP")
+    assert meter["unlocks"] == ["energy@2026-10-13T00:00:00.000000Z/2026-10-14T00:00:00.000000Z"]
+    assert set(snap.basis_modes) == {"live"}
+    assert all(g["gap_code"] != "METER_GAP" for g in get(client(FakeStore(FakeSnapshot())), WINDOW).json()["gaps"])
+    old = FakeSnapshot(historical=True)
+    get(client(FakeStore(old)), {**WINDOW, "known_at": "2026-10-20T06:00:00Z"})
+    assert set(old.basis_modes) == {"historical"}
 
 
 def test_w302_evidence_cursor_same_selection_and_changed_grant() -> None:
@@ -340,6 +362,10 @@ def test_w302_evidence_cursor_same_selection_and_changed_grant() -> None:
     assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED")
     changed = client(FakeStore(FakeSnapshot(ev_pins=[])))
     response = get(changed, {**WINDOW, "limit": 5, "cursor": first["next_cursor"]})
+    assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED")
+    # c1-q3(5): a session-only correction (same assessment, new session revision) also moves the fence.
+    corrected = client(FakeStore(FakeSnapshot(sessions=(A[41],))))
+    response = get(corrected, {**WINDOW, "limit": 5, "cursor": first["next_cursor"]})
     assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED")
     assert response.json()["detail"]["gaps"] is None
     # A wrong-kind cursor is 422.

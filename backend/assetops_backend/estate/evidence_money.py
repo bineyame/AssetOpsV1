@@ -179,7 +179,8 @@ def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, 
     for day in snap.dispatch_days(t, s, req.from_, req.to, k):
         revision = (day.get("window_assessment_revision_id")
                     if day.get("available") and day.get("selection") is not None else None)
-        projection = snap.claim_limit_on(t, s, day["day"], revision, k)
+        projection = snap.claim_limit_on(t, s, day["day"], revision, k,
+                                         "historical" if snap.basis_historical else "live")
         reduced = w1.reduce_day(projection)
         key = f"{W1_KEY}@{day['day'].isoformat()}"
         row = _row(site, MINI_GRID, key, W1_LABEL, window_start=wire_time(day["window_start"]),
@@ -197,7 +198,7 @@ def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, 
             assessments = _ids(reduced["assessment_revision_ids"])
             row.update(selected_revision_ids=assessments, _cited=_ids(reduced["accepted_evidence_ids"]),
                        _assessments=assessments + _ids([reduced["window_assessment_revision_id"]]))
-            if reduced["currentness"] == w1.HISTORICAL:
+            if snap.basis_historical or reduced["currentness"] == w1.HISTORICAL:  # c1-q1: the estate basis
                 _historical(row, k, reduced["state"], reduced["historical_statements"] or None)
                 row["disclosure"]["historical"]["gaps"] = [
                     {k2: v for k2, v in w1_gap(g["gap_code"], g["missing_role"]).items() if k2 != "key"}
@@ -291,7 +292,8 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
                 cited = _ids([e for p in parts for e in p["accepted_evidence_ids"]])
                 row = _row(site, domain, key + suffix, label, window_start=wire_time(pin["lo"]),
                            window_end=wire_time(pin["hi"]), links=links,
-                           selected_revision_ids=_ids([revision]), _assessments=_ids([revision]),
+                           selected_revision_ids=_ids([revision]),
+                           _assessments=_ids([revision, *read["session_revision_ids"]]),  # c1-q3(5)
                            _cited=_ids(read["evidence_ids"]) if not parts else cited)
                 row["disclosure"].update(constituents=[
                     {"claim": p["claim"], "state": p["state"], "missing_roles": list(p["missing_roles"]),
