@@ -108,3 +108,37 @@ cells 0; at 390 tables scroll in their region (sources 640, records/bridge 900, 
 
 ## User review
 UI slice: hold the merge for the owner walkthrough. Focus: the five EV routes against the mock side by side.
+
+## Fix round r1 (rulings 2026-10-20; code `4fb6a401` + test-fix commit; captures at `4fb6a401`)
+Maps each finding to fix / test / capture. Frontend tests: `frontend/src/sites/__tests__/evSiteMoneyRoutes.test.tsx`;
+backend: `backend/tests/test_w207_*_postgres.py`.
+
+| Finding | Fix | Test | Capture |
+| --- | --- | --- | --- |
+| M1 priced proof, basis words | `seed.py` uses `golden_tariff`; `basisText` maps `AUTHORED_ESTIMATE` -> `Authored estimate` (Financials/Assumptions rows and details); other basis -> `Basis not recognised` | `financial_tabs_and_price_gate` (real stored basis, both routes, no `AUTHORED_ESTIMATE`) | `ev*-interrupted-{1440,390}-app.png`: `KES 4.17`, bridge `15.000 kWh × 0.27775 KES/kWh`, `Scenario`, tariff `0.27775 KES/kWh · Authored estimate`; DB: ESTIMATED 15.000 kWh / 4.16625000 |
+| M2 rounding | `money2` half even on the absolute value, every discarded digit | same test: 8.325->8.32, 8.335->8.34, 8.32500001->8.33, -8.325->-8.32 | - |
+| M3 plain words | `EvSiteReads._row_words` + `SOURCE_SUFFIX` (8 roles), `STATE_TEXT` (7), `KIND_TEXT` (5), `State not recognised`, `EV reading`; state rows carry no unit; `role` unchanged | `test_analysis_intervals_and_publication_note`, `test_analysis_row_words_for_every_role_state_and_event`, `test_analysis_plain_mapping_tables_are_complete`; `ev_evidence_tabs_and_record_limit`, `claim_details_use_plain_capability_and_chip_words` (7 labels, 4 chips) | analysis captures |
+| M4 two clocks | `publication_note` inside both `Assumption details` disclosures (after validity facts); Assumptions keeps its visible note | `financial_tabs_and_price_gate` (sentence on both, absent for null-note fixture; fixture `recorded_at` 09:30) | - |
+| L1 null consequence | `No gross tariff scenario assessed` for null on card, bridge cell, `consequenceWord(null)`; stored UNPRICED stays `Unpriced` | `financial_tabs_and_price_gate` | - |
+| L2 aggregate | `evidenceAggregate` and strip/overview count use the four mock rows only | `claim_details_use_plain_capability_and_chip_words` (four SUPPORTED + POWER_CONSTRAINT LIMITED -> `Evidence supported`; counts) | - |
+| L3 next evidence | `_next_candidates` ranked list incl. `INDEPENDENT_POWER_GAP`, deduplicated, first three | `test_next_evidence_candidates_rank_and_first_three`; ranking check in `test_five_routes_...` | - |
+| L4 chronology | `(source_time, kind_rank, evidence_id)` in Overview chronology only | `same_instant_fault_precedes_abort_in_chronology` | - |
+| L5 downgrade | Empty downgrade moved to `test_0026_empty_downgrade_on_a_fresh_site_restores_diesel_only_checks` (7 guarded counts 0, reaches `0025_w2_ev_session`, diesel rows/checks survive); refusal probe keeps populated-state assertions | same | - |
+| L5(old) capture revision | `evidence.json` revision `4fb6a401` (final code revision) | - | - |
+
+Heights (app / mock px, same width; all <= 1.30): ev 252/238, 374/356, 374/356, 211/193, 211/193 at 1440; ev-evidence 356/336,
+421/336, 421/336; analysis 340/266 (1.28), 170/148; financials 305/285, 269/234, 269/234; assumptions 314/272. At 390:
+553/617, 307/269, 153/336, 231/233, 197/193; 417/449, 478/416, 267/319; 302/386, 216/247; 355/422, 285/234 (1.22),
+149/142; 345/390. Worst 1.28. No page overflow, clipped cells 0.
+
+Verification (scope: additive EV-only; full backend/host suites not rerun): focused backend on private DB `w207f_test`
+(dropped after): `test_w207_ev_money.py`, `test_w207_ev_money_postgres.py`, `test_w207_ev_site_reads_postgres.py` at `4fb6a401`:
+32 passed, 1 failed (549 s) - the failure was my test's own suffix map missing `ev_connector_power`; fixed in the next commit and
+that test re-run alone: 1 passed. Frontend full: 91 files, 2330 passed. tsc exit 0. check-all: 10/10 guards passed.
+
+Readings made (no ruling contradicted): (1) L5 names `test_r4_ev_currency_and_value_validation_is_ev_only`, a pure validator;
+the downgrade probe is in `TestMigration0026`, so I split that. (2) `test_0026_trigger_only_work_...` still uses
+`remove_money` for its backfill downgrade/upgrade (not the L5 test; needs a populated Site first); the refusal probes keep
+`remove_money` only to clear state between probes. (3) State rows: `unit` set to null (state is not numeric). (4) Event with an
+unknown kind: `value_display` null (`Not recorded`). (5) Overview Evidence card note now `4 capabilities` (same L2 rule).
+(6) Captures include all five routes, not only the four money routes.
