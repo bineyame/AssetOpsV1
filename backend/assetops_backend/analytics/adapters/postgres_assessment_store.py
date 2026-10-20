@@ -689,8 +689,9 @@ class PostgresAssessmentStore:
         selection by then is returned with `selection=None` and its at-cutoff status. A day the stored records
         cannot reconstruct at the cutoff is returned `available=False` with its reasons and no selection, never
         a current day labelled historical. Job status is a mutable column with no transition time: below the
-        transaction time a job counts as outstanding at the cutoff when it is PENDING or LEASED now, as finished
-        when one of its selections is recorded by then, and otherwise makes the day unavailable. At or after
+        transaction time a job counts as outstanding at the cutoff (reported PENDING) when it is PENDING or LEASED
+        now, or DONE with its first selection after the cutoff; as finished when a selection is recorded by then;
+        and a DONE job with no selection, or a FAILED job, makes the day unavailable. At or after
         the transaction time the jobs are read exactly as the S3 read does."""
         if from_ >= to:
             return []
@@ -723,15 +724,21 @@ class PostgresAssessmentStore:
             outstanding = []
             for job in snap.jobs:
                 if job["status"] in ("PENDING", "LEASED"):
-                    outstanding.append(job)
-                elif job["status"] == "DONE" and c.execute(text(
-                        "SELECT EXISTS (SELECT 1 FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s "
-                        "AND job_id = :j AND selected_at <= :k)"),
-                        {"t": tenant_id, "s": site_id, "j": job["id"], "k": known_at}).scalar_one():
+                    # open now, created by the cutoff, and job states never return from terminal: open then too;
+                    # the lease state at the cutoff is not recorded, so it is reported as PENDING
+                    outstanding.append({**job, "status": "PENDING"})
                     continue
-                else:
+                selected = None
+                if job["status"] == "DONE":
+                    selected = c.execute(text(
+                        "SELECT min(selected_at) FROM analytic_run_selection WHERE tenant_id = :t "
+                        "AND site_id = :s AND job_id = :j"),
+                        {"t": tenant_id, "s": site_id, "j": job["id"]}).scalar_one()
+                if selected is None:
                     unavailable.append(f"JOB_STATE_AT_CUTOFF_UNKNOWN: job {job['id']} is {job['status']} now and "
                                        "no stored record shows its state at the cutoff")
+                elif selected > known_at:
+                    outstanding.append({**job, "status": "PENDING"})  # completed only after the cutoff
             snap = replace(snap, jobs=outstanding)
         run = snap.run
         if run is not None:
