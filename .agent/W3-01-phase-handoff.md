@@ -278,3 +278,55 @@ fixture clock vs DB `now()` and re-date `site_import`). The golden manifest `w30
 after `k`, with no stored window history, so it can show as outstanding on a historical mini-grid day it did not
 cover at `k`; that day reads pending, not unavailable.
 **Branch released.** Next: Lane A guard domain + `main.py` mount; the remaining mini-grid tests; then review.
+
+## Lane B commit-2 mini-grid tests (2026-10-20): landed; golden manifest blocked on q9; branch released
+Merged main (`e7ab7dbe`, clean). Commit `187a7020`:
+- `test_w301_estate_index_postgres.py` adds `test_late_support_change_recurrence_at_exact_cutoff` (S4 F03/F05: distinct
+  recurrence rows; explicit cutoff unchanged after later revisions; 1 us before the late match -> UNKNOWN, no rows;
+  late accepted evidence -> live PENDING_RECOMPUTE), `test_cost_risk_opportunity_eligibility_without_mock_seed`
+  (unbound PowerSite: UNPRICED and gate-withheld PRICED stay in All, Cost/Risks/Opportunities complete zero),
+  `test_cost_lens_only_exact_eligible_current_rows` (P01 PowerSite: exact PRICED interval in Cost; historical cutoff
+  and stale v4 price leave Cost until recompute), `test_action_event_and_verification_counts_full_basis` (S6 chain:
+  event cutoffs, later-window edges, VERIFIED and 30-day lookback edges, full-basis cards vs page).
+  TEST-SCOPED `pin_read_at` pins `EstateSnapshot.read_at` and `PostgresAssessmentStore._transaction_time` to the
+  fixture clock (S4/S6 fixtures run 2026-10-29..11-02, ahead of the DB clock).
+- Code fix (`estate/coverage.py:_mini_grid`): an overlapping PENDING/LEASED/FAILED job now makes the day
+  PENDING_RECOMPUTE ahead of S3 STALE (spec selection rule + q5 ruling 5); before, late evidence read STALE_SOURCE.
+- Checks (private `w301q_test`, dropped): estate files 17 passed (3 min 5 s): index 9, EV 3, API 5. Mutations after
+  commit, each reverted with `git checkout`: drop the job-pending rule -> late-support test FAILS; drop the CURRENT
+  money check -> Cost test FAILS; `later_end` inclusive -> Action counts test FAILS.
+- check-all: 9/10; the only failure is the expected missing `estate` domain in `configuration-persistence.ps1` (Lane A).
+**Not built:** `backend/tests/fixtures/w3/w301-estate-golden.json` (q9 item 1: fresh UUIDs per replay, separate DBs per
+domain). q9 item 2 (awaiting-verification predicate) is built as-is; its test pins 0 and is marked q9.
+**Branch released.** Next: Architect rules q8 + q9; then a Lane B fix round (rulings + golden); Lane A guard domain and
+`main.py` mount.
+
+## Lane B commit-2 q8/q9 round (2026-10-20): Lane B part complete; ready for Lane A integration
+Merged main (`6f87e923`; handoff conflict took main's version, the mini-grid section above restored). Commits:
+- `9b2c09cd` q8: ruling 2 `estate/index.py:_scope` uses the cursor's six-digit cutoff for every page two (supplied
+  `known_at` must equal it or be its wire-second copy, else 409; page two below read time is HISTORICAL with
+  `as_of`); ruling 3 Finding wire `estate-finding-index-2`, every consequence carries `amount_low`/`amount_high`
+  (null unless PRICED; `amount` aliases `amount_low`), `estate/coverage.py:_consequence`; fixture (a)
+  `imported_before(engine, tenant_id, site_id, at)` constrained by tenant+Site, rowcount 1; fixture (b) EV q7 proof
+  now asserts identical full coverage/rows/summary/token at K with the late dispositions re-dated after K
+  (TEST-SCOPED `SET LOCAL session_replication_role = replica` over the append-only trigger, private DB only), and
+  `test_ev_backdated_disposition_limitation_fences` keeps the backdated case as a named limitation; q9 ruling 2
+  honest zero: card 0 at `later_start` with the Action window card 1, selected F01 revision != origin, origin
+  revision 0 before a plan, `later_end` exclusive and RESOLVED controls.
+- `4a311ae5` q9 ruling 1: `backend/tests/fixtures/w3/w301-estate-golden.json` (`w301-estate-golden/2`) and
+  `test_w301_estate_golden_postgres.py::test_w301_golden_manifest_public_replay` (mini_grid 14, cold 8, ev 8 cases;
+  independent token/access rebuild; cursor decode + page two). `mixed` ships `cases: []` pending **q10** (one private
+  DB not reachable with the existing replay fixtures); no stale/leased/failed replay exists (q10 item 3).
+- Checks (private `w301r2_test`, dropped): estate API 5 passed; index + EV 13 passed (EV 4 incl. new limitation
+  test); golden 3 passed (70 s). Mutations, reverted with `git checkout`: omitted-cutoff cursor reads live -> cursor
+  test FAILS; golden `total_count` 2->3 and an emptied token-rebuild array -> golden test FAILS.
+- check-all: 9/10; the only failure is the expected missing `estate` domain (`configuration-persistence.ps1`).
+**For Lane A (integration handoff):** add the `estate` guard domain and the `main.py` mount; update the typed UI
+Finding DTO to `estate-finding-index-2` (`amount_low`, `amount_high`, `episode_start`, `status`); UI copy for the
+honest zero (q9 ruling 2): label `Awaiting verification`, zero-state `No Actions from selected Finding revisions are
+awaiting verification in this window.`, disclosure `Counts Actions from the exact selected Finding revision with an
+open frozen verification window and no resolved outcome.`; unpriced copy `No consequence recorded` (q8 ruling 4).
+**Open:** q10 (mixed branch; readings 2-4). Residual risk: a live page one with open cold/EV jobs pages to a
+HISTORICAL page two that does not project today's jobs, so its `job_state` (in the token) moves and page two is 409
+(ruling 2 + ruling 6 as written). Optional: `.gitattributes` `backend/tests/fixtures/w3/*.json text eol=lf`.
+**Branch released.**
