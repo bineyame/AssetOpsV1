@@ -136,3 +136,44 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
   s4 consequence store/recompute) 81 passed in 17m37s; after the fix w207 x2 + w204 cold worker 18 passed;
   `tools/check-all.ps1` all 10 guards passed; probes `ev <4 tables> owner insert unseen` CAUGHT, control ALLOWED.
   Full suites not run (by brief). Private DB `w207e_test` dropped.
+
+## Run 6 (2026-10-20): spec commit 3 landed (five reads, q4 selector)
+
+- Landed `7fb66e17`. API `backend/assetops_backend/ev_site_api.py::build_ev_site_router` (mounted in `main.py`
+  after the W2-06 router) reuses `ev_assessment_api.ev_gate` (W2-06 gate/refusals/messages, refactored out of
+  `build_ev_assessment_router`, behaviour unchanged). Routes `GET /api/sites/{code}/ev/overview|evidence|
+  evidence/analysis|financials|financial-assumptions`; Analysis/Financials take `cursor,limit` (default 50, 1..200).
+- Composition `backend/assetops_backend/ev_site_reads.py::EvSiteReads` (pure; `_select` = the q4 shared selector,
+  `_consequence` = stored row or read guard, `MONEY_COPY` = R5/R6 copy, `CLAIMS` order, `NEXT_EVIDENCE`,
+  `SOURCE_UNVERIFIED_NOTE`). Built by `financials/composition.py::build_ev_site_read_service`.
+- Adapter seams: `EvReadService.within/open_on/status_on/sessions_on/findings_on/page_on/foundation_on/assets_on/
+  accepted_on` (`postgres_assessment_store.py`, after `_page`); `page_on` puts `route|basis` in the canonical cursor.
+  Consequence store: module `ev_money_basis_on` (now also behind `EvUnit.basis`) and SELECT-only `EvMoneyReads`
+  (`select_on` = q4 literal SQL, `history_on`, `tariff_on`, links via FK; `tariff_recorded_at` from the stored FK).
+- Wire additions beyond the closure field lists (UI may rely on them): consequence `revision_no,tariff_recorded_at,
+  limitation`; summary `reason`; Financials `history[]` (each `label:"Historical scenario"`); Analysis `total_count,
+  excluded_records`, item `session_id,note`; Assumptions `tariff_revision_count,publication_note` (R2 sentence,
+  `YYYY-MM-DD HH:MM UTC`), `consequence_tariff`; overview finding items `start/fault/abort_evidence_id`.
+  PENDING/HISTORICAL with stored history -> consequence is a `WITHHELD/{PENDING_RECOMPUTE|HISTORICAL_CURRENT_CLAIM}`
+  guard with null `revision_id/amount/currency`; without history -> `null`. UNKNOWN -> `null`.
+- Readings (not rulings) to confirm at review: `objective.configured_service_window` is `null` (weekly schedule not
+  resolved into the window); source `contact.state` is always `UNKNOWN` (no source-specific diagnostic wired);
+  capability coverage seconds use selected session spans/Site-import intervals; the complete replay has accepted
+  Site import intervals (`observed_peak_kw="60"`, `CONTEXT_ONLY`) and 223 accepted Analysis rows, so the closure's
+  "no Site import" illustration does not hold. `links` are UI paths `/sites/{code}/ev`, `/ev/evidence`,
+  `/ev/evidence/analysis`, `/ev/financials`, `/ev/financial-assumptions` with `?from&to&known_at` - commits 4-5 must
+  serve exactly these; `finding` link stays null; Analysis item links all null, `record_target_state="UNAVAILABLE"`.
+- Commits 4-5 anchors (UI): W2-06 frames `frontend/src/sites/EvAssessmentViews.tsx` (EvSessionsFrame/EvFindingFrame)
+  wired in `frontend/src/shell/SiteAnalyticsFrames.tsx:36,175,502`; client `frontend/src/sites/evAssessmentClient.ts`
+  (`createEvAssessmentClient` :204; add the five reads there or a sibling `evSiteClient.ts`). Cold precedent:
+  `frontend/src/sites/coldSiteViews.tsx` (`ColdSiteFrame` :394, `eatTime` :168, `coldUiHref` :185) routed by
+  `frontend/src/shell/coldSiteRoutes.tsx::coldSiteScreen` from `SiteAnalyticsFrames.tsx:715`. Mock screens
+  `ev-health`(overview) / `ev-evidence` / `ev-evidence-analysis` / `ev-financials` / `ev-assumptions` in
+  `frontend/mockups/v69/screen-manifest.json:1114-1186`. Guard `tools/checks/navigation-truthfulness.ps1`
+  (`Get-InPageUnavailableEntryFailures`, +0 multiset). Tests: `frontend/src/sites/__tests__/evSiteMoneyRoutes.test.tsx`.
+- Evidence (`7fb66e17`): `test_w207_ev_site_reads_postgres.py` 10 passed (envelope/selection incl. selector,
+  stale guard, pending and literal empty prefix; 409 cursor + refusals; SOURCE_UNVERIFIED paging; Finding IDs; six
+  replays + late terminal past an exact [08:00,08:30) end). Extended `test_pending_retry_settles_without_new_assessment_
+  revision` (five-read pending mask, same revision restored, lower matching beats higher unmatched). Adjacent run
+  (w207 pure + money pg + site reads, w206 reads + store) 57 passed in 21m37s. `tools/check-all.ps1` all 10 guards
+  passed. Full suites not run (by brief). Private DB `w207f_test` dropped.
