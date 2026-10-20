@@ -1,3 +1,21 @@
+# W4-01 phase handoff - run 10: commit 5 (Site UI) built; q8 open; review packet written (2026-10-20)
+
+Merged main (`291341c4`, `.agent` W3-01 only). **Commit 5**: `8e0f331b` (routes, views, guard, registry tags),
+`888063db` (layout fit to caps), `0e77205d` (test fix). Packet: `.agent/W4-01-review-packet.md`.
+
+## What landed
+- `frontend/src/sites/{workClient.ts,siteWorkCases.tsx,SiteWorkIncidents.tsx,SiteWorkMaintenance.tsx,w4-work-cases.css}`.
+- `shell/operatorSiteRoutes.ts` (`SITE_WORK_{INCIDENTS,MAINTENANCE}_ROUTE_PATH`, href helpers), `SiteAnalyticsFrames.tsx`
+  (`WorkSubrow`, `SiteWorkCasesFrame`), `App.tsx` routes, `ui/V69Layout.tsx` subtitles, `test/settled.ts` loading text.
+- Guard: `navigation-truthfulness.ps1` multiset minus Incidents/Maintenance; `navigation-rail-fixtures.ps1` re-anchored
+  plus two W4 cases. Registry: nine nodes `"task":"W4-01"`.
+- Tests: new `siteWorkCases.test.tsx` (4); updated the four named UI tests.
+- Evidence: `.agent/W4-01-evidence/` (`seed.py`, `capture.mjs`, `evidence.json`, PNGs, `mock-measure.json`).
+
+## Open (q8, `.agent/W4-01-pending-rulings.md`)
+- q8-1 missing-claim scan refuses the literal "Not available yet" copy (check-all 8/10). q8-2 registry panel paths.
+- After rulings: apply, rerun check-all, then the same-revision full backend suite (runs with the review).
+
 # W4-01 phase handoff - run 9: commit 4 (lists) complete; commit 5 next (2026-10-20)
 
 Merged main (q7 rulings + final dry-read). **Commit 4 `998d3330`**: Site Incident/Maintenance lists.
