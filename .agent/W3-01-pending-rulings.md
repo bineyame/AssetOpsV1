@@ -200,3 +200,61 @@ Built: `backend/tests/fixtures/w3/w301-estate-golden.json` (`w301-estate-golden/
    Options: (a) accept (the client restarts from page one); (b) record page one's live/historical mode in the
    cursor and fence only a live page one's work state; (c) evaluate the work fence on historical page one too.
    Confirm or rule; nothing else depends on it.
+
+## q13 (Lane B q12 + commit-3 run, 2026-10-20): readings built, two questions, none blocking
+
+Questions (built as read; rule at review):
+1. **State chips' full-basis set.** The dry-read wants chips from "supported stored lifecycle values from full selected
+   basis ... when present", but `estate-finding-index-2` carries no full-basis lifecycle set (only
+   `summary.supported_findings`). Built: `All states` plus the lifecycle values present in the read rows, plus the active
+   filter (`findingIndex.tsx:StateChips`). This is page-derived. Should the API add a full-basis lifecycle set, or should
+   the page always show the four stored values?
+2. **Cold/EV Finding link destination.** Rows link to the API's `links.finding` (`/sites/{code}/findings/{id}?revision_id=`)
+   for every domain. Is that Site Finding route a reviewed destination for cold and EV Findings, or should cold/EV rows
+   render inert text until one is reviewed?
+
+Readings:
+1. q12 ruling 1 also needs `estate/index.py`: `summary.as_of` is set on every HISTORICAL response, whether coverage is
+   complete or not. The ruled `as_of` assertion on the live pending and stale page-two tests needs this, and it is
+   otherwise absent when counts are null. As a result, the golden case `withdrawal-day-before-selection-unknown`
+   (an explicit historical, incomplete read) gains `summary.as_of`. **Please confirm this one.** Before q12, the
+   golden pinned `as_of` as absent there.
+2. The Actions page two in `test_action_event_and_verification_counts_full_basis` pins the read clock 1 s after the
+   cursor cutoff.
+3. `test_cursor_scope_window_lens_and_fence` compares page two with the explicit-cutoff read. Site `state` and row
+   `status` are relabelled `CURRENT` before comparing (historical versus live basis); everything else is compared
+   whole.
+4. Consequence cell copy:
+   - PRICED shows `{low}–{high} {currency}`.
+   - No revision shows `No consequence recorded`.
+   - UNPRICED with an ID shows `Unpriced`.
+   - UNKNOWN with row `status` HISTORICAL shows `Historical as of {window.known_at as YYYY-MM-DD HH:MM:SS UTC}`.
+   - Any other UNKNOWN shows `Source unverified`. That covers a stale price, an ineligible episode and a failed gate.
+5. Site basis-state chips (no chip for CURRENT or NOT_APPLICABLE):
+   - PENDING_RECOMPUTE: `New evidence is being assessed.` (amber)
+   - STALE_SOURCE: `This result may miss newer readings.` (amber; the existing product wording)
+   - UNKNOWN: `Not yet assessed` (amber)
+   - HISTORICAL: `Earlier evidence cutoff` (neutral)
+6. Limitation notice: the stale line `Some sites' results may miss newer readings.` is unruled copy. The other lines
+   are the dry-read's. The panel line `Some sites have no selected result; totals are unknown.` and the notice line
+   `Some sites are not yet assessed; estate totals are unknown.` both render on a partial read.
+7. Card values and notes:
+   - A null count from incomplete coverage shows `Coverage incomplete` (amber).
+   - High priority and Low confidence show `Not assessed` with no note.
+   - The Awaiting verification note is `Action taken; outcome open` when the count is above 0, and the q9 zero copy when
+     it is 0. The q9 rule is a disclosure.
+   - `No closed verification yet` shows when Verified is 0 and no RESOLVED row is on the page. This is page-derived.
+   - `Accepted work` shows when `basis_count` is above 0.
+8. Labels:
+   - Card label `Supported findings` (B3) replaces the mock's `Open findings`.
+   - Page subtitles are the mock's, including Actions `Interventions, owners and declared outcome criteria`.
+   - The Actions panel description is the ruled lifecycle line.
+9. Date bar: it shows the list response's `window` and `known_at`. Pages do not call `/api/estate/scope`;
+   `EstateClient.scope` exists. The cutoff input is `datetime-local`, read as UTC. An omitted cutoff shows "(latest at
+   read time)".
+10. The loading sentences `Loading the findings across the estate.` and `Loading the Actions across the estate.` are
+    chosen to match the existing `settled.ts` regex. No shared test file was edited.
+11. Lens tabs reuse the Site sub-tab `nav` styling (`site-tabs site-subtabs`). The Finding cell's disclosure holds the
+    full Finding and revision IDs and the `SOURCE_WORDS` label. The Site column shows `site_code` (linked) over
+    `site_name`.
+12. The 390 rules are asserted on `estate.css` text, because jsdom has no layout. Rectangles are commit 4's captures.
