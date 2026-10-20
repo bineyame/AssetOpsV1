@@ -1,0 +1,12 @@
+# W3-01 prerequisite Lows + q7-1 re-review of 381cf1a2 (read via git objects only; no tests run)
+
+Verdict: ACCEPT. No High or Medium findings.
+
+Note: `.agent/W3-01-q6-prereq-review.md` is not on main or in plan2; I judged against the commit message, handoff and spec Run 7 (q7).
+
+- HISTORICAL fix (consequence_read.py:304-307): head None and `rev.latest_id != finding_revision_id` returns HISTORICAL / FINDING_REVISION_SUPERSEDED, else PENDING. `latest_id` is cutoff-bounded (store :517), and it matches the W1 `read` order (superseded before head-None, :191-195). The later source-closed/AUDIT_ONLY gate stays the caller's. New test covers old = HISTORICAL, new = PENDING.
+- Fail-closed guards: seqs without a cutoff raise ValueError (cold and EV); unknown cold analytic keys raise ValueError; pinned with `known is None` raises SelectionPinRefused; `estate_snapshots_on` returns [] when `known_at` is None (UNKNOWN, no current zero). Default mode is unchanged: the new raises need `selection_seqs` or `selection_cutoff`, which default calls never pass. `evidence_cutoff` defaults to `cutoff`, so the SQL is identical to before. Cosmetic: the HISTORICAL line has a long run of blanks before `else` (line 307); it is correct but ugly.
+- q7 split: `selected_windows_on` binds `selected_at`, `completed_at` and `ar.created_at` to the requested cutoff `:k`, and `r.knowledge_cutoff` to `:e` (the evidence cutoff). The pinned-row query in `_snapshot` already had that split (`sk` = selection_cutoff for the selection/run/revision times, `k` = known for `knowledge_cutoff`). `estate_snapshots_on` passes `known_at` as `evidence_cutoff` and `selection_cutoff` as the selection bound, and `_snapshot` still receives the requested cutoff as `selection_cutoff`. This matches q7-1. The caller must compute `evidence_cutoff` as max(decided_at) <= requested; that belongs to Lane B.
+- Low (test gap): the new tests prove the evidence-cutoff bound (`early != exact`) and the None guard. They do not prove a selection with `selected_at` > watermark appears, and they do not prove a watermark-as-selection-bound read returns no row.
+
+q7 reselection-proof test: not written. Its selection-level half (S1 > E visible at K, a later seq invisible at K, a watermark selection bound returns no row, cold and EV) is cheap and could be added here as a Low follow-up. The rest (full-set token, Finding IDs, W4 exact cold/EV link stays on the old seq) needs the estate core and W4, so it belongs in Lane B's estate core. Not blocking.
