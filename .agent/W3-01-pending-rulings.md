@@ -1,50 +1,97 @@
-# W3-01 pending rulings (q5, Lane B commit-2 run, 2026-10-20)
+# W3-01 pending rulings (q6, Lane B commit-2 run 2, 2026-10-20)
 
-Branch `task/W3-01-estate-claim-action-roots` at `e0d7ab04` (main merged: already up to date). Commit 2 (estate
-read/API) was **not started in code**: its one-transaction read needs edits to existing shared files and a guard
-that the spec does not assign to Lane B. Earlier q1-q4 are answered in `.agent/W3-01-build-spec.md`.
+Branch `task/W3-01-estate-claim-action-roots` at `15dae742` (main merged: already up to date; Lane A
+prerequisite `a75b0291` + fix r1 present). q1-q5 and the prerequisite r1 rulings are answered in
+`.agent/W3-01-build-spec.md`. Lane B stopped before writing the estate read/API core on the two blocking items
+below. Both come from the merged code, not from the spec text alone.
 
 ## Blocking questions
 
-1. **Connection-taking W1 selection helpers: who adds them, and in which commit?** B5/W5 require the estate
-   REPEATABLE READ to reuse the W1 selection logic on the estate connection. Every existing W1 read opens its own
-   transaction and takes no connection:
-   - mini-grid Finding heads/matcher/fence: `analytics/adapters/postgres_finding_store.py:464 index_snapshot`,
-     `:114 fence`, `:499 index_lineage` (each via `_read`, `:90-92`);
-   - S3 per-day selection: `analytics/dispatch_read.py:123 DispatchReadService.window` (assessment store + evidence
-     ledger reads, `OPEN_CUTOFF`);
-   - Actions: `actions/adapters/postgres_action_store.py:891 site_window` (used by `actions/site_index.py:155`).
-   Run 1 ruling 1 and W3-02 N1 ("Lane A owns every existing shared file") put these files with Lane A; the W3-01
-   spec names only new `estate/` files for Lane B. Options: (a) Lane A adds `*_on(c, ...)` variants (like W3-02
-   commit `0a` `select_dispatch_days_on`) as a reviewed prerequisite before W3-01 commit 2; (b) Lane B adds them in
-   commit 2 under an explicit ownership extension; (c) another split. Please name the exact functions/signatures.
-2. **Mini-grid historical cutoff.** `DispatchReadService.window` reads at `OPEN_CUTOFF` and the W1 index has no
-   `known_at`. The spec's explicit `known_at` (selected S3 day, matcher pass, Finding revision as of the cutoff)
-   needs an as-of S3 selection and matcher-pass query that does not exist. Is W3-02 `0a`'s
-   `select_dispatch_days_on(c,tenant_id,site_id,from_,to,known_at)` the intended W3-01 dependency (so `0a` moves
-   before W3-01 commit 2), or should W3-01 mark an explicit mini-grid cutoff `HISTORICAL`/`UNKNOWN` without rows?
-3. **`$pgReaders` guard owner and timing.** `estate/adapters/postgres_estate_read.py` must import SQLAlchemy;
-   `tools/checks/configuration-persistence.ps1:804-830` fails any driver import outside `$pgWriters`. W3-02 Q8 assigns
-   the `$pgReaders` change to Lane A (in W3-02 `0c`), which now comes after W3-01. Request written to
-   `.agent/W3-01-lane-a-requests.md` item 1; confirm Lane A lands it before W3-01 commit 2 (check-all cannot pass
-   otherwise), and whether the estate package also needs a `$domains` entry (`estate/composition.py` as the only
-   adapter importer).
+1. **Cold/EV selection grammar for an estate `[from,to)` window.** The estate window is whole UTC days
+   (B5, up to 31 days). The W2 snapshots cannot select anything for such a window:
+   - `ColdReadService._snapshot` (`analytics/adapters/postgres_assessment_store.py:1706`) selects a cold run only
+     when `sel.window_start <= :lo AND sel.window_end >= :hi` (`:1728`). Cold selection windows are
+     data-bracketed, five-minute-aligned series windows (`cold_windows`, `:934`; for example
+     `contract-fixtures/w2/cold/normal.json` covers 19:00-20:05Z), so no selection covers a whole day.
+   - `EvReadService._snapshot` (`:2288`) requires `sel.window_start = :lo AND sel.window_end = :hi` exactly
+     (`:2311`). EV windows are exact bracket windows (`ev_windows`, `:1238`; `complete.json` covers 08:00-09:00Z).
 
-## Readings (to confirm with the answers; none built yet)
+   So `selection_on(c,t,s,code,from,to,known_at)` and `_snapshot(c,...,from,to,known_at)` called with the estate
+   window always return "no selection", and every cold/EV Site would be `UNKNOWN` with no rows. B5/W5 and the
+   token v2 text assume one `selection_id` per Site/domain. Options:
+   (a) Enumerate every distinct cold (both analytics) or EV selected window that intersects `[from,to)` at the
+       cutoff (latest `seq` per exact window, `r.knowledge_cutoff <= :k`). Call the existing
+       `_snapshot(c,t,s,code,wlo,whi,known_at)` once per window on the estate connection. Union their selected
+       Finding rows (`current_findings_on` / `findings_on`) and derive the Site state across windows by the
+       estate precedence. `selected_assessment_revision_ids` becomes the union, which token v2's arrays already
+       allow; `selection_id` would be null or the latest.
+   (b) Use the W2 no-window grammar (`lo=None`, the latest selected window at the cutoff) once per Site. Include
+       its rows whose episode intersects `[from,to)`, and mark the Site `UNKNOWN`/partial when that window does
+       not cover `[from,to)`. Findings from earlier windows are then not shown.
+   (c) Read cold/EV Finding heads directly (the latest `finding_revision` per Finding with
+       `analytic_run.knowledge_cutoff <= :k`, as `ColdReadService._revisions` does) that intersect `[from,to)`,
+       taking the Site state from (a) or (b).
+   (d) Another rule.
 
-4. Token v2 is built directly: W3-01 commit 2 implements only `estate-selection/2` (no `/1` builder ever ships).
-   `test_selection_token_v2_endpoint_cursor_compatibility` constructs a structurally valid `/1`-digest cursor and
-   expects 409 `ESTATE_BASIS_CHANGED`. W3-02 `0c` then keeps only the `$pgReaders` guard work.
-5. The shared estate parameter parser (built by Lane B in commit 2) rejects unknown/repeated query keys per W3-02
-   Q11-Q13 (`INVALID_WINDOW` for a missing/duplicated window key, else `INVALID_CURSOR`), for all three W3-01
-   endpoints, rather than waiting for a Lane A integration.
-6. Cold/EV coverage calls the existing connection-taking `ColdReadService._snapshot(c, ...)`
-   (`postgres_assessment_store.py:1607`) and `EvReadService._snapshot(c, ...)` (`:2189`) on composed service
-   instances; W5's "extract" needs no edit because both already take `c`. If a public name is required, that is
-   item 1's ownership question.
-7. `main.py` router mount stays Lane A (request item 2). Commit-2 API tests mount `build_estate_router` on a local
-   FastAPI app, as the existing `finding_index_api` tests do.
-8. W3-01 keeps its own `status`/`coverage.state` enums (`CURRENT|PENDING_RECOMPUTE|STALE_SOURCE|HISTORICAL|UNKNOWN`,
-   `COMPLETE|PARTIAL|UNKNOWN`); W3-02's `EMPTY`/`EMPTY_SCOPE` are W3-02-only. Complete empty authorized scope is
-   `coverage.state=COMPLETE` with zero counts, per the W3-01 example text.
-9. The shared financial `group_key` (W3-02 commit 3) is not a W3-01 concern; W3-01 emits no group key.
+   Please also say whether a window must be covered by `[from,to)` or only intersect it, and what state a Site
+   gets when all its selections lie outside `[from,to)`: `CURRENT` with zero rows, or `UNKNOWN`.
+2. **Mini-grid consequence and Cost on the estate connection.** B7/W7 require four things per selected mini-grid
+   Finding revision: the selected `financial_consequence_revision` at the cutoff, the `consequence_read`
+   `currentness.state`, `money_eligibility.state=ELIGIBLE` and `source_gate.permits_current_money`. None of these
+   exists as a connection-taking read:
+   - `ConsequenceReadService.read` (`financials/consequence_read.py:169`) uses the store's own transactions plus
+     `derive(...)` and prices.
+   - `MoneyEligibility.for_finding` (`financials/money_eligibility.py:176`) reads per-day windows through its own
+     ports.
+   - The source gate is the S3 Performance gate in `main.py`.
+
+   W3-02 commits `0a` (`select_consequence_on`) and `0b` (`for_finding_on`) supply exactly these reads, but the
+   Run 5 dependency amendment schedules them **after** W3-01 merges. Options:
+   (a) Lane A pulls W3-02 `0a`/`0b` forward into a second W3-01 prerequisite, as in q5, and Lane B consumes them.
+   (b) W3-01 commit 2 ships mini-grid rows with `consequence:{state:"UNKNOWN",amount:null,currency:null,
+       source_revision_id:<selected revision id or null>}` (`Source unverified`) and an empty Cost lens with
+       `No supported priced consequence in this selection.`. A follow-up wires them once W3-02 `0a`/`0b` land.
+   (c) Lane B reads `financial_consequence_revision` directly in the estate adapter (the latest revision for the
+       exact `finding_revision_id` with `created_at <= :k`). It shows `UNPRICED` or `No consequence recorded`
+       from the stored row but never `PRICED`, because there is no eligibility or gate proof, so Cost stays
+       empty.
+   (d) Another rule.
+
+   The source-gate question also applies: which read on the estate connection is the `permits_current_money`
+   gate for a mini-grid Site?
+
+## Readings (none built; to confirm with the answers)
+
+3. **Authentication before enumeration.** `finding_api.Access` is `(request, site_code) -> None|401|403`. The
+   router takes an `authenticate(request) -> None|401` seam (default development: admit) and checks it first:
+   401, with no DB read. It then applies the per-Site `access(request, code)` filter to the snapshot's candidate
+   imported Sites; per B6, estate roots never answer 403 or 404. The tenant comes from
+   `ImportedSiteRegistry.tenant()`, never from the client. A missing tenant is an empty authorized scope
+   (`COMPLETE`, zero counts).
+4. **Explicit historical.** Estate `status=HISTORICAL` iff `known_at` is supplied and `known_at < read_at`
+   (snapshot `now()`). At such a cutoff a mini-grid Site is `HISTORICAL` only when every requested day from
+   `select_dispatch_days_on` is `available`, has a selection, and has its seq matched by the as-of matcher pass
+   (and is not in that pass's deferred windows). Otherwise the Site is `UNKNOWN` and shows no mini-grid rows.
+   L1's outstanding PENDING day marker is kept in `job_state` but does not demote a provable `HISTORICAL` Site.
+5. **Mini-grid current state.** Per Site, over the requested days only:
+   - any day unavailable or with no selection gives `UNKNOWN` (`match_state` is `MISSING` when there is no pass);
+   - any day `PENDING`/`FAILED`, or a selected seq above the matched-through seq (or deferred), gives
+     `PENDING_RECOMPUTE`;
+   - any day `STALE` gives `STALE_SOURCE`;
+   - all days `CURRENT` and matched gives `CURRENT`.
+
+   The W1 index's continuity discovery beyond `[from,to)` (`finding_index.discover`) is not applied, because
+   `select_dispatch_days_on` returns no segment intervals. Rows use the spec's plain `start<to AND end>from`
+   intersection over the as-of canonical heads.
+6. **Rows from unsettled Sites.** Mini-grid rows are shown only for a `CURRENT` (or provable `HISTORICAL`) Site,
+   as the W1 index does. Cold/EV rows follow their W2 selected read, so selected rows are shown while pending.
+   `total_count` and the summary counts stay null unless coverage is `COMPLETE`.
+7. **`read_at` and the default `known_at`** are `SELECT now()` on the estate REPEATABLE READ connection (the
+   transaction timestamp). The token uses six-digit UTC; the wire uses `Z` seconds.
+8. **Action coverage.** A mini-grid Site is `CURRENT` with `match/job/freshness=NOT_APPLICABLE`,
+   `selection_id=null` and `committed_watermark=null` (as on the W20 literal page). Cold/EV Sites are
+   `NOT_APPLICABLE`.
+9. **Action reduce input.** `site_window_on(c,t,s,from,to,known_at)` supplies the actions and events. The
+   selected event is the latest `(recorded_at,id)` event, and the reduced state comes from
+   `actions/lifecycle.reduce` as `actions/site_index.py` uses it. Verification counts read `verification_plan` /
+   `verification_outcome` directly on the estate connection (`recorded_at <= known_at`).

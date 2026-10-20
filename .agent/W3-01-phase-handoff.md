@@ -134,3 +134,42 @@ selection (W3-02 `0a`'s `select_dispatch_days_on` appears to be that dependency)
 import fails rule 8 until Lane A adds `$pgReaders`. Readings 4-9 are listed there. Lane A asks are in
 `.agent/W3-01-lane-a-requests.md`. No DB was created and no test or check-all was run, because no code changed.
 **Next:** the Architect answers q5; then the Lane A prerequisites land; then Lane B builds commit 2 from this spec.
+
+## Lane A q5 prerequisite (2026-10-20): ready for its review
+Merged main (`Run 5 rulings (q5)` + W3-02 amendment, no conflict). ONE commit (see `git log -1 -- backend/tests/test_w301_w1_snapshot_helpers_postgres.py`):
+- `postgres_finding_store.py`: `fence_on`, `index_snapshot_on`, `index_lineage_on` (+ `FindingPinRefused`); `index_snapshot`/`index_lineage` are wrappers over shared `_index_snapshot`/`_index_lineage` (output unchanged).
+- `postgres_assessment_store.py`: `select_dispatch_days_on` (+ `_dispatch_day_on`, `_transaction_time`); `_window` gains keyword-only `cutoff`/`all_jobs` (defaults keep the S3 read byte-identical).
+- `postgres_action_store.py`: `site_window_on`; `site_window` wraps `_site_window(..., None)`.
+- `configuration-persistence.ps1`: the exact `$pgReaders` line and `$isPgReader` refusal branch only.
+- `backend/tests/test_w301_w1_snapshot_helpers_postgres.py`: the three named q5 tests.
+Readings (confirm at review):
+- R1 `$pgReaders` timing: the dispatch put the allowance here; ruling 3 puts "this guard/domain change" in Lane A's second handoff. Landed the `$pgReaders`/`$isPgReader` part (inert until the files exist); **deferred** the `$domains` `estate` entry and `test_pg_reader_*`/`test_domain_driver_import_rejected` to the second handoff, since ruling 3 says the domain entry fails anti-vacuity before `estate/composition.py` exists.
+- R2 `index_snapshot_on` returns no `fence` (use `fence_on`), adds `known_at` and `selected_runs` {window_start: run_id} (the "selected IDs"); the wrapper drops `selected_runs` so W1 output is unchanged. Merge links in heads and `merges` are filtered by `finding_merge.created_at`.
+- R3 `index_lineage_on` refuses with `FindingPinRefused(missing, later, known_at)` (a `LookupError`) before reading anything.
+- R4 `select_dispatch_days_on` day dict keys: `day, window_start, window_end, known_at, available, unavailable_reasons, status, status_reasons, selection{seq,selected_at,selected_by_job,run_id}, run_id, assessment_revision_ids, window_assessment_revision_id, accepted_reading_count, input_sha256, configuration_sha256, accepted_watermarks (run.watermarks), jobs`. `status` is `derive_status` at the cutoff basis (`EvidenceQuery(knowledge_at=known_at)`); the estate layer labels it HISTORICAL. `from_ >= to` returns `[]`.
+- R5 job state at a cutoff: `recompute_job` has no transition time. If `known_at >= now()` (caller's transaction time) jobs are read exactly as S3 does (`_LIVE_JOBS`, `created_at <= k`). Below it: PENDING/LEASED now = outstanding then; DONE with a selection of that job `selected_at <= k` = finished; anything else (DONE without such a selection, FAILED) makes the day `available=False` with `JOB_STATE_AT_CUTOFF_UNKNOWN`. A selected run with `completed_at > k` or a revision `created_at > k` is also unavailable. Known limit: a job widened after `k` (`UPDATE window_start/window_end`) can appear as overlapping at `k`.
+- R6 `selected_at` is the worker's lease-time clock, not a commit fence (`CUTOFF_LABEL`); the cutoff filter uses it as ruled.
+- R7 the test pins `_transaction_time` to the fixture's present via `monkeypatch` (the fixture clock, 2026-10-30, runs ahead of the DB clock), so both cutoffs exercise the historical branch and the present exercises the live branch.
+- R8 adapter now imports `assessment_worker` (`DISPATCH_ROLES`, `DOMAIN`, `input_basis`) and `dispatch_read` (`day_window`, `derive_status`); no import cycle.
+Checks (private `w301i_test`, dropped after): new file 3 passed (33 s). Existing touched-store tests: `test_s4_finding_index_postgres`, `test_s4_finding_store_postgres`, `test_s3_dispatch_assessment_postgres`, `test_s3_dispatch_read_postgres`, `test_s3_claim_limit_postgres`, `test_s6_action_store_postgres`, `test_s6_site_action_index_postgres`, `test_s6_site_action_index`: 85 passed (462 s). Mutations after commit, reverted with `git checkout`: drop `_window` `selected_at` cutoff, drop event `recorded_at` cutoff, drop Finding head `created_at` cutoff -> all 3 tests FAIL. Guard probe (temp files, removed): reader driver import not flagged; non-reader driver import flagged; INSERT in a reader flagged. check-all: 10/10 PASS (143 s).
+**Branch released.** Prerequisite commit `a75b0291`. Next: independent review of this commit; then Lane B retakes the branch for the estate core.
+
+Prerequisite fix r1: applied M1 (DONE job reconstructed at cutoff via min(selected_at); outstanding jobs normalized PENDING; DONE-no-selection and FAILED stay JOB_STATE_AT_CUTOFF_UNKNOWN), L1 (as-of day rule), L2 disclosed (carry to commit-2 packet), L3 confirmed. Tests: snapshot-helpers + S3 dispatch read 13 passed on w301k_test (dropped); check-all 10/10.
+
+## Lane B commit-2 run 2 (2026-10-20): stopped on q6, no code written
+Resumed at `15dae742` (`git merge main`: already up to date; prerequisite `a75b0291` + fix r1 present). Read the
+commit-2 spec, q1-q5, r1, the prerequisite r1 rulings, the token v2 amendment and the W3-02 Run 5 amendment, then
+dry-read the consumed seams. Stopped under the no-decision rule. `.agent/W3-01-pending-rulings.md` (q6) has two
+blocking items:
+1. The cold and EV `_snapshot` reads select only a run whose window covers (cold, `:1728`) or equals (EV, `:2311`)
+   the requested window. Their selection windows are data-bracketed (hourly in the fixtures), so a whole-day
+   estate window selects nothing.
+2. Mini-grid consequence/Cost needs `select_consequence_on`/`for_finding_on`/source gate on the estate
+   connection. These are W3-02 `0a`/`0b`, which are scheduled after W3-01.
+
+Readings 3-9 there cover the auth seam, historical rule, mini-grid state, unsettled-Site rows, read_at, Action
+coverage and the reduce input. No DB was created, and no test or check-all was run, because no code changed.
+**Carry to the commit-2 packet (prerequisite r1 L2, accepted):** a PENDING job's window can be widened in place
+after `k`, and no stored window history records its earlier bounds. Such a job can therefore show as outstanding
+on a historical mini-grid day it did not cover at `k`. That day is reported as pending, not unavailable.
+**Branch released.** Next: the Architect answers q6, then Lane B builds the estate core.
