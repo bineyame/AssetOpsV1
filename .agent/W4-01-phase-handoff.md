@@ -1,3 +1,9 @@
+# W4-01 phase handoff - run 6: STOPPED before commit 4 (needs q4-1) (2026-10-20)
+
+Run 6 merged main (`b36c5b77`, clean) and stopped without code: commit 4's list-route tests over the F01 pinned
+link cannot see F01 rows at the real DB read time. See `.agent/W4-01-pending-rulings.md` "Run 6 stop" (q4-1 plus
+readings r1-r5). Resume commit 4 from the run-5 notes below once q4-1 (and r1-r5) are ruled.
+
 # W4-01 phase handoff - run 5: commit 3 complete (2026-10-20)
 
 Branch `task/W4-01-work-case-core` (worktree `AssetOpsV1-review5`). Commit 1 `4cb89c68`, commit 2 `9533d97d`,
