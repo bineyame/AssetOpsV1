@@ -177,3 +177,30 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
   revision` (five-read pending mask, same revision restored, lower matching beats higher unmatched). Adjacent run
   (w207 pure + money pg + site reads, w206 reads + store) 57 passed in 21m37s. `tools/check-all.ps1` all 10 guards
   passed. Full suites not run (by brief). Private DB `w207f_test` dropped.
+
+## Run 7 (2026-10-20): q5 commit-3 wire corrections landed; stopped at context budget before commits 4-5
+
+- Landed `50c31605` (brief step 1). `ev_site_reads.py`: pure `service_windows`/`objective_windows` (q5 R1),
+  `_contacts` (R2), `_union/_intersect/_measure/_coverage`, `_claim_coverage`, `_spans`, `_session_coverage` (R3);
+  Analysis items add `interval_start/interval_end`; `note` only when `use=EXCLUDED` and `reason=SOURCE_UNVERIFIED`.
+  Adapter (`postgres_assessment_store.py`, after `EvReadService.accepted_on`): `source_bindings_on` (selected run's
+  `binding_set_revision_ids` matched as binding or binding-set revision IDs, else effective at cutoff; registered
+  gateways only) and `source_contacts_on` (delegates to `ColdReadService.source_contacts_on`).
+- Tests (`test_w207_ev_site_reads_postgres.py`): the five q5-named tests added; file 15 passed in 5m44s on `w207g_test`.
+- Readings (not rulings), for the packet / review:
+  1. `objective.service_schedule_declared` (bool) added so a declared schedule with no selected overlap is not
+     "missing configuration"; `configured_service_windows` is always the list (one element when single). UI derives
+     `Service window not declared` (declared=false) and `Configured service hours vary by connector` (len>1).
+  2. `contact` keys: `state, checked_at, last_seen_at, age_seconds, diagnostic_id, diagnostic_received_at,
+     cadence_seconds`. A connector slot binds three sources (one per role) on one gateway, so it aggregates:
+     identical states -> that state, differing -> `MIXED`. SITE_METER uses only its `ev_site_import` binding. In the
+     complete replay `known_at` (09:00) < `to` (09:05), so `checked_at` = known_at.
+  3. Coverage adds `unit` (`WINDOW_SECONDS|SESSION_SECONDS|null`). Session claims are null when any selected
+     session lacks a proved span; SESSION_OUTCOME known=expected=summed proved spans. `SUPPORTED` is demoted to
+     `LIMITED` unless `ratio=="1"`. The null-coverage sentence is appended to a claim's own limitation
+     (e.g. `Gross scenario only. Coverage duration cannot be calculated from the selected records.`).
+  4. Source `limitation` `No source-specific contact diagnostic.` only when contact is UNKNOWN and facts exist.
+- Resume at brief step 2 (spec commits 4-5, five EV UI routes) from the Run 6 "Commits 4-5 anchors (UI)" bullet,
+  q5 "Commits 4–5 implementer dry-read", closure section 4 (spec lines 438-462) and the commits 4-5 copy ledger
+  (spec lines 91-127). The wire is now the corrected q5 contract. Then step 3 (focused, check-all, full backend,
+  host; copy `var/sites/mg-001.yaml` from plan2 if missing) and step 4 (packet). `w207g_test` was dropped.
