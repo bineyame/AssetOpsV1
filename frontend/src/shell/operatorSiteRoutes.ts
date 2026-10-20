@@ -212,8 +212,7 @@ export const SITE_EV_ANALYSIS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/evidence/analy
 export const SITE_EV_FINANCIALS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/financials`;
 export const SITE_EV_ASSUMPTIONS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/financial-assumptions`;
 
-export type SiteEvView = "overview" | "evidence" | "analysis" | "financials" | "assumptions";
-const SITE_EV_SUFFIX: Record<SiteEvView, string> = {
+const SITE_EV_SUFFIX = {
   overview: "",
   evidence: "/evidence",
   analysis: "/evidence/analysis",
@@ -221,7 +220,7 @@ const SITE_EV_SUFFIX: Record<SiteEvView, string> = {
   assumptions: "/financial-assumptions",
 };
 
-export function siteEvHref(siteId: string, view: SiteEvView = "overview"): string {
+export function siteEvHref(siteId: string, view: keyof typeof SITE_EV_SUFFIX = "overview"): string {
   return `${siteDetailHref(siteId)}/ev${SITE_EV_SUFFIX[view]}`;
 }
 

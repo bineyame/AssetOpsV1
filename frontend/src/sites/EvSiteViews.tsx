@@ -36,6 +36,7 @@ import type {
   EvSiteClient,
   EvSource,
 } from "./evSiteClient";
+import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 
 /*
@@ -464,57 +465,6 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
   if (incomplete) events.push({ key: "end-missing", time: "—", title: "End record missing", tone: "gap" });
   while (events.length < CHRONOLOGY_SLOTS) events.push({ key: `empty-${events.length}`, time: "—", title: "No accepted event", tone: "gap" });
   return { events, extra: accepted };
-}
-
-/** Accepted connector deltas and Site-import intervals on the selected window; gaps stay gaps (no interpolation). */
-function EvPowerChart({ items, from, to, limitKw }: { items: EvAnalysisItem[]; from: string; to: string; limitKw: string | null }) {
-  const t0 = date(from)!.getTime();
-  const t1 = date(to)!.getTime();
-  const span = Math.max(t1 - t0, 1);
-  const W = 640;
-  const H = 200;
-  const L = 40;
-  const R = 8;
-  const T = 10;
-  const B = 24;
-  const pw = W - L - R;
-  const ph = H - T - B;
-  const seg = (role: string) =>
-    items
-      .filter((i) => i.role === role && i.interval_start !== null && i.interval_end !== null && i.value_display !== null && Number.isFinite(Number(i.value_display)))
-      .map((i) => ({ a: date(i.interval_start)!.getTime(), b: date(i.interval_end)!.getTime(), v: Number(i.value_display) }));
-  const imports = seg("site_import");
-  const energy = seg("connector_meter_delta");
-  const limit = limitKw === null ? null : Number(limitKw);
-  const maxKw = Math.max(1, limit ?? 0, ...imports.map((s) => s.v));
-  const maxKwh = Math.max(0.001, ...energy.map((s) => s.v));
-  const x = (t: number) => L + ((Math.min(Math.max(t, t0), t1) - t0) / span) * pw;
-  const y = (kw: number) => T + ph - (kw / maxKw) * ph;
-  return (
-    <figure className="ev-site-chart" data-ev-chart>
-      <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Charging activity and Site import, ${hm(from)}–${hm(to)} UTC`}>
-        <line x1={L} y1={T + ph} x2={W - R} y2={T + ph} className="ev-site-chart__axis" />
-        <line x1={L} y1={T} x2={L} y2={T + ph} className="ev-site-chart__axis" />
-        <text x={L - 4} y={T + 8} textAnchor="end" className="ev-site-chart__tick">{`${maxKw} kW`}</text>
-        <text x={L} y={H - 6} className="ev-site-chart__tick">{`${hm(from)} UTC`}</text>
-        <text x={W - R} y={H - 6} textAnchor="end" className="ev-site-chart__tick">{`${hm(to)} UTC`}</text>
-        {energy.map((s, i) => (
-          <rect key={`e${i}`} x={x(s.a)} y={T + ph - (s.v / maxKwh) * ph * 0.3} width={Math.max(1, x(s.b) - x(s.a))} height={(s.v / maxKwh) * ph * 0.3} className="ev-site-chart__energy" />
-        ))}
-        {imports.map((s, i) => (
-          <line key={`i${i}`} x1={x(s.a)} x2={x(s.b)} y1={y(s.v)} y2={y(s.v)} className="ev-site-chart__import" />
-        ))}
-        {limit === null ? null : <line x1={L} x2={W - R} y1={y(limit)} y2={y(limit)} className="ev-site-chart__limit" />}
-      </svg>
-      <figcaption className="ev-site-legend">
-        <span className="ev-site-legend__item ev-site-legend__item--energy">Connector energy</span>
-        <span className="ev-site-legend__item ev-site-legend__item--import">Site import</span>
-        <span className="ev-site-legend__item ev-site-legend__item--limit">{limit === null ? "Configured limit · Site limit not declared" : "Configured limit"}</span>
-        {imports.length === 0 ? <span className="ev-site-legend__gap">Site import · No accepted report</span> : null}
-        {energy.length === 0 ? <span className="ev-site-legend__gap">Connector energy · No accepted report</span> : null}
-      </figcaption>
-    </figure>
-  );
 }
 
 function OverviewScreen(p: EvSiteFrameProps) {
