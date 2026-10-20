@@ -108,6 +108,8 @@ def test_cold_ev_cutoff_precedes_reselection_and_revision(chain) -> None:  # noq
     later = estate.ok("findings", **window)
     current = estate.windows(t, s, "cold_chain", DAY, DAY + timedelta(days=1), db_now(built.engine))
     assert first["status"] == again["status"] == "HISTORICAL"
+    assert [x["state"] for x in again["coverage"]["sites"]] == ["HISTORICAL"]
+    assert [x["state"] for x in later["coverage"]["sites"]] == ["CURRENT"] and later["status"] == "CURRENT"
     assert again["selection_token"] == first["selection_token"] and again["rows"] == first["rows"]
     assert again["coverage"] == first["coverage"]
     assert [(w["seq"], w["selection_id"]) for w in repinned] == [(w["seq"], w["selection_id"]) for w in pinned]
