@@ -4,6 +4,8 @@ Pure: each projection is the `ClaimLimitReadService.claim_limit_on` shape, so no
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from assetops_backend.analytics.claim_limit_read import (
     CONTRADICTORY, FULL, HISTORICAL, HISTORICAL_SELECTION_UNAVAILABLE, LIMITED, NONE, UNKNOWN, interval_state,
     reduce_day)
@@ -18,12 +20,13 @@ def interval(rid: str, *, state: str = FULL, ceiling: str | None = CANDIDATE, st
     return {"assessment_revision_id": rid, "state": state, "currentness": currentness, "ceiling": ceiling,
             "support": "COMPLETE", "supported_minutes": 30.0, "statement": statement,
             "current_positive_claim": positive, "historical_ceiling": None, "reasons": reasons or [],
-            "accepted_evidence_ids": list(ids)}
+            "accepted_evidence_ids": list(ids), "selected": True}
 
 
-def day(*intervals: dict, available: bool = True) -> dict:
+def day(*intervals: dict, available: bool = True, currentness: str = "CURRENT") -> dict:
     return {"day": "2026-10-08", "domain": "dispatch", "available": available, "intervals": list(intervals),
-            "window_assessment_revision_id": "w-rev"}
+            "window_assessment_revision_id": "w-rev", "site_id": "site-1", "currentness": currentness,
+            "known_at": datetime(2026, 10, 9, tzinfo=timezone.utc)}
 
 
 def test_state_precedence_and_zero_intervals() -> None:
@@ -79,9 +82,53 @@ def test_gaps_are_role_tagged_admitted_interval_reasons_only() -> None:
         {"code": "GENERATOR_UNOBSERVED", "role": "generator_state", "text": "y"}])
     gaps = reduce_day(day(a, b))["gaps"]
     assert [(g["domain"], g["gap_code"], g["missing_role"], g["assessment_revision_ids"]) for g in gaps] == [
-        ("dispatch", "GENERATOR_UNOBSERVED", "generator_state", ["b"]),
-        ("dispatch", "MISSING_ROLE", "pv_available_power", ["a", "b"]),
-        ("dispatch", "POOR_QUALITY", "feeder_demand", ["a"])]
+        ("mini_grid", "GENERATOR_UNOBSERVED", "generator_state", ["b"]),
+        ("mini_grid", "MISSING_ROLE", "pv_available_power", ["a", "b"]),
+        ("mini_grid", "POOR_QUALITY", "feeder_demand", ["a"])]
+    assert all(g["site_ids"] == ["site-1"] and g["capability_keys"] == ["GENERATOR_SUPPORT"] for g in gaps)
+
+
+def test_unobserved_roles_stay_distinct_groups() -> None:
+    roles = ("generator_state", "feeder_demand", "pv_available_power", "battery_soc", "battery_power")
+    ivs = [interval(f"r{n}", state=LIMITED, reasons=[
+        {"code": "GENERATOR_UNOBSERVED", "role": role, "text": "x"}, {"code": "GENERATOR_UNOBSERVED", "text": "no role"}])
+        for n, role in enumerate(roles)]
+    ivs.append(interval("dup", state=LIMITED, reasons=[{"code": "GENERATOR_UNOBSERVED", "role": "feeder_demand"}]))
+    gaps = reduce_day(day(*ivs))["gaps"]
+    assert sorted(g["missing_role"] for g in gaps) == sorted(roles)
+    assert [g["assessment_revision_ids"] for g in gaps if g["missing_role"] == "feeder_demand"] == [["dup", "r1"]]
+
+
+def historical_interval(rid: str, reasons: list | None = None, selected: bool = True) -> dict:
+    return {**interval(rid, state=interval_state(HISTORICAL, "COMPLETE", reasons or [], selected), ceiling=None,
+                       statement=None, positive=False, reasons=reasons, currentness=HISTORICAL),
+            "historical_ceiling": {"ceiling": CANDIDATE}, "selected": selected}
+
+
+def test_historical_day_has_no_current_claim_and_keeps_ids() -> None:
+    gap = [{"code": "MISSING_ROLE", "role": "pv_available_power", "text": "x"}]
+    out = reduce_day(day(historical_interval("b", gap), historical_interval("a"), currentness=HISTORICAL))
+    assert out["state"] == UNKNOWN and out["currentness"] == HISTORICAL
+    assert out["current_ceiling"] is None and out["ceiling_statement"] is None and out["ceiling_source"] is None
+    assert out["available"] and out["assessment_revision_ids"] == ["a", "b"]
+    assert out["window_assessment_revision_id"] == "w-rev" and out["accepted_evidence_ids"] == ["e1"]
+    assert out["gaps"] == [] and [g["missing_role"] for g in out["historical_gaps"]] == ["pv_available_power"]
+    assert out["historical_statements"] == ["Historical as of 2026-10-09T00:00:00+00:00", "No current ceiling"]
+    assert [c["historical_ceiling"] for c in out["interval_ceilings"]] == [{"ceiling": CANDIDATE}] * 2
+
+
+def test_conflict_precedence_and_selection() -> None:
+    conflict = [{"code": "CONFLICTING", "role": "feeder_demand", "text": "CONFLICTING: feeder_demand disagrees"}]
+    hist = reduce_day(day(historical_interval("a", conflict), historical_interval("b"), currentness=HISTORICAL))
+    assert hist["state"] == CONTRADICTORY and hist["current_ceiling"] is None and hist["gaps"] == []
+    assert hist["historical_statements"][2:] == ["Conflicting records (historical, as of the cutoff)",
+                                                 "CONFLICTING: feeder_demand disagrees"]
+    # a conflict on a revision outside the selected as-of day cannot affect that day
+    assert interval_state(HISTORICAL, "COMPLETE", conflict, selected=False) == UNKNOWN
+    assert interval_state("CURRENT", "COMPLETE", conflict, selected=False) == FULL
+    # a contradictory day cannot publish a current ceiling even when the other intervals agree
+    agree = reduce_day(day(interval("a"), interval("b", state=CONTRADICTORY, reasons=conflict)))
+    assert agree["state"] == CONTRADICTORY and agree["current_ceiling"] is None and agree["ceiling_source"] is None
 
 
 def test_unreconstructable_day_is_unknown_without_ceiling() -> None:

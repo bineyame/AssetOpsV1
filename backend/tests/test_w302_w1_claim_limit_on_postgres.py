@@ -24,7 +24,7 @@ if URL:
     import pg_harness
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
     from assetops_backend.analytics.claim_limit_read import (
-        HISTORICAL, HISTORICAL_SELECTION_UNAVAILABLE, UNKNOWN, ClaimLimitReadService, reduce_day)
+        HISTORICAL, HISTORICAL_SELECTION_UNAVAILABLE, UNKNOWN, ClaimLimitReadService, ClaimLimitRefusal, reduce_day)
 
 F02 = next(c for c in SPEC["cases"] if c["case_id"] == "F02")
 F06 = next(c for c in SPEC["cases"] if c["case_id"] == "F06")
@@ -44,11 +44,15 @@ def reads(monkeypatch):
     """The store and service under test; the store's own transaction is forbidden for the whole test body."""
     owned = PostgresAssessmentStore(URL)
 
-    def no_second_transaction(self, work):
+    def no_second_transaction(self, *args, **kwargs):
         raise AssertionError("claim_limit_on opened its own transaction")
 
-    yield owned, ClaimLimitReadService(owned), lambda: monkeypatch.setattr(
-        PostgresAssessmentStore, "_snapshot", no_second_transaction)
+    def forbid() -> None:
+        # every store entry point to a second connection/transaction: _snapshot, _run and the engine itself
+        for name in ("_snapshot", "_run", "_connect_engine"):
+            monkeypatch.setattr(PostgresAssessmentStore, name, no_second_transaction)
+
+    yield owned, ClaimLimitReadService(owned), forbid
     pg_harness.dispose(owned)
 
 
@@ -113,7 +117,11 @@ def test_w1_cutoff_excludes_later_assessment_and_acceptance(runner, reads, monke
     for step in F06["steps"][3:5]:  # release the held contradiction, assess: a later selection of the same day
         runner.step(step)
     present = runner.now
-    monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: present))
+
+    def clock(at):
+        monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: at))
+
+    clock(present)
     store, service, forbid = reads
     with caller_snapshot(runner.engine) as c:
         later_accepted = c.execute(text(
@@ -121,8 +129,12 @@ def test_w1_cutoff_excludes_later_assessment_and_acceptance(runner, reads, monke
             "ON e.id = d.accepted_evidence_id WHERE e.site_id = :s AND d.decided_at > :k"),
             {"s": runner.site, "k": cutoff}).scalar_one()
         forbid()
+        (d_then, then_hist, r_hist), = projected(service, store, c, runner.tenant, runner.site, F06_DAY,
+                                                 F06_DAY + timedelta(days=1), cutoff)
+        clock(cutoff)  # the same selection read live (the cutoff is the transaction time): a current claim
         (d_then, then, r_then), = projected(service, store, c, runner.tenant, runner.site, F06_DAY,
                                             F06_DAY + timedelta(days=1), cutoff)
+        clock(present)
         (d_now, now, r_now), = projected(service, store, c, runner.tenant, runner.site, F06_DAY,
                                          F06_DAY + timedelta(days=1), present)
         # the later window revision read at the earlier cutoff: recorded after it, so not reconstructable
@@ -142,6 +154,7 @@ def test_w1_cutoff_excludes_later_assessment_and_acceptance(runner, reads, monke
     limited = [i["assessment_revision_id"] for i in then["intervals"] if i["state"] == "LIMITED"]
     assert r_then["gaps"] and all(g["missing_role"] and g["assessment_revision_ids"] == limited
                                   for g in r_then["gaps"])
+    assert {g["domain"] for g in r_then["gaps"]} == {"mini_grid"}
     assert ("GENERATOR_UNOBSERVED", "generator_state") in {(g["gap_code"], g["missing_role"]) for g in r_then["gaps"]}
     # the later selection (after the released contradiction) is CONTRADICTORY and never borrows the earlier ceiling
     assert r_now["state"] == "CONTRADICTORY" and r_now["current_ceiling"] is None
@@ -156,13 +169,26 @@ def test_w1_cutoff_excludes_later_assessment_and_acceptance(runner, reads, monke
     assert {x["code"] for x in late["reasons"]} == {HISTORICAL_SELECTION_UNAVAILABLE}
     assert any(x["text"].startswith("REVISION_AFTER_CUTOFF") for x in late["reasons"])
     assert reduce_day(late)["state"] == UNKNOWN and reduce_day(late)["current_ceiling"] is None
+    # the same cutoff read from the present is HISTORICAL: exact IDs and disclosure, no current claim at all
+    assert then_hist["currentness"] == HISTORICAL and r_hist["currentness"] == HISTORICAL
+    assert r_hist["state"] == UNKNOWN and r_hist["current_ceiling"] is None and r_hist["ceiling_source"] is None
+    assert r_hist["ceiling_statement"] is None and r_hist["gaps"] == [] and r_hist["historical_gaps"]
+    assert r_hist["assessment_revision_ids"] == r_then["assessment_revision_ids"]
+    assert r_hist["accepted_evidence_ids"] == r_then["accepted_evidence_ids"]
+    assert r_hist["window_assessment_revision_id"] == r_then["window_assessment_revision_id"]
+    assert r_hist["historical_statements"][1] == "No current ceiling"
+    for i, live in zip(then_hist["intervals"], then["intervals"]):
+        assert i["currentness"] == HISTORICAL and i["current_positive_claim"] is False
+        assert all(i[k] is None for k in ("ceiling", "support", "supported_minutes", "statement"))
+        assert i["historical_ceiling"] == {k: live[k] for k in ("ceiling", "support", "supported_minutes",
+                                                                "statement")}
     assert old["available"] and old["currentness"] == HISTORICAL and old["intervals"]
     for i in old["intervals"]:
         assert i["currentness"] == HISTORICAL and i["ceiling"] is None and i["statement"] is None
         assert not i["current_positive_claim"] and i["historical_ceiling"] is not None
         assert i["accepted_evidence_ids"] and i["reasons"][0]["code"] == "NOT_CURRENT"
     old_day = reduce_day(old)
-    assert old_day["current_ceiling"] is None and old_day["state"] in (UNKNOWN, "CONTRADICTORY")
+    assert old_day["current_ceiling"] is None and old_day["state"] == UNKNOWN
     assert old_day["assessment_revision_ids"] == r_then["assessment_revision_ids"]
 
 
@@ -184,3 +210,57 @@ def test_w1_unavailable_history_is_unknown(runner, reads, monkeypatch) -> None:
     day = reduce_day(p)
     assert day["state"] == UNKNOWN and day["current_ceiling"] is None and day["ceiling_source"] is None
     assert [x["code"] for x in day["reasons"]] == [HISTORICAL_SELECTION_UNAVAILABLE]
+
+
+def test_w1_historical_conflict_is_contradictory_without_a_current_ceiling(runner, reads, monkeypatch) -> None:
+    for step in F06["steps"][:2] + F06["steps"][3:5]:  # the released contradiction is the day's later selection
+        runner.step(step)
+    present = runner.now
+    later = present + timedelta(hours=1)
+    monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: later))
+    store, service, forbid = reads
+    forbid()
+    with caller_snapshot(runner.engine) as c:
+        (d, p, r), = projected(service, store, c, runner.tenant, runner.site, F06_DAY, F06_DAY + timedelta(days=1),
+                               present)
+    assert p["currentness"] == HISTORICAL and r["state"] == "CONTRADICTORY"
+    assert r["current_ceiling"] is None and r["ceiling_source"] is None and r["gaps"] == []
+    assert r["assessment_revision_ids"] and r["accepted_evidence_ids"]
+    assert "Conflicting records (historical, as of the cutoff)" in r["historical_statements"]
+    assert any("REPORTS_OVERLAP" in x for x in r["historical_statements"][3:]), r["historical_statements"]
+
+
+def test_w1_window_path_projects_the_selected_later_run_of_a_reused_interval(runner, reads, monkeypatch) -> None:
+    for step in F06["steps"][:2] + F06["steps"][3:5]:
+        runner.step(step)
+    present = runner.now
+    monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: present))
+    store, service, forbid = reads
+    forbid()
+    with caller_snapshot(runner.engine) as c:
+        (d, p, r), = projected(service, store, c, runner.tenant, runner.site, F06_DAY, F06_DAY + timedelta(days=1),
+                               present)
+        reused = c.execute(text(
+            "SELECT v.id, v.analytic_run_id FROM assessment_revision v JOIN analytic_run_assessment l "
+            "ON l.assessment_revision_id = v.id WHERE l.run_id = :r AND l.scope = 'INTERVAL' "
+            "AND v.analytic_run_id <> :r"), {"r": d["run_id"]}).all()
+        assert reused, "fixture: the later selected run must reuse an interval revision created by an earlier run"
+        interval_rev = str(reused[0][0])
+        with pytest.raises(ClaimLimitRefusal) as refused:  # a single INTERVAL revision is not a selection
+            service.claim_limit_on(c, runner.tenant, runner.site, F06_DAY.date(), UUID(interval_rev), present)
+    assert (refused.value.status, refused.value.detail["code"]) == (422, "REVISION_NOT_WINDOW")
+    by_id = {i["assessment_revision_id"]: i for i in p["intervals"]}
+    assert interval_rev in by_id and p["run_id"] == str(d["run_id"]) != str(reused[0][1])
+    assert sorted(by_id) == r["assessment_revision_ids"]
+    # currentness comes from the selected later run's membership, not the interval revision's creating run
+    assert by_id[interval_rev]["currentness"] != HISTORICAL and by_id[interval_rev]["accepted_evidence_ids"]
+    assert by_id[interval_rev]["selected"] is True
+
+
+def test_w1_second_transaction_entry_points_are_trapped(reads) -> None:
+    store, _, forbid = reads
+    forbid()
+    for call in (lambda: store._run(lambda c: None), lambda: store._snapshot(lambda c: None),
+                 lambda: store._connect_engine()):
+        with pytest.raises(AssertionError, match="opened its own transaction"):
+            call()

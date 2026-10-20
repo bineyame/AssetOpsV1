@@ -359,8 +359,10 @@ class ClaimLimitReadService:
         """The claim limit of each selected INTERVAL revision of one UTC day, as of `known_at`, on the caller's
         connection `c`. It never calls `read()` or `claim_limit_snapshot()` (both open their own transaction).
 
-        `revision_id` is the day's window revision (every INTERVAL revision of its run is projected) or one
-        INTERVAL revision. Each interval reuses `role_coverage`, `interval_ceiling` and `_reasons` and exposes its
+        `revision_id` is the day's WINDOW revision (every INTERVAL revision of its run is projected) or `None`
+        for no selection; a non-window revision is refused 422. An explicit `known_at` earlier than the captured
+        transaction time makes the day HISTORICAL: IDs and `historical_ceiling` kept, every current claim null.
+        Each interval reuses `role_coverage`, `interval_ceiling` and `_reasons` and exposes its
         exact ceiling/support/statement, currentness, typed reasons (with `role`), its revision ID and its full
         cited accepted Evidence IDs. Currentness is the day's at-cutoff status when the revision is in the day's
         selection at `known_at`, else HISTORICAL (IDs kept, no current claim). A day, revision, run or accepted
@@ -408,8 +410,11 @@ class ClaimLimitReadService:
             raise ClaimLimitRefusal(409, "ACCEPTED_LINEAGE_ABSENT",
                                     "The revision's run is not stored; no capability or ceiling is derived.")
         scope = "WINDOW" if revision["assessment_key"].startswith(f"{self.model.ANALYTIC_ID}:window:") else "INTERVAL"
-        intervals = ([r for r in run["revisions"] if r.get("scope") == "INTERVAL"] if scope == "WINDOW"
-                     else [revision])
+        if scope != "WINDOW":
+            raise ClaimLimitRefusal(422, "REVISION_NOT_WINDOW",
+                                    f"Revision {revision_id} is not a window revision; select the day's window "
+                                    "revision.")
+        intervals = [r for r in run["revisions"] if r.get("scope") == "INTERVAL"]
         accepted = {str(e["evidence_id"]): e for e in [*revision.get("evidence", []), *run.get("evidence", [])]
                     if e.get("disposition") == "ACCEPTED"}
         cited = sorted({str(e) for r in intervals for e in r["evidence_ids"]})
@@ -431,9 +436,11 @@ class ClaimLimitReadService:
         members = {str(r) for r in selected["assessment_revision_ids"]}
         selected_here = (selected["run_id"] is not None and str(selected["run_id"]) == str(run["id"])
                          and str(revision["id"]) in members)
+        historical_day = known_at < selected["transaction_time"]
         out = []
         for interval in sorted(intervals, key=lambda r: str(r["id"])):
-            currentness = selected["status"] if selected_here and str(interval["id"]) in members else HISTORICAL
+            in_selection = selected_here and str(interval["id"]) in members
+            currentness = HISTORICAL if historical_day or not in_selection else selected["status"]
             current = currentness == CURRENT
             result = interval["result"] or {}
             cov = role_coverage(result.get("segments", []), evidence, str(interval["id"]))
@@ -442,6 +449,7 @@ class ClaimLimitReadService:
             reasons += [{"code": t.split(":", 1)[0], "text": t} for t in own["withheld"]]
             if not current:
                 reasons.insert(0, {"code": "NOT_CURRENT", "text": (
+                    f"Historical as of {known_at.isoformat()}; no current ceiling." if historical_day else
                     "This exact revision is not in the day's selection at the cutoff; shown as history only."
                     if currentness == HISTORICAL else
                     f"The day's selection is {currentness} at the cutoff; no current claim is made from it.")})
@@ -453,25 +461,28 @@ class ClaimLimitReadService:
                 "current_positive_claim": current and own["positive"],
                 "historical_ceiling": None if current else ceiling,
                 "reasons": reasons, "accepted_evidence_ids": sorted({str(e) for e in interval["evidence_ids"]}),
-                "state": interval_state(currentness, own["support"], reasons)})
+                "selected": in_selection,
+                "state": interval_state(currentness, own["support"], reasons, in_selection)})
         window_rev = next((r for r in run["revisions"] if r.get("scope") == "WINDOW"), None)
         window_limits = list(((window_rev or {}).get("result") or {}).get("limitations", []))
         return {**body, "available": True, "scope": scope, "run_id": str(run["id"]),
-                "currentness": selected["status"] if selected_here else HISTORICAL,
+                "currentness": HISTORICAL if historical_day or not selected_here else selected["status"],
                 "intervals": out, "window_reasons": _reasons({}, {}, window_limits), "reasons": []}
 
 
 HISTORICAL_SELECTION_UNAVAILABLE = "HISTORICAL_SELECTION_UNAVAILABLE"
 FULL, LIMITED, NONE, CONTRADICTORY, UNKNOWN = "FULL", "LIMITED", "NONE", "CONTRADICTORY", "UNKNOWN"
 #: Closure-1 admitted W1 gap codes: a reason becomes an estate gap only with one of these and a concrete `role`.
+#: Estate wire domain and the W1 capability a gap unlocks (`domain:mini_grid`).
+WIRE_DOMAIN, CAPABILITY_KEY = "mini_grid", "GENERATOR_SUPPORT"
 GAP_CODES = ("MISSING_ROLE", "GENERATOR_UNOBSERVED", "POOR_QUALITY", "CONFLICTING")
 
 
-def interval_state(currentness: str, support: str, reasons: list[dict[str, Any]]) -> str:
+def interval_state(currentness: str, support: str, reasons: list[dict[str, Any]], selected: bool = True) -> str:
     """One interval's display state: a role-tagged CONFLICTING reason is CONTRADICTORY; else a non-CURRENT
     interval (missing, failed, stale, pending, unassessed or historical) is UNKNOWN; else COMPLETE -> FULL,
-    NONE -> NONE, LIMITED -> LIMITED."""
-    if any(r["code"] == "CONFLICTING" and r.get("role") for r in reasons):
+    NONE -> NONE, LIMITED -> LIMITED. A conflict outside the selected as-of day (`selected=False`) is ignored."""
+    if selected and any(r["code"] == "CONFLICTING" and r.get("role") for r in reasons):
         return CONTRADICTORY
     if currentness != CURRENT:
         return UNKNOWN
@@ -486,26 +497,37 @@ def reduce_day(projection: dict[str, Any]) -> dict[str, Any]:
     identical statement. Gaps are only role-tagged interval reasons with an admitted code, grouped by
     `(domain, gap_code, missing_role)`; role-less window reasons are never gaps."""
     intervals = projection["intervals"] if projection["available"] else []
+    historical = projection["available"] and projection.get("currentness") == HISTORICAL
     states = [i["state"] for i in intervals]
     if not states:
         state = UNKNOWN
     elif CONTRADICTORY in states:
         state = CONTRADICTORY
-    elif UNKNOWN in states:
+    elif UNKNOWN in states or historical:
         state = UNKNOWN
     elif all(s == FULL for s in states):
         state = FULL
     else:
         state = NONE if NONE in states else LIMITED
     single = {(i["ceiling"], i["statement"]) for i in intervals}
-    one = len(single) == 1 and all(i["current_positive_claim"] and i["ceiling"] in (CANDIDATE, NECESSARY)
-                                   for i in intervals)
+    one = (not historical and state != CONTRADICTORY and len(single) == 1
+           and all(i["current_positive_claim"] and i["ceiling"] in (CANDIDATE, NECESSARY) for i in intervals))
     ceiling, statement = next(iter(single)) if one else (None, None)
     gaps: dict[tuple[str, str, str], set[str]] = {}
     for i in intervals:
         for r in i["reasons"]:
             if r["code"] in GAP_CODES and r.get("role"):
-                gaps.setdefault((projection["domain"], r["code"], r["role"]), set()).add(i["assessment_revision_id"])
+                gaps.setdefault((WIRE_DOMAIN, r["code"], r["role"]), set()).add(i["assessment_revision_id"])
+    groups = [{"domain": d, "gap_code": g, "missing_role": role, "assessment_revision_ids": sorted(ids),
+               "site_ids": [str(projection["site_id"])] if projection.get("site_id") else [],
+               "capability_keys": [CAPABILITY_KEY]} for (d, g, role), ids in sorted(gaps.items())]
+    historical_statements: list[str] = []
+    if historical:
+        historical_statements = [f"Historical as of {projection['known_at'].isoformat()}", "No current ceiling"]
+        conflicts = sorted({r["text"] for i in intervals if i.get("selected", True) for r in i["reasons"]
+                            if r["code"] == "CONFLICTING" and r.get("role")})
+        if conflicts:
+            historical_statements += ["Conflicting records (historical, as of the cutoff)", *conflicts]
     return {
         "day": projection["day"], "available": projection["available"], "state": state,
         "current_ceiling": ceiling, "ceiling_statement": statement,
@@ -517,8 +539,10 @@ def reduce_day(projection: dict[str, Any]) -> dict[str, Any]:
                                "currentness": i["currentness"],
                                **{k: i[k] for k in ("ceiling", "support", "supported_minutes", "statement")},
                                "historical_ceiling": i["historical_ceiling"]} for i in intervals],
-        "gaps": [{"domain": d, "gap_code": g, "missing_role": role, "assessment_revision_ids": sorted(ids)}
-                 for (d, g, role), ids in sorted(gaps.items())],
+        "currentness": HISTORICAL if historical else (projection.get("currentness") if projection["available"]
+                                                       else None),
+        "gaps": [] if historical else groups, "historical_gaps": groups if historical else [],
+        "historical_statements": historical_statements,
         "reasons": [] if projection["available"] else [
             {"code": HISTORICAL_SELECTION_UNAVAILABLE,
              "text": "The day's selection at the cutoff cannot be reconstructed from stored records."}],

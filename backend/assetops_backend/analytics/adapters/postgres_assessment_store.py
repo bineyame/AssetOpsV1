@@ -826,7 +826,8 @@ class PostgresAssessmentStore:
         revision's detail (`_revision_detail`), both on the caller's connection `c`, with no transaction of its
         own. The detail is not cut off here: the claim-limit read validates its records against `known_at`."""
         window = day_window(day)
-        selected = self.select_dispatch_days_on(c, tenant_id, site_id, window.start, window.end, known_at)[0]
+        selected = {**self.select_dispatch_days_on(c, tenant_id, site_id, window.start, window.end, known_at)[0],
+                    "transaction_time": self._transaction_time(c)}
         detail = None if revision_id is None else self._revision_detail(c, tenant_id, site_id, revision_id)
         return selected, detail
 
