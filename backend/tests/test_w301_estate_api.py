@@ -30,6 +30,7 @@ D0, D1 = datetime(2026, 10, 6, tzinfo=timezone.utc), datetime(2026, 10, 7, tzinf
 class FakeSnapshot:
     def __init__(self, sites=(), **reads) -> None:
         self.read_at, self.historical, self._sites, self.reads = READ_AT, False, list(sites), reads
+        self.continuation = False
 
     def imported_sites(self, t, to):
         return self._sites

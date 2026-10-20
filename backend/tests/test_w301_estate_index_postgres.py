@@ -323,6 +323,57 @@ def test_cursor_scope_window_lens_and_fence(chain) -> None:  # noqa: F811
     assert estate.ok("findings", **day)["selection_token"] != first["selection_token"]
 
 
+def add_job(engine, built, start: datetime, end: datetime, created_at=None) -> str:
+    """TEST-SCOPED: one stored cold recompute job of the replay Site; `created_at` defaults to the DB clock."""
+    job = str(uuid4())
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
+            "available_at, created_at) VALUES (:j, :t, :s, 'cold_chain', :a, :b, 'PENDING', clock_timestamp(), "
+            "COALESCE(CAST(:c AS timestamptz), clock_timestamp()))"),
+            {"j": job, "t": built.tenant_id, "s": built.site_id, "a": start, "b": end, "c": created_at})
+    return job
+
+
+def test_live_open_cold_ev_page_two_keeps_work_fence(chain) -> None:  # noqa: F811
+    """q10 ruling 3: an unchanged open job is not a selection change. Page one reads at the default live cutoff
+    with an overlapping PENDING cold job; page two, at the cursor's cutoff, evaluates the same overlap/domain work
+    predicate with `created_at <= cursor_known_at`, keeps the token and job state, and is labelled HISTORICAL. A
+    nonoverlapping job and a job created after the cutoff do not enter the fence; a changed stored status does."""
+    built, estate = cold_estate(chain)
+    day = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
+    job = add_job(built.engine, built, DAY + timedelta(hours=1), DAY + timedelta(hours=2))
+    whole = estate.ok("findings", **day)
+    first = estate.ok("findings", **day, limit=1)
+    assert len(whole["rows"]) >= 2 and first["next_cursor"] and first["rows"] == whole["rows"][:1]
+    (site,) = first["coverage"]["sites"]
+    assert (first["status"], site["state"], site["job_state"]) == ("PENDING_RECOMPUTE", "PENDING_RECOMPUTE",
+                                                                   "PENDING")
+    cursor = first["next_cursor"]
+    cursor_k = datetime.fromisoformat(decode_cursor("findings", cursor)["known_at"].replace("Z", "+00:00"))
+    # Neither a nonoverlapping job created before the cutoff nor an overlapping job created after it is page one's
+    # work: both are stored before page two is read and neither moves its fence.
+    add_job(built.engine, built, DAY + timedelta(days=2), DAY + timedelta(days=2, hours=1),
+            created_at=cursor_k - timedelta(minutes=1))
+    late = add_job(built.engine, built, DAY + timedelta(hours=1), DAY + timedelta(hours=2))
+    with built.engine.connect() as c:
+        assert c.execute(text("SELECT created_at FROM recompute_job WHERE id = :j"), {"j": late}).scalar_one()             > cursor_k
+    second = estate.ok("findings", **day, limit=1, cursor=cursor)
+    assert second["selection_token"] == first["selection_token"] and second["status"] == "HISTORICAL"
+    (paged,) = second["coverage"]["sites"]
+    assert (paged["state"], paged["job_state"]) == ("HISTORICAL", "PENDING")
+    assert [{**r, "status": None} for r in second["rows"]] == [{**r, "status": None} for r in whole["rows"][1:2]]
+    assert {r["status"] for r in second["rows"]} == {"HISTORICAL"}
+    seen = [r["finding_id"] for r in first["rows"] + second["rows"]]
+    assert len(seen) == len(set(seen))
+    # A job that actually changes between requests moves the fence: the old cursor is 409.
+    with built.engine.begin() as c:
+        assert c.execute(text("UPDATE recompute_job SET status = 'FAILED' WHERE id = :j"),
+                         {"j": job}).rowcount == 1
+    response = estate.get("findings", **day, limit=1, cursor=cursor)
+    assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED")
+
+
 # --- mini-grid: the S4 Finding/money chain and the S6 Action/verification chain --------------------------------
 
 def pin_read_at(monkeypatch, present) -> None:

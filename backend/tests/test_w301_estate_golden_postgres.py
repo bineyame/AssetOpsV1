@@ -2,7 +2,8 @@
 
 Spec: `.agent/W3-01-build-spec.md` "Run 9 rulings (q9)" item 1, with the Finding wire `estate-finding-index-2`
 (Run 8 rulings 3 and 5). One manifest, separate `mini_grid`, `cold`, `ev` and `mixed` branches; each branch runs in
-its own private test DB (a parametrized replay of the one test). Every expected body is the whole normalized
+its own private test DB (a parametrized replay of the one test); the `mixed` branch builds all four Sites in that one
+DB (q10 ruling 1). Every expected body is the whole normalized
 response: literal counts, nulls, states, classifications and row order, with markers only at dynamic leaves:
 
 * `{"$public": name}` - a replay-local UUID or opaque value, resolved from *other* authenticated estate public reads
@@ -16,9 +17,10 @@ A changed-cursor case replays an earlier case's cursor after a basis change; its
 `{"refusal": {"code": ..., "status": ...}}` (q10 reading). Every cursor is decoded and checked (basis, cutoff,
 token, `after`) and its page two is read against the full set at the cursor cutoff.
 
-The `mixed` branch must import every Site into one private DB; the existing cold and EV replay chains each call
-`pg_harness.fresh_database()` in `Chain.open()`, so it is held at `cases: []` pending q10
-(`.agent/W3-01-pending-rulings.md`). Needs ASSETOPS_TEST_DATABASE_URL.
+The `mixed` branch (q10 ruling 1) calls `pg_harness.fresh_database()` once and test-scope suppresses the later calls
+made by the cold and EV `Chain.open()`, so the cold, EV and S4 mini-grid chains and the empty test Site share one
+private DB and the one `demo` tenant. The STALE, LEASED and FAILED states are unit proof in
+`test_w301_estate_coverage.py`, not persisted replay coverage (q10 ruling 2). Needs ASSETOPS_TEST_DATABASE_URL.
 """
 
 from __future__ import annotations
@@ -41,7 +43,8 @@ MANIFEST = Path(__file__).resolve().parent / "fixtures" / "w3" / "w301-estate-go
 REPO = Path(__file__).resolve().parents[2]
 SCHEMA = "w301-estate-golden/2"
 BRANCHES = ("mini_grid", "cold", "ev", "mixed")
-REPLAYED = ("mini_grid", "cold", "ev")
+REPLAYED = ("mini_grid", "cold", "ev", "mixed")
+MIXED_FROM = datetime(2026, 10, 6, tzinfo=timezone.utc)  # the cold/EV replay day through the S4 F03 day
 REQUEST_KEYS = {"root", "from", "to", "known_at", "lens", "state_filter", "limit", "cursor"}
 ROOTS = {"scope": "estate-scope-1", "findings": "estate-finding-index-2", "actions": "estate-action-index-1"}
 # Leaves whose value is replay-local: a marker is legal only here (q9: UUIDs, URLs with UUIDs, DB-clock times,
@@ -58,7 +61,7 @@ TOKEN_ARRAYS = ("selected_finding_revision_ids", "selected_action_event_ids", "s
 COLD_DAY = datetime(2026, 10, 6, tzinfo=timezone.utc)
 
 if URL:
-    from sqlalchemy import text
+    from sqlalchemy import create_engine, text
 
     import pg_harness
     import test_w202_cold_replay_postgres as w202
@@ -71,6 +74,7 @@ if URL:
     from test_w301_estate_index_postgres import Estate, add_empty_site, db_now, imported_before, iso, pin_read_at
 
     from assetops_backend.estate.adapters import postgres_estate_read
+    from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
 
     @pytest.fixture()
     def cold_chain(tmp_path, monkeypatch):
@@ -145,6 +149,7 @@ def validate(document: dict) -> None:
         for path in branch["replay_paths"]:
             assert not Path(path).is_absolute() and (REPO / path).is_file(), f"{name}: {path}"
         assert branch["site_codes"] and len(set(branch["site_codes"])) == len(branch["site_codes"])
+        assert branch["cases"], f"{name}: every branch, mixed included, has cases (q10 ruling 1)"
         names = [case["name"] for case in branch["cases"]]
         assert len(names) == len(set(names)), f"{name}: case names are unique"
         for case in branch["cases"]:
@@ -163,8 +168,6 @@ def validate(document: dict) -> None:
                 continue
             assert expected["schema_version"] == ROOTS[req["root"]], where
             check_markers(expected, None, where + ".expected")
-    # Run 9 item 1 STOP RULE: the mixed estate needs one private DB for every Site; not built until q10 rules.
-    assert document["branches"]["mixed"]["cases"] == [], "mixed is held for q10"
 
 
 # --- replay contexts ---------------------------------------------------------------------------------------
@@ -182,6 +185,7 @@ class Replay:
         self.done: list[str] = []
         self.cursors: dict[str, str] = {}
         self.domains: dict[str, str] = {}  # Site code -> estate domain (the empty test Site copies its source)
+        self.tenants: set = set()  # mixed: the tenant of every chain built in the one DB
 
     def setup(self, name: str) -> None:
         if name in self.done:
@@ -264,6 +268,59 @@ def ev_replay(request, monkeypatch, case: str) -> Replay:
     replay = windowed_replay(built, monkeypatch, day, "EV-LAB-001", "ev_charging")
     replay.steps[f"ev-{case}-settled"] = lambda: None
     return replay
+
+
+def mixed_replay(request, monkeypatch) -> Replay:
+    """q10 ruling 1: the cold `normal` and EV `complete` chains settled, one S4 Finding case and the empty test
+    Site, all in one private DB and the one `demo` tenant. Only the cold/EV `Chain.open()` database reset is
+    suppressed (test-scoped); every chain, ingestion path and worker runs as in its own branch."""
+    fresh = pg_harness.fresh_database()
+    monkeypatch.setattr(pg_harness, "fresh_database", lambda: fresh)
+    cold = opened("normal", request.getfixturevalue("cold_chain"))
+    run(cold)
+    ev = request.getfixturevalue("ev_chain")("complete")
+    ev.start_release_upload()
+    run_worker(ev)
+    # The S4 runner on the same DB with a directly owned store: the `store` fixture would empty the tables.
+    store = PostgresFoundationStore(URL)
+    eng = create_engine(URL)
+    request.addfinalizer(lambda: pg_harness.dispose(store, eng))
+    runner = CaseRunner(store, eng)
+    request.addfinalizer(lambda: pg_harness.dispose(runner.findings))
+    run_case(runner, S4_CASES["F03"])
+    empty = add_empty_site(eng, runner.site, "W301-EMPTY-001")
+    for site_id in (cold.site_id, ev.site_id, runner.site, empty):
+        imported_before(eng, runner.tenant, site_id, MIXED_FROM - timedelta(days=1))
+    # One frozen read clock after every chain's decisions: the S4 fixture clock (ahead of the DB clock), or the
+    # DB clock should that ever be later.
+    frozen = max(runner.now + timedelta(minutes=1), db_now(eng))
+    pin_read_at(monkeypatch, lambda: frozen)
+    replay = Replay(eng, runner.tenant, lambda: frozen)
+    replay.domains = {"KOBO-001": "mini_grid", "COLD-LAB-001": "cold_chain", "EV-LAB-001": "ev_charging",
+                      "W301-EMPTY-001": "mini_grid"}
+    replay.tenants = {cold.tenant_id, ev.tenant_id, runner.tenant}
+    replay.steps["mixed-settled"] = lambda: None
+    return replay
+
+
+def assert_mixed(replay: Replay, branch: dict) -> None:
+    """q10 ruling 1: one authenticated scope over all four Sites of one tenant; Findings coverage counts and the
+    Action-root `NOT_APPLICABLE` rule over the same estate."""
+    assert len(replay.tenants) == 1
+    window = {"from": wire_second(MIXED_FROM), "to": branch["cases"][0]["request"]["to"]}
+    scope = replay.estate.ok("scope", **window)
+    assert sorted(s["site_code"] for s in scope["sites"]) == sorted(branch["site_codes"])
+    findings = replay.estate.ok("findings", **window)
+    assert findings["scope"]["tenant_id"] == str(next(iter(replay.tenants))).lower()
+    states = [s["state"] for s in findings["coverage"]["sites"]]
+    assert findings["scope"]["authorized_site_count"] == 4
+    assert findings["scope"]["covered_site_count"] == sum(x in ("CURRENT", "HISTORICAL") for x in states)
+    actions = replay.estate.ok("actions", **window)
+    code_of = {s["site_id"]: s["site_code"] for s in scope["sites"]}
+    by_code = {code_of[s["site_id"]]: s["state"] for s in actions["coverage"]["sites"]}
+    assert by_code["COLD-LAB-001"] == by_code["EV-LAB-001"] == "NOT_APPLICABLE"
+    assert actions["scope"]["covered_site_count"] == sum(
+        x in ("CURRENT", "HISTORICAL", "NOT_APPLICABLE") for x in by_code.values())
 
 
 # --- public resolution -------------------------------------------------------------------------------------
@@ -603,6 +660,7 @@ BRANCH_REPLAY = {
     "cold": lambda request, monkeypatch, branch: cold_replay(request, monkeypatch,
                                                              Path(branch["replay_paths"][0]).stem),
     "ev": lambda request, monkeypatch, branch: ev_replay(request, monkeypatch, Path(branch["replay_paths"][0]).stem),
+    "mixed": lambda request, monkeypatch, branch: mixed_replay(request, monkeypatch),
 }
 
 
@@ -619,3 +677,5 @@ def test_w301_golden_manifest_public_replay(branch_name, request, monkeypatch) -
     scope = replay.estate.ok("scope", **{"from": branch["cases"][0]["request"]["from"],
                                           "to": branch["cases"][0]["request"]["to"]})
     assert {s["site_code"] for s in scope["sites"]} <= set(branch["site_codes"])
+    if branch_name == "mixed":
+        assert_mixed(replay, branch)

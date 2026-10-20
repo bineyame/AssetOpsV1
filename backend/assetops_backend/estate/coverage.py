@@ -204,7 +204,12 @@ def _windowed(snapshot: Any, t: Any, s: Any, domain: str, from_: datetime, to: d
     if evidence_cutoff is None:
         return _empty(UNKNOWN, source_freshness="NOT_APPLICABLE" if domain == EV else "UNKNOWN")
     windows = snapshot.selected_windows(t, s, domain, from_, to, evidence_cutoff, k)
-    jobs = set() if snapshot.historical else set(snapshot.open_jobs(t, s, domain, from_, to, k))
+    # Run 8 ruling 6 suppresses today's job status for an explicit historical selection without a cursor. q10
+    # ruling 3: a cursor continuation keeps page one's work-state fence, the same overlap/domain predicate with
+    # `created_at <= cursor_known_at`, so an unchanged open job is not a selection change; the Site state and the
+    # selected rows stay historical.
+    fenced = not snapshot.historical or snapshot.continuation
+    jobs = set(snapshot.open_jobs(t, s, domain, from_, to, k)) if fenced else set()
     freshness = "NOT_APPLICABLE" if domain == EV else "UNKNOWN"
     if not windows:
         return _empty(UNKNOWN, watermark=evidence_cutoff, job_state=_job_state(jobs, False),

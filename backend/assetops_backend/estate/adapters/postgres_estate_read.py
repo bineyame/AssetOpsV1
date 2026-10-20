@@ -66,10 +66,11 @@ class PostgresEstateRead:
 
 
 class EstateSnapshot:
-    """Every read on the one estate connection `c`; `historical` is set by the index once the cutoff is known."""
+    """Every read on the one estate connection `c`; `historical` and `continuation` (a cursor page) are set by the
+    index once the cutoff is known."""
 
     def __init__(self, owner: PostgresEstateRead, c: Connection, read_at: datetime) -> None:
-        self._o, self._c, self.read_at, self.historical = owner, c, read_at, False
+        self._o, self._c, self.read_at, self.historical, self.continuation = owner, c, read_at, False, False
 
     def _public(self) -> PublicProvenance:
         return PublicProvenance(self._o.provenance_reads(self._c))
@@ -92,7 +93,8 @@ class EstateSnapshot:
             "AND decided_at <= :k"), {"t": t, "s": s, "k": k}).scalar_one()
 
     def open_jobs(self, t: UUID, s: UUID, domain: str, from_: datetime, to: datetime, k: datetime) -> list[str]:
-        """Overlapping unsettled recompute work created by the requested cutoff (live reads only)."""
+        """Overlapping unsettled recompute work created by the requested cutoff: live reads, and the work-state fence
+        of a cursor continuation (q10 ruling 3), never an explicit historical selection without a cursor."""
         return list(self._c.execute(text(
             "SELECT status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
             "AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :to AND window_end > :from "

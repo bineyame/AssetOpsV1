@@ -2636,7 +2636,521 @@
       ]
     },
     "mixed": {
-      "cases": [],
+      "cases": [
+        {
+          "expected": {
+            "access_basis": {
+              "$digest": "estate-access/1"
+            },
+            "authorized_site_count": 4,
+            "covered_site_count": 2,
+            "known_at": {
+              "$derive": "wire_second",
+              "from": "clock.read"
+            },
+            "schema_version": "estate-scope-1",
+            "sites": [
+              {
+                "coverage_state": "CURRENT",
+                "site_code": "COLD-LAB-001",
+                "site_id": {
+                  "$public": "site:COLD-LAB-001"
+                },
+                "site_name": "Cold replay lab"
+              },
+              {
+                "coverage_state": "CURRENT",
+                "site_code": "EV-LAB-001",
+                "site_id": {
+                  "$public": "site:EV-LAB-001"
+                },
+                "site_name": "EV charging lab"
+              },
+              {
+                "coverage_state": "UNKNOWN",
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid"
+              },
+              {
+                "coverage_state": "UNKNOWN",
+                "site_code": "W301-EMPTY-001",
+                "site_id": {
+                  "$public": "site:W301-EMPTY-001"
+                },
+                "site_name": "Empty test Site"
+              }
+            ]
+          },
+          "name": "scope-mixed",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "scope",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "mixed-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:COLD-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:COLD-LAB-001"
+                  },
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                },
+                {
+                  "committed_watermark": "2026-10-06T09:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:EV-LAB-001"
+                  },
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "CURRENT"
+                },
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "W301-EMPTY-001",
+                  "site_id": {
+                    "$public": "site:W301-EMPTY-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "PARTIAL"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 4,
+              "covered_site_count": 2,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "findings-mixed-week",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "mixed-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": null,
+                  "job_state": "NOT_APPLICABLE",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": null,
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "NOT_APPLICABLE"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NOT_APPLICABLE",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": null,
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "NOT_APPLICABLE"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NOT_APPLICABLE",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": null,
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "CURRENT"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NOT_APPLICABLE",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": null,
+                  "site_code": "W301-EMPTY-001",
+                  "site_id": {
+                    "$public": "site:W301-EMPTY-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "next_cursor": null,
+            "order": "created_at desc, action_id asc",
+            "rows": [],
+            "schema_version": "estate-action-index-1",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 4,
+              "covered_site_count": 4,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "status": "CURRENT",
+            "summary": {
+              "basis_count": 0,
+              "due_overdue": null,
+              "open_actions": 0,
+              "verification_window": 0,
+              "verified_in_30_days": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "actions-mixed",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "actions",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "mixed-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:COLD-LAB-001"
+                  },
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                },
+                {
+                  "committed_watermark": "2026-10-06T09:00:00Z",
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "UNKNOWN"
+                },
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "W301-EMPTY-001",
+                  "site_id": {
+                    "$public": "site:W301-EMPTY-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "PARTIAL"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T09:30:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              },
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T08:00:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 4,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-11T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "findings-mixed-kobo-day",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "mixed-settled"
+        }
+      ],
       "replay_paths": [
         "backend/conversions/s4-finding-cases-v1.json",
         "contract-fixtures/w2/cold/normal.json",

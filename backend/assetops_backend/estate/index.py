@@ -93,6 +93,7 @@ class EstateIndexService:
             k = cursor_k
         token_k = k
         snap.historical = k < read_at
+        snap.continuation = cursor is not None
         candidates = [] if tenant_id is None else snap.imported_sites(tenant_id, req.to)
         sites = [s for s in candidates if admit(s["site_code"])]
         ids = [str(s["site_id"]) for s in sites]
