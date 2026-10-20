@@ -389,6 +389,13 @@ coordinator's:
   Before any full run start `tools/keep-awake-during-tests.ps1` and cap the run
   at twice its expected wall time; a run past the cap is stopped and reported,
   never waited on. One full suite on this machine at a time.
+  Owner 2026-10-20 (`.agent/owner-test-suite-policy-2026-10-20.md`):
+  (1) the full suite starts at the final revision **in parallel with the
+  first independent review**, not before it; a failure still blocks merge and
+  is routed like a review finding. (2) A slice that changes no shared code
+  (no existing module, guard, router/shell/registry or shared DTO) and no
+  schema may skip the full suite: focused tests plus check-all suffice, with
+  that scope recorded in the packet. Merges to main keep the full run.
 - **Mechanical sub-steps run on Sonnet.** Work fixed by an agreed contract or
   handoff - tests written against a settled interface, an AC-by-AC evidence
   pass, closeout records - is dispatched with `model: sonnet`, like fix rounds.
