@@ -34,13 +34,15 @@ def _link_read_ports() -> LinkReadPorts:
     """Run 3 ruling 6: the one shared cold/EV `_snapshot` owner and the W3 q5 at-cutoff mini-grid reads, each bound
     to no connection of its own (every call takes the work read's connection)."""
     from assetops_backend.analytics import cold, ev
-    from assetops_backend.analytics.adapters.postgres_assessment_store import SelectionPinRefused, selected_windows_on
-    from assetops_backend.analytics.composition import (build_cold_read_service, build_ev_read_service,
-                                                        build_finding_store, build_postgres_assessment_store)
+    from assetops_backend.analytics.composition import (build_cold_ev_selection_pins, build_cold_read_service,
+                                                        build_ev_read_service, build_finding_store,
+                                                        build_postgres_assessment_store)
+
+    selected_windows_on, pin_refused = build_cold_ev_selection_pins()
 
     return LinkReadPorts(
         cold_snapshot=build_cold_read_service(None)._snapshot, ev_snapshot=build_ev_read_service(None)._snapshot,
-        selected_windows=selected_windows_on, pin_refused=(SelectionPinRefused,),
+        selected_windows=selected_windows_on, pin_refused=(pin_refused,),
         dispatch_days=build_postgres_assessment_store(None).select_dispatch_days_on,
         finding_index=build_finding_store(None).index_snapshot_on,
         cold_analytics=(cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC), ev_analytics=(ev.SESSION_ANALYTIC,))
