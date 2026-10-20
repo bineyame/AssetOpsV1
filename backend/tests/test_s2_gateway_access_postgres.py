@@ -277,14 +277,21 @@ class TestProvisioning:
         assert f"Credential file: {rig.issued_path}" in out
         assert rig.issued_path.read_text(encoding="ascii").strip().split(".")[2] not in out
 
-    @pytest.mark.skipif(sys.platform != "win32", reason="Windows DACL check")
     def test_a_protected_dacl_that_grants_another_account_is_refused(self, tmp_path) -> None:
+        """Owner-only boundary: a Windows DACL, or a POSIX mode, that lets another account read is refused."""
         from assetops_backend.evidence.adapters.gateway_credential_file import (
             CredentialFileRefused,
             verify_owner_only,
         )
         path = tmp_path / "shared"
         path.write_text("x")
+        if sys.platform != "win32":  # OPS-03: the Linux container run tests the same boundary with mode bits
+            os.chmod(path, 0o644)  # group and other: read
+            with pytest.raises(CredentialFileRefused, match="not owner-only"):
+                verify_owner_only(path)
+            os.chmod(path, 0o600)
+            verify_owner_only(path)
+            return
         subprocess.run(["icacls", str(path), "/inheritance:r", "/grant:r", f"{os.environ['USERNAME']}:F",
                         "/grant", "*S-1-1-0:R"], check=True, capture_output=True)  # Everyone: read
         with pytest.raises(CredentialFileRefused, match="another account"):

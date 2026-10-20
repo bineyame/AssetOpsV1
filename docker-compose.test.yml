@@ -1,0 +1,36 @@
+# OPS-03: one-shot runner for the full backend suite inside the Compose network.
+#
+# Use only through tools/run-backend-suite-in-container.ps1, which sets the
+# required variables below and never prints the database URL or password:
+#   ASSETOPS_WORKTREE                     absolute host path of the worktree, bind-mounted at /workspace
+#   ASSETOPS_CONTAINER_TEST_DATABASE_URL  postgresql+psycopg://assetops:<encoded password>@postgres:5432/assetops_test
+#   OPS03_RUN_ID                          the run directory name under var/test-results/OPS-03/
+#
+# The runner reaches Postgres by its service name on the project default network
+# (never the Windows port forward), publishes no ports, and is never started by
+# a plain `docker compose up` (profile `test`).
+services:
+  backend-test-runner:
+    image: python:3.12.7-slim-bookworm
+    profiles: [test]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    working_dir: /workspace
+    command: ["sh", "/workspace/tools/run-backend-suite-in-container.sh"]
+    environment:
+      VIRTUAL_ENV: /opt/assetops-venv
+      PATH: /opt/assetops-venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONPATH: /workspace/backend:/workspace/contracts:/workspace/simulator:/workspace/gateway:/workspace/host
+      ASSETOPS_TEST_DATABASE_URL: ${ASSETOPS_CONTAINER_TEST_DATABASE_URL:?set by tools/run-backend-suite-in-container.ps1}
+      OPS03_RUN_ID: ${OPS03_RUN_ID:?set by tools/run-backend-suite-in-container.ps1}
+    volumes:
+      - type: bind
+        source: ${ASSETOPS_WORKTREE:?set by tools/run-backend-suite-in-container.ps1}
+        target: /workspace
+      - assetops-test-venv:/opt/assetops-venv
+      - assetops-test-pip-cache:/root/.cache/pip
+volumes:
+  assetops-test-venv:
+  assetops-test-pip-cache:
