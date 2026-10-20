@@ -245,6 +245,14 @@ def test_persisted_ev_class_disagreement_unknown(kit, store, engine, tmp_path) -
     estate = public.ev_selected(tenant, site, plain, selected, sp.AUTHORED_DEMONSTRATION, detail=False)
     assert sorted(estate) == [k for k in PUBLIC_KEYS if k != "detail"]
 
+    # The same adapter on one caller connection (the cold/EV snapshot path) gives the identical DTO.
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
+    from assetops_backend.evidence.public_provenance import LinkRowsReads
+
+    with engine.connect() as c:
+        on_c = PublicProvenance(LinkRowsReads(lambda t, s, ids: link_rows_on(c, t, s, ids)))
+        assert on_c.ev_selected(tenant, site, plain, selected, sp.AUTHORED_DEMONSTRATION) == both
+
 
 def test_w1_revision_selection_sets_and_estate_projection(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
     """Run 1 rulings 2 and 6 on a real W1 Finding and consequence: the default selected sets are

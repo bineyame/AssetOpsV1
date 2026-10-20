@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, Iterable, Mapping
+from typing import Any, Callable, Iterable, Mapping
 from uuid import UUID
 
 from assetops_backend.evidence.source_provenance import (
@@ -209,6 +209,26 @@ def dual_blocks(selected: Mapping[str, Any] | None, pending: Mapping[str, Any] |
     return {"source_provenance": dict(alias),
             "selected_source_provenance": None if selected is None else dict(selected),
             "pending_source_provenance": None if pending is None else dict(pending)}
+
+
+class LinkRowsReads:
+    """A `ProvenanceReads` over one link-row callable, for set-only reads (`cited_set`, `ev_selected`) inside a
+    caller's transaction: e.g. `LinkRowsReads(lambda t, s, ids: link_rows_on(c, t, s, ids))` on the cold/EV
+    snapshot connection `c`. Revision reads are not available through it and raise."""
+
+    def __init__(self, link_rows: Callable[[UUID, UUID, list[str]], Iterable[LinkRow]]) -> None:
+        self._link_rows = link_rows
+
+    def link_rows(self, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[LinkRow]:
+        return list(self._link_rows(tenant_id, site_id, evidence_ids))
+
+    def finding_revision_evidence(self, tenant_id: UUID, site_id: UUID,
+                                  finding_revision_id: UUID) -> list[str] | None:
+        raise NotImplementedError("LinkRowsReads serves set-only reads; pass the ledger reads for revisions.")
+
+    def consequence_inputs(self, tenant_id: UUID, site_id: UUID, consequence_revision_id: UUID
+                           ) -> tuple[str, list[str], list[str]] | None:
+        raise NotImplementedError("LinkRowsReads serves set-only reads; pass the ledger reads for revisions.")
 
 
 class _RecordingReads:
