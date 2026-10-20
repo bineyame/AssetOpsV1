@@ -150,3 +150,40 @@ estate core needs the answer; the prerequisite API serves either.
    (`test_action_event_and_verification_counts_full_basis` pins 0 and is marked q9). The spec text reads "a frozen
    verification window and no terminal outcome". Options: (a) keep as built; (b) match by origin Finding with any
    selected revision; (c) also drop the open-window requirement (any frozen, unresolved plan).
+
+## q10 (Lane B golden manifest, 2026-10-20)
+
+Built: `backend/tests/fixtures/w3/w301-estate-golden.json` (`w301-estate-golden/2`) and
+`backend/tests/test_w301_estate_golden_postgres.py::test_w301_golden_manifest_public_replay` (parametrized
+`mini_grid`, `cold`, `ev`; each its own private DB). `mixed` ships `cases: []`, asserted by the validator.
+
+1. **Mixed branch: one private DB is not reachable with the existing fixtures (blocking for `mixed`).**
+   `test_w202_cold_replay_postgres.py:174-177` and `test_w205b_ev_replay_postgres.py:236-239` call
+   `pg_harness.fresh_database()` inside `Chain.open()` (drops/recreates the DB), and the mini-grid `store` fixture
+   (`test_s1_bindings_postgres.py:81-82`) empties `site`/`site_import`/`tenant`. Any second chain wipes the first,
+   so the three Sites cannot coexist without changing fixture behaviour. All three use tenant slug `demo`, so one
+   tenant is possible. Options: (a) a test-scoped `Chain` subclass / `fresh_database` no-op after the first open
+   (cold, then EV, then the S4 runner on the same engine, no `store` truncation), owned by Lane B in the golden
+   file; (b) a shared harness change to the W2 chains (`open(fresh=False)`), outside Lane B; (c) keep `mixed`
+   empty and rely on the per-branch partial cases. Not built until ruled.
+2. **Replay paths are not replay inputs (reading).** `contract-fixtures/w2/cold/normal.json` and
+   `contract-fixtures/w2/ev/complete.json` are pinned expected manifests; the chains generate evidence from
+   their scenario. The test maps each path's stem to the chain case (`normal`, `complete`). The mini-grid has no
+   contract-fixture replay; its `replay_paths` is `backend/conversions/s4-finding-cases-v1.json` (the S4 case
+   source `run_case` replays). Both `normal` and `complete` select windows with **zero** Findings at
+   2026-10-06, so cold/EV cover the complete-empty, unknown, partial, historical, scope and NOT_APPLICABLE cases;
+   rows, cursor/page two, changed-cursor, recurrence/withdrawal and pending live in `mini_grid`.
+3. **Cases with no natural replay (reading).** No branch's replay produces `STALE_SOURCE`, `LEASED` or `FAILED`
+   without fabricating rows; `pending` is covered (`kobo-late-accepted-delivery`, `PENDING_RECOMPUTE`,
+   `job_state: PENDING`). Confirm, or name a replay (for example cold `missing-probe`, outside the q9 path
+   literal) to add as a further branch case.
+4. **Public basis for `$public` and the token rebuild (reading).** Site IDs resolve from `/api/estate/scope`;
+   Finding/Action IDs, links and provenance from a separate unpaged, unfiltered estate read of the same
+   root/window/cutoff (no Site-level finding-index/cold/EV routers are mounted). The `estate-selection/2` rebuild
+   is an independent canonicalizer; scalars and Finding/event IDs come from the public rows/coverage, while the
+   six-digit watermark and the four basis arrays come from the estate snapshot's `evidence_cutoff`,
+   `selected_windows`, `dispatch_days`, `finding_lineage`, `consequence` and `action_basis` reads at the same
+   cutoff (the wire carries neither). Cold/EV reads pin the snapshot `read_at` to a frozen DB-clock instant so a
+   default cutoff is a known six-digit value. A changed-cursor case's expected is the literal
+   `{"refusal": {"code": "ESTATE_BASIS_CHANGED", "status": 409}}`, outside the q9 200-body shape. Coverage Sites keep
+   the wire `match_state` beside the projected keys (whole-response comparison). Confirm or rule otherwise.

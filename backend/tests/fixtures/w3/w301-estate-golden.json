@@ -1,0 +1,2654 @@
+{
+  "branches": {
+    "cold": {
+      "cases": [
+        {
+          "expected": {
+            "access_basis": {
+              "$digest": "estate-access/1"
+            },
+            "authorized_site_count": 1,
+            "covered_site_count": 1,
+            "known_at": {
+              "$derive": "wire_second",
+              "from": "clock.read"
+            },
+            "schema_version": "estate-scope-1",
+            "sites": [
+              {
+                "coverage_state": "CURRENT",
+                "site_code": "COLD-LAB-001",
+                "site_id": {
+                  "$public": "site:COLD-LAB-001"
+                },
+                "site_name": "Cold replay lab"
+              }
+            ]
+          },
+          "name": "scope-current",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "scope",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "cold-normal-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:COLD-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:COLD-LAB-001"
+                  },
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 0,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-day-current",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "cold-normal-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:COLD-LAB-001"
+                  },
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "UNKNOWN"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 0,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-08T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-09T00:00:00Z"
+            }
+          },
+          "name": "findings-outside-unknown",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-08T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-09T00:00:00Z"
+          },
+          "setup": "cold-normal-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:COLD-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:COLD-LAB-001"
+                  },
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "risks",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 0,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-risks-lens-empty",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": "risks",
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "cold-normal-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": null,
+                  "job_state": "NOT_APPLICABLE",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": null,
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "NOT_APPLICABLE"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "next_cursor": null,
+            "order": "created_at desc, action_id asc",
+            "rows": [],
+            "schema_version": "estate-action-index-1",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "status": "CURRENT",
+            "summary": {
+              "basis_count": 0,
+              "due_overdue": null,
+              "open_actions": 0,
+              "verification_window": 0,
+              "verified_in_30_days": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "actions-not-applicable",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "actions",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "cold-normal-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:COLD-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:COLD-LAB-001"
+                  },
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "HISTORICAL"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "HISTORICAL",
+            "summary": {
+              "as_of": {
+                "$derive": "wire_second",
+                "from": "clock.cold-normal-settled"
+              },
+              "awaiting_verification": 0,
+              "basis_count": 0,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.cold-normal-settled"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-historical",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": {
+              "$derive": "six_digit_utc",
+              "from": "clock.cold-normal-settled"
+            },
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "clock-advance"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:COLD-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:COLD-LAB-001"
+                  },
+                  "site_code": "COLD-LAB-001",
+                  "site_id": {
+                    "$public": "site:COLD-LAB-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "W301-EMPTY-001",
+                  "site_id": {
+                    "$public": "site:W301-EMPTY-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "PARTIAL"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 2,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-partial-empty-site",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "add-empty-site-W301-EMPTY-001"
+        },
+        {
+          "expected": {
+            "access_basis": {
+              "$digest": "estate-access/1"
+            },
+            "authorized_site_count": 2,
+            "covered_site_count": 1,
+            "known_at": {
+              "$derive": "wire_second",
+              "from": "clock.read"
+            },
+            "schema_version": "estate-scope-1",
+            "sites": [
+              {
+                "coverage_state": "CURRENT",
+                "site_code": "COLD-LAB-001",
+                "site_id": {
+                  "$public": "site:COLD-LAB-001"
+                },
+                "site_name": "Cold replay lab"
+              },
+              {
+                "coverage_state": "UNKNOWN",
+                "site_code": "W301-EMPTY-001",
+                "site_id": {
+                  "$public": "site:W301-EMPTY-001"
+                },
+                "site_name": "Empty test Site"
+              }
+            ]
+          },
+          "name": "scope-partial-empty-site",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "scope",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "add-empty-site-W301-EMPTY-001"
+        }
+      ],
+      "replay_paths": [
+        "contract-fixtures/w2/cold/normal.json"
+      ],
+      "site_codes": [
+        "COLD-LAB-001",
+        "W301-EMPTY-001"
+      ]
+    },
+    "ev": {
+      "cases": [
+        {
+          "expected": {
+            "access_basis": {
+              "$digest": "estate-access/1"
+            },
+            "authorized_site_count": 1,
+            "covered_site_count": 1,
+            "known_at": {
+              "$derive": "wire_second",
+              "from": "clock.read"
+            },
+            "schema_version": "estate-scope-1",
+            "sites": [
+              {
+                "coverage_state": "CURRENT",
+                "site_code": "EV-LAB-001",
+                "site_id": {
+                  "$public": "site:EV-LAB-001"
+                },
+                "site_name": "EV charging lab"
+              }
+            ]
+          },
+          "name": "scope-current",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "scope",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "ev-complete-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:EV-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:EV-LAB-001"
+                  },
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 0,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-day-current",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "ev-complete-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:EV-LAB-001"
+                  },
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "UNKNOWN"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 0,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-09T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-10T00:00:00Z"
+            }
+          },
+          "name": "findings-outside-unknown",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-09T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-10T00:00:00Z"
+          },
+          "setup": "ev-complete-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:EV-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:EV-LAB-001"
+                  },
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "risks",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 0,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-risks-lens-empty",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": "risks",
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "ev-complete-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": null,
+                  "job_state": "NOT_APPLICABLE",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": null,
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "NOT_APPLICABLE"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "next_cursor": null,
+            "order": "created_at desc, action_id asc",
+            "rows": [],
+            "schema_version": "estate-action-index-1",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "status": "CURRENT",
+            "summary": {
+              "basis_count": 0,
+              "due_overdue": null,
+              "open_actions": 0,
+              "verification_window": 0,
+              "verified_in_30_days": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "actions-not-applicable",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "actions",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "ev-complete-settled"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:EV-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:EV-LAB-001"
+                  },
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "HISTORICAL"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "HISTORICAL",
+            "summary": {
+              "as_of": {
+                "$derive": "wire_second",
+                "from": "clock.ev-complete-settled"
+              },
+              "awaiting_verification": 0,
+              "basis_count": 0,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.ev-complete-settled"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-historical",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": {
+              "$derive": "six_digit_utc",
+              "from": "clock.ev-complete-settled"
+            },
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "clock-advance"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": {
+                    "$derive": "wire_second",
+                    "from": "watermark:EV-LAB-001"
+                  },
+                  "job_state": "SETTLED",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": {
+                    "$public": "selection:EV-LAB-001"
+                  },
+                  "site_code": "EV-LAB-001",
+                  "site_id": {
+                    "$public": "site:EV-LAB-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "CURRENT"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "W301-EMPTY-001",
+                  "site_id": {
+                    "$public": "site:W301-EMPTY-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "PARTIAL"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 2,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-06T00:00:00Z",
+              "known_at": {
+                "$derive": "wire_second",
+                "from": "clock.read"
+              },
+              "to": "2026-10-07T00:00:00Z"
+            }
+          },
+          "name": "findings-partial-empty-site",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "add-empty-site-W301-EMPTY-001"
+        },
+        {
+          "expected": {
+            "access_basis": {
+              "$digest": "estate-access/1"
+            },
+            "authorized_site_count": 2,
+            "covered_site_count": 1,
+            "known_at": {
+              "$derive": "wire_second",
+              "from": "clock.read"
+            },
+            "schema_version": "estate-scope-1",
+            "sites": [
+              {
+                "coverage_state": "CURRENT",
+                "site_code": "EV-LAB-001",
+                "site_id": {
+                  "$public": "site:EV-LAB-001"
+                },
+                "site_name": "EV charging lab"
+              },
+              {
+                "coverage_state": "UNKNOWN",
+                "site_code": "W301-EMPTY-001",
+                "site_id": {
+                  "$public": "site:W301-EMPTY-001"
+                },
+                "site_name": "Empty test Site"
+              }
+            ]
+          },
+          "name": "scope-partial-empty-site",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-06T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "scope",
+            "state_filter": null,
+            "to": "2026-10-07T00:00:00Z"
+          },
+          "setup": "add-empty-site-W301-EMPTY-001"
+        }
+      ],
+      "replay_paths": [
+        "contract-fixtures/w2/ev/complete.json"
+      ],
+      "site_codes": [
+        "EV-LAB-001",
+        "W301-EMPTY-001"
+      ]
+    },
+    "mini_grid": {
+      "cases": [
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T09:30:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              },
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T08:00:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 2,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 2
+            },
+            "total_count": 2,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-11T00:00:00Z",
+              "known_at": "2026-10-30T10:03:00Z",
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "recurrence-two-findings",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "kobo-s4-F03-recurrence"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": {
+              "$derive": "checked_cursor",
+              "from": "self.next_cursor"
+            },
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T09:30:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 2,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 2
+            },
+            "total_count": 2,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-11T00:00:00Z",
+              "known_at": "2026-10-30T10:03:00Z",
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "recurrence-page-one",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 1,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "kobo-s4-F03-recurrence"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T08:00:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 2,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 2
+            },
+            "total_count": 2,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-11T00:00:00Z",
+              "known_at": "2026-10-30T10:03:00Z",
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "recurrence-page-two",
+          "request": {
+            "cursor": {
+              "$derive": "page_two_cursor",
+              "from": "recurrence-page-one"
+            },
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 1,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "kobo-s4-F03-recurrence"
+        },
+        {
+          "expected": {
+            "access_basis": {
+              "$digest": "estate-access/1"
+            },
+            "authorized_site_count": 1,
+            "covered_site_count": 1,
+            "known_at": "2026-10-30T10:03:00Z",
+            "schema_version": "estate-scope-1",
+            "sites": [
+              {
+                "coverage_state": "CURRENT",
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid"
+              }
+            ]
+          },
+          "name": "scope-current",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "scope",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "kobo-s4-F03-recurrence"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": null,
+                  "job_state": "NOT_APPLICABLE",
+                  "match_state": "NOT_APPLICABLE",
+                  "selection_id": null,
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "NOT_APPLICABLE",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "next_cursor": null,
+            "order": "created_at desc, action_id asc",
+            "rows": [],
+            "schema_version": "estate-action-index-1",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "status": "CURRENT",
+            "summary": {
+              "basis_count": 0,
+              "due_overdue": null,
+              "open_actions": 0,
+              "verification_window": 0,
+              "verified_in_30_days": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-11T00:00:00Z",
+              "known_at": "2026-10-30T10:03:00Z",
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "actions-none-complete",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "actions",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "kobo-s4-F03-recurrence"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "UNKNOWN"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 0,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-12T00:00:00Z",
+              "known_at": "2026-10-30T10:03:00Z",
+              "to": "2026-10-13T00:00:00Z"
+            }
+          },
+          "name": "day-without-assessment-unknown",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-12T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-13T00:00:00Z"
+          },
+          "setup": "kobo-s4-F03-recurrence"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T15:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-21T08:00:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-21T08:00:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "NO_LONGER_SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-21T08:00:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support candidate no longer supported (not a repair or a saving)"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 1,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 1,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-21T00:00:00Z",
+              "known_at": "2026-10-30T15:25:00Z",
+              "to": "2026-10-22T00:00:00Z"
+            }
+          },
+          "name": "withdrawal-no-longer-supported",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-21T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-22T00:00:00Z"
+          },
+          "setup": "kobo-s4-F05-withdrawal"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T15:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "supported",
+            "status": "CURRENT",
+            "summary": {
+              "awaiting_verification": 0,
+              "basis_count": 1,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 0,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-21T00:00:00Z",
+              "known_at": "2026-10-30T15:25:00Z",
+              "to": "2026-10-22T00:00:00Z"
+            }
+          },
+          "name": "withdrawal-supported-filter-empty",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-21T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": "supported",
+            "to": "2026-10-22T00:00:00Z"
+          },
+          "setup": "kobo-s4-F05-withdrawal"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "HISTORICAL"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T09:30:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "HISTORICAL",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              },
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T08:00:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "HISTORICAL",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "HISTORICAL",
+            "summary": {
+              "as_of": "2026-10-30T10:03:00Z",
+              "awaiting_verification": 0,
+              "basis_count": 2,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 2
+            },
+            "total_count": 2,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-11T00:00:00Z",
+              "known_at": "2026-10-30T10:03:00Z",
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "recurrence-historical-after-withdrawal",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": {
+              "$derive": "six_digit_utc",
+              "from": "clock.kobo-s4-F03-recurrence"
+            },
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "kobo-s4-F05-withdrawal"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T10:00:00Z",
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "UNKNOWN"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 0,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "HISTORICAL",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-21T00:00:00Z",
+              "known_at": "2026-10-30T10:03:00Z",
+              "to": "2026-10-22T00:00:00Z"
+            }
+          },
+          "name": "withdrawal-day-before-selection-unknown",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-21T00:00:00Z",
+            "known_at": {
+              "$derive": "six_digit_utc",
+              "from": "clock.kobo-s4-F03-recurrence"
+            },
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-22T00:00:00Z"
+          },
+          "setup": "kobo-s4-F05-withdrawal"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T16:00:00Z",
+                  "job_state": "PENDING",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "STALE",
+                  "state": "PENDING_RECOMPUTE"
+                }
+              ],
+              "state": "UNKNOWN"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 0,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "PENDING_RECOMPUTE",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-21T00:00:00Z",
+              "known_at": "2026-10-30T16:01:00Z",
+              "to": "2026-10-22T00:00:00Z"
+            }
+          },
+          "name": "late-evidence-pending",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-21T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-22T00:00:00Z"
+          },
+          "setup": "kobo-late-accepted-delivery"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T15:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "HISTORICAL"
+                }
+              ],
+              "state": "COMPLETE"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-21T08:00:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-21T08:00:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-21T08:00:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "NO_LONGER_SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-21T08:00:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-21T08:00:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "HISTORICAL",
+                "title": "Generator support candidate no longer supported (not a repair or a saving)"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 1,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "HISTORICAL",
+            "summary": {
+              "as_of": "2026-10-30T15:25:00Z",
+              "awaiting_verification": 0,
+              "basis_count": 1,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": 0
+            },
+            "total_count": 1,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-21T00:00:00Z",
+              "known_at": "2026-10-30T15:25:00Z",
+              "to": "2026-10-22T00:00:00Z"
+            }
+          },
+          "name": "late-evidence-historical-held",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-21T00:00:00Z",
+            "known_at": {
+              "$derive": "six_digit_utc",
+              "from": "clock.kobo-s4-F05-withdrawal"
+            },
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-22T00:00:00Z"
+          },
+          "setup": "kobo-late-accepted-delivery"
+        },
+        {
+          "expected": {
+            "coverage": {
+              "sites": [
+                {
+                  "committed_watermark": "2026-10-30T16:00:00Z",
+                  "job_state": "SETTLED",
+                  "match_state": "COMPLETE",
+                  "selection_id": {
+                    "$public": "selection:KOBO-001"
+                  },
+                  "site_code": "KOBO-001",
+                  "site_id": {
+                    "$public": "site:KOBO-001"
+                  },
+                  "source_freshness": "RECENT",
+                  "state": "CURRENT"
+                },
+                {
+                  "committed_watermark": null,
+                  "job_state": "NONE",
+                  "match_state": "MISSING",
+                  "selection_id": null,
+                  "site_code": "W301-EMPTY-001",
+                  "site_id": {
+                    "$public": "site:W301-EMPTY-001"
+                  },
+                  "source_freshness": "UNKNOWN",
+                  "state": "UNKNOWN"
+                }
+              ],
+              "state": "PARTIAL"
+            },
+            "lens": "all",
+            "next_cursor": null,
+            "order": "episode_start desc, finding_id asc",
+            "rows": [
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T09:30:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T09:30:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T09:30:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T09:30:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              },
+              {
+                "confidence": null,
+                "confidence_reasons": [],
+                "consequence": {
+                  "amount": null,
+                  "amount_high": null,
+                  "amount_low": null,
+                  "currency": null,
+                  "source_revision_id": null,
+                  "state": "UNPRICED"
+                },
+                "episode_start": "2026-10-11T08:00:00Z",
+                "finding_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_id"
+                },
+                "finding_label": {
+                  "$derive": "finding_label",
+                  "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                },
+                "finding_revision_id": {
+                  "$public": "KOBO-001@2026-10-11T08:00:00Z#0.finding_revision_id"
+                },
+                "lens_flags": [],
+                "lifecycle": "SUPPORTED",
+                "links": {
+                  "finding": {
+                    "$derive": "finding_link",
+                    "from": "KOBO-001@2026-10-11T08:00:00Z#0"
+                  },
+                  "site": "/sites/KOBO-001"
+                },
+                "priority": null,
+                "site_code": "KOBO-001",
+                "site_id": {
+                  "$public": "site:KOBO-001"
+                },
+                "site_name": "Kobo mini-grid",
+                "source_provenance": {
+                  "basis_sha256": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.basis_sha256"
+                  },
+                  "classification": "UNKNOWN",
+                  "evidence_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.evidence_ids"
+                  },
+                  "reasons": [
+                    {
+                      "accepted_evidence_ids": {
+                        "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.reasons[0].accepted_evidence_ids"
+                      },
+                      "code": "NO_POSITIVE_BINDING"
+                    }
+                  ],
+                  "source_ids": {
+                    "$public": "KOBO-001@2026-10-11T08:00:00Z#0.provenance.source_ids"
+                  },
+                  "state": "UNKNOWN"
+                },
+                "status": "CURRENT",
+                "title": "Generator support merits review: bounded candidate avoidable running"
+              }
+            ],
+            "schema_version": "estate-finding-index-2",
+            "scope": {
+              "access_basis": {
+                "$digest": "estate-access/1"
+              },
+              "authorized_site_count": 2,
+              "covered_site_count": 1,
+              "tenant_id": {
+                "$public": "tenant"
+              }
+            },
+            "selection_token": {
+              "$digest": "estate-selection/2"
+            },
+            "state_filter": "all",
+            "status": "UNKNOWN",
+            "summary": {
+              "awaiting_verification": null,
+              "basis_count": null,
+              "high_priority": null,
+              "low_confidence": null,
+              "supported_findings": null
+            },
+            "total_count": null,
+            "window": {
+              "bounds": "[from, to)",
+              "from": "2026-10-11T00:00:00Z",
+              "known_at": "2026-10-30T16:01:00Z",
+              "to": "2026-10-12T00:00:00Z"
+            }
+          },
+          "name": "findings-partial-empty-site",
+          "request": {
+            "cursor": null,
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 50,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "add-empty-site-W301-EMPTY-001"
+        },
+        {
+          "expected": {
+            "refusal": {
+              "code": "ESTATE_BASIS_CHANGED",
+              "status": 409
+            }
+          },
+          "name": "changed-cursor-grant",
+          "request": {
+            "cursor": {
+              "$derive": "page_two_cursor",
+              "from": "recurrence-page-one"
+            },
+            "from": "2026-10-11T00:00:00Z",
+            "known_at": null,
+            "lens": null,
+            "limit": 1,
+            "root": "findings",
+            "state_filter": null,
+            "to": "2026-10-12T00:00:00Z"
+          },
+          "setup": "add-empty-site-W301-EMPTY-001"
+        }
+      ],
+      "replay_paths": [
+        "backend/conversions/s4-finding-cases-v1.json"
+      ],
+      "site_codes": [
+        "KOBO-001",
+        "W301-EMPTY-001"
+      ]
+    },
+    "mixed": {
+      "cases": [],
+      "replay_paths": [
+        "backend/conversions/s4-finding-cases-v1.json",
+        "contract-fixtures/w2/cold/normal.json",
+        "contract-fixtures/w2/ev/complete.json"
+      ],
+      "site_codes": [
+        "KOBO-001",
+        "COLD-LAB-001",
+        "EV-LAB-001",
+        "W301-EMPTY-001"
+      ]
+    }
+  },
+  "schema": "w301-estate-golden/2"
+}
