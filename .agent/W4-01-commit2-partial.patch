@@ -1,0 +1,1552 @@
+diff --git a/backend/assetops_backend/work/__init__.py b/backend/assetops_backend/work/__init__.py
+new file mode 100644
+index 00000000..53d85570
+--- /dev/null
++++ b/backend/assetops_backend/work/__init__.py
+@@ -0,0 +1 @@
++"""W4-01: authored work cases (Incident, MaintenanceWorkRequest), plans, records and operational records."""
+diff --git a/backend/assetops_backend/work/adapters/__init__.py b/backend/assetops_backend/work/adapters/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/backend/assetops_backend/work/adapters/postgres_work_store.py b/backend/assetops_backend/work/adapters/postgres_work_store.py
+new file mode 100644
+index 00000000..f9c4c8c5
+--- /dev/null
++++ b/backend/assetops_backend/work/adapters/postgres_work_store.py
+@@ -0,0 +1,310 @@
++"""W4-01 commit 2: the sole runtime writer of the eleven migration-0027 work tables (rule 8, `$workWriter`).
++
++INSERT-only: every work row is append-only (0027 triggers refuse UPDATE/DELETE), so this module never updates,
++deletes, upserts, truncates or runs DDL. Each command runs in one SERIALIZABLE transaction on one connection
++(`transaction`), using DB time (`recorded_at` defaults to `clock_timestamp()`); every read is scoped by tenant and
++Site. A serialization failure re-runs the whole command (bounded); exhaustion or a lost store is
++`WorkStoreUnavailable`. A unique violation from a concurrent duplicate submission or successor is a refusal, so
++nothing partial commits.
++"""
++
++from __future__ import annotations
++
++import json
++from datetime import datetime
++from typing import Any, Callable
++from uuid import UUID
++
++from sqlalchemy import create_engine, text
++from sqlalchemy.engine import Connection, Engine
++from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
++
++from assetops_backend.work.model import WorkRefused, WorkStoreUnavailable
++
++SERIALIZATION_ATTEMPTS = 3
++_SUCCESSOR_CONSTRAINTS = ("work_revision_one_successor", "work_revision_number", "maintenance_plan_one_successor",
++                          "operational_record_one_successor")
++
++_CASE_COLS = ("id, kind, public_no, public_code, asset_id, occurred_at, created_at, actor_kind, actor_id, "
++              "authorization_basis, attestation, create_key, create_payload_sha256")
++_REVISION_COLS = ("id, case_id, revision_no, supersedes_revision_id, title, narrative, actor_kind, actor_id, "
++                  "attestation, authorization_basis, occurred_at, idempotency_key, payload_sha256, reason, recorded_at")
++_EVENT_COLS = ("id, case_id, kind, payload, occurred_at, recorded_at, actor_kind, actor_id, authorization_basis, "
++               "attestation, idempotency_key, payload_sha256")
++_RECORD_COLS = ("id, case_id, supersedes_record_id, activity, outcome_note, occurred_at, recorded_at, actor_id, "
++                "actor_kind, authorization_basis, attestation, idempotency_key, payload_sha256")
++_LINEAGE = {"maintenance_plan": "canonical_plan_id", "operational_record": "canonical_record_id"}
++
++
++def _rows(result) -> list[dict[str, Any]]:
++    return [dict(r._mapping) for r in result]
++
++
++def _one(result) -> dict[str, Any] | None:
++    row = result.first()
++    return None if row is None else dict(row._mapping)
++
++
++class _Tx:
++    """One command's scoped transaction: reads and INSERTs on the caller's connection."""
++
++    def __init__(self, c: Connection, tenant_id: UUID, site_id: UUID,
++                 link_rows: Callable[[Connection, UUID, UUID, list[str]], list[Any]] | None) -> None:
++        self._c, self._t, self._s, self._link_rows = c, tenant_id, site_id, link_rows
++
++    def _p(self, **extra: Any) -> dict[str, Any]:
++        return {"t": self._t, "s": self._s, **extra}
++
++    # ---- reads ---------------------------------------------------------------------------------------------
++
++    def db_now(self) -> datetime:
++        return self._c.execute(text("SELECT clock_timestamp()")).scalar_one()
++
++    def next_public_no(self) -> int:
++        return int(self._c.execute(text("SELECT nextval('work_public_no_seq')")).scalar_one())
++
++    def case_by_create_key(self, key: str) -> dict[str, Any] | None:
++        return _one(self._c.execute(text(f"SELECT {_CASE_COLS} FROM work_case WHERE tenant_id = :t AND site_id = :s "
++                                         "AND create_key = :k"), self._p(k=key)))
++
++    def case(self, case_id: str) -> dict[str, Any] | None:
++        return _one(self._c.execute(text(f"SELECT {_CASE_COLS} FROM work_case WHERE tenant_id = :t AND site_id = :s "
++                                         "AND id = :i"), self._p(i=case_id)))
++
++    def lock_case(self, case_id: str) -> dict[str, Any] | None:
++        """The case root row under a row lock: corrections and events on one case are serialized (linear chain)."""
++        return _one(self._c.execute(text(f"SELECT {_CASE_COLS} FROM work_case WHERE tenant_id = :t AND site_id = :s "
++                                         "AND id = :i FOR UPDATE"), self._p(i=case_id)))
++
++    def revisions(self, case_id: str) -> list[dict[str, Any]]:
++        return _rows(self._c.execute(text(f"SELECT {_REVISION_COLS} FROM work_case_revision WHERE tenant_id = :t "
++                                          "AND site_id = :s AND case_id = :i ORDER BY revision_no"),
++                                     self._p(i=case_id)))
++
++    def events(self, case_id: str) -> list[dict[str, Any]]:
++        return _rows(self._c.execute(text(f"SELECT {_EVENT_COLS} FROM work_event WHERE tenant_id = :t "
++                                          "AND site_id = :s AND case_id = :i ORDER BY recorded_at, id"),
++                                     self._p(i=case_id)))
++
++    def revision_links(self, revision_id: str) -> dict[str, Any]:
++        p = self._p(r=revision_id)
++        finding = self._c.execute(text(
++            "SELECT CAST(finding_id AS text) AS finding_id, CAST(finding_revision_id AS text) AS finding_revision_id "
++            "FROM work_case_finding_link WHERE tenant_id = :t AND site_id = :s AND case_revision_id = :r "
++            "ORDER BY finding_id, finding_revision_id"), p)
++        action = self._c.execute(text(
++            "SELECT CAST(action_id AS text) AS action_id, CAST(action_event_id AS text) AS action_event_id "
++            "FROM work_case_action_link WHERE tenant_id = :t AND site_id = :s AND case_revision_id = :r "
++            "ORDER BY action_id, action_event_id"), p)
++        evidence = self._c.execute(text(
++            "SELECT CAST(evidence_id AS text) FROM work_case_evidence WHERE tenant_id = :t AND site_id = :s "
++            "AND case_revision_id = :r ORDER BY evidence_id"), p)
++        return {"finding_links": _rows(finding), "action_links": _rows(action), "evidence_ids": list(evidence.scalars())}
++
++    def latest_record(self, case_id: str, upto: datetime) -> dict[str, Any] | None:
++        return _one(self._c.execute(text(
++            f"SELECT {_RECORD_COLS} FROM maintenance_record WHERE tenant_id = :t AND site_id = :s AND case_id = :i "
++            "AND recorded_at <= :u ORDER BY recorded_at DESC, id DESC LIMIT 1"), self._p(i=case_id, u=upto)))
++
++    def lineage_evidence(self, finding_revision_ids: list[str], action_ids: list[str]) -> list[str]:
++        """Q11: pinned Finding revisions' cited evidence, each pinned Action's basis evidence and its origin
++        Finding revision's cited evidence, all scoped to this tenant/Site."""
++        p = self._p(r=list(finding_revision_ids), a=list(action_ids))
++        return list(self._c.execute(text(
++            "SELECT CAST(evidence_id AS text) FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s "
++            "AND finding_revision_id = ANY(CAST(:r AS uuid[])) "
++            "UNION SELECT CAST(evidence_id AS text) FROM action_basis_evidence WHERE tenant_id = :t "
++            "AND site_id = :s AND action_id = ANY(CAST(:a AS uuid[])) "
++            "UNION SELECT CAST(e.evidence_id AS text) FROM action a JOIN finding_revision_evidence e "
++            "ON e.tenant_id = a.tenant_id AND e.site_id = a.site_id AND e.finding_revision_id = a.origin_finding_revision_id "
++            "WHERE a.tenant_id = :t AND a.site_id = :s AND a.id = ANY(CAST(:a AS uuid[]))"), p).scalars())
++
++    def link_rows(self, evidence_ids: list[str]) -> list[Any]:
++        if self._link_rows is None:
++            raise WorkStoreUnavailable("The work store has no provenance link-row reader.")
++        return list(self._link_rows(self._c, self._t, self._s, evidence_ids))
++
++    def asset_in_scope(self, asset_id: str) -> bool:
++        return self._c.execute(text("SELECT 1 FROM asset WHERE tenant_id = :t AND site_id = :s AND id = :a"),
++                               self._p(a=asset_id)).first() is not None
++
++    def incident_in_scope(self, incident_id: str) -> bool:
++        return self._c.execute(text("SELECT 1 FROM incident WHERE tenant_id = :t AND site_id = :s AND id = :i"),
++                               self._p(i=incident_id)).first() is not None
++
++    def finding_pairs_in_scope(self, pairs: list[tuple[str, str]]) -> set[tuple[str, str]]:
++        rows = self._c.execute(text(
++            "SELECT CAST(finding_id AS text), CAST(id AS text) FROM finding_revision WHERE tenant_id = :t "
++            "AND site_id = :s AND id = ANY(CAST(:r AS uuid[]))"), self._p(r=[r for _, r in pairs]))
++        return {(f, r) for f, r in rows} & set(pairs)
++
++    def action_pairs_in_scope(self, pairs: list[tuple[str, str]]) -> set[tuple[str, str]]:
++        """Exact (Action, event) pairs whose event belongs to that Action, both in this tenant/Site."""
++        rows = self._c.execute(text(
++            "SELECT CAST(e.action_id AS text), CAST(e.id AS text) FROM action_event e JOIN action a "
++            "ON a.tenant_id = e.tenant_id AND a.site_id = e.site_id AND a.id = e.action_id "
++            "WHERE e.tenant_id = :t AND e.site_id = :s AND e.id = ANY(CAST(:e AS uuid[]))"),
++            self._p(e=[e for _, e in pairs]))
++        return {(a, e) for a, e in rows} & set(pairs)
++
++    def evidence_received(self, evidence_ids: list[str]) -> dict[str, datetime]:
++        rows = self._c.execute(text(
++            "SELECT CAST(id AS text), received_at FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s "
++            "AND id = ANY(CAST(:e AS uuid[]))"), self._p(e=list(evidence_ids)))
++        return {i: at for i, at in rows}
++
++    def record_in_case(self, case_id: str, record_id: str) -> bool:
++        return self._c.execute(text("SELECT 1 FROM maintenance_record WHERE tenant_id = :t AND site_id = :s "
++                                    "AND case_id = :c AND id = :r"), self._p(c=case_id, r=record_id)).first() is not None
++
++    def record_by_key(self, case_id: str, key: str) -> dict[str, Any] | None:
++        return _one(self._c.execute(text(f"SELECT {_RECORD_COLS} FROM maintenance_record WHERE tenant_id = :t "
++                                         "AND site_id = :s AND case_id = :c AND idempotency_key = :k"),
++                                    self._p(c=case_id, k=key)))
++
++    def lineage_by_key(self, table: str, key: str) -> dict[str, Any] | None:
++        assert table in _LINEAGE
++        return _one(self._c.execute(text(f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s "
++                                         "AND idempotency_key = :k"), self._p(k=key)))
++
++    def lineage_row(self, table: str, row_id: str) -> dict[str, Any] | None:
++        assert table in _LINEAGE
++        return _one(self._c.execute(text(f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s AND id = :i"),
++                                    self._p(i=row_id)))
++
++    def lock_root(self, table: str, root_id: str) -> dict[str, Any] | None:
++        """The canonical root under a row lock, or None if the ID is not a root of this tenant/Site."""
++        assert table in _LINEAGE
++        return _one(self._c.execute(text(f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s AND id = :i "
++                                         f"AND {_LINEAGE[table]} = id FOR UPDATE"), self._p(i=root_id)))
++
++    def lineage_head(self, table: str, root_id: str) -> dict[str, Any]:
++        assert table in _LINEAGE
++        return _one(self._c.execute(text(f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s "
++                                         f"AND {_LINEAGE[table]} = :i ORDER BY recorded_at DESC, id DESC LIMIT 1"),
++                                    self._p(i=root_id)))
++
++    # ---- INSERTs (one statement per table) -----------------------------------------------------------------
++
++    def insert_case(self, r: dict[str, Any]) -> None:
++        self._c.execute(text(
++            "INSERT INTO work_case (id, tenant_id, site_id, kind, public_no, public_code, asset_id, occurred_at, "
++            "actor_kind, actor_id, authorization_basis, attestation, create_key, create_payload_sha256) "
++            "VALUES (:id, :t, :s, :kind, :public_no, :public_code, :asset_id, :occurred_at, :actor_kind, :actor_id, "
++            ":authorization_basis, :attestation, :create_key, :create_payload_sha256)"), self._p(**r))
++
++    def insert_incident(self, case_id: str, key: str) -> None:
++        self._c.execute(text("INSERT INTO incident (tenant_id, site_id, id, incident_key) VALUES (:t, :s, :i, :k)"),
++                        self._p(i=case_id, k=key))
++
++    def insert_request(self, case_id: str, key: str, incident_id: str | None) -> None:
++        self._c.execute(text(
++            "INSERT INTO maintenance_work_request (tenant_id, site_id, id, request_key, incident_id) "
++            "VALUES (:t, :s, :i, :k, :n)"), self._p(i=case_id, k=key, n=incident_id))
++
++    def insert_revision(self, r: dict[str, Any]) -> None:
++        self._c.execute(text(
++            "INSERT INTO work_case_revision (id, tenant_id, site_id, case_id, revision_no, supersedes_revision_id, "
++            "title, narrative, actor_kind, actor_id, attestation, authorization_basis, occurred_at, idempotency_key, "
++            "payload_sha256, reason) VALUES (:id, :t, :s, :case_id, :revision_no, :supersedes_revision_id, :title, "
++            ":narrative, :actor_kind, :actor_id, :attestation, :authorization_basis, :occurred_at, :idempotency_key, "
++            ":payload_sha256, :reason)"), self._p(**r))
++
++    def insert_finding_link(self, revision_id: str, finding_id: str, finding_revision_id: str) -> None:
++        self._c.execute(text(
++            "INSERT INTO work_case_finding_link (tenant_id, site_id, case_revision_id, finding_id, finding_revision_id) "
++            "VALUES (:t, :s, :r, :f, :fr)"), self._p(r=revision_id, f=finding_id, fr=finding_revision_id))
++
++    def insert_action_link(self, revision_id: str, action_id: str, action_event_id: str) -> None:
++        self._c.execute(text(
++            "INSERT INTO work_case_action_link (tenant_id, site_id, case_revision_id, action_id, action_event_id) "
++            "VALUES (:t, :s, :r, :a, :e)"), self._p(r=revision_id, a=action_id, e=action_event_id))
++
++    def insert_case_evidence(self, revision_id: str, evidence_id: str) -> None:
++        self._c.execute(text(
++            "INSERT INTO work_case_evidence (tenant_id, site_id, case_revision_id, evidence_id) "
++            "VALUES (:t, :s, :r, :e)"), self._p(r=revision_id, e=evidence_id))
++
++    def insert_event(self, r: dict[str, Any]) -> None:
++        self._c.execute(text(
++            "INSERT INTO work_event (id, tenant_id, site_id, case_id, kind, payload, occurred_at, actor_kind, "
++            "actor_id, authorization_basis, attestation, idempotency_key, payload_sha256) VALUES (:id, :t, :s, "
++            ":case_id, :kind, CAST(:payload AS jsonb), :occurred_at, :actor_kind, :actor_id, :authorization_basis, "
++            ":attestation, :idempotency_key, :payload_sha256)"), self._p(**{**r, "payload": json.dumps(r["payload"])}))
++
++    def insert_record(self, r: dict[str, Any]) -> None:
++        self._c.execute(text(
++            "INSERT INTO maintenance_record (id, tenant_id, site_id, case_id, activity, outcome_note, occurred_at, "
++            "actor_id, actor_kind, authorization_basis, attestation, idempotency_key, payload_sha256) VALUES (:id, "
++            ":t, :s, :case_id, :activity, :outcome_note, :occurred_at, :actor_id, :actor_kind, :authorization_basis, "
++            ":attestation, :idempotency_key, :payload_sha256)"), self._p(**r))
++
++    def insert_plan(self, r: dict[str, Any]) -> None:
++        self._c.execute(text(
++            "INSERT INTO maintenance_plan (id, tenant_id, site_id, asset_id, public_no, public_code, "
++            "canonical_plan_id, title, trigger_kind, next_due_at, next_due_hours, state, supersedes_plan_id, "
++            "actor_id, actor_kind, authorization_basis, occurred_at, correction_reason, attestation, idempotency_key, "
++            "payload_sha256) VALUES (:id, :t, :s, :asset_id, :public_no, :public_code, :canonical_plan_id, :title, "
++            ":trigger_kind, :next_due_at, :next_due_hours, :state, :supersedes_plan_id, :actor_id, :actor_kind, "
++            ":authorization_basis, :occurred_at, :correction_reason, :attestation, :idempotency_key, "
++            ":payload_sha256)"), self._p(**r))
++
++    def insert_operational_record(self, r: dict[str, Any]) -> None:
++        self._c.execute(text(
++            "INSERT INTO operational_record (id, tenant_id, site_id, public_no, public_code, canonical_record_id, "
++            "kind, body, period_end, unit, quantity, source_document_sha256, correction_reason, state, "
++            "supersedes_record_id, case_id, occurred_at, actor_id, actor_kind, authorization_basis, attestation, "
++            "idempotency_key, payload_sha256) VALUES (:id, :t, :s, :public_no, :public_code, :canonical_record_id, "
++            ":kind, :body, :period_end, :unit, :quantity, :source_document_sha256, :correction_reason, :state, "
++            ":supersedes_record_id, :case_id, :occurred_at, :actor_id, :actor_kind, :authorization_basis, "
++            ":attestation, :idempotency_key, :payload_sha256)"), self._p(**r))
++
++
++class PostgresWorkStore:
++    def __init__(self, database_url: str | None, *,
++                 link_rows: Callable[[Connection, UUID, UUID, list[str]], list[Any]] | None = None,
++                 statement_timeout_ms: int = 30_000, lock_timeout_ms: int = 5_000) -> None:
++        self._database_url = database_url
++        self._link_rows = link_rows
++        self._options = f"-c statement_timeout={int(statement_timeout_ms)} -c lock_timeout={int(lock_timeout_ms)}"
++        self._engine: Engine | None = None
++
++    def _connect(self) -> Engine:
++        if not self._database_url:
++            raise WorkStoreUnavailable("DATABASE_URL is not set, so the work store cannot be reached.")
++        if self._engine is None:
++            self._engine = create_engine(self._database_url, pool_pre_ping=True,
++                                         connect_args={"options": self._options})
++        return self._engine
++
++    def dispose(self) -> None:
++        if self._engine is not None:
++            self._engine.dispose()
++            self._engine = None
++
++    def transaction(self, tenant_id: UUID, site_id: UUID, work: Callable[[_Tx], Any]) -> Any:
++        for attempt in range(SERIALIZATION_ATTEMPTS):
++            try:
++                with self._connect().begin() as c:
++                    c.execute(text("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE"))
++                    return work(_Tx(c, tenant_id, site_id, self._link_rows))
++            except IntegrityError as error:
++                if getattr(error.orig, "sqlstate", None) == "40001":
++                    continue
++                constraint = getattr(getattr(error.orig, "diag", None), "constraint_name", None)
++                if constraint in _SUCCESSOR_CONSTRAINTS:
++                    raise WorkRefused("WORK_CORRECTION_CONFLICT") from error
++                if constraint is not None and (constraint.endswith("_once") or constraint.endswith("_key_once")):
++                    raise WorkRefused("WORK_EVENT_DUPLICATE_KEY") from error
++                raise
++            except (OperationalError, ProgrammingError) as error:
++                if getattr(error.orig, "sqlstate", None) == "40001" and attempt + 1 < SERIALIZATION_ATTEMPTS:
++                    continue
++                raise WorkStoreUnavailable(f"The work store failed: {error.orig}") from error
++            except DBAPIError as error:
++                if getattr(error.orig, "sqlstate", None) == "40001" and attempt + 1 < SERIALIZATION_ATTEMPTS:
++                    continue
++                if error.connection_invalidated:
++                    raise WorkStoreUnavailable(str(error.orig)) from error
++                raise
++        raise WorkStoreUnavailable("The work store could not serialize this command.")
+diff --git a/backend/assetops_backend/work/composition.py b/backend/assetops_backend/work/composition.py
+new file mode 100644
+index 00000000..3344258f
+--- /dev/null
++++ b/backend/assetops_backend/work/composition.py
+@@ -0,0 +1,27 @@
++"""Composition for the work domain: the only module that imports its adapter (W4-01 commit 2).
++
++Callers receive the `WorkService` over `PostgresWorkStore`, whose provenance reads use the evidence ledger's
++caller-connection link-row reader (the shared W3 `PublicProvenance` contract; no second DTO).
++"""
++
++from __future__ import annotations
++
++from typing import Callable
++from uuid import UUID, uuid4
++
++from assetops_backend.evidence.composition import build_link_rows_reader
++from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
++from assetops_backend.work.model import WorkStoreUnavailable
++from assetops_backend.work.service import WorkService
++
++__all__ = ["WORK_UNAVAILABLE", "build_work_service", "build_work_store"]
++
++WORK_UNAVAILABLE = WorkStoreUnavailable
++
++
++def build_work_store(database_url: str | None) -> PostgresWorkStore:
++    return PostgresWorkStore(database_url, link_rows=build_link_rows_reader())
++
++
++def build_work_service(database_url: str | None, *, new_id: Callable[[], UUID] = uuid4) -> WorkService:
++    return WorkService(build_work_store(database_url), new_id=new_id)
+diff --git a/backend/assetops_backend/work/model.py b/backend/assetops_backend/work/model.py
+new file mode 100644
+index 00000000..cc1ec4ef
+--- /dev/null
++++ b/backend/assetops_backend/work/model.py
+@@ -0,0 +1,312 @@
++"""W4-01 commit 2: pure work-case rules (`.agent/W4-01-build-spec.md`).
++
++Refusal codes and messages ("API wire and refusals", S14-S17, Q6/Q28, Run 1 ruling 1), the state table and its
++pure reducer over `(recorded_at, id)` ("Identity, time and frozen domain rules"), closed command shapes (B4), the
++canonical command hash (B6, Q6/Q28) and the SERVICE attestation grammar (Q28). No I/O, no SQL driver.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import json
++import re
++from dataclasses import dataclass
++from datetime import datetime, timedelta, timezone
++from decimal import Decimal, InvalidOperation
++from typing import Any, Iterable, Mapping
++from uuid import UUID
++
++SCHEMA_CASE = "work-case-1"
++SCHEMA_EVENT = "work-event-1"
++SCHEMA_PLAN = "maintenance-plan-1"
++SCHEMA_RECORD = "maintenance-record-1"
++SCHEMA_OPERATIONAL = "operational-record-1"
++
++INCIDENT = "INCIDENT"
++REQUEST = "MAINTENANCE_REQUEST"
++CASE_KINDS = (INCIDENT, REQUEST)
++CODE_PREFIX = {INCIDENT: "INC", REQUEST: "WR"}
++
++# Run 1 ruling 1 / Q28: the development fixture SERVICE principal and its server-side grant literal.
++SERVICE_GRANT_PREFIX = "SITE_WORK_WRITE:"
++ATTESTATION = re.compile(r"^service=([^;]+);job=([^;]+);rule=([^;]+)$")
++
++FUTURE_SLACK = timedelta(minutes=5)
++BACKDATE_LIMIT = timedelta(days=30)
++
++MESSAGES = {
++    "WORK_WRITE_FORBIDDEN": "This actor cannot change work at this site.",
++    "WORK_USER_AUTH_REQUIRED": "A signed-in user identity is required for user-attested work commands.",
++    "WORK_CASE_NOT_FOUND": "No work case with this ID at this site.",
++    "WORK_EVENT_DUPLICATE_KEY": "This key was used for different work content.",
++    "WORK_TRANSITION_INVALID": "This transition is not allowed from the selected state.",
++    "WORK_OUTCOME_NOT_SUPPORTED": "No frozen outcome plan and accepted later evidence support this outcome.",
++    "WORK_CORRECTION_CONFLICT": "This record has a newer correction; reload its latest version.",
++    "WORK_INPUT_INVALID": "A required work field or UTC time is invalid.",
++    "WORK_ATTESTATION_INVALID": "Service attestation must name the authenticated service, job and rule version.",
++    "WORK_LINK_SCOPE_INVALID": "A linked record is not in this Site and tenant.",
++    "WORK_OCCURRED_AT_FUTURE": "The occurrence time is more than five minutes in the future.",
++    "WORK_OCCURRED_AT_TOO_OLD": "The occurrence time is more than 30 days before it was recorded.",
++    "WORK_STORE_UNAVAILABLE": "Work records could not be read or saved.",
++}
++STATUS = {"WORK_WRITE_FORBIDDEN": 403, "WORK_USER_AUTH_REQUIRED": 403, "WORK_CASE_NOT_FOUND": 404,
++          "WORK_EVENT_DUPLICATE_KEY": 409, "WORK_TRANSITION_INVALID": 409, "WORK_OUTCOME_NOT_SUPPORTED": 409,
++          "WORK_CORRECTION_CONFLICT": 409, "WORK_INPUT_INVALID": 422, "WORK_ATTESTATION_INVALID": 422,
++          "WORK_LINK_SCOPE_INVALID": 422, "WORK_OCCURRED_AT_FUTURE": 422, "WORK_OCCURRED_AT_TOO_OLD": 422,
++          "WORK_STORE_UNAVAILABLE": 503}
++
++
++class WorkRefused(Exception):
++    """A refused work command; nothing it would have written is committed."""
++
++    def __init__(self, code: str) -> None:
++        super().__init__(code)
++        self.code = code
++        self.status = STATUS[code]
++        self.message = MESSAGES[code]
++
++    def detail(self) -> dict[str, str]:
++        return {"code": self.code, "message": self.message}
++
++
++class WorkStoreUnavailable(Exception):
++    """The work store could not be reached or failed (503 `WORK_STORE_UNAVAILABLE`)."""
++
++
++def invalid() -> WorkRefused:
++    return WorkRefused("WORK_INPUT_INVALID")
++
++
++# ---- state table ---------------------------------------------------------------------------------------------
++
++# (kind, state, command) -> next state. ASSIGN on IN_PROGRESS stays IN_PROGRESS (new assignee); COMMENT never
++# changes state. Anything absent is 409 WORK_TRANSITION_INVALID.
++TRANSITIONS: dict[tuple[str, str, str], str] = {
++    (INCIDENT, "OPEN", "ASSIGN"): "IN_PROGRESS",
++    (INCIDENT, "OPEN", "CLOSE"): "CLOSED",
++    (INCIDENT, "IN_PROGRESS", "ASSIGN"): "IN_PROGRESS",
++    (INCIDENT, "IN_PROGRESS", "CLOSE"): "CLOSED",
++    (INCIDENT, "IN_PROGRESS", "REOPEN"): "OPEN",
++    (INCIDENT, "CLOSED", "REOPEN"): "OPEN",
++    (REQUEST, "OPEN", "ASSIGN"): "IN_PROGRESS",
++    (REQUEST, "OPEN", "CANCEL"): "CANCELLED",
++    (REQUEST, "IN_PROGRESS", "ASSIGN"): "IN_PROGRESS",
++    (REQUEST, "IN_PROGRESS", "COMPLETE"): "COMPLETED",
++    (REQUEST, "IN_PROGRESS", "CANCEL"): "CANCELLED",
++    (REQUEST, "COMPLETED", "REOPEN"): "IN_PROGRESS",
++    (REQUEST, "VERIFICATION_WINDOW", "REOPEN"): "IN_PROGRESS",
++}
++COMMENT_STATES = {INCIDENT: ("OPEN", "IN_PROGRESS", "CLOSED"),
++                  REQUEST: ("OPEN", "IN_PROGRESS", "COMPLETED", "VERIFICATION_WINDOW")}
++WRITABLE_EVENTS = ("ASSIGN", "COMPLETE", "COMMENT", "CLOSE", "REOPEN", "CANCEL")
++RESERVED_EVENTS = ("CREATED", "OPEN_VERIFICATION")
++OUTCOME_REQUESTS = ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE")
++
++
++def next_state(kind: str, state: str, command: str) -> str:
++    if command == "COMMENT":
++        if state in COMMENT_STATES[kind]:
++            return state
++        raise WorkRefused("WORK_TRANSITION_INVALID")
++    target = TRANSITIONS.get((kind, state, command))
++    if target is None:
++        raise WorkRefused("WORK_TRANSITION_INVALID")
++    return target
++
++
++def reduce_state(kind: str, events: Iterable[Mapping[str, Any]]) -> str:
++    """The state after `events`, applied in `(recorded_at, id)` order; CREATED yields OPEN. Pure."""
++    state: str | None = None
++    for event in sorted(events, key=lambda e: (e["recorded_at"], str(e["id"]))):
++        if event["kind"] == "CREATED":
++            state = "OPEN"
++        elif state is not None:
++            state = next_state(kind, state, event["kind"])
++    if state is None:
++        raise ValueError("a work case has no CREATED event")
++    return state
++
++
++# ---- values ---------------------------------------------------------------------------------------------------
++
++def uuid_text(value: Any) -> str:
++    if not isinstance(value, str):
++        raise invalid()
++    try:
++        return str(UUID(value))
++    except ValueError:
++        raise invalid() from None
++
++
++def optional_uuid(value: Any) -> str | None:
++    return None if value is None else uuid_text(value)
++
++
++def uuid_set(value: Any) -> list[str]:
++    if not isinstance(value, list):
++        raise invalid()
++    return sorted({uuid_text(v) for v in value})
++
++
++def text_value(value: Any, low: int, high: int) -> str:
++    """A trimmed nonblank string of `low..high` characters (stored as trimmed)."""
++    if not isinstance(value, str):
++        raise invalid()
++    trimmed = value.strip()
++    if not low <= len(trimmed) <= high:
++        raise invalid()
++    return trimmed
++
++
++def optional_text(value: Any, low: int, high: int) -> str | None:
++    return None if value is None else text_value(value, low, high)
++
++
++def utc_instant(value: Any) -> datetime:
++    """An ISO-8601 instant with an explicit UTC offset (`Z` or `+00:00`); anything else is WORK_INPUT_INVALID."""
++    if not isinstance(value, str) or not (value.endswith("Z") or value.endswith("+00:00")):
++        raise invalid()
++    try:
++        parsed = datetime.fromisoformat(value[:-1] + "+00:00" if value.endswith("Z") else value)
++    except ValueError:
++        raise invalid() from None
++    if parsed.utcoffset() != timedelta(0):
++        raise invalid()
++    return parsed.astimezone(timezone.utc)
++
++
++def optional_instant(value: Any) -> datetime | None:
++    return None if value is None else utc_instant(value)
++
++
++def iso(value: datetime) -> str:
++    """Six fractional digits and `Z` (B6 canonical time)."""
++    return value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
++
++
++def decimal_value(value: Any) -> Decimal | None:
++    if value is None:
++        return None
++    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal, str)):
++        raise invalid()
++    try:
++        number = Decimal(str(value))
++    except InvalidOperation:
++        raise invalid() from None
++    if not number.is_finite() or number < 0:
++        raise invalid()
++    return number
++
++
++def decimal_text(value: Decimal | None) -> str | None:
++    """Plain base-10 without trailing zeros (B6)."""
++    if value is None:
++        return None
++    text = format(value.normalize(), "f")
++    return text.rstrip("0").rstrip(".") if "." in text else text
++
++
++def idempotency_key(value: Any) -> str:
++    if not isinstance(value, str) or not 8 <= len(value) <= 128 or not value.isprintable():
++        raise invalid()
++    return value
++
++
++def closed(body: Any, required: Iterable[str], optional: Iterable[str] = ()) -> dict[str, Any]:
++    """A JSON object with exactly the required keys and any of the optional ones."""
++    if not isinstance(body, dict):
++        raise invalid()
++    required, optional = set(required), set(optional)
++    keys = set(body)
++    if not required <= keys or keys - required - optional:
++        raise invalid()
++    return body
++
++
++def check_occurrence(occurred_at: datetime, db_now: datetime) -> None:
++    if occurred_at > db_now + FUTURE_SLACK:
++        raise WorkRefused("WORK_OCCURRED_AT_FUTURE")
++    if occurred_at < db_now - BACKDATE_LIMIT:
++        raise WorkRefused("WORK_OCCURRED_AT_TOO_OLD")
++
++
++# ---- actor and authority --------------------------------------------------------------------------------------
++
++@dataclass(frozen=True)
++class Actor:
++    kind: str
++    id: str
++    attestation: str
++    authorization_basis: str
++
++    def canonical(self) -> dict[str, str]:
++        """Hashed actor: validated client fields only, never the server-derived basis (Run 1 ruling 1)."""
++        return {"kind": self.kind, "id": self.id, "attestation": self.attestation}
++
++
++def actor_shape(value: Any) -> dict[str, Any]:
++    """The actor object has exactly `kind,id,attestation`; `authorization_basis` or any other key is refused."""
++    actor = closed(value, ("kind", "id", "attestation"))
++    if actor["kind"] not in ("USER", "SERVICE"):
++        raise invalid()
++    text_value(actor["id"], 1, 128)
++    text_value(actor["attestation"], 1, 1000)
++    return actor
++
++
++def authorize(actor: Mapping[str, Any], principal: str | None) -> Actor:
++    """Run 1 ruling 1 and Q28, after the shape check: a development USER actor is 403; a SERVICE command needs
++    the server-injected principal and an attestation naming it."""
++    if actor["kind"] == "USER":
++        raise WorkRefused("WORK_USER_AUTH_REQUIRED")
++    if principal is None:
++        raise WorkRefused("WORK_WRITE_FORBIDDEN")
++    match = ATTESTATION.match(actor["attestation"])
++    if (match is None or any(g != g.strip() or not g.strip() for g in match.groups())
++            or actor["id"] != principal or "service:" + match.group(1) != actor["id"]):
++        raise WorkRefused("WORK_ATTESTATION_INVALID")
++    return Actor("SERVICE", actor["id"], actor["attestation"], SERVICE_GRANT_PREFIX + principal)
++
++
++# ---- canonical command hash -----------------------------------------------------------------------------------
++
++def canonical_json(value: Any) -> str:
++    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
++
++
++def command_sha256(path: Mapping[str, Any], body: Mapping[str, Any]) -> str:
++    """SHA-256 of `{path, body}` sorted-key compact UTF-8 JSON (B6, Q6/Q28). Bare hex, as the columns store it."""
++    return hashlib.sha256(canonical_json({"path": dict(path), "body": dict(body)}).encode("utf-8")).hexdigest()
++
++
++def finding_links(value: Any) -> list[dict[str, str]]:
++    if not isinstance(value, list):
++        raise invalid()
++    pairs = set()
++    for item in value:
++        link = closed(item, ("finding_id", "finding_revision_id"))
++        pairs.add((uuid_text(link["finding_id"]), uuid_text(link["finding_revision_id"])))
++    return [{"finding_id": f, "finding_revision_id": r} for f, r in sorted(pairs)]
++
++
++def action_links(value: Any) -> list[dict[str, str]]:
++    if not isinstance(value, list):
++        raise invalid()
++    pairs = set()
++    for item in value:
++        link = closed(item, ("action_id", "action_event_id"))
++        pairs.add((uuid_text(link["action_id"]), uuid_text(link["action_event_id"])))
++    return [{"action_id": a, "action_event_id": e} for a, e in sorted(pairs)]
++
++
++def event_payload(kind: str, payload: Any) -> dict[str, Any]:
++    """B4 closed payloads for the writable event kinds."""
++    if kind == "ASSIGN":
++        return {"assignee": text_value(closed(payload, ("assignee",))["assignee"], 1, 128)}
++    if kind == "COMMENT":
++        return {"text": text_value(closed(payload, ("text",))["text"], 1, 2000)}
++    if kind in ("CLOSE", "REOPEN", "CANCEL"):
++        return {"reason": text_value(closed(payload, ("reason",))["reason"], 1, 500)}
++    if kind == "COMPLETE":
++        return {"maintenance_record_id": uuid_text(closed(payload, ("maintenance_record_id",))["maintenance_record_id"])}
++    raise invalid()
+diff --git a/backend/assetops_backend/work/service.py b/backend/assetops_backend/work/service.py
+new file mode 100644
+index 00000000..a81d99a3
+--- /dev/null
++++ b/backend/assetops_backend/work/service.py
+@@ -0,0 +1,475 @@
++"""W4-01 commit 2: the work command service (`.agent/W4-01-build-spec.md` "Commit sequence" item 2).
++
++The service owns validation, authorization, state reduction and exact-link checks; the store port runs each
++command in one SERIALIZABLE transaction (`WorkStore.transaction`) and hands back a transaction object whose reads
++and INSERTs all use that one connection and DB time. Order per command (Run 1 rulings, "Creation and retry
++order"): write principal, closed shape (the actor object is exactly `kind,id,attestation`), actor authority,
++canonical path/body hash, then in the transaction the scoped idempotency lookup (an identical retry returns the
++stored result with 200 even after a clock advance or a newer head; a different hash is 409), and only for a first
++submission the occurrence bounds, accepted-evidence `received_at <=` DB time, pinned links, current predecessor
++and the atomic INSERTs. Case provenance is the shared W3 `PublicProvenance` DTO over Q11's selected IDs and cited
++union; this module never builds a second DTO.
++"""
++
++from __future__ import annotations
++
++from datetime import datetime
++from typing import Any, Callable, Mapping, Protocol
++from uuid import UUID, uuid4
++
++from assetops_backend.evidence.public_provenance import LinkRowsReads, PublicProvenance
++from assetops_backend.work import model as m
++from assetops_backend.work.model import WorkRefused
++
++Result = tuple[int, dict[str, Any]]
++
++CASE_CREATE_KEYS = ("kind", "occurred_at", "asset_id", "finding_links", "action_links", "title", "narrative",
++                    "cited_accepted_evidence_ids", "actor", "idempotency_key")
++REVISION_KEYS = ("supersedes_revision_id", "title", "narrative", "reason", "occurred_at", "actor", "idempotency_key")
++REVISION_OPTIONAL = ("cited_accepted_evidence_ids", "finding_links", "action_links")
++EVENT_KEYS = ("kind", "occurred_at", "payload", "actor", "idempotency_key")
++RECORD_KEYS = ("activity", "outcome_note", "occurred_at", "actor", "idempotency_key")
++PLAN_KEYS = ("asset_id", "title", "trigger_kind", "next_due_at", "next_due_hours", "occurred_at", "actor",
++             "idempotency_key")
++PLAN_CORRECTION = ("supersedes_plan_id", "canonical_plan_id", "correction_reason")
++OPERATIONAL_KEYS = ("kind", "body", "occurred_at", "period_end", "unit", "quantity", "source_document_sha256",
++                    "case_id", "actor", "idempotency_key")
++OPERATIONAL_CORRECTION = ("supersedes_record_id", "canonical_record_id", "correction_reason")
++OPERATIONAL_KINDS = ("OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT")
++
++
++class WorkStore(Protocol):
++    def transaction(self, tenant_id: UUID, site_id: UUID, work: Callable[[Any], Any]) -> Any: ...
++
++
++class WorkService:
++    def __init__(self, store: WorkStore, *, new_id: Callable[[], UUID] = uuid4) -> None:
++        self._store = store
++        self._new_id = new_id
++
++    # ---- shared steps ----------------------------------------------------------------------------------------
++
++    def _id(self) -> str:
++        return str(self._new_id())
++
++    @staticmethod
++    def _actor(body: Mapping[str, Any], principal: str | None) -> m.Actor:
++        return m.authorize(m.actor_shape(body["actor"]), principal)
++
++    @staticmethod
++    def _gate(principal: str | None) -> None:
++        if principal is None:
++            raise WorkRefused("WORK_WRITE_FORBIDDEN")
++
++    @staticmethod
++    def _retry(stored_sha: str, sha: str) -> None:
++        if stored_sha != sha:
++            raise WorkRefused("WORK_EVENT_DUPLICATE_KEY")
++
++    @staticmethod
++    def _check_links(tx: Any, finding: list[dict[str, str]], action: list[dict[str, str]], evidence: list[str],
++                     asset_id: str | None, db_now: datetime) -> None:
++        if asset_id is not None and not tx.asset_in_scope(asset_id):
++            raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++        pairs = [(f["finding_id"], f["finding_revision_id"]) for f in finding]
++        if pairs and tx.finding_pairs_in_scope(pairs) != set(pairs):
++            raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++        # Run 1 dry-read: the two scoped FKs do not prove the event belongs to the Action; the pair is checked here.
++        pairs = [(a["action_id"], a["action_event_id"]) for a in action]
++        if pairs and tx.action_pairs_in_scope(pairs) != set(pairs):
++            raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++        if evidence:
++            received = tx.evidence_received(evidence)
++            if set(received) != set(evidence) or any(at > db_now for at in received.values()):
++                raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++
++    def provenance(self, tx: Any, tenant_id: UUID, site_id: UUID, case_id: str, *,
++                   upto_revision: Mapping[str, Any], upto_event: Mapping[str, Any] | None = None) -> dict[str, Any]:
++        """Q11: selected IDs are the selected revision, every event through the selection, the latest same-case
++        record, pinned Finding revisions and pinned Action events; the cited set is the revision's evidence plus
++        each pinned Finding revision's evidence plus each pinned Action's basis evidence and origin revision's."""
++        rev_id = str(upto_revision["id"])
++        links = tx.revision_links(rev_id)
++        cutoff = upto_event or upto_revision
++        events = [str(e["id"]) for e in tx.events(case_id) if (e["recorded_at"], str(e["id"])) <=
++                  (cutoff["recorded_at"], str(cutoff["id"]))]
++        record = tx.latest_record(case_id, cutoff["recorded_at"])
++        finding_revs = [f["finding_revision_id"] for f in links["finding_links"]]
++        action_events = [a["action_event_id"] for a in links["action_links"]]
++        selected = [rev_id, *events, *finding_revs, *action_events, *([str(record["id"])] if record else [])]
++        cited = set(links["evidence_ids"]) | set(tx.lineage_evidence(
++            finding_revs, [a["action_id"] for a in links["action_links"]]))
++        reads = LinkRowsReads(lambda t, s, ids: tx.link_rows(ids))
++        return PublicProvenance(reads).cited_set(tenant_id, site_id, sorted(cited), selected, detail=False)
++
++    # ---- case create -----------------------------------------------------------------------------------------
++
++    def create_case(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None) -> Result:
++        self._gate(principal)
++        if not isinstance(body, dict):
++            raise m.invalid()
++        kind = body.get("kind")
++        if kind not in m.CASE_KINDS:
++            raise m.invalid()
++        m.closed(body, CASE_CREATE_KEYS, ("incident_id",) if kind == m.REQUEST else ())
++        actor = self._actor(body, principal)
++        occurred_at = m.utc_instant(body["occurred_at"])
++        canon = {"kind": kind, "occurred_at": m.iso(occurred_at), "asset_id": m.optional_uuid(body["asset_id"]),
++                 "finding_links": m.finding_links(body["finding_links"]),
++                 "action_links": m.action_links(body["action_links"]),
++                 "title": m.text_value(body["title"], 1, 200), "narrative": m.text_value(body["narrative"], 1, 4000),
++                 "cited_accepted_evidence_ids": m.uuid_set(body["cited_accepted_evidence_ids"]),
++                 "actor": actor.canonical(), "idempotency_key": m.idempotency_key(body["idempotency_key"])}
++        if "incident_id" in body:
++            canon["incident_id"] = m.optional_uuid(body["incident_id"])
++        sha = m.command_sha256({"site_id": str(site_id)}, canon)
++
++        def work(tx: Any) -> Result:
++            prior = tx.case_by_create_key(canon["idempotency_key"])
++            if prior is not None:
++                self._retry(prior["create_payload_sha256"], sha)
++                return 200, self._case_body(tx, tenant_id, site_id, prior)
++            db_now = tx.db_now()
++            m.check_occurrence(occurred_at, db_now)
++            self._check_links(tx, canon["finding_links"], canon["action_links"],
++                              canon["cited_accepted_evidence_ids"], canon["asset_id"], db_now)
++            incident_id = canon.get("incident_id")
++            if incident_id is not None and not tx.incident_in_scope(incident_id):
++                raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++            case_id, rev_id, event_id = self._id(), self._id(), self._id()
++            no = tx.next_public_no()
++            row = {"id": case_id, "kind": kind, "public_no": no, "public_code": f"{m.CODE_PREFIX[kind]}-{no:06d}",
++                   "asset_id": canon["asset_id"], "occurred_at": occurred_at, "create_key": canon["idempotency_key"],
++                   "create_payload_sha256": sha, **self._actor_cols(actor)}
++            tx.insert_case(row)
++            if kind == m.INCIDENT:
++                tx.insert_incident(case_id, canon["idempotency_key"])
++            else:
++                tx.insert_request(case_id, canon["idempotency_key"], incident_id)
++            self._insert_revision(tx, {"id": rev_id, "case_id": case_id, "revision_no": 1,
++                                       "supersedes_revision_id": None, "title": canon["title"],
++                                       "narrative": canon["narrative"], "reason": None, "occurred_at": occurred_at,
++                                       "idempotency_key": canon["idempotency_key"], "payload_sha256": sha,
++                                       **self._actor_cols(actor)},
++                                  canon["finding_links"], canon["action_links"], canon["cited_accepted_evidence_ids"])
++            tx.insert_event({"id": event_id, "case_id": case_id, "kind": "CREATED", "payload": {},
++                             "occurred_at": occurred_at, "idempotency_key": canon["idempotency_key"],
++                             "payload_sha256": sha, **self._actor_cols(actor)})
++            return 201, self._case_body(tx, tenant_id, site_id, tx.case(case_id))
++
++        return self._store.transaction(tenant_id, site_id, work)
++
++    @staticmethod
++    def _actor_cols(actor: m.Actor) -> dict[str, str]:
++        return {"actor_kind": actor.kind, "actor_id": actor.id, "attestation": actor.attestation,
++                "authorization_basis": actor.authorization_basis}
++
++    @staticmethod
++    def _insert_revision(tx: Any, row: dict[str, Any], finding: list[dict[str, str]], action: list[dict[str, str]],
++                         evidence: list[str]) -> None:
++        tx.insert_revision(row)
++        for link in finding:
++            tx.insert_finding_link(row["id"], link["finding_id"], link["finding_revision_id"])
++        for link in action:
++            tx.insert_action_link(row["id"], link["action_id"], link["action_event_id"])
++        for evidence_id in evidence:
++            tx.insert_case_evidence(row["id"], evidence_id)
++
++    def _case_body(self, tx: Any, tenant_id: UUID, site_id: UUID, case: Mapping[str, Any]) -> dict[str, Any]:
++        """The `work-case-1` create result, rebuilt from the stored revision 1 and CREATED event."""
++        case_id = str(case["id"])
++        revision = tx.revisions(case_id)[0]
++        created = next(e for e in tx.events(case_id) if e["kind"] == "CREATED")
++        return {"schema_version": m.SCHEMA_CASE, "id": case_id, "code": case["public_code"], "kind": case["kind"],
++                "site_id": str(site_id), "revision": {"id": str(revision["id"]), "number": revision["revision_no"]},
++                "event": {"id": str(created["id"]), "kind": "CREATED", "recorded_at": m.iso(created["recorded_at"])},
++                "state": "OPEN",
++                "source_provenance": self.provenance(tx, tenant_id, site_id, case_id, upto_revision=revision,
++                                                     upto_event=created)}
++
++    def _locked_case(self, tx: Any, case_id: Any) -> dict[str, Any]:
++        try:
++            case_id = m.uuid_text(case_id)
++        except WorkRefused:
++            raise WorkRefused("WORK_CASE_NOT_FOUND") from None
++        case = tx.lock_case(case_id)
++        if case is None:
++            raise WorkRefused("WORK_CASE_NOT_FOUND")
++        return case
++
++    # ---- events ----------------------------------------------------------------------------------------------
++
++    def post_event(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None) -> Result:
++        self._gate(principal)
++        m.closed(body, EVENT_KEYS)
++        kind = body["kind"]
++        if kind in m.OUTCOME_REQUESTS:
++            raise WorkRefused("WORK_OUTCOME_NOT_SUPPORTED")
++        if kind in m.RESERVED_EVENTS:
++            raise WorkRefused("WORK_TRANSITION_INVALID")
++        if kind not in m.WRITABLE_EVENTS:
++            raise m.invalid()
++        payload = m.event_payload(kind, body["payload"])
++        actor = self._actor(body, principal)
++        occurred_at = m.utc_instant(body["occurred_at"])
++
++        def work(tx: Any) -> Result:
++            case = self._locked_case(tx, case_id)
++            cid = str(case["id"])
++            canon = {"kind": kind, "occurred_at": m.iso(occurred_at), "payload": payload,
++                     "actor": actor.canonical(), "idempotency_key": m.idempotency_key(body["idempotency_key"])}
++            sha = m.command_sha256({"site_id": str(site_id), "case_id": cid}, canon)
++            events = tx.events(cid)
++            prior = next((e for e in events if e["idempotency_key"] == canon["idempotency_key"]), None)
++            if prior is not None:
++                self._retry(prior["payload_sha256"], sha)
++                return 200, self._event_body(tx, case, prior, events)
++            db_now = tx.db_now()
++            m.check_occurrence(occurred_at, db_now)
++            m.next_state(case["kind"], m.reduce_state(case["kind"], events), kind)
++            if kind == "COMPLETE" and not tx.record_in_case(cid, payload["maintenance_record_id"]):
++                raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++            event_id = self._id()
++            tx.insert_event({"id": event_id, "case_id": cid, "kind": kind, "payload": payload,
++                             "occurred_at": occurred_at, "idempotency_key": canon["idempotency_key"],
++                             "payload_sha256": sha, **self._actor_cols(actor)})
++            events = tx.events(cid)
++            return 201, self._event_body(tx, case, next(e for e in events if str(e["id"]) == event_id), events)
++
++        return self._store.transaction(tenant_id, site_id, work)
++
++    @staticmethod
++    def _event_body(tx: Any, case: Mapping[str, Any], event: Mapping[str, Any], events: list[dict[str, Any]]
++                    ) -> dict[str, Any]:
++        """`work-event-1`: the state reduced through this event and the head revision recorded by then."""
++        upto = (event["recorded_at"], str(event["id"]))
++        through = [e for e in events if (e["recorded_at"], str(e["id"])) <= upto]
++        revisions = [r for r in tx.revisions(str(case["id"])) if (r["recorded_at"], str(r["id"])) <= upto]
++        return {"schema_version": m.SCHEMA_EVENT, "case_id": str(case["id"]),
++                "event": {"id": str(event["id"]), "kind": event["kind"], "payload": event["payload"],
++                          "occurred_at": m.iso(event["occurred_at"]), "recorded_at": m.iso(event["recorded_at"])},
++                "state": m.reduce_state(case["kind"], through), "revision_id": str(revisions[-1]["id"])}
++
++    # ---- revisions (corrections) -----------------------------------------------------------------------------
++
++    def post_revision(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None
++                      ) -> Result:
++        self._gate(principal)
++        m.closed(body, REVISION_KEYS, REVISION_OPTIONAL)
++        actor = self._actor(body, principal)
++        occurred_at = m.utc_instant(body["occurred_at"])
++        canon: dict[str, Any] = {
++            "supersedes_revision_id": m.uuid_text(body["supersedes_revision_id"]),
++            "title": m.text_value(body["title"], 1, 200), "narrative": m.text_value(body["narrative"], 1, 4000),
++            "reason": m.text_value(body["reason"], 1, 500), "occurred_at": m.iso(occurred_at),
++            "actor": actor.canonical(), "idempotency_key": m.idempotency_key(body["idempotency_key"])}
++        if "cited_accepted_evidence_ids" in body:
++            canon["cited_accepted_evidence_ids"] = m.uuid_set(body["cited_accepted_evidence_ids"])
++        if "finding_links" in body:
++            canon["finding_links"] = m.finding_links(body["finding_links"])
++        if "action_links" in body:
++            canon["action_links"] = m.action_links(body["action_links"])
++
++        def work(tx: Any) -> Result:
++            case = self._locked_case(tx, case_id)
++            cid = str(case["id"])
++            sha = m.command_sha256({"site_id": str(site_id), "case_id": cid}, canon)
++            revisions = tx.revisions(cid)
++            prior = next((r for r in revisions if r["idempotency_key"] == canon["idempotency_key"]), None)
++            if prior is not None:
++                self._retry(prior["payload_sha256"], sha)
++                return 200, self._revision_body(prior)
++            db_now = tx.db_now()
++            m.check_occurrence(occurred_at, db_now)
++            head = max(revisions, key=lambda r: r["revision_no"])
++            if str(head["id"]) != canon["supersedes_revision_id"]:
++                raise WorkRefused("WORK_CORRECTION_CONFLICT")
++            current = tx.revision_links(str(head["id"]))
++            finding = canon.get("finding_links", current["finding_links"])
++            action = canon.get("action_links", current["action_links"])
++            evidence = canon.get("cited_accepted_evidence_ids", current["evidence_ids"])
++            self._check_links(tx, finding, action, evidence, None, db_now)
++            row = {"id": self._id(), "case_id": cid, "revision_no": head["revision_no"] + 1,
++                   "supersedes_revision_id": str(head["id"]), "title": canon["title"],
++                   "narrative": canon["narrative"], "reason": canon["reason"], "occurred_at": occurred_at,
++                   "idempotency_key": canon["idempotency_key"], "payload_sha256": sha, **self._actor_cols(actor)}
++            self._insert_revision(tx, row, finding, action, evidence)
++            return 201, self._revision_body(row)
++
++        return self._store.transaction(tenant_id, site_id, work)
++
++    @staticmethod
++    def _revision_body(row: Mapping[str, Any]) -> dict[str, Any]:
++        sup = row["supersedes_revision_id"]
++        return {"case_id": str(row["case_id"]), "revision_id": str(row["id"]), "revision_no": row["revision_no"],
++                "supersedes_revision_id": None if sup is None else str(sup)}
++
++    # ---- performed activity ----------------------------------------------------------------------------------
++
++    def post_record(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None) -> Result:
++        self._gate(principal)
++        m.closed(body, RECORD_KEYS)
++        actor = self._actor(body, principal)
++        occurred_at = m.utc_instant(body["occurred_at"])
++        canon = {"activity": m.text_value(body["activity"], 1, 4000),
++                 "outcome_note": m.optional_text(body["outcome_note"], 1, 2000), "occurred_at": m.iso(occurred_at),
++                 "actor": actor.canonical(), "idempotency_key": m.idempotency_key(body["idempotency_key"])}
++
++        def work(tx: Any) -> Result:
++            case = self._locked_case(tx, case_id)
++            cid = str(case["id"])
++            if case["kind"] != m.REQUEST:
++                raise m.invalid()
++            sha = m.command_sha256({"site_id": str(site_id), "case_id": cid}, canon)
++            prior = tx.record_by_key(cid, canon["idempotency_key"])
++            if prior is not None:
++                self._retry(prior["payload_sha256"], sha)
++                return 200, self._record_body(prior)
++            m.check_occurrence(occurred_at, tx.db_now())
++            rid = self._id()
++            tx.insert_record({"id": rid, "case_id": cid, "activity": canon["activity"],
++                              "outcome_note": canon["outcome_note"], "occurred_at": occurred_at,
++                              "idempotency_key": canon["idempotency_key"], "payload_sha256": sha,
++                              **self._actor_cols(actor)})
++            return 201, self._record_body(tx.record_by_key(cid, canon["idempotency_key"]))
++
++        return self._store.transaction(tenant_id, site_id, work)
++
++    @staticmethod
++    def _record_body(row: Mapping[str, Any]) -> dict[str, Any]:
++        return {"schema_version": m.SCHEMA_RECORD, "id": str(row["id"]), "case_id": str(row["case_id"]),
++                "recorded_at": m.iso(row["recorded_at"]), "outcome": "UNVERIFIED"}
++
++    # ---- lineage roots: draft plans and authored operational records -----------------------------------------
++
++    @staticmethod
++    def _correction(body: Mapping[str, Any], keys: tuple[str, str, str]) -> dict[str, Any] | None:
++        present = [k for k in keys if k in body]
++        if not present:
++            return None
++        if len(present) != 3:
++            raise m.invalid()
++        return {keys[0]: m.uuid_text(body[keys[0]]), keys[1]: m.uuid_text(body[keys[1]]),
++                keys[2]: m.text_value(body[keys[2]], 1, 500)}
++
++    @staticmethod
++    def _successor(tx: Any, table: str, correction: Mapping[str, Any] | None, keys: tuple[str, str, str]
++                   ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
++        """(root, head) for a correction under the root row lock; a non-head or wrong-root predecessor is 409."""
++        if correction is None:
++            return None, None
++        root = tx.lock_root(table, correction[keys[1]])
++        if root is None:
++            raise WorkRefused("WORK_CORRECTION_CONFLICT")
++        head = tx.lineage_head(table, str(root["id"]))
++        if str(head["id"]) != correction[keys[0]]:
++            raise WorkRefused("WORK_CORRECTION_CONFLICT")
++        return root, head
++
++    def post_plan(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None) -> Result:
++        self._gate(principal)
++        m.closed(body, PLAN_KEYS, PLAN_CORRECTION)
++        actor = self._actor(body, principal)
++        correction = self._correction(body, PLAN_CORRECTION)
++        occurred_at = m.utc_instant(body["occurred_at"])
++        trigger = body["trigger_kind"]
++        if trigger not in ("CALENDAR", "RUN_HOURS"):
++            raise m.invalid()
++        due_at = m.optional_instant(body["next_due_at"])
++        due_hours = m.decimal_value(body["next_due_hours"])
++        if (trigger == "CALENDAR" and due_hours is not None) or (trigger == "RUN_HOURS" and due_at is not None):
++            raise m.invalid()
++        canon = {"asset_id": m.optional_uuid(body["asset_id"]), "title": m.text_value(body["title"], 1, 200),
++                 "trigger_kind": trigger, "next_due_at": None if due_at is None else m.iso(due_at),
++                 "next_due_hours": m.decimal_text(due_hours), "occurred_at": m.iso(occurred_at),
++                 "actor": actor.canonical(), "idempotency_key": m.idempotency_key(body["idempotency_key"]),
++                 **(correction or {})}
++        path = {"site_id": str(site_id), **({"canonical_plan_id": correction["canonical_plan_id"]} if correction
++                                            else {})}
++        sha = m.command_sha256(path, canon)
++
++        def work(tx: Any) -> Result:
++            prior = tx.lineage_by_key("maintenance_plan", canon["idempotency_key"])
++            if prior is not None:
++                self._retry(prior["payload_sha256"], sha)
++                return 200, self._lineage_body(tx, "maintenance_plan", prior)
++            db_now = tx.db_now()
++            m.check_occurrence(occurred_at, db_now)
++            if canon["asset_id"] is not None and not tx.asset_in_scope(canon["asset_id"]):
++                raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++            root, head = self._successor(tx, "maintenance_plan", correction, PLAN_CORRECTION)
++            pid, no = self._id(), tx.next_public_no()
++            tx.insert_plan({"id": pid, "public_no": no, "public_code": f"PM-{no:06d}",
++                            "canonical_plan_id": pid if root is None else str(root["id"]),
++                            "asset_id": canon["asset_id"], "title": canon["title"], "trigger_kind": trigger,
++                            "next_due_at": due_at, "next_due_hours": canon["next_due_hours"], "state": "DRAFT",
++                            "supersedes_plan_id": None if head is None else str(head["id"]),
++                            "correction_reason": None if correction is None else correction["correction_reason"],
++                            "occurred_at": occurred_at, "idempotency_key": canon["idempotency_key"],
++                            "payload_sha256": sha, **self._actor_cols(actor)})
++            return 201, self._lineage_body(tx, "maintenance_plan", tx.lineage_by_key("maintenance_plan",
++                                                                                     canon["idempotency_key"]))
++
++        return self._store.transaction(tenant_id, site_id, work)
++
++    def post_operational_record(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None) -> Result:
++        self._gate(principal)
++        m.closed(body, OPERATIONAL_KEYS, OPERATIONAL_CORRECTION)
++        actor = self._actor(body, principal)
++        correction = self._correction(body, OPERATIONAL_CORRECTION)
++        kind = body["kind"]
++        if kind not in OPERATIONAL_KINDS:
++            raise m.invalid()
++        occurred_at = m.utc_instant(body["occurred_at"])
++        period_end = m.optional_instant(body["period_end"])
++        quantity = m.decimal_value(body["quantity"])
++        unit = m.optional_text(body["unit"], 1, 32)
++        digest = body["source_document_sha256"]
++        if digest is not None and (not isinstance(digest, str) or not m.re.fullmatch(r"[0-9a-f]{64}", digest)):
++            raise m.invalid()
++        if ((quantity is None) != (unit is None) or (kind == "MANUAL_READING" and quantity is None)
++                or (period_end is not None and period_end < occurred_at)):
++            raise m.invalid()
++        canon = {"kind": kind, "body": m.text_value(body["body"], 1, 4000), "occurred_at": m.iso(occurred_at),
++                 "period_end": None if period_end is None else m.iso(period_end), "unit": unit,
++                 "quantity": m.decimal_text(quantity), "source_document_sha256": digest,
++                 "case_id": m.optional_uuid(body["case_id"]), "actor": actor.canonical(),
++                 "idempotency_key": m.idempotency_key(body["idempotency_key"]), **(correction or {})}
++        path = {"site_id": str(site_id), **({"canonical_record_id": correction["canonical_record_id"]} if correction
++                                            else {})}
++        sha = m.command_sha256(path, canon)
++
++        def work(tx: Any) -> Result:
++            prior = tx.lineage_by_key("operational_record", canon["idempotency_key"])
++            if prior is not None:
++                self._retry(prior["payload_sha256"], sha)
++                return 200, self._lineage_body(tx, "operational_record", prior)
++            m.check_occurrence(occurred_at, tx.db_now())
++            if canon["case_id"] is not None and tx.case(canon["case_id"]) is None:
++                raise WorkRefused("WORK_LINK_SCOPE_INVALID")
++            root, head = self._successor(tx, "operational_record", correction, OPERATIONAL_CORRECTION)
++            rid, no = self._id(), tx.next_public_no()
++            tx.insert_operational_record({
++                "id": rid, "public_no": no, "public_code": f"REC-{no:06d}",
++                "canonical_record_id": rid if root is None else str(root["id"]), "kind": kind,
++                "body": canon["body"], "period_end": period_end, "unit": unit, "quantity": canon["quantity"],
++                "source_document_sha256": digest,
++                "correction_reason": None if correction is None else correction["correction_reason"],
++                "state": "SUBMITTED", "supersedes_record_id": None if head is None else str(head["id"]),
++                "case_id": canon["case_id"], "occurred_at": occurred_at, "idempotency_key": canon["idempotency_key"],
++                "payload_sha256": sha, **self._actor_cols(actor)})
++            return 201, self._lineage_body(tx, "operational_record", tx.lineage_by_key("operational_record",
++                                                                                       canon["idempotency_key"]))
++
++        return self._store.transaction(tenant_id, site_id, work)
++
++    @staticmethod
++    def _lineage_body(tx: Any, table: str, row: Mapping[str, Any]) -> dict[str, Any]:
++        """New version `id`/`recorded_at`, the canonical root ID and the root's visible public code."""
++        if table == "maintenance_plan":
++            root_id, schema, canonical_key = str(row["canonical_plan_id"]), m.SCHEMA_PLAN, "canonical_plan_id"
++        else:
++            root_id, schema, canonical_key = str(row["canonical_record_id"]), m.SCHEMA_OPERATIONAL, "canonical_record_id"
++        root = row if str(row["id"]) == root_id else tx.lineage_row(table, root_id)
++        return {"schema_version": schema, "id": str(row["id"]), canonical_key: root_id,
++                "public_code": root["public_code"], "state": row["state"], "recorded_at": m.iso(row["recorded_at"])}
+diff --git a/backend/tests/test_w401_work_service_postgres.py b/backend/tests/test_w401_work_service_postgres.py
+new file mode 100644
+index 00000000..6d20bd5e
+--- /dev/null
++++ b/backend/tests/test_w401_work_service_postgres.py
+@@ -0,0 +1,388 @@
++"""W4-01 commit 2: the work command service and its sole writer over real Postgres.
++
++`.agent/W4-01-build-spec.md` "Fixture and exact test contract", Review closures B4-B6/S14-S17, closure 3 Q7/Q28
++and "Run 1 rulings (q1)". The positive linked case is built from F01 through the S4 CaseRunner, the public
++Finding index and the existing recommendation/accept route (no hard-coded or invented IDs). Requires
++ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.
++"""
++
++from __future__ import annotations
++
++from datetime import datetime, timedelta, timezone
++from uuid import uuid4
++
++import pytest
++
++from test_s4_finding_store_postgres import URL, run_case  # noqa: F401
++
++pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
++
++if URL:
++    from sqlalchemy import text
++    from test_s1_bindings_postgres import engine, imported, store  # noqa: F401
++    from test_s4_finding_index_postgres import client_for, ok
++    from test_s6_action_store_postgres import CASES, Harness, runner  # noqa: F401
++
++    from assetops_backend.work.composition import build_work_service
++    from assetops_backend.work.model import WorkRefused
++
++PRINCIPAL = "service:w401-fixture"
++BASIS = "SITE_WORK_WRITE:service:w401-fixture"
++ACTOR = {"kind": "SERVICE", "id": PRINCIPAL, "attestation": "service=w401-fixture;job=positive-case;rule=w401/1"}
++TABLES = ("work_case", "incident", "maintenance_work_request", "work_case_revision", "work_case_finding_link",
++          "work_case_action_link", "work_case_evidence", "work_event", "maintenance_plan", "maintenance_record",
++          "operational_record")
++
++
++def at(**delta) -> str:
++    return (datetime.now(timezone.utc) - timedelta(**delta)).isoformat().replace("+00:00", "Z")
++
++
++def incident(key="w401-incident-001", **over) -> dict:
++    return {"kind": "INCIDENT", "occurred_at": at(hours=1), "asset_id": None, "finding_links": [],
++            "action_links": [], "title": "Witnessed start request failed",
++            "narrative": "Operator observed a failed start request; cause not established.",
++            "cited_accepted_evidence_ids": [], "actor": dict(ACTOR), "idempotency_key": key, **over}
++
++
++def request(key="w401-request-001", **over) -> dict:
++    return {**incident(key), "kind": "MAINTENANCE_REQUEST", "title": "Inspect starter circuit",
++            "narrative": "Witnessed failure requires inspection.", **over}
++
++
++def event(kind, payload, key, **over) -> dict:
++    return {"kind": kind, "occurred_at": at(minutes=30), "payload": payload, "actor": dict(ACTOR),
++            "idempotency_key": key, **over}
++
++
++def record(key="w401-record-001", **over) -> dict:
++    return {"activity": "Starter connection inspected", "outcome_note": None, "occurred_at": at(minutes=20),
++            "actor": dict(ACTOR), "idempotency_key": key, **over}
++
++
++def plan(key="w401-plan-001", **over) -> dict:
++    return {"asset_id": None, "title": "Witnessed start test", "trigger_kind": "CALENDAR", "next_due_at": None,
++            "next_due_hours": None, "occurred_at": at(minutes=10), "actor": dict(ACTOR), "idempotency_key": key,
++            **over}
++
++
++def oprec(key="w401-oprec-001", **over) -> dict:
++    return {"kind": "OPERATOR_LOG", "body": "Generator started by hand", "occurred_at": at(minutes=5),
++            "period_end": None, "unit": None, "quantity": None, "source_document_sha256": None, "case_id": None,
++            "actor": dict(ACTOR), "idempotency_key": key, **over}
++
++
++def counts(engine) -> dict[str, int]:  # noqa: F811
++    with engine.connect() as c:
++        return {t: c.execute(text(f"SELECT count(*) FROM {t}")).scalar_one() for t in TABLES}
++
++
++def refused(code: str, call, *args):
++    with pytest.raises(WorkRefused) as caught:
++        call(*args)
++    assert caught.value.code == code, caught.value.code
++    return caught.value
++
++
++def scalar(engine, sql: str, **p):  # noqa: F811
++    with engine.connect() as c:
++        return c.execute(text(sql), p).scalar_one()
++
++
++class Ctx:
++    def __init__(self, runner) -> None:  # noqa: F811
++        self.t, self.s, self.engine = runner.tenant, runner.site, runner.engine
++        self.svc = build_work_service(URL)
++
++    def case(self, body, principal=PRINCIPAL):
++        return self.svc.create_case(self.t, self.s, body, principal)
++
++    def event(self, case_id, body):
++        return self.svc.post_event(self.t, self.s, case_id, body, PRINCIPAL)
++
++    def revise(self, case_id, body):
++        return self.svc.post_revision(self.t, self.s, case_id, body, PRINCIPAL)
++
++    def record(self, case_id, body):
++        return self.svc.post_record(self.t, self.s, case_id, body, PRINCIPAL)
++
++    def plan(self, body):
++        return self.svc.post_plan(self.t, self.s, body, PRINCIPAL)
++
++    def oprec(self, body):
++        return self.svc.post_operational_record(self.t, self.s, body, PRINCIPAL)
++
++    def close(self) -> None:
++        self.svc._store.dispose()
++
++
++@pytest.fixture()
++def ctx(runner):  # noqa: F811
++    owned = Ctx(runner)
++    yield owned
++    owned.close()
++
++
++def accepted_action(runner, finding_id: str, key: str) -> tuple[str, str]:  # noqa: F811
++    """Closure 3 Q7: accept F0x's recommendation through the existing route; pin the Action's selected event."""
++    h = Harness(runner)
++    try:
++        rec = h.recommendation(finding_id)
++        assert rec.status_code == 200, rec.text
++        accepted = h.accept(finding_id, rec.json()["proposal"], idempotency_key=key)
++        assert accepted.status_code == 201, accepted.text
++        action_id = accepted.json()["action"]["action_id"]
++        events = h.client.get(f"/api/sites/KOBO-001/actions/{action_id}/events")
++        assert events.status_code == 200, events.text
++        last = events.json()["events"][-1]
++        return action_id, last.get("event_id") or last["id"]
++    finally:
++        h.close()
++
++
++def public_finding(runner) -> dict:  # noqa: F811
++    body = ok(client_for(runner), frm="2026-10-06T00:00:00Z", to="2026-10-07T00:00:00Z", limit=50)
++    assert body["status"] == "CURRENT" and body["rows"], body.get("status")
++    row = body["rows"][0]
++    assert row["cited"]["accepted_evidence_ids"], "the selected F01 Finding row cites no accepted evidence"
++    return row
++
++
++def test_incident_attestation_reload_and_exact_links(runner, ctx) -> None:  # noqa: F811
++    run_case(runner, CASES["F01"])
++    row = public_finding(runner)
++    fid, frev, cited = row["finding_id"], row["finding_revision_id"], row["cited"]["accepted_evidence_ids"]
++    action_id, action_event = accepted_action(runner, fid, "w401-action-accept-001")
++    body = incident(finding_links=[{"finding_id": fid, "finding_revision_id": frev}],
++                    action_links=[{"action_id": action_id, "action_event_id": action_event}],
++                    cited_accepted_evidence_ids=list(cited))
++    before = counts(ctx.engine)
++    # Run 1 ruling 1: a client authority field, a USER actor, no server principal and a foreign attestation.
++    for bad_actor, code, principal in (
++            ({**ACTOR, "authorization_basis": BASIS}, "WORK_INPUT_INVALID", PRINCIPAL),
++            ({**ACTOR, "authorization_basis": None}, "WORK_INPUT_INVALID", PRINCIPAL),
++            ({"kind": "USER", "id": "operator-1", "attestation": "I saw it."}, "WORK_USER_AUTH_REQUIRED", PRINCIPAL),
++            (ACTOR, "WORK_WRITE_FORBIDDEN", None),
++            ({**ACTOR, "id": "service:other"}, "WORK_ATTESTATION_INVALID", PRINCIPAL),
++            ({**ACTOR, "attestation": "service=other;job=positive-case;rule=w401/1"}, "WORK_ATTESTATION_INVALID",
++             PRINCIPAL),
++            ({**ACTOR, "attestation": "service=w401-fixture;job= ;rule=w401/1"}, "WORK_ATTESTATION_INVALID",
++             PRINCIPAL)):
++        refused(code, ctx.case, {**body, "actor": bad_actor}, principal)
++    assert counts(ctx.engine) == before
++
++    status, created = ctx.case(body)
++    assert status == 201 and created["schema_version"] == "work-case-1" and created["kind"] == "INCIDENT"
++    assert created["state"] == "OPEN" and created["code"].startswith("INC-") and len(created["code"]) == 10
++    assert created["site_id"] == str(ctx.s) and created["revision"]["number"] == 1
++    assert created["event"]["kind"] == "CREATED"
++    prov = created["source_provenance"]
++    assert set(cited) <= set(prov["evidence_ids"]) and prov["basis_sha256"].startswith("sha256:")
++    assert prov["classification"] == prov["state"] and "detail" not in prov
++    # Exact retry returns the stored result; nothing new is written.
++    after = counts(ctx.engine)
++    assert ctx.case(body) == (200, created) and counts(ctx.engine) == after
++    case_id, rev_id = created["id"], created["revision"]["id"]
++    with ctx.engine.connect() as c:
++        assert c.execute(text("SELECT tenant_id, site_id, case_revision_id, CAST(action_id AS text), "
++                              "CAST(action_event_id AS text) FROM work_case_action_link")).one() == (
++            ctx.t, ctx.s, __import__("uuid").UUID(rev_id), action_id, action_event)
++        assert c.execute(text("SELECT CAST(finding_id AS text), CAST(finding_revision_id AS text) "
++                              "FROM work_case_finding_link WHERE case_revision_id = :r"), {"r": rev_id}).one() == (fid, frev)
++        assert sorted(c.execute(text("SELECT CAST(evidence_id AS text) FROM work_case_evidence WHERE "
++                                     "case_revision_id = :r"), {"r": rev_id}).scalars()) == sorted(cited)
++        for table, where in (("work_case", "id"), ("work_case_revision", "case_id"), ("work_event", "case_id")):
++            assert c.execute(text(f"SELECT authorization_basis, actor_kind, actor_id FROM {table} WHERE {where} = :i"),
++                             {"i": case_id}).one() == (BASIS, "SERVICE", PRINCIPAL)
++    # The other roots store the same server-derived basis.
++    _, req = ctx.case(request(incident_id=case_id))
++    _, rec = ctx.record(req["id"], record())
++    assert rec["outcome"] == "UNVERIFIED"
++    _, pl = ctx.plan(plan())
++    _, op = ctx.oprec(oprec(case_id=case_id))
++    for table, row_id in (("maintenance_record", rec["id"]), ("maintenance_plan", pl["id"]),
++                          ("operational_record", op["id"])):
++        assert scalar(ctx.engine, f"SELECT authorization_basis FROM {table} WHERE id = :i", i=row_id) == BASIS
++
++
++def test_request_complete_stays_unverified(runner, ctx) -> None:  # noqa: F811
++    asset = scalar(ctx.engine, "SELECT CAST(id AS text) FROM asset WHERE site_id = :s ORDER BY id LIMIT 1", s=ctx.s)
++    _, inc = ctx.case(incident())
++    status, req = ctx.case(request(asset_id=asset, incident_id=inc["id"]))
++    assert status == 201 and req["code"].startswith("WR-") and req["state"] == "OPEN"
++    refused("WORK_INPUT_INVALID", ctx.record, inc["id"], record("w401-record-inc"))
++    _, rec = ctx.record(req["id"], record())
++    assert rec == {"schema_version": "maintenance-record-1", "id": rec["id"], "case_id": req["id"],
++                   "recorded_at": rec["recorded_at"], "outcome": "UNVERIFIED"}
++    assert ctx.event(req["id"], event("ASSIGN", {"assignee": "maintenance-lead"}, "w401-assign-001"))[1]["state"] == \
++        "IN_PROGRESS"
++    refused("WORK_INPUT_INVALID", ctx.event, req["id"], event("COMPLETE", {}, "w401-complete-000"))
++    refused("WORK_LINK_SCOPE_INVALID", ctx.event, req["id"],
++            event("COMPLETE", {"maintenance_record_id": str(uuid4())}, "w401-complete-001"))
++    _, other = ctx.case(request("w401-request-002"))
++    _, foreign_rec = ctx.record(other["id"], record("w401-record-002"))
++    refused("WORK_LINK_SCOPE_INVALID", ctx.event, req["id"],
++            event("COMPLETE", {"maintenance_record_id": foreign_rec["id"]}, "w401-complete-002"))
++    status, done = ctx.event(req["id"], event("COMPLETE", {"maintenance_record_id": rec["id"]}, "w401-complete-003"))
++    assert status == 201 and done["state"] == "COMPLETED" and done["schema_version"] == "work-event-1"
++    assert done["revision_id"] == req["revision"]["id"]
++    refused("WORK_TRANSITION_INVALID", ctx.event, req["id"], event("OPEN_VERIFICATION", {}, "w401-verify-001"))
++    for outcome in ("VERIFIED", "INEFFECTIVE", "INCONCLUSIVE"):
++        refused("WORK_OUTCOME_NOT_SUPPORTED", ctx.event, req["id"], event(outcome, {}, f"w401-{outcome.lower()}"))
++    assert scalar(ctx.engine, "SELECT count(*) FROM work_event WHERE case_id = :i AND kind IN "
++                              "('OPEN_VERIFICATION')", i=req["id"]) == 0
++
++
++def test_transitions_and_correction_total_order(runner, ctx) -> None:  # noqa: F811
++    _, inc = ctx.case(incident())
++    cid = inc["id"]
++    steps = [("ASSIGN", {"assignee": "a"}, "IN_PROGRESS"), ("ASSIGN", {"assignee": "b"}, "IN_PROGRESS"),
++             ("REOPEN", {"reason": "back"}, "OPEN"), ("CLOSE", {"reason": "done"}, "CLOSED"),
++             ("COMMENT", {"text": "note"}, "CLOSED"), ("REOPEN", {"reason": "again"}, "OPEN")]
++    for n, (kind, payload, state) in enumerate(steps):
++        assert ctx.event(cid, event(kind, payload, f"w401-step-{n:03d}"))[1]["state"] == state
++    for kind, payload in (("REOPEN", {"reason": "x"}), ("CANCEL", {"reason": "x"}), ("COMPLETE", {
++            "maintenance_record_id": str(uuid4())}), ("CREATED", {})):
++        refused("WORK_TRANSITION_INVALID", ctx.event, cid, event(kind, payload, f"w401-bad-{kind.lower()}"))
++    refused("WORK_INPUT_INVALID", ctx.event, cid, event("COMMENT", {"text": "x", "extra": 1}, "w401-extra-001"))
++    refused("WORK_INPUT_INVALID", ctx.event, cid, event("COMMENT", {"text": "  "}, "w401-blank-001"))
++    # Backdating: within 30 days accepted and kept as occurrence; order stays (recorded_at, id).
++    assert ctx.event(cid, event("COMMENT", {"text": "late"}, "w401-late-001", occurred_at=at(days=2)))[0] == 201
++    refused("WORK_OCCURRED_AT_TOO_OLD", ctx.event, cid, event("COMMENT", {"text": "x"}, "w401-old-001",
++                                                              occurred_at=at(days=31)))
++    refused("WORK_OCCURRED_AT_FUTURE", ctx.event, cid, event("COMMENT", {"text": "x"}, "w401-fut-001",
++                                                             occurred_at=at(minutes=-10)))
++    refused("WORK_INPUT_INVALID", ctx.event, cid, event("COMMENT", {"text": "x"}, "w401-tz-001",
++                                                        occurred_at="2026-10-06T16:11:00+03:00"))
++    with ctx.engine.connect() as c:
++        rows = c.execute(text("SELECT kind, recorded_at, id FROM work_event WHERE case_id = :i ORDER BY recorded_at, id"),
++                         {"i": cid}).all()
++    assert [r[0] for r in rows] == ["CREATED"] + [s[0] for s in steps] + ["COMMENT"]
++    # Corrections append a linear revision chain; a non-head predecessor is refused.
++    rev1 = inc["revision"]["id"]
++    correction = {"supersedes_revision_id": rev1, "title": "Witnessed start request failed",
++                  "narrative": "Corrected occurrence note; cause remains unknown.", "reason": "Corrected time note",
++                  "occurred_at": at(minutes=1), "actor": dict(ACTOR), "idempotency_key": "w401-correct-001"}
++    status, rev2 = ctx.revise(cid, correction)
++    assert status == 201 and rev2["revision_no"] == 2 and rev2["supersedes_revision_id"] == rev1
++    refused("WORK_CORRECTION_CONFLICT", ctx.revise, cid, {**correction, "idempotency_key": "w401-correct-002"})
++    assert ctx.revise(cid, correction) == (200, rev2)
++    # A CANCELLED request accepts a text correction but no event.
++    _, req = ctx.case(request())
++    assert ctx.event(req["id"], event("CANCEL", {"reason": "dup"}, "w401-cancel-001"))[1]["state"] == "CANCELLED"
++    for n, (kind, payload) in enumerate((("ASSIGN", {"assignee": "a"}), ("COMMENT", {"text": "x"}),
++                                         ("REOPEN", {"reason": "x"}))):
++        refused("WORK_TRANSITION_INVALID", ctx.event, req["id"], event(kind, payload, f"w401-after-cancel-{n}"))
++    assert ctx.revise(req["id"], {**correction, "supersedes_revision_id": req["revision"]["id"],
++                                  "idempotency_key": "w401-correct-003"})[0] == 201
++    refused("WORK_CASE_NOT_FOUND", ctx.event, str(uuid4()), event("COMMENT", {"text": "x"}, "w401-none-001"))
++
++
++def test_foreign_asset_and_evidence_refuse(runner, ctx, store) -> None:  # noqa: F811
++    run_case(runner, CASES["F01"])
++    run_case(runner, CASES["F02"])
++    findings = {f["anchor_start"].date().isoformat(): str(f["id"]) for f in runner.reload()["findings"]}
++    f1, f2 = findings["2026-10-06"], findings["2026-10-08"]
++    a1, e1 = accepted_action(runner, f1, "w401-action-accept-001")
++    a2, e2 = accepted_action(runner, f2, "w401-action-accept-002")
++    imported(store, code="KOBO-002")
++    with ctx.engine.connect() as c:
++        other_site = c.execute(text("SELECT id FROM site WHERE tenant_id = :t AND id <> :s ORDER BY id LIMIT 1"),
++                               {"t": ctx.t, "s": ctx.s}).scalar_one()
++        foreign_asset = c.execute(text("SELECT CAST(id AS text) FROM asset WHERE site_id = :o LIMIT 1"),
++                                  {"o": other_site}).scalar_one()
++        rev1 = c.execute(text("SELECT CAST(id AS text) FROM finding_revision WHERE finding_id = :f LIMIT 1"),
++                         {"f": f1}).scalar_one()
++    before = counts(ctx.engine)
++    for over in ({"asset_id": foreign_asset},
++                 {"cited_accepted_evidence_ids": [str(uuid4())]},
++                 {"finding_links": [{"finding_id": f2, "finding_revision_id": rev1}]},
++                 {"finding_links": [{"finding_id": f1, "finding_revision_id": str(uuid4())}]},
++                 {"action_links": [{"action_id": a1, "action_event_id": e2}]},
++                 {"action_links": [{"action_id": str(uuid4()), "action_event_id": e1}]}):
++        refused("WORK_LINK_SCOPE_INVALID", ctx.case, incident(**over))
++    refused("WORK_LINK_SCOPE_INVALID", ctx.case, request(incident_id=str(uuid4())))
++    refused("WORK_LINK_SCOPE_INVALID", ctx.plan, plan(asset_id=foreign_asset))
++    refused("WORK_LINK_SCOPE_INVALID", ctx.oprec, oprec(case_id=str(uuid4())))
++    assert counts(ctx.engine) == before
++    # The same pair the wrong way round is refused too; the exact pairs are accepted.
++    assert ctx.case(incident(action_links=[{"action_id": a2, "action_event_id": e2}]))[0] == 201
++
++
++def test_idempotency_payload_conflict(runner, ctx) -> None:  # noqa: F811
++    roots = ((ctx.case, incident()), (ctx.case, request()), (ctx.plan, plan()), (ctx.oprec, oprec()))
++    for call, body in roots:
++        status, first = call(body)
++        assert status == 201
++        assert call(body) == (200, first)
++        refused("WORK_EVENT_DUPLICATE_KEY", call, {**body, "title" if "title" in body else "body": "Changed"})
++    _, inc = ctx.case(incident("w401-incident-002"))
++    body = event("COMMENT", {"text": "one"}, "w401-comment-001")
++    _, first = ctx.event(inc["id"], body)
++    ctx.event(inc["id"], event("ASSIGN", {"assignee": "a"}, "w401-assign-009"))
++    assert ctx.event(inc["id"], body) == (200, first) and first["state"] == "OPEN"
++    refused("WORK_EVENT_DUPLICATE_KEY", ctx.event, inc["id"], {**body, "payload": {"text": "two"}})
++    # The create key reused for a later command on the same case is a different hash.
++    refused("WORK_EVENT_DUPLICATE_KEY", ctx.event, inc["id"], event("COMMENT", {"text": "x"}, "w401-incident-002"))
++    # Retry after a newer revision still returns the original result.
++    corr = {"supersedes_revision_id": inc["revision"]["id"], "title": "T", "narrative": "N", "reason": "R",
++            "occurred_at": at(minutes=1), "actor": dict(ACTOR), "idempotency_key": "w401-correct-001"}
++    _, r2 = ctx.revise(inc["id"], corr)
++    ctx.revise(inc["id"], {**corr, "supersedes_revision_id": r2["revision_id"], "idempotency_key": "w401-correct-002"})
++    assert ctx.revise(inc["id"], corr) == (200, r2)
++    refused("WORK_EVENT_DUPLICATE_KEY", ctx.revise, inc["id"], {**corr, "reason": "other"})
++
++
++def test_plan_draft_version_and_due(runner, ctx) -> None:  # noqa: F811
++    body = plan()
++    status, root = ctx.plan(body)
++    assert status == 201 and root["schema_version"] == "maintenance-plan-1" and root["state"] == "DRAFT"
++    assert root["id"] == root["canonical_plan_id"] and root["public_code"].startswith("PM-")
++    stored = scalar(ctx.engine, "SELECT occurred_at FROM maintenance_plan WHERE id = :i", i=root["id"])
++    assert stored == datetime.fromisoformat(body["occurred_at"].replace("Z", "+00:00"))
++    corr = plan("w401-plan-002", title="Witnessed start test (monthly)", supersedes_plan_id=root["id"],
++                canonical_plan_id=root["id"], correction_reason="Name the cadence")
++    status, v2 = ctx.plan(corr)
++    assert status == 201 and v2["id"] != root["id"] and v2["canonical_plan_id"] == root["id"]
++    assert v2["public_code"] == root["public_code"] and v2["state"] == "DRAFT"
++    refused("WORK_CORRECTION_CONFLICT", ctx.plan, {**corr, "idempotency_key": "w401-plan-003"})
++    refused("WORK_CORRECTION_CONFLICT", ctx.plan, {**corr, "idempotency_key": "w401-plan-004",
++                                                   "supersedes_plan_id": v2["id"], "canonical_plan_id": v2["id"]})
++    refused("WORK_INPUT_INVALID", ctx.plan, {k: v for k, v in plan("w401-plan-005").items() if k != "occurred_at"})
++    refused("WORK_INPUT_INVALID", ctx.plan, plan("w401-plan-006", next_due_hours=5))
++    refused("WORK_INPUT_INVALID", ctx.plan, {**corr, "idempotency_key": "w401-plan-007",
++                                             "correction_reason": None})
++    refused("WORK_OCCURRED_AT_FUTURE", ctx.plan, plan("w401-plan-008", occurred_at=at(minutes=-10)))
++    refused("WORK_OCCURRED_AT_TOO_OLD", ctx.plan, plan("w401-plan-009", occurred_at=at(days=31)))
++    _, hours = ctx.plan(plan("w401-plan-010", trigger_kind="RUN_HOURS", next_due_hours="250.50"))
++    with ctx.engine.connect() as c:
++        row = c.execute(text("SELECT next_due_hours, occurred_at, recorded_at, supersedes_plan_id, correction_reason "
++                             "FROM maintenance_plan WHERE id = :i"), {"i": v2["id"]}).one()
++        assert row[3] is not None and row[4] == "Name the cadence" and row[1] < row[2]
++        assert str(c.execute(text("SELECT next_due_hours FROM maintenance_plan WHERE id = :i"),
++                             {"i": hours["id"]}).scalar_one()) == "250.5"
++
++
++def test_operational_record_attested_correction(runner, ctx) -> None:  # noqa: F811
++    _, inc = ctx.case(incident())
++    status, root = ctx.oprec(oprec(case_id=inc["id"]))
++    assert status == 201 and root["state"] == "SUBMITTED" and root["public_code"].startswith("REC-")
++    assert root["id"] == root["canonical_record_id"]
++    refused("WORK_INPUT_INVALID", ctx.oprec, oprec("w401-oprec-002", kind="MANUAL_READING"))
++    refused("WORK_INPUT_INVALID", ctx.oprec, oprec("w401-oprec-003", quantity=5))
++    refused("WORK_INPUT_INVALID", ctx.oprec, oprec("w401-oprec-004", period_end=at(hours=2)))
++    refused("WORK_INPUT_INVALID", ctx.oprec, oprec("w401-oprec-005", source_document_sha256="ABC"))
++    _, reading = ctx.oprec(oprec("w401-oprec-006", kind="MANUAL_READING", quantity="12.0", unit="kWh"))
++    assert scalar(ctx.engine, "SELECT unit FROM operational_record WHERE id = :i", i=reading["id"]) == "kWh"
++    corr = oprec("w401-oprec-007", body="Generator started by hand at 16:14", supersedes_record_id=root["id"],
++                 canonical_record_id=root["id"], correction_reason="Added the time")
++    status, v2 = ctx.oprec(corr)
++    assert status == 201 and v2["canonical_record_id"] == root["id"] and v2["public_code"] == root["public_code"]
++    assert v2["state"] == "SUBMITTED" and v2["id"] != root["id"]
++    refused("WORK_CORRECTION_CONFLICT", ctx.oprec, {**corr, "idempotency_key": "w401-oprec-008"})
++    assert ctx.oprec(corr) == (200, v2)
++    with ctx.engine.connect() as c:
++        rows = c.execute(text("SELECT body, state, authorization_basis, attestation FROM operational_record "
++                              "WHERE canonical_record_id = :r ORDER BY recorded_at, id"), {"r": root["id"]}).all()
++    assert [r[0] for r in rows] == ["Generator started by hand", "Generator started by hand at 16:14"]
++    assert {(r[1], r[2], r[3]) for r in rows} == {("SUBMITTED", BASIS, ACTOR["attestation"])}
