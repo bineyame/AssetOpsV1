@@ -138,6 +138,17 @@ def _instant(value: Any) -> datetime | None:
     return at if at.tzinfo is not None else None
 
 
+def enabled_connectors(foundation: dict[str, Any] | None) -> set[str]:
+    """q6 R1: the effective Foundation's enabled connector component IDs (`ev-connector-enabled=ENABLED`), with or
+    without a weekly schedule."""
+    if foundation is None:
+        return set()
+    return {c["component_id"] for c in foundation["content"].get("components") or ()
+            if c.get("component_type") == "EV_CONNECTOR"
+            and {p["property_key"]: p["value"] for p in c.get("properties") or ()}.get("ev-connector-enabled")
+            == "ENABLED"}
+
+
 def service_windows(foundation: dict[str, Any] | None, assets: dict[str, str], lo: datetime | None,
                     hi: datetime | None) -> list[dict[str, Any]]:
     """q5 R1: every enabled connector's configured weekly occurrence intersecting `[lo,hi)`, resolved with its
@@ -146,10 +157,11 @@ def service_windows(foundation: dict[str, Any] | None, assets: dict[str, str], l
     if foundation is None or lo is None or hi is None:
         return []
     found: dict[tuple[datetime, datetime], set[str]] = {}
+    enabled = enabled_connectors(foundation)
     for schedule in foundation["content"].get("connector_enable_schedules") or ():
         weekly = schedule.get("weekly") or ()
         asset = assets.get(schedule.get("connector_asset_id"))
-        if not weekly or asset is None:
+        if not weekly or asset is None or schedule.get("connector_asset_id") not in enabled:
             continue
         for w in weekly:
             if w.get("weekday") not in WEEKDAYS:
@@ -179,15 +191,17 @@ def _utc_words(at: datetime) -> str:
 
 def objective_windows(foundation: dict[str, Any] | None, assets: dict[str, str], lo: datetime | None,
                       hi: datetime | None) -> tuple[dict[str, str] | None, list[dict[str, Any]], bool]:
-    """q5 R1: `(configured_service_window, configured_service_windows, service_schedule_declared)`. The single
-    window is nonnull only when exactly one occurrence is common to every enabled connector in the selection;
+    """q5 R1/q6 R1: `(configured_service_window, configured_service_windows, service_schedule_declared)`. The single
+    window is nonnull only when exactly one occurrence is common to every enabled connector of the Foundation;
     `declared` keeps a declared weekly schedule with no selected overlap distinct from missing configuration."""
     windows = service_windows(foundation, assets, lo, hi)
     schedules = [] if foundation is None else foundation["content"].get("connector_enable_schedules") or []
-    declared = any(x.get("weekly") for x in schedules)
-    enabled = {assets.get(x.get("connector_asset_id")) for x in schedules if x.get("weekly")}
+    on = enabled_connectors(foundation)
+    declared = any(x.get("weekly") and x.get("connector_asset_id") in on for x in schedules)
+    # q6 R1: common only when the one occurrence covers every enabled connector, scheduled or not.
+    enabled = {assets.get(x) for x in on}
     common = ({"from": windows[0]["from"], "to": windows[0]["to"]}
-              if len(windows) == 1 and set(windows[0]["connector_asset_ids"]) == enabled else None)
+              if len(windows) == 1 and enabled and set(windows[0]["connector_asset_ids"]) == enabled else None)
     return common, windows, declared
 
 
@@ -580,17 +594,21 @@ class EvSiteReads:
             for b_asset, source, gateway, b_role in bindings:
                 if asset is not None and b_asset == asset and (role is None or b_role == role):
                     gateways_of.setdefault(source, set()).add(gateway)
-            states = [one(src, gws) for src, gws in sorted(gateways_of.items())]
-            if not states:
-                out = {"state": "UNKNOWN", "last_seen_at": None, "age_seconds": None, "diagnostic_id": None,
-                       "diagnostic_received_at": None, "cadence_seconds": None}
-            elif len({x["state"] for x in states}) == 1:
-                out = max(states, key=lambda x: (x["last_seen_at"] or "", x["diagnostic_received_at"] or ""))
+            # q6 R2: one per-source object per bound source (sorted by source_id); a multi-source slot states
+            # MIXED iff the per-source states differ and never lets one source's diagnostic stand for all.
+            by_source = [{"source_id": plain(src), **one(src, gws)}
+                         for src, gws in sorted(gateways_of.items(), key=lambda x: str(x[0]))]
+            null = {"last_seen_at": None, "age_seconds": None, "diagnostic_id": None,
+                    "diagnostic_received_at": None, "cadence_seconds": None}
+            if not by_source:
+                out = {"state": "UNKNOWN", **null}
+            elif len(by_source) == 1:
+                out = {k: v for k, v in by_source[0].items() if k != "source_id"}
             else:
-                out = {"state": "MIXED", "last_seen_at": None, "age_seconds": None, "diagnostic_id": None,
-                       "diagnostic_received_at": None, "cadence_seconds": None}
-            return {"state": out["state"], "checked_at": plain(checked), **{k: v for k, v in out.items()
-                                                                           if k != "state"}}
+                states = {x["state"] for x in by_source}
+                out = {"state": states.pop() if len(states) == 1 else "MIXED", **null}
+            return {"state": out["state"], "checked_at": plain(checked),
+                    **{k: v for k, v in out.items() if k != "state"}, "by_source": by_source}
         return contact
 
     def _assets(self, c, ctx) -> dict[str, str]:
