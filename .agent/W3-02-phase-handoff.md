@@ -1,5 +1,35 @@
 # W3-02 phase handoff
 
+## Commit 1 (Lane B) - Evidence read/API READY; awaiting Lane A router mount, then combined review
+
+Commits `8d1e6325` (code + pure tests) and `c9e19695` (Postgres proofs) on `task/W3-02-estate-evidence-money-basis`, after `git merge main`. Lane A files were not touched. The branch is released to Lane A for the mount (exact diff in `.agent/W3-02-lane-a-requests.md`).
+
+What landed:
+- `estate/evidence_money.py`: `EstateEvidenceService(EstateIndexService)` reuses the shared `_scope/_fence/_cursor/_envelope/_read`, `site_coverage`, `selection_token` and `resume_after`.
+  - W1: one `GENERATOR_SUPPORT@day` row per intersecting day from `claim_limit_on` + `reduce_day`.
+  - Cold/EV: four grouped rows per pinned window from `capabilities_on`. A Site with no selected window gets four unsuffixed placeholders.
+  - Also: typed gap groups, B5 row-local links, `EMPTY_SCOPE`/`EMPTY`, and the 3-part cursor.
+- `estate/adapters/postgres_evidence_money_read.py`: `PostgresEvidenceMoneyRead` and `EvidenceMoneySnapshot`, subclasses that keep the one REPEATABLE READ transaction and add `claim_limit_on`, `pinned_windows`, `cold_capabilities` and `ev_capabilities`.
+- `estate_evidence_money_api.py`: `build_estate_evidence_money_router`. Every refusal includes `gaps:null` inside `detail` (401 and 503 too).
+- Tests:
+  - `test_w302_evidence_api.py` (5, pure), including the literal empty-scope vector and `/2` token `5944cb...`.
+  - `test_w302_evidence_scope_snapshot_postgres.py` (2: cold scope/windows/citations/cursor/409/foreign, and W1 two days plus historical, with the store's own transaction trapped).
+  - `test_w302_evidence_ev_postgres.py` (1: EV rows, links, gaps).
+
+Checks, on the private DB `w302f_test` (dropped afterwards):
+- The 3 new files plus `test_w301_estate_api`, `test_w302_estate_cursor`, `test_w302_w1_day_reduction`, `test_w302_pinned_facades` and `test_w301_estate_coverage`: 73 passed, 0 skipped, 54s.
+- Mutations, both reverted:
+  - Rows cite all window evidence: the pure test failed.
+  - The link `from` is shifted off the row window: the cold and EV Postgres tests failed (2 failed).
+- `check-all`: 11/11. No full suite.
+
+Pending rulings: `.agent/W3-02-pending-rulings.md`.
+- c1-q1: the EV `historical_label` is set only when the snapshot state is HISTORICAL, which differs from "explicit earlier cutoff". This matters for commit 3.
+- c1-q2: `unknown_meter` is not exposed by the EV facade; there is an interim private `_sessions` call.
+- c1-q3: readings applied where the spec is silent.
+
+Next: Lane A mounts the router in `main.py` (with the composition builder), then the combined phase-1 review. Then commit 2 (Lane B).
+
 ## 0c (Lane A) - READY FOR REVIEW
 
 Commit `750ce929` on `task/W3-02-estate-evidence-money-basis` (`git merge main` was already up to date at `724c0832`).
