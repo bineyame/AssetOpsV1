@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
-import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
+import { SiteFindings } from "../sites/FindingsIndexes";
 import { createActionClient, type ActionClient } from "../sites/actionClient";
 import {
   actionIndexQuery,
@@ -362,25 +362,6 @@ export function SiteFindingsFrame({
         </main>
       )}
     </SiteScoped>
-  );
-}
-
-export const FINDINGS_HEADING_ID = "findings-heading";
-
-/** The Findings rail root: the global index. */
-export function FindingsFrame({ analytics }: { analytics: SiteAnalyticsClient }) {
-  return (
-    <main aria-labelledby={FINDINGS_HEADING_ID}>
-      <PageHeader
-        title="Findings"
-        headingId={FINDINGS_HEADING_ID}
-        subtitle="Every configured site"
-      />
-      <FindingsIndex
-        client={analytics}
-        findingHref={(siteId, assessmentId, tab) => findingHref(siteId, assessmentId, tab)}
-      />
-    </main>
   );
 }
 

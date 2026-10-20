@@ -278,3 +278,175 @@ fixture clock vs DB `now()` and re-date `site_import`). The golden manifest `w30
 after `k`, with no stored window history, so it can show as outstanding on a historical mini-grid day it did not
 cover at `k`; that day reads pending, not unavailable.
 **Branch released.** Next: Lane A guard domain + `main.py` mount; the remaining mini-grid tests; then review.
+
+## Lane B commit-2 mini-grid tests (2026-10-20): landed; golden manifest blocked on q9; branch released
+Merged main (`e7ab7dbe`, clean). Commit `187a7020`:
+- `test_w301_estate_index_postgres.py` adds `test_late_support_change_recurrence_at_exact_cutoff` (S4 F03/F05: distinct
+  recurrence rows; explicit cutoff unchanged after later revisions; 1 us before the late match -> UNKNOWN, no rows;
+  late accepted evidence -> live PENDING_RECOMPUTE), `test_cost_risk_opportunity_eligibility_without_mock_seed`
+  (unbound PowerSite: UNPRICED and gate-withheld PRICED stay in All, Cost/Risks/Opportunities complete zero),
+  `test_cost_lens_only_exact_eligible_current_rows` (P01 PowerSite: exact PRICED interval in Cost; historical cutoff
+  and stale v4 price leave Cost until recompute), `test_action_event_and_verification_counts_full_basis` (S6 chain:
+  event cutoffs, later-window edges, VERIFIED and 30-day lookback edges, full-basis cards vs page).
+  TEST-SCOPED `pin_read_at` pins `EstateSnapshot.read_at` and `PostgresAssessmentStore._transaction_time` to the
+  fixture clock (S4/S6 fixtures run 2026-10-29..11-02, ahead of the DB clock).
+- Code fix (`estate/coverage.py:_mini_grid`): an overlapping PENDING/LEASED/FAILED job now makes the day
+  PENDING_RECOMPUTE ahead of S3 STALE (spec selection rule + q5 ruling 5); before, late evidence read STALE_SOURCE.
+- Checks (private `w301q_test`, dropped): estate files 17 passed (3 min 5 s): index 9, EV 3, API 5. Mutations after
+  commit, each reverted with `git checkout`: drop the job-pending rule -> late-support test FAILS; drop the CURRENT
+  money check -> Cost test FAILS; `later_end` inclusive -> Action counts test FAILS.
+- check-all: 9/10; the only failure is the expected missing `estate` domain in `configuration-persistence.ps1` (Lane A).
+**Not built:** `backend/tests/fixtures/w3/w301-estate-golden.json` (q9 item 1: fresh UUIDs per replay, separate DBs per
+domain). q9 item 2 (awaiting-verification predicate) is built as-is; its test pins 0 and is marked q9.
+**Branch released.** Next: Architect rules q8 + q9; then a Lane B fix round (rulings + golden); Lane A guard domain and
+`main.py` mount.
+
+## Lane B commit-2 q8/q9 round (2026-10-20): Lane B part complete; ready for Lane A integration
+Merged main (`6f87e923`; handoff conflict took main's version, the mini-grid section above restored). Commits:
+- `9b2c09cd` q8: ruling 2 `estate/index.py:_scope` uses the cursor's six-digit cutoff for every page two (supplied
+  `known_at` must equal it or be its wire-second copy, else 409; page two below read time is HISTORICAL with
+  `as_of`); ruling 3 Finding wire `estate-finding-index-2`, every consequence carries `amount_low`/`amount_high`
+  (null unless PRICED; `amount` aliases `amount_low`), `estate/coverage.py:_consequence`; fixture (a)
+  `imported_before(engine, tenant_id, site_id, at)` constrained by tenant+Site, rowcount 1; fixture (b) EV q7 proof
+  now asserts identical full coverage/rows/summary/token at K with the late dispositions re-dated after K
+  (TEST-SCOPED `SET LOCAL session_replication_role = replica` over the append-only trigger, private DB only), and
+  `test_ev_backdated_disposition_limitation_fences` keeps the backdated case as a named limitation; q9 ruling 2
+  honest zero: card 0 at `later_start` with the Action window card 1, selected F01 revision != origin, origin
+  revision 0 before a plan, `later_end` exclusive and RESOLVED controls.
+- `4a311ae5` q9 ruling 1: `backend/tests/fixtures/w3/w301-estate-golden.json` (`w301-estate-golden/2`) and
+  `test_w301_estate_golden_postgres.py::test_w301_golden_manifest_public_replay` (mini_grid 14, cold 8, ev 8 cases;
+  independent token/access rebuild; cursor decode + page two). `mixed` ships `cases: []` pending **q10** (one private
+  DB not reachable with the existing replay fixtures); no stale/leased/failed replay exists (q10 item 3).
+- Checks (private `w301r2_test`, dropped): estate API 5 passed; index + EV 13 passed (EV 4 incl. new limitation
+  test); golden 3 passed (70 s). Mutations, reverted with `git checkout`: omitted-cutoff cursor reads live -> cursor
+  test FAILS; golden `total_count` 2->3 and an emptied token-rebuild array -> golden test FAILS.
+- check-all: 9/10; the only failure is the expected missing `estate` domain (`configuration-persistence.ps1`).
+**For Lane A (integration handoff):** add the `estate` guard domain and the `main.py` mount; update the typed UI
+Finding DTO to `estate-finding-index-2` (`amount_low`, `amount_high`, `episode_start`, `status`); UI copy for the
+honest zero (q9 ruling 2): label `Awaiting verification`, zero-state `No Actions from selected Finding revisions are
+awaiting verification in this window.`, disclosure `Counts Actions from the exact selected Finding revision with an
+open frozen verification window and no resolved outcome.`; unpriced copy `No consequence recorded` (q8 ruling 4).
+**Open:** q10 (mixed branch; readings 2-4). Residual risk: a live page one with open cold/EV jobs pages to a
+HISTORICAL page two that does not project today's jobs, so its `job_state` (in the token) moves and page two is 409
+(ruling 2 + ruling 6 as written). Optional: `.gitattributes` `backend/tests/fixtures/w3/*.json text eol=lf`.
+**Branch released.**
+
+## Lane A commit-2 integration (2026-10-20): commit 2 complete, ready for review; branch released
+Merged main (already up to date at `da3f6f3c`). Commit `d9039997`:
+- `tools/checks/configuration-persistence.ps1`: `estate` `$domains` entry (q5 ruling 3; `$pgReaders`/`$isPgReader` kept as landed).
+- `tools/checks/test_estate_guard.py`: `test_pg_reader_import_allowed`, `test_pg_reader_write_rejected`,
+  `test_domain_driver_import_rejected` (untracked probe modules, deleted after; no tracked `estate/` file touched).
+- `backend/assetops_backend/main.py`: `build_estate_router(build_estate_index_service(database_url()), registry_tenant(registry),
+  access=development_access, unavailable=(SiteStoreUnavailable,))` after the Site Action index router.
+- Not built: typed UI DTO and q8/q9 copy. No Lane A-owned estate frontend file exists; the spec places it in commit 3
+  (q11 item 1). Readings q11 1-4 are in `.agent/W3-01-pending-rulings.md`; none blocks.
+Checks: private `w301s_test` (dropped): estate API, index, index EV and golden, plus the 3 guard tests: 24 passed (556 s).
+Ad hoc `create_app()` without a DB: `/api/estate/scope` returned 503 `ESTATE_STORE_UNAVAILABLE`. Mutations after commit,
+each reverted with `git checkout`: with the `estate` domain disabled, `test_domain_driver_import_rejected` FAILS; with the
+`$isPgReader` branch dropped, `test_pg_reader_import_allowed` FAILS. check-all: 10/10 PASS. No full suite.
+**Next:** independent review of the contiguous commit-2 range (`a75b0291` prerequisite onward through `d9039997`); then commit 3.
+**Branch released.**
+
+## Lane B q10 round (2026-10-20): commit 2 ready for review; branch released
+Merged `main` at `a37eeb56` (`.agent/W3-01-pending-rulings.md` conflict: main's version). Commit `5d8c5794`
+applies "Run 10 rulings (q10)":
+1. `test_w301_estate_golden_postgres.py`: `mixed` in `REPLAYED`/`BRANCH_REPLAY`; validator requires nonempty cases.
+   `mixed_replay` calls `fresh_database()` once, suppresses the cold/EV `Chain.open()` resets, runs cold `normal`,
+   EV `complete`, the S4 runner (own `PostgresFoundationStore`, no `store` fixture) with F03, adds
+   `W301-EMPTY-001`, re-dates the four imports. Manifest `mixed.cases`: `scope-mixed`, `findings-mixed-week`,
+   `actions-mixed`, `findings-mixed-kobo-day`; `assert_mixed` checks four codes, one tenant, counts, Action rule.
+2. `test_w301_estate_coverage.py` (new): `test_windowed_stale_probe`, `test_windowed_leased_and_failed_jobs` (unit).
+3. `EstateSnapshot.continuation` (set in `index._scope`); `coverage._windowed` evaluates `open_jobs` on a live
+   read or a cursor page. `test_live_open_cold_ev_page_two_keeps_work_fence`; proven non-vacuous (fails 409
+   without the fix, reverted).
+4. `test_w301_estate_index_ev_postgres.py::reselect_at` monkeypatches `w205b.LATE_DECISION` to a DB-clock instant
+   after `k1`; no trigger bypass, no row update.
+Checks (private `w301t_test`, dropped): estate files + `tools/checks/test_estate_guard.py` 28 passed, 0 skipped
+(744 s); `check-all` 10/10. Open: q11 reading (historical page one + cursor, pending-rulings). Risk: the mixed
+read clock is `max(S4 fixture now + 1 min, DB now)`; after 2026-10-30 the cold watermark/KOBO literals may move.
+
+**Branch released.** Next: independent review of commit 2, `a75b0291..HEAD`.
+
+## Commit-2 fix round r1 (2026-10-20)
+
+Revisions: code/tests `dc573bd9` (and earlier r1 commits); the separate cherry-pick commit is `7ff49e0c` (W2-06 EV test, q1 ruling 3). Private DB `w301v_test` (dropped). check-all 11/11 (the new estate-guard step is the 11th).
+
+| Finding | Fix | Test |
+|---|---|---|
+| M1 / q11-B 1 | cursor field `page_one_mode` (`live`/`historical`) in `scope.py` keys + `decode_cursor`, set in `index._scope` (`snap.basis_historical`), carried by `_cursor`; coverage gates/rows/work fence use `basis_historical`, response label keeps `snapshot.historical` | `test_live_pending_minigrid_page_two_keeps_basis`, `test_live_stale_minigrid_page_two_keeps_basis[STALE_PROJECTION,PENDING]`, `test_explicit_historical_open_job_page_two_keeps_basis[PENDING,LEASED,FAILED]`, `test_historical_minigrid_outstanding_marker_page_two_keeps_basis`, `test_cursor_page_one_mode_shape`, work-fence test asserts `live` |
+| Forced clock | `Replay`/`pin_read_at`/mixed `max` shifted 30 days | `test_w301_golden_clock_plus_30_days[mini_grid,mixed]` PASS 2026-10-20 at `dc573bd9` (full file 6 passed) |
+| L1 | catch-all removed from `_bound_link_rows`; typed `ColdPinned/EvPinnedLineageUnavailable`; composition passes typed + `SelectionPinRefused` (via `analytics.composition.selection_pin_refused()`, guard-clean); new `unavailable=` mapping to 503 | `test_link_reader_programming_error_is_not_selection_409`, `test_typed_lineage_refusal_retries_once_then_409`, `test_absent_link_reader_and_broad_unavailable_are_503` |
+| L2 | `_cold_window` filters revisions to the window's selected assessments | `test_cold_revision_waits_for_its_selected_assessment` |
+| L3 | q11-A 1-4 / q11-B 1 names as ruled (record is the build-spec rulings) | n/a |
+| L4 | injected-service connection proof; golden oracle limit stated | `test_estate_injected_reads_share_one_connection` |
+| q11-A 2 | guard tests run over an isolated temp copy; W3-02 reader path removed from `$pgReaders`; check-all step names the three tests | `tools/checks/test_estate_guard.py` (3 passed) |
+
+Readings made (flag for review): (1) a live page two keeps the live Site state (mini-grid gate) but the Site `state` label is HISTORICAL when its cutoff precedes read time (cold/EV unchanged; mini-grid relabelled except UNKNOWN). (2) STALE test sets the stored day status through a wrapper over `dispatch_days` (a DONE job without a completion selection makes the day unavailable; jobs are never deleted). (3) L2 test re-dates the revision of the last selection by one second (triggers disabled in the test transaction) because the worker stamps revision, assessment and selection with one transaction time; a natural gap does not exist. (4) historical changed-selection control uses a forged selection digest plus a grant change, not a mutated stored revision. (5) Forced clock: named step clocks used as request cutoffs stay unshifted; echoed read instants are unshifted before comparison to the literal manifest. (6) the second inline catch-all in the EV store (`except Exception` near the EV inline link read, ~line 2497) is left as is (not named by L1). (7) golden mini-grid test disposes the module engine pool because the `mixed` branch re-creates the DB.
+Limits carried: widened-job historical overlap (Run 6 reading 4); golden is a digest canonicalizer plus whole-response comparison, not an independent selection oracle.
+
+## Lane B q12 + commit 3 (2026-10-20): five estate roots landed; Lane A integration next; branch released
+Merged main (`d84fe26f`, clean). Commits:
+- `8c7be299` q12 items 1-2:
+  - `coverage.py`: `_mini_grid` continuation overwrite removed; `_windowed`/`_actions` Site state from `basis_historical`.
+  - `index.py`: `summary.as_of` on every HISTORICAL response (q13 reading 1); golden `withdrawal-day-before-selection-unknown` gains `as_of`.
+  - Page-two tests compare full Site coverage incl. `state`, row `status`, `as_of`, top-level HISTORICAL. Covered: work fence, live pending, stale, explicit historical, cursor, and a new Actions page two in the counts test.
+  - L2 assertion replaced exactly.
+- `5a72feea` commit 3: `frontend/src/estate/{estateClient.ts,estateShared.tsx,findingIndex.tsx,actionIndex.tsx,estate.css}`, `__tests__/{estateFixtures.ts,estateRoots.test.tsx}` (3 named tests, `expectV69Panels` for all five screens). Pages export `EstateFindingsPage({lens,client?})`, `EstateActionsPage({client?})`, `ESTATE_FINDING_LENS_PATHS`, `ESTATE_ACTIONS_PATH`.
+Checks:
+- Private `w301x_test` (dropped). Estate api/coverage/index/index-ev/golden plus the guard tests, run across one full pass and reruns after each fix:
+  - `test_late_support...` 1 passed after its as_of fix.
+  - Index/api/ev 33 passed with that 1 failure (now fixed).
+  - Golden 6 passed.
+  - The page-two subset 20 passed.
+  - No full backend suite.
+- Frontend: tsc clean; full suite 92 files / 2345 passed; estate 3 passed. check-all 11/11 after the table rename; the architecture check passed on rerun.
+- Mutations, each reverted with `git checkout`, each FAILS:
+  - `_windowed` back to `snapshot.historical`: the work-fence test fails.
+  - Historical consequence copy dropped: `estateRoots` fails.
+  - Pending chip relabelled historical: `estateRoots` fails.
+  - Lens tab keeping the cursor: `estateRoots` fails.
+**Open:** q13 in `.agent/W3-01-pending-rulings.md` (2 questions: full-basis state-chip set; cold/EV Finding link destination; 12 readings, reading 1 golden `as_of` needs confirmation).
+**Next:** Lane A commit-3 integration per `.agent/W3-01-lane-a-requests.md` "Commit-3" section (routes, App `estateIndex` prop, Actions rail + nav guard, registry, three shell tests). Then commit-3 review, then commit 4 captures. **Branch released.**
+
+## Lane A commit-3 shell integration (2026-10-20): ready for commit-3 review; branch released
+Merged main (`96a2df01`, W4-01). Conflicts: `.agent/*` none. Unions: `main.py` (estate and work routers), `configuration-persistence.ps1` (estate and work domains; main's `$pgReaders`/writers lines, which already list the estate reader). The two adapter files `postgres_assessment_store.py`/`postgres_finding_store.py` were taken from HEAD. Main's side was the W4 revert of the 0b cherry-pick (`7876b79c`), plus W3's own pre-c2r1 copy (main = W3@`381cf1a2` minus 0b), so taking HEAD keeps the money helpers and the c2 r1 L1 typing. **Coordinator: confirm this reading.** Money helpers verified intact: `git diff 75f4e4c8 HEAD` is empty for `consequence_read.py`, `money_eligibility.py`, `test_w301_w1_money_snapshot_helpers_postgres.py`, both adapters and `postgres_evidence_ledger.py`. Nothing was restored.
+Commits `013cdb38`, `483973f9`:
+- Routes: `App.tsx` mounts `/findings`, `/findings/{cost,risks,opportunities}` and `/actions` ahead of the legacy patterns. Constants are mirrored in `operatorSiteRoutes.ts`, and a test pins equality with the `estate/` constants. New `shell/EstateRootFrames.tsx` wraps each page in `<main aria-label>` (the pages have no heading id). `FindingsFrame` is no longer mounted.
+- `estateIndex?: EstateClient` App prop, default `createEstateClient()`.
+- Rail: Actions is live. Nav guard tuple is `live|Actions|WORK|/actions`, plus 4 rail fixtures (missing route, route removed, demoted, Incidents promoted).
+- Registry: the 4 estate nodes are `task:W3-01`, still `open`. Panels `findings`, `findings-cost`, `findings-risks`, `findings-opportunities` and `actions` are `gap`, with reason "awaits independent review". Ledger rows are `bounded`/`W3-01`, with `to_candidate:null`. Tier stays Deferred/pending owner, `P-*` untouched, and nothing claims owner acceptance.
+- Shell tests: `shell/__tests__/w301EstateShellRoutes.test.tsx`, 3 named tests. Rail/route label lists are updated in 9 existing test files. The t028 global-index test is retargeted to the estate root plus the legacy detail routes, because the `/findings` element was replaced by ruling.
+Checks at `483973f9`: frontend full 94 files / 2370 passed; `npm run build` (tsc + vite) ok; registry checker exit 0; ledger valid; check-all 11/11. Estate api/coverage/golden/index/index-ev + money helpers on `w301y_test`: 46 passed in 1026 s, DB dropped. No full backend suite.
+**Next:** commit-3 review, then commit 4 captures. **Branch released.**
+
+## Commit-3 fix round (Run 13 q13 + c3r1 L1-L4/M1)
+
+Fix commit on top of `75df4089` (main merged clean). All tests in `frontend/src/estate/__tests__/estateRoots.test.tsx`.
+
+| Item | Fix | Test |
+| --- | --- | --- |
+| q13-1 `as_of` | Already built (`8c7be299`); golden keeps `as_of` | estate backend set (40 passed) |
+| q13-2 five chips | `findingIndex.tsx` `STATE_CHIPS`, no body input, no counts | `test_five_mock_panels_and_supported_links`, `test_every_state_and_empty_string` (empty filtered read) |
+| q13-3 finding links | Row links `links.finding` only for mini-grid Sites; cold/EV title is inert `<span>`; notice = `FINDINGS_NOTICE` + linked/unlinked sentence; ledger `supported_claim`/`interaction` (5 occurrences) reworded | `test_cold_ev_titles_inert_and_notice` |
+| q13-7 Verified note | `NO_VERIFIED_OUTCOME` when complete and `verified_in_30_days == 0`, independent of rows; partial has none | `test_every_state_and_empty_string` |
+| q13-4,5,6,8 | Confirmed as built, no change | existing + M1 assertions |
+| L1 Actions Site href | `actionIndex.tsx` Site cell links `siteDetailHref(site_code)`, code kept as secondary text | `test_five_mock_panels_and_supported_links` (mini/cold `COLD 7/a`/EV rows) |
+| L2 date bar | `estateShared.tsx cutoffBarText` | `test_date_bar_cutoff_copy_by_state` |
+| M1 strings | all listed strings asserted | `test_every_state_and_empty_string` |
+| L3 | `FindingsFrame`, `FINDINGS_HEADING_ID`, unused import deleted | tsc clean |
+| L4 | Action/source/Site hrefs and no Incident/Maintenance link asserted | `test_five_mock_panels_and_supported_links` |
+
+Reading to confirm: the wire has no row domain, so mini-grid is derived from the existing coverage entry
+(`coverage.sites[].match_state !== "NOT_APPLICABLE"`; cold/EV report NOT_APPLICABLE per `estate/coverage.py`). A Site
+absent from coverage is never linked. Mutation proof: Actions Site href and the continuation suffix each reverted, tests failed.
+
+Evidence: frontend 94 files / 2373 passed; tsc clean; build ok; check-all 11/11; estate backend (api, coverage,
+golden, index, index_ev) on `w301fa_test`: 40 passed (12m16s); DB dropped.
+
+## Lane B commit 4 (2026-10-20): captures and packet; ready for final review; branch released
+Merged main (`a4dafe30`, `.agent` only). Commits `89c53b0e` (estate chip row: `.estate-page .estate-state-chips`
+outranks the shared `.v69-chips` wrap; 390 chips 73 -> 33 px), `3284909f` (captures), packet commit.
+Evidence `.agent/W3-01-evidence/` (`serve.py`, `capture.mjs`, `reads.py`, `summarize.py`, 52 measured captures + mock).
+Checks: focused backend 75 passed / 0 skipped (1131.7 s, private `w301cap_test`, dropped); frontend 94 files / 2373
+passed; build ok; check-all 11/11. Full backend suite NOT run (by instruction). Open: q14-1 (Findings cards 150 px vs
+146 cap at 1440, ruled zero copy). Merge hazard: keep HEAD's money helpers on merge to main (packet section).

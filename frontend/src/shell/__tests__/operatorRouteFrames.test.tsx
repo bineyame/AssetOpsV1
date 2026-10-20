@@ -194,7 +194,14 @@ describe("operator route navigation", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Findings" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(EMPTY_ANALYTICS_STATEMENT)).toBeInTheDocument();
+    // W3-01: `/findings` is the estate All root now, not the T028 global index.
+    expect(document.querySelector('[data-estate-root="all"]')).not.toBeNull();
+    expect(screen.queryByText(EMPTY_ANALYTICS_STATEMENT)).toBeNull();
+
+    fireEvent.click(within(operatorNavigation).getByRole("link", { name: "Actions" }));
+    await settledScreen();
+    expect(screen.getByRole("heading", { level: 1, name: "Actions" })).toBeInTheDocument();
+    expect(document.querySelector('[data-estate-root="actions"]')).not.toBeNull();
 
     fireEvent.click(within(operatorNavigation).getByRole("link", { name: "Sites" }));
     await settledScreen();
@@ -202,7 +209,7 @@ describe("operator route navigation", () => {
       screen.getByRole("heading", { level: 1, name: "Sites" }),
     ).toBeInTheDocument();
 
-    // Exactly two items. Both parameterless site destinations have been
+    // Exactly three items (W3-01 adds the estate Actions root). Both parameterless site destinations have been
     // removed by the slices that gave them identified replacements, and
     // neither replacement is a navigation item, because a navigation item
     // cannot name which site it would open. Findings (T028,
@@ -215,6 +222,7 @@ describe("operator route navigation", () => {
     ).toEqual([
       ["Sites", "/sites"],
       ["Findings", "/findings"],
+      ["Actions", "/actions"],
     ]);
   });
 
@@ -254,7 +262,7 @@ describe("operator route navigation", () => {
       [
         [["WORK", "WORK"]],
         [
-          `Actions | ${off}`,
+          "Actions | live",
           `Incidents | ${off}`,
           `Maintenance | ${off}`,
           `Operational records | ${off}`,

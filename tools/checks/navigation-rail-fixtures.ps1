@@ -57,6 +57,14 @@ function Invoke-NavigationRailFixturesCheck {
                Rail = (Edit-Lines $rail 'to: "/findings"' 'to: "/findingz"') },
             @{ Name = "live root's route removed (only the catch-all would serve it)"; Expect = "points at '/findings'";
                App = (Remove-Line $app 'path=\{FINDINGS_PATH\}') },
+            @{ Name = "W3-01: Actions live root points at a missing route"; Expect = "points at '/actionz'";
+               Rail = (Edit-Lines $rail 'to: "/actions"' 'to: "/actionz"') },
+            @{ Name = "W3-01: Actions route removed (only the catch-all would serve it)"; Expect = "points at '/actions'";
+               App = (Remove-Line $app 'path=\{ACTIONS_PATH\}') },
+            @{ Name = "W3-01: Actions demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/actions", label: "Actions", end: false' 'kind: "unavailable", label: "Actions"') },
+            @{ Name = "W3-01: Incidents promoted to live"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Incidents"' 'kind: "live", to: "/actions", label: "Incidents"') },
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";
                Rail = (Insert-After $rail 'label: "Settings", group: "ADMIN"' '  { kind: "unavailable", label: "Reports", group: "ADMIN", icon: "log" },') },
             @{ Name = "label typo"; Expect = "the W1 rail is exactly";

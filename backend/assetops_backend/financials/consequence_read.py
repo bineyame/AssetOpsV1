@@ -271,6 +271,91 @@ class ConsequenceReadService:
         }
 
 
+    def select_consequence_on(self, c: Any, tenant_id: UUID, site_id: UUID, finding_revision_id: UUID,
+                              known_at: Any) -> dict[str, Any]:
+        """W3-01 Run 6 `0a`: the consequence of one exact FindingRevision as recorded by `known_at`, on the caller's
+        connection and transaction (no new snapshot, no write).
+
+        Selects the latest fuel consequence revision of this exact tenant/Site/FindingRevision recorded by `:k`
+        and applies `read`'s currentness on `c` at `:k`: the inputs are the FindingRevision and readings decided by
+        `:k`, the price is the timeline known at `:k` (an old head is never repriced at today's price; a later
+        consequence or price cannot change this read). States: `CURRENT`/`STALE` (basis comparison at `:k`),
+        `HISTORICAL` (not the Finding's latest revision at `:k`), `PENDING` (no consequence recorded by `:k`) and
+        `UNKNOWN` (the exact FindingRevision is not this Site's at `:k`, or the selected revision's price or
+        lineage is missing) with no amount. The state is the basis currentness at `:k`; whether `:k` is the live
+        cutoff, the money gate and the source gate are the caller's (Run 6 Blocker 2)."""
+        k = known_at
+        got = self._store.selected_on(c, tenant_id, site_id, finding_revision_id, k)
+        rev, head, links = got["finding_revision"], got["head"], got["links"]
+        out: dict[str, Any] = {
+            "finding_revision_id": str(finding_revision_id), "known_at": _iso(k),
+            "finding_id": None if rev is None else str(rev["finding_id"]),
+            "consequence_revision_id": None if head is None else str(head["id"]),
+            "revision_no": None if head is None else head["revision_no"],
+            "recorded_at": None if head is None else _iso(head["recorded_at"]),
+            "consequence_state": None if head is None else head["state"],
+            "amount_low": None, "amount_high": None, "currency": None, "basis": None, "price": None,
+            "cited": {"assessment_revision_ids": [], "assumption_revision_ids": [], "power_evidence_ids": [],
+                      "price_revision_id": None}}
+        reasons: list[str] = []
+        if rev is None:
+            out["currentness"] = {"state": "UNKNOWN", "reasons": ["FINDING_REVISION_NOT_AT_CUTOFF"]}
+            return out
+        if head is None:
+            # W1 `read` precedence: a superseded FindingRevision is HISTORICAL even with no consequence recorded.
+            superseded = str(rev["latest_id"]) != str(finding_revision_id)
+            out["currentness"] = {"state": "HISTORICAL", "reasons": ["FINDING_REVISION_SUPERSEDED"]} if superseded                 else {"state": "PENDING", "reasons": ["NO_CONSEQUENCE_AT_CUTOFF"]}
+            return out
+        price_id = head["price_revision_id"]
+        out["cited"] = {
+            "assessment_revision_ids": [str(x["assessment_revision_id"]) for x in links.get("assessments", ())],
+            "assumption_revision_ids": [str(x["assumption_revision_id"]) for x in links.get("assumptions", ())],
+            "power_evidence_ids": [str(x["evidence_id"]) for x in links.get("intervals", ())],
+            "price_revision_id": None if price_id is None else str(price_id)}
+        out["basis"] = {"basis_kind": head["basis_kind"], "model_id": head["model_id"],
+                        "formula_version": head["formula_version"], "parameter_sha256": head["parameter_sha256"],
+                        "technical_input_sha256": head["technical_input_sha256"],
+                        "consequence_basis_sha256": head["consequence_basis_sha256"]}
+        out["price"] = {"state": head["price_state"], "reason": head["price_reason"],
+                        "revision_id": out["cited"]["price_revision_id"], "value": _text(head["price_value"]),
+                        "currency": head["price_currency"], "considered": _considered(head["price_considered"])}
+        if not links.get("assessments"):
+            reasons.append("CONSEQUENCE_LINEAGE_MISSING")
+        if price_id is not None and not got["price_known"]:
+            reasons.append("PRICE_NOT_AT_CUTOFF")
+        f = None if reasons else self._store.load_input_on(c, tenant_id, site_id, rev["finding_id"],
+                                                           finding_revision_id, known_at=k)
+        if not reasons and f is None:
+            reasons.append("FINDING_INPUT_MISSING")
+        if reasons:
+            out["currentness"] = {"state": "UNKNOWN", "reasons": reasons}
+            return out
+        if str(rev["latest_id"]) != str(finding_revision_id):
+            state = "HISTORICAL"
+            reasons.append("FINDING_REVISION_SUPERSEDED")
+        else:
+            q = fc.quantify(f)
+            known = None if q.state != "AVAILABLE" else self._prices.snapshot_on(
+                c, tenant_id, site_id, fc.PRICE_KEY, k, 0, 1)
+            price = fc.NOT_EVALUATED if known is None else fc.select_window_price(
+                known["timeline"], known["cited"], f.window_start, f.window_end)
+            now = fc.consequence(f, q, price)
+            if now.basis_sha256 == head["consequence_basis_sha256"]:
+                state = "CURRENT"
+            else:
+                state = "STALE"
+                if now.technical_input_sha256 != head["technical_input_sha256"]:
+                    reasons.append("TECHNICAL_INPUT_CHANGED")
+                if (now.price.state, now.price.revision_id, [list(x) for x in now.price.considered]) != (
+                        head["price_state"], out["cited"]["price_revision_id"], _considered(head["price_considered"])):
+                    reasons.append("PRICE_SELECTION_CHANGED")
+                if not reasons:
+                    reasons.append("BASIS_CHANGED")
+        out["currentness"] = {"state": state, "reasons": reasons}
+        out["amount_low"], out["amount_high"] = _text(head["amount_low"]), _text(head["amount_high"])
+        out["currency"] = head["currency"]
+        return out
+
 def withheld_reasons(state: str, reasons: list[str], money_state: str, gate: dict[str, Any],
                      head: dict[str, Any] | None) -> list[str]:
     """Every failed typed gate on the current amount at once (S4-05 shared contract item 4): currentness and its

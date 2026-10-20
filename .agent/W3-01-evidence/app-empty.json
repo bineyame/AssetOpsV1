@@ -1,0 +1,654 @@
+{
+  "state": "empty",
+  "captured_at": "2026-10-20T19:00:41.176Z",
+  "results": [
+    {
+      "screen": "findings",
+      "state": "empty",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&state=merged",
+      "image": "findings-empty-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1160
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 457,
+          "h": 134,
+          "w": 1160
+        },
+        "limitation": null,
+        "notice": {
+          "top": 609,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:06:59 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings4Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings",
+      "state": "empty",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&state=merged",
+      "image": "findings-empty-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 715,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 764,
+          "h": 134,
+          "w": 358
+        },
+        "limitation": null,
+        "notice": {
+          "top": 915,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:01 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings4Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-cost",
+      "state": "empty",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-cost-empty-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1160
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 457,
+          "h": 165,
+          "w": 1160
+        },
+        "limitation": null,
+        "notice": {
+          "top": 640,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:03 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported priced consequence in this selection.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-cost",
+      "state": "empty",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-cost-empty-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 715,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 764,
+          "h": 165,
+          "w": 358
+        },
+        "limitation": null,
+        "notice": {
+          "top": 946,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:05 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported priced consequence in this selection.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1031
+    },
+    {
+      "screen": "findings-risks",
+      "state": "empty",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-risks-empty-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1160
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 457,
+          "h": 165,
+          "w": 1160
+        },
+        "limitation": null,
+        "notice": {
+          "top": 640,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:06 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported risk classification in this selection.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-risks",
+      "state": "empty",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-risks-empty-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 715,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 764,
+          "h": 165,
+          "w": 358
+        },
+        "limitation": null,
+        "notice": {
+          "top": 946,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:08 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported risk classification in this selection.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1031
+    },
+    {
+      "screen": "findings-opportunities",
+      "state": "empty",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-opportunities-empty-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1160
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 457,
+          "h": 165,
+          "w": 1160
+        },
+        "limitation": null,
+        "notice": {
+          "top": 640,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:09 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported opportunity Finding in this selection.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-opportunities",
+      "state": "empty",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-opportunities-empty-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 715,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 764,
+          "h": 165,
+          "w": 358
+        },
+        "limitation": null,
+        "notice": {
+          "top": 946,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:11 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported opportunity Finding in this selection.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1031
+    },
+    {
+      "screen": "actions",
+      "state": "empty",
+      "width": 1440,
+      "app_url": "http://localhost:6141/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "actions-empty-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 182,
+          "h": 115,
+          "w": 1160
+        },
+        "chips": null,
+        "lenses": null,
+        "datebar": {
+          "top": 101,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 314,
+          "h": 134,
+          "w": 1160
+        },
+        "limitation": null,
+        "notice": {
+          "top": 466,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:13 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Open actions0",
+          "Due / overdueNot setNo due dates recorded",
+          "Verification window0",
+          "Verified in 30 days0No verified outcome in the last 30 days"
+        ],
+        "siteStates": [],
+        "empty": "No actions match.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "actions",
+      "state": "empty",
+      "width": 390,
+      "app_url": "http://localhost:6141/actions?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "actions-empty-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 357,
+          "h": 248,
+          "w": 358
+        },
+        "chips": null,
+        "lenses": null,
+        "datebar": {
+          "top": 183,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 623,
+          "h": 152,
+          "w": 358
+        },
+        "limitation": null,
+        "notice": {
+          "top": 793,
+          "h": 61,
+          "w": 358
+        }
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:14 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Open actions0",
+          "Due / overdueNot setNo due dates recorded",
+          "Verification window0",
+          "Verified in 30 days0No verified outcome in the last 30 days"
+        ],
+        "siteStates": [],
+        "empty": "No actions match.",
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 900
+    }
+  ]
+}

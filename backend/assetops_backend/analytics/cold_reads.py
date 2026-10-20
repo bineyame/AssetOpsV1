@@ -38,6 +38,10 @@ class ColdReadUnavailable(Exception):
     """The cold read store cannot be reached; the route answers 503, never an empty success."""
 
 
+class ColdPinnedLineageUnavailable(ColdReadUnavailable):
+    """An exact pinned episode/Finding/assessment lineage of a selected cold row cannot be read (estate 409)."""
+
+
 class ColdCursorRefused(Exception):
     def __init__(self, status: int, code: str, message: str) -> None:
         super().__init__(message)

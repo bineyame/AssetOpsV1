@@ -7,7 +7,6 @@ import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
 import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
 import {
   FindingDetailFrame,
-  FindingsFrame,
   SiteActionFrame,
   SiteWorkFrame,
   SiteWorkCasesFrame,
@@ -24,7 +23,11 @@ import { SiteFoundationFrame } from "./shell/SiteFoundationFrame";
 import { SitesFrame } from "./shell/SitesFrame";
 import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import {
+  ACTIONS_PATH,
+  FINDINGS_COST_PATH,
+  FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
+  FINDINGS_RISKS_PATH,
   FINDING_ROUTE_PATH,
   FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
@@ -83,6 +86,8 @@ import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAss
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
+import { createEstateClient, type EstateClient } from "./estate/estateClient";
+import { EstateActionsFrame, EstateFindingsFrame } from "./shell/EstateRootFrames";
 import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
@@ -116,6 +121,7 @@ const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultColdSite = createColdSiteClient();
+const defaultEstateIndex = createEstateClient();
 const defaultEvSite = createEvSiteClient();
 
 /**
@@ -200,6 +206,8 @@ export interface AppProps {
   coldScenarios?: ColdScenarioChoiceClient;
   /** W2-05b: the gated EV test-run choice read; still gated by `flags`. */
   evScenarios?: EvScenarioChoiceClient;
+  /** W3-01: the read-only estate Finding and Action roots (`/api/estate/*`). */
+  estateIndex?: EstateClient;
 }
 
 export function App({
@@ -225,6 +233,7 @@ export function App({
   now,
   coldScenarios,
   evScenarios,
+  estateIndex = defaultEstateIndex,
 }: AppProps) {
   // Resolved once from the gate: closed, the site surfaces get no lineage read
   // and show the recorded template alone.
@@ -383,10 +392,16 @@ export function App({
               element={<SiteActionFrame detail={siteDetail} sitesPath={SITES_PATH} />}
             />
           ))}
+          {/* W3-01: the estate Finding lens roots and the Actions root, registered before the legacy
+              `/findings/:siteId/:assessmentId[/:findingTab]` patterns; those keep their handlers. */}
+          <Route path={FINDINGS_PATH} element={<EstateFindingsFrame lens="all" client={estateIndex} />} />
+          <Route path={FINDINGS_COST_PATH} element={<EstateFindingsFrame lens="cost" client={estateIndex} />} />
+          <Route path={FINDINGS_RISKS_PATH} element={<EstateFindingsFrame lens="risks" client={estateIndex} />} />
           <Route
-            path={FINDINGS_PATH}
-            element={<FindingsFrame analytics={siteAnalytics} />}
+            path={FINDINGS_OPPORTUNITIES_PATH}
+            element={<EstateFindingsFrame lens="opportunities" client={estateIndex} />}
           />
+          <Route path={ACTIONS_PATH} element={<EstateActionsFrame client={estateIndex} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

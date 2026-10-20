@@ -1,0 +1,1442 @@
+{
+  "caps": {
+    "findings": {
+      "1440": {
+        "cards": 150,
+        "chips": 40,
+        "notice": 54,
+        "page": 1431,
+        "panel": 575
+      },
+      "390": {
+        "cards": 322,
+        "chips": 40,
+        "notice": 101,
+        "panel": 975,
+        "page": 2245
+      }
+    },
+    "findings-cost": {
+      "1440": {
+        "cards": 150,
+        "chips": 40,
+        "notice": 54,
+        "page": 1431,
+        "panel": 240
+      },
+      "390": {
+        "cards": 322,
+        "chips": 40,
+        "notice": 101,
+        "panel": 341,
+        "page": 1579
+      }
+    },
+    "findings-risks": {
+      "1440": {
+        "cards": 150,
+        "chips": 40,
+        "notice": 54,
+        "page": 1431,
+        "panel": 439
+      },
+      "390": {
+        "cards": 322,
+        "chips": 40,
+        "notice": 101,
+        "panel": 721,
+        "page": 1937
+      }
+    },
+    "findings-opportunities": {
+      "1440": {
+        "cards": 150,
+        "chips": 40,
+        "notice": 54,
+        "page": 1431,
+        "panel": 240
+      },
+      "390": {
+        "cards": 322,
+        "chips": 40,
+        "notice": 101,
+        "panel": 341,
+        "page": 1579
+      }
+    },
+    "actions": {
+      "1440": {
+        "cards": 146,
+        "panel": 436,
+        "notice": 54,
+        "page": 1431
+      },
+      "390": {
+        "cards": 322,
+        "panel": 767,
+        "notice": 78,
+        "page": 1820
+      }
+    },
+    "findings-page-two": {
+      "1440": {
+        "cards": 150,
+        "chips": 40,
+        "notice": 54,
+        "page": 1431,
+        "panel": 575
+      },
+      "390": {
+        "cards": 322,
+        "chips": 40,
+        "notice": 101,
+        "panel": 975,
+        "page": 2245
+      }
+    }
+  },
+  "rows": [
+    {
+      "state": "empty",
+      "screen": "findings",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 134,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "findings",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 134,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "findings-cost",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "findings-cost",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1031
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "findings-risks",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "findings-risks",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1031
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "findings-opportunities",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "findings-opportunities",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1031
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "actions",
+      "width": 1440,
+      "values": {
+        "cards": 115,
+        "chips": null,
+        "lenses": null,
+        "datebar": 69,
+        "panel": 134,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": null
+    },
+    {
+      "state": "empty",
+      "screen": "actions",
+      "width": 390,
+      "values": {
+        "cards": 248,
+        "chips": null,
+        "lenses": null,
+        "datebar": 162,
+        "panel": 152,
+        "limitation": null,
+        "notice": 61,
+        "page": 900
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": null
+    },
+    {
+      "state": "historical",
+      "screen": "findings",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 454,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1083
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1105,
+        "scroll": 1105,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 1145,
+        "scroll": 1145
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "historical",
+      "screen": "findings",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 198,
+        "panel": 456,
+        "limitation": 43,
+        "notice": 80,
+        "page": 1457
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 900,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "historical",
+      "screen": "findings-cost",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "historical",
+      "screen": "findings-cost",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 198,
+        "panel": 165,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1128
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "historical",
+      "screen": "findings-risks",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "historical",
+      "screen": "findings-risks",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 198,
+        "panel": 165,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1128
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "historical",
+      "screen": "findings-opportunities",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "historical",
+      "screen": "findings-opportunities",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 198,
+        "panel": 165,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1128
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "historical",
+      "screen": "actions",
+      "width": 1440,
+      "values": {
+        "cards": 115,
+        "chips": null,
+        "lenses": null,
+        "datebar": 69,
+        "panel": 201,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "historical",
+      "screen": "actions",
+      "width": 390,
+      "values": {
+        "cards": 251,
+        "chips": null,
+        "lenses": null,
+        "datebar": 198,
+        "panel": 219,
+        "limitation": 43,
+        "notice": 61,
+        "page": 1059
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 820,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "partial",
+      "screen": "findings",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 375,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "partial",
+      "screen": "findings",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 415,
+        "limitation": 61,
+        "notice": 61,
+        "page": 1330
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 900,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "partial",
+      "screen": "findings-cost",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 126,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "partial",
+      "screen": "findings-cost",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 149,
+        "limitation": 61,
+        "notice": 43,
+        "page": 1046
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "partial",
+      "screen": "findings-risks",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 126,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "partial",
+      "screen": "findings-risks",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 149,
+        "limitation": 61,
+        "notice": 43,
+        "page": 1046
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "partial",
+      "screen": "findings-opportunities",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 126,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "partial",
+      "screen": "findings-opportunities",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 149,
+        "limitation": 61,
+        "notice": 43,
+        "page": 1046
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "partial",
+      "screen": "actions",
+      "width": 1440,
+      "values": {
+        "cards": 115,
+        "chips": null,
+        "lenses": null,
+        "datebar": 69,
+        "panel": 201,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "partial",
+      "screen": "actions",
+      "width": 390,
+      "values": {
+        "cards": 251,
+        "chips": null,
+        "lenses": null,
+        "datebar": 162,
+        "panel": 219,
+        "limitation": null,
+        "notice": 61,
+        "page": 962
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 820,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "pending",
+      "screen": "findings",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 375,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "pending",
+      "screen": "findings",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 415,
+        "limitation": 61,
+        "notice": 61,
+        "page": 1330
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 900,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "pending",
+      "screen": "findings-cost",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 126,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "pending",
+      "screen": "findings-cost",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 149,
+        "limitation": 61,
+        "notice": 43,
+        "page": 1046
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "pending",
+      "screen": "findings-risks",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 126,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "pending",
+      "screen": "findings-risks",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 149,
+        "limitation": 61,
+        "notice": 43,
+        "page": 1046
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "pending",
+      "screen": "findings-opportunities",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 126,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "pending",
+      "screen": "findings-opportunities",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 149,
+        "limitation": 61,
+        "notice": 43,
+        "page": 1046
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "pending",
+      "screen": "actions",
+      "width": 1440,
+      "values": {
+        "cards": 115,
+        "chips": null,
+        "lenses": null,
+        "datebar": 69,
+        "panel": 201,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "pending",
+      "screen": "actions",
+      "width": 390,
+      "values": {
+        "cards": 251,
+        "chips": null,
+        "lenses": null,
+        "datebar": 162,
+        "panel": 219,
+        "limitation": null,
+        "notice": 61,
+        "page": 962
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 820,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "pending",
+      "screen": "findings-page-two",
+      "width": 1440,
+      "values": {
+        "cards": 92,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 343,
+        "limitation": 43,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "pending",
+      "screen": "findings-page-two",
+      "width": 390,
+      "values": {
+        "cards": 236,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 198,
+        "panel": 366,
+        "limitation": 61,
+        "notice": 61,
+        "page": 1318
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 900,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "positive",
+      "screen": "findings",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 424,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "positive",
+      "screen": "findings",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 440,
+        "limitation": null,
+        "notice": 80,
+        "page": 1344
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 900,
+        "overflowX": "auto"
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "positive",
+      "screen": "findings-cost",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "positive",
+      "screen": "findings-cost",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1031
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "positive",
+      "screen": "findings-risks",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "positive",
+      "screen": "findings-risks",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1031
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "positive",
+      "screen": "findings-opportunities",
+      "width": 1440,
+      "values": {
+        "cards": 150,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 69,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "positive",
+      "screen": "findings-opportunities",
+      "width": 390,
+      "values": {
+        "cards": 285,
+        "chips": 33,
+        "lenses": 36,
+        "datebar": 162,
+        "panel": 165,
+        "limitation": null,
+        "notice": 43,
+        "page": 1031
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": null,
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "firstColumn": null
+    },
+    {
+      "state": "positive",
+      "screen": "actions",
+      "width": 1440,
+      "values": {
+        "cards": 115,
+        "chips": null,
+        "lenses": null,
+        "datebar": 69,
+        "panel": 201,
+        "limitation": null,
+        "notice": 43,
+        "page": 1000
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    },
+    {
+      "state": "positive",
+      "screen": "actions",
+      "width": 390,
+      "values": {
+        "cards": 251,
+        "chips": null,
+        "lenses": null,
+        "datebar": 162,
+        "panel": 219,
+        "limitation": null,
+        "notice": 61,
+        "page": 962
+      },
+      "over_cap": {},
+      "overflowX": 0,
+      "clipped": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 820,
+        "overflowX": "auto"
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "firstColumn": "sticky"
+    }
+  ]
+}

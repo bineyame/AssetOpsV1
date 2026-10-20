@@ -155,6 +155,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootOwner = $null
         }
         @{
+            # W3-01 commit 2 (q5 ruling 3): the read-only estate roots. No writer; only its composition imports the
+            # estate adapters, whose driver import rule 8 admits through `$pgReaders` (never `$pgWriters`).
+            Name        = "estate"
+            Package     = "$backendRoot/estate"
+            Composition = "$backendRoot/estate/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
+        @{
             # W4-01 commit 2: work cases, events, records, plans and OperationalRecords. Database-only; rule 8
             # confines its PostgreSQL writer (the tenth). Only its composition imports the adapters.
             Name        = "work"

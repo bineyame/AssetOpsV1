@@ -1,0 +1,1164 @@
+[
+ {
+  "screen": "findings",
+  "width": 1440,
+  "h1": "Findings",
+  "pageH": 1051,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 304,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Findings across the estate",
+    "top": 482,
+    "h": 443,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     53,
+     51,
+     53,
+     51,
+     51,
+     52
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:262",
+     "Site:168",
+     "Priority:83",
+     "Confidence:105",
+     "State:131",
+     "Main consequence:270",
+     "Lens:101"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 943,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 165,
+    "h": 61,
+    "w": 348
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 435,
+    "h": 31,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1003,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "findings",
+  "width": 390,
+  "h1": "Findings",
+  "pageH": 1675,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 455,
+    "h": 248,
+    "w": 360,
+    "children": [
+     {
+      "top": 455,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 455,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 577,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 577,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Findings across the estate",
+    "top": 768,
+    "h": 716,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 672,
+    "rows": [
+     97,
+     115,
+     97,
+     97,
+     80,
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:85",
+     "Site:90",
+     "Priority:74",
+     "Confidence:93",
+     "State:116",
+     "Main consequence:125",
+     "Lens:89"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 1502,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 298,
+    "h": 56,
+    "w": 348
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 395,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 721,
+    "h": 31,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1599,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "findings-cost",
+  "width": 1440,
+  "h1": "Findings",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 304,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Cost lens",
+    "top": 482,
+    "h": 185,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     52
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:273",
+     "Site:145",
+     "Priority:100",
+     "Confidence:124",
+     "State:89",
+     "Main consequence:321",
+     "Lens:68"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 684,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Cost",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 165,
+    "h": 61,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 435,
+    "h": 31,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 744,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "findings-cost",
+  "width": 390,
+  "h1": "Findings",
+  "pageH": 1165,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 432,
+    "h": 248,
+    "w": 360,
+    "children": [
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Cost lens",
+    "top": 745,
+    "h": 230,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 505,
+    "rows": [
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:72",
+     "Site:49",
+     "Priority:68",
+     "Confidence:84",
+     "State:61",
+     "Main consequence:125",
+     "Lens:46"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 992,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Cost",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 298,
+    "h": 56,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 372,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 698,
+    "h": 31,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1089,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "findings-risks",
+  "width": 1440,
+  "h1": "Findings",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 304,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Risks lens",
+    "top": 482,
+    "h": 338,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     51,
+     51,
+     51,
+     52
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:291",
+     "Site:186",
+     "Priority:93",
+     "Confidence:117",
+     "State:76",
+     "Main consequence:300",
+     "Lens:58"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 837,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Risks",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 165,
+    "h": 61,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 435,
+    "h": 31,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 897,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "findings-risks",
+  "width": 390,
+  "h1": "Findings",
+  "pageH": 1457,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 432,
+    "h": 248,
+    "w": 360,
+    "children": [
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Risks lens",
+    "top": 745,
+    "h": 522,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 574,
+    "rows": [
+     115,
+     97,
+     80,
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:85",
+     "Site:90",
+     "Priority:74",
+     "Confidence:93",
+     "State:61",
+     "Main consequence:125",
+     "Lens:46"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 1284,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Risks",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 298,
+    "h": 56,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 372,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 698,
+    "h": 31,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1381,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "findings-opportunities",
+  "width": 1440,
+  "h1": "Findings",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 304,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 304,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 482,
+    "h": 185,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     52
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:240",
+     "Site:126",
+     "Priority:95",
+     "Confidence:120",
+     "State:149",
+     "Main consequence:276",
+     "Lens:115"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 684,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Opportunities",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 165,
+    "h": 61,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 435,
+    "h": 31,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 744,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "findings-opportunities",
+  "width": 390,
+  "h1": "Findings",
+  "pageH": 1165,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open findings | High priority | Low confidence | Awaiting verification",
+    "top": 432,
+    "h": 248,
+    "w": 360,
+    "children": [
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 432,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 554,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Opportunities lens",
+    "top": 745,
+    "h": 230,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 626,
+    "rows": [
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Finding:80",
+     "Site:49",
+     "Priority:74",
+     "Confidence:93",
+     "State:116",
+     "Main consequence:125",
+     "Lens:89"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Priority, confidence and workflow state stay separate. Opening a finding moves y",
+    "top": 992,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Findings›Opportunities",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Findings",
+    "top": 298,
+    "h": 56,
+    "w": 311
+   },
+   {
+    "kind": "block",
+    "title": "tabs : All findingsCostRisksOpportunities",
+    "top": 372,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "chips: All statesOpenRecommendation",
+    "top": 698,
+    "h": 31,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1089,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "actions",
+  "width": 1440,
+  "h1": "Actions",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open actions | Due / overdue | Verification window | Verified in 30 days",
+    "top": 244,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 244,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 244,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 244,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 244,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Managed actions",
+    "top": 375,
+    "h": 336,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     51,
+     51,
+     51,
+     51
+    ],
+    "thead": 33,
+    "cols": [
+     "Action:247",
+     "Site:98",
+     "Source:105",
+     "Owner:157",
+     "State:137",
+     "Success criterion:378"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Verification is a separate, evidence-based outcome. This mockup does not issue c",
+    "top": 729,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Actions",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Actions",
+    "top": 165,
+    "h": 61,
+    "w": 275
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 789,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "actions",
+  "width": 390,
+  "h1": "Actions",
+  "pageH": 1385,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "cards",
+    "title": "Open actions | Due / overdue | Verification window | Verified in 30 days",
+    "top": 372,
+    "h": 248,
+    "w": 360,
+    "children": [
+     {
+      "top": 372,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 372,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 510,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 510,
+      "h": 110,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Managed actions",
+    "top": 638,
+    "h": 575,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 573,
+    "rows": [
+     115,
+     115,
+     97,
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Action:77",
+     "Site:90",
+     "Source:60",
+     "Owner:99",
+     "State:126",
+     "Success criterion:120"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Verification is a separate, evidence-based outcome. This mockup does not issue c",
+    "top": 1231,
+    "h": 60,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Actions",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Actions",
+    "top": 298,
+    "h": 56,
+    "w": 275
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1309,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ }
+]

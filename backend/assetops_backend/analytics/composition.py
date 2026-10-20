@@ -10,6 +10,14 @@ from assetops_backend.analytics.adapters.memory_assessment_store import MemoryAs
 from assetops_backend.analytics.ports import AssessmentStore
 
 
+def selection_pin_refused() -> type[LookupError]:
+    """The exact-pin refusal the estate adapter treats as an inconsistent selection (c2 r1 L1); composition-only
+    access to the adapter's class."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import SelectionPinRefused
+
+    return SelectionPinRefused
+
+
 def build_assessment_store(persistent: bool = True) -> AssessmentStore:
     """Choose the adapter that persists assessment history.
 

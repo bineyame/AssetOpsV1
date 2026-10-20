@@ -60,6 +60,7 @@ Write-Output "Navigation truthfulness check passed."
     # Rule 8 parses backend SQL with Python (OPS-02); it uses the same interpreter as the Python guards.
     $env:ASSETOPS_GUARD_PYTHON = $Python
     Invoke-Guard "Architecture seams"            $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check-architecture.ps1")
+    Invoke-Guard "Estate guard self-tests (test_pg_reader_import_allowed, test_pg_reader_write_rejected, test_domain_driver_import_rejected)" $Python @("-m", "pytest", "tools/checks/test_estate_guard.py", "-q", "-p", "no:cacheprovider")
     Invoke-Guard "Navigation truthfulness"       $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-EncodedCommand",
         [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($navigationScript)))
     Invoke-Guard "Agent workflow"                $powershell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "tools/check-agent-workflow.ps1")

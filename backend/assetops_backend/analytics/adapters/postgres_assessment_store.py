@@ -39,6 +39,7 @@ from assetops_backend.analytics.cold_reads import (
     NO_SPOILAGE,
     PENDING_NOTE,
     STALE_NOTE,
+    ColdPinnedLineageUnavailable,
     ColdReadUnavailable,
     currentness_state,
     decode_cursor,
@@ -50,6 +51,7 @@ from assetops_backend.analytics.ev_reads import (
     NO_SELECTION_NOTE as _EV_NO_SELECTION_NOTE,
     PENDING_NOTE as _EV_PENDING_NOTE,
     EvReadRefused,
+    EvPinnedLineageUnavailable,
     EvReadUnavailable,
     check_cursor as _ev_check_cursor,
     completeness as _ev_completeness,
@@ -760,7 +762,8 @@ class PostgresAssessmentStore:
         return {**base, "status": projection.status, "status_reasons": list(projection.reasons),
                 "selection": None if run is None else {
                     "seq": snap.head["seq"], "selected_at": snap.head["selected_at"],
-                    "selected_by_job": snap.head["job_id"], "run_id": run["id"]},
+                    "selected_by_job": snap.head["job_id"], "run_id": run["id"],
+                    "model_version": run["model_version"], "cohort": run["cohort"]},
                 "run_id": None if run is None else run["id"],
                 "assessment_revision_ids": sorted(str(r["id"]) for r in revisions),
                 "window_assessment_revision_id": None if window_rev is None else window_rev["id"],
@@ -1658,14 +1661,10 @@ def _cold_decimal(raw: str | None) -> str | None:
 
 
 def _bound_link_rows(c: Connection, link_rows: Callable[..., list], unavailable: type) -> Callable[..., list]:
-    """W3-01: `link_rows` on the snapshot connection; any failed link read is the read's unavailable error."""
+    """W3-01: `link_rows` on the snapshot connection. A store failure reaches the caller's 503 mapper and a
+    programming error propagates (c2 r1 L1); neither is converted into a selected-lineage conflict."""
     def read(t: UUID, s: UUID, ids: list[str]) -> list:
-        try:
-            return list(link_rows(c, t, s, ids))
-        except (OperationalError, DBAPIError):
-            raise
-        except Exception as error:  # noqa: BLE001 - a failed link read is unavailable, never a guess
-            raise unavailable(f"The source provenance read failed: {error.__class__.__name__}") from error
+        return list(link_rows(c, t, s, ids))
     return read
 
 
@@ -2100,7 +2099,7 @@ class ColdReadService:
         # W3-01 Run 3 q3: the row's own DTO over its exact `finding_revision_evidence`, selecting the pinned
         # `cold_episode_revision` of its claim; a missing or mismatched pinned revision refuses the read.
         if rev[15] is None or rev[16] != rev[8]:
-            raise ColdReadUnavailable("A cold Finding revision's pinned episode revision cannot be read.")
+            raise ColdPinnedLineageUnavailable("A cold Finding revision's pinned episode revision cannot be read.")
         source = self._public(c).cited_set(snap["t"], snap["s"], evidence_ids,
                                            cold_finding_row_selection(rev[0], rev[15], rev[8]))
         return {
@@ -2184,7 +2183,7 @@ class ColdReadService:
             {"t": t, "s": s, "f": UUID(str(head["finding_revision_id"])),
              "a": UUID(str(head["assessment_revision_id"])), "e": UUID(str(head["episode_revision_id"]))}).first()
         if pinned is None:
-            raise ColdReadUnavailable("A cold consequence's pinned Finding revision cannot be read.")
+            raise ColdPinnedLineageUnavailable("A cold consequence's pinned Finding revision cannot be read.")
         cited = {str(x) for x in head["evidence_ids"] or ()} | set(self._revision_evidence(c, pinned[0]))
         return self._public(c).cited_set(t, s, sorted(cited), cold_consequence_row_selection(
             head["id"], head["finding_revision_id"], head["episode_revision_id"], head["assessment_revision_id"]))
@@ -2537,11 +2536,11 @@ class EvReadService:
         non-null Finding pin is outside the reviewed W2-07 row contract. Either fails closed as unavailable."""
         t, s = snap["t"], snap["s"]
         if row.get("finding_revision_id") is not None:
-            raise EvReadUnavailable("An EV consequence revision has an unreviewed Finding pin.")
+            raise EvPinnedLineageUnavailable("An EV consequence revision has an unreviewed Finding pin.")
         ar = row["assessment_revision_id"]
         if c.execute(text("SELECT 1 FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND id = :ar"),
                      {"t": t, "s": s, "ar": ar}).first() is None:
-            raise EvReadUnavailable("An EV consequence revision's stored assessment cannot be read.")
+            raise EvPinnedLineageUnavailable("An EV consequence revision's stored assessment cannot be read.")
         sessions = sorted({str(x).lower() for x in row["session_revision_ids"]})
         if sessions:
             found = c.execute(text(
@@ -2549,7 +2548,7 @@ class EvReadService:
                 "AND assessment_revision_id = :ar AND id = ANY(CAST(:ids AS uuid[]))"),
                 {"t": t, "s": s, "ar": ar, "ids": sessions}).scalar_one()
             if found != len(sessions):
-                raise EvReadUnavailable("An EV consequence revision's linked session revision cannot be read.")
+                raise EvPinnedLineageUnavailable("An EV consequence revision's linked session revision cannot be read.")
         selected = sorted({str(row["id"]).lower(), str(ar).lower(), *sessions})
         return self._public(c).cited_set(t, s, sorted({str(x).lower() for x in row["evidence_ids"]}), selected)
 
@@ -2924,7 +2923,7 @@ class EvReadService:
             withdrawn_dropped = (len(pinned) == 0 and claim.get("session_id") is not None
                                  and r[7] == "NO_LONGER_SUPPORTED" and r[11] == "NO_LONGER_SUPPORTED")
             if len(pinned) != 1 and not withdrawn_dropped:
-                raise EvReadUnavailable("An EV Finding revision's pinned session revision cannot be read.")
+                raise EvPinnedLineageUnavailable("An EV Finding revision's pinned session revision cannot be read.")
             cited = [str(x).lower() for x in c.execute(text(
                 "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s "
                 "AND finding_revision_id = :r"), {"t": snap["t"], "s": snap["s"], "r": r[1]}).scalars().all()]

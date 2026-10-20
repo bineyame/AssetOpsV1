@@ -1,0 +1,144 @@
+/* W3-01 commit 3: estate Finding and Action roots. 390 rule (spec dry-read): the table alone scrolls inside its
+   panel (min-width 900 Findings, 820 Actions) with a sticky first column; chips scroll within their row; the page
+   never overflows horizontally. */
+
+.estate-page {
+  min-width: 0;
+}
+
+.estate-date-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.estate-date-bar__historical {
+  color: #8e580c;
+}
+
+/* Scoped under `.estate-page` so it outranks the later shared `.v69-chips { flex-wrap: wrap }` rule (commit-4 capture). */
+.estate-page .estate-state-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  list-style: none;
+  padding-left: 0;
+}
+
+.estate-state-chip {
+  display: inline-block;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.estate-state-chip--amber:not([aria-current="true"]) {
+  color: #8e580c;
+}
+
+.estate-state-chip--blue:not([aria-current="true"]) {
+  color: #245ac0;
+}
+
+.estate-state-chip[aria-current="true"] {
+  background: #eaf0fd;
+  border-color: #cbdafa;
+  color: #245ac0;
+}
+
+.estate-lens-tabs .site-tabs__list {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.estate-chip {
+  display: inline-block;
+  margin: 0 4px 2px 0;
+  padding: 1px 7px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.estate-chip--blue {
+  color: #245ac0;
+  background: #eaf0fd;
+}
+
+.estate-chip--amber {
+  color: #8e580c;
+  background: #fdf3e2;
+  white-space: normal;
+}
+
+.estate-chip--neutral {
+  color: var(--text-secondary);
+}
+
+.estate-chip--green {
+  color: #166b50;
+  background: #e6f5ef;
+}
+
+.estate-page .data-table__scroll {
+  overflow-x: auto;
+}
+
+[data-estate-root="actions"] .data-table {
+  min-width: 820px;
+}
+
+.estate-page:not([data-estate-root="actions"]) .data-table {
+  min-width: 900px;
+}
+
+.estate-page .data-table th:first-child,
+.estate-page .data-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface-raised);
+}
+
+.estate-cell__primary {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.estate-cell__secondary {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.estate-cell__detail {
+  word-break: break-all;
+  font-size: 12px;
+}
+
+.estate-empty p,
+.estate-partial,
+.estate-pager {
+  margin: 8px 0;
+  color: var(--text-secondary);
+}
+
+.estate-limitation__line {
+  display: inline;
+}
+
+@media (max-width: 640px) {
+  .estate-page .v69-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 360px) {
+  .estate-page .v69-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.estate-page .data-table thead th:first-child { background: var(--surface-sunken); z-index: 2; }
