@@ -234,3 +234,51 @@ partly covers this.
 
 `tools/check-architecture.ps1`: passed. `w301u_test` was dropped (exit 0). The working tree is clean apart from this
 file.
+
+## Re-review r1 (head 68723d0a, diff 1492532c..68723d0a excluding merges)
+
+Reviewer: fresh Claude reviewer, 2026-10-20.
+
+### Verdict: ACCEPT
+
+Reading 1 below is a user-visible label choice for the Architect. It does not block, because it does not change the token, the rows or the gating.
+
+### Checks run
+- Private DB `w301w_test`, run once and then dropped. Files run: `test_w301_estate_coverage.py`, `test_w301_estate_api.py`, `test_w301_estate_index_postgres.py`, `test_w301_estate_golden_postgres.py` (this includes `test_w301_golden_clock_plus_30_days`), `test_w206_ev_store_postgres.py` and `tools/checks/test_estate_guard.py`.
+- Result: 52 passed, 0 failed, 0 skipped, 1136.6 s.
+- I did not rerun the full suite or the frontend suite. This diff has no frontend change.
+
+### Items closed as ruled
+- **M1 and q11-B 1:**
+  - `page_one_mode` is a required key in both cursor key sets, validated as `live` or `historical`; a missing, extra or other value gives 422.
+  - `basis_historical` is set from the cursor on continuation. Mini-grid gates, the cold/EV work fence and rows use `basis_historical`. The response label uses `snapshot.historical`.
+  - The token fields and digest algorithm are unchanged.
+  - The endpoint tests cover the live pending case, live STALE and PENDING S3 (each paired with a changed-status 409 control), historical PENDING/LEASED/FAILED, the historical outstanding marker, and the cursor shape and cutoff 409.
+  - None of these tests is vacuous. The mini-grid tests assert page-one `PENDING_RECOMPUTE` or `STALE_SOURCE`, no mini-grid rows on either page, and the same token. Each has a control that flips a real stored status and expects 409.
+- **Forced clock:** the +30-day test passed for `mini_grid` and `mixed`. The fixer's reading 5 (named step clocks used as request cutoffs stay unshifted; echoed read instants are unshifted before comparison) is mechanical.
+- **L1:**
+  - The catch-all is removed from `_bound_link_rows`.
+  - `ColdPinnedLineageUnavailable` and `EvPinnedLineageUnavailable` are typed subclasses used only for the pinned-lineage failures.
+  - `inconsistent=` now holds only the two typed subclasses plus `SelectionPinRefused`; the broad W2 unavailable classes go to the new `unavailable=` mapping and answer 503.
+  - The three API tests run the real `PostgresEstateRead.read`, and each asserts a call count to prove the retry behaviour: 500 on the first call for a `TypeError`, 409 after exactly two calls for the typed errors, 503 after one call for the broad unavailable errors.
+- **L2:** `_cold_window` now requires the revision's assessment to be in the window's selected set, and the L2 test asserts both sides of the selection.
+- **L3:** the q11-A and q11-B names are recorded in the build-spec rulings, as ruled.
+- **L4:**
+  - `test_estate_injected_reads_share_one_connection` runs on the real DB, counts the estate connections, and refuses `_connect` and `create_engine` on the injected services.
+  - The golden oracle limit is stated in the handoff.
+- **q11-A 2:** the guard self-tests now run on an isolated temporary copy, the W3-02 reader path is removed from `$pgReaders`, and `check-all.ps1` has an explicit step that names the three tests.
+
+### Classification of the five readings
+1. **Needs the Architect.**
+   - On a live page two the Site state label is HISTORICAL while gating stays live. A pending or stale Site that page one labelled `PENDING_RECOMPUTE` or `STALE_SOURCE` shows HISTORICAL on page two. Only the `state` field differs; the tests exclude `state` from the comparison and the rest of the coverage is identical.
+   - The ruling says "still reports HISTORICAL" for the response, and also says Site coverage comes from page one's mode. Those two lines conflict for the Site `state` field.
+   - The label hides an outstanding pending or stale condition from the user, so the Architect should rule which label applies.
+   - It is consistent with how cold/EV already behave: `_windowed` labels HISTORICAL when `snapshot.historical` is true.
+2. **Mechanical.** The STALE test sets the day status through a wrapper over `dispatch_days`. It is scoped to the test, as the ruling's "same stored day status" control allows, and a DONE job without a completion selection would make the day unavailable instead.
+3. **Mechanical.** The L2 test re-dates a revision by one second with triggers disabled in the test transaction. The worker stamps the revision, the assessment and the selection with one transaction time, so a natural gap does not exist.
+4. **Mechanical.** The historical changed-selection control uses a forged digest plus a grant change. It exercises both the digest fence and the access fence, and it meets the ruling's "changed selected revision or grant" control through the grant change.
+5. **Mechanical.** The second inline `except Exception` near EV line 2497 (an EV inline link read) is outside L1's ruled scope, which names `_bound_link_rows`. It can be recorded as a Low carry.
+
+### Low notes (not blocking)
+- In the L2 test, `assert at_k["selection_token"] != before["selection_token"] or seen == old` has a vacuous disjunct. The preceding loop already asserts the `seen == old` part, so the line adds nothing.
+- The limits carried are unchanged: the widened-job historical overlap (Run 6 reading 4) and the digest-canonicalizer-only golden.
