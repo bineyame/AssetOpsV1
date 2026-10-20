@@ -19,6 +19,10 @@ D2/D6. One public wire shape across W1, cold and EV:
 - `reasons` and the optional `detail` (the resolver's nine keys) are canonically sorted; `detail.reasons` equals
   the top-level `reasons`. Typed resolver extras are preserved.
 - A consequence keeps `SourceProvenanceResolver.consequence_revision`'s fail-closed Finding conflict.
+- Run 1 rulings (q1), `.agent/W3-01-build-spec.md`: ruling 2 fixes each represented row's selected-ID set (the
+  `*_selection` helpers name them; the W1 Finding/consequence sets are derived here by default); ruling 4 is the
+  selected-EV persisted-class adapter (`PublicProvenance.ev_selected`); ruling 5 the pending dual blocks
+  (`dual_blocks`); ruling 6 the estate six-key projection (`estate_projection`, or `detail=False`).
 
 Pure apart from the `ProvenanceReads` port it is handed (no SQL, no driver import): the caller passes reads bound
 to its own connection when it needs one transaction. Nothing persisted is read for change or mutated.
@@ -31,7 +35,12 @@ import json
 from typing import Any, Iterable, Mapping
 from uuid import UUID
 
-from assetops_backend.evidence.source_provenance import LinkRow, ProvenanceReads, SourceProvenanceResolver
+from assetops_backend.evidence.source_provenance import (
+    UNKNOWN,
+    LinkRow,
+    ProvenanceReads,
+    SourceProvenanceResolver,
+)
 
 BASIS_VERSION = "source-provenance-basis/1"
 
@@ -127,6 +136,81 @@ def w1_compatible(resolver_result: Mapping[str, Any], dto: Mapping[str, Any]) ->
     return out
 
 
+SOURCE_CLASS_MISMATCH = "SOURCE_CLASS_MISMATCH"
+
+
+# --- Ruling 2: the selected-ID set of each represented row (never a page, prior head or all history). ---------
+
+def finding_row_selection(finding_revision_id: UUID | str) -> list[str]:
+    """W1 Finding row/detail: `{finding_revision.id}`."""
+    return _ids([finding_revision_id])
+
+
+def consequence_row_selection(consequence_revision_id: UUID | str, finding_revision_id: UUID | str) -> list[str]:
+    """W1 financial consequence row: `{financial_consequence_revision.id, its finding_revision_id}`."""
+    return _ids([consequence_revision_id, finding_revision_id])
+
+
+def cold_envelope_selection(selected_revision_ids: Iterable[UUID | str]) -> list[str]:
+    """Cold selected envelope: every selected `ColdSelected.revision_id` of the requested analytics tuple."""
+    return _ids(selected_revision_ids)
+
+
+def cold_finding_row_selection(finding_revision_id: UUID | str, cold_episode_revision_id: UUID | str,
+                               assessment_revision_id: UUID | str) -> list[str]:
+    """Cold Finding row: its `finding_revision.id`, `cold_episode_revision.id` and the one
+    `cold_episode_revision.assessment_revision_id`."""
+    return _ids([finding_revision_id, cold_episode_revision_id, assessment_revision_id])
+
+
+def cold_consequence_row_selection(cold_consequence_revision_id: UUID | str, finding_revision_id: UUID | str,
+                                   cold_episode_revision_id: UUID | str,
+                                   assessment_revision_id: UUID | str) -> list[str]:
+    """Cold consequence row: the paired cold Finding row set plus its `cold_consequence_revision.id`."""
+    return _ids([cold_consequence_revision_id,
+                 *cold_finding_row_selection(finding_revision_id, cold_episode_revision_id, assessment_revision_id)])
+
+
+def ev_envelope_selection(assessment_revision_id: UUID | str,
+                          session_revision_ids: Iterable[UUID | str]) -> list[str]:
+    """EV selected envelope: `{assessment_revision.id}` plus all of its stored `result.session_revision_ids`."""
+    return _ids([assessment_revision_id, *session_revision_ids])
+
+
+def ev_session_row_selection(assessment_revision_id: UUID | str, ev_session_revision_id: UUID | str) -> list[str]:
+    """EV session row: `{assessment_revision.id, ev_session_revision.id}`."""
+    return _ids([assessment_revision_id, ev_session_revision_id])
+
+
+def ev_finding_row_selection(assessment_revision_id: UUID | str, ev_session_revision_id: UUID | str,
+                             finding_revision_id: UUID | str) -> list[str]:
+    """EV Finding row: `{assessment_revision.id, ev_session_revision.id, finding_revision.id}` (pinned session)."""
+    return _ids([assessment_revision_id, ev_session_revision_id, finding_revision_id])
+
+
+# --- Rulings 5 and 6: pending dual blocks and the estate projection. -------------------------------------------
+
+def estate_projection(dto: Mapping[str, Any]) -> dict[str, Any]:
+    """Ruling 6: an estate row's exact six public keys (no `detail`, no W1 top-level fields)."""
+    return {k: dto[k] for k in _PUBLIC_KEYS}
+
+
+def dual_blocks(selected: Mapping[str, Any] | None, pending: Mapping[str, Any] | None) -> dict[str, Any]:
+    """Ruling 5: a cold/EV envelope's three sibling blocks. `selected` is the exact prior selected row's DTO (its
+    computed digest); `pending` classifies the full newer accepted set and carries `basis_sha256: null` (build it
+    with `cited_set(..., selected_revision_ids=[])`). With pending work `source_provenance` is the compatibility
+    alias of `pending_source_provenance`; without it `source_provenance` equals `selected_source_provenance`.
+    Neither block (no selected row and no pending set) is not ruled and is refused (`W3-01-pending-rulings.md`)."""
+    if pending is not None and pending.get("basis_sha256") is not None:
+        raise ValueError("A pending source_provenance block has no selected revision, so no digest.")
+    if selected is None and pending is None:
+        raise ValueError("No selected row and no pending set: no ruled source_provenance shape.")
+    alias: Mapping[str, Any] = pending if pending is not None else selected  # type: ignore[assignment]
+    return {"source_provenance": dict(alias),
+            "selected_source_provenance": None if selected is None else dict(selected),
+            "pending_source_provenance": None if pending is None else dict(pending)}
+
+
 class _RecordingReads:
     """Forwards to the caller's reads and keeps the link rows of the last `link_rows` call, so the resolver's own
     single read also yields `source_ids` (no second query, same connection and snapshot)."""
@@ -163,8 +247,12 @@ class PublicProvenance:
                           source_ids=source_ids_of(rec.rows), detail=detail)
 
     def finding_revision(self, tenant_id: UUID, site_id: UUID, finding_revision_id: UUID,
-                         selected_revision_ids: Iterable[UUID | str]) -> dict[str, Any] | None:
-        """W1 compatible DTO for one selected FindingRevision's own cited set; None when it is not in the Site."""
+                         selected_revision_ids: Iterable[UUID | str] | None = None) -> dict[str, Any] | None:
+        """W1 compatible DTO for one selected FindingRevision's own cited set (exact `finding_revision_evidence`);
+        None when it is not in the Site. `selected_revision_ids` defaults to ruling 2's W1 Finding row set
+        `{finding_revision.id}`; a cold/EV/estate Finding row passes its own ruling-2 set."""
+        if selected_revision_ids is None:
+            selected_revision_ids = finding_row_selection(finding_revision_id)
         rec = _RecordingReads(self._reads)
         result = SourceProvenanceResolver(rec).finding_revision(tenant_id, site_id, finding_revision_id)
         if result is None:
@@ -174,13 +262,38 @@ class PublicProvenance:
         return w1_compatible(result, dto)
 
     def consequence_revision(self, tenant_id: UUID, site_id: UUID, consequence_revision_id: UUID,
-                             selected_revision_ids: Iterable[UUID | str]) -> dict[str, Any] | None:
+                             selected_revision_ids: Iterable[UUID | str] | None = None) -> dict[str, Any] | None:
         """W1 compatible DTO for one consequence revision (its Finding's cited set plus its own power IDs), with the
-        resolver's fail-closed Finding conflict kept; None when it is not in the Site."""
+        resolver's fail-closed Finding conflict kept; None when it is not in the Site. `selected_revision_ids`
+        defaults to ruling 2's W1 consequence row set `{consequence_revision.id, its finding_revision_id}`."""
         rec = _RecordingReads(self._reads)
         result = SourceProvenanceResolver(rec).consequence_revision(tenant_id, site_id, consequence_revision_id)
         if result is None:
             return None
+        if selected_revision_ids is None:
+            selected_revision_ids = consequence_row_selection(consequence_revision_id, result["finding_revision_id"])
         dto = public_dto(result, tenant_id=tenant_id, site_id=site_id, selected_revision_ids=selected_revision_ids,
                          source_ids=source_ids_of(rec.rows))
         return w1_compatible(result, dto)
+
+    def ev_selected(self, tenant_id: UUID, site_id: UUID, cited_ids: Iterable[UUID | str],
+                    selected_revision_ids: Iterable[UUID | str], persisted_class: str | None, *,
+                    detail: bool = True) -> dict[str, Any]:
+        """Ruling 4: a selected EV read's DTO. The exact full cited set (`assessment_revision.evidence_ids`, or a
+        row's exact accepted uses) is resolved first; `persisted_class` is the selected row's stored
+        `result.source_provenance.class`. Any inequality with the resolver `state` (null included, and resolver
+        UNKNOWN against a persisted positive class) is a mismatch: `classification = state = UNKNOWN`, every
+        canonical resolver reason kept, plus `{code: SOURCE_CLASS_MISMATCH, accepted_evidence_ids: <full sorted
+        cited set>, persisted_class}`; `detail.state`/`detail.reasons` follow, the other seven keys keep the
+        resolver's values. No selected row (empty `selected_revision_ids`) means no comparison. Nothing stored is
+        written."""
+        cited = _ids(cited_ids)
+        selected = _ids(selected_revision_ids)
+        rec = _RecordingReads(self._reads)
+        result = dict(SourceProvenanceResolver(rec).resolve(tenant_id, site_id, cited))
+        if selected and persisted_class != result["state"]:
+            result["state"] = UNKNOWN
+            result["reasons"] = list(result["reasons"]) + [
+                {"code": SOURCE_CLASS_MISMATCH, "accepted_evidence_ids": cited, "persisted_class": persisted_class}]
+        return public_dto(result, tenant_id=tenant_id, site_id=site_id, selected_revision_ids=selected,
+                          source_ids=source_ids_of(rec.rows), detail=detail)

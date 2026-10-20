@@ -190,3 +190,127 @@ def test_empty_foreign_broken_and_mixed_precedence(kit, store, engine, tmp_path)
     assert broken["classification"] == sp.UNKNOWN and codes_of(broken) == [sp.BROKEN_PUBLICATION_LINK]
     assert broken["reasons"][0]["details"] == [{"accepted_evidence_id": lost[0], "detail": sp.PUBLICATION_NOT_FOUND}]
     assert broken["source_ids"]  # in-scope rows still name their source even when the set is UNKNOWN
+
+
+def test_persisted_ev_class_disagreement_unknown(kit, store, engine, tmp_path) -> None:  # noqa: F811
+    """Run 1 ruling 4: positive/positive disagreement, a null persisted class and resolver UNKNOWN against a
+    persisted positive class each give UNKNOWN with every resolver reason kept beside SOURCE_CLASS_MISMATCH (full
+    cited IDs, the stored class), and `detail` equal to the final state/reasons with the other seven resolver keys."""
+    ledger = PostgresEvidenceLedger(URL)
+    public, resolver = PublicProvenance(ledger), sp.SourceProvenanceResolver(ledger)
+    tenant, site = kit.principal.tenant_id, kit.principal.site_id
+    selected = [str(uuid4()), str(uuid4())]  # pure adapter vectors; the public EV mapping is ruling 7's test
+    _, auth = authored(kit, kit.seal(kit.pv(1)))
+    plain = upload(kit, kit.seal(kit.pv(2, first=3)))
+    runs = run_setup(store, YamlRunStore(tmp_path / "runs"))
+    _, sim = simulated(kit, runs.create_draft_run(run_request()), [kit.seal(kit.pv(1, first=10))])
+
+    def mismatch(ids, persisted, resolved_state):
+        dto = public.ev_selected(tenant, site, ids, selected, persisted)
+        resolved = resolver.resolve(tenant, site, ids)
+        assert resolved["state"] == resolved_state  # non-vacuous: the resolver really says this
+        assert sorted(dto) == PUBLIC_KEYS
+        assert dto["classification"] == dto["state"] == sp.UNKNOWN
+        assert dto["evidence_ids"] == sorted(set(ids))
+        assert dto["source_ids"] == sources_in_scope(engine, tenant, site, ids)
+        assert dto["basis_sha256"] == digest(tenant, site, selected, ids)
+        added = {"code": "SOURCE_CLASS_MISMATCH", "accepted_evidence_ids": sorted(set(ids)),
+                 "persisted_class": persisted}
+        assert added in dto["reasons"]
+        kept = [r for r in dto["reasons"] if r != added]
+        assert sorted(map(json.dumps, kept)) == sorted(map(json.dumps, (
+            {**r, "accepted_evidence_ids": sorted(r["accepted_evidence_ids"])} for r in resolved["reasons"])))
+        codes = codes_of(dto)
+        assert codes == sorted(codes)
+        assert dto["detail"]["state"] == sp.UNKNOWN and dto["detail"]["reasons"] == dto["reasons"]
+        seven = ("accepted_evidence_ids", "problematic_accepted_evidence_ids", "publication_ids", "source_classes",
+                 "fixtures", "runs", "evidence")
+        assert {k: dto["detail"][k] for k in seven} == {k: resolved[k] for k in seven}
+        return dto
+
+    # Positive/positive disagreement: resolver AUTHORED, stored REGISTERED (and the reverse).
+    assert codes_of(mismatch(auth, sp.REGISTERED_SIMULATION, sp.AUTHORED_DEMONSTRATION)) == ["SOURCE_CLASS_MISMATCH"]
+    mismatch(sim, sp.AUTHORED_DEMONSTRATION, sp.REGISTERED_SIMULATION)
+    # A null persisted class on a selected row is a mismatch.
+    mismatch(auth, None, sp.AUTHORED_DEMONSTRATION)
+    # Resolver UNKNOWN against a persisted positive class: both reasons coexist.
+    both = mismatch(plain, sp.AUTHORED_DEMONSTRATION, sp.UNKNOWN)
+    assert codes_of(both) == [sp.NO_POSITIVE_BINDING, "SOURCE_CLASS_MISMATCH"]
+
+    # Agreement adds nothing; no selected row means no comparison; the estate projection drops `detail`.
+    agree = public.ev_selected(tenant, site, auth, selected, sp.AUTHORED_DEMONSTRATION)
+    assert agree == public.cited_set(tenant, site, auth, selected)
+    unselected = public.ev_selected(tenant, site, auth, [], sp.REGISTERED_SIMULATION)
+    assert unselected["classification"] == sp.AUTHORED_DEMONSTRATION and unselected["basis_sha256"] is None
+    estate = public.ev_selected(tenant, site, plain, selected, sp.AUTHORED_DEMONSTRATION, detail=False)
+    assert sorted(estate) == [k for k in PUBLIC_KEYS if k != "detail"]
+
+
+def test_w1_revision_selection_sets_and_estate_projection(store, engine, capsys, monkeypatch) -> None:  # noqa: F811
+    """Run 1 rulings 2 and 6 on a real W1 Finding and consequence: the default selected sets are
+    `{finding_revision.id}` and `{consequence_revision.id, finding_revision.id}` over their exact cited sets, the W1
+    top-level resolver fields stay, and the estate projection is exactly the six public keys."""
+    from test_s405_publication_postgres import P01
+    from test_s405_resolver_postgres import power_site
+
+    from assetops_backend.evidence.public_provenance import (
+        consequence_row_selection,
+        estate_projection,
+        finding_row_selection,
+    )
+
+    s, rev, cid = power_site(store, engine, capsys, monkeypatch, lambda d, t: P01)
+    try:
+        ledger = PostgresEvidenceLedger(URL)
+        public, resolver = PublicProvenance(ledger), sp.SourceProvenanceResolver(ledger)
+        with engine.connect() as conn:
+            cited = sorted(str(x) for x in conn.execute(text(
+                "SELECT evidence_id FROM finding_revision_evidence WHERE finding_revision_id = :r"),
+                {"r": rev["id"]}).scalars())
+            power = sorted(str(x) for x in conn.execute(text(
+                "SELECT evidence_id FROM financial_consequence_power_interval WHERE consequence_revision_id = :c"),
+                {"c": cid}).scalars())
+        assert cited and power
+        f = public.finding_revision(s.tenant, s.site, rev["id"])
+        assert f["basis_sha256"] == digest(s.tenant, s.site, [rev["id"]], cited)
+        assert finding_row_selection(rev["id"]) == [str(rev["id"]).lower()]
+        raw_f = resolver.finding_revision(s.tenant, s.site, rev["id"])
+        assert {k: f[k] for k in raw_f if k != "reasons"} == {k: v for k, v in raw_f.items() if k != "reasons"}
+        assert f["classification"] == f["state"] == sp.AUTHORED_DEMONSTRATION and f["evidence_ids"] == cited
+
+        c = public.consequence_revision(s.tenant, s.site, cid)
+        assert c["basis_sha256"] == digest(s.tenant, s.site, [cid, rev["id"]], set(cited) | set(power))
+        assert consequence_row_selection(cid, rev["id"]) == sorted([str(cid).lower(), str(rev["id"]).lower()])
+        raw_c = resolver.consequence_revision(s.tenant, s.site, cid)
+        assert {k: c[k] for k in raw_c if k != "reasons"} == {k: v for k, v in raw_c.items() if k != "reasons"}
+        assert c["evidence_ids"] == sorted(set(cited) | set(power))
+        # An explicit ruling-2 set (e.g. a cold/EV Finding row) replaces the W1 default.
+        other = [rev["id"], uuid4()]
+        assert public.finding_revision(s.tenant, s.site, rev["id"], other)["basis_sha256"] == digest(
+            s.tenant, s.site, other, cited)
+
+        estate = estate_projection(f)
+        assert sorted(estate) == ["basis_sha256", "classification", "evidence_ids", "reasons", "source_ids", "state"]
+        assert estate == {k: f[k] for k in estate}
+    finally:
+        s.prices.dispose()
+        s.store.dispose()
+
+
+def test_pending_dual_blocks() -> None:
+    """Run 1 ruling 5: the three sibling blocks and the compatibility alias."""
+    from assetops_backend.evidence.public_provenance import dual_blocks
+
+    sel = {"classification": "AUTHORED_DEMONSTRATION", "basis_sha256": "sha256:" + "a" * 64}
+    pend = {"classification": "MIXED", "basis_sha256": None}
+    assert dual_blocks(sel, None) == {"source_provenance": sel, "selected_source_provenance": sel,
+                                      "pending_source_provenance": None}
+    both = dual_blocks(sel, pend)
+    assert both["source_provenance"] == both["pending_source_provenance"] == pend
+    assert both["selected_source_provenance"] == sel  # the selected row is never relabelled
+    assert dual_blocks(None, pend) == {"source_provenance": pend, "selected_source_provenance": None,
+                                       "pending_source_provenance": pend}
+    with pytest.raises(ValueError):
+        dual_blocks(sel, {**pend, "basis_sha256": sel["basis_sha256"]})  # never the prior digest on pending
+    with pytest.raises(ValueError):
+        dual_blocks(None, None)  # unruled; see .agent/W3-01-pending-rulings.md
