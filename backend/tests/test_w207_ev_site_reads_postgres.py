@@ -734,7 +734,8 @@ def test_analysis_intervals_and_publication_note(chain) -> None:  # noqa: F811
     # Review r1 M3: plain first-cell words and values from the accepted records; no role code, enum or " state".
     suffix = {"session_event": "session", "connector_meter_delta": "energy", "site_import": "site import",
               "connector_status": "connector status", "fault_event": "connector fault",
-              "requested_power": "requested power", "allocated_limit": "allocated power limit"}
+              "requested_power": "requested power", "allocated_limit": "allocated power limit",
+              "ev_connector_power": "connector power"}
     for x in items:
         assert x["source_label"].endswith(f" · {suffix.get(x['role'], 'EV reading')}"), x["source_label"]
         if x["record_kind"] in KIND_TEXT:
