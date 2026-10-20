@@ -330,3 +330,19 @@ open frozen verification window and no resolved outcome.`; unpriced copy `No con
 HISTORICAL page two that does not project today's jobs, so its `job_state` (in the token) moves and page two is 409
 (ruling 2 + ruling 6 as written). Optional: `.gitattributes` `backend/tests/fixtures/w3/*.json text eol=lf`.
 **Branch released.**
+
+## Lane A commit-2 integration (2026-10-20): commit 2 complete, ready for review; branch released
+Merged main (already up to date at `da3f6f3c`). Commit `d9039997`:
+- `tools/checks/configuration-persistence.ps1`: `estate` `$domains` entry (q5 ruling 3; `$pgReaders`/`$isPgReader` kept as landed).
+- `tools/checks/test_estate_guard.py`: `test_pg_reader_import_allowed`, `test_pg_reader_write_rejected`,
+  `test_domain_driver_import_rejected` (untracked probe modules, deleted after; no tracked `estate/` file touched).
+- `backend/assetops_backend/main.py`: `build_estate_router(build_estate_index_service(database_url()), registry_tenant(registry),
+  access=development_access, unavailable=(SiteStoreUnavailable,))` after the Site Action index router.
+- Not built: typed UI DTO and q8/q9 copy. No Lane A-owned estate frontend file exists; the spec places it in commit 3
+  (q11 item 1). Readings q11 1-4 are in `.agent/W3-01-pending-rulings.md`; none blocks.
+Checks: private `w301s_test` (dropped): estate API, index, index EV and golden, plus the 3 guard tests: 24 passed (556 s).
+Ad hoc `create_app()` without a DB: `/api/estate/scope` returned 503 `ESTATE_STORE_UNAVAILABLE`. Mutations after commit,
+each reverted with `git checkout`: with the `estate` domain disabled, `test_domain_driver_import_rejected` FAILS; with the
+`$isPgReader` branch dropped, `test_pg_reader_import_allowed` FAILS. check-all: 10/10 PASS. No full suite.
+**Next:** independent review of the contiguous commit-2 range (`a75b0291` prerequisite onward through `d9039997`); then commit 3.
+**Branch released.**
