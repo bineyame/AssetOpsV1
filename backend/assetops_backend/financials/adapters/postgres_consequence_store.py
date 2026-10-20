@@ -88,91 +88,83 @@ class PostgresConsequenceStore:
     def load_input(self, tenant_id: UUID, site_id: UUID, finding_id: UUID,
                    finding_revision_id: UUID) -> fc.FindingInput | None:
         """The exact persisted inputs of one FindingRevision of this Site; None if it is not this Site's."""
-        return self._run(lambda c: self.load_input_on(c, tenant_id, site_id, finding_id, finding_revision_id),
-                         "REPEATABLE READ")
+        scope = {"t": tenant_id, "s": site_id}
 
-    @staticmethod
-    def load_input_on(c: Connection, tenant_id: UUID, site_id: UUID, finding_id: UUID, finding_revision_id: UUID,
-                      known_at: datetime | None = None) -> fc.FindingInput | None:
-        """`load_input` on the caller's connection (W3-01 Run 6 `0a`). With `known_at`, the FindingRevision must be
-        created by it and only power readings whose ACCEPTED disposition was decided by it are inputs; without it
-        the statements are `load_input`'s."""
-        scope = {"t": tenant_id, "s": site_id, "k": known_at}
-        head = c.execute(text(
-            "SELECT r.id, r.finding_id, r.episode_start, r.episode_end, r.lifecycle, r.claim, "
-            "f.generator_asset_id FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
-            "AND f.tenant_id = r.tenant_id AND f.site_id = r.site_id "
-            "WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :r AND r.finding_id = :f"
-            + ("" if known_at is None else " AND r.created_at <= :k")),
-            {**scope, "r": finding_revision_id, "f": finding_id}).first()
-        if head is None:
-            return None
-        asset = str(head.generator_asset_id)
-        links = c.execute(text(
-            "SELECT a.assessment_revision_id, a.analytic_run_id, a.scope, a.is_primary, v.result, "
-            "run.foundation_revision_ids FROM finding_revision_assessment a "
-            "JOIN assessment_revision v ON v.id = a.assessment_revision_id AND v.tenant_id = a.tenant_id "
-            "AND v.site_id = a.site_id JOIN analytic_run run ON run.id = a.analytic_run_id "
-            "AND run.tenant_id = a.tenant_id AND run.site_id = a.site_id "
-            "WHERE a.tenant_id = :t AND a.site_id = :s AND a.finding_revision_id = :r "
-            "ORDER BY a.scope, a.is_primary DESC, a.assessment_revision_id"),
-            {**scope, "r": finding_revision_id}).all()
-        runs = sorted({row.analytic_run_id for row in links if row.scope == "INTERVAL"}, key=str)
-        run_evidence: dict[str, set[str]] = {str(r): set() for r in runs}
-        for row in c.execute(text(
-                "SELECT run_id, evidence_id FROM analytic_run_evidence WHERE tenant_id = :t AND site_id = :s "
-                "AND run_id = ANY(:runs)"), {**scope, "runs": runs}):
-            run_evidence[str(row.run_id)].add(str(row.evidence_id))
-        assessments = []
-        for row in links:
-            result = row.result or {}
-            segments = tuple(fc.Segment(_at(s["start"]), _at(s["end"]), bool(s.get("observed")),
-                                        s["classification"]) for s in result.get("segments") or ())
-            assessments.append(fc.AssessmentInput(
-                str(row.assessment_revision_id), str(row.analytic_run_id), row.scope, bool(row.is_primary),
-                None if result.get("generator_asset_id") is None else str(result["generator_asset_id"]),
-                segments, frozenset(run_evidence.get(str(row.analytic_run_id), ())),
-                frozenset(str(x) for x in (row.foundation_revision_ids or ()))))
-        readings = [fc.PowerReading(str(r.id), str(r.asset_id), r.interval_start, r.interval_end,
-                                    r.normalized_value_text, r.normalized_unit, r.quality, r.envelope_sha256,
-                                    str(r.foundation_revision_id), str(r.binding_revision_id))
-                    for r in c.execute(text(
-                        "SELECT e.id, e.asset_id, e.interval_start, e.interval_end, e.normalized_value_text, "
-                        "e.normalized_unit, e.quality, e.envelope_sha256, e.foundation_revision_id, "
-                        "e.binding_revision_id FROM accepted_evidence e JOIN ingestion_disposition d "
-                        "ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
-                        "WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
-                        "AND d.accepted_evidence_id = e.id AND e.role = :role "
-                        "AND CAST(e.asset_id AS text) = :asset AND e.interval_start IS NOT NULL "
-                        "AND e.interval_start < :hi AND e.interval_end > :lo"
-                        + ("" if known_at is None else " AND d.decided_at <= :k")
-                        + " ORDER BY e.interval_start, e.id"),
-                        {**scope, "role": fc.POWER_ROLE, "asset": asset, "lo": head.episode_start,
-                         "hi": head.episode_end})]
-        asset_code = c.execute(text(
-            "SELECT asset_code FROM asset WHERE tenant_id = :t AND site_id = :s AND CAST(id AS text) = :a"),
-            {**scope, "a": asset}).scalar_one_or_none()
-        foundation_ids = sorted({r.foundation_revision_id for r in readings}, key=str)
-        foundations = tuple(fc.FoundationRevision(
-            str(r.id), r.valid_from, r.valid_to,
-            tuple((p[0], p[1]) for p in (r.sfc or ()))) for r in c.execute(text(
-                "SELECT f.id, f.valid_from, f.valid_to, (SELECT jsonb_agg(jsonb_build_array(p->>'value', "
-                "p->>'unit')) FROM jsonb_array_elements(COALESCE(f.content->'components', '[]'::jsonb)) comp, "
-                "jsonb_array_elements(COALESCE(comp->'properties', '[]'::jsonb)) p "
-                "WHERE comp->>'component_id' = :code AND p->>'property_key' = :key) AS sfc "
-                "FROM foundation_revision f WHERE f.tenant_id = :t AND f.site_id = :s "
-                "AND CAST(f.id AS text) = ANY(:ids)"),
-                {**scope, "code": asset_code, "key": fc.SFC_PROPERTY, "ids": foundation_ids}))
-        binding_ids = sorted({r.binding_revision_id for r in readings}, key=str)
-        bindings = tuple(fc.BindingRevision(str(r.id), r.valid_from, r.valid_to) for r in c.execute(text(
-            "SELECT id, valid_from, valid_to FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s "
-            "AND CAST(id AS text) = ANY(:ids)"), {**scope, "ids": binding_ids}))
-        claim = head.claim or {}
-        spans = tuple(fc.CandidateSpan(_at(s["start"]), _at(s["end"]), str(s.get("assessment_revision_id")))
-                      for s in claim.get("candidate_spans") or ())
-        return fc.FindingInput(str(tenant_id), str(site_id), str(head.finding_id), str(head.id), asset,
-                               head.episode_start, head.episode_end, head.lifecycle, spans, tuple(assessments),
-                               tuple(readings), foundations, bindings)
+        def work(c: Connection) -> fc.FindingInput | None:
+            head = c.execute(text(
+                "SELECT r.id, r.finding_id, r.episode_start, r.episode_end, r.lifecycle, r.claim, "
+                "f.generator_asset_id FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+                "AND f.tenant_id = r.tenant_id AND f.site_id = r.site_id "
+                "WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :r AND r.finding_id = :f"),
+                {**scope, "r": finding_revision_id, "f": finding_id}).first()
+            if head is None:
+                return None
+            asset = str(head.generator_asset_id)
+            links = c.execute(text(
+                "SELECT a.assessment_revision_id, a.analytic_run_id, a.scope, a.is_primary, v.result, "
+                "run.foundation_revision_ids FROM finding_revision_assessment a "
+                "JOIN assessment_revision v ON v.id = a.assessment_revision_id AND v.tenant_id = a.tenant_id "
+                "AND v.site_id = a.site_id JOIN analytic_run run ON run.id = a.analytic_run_id "
+                "AND run.tenant_id = a.tenant_id AND run.site_id = a.site_id "
+                "WHERE a.tenant_id = :t AND a.site_id = :s AND a.finding_revision_id = :r "
+                "ORDER BY a.scope, a.is_primary DESC, a.assessment_revision_id"),
+                {**scope, "r": finding_revision_id}).all()
+            runs = sorted({row.analytic_run_id for row in links if row.scope == "INTERVAL"}, key=str)
+            run_evidence: dict[str, set[str]] = {str(r): set() for r in runs}
+            for row in c.execute(text(
+                    "SELECT run_id, evidence_id FROM analytic_run_evidence WHERE tenant_id = :t AND site_id = :s "
+                    "AND run_id = ANY(:runs)"), {**scope, "runs": runs}):
+                run_evidence[str(row.run_id)].add(str(row.evidence_id))
+            assessments = []
+            for row in links:
+                result = row.result or {}
+                segments = tuple(fc.Segment(_at(s["start"]), _at(s["end"]), bool(s.get("observed")),
+                                            s["classification"]) for s in result.get("segments") or ())
+                assessments.append(fc.AssessmentInput(
+                    str(row.assessment_revision_id), str(row.analytic_run_id), row.scope, bool(row.is_primary),
+                    None if result.get("generator_asset_id") is None else str(result["generator_asset_id"]),
+                    segments, frozenset(run_evidence.get(str(row.analytic_run_id), ())),
+                    frozenset(str(x) for x in (row.foundation_revision_ids or ()))))
+            readings = [fc.PowerReading(str(r.id), str(r.asset_id), r.interval_start, r.interval_end,
+                                        r.normalized_value_text, r.normalized_unit, r.quality, r.envelope_sha256,
+                                        str(r.foundation_revision_id), str(r.binding_revision_id))
+                        for r in c.execute(text(
+                            "SELECT e.id, e.asset_id, e.interval_start, e.interval_end, e.normalized_value_text, "
+                            "e.normalized_unit, e.quality, e.envelope_sha256, e.foundation_revision_id, "
+                            "e.binding_revision_id FROM accepted_evidence e JOIN ingestion_disposition d "
+                            "ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal "
+                            "WHERE e.tenant_id = :t AND e.site_id = :s AND d.decision = 'ACCEPTED' "
+                            "AND d.accepted_evidence_id = e.id AND e.role = :role "
+                            "AND CAST(e.asset_id AS text) = :asset AND e.interval_start IS NOT NULL "
+                            "AND e.interval_start < :hi AND e.interval_end > :lo ORDER BY e.interval_start, e.id"),
+                            {**scope, "role": fc.POWER_ROLE, "asset": asset, "lo": head.episode_start,
+                             "hi": head.episode_end})]
+            asset_code = c.execute(text(
+                "SELECT asset_code FROM asset WHERE tenant_id = :t AND site_id = :s AND CAST(id AS text) = :a"),
+                {**scope, "a": asset}).scalar_one_or_none()
+            foundation_ids = sorted({r.foundation_revision_id for r in readings}, key=str)
+            foundations = tuple(fc.FoundationRevision(
+                str(r.id), r.valid_from, r.valid_to,
+                tuple((p[0], p[1]) for p in (r.sfc or ()))) for r in c.execute(text(
+                    "SELECT f.id, f.valid_from, f.valid_to, (SELECT jsonb_agg(jsonb_build_array(p->>'value', "
+                    "p->>'unit')) FROM jsonb_array_elements(COALESCE(f.content->'components', '[]'::jsonb)) comp, "
+                    "jsonb_array_elements(COALESCE(comp->'properties', '[]'::jsonb)) p "
+                    "WHERE comp->>'component_id' = :code AND p->>'property_key' = :key) AS sfc "
+                    "FROM foundation_revision f WHERE f.tenant_id = :t AND f.site_id = :s "
+                    "AND CAST(f.id AS text) = ANY(:ids)"),
+                    {**scope, "code": asset_code, "key": fc.SFC_PROPERTY, "ids": foundation_ids}))
+            binding_ids = sorted({r.binding_revision_id for r in readings}, key=str)
+            bindings = tuple(fc.BindingRevision(str(r.id), r.valid_from, r.valid_to) for r in c.execute(text(
+                "SELECT id, valid_from, valid_to FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND CAST(id AS text) = ANY(:ids)"), {**scope, "ids": binding_ids}))
+            claim = head.claim or {}
+            spans = tuple(fc.CandidateSpan(_at(s["start"]), _at(s["end"]), str(s.get("assessment_revision_id")))
+                          for s in claim.get("candidate_spans") or ())
+            return fc.FindingInput(str(tenant_id), str(site_id), str(head.finding_id), str(head.id), asset,
+                                   head.episode_start, head.episode_end, head.lifecycle, spans, tuple(assessments),
+                                   tuple(readings), foundations, bindings)
+
+        return self._run(work, "REPEATABLE READ")
 
     # ---- idempotent append ---------------------------------------------------------------------------------
 
@@ -503,41 +495,6 @@ class PostgresConsequenceStore:
                     "page": rows[:limit], "has_more": len(rows) > limit, "total": total, "links": links,
                     "pending": pending}
         return self._run(work, "REPEATABLE READ")
-
-    @staticmethod
-    def selected_on(c: Connection, tenant_id: UUID, site_id: UUID, finding_revision_id: UUID,
-                    known_at: datetime) -> dict[str, Any]:
-        """W3-01 Run 6 `0a`: the exact FindingRevision of this Site as created by `known_at`, whether it was its
-        Finding's latest revision then, and its latest fuel consequence revision recorded by `known_at`
-        (`(revision_no, id)` order) with that revision's lineage rows. Read on the caller's connection only."""
-        scope = {"t": tenant_id, "s": site_id, "r": finding_revision_id, "k": known_at, "ct": fc.CONSEQUENCE_TYPE}
-        rev = c.execute(text(
-            "SELECT r.id, r.finding_id, r.revision_no, r.created_at, (SELECT x.id FROM finding_revision x "
-            "WHERE x.tenant_id = r.tenant_id AND x.site_id = r.site_id AND x.finding_id = r.finding_id "
-            "AND x.created_at <= :k ORDER BY x.revision_no DESC, x.id DESC LIMIT 1) AS latest_id "
-            "FROM finding_revision r WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :r "
-            "AND r.created_at <= :k"), scope).first()
-        if rev is None:
-            return {"finding_revision": None, "head": None, "links": {}, "price_known": False}
-        head = c.execute(text(
-            "SELECT * FROM financial_consequence_revision WHERE tenant_id = :t AND site_id = :s "
-            "AND finding_id = :f AND finding_revision_id = :r AND consequence_type = :ct AND recorded_at <= :k "
-            "ORDER BY revision_no DESC, id DESC LIMIT 1"), {**scope, "f": rev.finding_id}).first()
-        links: dict[str, list[dict[str, Any]]] = {}
-        if head is not None:
-            for name, table, order in (
-                    ("assessments", "financial_consequence_assessment_revision",
-                     "is_primary DESC, assessment_revision_id"),
-                    ("assumptions", "financial_consequence_assumption_revision", "assumption_revision_id"),
-                    ("intervals", "financial_consequence_power_interval", "interval_start, evidence_id")):
-                links[name] = [dict(x._mapping) for x in c.execute(text(
-                    f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s "
-                    f"AND consequence_revision_id = :c ORDER BY {order}"), {**scope, "c": head.id})]
-        price_known = head is not None and head.price_revision_id is not None and c.execute(text(
-            "SELECT 1 FROM financial_assumption_revision WHERE tenant_id = :t AND site_id = :s AND id = :p "
-            "AND recorded_at <= :k"), {**scope, "p": head.price_revision_id}).first() is not None
-        return {"finding_revision": dict(rev._mapping), "head": None if head is None else dict(head._mapping),
-                "links": links, "price_known": price_known}
 
     # ---- raw rows (tests and diagnostics) -------------------------------------------------------------------
 
