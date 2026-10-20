@@ -1,11 +1,24 @@
-# W3-01 pending rulings (commit 1, 2026-10-20)
+# W3-01 pending rulings (q2, Lane B run 2, 2026-10-20)
 
-Raised by the Lane B builder at `1c409a3d`. Commit 1 is **partial**: only the unambiguous DTO core is built. Each item below blocks the named remaining part; nothing was built on an assumed answer.
+q1 items 1-7 are answered by "Run 1 rulings (q1)" in `.agent/W3-01-build-spec.md`. Lane B's part of commit 1 is
+complete at `2951b66c`; nothing below was built on an assumed answer. Both items affect Lane A's envelope work.
 
-1. **Lane A same-commit integration (blocks closing commit 1).** Spec item 1 and the amended decision say Lane A integrates the compatibility seam *in W3 commit 1, before review/merge*; `post-W2-sequence.md` forbids both lanes editing a shared file in different worktrees. Does Lane A commit onto `task/W3-01-estate-claim-action-roots`, or carry it on its own branch? Confirm the backend call sites are Lane A's ("existing W1/W2 public-read integrations"): `analytics/finding_read.py:313,447,559`, `financials/consequence_read.py:225-265`, `financials/consequence_history.py`, `analytics/cold_site_reads.py`, `financials/cold_consequence.py`, EV/cold `_envelope` in `analytics/adapters/postgres_assessment_store.py:1655-1672,2185-2216`, `site_overview/read.py:47,332`, `actions/service.py:248,340,698`, `finding_api.py:308`, plus `frontend/src/sites/sourceProvenance.tsx`. My reading: Lane B supplies only `evidence/public_provenance.py` (+ tests); every call site above is Lane A.
-2. **`selected_revision_ids` per domain (blocks the digest at every call site and `test_w1_cold_ev_exact_cited_id_mapping`).** Only the Action row is defined (closure 2 D3). Name the exact set for: (a) a W1 Finding row/detail (the `finding_revision.id` alone?); (b) a W1 consequence row (consequence revision + its Finding revision?); (c) a cold selected read (the watermark `assessment_revision_ids`? episode revisions?); (d) an EV selected read (assessment, session, Finding and/or money revision?); (e) an estate Finding row.
-3. **Cold/EV cursor fence.** Today the public `source_provenance.basis_sha256` is the stored immutable basis and is also the cursor fence (`cold_site_reads.py:505`; `postgres_assessment_store.py:1864,1892,2327,2333,2366-2367`, the EV route prefix). Closure B8 makes the public field the selection digest. Do cursors keep fencing on the internal stored basis (read separately), or switch to the digest (changing existing cursor values)?
-4. **EV persisted-class mismatch (blocks `test_persisted_ev_class_disagreement_unknown`).** (a) Does the `SOURCE_CLASS_MISMATCH` reason's `accepted_evidence_ids` carry the full cited set? (b) Are the resolver's own reasons kept beside it? (c) `detail` "mirrors the resolver" but top-level must equal `detail.reasons`: on mismatch does `detail.state/reasons` show the resolver result or the overridden UNKNOWN? (d) Is a null persisted class on a selected row a mismatch? (e) Resolver UNKNOWN vs persisted positive: is the mismatch reason added too?
-5. **Pending dual DTO placement.** Where do `selected_source_provenance` and `pending_source_provenance` sit in the cold/EV envelopes: beside `source_provenance` (kept? with which value?) or replacing it?
-6. **`detail` on estate rows.** The W20 literal row omits `detail`. Confirm estate rows omit it while W1-compatible reads carry it.
-7. **Timing of `test_w1_cold_ev_exact_cited_id_mapping`.** It asserts public reads, which only change with Lane A's integration. Is it written in commit 1 against the integrated reads (after ruling 1), or against `PublicProvenance` called on the exact selected IDs from today's reads?
+1. **No selected row and no pending set (ruling 5 gap).** A cold/EV read with no selected revision and no newer
+   accepted set (e.g. an empty window) has `selected_source_provenance:null` and `pending_source_provenance:null`,
+   but ruling 5 says `source_provenance` equals one of them, and the six public keys are required. Is
+   `source_provenance` then (a) `cited_set(t, s, [], [])` = UNKNOWN/`EMPTY_CITATION_SET`/`basis_sha256:null`, (b)
+   `null`, or (c) today's shape (`classification:null`, empty lists)? `dual_blocks(None, None)` currently raises.
+2. **Cold "full newer accepted set" (ruling 5).** EV has `_ev_rows(c, ...)` for the window's accepted set at the
+   cutoff. Which exact query defines the cold pending set (the window's accepted probe rows at `known_at` for the
+   requested analytics, or the rows after `pending_since`)? Also confirm EV computes the pending DTO on every
+   pending read, not only when `_unassessable` finds a non-positive class as today.
+
+## Readings made this run (for confirmation)
+1. Ruling 2's W1 sets are derived inside `finding_revision`/`consequence_revision` by default; callers with a
+   cold/EV/estate row pass their own ruling-2 set explicitly.
+2. `ev_selected` lowercases and dedupes the cited set before resolving; the mismatch reason carries that set.
+3. "No selected row" in ruling 4 is expressed as empty `selected_revision_ids` (no comparison, null digest).
+4. `LinkRowsReads` (set-only reads on a caller connection) is a Lane B convenience so Lane A can stay inside its
+   snapshot transaction without the private `_run` override; it adds no semantics.
+5. The pure `dual_blocks` test is named `test_pending_dual_blocks`; the named envelope test
+   `test_pending_envelope_does_not_relabel_selected_row` is left to Lane A's integration commit.
