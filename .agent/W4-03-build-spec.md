@@ -328,3 +328,81 @@ Alternatives geometry from the supplied mock: 1440 columns `459/360/302` px and 
 | v69 Alternatives global Finding breadcrumb/Analysis tab and authored-looking rows | Site-rooted canonical Finding trail, no Analysis tab, exact persisted authored alternatives; legacy analytic list remains distinct. |
 | W4-02 `Opportunity decision unavailable` | Replaced only for one exact five-day study; otherwise exact missing copy above. |
 | W4-03 gross money and Manage Action suggestions | Per eligible one-hour authored scenario only; no opportunity Action link exists, so `Not yet accepted`. |
+
+## Review closure 2 (2026-10-20)
+
+Architect amendment to `D-2026-10-20-w4-03-buildspec`. This section controls the six open items in `.agent/W4-03-closure-check.md` and the mock-slot conflict with `.agent/owner-fidelity-and-design-ownership-2026-10-18.md`. The paths and hooks below are builder obligations after the named prerequisites merge; they are not claims that W4-03 code already exists.
+
+### Q1 — executable development principal and replay
+
+Add two explicit injection arguments to `backend/assetops_backend/main.py:create_app`: `mini_decision_command_access: Access` (default denies writes) and `mini_decision_principal: Callable[[Request,str], DecisionPrincipal | None]` (default returns `None`). Pass both to `mini_decisions_api.py:build_mini_decisions_router`; read access remains the existing Site-scoped `development_access`. `DecisionPrincipal` carries server-derived `kind='SERVICE'`, `id='service:w403-fixture'`, scoped tenant/Site, and grant `SITE_DECISION_WRITE:service:w403-fixture`. The router checks Site scope, admitted command access, and this principal before body validation; the request body cannot install or override either callback. No ambient environment variable enables this principal in the normal `main:app` composition.
+
+Implement `tools/w403_mini_decisions_walkthrough.py` with `prepare|serve|replay|capture|drop` and required `--db <private *_test database> --work <private work directory>` arguments. `serve` calls `create_app(mini_decision_command_access=fixture_command_access, mini_decision_principal=fixture_principal)` and binds the dev API to loopback. `prepare` generates a random bearer credential in the private work directory; both callbacks admit only a request bearing that credential for the resolved KOBO-001 tenant/Site. `replay` reads `backend/tests/fixtures/w4/w403-mini-decisions.json`, runs the W4-02 public authored replay first, resolves exact selected IDs by scoped reads, submits the five W4-03 POST shapes and W4-01 case commands with their respective injected principals/grants, then GETs the scenario, Alternatives and Opportunity reads after a fresh request. `capture` reloads the served pages at 1440/390. The named dev command is `python tools/w403_mini_decisions_walkthrough.py --db assetops_w403_walk_test --work var/w403_walk serve`; in another shell run the same prefix with `replay`, then `capture`. The tool must inject `service:w401-fixture` with `SITE_WORK_WRITE:service:w401-fixture` only for W4-01 commands. A missing/invalid credential, wrong Site, or missing grant cannot reach a W4-03 write; tests exercise that denial and a successful persisted reload. The bearer credential is a local transport secret, never the actor or stored authorization basis.
+
+### Q4 — worker scan, no selection trigger
+
+Use a **worker scan**, not a DB trigger on `mini_depth_selection`. At the start of every `mini_decisions/worker.py run-pending`, call `enqueue_from_selections()` before leasing `mini_opportunity` jobs. It scans the latest committed renewable noon selection for each Site/local day within the configured five-day retention, considers each selected day as a possible five-day ending day, and computes the sorted five-day `(local_day,selection_seq,mini_revision_id)` vector with null entries for missing days. For each Site/study, compare this vector to the latest committed `mini_opportunity_selection`/revision input vector. Queue when no selection exists or the vector differs; an identical vector with an existing PENDING job is a no-op. In the same transaction, take `pg_advisory_xact_lock(hashtextextended(tenant_id::text || ':' || site_id::text || ':mini_opportunity:' || first_day::text || ':' || last_day::text, 0))`, lock any matching PENDING `recompute_job` row, and either coalesce its `available_at` with `greatest(available_at, clock_timestamp())` or insert a new `recompute_job` with `domain='mini_opportunity'`, `window_start` at first Site-local midnight, `window_end` at midnight after last day, `cause_evidence_id=NULL`, `status='PENDING'`, `available_at=created_at=clock_timestamp()`. Never mutate LEASED/DONE/FAILED into pending; a changed vector gets new work. The scan and worker repeat safely after a crash; an identical completed selection does not create endless jobs. `reconcile --site <code> --from <UTC> --to <UTC>` explicitly enumerates older five-day windows outside retention and uses the same transaction/coalescing rule. The periodic schedule invokes `run-pending`; hence a committed W4-02 selection becomes work on the next scan without modifying W4-02. `0030` adds **zero enqueue triggers and zero recompute_job DDL**: its trigger count remains exactly **10**, the ten `<table>_immutable` append-only triggers already specified. Test the scan after a late selection and after an interrupted run.
+
+The scan's exact head query is below. For each returned ending day, load the preceding four Site-local noon heads with the same `(selected_at DESC,seq DESC)` rule; compare their five-element vector to `mini_opportunity_revision.selected_hours` at the greatest opportunity selection `(selected_at,seq)`. Bind `:retention_start` as the earliest retained Site-local noon converted to UTC. The queue transaction uses the following exact DML; `:lo/:hi` are the study's Site-local midnight bounds converted to UTC, and `:at` is one captured DB `clock_timestamp()` for the transaction. Run the lock statement first, then the pending SELECT, then exactly one UPDATE or INSERT before commit.
+
+```sql
+SELECT DISTINCT ON (s.tenant_id,s.site_id,s.window_start)
+       s.tenant_id,s.site_id,s.window_start,s.window_end,s.seq,s.revision_id,s.selected_at
+FROM mini_depth_selection AS s
+WHERE s.domain='renewable' AND s.window_start >= :retention_start
+ORDER BY s.tenant_id,s.site_id,s.window_start,s.selected_at DESC,s.seq DESC;
+
+SELECT pg_advisory_xact_lock(hashtextextended(
+  CAST(:tenant_id AS text) || ':' || CAST(:site_id AS text) || ':mini_opportunity:' ||
+  CAST(:first_day AS text) || ':' || CAST(:last_day AS text), 0));
+SELECT id FROM recompute_job
+WHERE tenant_id=:tenant_id AND site_id=:site_id AND domain='mini_opportunity'
+  AND window_start=:lo AND window_end=:hi AND status='PENDING'
+ORDER BY id LIMIT 1 FOR UPDATE;
+-- If the pending SELECT returned an ID:
+UPDATE recompute_job SET available_at=greatest(available_at,:at) WHERE id=:pending_id;
+-- Otherwise:
+INSERT INTO recompute_job
+  (id,tenant_id,site_id,domain,window_start,window_end,cause_evidence_id,status,available_at,created_at)
+VALUES (gen_random_uuid(),:tenant_id,:site_id,'mini_opportunity',:lo,:hi,NULL,'PENDING',:at,:at);
+```
+
+### Q11/Q6 residue — literal line patches and supersession
+
+Apply these replacements to the earlier lines when preparing the builder packet (this addendum is the controlling patch; preserve the earlier text as decision history):
+
+```diff
+-Positive replay uses W4-02 registered KOBO publication v5 for Nairobi 2026-10-06 through 10, five separate accepted noon hours.
++Positive replay uses `backend/conversions/w4-mini-depth-cases-v1.json`, registered as `assetops.w4-mini-depth-cases` and replayed by `tools/w402_mini_depth_cases.py`, for Nairobi 2026-10-06 through 10, five separate accepted noon hours; its source class is `AUTHORED_DEMONSTRATION`.
+-| 3 — opportunity/index | Worker/reconcile revision selection, late evidence, typed Site/estate union. `backend/tests/test_w403_opportunity_postgres.py::{test_five_distinct_days_eligible_denominator_and_reload,test_late_accepted_row_appends_revision_and_history,test_no_head_and_pending_withhold_current_badge,test_site_and_estate_opportunity_lens_exact_route}`; retain W1 FindingIndex Cost/Risks and W3 estate pagination tests. |
++| 3 — opportunity/discovery boundary | Worker/reconcile revision selection and late evidence; Site Findings Opportunity chip and W3 estate Opportunity lens remain unavailable. `backend/tests/test_w403_opportunity_postgres.py::{test_five_distinct_days_eligible_denominator_and_reload,test_late_accepted_row_appends_revision_and_history,test_no_head_and_pending_withhold_current_badge}` and `frontend/src/sites/__tests__/miniDecisions.test.tsx::opportunity_chip_and_estate_lens_stay_unavailable`; retain W1 FindingIndex Cost/Risks and W3 estate pagination tests. |
+```
+
+The replacement UI test asserts the Site chip has no link/focus target and displays `Opportunity index unavailable; open the renewable evaluation for this site's five-day study.`; the W3 estate Opportunities lens has no promoted opportunity row/route and retains its unavailable state and `estate-selection/2` token. Supersession-index entries: `W4-03 fixture line 230, “registered KOBO publication v5”` → the authored `w4-mini-depth-cases-v1` conversion above; `W4-03 commit 3 test_site_and_estate_opportunity_lens_exact_route` → `opportunity_chip_and_estate_lens_stay_unavailable` plus the unchanged W1/W3 regression tests. The deferred union ruling in Review closure remains controlling.
+
+### Q24 — exact navigation multiset
+
+After the per-Site-type Financials split, the literal `tools/checks/navigation-truthfulness.ps1` `$expectedTabs` is:
+
+```powershell
+$expectedTabs = @("Scenarios", "Scenarios", "Incidents", "Maintenance", "Cooling",
+    "Recommendation", "Recommendation", "Availability", "Energy / site power")
+```
+
+The two `Scenarios` occurrences are the cold and EV unavailable tabs. Mini Scenarios is a live route; canonical Alternatives is a live route, so `Alternatives` has zero unavailable occurrences. Keep `Opportunities` once in `$expectedChips`. Update the guard's positive and negative fixtures in the same unit.
+
+### N1 — tariff unit
+
+`ISO4217/kWh` in the assumption-key sentence is a **unit pattern**, not an accepted literal. The API accepts `USD/kWh` for a USD tariff, `KES/kWh` for a KES tariff, and analogously `<uppercase ISO 4217 currency code>/kWh` after validating the three-letter prefix against ISO 4217. The positive fixture's exact unit is `USD/kWh`; reject the string `ISO4217/kWh` and any mismatch between the unit prefix and `gross_sales.currency` with 422 `DECISION_INPUT_INVALID`. No currency is inferred from Site locale.
+
+### N2 — exact registry paths
+
+The registry file is `frontend/docs/architecture/v69-dependency-registry-pilot.json`. Add and independently review these five `panels[]` entries, keyed by `(screen_id,panel_index)`: `('scenarios',1)` Financial scenarios; `('alternatives',1)` Alternatives to investigate; `('opportunity-finding',1)` Bounded opportunity; `('opportunity-finding',2)` Next decision; `('opportunity-finding',3)` Consequence basis. These are the exact keys in `frontend/docs/architecture/v69-rendered-panels.json` and `frontend/src/test/v69PanelTitles.ts`; map each to its W4-03 read/field/gap and technical requirements. `A-alternative-comparison` remains partial because `analysis:3#b` is not delivered. The Opportunity status bar and four cards remain visible mock elements, tested in screen structure/capture even though the registry's `panels[]` indexes only titled panels. Do not mark these five paths mapped before independent review.
+
+### Mock fidelity correction — Analysis and global breadcrumb
+
+The v69 mock **does** render the mini Finding context tabs, including `Analysis`, for both `alternatives` and `opportunity-finding` (`frontend/mockups/v69/screens.js:959`). It also renders a global `Findings › {object} › {section}` breadcrumb plus a `· site: {Site}` suffix for both (`screens.js:970-977`). The earlier “no Analysis tab” and Site-root-only breadcrumb deviations, including the last supersession-index row, are revoked. Retain the slots and order; a missing destination is a noninteractive gap, not a removed tab.
+
+On canonical Alternatives, the context tab order is `Overview | Analysis | Evidence | Alternatives | Recommendation | History`, with Alternatives selected. `Analysis` occupies its original second slot as disabled text `Analysis unavailable for this authored alternative; use the Finding overview and evidence.` with no href, click handler or focus target. The global breadcrumb above the page heading is `Findings › {Finding code} › Alternatives · site: {Site display name}`. The `Findings` root occupies its mock slot but, until a reviewed global index exists, is disabled text `Global Findings unavailable; open Site Findings.`; the Site suffix links to the authorized Site Overview. The code and current section are noninteractive text. Existing supported canonical tabs keep their exact reviewed routes and selected revision.
+
+On Opportunity detail, keep the same six context-tab slots with Overview selected; Analysis, Evidence, Alternatives, Recommendation and History are disabled with the shared visible gap copy `This opportunity view is unavailable; inspect the selected five-day renewable evaluation.` (no link or focus target). The global breadcrumb above the heading is `Findings › {OPP code} › Overview · site: {Site display name}`; its first slot is disabled text `Global Findings unavailable; this opportunity is reached from Renewable evaluation.` because a typed opportunity is not a W1 Finding. `OPP code` and Overview are text; the Site suffix links to Site Overview. This preserves the mock breadcrumb placement and shape while explaining the unsupported global destination. The four cards and three titled panels keep their original order, and `Not assessed` remains in the confidence slot. Capture both screens at 1440/390 and assert the tab/breadcrumb slots and exact gap text.
