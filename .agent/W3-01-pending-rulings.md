@@ -187,3 +187,24 @@ Built: `backend/tests/fixtures/w3/w301-estate-golden.json` (`w301-estate-golden/
    default cutoff is a known six-digit value. A changed-cursor case's expected is the literal
    `{"refusal": {"code": "ESTATE_BASIS_CHANGED", "status": 409}}`, outside the q9 200-body shape. Coverage Sites keep
    the wire `match_state` beside the projected keys (whole-response comparison). Confirm or rule otherwise.
+
+## q11 (Lane A commit-2 integration, 2026-10-20): readings built, none blocking; confirm at review
+
+1. **Typed UI DTO and q8/q9 copy: no Lane A-owned file exists yet (reading, nothing built).** `frontend/src` has no
+   estate client, type or page (`grep` for `/api/estate`, `estate-finding-index`, `Awaiting verification`, `No consequence
+   recorded`: no match). The spec puts `frontend/src/estate/{findingIndex,actionIndex,estateClient}` in commit 3, so the
+   `estate-finding-index-2` DTO (`amount_low`, `amount_high`, `amount` alias, `episode_start`, `status`) and the q8
+   ruling 4 / q9 ruling 2 copy land there. Commit 2 adds no frontend file, and none was created ahead of commit 3.
+2. **Guard self-test home (reading).** `tools/checks/test_estate_guard.py` (pytest, run explicitly; not in the backend
+   suite, whose Linux container has no PowerShell and whose JUnit check forbids skips). Each test writes one untracked
+   probe module and deletes it: the reader probe uses the second `$pgReaders` path
+   (`estate/adapters/postgres_evidence_money_read.py`, W3-02's, absent here), and the domain probe is
+   `estate/_guard_probe_driver.py`. No tracked `estate/` file is modified. The test refuses to run if the probe path
+   exists.
+3. **`main.py` mount (reading).** `build_estate_router(build_estate_index_service(database_url()),
+   registry_tenant(registry), access=development_access, unavailable=(SiteStoreUnavailable,))`, placed after the
+   Site Action index router. `authenticate` keeps the router default (`development_authenticate`), and `access` is the
+   same `development_access` the Finding router defaults to. Without a database the route answers 503
+   `ESTATE_STORE_UNAVAILABLE` (checked ad hoc through `create_app()`; no committed app-level test).
+4. **Dependency direction (reading).** `tools/checks/dependency-direction.ps1` needed no allowance: check-all passes
+   with the new composition.

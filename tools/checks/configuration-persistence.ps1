@@ -154,6 +154,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # W3-01 commit 2 (q5 ruling 3): the read-only estate roots. No writer; only its composition imports the
+            # estate adapters, whose driver import rule 8 admits through `$pgReaders` (never `$pgWriters`).
+            Name        = "estate"
+            Package     = "$backendRoot/estate"
+            Composition = "$backendRoot/estate/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
