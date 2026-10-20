@@ -201,8 +201,8 @@ class EstateIndexService:
                     awaiting += snap.awaiting_verification(tenant_id, site["site_id"], pairs, scope["k"])
             summary.update(awaiting_verification=awaiting, basis_count=len(basis),
                            supported_findings=sum(1 for r in basis if r["lifecycle"] == "SUPPORTED"))
-            if scope["historical"]:
-                summary["as_of"] = wire_time(scope["k"])
+        if scope["historical"]:  # q12 ruling 1: a HISTORICAL response carries `as_of`, complete or not
+            summary["as_of"] = wire_time(scope["k"])
         covered = sum(1 for s in states if s in COVERED)
         body = self._envelope(FINDINGS_SCHEMA, tenant_id, req, scope, covered, _status(scope["historical"], states),
                               {"state": _coverage_state(states),
@@ -255,8 +255,8 @@ class EstateIndexService:
                            verification_window=sum(1 for r in rows if r["_raw"]["_verification_window"]),
                            verified_in_30_days=sum(1 for r in rows if r["_raw"]["_verified_recent"]),
                            basis_count=len(rows))
-            if scope["historical"]:
-                summary["as_of"] = wire_time(scope["k"])
+        if scope["historical"]:  # q12 ruling 1: a HISTORICAL response carries `as_of`, complete or not
+            summary["as_of"] = wire_time(scope["k"])
         covered = sum(1 for s in states if s in COVERED or s == NOT_APPLICABLE)
         applicable = [s for s in states if s != NOT_APPLICABLE]
         body = self._envelope(ACTIONS_SCHEMA, tenant_id, req, scope, covered,

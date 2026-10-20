@@ -2165,6 +2165,7 @@
             "state_filter": "all",
             "status": "HISTORICAL",
             "summary": {
+              "as_of": "2026-10-30T10:03:00Z",
               "awaiting_verification": null,
               "basis_count": null,
               "high_priority": null,

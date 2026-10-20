@@ -266,16 +266,25 @@ def test_cursor_scope_window_lens_and_fence(chain) -> None:  # noqa: F811
     assert len(whole["rows"]) >= 2 and first["next_cursor"] and first["rows"] == whole["rows"][:1]
     second = estate.ok("findings", **day, limit=1, cursor=first["next_cursor"])
     assert second["selection_token"] == first["selection_token"] and first["summary"] == whole["summary"]
-    # Page two reads at the cursor cutoff, so its rows are labelled HISTORICAL; nothing else in them moves.
-    assert [{**r, "status": None} for r in second["rows"]] == [{**r, "status": None} for r in whole["rows"][1:2]]
-    assert {r["status"] for r in second["rows"]} == {"HISTORICAL"}
+    # q12 ruling 1: page two's top-level label is HISTORICAL; its Site coverage (each `state` included) and each
+    # row `status` keep page one's live basis.
+    assert second["status"] == "HISTORICAL" and second["summary"]["as_of"] == second["window"]["known_at"]
+    assert second["coverage"]["sites"] == first["coverage"]["sites"]
+    assert [x["state"] for x in second["coverage"]["sites"]] == ["CURRENT"]
+    assert second["rows"] == whole["rows"][1:2]
+    page_one_state = {x["site_id"]: x["state"] for x in first["coverage"]["sites"]}
+    assert all(r["status"] == page_one_state[r["site_id"]] for r in second["rows"])
     # Run 8 ruling 2: the cursor's six-digit cutoff is page two's only cutoff, even when page one omitted it. Page
-    # two is HISTORICAL at that instant and repeats the rows, summary, coverage and token of an explicit read there.
+    # two is HISTORICAL at that instant and repeats the selected rows, summary and token of an explicit read there;
+    # q12 ruling 1: the explicit read's basis is historical, page two's is page one's live basis, so only the Site
+    # `state` and row `status` labels differ.
     cursor_k = decode_cursor("findings", first["next_cursor"])["known_at"]
     at_cursor = estate.ok("findings", **day, known_at=cursor_k)
-    assert second["status"] == "HISTORICAL" and second["summary"]["as_of"] == second["window"]["known_at"]
-    assert second["window"] == at_cursor["window"] and second["coverage"] == at_cursor["coverage"]
-    assert second["summary"] == at_cursor["summary"] and second["rows"] == at_cursor["rows"][1:2]
+    assert second["window"] == at_cursor["window"] and second["status"] == at_cursor["status"] == "HISTORICAL"
+    assert [x["state"] for x in at_cursor["coverage"]["sites"]] == ["HISTORICAL"]
+    assert [{**x, "state": "CURRENT"} for x in at_cursor["coverage"]["sites"]] == second["coverage"]["sites"]
+    assert second["summary"] == at_cursor["summary"]
+    assert [{**r, "status": "CURRENT"} for r in at_cursor["rows"][1:2]] == second["rows"]
     assert at_cursor["selection_token"] == second["selection_token"]
     assert {k: v for k, v in second["summary"].items() if k != "as_of"} == first["summary"]
     # A supplied cutoff must be the cursor's instant at full precision, or its wire-second copy (normalized to the
@@ -362,10 +371,12 @@ def test_live_open_cold_ev_page_two_keeps_work_fence(chain) -> None:  # noqa: F8
         assert c.execute(text("SELECT created_at FROM recompute_job WHERE id = :j"), {"j": late}).scalar_one()             > cursor_k
     second = estate.ok("findings", **day, limit=1, cursor=cursor)
     assert second["selection_token"] == first["selection_token"] and second["status"] == "HISTORICAL"
+    assert second["summary"]["as_of"] == second["window"]["known_at"]
+    assert second["coverage"]["sites"] == first["coverage"]["sites"]  # q12 ruling 1: each Site `state` included
     (paged,) = second["coverage"]["sites"]
-    assert (paged["state"], paged["job_state"]) == ("HISTORICAL", "PENDING")
-    assert [{**r, "status": None} for r in second["rows"]] == [{**r, "status": None} for r in whole["rows"][1:2]]
-    assert {r["status"] for r in second["rows"]} == {"HISTORICAL"}
+    assert (paged["state"], paged["job_state"]) == ("PENDING_RECOMPUTE", "PENDING")
+    assert second["rows"] == whole["rows"][1:2]
+    assert {r["status"] for r in second["rows"]} == {site["state"]}
     seen = [r["finding_id"] for r in first["rows"] + second["rows"]]
     assert len(seen) == len(set(seen))
     # A job that actually changes between requests moves the fence: the old cursor is 409.
@@ -462,6 +473,8 @@ def test_late_support_change_recurrence_at_exact_cutoff(mini) -> None:
     (site,) = before["coverage"]["sites"]
     assert (site["state"], site["match_state"]) == ("UNKNOWN", "PENDING")
     assert before["rows"] == [] and before["total_count"] is None
+    # q12 ruling 1 (q13 reading 1): a HISTORICAL response carries `as_of`; every count stays null.
+    assert before["summary"].pop("as_of") == before["window"]["known_at"]
     assert all(v is None for v in before["summary"].values())
     # At the exact cutoff and live: the NO_LONGER_SUPPORTED revision, in All, outside Supported.
     assert rows_of(exact) == rows_of(live) == [(finding_id, rev3, "NO_LONGER_SUPPORTED", "2026-10-21T08:00:00Z")]
@@ -707,6 +720,18 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
         page, _ = actions(limit=1)
         assert page["summary"] == both["summary"] and len(page["rows"]) == 1 and page["next_cursor"]
         assert page["selection_token"] == both["selection_token"]
+        # q12 ruling 1: a live Actions page two read after its cutoff is HISTORICAL at the top level only.
+        cursor_k = datetime.fromisoformat(
+            decode_cursor("actions", page["next_cursor"])["known_at"].replace("Z", "+00:00"))
+        assert decode_cursor("actions", page["next_cursor"])["page_one_mode"] == "live"
+        pin["at"] = cursor_k + timedelta(seconds=1)
+        later = estate.ok("actions", **window, limit=1, cursor=page["next_cursor"])
+        pin["at"] = None
+        assert later["status"] == "HISTORICAL" and later["summary"]["as_of"] == later["window"]["known_at"]
+        assert later["coverage"]["sites"] == page["coverage"]["sites"]  # each Site `state` included
+        assert {x["state"] for x in later["coverage"]["sites"]} == {"CURRENT"}
+        assert later["selection_token"] == page["selection_token"]
+        assert [r["action_id"] for r in page["rows"] + later["rows"]] == [r[0] for r in rows]
         assert both["summary"]["due_overdue"] is None  # W1 has no authored due date
         # The 30-day lookback at its exact far edge (the read time pinned 30 days after the decision).
         pin["at"] = decided + timedelta(days=30, minutes=1)
@@ -759,8 +784,10 @@ def assert_continues_basis(estate, clock, runner, first) -> dict:
     clock["tick"] += timedelta(seconds=1)
     second = estate.ok("findings", **WIDE, limit=1, cursor=first["next_cursor"])
     assert second["selection_token"] == first["selection_token"] and second["status"] == "HISTORICAL"
-    first_mini = {k: v for k, v in minigrid(first, runner).items() if k != "state"}
-    assert {k: v for k, v in minigrid(second, runner).items() if k != "state"} == first_mini
+    assert second["summary"]["as_of"] == second["window"]["known_at"]
+    assert second["coverage"]["sites"] == first["coverage"]["sites"]  # q12 ruling 1: each Site `state` included
+    page_one_state = {x["site_id"]: x["state"] for x in first["coverage"]["sites"]}
+    assert second["rows"] and all(r["status"] == page_one_state[r["site_id"]] for r in second["rows"])
     assert not [r for r in first["rows"] + second["rows"] if r["site_id"] == str(runner.site)], \
         "page two admitted a mini-grid Finding row page one refused"
     ids = [r["finding_id"] for r in first["rows"] + second["rows"]]
@@ -831,8 +858,11 @@ def test_explicit_historical_open_job_page_two_keeps_basis(chain, status) -> Non
     cursor = first["next_cursor"]
     assert decode_cursor("findings", cursor)["page_one_mode"] == "historical"
     second = estate.ok("findings", **day, limit=1, cursor=cursor)
+    assert second["status"] == "HISTORICAL" and second["summary"]["as_of"] == second["window"]["known_at"]
+    assert second["coverage"]["sites"] == first["coverage"]["sites"]  # q12 ruling 1: each Site `state` included
     (paged,) = second["coverage"]["sites"]
     assert (paged["state"], paged["job_state"]) == ("HISTORICAL", "SETTLED")
+    assert second["rows"] and {r["status"] for r in second["rows"]} == {site["state"]}
     assert second["selection_token"] == first["selection_token"] == whole["selection_token"]
     assert [r["finding_id"] for r in first["rows"] + second["rows"]] == [r["finding_id"] for r in whole["rows"][:2]]
     # A changed job status is not a basis change for a historical cursor; a changed token or grant still is.
@@ -911,7 +941,7 @@ def test_cold_revision_waits_for_its_selected_assessment(chain) -> None:  # noqa
     seen = {r["finding_id"]: r["finding_revision_id"] for r in at_k["rows"]}
     for finding in moved:  # created by K, its assessment selected only later: the old selected revision stays
         assert seen[finding] == old[finding] != heads[finding]
-    assert at_k["selection_token"] != before["selection_token"] or seen == old
+    assert at_k["selection_token"] != before["selection_token"]
     after = estate.ok("findings", **day, known_at=iso(selected))
     assert {r["finding_id"]: r["finding_revision_id"] for r in after["rows"]} == {f: heads[f] for f in old}
     assert after["selection_token"] != at_k["selection_token"]
