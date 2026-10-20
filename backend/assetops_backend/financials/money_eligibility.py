@@ -34,7 +34,7 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from assetops_backend.analytics.dispatch_v3 import ANALYTIC_ID, MODEL_VERSION
-from assetops_backend.analytics.finding_episode import GENERATOR_ROLES, MATCHER_VERSION, SERIES_LIMIT
+from assetops_backend.analytics.finding_episode import DOMAIN, GENERATOR_ROLES, MATCHER_VERSION, SERIES_LIMIT
 
 VERSION = "money-eligibility-1"
 BRACKET = timedelta(hours=6)
@@ -170,8 +170,12 @@ def unavailable(finding_id: str, reason: str) -> dict[str, Any]:
 class MoneyEligibility:
     """Reads the persisted lineage for one Finding and applies `evaluate`."""
 
-    def __init__(self, windows: DispatchWindows, findings: FindingRows, analytic_id: str = ANALYTIC_ID) -> None:
+    def __init__(self, windows: DispatchWindows, findings: FindingRows, analytic_id: str = ANALYTIC_ID, *,
+                 days: Any = None) -> None:
         self.windows, self.findings, self.analytic_id = windows, findings, analytic_id
+        #: W3-01 Run 6 `0b`: the connection-taking S3 day selector (`select_dispatch_days_on`); by default the
+        #: dispatch read service's own store.
+        self.days = days if days is not None else getattr(windows, "store", None)
 
     def for_finding(self, tenant_id: UUID, site_id: UUID, finding_id: UUID) -> dict[str, Any]:
         detail = self.findings.finding_detail(tenant_id, site_id, finding_id)
@@ -184,3 +188,62 @@ class MoneyEligibility:
                  "match": self.findings.match_state(tenant_id, site_id, self.analytic_id, _start(d))}
                 for d in days_over(lo, hi)]
         return evaluate(str(finding_id), latest, asset, days)
+
+    def for_finding_on(self, c: Any, tenant_id: UUID, site_id: UUID, finding_id: UUID,
+                       known_at: datetime) -> dict[str, Any]:
+        """W3-01 Run 6 `0b`: `for_finding` as of `known_at`, on the caller's connection and transaction.
+
+        The Finding's latest revision created by `known_at` and its cited assessments come from
+        `index_snapshot_on`/`index_lineage_on`; each bracketed UTC day is `select_dispatch_days_on` at `known_at`
+        (status, selected run/model/cohort and the jobs outstanding then); a day is matched when the latest pass
+        completed by `known_at` reached that day's selected seq and did not defer its window. `evaluate` then
+        applies the same precedence and vocabulary. Fail closed: no revision by the cutoff, a refused exact pin,
+        an unwired selector or a day the stored records cannot reconstruct at the cutoff is
+        `PENDING_REASSESSMENT` with its reason, never `ELIGIBLE`."""
+        fid = str(finding_id)
+        if self.days is None or not hasattr(self.findings, "index_snapshot_on"):
+            return {**unavailable(fid, "AS_OF_GATE_NOT_WIRED"), "known_at": _iso(known_at)}
+        index = self.findings.index_snapshot_on(c, tenant_id, site_id, DOMAIN, self.analytic_id, known_at)
+        head = next((h for h in index["heads"] if str(h["finding_id"]) == fid), None)
+        stored = None if head is None else self.findings.money_revision_on(c, tenant_id, site_id,
+                                                                          head["finding_revision_id"])
+        if head is None or stored is None:
+            return {**unavailable(fid, "NO_FINDING_REVISION_AT_CUTOFF"), "known_at": _iso(known_at)}
+        try:
+            lineage = self.findings.index_lineage_on(c, tenant_id, site_id, [head["finding_revision_id"]], known_at)
+        except LookupError as refused:  # FindingPinRefused: the exact pin is not provable at the cutoff
+            return {**unavailable(fid, f"FINDING_PIN_REFUSED: {refused}"), "known_at": _iso(known_at)}
+        latest = {"id": head["finding_revision_id"], "revision_no": head["revision_no"],
+                  "episode_start": head["episode_start"], "episode_end": head["episode_end"],
+                  "matcher_version": head["matcher_version"], "claim": stored["claim"],
+                  "assessments": lineage["assessments"]}
+        lo, hi = _utc(head["episode_start"]) - BRACKET, _utc(head["episode_end"]) + BRACKET
+        spans = days_over(lo, hi)
+        selected = {d["day"]: d for d in self.days.select_dispatch_days_on(
+            c, tenant_id, site_id, _start(spans[0]), _start(spans[-1]) + timedelta(days=1), known_at)}
+        match_pass, deferred = index["match_pass"], set(index["deferred_windows"])
+        days: list[dict[str, Any]] = []
+        unproven: list[str] = []
+        for d in spans:
+            day = selected[d]
+            if not day["available"]:
+                unproven += [f"HISTORICAL_DAY_UNAVAILABLE: DAY {d.isoformat()} {r}" for r in day["unavailable_reasons"]]
+                days.append({"day": d, "read": {"selection": None, "window_assessment": None,
+                                                "status": "UNAVAILABLE", "jobs": []}, "match": {}})
+                continue
+            sel = day["selection"]
+            seq = None if sel is None else sel["seq"]
+            matched = (seq is not None and match_pass is not None and day["window_start"] not in deferred
+                       and match_pass["matched_through_selection_seq"] >= seq)
+            days.append({"day": d, "read": {
+                "selection": None if sel is None else {"run_id": sel["run_id"], "model_version": sel["model_version"],
+                                                       "cohort": sel["cohort"]},
+                "window_assessment": {"id": day["window_assessment_revision_id"]}, "status": day["status"],
+                "jobs": day["jobs"]},
+                "match": {"matched": matched,
+                          "match_pass_id": None if match_pass is None else match_pass["match_pass_id"]}})
+        out = evaluate(fid, latest, str(stored["generator_asset_id"]), days)
+        if unproven:
+            out.update(state=PENDING_REASSESSMENT, note=NOTES[PENDING_REASSESSMENT],
+                       pending_reasons=unproven + out["pending_reasons"])
+        return {**out, "known_at": _iso(known_at)}
