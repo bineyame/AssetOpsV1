@@ -54,3 +54,57 @@ Partial diff (uncommitted code, reverted from the tree): `.agent/W3-01-lane-a-pa
 `page_on` route|basis). Imports verified; no test, DB or check-all run yet.
 Not yet done: EV money row blocks (`ev_site_reads.py`, `EvMoneyReads._with_links`) pending q4; all q3 test
 changes; `frontend/src/sites/sourceProvenance.tsx` + its tests. **Branch released** (Lane A holds nothing).
+
+## Lane A compatibility commit (2026-10-20): landed, branch released to Lane B
+Merged main (q4 rulings + selection token v2 present), applied `.agent/W3-01-lane-a-partial.patch`, finished the q3
+map with the q4 corrections. One commit (`W3-01 Lane A: compatibility integration`). Lane B files untouched.
+- EV money (q4 ruling 1): `EvReadService.money_row_provenance_on` (`postgres_assessment_store.py`, after
+  `_provenance_blocks`) selects `{row id, stored assessment, every ev_consequence_session revision}`, cites only
+  `ev_consequence_evidence`; NULL Finding pin expected; non-null pin, missing assessment or a linked session not in
+  the tenant/Site naming that assessment -> `EvReadUnavailable`. `ev_site_reads.py:financials` adds it to the current
+  stored row and every history row; guard rows get none. `_EV_REVISION_SQL` also selects `r.finding_revision_id`.
+- Frontend: `sourceProvenance.tsx` (optional public keys, `classification ?? state`, `detail` first, safe empties,
+  `SOURCE_CLASS_MISMATCH` copy); cold/EV client types gain the two siblings (`ColdSourceBlock`, `EvSourceBlock`).
+- Tests: W1 compat `test_s4_power_demo_case_postgres.py::test_source_state_compatibility_all_w1_consumers`; q3/q4
+  edits in w203, w204, w206 (incl. `test_session_row_cites_meter_interval_outside_session_evidence`), w207 site,
+  w207 money (`test_ev_money_row_provenance_uses_stored_window_links_without_finding_pin`), S4 Finding read /
+  evidence history / Finding API, S4 consequence history, S5 overview, S6 action records; frontend
+  `sourceProvenance`, `coldRoutes`, `evAssessmentRoutes`.
+Readings (none blocking; confirm at review):
+1. q4 EV money set is inlined (sorted distinct) and passed to `cited_set`; no Lane B helper added.
+2. EV money integrity failures tested by direct `money_row_provenance_on` calls on the real DB (FKs prevent
+   storing an inconsistent row); the public path covers present/history/zero-link/page-size.
+3. Cold overview's Finding projection (`cold_site_reads.overview.findings.items`) is unchanged; the rows it
+   consumes (`current_findings_on` -> `_item`) carry `source_provenance`, as do `/cold/findings` items.
+4. Public reasons keep resolver extras, so w206 `_reasons` now requires `{code, accepted_evidence_ids}` as a subset.
+5. Test-only DB edits: w206 marks open EV jobs DONE then restores them (no-job vector), inserts one EXCLUDED
+   `ev_meter_interval` row (meter vector); w203 inserts then retires (DONE) a cold job (rows are never deleted).
+6. S6 harness keeps `build_source_provenance`; the S6 test checks the production `build_finding_read_service`
+   block for the same origin revision instead (golden contract bodies unchanged).
+7. Open copy item: EV Finding detail "Assessment basis (SHA-256)" (`EvAssessmentViews.tsx:673`, and :324 for the
+   envelope) now shows the public row/envelope digest, not the stored assessment basis; label left unchanged.
+Checks (private `w301e_test`, dropped): final w203+w204+w206 44 passed; w207 site+money 32 passed; S4 Finding read,
+power demo, consequence history, S5 overview 20 passed; evidence history + consequence read 8 passed; S6 1 passed;
+Finding API 17 passed. Frontend: typecheck clean; 9 files 344 passed. check-all: 9/10, the one FAIL is pre-existing
+on main (`Evidence width check`: `tools/measure-mock-panels.mjs` from main `29dea85f`, untouched here).
+**Next:** Lane B `test_w1_cold_ev_exact_cited_id_mapping` (use the q4 EV money set), then commit-1 review.
+
+## Lane B ruling-7 test (2026-10-20): landed; commit-1 unit ready for review
+Merged main (`96b86c83`, clean). `6823d7d0` adds `test_w301_provenance_dto_postgres.py::test_w1_cold_ev_exact_cited_id_mapping`
+(params `w1`, `cold`, `ev`). Each digest is recomputed by the file's own `digest()` from scoped DB sets; page size 1
+(all cursors) vs 200 gives identical row and envelope blocks. W1: `power_site` + P01, consequence read, Finding read,
+history at limit 25 vs 1. Cold: findings envelope, Finding rows/detail, `financials.consequences[]`. EV: all six
+replays, sessions/findings rows + detail, envelope, q4 money set on the UNPRICED and priced stored rows.
+Readings (none blocking; confirm at review):
+- L-B1: cold uses `normal` (named) plus `excursion`, which adds the Finding and consequence rows so the row
+  mapping is proven on non-empty sets (the test asserts it saw at least one of each).
+- L-B2: the contract fixtures are pinned replay manifests rather than input data. The test builds each case through the
+  same W2 replay `Chain`, using an inline copy of the `chain` fixture body, because both modules name their
+  fixture `chain`.
+- L-B3: W1 is read through the public service layer, as `test_source_state_compatibility_all_w1_consumers` does.
+  The test makes no HTTP call for W1. Cold/EV selected IDs come from the public read (watermark
+  `assessment_revision_ids`, item `revision_id`s); pins and cited sets come from the DB.
+Checks: whole file 7 passed (264 s) on private `w301f_test`, which was dropped afterwards. Mutation after commit: dropping the cold
+episode revision and the EV money session links from the expected selection made cold and ev FAIL on
+`basis_sha256`. Reverted with `git checkout`. check-all: 10/10 passed.
+**Next:** review `1c409a3d..HEAD` as the W3 commit-1 unit, then the W4 cherry-pick per ruling 1.
