@@ -262,3 +262,6 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
   routes in `operatorSiteRoutes.ts`/`App.tsx`) and 5 passing tests in `evSiteMoneyRoutes.test.tsx`. Next: captures
   (reuse `.agent/W2-06-evidence/{seed.py,capture.mjs}` into `.agent/W2-07-evidence/`), height table, full frontend
   suite/build, then final verification and packet.
+- Run 9: captures committed `5d924f4b` (`.agent/W2-07-evidence/`, all closed panels <=1.28x and under the closure
+  ceilings at 1440 and 390). Frontend 91 files / 2328 passed (129 s), build passed. Now: final verification serially
+  (focused W2-07 backend+frontend, check-all, full backend serial on base `w207i_test`, host), then the packet.
