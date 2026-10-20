@@ -21,6 +21,7 @@ SCHEMA_EVENT = "work-event-1"
 SCHEMA_PLAN = "maintenance-plan-1"
 SCHEMA_RECORD = "maintenance-record-1"
 SCHEMA_OPERATIONAL = "operational-record-1"
+SCHEMA_DETAIL = "work-case-detail-1"
 
 INCIDENT = "INCIDENT"
 REQUEST = "MAINTENANCE_REQUEST"
@@ -48,12 +49,13 @@ MESSAGES = {
     "WORK_OCCURRED_AT_FUTURE": "The occurrence time is more than five minutes in the future.",
     "WORK_OCCURRED_AT_TOO_OLD": "The occurrence time is more than 30 days before it was recorded.",
     "WORK_STORE_UNAVAILABLE": "Work records could not be read or saved.",
+    "INVALID_KNOWN_AT": "'known_at' must be one UTC instant no later than the read time.",
 }
 STATUS = {"WORK_WRITE_FORBIDDEN": 403, "WORK_USER_AUTH_REQUIRED": 403, "WORK_CASE_NOT_FOUND": 404,
           "WORK_EVENT_DUPLICATE_KEY": 409, "WORK_TRANSITION_INVALID": 409, "WORK_OUTCOME_NOT_SUPPORTED": 409,
           "WORK_CORRECTION_CONFLICT": 409, "WORK_INPUT_INVALID": 422, "WORK_ATTESTATION_INVALID": 422,
           "WORK_LINK_SCOPE_INVALID": 422, "WORK_OCCURRED_AT_FUTURE": 422, "WORK_OCCURRED_AT_TOO_OLD": 422,
-          "WORK_STORE_UNAVAILABLE": 503}
+          "WORK_STORE_UNAVAILABLE": 503, "INVALID_KNOWN_AT": 422}
 
 
 class WorkRefused(Exception):

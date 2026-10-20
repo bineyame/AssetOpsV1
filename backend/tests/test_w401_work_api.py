@@ -9,6 +9,7 @@ ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.
 from __future__ import annotations
 
 import re
+from datetime import datetime, timedelta
 from itertools import count
 from uuid import UUID, uuid4
 
@@ -27,7 +28,9 @@ if URL:
                                                   record, request)
 
     from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.sites.ports import SiteStoreUnavailable
     from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
+    from assetops_backend.work.composition import build_work_detail_service
     from assetops_backend.work.model import MESSAGES
     from assetops_backend.work.service import WorkService
     from assetops_backend.work_api import W401_FIXTURE_SERVICE_PRINCIPAL_ID, build_work_router
@@ -43,19 +46,20 @@ def injected_ids():
 
 class Api:
     def __init__(self, result, *, access=None, command_access=None, principal=True, url=URL, new_id=None,
-                 service=True) -> None:
+                 service=True, scope=None) -> None:
         self.t, self.s = result.tenant.id, result.site.id
         self.store = PostgresWorkStore(url, link_rows=build_link_rows_reader())
         svc = WorkService(self.store, **({} if new_id is None else {"new_id": new_id})) if service else None
-        scope = {"KOBO-001": ("KOBO-001", self.t, self.s), "kobo-001": ("KOBO-001", self.t, self.s)}
+        scopes = {"KOBO-001": ("KOBO-001", self.t, self.s), "kobo-001": ("KOBO-001", self.t, self.s)}
+        self.details = build_work_detail_service(url) if service else None
         kwargs = {"principal": (lambda r, c: W401_FIXTURE_SERVICE_PRINCIPAL_ID) if principal else
-                  (lambda r, c: None)}
+                  (lambda r, c: None), "details": self.details}
         if access is not None:
             kwargs["access"] = access
         if command_access is not None:
             kwargs["command_access"] = command_access
         app = FastAPI()
-        app.include_router(build_work_router(svc, scope.get, **kwargs))
+        app.include_router(build_work_router(svc, scope or scopes.get, **kwargs))
         self.client = TestClient(app)
 
     def post(self, path: str, body, site: str = "KOBO-001"):
@@ -69,8 +73,13 @@ class Api:
         assert r.status_code == status, r.text
         return r.json()
 
+    def get(self, case_id: str, *known: str, site: str = "KOBO-001"):
+        return self.client.get(f"/api/sites/{site}/work/cases/{case_id}", params=[("known_at", k) for k in known])
+
     def close(self) -> None:
         self.store.dispose()
+        if self.details is not None:
+            self.details._reads.dispose()
 
 
 @pytest.fixture()
@@ -357,3 +366,119 @@ def test_plan_record_operational_literal_responses(engine, site) -> None:  # noq
             op["id"], op["public_code"], "SUBMITTED")
     finally:
         api.close()
+
+
+# ---- Run 3 rulings 8-9 / q3 test placement: the case detail read ---------------------------------------------
+
+
+def _minus_one_us(stamp: str) -> str:
+    then = datetime.fromisoformat(stamp.replace("Z", "+00:00")) - timedelta(microseconds=1)
+    return then.isoformat().replace("+00:00", "Z")
+
+
+def test_detail_omitted_historical_and_future_known_at(engine, site) -> None:  # noqa: F811
+    api = Api(site, new_id=injected_ids())
+    try:
+        inc = api.ok("cases", incident(occurred_at=at(minutes=30)))
+        cid = inc["id"]
+        cmt = api.ok(f"cases/{cid}/events", event("COMMENT", {"text": "Checked the panel."}, "w401-cmt-001"))
+        response = api.get(cid)
+        assert response.status_code == 200, response.text
+        now = response.json()
+        assert list(now) == ["schema_version", "site_code", "case", "selected_revision", "finding_links",
+                             "action_links", "cited_accepted_evidence_ids", "events", "records", "source_provenance",
+                             "coverage"]
+        assert (now["schema_version"], now["site_code"]) == ("work-case-detail-1", "KOBO-001")
+        assert now["case"] == {"id": cid, "code": inc["code"], "kind": "INCIDENT", "asset_id": None,
+                               "occurred_at": now["case"]["occurred_at"], "created_at": inc["event"]["recorded_at"],
+                               "state": "OPEN", "incident_id": None}
+        rev = now["selected_revision"]
+        assert list(rev) == ["id", "revision_no", "supersedes_revision_id", "title", "narrative", "reason",
+                             "recorded_at", "actor_kind", "actor_id", "occurred_at"]
+        assert (rev["id"], rev["revision_no"], rev["supersedes_revision_id"], rev["actor_kind"], rev["actor_id"],
+                rev["reason"]) == (inc["revision"]["id"], 1, None, "SERVICE", "service:w401-fixture", None)
+        assert [e["kind"] for e in now["events"]] == ["CREATED", "COMMENT"]
+        assert now["events"][1] == {"id": cmt["event"]["id"], "kind": "COMMENT",
+                                    "payload": {"text": "Checked the panel."},
+                                    "occurred_at": cmt["event"]["occurred_at"],
+                                    "recorded_at": cmt["event"]["recorded_at"], "actor_kind": "SERVICE",
+                                    "actor_id": "service:w401-fixture"}
+        assert (now["finding_links"], now["action_links"], now["cited_accepted_evidence_ids"], now["records"]) == (
+            [], [], [], [])
+        assert now["coverage"] == {"state": "COMPLETE", "reason": None}
+        prov = now["source_provenance"]
+        assert (prov["classification"], prov["state"], prov["evidence_ids"]) == ("UNKNOWN", "UNKNOWN", [])
+        assert prov["reasons"] == [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]
+        assert ISO.match(now["case"]["created_at"]) and all(ISO.match(e["recorded_at"]) for e in now["events"])
+
+        # Historical cutoff at CREATED: the event prefix only, the same case and revision.
+        created = inc["event"]["recorded_at"]
+        then = api.get(cid, created)
+        assert then.status_code == 200, then.text
+        assert [e["id"] for e in then.json()["events"]] == [inc["event"]["id"]]
+        assert then.json()["selected_revision"] == rev and then.json()["case"]["state"] == "OPEN"
+        # Before creation the case is not found (no disclosure); a cutoff later than the read time is 422.
+        refused(api.get(cid, _minus_one_us(created)), 404, "WORK_CASE_NOT_FOUND")
+        refused(api.get(cid, at(minutes=-10)), 422, "INVALID_KNOWN_AT")
+        refused(api.get(cid, "2026-10-06T16:11:00"), 422, "INVALID_KNOWN_AT")  # no UTC offset
+        refused(api.get(cid, "yesterday"), 422, "INVALID_KNOWN_AT")
+        refused(api.get(cid, created, created), 422, "INVALID_KNOWN_AT")  # repeated
+    finally:
+        api.close()
+
+
+def test_detail_scoped_404_and_refusal_shape(engine, site, store) -> None:  # noqa: F811
+    other = imported(store, code="KOBO-002")
+    api = Api(site)
+    try:
+        cid = api.ok("cases", incident())["id"]
+        refused(api.get(str(uuid4())), 404, "WORK_CASE_NOT_FOUND")
+        refused(api.get("not-a-uuid"), 404, "WORK_CASE_NOT_FOUND")
+        refused(api.get(cid, site="NOPE-001"), 404, "SITE_NOT_FOUND", "No imported Site 'NOPE-001' in this tenant.")
+        # The same case ID under another Site of the tenant is not disclosed.
+        foreign = Api(site, scope={"KOBO-001": ("KOBO-002", other.tenant.id, other.site.id)}.get)
+        try:
+            refused(foreign.get(cid), 404, "WORK_CASE_NOT_FOUND")
+        finally:
+            foreign.close()
+        for status, code, message in ((401, "UNAUTHENTICATED", "Sign in to read work."),
+                                      (403, "SITE_SCOPE_FORBIDDEN", "No access to Site 'KOBO-001'.")):
+            denied = Api(site, access=lambda r, c, s=status: s)
+            try:
+                refused(denied.get(cid), status, code, message)
+            finally:
+                denied.close()
+        # The read needs Site read access only: a refused write grant and no SERVICE principal still read.
+        reader = Api(site, command_access=lambda r, c: 403, principal=False)
+        try:
+            assert reader.get(cid).status_code == 200
+        finally:
+            reader.close()
+        down = Api(site, url="postgresql+psycopg://assetops:wrong@127.0.0.1:1/none_test")
+        try:
+            refused(down.get(cid), 503, "WORK_STORE_UNAVAILABLE")
+        finally:
+            down.close()
+        absent = Api(site, service=False)
+        try:
+            refused(absent.get(cid), 503, "WORK_STORE_UNAVAILABLE")
+        finally:
+            absent.close()
+    finally:
+        api.close()
+
+
+def test_scoped_site_outage_is_503(engine, site) -> None:  # noqa: F811
+    """q3 reading 5 (replace): a Site scope/storage outage is 503 WORK_STORE_UNAVAILABLE on reads and writes,
+    never a raw 500, an empty result or a 404; nothing is written."""
+    def outage(code):
+        raise SiteStoreUnavailable("site store down")
+
+    before = counts(engine)
+    api = Api(site, scope=outage)
+    try:
+        refused(api.get(str(uuid4())), 503, "WORK_STORE_UNAVAILABLE")
+        refused(api.post("cases", incident()), 503, "WORK_STORE_UNAVAILABLE")
+    finally:
+        api.close()
+    assert counts(engine) == before

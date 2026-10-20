@@ -8,6 +8,7 @@ Under `/api/sites/{site_code}/work` (Lane A mount in `main.py`):
 - `POST /cases/{case_id}/records` - performed activity on a request (`maintenance-record-1`, outcome UNVERIFIED).
 - `POST /plans` - an immutable DRAFT plan or its correction successor (`maintenance-plan-1`).
 - `POST /operational-records` - an authored SUBMITTED record or its correction (`operational-record-1`).
+- `GET /cases/{case_id}?known_at=` - the B3 `work-case-detail-1` read at one cutoff (Run 3 ruling 8).
 
 Each POST returns 201 for a first submission and 200 with the stored exact body for an identical retry.
 Refusal order (Run 2 ruling reading 2): Site read access 401/403 (`finding_api.Access`), unknown Site 404, the
@@ -29,6 +30,9 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from assetops_backend.finding_api import Access, Scope, development_access
+from assetops_backend.sites.foundation_records import FoundationStoreError
+from assetops_backend.sites.ports import SiteStoreUnavailable
+from assetops_backend.work.detail import WorkDetailService
 from assetops_backend.work.model import MESSAGES, WorkRefused, WorkStoreUnavailable
 from assetops_backend.work.service import WorkService
 
@@ -54,19 +58,28 @@ def _refuse(status: int, code: str, message: str) -> HTTPException:
 
 def build_work_router(service: WorkService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                       access: Access = development_access, command_access: Access = development_access,
-                      principal: Principal = no_service_principal) -> APIRouter:
+                      principal: Principal = no_service_principal,
+                      details: WorkDetailService | None = None) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
 
-    def open_scope(request: Request, site_code: str) -> tuple[UUID, UUID, str | None]:
+    def read_scope(request: Request, site_code: str) -> tuple[UUID, UUID, str]:
         refusal = access(request, site_code)
         if refusal == 401:
             raise _refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
         if refusal == 403:
             raise _refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site '{site_code}'.")
-        found = scope(site_code)
+        try:  # q3 reading 5: a Site scope/storage outage is this API's 503, never a raw 500 or a 404
+            found = scope(site_code)
+        except (SiteStoreUnavailable, FoundationStoreError, *down) as error:
+            raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"]) from error
         if found is None:
             raise _refuse(404, "SITE_NOT_FOUND", f"No imported Site '{site_code}' in this tenant.")
+        code, tenant_id, site_id = found
+        return tenant_id, site_id, code
+
+    def open_scope(request: Request, site_code: str) -> tuple[UUID, UUID, str | None]:
+        tenant_id, site_id, _ = read_scope(request, site_code)
         grant = command_access(request, site_code)
         if grant == 401:
             raise _refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
@@ -74,7 +87,6 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
             raise _refuse(403, "WORK_WRITE_FORBIDDEN", MESSAGES["WORK_WRITE_FORBIDDEN"])
         if service is None:
             raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
-        _, tenant_id, site_id = found
         return tenant_id, site_id, principal(request, site_code)
 
     async def body_of(request: Request) -> Any:
@@ -127,5 +139,15 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
         tenant_id, site_id, who = open_scope(request, site_code)
         body = await body_of(request)
         return run(lambda: service.post_operational_record(tenant_id, site_id, body, who))
+
+    @router.get("/api/sites/{site_code}/work/cases/{case_id}")
+    async def case_detail(request: Request, site_code: str, case_id: str) -> JSONResponse:
+        """B3 `work-case-detail-1` at the optional `known_at` (Run 3 ruling 8): read access, Site scope, then
+        `known_at`, then the one snapshot. Refusals are `{"detail":{"code","message"}}` (no list fields)."""
+        tenant_id, site_id, code = read_scope(request, site_code)
+        if details is None:
+            raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
+        known = request.query_params.getlist("known_at")
+        return run(lambda: (200, details.detail(tenant_id, site_id, code, case_id, known)))
 
     return router

@@ -38,6 +38,20 @@ OPERATIONAL_CORRECTION = ("supersedes_record_id", "canonical_record_id", "correc
 OPERATIONAL_KINDS = ("OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT")
 
 
+def case_provenance(tx: Any, tenant_id: UUID, site_id: UUID, links: Mapping[str, Any], revision_id: str,
+                    event_ids: list[str], record_id: str | None) -> dict[str, Any]:
+    """Q11 on the caller's transaction (command or read): the selected IDs are the selected revision, the given
+    events, the selected latest record, pinned Finding revisions and pinned Action events; the cited set is the
+    revision's evidence plus each pinned Finding revision's and each pinned Action's basis and origin revision's."""
+    finding_revs = [f["finding_revision_id"] for f in links["finding_links"]]
+    action_events = [a["action_event_id"] for a in links["action_links"]]
+    selected = [revision_id, *event_ids, *finding_revs, *action_events, *([record_id] if record_id else [])]
+    cited = set(links["evidence_ids"]) | set(tx.lineage_evidence(
+        finding_revs, [a["action_id"] for a in links["action_links"]]))
+    reads = LinkRowsReads(lambda t, s, ids: tx.link_rows(ids))
+    return PublicProvenance(reads).cited_set(tenant_id, site_id, sorted(cited), selected, detail=False)
+
+
 class WorkStore(Protocol):
     def transaction(self, tenant_id: UUID, site_id: UUID, work: Callable[[Any], Any]) -> Any: ...
 
@@ -94,13 +108,8 @@ class WorkService:
         events = [str(e["id"]) for e in tx.events(case_id) if (e["recorded_at"], str(e["id"])) <=
                   (cutoff["recorded_at"], str(cutoff["id"]))]
         record = tx.latest_record(case_id, cutoff["recorded_at"])
-        finding_revs = [f["finding_revision_id"] for f in links["finding_links"]]
-        action_events = [a["action_event_id"] for a in links["action_links"]]
-        selected = [rev_id, *events, *finding_revs, *action_events, *([str(record["id"])] if record else [])]
-        cited = set(links["evidence_ids"]) | set(tx.lineage_evidence(
-            finding_revs, [a["action_id"] for a in links["action_links"]]))
-        reads = LinkRowsReads(lambda t, s, ids: tx.link_rows(ids))
-        return PublicProvenance(reads).cited_set(tenant_id, site_id, sorted(cited), selected, detail=False)
+        return case_provenance(tx, tenant_id, site_id, links, rev_id, events,
+                               None if record is None else str(record["id"]))
 
     # ---- case create -----------------------------------------------------------------------------------------
 

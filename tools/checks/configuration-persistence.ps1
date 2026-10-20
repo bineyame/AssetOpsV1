@@ -780,7 +780,9 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($table in $workTables) { $workInsertsSeen[$table] = 0 }
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter)
-    $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py")
+    # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
+    $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
+        "$backendRoot/work/adapters/postgres_work_read.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
