@@ -44,5 +44,5 @@ for (const screen of SCREENS) for (const [w,h] of [[1440,1000],[390,900]]) {
   results.push({screen,width:w,...r});
 }
 writeFileSync(join(OUT,"mock-measure.json"),JSON.stringify(results,null,1));
-console.log(JSON.stringify(results,null,1));
+console.log(`wrote ${results.length} measurements to ${OUT}`);
 ws.close(); chrome.kill(); process.exit(0);
