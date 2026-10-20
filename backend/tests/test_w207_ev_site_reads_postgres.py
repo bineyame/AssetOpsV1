@@ -858,6 +858,7 @@ def test_claim_rules_source_class_is_selected_not_pending(chain, monkeypatch) ->
 
     rows_on.__wrapped__ = original
     monkeypatch.setattr(module, "link_rows_on", rows_on)
+    c = client(built)  # the reader binds the patched ledger function at construction
     pending = get(c, "evidence/analysis")
     assert pending["currentness"]["state"] == "PENDING_RECOMPUTE"
     assert pending["pending_source_provenance"]["classification"] != "REGISTERED_SIMULATION"
