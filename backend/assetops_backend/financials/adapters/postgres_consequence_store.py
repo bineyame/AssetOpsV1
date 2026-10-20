@@ -644,12 +644,16 @@ class PostgresConsequenceStore:
 
     @staticmethod
     def cold_heads_on(c: Connection, tenant_id: UUID, site_id: UUID,
-                      finding_revision_ids: list[str]) -> list[dict[str, Any]]:
+                      finding_revision_ids: list[str], known_at: datetime | None = None) -> list[dict[str, Any]]:
         """Per (exact selected FindingRevision, kind), its highest consequence revision. Only the FindingRevision
         IDs selected at the cutoff are read, so no newer Finding or its money is mixed into an older cutoff; the
-        consequence is derived after its Finding, so its `created_at` is not compared with the evidence cutoff."""
+        consequence is derived after its Finding, so its `created_at` is not compared with the evidence cutoff.
+        W3-02 0c r1 H1: with a pinned estate `known_at`, `created_at <= :k` bounds the rows before `DISTINCT ON`,
+        so the head as of K is selected and a later head is neither selected nor refused. `None` is the W2 read."""
         if not finding_revision_ids:
             return []
+        bound = "" if known_at is None else "AND r.created_at <= :k "
+        tie = "" if known_at is None else ", r.id DESC"
         return [dict(r._mapping) for r in c.execute(text(
             "SELECT DISTINCT ON (r.finding_revision_id, r.kind) r.id, r.finding_revision_id, r.episode_revision_id, "
             "r.assessment_revision_id, r.revision_no, r.kind, r.state, r.reason, r.window_start, r.window_end, "
@@ -659,9 +663,10 @@ class PostgresConsequenceStore:
             "ARRAY(SELECT DISTINCT e.evidence_id::text FROM cold_consequence_evidence e WHERE e.tenant_id = r.tenant_id "
             "AND e.site_id = r.site_id AND e.consequence_revision_id = r.id ORDER BY 1) AS evidence_ids "
             "FROM cold_consequence_revision r "
-            "WHERE r.tenant_id = :t AND r.site_id = :s AND r.finding_revision_id = ANY(:f) "
-            "ORDER BY r.finding_revision_id, r.kind, r.revision_no DESC"),
-            {"t": tenant_id, "s": site_id, "f": sorted({UUID(str(x)) for x in finding_revision_ids}, key=str)})]
+            "WHERE r.tenant_id = :t AND r.site_id = :s AND r.finding_revision_id = ANY(:f) " + bound +
+            "ORDER BY r.finding_revision_id, r.kind, r.revision_no DESC" + tie),
+            {"t": tenant_id, "s": site_id, "f": sorted({UUID(str(x)) for x in finding_revision_ids}, key=str),
+             **({} if known_at is None else {"k": known_at})})]
 
     @staticmethod
     def cold_pending_on(c: Connection, tenant_id: UUID, site_id: UUID, lo: datetime,
@@ -675,6 +680,24 @@ class PostgresConsequenceStore:
             "AND NOT EXISTS (SELECT 1 FROM cold_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
             "AND a.site_id = w.site_id AND a.work_id = w.id AND a.outcome = 'SUCCEEDED') ORDER BY w.enqueued_at, w.id"),
             {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi})]
+
+    @staticmethod
+    def cold_pending_as_of_on(c: Connection, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                              known_at: datetime) -> list[dict[str, Any]]:
+        """W3-02 0c r1 L1: cold work pending as of a pinned `known_at` K: overlapping work enqueued by K, excluded only
+        by a SUCCEEDED attempt finished by K, with `last_outcome` from the highest attempt finished by K. An attempt
+        after K neither erases K's pending work nor turns K's hold into today's outcome."""
+        return [dict(r._mapping) for r in c.execute(text(
+            "SELECT w.id, w.enqueued_at, last.outcome AS last_outcome FROM cold_consequence_work w "
+            "LEFT JOIN LATERAL (SELECT a.outcome FROM cold_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+            "AND a.site_id = w.site_id AND a.work_id = w.id AND a.finished_at <= :k "
+            "ORDER BY a.attempt_no DESC LIMIT 1) last ON true "
+            "WHERE w.tenant_id = :t AND w.site_id = :s AND w.window_start < :hi AND w.window_end > :lo "
+            "AND w.enqueued_at <= :k "
+            "AND NOT EXISTS (SELECT 1 FROM cold_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+            "AND a.site_id = w.site_id AND a.work_id = w.id AND a.outcome = 'SUCCEEDED' AND a.finished_at <= :k) "
+            "ORDER BY w.enqueued_at, w.id"),
+            {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known_at})]
 
     def cold_rows(self, tenant_id: UUID, site_id: UUID) -> dict[str, list[dict[str, Any]]]:
         """Raw cold consequence rows of one Site (tests and diagnostics)."""
@@ -1071,10 +1094,12 @@ def _dec(value: Any) -> str | None:
 
 
 def ev_money_basis_on(c: Connection, tenant_id: UUID, site_id: UUID, ws: datetime, we: datetime,
-                      sel: dict[str, Any] | None, link_rows: Callable[..., list]) -> em.EvMoneyBasis | None:
+                      sel: dict[str, Any] | None, link_rows: Callable[..., list],
+                      known_at: datetime | None = None) -> em.EvMoneyBasis | None:
     """The commit-2 `EvUnit.basis` rules on any caller connection (the worker's locked unit, or a W2-07 Site read's
     repeatable-read snapshot, q4): the selected assessment's session revisions, all their meter intervals, the
-    current EV tariff assignments and the S4-05 class of its exact accepted IDs. SELECT-only."""
+    current EV tariff assignments and the S4-05 class of its exact accepted IDs. SELECT-only. W3-02 0c r1: with a
+    pinned estate `known_at` K the tariff assignments are those recorded at K (`_tariff_recorded`), not today's."""
     from assetops_backend.evidence.source_provenance import classify, link_of
 
     if sel is None:
@@ -1098,9 +1123,9 @@ def ev_money_basis_on(c: Connection, tenant_id: UUID, site_id: UUID, ws: datetim
         text("SELECT a.revision_id, r.value, r.currency, r.unit, a.valid_from, a.valid_to, r.recorded_at "
              "FROM financial_assumption_assignment a JOIN financial_assumption_revision r "
              "ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.revision_id "
-             "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND a.recorded_to IS NULL "
+             "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND " + _tariff_recorded(known_at) +
              "AND a.valid_from < :we AND (a.valid_to IS NULL OR a.valid_to > :ws) ORDER BY a.valid_from, a.id"),
-        {**p, "k": em.TARIFF_KEY, "ws": ws, "we": we}).all())
+        {**p, "k": em.TARIFF_KEY, "ws": ws, "we": we, **_as_of_param(known_at)}).all())
     evidence = list(sel["evidence_ids"])
     links = {row.requested_id: link_of(row) for row in link_rows(c, tenant_id, site_id, evidence)} if evidence else {}
     return em.EvMoneyBasis(
@@ -1108,6 +1133,18 @@ def ev_money_basis_on(c: Connection, tenant_id: UUID, site_id: UUID, ws: datetim
         known_at=sel["cutoff"], assessment_revision_id=str(sel["revision_id"]).lower(),
         source_class=(result.get("source_provenance") or {}).get("class"),
         source_gate=classify(evidence, links)["state"], sessions=sessions, intervals=intervals, tariffs=tariffs)
+
+
+def _tariff_recorded(known_at: datetime | None) -> str:
+    """The tariff-assignment record predicate: today's (`recorded_to IS NULL`, the W2 read) or, for a pinned estate
+    cutoff K (W3-02 0c r1 H1), the assignment set recorded at K with its revision recorded by K."""
+    if known_at is None:
+        return "a.recorded_to IS NULL "
+    return "a.recorded_from <= :at AND (a.recorded_to IS NULL OR :at < a.recorded_to) AND r.recorded_at <= :at "
+
+
+def _as_of_param(known_at: datetime | None) -> dict[str, Any]:
+    return {} if known_at is None else {"at": known_at}
 
 
 _EV_REVISION_SQL = (
@@ -1125,18 +1162,20 @@ class EvMoneyReads:
         self._link_rows = link_rows
 
     def basis_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime,
-                 sel: dict[str, Any] | None) -> em.EvMoneyBasis | None:
-        return ev_money_basis_on(c, t, s, ws, we, sel, self._link_rows)
+                 sel: dict[str, Any] | None, known_at: datetime | None = None) -> em.EvMoneyBasis | None:
+        return ev_money_basis_on(c, t, s, ws, we, sel, self._link_rows, known_at)
 
     def select_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime,
-                  basis_sha256: str) -> dict[str, Any] | None:
-        """q4 literal: the highest matching stored revision for the exact Site/window and derived basis."""
+                  basis_sha256: str, known_at: datetime | None = None) -> dict[str, Any] | None:
+        """q4 literal: the highest matching stored revision for the exact Site/window and derived basis. W3-02 0c r1
+        H1: with a pinned estate `known_at` K, only revisions recorded by K (the as-of head; a later one is ignored)."""
+        bound = "" if known_at is None else "AND r.recorded_at <= :at "
         row = c.execute(text(
             _EV_REVISION_SQL + "WHERE r.tenant_id = :tenant_id AND r.site_id = :site_id "
             "AND r.window_start = :window_start AND r.window_end = :window_end "
-            "AND r.basis_sha256 = :derived_basis_sha256 ORDER BY r.revision_no DESC, r.id DESC LIMIT 1"),
+            "AND r.basis_sha256 = :derived_basis_sha256 " + bound + "ORDER BY r.revision_no DESC, r.id DESC LIMIT 1"),
             {"tenant_id": t, "site_id": s, "window_start": ws, "window_end": we,
-             "derived_basis_sha256": basis_sha256}).first()
+             "derived_basis_sha256": basis_sha256, **_as_of_param(known_at)}).first()
         return None if row is None else self._with_links(c, t, s, dict(row._mapping))
 
     def history_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime) -> list[dict[str, Any]]:
@@ -1145,15 +1184,17 @@ class EvMoneyReads:
             _EV_REVISION_SQL + "WHERE r.tenant_id = :t AND r.site_id = :s AND r.window_start = :ws "
             "AND r.window_end = :we ORDER BY r.recorded_at, r.id"), {"t": t, "s": s, "ws": ws, "we": we}).all()]
 
-    def tariff_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime) -> list[dict[str, Any]]:
-        """The current (`recorded_to IS NULL`) published EV tariff assignments touching `[ws,we)`."""
+    def tariff_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime,
+                  known_at: datetime | None = None) -> list[dict[str, Any]]:
+        """The current (`recorded_to IS NULL`) published EV tariff assignments touching `[ws,we)`; with a pinned
+        estate `known_at` K (W3-02 0c r1), the assignments recorded at K."""
         return [dict(r._mapping) for r in c.execute(text(
             "SELECT a.revision_id, r.value, r.currency, r.unit, r.basis, a.valid_from, a.valid_to, r.recorded_at "
             "FROM financial_assumption_assignment a JOIN financial_assumption_revision r "
             "ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.revision_id "
-            "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND a.recorded_to IS NULL "
+            "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND " + _tariff_recorded(known_at) +
             "AND a.valid_from < :we AND (a.valid_to IS NULL OR a.valid_to > :ws) ORDER BY a.valid_from, a.id"),
-            {"t": t, "s": s, "k": em.TARIFF_KEY, "ws": ws, "we": we}).all()]
+            {"t": t, "s": s, "k": em.TARIFF_KEY, "ws": ws, "we": we, **_as_of_param(known_at)}).all()]
 
     @staticmethod
     def _with_links(c: Connection, t: UUID, s: UUID, row: dict[str, Any]) -> dict[str, Any]:

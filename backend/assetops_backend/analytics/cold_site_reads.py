@@ -197,20 +197,19 @@ class ColdSiteReadService:
 
     def _money(self, c, snap: dict[str, Any], findings: list[dict[str, Any]],
                cutoff: datetime | None = None) -> dict[str, Any]:
-        """Default (`cutoff` None): the W2 Site money, unchanged. With a pinned estate `cutoff` (W3-02 0c), a head
-        recorded after it cannot be this selection's head (refused, never a newer head) and work enqueued after it
-        does not withhold."""
+        """Default (`cutoff` None): the W2 Site money, unchanged. With a pinned estate `cutoff` K (W3-02 0c r1 H1/L1),
+        the head per (Finding revision, kind) is the one recorded by K (a later head is neither selected nor refused;
+        no head by K means no row) and the pending work and its last outcome are those known at K."""
         t, s = snap["t"], snap["s"]
-        heads = self._consequences.cold_heads_on(c, t, s, [i["revision_id"] for i in findings]) \
-            if findings else []
-        pending = self._consequences.cold_pending_on(c, t, s, snap["lo"], snap["hi"]) \
-            if snap["lo"] is not None else []
-        if cutoff is not None:
-            newer = sorted(str(h["id"]) for h in heads if h["created_at"] > cutoff)
-            if newer:
-                raise ColdPinnedLineageUnavailable(
-                    f"A cold consequence head postdates the pinned cutoff: {', '.join(newer)}.")
-            pending = [p for p in pending if p["enqueued_at"] <= cutoff]
+        ids = [i["revision_id"] for i in findings]
+        if cutoff is None:
+            heads = self._consequences.cold_heads_on(c, t, s, ids) if findings else []
+            pending = self._consequences.cold_pending_on(c, t, s, snap["lo"], snap["hi"]) \
+                if snap["lo"] is not None else []
+        else:
+            heads = self._consequences.cold_heads_on(c, t, s, ids, known_at=cutoff) if findings else []
+            pending = self._consequences.cold_pending_as_of_on(c, t, s, snap["lo"], snap["hi"], cutoff) \
+                if snap["lo"] is not None else []
         failed = any(p.get("last_outcome") == "FAILED" for p in pending)
         withheld = snap["state"] == "PENDING_RECOMPUTE" or bool(pending)
         hold = SCREEN_WORDING["COLD_RECOMPUTE_FAILED"] if failed else PENDING_COPY
@@ -282,8 +281,8 @@ class ColdSiteReadService:
 
     def money_on(self, c, pinned_snap: dict[str, Any], selected_findings: list[dict[str, Any]]) -> dict[str, Any]:
         """W3-02 0c: the W2 money of one already pinned estate window over the caller's exact selected Finding
-        revisions (`revision_id` or `finding_revision_id`): every selected head of both kinds (`counted` marks the
-        W2 counted ones) as a consequence row with its exact basis, under the pinned cutoff."""
+        revisions (`revision_id` or `finding_revision_id`): every head of both kinds recorded by the pinned cutoff
+        (`counted` marks the W2 counted ones) as a consequence row with its exact basis."""
         cutoff = self._pinned(pinned_snap)
         findings = [{"revision_id": str(i.get("revision_id") or i["finding_revision_id"])} for i in selected_findings]
         money = self._money(c, pinned_snap, findings, cutoff)
