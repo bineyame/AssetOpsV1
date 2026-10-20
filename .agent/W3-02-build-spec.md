@@ -325,3 +325,27 @@ For a real gap, `Next step` is selected `next_step` plain text followed by ` · 
 **N4.** The parameter name `siteId` is historical: `siteEvHref` calls `siteDetailHref(siteId)`, which applies `encodeURIComponent` and accepts the same Site route segment. Pass the authorized stored **site code**, not the Site UUID, once: `siteEvHref(row.site_code, "evidence")` and `siteEvHref(row.site_code, "financials")`. Append `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&known_at=${encodeURIComponent(known_at)}` to the returned base only when those values are present and supported by the EV route. Do not pre-encode the code or pass the UUID.
 
 **N5.** The 390px Aggregation panel maximum is **187px**: measured 163px + max(24px, ceil(10%)) = 163+24. The previous `188` is arithmetic error. The other measured maxima in the prior closure stand.
+
+## Review closure 3 (2026-10-20)
+
+### Q19/C1 — coverage on financial group rows
+
+Evaluate coverage per applicable category and requested window over the full authorized Site set, before partitioning or paging. A Site with missing, pending, stale or conflicting selection contributes no invented line or partition key. If that Site makes coverage unknown for a category, **every existing nonempty partition group of that category** carries `state:UNKNOWN_COVERAGE`, including groups whose selected lines all come from covered Sites. Keep their actual partition keys and line keys; retain every lower-priority reason in sorted, deduplicated `reason_codes`. Do not attach that Site to another category or invent a currency, period or assumption.
+
+When the category has no selected consequence heads anywhere in scope, emit the one category-level diagnostic empty group specified in closure 2. Its six nullable key/value fields remain null and `line_keys:[]`. Coverage determines its state as follows:
+
+| Applicable authorized Sites for category/window | Selected heads of category in full scope | Group rows | State and reason codes |
+| --- | --- | --- | --- |
+| None, or authorized scope empty | None | None | `groups:[]`; no category sentinel |
+| All covered | None, including covered Sites with no head | One diagnostic empty group | `NO_LINES`; `["NO_LINES"]` |
+| At least one uncovered | None, including covered Sites with no head | One diagnostic empty group | `UNKNOWN_COVERAGE`; `["NO_LINES","UNKNOWN_COVERAGE"]` |
+| All covered | One or more | One row per actual nonempty partition; no empty group | Closure-2 line/basis precedence (`INELIGIBLE`, `OVERLAPPING_BASIS`, `SINGLE_LINE`, `COMPARABLE`); no `NO_LINES` |
+| At least one uncovered | One or more on covered Sites | Every actual nonempty partition row; no empty group | `UNKNOWN_COVERAGE` on each, with `UNKNOWN_COVERAGE` plus all applicable lower-priority reasons; no `NO_LINES` |
+
+Thus `UNKNOWN_COVERAGE` wins over `NO_LINES` for the empty diagnostic group. `NO_LINES` is still a reason there because zero selected heads is an observed fact, while coverage prevents treating that fact as a complete-estate absence. A category with any selected head never gets `NO_LINES`, even if another covered Site has no head. `summary.estate_total_state` stays `NO_ESTATE_TOTAL` and all these non-COMPARABLE groups have `amount:null`.
+
+Commit 3 test `backend/tests/test_w302_money_comparability_postgres.py::test_w302_money_unknown_coverage_precedes_no_lines` must use an applicable covered Site with no selected head and an applicable uncovered Site with no line. Assert exactly one diagnostic group for the category, null partition fields, `line_keys == []`, `state == "UNKNOWN_COVERAGE"`, `reason_codes == ["NO_LINES", "UNKNOWN_COVERAGE"]`, and `amount is None`; add a selected head in the same test and assert its actual partition group is `UNKNOWN_COVERAGE` with no `NO_LINES` sentinel.
+
+### C2 — commit 0c W3-01 endpoint proof
+
+Yes. Lane A's commit 0c includes and runs the W3-01 endpoints' own regression tests, not a later W3-01 run: `backend/tests/test_w301_estate_api.py::test_401_409_422_503_refusals` and `::test_empty_is_zero_only_after_complete_read`, plus `backend/tests/test_w301_estate_index_postgres.py::test_scope_excludes_foreign_and_keeps_missing_site` and `::test_cursor_scope_window_lens_and_fence`. Extend their assertions for `/api/estate/scope`, `/api/estate/findings` and `/api/estate/actions` as applicable: new first pages use `estate-selection/2`, changed full cited IDs fence the cursor with 409, and a structurally valid `/1` cursor returns 409 while malformed input remains 422. Add the amendment's named shared test `backend/tests/test_w301_estate_index_postgres.py::test_selection_token_v2_endpoint_cursor_compatibility` for empty arrays, changed citations, old `/1` and changed `/2` selection; recompute golden endpoint token/cursor fixtures in 0c. Review commit 0c with those tests before W3-02 commit 1.
