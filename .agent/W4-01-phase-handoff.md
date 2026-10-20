@@ -1,3 +1,60 @@
+# W4-01 phase handoff - run 7: q4 applied; commit 4 NOT started (context budget) (2026-10-20)
+
+Merged main twice (`9373b800`, then the q5 merge; `.agent/*` conflicts took main's version). **Commit A (q4)**:
+`a4dfd318` + `f3557bc2`. Commit 4 (lists) not started: stopped at the context budget before writing any list code.
+Resume: build commit 4 per spec item 4, B1/B2/B8/B9/B10/S15, Q7/Q8/Q9/Q11 and **Run 5 rulings (q5) r1-r5**.
+
+## Commit A (q4) - what landed
+
+- q4-1: `work/adapters/postgres_work_read.py` `PostgresWorkRead(..., test_read_clock_override=None)`; `snapshot`
+  calls it once in place of `SELECT clock_timestamp()` after `SET TRANSACTION READ ONLY`; asserts aware UTC.
+  No request/env/`main.py` path sets it.
+- q4-2: `work/adapters/postgres_work_store.py` `finding_pairs_in_scope` adds `created_at <= :command_now`,
+  `action_pairs_in_scope` adds `e.recorded_at <= :command_now` (root join unchanged). Corrections already route
+  copied links through `service.py:_check_links` (line ~300), so create and correction are both covered.
+- Tests: `test_w401_work_service_postgres.py::test_link_pin_newer_than_command_refuses` (new; clock 1 us before the
+  Finding revision, then the Action event -> `WORK_LINK_SCOPE_INVALID`, row counts unchanged; +1 s -> 201);
+  `test_foreign_asset_and_evidence_refuse` now uses the `clocked` fixture (POSITIVE_NOW) so its refusals are the
+  pair checks, not the new cutoff. `test_w401_work_read_postgres.py`: cases created via `Ctx(runner,
+  VirtualDbClock(POSITIVE_NOW))`; mini-grid coverage + detail read at injected `POSITIVE_NOW+1s` (omitted cutoff);
+  new `test_f01_detail_route_under_private_read_clock` (route via `build_work_router(None, ..., details=...)`;
+  omitted -> 200 exact pins, coverage not UNKNOWN; `01:00:02Z` -> 422 `INVALID_KNOWN_AT`; `00:59:59Z` -> 404).
+- Fragility found: a `runner` test placed after the cold `chain` test fails at setup with `AdminShutdown` (the
+  chain fixture's DB reset kills the shared `engine` pool). The route test is ordered before the cold test.
+  Commit 4's new test file should not mix `runner` tests after `chain` tests.
+
+## Checks (run 7, private `w401f_test`, dropped after)
+
+- On `a4dfd318`: `test_w401_work_{read_postgres,service_postgres,api}.py`: 20 passed, 1 failed, 1 error (mini-grid
+  HISTORICAL at explicit earlier cutoff; route-test setup AdminShutdown after `chain`) -> fixed in `f3557bc2`.
+- On `f3557bc2`: `test_w401_work_read_postgres.py` 4 passed (32 s). Service/api files unchanged since the 20-pass
+  run except none (only the read file changed).
+- `tools/check-all.ps1` on `a4dfd318` (merge of main included): all 10 guards passed.
+
+## Commit 4 resume anchors (surveyed, not built)
+
+- W1 at-cutoff, connection-taking ports already exist (W3 q5): `PostgresFindingStore.index_snapshot_on(c,t,s,
+  domain,analytic,known_at)` (`analytics/adapters/postgres_finding_store.py:495`), `fence_on` (:491, live only),
+  `PostgresAssessmentStore.select_dispatch_days_on(c,t,s,from_,to,known_at)` (`postgres_assessment_store.py:683`),
+  `PostgresActionStore.site_window_on(c,t,s,start,end,known_at)` (`actions/adapters/postgres_action_store.py:897`).
+  Example consumer of the Finding pair: `financials/money_eligibility.py:197-206`.
+- W1 Finding token: `analytics/finding_index.py:227 _token` = `"sfi1-"+sha256(json(basis,sort_keys,default=str))`,
+  basis built at `FindingIndexService.read` (:259-:311) from snapshot + per-day `_day` (:236) over dispatch reads;
+  only domain `mini-grid-dispatch` exists (:41). W1 Action token: `actions/site_index.py:146-172` `fence(actions,
+  events)` + scope -> `"sai1-"+sha256`. q5 r1: reproduce these on the work snapshot connection at `known_at` via
+  new `LinkReadPorts` entries (wired in `work/composition.py:_link_read_ports`), else null token / UNKNOWN. Whether
+  `select_dispatch_days_on` rows reproduce `DispatchReadService.window` exactly (keys `status,status_reasons,
+  selection,window_assessment,current_basis`) is unverified - check first. Cold/EV pins have no W1 index; per r1
+  they get null/UNKNOWN unless an exact token exists (flag if that makes every cold/EV list UNKNOWN).
+- Detail-only `work-link-selection/1` token stays in `work/link_coverage.py`; never reuse it as the list fence.
+- Files to add: `work/site_index.py`, list reads in `postgres_work_read.py` (eligible cases by window/kind/cutoff,
+  latest revision, events, latest record per r5, Asset label, `site.name`), list route in `work_api.py`
+  (`GET /api/sites/{site_code}/work/{kind}`), `main.py` mount, `tests/test_w401_site_indexes_postgres.py` (4 nodes
+  named in q5 + Q7) and `test_w401_work_api.py::test_list_refusal_has_null_rows_and_total`. List tests over F01
+  pins use `test_read_clock_override` (q4-1) and the q2 command clock.
+- Run 6 readings r1-r5 are now ruled in spec "Run 5 rulings (q5)"; r1 replaced the fallback; r2-r5 confirmed with
+  additions (missing-lineage guard, fixed cursor cutoff, named assertions).
+
 # W4-01 phase handoff - run 5: commit 3 complete (2026-10-20)
 
 Branch `task/W4-01-work-case-core` (worktree `AssetOpsV1-review5`). Commit 1 `4cb89c68`, commit 2 `9533d97d`,
