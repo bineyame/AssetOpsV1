@@ -167,3 +167,18 @@ Readings (I am recording these, not making rulings):
 Next: `0b` (Lane A, W1 day projection), after 0a has its independent review.
 - 0b fix r1: W3-02 0b fix r1 — trap now patches _snapshot/_run/_connect_engine (mutation via _run: 4 failed, reverted); window-only revision mode (non-window 422 REVISION_NOT_WINDOW); HISTORICAL day shape/copy, conflict precedence, gap key (mini_grid, code, role) per rulings; 63 passed on w302d_test.
 - 0c fix r1 (`2c46c9fd`): H1 cold heads `created_at <= K` before DISTINCT ON (`cold_heads_on(known_at=)`), EV basis from tariff assignments recorded at K + head `recorded_at <= K` (also under HISTORICAL; as-of head labelled history, `historical_label`), pinned STALE_BASIS copy `STALE_AS_OF_COPY`; M1 W2-04 drain before the comparison, ≥1 PRODUCT_EXPOSURE, ids/kind/basis/counted/withheld/hold vs W2; L1 `cold_pending_as_of_on`; L2 K+ε absent at K in pure + Postgres; L3 `ev-session/1` key + positive seq. Mutation (drop as-of bounds): both historical Postgres tests failed, reverted. 0c + w204 cold reads/consequence/worker + w207 EV money/Site reads: 118 passed, 0 skipped, 20m26s on w302e_test (dropped). check-all 11/11.
+- commit-1 Lane A integration (`71c00d59`, after merging main): c1-q2 `EvSiteReads.capabilities_on` now returns
+  `unknown_meter: bool` (one `_pinned_ctx`, `any(unknown_meter_seconds > 0)` over `_sessions(ctx)`;
+  `ev_site_reads.py:334`). c1-q7 `ClaimLimitReadService.claim_limit_on(..., *, basis_mode=None|"live"|"historical")`
+  (`analytics/claim_limit_read.py:357`, applied at `historical_day`; other values raise `ValueError`; `None` keeps
+  `known_at < transaction_time`). Evidence router mounted: `build_estate_evidence_service` in
+  `estate/composition.py` (exactly the requested builder) and `main.py` mount after the W3-01 estate router. No guard
+  change. c1-q1 assigns no Lane A file. Tests: `test_w302_pinned_facades_postgres.py::test_ev_capabilities_on_exposes_unknown_meter_of_the_selected_sessions`
+  (complete / missing-meter) and `test_w302_w1_claim_limit_on_postgres.py::test_w1_frozen_basis_mode_overrides_the_transaction_time_comparison`.
+  W3-01 estate (5 files) + all `test_w302_*` + `test_w207_ev_site_reads_postgres.py`: 136 passed, 0 skipped, 19m49s on
+  `w302g_test` (dropped). check-all 11/11.
+  Next for Lane B: in `PostgresEvidenceMoneyRead.ev_capabilities` consume `read["unknown_meter"]` and drop the private
+  `_sessions(_pinned_ctx(...))` call; pass the cursor's `page_one_mode` as `basis_mode=` to `claim_limit_on`
+  (c1-q7); add the estate METER_GAP test for a selected session with positive unknown meter seconds (c1-q2), the
+  c1-q1 label change in `evidence_money.py`, and the c1-q3 token replacement (5). `evidence_read` in
+  `test_w302_evidence_scope_snapshot_postgres.py` may now call `build_estate_evidence_service`.
