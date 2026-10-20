@@ -417,21 +417,23 @@ function MaintenanceCells({ row }: { row: WorkRow }) {
     <>
       <td className="work-cases-first">
         <CaseTitle row={row} />
+      </td>
+      <td>
+        {row.asset_label ? <span data-work-asset>{row.asset_label}</span> : <span className="muted">No asset linked</span>}
         <RowDetail row={row} />
       </td>
-      <td>{row.asset_label ? <span data-work-asset>{row.asset_label}</span> : <span className="muted">No asset linked</span>}</td>
       <td>
-        <StateChip kind="maintenance" state={row.request_state ?? row.state} />{" "}
-        <span className="work-cases-clamp" data-work-activity>
-          {row.activity ?? "No activity recorded"}
+        <span className="work-cases-clamp">
+          <StateChip kind="maintenance" state={row.request_state ?? row.state} />{" "}
+          <span data-work-activity>{row.activity ?? "No activity recorded"}</span>
         </span>
       </td>
       <td>
-        <span className="w1f4-action-badge w1f4-action-badge--amber" data-work-outcome={row.outcome_state ?? "UNVERIFIED"}>
-          Unverified
-        </span>{" "}
-        <span className="work-cases-clamp" data-work-outcome-note>
-          {row.outcome_note ?? "No outcome recorded"}
+        <span className="work-cases-clamp">
+          <span className="w1f4-action-badge w1f4-action-badge--amber" data-work-outcome={row.outcome_state ?? "UNVERIFIED"}>
+            Unverified
+          </span>{" "}
+          <span data-work-outcome-note>{row.outcome_note ?? "No outcome recorded"}</span>
         </span>
       </td>
       <td>
@@ -444,9 +446,6 @@ function MaintenanceCells({ row }: { row: WorkRow }) {
 function Rows({ copy, body, links }: { copy: KindCopy; body: WorkIndexBody; links: SiteWorkCasesLinks }) {
   return (
     <div className="work-cases-table" data-work-table={copy.kind}>
-      <p className="work-cases-scroll-hint muted" aria-hidden="true">
-        Scroll sideways for more columns
-      </p>
       <DataTable labelledBy={`site-work-${copy.kind}-heading`}>
         <colgroup>
           {copy.widths.map((width, i) => (
@@ -498,6 +497,9 @@ function Pages({
     <nav aria-label="Work list pages" className="w1f4-work-pages" data-work-pages>
       <span data-work-showing>
         {known ? `Showing ${first}–${last} of ${body.total_count}` : `Showing ${body.rows.length} of ${body.total_count}`}
+      </span>
+      <span className="work-cases-scroll-hint" aria-hidden="true">
+        Scroll the table for more columns →
       </span>
       {scope.cursor ? (
         <button

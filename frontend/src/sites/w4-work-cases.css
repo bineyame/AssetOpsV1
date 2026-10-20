@@ -46,6 +46,8 @@
 }
 
 .work-cases .work-cases-table .data-table td {
+  padding: 9px 11px;
+  line-height: 1.5;
   white-space: normal;
   overflow-wrap: anywhere;
 }
@@ -59,12 +61,17 @@
 }
 
 .work-cases td .w1f4-action-badge {
-  margin-bottom: 2px;
+  padding: 2px 6px;
+}
+
+/* The window form sits in the panel head; no chip-row bottom margin before the table. */
+.work-cases .w1f4-work-window {
+  margin: 0;
 }
 
 .work-cases td .disclosure--inline {
-  display: block;
-  margin-top: 2px;
+  display: inline;
+  margin-left: 6px;
 }
 
 .work-cases td .disclosure--inline .disclosure__body code {
@@ -73,14 +80,13 @@
 
 .work-cases-scroll-hint {
   display: none;
-  margin: 0 0 4px;
   font-size: 10px;
 }
 
 /* 390 px: only the table scrolls, with a minimum width, a visible hint and the first column kept in view. */
 @media (max-width: 760px) {
   .work-cases-scroll-hint {
-    display: block;
+    display: inline;
   }
 
   .work-cases [data-work-table="incidents"] .data-table {
@@ -111,4 +117,48 @@
   .work-cases .status-strip--line {
     flex-wrap: wrap;
   }
+
+  /* The window form as one row: two dates with their labels above, then the button. */
+  .work-cases .w1f4-work-window {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .work-cases .w1f4-work-window__field {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    font-size: 10px;
+  }
+
+  .work-cases .w1f4-work-window input {
+    width: 100%;
+    min-width: 0;
+    padding: 3px 4px;
+  }
+
+  .work-cases .work-cases-table .data-table td {
+    padding: 5px 8px;
+    line-height: 1.4;
+  }
+
+  .work-cases .work-cases-table .data-table th {
+    padding: 8px 8px;
+  }
+
+  .work-cases .panel {
+    padding: 16px;
+  }
+
+  .work-cases .panel__header {
+    margin-bottom: 10px;
+  }
+}
+
+/* The mock statusbar spacer: the static Manage text sits at the right end. */
+.work-cases [data-work-manage] {
+  margin-left: auto;
 }
