@@ -24,3 +24,27 @@ Options the spec does not choose between:
 - (c) Another rule.
 
 The answer also decides whether `_decide_v4`'s pinned-metadata check stays exactly as it is for a mixed binding set.
+
+## q6 (unit 4 step 3, `e0f7c9de` `mini_depth/projection.py`): projection readings to confirm or replace
+
+Step 3 is built with these readings; none blocks step 4's worker, but each fixes a persisted `result` shape, so a
+change after revisions exist needs a new model version. Please rule before step 5's selection proof.
+
+1. **Renewable per-hour result has no `status` or `cards`.** Each revision is one noon hour (closure 1 Q4); the
+   result holds `hour:{capability_kw,used_kw(number),headroom_kw,decision}`, the one day `rows[]` entry, empty
+   `limitations`, `coverage` and `basis`. The read composes cards (`summarize_renewable`, `used_kw` as a bound) and
+   the envelope status over the selected days. Is that right, and what is the renewable envelope status rule
+   (e.g. any LIMITED/CONFLICT day -> LIMITED; all days ELIGIBLE/EXCLUDED -> SUPPORTED; else UNKNOWN)?
+2. **Fuel and backup rows carry no `coverage`.** Q8 says every row has `coverage`; `FuelRow` and `BackupChain` have
+   none. Should fuel term rows / backup chain rows get one (which seconds?), or does Q8's sentence apply to
+   renewable and service rows only?
+3. **Backup `role_coverage` for instant roles.** `site_supply_state`, `mini_backup_start_event`,
+   `mini_backup_bus_state` are listed with `observed_seconds:0`, a whole-hour gap and `source_count:0`
+   (`Observation` carries no source ID). Accept, or should `Observation` carry `source_id` for a real count?
+4. **`specific_fuel_consumption_property_revision_id`** is the one SFC revision used, or null when the hour used
+   none or several (rules allow different in-force SFCs on different intervals). Accept null for several?
+5. **`source_freshness` at assessment** = CURRENT iff every `role_coverage` entry is complete with no gap, every
+   required series is COMPLETE with no unusable row, and no CONFLICT/REQUIRED_INPUT_UNUSABLE/COVERAGE_GAP
+   limitation; else UNKNOWN. "Cited source gate resolves" is taken as satisfied by the Q13 gated selection. Thus
+   fuel (tank instants) and backup (instant roles) are always UNKNOWN in W4-02. Accept?
+6. **`cards.start_success_count`** stays the rule's count (only `outage_count` is nulled per q3 8). Accept?
