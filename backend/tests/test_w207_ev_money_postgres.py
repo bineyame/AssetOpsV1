@@ -35,6 +35,7 @@ if URL:
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
 
 HEAD = "0026_w2_ev_money"
+UPGRADED_HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026; head(engine) asserts the upgraded head
 PREVIOUS = "0025_w2_ev_session"
 REFUSED = "Downgrade of 0026_w2_ev_money refused"
 EV_MONEY = ("ev_consequence_revision", "ev_consequence_session", "ev_consequence_evidence", "ev_consequence_work",
@@ -148,7 +149,7 @@ def downgrade_refused(site, engine) -> None:  # noqa: F811
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
         command.downgrade(config, PREVIOUS)
-    assert head(engine) == HEAD and all(table_exists(engine, t) for t in EV_MONEY)  # nothing dropped
+    assert head(engine) == UPGRADED_HEAD and all(table_exists(engine, t) for t in EV_MONEY)  # nothing dropped
 
 
 def dirty(engine, tenant, site_id, start, end, cause, locator) -> str:  # noqa: F811
@@ -168,8 +169,8 @@ class TestMigration0026:
 
         ctx = Ctx(site, engine)
         script = ScriptDirectory.from_config(_alembic())
-        assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
-        assert head(engine) == HEAD
+        assert script.get_heads() == [UPGRADED_HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
+        assert head(engine) == UPGRADED_HEAD
         assert constraint(engine, "financial_assumption_revision_assumption_key_check") == (
             "CHECK ((assumption_key = ANY (ARRAY['diesel_price_per_litre'::text, 'ev_gross_tariff_per_kwh'::text])))")
         assert constraint(engine, "financial_assumption_revision_unit_check") == (
@@ -233,7 +234,7 @@ class TestMigration0026:
             downgrade_refused(site, engine)
         finally:
             remove_money(engine)
-        assert head(engine) == HEAD
+        assert head(engine) == UPGRADED_HEAD
 
     def test_0026_empty_downgrade_on_a_fresh_site_restores_diesel_only_checks(self, site, engine) -> None:  # noqa: F811
         # Review r1 L5: a fresh Site on a fresh 0026 database, before any EV tariff, assignment, consequence, work or
@@ -241,7 +242,7 @@ class TestMigration0026:
         from alembic import command
 
         site.publish("v1")  # diesel/fuel rows exist before the downgrade
-        assert head(engine) == HEAD
+        assert head(engine) == UPGRADED_HEAD
         guarded = (
             f"SELECT count(*) FROM financial_assumption_revision WHERE assumption_key = '{EV_KEY}'",
             f"SELECT count(*) FROM financial_assumption_assignment WHERE assumption_key = '{EV_KEY}'",
@@ -273,7 +274,7 @@ class TestMigration0026:
                                    "'diesel_price_per_litre'") == diesel
             command.upgrade(config, "head")
         finally:
-            if head(engine) != HEAD:
+            if head(engine) != UPGRADED_HEAD:
                 command.upgrade(config, "head")
         assert constraint(engine, "financial_assumption_revision_assumption_key_check") == key_check
         assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
@@ -606,7 +607,7 @@ def test_0026_trigger_only_work_and_exact_conflict_constraint(chain, monkeypatch
         assert head(engine) == PREVIOUS
         command.upgrade(config, "head")
     finally:
-        if head(engine) != HEAD:
+        if head(engine) != UPGRADED_HEAD:
             command.upgrade(config, "head")
     backfilled = expected(built, [(a.window_start, a.window_end, "BACKFILL", a.id) for a in heads])
     assert work_rows(built) == backfilled
