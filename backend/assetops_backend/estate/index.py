@@ -79,20 +79,25 @@ class EstateIndexService:
         read_at: datetime = snap.read_at
         cursor = None if req.cursor is None else decode_cursor(req.kind, req.cursor)
         known = req.known_at
-        if cursor is not None:
-            pinned = cursor_known_at(cursor)
-            if known is not None and known.replace(microsecond=0) != pinned.replace(microsecond=0):
-                raise EstateRefusal("ESTATE_BASIS_CHANGED")
-            known = pinned  # Reading: the cursor carries its page-one cutoff
         if known is not None and known > read_at:
             raise EstateRefusal("INVALID_KNOWN_AT")
         k = read_at if known is None else known
-        snap.historical = k < read_at
+        token_k = k
+        if cursor is not None:
+            # Reading (pending confirmation): the cursor carries its page-one cutoff, which is the token's
+            # `known_at`. An explicit cutoff must repeat it (to the wire second); a default-cutoff page two reads
+            # live at this read time, so any selection change since page one moves the token and is fenced.
+            token_k = cursor_known_at(cursor)
+            if known is not None:
+                if known.replace(microsecond=0) != token_k.replace(microsecond=0):
+                    raise EstateRefusal("ESTATE_BASIS_CHANGED")
+                k = token_k
+        snap.historical = known is not None and k < read_at
         candidates = [] if tenant_id is None else snap.imported_sites(tenant_id, req.to)
         sites = [s for s in candidates if admit(s["site_code"])]
         ids = [str(s["site_id"]) for s in sites]
-        return {"k": k, "historical": snap.historical, "sites": sites, "ids": ids, "cursor": cursor,
-                "access_basis": access_basis(tenant_id, ids)}
+        return {"k": k, "token_k": token_k, "historical": snap.historical, "sites": sites, "ids": ids,
+                "cursor": cursor, "access_basis": access_basis(tenant_id, ids)}
 
     @staticmethod
     def _fence(tenant_id: Any, req: EstateRequest, scope: dict[str, Any], token: str) -> tuple | None:
@@ -116,7 +121,7 @@ class EstateIndexService:
         payload: dict[str, Any] = {
             "v": 1, "tenant_id": None if tenant_id is None else str(tenant_id).lower(),
             "authorized_site_ids": sorted(x.lower() for x in scope["ids"]), "access_basis": scope["access_basis"],
-            "from": token_time(req.from_), "to": token_time(req.to), "known_at": token_time(scope["k"]),
+            "from": token_time(req.from_), "to": token_time(req.to), "known_at": token_time(scope["token_k"]),
             "selection_token": token, "after": [token_time(at), row_id]}
         if req.kind == "findings":
             payload.update(lens=req.lens, state_filter=req.state_filter)
@@ -175,7 +180,7 @@ class EstateIndexService:
                   "no_longer_supported": "NO_LONGER_SUPPORTED", "merged": "MERGED"}[req.state_filter]
         shown = basis if wanted is None else [r for r in basis if r["lifecycle"] == wanted]
         shown.sort(key=lambda r: (-r["_at"].timestamp(), r["finding_id"]))
-        token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["k"], req.lens, req.state_filter,
+        token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["token_k"], req.lens, req.state_filter,
                                 [_token_site(site, domain, cov) for site, domain, cov in per_site])
         after = self._fence(tenant_id, req, scope, token)
         key = (lambda r: (-r["_at"].timestamp(), r["finding_id"]))
@@ -232,7 +237,7 @@ class EstateIndexService:
                                                  f"{r['source_finding_revision_id']}"},
                              "_at": r["created_at"], "_raw": r})
         rows.sort(key=lambda r: (-r["_at"].timestamp(), r["action_id"]))
-        token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["k"], None, None,
+        token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["token_k"], None, None,
                                 [_token_site(site, ACTIONS, cov) for site, cov in per_site])
         after = self._fence(tenant_id, req, scope, token)
         key = (lambda r: (-r["_at"].timestamp(), r["action_id"]))
