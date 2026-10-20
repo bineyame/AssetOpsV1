@@ -249,3 +249,5 @@ No `estate/` module written. Private DB `w301m_test` (dropped after).
 check-all (once, at the end): 10/10 PASS. DB `w301m_test` dropped. No full suite run (per dispatch).
 **Branch released.** Ready for separate review, in order: `2a1b59cf`, `c55dadd4`, `da15d71f`,
 `4442d33c` (+`8d73c035`, `9956b6b8`). Open: Q7-1 (selection cutoff vs clamped watermark) for Lane B's core.
+
+Prerequisite Lows fix: select_consequence_on returns HISTORICAL for a superseded FindingRevision with no consequence (W1 precedence); cold/EV `_snapshot` raise ValueError for selection_seqs without selection_cutoff and for unknown cold analytic keys, and SelectionPinRefused when pinned with no evidence basis; Run 7 q7-1 applied to `selected_windows_on` (new `evidence_cutoff` keyword bounds only run knowledge_cutoff; estate_snapshots_on passes known_at as it and returns [] when None). Private DB w301o_test: 17 passed (4 files); check-all 10/10.

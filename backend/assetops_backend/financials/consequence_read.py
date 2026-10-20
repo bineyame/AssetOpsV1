@@ -302,7 +302,9 @@ class ConsequenceReadService:
             out["currentness"] = {"state": "UNKNOWN", "reasons": ["FINDING_REVISION_NOT_AT_CUTOFF"]}
             return out
         if head is None:
-            out["currentness"] = {"state": "PENDING", "reasons": ["NO_CONSEQUENCE_AT_CUTOFF"]}
+            # W1 `read` precedence: a superseded FindingRevision is HISTORICAL even with no consequence recorded.
+            superseded = str(rev["latest_id"]) != str(finding_revision_id)
+            out["currentness"] = {"state": "HISTORICAL", "reasons": ["FINDING_REVISION_SUPERSEDED"]} if superseded                 else {"state": "PENDING", "reasons": ["NO_CONSEQUENCE_AT_CUTOFF"]}
             return out
         price_id = head["price_revision_id"]
         out["cited"] = {

@@ -1683,22 +1683,26 @@ class SelectionPinRefused(LookupError):
 
 
 def selected_windows_on(c: Connection, t: UUID, s: UUID, analytics: tuple[str, ...], from_: datetime,
-                        to: datetime, cutoff: datetime) -> list[dict[str, Any]]:
+                        to: datetime, cutoff: datetime,
+                        evidence_cutoff: datetime | None = None) -> list[dict[str, Any]]:
     """W3-01 Run 6 Blocker 1: every exact `(analytic_id, window_start, window_end)` of this tenant/Site whose
     selection intersects `[from_, to)` (`window_start < to AND window_end > from_`), with the greatest selection
     seq among rows selected by `cutoff` whose same-tenant/Site run has `knowledge_cutoff` and `completed_at` by it
     and whose assessment revision was created by it. A later reselection is invisible at an earlier cutoff.
+    W3-01 Run 7 (q7-1): `cutoff` is the requested cutoff (selection, completion and revision-creation bounds);
+    `evidence_cutoff` (default `cutoff`) bounds only the run's `knowledge_cutoff`.
     Ordered by `(window_start, window_end, analytic_id, seq)`. Read on the caller's `c` only."""
     rows = c.execute(text(
         "SELECT DISTINCT ON (sel.analytic_id, sel.window_start, sel.window_end) sel.analytic_id, sel.window_start, "
         "sel.window_end, sel.seq FROM analytic_run_selection sel JOIN analytic_run r ON r.id = sel.run_id "
         "AND r.tenant_id = sel.tenant_id AND r.site_id = sel.site_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
         "AND sel.analytic_id = ANY(:as) AND sel.window_start < :to AND sel.window_end > :from "
-        "AND sel.selected_at <= :k AND r.knowledge_cutoff <= :k AND r.completed_at <= :k AND EXISTS (SELECT 1 "
+        "AND sel.selected_at <= :k AND r.knowledge_cutoff <= :e AND r.completed_at <= :k AND EXISTS (SELECT 1 "
         "FROM analytic_run_assessment x JOIN assessment_revision ar ON ar.id = x.assessment_revision_id "
         "WHERE x.run_id = r.id AND ar.created_at <= :k) "
         "ORDER BY sel.analytic_id, sel.window_start, sel.window_end, sel.seq DESC"),
-        {"t": t, "s": s, "as": list(analytics), "from": from_, "to": to, "k": cutoff}).all()
+        {"t": t, "s": s, "as": list(analytics), "from": from_, "to": to, "k": cutoff,
+         "e": cutoff if evidence_cutoff is None else evidence_cutoff}).all()
     out = [{"analytic_id": r[0], "window_start": r[1], "window_end": r[2], "seq": int(r[3])} for r in rows]
     return sorted(out, key=lambda k: (k["window_start"], k["window_end"], k["analytic_id"], k["seq"]))
 
@@ -1747,13 +1751,22 @@ class ColdReadService:
         analytic to select to its exact `analytic_run_selection.seq`; that row must also be selected, its run
         completed and its assessment revision created by `selection_cutoff`, or `SelectionPinRefused` is raised
         (never a fallback to another head). The snapshot then also carries `selection_seqs`."""
+        if selection_seqs is not None and selection_cutoff is None:
+            raise ValueError("selection_seqs requires selection_cutoff: a pin without a cutoff is never read unpinned.")
         pinned = selection_cutoff is not None
         if pinned and (lo is None or hi is None or not selection_seqs):
             raise ValueError("A pinned cold selection needs its exact stored window and selected seqs.")
+        if pinned:
+            unknown = sorted(set(selection_seqs) - {cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC})
+            if unknown:
+                raise ValueError(f"selection_seqs names unknown cold analytic keys: {unknown}")
         p = {"t": t, "s": s}
         watermark = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t "
                                    "AND site_id = :s"), p).scalar()
         known = known_at or watermark
+        if pinned and known is None:
+            raise SelectionPinRefused(sorted(selection_seqs)[0], selection_seqs[sorted(selection_seqs)[0]], lo, hi,
+                                      selection_cutoff)
         if lo is None and known is not None:  # no explicit window: the latest selected cold window at the cutoff
             row = c.execute(text(
                 "SELECT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
@@ -1839,8 +1852,10 @@ class ColdReadService:
         """W3-01 Run 6 Blocker 1: one pinned `_snapshot` per exact stored cold window whose as-of selection
         intersects `[from_, to)`; both cold analytics of one exact window share one snapshot. Ordered by
         `(window_start, window_end)`; empty when nothing qualifies (the caller's UNKNOWN, never a zero)."""
+        if known_at is None:  # Run 7 q7-1: no provable evidence basis is UNKNOWN, never a current zero
+            return []
         keys = selected_windows_on(c, t, s, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC), from_, to,
-                                   selection_cutoff)
+                                   selection_cutoff, evidence_cutoff=known_at)
         windows: dict[tuple[datetime, datetime], dict[str, int]] = {}
         for k in keys:
             windows.setdefault((k["window_start"], k["window_end"]), {})[k["analytic_id"]] = k["seq"]
@@ -2372,6 +2387,8 @@ class EvReadService:
         exact stored selected window and `selection_seqs` maps the session analytic to its exact selected seq; the
         row must be selected, its run completed and its revision created by `selection_cutoff`, or
         `SelectionPinRefused`. The snapshot then also carries `selection_seqs`."""
+        if selection_seqs is not None and selection_cutoff is None:
+            raise ValueError("selection_seqs requires selection_cutoff: a pin without a cutoff is never read unpinned.")
         pinned = selection_cutoff is not None
         if pinned and (lo is None or hi is None or ev.SESSION_ANALYTIC not in (selection_seqs or {})):
             raise ValueError("A pinned EV selection needs its exact stored window and the session analytic's seq.")
@@ -2382,6 +2399,9 @@ class EvReadService:
             raise EvReadRefused(422, "EV_TIME_INVALID",
                                 "'known_at' is later than the latest committed evidence cutoff.")
         known = known_at or watermark
+        if pinned and known is None:
+            raise SelectionPinRefused(ev.SESSION_ANALYTIC, selection_seqs[ev.SESSION_ANALYTIC], lo, hi,
+                                      selection_cutoff)
         if lo is None and known is not None:  # the paired default: the latest selected EV window at the cutoff
             row = c.execute(text(
                 "SELECT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
@@ -2454,7 +2474,10 @@ class EvReadService:
         """W3-01 Run 6 Blocker 1: one pinned `_snapshot` per exact stored EV session window whose as-of selection
         intersects `[from_, to)`, ordered by `(window_start, window_end)`; empty when nothing qualifies.
         `known_at` is the caller's clamped Site cutoff (at or before the Site's evidence watermark)."""
-        keys = selected_windows_on(c, t, s, (ev.SESSION_ANALYTIC,), from_, to, selection_cutoff)
+        if known_at is None:  # Run 7 q7-1: no provable evidence basis is UNKNOWN, never a current zero
+            return []
+        keys = selected_windows_on(c, t, s, (ev.SESSION_ANALYTIC,), from_, to, selection_cutoff,
+                                   evidence_cutoff=known_at)
         return [self._snapshot(c, t, s, code, k["window_start"], k["window_end"], known_at,
                                selection_cutoff=selection_cutoff, selection_seqs={k["analytic_id"]: k["seq"]})
                 for k in keys]
