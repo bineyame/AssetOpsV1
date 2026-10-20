@@ -139,3 +139,26 @@ def test_cold_reselection_of_an_old_run_is_invisible_earlier(chain) -> None:  # 
     assert new["selection_seqs"][ANALYTICS[0]] > old["selection_seqs"][ANALYTICS[0]]
     assert new["selection_seqs"][ANALYTICS[1]] == old["selection_seqs"][ANALYTICS[1]]
     assert revision_ids(new) == revision_ids(old)  # the same run: only the selection row differs
+
+
+def test_cold_pinned_mode_fails_closed_and_evidence_cutoff_bounds_runs(chain) -> None:  # noqa: F811
+    """Prerequisite Low (q6 review) and Run 7 q7-1: no silent path in pinned mode; the run `knowledge_cutoff` is
+    bounded by the evidence cutoff, never the requested cutoff."""
+    built = opened("late-reading", chain)
+    run(built)
+    rows, wm, k = stored(built), watermark(built), now(built)
+    svc = ColdReadService(engine=built.engine)
+    t, s = built.tenant_id, built.site_id
+    day_end = DAY + timedelta(days=1)
+    with snapshot(built) as c:
+        (snap,) = svc.estate_snapshots_on(c, t, s, CODE, DAY, day_end, wm, k)
+        lo, hi, seqs = snap["lo"], snap["hi"], snap["selection_seqs"]
+        with pytest.raises(ValueError, match="selection_seqs"):  # seqs without a cutoff
+            svc._snapshot(c, t, s, CODE, lo, hi, wm, selection_seqs=seqs)
+        with pytest.raises(ValueError, match="unknown cold analytic"):
+            svc._snapshot(c, t, s, CODE, lo, hi, wm, selection_cutoff=k, selection_seqs={**seqs, "nope": 1})
+        kc = max(r["knowledge_cutoff"] for r in rows)
+        early = selected_windows_on(c, t, s, ANALYTICS, DAY, day_end, k, evidence_cutoff=kc - timedelta(microseconds=1))
+        exact = selected_windows_on(c, t, s, ANALYTICS, DAY, day_end, k, evidence_cutoff=kc)
+        assert svc.estate_snapshots_on(c, t, s, CODE, DAY, day_end, None, k) == []  # no evidence basis: UNKNOWN
+    assert early != exact and exact

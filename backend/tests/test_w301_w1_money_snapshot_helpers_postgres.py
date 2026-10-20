@@ -278,3 +278,13 @@ def test_money_source_gate_mixed_union_withholds(store, engine, capsys, monkeypa
     assert mixed == mixed_w1 and mixed["state"] != "AUTHORED_DEMONSTRATION"
     assert source_gate(mixed)["permits_current_money"] is False
     assert source_gate(mixed)["reason"] == MIXED_OR_UNKNOWN_SOURCE
+
+
+def test_consequence_on_superseded_without_consequence_is_historical(rig, monkeypatch) -> None:
+    """Prerequisite Low (q6 review): W1 `read` precedence (`consequence_read.py:304`): a FindingRevision superseded by
+    the cutoff is HISTORICAL even when no consequence was ever recorded for it, never PENDING."""
+    old, new = supersede(rig, monkeypatch)  # no consequence recompute has run: neither revision has one
+    hist = rig.on(old["id"], rig.now())
+    assert hist["currentness"] == {"state": "HISTORICAL", "reasons": ["FINDING_REVISION_SUPERSEDED"]}
+    assert hist["consequence_revision_id"] is None and hist["amount_high"] is None
+    assert rig.on(new["id"], rig.now())["currentness"] == {"state": "PENDING", "reasons": ["NO_CONSEQUENCE_AT_CUTOFF"]}

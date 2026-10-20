@@ -139,3 +139,17 @@ def test_ev_cutoff_precedes_reselection_and_multiwindow(chain) -> None:  # noqa:
     assert [(x["lo"], x["hi"], x["selection_seqs"], x["selected"]["revision_id"]) for x in again] == pick
     assert new["selection_seqs"][EV] > old["selection_seqs"][EV]
     assert new["selected"]["revision_id"] != old["selected"]["revision_id"]
+
+
+def test_ev_pinned_mode_fails_closed(chain) -> None:  # noqa: F811
+    """Prerequisite Low (q6 review): seqs without a cutoff, or no evidence basis, never echo unchecked seqs."""
+    built = settled(chain)
+    rows = stored(built)
+    wm, k = clocks(built)
+    day = day_of(rows[0]["window_start"])
+    svc, t, s = EvReadService(engine=built.engine, link_rows=build_link_rows_reader()), built.tenant_id, built.site_id
+    with snapshot(built) as c:
+        (snap, *_) = svc.estate_snapshots_on(c, t, s, CODE, day, day + timedelta(days=1), wm, k)
+        with pytest.raises(ValueError, match="selection_seqs"):
+            svc._snapshot(c, t, s, CODE, snap["lo"], snap["hi"], wm, selection_seqs=snap["selection_seqs"])
+        assert svc.estate_snapshots_on(c, t, s, CODE, day, day + timedelta(days=1), None, k) == []
