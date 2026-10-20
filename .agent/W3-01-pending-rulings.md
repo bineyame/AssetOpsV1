@@ -1,43 +1,50 @@
-# W3-01 pending rulings (q4, Lane A compatibility run 2, 2026-10-20)
+# W3-01 pending rulings (q5, Lane B commit-2 run, 2026-10-20)
 
-q1-q3 are answered in `.agent/W3-01-build-spec.md` (Run 1-3 rulings). Lane A resumed at `9239fb45` and built
-the q3 map up to EV money, then stopped on item 1 below (no-decision rule). **No Lane A code is committed**;
-the uncommitted diff is saved as `.agent/W3-01-lane-a-partial.patch` (see the phase handoff).
+Branch `task/W3-01-estate-claim-action-roots` at `e0d7ab04` (main merged: already up to date). Commit 2 (estate
+read/API) was **not started in code**: its one-transaction read needs edits to existing shared files and a guard
+that the spec does not assign to Lane B. Earlier q1-q4 are answered in `.agent/W3-01-build-spec.md`.
 
-1. **EV money row: the stored row has no pinned Finding (blocking).** q3's EV money row says: select
-   `ev_consequence_revision.finding_revision_id, assessment_revision_id`, cite money IDs union the pinned
-   `finding_revision_evidence`, select `{ev_consequence_revision.id, finding_revision.id, ev_session_revision.id,
-   assessment_revision.id}`, and "Missing pinned Finding/session/assessment for a stored row refuses the read
-   through its existing unavailable path". In code, `ev_consequence_revision.finding_revision_id` is nullable
-   (`migrations/versions/0026_w2_ev_money.py:50`) and the only writer always inserts `NULL`
-   (`financials/adapters/postgres_consequence_store.py:997-1000`, `VALUES (:id, :t, :s, NULL, :ar, ...)`). An EV
-   money row is window-level: it links N sessions through `ev_consequence_session` (`_with_links`, line 1115),
-   not one session named by a Finding claim. Applied literally, every stored EV consequence (current or history)
-   refuses `/ev/financials` (and the EV overview money summary), so `test_w207_ev_money_postgres.py` and the
-   EV Site money reads would all become 503. Which applies?
-   - (a) Row DTO cites `ev_consequence_evidence.evidence_id` only and selects
-     `{ev_consequence_revision.id, assessment_revision_id, every ev_consequence_session.session_revision_id}`
-     (no Finding member; needs a Lane B selection helper or an inline sorted set; Lane A would pass it to
-     `cited_set`).
-   - (b) As (a) but also union the `finding_revision_evidence` of every SUPPORTED EV Finding revision of that
-     assessment whose claim names one of those sessions, selecting those Finding revisions too.
-   - (c) Keep the literal ruling: a NULL pin refuses the read (EV money reads become unavailable until a later
-     writer change pins a Finding; that writer change is outside Lane A's file list).
-   - (d) No row block on EV money rows in this commit (envelope siblings only); defer to a later slice.
+## Blocking questions
 
-## Readings (built in the partial patch; confirm or correct with item 1)
+1. **Connection-taking W1 selection helpers: who adds them, and in which commit?** B5/W5 require the estate
+   REPEATABLE READ to reuse the W1 selection logic on the estate connection. Every existing W1 read opens its own
+   transaction and takes no connection:
+   - mini-grid Finding heads/matcher/fence: `analytics/adapters/postgres_finding_store.py:464 index_snapshot`,
+     `:114 fence`, `:499 index_lineage` (each via `_read`, `:90-92`);
+   - S3 per-day selection: `analytics/dispatch_read.py:123 DispatchReadService.window` (assessment store + evidence
+     ledger reads, `OPEN_CUTOFF`);
+   - Actions: `actions/adapters/postgres_action_store.py:891 site_window` (used by `actions/site_index.py:155`).
+   Run 1 ruling 1 and W3-02 N1 ("Lane A owns every existing shared file") put these files with Lane A; the W3-01
+   spec names only new `estate/` files for Lane B. Options: (a) Lane A adds `*_on(c, ...)` variants (like W3-02
+   commit `0a` `select_dispatch_days_on`) as a reviewed prerequisite before W3-01 commit 2; (b) Lane B adds them in
+   commit 2 under an explicit ownership extension; (c) another split. Please name the exact functions/signatures.
+2. **Mini-grid historical cutoff.** `DispatchReadService.window` reads at `OPEN_CUTOFF` and the W1 index has no
+   `known_at`. The spec's explicit `known_at` (selected S3 day, matcher pass, Finding revision as of the cutoff)
+   needs an as-of S3 selection and matcher-pass query that does not exist. Is W3-02 `0a`'s
+   `select_dispatch_days_on(c,tenant_id,site_id,from_,to,known_at)` the intended W3-01 dependency (so `0a` moves
+   before W3-01 commit 2), or should W3-01 mark an explicit mini-grid cutoff `HISTORICAL`/`UNKNOWN` without rows?
+3. **`$pgReaders` guard owner and timing.** `estate/adapters/postgres_estate_read.py` must import SQLAlchemy;
+   `tools/checks/configuration-persistence.ps1:804-830` fails any driver import outside `$pgWriters`. W3-02 Q8 assigns
+   the `$pgReaders` change to Lane A (in W3-02 `0c`), which now comes after W3-01. Request written to
+   `.agent/W3-01-lane-a-requests.md` item 1; confirm Lane A lands it before W3-01 commit 2 (check-all cannot pass
+   otherwise), and whether the estate package also needs a `$domains` entry (`estate/composition.py` as the only
+   adapter importer).
 
-2. **Cold Finding row pin.** `_REVISION` now also selects `er.id, er.assessment_revision_id` (episode revision
-   joined by tenant/Site and the claim's `episode_revision_id`). A missing episode revision, or one whose
-   `assessment_revision_id` differs from `fr.assessment_revision_id`, raises `ColdReadUnavailable` (503) for
-   list, detail and Site reads, rather than an UNKNOWN row. Selection uses `fr.assessment_revision_id` (q3 text).
-3. **Cold consequence pin.** `ColdReadService.consequence_provenance_on(c, snap, head)` requires the pinned
-   `finding_revision` in tenant/Site with `assessment_revision_id = head.assessment_revision_id` and claim
-   `episode_revision_id = head.episode_revision_id` (episode revision of the same assessment); else 503.
-4. **EV Finding pin.** Exactly one `ev_session_revision` among the selected `result.session_revision_ids` whose
-   `session_id` equals the claim's `session_id`; zero or more than one raises `EvReadUnavailable` (503).
-5. **EV pending job vs currentness.** The `recompute_job` query now runs whenever `lo` exists; it gates only the
-   public pending block. `currentness`/`pending` stay as before (`pending = selected is not None and job`), so
-   no-head reads keep `UNKNOWN` currentness and the `_unassessable` limitation.
-6. **Failed link reads.** Both cold and EV bind `link_rows` through one helper that maps any non-DB exception
-   to the route's unavailable error (DB errors already map in `_read`); a missing reader is also unavailable.
+## Readings (to confirm with the answers; none built yet)
+
+4. Token v2 is built directly: W3-01 commit 2 implements only `estate-selection/2` (no `/1` builder ever ships).
+   `test_selection_token_v2_endpoint_cursor_compatibility` constructs a structurally valid `/1`-digest cursor and
+   expects 409 `ESTATE_BASIS_CHANGED`. W3-02 `0c` then keeps only the `$pgReaders` guard work.
+5. The shared estate parameter parser (built by Lane B in commit 2) rejects unknown/repeated query keys per W3-02
+   Q11-Q13 (`INVALID_WINDOW` for a missing/duplicated window key, else `INVALID_CURSOR`), for all three W3-01
+   endpoints, rather than waiting for a Lane A integration.
+6. Cold/EV coverage calls the existing connection-taking `ColdReadService._snapshot(c, ...)`
+   (`postgres_assessment_store.py:1607`) and `EvReadService._snapshot(c, ...)` (`:2189`) on composed service
+   instances; W5's "extract" needs no edit because both already take `c`. If a public name is required, that is
+   item 1's ownership question.
+7. `main.py` router mount stays Lane A (request item 2). Commit-2 API tests mount `build_estate_router` on a local
+   FastAPI app, as the existing `finding_index_api` tests do.
+8. W3-01 keeps its own `status`/`coverage.state` enums (`CURRENT|PENDING_RECOMPUTE|STALE_SOURCE|HISTORICAL|UNKNOWN`,
+   `COMPLETE|PARTIAL|UNKNOWN`); W3-02's `EMPTY`/`EMPTY_SCOPE` are W3-02-only. Complete empty authorized scope is
+   `coverage.state=COMPLETE` with zero counts, per the W3-01 example text.
+9. The shared financial `group_key` (W3-02 commit 3) is not a W3-01 concern; W3-01 emits no group key.
