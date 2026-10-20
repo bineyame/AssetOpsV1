@@ -1,6 +1,6 @@
 {
-  "revision": "e6de374f",
-  "captured_at": "2026-10-20T01:40:38.079Z",
+  "revision": "4fb6a401",
+  "captured_at": "2026-10-20T03:55:44.112Z",
   "pairs": [
     {
       "screen": "ev",
@@ -131,19 +131,19 @@
             "x": 16,
             "y": 1845,
             "w": 343,
-            "h": 251
+            "h": 153
           },
           {
             "title": "Bounded money consequence",
             "x": 16,
-            "y": 2112,
+            "y": 2014,
             "w": 343,
             "h": 231
           },
           {
             "title": "Next step",
             "x": 16,
-            "y": 2359,
+            "y": 2260,
             "w": 343,
             "h": 197
           }
@@ -154,7 +154,7 @@
         "rowHeights": [],
         "overflowX": -15,
         "clipped": 0,
-        "height": 2596
+        "height": 2498
       },
       "mock_image": "ev-interrupted-390-mock.png",
       "mock": {
@@ -379,7 +379,7 @@
             "x": 16,
             "y": 1417,
             "w": 343,
-            "h": 333
+            "h": 267
           }
         ],
         "cols": [
@@ -425,7 +425,7 @@
         ],
         "overflowX": -15,
         "clipped": 0,
-        "height": 1869
+        "height": 1803
       },
       "mock_image": "ev-evidence-interrupted-390-mock.png",
       "mock": {
@@ -636,22 +636,22 @@
           }
         ],
         "cols": [
-          216,
-          138,
-          122,
-          89,
+          222,
           114,
-          220
+          126,
+          92,
+          118,
+          228
         ],
         "tables": [
           {
             "cols": [
-              216,
-              138,
-              122,
-              89,
+              222,
               114,
-              220
+              126,
+              92,
+              118,
+              228
             ],
             "client": 303,
             "scroll": 900
@@ -738,21 +738,21 @@
             "x": 248,
             "y": 472,
             "w": 1145,
-            "h": 323
+            "h": 305
           },
           {
             "title": "Assumptions in use",
             "x": 248,
-            "y": 812,
+            "y": 795,
             "w": 725,
-            "h": 281
+            "h": 269
           },
           {
             "title": "Not included",
             "x": 991,
-            "y": 812,
+            "y": 795,
             "w": 403,
-            "h": 281
+            "h": 269
           }
         ],
         "cols": [
@@ -782,13 +782,13 @@
           "scroll": 1105
         },
         "rowHeights": [
-          80,
+          62,
           45,
           44
         ],
         "overflowX": -15,
         "clipped": 0,
-        "height": 1143
+        "height": 1113
       },
       "mock_image": "ev-financials-interrupted-1440-mock.png",
       "mock": {
@@ -865,40 +865,40 @@
             "x": 16,
             "y": 785,
             "w": 343,
-            "h": 369
+            "h": 355
           },
           {
             "title": "Assumptions in use",
             "x": 16,
-            "y": 1172,
+            "y": 1158,
             "w": 343,
-            "h": 281
+            "h": 285
           },
           {
             "title": "Not included",
             "x": 16,
-            "y": 1469,
+            "y": 1459,
             "w": 343,
             "h": 149
           }
         ],
         "cols": [
-          219,
-          142,
-          97,
-          87,
-          220,
-          135
+          227,
+          157,
+          128,
+          85,
+          164,
+          140
         ],
         "tables": [
           {
             "cols": [
-              219,
-              142,
-              97,
-              87,
-              220,
-              135
+              227,
+              157,
+              128,
+              85,
+              164,
+              140
             ],
             "client": 303,
             "scroll": 900
@@ -915,7 +915,7 @@
         ],
         "overflowX": -15,
         "clipped": 0,
-        "height": 1657
+        "height": 1648
       },
       "mock_image": "ev-financials-interrupted-390-mock.png",
       "mock": {
@@ -992,7 +992,7 @@
             "x": 248,
             "y": 278,
             "w": 1160,
-            "h": 299
+            "h": 314
           }
         ],
         "cols": [
@@ -1016,9 +1016,9 @@
           "scroll": 1120
         },
         "rowHeights": [
-          51,
           45,
-          50
+          45,
+          44
         ],
         "overflowX": 0,
         "clipped": 0,
@@ -1077,22 +1077,22 @@
           {
             "title": "Financial assumptions",
             "x": 16,
-            "y": 427,
+            "y": 412,
             "w": 358,
-            "h": 314
+            "h": 345
           }
         ],
         "cols": [
-          187,
-          166,
-          247
+          149,
+          254,
+          197
         ],
         "tables": [
           {
             "cols": [
-              187,
-              166,
-              247
+              149,
+              254,
+              197
             ],
             "client": 318,
             "scroll": 600
@@ -1103,9 +1103,9 @@
           "scroll": 600
         },
         "rowHeights": [
-          51,
           45,
-          50
+          45,
+          44
         ],
         "overflowX": 0,
         "clipped": 0,
