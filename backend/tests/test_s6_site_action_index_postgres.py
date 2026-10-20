@@ -222,7 +222,7 @@ def test_site_work_action_index_rows_paging_fence_zero_and_refusals(runner) -> N
         assert Index(h, access=lambda r, s: 401).get(**POSITIVE).status_code == 401
         assert Index(h, access=lambda r, s: 403).get(**POSITIVE).status_code == 403
         assert Index(h, service=None).get(**POSITIVE).json()["detail"]["code"] == "ACTION_STORE_UNAVAILABLE"
-        down = PostgresActionStore("postgresql+psycopg://nobody:none@127.0.0.1:1/none")
+        down = PostgresActionStore("postgresql+psycopg://nobody:none@127.0.0.1:1/none?connect_timeout=2")
         try:
             refused = Index(h, service=ActionIndexService(down)).get(**POSITIVE)
             assert refused.status_code == 503 and refused.json()["detail"]["code"] == "ACTION_STORE_UNAVAILABLE"

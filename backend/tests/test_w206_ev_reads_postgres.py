@@ -229,7 +229,7 @@ def test_refusals_unknown_and_one_snapshot_paging(chain) -> None:  # noqa: F811
     assert error(c, "/api/sites/NOPE/ev/sessions", 404) == "SITE_NOT_FOUND"
     assert error(client(built, site_type="COLDCHAIN"), "sessions", 404) == "SITE_NOT_FOUND"
     assert error(client(built, reads=None), "sessions", 503) == "EV_READ_UNAVAILABLE"
-    dead = client(built, reads=EvReadService("postgresql+psycopg://assetops:x@127.0.0.1:1/none_test"))
+    dead = client(built, reads=EvReadService("postgresql+psycopg://assetops:x@127.0.0.1:1/none_test?connect_timeout=2"))
     refused = get(dead, "sessions", 503)
     assert refused["error"]["code"] == "EV_READ_UNAVAILABLE" and "127.0.0.1" not in refused["error"]["message"]
 

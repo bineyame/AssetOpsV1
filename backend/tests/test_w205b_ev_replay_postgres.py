@@ -77,7 +77,7 @@ if URL:
     from assetops_backend.runs.registered_release import publisher_for
     from assetops_backend.runs.service import RunSetupService
     from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import ReadOnlyYamlScenarioStore
-    from assetops_backend.scenarios.composition import build_scenario_repository
+    from scenario_cache import CachedScenarioRepository, cached_scenario_repository
     from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
     from assetops_backend.sites.cutover import ImportedSiteRegistry
     from assetops_backend.sites.ev_lab import install_ev_lab
@@ -156,7 +156,7 @@ PRIVATE_KEYS = ("connectors", "requested_kw", "allocated_kw", "energy_kwh", "sit
                 "forcing_ordinal", "forcing", "forcings", "observations", "release_at", "content_digest",
                 "boundary", "minute_records", "private_state", "oracle", "vehicle_id", "customer_id",
                 "hidden_demand", "delay_event_id", "run_id")
-SCENARIOS = ReadOnlyYamlScenarioStore(ROOT / "config" / "scenarios") if URL else None
+SCENARIOS = CachedScenarioRepository(ReadOnlyYamlScenarioStore(ROOT / "config" / "scenarios")) if URL else None
 
 
 def sha(text_value: str) -> str:
@@ -257,7 +257,7 @@ class Chain:
             gateway=RegisteredGatewayPublisher(self.process.link),
             schedules=JsonPublicationSchedules(self.tmp / "schedules"),
             source_publisher=publisher_for(URL),
-            ev_inputs=StoreEvInputs(self.store, build_scenario_repository()),
+            ev_inputs=StoreEvInputs(self.store, cached_scenario_repository()),
         )
         self.attest()
         return self
@@ -514,7 +514,7 @@ def world_total(built: Chain) -> Fraction:
     basis = built.run.registered_basis
     revision = next(r for r in built.store.revisions(built.tenant_id, built.site_id)
                     if str(r.id) == basis.foundation_revision_id)
-    inputs = StoreEvInputs(built.store, build_scenario_repository())
+    inputs = StoreEvInputs(built.store, cached_scenario_repository())
     binding = inputs.binding_revision(built.tenant_id, built.site_id, UUID(basis.binding_set_revision_id))
     verified = verify_ev_inputs(built.run, revision, binding, definition(built.case))
     final = ev_execution(verified.definition, verified.parameters).documents[-1]
@@ -690,7 +690,7 @@ def _run_reports(built: Chain) -> list:
     basis = built.run.registered_basis
     revision = next(r for r in built.store.revisions(built.tenant_id, built.site_id)
                     if str(r.id) == basis.foundation_revision_id)
-    inputs = StoreEvInputs(built.store, build_scenario_repository())
+    inputs = StoreEvInputs(built.store, cached_scenario_repository())
     binding = inputs.binding_revision(built.tenant_id, built.site_id, UUID(basis.binding_set_revision_id))
     verified = verify_ev_inputs(built.run, revision, binding, definition(built.case))
     return list(ev_reports(verified.definition, verified.channels,
@@ -1020,7 +1020,7 @@ def test_second_release_duplicate(chain) -> None:
     basis = built.run.registered_basis
     revision = next(r for r in built.store.revisions(built.tenant_id, built.site_id)
                     if str(r.id) == basis.foundation_revision_id)
-    inputs = StoreEvInputs(built.store, build_scenario_repository())
+    inputs = StoreEvInputs(built.store, cached_scenario_repository())
     binding = inputs.binding_revision(built.tenant_id, built.site_id, UUID(basis.binding_set_revision_id))
     verified = verify_ev_inputs(built.run, revision, binding, definition("complete"))
     reports = [r.report_text for r in ev_reports(verified.definition, verified.channels,
