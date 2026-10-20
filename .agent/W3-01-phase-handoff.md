@@ -25,3 +25,16 @@ call site, migration or Alembic head touched.
 2. **Lane B** after Lane A releases: `test_w1_cold_ev_exact_cited_id_mapping` (ruling 7) against the integrated
    public reads; then review of `1c409a3d..<that commit>`; then W4 cherry-pick per ruling 1.
 3. Then W3 commit 2 (estate read/API) per spec.
+
+## Lane A compatibility run (2026-10-20): stopped on rulings, no code committed
+Merged main into the branch (`1f731005`, clean, Run 2 rulings present). Dry-read all ruling-1 call sites, then
+stopped per the no-decision rule: `.agent/W3-01-pending-rulings.md` (q3) items 1-3 block the cold/EV envelope
+work (EV no-head unassessable read vs empty DTO; detail-read top-level DTO; row DTO key and EV session cited
+set); items 4-6 are readings (composition wiring via new `build_public_provenance` and a `ColdReadService`
+`link_rows` kwarg; fail-closed `unresolved` blocks keep their shape; `dual_blocks(None, None)` still raises,
+so Lane B's q2-ruling-1 change is a precondition). No test, DB or check-all run (no code changed).
+Anchors for the resumed run: cold `_envelope` `postgres_assessment_store.py:1655`, fence reads 1864/1892,
+`cold_site_reads.py:505`; EV `_snapshot` 2102, `_envelope` 2184, `_page` 2320, `page_on` 2362; W1 resolver
+injection `analytics/composition.py:build_finding_read_service`, `financials/composition.py:45-63`.
+**Branch released** (Lane A holds nothing). Next: Architect answers q3 and Lane B lands the `dual_blocks`
+empty case; then Lane A resumes the one compatibility commit.
