@@ -158,6 +158,9 @@ const SITE_SURFACES = [
   ["the site page", "/sites/MG-002", "Overview"],
   ["the Foundation", "/sites/MG-002/foundation", "Foundation"],
   ["the Evidence", "/sites/MG-002/evidence", "Evidence"],
+  // W4-01: the two Work subtab lists sit under the Work tab.
+  ["Work > Incidents", "/sites/MG-002/work/incidents", "Work"],
+  ["Work > Maintenance", "/sites/MG-002/work/maintenance", "Work"],
 ] as const;
 
 describe("the operator Site tab inventory is defined once", () => {

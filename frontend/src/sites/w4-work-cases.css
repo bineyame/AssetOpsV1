@@ -1,0 +1,114 @@
+/*
+ * W4-01 commit 5: the v69 `sitework-incidents` and `sitework-maintenance`
+ * slots. Shared Site Work patterns come from `w1f4-changes-work.css`; this file
+ * adds the mock's `.empty` block, the fixed column widths with a two-line clamp,
+ * and the 390 px table scroll with a retained first column.
+ */
+
+/* The mock's `.empty` block (`mockups.css`), no fake row. */
+.work-cases-empty {
+  margin: 15px 0;
+  padding: 45px 20px;
+  border: 1px dashed #cdd7e5;
+  border-radius: 6px;
+  background: #fbfcfe;
+  text-align: center;
+}
+
+.work-cases-empty h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.work-cases-empty p {
+  max-width: 480px;
+  margin: auto;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.work-cases-state {
+  padding: 12px 0 6px;
+}
+
+.work-cases-state p {
+  margin: 6px 0 0;
+}
+
+.work-cases-coverage {
+  margin: 0 0 8px;
+  font-size: 11px;
+}
+
+/* Fixed desktop columns (spec copy table); cells wrap inside them. */
+.work-cases .work-cases-table .data-table {
+  table-layout: fixed;
+}
+
+.work-cases .work-cases-table .data-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Two-line clamp; the full text is in the cell title and the row disclosure. */
+.work-cases-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.work-cases td .w1f4-action-badge {
+  margin-bottom: 2px;
+}
+
+.work-cases td .disclosure--inline {
+  display: block;
+  margin-top: 2px;
+}
+
+.work-cases td .disclosure--inline .disclosure__body code {
+  overflow-wrap: anywhere;
+}
+
+.work-cases-scroll-hint {
+  display: none;
+  margin: 0 0 4px;
+  font-size: 10px;
+}
+
+/* 390 px: only the table scrolls, with a minimum width, a visible hint and the first column kept in view. */
+@media (max-width: 760px) {
+  .work-cases-scroll-hint {
+    display: block;
+  }
+
+  .work-cases [data-work-table="incidents"] .data-table {
+    min-width: 720px;
+  }
+
+  .work-cases [data-work-table="maintenance"] .data-table {
+    min-width: 760px;
+  }
+
+  .work-cases .work-cases-table .data-table__scroll {
+    overflow-x: auto;
+  }
+
+  .work-cases .work-cases-table .work-cases-first,
+  .work-cases .work-cases-table th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: #fff;
+    box-shadow: 1px 0 0 #edf1f6;
+  }
+
+  .work-cases .work-cases-table th:first-child {
+    background: #f8fafd;
+  }
+
+  .work-cases .status-strip--line {
+    flex-wrap: wrap;
+  }
+}
