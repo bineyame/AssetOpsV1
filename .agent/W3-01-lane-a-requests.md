@@ -30,3 +30,33 @@ Lane B does not edit these Lane A files. Each is needed by W3-01 commit 2 (estat
    authenticate=..., access=<the Finding route Access>, unavailable=(SiteStoreUnavailable,))` from
    `estate_api.py` / `estate/composition.py`. `build_estate_index_service(None)` returns None (router answers 503).
    Default `authenticate` admits (development, like `development_access`).
+
+## Commit-3 Lane B estate roots landed (2026-10-20): Lane A third same-branch handoff
+
+Lane B added only `frontend/src/estate/{estateClient.ts,estateShared.tsx,findingIndex.tsx,actionIndex.tsx,estate.css}`
+and `frontend/src/estate/__tests__/{estateFixtures.ts,estateRoots.test.tsx}`. The pages are tested under a local
+MemoryRouter. Lane A's integration, in the same reviewed merge as the five pages (spec commit 3 and Review closure B1/B2):
+
+1. **Routes** (`frontend/src/App.tsx` and `frontend/src/shell/operatorSiteRoutes.ts`). Replace only the global `/findings`
+   element (currently `<FindingsFrame analytics={siteAnalytics}/>`, `App.tsx:375-378`) with
+   `<EstateFindingsPage lens="all" client={estateIndex}/>`. Add `/findings/cost`, `/findings/risks` and
+   `/findings/opportunities` with `lens="cost"|"risks"|"opportunities"`, and add `/actions` with
+   `<EstateActionsPage client={estateIndex}/>`. These must take precedence over the legacy
+   `/findings/:siteId/:assessmentId[/:findingTab]` patterns. Legacy paths keep their handlers and tests, and `/api/findings`
+   is unchanged. Path constants are `ESTATE_FINDING_LENS_PATHS` (`frontend/src/estate/findingIndex.tsx`) and
+   `ESTATE_ACTIONS_PATH` (`frontend/src/estate/actionIndex.tsx`); reuse them or mirror them in `operatorSiteRoutes.ts`.
+   Each page renders its own `PageHeader`, and needs the shell's `<main>`.
+2. **Client prop**: add the optional App prop `estateIndex?: EstateClient`, defaulting to `createEstateClient()` from
+   `frontend/src/estate/estateClient.ts`. Shell tests can then inject `fakeClient` from
+   `frontend/src/estate/__tests__/estateFixtures.ts`.
+3. **Rail**: in `OperatorShellLayout.tsx:55`, Actions becomes `{kind:"live", to:"/actions", label:"Actions", group:"WORK"}`.
+   In `tools/checks/navigation-truthfulness.ps1` `Get-OperatorRailFailures` (expected list `:545-557`), change
+   `unavailable|Actions|WORK|` to `live|Actions|WORK|/actions` atomically, together with its rail fixtures
+   (`navigation-rail-fixtures.ps1`). Do not promote Incidents or Maintenance.
+4. **Unchanged multisets**: the estate pages render no `UnavailableTab`/`UnavailableChip`, so keep the in-page
+   unavailable multiset as it is. The Site `SiteFindingIndex.tsx:74-85` Cost/Risks/Opportunities chips stay.
+5. **Registry**: add the paths `A-estate-index-scope`, `A-estate-action-summary`, `I-estate-finding-root`,
+   `I-estate-action-root` and the owned panel paths for v69 `findings`, `findings-cost`, `findings-risks`,
+   `findings-opportunities` and `actions`. Then run the registry checker.
+6. **Shell tests** named in Review closure: `test_existing_findings_api_and_legacy_routes_unchanged`,
+   `test_site_lens_chips_remain_unavailable` and `test_estate_route_precedence_and_actions_rail`.
