@@ -4,7 +4,8 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-F = {1440: {"cards": 146, "chips": 40, "notice": 54, "page": 1431}, 390: {"cards": 322, "chips": 40, "notice": 101}}
+F = {1440: {"cards": 150,  # q14-1 waiver: Findings card-row cap 150 at 1440 (four lenses)
+                  "chips": 40, "notice": 54, "page": 1431}, 390: {"cards": 322, "chips": 40, "notice": 101}}
 CAPS = {
     "findings": {1440: {**F[1440], "panel": 575}, 390: {**F[390], "panel": 975, "page": 2245}},
     "findings-cost": {1440: {**F[1440], "panel": 240}, 390: {**F[390], "panel": 341, "page": 1579}},

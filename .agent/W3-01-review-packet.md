@@ -135,3 +135,9 @@ the 0b cherry-pick). Main is an ancestor of HEAD. **Merge W3-01 into main keepin
 - the q14-1 card height;
 - the five roots side by side with `mock/mock-*.png`;
 - pending vs historical copy on `findings-page-two-pending-*`.
+
+## Final review fix (q14)
+- `frontend/src/estate/estate.css`: `.estate-page .data-table thead th:first-child { background: var(--surface-sunken); z-index: 2; }` (sticky first header cell now matches the header band).
+- New captures (positive state, private DB `w301cap2_test`, dropped after), viewed: header row is one uniform grey band at both widths. `findings-positive-1440-app.png`, `findings-positive-390-app.png`, `actions-positive-1440-app.png`, `actions-positive-390-app.png`; entries in `app-positive.json` replaced and re-measured, `measure-summary.json` regenerated: 52 rows, 0 over cap, overflowX 0.
+- q14-1 waiver recorded: Findings card-row cap is 150 at 1440 for the four lenses (`summarize.py` `F[1440].cards`); measured 150/150.
+- Checks: frontend 2373 passed (94 files), tsc clean, `npm run build` ok, check-all 11/11.

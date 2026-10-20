@@ -141,3 +141,4 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.estate-page .data-table thead th:first-child { background: var(--surface-sunken); z-index: 2; }
