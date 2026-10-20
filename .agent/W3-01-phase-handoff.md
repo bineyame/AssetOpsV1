@@ -442,3 +442,11 @@ absent from coverage is never linked. Mutation proof: Actions Site href and the 
 
 Evidence: frontend 94 files / 2373 passed; tsc clean; build ok; check-all 11/11; estate backend (api, coverage,
 golden, index, index_ev) on `w301fa_test`: 40 passed (12m16s); DB dropped.
+
+## Lane B commit 4 (2026-10-20): captures and packet; ready for final review; branch released
+Merged main (`a4dafe30`, `.agent` only). Commits `89c53b0e` (estate chip row: `.estate-page .estate-state-chips`
+outranks the shared `.v69-chips` wrap; 390 chips 73 -> 33 px), `3284909f` (captures), packet commit.
+Evidence `.agent/W3-01-evidence/` (`serve.py`, `capture.mjs`, `reads.py`, `summarize.py`, 52 measured captures + mock).
+Checks: focused backend 75 passed / 0 skipped (1131.7 s, private `w301cap_test`, dropped); frontend 94 files / 2373
+passed; build ok; check-all 11/11. Full backend suite NOT run (by instruction). Open: q14-1 (Findings cards 150 px vs
+146 cap at 1440, ruled zero copy). Merge hazard: keep HEAD's money helpers on merge to main (packet section).

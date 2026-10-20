@@ -258,3 +258,27 @@ Readings:
     full Finding and revision IDs and the `SOURCE_WORDS` label. The Site column shows `site_code` (linked) over
     `site_name`.
 12. The 390 rules are asserted on `estate.css` text, because jsdom has no layout. Rectangles are commit 4's captures.
+
+## q14 (Lane B commit-4 captures, 2026-10-20): one cap breach to rule, readings non-blocking
+
+Evidence: `.agent/W3-01-evidence/measure-summary.json` (spec caps vs every capture), `app-<state>.json`, PNGs.
+
+1. **Findings cards exceed the 1440 cap by 4 px (question).** On all four Finding lenses, in every complete state
+   (positive, empty, historical), the 1440 card row is **150 px** against `floor(1.30 x 113) = 146`. The cause is the
+   ruled q9 zero copy in `Awaiting verification` (`No Actions from selected Finding revisions are awaiting
+   verification in this window.` plus the `How this is counted` disclosure), which wraps to three lines at 281 px
+   card width. Partial/pending reads (null counts, no note) measure 92 px; at 390 the cards are 285 px (cap 322).
+   Every other piece on every root, state and width is within its cap. Options: (a) accept 150 px as the cost of
+   the ruled copy; (b) shorten the zero note; (c) clamp the note to two lines inside the disclosure. Not changed.
+2. **Pending Site chip (reading).** A `PENDING_RECOMPUTE` mini-grid Site's rows are withheld, so no Finding row
+   carries its Site-state chip; the UI shows the pending basis through the limitation sentence `New evidence is
+   being assessed.` The live page-one/page-two proof of an unchanged pending Site is therefore at the API
+   (`reads-pending.json` `page-one`/`page-two`: coverage and token equal, top-level `HISTORICAL`, no KOBO row) plus
+   the UI continuation capture (`findings-page-two-pending-*`: `This is an earlier evidence cutoff.` beside the
+   unchanged pending sentence).
+3. **Actions partial (reading).** Adding the no-selection `W301-EMPTY-001` Site leaves the Actions root complete
+   (that Site's Action coverage is `CURRENT` with zero Actions, as in golden `actions-none-complete`), so the
+   partial Actions capture is a complete read; partial Actions copy remains frontend-test proof only.
+4. **Capture clock (reading).** The capture server pins the estate read clock TEST-SCOPED (`pin_read_at`, as the
+   golden `mixed` branch does) to the S4 fixture present 2026-11-02T11:04Z and lets it flow with wall time, because
+   the S4/S6 fixture clock is ahead of the DB clock.
