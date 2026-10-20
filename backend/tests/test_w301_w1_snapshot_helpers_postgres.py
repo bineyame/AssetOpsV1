@@ -175,7 +175,10 @@ def test_dispatch_days_on_done_empty_job_is_unavailable(runner, monkeypatch) -> 
                                                  F06_DAY + timedelta(days=1), queued)
         day = days[0]
         assert day["available"] is False and day["status"] is None and day["selection"] is None
-        assert any(r.startswith("JOB_STATE_AT_CUTOFF_UNKNOWN") for r in day["unavailable_reasons"])
+        reasons = [r for r in day["unavailable_reasons"] if r.startswith("JOB_STATE_AT_CUTOFF_UNKNOWN")]
+        assert reasons and all(r.endswith("no stored completion selection establishes its state at the cutoff")
+                               for r in reasons)
+        assert not any("no stored record shows its state" in r for r in day["unavailable_reasons"])
     finally:
         pg_harness.dispose(store)
 
