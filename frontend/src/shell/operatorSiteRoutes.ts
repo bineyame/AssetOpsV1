@@ -335,6 +335,15 @@ export function siteEvidenceAcceptedRecordHref(siteId: string, evidenceId: strin
  * Finding; its claim drawer is a query parameter and never changes it.
  */
 export const FINDINGS_PATH = "/findings";
+/**
+ * W3-01: the estate Finding lens roots and the estate Actions root. They mirror
+ * `ESTATE_FINDING_LENS_PATHS` and `ESTATE_ACTIONS_PATH` in `frontend/src/estate/` (a shell test
+ * pins the equality) and are registered before the legacy Finding patterns below.
+ */
+export const FINDINGS_COST_PATH = "/findings/cost";
+export const FINDINGS_RISKS_PATH = "/findings/risks";
+export const FINDINGS_OPPORTUNITIES_PATH = "/findings/opportunities";
+export const ACTIONS_PATH = "/actions";
 export const FINDING_ROUTE_PATH = `${FINDINGS_PATH}/:siteId/:assessmentId`;
 export const FINDING_TAB_ROUTE_PATH = `${FINDING_ROUTE_PATH}/:findingTab`;
 

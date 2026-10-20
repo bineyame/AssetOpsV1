@@ -491,26 +491,25 @@ describe("Finding detail (AC8, AC12, AC15, AC21 as amended 2026-10-04)", () => {
 });
 
 describe("the Findings rail root and Site > Findings (AC21)", () => {
-  it("the global index leads with the plain outcome; a row opens Overview, a link opens Analysis", async () => {
-    renderAt("/findings");
+  // W3-01 (build spec Review closure B1/B2): the global `/findings` element is now the estate All root; the
+  // T028 global index no longer mounts there. The legacy `/findings/:siteId/:assessmentId[/:findingTab]` detail
+  // routes keep their handler: a T028 row's two destinations still open the Finding frame.
+  it("the Findings rail root is the estate All root; the legacy Finding detail routes keep their handler", async () => {
+    const view = renderAt("/findings");
     await settledScreen();
     expect(railCurrent()).toBe("Findings");
-    const row = document.querySelector(`[data-finding-row="${CANDIDATE_ID}"]`) as HTMLElement;
-    expect(row).toHaveTextContent(SITE_ID);
-    expect(row).toHaveTextContent("Generator operation period");
-    expect(row).toHaveTextContent("The generator may have operated longer than needed.");
-    expect(row).toHaveTextContent("Possibly avoidable");
-    expect(row).toHaveTextContent("Medium 15 min of the period cannot be determined");
-    expect(row).toHaveTextContent("22 Sep 2026, 03:10 to 07:10 UTC");
-    expect(row.textContent ?? "").not.toMatch(/Candidate avoidable|runtime/);
-    expect(screen.queryByRole("columnheader", { name: "Revision" })).toBeNull();
-    expect(row.querySelector(`[data-finding-row-analysis="${CANDIDATE_ID}"]`)).toHaveAttribute(
-      "href",
-      `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`,
-    );
-    fireEvent.click(row);
-    await settledScreen();
-    expect(location()).toBe(`/findings/${SITE_ID}/${CANDIDATE_ID}`);
+    expect(document.querySelector('[data-estate-root="all"]')).not.toBeNull();
+    expect(document.querySelector("[data-finding-row]")).toBeNull();
+    view.unmount();
+    for (const path of [`/findings/${SITE_ID}/${CANDIDATE_ID}`, `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`]) {
+      const legacy = renderAt(path);
+      await settledScreen();
+      expect(railCurrent()).toBe("Findings");
+      expect(document.querySelector("[data-estate-root]")).toBeNull();
+      expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
+      expect(screen.getByText("Generator operation period", { exact: false })).toBeInTheDocument();
+      legacy.unmount();
+    }
   });
 
   it("Site > Findings is a scoped, filterable index whose row click changes the root", async () => {

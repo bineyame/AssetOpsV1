@@ -12,8 +12,8 @@ import { NavRail, type NavRailItem } from "../../ui";
 
 /**
  * W1-UX-07 (owner decision 2026-10-17, `D-2026-10-17-w1-rail`): the operator
- * rail shows the full v6.9 root inventory. Sites and Findings are live links;
- * the other nine roots are text with the visible status `Not available yet`,
+ * rail shows the full v6.9 root inventory. Sites and Findings are live links,
+ * and W3-01 makes Actions the third (the estate Actions root); the other eight roots are text with the visible status `Not available yet`,
  * and are never a link, a route, a handler or a tab stop.
  */
 
@@ -27,7 +27,6 @@ const gateOn = featureFlagsWith(true);
 const UNAVAILABLE_ROOTS = [
   "Portfolio",
   "Assets",
-  "Actions",
   "Incidents",
   "Maintenance",
   "Operational records",
@@ -95,7 +94,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     expect(spacedText(rail())).not.toMatch(/\bOPERATE\b/);
   });
 
-  it("has exactly two links, Sites and Findings, and they are the live roots", async () => {
+  it("has exactly three links, Sites, Findings and Actions, and they are the live roots", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -106,8 +105,9 @@ describe("operator rail inventory (W1-UX-07)", () => {
     ).toEqual([
       ["Sites", "/sites"],
       ["Findings", "/findings"],
+      ["Actions", "/actions"],
     ]);
-    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(2);
+    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(3);
   });
 
   it.each(UNAVAILABLE_ROOTS)(
@@ -169,7 +169,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
   });
 
-  it("keeps the focusable rail order to the two live links (gate off)", async () => {
+  it("keeps the focusable rail order to the three live links (gate off)", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -177,7 +177,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     const focusable = Array.from(
       side.querySelectorAll<HTMLElement>("a[href], button, input, [tabindex]"),
     ).filter((element) => element.getAttribute("tabindex") !== "-1");
-    expect(focusable.map((element) => element.textContent)).toEqual(["Sites", "Findings"]);
+    expect(focusable.map((element) => element.textContent)).toEqual(["Sites", "Findings", "Actions"]);
   });
 });
 
@@ -204,7 +204,7 @@ describe("operator rail workspace footer (W1-UX-07)", () => {
     const side = rail().parentElement as HTMLElement;
     expect(
       Array.from(side.querySelectorAll<HTMLElement>("a[href]")).map((a) => a.textContent),
-    ).toEqual(["Sites", "Findings", "Open Simulator Lab"]);
+    ).toEqual(["Sites", "Findings", "Actions", "Open Simulator Lab"]);
 
     fireEvent.click(within(footer).getByRole("link", { name: "Open Simulator Lab" }));
     expect(screen.getByRole("heading", { level: 1, name: "Simulator Lab" })).toBeInTheDocument();

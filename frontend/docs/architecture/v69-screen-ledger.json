@@ -1240,32 +1240,23 @@
       },
       "mock_route": "#/findings",
       "product_destination": "Findings",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "coverage": "bounded",
+      "task": "W3-01",
+      "follow_on": null,
       "data_owner": "Unassigned Findings read model",
-      "supported_claim": "No S1-S7 product claim. FindingIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Findings and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Estate Findings across the authorized Sites for a whole-UTC-day window at one cutoff, read from the selected Finding revisions with per-Site coverage, freshness and job state, a source label and exact revision links; priced rows show the stored interval only.",
+      "interaction": "Open Findings, choose a lens, a window, an optional cutoff and a state filter, and page through the rows; a row opens its exact Finding revision at its Site.",
+      "unknown_or_empty": "A Site without an available selected result reads Unknown and never counts as zero; pending or stale work keeps its limitation; an unpriced or unverified consequence says so; a refused read names its reason; no mock row or amount is product evidence.",
       "visual_reference": "index.html#/findings",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "FindingIndex",
-            "FinancialConsequence",
-            "ActionSummary"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Findings across the estate"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-01 review accepting the exact slice, its 1440/390 captures (commit 4), the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
@@ -1282,31 +1273,23 @@
       },
       "mock_route": "#/actions",
       "product_destination": "Actions",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "coverage": "bounded",
+      "task": "W3-01",
+      "follow_on": null,
       "data_owner": "Unassigned Actions read model",
-      "supported_claim": "No S1-S7 product claim. ActionIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Actions and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until ActionIndex is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Estate Actions across the authorized Sites for a whole-UTC-day window at one cutoff, read from persisted Actions and their recorded events: application and resolution state stay separate, verification counts need a frozen plan, and cold/EV Sites are not applicable.",
+      "interaction": "Open Actions, choose a window and an optional cutoff, and page through the rows; a row opens its Action and its origin Finding revision at its Site.",
+      "unknown_or_empty": "No Action in the window is an exact zero only with complete coverage; incomplete coverage reads Unknown; a refused read names its reason; no mock Action, owner or count is product evidence.",
       "visual_reference": "index.html#/actions",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "ActionIndex",
-            "VerificationSummary"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Managed actions"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-01 review accepting the exact slice, its 1440/390 captures (commit 4), the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
@@ -3375,96 +3358,99 @@
     },
     {
       "id": "findings-cost",
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-finding-index",
+          "I-estate-finding-root",
+          "D-finding-revisions"
+        ]
+      },
       "mock_route": "#/findings-cost",
       "product_destination": "Findings > Cost",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "coverage": "bounded",
+      "task": "W3-01",
+      "follow_on": null,
       "data_owner": "Unassigned Findings read model",
-      "supported_claim": "No S1-S7 product claim. FindingIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Findings > Cost and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "The Cost lens of the estate Findings root: only rows whose selected consequence revision is priced from an accepted source, each showing its stored low-high interval and currency; no estate total or point estimate.",
+      "interaction": "Open Findings, choose a lens, a window, an optional cutoff and a state filter, and page through the rows; a row opens its exact Finding revision at its Site.",
+      "unknown_or_empty": "A Site without an available selected result reads Unknown and never counts as zero; pending or stale work keeps its limitation; an unpriced or unverified consequence says so; a refused read names its reason; no mock row or amount is product evidence.",
       "visual_reference": "index.html#/findings-cost",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "FindingIndex"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Cost lens"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-01 review accepting the exact slice, its 1440/390 captures (commit 4), the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
     },
     {
       "id": "findings-risks",
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-finding-index",
+          "I-estate-finding-root",
+          "D-finding-revisions"
+        ]
+      },
       "mock_route": "#/findings-risks",
       "product_destination": "Findings > Risks",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "coverage": "bounded",
+      "task": "W3-01",
+      "follow_on": null,
       "data_owner": "Unassigned Findings read model",
-      "supported_claim": "No S1-S7 product claim. FindingIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Findings > Risks and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "The Risks lens of the estate Findings root: rows with a proven stored risk kind only; it reads empty until such a stored kind exists, and the emptiness is stated with its coverage.",
+      "interaction": "Open Findings, choose a lens, a window, an optional cutoff and a state filter, and page through the rows; a row opens its exact Finding revision at its Site.",
+      "unknown_or_empty": "A Site without an available selected result reads Unknown and never counts as zero; pending or stale work keeps its limitation; an unpriced or unverified consequence says so; a refused read names its reason; no mock row or amount is product evidence.",
       "visual_reference": "index.html#/findings-risks",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "FindingIndex"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Risks lens"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-01 review accepting the exact slice, its 1440/390 captures (commit 4), the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
     },
     {
       "id": "findings-opportunities",
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-finding-index",
+          "I-estate-finding-root",
+          "D-finding-revisions"
+        ]
+      },
       "mock_route": "#/findings-opportunities",
       "product_destination": "Findings > Opportunities",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 global/contextual roots",
+      "coverage": "bounded",
+      "task": "W3-01",
+      "follow_on": null,
       "data_owner": "Unassigned Findings read model",
-      "supported_claim": "No S1-S7 product claim. FindingIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Findings > Opportunities and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until FindingIndex is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "The Opportunities lens of the estate Findings root: rows with a proven stored opportunity kind only; it may truthfully be empty until W4-03, and no generated opportunity is implied.",
+      "interaction": "Open Findings, choose a lens, a window, an optional cutoff and a state filter, and page through the rows; a row opens its exact Finding revision at its Site.",
+      "unknown_or_empty": "A Site without an available selected result reads Unknown and never counts as zero; pending or stale work keeps its limitation; an unpriced or unverified consequence says so; a refused read names its reason; no mock row or amount is product evidence.",
       "visual_reference": "index.html#/findings-opportunities",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "FindingIndex"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Opportunities lens"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-01 review accepting the exact slice, its 1440/390 captures (commit 4), the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
