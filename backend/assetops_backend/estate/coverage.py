@@ -153,7 +153,9 @@ def _mini_grid(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: 
 
 
 def _consequence(state: str, source_revision_id: Any = None, **extra: Any) -> dict[str, Any]:
-    return {"state": state, "amount": None, "currency": None,
+    """Finding wire v2 (Run 8 ruling 3): `amount_low`/`amount_high` are the stored interval bounds for PRICED, both
+    null otherwise; `amount` is the compatibility alias of `amount_low`; neither bound is a point estimate."""
+    return {"state": state, "amount": None, "amount_low": None, "amount_high": None, "currency": None,
             "source_revision_id": None if source_revision_id is None else str(source_revision_id), **extra}
 
 

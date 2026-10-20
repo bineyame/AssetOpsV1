@@ -17,7 +17,7 @@ from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
     decode_cursor, encode_cursor, selection_token, token_time, wire_time)
 
-FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-1", "estate-action-index-1", "estate-scope-1"
+FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
 LENS_FLAG = {"cost": "COST", "risks": "RISK", "opportunities": "OPPORTUNITY"}
 Admit = Callable[[str], bool]
@@ -82,17 +82,17 @@ class EstateIndexService:
         if known is not None and known > read_at:
             raise EstateRefusal("INVALID_KNOWN_AT")
         k = read_at if known is None else known
-        token_k = k
         if cursor is not None:
-            # Reading (pending confirmation): the cursor carries its page-one cutoff, which is the token's
-            # `known_at`. An explicit cutoff must repeat it (to the wire second); a default-cutoff page two reads
-            # live at this read time, so any selection change since page one moves the token and is fenced.
-            token_k = cursor_known_at(cursor)
-            if known is not None:
-                if known.replace(microsecond=0) != token_k.replace(microsecond=0):
-                    raise EstateRefusal("ESTATE_BASIS_CHANGED")
-                k = token_k
-        snap.historical = known is not None and k < read_at
+            # Run 8 ruling 2: the cursor's six-digit cutoff is the effective cutoff for every page-two read, whether
+            # page one omitted or supplied `known_at`. A supplied cutoff must equal it at full precision, or be its
+            # wire-second copy, which is normalized to the cursor instant before any read; else 409.
+            cursor_k = cursor_known_at(cursor)
+            if known is not None and known != cursor_k and not (
+                    known.microsecond == 0 and known == cursor_k.replace(microsecond=0)):
+                raise EstateRefusal("ESTATE_BASIS_CHANGED")
+            k = cursor_k
+        token_k = k
+        snap.historical = k < read_at
         candidates = [] if tenant_id is None else snap.imported_sites(tenant_id, req.to)
         sites = [s for s in candidates if admit(s["site_code"])]
         ids = [str(s["site_id"]) for s in sites]

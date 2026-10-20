@@ -89,12 +89,15 @@ def watermark(engine, site_id) -> datetime:
                          {"s": site_id}).scalar_one()
 
 
-def imported_before(engine, site_id, at: datetime) -> None:
+def imported_before(engine, tenant_id, site_id, at: datetime) -> None:
     """TEST-SCOPED: the replay imports its Site at today's DB time; the estate scope admits a Site only when its
     committed import precedes the requested `to`. Re-date the fixture import so the replay's 2026-10-06 day is a
-    valid estate window (the scope rule itself is proven unchanged in the scope test)."""
+    valid estate window (the scope rule itself is proven unchanged in the scope test). Run 8 fixture ruling (a):
+    the update is constrained to this tenant and Site in the test's private DB; production import is untouched."""
     with engine.begin() as c:
-        c.execute(text("UPDATE site_import SET imported_at = :at WHERE site_id = :s"), {"at": at, "s": site_id})
+        done = c.execute(text("UPDATE site_import SET imported_at = :at WHERE tenant_id = :t AND site_id = :s"),
+                         {"at": at, "t": tenant_id, "s": site_id})
+        assert done.rowcount == 1
 
 
 def test_cold_ev_cutoff_precedes_reselection_and_revision(chain) -> None:  # noqa: F811
@@ -102,7 +105,7 @@ def test_cold_ev_cutoff_precedes_reselection_and_revision(chain) -> None:  # noq
     window, with new assessment revisions, does not move an explicit earlier cutoff's rows, IDs or token."""
     built = opened("late-reading", chain)
     run(built)
-    imported_before(built.engine, built.site_id, DAY - timedelta(days=1))
+    imported_before(built.engine, built.tenant_id, built.site_id, DAY - timedelta(days=1))
     estate = Estate(built.engine, built.tenant_id)
     t, s = built.tenant_id, built.site_id
     wm1, k1 = watermark(built.engine, s), db_now(built.engine)
@@ -136,7 +139,7 @@ def test_cold_ev_cutoff_precedes_reselection_and_revision(chain) -> None:  # noq
 def cold_estate(chain):  # noqa: F811
     built = opened("late-reading", chain)
     run(built)
-    imported_before(built.engine, built.site_id, DAY - timedelta(days=1))
+    imported_before(built.engine, built.tenant_id, built.site_id, DAY - timedelta(days=1))
     return built, Estate(built.engine, built.tenant_id)
 
 
@@ -191,6 +194,7 @@ def test_cold_ev_day_intersection_selects_exact_windows(chain) -> None:  # noqa:
     for row in body["rows"]:
         assert set(row["source_provenance"]) == ESTATE_KEYS and row["source_provenance"]["basis_sha256"]
         assert row["consequence"]["state"] == "UNPRICED" and row["consequence"]["amount"] is None
+        assert row["consequence"]["amount_low"] is None and row["consequence"]["amount_high"] is None
         assert row["lens_flags"] == [] and row["priority"] is None and row["confidence"] is None
         assert row["finding_label"] == f"Finding {row['finding_id'][:8]}" and row["status"] == "CURRENT"
     order = [(-datetime.fromisoformat(r["episode_start"].replace("Z", "+00:00")).timestamp(), r["finding_id"])
@@ -228,9 +232,9 @@ def test_scope_excludes_foreign_and_keeps_missing_site(chain) -> None:  # noqa: 
     assert body["total_count"] is None and all(v is None for v in body["summary"].values())
     assert body["rows"] and {r["site_id"] for r in body["rows"]} == {str(built.site_id)}  # settled rows stay
     # The committed-import rule: a Site imported at or after `to` is outside the scope.
-    imported_before(built.engine, empty, DAY + timedelta(days=1))
+    imported_before(built.engine, built.tenant_id, empty, DAY + timedelta(days=1))
     assert estate.ok("findings", **day)["scope"]["authorized_site_count"] == 1
-    imported_before(built.engine, empty, DAY - timedelta(days=1))
+    imported_before(built.engine, built.tenant_id, empty, DAY - timedelta(days=1))
     # A denied candidate never enters a row, count, coverage entry or digest.
     estate.admit = lambda code: code == "W301-EMPTY-001"
     denied = estate.get("findings", **day)
@@ -260,8 +264,29 @@ def test_cursor_scope_window_lens_and_fence(chain) -> None:  # noqa: F811
     first = estate.ok("findings", **day, limit=1)
     assert len(whole["rows"]) >= 2 and first["next_cursor"] and first["rows"] == whole["rows"][:1]
     second = estate.ok("findings", **day, limit=1, cursor=first["next_cursor"])
-    assert second["rows"] == whole["rows"][1:2] and second["selection_token"] == first["selection_token"]
-    assert first["summary"] == whole["summary"]
+    assert second["selection_token"] == first["selection_token"] and first["summary"] == whole["summary"]
+    # Page two reads at the cursor cutoff, so its rows are labelled HISTORICAL; nothing else in them moves.
+    assert [{**r, "status": None} for r in second["rows"]] == [{**r, "status": None} for r in whole["rows"][1:2]]
+    assert {r["status"] for r in second["rows"]} == {"HISTORICAL"}
+    # Run 8 ruling 2: the cursor's six-digit cutoff is page two's only cutoff, even when page one omitted it. Page
+    # two is HISTORICAL at that instant and repeats the rows, summary, coverage and token of an explicit read there.
+    cursor_k = decode_cursor("findings", first["next_cursor"])["known_at"]
+    at_cursor = estate.ok("findings", **day, known_at=cursor_k)
+    assert second["status"] == "HISTORICAL" and second["summary"]["as_of"] == second["window"]["known_at"]
+    assert second["window"] == at_cursor["window"] and second["coverage"] == at_cursor["coverage"]
+    assert second["summary"] == at_cursor["summary"] and second["rows"] == at_cursor["rows"][1:2]
+    assert at_cursor["selection_token"] == second["selection_token"]
+    assert {k: v for k, v in second["summary"].items() if k != "as_of"} == first["summary"]
+    # A supplied cutoff must be the cursor's instant at full precision, or its wire-second copy (normalized to the
+    # cursor instant); any other instant, even one inside the same second, is 409.
+    wire_k = second["window"]["known_at"]
+    for supplied in (cursor_k, wire_k):
+        again = estate.ok("findings", **day, limit=1, cursor=first["next_cursor"], known_at=supplied)
+        assert again["rows"] == second["rows"] and again["selection_token"] == second["selection_token"]
+    other = datetime.fromisoformat(cursor_k.replace("Z", "+00:00"))
+    other = other.replace(microsecond=(other.microsecond + 1) % 1_000_000 or 1)
+    response = estate.get("findings", **day, limit=1, cursor=first["next_cursor"], known_at=iso(other))
+    assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED")
     # Page size never changes the full-set token or counts at one cutoff (a default cutoff is each read's time).
     pin = iso(db_now(built.engine))
     paged, full = (estate.ok("findings", **day, known_at=pin, limit=n) for n in (1, 100))
@@ -289,10 +314,13 @@ def test_cursor_scope_window_lens_and_fence(chain) -> None:  # noqa: F811
     assert refused(**day, cursor=cursor) == (409, "ESTATE_BASIS_CHANGED")
     estate.admit = lambda code: code != "W301-EMPTY-001"
     assert estate.ok("findings", **day, limit=1, cursor=cursor)["rows"] == second["rows"]
-    # A changed selected window (a later selection with new revisions) fences page two.
+    # A later selection with new revisions is not the selection at the cursor cutoff: page two still reads the
+    # pinned page-one basis (Run 7), while a fresh live read moves to the new selection and token.
     built.advance_late()
     run(built)
-    assert refused(**day, limit=1, cursor=cursor) == (409, "ESTATE_BASIS_CHANGED")
+    pinned = estate.ok("findings", **day, limit=1, cursor=cursor)
+    assert pinned["rows"] == second["rows"] and pinned["selection_token"] == second["selection_token"]
+    assert estate.ok("findings", **day)["selection_token"] != first["selection_token"]
 
 
 # --- mini-grid: the S4 Finding/money chain and the S6 Action/verification chain --------------------------------
@@ -328,7 +356,7 @@ def revisions(engine, finding_id) -> list[tuple]:
 def mini(store, engine, monkeypatch):  # noqa: F811
     runner = CaseRunner(store, engine)
     pin_read_at(monkeypatch, lambda: runner.now + timedelta(minutes=1))
-    imported_before(engine, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    imported_before(engine, runner.tenant, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
     yield runner, Estate(engine, runner.tenant)
     pg_harness.dispose(runner.findings)
 
@@ -412,7 +440,7 @@ def power_estate(store, engine, capsys, monkeypatch, policy=None):  # noqa: F811
         monkeypatch.setattr(CaseRunner, "submit", publishing_submit(policy))
     site = PowerSite(store, engine, capsys)
     pin_read_at(monkeypatch, lambda: site.runner.now + timedelta(minutes=1))
-    imported_before(engine, site.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    imported_before(engine, site.tenant, site.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
     return site, Rig(site, engine), Estate(engine, site.tenant)
 
 
@@ -447,7 +475,8 @@ def test_cost_risk_opportunity_eligibility_without_mock_seed(store, engine, caps
         ((row,),) = (bodies["all"]["rows"],)
         stored = consequence_row(engine, row["consequence"]["source_revision_id"])
         assert stored[:2] == (str(power["id"]), "PRICED") and stored[4] == "USD"
-        assert row["consequence"] == {"state": "UNKNOWN", "amount": None, "currency": None,
+        assert row["consequence"] == {"state": "UNKNOWN", "amount": None,
+                                      "amount_low": None, "amount_high": None, "currency": None,
                                       "source_revision_id": row["consequence"]["source_revision_id"]}
         assert row["source_provenance"]["state"] != "AUTHORED_DEMONSTRATION" and row["lens_flags"] == []
         for lens in ("cost", "risks", "opportunities"):
@@ -508,7 +537,8 @@ def test_cost_lens_only_exact_eligible_current_rows(store, engine, capsys, monke
         old_all, old_cost = estate.ok("findings", **day, known_at=then), estate.ok("findings", **day, known_at=then,
                                                                                   lens="cost")
         assert old_all["status"] == "HISTORICAL" and old_cost["rows"] == [] and old_cost["total_count"] == 0
-        assert old_all["rows"][0]["consequence"] == {"state": "UNKNOWN", "amount": None, "currency": None,
+        assert old_all["rows"][0]["consequence"] == {"state": "UNKNOWN", "amount": None,
+                                                     "amount_low": None, "amount_high": None, "currency": None,
                                                      "source_revision_id": consequence["source_revision_id"]}
         # A backdated price correction: the stored amount is STALE until recomputed, so it leaves Cost.
         site.publish("v4")
@@ -546,7 +576,7 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
     h = verifying(runner)
     pin: dict = {"at": None}
     pin_read_at(monkeypatch, lambda: pin["at"] or max(h.clock.at, runner.now) + timedelta(minutes=1))
-    imported_before(engine, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    imported_before(engine, runner.tenant, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
     estate = Estate(engine, runner.tenant)
     window = {"from": "2026-11-01T00:00:00Z", "to": "2026-11-03T00:00:00Z"}
     f01_day = {"from": "2026-10-06T00:00:00Z", "to": "2026-10-07T00:00:00Z"}
@@ -585,17 +615,24 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
         assert card(actions(known_at=iso(start))[0]) == (1, 1, 0, 1)
         assert card(actions(known_at=iso(end - timedelta(microseconds=1)))[0]) == (1, 1, 0, 1)
         assert card(actions(known_at=iso(end))[0]) == (1, 0, 0, 1)
-        # q9 (pending ruling): Awaiting verification matches the exact origin (Finding, revision); the apply's
-        # settle re-revises F01, so its selected revision is no longer the Action's origin and the card is 0 here.
+        # Run 9 ruling 2 (honest zero): Awaiting verification joins the exact origin (Finding, revision) with an
+        # open frozen later window and no resolved outcome. Applying F01 settles a new selected revision before
+        # the window opens, so at later_start the card is 0 while the Action root's Verification window card is 1.
         in_window = estate.ok("findings", **f01_day, known_at=iso(start))
         assert in_window["summary"]["awaiting_verification"] == 0
+        assert card(actions(known_at=iso(start))[0])[1] == 1
         with engine.connect() as c:
-            origin = c.execute(text("SELECT CAST(origin_finding_revision_id AS text) FROM action WHERE id = :a"),
-                               {"a": action_id}).scalar_one()
-        assert [r["finding_revision_id"] for r in in_window["rows"]] != [origin]
+            origin = c.execute(text(
+                "SELECT CAST(origin_finding_id AS text), CAST(origin_finding_revision_id AS text) FROM action "
+                "WHERE id = :a"), {"a": action_id}).one()
+        (selected,) = [r for r in in_window["rows"] if r["finding_id"] == origin[0]]
+        assert selected["finding_revision_id"] != origin[1]
+        # The earlier origin revision, selected before any plan exists, also counts 0.
         at_accept = estate.ok("findings", **f01_day, known_at=iso(accepted_at))
-        assert [r["finding_revision_id"] for r in at_accept["rows"]] == [origin]  # no plan yet: still 0
+        assert [r["finding_revision_id"] for r in at_accept["rows"] if r["finding_id"] == origin[0]] == [origin[1]]
         assert at_accept["summary"]["awaiting_verification"] == 0
+        # Controls: later_end is exclusive (the window is closed at it).
+        assert estate.ok("findings", **f01_day, known_at=iso(end))["summary"]["awaiting_verification"] == 0
         # VERIFIED: RESOLVED closes the Action; the 30-day lookback counts the outcome's recorded instant.
         h.clock.at = CLOSED + timedelta(hours=1)
         outcome = evaluate(h, action_id, "eval-0001").json()["outcome"]
@@ -605,6 +642,8 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
         decided = at(outcome["recorded_at"])
         assert card(actions(known_at=iso(decided - timedelta(microseconds=1)))[0]) == (1, 0, 0, 1)
         assert verified["selection_token"] != applied["selection_token"]
+        # Control: a resolved outcome never awaits verification.
+        assert estate.ok("findings", **f01_day)["summary"]["awaiting_verification"] == 0
         # A second Action (F02, accepted, not applied) is open; the cards count both over the full basis.
         made = store_accept(h, runner, p2, "accept-f02", datetime(2026, 11, 2, 12, 30, tzinfo=timezone.utc))
         assert made is not None

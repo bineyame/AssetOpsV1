@@ -107,6 +107,7 @@ def test_empty_is_zero_only_after_complete_read() -> None:
     for tenant in (T, None):
         c = client(FakeStore(FakeSnapshot()), tenant=tenant)
         findings = c.get("/api/estate/findings?" + urlencode(DAY)).json()
+        assert findings["schema_version"] == "estate-finding-index-2"  # Run 8 ruling 3: Finding wire v2
         assert findings["coverage"] == {"state": "COMPLETE", "sites": []} and findings["status"] == "CURRENT"
         assert findings["rows"] == [] and findings["total_count"] == 0
         assert findings["summary"] == {"high_priority": None, "low_confidence": None, "awaiting_verification": 0,
@@ -204,13 +205,16 @@ def test_mini_grid_currentness_rows_and_money_gates() -> None:
                  mini_grid([day()], consequence=PRICED, gate="MIXED"),
                  mini_grid([day()], consequence={**PRICED, "currentness": {"state": "STALE"}})):
         (row,) = coverage.site_coverage(snap, T, S, "mini_grid", D0, D1, READ_AT)["rows"]
-        assert row["consequence"] == {"state": "UNKNOWN", "amount": None, "currency": None,
+        assert row["consequence"] == {"state": "UNKNOWN", "amount": None,
+                                      "amount_low": None, "amount_high": None, "currency": None,
                                       "source_revision_id": "c1"}
     (row,) = coverage.site_coverage(mini_grid([day()], consequence={**PRICED, "consequence_state": "UNPRICED"}),
                                     T, S, "mini_grid", D0, D1, READ_AT)["rows"]
     assert row["consequence"]["state"] == "UNPRICED" and row["consequence"]["source_revision_id"] == "c1"
     (row,) = coverage.site_coverage(mini_grid([day()]), T, S, "mini_grid", D0, D1, READ_AT)["rows"]
-    assert row["consequence"] == {"state": "UNPRICED", "amount": None, "currency": None, "source_revision_id": None}
+    assert row["consequence"] == {"state": "UNPRICED", "amount": None,
+                                  "amount_low": None, "amount_high": None, "currency": None,
+                                  "source_revision_id": None}
     historical = mini_grid([day(jobs=[{"status": "PENDING"}])], consequence=PRICED)
     historical.historical = True
     cov = coverage.site_coverage(historical, T, S, "mini_grid", D0, D1, D0 + timedelta(hours=20))

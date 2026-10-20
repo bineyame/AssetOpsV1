@@ -16,27 +16,13 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 
 if URL:
     from sqlalchemy import text
+    from test_w205b_ev_replay_postgres import LATE_DECISION
     from test_w206_ev_store_postgres import LATE_HI, LATE_LO, run_worker, select_exact
     from test_w301_estate_index_postgres import ESTATE_KEYS, Estate, db_now, imported_before, iso, watermark
 
 
 def day_of(at: datetime) -> datetime:
     return datetime(at.year, at.month, at.day, tzinfo=timezone.utc)
-
-
-def without_watermark(body: dict) -> list[dict]:
-    return [{k: v for k, v in x.items() if k != "committed_watermark"} for x in body["coverage"]["sites"]]
-
-
-def assert_pinned(again: dict, first: dict) -> None:
-    """The same explicit cutoff keeps its rows, selected IDs and coverage. FIXTURE LIMIT: the EV replay stamps
-    `ingestion_disposition.decided_at` with its fixture clock (2026-10-06), so late evidence written after the
-    cutoff is backdated before it and moves the Site evidence watermark (and with it the token); the cold replay
-    is DB-clocked and proves the whole-token equality in `test_w301_estate_index_postgres.py`."""
-    assert again["rows"] == first["rows"] and without_watermark(again) == without_watermark(first)
-    if again["selection_token"] != first["selection_token"]:
-        assert again["coverage"]["sites"][0]["committed_watermark"] != first["coverage"]["sites"][0][
-            "committed_watermark"]
 
 
 def settled(chain, case: str):  # noqa: F811
@@ -46,7 +32,7 @@ def settled(chain, case: str):  # noqa: F811
     with built.engine.connect() as c:
         first = c.execute(text("SELECT min(window_start) FROM analytic_run_selection WHERE site_id = :s"),
                           {"s": built.site_id}).scalar_one()
-    imported_before(built.engine, built.site_id, day_of(first) - timedelta(days=1))
+    imported_before(built.engine, built.tenant_id, built.site_id, day_of(first) - timedelta(days=1))
     return built, Estate(built.engine, built.tenant_id), day_of(first)
 
 
@@ -99,14 +85,15 @@ def test_ev_multiwindow_deduplicates_and_fences(chain) -> None:  # noqa: F811
         response = estate.get("findings", **params, limit=1, cursor=default["next_cursor"])
         assert response.status_code == 409 and response.json()["detail"]["code"] == "ESTATE_BASIS_CHANGED"
     again = estate.ok("findings", **params, known_at=pin)
-    assert_pinned(again, full)
+    # The replay's backdated late disposition moves the watermark at `pin`: rows stay, the token is fenced.
+    assert again["rows"] == full["rows"] and again["selection_token"] != full["selection_token"]
     later = estate.ok("findings", **params)
     assert later["selection_token"] != full["selection_token"]
 
 
-def test_ev_cutoff_precedes_reselection_and_revision(chain) -> None:  # noqa: F811
-    """Run 7 q7 at the estate level (EV): the selection written after the watermark is visible once its
-    `selected_at` is within the requested cutoff, and an explicit earlier cutoff keeps its seq, rows and token."""
+def reselect_at(chain, after_k: bool):  # noqa: F811
+    """`late-record` with an exact selection of `[LATE_LO, LATE_HI)` read at `k1`, then the late phase and its
+    reselection. With `after_k`, the late phase's dispositions are controlled to be decided after `k1`."""
     built, estate, _ = settled(chain, "late-record")
     day = day_of(LATE_LO)
     params = {"from": iso(day), "to": iso(day + timedelta(days=1))}
@@ -120,8 +107,42 @@ def test_ev_cutoff_precedes_reselection_and_revision(chain) -> None:  # noqa: F8
     first = estate.ok("findings", **params, known_at=iso(k1))
     built.advance_late()
     run_worker(built)
+    if after_k:
+        # TEST-SCOPED (Run 8 fixture ruling (b)): the replay stamps the late phase with its fixture clock (09:05),
+        # backdating it before `k1`. Re-date exactly those dispositions of this tenant and Site to the DB clock,
+        # after `k1` (`received_at <= decided_at` still holds), as a DB-clocked late phase would record them. The
+        # append-only trigger is skipped for this one private-DB statement only (`SET LOCAL`).
+        with built.engine.begin() as c:
+            c.execute(text("SET LOCAL session_replication_role = replica"))
+            done = c.execute(text(
+                "UPDATE ingestion_disposition SET decided_at = clock_timestamp() WHERE tenant_id = :t "
+                "AND site_id = :s AND decided_at = :late"),
+                {"t": built.tenant_id, "s": built.site_id, "late": LATE_DECISION})
+            assert done.rowcount > 0
     again = estate.ok("findings", **params, known_at=iso(k1))
     repinned = estate.windows(built.tenant_id, built.site_id, "ev_charging", day, day + timedelta(days=1), k1)
     assert [(w["seq"], w["selection_id"]) for w in repinned] == [(w["seq"], w["selection_id"]) for w in at_k1]
+    return built, estate, params, k1, first, again
+
+
+def test_ev_cutoff_precedes_reselection_and_revision(chain) -> None:  # noqa: F811
+    """Run 7 q7 at the estate level (EV), Run 8 fixture ruling (b): the late disposition is decided after `K`, so
+    the repeat read at `K` returns the identical full coverage (watermark included), rows, selected IDs and
+    `estate-selection/2` token after reselection, and a later cutoff changes the token."""
+    built, estate, params, k1, first, again = reselect_at(chain, True)
+    assert watermark(built.engine, built.site_id) > k1  # the late decision is after K, never backdated
     assert again["status"] == first["status"] == "HISTORICAL"
-    assert_pinned(again, first)
+    assert again["coverage"] == first["coverage"] and again["rows"] == first["rows"]
+    assert again["summary"] == first["summary"] and again["selection_token"] == first["selection_token"]
+    assert estate.ok("findings", **params)["selection_token"] != first["selection_token"]
+
+
+def test_ev_backdated_disposition_limitation_fences(chain) -> None:  # noqa: F811
+    """LIMITATION, not the q7 equality proof: the replay's fixture clock backdates the late disposition (09:05)
+    before `K`, moving the Site evidence watermark at `K`. The token must then change (the fence holds)."""
+    built, _, _, k1, first, again = reselect_at(chain, False)
+    assert watermark(built.engine, built.site_id) <= k1
+    assert again["rows"] == first["rows"]
+    assert again["coverage"]["sites"][0]["committed_watermark"] != first["coverage"]["sites"][0][
+        "committed_watermark"]
+    assert again["selection_token"] != first["selection_token"]
