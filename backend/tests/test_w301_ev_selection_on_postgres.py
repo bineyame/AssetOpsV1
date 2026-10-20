@@ -104,12 +104,23 @@ def test_ev_cutoff_precedes_reselection_and_multiwindow(chain) -> None:  # noqa:
     """`late-record`: the job's own window plus an exact DEFAULT selection of `[LATE_LO, LATE_HI)` (the W2-06
     shape) give two stored windows in one day; the late terminal then re-heads the exact window with a later seq."""
     built = settled(chain, "late-record")
-    select_exact(built, LATE_LO, LATE_HI)
-    wm1, k1 = clocks(built)
     svc, t, s = EvReadService(engine=built.engine, link_rows=build_link_rows_reader()), built.tenant_id, built.site_id
     day = day_of(LATE_LO)
+    wm0, k0 = clocks(built)
+    with snapshot(built) as c:
+        before = svc.estate_snapshots_on(c, t, s, CODE, day, day + timedelta(days=1), wm0, k0)
+    # A selection written after k0 over the already-committed evidence: its run's knowledge cutoff is at or before
+    # k0, so only `selected_at` keeps it out of a k0 read.
+    select_exact(built, LATE_LO, LATE_HI)
+    wm1, k1 = clocks(built)
     with snapshot(built) as c:
         first = svc.estate_snapshots_on(c, t, s, CODE, day, day + timedelta(days=1), wm1, k1)
+        late_seq = next(x for x in first if (x["lo"], x["hi"]) == (LATE_LO, LATE_HI))["selection_seqs"]
+        assert [x for x in svc.estate_snapshots_on(c, t, s, CODE, day, day + timedelta(days=1), wm1, k0)
+                if (x["lo"], x["hi"]) == (LATE_LO, LATE_HI)] == []
+        with pytest.raises(SelectionPinRefused):
+            svc._snapshot(c, t, s, CODE, LATE_LO, LATE_HI, wm1, selection_cutoff=k0, selection_seqs=late_seq)
+    assert wm1 == wm0 and (LATE_LO, LATE_HI) not in [(x["lo"], x["hi"]) for x in before]
     built.advance_late()
     run_worker(built)  # re-heads every intersecting exact selection
     wm2, k2 = clocks(built)
