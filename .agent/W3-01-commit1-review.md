@@ -181,3 +181,12 @@ covered by `test_s4_finding_api.py` and `test_s5_overview_postgres.py`. Acceptab
   history pages is unmeasured.
 - Per-row EV Finding and money citation queries run N+1 on the snapshot connection. That is fine at W2 sizes, and
   is worth watching in the estate commit, which reads these per Site before paging.
+
+## Re-review r1 (head `4a9309ff`, range `1ceb1299..4a9309ff`): ACCEPT
+Closed as ruled: M1 (labels `Selected source basis (SHA-256)` / `Finding source basis (SHA-256)`, read from selected sibling / row block, `Not recorded` only when null), M2 (selected-source helper, backend `claim_rules.source_class` from selected block), M3.1 (`transition` selected, two-ID selection only for NO_LONGER_SUPPORTED lifecycle+transition with a non-null session and zero matches; all else still refuses), M3.2 (`historical` computed before the job query on cold and EV), L1 (test), L3 (mapping in handoff), L4 (partial patch no longer tracked). L2/L5 backlog as ruled.
+Ran on private `w301rr_test` (dropped): 6 new/changed backend tests (w203 x2, w206 x3, w207 x1) passed, 203 s. Full files, frontend vitest, tsc and guards not rerun; relying on the implementer's reported runs.
+Fixer readings:
+1. M3.2 `:k` = explicit `known_at` only: (a) mechanical. Ruling text said `:k = known`, but on a default read `known` is the watermark and any real pending job is created after it, so that literal form would hide every pending block. A default read is not historical by definition (historical needs an explicit `known_at < watermark`), and an explicit `known_at` is filtered by both the historical gate and `created_at <= :k`. No historical case is left unfiltered. Suggest the Architect note the literal text in the ruling for the record (no code change).
+2. `SET LOCAL session_replication_role = replica` in tests: (a) acceptable. Ruling L1 required updating the stored class; the trigger makes that impossible otherwise. It is scoped to one transaction on a private DB, restored in `finally` and asserted restored. Same technique is used in `pg_harness`, w204 and s4 history fixtures; W2-07 L5 concerned downgrade probes, which prove migration behaviour and are not involved here.
+3. Existing EV historical test extended rather than duplicated: (a). 4. Named frontend tests live in `evSiteMoneyRoutes.test.tsx` and Finding strip falls back to the row block: (a), consistent with the rulings (row block authority).
+No High or Medium findings.
