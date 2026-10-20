@@ -131,7 +131,7 @@ def _mini_grid(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: 
     for h in heads:
         frid = str(h["finding_revision_id"])
         cited |= set(cited_by.get(frid, ()))
-        consequence = _mini_grid_money(snapshot, t, s, h, k, historical)
+        consequence = _mini_grid_money(snapshot, t, s, h, k, historical, cited_by.get(frid, []))
         if consequence.pop("_id", None) is not None:
             consequences.add(consequence["source_revision_id"])
         assumptions |= set(consequence.pop("_assumptions", ()))
@@ -139,7 +139,7 @@ def _mini_grid(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: 
         rows.append({"finding_id": str(h["finding_id"]), "finding_revision_id": frid,
                      "episode_start": h["episode_start"], "title": h.get("title"), "lifecycle": h.get("lifecycle"),
                      "consequence": consequence,
-                     "source_provenance": snapshot.finding_provenance(t, s, h["finding_revision_id"])})
+                     "source_provenance": snapshot.finding_provenance(t, s, frid, cited_by.get(frid, []))})
     out.update(rows=rows, selected_finding_revision_ids=sorted(r["finding_revision_id"] for r in rows),
                selected_assessment_revision_ids=sorted(assessments), cited_accepted_evidence_ids=sorted(cited),
                selected_consequence_revision_ids=sorted(consequences),
@@ -152,8 +152,8 @@ def _consequence(state: str, source_revision_id: Any = None, **extra: Any) -> di
             "source_revision_id": None if source_revision_id is None else str(source_revision_id), **extra}
 
 
-def _mini_grid_money(snapshot: Any, t: Any, s: Any, head: dict[str, Any], k: datetime,
-                     historical: bool) -> dict[str, Any]:
+def _mini_grid_money(snapshot: Any, t: Any, s: Any, head: dict[str, Any], k: datetime, historical: bool,
+                     finding_cited: list[str]) -> dict[str, Any]:
     """Run 6 Blocker 2: PRICED (and the COST flag) only for a CURRENT, ELIGIBLE, source-permitted exact selected
     consequence at the live cutoff; an unpriced stored row is UNPRICED; any other selected row is UNKNOWN with its
     revision ID; no stored row is UNPRICED with a null source (`No consequence recorded`)."""
@@ -168,8 +168,9 @@ def _mini_grid_money(snapshot: Any, t: Any, s: Any, head: dict[str, Any], k: dat
         return _consequence("UNPRICED", cid, **extra)
     if historical:  # a prior selected amount is never a current-money claim
         return _consequence("UNKNOWN", cid, **extra)
-    block = snapshot.consequence_provenance(t, s, cid)
-    gate = source_gate(None if block is None else estate_projection(block))
+    block = snapshot.consequence_provenance(t, s, cid, head["finding_revision_id"],
+                                            sorted({*finding_cited, *extra["_cited"]}))
+    gate = source_gate(estate_projection(block))
     eligible = snapshot.eligibility(t, s, head["finding_id"], k).get("state") == "ELIGIBLE"
     low, high, currency = selected.get("amount_low"), selected.get("amount_high"), selected.get("currency")
     current = (selected.get("currentness") or {}).get("state") == "CURRENT"

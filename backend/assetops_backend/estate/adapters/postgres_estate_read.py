@@ -23,7 +23,8 @@ from assetops_backend.analytics.cold_reads import probe_fresh
 from assetops_backend.analytics.finding_episode import DOMAIN as FINDING_DOMAIN
 from assetops_backend.estate.coverage import COLD, EV
 from assetops_backend.estate.scope import EstateSelectionInconsistent, EstateStoreUnavailable
-from assetops_backend.evidence.public_provenance import PublicProvenance, estate_projection
+from assetops_backend.evidence.public_provenance import (
+    PublicProvenance, consequence_row_selection, estate_projection, finding_row_selection)
 
 
 def _uuids(values: Any) -> list[str]:
@@ -109,19 +110,28 @@ class EstateSnapshot:
         return self._o.findings.index_snapshot_on(self._c, t, s, FINDING_DOMAIN, dispatch_contract.ANALYTIC_ID, k)
 
     def finding_lineage(self, t: UUID, s: UUID, revision_ids: list[Any], k: datetime) -> dict[str, Any]:
-        return self._o.findings.index_lineage_on(self._c, t, s, [UUID(str(x)) for x in revision_ids], k)
+        """Exact pinned lineage; a refused pin (`FindingPinRefused`, a LookupError) is an inconsistent selection."""
+        try:
+            return self._o.findings.index_lineage_on(self._c, t, s, [UUID(str(x)) for x in revision_ids], k)
+        except KeyError:
+            raise
+        except LookupError as error:
+            raise EstateSelectionInconsistent(str(error)) from error
 
-    def finding_provenance(self, t: UUID, s: UUID, finding_revision_id: Any) -> dict[str, Any]:
-        block = self._public().finding_revision(t, s, UUID(str(finding_revision_id)))
-        if block is None:
-            raise EstateSelectionInconsistent(f"Finding revision {finding_revision_id} is not in its Site.")
-        return estate_projection(block)
+    def finding_provenance(self, t: UUID, s: UUID, finding_revision_id: Any, cited: list[str]) -> dict[str, Any]:
+        """Run 1 ruling 2: the W1 Finding row set `{finding_revision.id}` over its exact pinned citations (read by
+        `index_lineage_on` on this connection)."""
+        return self.cited_provenance(t, s, cited, finding_row_selection(finding_revision_id))
 
     def consequence(self, t: UUID, s: UUID, finding_revision_id: Any, k: datetime) -> dict[str, Any]:
         return self._o.consequences.select_consequence_on(self._c, t, s, UUID(str(finding_revision_id)), k)
 
-    def consequence_provenance(self, t: UUID, s: UUID, consequence_revision_id: Any) -> dict[str, Any] | None:
-        return self._public().consequence_revision(t, s, UUID(str(consequence_revision_id)))
+    def consequence_provenance(self, t: UUID, s: UUID, consequence_revision_id: Any, finding_revision_id: Any,
+                               cited: list[str]) -> dict[str, Any]:
+        """Run 6 Blocker 2: the consequence row's six-key block over its pinned Finding citations plus its own
+        power citations, selected `{consequence_revision.id, finding_revision.id}`."""
+        return self.cited_provenance(t, s, cited, consequence_row_selection(consequence_revision_id,
+                                                                            finding_revision_id))
 
     def eligibility(self, t: UUID, s: UUID, finding_id: Any, k: datetime) -> dict[str, Any]:
         return self._o.eligibility.for_finding_on(self._c, t, s, UUID(str(finding_id)), k)
@@ -158,13 +168,16 @@ class EstateSnapshot:
                          evidence_cutoff: datetime, k: datetime) -> list[dict[str, Any]]:
         code = self._c.execute(text("SELECT site_code FROM site WHERE tenant_id = :t AND id = :s"),
                                {"t": t, "s": s}).scalar_one()
-        if domain == COLD:
-            snaps = self._o.cold.estate_snapshots_on(self._c, t, s, code, from_, to, evidence_cutoff, k)
-            return [self._cold_window(t, s, snap, k) for snap in snaps]
-        if domain == EV:
-            snaps = self._o.ev.estate_snapshots_on(self._c, t, s, code, from_, to, evidence_cutoff, k)
-            return [self._ev_window(t, s, snap, k) for snap in snaps]
-        raise ValueError(f"No selected-window read for {domain!r}.")
+        reads = {COLD: (self._o.cold, self._cold_window), EV: (self._o.ev, self._ev_window)}.get(domain)
+        if reads is None:
+            raise ValueError(f"No selected-window read for {domain!r}.")
+        try:
+            snaps = reads[0].estate_snapshots_on(self._c, t, s, code, from_, to, evidence_cutoff, k)
+        except KeyError:
+            raise
+        except LookupError as error:  # `SelectionPinRefused`: an inconsistent pinned selection, never another head
+            raise EstateSelectionInconsistent(str(error)) from error
+        return [reads[1](t, s, snap, k) for snap in snaps]
 
     def _cold_window(self, t: UUID, s: UUID, snap: dict[str, Any], k: datetime) -> dict[str, Any]:
         cold = self._o.cold
