@@ -970,45 +970,11 @@ class EvUnit:
         """The exact selected `ev-session/1` assessment of the work window at the committed cutoff (W2-06's own
         caller-connection snapshot), its session revisions, all their meter intervals, the S4-05 class of its exact
         accepted IDs and the current EV tariff assignments, in this snapshot. None without an exact selection."""
-        from assetops_backend.evidence.source_provenance import classify, link_of
-
         c, ws, we = self._c, work["window_start"], work["window_end"]
         if self._link_rows is None or self._snapshot is None:
             raise RuntimeError("no S4-05 link reader or EV selection snapshot is configured for EV consequences")
         snap = self._snapshot(c, self.tenant_id, self.site_id, ws, we)
-        sel = snap["selected"]
-        if sel is None:
-            return None
-        result = sel["result"] or {}
-        ids = sorted({str(x).lower() for x in (result.get("session_revision_ids") or ())})
-        p = {**self._p, "ids": ids}
-        sessions = tuple(em.SessionHead(str(r[0]).lower(), str(r[1]).strip(), r[2], r[3], r[4]) for r in c.execute(
-            text("SELECT id, basis_sha256, state, supported_kwh, unknown_meter_seconds FROM ev_session_revision "
-                 "WHERE tenant_id = :t AND site_id = :s AND id = ANY(CAST(:ids AS uuid[])) ORDER BY id"), p).all())
-        if len(sessions) != len(ids):
-            raise RuntimeError(f"selected EV assessment {sel['revision_id']} names a missing session revision")
-        intervals = tuple(em.MeterInterval(str(r[0]).lower(), str(r[1]).lower(), str(r[2]).lower(), r[3], r[4], r[5],
-                                           r[6], r[7], r[8]) for r in c.execute(text(
-            "SELECT m.revision_id, m.connector_asset_id, m.evidence_id, e.envelope_sha256, m.start_at, m.end_at, "
-            "m.kwh, m.use, m.reason FROM ev_meter_interval m JOIN accepted_evidence e ON e.tenant_id = m.tenant_id "
-            "AND e.site_id = m.site_id AND e.id = m.evidence_id WHERE m.tenant_id = :t AND m.site_id = :s "
-            "AND m.revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY m.revision_id, m.start_at, m.evidence_id"),
-            p).all()) if ids else ()
-        tariffs = tuple(em.TariffAssignment(str(r[0]).lower(), r[1], r[2], r[3], r[4], r[5], r[6]) for r in c.execute(
-            text("SELECT a.revision_id, r.value, r.currency, r.unit, a.valid_from, a.valid_to, r.recorded_at "
-                 "FROM financial_assumption_assignment a JOIN financial_assumption_revision r "
-                 "ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.revision_id "
-                 "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND a.recorded_to IS NULL "
-                 "AND a.valid_from < :we AND (a.valid_to IS NULL OR a.valid_to > :ws) ORDER BY a.valid_from, a.id"),
-            {**self._p, "k": em.TARIFF_KEY, "ws": ws, "we": we}).all())
-        evidence = list(sel["evidence_ids"])
-        links = {row.requested_id: link_of(row)
-                 for row in self._link_rows(c, self.tenant_id, self.site_id, evidence)} if evidence else {}
-        return em.EvMoneyBasis(
-            tenant_id=str(self.tenant_id).lower(), site_id=str(self.site_id).lower(), window_start=ws, window_end=we,
-            known_at=sel["cutoff"], assessment_revision_id=str(sel["revision_id"]).lower(),
-            source_class=(result.get("source_provenance") or {}).get("class"),
-            source_gate=classify(evidence, links)["state"], sessions=sessions, intervals=intervals, tariffs=tariffs)
+        return ev_money_basis_on(c, self.tenant_id, self.site_id, ws, we, snap["selected"], self._link_rows)
 
     def append(self, k: em.EvConsequence) -> tuple[UUID, bool]:
         """Store one consequence idempotently under a Site/window lock: an identical window basis returns its ID
@@ -1059,3 +1025,99 @@ class EvUnit:
 
 def _dec(value: Any) -> str | None:
     return None if value is None else format(value, "f")
+
+
+def ev_money_basis_on(c: Connection, tenant_id: UUID, site_id: UUID, ws: datetime, we: datetime,
+                      sel: dict[str, Any] | None, link_rows: Callable[..., list]) -> em.EvMoneyBasis | None:
+    """The commit-2 `EvUnit.basis` rules on any caller connection (the worker's locked unit, or a W2-07 Site read's
+    repeatable-read snapshot, q4): the selected assessment's session revisions, all their meter intervals, the
+    current EV tariff assignments and the S4-05 class of its exact accepted IDs. SELECT-only."""
+    from assetops_backend.evidence.source_provenance import classify, link_of
+
+    if sel is None:
+        return None
+    result = sel["result"] or {}
+    ids = sorted({str(x).lower() for x in (result.get("session_revision_ids") or ())})
+    p = {"t": tenant_id, "s": site_id, "ids": ids}
+    sessions = tuple(em.SessionHead(str(r[0]).lower(), str(r[1]).strip(), r[2], r[3], r[4]) for r in c.execute(
+        text("SELECT id, basis_sha256, state, supported_kwh, unknown_meter_seconds FROM ev_session_revision "
+             "WHERE tenant_id = :t AND site_id = :s AND id = ANY(CAST(:ids AS uuid[])) ORDER BY id"), p).all())
+    if len(sessions) != len(ids):
+        raise RuntimeError(f"selected EV assessment {sel['revision_id']} names a missing session revision")
+    intervals = tuple(em.MeterInterval(str(r[0]).lower(), str(r[1]).lower(), str(r[2]).lower(), r[3], r[4], r[5],
+                                       r[6], r[7], r[8]) for r in c.execute(text(
+        "SELECT m.revision_id, m.connector_asset_id, m.evidence_id, e.envelope_sha256, m.start_at, m.end_at, "
+        "m.kwh, m.use, m.reason FROM ev_meter_interval m JOIN accepted_evidence e ON e.tenant_id = m.tenant_id "
+        "AND e.site_id = m.site_id AND e.id = m.evidence_id WHERE m.tenant_id = :t AND m.site_id = :s "
+        "AND m.revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY m.revision_id, m.start_at, m.evidence_id"),
+        p).all()) if ids else ()
+    tariffs = tuple(em.TariffAssignment(str(r[0]).lower(), r[1], r[2], r[3], r[4], r[5], r[6]) for r in c.execute(
+        text("SELECT a.revision_id, r.value, r.currency, r.unit, a.valid_from, a.valid_to, r.recorded_at "
+             "FROM financial_assumption_assignment a JOIN financial_assumption_revision r "
+             "ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.revision_id "
+             "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND a.recorded_to IS NULL "
+             "AND a.valid_from < :we AND (a.valid_to IS NULL OR a.valid_to > :ws) ORDER BY a.valid_from, a.id"),
+        {**p, "k": em.TARIFF_KEY, "ws": ws, "we": we}).all())
+    evidence = list(sel["evidence_ids"])
+    links = {row.requested_id: link_of(row) for row in link_rows(c, tenant_id, site_id, evidence)} if evidence else {}
+    return em.EvMoneyBasis(
+        tenant_id=str(tenant_id).lower(), site_id=str(site_id).lower(), window_start=ws, window_end=we,
+        known_at=sel["cutoff"], assessment_revision_id=str(sel["revision_id"]).lower(),
+        source_class=(result.get("source_provenance") or {}).get("class"),
+        source_gate=classify(evidence, links)["state"], sessions=sessions, intervals=intervals, tariffs=tariffs)
+
+
+_EV_REVISION_SQL = (
+    "SELECT r.id, r.revision_no, r.state, r.reason, r.quantity_kwh, r.tariff_revision_id, r.tariff_value, "
+    "r.currency, r.amount, r.overlap_group, r.recorded_at, r.source_gate, r.basis_sha256, r.assessment_revision_id, "
+    "t.recorded_at AS tariff_recorded_at FROM ev_consequence_revision AS r LEFT JOIN financial_assumption_revision t "
+    "ON t.tenant_id = r.tenant_id AND t.site_id = r.site_id AND t.id = r.tariff_revision_id ")
+
+
+class EvMoneyReads:
+    """W2-07 commit 3: SELECT-only EV money reads on a caller's connection (q4's one shared selector)."""
+
+    def __init__(self, link_rows: Callable[..., list]) -> None:
+        self._link_rows = link_rows
+
+    def basis_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime,
+                 sel: dict[str, Any] | None) -> em.EvMoneyBasis | None:
+        return ev_money_basis_on(c, t, s, ws, we, sel, self._link_rows)
+
+    def select_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime,
+                  basis_sha256: str) -> dict[str, Any] | None:
+        """q4 literal: the highest matching stored revision for the exact Site/window and derived basis."""
+        row = c.execute(text(
+            _EV_REVISION_SQL + "WHERE r.tenant_id = :tenant_id AND r.site_id = :site_id "
+            "AND r.window_start = :window_start AND r.window_end = :window_end "
+            "AND r.basis_sha256 = :derived_basis_sha256 ORDER BY r.revision_no DESC, r.id DESC LIMIT 1"),
+            {"tenant_id": t, "site_id": s, "window_start": ws, "window_end": we,
+             "derived_basis_sha256": basis_sha256}).first()
+        return None if row is None else self._with_links(c, t, s, dict(row._mapping))
+
+    def history_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime) -> list[dict[str, Any]]:
+        """Every stored revision of the exact Site/window, oldest first (labelled history in the read)."""
+        return [self._with_links(c, t, s, dict(r._mapping)) for r in c.execute(text(
+            _EV_REVISION_SQL + "WHERE r.tenant_id = :t AND r.site_id = :s AND r.window_start = :ws "
+            "AND r.window_end = :we ORDER BY r.recorded_at, r.id"), {"t": t, "s": s, "ws": ws, "we": we}).all()]
+
+    def tariff_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime) -> list[dict[str, Any]]:
+        """The current (`recorded_to IS NULL`) published EV tariff assignments touching `[ws,we)`."""
+        return [dict(r._mapping) for r in c.execute(text(
+            "SELECT a.revision_id, r.value, r.currency, r.unit, r.basis, a.valid_from, a.valid_to, r.recorded_at "
+            "FROM financial_assumption_assignment a JOIN financial_assumption_revision r "
+            "ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.revision_id "
+            "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND a.recorded_to IS NULL "
+            "AND a.valid_from < :we AND (a.valid_to IS NULL OR a.valid_to > :ws) ORDER BY a.valid_from, a.id"),
+            {"t": t, "s": s, "k": em.TARIFF_KEY, "ws": ws, "we": we}).all()]
+
+    @staticmethod
+    def _with_links(c: Connection, t: UUID, s: UUID, row: dict[str, Any]) -> dict[str, Any]:
+        p = {"t": t, "s": s, "r": row["id"]}
+        row["session_revision_ids"] = sorted(str(x).lower() for x in c.execute(text(
+            "SELECT session_revision_id FROM ev_consequence_session WHERE tenant_id = :t AND site_id = :s "
+            "AND consequence_revision_id = :r"), p).scalars())
+        row["evidence_ids"] = sorted(str(x).lower() for x in c.execute(text(
+            "SELECT evidence_id FROM ev_consequence_evidence WHERE tenant_id = :t AND site_id = :s "
+            "AND consequence_revision_id = :r"), p).scalars())
+        return row

@@ -2334,6 +2334,108 @@ class EvReadService:
                                 at, last)
         return [{k: v for k, v in x.items() if k != "_sort"} for x in page], nxt
 
+    # --- W2-07 commit 3: the same snapshot on a caller connection (spec "Five selected reads", q4) ---------------
+
+    def within(self, work: Callable[[Connection], Any]) -> Any:
+        """One read-only repeatable-read transaction for a composed W2-07 Site read."""
+        return self._read(work)
+
+    def open_on(self, c: Connection, t: UUID, s: UUID, code: str, lo, hi, known_at) -> tuple[dict, dict]:
+        """The W2-06 snapshot and public envelope, unchanged."""
+        return self._open(c, t, s, code, lo, hi, known_at)
+
+    def status_on(self, snap: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+        return self._status(snap)
+
+    def sessions_on(self, c: Connection, snap: dict[str, Any]) -> list[dict[str, Any]]:
+        return [{k: v for k, v in x.items() if k != "_sort"} for x in self._sessions(c, snap)]
+
+    def findings_on(self, c: Connection, snap: dict[str, Any]) -> list[dict[str, Any]]:
+        """The selected SUPPORTED EV Finding heads with the r9 M3 read-time START/ABORT IDs."""
+        out = []
+        for row in self._findings(c, snap):
+            item = {k: v for k, v in row.items() if not k.startswith("_")}
+            item["claim"] = {**row["_claim"], **self._support_ids(c, snap, row)}
+            out.append(item)
+        return out
+
+    def page_on(self, items: list[dict[str, Any]], snap: dict[str, Any], body: dict[str, Any], route: str,
+                cursor: str | None, limit: int) -> tuple[list[dict[str, Any]], str | None]:
+        """W2-06 paging with the route inside the canonical cursor (`route|basis`), so a cursor is never reused
+        across routes; items carry `_sort=(time, id)`."""
+        scoped = {**body, "source_provenance": {
+            **body["source_provenance"], "basis_sha256": f"{route}|{body['source_provenance']['basis_sha256'] or ''}"}}
+        return self._page(items, snap, scoped, cursor, limit)
+
+    def foundation_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any] | None:
+        """The selected assessment's Foundation revision, else the one effective at the cutoff: `{content,
+        valid_from}`. None when no Foundation exists."""
+        p: dict[str, Any] = {"t": snap["t"], "s": snap["s"]}
+        sel = snap["selected"]
+        if sel is not None and len(sel["foundation_ids"]) == 1:
+            row = c.execute(text("SELECT content, valid_from FROM foundation_revision WHERE tenant_id = :t "
+                                 "AND site_id = :s AND id = :f"), {**p, "f": UUID(str(sel["foundation_ids"][0]))}).first()
+        else:
+            at = snap["known"] or snap["hi"]
+            row = None if at is None else c.execute(text(
+                "SELECT content, valid_from FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND superseded_at IS NULL AND valid_from <= :k AND (valid_to IS NULL OR valid_to > :k) "
+                "ORDER BY valid_from DESC, version DESC LIMIT 1"), {**p, "k": at}).first()
+        return None if row is None else {"content": _ev_json(row[0]) or {}, "valid_from": row[1]}
+
+    def assets_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, str]:
+        """asset_code -> lowercase asset UUID for the Site (the Foundation component IDs' scoped assets)."""
+        return {code: _ev_plain(i) for i, code in c.execute(text(
+            "SELECT id, asset_code FROM asset WHERE tenant_id = :t AND site_id = :s"),
+            {"t": snap["t"], "s": snap["s"]}).all()}
+
+    def accepted_on(self, c: Connection, snap: dict[str, Any]) -> list[dict[str, Any]]:
+        """The window's accepted public records at the cutoff (`_ev_rows`, the same set W2-06 assessed), each with
+        its selected W2-06 use/reason: a selected session revision's `ev_session_evidence`/meter use, else the
+        selected full-window `excluded_records` reason; no synthetic gap row and no invented link."""
+        if snap["lo"] is None or snap["known"] is None:
+            return []
+        rows = _ev_rows(c, {"t": snap["t"], "s": snap["s"], "k": snap["known"], "lo": snap["lo"], "hi": snap["hi"]})
+        if not rows:
+            return []
+        p = {"t": snap["t"], "s": snap["s"], "ids": [str(r[0]) for r in rows]}
+        extra = {r[0]: (r[1], r[2]) for r in c.execute(text(
+            "SELECT id, published_at, received_at FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s "
+            "AND id = ANY(CAST(:ids AS uuid[]))"), p).all()}
+        uses: dict[str, tuple[str, str | None, str | None]] = {}
+        sel = snap["selected"]
+        if sel is not None:
+            revisions = [str(x) for x in sel["result"].get("session_revision_ids") or ()]
+            if revisions:
+                q = {**p, "revs": revisions}
+                for eid, use, why, session in c.execute(text(
+                        "SELECT x.evidence_id, x.use, x.reason, v.session_id FROM ev_session_evidence x "
+                        "JOIN ev_session_revision v ON v.tenant_id = x.tenant_id AND v.site_id = x.site_id "
+                        "AND v.id = x.revision_id WHERE x.tenant_id = :t AND x.site_id = :s "
+                        "AND x.revision_id = ANY(CAST(:revs AS uuid[])) ORDER BY x.evidence_id, x.use"), q).all():
+                    uses.setdefault(_ev_plain(eid), (use, why, _ev_plain(session)))
+                for eid, use, why, session in c.execute(text(
+                        "SELECT m.evidence_id, m.use, m.reason, v.session_id FROM ev_meter_interval m "
+                        "JOIN ev_session_revision v ON v.tenant_id = m.tenant_id AND v.site_id = m.site_id "
+                        "AND v.id = m.revision_id WHERE m.tenant_id = :t AND m.site_id = :s "
+                        "AND m.revision_id = ANY(CAST(:revs AS uuid[])) ORDER BY m.evidence_id, m.use"), q).all():
+                    uses.setdefault(_ev_plain(eid), (use, why, _ev_plain(session)))
+            for x in sel["result"].get("excluded_records") or ():
+                uses.setdefault(str(x.get("evidence_id")).lower(), ("EXCLUDED", x.get("reason"), None))
+        out = []
+        for r in sorted(rows, key=lambda r: (r[2], str(r[0]))):
+            eid = _ev_plain(r[0])
+            use, why, session = uses.get(eid, (None, None, None))
+            sent, received = extra.get(r[0], (None, None))
+            out.append({
+                "evidence_id": eid, "record_kind": r[8] if r[8] is not None else r[9], "family": r[7],
+                "measurement": r[9], "role": r[20], "value": r[11], "unit": r[12], "source_time": r[2],
+                "interval_start": r[3], "interval_end": r[4], "sent_at": sent, "received_at": received,
+                "quality": r[10], "asset_id": _ev_plain(r[15]), "source_id": _ev_plain(r[17]),
+                "connector_id": r[5], "session_id": session, "use": use, "reason": why,
+                "_sort": (r[2], r[0])})
+        return out
+
     def sessions(self, tenant_id: UUID, site_id: UUID, code: str, lo: datetime | None, hi: datetime | None,
                  known_at: datetime | None, cursor: str | None, limit: int) -> dict[str, Any]:
         def work(c):

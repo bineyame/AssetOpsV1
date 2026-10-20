@@ -823,6 +823,10 @@ def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  
     assert [(a["work_id"], a["attempt_no"], a["outcome"], a["error_code"]) for a in rows["ev_consequence_work_attempt"]
             if a["work_id"] == work_id] == [(work_id, 1, "FAILED", "PENDING_RECOMPUTE")]
     assert snapshot_state(built) == "PENDING_RECOMPUTE"
+    # q4: all five reads report the pending envelope; current money is null, the prior row is labelled history.
+    pending_reads = five_reads(built)
+    assert_masked(pending_reads)
+    assert [h["revision_id"] for h in pending_reads["financials"]["history"]] == [str(unpriced["id"])]
     # The job completes with no new exact assessment/session revision and no new 0026 work row.
     with engine.begin() as c:
         c.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job})
@@ -855,6 +859,11 @@ def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  
         head["technical_input_sha256"], None, "REGISTERED_SIMULATION", "REGISTERED_SIMULATION", [assessment])
     # A repeated pass appends no duplicate revision.
     assert money(built) == [] and len(ev_money_rows(built)["ev_consequence_revision"]) == 2
+    settled = assert_current(five_reads(built), head["id"])
+    assert (settled["state"], settled["reason"], settled["amount"], settled["currency"], settled["quantity_kwh"]) == (
+        "ESTIMATED", "ELIGIBLE_COMPLETE_INTERVALS", "8.33250000", "KES", "30.000")
+    assert settled["tariff_revision_id"] == str(tariff) and len(settled["evidence_ids"]) == 7
+    assert settled["recorded_at"] == em.iso(head["recorded_at"])
 
     # An earlier stored ESTIMATED row is masked while a new overlapping job is pending and restored by basis replay.
     job2 = uuid4()
@@ -867,6 +876,7 @@ def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  
         c.execute(text("SELECT ev_consequence_enqueue(:t, :s, :a, :b, 'SESSION_REVISION', :i)"),
                   {"t": built.tenant_id, "s": built.site_id, "a": lo, "b": hi, "i": uuid4()})
     assert snapshot_state(built) == "PENDING_RECOMPUTE"
+    assert_masked(five_reads(built))
     masked = money(built)
     assert [(o.succeeded, o.error_code) for o in masked] == [(False, "PENDING_RECOMPUTE")]
     with engine.begin() as c:
@@ -875,6 +885,57 @@ def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  
     assert [(o.succeeded, o.replayed, o.consequence_revision_id) for o in restored] == [(True, True, head["id"])]
     assert snapshot_state(built) == "CURRENT"
     assert [r["id"] for r in ev_money_rows(built)["ev_consequence_revision"]] == [unpriced["id"], head["id"]]
+    assert assert_current(five_reads(built), head["id"])["evidence_ids"] == settled["evidence_ids"]
+    # An intervening different-basis stored revision (higher number) never wins over the matching lower one.
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO ev_consequence_revision (id, tenant_id, site_id, finding_revision_id, assessment_revision_id, "
+            "revision_no, basis_sha256, technical_input_sha256, formula_version, window_start, window_end, "
+            "quantity_kwh, state, reason, source_gate, overlap_group, recorded_at) SELECT :i, tenant_id, site_id, "
+            "NULL, assessment_revision_id, 3, :b, technical_input_sha256, formula_version, window_start, window_end, "
+            "quantity_kwh, 'UNPRICED', 'TARIFF_MISSING', source_gate, overlap_group, clock_timestamp() "
+            "FROM ev_consequence_revision WHERE id = :h"), {"i": uuid4(), "b": "f" * 64, "h": head["id"]})
+    replayed = five_reads(built)
+    assert assert_current(replayed, head["id"])["amount"] == "8.33250000"
+    assert [h["revision_no"] for h in replayed["financials"]["history"]] == [1, 3]
+
+
+FIVE = ("overview", "evidence", "analysis", "financials", "assumptions")
+PENDING_COPY = "New evidence is being assessed. The previous result may change."
+
+
+def five_reads(built, lo=None, hi=None, known_at=None, code="EV-LAB-001") -> dict:
+    """q4: one caller-connection invocation per route of the shared five-read selector (`EvSiteReads`)."""
+    from assetops_backend.financials.composition import build_ev_site_read_service
+
+    svc = build_ev_site_read_service(URL)
+    try:
+        args = (built.tenant_id, built.site_id, code, lo, hi, known_at)
+        return {"overview": svc.overview(*args), "evidence": svc.evidence(*args),
+                "analysis": svc.analysis(*args, None, 200), "financials": svc.financials(*args, None, 200),
+                "assumptions": svc.assumptions(*args)}
+    finally:
+        svc.dispose()
+
+
+def assert_masked(reads: dict, state: str = "PENDING_RECOMPUTE") -> None:
+    assert {r: b["currentness"]["state"] for r, b in reads.items()} == dict.fromkeys(FIVE, state)
+    if state == "PENDING_RECOMPUTE":
+        assert all(b["currentness"]["limitation"] == PENDING_COPY for b in reads.values())
+    summary, current = reads["overview"]["consequence_summary"], reads["financials"]["consequence"]
+    assert (summary["amount"], summary["currency"]) == (None, None)
+    assert current is None or (current["amount"], current["currency"], current["revision_id"]) == (None, None, None)
+    assert all(h["label"] == "Historical scenario" for h in reads["financials"]["history"])
+
+
+def assert_current(reads: dict, revision_id) -> dict:
+    assert {r: b["currentness"]["state"] for r, b in reads.items()} == dict.fromkeys(FIVE, "CURRENT")
+    current = reads["financials"]["consequence"]
+    assert current["revision_id"] == str(revision_id)
+    summary = reads["overview"]["consequence_summary"]
+    assert (summary["state"], summary["amount"], summary["currency"]) == (
+        current["state"], current["amount"], current["currency"])
+    return current
 
 
 def counts_of(built) -> dict:

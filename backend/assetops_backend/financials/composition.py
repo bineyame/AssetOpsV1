@@ -92,3 +92,14 @@ def build_ev_consequence_store(database_url: str | None) -> PostgresConsequenceS
 
 def build_ev_consequence_worker(database_url: str | None) -> EvConsequenceWorker:
     return EvConsequenceWorker(build_ev_consequence_store(database_url), CONSEQUENCE_UNAVAILABLE)
+
+
+def build_ev_site_read_service(database_url: str):
+    """W2-07 commit 3: the five EV Site reads over W2-06's `EvReadService` and the SELECT-only EV money reads, both
+    on the one read connection (q4's shared selector)."""
+    from assetops_backend.analytics.composition import build_ev_read_service
+    from assetops_backend.ev_site_reads import EvSiteReads
+    from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.financials.adapters.postgres_consequence_store import EvMoneyReads
+
+    return EvSiteReads(build_ev_read_service(database_url), EvMoneyReads(build_link_rows_reader()))
