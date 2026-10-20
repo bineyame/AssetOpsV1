@@ -27,8 +27,8 @@ Resume: build commit 4 per spec item 4, B1/B2/B8/B9/B10/S15, Q7/Q8/Q9/Q11 and **
 
 - On `a4dfd318`: `test_w401_work_{read_postgres,service_postgres,api}.py`: 20 passed, 1 failed, 1 error (mini-grid
   HISTORICAL at explicit earlier cutoff; route-test setup AdminShutdown after `chain`) -> fixed in `f3557bc2`.
-- On `f3557bc2`: `test_w401_work_read_postgres.py` 4 passed (32 s). Service/api files unchanged since the 20-pass
-  run except none (only the read file changed).
+- On `f3557bc2`: `test_w401_work_read_postgres.py` 4 passed (32 s).
+  `f3557bc2` changed only the read test file; the service/api files' 20 passes stand.
 - `tools/check-all.ps1` on `a4dfd318` (merge of main included): all 10 guards passed.
 
 ## Commit 4 resume anchors (surveyed, not built)
