@@ -1,0 +1,720 @@
+{
+  "state": "historical",
+  "captured_at": "2026-10-20T19:01:52.936Z",
+  "results": [
+    {
+      "screen": "findings",
+      "state": "historical",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-historical-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1145
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1145
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1145
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1145
+        },
+        "panel": {
+          "top": 457,
+          "h": 454,
+          "w": 1145
+        },
+        "limitation": {
+          "top": 929,
+          "h": 43,
+          "w": 1145
+        },
+        "notice": {
+          "top": 990,
+          "h": 43,
+          "w": 1145
+        }
+      },
+      "chipScroll": {
+        "client": 1145,
+        "scroll": 1145
+      },
+      "lensRows": 1,
+      "tableScroll": {
+        "client": 1105,
+        "scroll": 1105,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 4,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings4Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [
+          "HISTORICAL:Earlier evidence cutoff",
+          "HISTORICAL:Earlier evidence cutoff",
+          "HISTORICAL:Earlier evidence cutoff",
+          "HISTORICAL:Earlier evidence cutoff"
+        ],
+        "empty": null,
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1083
+    },
+    {
+      "screen": "findings",
+      "state": "historical",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-historical-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 449,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 752,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 198,
+          "w": 358
+        },
+        "panel": {
+          "top": 800,
+          "h": 456,
+          "w": 358
+        },
+        "limitation": {
+          "top": 1274,
+          "h": 43,
+          "w": 358
+        },
+        "notice": {
+          "top": 1335,
+          "h": 80,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 900,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 4,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings4Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [
+          "HISTORICAL:Earlier evidence cutoff",
+          "HISTORICAL:Earlier evidence cutoff",
+          "HISTORICAL:Earlier evidence cutoff",
+          "HISTORICAL:Earlier evidence cutoff"
+        ],
+        "empty": null,
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1457
+    },
+    {
+      "screen": "findings-cost",
+      "state": "historical",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-cost-historical-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1160
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 457,
+          "h": 165,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 640,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 701,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported priced consequence in this selection.",
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-cost",
+      "state": "historical",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-cost-historical-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 449,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 752,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 198,
+          "w": 358
+        },
+        "panel": {
+          "top": 800,
+          "h": 165,
+          "w": 358
+        },
+        "limitation": {
+          "top": 983,
+          "h": 43,
+          "w": 358
+        },
+        "notice": {
+          "top": 1044,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported priced consequence in this selection.",
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1128
+    },
+    {
+      "screen": "findings-risks",
+      "state": "historical",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-risks-historical-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1160
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 457,
+          "h": 165,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 640,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 701,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported risk classification in this selection.",
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-risks",
+      "state": "historical",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-risks-historical-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 449,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 752,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 198,
+          "w": 358
+        },
+        "panel": {
+          "top": 800,
+          "h": 165,
+          "w": 358
+        },
+        "limitation": {
+          "top": 983,
+          "h": 43,
+          "w": 358
+        },
+        "notice": {
+          "top": 1044,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported risk classification in this selection.",
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1128
+    },
+    {
+      "screen": "findings-opportunities",
+      "state": "historical",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-opportunities-historical-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 150,
+          "w": 1160
+        },
+        "chips": {
+          "top": 409,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 457,
+          "h": 165,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 640,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 701,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported opportunity Finding in this selection.",
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-opportunities",
+      "state": "historical",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "findings-opportunities-historical-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 449,
+          "h": 285,
+          "w": 358
+        },
+        "chips": {
+          "top": 752,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 198,
+          "w": 358
+        },
+        "panel": {
+          "top": 800,
+          "h": 165,
+          "w": 358
+        },
+        "limitation": {
+          "top": 983,
+          "h": 43,
+          "w": 358
+        },
+        "notice": {
+          "top": 1044,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Supported findings0Across 3 sites",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verification0No Actions from selected Finding revisions are awaiting verification in this window. How this is countedCounts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome."
+        ],
+        "siteStates": [],
+        "empty": "No findings match.No supported opportunity Finding in this selection.",
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1128
+    },
+    {
+      "screen": "actions",
+      "state": "historical",
+      "width": 1440,
+      "app_url": "http://localhost:6141/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "actions-historical-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 182,
+          "h": 115,
+          "w": 1160
+        },
+        "chips": null,
+        "lenses": null,
+        "datebar": {
+          "top": 101,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 314,
+          "h": 201,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 533,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 594,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 1,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Open actions1Accepted work",
+          "Due / overdueNot setNo due dates recorded",
+          "Verification window0",
+          "Verified in 30 days0No verified outcome in the last 30 days"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "actions",
+      "state": "historical",
+      "width": 390,
+      "app_url": "http://localhost:6141/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z&known_at=2026-11-02T11:07:15Z",
+      "image": "actions-historical-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 389,
+          "h": 251,
+          "w": 358
+        },
+        "chips": null,
+        "lenses": null,
+        "datebar": {
+          "top": 179,
+          "h": 198,
+          "w": 358
+        },
+        "panel": {
+          "top": 658,
+          "h": 219,
+          "w": 358
+        },
+        "limitation": {
+          "top": 895,
+          "h": 43,
+          "w": 358
+        },
+        "notice": {
+          "top": 956,
+          "h": 61,
+          "w": 358
+        }
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 820,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 1,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:07:15 UTC",
+        "historical": "This is an earlier evidence cutoff.",
+        "cards": [
+          "Open actions1Accepted work",
+          "Due / overdueNot setNo due dates recorded",
+          "Verification window0",
+          "Verified in 30 days0No verified outcome in the last 30 days"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": null,
+        "limitation": "This is an earlier evidence cutoff. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1059
+    }
+  ]
+}

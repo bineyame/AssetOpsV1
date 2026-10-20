@@ -1,0 +1,788 @@
+{
+  "state": "partial",
+  "captured_at": "2026-10-20T19:02:37.544Z",
+  "results": [
+    {
+      "screen": "findings",
+      "state": "partial",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-partial-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 92,
+          "w": 1160
+        },
+        "chips": {
+          "top": 351,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 400,
+          "h": 375,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 793,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 854,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 3,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:35 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings",
+      "state": "partial",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-partial-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 236,
+          "w": 358
+        },
+        "chips": {
+          "top": 666,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 715,
+          "h": 415,
+          "w": 358
+        },
+        "limitation": {
+          "top": 1148,
+          "h": 61,
+          "w": 358
+        },
+        "notice": {
+          "top": 1227,
+          "h": 61,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 900,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 3,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:38 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1330
+    },
+    {
+      "screen": "findings-cost",
+      "state": "partial",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-cost-partial-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 92,
+          "w": 1160
+        },
+        "chips": {
+          "top": 351,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 400,
+          "h": 126,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 544,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 604,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:40 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-cost",
+      "state": "partial",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/cost?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-cost-partial-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 236,
+          "w": 358
+        },
+        "chips": {
+          "top": 666,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 715,
+          "h": 149,
+          "w": 358
+        },
+        "limitation": {
+          "top": 882,
+          "h": 61,
+          "w": 358
+        },
+        "notice": {
+          "top": 961,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:42 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1046
+    },
+    {
+      "screen": "findings-risks",
+      "state": "partial",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-risks-partial-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 92,
+          "w": 1160
+        },
+        "chips": {
+          "top": 351,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 400,
+          "h": 126,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 544,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 604,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:43 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-risks",
+      "state": "partial",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/risks?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-risks-partial-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 236,
+          "w": 358
+        },
+        "chips": {
+          "top": 666,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 715,
+          "h": 149,
+          "w": 358
+        },
+        "limitation": {
+          "top": 882,
+          "h": 61,
+          "w": 358
+        },
+        "notice": {
+          "top": 961,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:45 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1046
+    },
+    {
+      "screen": "findings-opportunities",
+      "state": "partial",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-opportunities-partial-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 241,
+          "h": 92,
+          "w": 1160
+        },
+        "chips": {
+          "top": 351,
+          "h": 33,
+          "w": 1160
+        },
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 400,
+          "h": 126,
+          "w": 1160
+        },
+        "limitation": {
+          "top": 544,
+          "h": 43,
+          "w": 1160
+        },
+        "notice": {
+          "top": 604,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": {
+        "client": 1160,
+        "scroll": 1160
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:47 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-opportunities",
+      "state": "partial",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings/opportunities?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z",
+      "image": "findings-opportunities-partial-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 412,
+          "h": 236,
+          "w": 358
+        },
+        "chips": {
+          "top": 666,
+          "h": 33,
+          "w": 358
+        },
+        "lenses": {
+          "top": 179,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 239,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 715,
+          "h": 149,
+          "w": 358
+        },
+        "limitation": {
+          "top": 882,
+          "h": 61,
+          "w": 358
+        },
+        "notice": {
+          "top": 961,
+          "h": 43,
+          "w": 358
+        }
+      },
+      "chipScroll": {
+        "client": 358,
+        "scroll": 460
+      },
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:49 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Supported findingsCoverage incomplete",
+          "High priorityNot assessed",
+          "Low confidenceNot assessed",
+          "Awaiting verificationCoverage incomplete"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": "Some sites have no selected result; totals are unknown.",
+        "limitation": "New evidence is being assessed. Some sites are not yet assessed; estate totals are unknown. ",
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1046
+    },
+    {
+      "screen": "actions",
+      "state": "partial",
+      "width": 1440,
+      "app_url": "http://localhost:6141/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+      "image": "actions-partial-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 182,
+          "h": 115,
+          "w": 1160
+        },
+        "chips": null,
+        "lenses": null,
+        "datebar": {
+          "top": 101,
+          "h": 69,
+          "w": 1160
+        },
+        "panel": {
+          "top": 314,
+          "h": 201,
+          "w": 1160
+        },
+        "limitation": null,
+        "notice": {
+          "top": 533,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "tableScroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 1,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:51 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Open actions1Accepted work",
+          "Due / overdueNot setNo due dates recorded",
+          "Verification window0",
+          "Verified in 30 days0No verified outcome in the last 30 days"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "actions",
+      "state": "partial",
+      "width": 390,
+      "app_url": "http://localhost:6141/actions?from=2026-11-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+      "image": "actions-partial-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": {
+          "top": 353,
+          "h": 251,
+          "w": 358
+        },
+        "chips": null,
+        "lenses": null,
+        "datebar": {
+          "top": 179,
+          "h": 162,
+          "w": 358
+        },
+        "panel": {
+          "top": 622,
+          "h": 219,
+          "w": 358
+        },
+        "limitation": null,
+        "notice": {
+          "top": 859,
+          "h": 61,
+          "w": 358
+        }
+      },
+      "chipScroll": null,
+      "lensRows": 0,
+      "tableScroll": {
+        "client": 318,
+        "scroll": 820,
+        "overflowX": "auto"
+      },
+      "firstColumnPosition": "sticky",
+      "rows": 1,
+      "text": {
+        "cutoff": "Evidence cutoff 2026-11-02 11:10:52 UTC (latest at read time)",
+        "historical": null,
+        "cards": [
+          "Open actions1Accepted work",
+          "Due / overdueNot setNo due dates recorded",
+          "Verification window0",
+          "Verified in 30 days0No verified outcome in the last 30 days"
+        ],
+        "siteStates": [],
+        "empty": null,
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 962
+    },
+    {
+      "screen": "findings-refused",
+      "state": "partial",
+      "width": 1440,
+      "app_url": "http://localhost:6141/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+      "image": "findings-refused-partial-1440-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": null,
+        "chips": null,
+        "lenses": {
+          "top": 101,
+          "h": 36,
+          "w": 1160
+        },
+        "datebar": {
+          "top": 160,
+          "h": 33,
+          "w": 1160
+        },
+        "panel": null,
+        "limitation": null,
+        "notice": null
+      },
+      "chipScroll": null,
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff latest",
+        "historical": null,
+        "cards": [],
+        "siteStates": [],
+        "empty": null,
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 1000
+    },
+    {
+      "screen": "findings-refused",
+      "state": "partial",
+      "width": 390,
+      "app_url": "http://localhost:6141/findings?from=2026-10-01T00:00:00Z&to=2026-11-03T00:00:00Z",
+      "image": "findings-refused-partial-390-app.png",
+      "ready": true,
+      "pieces": {
+        "cards": null,
+        "chips": null,
+        "lenses": {
+          "top": 376,
+          "h": 36,
+          "w": 358
+        },
+        "datebar": {
+          "top": 435,
+          "h": 173,
+          "w": 358
+        },
+        "panel": null,
+        "limitation": null,
+        "notice": null
+      },
+      "chipScroll": null,
+      "lensRows": 1,
+      "tableScroll": null,
+      "firstColumnPosition": null,
+      "rows": 0,
+      "text": {
+        "cutoff": "Evidence cutoff latest",
+        "historical": null,
+        "cards": [],
+        "siteStates": [],
+        "empty": null,
+        "partial": null,
+        "limitation": null,
+        "refusal": null
+      },
+      "overflowX": 0,
+      "clipped": 0,
+      "height": 900
+    }
+  ]
+}
