@@ -462,7 +462,26 @@ def test_late_terminal_past_selected_end_reheads_exact_window(chain) -> None:  #
                if w[0] <= LATE_LO and LATE_HI <= w[1] and (w[0], w[1]) != (LATE_LO, LATE_HI))
     read = exact_read(built, LATE_LO, LATE_HI)
     assert read["currentness"]["state"] == "CURRENT"
-    assert read["source_provenance"]["basis_sha256"] == after.basis_sha256
+    # W3-01 q1 ruling 3: the stored assessment basis stays private (the cursor fence's selected basis), and the
+    # public block's `basis_sha256` is solely the independently recomputed selection digest.
+    from sqlalchemy import text as _text
+    from test_w301_provenance_dto_postgres import digest
+    from assetops_backend.analytics.composition import build_ev_read_service
+    service = build_ev_read_service(URL)
+    try:
+        with built.engine.connect() as c:
+            snap = service._snapshot(c, built.tenant_id, built.site_id, "EV-LAB-001", LATE_LO, LATE_HI, None)
+            assert service._basis(snap) == after.basis_sha256
+            assessment = c.execute(_text(
+                "SELECT result, evidence_ids FROM assessment_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND id = :a"), {"t": built.tenant_id, "s": built.site_id, "a": after.revision_id}).one()
+    finally:
+        service.dispose()
+    result = assessment[0] if isinstance(assessment[0], dict) else json.loads(assessment[0])
+    public = read["source_provenance"]["basis_sha256"]
+    assert public == digest(built.tenant_id, built.site_id, [after.revision_id, *result["session_revision_ids"]],
+                            assessment[1])
+    assert public != after.basis_sha256
     [item] = read["items"]
     # The late same-session terminal outside the selected end is correlation input for the START inside it.
     assert item["state"] == "COMPLETED" and ev.plain(_instant(item["end_at"])) == "2026-10-06T08:31:00.000000Z"
