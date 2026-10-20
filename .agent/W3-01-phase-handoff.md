@@ -108,3 +108,29 @@ Checks: whole file 7 passed (264 s) on private `w301f_test`, which was dropped a
 episode revision and the EV money session links from the expected selection made cold and ev FAIL on
 `basis_sha256`. Reverted with `git checkout`. check-all: 10/10 passed.
 **Next:** review `1c409a3d..HEAD` as the W3 commit-1 unit, then the W4 cherry-pick per ruling 1.
+
+## Fix round r1 (commit-1 review rulings M1, M2, M3.1, M3.2, L1-L5)
+| Finding | Fix | Test |
+| --- | --- | --- |
+| M1 digest copy | Cold claim refs and EV sessions refs read `selected_source_provenance` (`Selected source basis (SHA-256)`, `Not recorded` when null); EV Finding detail `Finding source basis (SHA-256)` on the row block | `coldRoutes::selected_source_basis_survives_pending`; `evAssessmentRoutes::selected_and_finding_source_basis_survive_pending` |
+| M2 source owner | `selectedSourceBlock`/`selectedClassification` (`sourceProvenance.tsx`) used by cold claim facts, cold Site record/claim-rule rows, EV strip badge, EV Site claim line, financials line, assumptions badge; pending class shown only as `Current accepted evidence source`; EV Evidence Analysis record line and sessions `SourceReasons`/`sourceDetail` labelled current-set; backend `claim_rules[].source_class` from the selected block (`ev_site_reads.py`) | `coldRoutes::pending_source_does_not_relabel_cold_claim_or_site_rows` (+ `coldSiteViews.test` row case); `evAssessmentRoutes::pending_source_does_not_relabel_ev_selected_badges_or_rows`; `evSiteMoneyRoutes::selected_claim_rules_and_money_lines_ignore_pending_class`, `::current_accepted_record_line_names_pending_class`; `test_w207_ev_site_reads_postgres::test_claim_rules_source_class_is_selected_not_pending` (fails with the old line) |
+| M3.1 withdrawn, dropped session | `_findings` selects `fr.transition`; lifecycle and transition NO_LONGER_SUPPORTED with a stored session id and zero matches use `ev_withdrawn_finding_row_selection` (two IDs); every other missing/duplicate session still refuses | `test_w206_ev_reads_postgres::test_withdrawn_finding_dropped_session_detail_has_two_id_provenance` (real second loop via rebind START + `select_exact`; SUPPORTED-with-missing-session 503 inside) |
+| M3.2 historical cutoff | cold `pending_since` and EV `job` queried only when `not historical and known is not None`, plus `created_at <= :k` | `test_w203::test_historical_cutoff_precedes_pending_job`; `test_w206::test_historical_cutoff_precedes_pending_job` (extended existing test) |
+| L1 | test only | `test_w206::test_public_selected_ev_class_mismatch_unknown` |
+| L2, L5 | accepted as backlog, no change | none |
+| L3 | named test maps to `test_w203::test_pending_historical_reload` plus the M2 tests above | none |
+| L4 | `.agent/W3-01-lane-a-partial.patch` removed | none |
+Readings to confirm: (1) M3.2 `:k` is the explicit `known_at` only (NULL on default reads): a default read has `known` = watermark and a job's `created_at` is after it, so `:k = known` would hide every real pending job (`test_w203::test_typed_errors_and_unknown_200` fails). (2) EV historical test name already existed; extended, not duplicated. (3) `evSiteRoutes.test.tsx` does not exist; the two named tests are in `evSiteMoneyRoutes.test.tsx`. (4) Test updates to `assessment_revision` use `SET LOCAL session_replication_role = replica` (append-only trigger), restored in `finally`. (5) The Finding strip falls back to the row's own block when no `selected_source_provenance` sibling exists. (6) Open copy item 7 above is now closed.
+Checks (private `w301g_test`, dropped): w203 6 passed (5 full-file run + new test alone); w206 reads + w207 site reads 42 passed (1702 s); frontend cold/ev/coldSite/sourceProvenance files passed; tsc clean; check-all 10/10.
+
+## Lane B commit-2 run (2026-10-20): stopped on q5, no code written
+Merged main (already up to date at `e0d7ab04`). Read the full spec, including the review closures, q1-q4, r1, the token v2
+amendment and the W3-02/W3-03 amendments (token v2, the W3-02 Q8 `$pgReaders` guard, the parser key rule and the
+`group_key` owner = W3-02). Stopped before writing code because of the no-decision rule. `.agent/W3-01-pending-rulings.md` (q5) holds
+blocking items 1-3: every W1 selection read (`postgres_finding_store.index_snapshot/fence/index_lineage`,
+`DispatchReadService.window`, `postgres_action_store.site_window`) opens its own transaction, so a one-transaction
+estate read needs connection-taking variants in Lane A files; the W1 mini-grid read has no as-of `known_at`
+selection (W3-02 `0a`'s `select_dispatch_days_on` appears to be that dependency); and the estate adapter's driver
+import fails rule 8 until Lane A adds `$pgReaders`. Readings 4-9 are listed there. Lane A asks are in
+`.agent/W3-01-lane-a-requests.md`. No DB was created and no test or check-all was run, because no code changed.
+**Next:** the Architect answers q5; then the Lane A prerequisites land; then Lane B builds commit 2 from this spec.
