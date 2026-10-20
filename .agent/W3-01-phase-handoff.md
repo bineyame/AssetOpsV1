@@ -346,3 +346,23 @@ each reverted with `git checkout`: with the `estate` domain disabled, `test_doma
 `$isPgReader` branch dropped, `test_pg_reader_import_allowed` FAILS. check-all: 10/10 PASS. No full suite.
 **Next:** independent review of the contiguous commit-2 range (`a75b0291` prerequisite onward through `d9039997`); then commit 3.
 **Branch released.**
+
+## Lane B q10 round (2026-10-20): commit 2 ready for review; branch released
+Merged `main` at `a37eeb56` (`.agent/W3-01-pending-rulings.md` conflict: main's version). Commit `5d8c5794`
+applies "Run 10 rulings (q10)":
+1. `test_w301_estate_golden_postgres.py`: `mixed` in `REPLAYED`/`BRANCH_REPLAY`; validator requires nonempty cases.
+   `mixed_replay` calls `fresh_database()` once, suppresses the cold/EV `Chain.open()` resets, runs cold `normal`,
+   EV `complete`, the S4 runner (own `PostgresFoundationStore`, no `store` fixture) with F03, adds
+   `W301-EMPTY-001`, re-dates the four imports. Manifest `mixed.cases`: `scope-mixed`, `findings-mixed-week`,
+   `actions-mixed`, `findings-mixed-kobo-day`; `assert_mixed` checks four codes, one tenant, counts, Action rule.
+2. `test_w301_estate_coverage.py` (new): `test_windowed_stale_probe`, `test_windowed_leased_and_failed_jobs` (unit).
+3. `EstateSnapshot.continuation` (set in `index._scope`); `coverage._windowed` evaluates `open_jobs` on a live
+   read or a cursor page. `test_live_open_cold_ev_page_two_keeps_work_fence`; proven non-vacuous (fails 409
+   without the fix, reverted).
+4. `test_w301_estate_index_ev_postgres.py::reselect_at` monkeypatches `w205b.LATE_DECISION` to a DB-clock instant
+   after `k1`; no trigger bypass, no row update.
+Checks (private `w301t_test`, dropped): estate files + `tools/checks/test_estate_guard.py` 28 passed, 0 skipped
+(744 s); `check-all` 10/10. Open: q11 reading (historical page one + cursor, pending-rulings). Risk: the mixed
+read clock is `max(S4 fixture now + 1 min, DB now)`; after 2026-10-30 the cold watermark/KOBO literals may move.
+
+**Branch released.** Next: independent review of commit 2, `a75b0291..HEAD`.
