@@ -199,30 +199,33 @@ class PostgresAssumptionStore:
         Assignments at a cutoff `c` satisfy `recorded_from <= c < recorded_to` (half-open, open-ended when
         `recorded_to` is NULL); current assignments have `recorded_to IS NULL`. Revisions are those recorded
         at or before the cutoff, paged by revision number."""
+        return self._run(lambda c: self.snapshot_on(c, tenant_id, site_id, key, recorded_at, after_revision_no,
+                                                    limit), "REPEATABLE READ")
+
+    @staticmethod
+    def snapshot_on(c: Connection, tenant_id: UUID, site_id: UUID, key: str, recorded_at: datetime | None,
+                    after_revision_no: int, limit: int) -> dict[str, Any]:
+        """`snapshot` on the caller's connection and transaction (W3-01 Run 6 `0a`): no commit, no new snapshot."""
         series = {"t": tenant_id, "s": site_id, "k": key, "c": recorded_at}
         known = "" if recorded_at is None else " AND recorded_at <= :c"
         at = ("recorded_to IS NULL" if recorded_at is None
               else "recorded_from <= :c AND (recorded_to IS NULL OR :c < recorded_to)")
-
-        def work(c: Connection) -> dict[str, Any]:
-            where = "tenant_id = :t AND site_id = :s AND assumption_key = :k"
-            total = c.execute(text(f"SELECT count(*) FROM financial_assumption_revision WHERE {where}{known}"),
-                              series).scalar_one()
-            page = [dict(r._mapping) for r in c.execute(text(
-                f"SELECT {REVISION_COLUMNS} FROM financial_assumption_revision WHERE {where}{known} "
-                "AND revision_no > :after ORDER BY revision_no LIMIT :limit"),
-                {**series, "after": after_revision_no, "limit": limit})]
-            timeline = [dict(r._mapping) for r in c.execute(text(
-                f"SELECT {ASSIGNMENT_COLUMNS} FROM financial_assumption_assignment WHERE {where} AND {at} "
-                "ORDER BY valid_from, id"), series)]
-            ids = sorted({a["revision_id"] for a in timeline} | {a["publication_revision_id"] for a in timeline},
-                         key=str)
-            cited = {} if not ids else {r._mapping["id"]: dict(r._mapping) for r in c.execute(text(
-                f"SELECT {REVISION_COLUMNS} FROM financial_assumption_revision WHERE {where} "
-                "AND id = ANY(:ids)"), {**series, "ids": ids})}
-            return {"total": total, "revisions": page, "timeline": timeline, "cited": cited}
-
-        return self._run(work, "REPEATABLE READ")
+        where = "tenant_id = :t AND site_id = :s AND assumption_key = :k"
+        total = c.execute(text(f"SELECT count(*) FROM financial_assumption_revision WHERE {where}{known}"),
+                          series).scalar_one()
+        page = [dict(r._mapping) for r in c.execute(text(
+            f"SELECT {REVISION_COLUMNS} FROM financial_assumption_revision WHERE {where}{known} "
+            "AND revision_no > :after ORDER BY revision_no LIMIT :limit"),
+            {**series, "after": after_revision_no, "limit": limit})]
+        timeline = [dict(r._mapping) for r in c.execute(text(
+            f"SELECT {ASSIGNMENT_COLUMNS} FROM financial_assumption_assignment WHERE {where} AND {at} "
+            "ORDER BY valid_from, id"), series)]
+        ids = sorted({a["revision_id"] for a in timeline} | {a["publication_revision_id"] for a in timeline},
+                     key=str)
+        cited = {} if not ids else {r._mapping["id"]: dict(r._mapping) for r in c.execute(text(
+            f"SELECT {REVISION_COLUMNS} FROM financial_assumption_revision WHERE {where} "
+            "AND id = ANY(:ids)"), {**series, "ids": ids})}
+        return {"total": total, "revisions": page, "timeline": timeline, "cited": cited}
 
     def revision_detail(self, tenant_id: UUID, site_id: UUID, revision_id: UUID) -> dict[str, Any] | None:
         """The exact revision of this Site with every assignment row that ever named it; None if unknown here."""
