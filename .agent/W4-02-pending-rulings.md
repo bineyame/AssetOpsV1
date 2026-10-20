@@ -83,3 +83,33 @@ Readings applied in step 4 (for review; none changes a spec rule):
 - R4 The CLI subcommand is `run-pending` as specified, but its name is derived from `MiniDepthWorker.run_pending`:
   `tools/checks/run-setup.ps1` bans a quoted `run-` literal outside `runs/identity.py`. Accept, or should the guard
   allow this one CLI spelling?
+
+## q8 (unit 4 S7 tick `mini` stage, `07af0afb`): live mini work on a legacy MINIGRID Site without `minigrid-roles-4`
+
+Raised by run 11 after building q7 rulings 1-5. One adjacent test fails; the builder did not change its intent.
+
+The 0029 trigger enqueues `mini_*` jobs on every MINIGRID Site for mapped roles (closure 4 B1), including legacy
+Sites bound under roles 1-3 (KOBO-001 in `test_s4_schedule_health_postgres.py`). On such a Site the worker always
+refuses `CONFIGURATION_MISSING` ("exactly one minigrid-roles-4 set must cover the hour"), so after three attempts
+each job is FAILED, and q7 ruling 2 keeps a FAILED job live until a later matching selection, which can never
+come. The Site therefore stays scheduled for good, even when DECOMMISSIONED (`EXCLUDED_WITH_WORK`, MINI stage
+running every tick), and the tick's S4 stage then also runs for it.
+
+Failing test: `test_s4_schedule_health_postgres.py::TestHealthAndSeam::test_fence_moved_streak_terminal_s3_failure_requeue_and_recovery`
+(lines ~237-246). It decommissions KOBO-001 and asserts that (a) no work keeps it selected and (b) its unmatched S4
+selection stays as `s4.backlog` in health. With mini work live, the Site is visited, S4 matches, and (b) fails
+(`s["s4"]["backlog"]` is False). Updating (a) alone to expect `EXCLUDED_WITH_WORK` does not save (b).
+
+Options:
+- (a) Enqueue mini jobs only for Sites with a `minigrid-roles-4` binding set in force (0029 trigger/configuration
+  enqueue change), so legacy Sites get no mini work.
+- (b) Keep enqueue; treat a FAILED `CONFIGURATION_MISSING` mini job as not live (discovery predicate change).
+- (c) Keep both; rewrite the health test to clear the Site's mini jobs before decommissioning (test-only), and
+  accept that legacy MINIGRID Sites stay scheduled with permanently FAILED mini jobs.
+- (d) Another rule.
+
+Also confirm two readings in the q7 build: `mini_failed` counts jobs this stage left FAILED (RETRY outcomes are
+not counted; they are in `mini_deferred` as PENDING), and `live_mini_jobs` returns the `live_jobs` fields plus the
+job `domain`. The Site health report exposes no Site-head counts today, so the three counters are only in
+`site_head(s)` reads and the tick report; no health field was added. Downgrade takes `LOCK TABLE
+schedule_site_head IN EXCLUSIVE MODE` before the ruled MINI-stage check.
