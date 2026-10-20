@@ -177,3 +177,23 @@ Surveyed against q5/q6. Builder stops here per "decide nothing"; each item names
   at most 31 days.`, `` `limit` must be an integer from 1 to 100. ``, ISO/UTC instant messages), and the refusal
   table's literals for `INVALID_CURSOR`/`WORK_BASIS_CHANGED`. Also: list paths registered as two literal routes
   `/work/incidents` and `/work/maintenance` (no `{kind}` param, so `/work/cases` cannot collide). Confirm.
+
+## q8 - commit-5 open items (run 10, after `0e77205d`; code complete, none chosen by the builder)
+
+1. **Missing-claim scan refuses the spec's literal copy (blocks check-all 2/10).** `tools/checks/missing-claim-scan.mjs`
+   flags `siteWorkCases.tsx` `WORK_CONTEXT_NOTICE` ("...A global work page and create flow are not available yet.")
+   and the strip's `Manage in {Incidents|Maintenance} · Not available yet` as untagged missing-capability copy (also
+   failing its fixture self-check). Both strings are the spec's literal copy (copy table; S31: plain text, never
+   `UnavailableEntry`). Which route: (a) register two `mock_gaps` gaps (e.g. global Incidents/Maintenance list and
+   global create flow) in the registry + `ui/gapCatalogue.ts` and render through `<MissingClaim gapId placement>`;
+   (b) add reviewed `REVIEWED_EXEMPTIONS` entries (file, const, exact text) as W1-UX-07 did for the rail; or
+   (c) different copy? The builder kept the literal copy and the failing guard.
+2. **Registry "reviewed panel paths" for the two owned panels.** Adding `panels[]` rows for `sitework-incidents:1`
+   and `sitework-maintenance:1` makes them pilot screens; the checker then requires the screen-ledger rows'
+   `registry_dependencies` (`product_node_id`, `node_ids`) to match, and `P-work-cases` is `pending owner`. Commit 5
+   only tags the nine W4 nodes `"task":"W4-01"` (status unchanged, checker passes). Rule which representation the
+   panel paths take (registry panels + ledger rows + product node), or confirm task tags only until closeout.
+3. **Readings needing confirmation** (implemented, listed in the packet "Commit-5 readings"): request OPEN chip
+   amber vs incident red; Maintenance Activity cell without a second Unverified badge (dry-read over S20); `STALE_SOURCE`
+   strip copy `Linked evidence source is out of date` (no literal given); no mock subtab counts `(n)`; no empty-block
+   icon (svg guard); one-row narrow window form; Previous trail kept in history state (reload-safe, not URL).
