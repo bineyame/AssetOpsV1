@@ -187,3 +187,16 @@ Built: `backend/tests/fixtures/w3/w301-estate-golden.json` (`w301-estate-golden/
    default cutoff is a known six-digit value. A changed-cursor case's expected is the literal
    `{"refusal": {"code": "ESTATE_BASIS_CHANGED", "status": 409}}`, outside the q9 200-body shape. Coverage Sites keep
    the wire `match_state` beside the projected keys (whole-response comparison). Confirm or rule otherwise.
+
+## q11 (Lane B q10 run, 2026-10-20): one reading, built as ruled, non-blocking
+
+1. **q10 ruling 3 and an explicit historical page one (reading).** Built as ruled: a cursor continuation evaluates
+   `open_jobs` (`created_at <= cursor_known_at`, same overlap/domain predicate) and keeps its `job_state` in
+   `estate-selection/2`; an explicit historical read without a cursor still suppresses it (Run 8 ruling 6). The
+   cursor does not record whether page one was live. So when page one is an **explicit historical** read
+   (`known_at` < read time) and an overlapping job created by that cutoff is still PENDING/LEASED/FAILED, page one's
+   token has `job_state` SETTLED/NONE while page two's has PENDING/FAILED, and page two answers 409
+   `ESTATE_BASIS_CHANGED` although nothing changed between the requests. No current test exercises that case.
+   Options: (a) accept (the client restarts from page one); (b) record page one's live/historical mode in the
+   cursor and fence only a live page one's work state; (c) evaluate the work fence on historical page one too.
+   Confirm or rule; nothing else depends on it.
