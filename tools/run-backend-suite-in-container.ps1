@@ -9,7 +9,7 @@
 # junit.xml, console.log, wall-time.txt and connections.csv to var/test-results/OPS-03/<run-id>/.
 # The pytest wall time is capped at -CapMinutes (2x the expected wall in backend/TESTING.md); a run past the
 # cap is recorded as a hang (timeout.txt), terminated, and exits 124. The URL and password are never printed.
-param([int]$CapMinutes = 120)
+param([int]$CapMinutes = 100)  # 2x the measured 50-min expected wall (backend/TESTING.md Timing)
 
 # Continue: Windows PowerShell 5.1 turns native stderr into terminating errors under Stop; failures are checked
 # explicitly through `$LASTEXITCODE` and -ErrorAction Stop instead.
