@@ -1,5 +1,47 @@
 # W3-02 phase handoff
 
+## 0b (Lane A) - READY FOR REVIEW
+
+Commit `d208faef` on `task/W3-02-estate-evidence-money-basis` (after merging main into `2d36689a`). 0a files
+untouched. Branch released. Spec: Review closure 4, "W1 day source, cold/EV windows and pinned facades", first
+paragraph only.
+
+What landed:
+- `analytics/claim_limit_read.py`: `ClaimLimitReadService.claim_limit_on(c,tenant_id,site_id,day,revision_id,
+  known_at)` (never `read()`/`claim_limit_snapshot()`); module `interval_state`, `reduce_day`, `GAP_CODES`,
+  `HISTORICAL_SELECTION_UNAVAILABLE`, state constants. Protocol `ClaimLimitStore` gains `claim_limit_snapshot_on`.
+- `analytics/adapters/postgres_assessment_store.py`: one new method `claim_limit_snapshot_on`, placed directly after
+  `_revision_detail`; it composes `select_dispatch_days_on` (one day) and `_revision_detail`. No existing function
+  changed (W4-02 merge surface untouched).
+- Tests: `tests/test_w302_w1_day_reduction.py` (5, pure: precedence, zero intervals, single-ceiling agreement,
+  role-tagged gaps vs role-less window reasons, unavailable). `tests/test_w302_w1_claim_limit_on_postgres.py` (3:
+  F02 two days; F06 cutoff with disagreeing FULL/LIMITED intervals, gaps, later CONTRADICTORY selection, later
+  revision/acceptance excluded, earlier selection as HISTORICAL; DONE-without-selection unavailable history). The
+  store `_snapshot` is monkeypatched to raise, so any second transaction fails the test.
+
+Checks: those 2 files + `test_w301_w1_snapshot_helpers_postgres`, `test_s3_claim_limit_postgres`,
+`test_s3_claim_limit_vocabulary`, `test_s3_dispatch_read_postgres`, `test_s3_dispatch_assessment_postgres`,
+`test_s3_dispatch_v3_analytic` on private DB `w302b_test`: 77 passed, 0 skipped, 1m43s; DB dropped. `check-all`:
+11/11 guards passed. No full suite run. The `_snapshot` trap was not separately mutation-proven.
+
+Readings (recorded, not rulings):
+1. `revision_id` is the day's window revision (all INTERVAL revisions of its run are projected) or one INTERVAL
+   revision (that one only). Lane B calls it with `window_assessment_revision_id`.
+2. Interval state: a role-tagged `CONFLICTING` reason gives CONTRADICTORY (even when not CURRENT); otherwise any
+   non-CURRENT currentness (PENDING/FAILED/STALE_PROJECTION/UNASSESSED/HISTORICAL) gives UNKNOWN; else support
+   COMPLETE/NONE/LIMITED -> FULL/NONE/LIMITED.
+3. A revision not in the day's selection at `known_at` is HISTORICAL (IDs, `historical_ceiling` kept, no current
+   claim), not refused. Day unavailable, revision/interval/run recorded after the cutoff, or cited Evidence accepted
+   after it -> `available=False` + `HISTORICAL_SELECTION_UNAVAILABLE`. Unknown revision 404, other window 422,
+   unsupported model 422 and absent lineage 409 are raised as `read()` does; the estate caller maps them to UNKNOWN.
+4. Interval reasons exclude window limitations; role-less window reasons are returned separately as
+   `window_reasons` and never become gaps. Gaps carry `domain="dispatch"` (the W1 DOMAIN constant).
+5. The W1 `_reasons` maps NOT_EVALUATED spans to `GENERATOR_UNOBSERVED` with the span's role, so F06 yields
+   `GENERATOR_UNOBSERVED` gaps for non-generator roles; kept as the reused W1 vocabulary.
+6. The row key `GENERATOR_SUPPORT@YYYY-MM-DD` and placeholders are left to commit 1.
+
+Next: `0c` (Lane A, pinned facades), after 0b review.
+
 ## 0a (Lane A) - READY FOR REVIEW
 
 Commit `7a4d06ef` on `task/W3-02-estate-evidence-money-basis` (base main `c50ea24b`). Branch released.
