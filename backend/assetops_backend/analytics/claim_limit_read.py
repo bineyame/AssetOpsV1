@@ -71,6 +71,9 @@ class ClaimLimitStore(Protocol):
                              basis: Callable[[EvidenceQueryResult], tuple[str | None, str]],
                              revision_id: UUID | None) -> tuple[WindowSnapshot, dict[str, Any] | None]: ...
 
+    def claim_limit_snapshot_on(self, c: Any, tenant_id: UUID, site_id: UUID, day: date, revision_id: UUID | None,
+                                known_at: datetime) -> tuple[dict[str, Any], dict[str, Any] | None]: ...
+
 
 def _t(value: str | datetime | None) -> datetime | None:
     if value is None or isinstance(value, datetime):
@@ -348,3 +351,175 @@ class ClaimLimitReadService:
                 "capability": {"rule_id": RULE_ID, "required_roles": list(REQUIRED_ROLES), "roles": coverage,
                                "basis": "stored segments of this exact revision and its pinned accepted Evidence"},
                 "claim_limit": claim_limit}
+
+    # --- W3-02 0b: connection-taking W1 interval projection at a cutoff (build spec closure 4, W1 day source) ---
+
+    def claim_limit_on(self, c: Any, tenant_id: UUID, site_id: UUID, day: date, revision_id: UUID | None,
+                       known_at: datetime) -> dict[str, Any]:
+        """The claim limit of each selected INTERVAL revision of one UTC day, as of `known_at`, on the caller's
+        connection `c`. It never calls `read()` or `claim_limit_snapshot()` (both open their own transaction).
+
+        `revision_id` is the day's window revision (every INTERVAL revision of its run is projected) or one
+        INTERVAL revision. Each interval reuses `role_coverage`, `interval_ceiling` and `_reasons` and exposes its
+        exact ceiling/support/statement, currentness, typed reasons (with `role`), its revision ID and its full
+        cited accepted Evidence IDs. Currentness is the day's at-cutoff status when the revision is in the day's
+        selection at `known_at`, else HISTORICAL (IDs kept, no current claim). A day, revision, run or accepted
+        Evidence the stored records cannot reconstruct at `known_at` gives `available=False` with
+        `HISTORICAL_SELECTION_UNAVAILABLE` and no ceiling. Refusals mirror `read()`: unknown/foreign revision 404,
+        another window 422, unsupported model 422, absent accepted lineage 409."""
+        window = day_window(day)
+        selected, revision = self.store.claim_limit_snapshot_on(c, tenant_id, site_id, day, revision_id, known_at)
+        body: dict[str, Any] = {
+            "schema": SCHEMA, "schema_version": SCHEMA_VERSION, "rule_id": RULE_ID,
+            "tenant_id": str(tenant_id), "site_id": str(site_id), "domain": DOMAIN, "day": day.isoformat(),
+            "window": {"start": window.start, "end": window.end}, "known_at": known_at,
+            "window_status": selected["status"], "window_status_reasons": list(selected["status_reasons"]),
+            "selected_run_id": None if selected["run_id"] is None else str(selected["run_id"]),
+            "selected_revision_ids": list(selected["assessment_revision_ids"]),
+            "window_assessment_revision_id": None if selected["window_assessment_revision_id"] is None
+            else str(selected["window_assessment_revision_id"]),
+            "assessment_revision_id": None if revision_id is None else str(revision_id),
+            "not_inferred": NOT_INFERRED,
+        }
+
+        def unavailable(reasons: list[str]) -> dict[str, Any]:
+            return {**body, "available": False, "currentness": None, "intervals": [], "window_reasons": [],
+                    "reasons": [{"code": HISTORICAL_SELECTION_UNAVAILABLE, "text": r} for r in reasons]}
+
+        if not selected["available"]:
+            return unavailable(list(selected["unavailable_reasons"]))
+        if revision_id is None:
+            return {**body, "available": True, "currentness": UNASSESSED, "intervals": [], "window_reasons": [],
+                    "reasons": [{"code": "NO_REVISION_SELECTED",
+                                 "text": "No assessment revision selected; no claim ceiling is shown (absence is "
+                                         "not a zero capability)."}]}
+        if revision is None or revision.get("analytic_id") != self.model.ANALYTIC_ID:
+            raise ClaimLimitRefusal(404, "ASSESSMENT_REVISION_NOT_FOUND", "No such assessment revision for this Site.")
+        if (_t(revision["window_start"]), _t(revision["window_end"])) != (window.start, window.end):
+            raise ClaimLimitRefusal(422, "REVISION_OUTSIDE_WINDOW",
+                                    f"Revision {revision_id} belongs to window {revision['window_start']}.., not "
+                                    f"the selected UTC day {day.isoformat()}.")
+        if revision["model_version"] not in SUPPORTED_MODELS:
+            raise ClaimLimitRefusal(422, "UNSUPPORTED_RULE_VERSION",
+                                    f"{RULE_ID} maps {', '.join(SUPPORTED_MODELS)} results only; this revision is "
+                                    f"{revision['model_version']}.")
+        run = revision.get("run")
+        if run is None:
+            raise ClaimLimitRefusal(409, "ACCEPTED_LINEAGE_ABSENT",
+                                    "The revision's run is not stored; no capability or ceiling is derived.")
+        scope = "WINDOW" if revision["assessment_key"].startswith(f"{self.model.ANALYTIC_ID}:window:") else "INTERVAL"
+        intervals = ([r for r in run["revisions"] if r.get("scope") == "INTERVAL"] if scope == "WINDOW"
+                     else [revision])
+        accepted = {str(e["evidence_id"]): e for e in [*revision.get("evidence", []), *run.get("evidence", [])]
+                    if e.get("disposition") == "ACCEPTED"}
+        cited = sorted({str(e) for r in intervals for e in r["evidence_ids"]})
+        absent = sorted(set(cited) - set(accepted))
+        if absent:
+            raise ClaimLimitRefusal(409, "ACCEPTED_LINEAGE_ABSENT",
+                                    "The revision's pinned Evidence is not all centrally accepted public Evidence "
+                                    f"({len(absent)} ID(s) absent); no capability or ceiling is derived.")
+        late = [f"REVISION_AFTER_CUTOFF: revision {r['id']} was recorded after the cutoff"
+                for r in [revision, *intervals] if r["created_at"] > known_at]
+        if run["completed_at"] is None or run["completed_at"] > known_at:
+            late.append(f"RUN_AFTER_CUTOFF: run {run['id']} was recorded after the cutoff")
+        late += [f"EVIDENCE_ACCEPTED_AFTER_CUTOFF: Evidence {k} was accepted after the cutoff" for k in cited
+                 if accepted[k]["accepted_at"] is None or accepted[k]["accepted_at"] > known_at]
+        if late:
+            return unavailable(late)
+        evidence: Evidence = {k: {"role": e["role"], "at": _t(e["interval_end"] or e["source_time"])}
+                              for k, e in accepted.items()}
+        members = {str(r) for r in selected["assessment_revision_ids"]}
+        selected_here = (selected["run_id"] is not None and str(selected["run_id"]) == str(run["id"])
+                         and str(revision["id"]) in members)
+        out = []
+        for interval in sorted(intervals, key=lambda r: str(r["id"])):
+            currentness = selected["status"] if selected_here and str(interval["id"]) in members else HISTORICAL
+            current = currentness == CURRENT
+            result = interval["result"] or {}
+            cov = role_coverage(result.get("segments", []), evidence, str(interval["id"]))
+            own = interval_ceiling(interval, cov, evidence, run["cohort_status"])
+            reasons = _reasons(result, cov, [])
+            reasons += [{"code": t.split(":", 1)[0], "text": t} for t in own["withheld"]]
+            if not current:
+                reasons.insert(0, {"code": "NOT_CURRENT", "text": (
+                    "This exact revision is not in the day's selection at the cutoff; shown as history only."
+                    if currentness == HISTORICAL else
+                    f"The day's selection is {currentness} at the cutoff; no current claim is made from it.")})
+            ceiling = {k: own[k] for k in ("ceiling", "support", "supported_minutes", "statement")}
+            out.append({
+                "assessment_revision_id": str(interval["id"]), "assessment_key": interval["assessment_key"],
+                "claim_level": interval["claim_level"], "currentness": currentness,
+                **{k: (v if current else None) for k, v in ceiling.items()},
+                "current_positive_claim": current and own["positive"],
+                "historical_ceiling": None if current else ceiling,
+                "reasons": reasons, "accepted_evidence_ids": sorted({str(e) for e in interval["evidence_ids"]}),
+                "state": interval_state(currentness, own["support"], reasons)})
+        window_rev = next((r for r in run["revisions"] if r.get("scope") == "WINDOW"), None)
+        window_limits = list(((window_rev or {}).get("result") or {}).get("limitations", []))
+        return {**body, "available": True, "scope": scope, "run_id": str(run["id"]),
+                "currentness": selected["status"] if selected_here else HISTORICAL,
+                "intervals": out, "window_reasons": _reasons({}, {}, window_limits), "reasons": []}
+
+
+HISTORICAL_SELECTION_UNAVAILABLE = "HISTORICAL_SELECTION_UNAVAILABLE"
+FULL, LIMITED, NONE, CONTRADICTORY, UNKNOWN = "FULL", "LIMITED", "NONE", "CONTRADICTORY", "UNKNOWN"
+#: Closure-1 admitted W1 gap codes: a reason becomes an estate gap only with one of these and a concrete `role`.
+GAP_CODES = ("MISSING_ROLE", "GENERATOR_UNOBSERVED", "POOR_QUALITY", "CONFLICTING")
+
+
+def interval_state(currentness: str, support: str, reasons: list[dict[str, Any]]) -> str:
+    """One interval's display state: a role-tagged CONFLICTING reason is CONTRADICTORY; else a non-CURRENT
+    interval (missing, failed, stale, pending, unassessed or historical) is UNKNOWN; else COMPLETE -> FULL,
+    NONE -> NONE, LIMITED -> LIMITED."""
+    if any(r["code"] == "CONFLICTING" and r.get("role") for r in reasons):
+        return CONTRADICTORY
+    if currentness != CURRENT:
+        return UNKNOWN
+    return {"COMPLETE": FULL, "NONE": NONE}.get(support, LIMITED)
+
+
+def reduce_day(projection: dict[str, Any]) -> dict[str, Any]:
+    """Reduce one `claim_limit_on` day from all its selected interval revisions, never the window revision's
+    claim: CONTRADICTORY wins; otherwise any UNKNOWN interval gives UNKNOWN; otherwise all FULL gives FULL, any
+    NONE gives NONE, else LIMITED. Zero intervals, or an unreconstructable day, is UNKNOWN. A single day ceiling
+    exists only when every interval carries the same current positive Candidate/Necessary ceiling and the
+    identical statement. Gaps are only role-tagged interval reasons with an admitted code, grouped by
+    `(domain, gap_code, missing_role)`; role-less window reasons are never gaps."""
+    intervals = projection["intervals"] if projection["available"] else []
+    states = [i["state"] for i in intervals]
+    if not states:
+        state = UNKNOWN
+    elif CONTRADICTORY in states:
+        state = CONTRADICTORY
+    elif UNKNOWN in states:
+        state = UNKNOWN
+    elif all(s == FULL for s in states):
+        state = FULL
+    else:
+        state = NONE if NONE in states else LIMITED
+    single = {(i["ceiling"], i["statement"]) for i in intervals}
+    one = len(single) == 1 and all(i["current_positive_claim"] and i["ceiling"] in (CANDIDATE, NECESSARY)
+                                   for i in intervals)
+    ceiling, statement = next(iter(single)) if one else (None, None)
+    gaps: dict[tuple[str, str, str], set[str]] = {}
+    for i in intervals:
+        for r in i["reasons"]:
+            if r["code"] in GAP_CODES and r.get("role"):
+                gaps.setdefault((projection["domain"], r["code"], r["role"]), set()).add(i["assessment_revision_id"])
+    return {
+        "day": projection["day"], "available": projection["available"], "state": state,
+        "current_ceiling": ceiling, "ceiling_statement": statement,
+        "ceiling_source": "W1_CLAIM_LIMIT" if one else None,
+        "assessment_revision_ids": sorted(i["assessment_revision_id"] for i in intervals),
+        "window_assessment_revision_id": projection["window_assessment_revision_id"],
+        "accepted_evidence_ids": sorted({e for i in intervals for e in i["accepted_evidence_ids"]}),
+        "interval_ceilings": [{"assessment_revision_id": i["assessment_revision_id"], "state": i["state"],
+                               "currentness": i["currentness"],
+                               **{k: i[k] for k in ("ceiling", "support", "supported_minutes", "statement")},
+                               "historical_ceiling": i["historical_ceiling"]} for i in intervals],
+        "gaps": [{"domain": d, "gap_code": g, "missing_role": role, "assessment_revision_ids": sorted(ids)}
+                 for (d, g, role), ids in sorted(gaps.items())],
+        "reasons": [] if projection["available"] else [
+            {"code": HISTORICAL_SELECTION_UNAVAILABLE,
+             "text": "The day's selection at the cutoff cannot be reconstructed from stored records."}],
+    }
