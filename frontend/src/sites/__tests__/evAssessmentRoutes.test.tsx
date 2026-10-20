@@ -704,3 +704,41 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expect(document.querySelectorAll("[data-panel-gap]")).toHaveLength(3);
   });
 });
+
+describe("W3-01 r1 M1/M2: selected versus pending source copy", () => {
+  const PENDING = { ...SELECTED_BLOCK, classification: "MIXED", state: "MIXED", basis_sha256: null, source_ids: [id(9)], evidence_ids: [id(100), id(101)] };
+  const pendingSessions = { ...STATES.pendingLate, source_provenance: PENDING, selected_source_provenance: SELECTED_BLOCK, pending_source_provenance: PENDING };
+
+  it("selected_and_finding_source_basis_survive_pending", async () => {
+    renderEv(SESSIONS, ok(pendingSessions));
+    await settledScreen();
+    const refs = panelTitled("Session service records").querySelector('[data-disclosure="ev-session-references"]') as HTMLElement;
+    expect(refs.textContent).toContain("Selected source basis (SHA-256)");
+    expect(refs.textContent).toContain(SELECTED_BLOCK.basis_sha256);
+    expect(main().textContent).not.toContain("Assessment basis");
+    cleanup();
+    const row = { ...SELECTED_BLOCK, basis_sha256: `sha256:${"c".repeat(64)}` };
+    renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, source_provenance: row, selected_source_provenance: undefined, pending_source_provenance: PENDING }));
+    await settledScreen();
+    const text = main().textContent ?? "";
+    expect(text).toContain("Finding source basis (SHA-256)");
+    expect(text).toContain(row.basis_sha256);
+    expect(text).not.toContain("Assessment basis");
+  });
+
+  it("pending_source_does_not_relabel_ev_selected_badges_or_rows", async () => {
+    renderEv(SESSIONS, ok(pendingSessions));
+    await settledScreen();
+    expect(strip()).toContain("Generated test data");
+    expect(document.querySelector("[data-ev-provenance-note]")).not.toBeNull();
+    expect(strip()).toContain("Current accepted evidence source: Mixed sources");
+    expect(strip().replace("Current accepted evidence source: Mixed sources", "")).not.toContain("Mixed sources");
+    cleanup();
+    // no selected result: no selected-result badge or simulation note; the pending class is labelled as current evidence
+    renderEv(SESSIONS, ok({ ...pendingSessions, selected_source_provenance: null }));
+    await settledScreen();
+    expect(strip()).not.toContain("Generated test data");
+    expect(document.querySelector("[data-ev-provenance-note]")).toBeNull();
+    expect(strip()).toContain("Current accepted evidence source: Mixed sources");
+  });
+});
