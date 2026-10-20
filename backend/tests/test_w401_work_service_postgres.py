@@ -32,6 +32,7 @@ if URL:
     from assetops_backend.work.model import WorkRefused
 
 PRINCIPAL = "service:w401-fixture"
+FIXTURE = __import__("pathlib").Path(__file__).parent / "fixtures" / "w4" / "w401-work.json"
 BASIS = "SITE_WORK_WRITE:service:w401-fixture"
 ACTOR = {"kind": "SERVICE", "id": PRINCIPAL, "attestation": "service=w401-fixture;job=positive-case;rule=w401/1"}
 TABLES = ("work_case", "incident", "maintenance_work_request", "work_case_revision", "work_case_finding_link",
@@ -182,6 +183,23 @@ def clocked(runner):  # noqa: F811
 
 def test_incident_attestation_reload_and_exact_links(runner, clocked) -> None:  # noqa: F811
     ctx = clocked
+    # M2 (Review r1): the frozen input fixture is schema `w401-work/1`, sorted keys, final LF, and drives this
+    # harness's idempotency keys; the resolved IDs below come from public reads in this private DB, never from it.
+    raw = FIXTURE.read_bytes()
+    fixture = __import__("json").loads(raw.decode("utf-8"))
+    assert raw.endswith(b"\n") and not raw.endswith(b"\n\n") and b"\r" not in raw
+    assert raw == (__import__("json").dumps(fixture, sort_keys=True, indent=2, ensure_ascii=False) + "\n").encode()
+    assert fixture["schema"] == "w401-work/1" and fixture["positive_site"] == "KOBO-001"
+    assert fixture["site_codes"] == ["KOBO-001", "COLD-LAB-001", "EV-LAB-001"]
+    assert fixture["accepted_evidence_ids"] == [] and fixture["finding_links"] == []
+    assert fixture["case_create_key"] == incident()["idempotency_key"]
+    assert fixture["request_create_key"] == request()["idempotency_key"]
+    assert fixture["record_create_key"] == record()["idempotency_key"]
+    assert fixture["plan_create_key"] == plan()["idempotency_key"]
+    assert fixture["expect"]["incident"]["kind"] == incident()["kind"]
+    assert fixture["expect"]["request"]["kind"] == request()["kind"]
+    assert fixture["expect"]["activity_record"]["outcome"] == fixture["expect"]["plan"]["outcome"] == "UNVERIFIED"
+    assert "INC-203" not in raw.decode() and "WR-019" not in raw.decode()
     run_case(runner, CASES["F01"])
     row = public_finding(runner)
     fid, frev, cited = row["finding_id"], row["finding_revision_id"], row["cited"]["accepted_evidence_ids"]

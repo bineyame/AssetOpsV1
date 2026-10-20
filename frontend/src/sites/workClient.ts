@@ -26,6 +26,8 @@ export interface WorkScope {
   knownAt?: string | null;
   /** The server's opaque cursor; null for page one. */
   cursor?: string | null;
+  /** Page size; the lists use the fixed page limit, the subtab counts ask for one row. */
+  limit?: number;
 }
 
 export interface WorkFindingLink {
@@ -147,7 +149,7 @@ export async function readWorkIndex(path: string): Promise<WorkIndexResult> {
 
 /** The API query: window, five rows, and the bound cutoff and cursor when present. */
 export function workIndexQuery(scope: WorkScope): string {
-  const query = new URLSearchParams({ from: scope.from, to: scope.to, limit: String(WORK_PAGE_LIMIT) });
+  const query = new URLSearchParams({ from: scope.from, to: scope.to, limit: String(scope.limit ?? WORK_PAGE_LIMIT) });
   if (scope.knownAt) query.set("known_at", scope.knownAt);
   if (scope.cursor) query.set("cursor", scope.cursor);
   return query.toString();

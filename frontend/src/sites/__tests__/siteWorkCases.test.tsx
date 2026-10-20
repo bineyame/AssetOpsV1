@@ -17,7 +17,6 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { siteFindingHref } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
-import { rowLabels } from "../../test/unavailableEntry";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { defaultWorkWindow, type WorkIndexBody, type WorkRow } from "../workClient";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -97,11 +96,15 @@ const refusal = (code: string, message: string) => ({ detail: { code, message, r
 
 type Served = { status: number; body: unknown };
 
+/** The subtab-count reads (`limit=1`), kept apart from the page's own list reads. */
+let countRequests: string[] = [];
+
 function serve(gets: Record<string, Served>) {
   const requests: string[] = [];
+  countRequests = [];
   vi.stubGlobal("fetch", async (url: string) => {
     const path = decodeURIComponent(String(url));
-    requests.push(path);
+    (/[?&]limit=1(&|$)/.test(path) ? countRequests : requests).push(path);
     const hit = gets[path];
     if (!hit) return new Response(JSON.stringify({ detail: { code: "TEST_UNMATCHED", message: path } }), { status: 599 });
     return new Response(JSON.stringify(hit.body), { status: hit.status });
@@ -111,6 +114,14 @@ function serve(gets: Record<string, Served>) {
 
 const api = (kind: string, w: { from: string; to: string }, extra = "") =>
   `/api/sites/KOBO-001/work/${kind}?from=${w.from}&to=${w.to}&limit=5${extra}`;
+const countPath = (kind: string, w: { from: string; to: string }) =>
+  kind === "actions"
+    ? `/api/sites/KOBO-001/action-index?from=${w.from}&to=${w.to}&limit=1`
+    : `/api/sites/KOBO-001/work/${kind}?from=${w.from}&to=${w.to}&limit=1`;
+const actionCount = (total: number) => ({
+  status: 200,
+  body: { schema_version: "site-action-index-1", status: "CURRENT", rows: [], total_count: total, fence: "f", window: {}, read_at: K },
+});
 const page = (kind: string, w: { from: string; to: string }) =>
   `/sites/KOBO-001/work/${kind}?${new URLSearchParams(w).toString()}`;
 
@@ -165,6 +176,10 @@ describe("W4-01: Site > Work > Incidents", () => {
         status: 200,
         body: body([incidentRow(6), incidentRow(7)], { total_count: 7, status: "HISTORICAL" }),
       },
+      [api("incidents", DAY, `&known_at=${K}`)]: {
+        status: 200,
+        body: body(rows, { total_count: 7, next_cursor: "CURSOR-2", status: "HISTORICAL" }),
+      },
     });
     mount(page("incidents", DAY));
     await settledScreen();
@@ -173,6 +188,10 @@ describe("W4-01: Site > Work > Incidents", () => {
     expect(text(strip())).toContain("Scoped to Kobo · 7 incidents");
     expect(text(strip())).toContain("Manage in Incidents · Not available yet");
     expect(strip().querySelector("a")).toBeNull();
+    // H3: CURRENT adds no status word and no fourth slot; the strip is lead, detail, Manage.
+    expect(strip().querySelector(".status-strip__state, [data-work-status]")).toBeNull();
+    expect(text(strip())).not.toContain("Read in full");
+    expect(strip().querySelectorAll(":scope > span")).toHaveLength(3);
     const panel = panelTitled("Incidents at this site");
     expect(text(panel)).toContain("A case links chronology, findings and work without copying them");
     expect(Array.from(panel.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
@@ -210,6 +229,14 @@ describe("W4-01: Site > Work > Incidents", () => {
     expect(page2.querySelector("[data-work-next]")).toBeNull();
     expect(page2.querySelector("[data-work-previous]")).not.toBeNull();
     expect(text(strip())).toContain("Scoped to Kobo · 7 incidents");
+    // M1: page two reads as of the first page's K (explicitly sent); the strip stays three slots.
+    expect(text(strip())).toContain("Read as of 2026-10-07 00:00 UTC");
+    expect(strip().querySelectorAll(":scope > span")).toHaveLength(3);
+    // Previous sends the same K again, and the page still reads as of it.
+    fireEvent.click(page2.querySelector("[data-work-previous]") as HTMLElement);
+    await settledScreen();
+    expect(requests.at(-1)).toBe(api("incidents", DAY, `&known_at=${K}`));
+    expect(text(strip())).toContain("Read as of 2026-10-07 00:00 UTC");
     cleanup();
     vi.unstubAllGlobals();
 
@@ -220,6 +247,10 @@ describe("W4-01: Site > Work > Incidents", () => {
     expectSlots("sitework-incidents");
     expect(text(strip())).toContain("Scoped to Kobo · 0 incidents");
     const empty = panelTitled("Incidents at this site").querySelector("[data-work-empty]") as HTMLElement;
+    // H2: the mock's evidence icon, decorative, in the empty block.
+    const icon = empty.querySelector("[data-work-empty-icon]") as HTMLElement;
+    expect(icon.getAttribute("aria-hidden")).toBe("true");
+    expect(icon.querySelector("svg[data-rail-icon='evidence']")).not.toBeNull();
     expect(text(empty.querySelector("h3"))).toBe("No incidents at this site");
     expect(text(empty.querySelector("p"))).toBe(
       "No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap.",
@@ -244,7 +275,9 @@ describe("W4-01: Site > Work > Incidents", () => {
       const refused = panelTitled("Incidents at this site").querySelector("[data-work-refused]") as HTMLElement;
       expect(refused.getAttribute("data-work-code")).toBe(code);
       expect(text(refused)).toContain(copy);
-      expect(document.querySelector("main [data-work-empty], main tbody tr")).toBeNull();
+      expect(document.querySelector("main [data-work-empty], main [data-work-empty-icon], main tbody tr")).toBeNull();
+      // A refusal without a read timestamp says so; it never shows a read time or a zero.
+      expect(text(refused)).toContain("As of: time not recorded");
       cleanup();
       vi.unstubAllGlobals();
     }
@@ -377,16 +410,19 @@ describe("W4-01: Site > Work > Maintenance", () => {
     expect(requests).toEqual([api("maintenance", w)]);
     expectSlots("sitework-maintenance");
     const empty = panelTitled("Maintenance at this site").querySelector("[data-work-empty]") as HTMLElement;
+    expect(empty.querySelector("[data-work-empty-icon] svg[data-rail-icon='evidence']")).not.toBeNull();
     expect(text(empty.querySelector("h3"))).toBe("No maintenance work at this site");
     expect(text(empty.querySelector("p"))).toBe("No inspection or repair has been raised here in the selected period.");
     // One Work subrow, Actions first, both lists live; no Incidents/Maintenance unavailable entry or Site tab.
     const row = screen.getByRole("navigation", { name: "Work lists" });
-    expect(rowLabels(row)).toEqual(["Actions", "Incidents", "Maintenance"]);
-    expect(within(row).getAllByRole("link").map((l) => [l.textContent, l.getAttribute("aria-current")])).toEqual([
-      ["Actions", null],
-      ["Incidents", null],
-      ["Maintenance", "page"],
-    ]);
+    // H1: three known counts (full total_count, one row requested), shown as the mock's `Label (n)`.
+    await vi.waitFor(() =>
+      expect(within(row).getAllByRole("link").map((l) => [l.textContent, l.getAttribute("aria-current")])).toEqual([
+        ["Actions (—)", null],
+        ["Incidents (—)", null],
+        ["Maintenance (—)", "page"],
+      ]),
+    );
     expect(document.querySelectorAll("main nav[aria-label='Work lists']")).toHaveLength(1);
     expect(document.querySelectorAll("main [data-tab-unavailable='Incidents'], main [data-tab-unavailable='Maintenance']")).toHaveLength(0);
     // The global Manage link is static text; the notice has no link.
@@ -396,12 +432,123 @@ describe("W4-01: Site > Work > Maintenance", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(HYBRID_MINI_GRID_SITE.display_name);
     expect(document.body.textContent).toContain("Site-scoped work · maintenance");
     // The subrow moves to Incidents at the same default window.
-    fireEvent.click(within(row).getByRole("link", { name: "Incidents" }));
+    fireEvent.click(within(row).getByRole("link", { name: /^Incidents/ }));
     await settledScreen();
     expect(requests).toEqual([api("maintenance", w), api("incidents", w)]);
     expectSlots("sitework-incidents");
     expect(document.body.textContent).toContain("Site-scoped work · incidents");
     // At narrow width the table keeps its minimum width inside its own scroller (CSS; measured in the captures).
     expect(document.querySelector("main .w1f4-changes-work.work-cases")).not.toBeNull();
+  });
+});
+
+describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
+  const labels = () =>
+    within(screen.getByRole("navigation", { name: "Work lists" })).getAllByRole("link").map((l) => l.textContent);
+
+  it("work_subtab_counts", async () => {
+    // H1: three distinct full counts from each list's own total_count, one row requested, no cursor or cutoff.
+    serve({
+      [api("incidents", DAY)]: { status: 200, body: body([incidentRow(1)], { total_count: 4 }) },
+      [countPath("actions", DAY)]: actionCount(11),
+      [countPath("incidents", DAY)]: { status: 200, body: body([incidentRow(1)], { total_count: 4 }) },
+      [countPath("maintenance", DAY)]: { status: 200, body: body([], { total_count: 0 }) },
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    await vi.waitFor(() => expect(labels()).toEqual(["Actions (11)", "Incidents (4)", "Maintenance (0)"]));
+    expect(countRequests.slice().sort()).toEqual(
+      [countPath("actions", DAY), countPath("incidents", DAY), countPath("maintenance", DAY)].sort(),
+    );
+    expect(countRequests.join(" ")).not.toMatch(/known_at|cursor/);
+    expect(document.querySelectorAll("main nav[aria-label='Work lists']")).toHaveLength(1);
+    cleanup();
+    vi.unstubAllGlobals();
+
+    // Pending, refused and a missing/non-finite count read as a dash, never as zero; each count is independent.
+    serve({
+      [api("maintenance", DAY)]: { status: 200, body: body([]) },
+      [countPath("actions", DAY)]: { status: 503, body: refusal("X", "down") },
+      [countPath("incidents", DAY)]: { status: 200, body: { ...body([]), total_count: null } },
+      [countPath("maintenance", DAY)]: { status: 200, body: body([], { total_count: 3 }) },
+    });
+    mount(page("maintenance", DAY));
+    await settledScreen();
+    await vi.waitFor(() => expect(labels()).toEqual(["Actions (—)", "Incidents (—)", "Maintenance (3)"]));
+    cleanup();
+    vi.unstubAllGlobals();
+
+    // Actions with no selected window requests no counts at all.
+    const idle = serve({});
+    mount("/sites/KOBO-001/work");
+    await settledScreen();
+    expect(labels()).toEqual(["Actions (—)", "Incidents (—)", "Maintenance (—)"]);
+    expect(idle).toEqual([]);
+    expect(countRequests).toEqual([]);
+    cleanup();
+    vi.unstubAllGlobals();
+
+    // A window change clears the old counts at once and reads the new window.
+    const W2 = { from: "2026-10-08T00:00:00Z", to: "2026-10-09T00:00:00Z" };
+    serve({
+      [api("incidents", DAY)]: { status: 200, body: body([]) },
+      [api("incidents", W2)]: { status: 200, body: body([]) },
+      [countPath("actions", DAY)]: actionCount(5),
+      [countPath("incidents", DAY)]: { status: 200, body: body([], { total_count: 6 }) },
+      [countPath("maintenance", DAY)]: { status: 200, body: body([], { total_count: 7 }) },
+      [countPath("actions", W2)]: actionCount(8),
+      [countPath("incidents", W2)]: { status: 200, body: body([], { total_count: 9 }) },
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    await vi.waitFor(() => expect(labels()).toEqual(["Actions (5)", "Incidents (6)", "Maintenance (7)"]));
+    fireEvent.change(document.querySelector("[data-work-window] input") as HTMLElement, { target: { value: "2026-10-08" } });
+    fireEvent.change(document.querySelectorAll("[data-work-window] input")[1] as HTMLElement, { target: { value: "2026-10-08" } });
+    fireEvent.click(screen.getByRole("button", { name: "Show incidents" }));
+    await settledScreen();
+    // Maintenance for the new window is unserved (599): unknown, and the old 7 is gone.
+    await vi.waitFor(() => expect(labels()).toEqual(["Actions (8)", "Incidents (9)", "Maintenance (—)"]));
+  });
+
+  it("strip_words_and_coverage_copy", async () => {
+    const one = [incidentRow(1)];
+    const cases: [Partial<WorkIndexBody>, string | null, string | null][] = [
+      [{ status: "PENDING_RECOMPUTE", coverage: { state: "PARTIAL", reason: "LINK_WORK_PENDING" } }, "Linked evidence is being reassessed", "Linked evidence is being reassessed."],
+      [{ status: "STALE_SOURCE", coverage: { state: "PARTIAL", reason: "LINK_SOURCE_STALE" } }, "Linked evidence source is out of date", "Linked evidence is being reassessed."],
+      [{ status: "UNKNOWN", coverage: { state: "UNKNOWN", reason: "LINK_SELECTION_MISSING" } }, "No selected source for linked evidence", "A linked record has no selected source."],
+      [{ status: "HISTORICAL" }, "Read as of 2026-10-07 00:00 UTC", null],
+    ];
+    for (const [over, word, coverage] of cases) {
+      serve({ [api("incidents", DAY)]: { status: 200, body: body(one, over) } });
+      mount(page("incidents", DAY));
+      await settledScreen();
+      expect(strip().querySelectorAll(":scope > span")).toHaveLength(3);
+      expect(strip().querySelector(".status-strip__state")).toBeNull();
+      expect(text(strip().querySelector("[data-work-status]"))).toBe(word);
+      const line = document.querySelector("main [data-work-coverage-line]");
+      if (coverage === null) expect(line).toBeNull();
+      else {
+        expect(text(line)).toContain(coverage);
+        expect(text(line)).not.toContain("listed in full");
+      }
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+    // Loading copy comes from the pending read only.
+    vi.stubGlobal("fetch", () => new Promise(() => undefined));
+    mount(page("incidents", DAY));
+    await vi.waitFor(() => expect(text(strip())).toContain("Reading work records"));
+    cleanup();
+    vi.unstubAllGlobals();
+    // A shared cursor link with no local trail counts the page, never the page length as the total.
+    serve({
+      [api("incidents", DAY, `&known_at=${K}&cursor=SHARED`)]: {
+        status: 200,
+        body: body([incidentRow(6), incidentRow(7)], { total_count: 7, status: "HISTORICAL" }),
+      },
+    });
+    mount(`${page("incidents", DAY)}&known_at=${K}&cursor=SHARED`);
+    await settledScreen();
+    expect(text(panelTitled("Incidents at this site").querySelector("[data-work-showing]"))).toBe("Showing 2 of 7");
   });
 });

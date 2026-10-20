@@ -150,6 +150,9 @@ def test_site_window_cutoff_and_empty_count(runner) -> None:  # noqa: F811
     prov = empty["source_provenance"]
     assert (prov["classification"], prov["state"]) == ("UNKNOWN", "UNKNOWN") and "detail" not in prov
     assert [x["code"] for x in prov["reasons"]] == ["EMPTY_CITATION_SET"]
+    # M4 #5: the zero-case DTO is exactly six keys; no selected basis exists to hash.
+    assert set(prov) == {"classification", "state", "source_ids", "evidence_ids", "basis_sha256", "reasons"}
+    assert prov["basis_sha256"] is None and prov["source_ids"] == [] and prov["evidence_ids"] == []
     assert empty["selection_token"].startswith("sha256:") and len(empty["selection_token"]) == 71
 
 
@@ -249,6 +252,20 @@ def test_cursor_fence_and_full_count(runner) -> None:  # noqa: F811
         one = lists.get(t, s, "incidents", limit="2")
         lists.at = POSITIVE_NOW + timedelta(minutes=2)  # page two reads later; the cursor's K stays fixed
         two = lists.get(t, s, "incidents", limit="2", cursor=one["next_cursor"])
+        # M1/M4 #2: the client's explicit same K on page two reads HISTORICAL (K is before the new read time) with
+        # the same page, count and fence; the fence state never includes HISTORICAL.
+        explicit = lists.get(t, s, "incidents", limit="2", cursor=one["next_cursor"], known_at=one["known_at"])
+        assert explicit["status"] == "HISTORICAL" and explicit["known_at"] == one["known_at"]
+        assert [r["case_id"] for r in explicit["rows"]] == [r["case_id"] for r in two["rows"]]
+        assert explicit["selection_token"] == two["selection_token"] == one["selection_token"]
+        assert explicit["total_count"] == 3
+        omitted = lists.select(t, s, "incidents", known_at=None)
+        same_k = lists.select(t, s, "incidents", known_at=lists.at)
+        assert omitted["linked_selection_fences"] == same_k["linked_selection_fences"]
+        # M4 #8: a cursor whose bound K is later than this read's time cannot be replayed yet.
+        saved_at, lists.at = lists.at, POSITIVE_NOW + timedelta(seconds=30)
+        refused("WORK_BASIS_CHANGED", lists.get, t, s, "incidents", limit="2", cursor=one["next_cursor"])
+        lists.at = saved_at
         refused("WORK_BASIS_CHANGED", lists.get, t, s, "incidents", limit="2", cursor=one["next_cursor"],
                 known_at=iso(POSITIVE_NOW + timedelta(seconds=30)))
         refused("WORK_BASIS_CHANGED", lists.get, t, s, "incidents", ("2026-10-06T00:00:00Z", "2026-10-08T00:00:00Z"),
@@ -331,6 +348,10 @@ def test_pinned_link_survives_later_finding_and_action_heads(runner) -> None:  #
     assert wire["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev, "label": f"Finding {fid[:8]}",
                                       "href": f"/sites/KOBO-001/findings/{fid}?revision_id={frev}"}]
     assert [(x["action_id"], x["action_event_id"]) for x in wire["action_links"]] == [(action_id, action_event)]
+    # M3/M4 #1: `Action {first eight lowercase id chars}`; the href is the exact pinned event, not the later head.
+    [alink] = wire["action_links"]
+    assert alink["label"] == f"Action {action_id[:8]}" and alink["label"][7:] == action_id[:8].lower()
+    assert alink["href"] == f"/sites/KOBO-001/actions/{action_id}?event_id={action_event}" and head not in alink["href"]
     fences = {f["kind"]: f for f in chosen["linked_selection_fences"]}
     assert fences["FINDING"] == {"kind": "FINDING", "root_id": fid, "selected_id": frev, "selection_token": None,
                                  "state": "UNKNOWN"}

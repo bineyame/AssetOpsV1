@@ -20,7 +20,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel, ProductStatus, type ProductWords } from "../ui";
+import { DataTable, Disclosure, Fact, FactList, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
 import { SOURCE_WORDS, SourceProvenanceRecord, sourceState } from "./sourceProvenance";
 import {
   WORK_PAGE_LIMIT,
@@ -103,6 +103,7 @@ export const WORK_KIND_COPY: Record<WorkKind, KindCopy> = {
 
 export const WORK_CONTEXT_NOTICE =
   "Case history is stored with this site. A global work page and create flow are not available yet.";
+const WORK_MANAGE_UNAVAILABLE_STATUS = "Not available yet";
 export const WORK_COUNT_UNKNOWN = "Count unknown · work source unavailable";
 export const WORK_STRIP_DETAIL = "These are work records at this site";
 export const WORK_LINK_MISSING = "No selected source for linked evidence";
@@ -199,10 +200,10 @@ function WindowForm({ copy, scope, onScope }: { copy: KindCopy; scope: WorkScope
 }
 
 /** The list status, as strip words: a link qualification, never a verdict on the cases. */
-function statusWords(body: WorkIndexBody): { label: string; tone: "neutral" | "amber" } {
+function statusWords(body: WorkIndexBody): { label: string; tone: "neutral" | "amber" } | null {
   switch (body.status) {
     case "CURRENT":
-      return { label: "Read in full", tone: "neutral" };
+      return null;
     case "HISTORICAL":
       return { label: `Read as of ${workUtcText(body.known_at)}`, tone: "neutral" };
     case "PENDING_RECOMPUTE":
@@ -230,14 +231,19 @@ function WorkStrip({ copy, result }: { copy: KindCopy; result: WorkIndexResult |
           <>{WORK_COUNT_UNKNOWN}</>
         )}
       </span>
-      {words === null ? null : (
-        <span className="status-strip__state" data-work-status={loaded?.status} data-work-status-tone={words.tone}>
-          {words.label}
-        </span>
-      )}
-      <span className="muted status-strip__item">{WORK_STRIP_DETAIL}</span>
+      <span className="muted status-strip__item">
+        {WORK_STRIP_DETAIL}
+        {words === null ? null : (
+          <>
+            {" · "}
+            <span data-work-status={loaded?.status} data-work-status-tone={words.tone}>
+              {words.label}
+            </span>
+          </>
+        )}
+      </span>
       <span className="muted status-strip__item" data-work-manage>
-        Manage in {copy.global} · Not available yet
+        {`Manage in ${copy.global} · ${WORK_MANAGE_UNAVAILABLE_STATUS}`}
       </span>
     </div>
   );
@@ -529,8 +535,8 @@ function CoverageLine({ body }: { body: WorkIndexBody }) {
   if (body.coverage.state === "COMPLETE") return null;
   const pending = body.coverage.reason === "LINK_WORK_PENDING" || body.coverage.reason === "LINK_SOURCE_STALE";
   const words: ProductWords = pending
-    ? { label: WORK_LINK_PENDING, sentence: "The cases are listed in full; their linked evidence is not settled yet.", tone: "waiting", code: body.coverage.reason, unrecognised: false }
-    : { label: WORK_LINK_MISSING, sentence: "The cases are listed in full; a linked record has no selected source.", tone: "neutral", code: body.coverage.reason, unrecognised: false };
+    ? { label: WORK_LINK_PENDING, sentence: "Linked evidence is being reassessed.", tone: "waiting", code: body.coverage.reason, unrecognised: false }
+    : { label: WORK_LINK_MISSING, sentence: "A linked record has no selected source.", tone: "neutral", code: body.coverage.reason, unrecognised: false };
   return (
     <p className="work-cases-coverage" data-work-coverage-line={body.coverage.reason ?? body.coverage.state}>
       <ProductStatus words={words} scope="Linked evidence" asOf={body.known_at} inline />
@@ -557,6 +563,9 @@ function Loaded({
     return (
       <>
         <div className="work-cases-empty" data-work-empty>
+          <span className="work-cases-empty__icon" data-work-empty-icon aria-hidden="true">
+            <RailIcon name="evidence" />
+          </span>
           <h3>{copy.empty[0]}</h3>
           <p>{copy.empty[1]}</p>
         </div>
