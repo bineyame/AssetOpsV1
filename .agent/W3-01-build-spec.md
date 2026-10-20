@@ -581,3 +581,13 @@ These rule `.agent/W3-01-commit3-review.md` M1 and L1–L4 against `task/W3-01-e
 
 5. **L4 — strengthen the Actions-link proof.** In `frontend/src/estate/__tests__/estateRoots.test.tsx::test_five_mock_panels_and_supported_links`, assert the Action title anchor equals `actionRow().links.action`, the pinned source anchor equals `actionRow().links.source`, and the Site anchor obeys ruling 1. Assert the Actions root has no Incident or Maintenance link. Keep the second test's corresponding assertions as independent state proof.
 
+
+## Run 14 rulings (q14)
+
+These rule q14-1 in `git show 60e0bf55:.agent/W3-01-pending-rulings.md` and H1/L1 in `.agent/W3-01-final-review.md`. Apply them before W3-01 closeout.
+
+1. **q14-1 — waive the Findings card-row cap at 1440.** Set the cap to **150 px** for the four Finding lenses (`All`, `Cost`, `Risks`, `Opportunities`) at 1440, superseding their 146 px card-row caps in the mock measurement table. The 390 cap remains 322 px. The complete-state cards measure 150 px because the ruled, accurate Awaiting verification zero note and its `How this is counted` disclosure wrap at the available card width. The 4 px overrun is about 3% of the former cap; the captures show no clipping or horizontal overflow. Preserve the q9 zero copy and disclosure. This waiver applies only to that Finding card row, not other panels or widths.
+
+2. **H1 — confirm the header fix and visual proof.** Add exactly `.estate-page .data-table thead th:first-child { background: var(--surface-sunken); z-index: 2; }` in `frontend/src/estate/estate.css` so the sticky first header cell has the same grey band as the other header cells and stays above the first-column body cells. Recapture one Findings shot and one Actions shot at **1440 and 390** after the CSS change, and check each header row against the v6.9 mock. Record those four captures in the closeout evidence.
+
+3. **L1 — carry the orphaned component.** Carry deletion of `FindingsIndex` in `frontend/src/sites/FindingsIndexes.tsx` and its remaining `FindingsFrame` import/usage in `frontend/src/shell/SiteAnalyticsFrames.tsx` as a follow-up cleanup. It has no mounted production consumer after the reviewed W3-01 route replacement; this dead code does not block the W3-01 closeout. Keep the mounted `SiteFindings` path when cleaning it up.
