@@ -1,0 +1,1156 @@
+{
+  "revision": "4fb6a401",
+  "captured_at": "2026-10-20T03:55:44.112Z",
+  "pairs": [
+    {
+      "screen": "ev",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev",
+      "app_image": "ev-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 248,
+            "y": 457,
+            "w": 1145,
+            "h": 252
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 248,
+            "y": 728,
+            "w": 725,
+            "h": 374
+          },
+          {
+            "title": "Needs attention",
+            "x": 991,
+            "y": 728,
+            "w": 403,
+            "h": 374
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 248,
+            "y": 1120,
+            "w": 725,
+            "h": 211
+          },
+          {
+            "title": "Next step",
+            "x": 991,
+            "y": 1120,
+            "w": 403,
+            "h": 211
+          }
+        ],
+        "cols": [],
+        "tables": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1381
+      },
+      "mock_image": "ev-interrupted-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 234,
+            "y": 580,
+            "w": 1161,
+            "h": 238
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 234,
+            "y": 836,
+            "w": 735,
+            "h": 356
+          },
+          {
+            "title": "Needs attention",
+            "x": 987,
+            "y": 836,
+            "w": 408,
+            "h": 356
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 234,
+            "y": 1210,
+            "w": 735,
+            "h": 193
+          },
+          {
+            "title": "Next step",
+            "x": 987,
+            "y": 1210,
+            "w": 408,
+            "h": 193
+          }
+        ],
+        "cols": [],
+        "tables": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1470
+      }
+    },
+    {
+      "screen": "ev",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev",
+      "app_image": "ev-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 16,
+            "y": 951,
+            "w": 343,
+            "h": 553
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 16,
+            "y": 1522,
+            "w": 343,
+            "h": 307
+          },
+          {
+            "title": "Needs attention",
+            "x": 16,
+            "y": 1845,
+            "w": 343,
+            "h": 153
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 16,
+            "y": 2014,
+            "w": 343,
+            "h": 231
+          },
+          {
+            "title": "Next step",
+            "x": 16,
+            "y": 2260,
+            "w": 343,
+            "h": 197
+          }
+        ],
+        "cols": [],
+        "tables": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 2498
+      },
+      "mock_image": "ev-interrupted-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What happened on the service day",
+            "x": 15,
+            "y": 1233,
+            "w": 345,
+            "h": 617
+          },
+          {
+            "title": "Charging activity and site power",
+            "x": 15,
+            "y": 1868,
+            "w": 345,
+            "h": 269
+          },
+          {
+            "title": "Needs attention",
+            "x": 15,
+            "y": 2155,
+            "w": 345,
+            "h": 336
+          },
+          {
+            "title": "Bounded money consequence",
+            "x": 15,
+            "y": 2509,
+            "w": 345,
+            "h": 233
+          },
+          {
+            "title": "Next step",
+            "x": 15,
+            "y": 2760,
+            "w": 345,
+            "h": 193
+          }
+        ],
+        "cols": [],
+        "tables": [],
+        "tableScroll": null,
+        "rowHeights": [],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 3047
+      }
+    },
+    {
+      "screen": "ev-evidence",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-evidence",
+      "app_image": "ev-evidence-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 248,
+            "y": 339,
+            "w": 1145,
+            "h": 356
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 248,
+            "y": 713,
+            "w": 725,
+            "h": 421
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 991,
+            "y": 713,
+            "w": 403,
+            "h": 421
+          }
+        ],
+        "cols": [
+          210,
+          144,
+          298,
+          276,
+          177
+        ],
+        "tables": [
+          {
+            "cols": [
+              210,
+              144,
+              298,
+              276,
+              177
+            ],
+            "client": 1105,
+            "scroll": 1105
+          },
+          {
+            "cols": [
+              178,
+              110,
+              110,
+              157,
+              130
+            ],
+            "client": 685,
+            "scroll": 685
+          }
+        ],
+        "tableScroll": {
+          "client": 1105,
+          "scroll": 1105
+        },
+        "rowHeights": [
+          51,
+          51,
+          51,
+          50
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1245
+      },
+      "mock_image": "ev-evidence-interrupted-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 336
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 234,
+            "y": 770,
+            "w": 735,
+            "h": 336
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 987,
+            "y": 770,
+            "w": 408,
+            "h": 336
+          }
+        ],
+        "cols": [
+          188,
+          104,
+          322,
+          320,
+          187
+        ],
+        "tables": [
+          {
+            "cols": [
+              188,
+              104,
+              322,
+              320,
+              187
+            ],
+            "client": 1121,
+            "scroll": 1121
+          },
+          {
+            "cols": [
+              107,
+              177,
+              78,
+              185,
+              148
+            ],
+            "client": 695,
+            "scroll": 695
+          }
+        ],
+        "tableScroll": {
+          "client": 1121,
+          "scroll": 1121
+        },
+        "rowHeights": [
+          51,
+          51,
+          51,
+          51
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1232
+      }
+    },
+    {
+      "screen": "ev-evidence",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/evidence?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-evidence",
+      "app_image": "ev-evidence-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 16,
+            "y": 488,
+            "w": 343,
+            "h": 417
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 16,
+            "y": 923,
+            "w": 343,
+            "h": 478
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 16,
+            "y": 1417,
+            "w": 343,
+            "h": 267
+          }
+        ],
+        "cols": [
+          118,
+          79,
+          193,
+          116,
+          134
+        ],
+        "tables": [
+          {
+            "cols": [
+              118,
+              79,
+              193,
+              116,
+              134
+            ],
+            "client": 303,
+            "scroll": 640
+          },
+          {
+            "cols": [
+              114,
+              155,
+              116,
+              115,
+              139
+            ],
+            "client": 303,
+            "scroll": 640
+          }
+        ],
+        "tableScroll": {
+          "client": 303,
+          "scroll": 640
+        },
+        "rowHeights": [
+          62,
+          62,
+          62,
+          62
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1803
+      },
+      "mock_image": "ev-evidence-interrupted-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What we can conclude now",
+            "x": 15,
+            "y": 711,
+            "w": 345,
+            "h": 449
+          },
+          {
+            "title": "Data sources · data quality, not equipment condition",
+            "x": 15,
+            "y": 1177,
+            "w": 345,
+            "h": 416
+          },
+          {
+            "title": "Most useful next evidence",
+            "x": 15,
+            "y": 1611,
+            "w": 345,
+            "h": 319
+          }
+        ],
+        "cols": [
+          80,
+          70,
+          115,
+          109,
+          75
+        ],
+        "tables": [
+          {
+            "cols": [
+              80,
+              70,
+              115,
+              109,
+              75
+            ],
+            "client": 305,
+            "scroll": 449
+          },
+          {
+            "cols": [
+              73,
+              146,
+              64,
+              116,
+              74
+            ],
+            "client": 305,
+            "scroll": 473
+          }
+        ],
+        "tableScroll": {
+          "client": 305,
+          "scroll": 449
+        },
+        "rowHeights": [
+          80,
+          80,
+          62,
+          79
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 2103
+      }
+    },
+    {
+      "screen": "ev-evidence-analysis",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-evidence-analysis",
+      "app_image": "ev-evidence-analysis-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 248,
+            "y": 339,
+            "w": 1160,
+            "h": 340
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 248,
+            "y": 697,
+            "w": 1160,
+            "h": 170
+          }
+        ],
+        "cols": [
+          314,
+          101,
+          190,
+          157,
+          179,
+          179
+        ],
+        "tables": [
+          {
+            "cols": [
+              314,
+              101,
+              190,
+              157,
+              179,
+              179
+            ],
+            "client": 1120,
+            "scroll": 1120
+          }
+        ],
+        "tableScroll": {
+          "client": 1120,
+          "scroll": 1120
+        },
+        "rowHeights": [
+          62,
+          62,
+          62
+        ],
+        "overflowX": 0,
+        "clipped": 0,
+        "height": 1000
+      },
+      "mock_image": "ev-evidence-analysis-interrupted-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 234,
+            "y": 416,
+            "w": 1161,
+            "h": 266
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 234,
+            "y": 699,
+            "w": 1161,
+            "h": 148
+          }
+        ],
+        "cols": [
+          297,
+          125,
+          213,
+          127,
+          139,
+          220
+        ],
+        "tables": [
+          {
+            "cols": [
+              297,
+              125,
+              213,
+              127,
+              139,
+              220
+            ],
+            "client": 1121,
+            "scroll": 1121
+          }
+        ],
+        "tableScroll": {
+          "client": 1121,
+          "scroll": 1121
+        },
+        "rowHeights": [
+          45,
+          45,
+          44
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1001
+      }
+    },
+    {
+      "screen": "ev-evidence-analysis",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/evidence/analysis?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-evidence-analysis",
+      "app_image": "ev-evidence-analysis-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 16,
+            "y": 471,
+            "w": 343,
+            "h": 302
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 16,
+            "y": 792,
+            "w": 343,
+            "h": 216
+          }
+        ],
+        "cols": [
+          222,
+          114,
+          126,
+          92,
+          118,
+          228
+        ],
+        "tables": [
+          {
+            "cols": [
+              222,
+              114,
+              126,
+              92,
+              118,
+              228
+            ],
+            "client": 303,
+            "scroll": 900
+          }
+        ],
+        "tableScroll": {
+          "client": 303,
+          "scroll": 900
+        },
+        "rowHeights": [
+          45,
+          45,
+          44
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1050
+      },
+      "mock_image": "ev-evidence-analysis-interrupted-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Accepted records behind the conclusions",
+            "x": 15,
+            "y": 684,
+            "w": 345,
+            "h": 386
+          },
+          {
+            "title": "How a claim limit is set",
+            "x": 15,
+            "y": 1088,
+            "w": 345,
+            "h": 247
+          }
+        ],
+        "cols": [
+          115,
+          59,
+          105,
+          62,
+          69,
+          61
+        ],
+        "tables": [
+          {
+            "cols": [
+              115,
+              59,
+              105,
+              62,
+              69,
+              61
+            ],
+            "client": 305,
+            "scroll": 471
+          }
+        ],
+        "tableScroll": {
+          "client": 305,
+          "scroll": 471
+        },
+        "rowHeights": [
+          80,
+          80,
+          79
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1429
+      }
+    },
+    {
+      "screen": "ev-financials",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-financials",
+      "app_image": "ev-financials-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 472,
+            "w": 1145,
+            "h": 305
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 795,
+            "w": 725,
+            "h": 269
+          },
+          {
+            "title": "Not included",
+            "x": 991,
+            "y": 795,
+            "w": 403,
+            "h": 269
+          }
+        ],
+        "cols": [
+          254,
+          199,
+          188,
+          133,
+          144,
+          188
+        ],
+        "tables": [
+          {
+            "cols": [
+              254,
+              199,
+              188,
+              133,
+              144,
+              188
+            ],
+            "client": 1105,
+            "scroll": 1105
+          }
+        ],
+        "tableScroll": {
+          "client": 1105,
+          "scroll": 1105
+        },
+        "rowHeights": [
+          62,
+          45,
+          44
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1113
+      },
+      "mock_image": "ev-financials-interrupted-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 285
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 850,
+            "w": 735,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 987,
+            "y": 850,
+            "w": 408,
+            "h": 234
+          }
+        ],
+        "cols": [
+          275,
+          210,
+          293,
+          122,
+          121,
+          101
+        ],
+        "tables": [
+          {
+            "cols": [
+              275,
+              210,
+              293,
+              122,
+              121,
+              101
+            ],
+            "client": 1121,
+            "scroll": 1121
+          }
+        ],
+        "tableScroll": {
+          "client": 1121,
+          "scroll": 1121
+        },
+        "rowHeights": [
+          51,
+          51,
+          51
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1150
+      }
+    },
+    {
+      "screen": "ev-financials",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-financials",
+      "app_image": "ev-financials-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 785,
+            "w": 343,
+            "h": 355
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1158,
+            "w": 343,
+            "h": 285
+          },
+          {
+            "title": "Not included",
+            "x": 16,
+            "y": 1459,
+            "w": 343,
+            "h": 149
+          }
+        ],
+        "cols": [
+          227,
+          157,
+          128,
+          85,
+          164,
+          140
+        ],
+        "tables": [
+          {
+            "cols": [
+              227,
+              157,
+              128,
+              85,
+              164,
+              140
+            ],
+            "client": 303,
+            "scroll": 900
+          }
+        ],
+        "tableScroll": {
+          "client": 303,
+          "scroll": 900
+        },
+        "rowHeights": [
+          62,
+          62,
+          62
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1648
+      },
+      "mock_image": "ev-financials-interrupted-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1008,
+            "w": 345,
+            "h": 422
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1447,
+            "w": 345,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 15,
+            "y": 1700,
+            "w": 345,
+            "h": 142
+          }
+        ],
+        "cols": [
+          107,
+          147,
+          94,
+          95,
+          84,
+          68
+        ],
+        "tables": [
+          {
+            "cols": [
+              107,
+              147,
+              94,
+              95,
+              84,
+              68
+            ],
+            "client": 305,
+            "scroll": 596
+          }
+        ],
+        "tableScroll": {
+          "client": 305,
+          "scroll": 596
+        },
+        "rowHeights": [
+          97,
+          80,
+          97
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1935
+      }
+    },
+    {
+      "screen": "ev-assumptions",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-assumptions",
+      "app_image": "ev-assumptions-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 278,
+            "w": 1160,
+            "h": 314
+          }
+        ],
+        "cols": [
+          358,
+          280,
+          482
+        ],
+        "tables": [
+          {
+            "cols": [
+              358,
+              280,
+              482
+            ],
+            "client": 1120,
+            "scroll": 1120
+          }
+        ],
+        "tableScroll": {
+          "client": 1120,
+          "scroll": 1120
+        },
+        "rowHeights": [
+          45,
+          45,
+          44
+        ],
+        "overflowX": 0,
+        "clipped": 0,
+        "height": 1000
+      },
+      "mock_image": "ev-assumptions-interrupted-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 272
+          }
+        ],
+        "cols": [
+          320,
+          364,
+          437
+        ],
+        "tables": [
+          {
+            "cols": [
+              320,
+              364,
+              437
+            ],
+            "client": 1121,
+            "scroll": 1121
+          }
+        ],
+        "tableScroll": {
+          "client": 1121,
+          "scroll": 1121
+        },
+        "rowHeights": [
+          45,
+          51,
+          44
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1001
+      }
+    },
+    {
+      "screen": "ev-assumptions",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6135/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-assumptions",
+      "app_image": "ev-assumptions-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 412,
+            "w": 358,
+            "h": 345
+          }
+        ],
+        "cols": [
+          149,
+          254,
+          197
+        ],
+        "tables": [
+          {
+            "cols": [
+              149,
+              254,
+              197
+            ],
+            "client": 318,
+            "scroll": 600
+          }
+        ],
+        "tableScroll": {
+          "client": 318,
+          "scroll": 600
+        },
+        "rowHeights": [
+          45,
+          45,
+          44
+        ],
+        "overflowX": 0,
+        "clipped": 0,
+        "height": 900
+      },
+      "mock_image": "ev-assumptions-interrupted-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 595,
+            "w": 345,
+            "h": 390
+          }
+        ],
+        "cols": [
+          95,
+          111,
+          99
+        ],
+        "tables": [
+          {
+            "cols": [
+              95,
+              111,
+              99
+            ],
+            "client": 305,
+            "scroll": 305
+          }
+        ],
+        "tableScroll": {
+          "client": 305,
+          "scroll": 305
+        },
+        "rowHeights": [
+          80,
+          80,
+          79
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "height": 1156
+      }
+    }
+  ]
+}

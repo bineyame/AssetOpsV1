@@ -181,3 +181,40 @@ the browser captures. These are cited from the packet. The full-suite revision `
 - Two `process_one` calls on different work items for the same window can race on the basis/revision unique keys.
   The snapshot is taken before the advisory lock, so the loser records `EV_RECOMPUTE_FAILED` and replays on retry.
   `run`'s Site claim prevents this for scheduled runs.
+
+## Re-review r1 (head `b5edda78`, diff `53534045..b5edda78`)
+
+### Verdict: ACCEPT
+
+All four Medium findings and L1-L5 are closed as ruled. No new High or Medium findings.
+
+### Closure
+- **M1:** `seed.py` uses `golden_tariff`. The priced captures show `KES 4.17`, bridge `15.000 kWh × 0.27775 KES/kWh` with `Scenario` and
+  `Sessions`, and tariff `0.27775 KES/kWh · Authored estimate` at 1440 and 390 (Financials viewed). `basisText` maps the code, and an
+  unrecognised basis reads `Basis not recognised`. Layout matches the v69 mock's structure; the packet's heights are all within 1.30.
+- **M2:** `money2` is half-even on every discarded digit. I traced the four ruled vectors by hand (8.325->8.32, 8.335->8.34,
+  8.32500001->8.33, -8.325->-8.32) and they are asserted in the test.
+- **M3:** `_row_words`, `SOURCE_SUFFIX` (8 roles), `STATE_TEXT` (7) and `KIND_TEXT` (5) follow the ruled tables. The Analysis capture shows
+  `Connector c1 · connector status` / `Authorizing`, `Connector c1 · session` / `Session started`, and no raw enum.
+- **M4:** `publication_note` renders inside `AssumptionDetails` (used by both routes), asserted by the test.
+- **L1-L4:** match the rulings. The `/ev` card already said `No gross tariff scenario assessed`; the Financials card, bridge and
+  `consequenceWord` now match. The chip and count use the four mock rows. `_next_candidates` follows the ruled rank. The chronology sorts by `kindRank`.
+- **L5:** the empty downgrade runs on a fresh Site with seven zero counts asserted, no delete, and it reaches `0025_w2_ev_session`.
+  `evidence.json` records the final code revision.
+
+### Checks run
+- Backend on private DB `w207rr_test` (dropped after): `test_w207_ev_money.py`, `test_w207_ev_money_postgres.py` and
+  `test_w207_ev_site_reads_postgres.py` gave 33 passed, 0 failed, 542 s.
+- Frontend suite and build not run (sandbox esbuild limitation). The frontend tests were read, not run; the packet's 2330 passed is unverified by me.
+- Not re-run: tsc, architecture and workflow guards.
+
+### Fixer readings
+| Reading | Class |
+| --- | --- |
+| L5 test relocated to `TestMigration0026` | (a) Mechanical. The ruled named test is a pure validator, and the downgrade probe lives in `TestMigration0026`. The ruled assertions are met. |
+| `remove_money` kept in `test_0026_trigger_only_work_...` | (a) Mechanical. The ruling forbids it in the empty-downgrade probe only. This test needs a populated state before its backfill downgrade. Residual: Low, a standing exception to the no-delete spirit that the Architect may note. |
+| Connector-state `unit` is null | (a) Mechanical. The ruled table gives words only, and a state is not numeric. |
+| Unknown kind gives a null `value_display` | (a) Mechanical. The ruling says a null value reads `Not recorded`. Event kinds are constrained, so this is unreachable. |
+| "4 capabilities" note | (a) Mechanical. It is the direct consequence of the L2 ruling ("never count seven while displaying four"). |
+
+No reading needs an Architect ruling.

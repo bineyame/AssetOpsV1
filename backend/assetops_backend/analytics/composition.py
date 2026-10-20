@@ -129,6 +129,15 @@ def build_cold_read_service(database_url: str):
     return ColdReadService(database_url)
 
 
+def build_ev_selected_snapshot(link_rows):
+    """W2-07: W2-06's exact selected EV snapshot on a caller's connection at the committed cutoff, for the EV money
+    worker (`EvReadService._snapshot` with no requested `known_at`)."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService
+
+    reads = EvReadService(link_rows=link_rows)
+    return lambda c, tenant_id, site_id, lo, hi: reads._snapshot(c, tenant_id, site_id, "", lo, hi, None)
+
+
 def build_ev_read_service(database_url: str):
     """W2-06 commit 4: the selected EV session and Finding read (read-only Postgres adapter)."""
     from assetops_backend.analytics.adapters.postgres_assessment_store import EvReadService

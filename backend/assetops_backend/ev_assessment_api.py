@@ -74,11 +74,16 @@ def _not_found() -> _Refused:
     return _Refused(404, "EV_RECORD_NOT_FOUND", "No such EV record in this Site, window and cutoff.")
 
 
-def build_ev_assessment_router(registry: ImportedSiteRegistry, reads: Any | None,
-                               access: Access = development_access,
-                               disclosure: Disclosure = allow_disclosure) -> APIRouter:
-    router = APIRouter()
+class EvGate:
+    """The W2-06 request gate (authentication, query keys, window, Site, disclosure), refusal wrapper and `limit`
+    rule, shared verbatim by the W2-07 Site reads (`ev_site_api`)."""
 
+    def __init__(self, opened: Callable, served: Callable, limit_of: Callable) -> None:
+        self.opened, self.served, self.limit_of = opened, served, limit_of
+
+
+def ev_gate(registry: ImportedSiteRegistry, reads: Any | None, access: Access = development_access,
+            disclosure: Disclosure = allow_disclosure) -> EvGate:
     def opened(request: Request, site_code: str, keys: frozenset) -> tuple[UUID, UUID, dict[str, Any]]:
         refusal = access(request, site_code)
         if refusal == 401:
@@ -133,6 +138,16 @@ def build_ev_assessment_router(registry: ImportedSiteRegistry, reads: Any | None
         if not (raw.isascii() and raw.isdigit() and 1 <= int(raw) <= MAX_LIMIT):
             raise _Refused(422, "EV_LIMIT_INVALID", f"'limit' must be 1 to {MAX_LIMIT}.")
         return int(raw)
+
+    return EvGate(opened, served, limit_of)
+
+
+def build_ev_assessment_router(registry: ImportedSiteRegistry, reads: Any | None,
+                               access: Access = development_access,
+                               disclosure: Disclosure = allow_disclosure) -> APIRouter:
+    router = APIRouter()
+    gate = ev_gate(registry, reads, access, disclosure)
+    opened, served, limit_of = gate.opened, gate.served, gate.limit_of
 
     def record_id(raw: str) -> UUID:
         try:

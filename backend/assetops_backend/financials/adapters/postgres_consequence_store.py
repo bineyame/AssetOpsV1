@@ -28,6 +28,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from assetops_backend.financials import cold_consequence as cc
+from assetops_backend.financials import ev_money as em
 from assetops_backend.financials import fuel_cost as fc
 
 RECOMPUTE_ACTOR = "service:assetops-consequence-recompute"
@@ -51,8 +52,12 @@ def _at(value: str | None) -> datetime | None:
 
 
 class PostgresConsequenceStore:
-    def __init__(self, database_url: str | None, *, link_rows: Callable[..., list] | None = None) -> None:
+    def __init__(self, database_url: str | None, *, link_rows: Callable[..., list] | None = None,
+                 ev_snapshot: Callable[..., dict] | None = None) -> None:
         self._database_url = database_url
+        # W2-07: W2-06's exact EV selection snapshot on the caller's connection, injected by composition
+        # (`analytics.composition.build_ev_selected_snapshot`), so the EV worker never rebuilds its selection.
+        self._ev_snapshot = ev_snapshot
         self._engine: Engine | None = None
         # W2-04: the S4-05 link-row reader on the caller's connection (`evidence.composition.build_link_rows_reader`),
         # so the cold worker classifies its exact evidence inside its own snapshot.
@@ -644,7 +649,104 @@ class PostgresConsequenceStore:
         return self._run(work, "REPEATABLE READ")
 
 
+    # ---- W2-07: EV gross tariff consequence (migration 0026) --------------------------------------------------
+    # `.agent/W2-07-build-spec.md` commit 1 writer boundary, q1 R2/R5/R6 and q3 R8. This store alone INSERTs
+    # `ev_consequence_revision`, `ev_consequence_session`, `ev_consequence_evidence` and
+    # `ev_consequence_work_attempt`; work rows come only from the 0026 triggers. Every time is the database
+    # `clock_timestamp()` (0026 has no column defaults); no method accepts a client timestamp.
+    #
+    # `ev_unit` mirrors `cold_unit`: one REPEATABLE READ transaction whose first statement takes the work lock
+    # `pg_advisory_xact_lock(hashtextextended('ev_consequence:' || work_id, 0))`; `ev_record_failure` re-checks
+    # success under that lock at READ COMMITTED and records nothing when the work already succeeded.
+
+    @contextmanager
+    def ev_unit(self, tenant_id: UUID, site_id: UUID, work_id: UUID) -> Iterator["EvUnit"]:
+        try:
+            with self._connect().connect().execution_options(isolation_level="REPEATABLE READ") as c:
+                with c.begin():
+                    c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('ev_consequence:' || :w, 0))"),
+                              {"w": str(work_id)})
+                    yield EvUnit(c, tenant_id, site_id, work_id, self._link_rows, self._ev_snapshot)
+        except (OperationalError, ProgrammingError) as error:
+            raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+
+    def ev_record_failure(self, tenant_id: UUID, site_id: UUID, work_id: UUID, error_code: str) -> int:
+        """Append a typed FAILED attempt in a fresh transaction under the work lock; returns its number, or 0 when
+        the work is not this Site's or already has a SUCCEEDED attempt (nothing is recorded)."""
+        def work(c: Connection) -> int:
+            c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('ev_consequence:' || :w, 0))"),
+                      {"w": str(work_id)})
+            p = {"t": tenant_id, "s": site_id, "w": work_id}
+            if c.execute(text("SELECT 1 FROM ev_consequence_work WHERE tenant_id = :t AND site_id = :s "
+                              "AND id = :w"), p).first() is None:
+                return 0
+            if c.execute(text("SELECT 1 FROM ev_consequence_work_attempt WHERE tenant_id = :t AND site_id = :s "
+                              "AND work_id = :w AND outcome = 'SUCCEEDED'"), p).first() is not None:
+                return 0
+            return _ev_attempt(c, tenant_id, site_id, work_id, "FAILED", error_code, None)
+        return self._run(work)
+
+    def ev_pending_work(self, tenant_id: UUID, site_id: UUID) -> list[dict[str, Any]]:
+        """EV work of this Site with no SUCCEEDED attempt in `(created_at, id)` order, with its latest attempt
+        (`last_attempt_no`, `last_outcome`, `last_error_code`, `last_finished_at`; null before any attempt)."""
+        def work(c: Connection):
+            return [dict(r._mapping) for r in c.execute(text(
+                "SELECT w.*, last.attempt_no AS last_attempt_no, last.outcome AS last_outcome, "
+                "last.error_code AS last_error_code, last.finished_at AS last_finished_at FROM ev_consequence_work w "
+                "LEFT JOIN LATERAL (SELECT a.attempt_no, a.outcome, a.error_code, a.finished_at "
+                "FROM ev_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id AND a.site_id = w.site_id "
+                "AND a.work_id = w.id ORDER BY a.attempt_no DESC LIMIT 1) last ON true "
+                "WHERE w.tenant_id = :t AND w.site_id = :s "
+                "AND NOT EXISTS (SELECT 1 FROM ev_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+                "AND a.site_id = w.site_id AND a.work_id = w.id AND a.outcome = 'SUCCEEDED') "
+                "ORDER BY w.created_at, w.id"), {"t": tenant_id, "s": site_id})]
+        return self._run(work, "REPEATABLE READ")
+
+    @contextmanager
+    def ev_claim_site(self, tenant_id: UUID, site_id: UUID) -> Iterator[bool]:
+        """The EV runner's Site claim: a session `pg_try_advisory_lock` keyed by `ev_consequence_runner:` plus the
+        Site on one dedicated connection, released in `finally` (invalidated if the unlock cannot run)."""
+        try:
+            conn = self._connect().connect().execution_options(isolation_level="AUTOCOMMIT")
+        except (OperationalError, ProgrammingError) as error:
+            raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+        key = {"k": EV_RUNNER_LOCK_PREFIX + str(site_id)}
+        held = False
+        try:
+            try:
+                held = bool(conn.execute(text("SELECT pg_try_advisory_lock(hashtextextended(:k, 0))"),
+                                         key).scalar_one())
+            except (OperationalError, ProgrammingError) as error:
+                raise ConsequenceStoreUnavailable(f"The consequence store failed: {error.orig}") from error
+            yield held
+        finally:
+            try:
+                if held:
+                    conn.execute(text("SELECT pg_advisory_unlock(hashtextextended(:k, 0))"), key)
+            except Exception:  # noqa: BLE001 - never pool a connection that may still hold the claim
+                conn.invalidate()
+            finally:
+                conn.close()
+
+    def ev_rows(self, tenant_id: UUID, site_id: UUID) -> dict[str, list[dict[str, Any]]]:
+        """Raw EV consequence rows of one Site (tests and diagnostics)."""
+        scope = {"t": tenant_id, "s": site_id}
+
+        def work(c: Connection):
+            out = {}
+            for table, order in (("ev_consequence_revision", "window_start, window_end, revision_no"),
+                                 ("ev_consequence_session", "consequence_revision_id, session_revision_id"),
+                                 ("ev_consequence_evidence", "consequence_revision_id, evidence_id"),
+                                 ("ev_consequence_work", "created_at, id"),
+                                 ("ev_consequence_work_attempt", "work_id, attempt_no")):
+                out[table] = [dict(r._mapping) for r in c.execute(text(
+                    f"SELECT * FROM {table} WHERE tenant_id = :t AND site_id = :s ORDER BY {order}"), scope)]
+            return out
+        return self._run(work, "REPEATABLE READ")
+
+
 COLD_RUNNER_LOCK_PREFIX = "cold_consequence_runner:"
+EV_RUNNER_LOCK_PREFIX = "ev_consequence_runner:"
 
 
 def _cold_attempt(c: Connection, tenant_id: UUID, site_id: UUID, work_id: UUID, outcome: str,
@@ -821,3 +923,201 @@ class ColdUnit:
     def succeed(self, revision_ids: list[UUID]) -> int:
         """Append the SUCCEEDED attempt with the exact returned IDs (`[]` for a no-op) in this transaction."""
         return _cold_attempt(self._c, self.tenant_id, self.site_id, self.work_id, "SUCCEEDED", None, revision_ids)
+
+
+def _ev_attempt(c: Connection, tenant_id: UUID, site_id: UUID, work_id: UUID, outcome: str,
+                error_code: str | None, started_at: datetime | None) -> int:
+    n = c.execute(text("SELECT count(*) FROM ev_consequence_work_attempt WHERE tenant_id = :t AND site_id = :s "
+                       "AND work_id = :w"), {"t": tenant_id, "s": site_id, "w": work_id}).scalar_one() + 1
+    c.execute(text(
+        "INSERT INTO ev_consequence_work_attempt (id, tenant_id, site_id, work_id, attempt_no, outcome, error_code, "
+        "started_at, finished_at) VALUES (:id, :t, :s, :w, :n, :o, :code, "
+        "coalesce(CAST(:started AS timestamptz), clock_timestamp()), clock_timestamp())"),
+        {"id": uuid4(), "t": tenant_id, "s": site_id, "w": work_id, "n": n, "o": outcome, "code": error_code,
+         "started": started_at})
+    return n
+
+
+class EvUnit:
+    """One locked, repeatable-read EV work transaction (see `PostgresConsequenceStore.ev_unit`)."""
+
+    def __init__(self, c: Connection, tenant_id: UUID, site_id: UUID, work_id: UUID,
+                 link_rows: Callable[..., list] | None, snapshot: Callable[..., dict] | None) -> None:
+        self._c = c
+        self._p = {"t": tenant_id, "s": site_id, "w": work_id}
+        self._link_rows = link_rows
+        self._snapshot = snapshot
+        self.tenant_id, self.site_id, self.work_id = tenant_id, site_id, work_id
+        self._started = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+
+    def work(self) -> dict[str, Any] | None:
+        """This Site's work row with `succeeded` (a SUCCEEDED attempt is visible), or None when foreign/missing."""
+        row = self._c.execute(text(
+            "SELECT w.*, EXISTS (SELECT 1 FROM ev_consequence_work_attempt a WHERE a.tenant_id = w.tenant_id "
+            "AND a.site_id = w.site_id AND a.work_id = w.id AND a.outcome = 'SUCCEEDED') AS succeeded "
+            "FROM ev_consequence_work w WHERE w.tenant_id = :t AND w.site_id = :s AND w.id = :w"), self._p).first()
+        return None if row is None else dict(row._mapping)
+
+    def pending(self, work: dict[str, Any]) -> bool:
+        """q3 R8: the W2-06 exact read predicate, scoped to this Site and the work's half-open window."""
+        return bool(self._c.execute(text(
+            "SELECT EXISTS (SELECT 1 FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
+            "AND domain = 'ev_charging' AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi "
+            "AND window_end > :lo)"),
+            {**self._p, "lo": work["window_start"], "hi": work["window_end"]}).scalar_one())
+
+    def basis(self, work: dict[str, Any]) -> em.EvMoneyBasis | None:
+        """The exact selected `ev-session/1` assessment of the work window at the committed cutoff (W2-06's own
+        caller-connection snapshot), its session revisions, all their meter intervals, the S4-05 class of its exact
+        accepted IDs and the current EV tariff assignments, in this snapshot. None without an exact selection."""
+        c, ws, we = self._c, work["window_start"], work["window_end"]
+        if self._link_rows is None or self._snapshot is None:
+            raise RuntimeError("no S4-05 link reader or EV selection snapshot is configured for EV consequences")
+        snap = self._snapshot(c, self.tenant_id, self.site_id, ws, we)
+        return ev_money_basis_on(c, self.tenant_id, self.site_id, ws, we, snap["selected"], self._link_rows)
+
+    def append(self, k: em.EvConsequence) -> tuple[UUID, bool]:
+        """Store one consequence idempotently under a Site/window lock: an identical window basis returns its ID
+        (`True` = replayed, checked before any revision number is taken); otherwise revision `max+1` of the window
+        with its priced session and evidence links, at the database `clock_timestamp()`."""
+        c = self._c
+        p = {"t": self.tenant_id, "s": self.site_id, "ws": k.window_start, "we": k.window_end}
+        c.execute(text("SELECT pg_advisory_xact_lock(hashtextextended('ev_consequence_window:' || :key, 0))"),
+                  {"key": f"{self.site_id}:{em.iso(k.window_start)}:{em.iso(k.window_end)}"})
+        found = c.execute(text(
+            "SELECT id FROM ev_consequence_revision WHERE tenant_id = :t AND site_id = :s AND window_start = :ws "
+            "AND window_end = :we AND basis_sha256 = :b"), {**p, "b": k.basis_sha256}).scalar_one_or_none()
+        if found is not None:
+            return found, True
+        n = c.execute(text(
+            "SELECT coalesce(max(revision_no), 0) + 1 FROM ev_consequence_revision WHERE tenant_id = :t "
+            "AND site_id = :s AND window_start = :ws AND window_end = :we"), p).scalar_one()
+        rid = uuid4()
+        c.execute(text(
+            "INSERT INTO ev_consequence_revision (id, tenant_id, site_id, finding_revision_id, assessment_revision_id, "
+            "revision_no, basis_sha256, technical_input_sha256, formula_version, window_start, window_end, "
+            "quantity_kwh, tariff_revision_id, tariff_value, currency, amount, state, reason, source_gate, "
+            "overlap_group, recorded_at) VALUES (:id, :t, :s, NULL, :ar, :n, :b, :tech, :formula, :ws, :we, "
+            "CAST(:q AS numeric), :tariff, CAST(:value AS numeric), :currency, CAST(:amount AS numeric), :state, "
+            ":reason, :gate, :group, clock_timestamp())"),
+            {**p, "id": rid, "ar": k.assessment_revision_id, "n": n, "b": k.basis_sha256,
+             "tech": k.technical_input_sha256, "formula": em.FORMULA_VERSION, "q": _dec(k.quantity_kwh),
+             "tariff": k.tariff_revision_id, "value": _dec(k.tariff_value), "currency": k.currency,
+             "amount": _dec(k.amount), "state": k.state, "reason": k.reason, "gate": k.source_gate,
+             "group": k.overlap_group})
+        if k.sessions:
+            c.execute(text(
+                "INSERT INTO ev_consequence_session (tenant_id, site_id, consequence_revision_id, session_revision_id, "
+                "included_kwh) VALUES (:t, :s, :r, :v, CAST(:kwh AS numeric))"),
+                [{"t": self.tenant_id, "s": self.site_id, "r": rid, "v": v, "kwh": _dec(kwh)}
+                 for v, kwh in k.sessions])
+        if k.evidence_ids:
+            c.execute(text(
+                "INSERT INTO ev_consequence_evidence (tenant_id, site_id, consequence_revision_id, evidence_id) "
+                "VALUES (:t, :s, :r, :e)"),
+                [{"t": self.tenant_id, "s": self.site_id, "r": rid, "e": e} for e in k.evidence_ids])
+        return rid, False
+
+    def succeed(self) -> int:
+        """Append the SUCCEEDED attempt in this transaction (also for a no-consequence item)."""
+        return _ev_attempt(self._c, self.tenant_id, self.site_id, self.work_id, "SUCCEEDED", None, self._started)
+
+
+def _dec(value: Any) -> str | None:
+    return None if value is None else format(value, "f")
+
+
+def ev_money_basis_on(c: Connection, tenant_id: UUID, site_id: UUID, ws: datetime, we: datetime,
+                      sel: dict[str, Any] | None, link_rows: Callable[..., list]) -> em.EvMoneyBasis | None:
+    """The commit-2 `EvUnit.basis` rules on any caller connection (the worker's locked unit, or a W2-07 Site read's
+    repeatable-read snapshot, q4): the selected assessment's session revisions, all their meter intervals, the
+    current EV tariff assignments and the S4-05 class of its exact accepted IDs. SELECT-only."""
+    from assetops_backend.evidence.source_provenance import classify, link_of
+
+    if sel is None:
+        return None
+    result = sel["result"] or {}
+    ids = sorted({str(x).lower() for x in (result.get("session_revision_ids") or ())})
+    p = {"t": tenant_id, "s": site_id, "ids": ids}
+    sessions = tuple(em.SessionHead(str(r[0]).lower(), str(r[1]).strip(), r[2], r[3], r[4]) for r in c.execute(
+        text("SELECT id, basis_sha256, state, supported_kwh, unknown_meter_seconds FROM ev_session_revision "
+             "WHERE tenant_id = :t AND site_id = :s AND id = ANY(CAST(:ids AS uuid[])) ORDER BY id"), p).all())
+    if len(sessions) != len(ids):
+        raise RuntimeError(f"selected EV assessment {sel['revision_id']} names a missing session revision")
+    intervals = tuple(em.MeterInterval(str(r[0]).lower(), str(r[1]).lower(), str(r[2]).lower(), r[3], r[4], r[5],
+                                       r[6], r[7], r[8]) for r in c.execute(text(
+        "SELECT m.revision_id, m.connector_asset_id, m.evidence_id, e.envelope_sha256, m.start_at, m.end_at, "
+        "m.kwh, m.use, m.reason FROM ev_meter_interval m JOIN accepted_evidence e ON e.tenant_id = m.tenant_id "
+        "AND e.site_id = m.site_id AND e.id = m.evidence_id WHERE m.tenant_id = :t AND m.site_id = :s "
+        "AND m.revision_id = ANY(CAST(:ids AS uuid[])) ORDER BY m.revision_id, m.start_at, m.evidence_id"),
+        p).all()) if ids else ()
+    tariffs = tuple(em.TariffAssignment(str(r[0]).lower(), r[1], r[2], r[3], r[4], r[5], r[6]) for r in c.execute(
+        text("SELECT a.revision_id, r.value, r.currency, r.unit, a.valid_from, a.valid_to, r.recorded_at "
+             "FROM financial_assumption_assignment a JOIN financial_assumption_revision r "
+             "ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.revision_id "
+             "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND a.recorded_to IS NULL "
+             "AND a.valid_from < :we AND (a.valid_to IS NULL OR a.valid_to > :ws) ORDER BY a.valid_from, a.id"),
+        {**p, "k": em.TARIFF_KEY, "ws": ws, "we": we}).all())
+    evidence = list(sel["evidence_ids"])
+    links = {row.requested_id: link_of(row) for row in link_rows(c, tenant_id, site_id, evidence)} if evidence else {}
+    return em.EvMoneyBasis(
+        tenant_id=str(tenant_id).lower(), site_id=str(site_id).lower(), window_start=ws, window_end=we,
+        known_at=sel["cutoff"], assessment_revision_id=str(sel["revision_id"]).lower(),
+        source_class=(result.get("source_provenance") or {}).get("class"),
+        source_gate=classify(evidence, links)["state"], sessions=sessions, intervals=intervals, tariffs=tariffs)
+
+
+_EV_REVISION_SQL = (
+    "SELECT r.id, r.revision_no, r.state, r.reason, r.quantity_kwh, r.tariff_revision_id, r.tariff_value, "
+    "r.currency, r.amount, r.overlap_group, r.recorded_at, r.source_gate, r.basis_sha256, r.assessment_revision_id, "
+    "t.recorded_at AS tariff_recorded_at FROM ev_consequence_revision AS r LEFT JOIN financial_assumption_revision t "
+    "ON t.tenant_id = r.tenant_id AND t.site_id = r.site_id AND t.id = r.tariff_revision_id ")
+
+
+class EvMoneyReads:
+    """W2-07 commit 3: SELECT-only EV money reads on a caller's connection (q4's one shared selector)."""
+
+    def __init__(self, link_rows: Callable[..., list]) -> None:
+        self._link_rows = link_rows
+
+    def basis_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime,
+                 sel: dict[str, Any] | None) -> em.EvMoneyBasis | None:
+        return ev_money_basis_on(c, t, s, ws, we, sel, self._link_rows)
+
+    def select_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime,
+                  basis_sha256: str) -> dict[str, Any] | None:
+        """q4 literal: the highest matching stored revision for the exact Site/window and derived basis."""
+        row = c.execute(text(
+            _EV_REVISION_SQL + "WHERE r.tenant_id = :tenant_id AND r.site_id = :site_id "
+            "AND r.window_start = :window_start AND r.window_end = :window_end "
+            "AND r.basis_sha256 = :derived_basis_sha256 ORDER BY r.revision_no DESC, r.id DESC LIMIT 1"),
+            {"tenant_id": t, "site_id": s, "window_start": ws, "window_end": we,
+             "derived_basis_sha256": basis_sha256}).first()
+        return None if row is None else self._with_links(c, t, s, dict(row._mapping))
+
+    def history_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime) -> list[dict[str, Any]]:
+        """Every stored revision of the exact Site/window, oldest first (labelled history in the read)."""
+        return [self._with_links(c, t, s, dict(r._mapping)) for r in c.execute(text(
+            _EV_REVISION_SQL + "WHERE r.tenant_id = :t AND r.site_id = :s AND r.window_start = :ws "
+            "AND r.window_end = :we ORDER BY r.recorded_at, r.id"), {"t": t, "s": s, "ws": ws, "we": we}).all()]
+
+    def tariff_on(self, c: Connection, t: UUID, s: UUID, ws: datetime, we: datetime) -> list[dict[str, Any]]:
+        """The current (`recorded_to IS NULL`) published EV tariff assignments touching `[ws,we)`."""
+        return [dict(r._mapping) for r in c.execute(text(
+            "SELECT a.revision_id, r.value, r.currency, r.unit, r.basis, a.valid_from, a.valid_to, r.recorded_at "
+            "FROM financial_assumption_assignment a JOIN financial_assumption_revision r "
+            "ON r.tenant_id = a.tenant_id AND r.site_id = a.site_id AND r.id = a.revision_id "
+            "WHERE a.tenant_id = :t AND a.site_id = :s AND a.assumption_key = :k AND a.recorded_to IS NULL "
+            "AND a.valid_from < :we AND (a.valid_to IS NULL OR a.valid_to > :ws) ORDER BY a.valid_from, a.id"),
+            {"t": t, "s": s, "k": em.TARIFF_KEY, "ws": ws, "we": we}).all()]
+
+    @staticmethod
+    def _with_links(c: Connection, t: UUID, s: UUID, row: dict[str, Any]) -> dict[str, Any]:
+        p = {"t": t, "s": s, "r": row["id"]}
+        row["session_revision_ids"] = sorted(str(x).lower() for x in c.execute(text(
+            "SELECT session_revision_id FROM ev_consequence_session WHERE tenant_id = :t AND site_id = :s "
+            "AND consequence_revision_id = :r"), p).scalars())
+        row["evidence_ids"] = sorted(str(x).lower() for x in c.execute(text(
+            "SELECT evidence_id FROM ev_consequence_evidence WHERE tenant_id = :t AND site_id = :s "
+            "AND consequence_revision_id = :r"), p).scalars())
+        return row

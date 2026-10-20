@@ -53,6 +53,7 @@ from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
 from assetops_backend.ev_assessment_api import build_ev_assessment_router
+from assetops_backend.ev_site_api import build_ev_site_router
 from assetops_backend.ev_foundation_api import build_ev_foundation_router
 from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
@@ -73,6 +74,7 @@ from assetops_backend.financials.composition import (
     build_cold_consequence_store,
     build_consequence_history_service,
     build_consequence_read_service,
+    build_ev_site_read_service,
 )
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.claim_limit_api import build_claim_limit_router
@@ -410,6 +412,11 @@ def create_app(
     if ev_reads is not None:
         app.router.on_shutdown.append(ev_reads.dispose)
     app.include_router(build_ev_assessment_router(registry, ev_reads))
+    # W2-07 commit 3: the five selected EV Site reads (W2-06's gate and envelope, one shared money selector).
+    ev_site_reads = build_ev_site_read_service(database_url()) if database_url() else None
+    if ev_site_reads is not None:
+        app.router.on_shutdown.append(ev_site_reads.dispose)
+    app.include_router(build_ev_site_router(registry, ev_site_reads))
     # W2-04: the five cold Site reads over the same W2-03 read service and the cold consequence store's
     # caller-connection heads; one REPEATABLE READ snapshot per request, typed 503 without a database.
     cold_consequences = build_cold_consequence_store(database_url()) if cold_reads is not None else None

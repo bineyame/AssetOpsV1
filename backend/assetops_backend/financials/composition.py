@@ -16,12 +16,14 @@ from assetops_backend.financials.assumption_read import AssumptionReadService
 from assetops_backend.financials.consequence_history import ConsequenceHistoryService
 from assetops_backend.financials.consequence_read import ConsequenceReadService
 from assetops_backend.financials.cold_recompute import ColdConsequenceWorker
+from assetops_backend.financials.ev_recompute import EvConsequenceWorker
 from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
 __all__ = ["Appended", "AssumptionStoreUnavailable", "ConsequenceStoreUnavailable", "PostgresAssumptionStore",
            "PostgresConsequenceStore", "Published", "build_assumption_read_service", "build_assumption_store",
            "build_consequence_history_service", "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
-           "build_cold_consequence_store", "build_cold_consequence_worker",
+           "build_cold_consequence_store", "build_cold_consequence_worker", "build_ev_consequence_store",
+           "build_ev_consequence_worker",
            "CONSEQUENCE_UNAVAILABLE"]
 
 # Store failures the consequence read and the recompute worker report as typed unavailable.
@@ -75,3 +77,29 @@ def build_cold_consequence_store(database_url: str | None) -> PostgresConsequenc
 
 def build_cold_consequence_worker(database_url: str | None) -> ColdConsequenceWorker:
     return ColdConsequenceWorker(build_cold_consequence_store(database_url), CONSEQUENCE_UNAVAILABLE)
+
+
+def build_ev_consequence_store(database_url: str | None) -> PostgresConsequenceStore:
+    """W2-07: the consequence store with the S4-05 link-row reader (EV source gate) and W2-06's exact EV selection
+    snapshot, both on the worker's own connection."""
+    from assetops_backend.analytics.composition import build_ev_selected_snapshot
+    from assetops_backend.evidence.composition import build_link_rows_reader
+
+    link_rows = build_link_rows_reader()
+    return PostgresConsequenceStore(database_url, link_rows=link_rows,
+                                    ev_snapshot=build_ev_selected_snapshot(link_rows))
+
+
+def build_ev_consequence_worker(database_url: str | None) -> EvConsequenceWorker:
+    return EvConsequenceWorker(build_ev_consequence_store(database_url), CONSEQUENCE_UNAVAILABLE)
+
+
+def build_ev_site_read_service(database_url: str):
+    """W2-07 commit 3: the five EV Site reads over W2-06's `EvReadService` and the SELECT-only EV money reads, both
+    on the one read connection (q4's shared selector)."""
+    from assetops_backend.analytics.composition import build_ev_read_service
+    from assetops_backend.ev_site_reads import EvSiteReads
+    from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.financials.adapters.postgres_consequence_store import EvMoneyReads
+
+    return EvSiteReads(build_ev_read_service(database_url), EvMoneyReads(build_link_rows_reader()))

@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import Any, Protocol
 from uuid import UUID
 
-from assetops_backend.financials.assumptions import ASSUMPTION_KEYS, UNIT
+from assetops_backend.financials.assumptions import ASSUMPTION_KEYS, UNITS
 
 PAGE_LIMIT = 200
 CUTOFF_BASIS = ("A recorded cutoff selects the Site assumption history as it was stored at that instant; it does "
@@ -85,7 +85,7 @@ class AssumptionReadService:
                                      "tenant price is substituted."}
         page = [revision_view(r) for r in snap["revisions"]]
         return {
-            "assumption_key": key, "unit": UNIT,
+            "assumption_key": key, "unit": UNITS[key],
             "state": "PUBLISHED" if snap["total"] else "NO_PRICE",
             "cutoff": {"recorded_at": recorded_at, "selected_by": "CURRENT" if recorded_at is None
                        else "RECORDED_CUTOFF", "basis": CUTOFF_BASIS},

@@ -25,7 +25,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from assetops_backend.financials.assumptions import (
-    UNIT,
+    UNITS,
     Current,
     Publication,
     PublicationRefused,
@@ -150,7 +150,7 @@ class PostgresAssumptionStore:
                 ":prior, :currency, :unit, :value, :basis, :source, :vf, :vt, :at, :kind, :reason, :actor_kind, "
                 ":actor_id, NULL, :channel, :auth, CAST(:provenance AS jsonb), :idem, :digest)"),
                 {**series, "id": revision_id, "no": revision_no, "prior": head_id, "currency": p.currency,
-                 "unit": UNIT, "value": p.value, "basis": p.basis, "source": p.source_reference,
+                 "unit": UNITS[p.assumption_key], "value": p.value, "basis": p.basis, "source": p.source_reference,
                  "vf": p.valid_from, "vt": p.valid_to, "at": at, "kind": p.change_kind,
                  "reason": p.correction_reason, "actor_kind": principal.actor_kind, "actor_id": principal.actor_id,
                  "channel": p.channel, "auth": principal.authorization_basis,

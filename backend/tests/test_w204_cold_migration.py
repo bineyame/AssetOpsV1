@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
-HEAD = "0025_w2_ev_session"
+HEAD = "0026_w2_ev_money"  # W2-07: 0026 sits above 0025
 PREVIOUS = "0022_w2_cold_assessment"
 REFUSED = "Downgrade of 0023_w2_cold_consequence refused"
 TABLES = ("cold_consequence_revision", "cold_consequence_evidence", "cold_consequence_work",
@@ -110,6 +110,20 @@ def money_snapshot(engine) -> dict:  # noqa: F811
     return {"data": data, "constraints": cons, "triggers": trig, "functions": procs}
 
 
+# W2-07: a downgrade below 0026 restores the 0010 diesel-only key/unit CHECKs and drops the EV-only positive CHECK;
+# every other mini-grid money row, constraint, trigger and function is unchanged.
+_DIESEL_ONLY = {
+    "financial_assumption_revision_assumption_key_check": "CHECK ((assumption_key = 'diesel_price_per_litre'::text))",
+    "financial_assumption_revision_unit_check": "CHECK ((unit = 'currency/L'::text))",
+}
+
+
+def below_0026(snapshot: dict) -> dict:
+    cons = sorted((t, n, _DIESEL_ONLY.get(n, d)) for t, n, d in snapshot["constraints"]
+                  if n != "financial_assumption_revision_ev_positive")
+    return {**snapshot, "constraints": cons}
+
+
 def insert_consequence(engine, ctx, frev, erev, **over):  # noqa: F811
     cid = uuid4()
     start, end = assessment_window(engine, ctx)
@@ -175,7 +189,7 @@ class TestMigration0023:
             assert constraint(engine, "batch_publication_link_scope_unique") is None
             assert scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname LIKE 'cold_consequence%'") == 0
             assert scalar(engine, "SELECT count(*) FROM pg_trigger WHERE tgname LIKE 'cold_consequence%'") == 0
-            assert money_snapshot(engine) == before
+            assert money_snapshot(engine) == below_0026(before)
             command.upgrade(config, "head")
         finally:
             if head(engine) != HEAD:

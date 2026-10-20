@@ -202,6 +202,29 @@ export function siteFinancialAssumptionsHref(
 }
 
 /**
+ * W2-07: the five EV Site screens of an EV_CHARGING Site (q5 dry-read), each read with the selected
+ * `?from=&to=&known_at=`: `/sites/{site}/ev`, `/ev/evidence`, `/ev/evidence/analysis`, `/ev/financials`,
+ * `/ev/financial-assumptions`.
+ */
+export const SITE_EV_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/ev`;
+export const SITE_EV_EVIDENCE_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/evidence`;
+export const SITE_EV_ANALYSIS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/evidence/analysis`;
+export const SITE_EV_FINANCIALS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/financials`;
+export const SITE_EV_ASSUMPTIONS_ROUTE_PATH = `${SITE_EV_ROUTE_PATH}/financial-assumptions`;
+
+const SITE_EV_SUFFIX = {
+  overview: "",
+  evidence: "/evidence",
+  analysis: "/evidence/analysis",
+  financials: "/financials",
+  assumptions: "/financial-assumptions",
+};
+
+export function siteEvHref(siteId: string, view: keyof typeof SITE_EV_SUFFIX = "overview"): string {
+  return `${siteDetailHref(siteId)}/ev${SITE_EV_SUFFIX[view]}`;
+}
+
+/**
  * S4-03: the named child views of the canonical Finding root. Each is
  * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` and keeps the same
  * exact-version parameter. The frame's switch (`SiteFindingFrame`) renders
