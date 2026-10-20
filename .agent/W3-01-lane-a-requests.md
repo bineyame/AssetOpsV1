@@ -17,3 +17,16 @@ Lane B does not edit these Lane A files. Each is needed by W3-01 commit 2 (estat
 3. **Pending q5 item 1**: if ruled Lane A, connection-taking variants of
    `postgres_finding_store.index_snapshot/fence/index_lineage`, `DispatchReadService.window` (as-of `known_at`) and
    `postgres_action_store.site_window`, each taking the caller's REPEATABLE READ `Connection`, with focused tests.
+
+## Commit-2 Lane B core landed (2026-10-20): Lane A second same-branch handoff
+
+1. **Guard domain** (q5 ruling 3, prerequisite r1 L3): add `@{ Name = "estate"; Package = "$backendRoot/estate";
+   Composition = "$backendRoot/estate/composition.py"; Writer = $null; UserRootVar = $null; UserRootOwner = $null }`
+   to `$domains` in `tools/checks/configuration-persistence.ps1`, plus `test_pg_reader_import_allowed`,
+   `test_pg_reader_write_rejected`, `test_domain_driver_import_rejected`. This is the only check-all failure at the
+   Lane B head: `Adapter import that resolves outside every known configuration domain in
+   backend/assetops_backend/estate/composition.py:21`.
+2. **Mount** in `main.py`: `build_estate_router(build_estate_index_service(database_url), registry_tenant(registry),
+   authenticate=..., access=<the Finding route Access>, unavailable=(SiteStoreUnavailable,))` from
+   `estate_api.py` / `estate/composition.py`. `build_estate_index_service(None)` returns None (router answers 503).
+   Default `authenticate` admits (development, like `development_access`).

@@ -251,3 +251,30 @@ check-all (once, at the end): 10/10 PASS. DB `w301m_test` dropped. No full suite
 `4442d33c` (+`8d73c035`, `9956b6b8`). Open: Q7-1 (selection cutoff vs clamped watermark) for Lane B's core.
 
 Prerequisite Lows fix: select_consequence_on returns HISTORICAL for a superseded FindingRevision with no consequence (W1 precedence); cold/EV `_snapshot` raise ValueError for selection_seqs without selection_cutoff and for unknown cold analytic keys, and SelectionPinRefused when pinned with no evidence basis; Run 7 q7-1 applied to `selected_windows_on` (new `evidence_cutoff` keyword bounds only run knowledge_cutoff; estate_snapshots_on passes known_at as it and returns [] when None). Private DB w301o_test: 17 passed (4 files); check-all 10/10.
+
+## Lane B commit-2 core (2026-10-20): landed, partial on mini-grid DB tests; branch released to Lane A
+Merged main (up to date at `381cf1a2`). Commits `0b56f150`, `58b00bb6`, the HISTORICAL assert, `c951dd8b`.
+- `estate/scope.py` strict parser/refusals/access basis/`estate-selection/2` token/cursor; `estate/coverage.py`
+  `site_coverage(snapshot,t,s,domain,from_,to,known_at)` (mini-grid days+matcher+money gates, pinned cold/EV windows
+  with the q7 split, Action reduce); `estate/index.py` full-set rows/summaries/token before paging;
+  `estate/adapters/postgres_estate_read.py` one READ ONLY REPEATABLE READ snapshot over the Lane A `*_on` helpers;
+  `estate/composition.py` (`build_estate_index_service`, `registry_tenant`); `estate_api.py` (`build_estate_router`).
+- Tests (private `w301p_test` + harness clones, all dropped): `test_w301_estate_api.py` 5 passed (refusals, empty
+  zeros, token v2 + W20 D3 digest literal, pure mini-grid gates, Action reduce); `test_w301_estate_index_postgres.py`
+  5 passed (cold: q7 reselection proof, day intersection, outside-day UNKNOWN, scope/foreign/missing Site, cursor
+  fence); `test_w301_estate_index_ev_postgres.py` 3 passed (EV day intersection, multiwindow dedupe/fence, q7).
+- Mutations after commit (reverted with `git checkout`): drop the token from the cursor fence -> cursor test FAILS;
+  serve mini-grid rows from an unsettled Site -> pure gate test FAILS; cold historical state -> CURRENT -> q7 test FAILS.
+- check-all: 9/10; the one failure is the expected missing `estate` guard domain (Lane A, `.agent/W3-01-lane-a-requests.md`).
+- Readings q8 1-11 in `.agent/W3-01-pending-rulings.md` (non-blocking). Test notes: cold and EV replays each build
+  their own DB, so the "same estate" cold+EV tests are split by file; tests re-date `site_import.imported_at`
+  (replays import at today's DB time, after their 2026-10-06 data); EV `decided_at` is fixture-clocked, so its q7
+  test compares rows/IDs/coverage without the watermark, while cold proves whole-token equality.
+**Not built (resume here, Lane B):** mini-grid Postgres tests `test_late_support_change_recurrence_at_exact_cutoff`,
+`test_cost_risk_opportunity_eligibility_without_mock_seed`, `test_action_event_and_verification_counts_full_basis`,
+`test_cost_lens_only_exact_eligible_current_rows` (S4 `CaseRunner`/S6 harness/`PowerSite` chains; mind their
+fixture clock vs DB `now()` and re-date `site_import`). The golden manifest `w301-estate-golden.json` is not built.
+**Carry to the commit-2 packet (prerequisite r1 L2, accepted):** a PENDING job's window can be widened in place
+after `k`, with no stored window history, so it can show as outstanding on a historical mini-grid day it did not
+cover at `k`; that day reads pending, not unavailable.
+**Branch released.** Next: Lane A guard domain + `main.py` mount; the remaining mini-grid tests; then review.
