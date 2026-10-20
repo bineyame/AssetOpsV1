@@ -113,3 +113,47 @@ not counted; they are in `mini_deferred` as PENDING), and `live_mini_jobs` retur
 job `domain`. The Site health report exposes no Site-head counts today, so the three counters are only in
 `site_head(s)` reads and the tick report; no health field was added. Downgrade takes `LOCK TABLE
 schedule_site_head IN EXCLUSIVE MODE` before the ruled MINI-stage check.
+
+## q9 (unit 5a, `476773e9` `mini_depth/read.py`, `mini_depth_api.py`): read/API readings to confirm or replace
+
+Built and tested (`test_w402_reads.py` 14, `test_w402_reads_postgres.py` 3). None changes a spec rule; each fills a
+gap the spec leaves open. Confirm or replace each; the UI piece (5b) consumes this wire.
+
+1. **No default window at the API.** `from` and `to` are required (missing/repeated/naive/malformed -> 422
+   `INVALID_WINDOW`); the shell default (Q5 local day / local noon) is computed by the frontend. Offset input is
+   normalized to UTC (Q33).
+2. **Historical job visibility.** A job counts as live at cutoff `k` iff `status IN (PENDING,LEASED,FAILED)`,
+   `available_at <= k`, and no selection of its exact hour has `available_at < selected_at <= k`. (`created_at <= k`
+   was wrong: `mini_enqueue_hour` lifts `available_at` on an old PENDING row, so a lifted job would read as pending
+   before its new cause existed.) Job status itself is current, not reconstructed.
+3. **STALE_SOURCE (q6-5) test.** At the read cutoff `load_hour_inputs` is rerun on the snapshot and its digest is
+   recomputed with the selected revision's own `knowledge_cutoff`; inequality with the stored `input_sha256` (a
+   newer eligible accepted row, Foundation, binding set or property revision) is STALE_SOURCE. If the configuration
+   no longer yields one covering basis (`CONFIGURATION_MISSING`), it is also STALE_SOURCE. Nothing is persisted.
+4. **Claim downgrade.** A SUPPORTED status becomes LIMITED when the selected provenance class is UNKNOWN/MIXED
+   (adds `SOURCE_CLASS_*`) or currentness is PENDING_RECOMPUTE (`RECOMPUTE_PENDING`) or STALE_SOURCE
+   (`SOURCE_STALE`). HISTORICAL never downgrades. Limitations are merged per code and sorted by `LIMITATION_ORDER`.
+5. **Aggregate `job_state`** precedence FAILED > LEASED > PENDING > NONE > SETTLED (a requested hour with no
+   selection and no job is NONE).
+6. **Renewable envelope.** `rows` = the selected hours' stored rows sorted `(day, from)`; a requested day without a
+   selection has no row (its `windows[]` entry has null IDs and `state=UNKNOWN`). `limitations` = each row's
+   constraint codes with that row's evidence IDs. `coverage` = required `3600 x requested days`, observed = sum,
+   `source_count` = max per hour (distinct sources across days are not stored), gaps = stored gaps plus each
+   unselected hour whole.
+7. **Wire additions.** Top-level `basis` = the selected revision's stored `result.basis` for service/fuel/backup
+   (the fuel drawer needs SFC and generator-power IDs), `null` for renewable and for no selection. `site` =
+   `{id, code, timezone}` as in the base example. The renewable retained-margin value (mock-panel source check:
+   "pinned `renewable-retained-margin` property revision") is **not** in the stored hour; should the read add it
+   from the pinned Foundation revision (e.g. `retained_margin_kw: number|null` per `windows[]` entry), or the UI
+   show the margin as unknown?
+8. **Links.** `dispatch` = `/sites/{code}/performance/dispatch?date=YYYY-MM-DD` only when one UTC day encompasses
+   every requested hour (Q5), else null; `evidence` = `/sites/{code}/evidence`; `financials` null; `actions` =
+   `/actions` (W3-01's estate root is merged; it has no Site filter). The `?date=` parameter is assumed to be the
+   Dispatch day selector; unit 5b verifies it.
+9. **Non-MINIGRID direct read** (S1 order: type before parameters): 200 UNKNOWN, `SITE_ROLE_UNSUPPORTED`, the empty
+   provenance alias, null cards, `windows: []`, `coverage: null`, `site` without `id`; parseable `from/to/known_at`
+   are echoed, malformed ones become null. Unknown `{domain}` is 404 `MINI_DOMAIN_NOT_FOUND / This page was not
+   found.`
+10. **Lineage 503.** A selected revision whose domain/window differs from its selection, or whose
+    `basis.accepted_evidence_ids` differs from its `mini_depth_revision_evidence` set, is 503 (Q15 "broken stored
+    basis").
