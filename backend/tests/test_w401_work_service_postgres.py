@@ -328,7 +328,9 @@ def test_transitions_and_correction_total_order(runner, ctx) -> None:  # noqa: F
     refused("WORK_CASE_NOT_FOUND", ctx.event, str(uuid4()), event("COMMENT", {"text": "x"}, "w401-none-001"))
 
 
-def test_foreign_asset_and_evidence_refuse(runner, ctx, store) -> None:  # noqa: F811
+def test_foreign_asset_and_evidence_refuse(runner, clocked, store) -> None:  # noqa: F811
+    # q4-2: the command clock is after every F01/F02 pinned version, so each refusal below is the scope check.
+    ctx = clocked
     run_case(runner, CASES["F01"])
     days = {f["anchor_start"].date().isoformat(): str(f["id"]) for f in runner.reload()["findings"]}
     f1 = days["2026-10-06"]
@@ -449,3 +451,33 @@ def test_operational_record_attested_correction(runner, ctx) -> None:  # noqa: F
                               "WHERE canonical_record_id = :r ORDER BY recorded_at, id"), {"r": root["id"]}).all()
     assert [r[0] for r in rows] == ["Generator started by hand", "Generator started by hand at 16:14"]
     assert {(r[1], r[2], r[3]) for r in rows} == {("SUBMITTED", BASIS, ACTOR["attestation"])}
+
+
+def test_link_pin_newer_than_command_refuses(runner, clocked) -> None:  # noqa: F811
+    """q4-2: a Finding revision or Action event created after the command's one `command_now` is not citable."""
+    ctx = clocked
+    run_case(runner, CASES["F01"])
+    row = public_finding(runner)
+    fid, frev = row["finding_id"], row["finding_revision_id"]
+    action_id, action_event = accepted_action(runner, fid, "w401-newer-accept-001")
+    made = scalar(ctx.engine, "SELECT created_at FROM finding_revision WHERE id = :r", r=frev)
+    acted = scalar(ctx.engine, "SELECT recorded_at FROM action_event WHERE id = :e", e=action_event)
+    finding = {"finding_links": [{"finding_id": fid, "finding_revision_id": frev}]}
+    action = {"action_links": [{"action_id": action_id, "action_event_id": action_event}]}
+
+    def stamp(value: datetime) -> str:
+        return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+    before = counts(ctx.engine)
+    for key, links, pinned in (("w401-newer-finding", finding, made), ("w401-newer-action", action, acted)):
+        ctx.clock.now = pinned - timedelta(microseconds=1)
+        body = incident(key, occurred_at=stamp(pinned - timedelta(minutes=1)), **links)
+        refused("WORK_LINK_SCOPE_INVALID", ctx.case, body)
+        assert ctx.clock.returned[-1] == pinned - timedelta(microseconds=1)
+        assert counts(ctx.engine) == before
+    # Advancing the command clock past each pinned timestamp permits the exact same pair.
+    for key, links, pinned in (("w401-newer-finding", finding, made), ("w401-newer-action", action, acted)):
+        ctx.clock.now = pinned + timedelta(seconds=1)
+        body = incident(key, occurred_at=stamp(pinned - timedelta(minutes=1)), **links)
+        status, created = ctx.case(body)
+        assert status == 201, created

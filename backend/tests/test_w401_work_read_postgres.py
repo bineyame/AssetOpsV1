@@ -26,13 +26,17 @@ if URL:
     from test_s6_action_store_postgres import CASES, runner  # noqa: F401
     from test_w202_cold_replay_postgres import chain  # noqa: F401 - the W2-02 replay fixture
     from test_w203_cold_replay_postgres import opened, run
-    from test_w401_work_service_postgres import PRINCIPAL, accepted_action, incident, public_finding
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from test_w401_work_service_postgres import (POSITIVE_NOW, POSITIVE_OCCURRED, PRINCIPAL, Ctx, VirtualDbClock,
+                                                  accepted_action, incident, public_finding)
 
     from assetops_backend.evidence.composition import build_link_rows_reader
     from assetops_backend.work.adapters.postgres_work_read import PostgresWorkRead
     from assetops_backend.work.composition import _link_read_ports, build_work_service
     from assetops_backend.work.detail import WorkDetailService
     from assetops_backend.work.link_coverage import linked_coverage
+    from assetops_backend.work_api import build_work_router
 
 
 class Recorded:
@@ -52,8 +56,9 @@ class Recorded:
             "cold_snapshot", "ev_snapshot", "selected_windows", "dispatch_days", "finding_index")})
 
 
-def reader(recorded: Recorded) -> PostgresWorkRead:
-    return PostgresWorkRead(URL, link_rows=build_link_rows_reader(), ports=recorded.ports)
+def reader(recorded: Recorded, read_at: datetime | None = None) -> PostgresWorkRead:
+    return PostgresWorkRead(URL, link_rows=build_link_rows_reader(), ports=recorded.ports,
+                            test_read_clock_override=None if read_at is None else (lambda: read_at))
 
 
 def coverage_at(read: PostgresWorkRead, t, s, code: str, revision_id: str, known_at: datetime | None = None):
@@ -69,13 +74,13 @@ def test_minigrid_pinned_finding_and_action_coverage_on_one_connection(runner) -
     row = public_finding(runner)
     fid, frev = row["finding_id"], row["finding_revision_id"]
     action_id, action_event = accepted_action(runner, fid, "w401-read-accept-001")
-    svc = build_work_service(URL)
+    ctx = Ctx(runner, VirtualDbClock(POSITIVE_NOW))  # q4-2: the command must postdate the pinned versions
     try:
-        status, created = svc.create_case(runner.tenant, runner.site, incident(
+        status, created = ctx.case(incident(
             "w401-read-incident-001", finding_links=[{"finding_id": fid, "finding_revision_id": frev}],
-            action_links=[{"action_id": action_id, "action_event_id": action_event}]), PRINCIPAL)
+            action_links=[{"action_id": action_id, "action_event_id": action_event}], occurred_at=POSITIVE_OCCURRED))
     finally:
-        svc._store.dispose()
+        ctx.close()
     assert status == 201
     revision_id = created["revision"]["id"]
     # The F01 runner writes on its virtual clock (from 2026-10-29), so the coverage cutoff is the runner's last
@@ -85,7 +90,7 @@ def test_minigrid_pinned_finding_and_action_coverage_on_one_connection(runner) -
             "SELECT greatest((SELECT created_at FROM finding_revision WHERE id = :r), "
             "(SELECT recorded_at FROM action_event WHERE id = :e))"), {"r": frev, "e": action_event}).scalar_one()
     recorded = Recorded()
-    read = reader(recorded)
+    read = reader(recorded, POSITIVE_NOW + timedelta(seconds=1))  # q4-1: the detail reads after the command
     try:
         conn, rows, coverage = coverage_at(read, runner.tenant, runner.site, "KOBO-001", revision_id, k)
         detail = WorkDetailService(read).detail(runner.tenant, runner.site, "KOBO-001", created["id"], [])
@@ -114,14 +119,14 @@ def test_missing_pin_is_unknown_never_a_head(runner) -> None:  # noqa: F811
     """A pinned Finding revision that did not exist at the cutoff is UNKNOWN / LINK_SELECTION_MISSING."""
     run_case(runner, CASES["F01"])
     row = public_finding(runner)
-    svc = build_work_service(URL)
+    ctx = Ctx(runner, VirtualDbClock(POSITIVE_NOW))
     try:
-        _, created = svc.create_case(runner.tenant, runner.site, incident(
+        _, created = ctx.case(incident(
             "w401-read-incident-002", finding_links=[{"finding_id": row["finding_id"],
-                                                      "finding_revision_id": row["finding_revision_id"]}]),
-            PRINCIPAL)
+                                                      "finding_revision_id": row["finding_revision_id"]}],
+            occurred_at=POSITIVE_OCCURRED))
     finally:
-        svc._store.dispose()
+        ctx.close()
     with runner.engine.connect() as c:
         made = c.execute(text("SELECT created_at FROM finding_revision WHERE id = :r"),
                          {"r": row["finding_revision_id"]}).scalar_one()
@@ -182,3 +187,42 @@ def test_cold_pinned_link_keeps_its_seq_after_reselection(chain) -> None:  # noq
     assert old["links"][0]["selection_token"] != new["links"][0]["selection_token"]
     assert {name for name, c, inside in recorded.calls} == {"selected_windows", "cold_snapshot"}
     assert all(inside for _, _, inside in recorded.calls)
+
+
+def test_f01_detail_route_under_private_read_clock(runner) -> None:  # noqa: F811
+    """q4-1: the F01 positive detail through the route, read at an injected private read instant after the q2
+    fixture command; omitted `known_at` sees the pins, a later one is 422, an earlier one hides later rows."""
+    run_case(runner, CASES["F01"])
+    row = public_finding(runner)
+    fid, frev = row["finding_id"], row["finding_revision_id"]
+    action_id, action_event = accepted_action(runner, fid, "w401-route-accept-001")
+    ctx = Ctx(runner, VirtualDbClock(POSITIVE_NOW))
+    try:
+        status, created = ctx.case(incident(
+            "w401-route-incident-001", finding_links=[{"finding_id": fid, "finding_revision_id": frev}],
+            action_links=[{"action_id": action_id, "action_event_id": action_event}], occurred_at=POSITIVE_OCCURRED))
+    finally:
+        ctx.close()
+    assert status == 201, created
+    read_at = datetime(2026, 11, 1, 1, 0, 1, tzinfo=timezone.utc)
+    read = PostgresWorkRead(URL, link_rows=build_link_rows_reader(), ports=_link_read_ports(),
+                            test_read_clock_override=lambda: read_at)
+    app = FastAPI()
+    app.include_router(build_work_router(None, {"KOBO-001": ("KOBO-001", runner.tenant, runner.site)}.get,
+                                         details=WorkDetailService(read)))
+    client = TestClient(app)
+    path = f"/api/sites/KOBO-001/work/cases/{created['id']}"
+    try:
+        now = client.get(path)
+        assert now.status_code == 200, now.text
+        body = now.json()
+        assert body["finding_links"] == [{"finding_id": fid, "finding_revision_id": frev}]
+        assert body["action_links"] == [{"action_id": action_id, "action_event_id": action_event}]
+        assert body["coverage"]["state"] != "UNKNOWN", body["coverage"]
+        later = client.get(path, params={"known_at": "2026-11-01T01:00:02Z"})
+        assert later.status_code == 422 and later.json()["detail"]["code"] == "INVALID_KNOWN_AT", later.text
+        # Before the command instant the case itself is not yet created.
+        early = client.get(path, params={"known_at": "2026-11-01T00:59:59Z"})
+        assert early.status_code == 404 and early.json()["detail"]["code"] == "WORK_CASE_NOT_FOUND", early.text
+    finally:
+        read.dispose()

@@ -2,7 +2,8 @@
 
 Owns the scoped work-case/revision/event/record/junction/accepted-evidence SQL, the exact pinned Finding/Action
 and selected-window reads, and the caller-owned **read-only REPEATABLE READ** connection for detail (`snapshot`).
-The read time is the unrounded DB `clock_timestamp()` taken once, as the snapshot's first statement.
+The read time is the unrounded DB `clock_timestamp()` taken once, as the snapshot's first statement (q4-1: a private
+test may inject `test_read_clock_override`, called once instead; no request, env or `main.py` path supplies it).
 
 Pinned link selection (Run 3 ruling 6, W3-01 Run 7 q7-1): on the same connection, cold/EV links resolve the
 pinned Finding revision's exact stored run window and its greatest eligible selection seq at the requested cutoff
@@ -226,8 +227,10 @@ class _ReadTx:
 class PostgresWorkRead:
     def __init__(self, database_url: str | None, *,
                  link_rows: Callable[[Connection, UUID, UUID, list[str]], list[Any]] | None = None,
-                 ports: LinkReadPorts | None = None, statement_timeout_ms: int = 30_000) -> None:
+                 ports: LinkReadPorts | None = None, statement_timeout_ms: int = 30_000,
+                 test_read_clock_override: Callable[[], datetime] | None = None) -> None:
         self._database_url = database_url
+        self.test_read_clock_override = test_read_clock_override
         self._link_rows, self._ports = link_rows, ports
         self._options = f"-c statement_timeout={int(statement_timeout_ms)}"
         self._engine: Engine | None = None
@@ -250,7 +253,12 @@ class PostgresWorkRead:
         try:
             with self._connect().connect().execution_options(isolation_level="REPEATABLE READ") as c, c.begin():
                 c.execute(text("SET TRANSACTION READ ONLY"))
-                read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one().astimezone(timezone.utc)
+                # q4-1: one read instant per snapshot; a private test clock replaces only this upper bound.
+                if self.test_read_clock_override is not None:
+                    read_at = self.test_read_clock_override()
+                    assert read_at.tzinfo is not None and read_at.utcoffset() == timedelta(0)
+                else:
+                    read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one().astimezone(timezone.utc)
                 return work(_ReadTx(c, tenant_id, site_id, site_code, read_at, self._link_rows, self._ports))
         except (OperationalError, DBAPIError) as error:
             raise WorkStoreUnavailable(f"The work store could not be read: {error.__class__.__name__}") from error

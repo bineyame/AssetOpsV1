@@ -141,15 +141,20 @@ class _Tx:
     def finding_pairs_in_scope(self, pairs: list[tuple[str, str]]) -> set[tuple[str, str]]:
         rows = self._c.execute(text(
             "SELECT CAST(finding_id AS text), CAST(id AS text) FROM finding_revision WHERE tenant_id = :t "
-            "AND site_id = :s AND id = ANY(CAST(:r AS uuid[]))"), self._p(r=[r for _, r in pairs]))
+            "AND site_id = :s AND id = ANY(CAST(:r AS uuid[])) AND created_at <= :command_now"),
+            self._p(r=[r for _, r in pairs]))
         return {(f, r) for f, r in rows} & set(pairs)
 
     def action_pairs_in_scope(self, pairs: list[tuple[str, str]]) -> set[tuple[str, str]]:
-        """Exact (Action, event) pairs whose event belongs to that Action, both in this tenant/Site."""
+        """Exact (Action, event) pairs whose event belongs to that Action, both in this tenant/Site.
+
+        q4-2: a command cannot cite a version that did not exist at its `command_now` (Finding revision
+        `created_at`, Action event `recorded_at`), for create and correction (including copied links)."""
         rows = self._c.execute(text(
             "SELECT CAST(e.action_id AS text), CAST(e.id AS text) FROM action_event e JOIN action a "
             "ON a.tenant_id = e.tenant_id AND a.site_id = e.site_id AND a.id = e.action_id "
-            "WHERE e.tenant_id = :t AND e.site_id = :s AND e.id = ANY(CAST(:e AS uuid[]))"),
+            "WHERE e.tenant_id = :t AND e.site_id = :s AND e.id = ANY(CAST(:e AS uuid[])) "
+            "AND e.recorded_at <= :command_now"),
             self._p(e=[e for _, e in pairs]))
         return {(a, e) for a, e in rows} & set(pairs)
 
