@@ -221,3 +221,107 @@ The two digests above are SHA-256 of the W3-01 sorted-key compact JSON access/se
 ```
 
 For every code the Evidence endpoint uses `gaps:null` and the Financials endpoint uses `groups:null,exclusions:null,diagnostics:null`, irrespective of which endpoint the sample line shows; no top-level `rows` or `total_count` appears on error.
+## Review closure 2 (2026-10-20)
+
+This is the final ruling on `.agent/W3-02-closure-check.md` Q4, Q6, Q7, Q19, Q27 and N1–N5. It supersedes conflicting text in this spec, including the `estate-selection/1` extension, the five-commit plan and the 390px Aggregation maximum. W3-01's versioned amendment below is a prerequisite, not a W3-02 private token variant.
+
+### Q4 — literal W1 role labels
+
+The key is the exact `reason.role` from `analytics/claim_limit_read.py:REQUIRED_ROLES`. Do not title-case a role ID or use a Foundation label where the dispatch label below differs. The first four labels are `analytics/dispatch_v3.py:LABELS`; generator state is `sites/binding_roles.py:MINIGRID_ROLES` because it has no `dispatch_v3.LABELS` entry. The `claim_limit_read.py` constants `GEN,LOAD,PV,DIS,SOC` resolve to these IDs.
+
+| Role ID | Literal W1 gap role label | Source constant |
+| --- | --- | --- |
+| `generator_state` | `Generator state` | `MINIGRID_ROLES` entry `generator_state` |
+| `feeder_demand` | `Load (feeder demand)` | `dispatch_v3.LABELS[LOAD]` |
+| `pv_available_power` | `PV available power` | `dispatch_v3.LABELS[PV_AVAILABLE]` |
+| `pcs_discharge_capability` | `PCS discharge capability` | `dispatch_v3.LABELS[DISCHARGE]` |
+| `battery_soc` | `Battery state of charge` | `dispatch_v3.LABELS[SOC]` |
+
+For each concrete W1 role above, use this literal template table. The table covers every admitted W1 `(gap_code,role)` combination. A role outside `REQUIRED_ROLES` uses its exact ID as the label and is logged as an unknown typed role; a missing/null role is excluded from estate gaps as already ruled.
+
+| `gap_code` | `Gap` cell | `Next step` / row `next_evidence` |
+| --- | --- | --- |
+| `MISSING_ROLE` | `Missing {role label}` | `Record {role label}` |
+| `GENERATOR_UNOBSERVED` | `Generator state not observed` | `Record generator state` |
+| `POOR_QUALITY` | `Poor quality {role label}` | `Repair {role label} readings` |
+| `CONFLICTING` | `Conflicting {role label}` | `Resolve conflicting {role label} records` |
+
+### Q6–Q7 — Category and exhaustive selected-line mapping
+
+The Category cell is a finite display dictionary. No title or enum prettifier supplies economic meaning.
+
+| Stored/category wire value | Literal Category cell | Source |
+| --- | --- | --- |
+| `CANDIDATE_OPERATING_COST_EXPOSURE` | `Candidate operating-cost exposure` | W3-02 category enum; v69 `globalfinancials` register row 1 |
+| `POTENTIAL_PRODUCT_EXPOSURE` | `Potential product exposure` | W3-02 category enum; v69 register row 2 |
+| `GROSS_TARIFF_SCENARIO` | `Gross tariff estimate` | W3-02 category enum; v69 register row 3 (the Site claim label `Gross tariff scenario` in `EvSiteViews.tsx:CLAIM_LABEL` is a different field) |
+| `RECORDED_REPAIR` | `Recorded repair` | selected cold `cold_consequence_revision.kind`, W3-02 closure Q6 |
+
+One selected head gives one line; no head gives no line. Evaluate the following rows in order from top to bottom, so a line has exactly one `eligibility`. `CURRENT` means the selected, as-of head and all its currentness checks, not simply a stored `PRICED`/`ESTIMATED` word. The source gate uses the represented line's own six-key `source_provenance`. A classification of `UNKNOWN` or `MIXED` always fails it. `CONFLICT` is a comparison result assigned to every participating otherwise-eligible line whose duplicate ID or non-disjoint overlap is detected; do not relabel an unpriced or withheld line as CONFLICT merely because another line overlaps it.
+
+| Ordered condition on a selected head | Wire `eligibility` | Numeric current value | Exclusion reason |
+| --- | --- | --- | --- |
+| Explicit `known_at` earlier than captured DB time | `HISTORICAL` | null; pinned amount may appear in history disclosure | `HISTORICAL` |
+| Newer unsettled work or W1 `MoneyEligibility=PENDING_REASSESSMENT` | `PENDING` | null; prior head in disclosure | `PENDING` |
+| W1/EV/cold selected source gate `UNKNOWN` | `WITHHELD` | null | `UNKNOWN_SOURCE` |
+| Selected source gate `MIXED` | `WITHHELD` | null | `MIXED_SOURCE` |
+| Other failed/absent source gate, stale selected basis, W1 `AUDIT_ONLY|STALE`, W1 `MoneyEligibility=WITHHELD_GENERATOR_SERIES`, EV `WITHHELD|STALE_BASIS`, or cold `WITHHELD` | `WITHHELD` | null | `WITHHELD` (plus typed source reason if supplied) |
+| No provable selected price/quantity/interval, W1 `QUANTITY_UNAVAILABLE`, or selected head lacks amount fields for a reason other than the explicit UNPRICED state | `UNKNOWN` | null | `BASIS_NOT_PROVEN` |
+| W1 `UNPRICED`, EV `UNPRICED`, cold `PRODUCT_EXPOSURE` (the `0023` CHECK forces null amount), or a cold `RECORDED_REPAIR` head with its stored unpriced state | `UNPRICED` | null | `UNPRICED` |
+| W1 `PRICED` plus current consequence, `MoneyEligibility=ELIGIBLE`, true source gate, supported quantity and complete amount; EV `ESTIMATED` plus current complete energy, published tariff, true source gate and complete amount | provisionally `ELIGIBLE` | exact stored Decimal bounds | none |
+| Provisionally ELIGIBLE line in a duplicate-ID or overlapping-basis comparison | `CONFLICT` | null for group display; pinned amount in disclosure | `OVERLAPPING_BASIS` |
+
+For W1 `PRICED` + CURRENT when eligibility is neither ELIGIBLE nor PENDING_REASSESSMENT, use WITHHELD; when its source gate is false use the UNKNOWN/MIXED rows above or WITHHELD for another failure. W1 `UNPRICED` remains UNPRICED only after historical, pending and source gates; it never becomes eligible. Any unlisted stored state or missing gate is UNKNOWN with `BASIS_NOT_PROVEN`, never a numeric line. These rules also apply to selected cold repair heads; no invented repair price is allowed. `summary.withheld_line_count` counts exactly WITHHELD, PENDING, UNKNOWN, CONFLICT and HISTORICAL once each, as the prior closure specified.
+
+### Q19 — total comparison precedence
+
+Compute diagnostics across candidate lines first, then partition by the exact six-part group key already specified. Candidate means a selected head, including UNPRICED/WITHHELD; no fabricated gap rows. For each nonempty partition, collect all reasons over all its lines before choosing exactly one state. The **total order** is:
+
+1. `UNKNOWN_COVERAGE` if an applicable authorized Site has missing/pending/stale/conflicting selection for the requested category/window. This wins even when lines are ineligible or overlapping.
+2. `INELIGIBLE` if any participating line is not provisionally ELIGIBLE (including HISTORICAL, PENDING, UNKNOWN, WITHHELD, UNPRICED). Preserve every such line and reason.
+3. `OVERLAPPING_BASIS` if duplicate `line_key`/consequence ID, equal nonnull `overlap_group`, intersecting technical IDs, intersecting cited accepted IDs, or absent disjointness proof occurs among two or more eligible lines. Mark the involved eligible lines CONFLICT. Use `BASIS_NOT_PROVEN` for missing proof and `OVERLAPPING_BASIS` for proven collision; either yields this state.
+4. `SINGLE_LINE` if exactly one eligible line remains and all above gates pass.
+5. `COMPARABLE` if at least two distinct eligible lines remain and every gate passes. Only this state has a numeric group amount.
+
+`NO_LINES` is the one exception to a normal partition: for each category applicable to at least one authorized Site with **zero selected consequence heads of that category** in the full scope/window, emit one diagnostic empty group with `currency,window_start,window_end,period_kind,assumption_fingerprint,amount` all null, `line_keys:[]`, `state:NO_LINES`, and `reason_codes:["NO_LINES"]`. It is not an empty economic partition and contributes no amount. If authorized scope itself is empty, `groups:[]` as already ruled. A category with any head never gets its sentinel, even if all heads are unpriced. This defines NO_LINES without manufacturing a consequence row.
+
+`MIXED_SOURCE` is produced only by `source_provenance.classification=="MIXED"` on a selected line (or an exact W1 inner consequence block with that class), before partitioning. An `UNKNOWN` class yields `UNKNOWN_SOURCE`. Do not infer MIXED_SOURCE from two different positive classes on different Sites. `diagnostics[].code=MIXED_CURRENCY|DIFFERENT_PERIOD|DIFFERENT_WINDOW|DIFFERENT_ASSUMPTION` compares distinct candidate partitions within one category and never overrides the group state. Sort/dedupe `reason_codes`; the state order does not erase lower-priority reasons. A line belongs to one partition; every excluded line has one `exclusions[]` entry with its full reason set and that partition's group key.
+
+### Q27 — literal mock CTA slots and Unlocks
+
+The four v69 CTA examples are static, inert examples **outside** the data-backed gap table, in a small labelled `Example destinations` note under the panel. They do not create gap rows, affect counts, or appear as actions for a real Site. Preserve the four mock slots and labels exactly as follows. Render each as text with an accessible name; no `href`, button action or `UnavailableEntry` is created.
+
+| Mock source in `frontend/mockups/v69/screens.js:globalevidence` | Visible text | Accessible name |
+| --- | --- | --- |
+| `ACT-049, ACT-061 →` | `ACT-049, ACT-061 · Not available yet` | `ACT-049, ACT-061, Not available yet` |
+| `Map transfer switch` | `Map transfer switch · Not available yet` | `Map transfer switch, Not available yet` |
+| `Operational records →` | `Operational records · Not available yet` | `Operational records, Not available yet` |
+| `Preventive plan →` | `Preventive plan · Not available yet` | `Preventive plan, Not available yet` |
+
+The real `Unlocks` cell reads only `gaps[].unlocks` from the typed group. Map keys with this closed dictionary, dedupe, sort by key, then join labels with ` · `. No selected capability key gives `No supported capability recorded`; a genuinely empty `unlocks:[]` uses that same literal. Never copy the mock's speculative `battery condition and warranty`, `fuel balance` or `capacity` claims.
+
+| Domain/key in `unlocks` | Literal cell label | Source constant |
+| --- | --- | --- |
+| W1 `GENERATOR_SUPPORT` | `Generator support` | W3-02 W1 registry |
+| cold `temperature` | `Temperature compliance` | `coldSiteViews.tsx:CAP_ROWS` `TEMPERATURE_POINT+EXCURSION_BOUNDS` |
+| cold `backup` | `Backup response` | `coldSiteViews.tsx:CAP_ROWS` `BACKUP_START_RESULT+TRANSFER_POSITION` |
+| cold `cooling` | `Cooling recovery` | `coldSiteViews.tsx:CAP_ROWS` `COOLING_RESPONSE` |
+| cold `exposure` | `Product exposure` | `coldSiteViews.tsx:CAP_ROWS` `PRODUCT_EXPOSURE` |
+| EV `sessions` | `Session outcomes` | `EvSiteViews.tsx:CAP_ROWS` `SESSION_OUTCOME` |
+| EV `availability` | `Connector availability` | `EvSiteViews.tsx:CAP_ROWS` `SERVICE_STATE` |
+| EV `energy` | `Delivered energy` | `EvSiteViews.tsx:CAP_ROWS` `DELIVERED_ENERGY` |
+| EV `cause` | `Cause of interruption` | `EvSiteViews.tsx:CAP_ROWS` `FAULT_ASSOCIATION` |
+
+For a real gap, `Next step` is selected `next_step` plain text followed by ` · Not available yet` unless a persisted, reviewed destination exists. Null step is exactly `Next step not recorded`. For an empty `gaps:[]`, retain the table header and show `No recurring evidence gaps recorded for this window` as the panel note; the static example destinations may remain below it, clearly labelled as examples. For empty `rows:[]`, the already ruled `No selected evidence for this window` remains outside its table.
+
+### N1–N5 — builder and integration rulings
+
+**N1.** Replace old commit 0 with three serial, separately reviewed one-builder-run prerequisite commits: `0a` Lane A W1 `select_dispatch_days_on`/`select_consequence_on` and historical/multiday tests; `0b` Lane A `for_finding_on` and focused money-gate regressions; `0c` Lane A W3-01 token v2/parser plus `$pgReaders` guard and their focused tests. Then commits 1–4 keep their earlier boundaries. Lane B starts commit 1 only after 0a–0c are reviewed and integrated. There are seven commits total; no one builder run spans 0a–0c. Lane A owns every existing shared file.
+
+**N2.** Approve the W3-01 contract amendment in `.agent/W3-01-build-spec.md` below: canonical selection token `estate-selection/2` with four required arrays on every Site item. Apply it in W3-01's shared token builder in 0c, including W3-01 endpoints; do not graft arrays onto `/1`. An old structurally valid `/1` cursor carries a different selection digest and returns 409 `ESTATE_BASIS_CHANGED`; a new first page issues `/2`. Recompute golden fixture tokens from canonical `/2` bytes. This is an Architect-approved versioned amendment, so the prior return-to-Architect condition is satisfied for precisely this change.
+
+**N3.** Commit 3 acceptance **stops** if its real, persisted two-EV-Site same-currency/same-rate/disjoint-evidence fixture cannot produce one `COMPARABLE` group through reviewed producers. Do not declare commit 3 done, proceed to commit 4, or ship a SINGLE_LINE-only implementation. Record the failing producer/setup step and exact public IDs/read result, then return to Architect for a revised fixture or contract. Pure grouping tests do not lift the stop.
+
+**N4.** The parameter name `siteId` is historical: `siteEvHref` calls `siteDetailHref(siteId)`, which applies `encodeURIComponent` and accepts the same Site route segment. Pass the authorized stored **site code**, not the Site UUID, once: `siteEvHref(row.site_code, "evidence")` and `siteEvHref(row.site_code, "financials")`. Append `?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&known_at=${encodeURIComponent(known_at)}` to the returned base only when those values are present and supported by the EV route. Do not pre-encode the code or pass the UUID.
+
+**N5.** The 390px Aggregation panel maximum is **187px**: measured 163px + max(24px, ceil(10%)) = 163+24. The previous `188` is arithmetic error. The other measured maxima in the prior closure stand.
