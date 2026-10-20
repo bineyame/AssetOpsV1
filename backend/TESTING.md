@@ -158,9 +158,22 @@ compare only back-to-back runs in a quiet window.
 | Serial template clone + DELETE cleanup (OPS-01 phase 1) | 30.8 min (back-to-back with the 41.4-min baseline); peak 22 sessions | template clone without DELETE cleanup: 41.4 min, one 23-min disk stall in a tick test |
 | `-n 2 --dist loadfile` (OPS-01 phase 2, normal command) | 7.7 min, 8.4 min; peak 35 and 32 sessions | 2128 passed, 0 skipped, 0 failed both times; node IDs identical to serial collection |
 | `-n 3 --dist loadfile` (OPS-01 phase 2, one run) | 6.5 min; peak 41 sessions | 2128 passed; not repeated, so not the default |
+| W2-expanded suite, `-n 2 --dist loadfile --no-loadscope-reorder`, before the post-W2 follow-up (main `6c53b3c5`) | did not finish: 83% at the 30-min cap, then still in the W2 EV modules at a 60-min cap; peak 60 and 65 sessions | 3268 tests collected; four refusal tests each waited psycopg's 130 s default connect timeout on Windows, and every replay chain re-parsed all shipped scenario YAML |
+| W2-expanded suite, same command, after the OPS-01 post-W2 follow-up | 57.7 min, 56.4 min; peak 62 and 67 sessions (68 and 73 server-wide) | 3268 passed, 0 skipped, 0 failed both times; node IDs identical to the before collection |
 
-Expected `-n 2` full run: about 8-10 min; cap at 20 min. Expected serial full
-run: about 30-45 min; cap at 90 min. Use `-n 2`, never `-n auto`: the suite is
+Expected `-n 2` full run (W2-expanded suite, 3268 tests): about 50-60 min; cap at
+120 min. The remaining time is product-path work, chiefly the cold/EV replay
+chains (about 30 s each, mostly evidence-ingest round trips at about 1.2 ms each
+through Docker Desktop's port forward, against 0.17 ms inside the container) and
+the deliberate 120 s wall-clock wait in the S4 schedule-health stale-no-job test.
+Expected serial full run: not re-measured after W2; budget about twice the
+`-n 2` time and cap at twice that.
+
+A test that must see an unreachable database names `127.0.0.1:1` with
+`?connect_timeout=2`: without it psycopg on Windows waits its 130 s default for
+the refused connection. Replay-chain fixtures share one per-process scenario
+catalogue (`tests/scenario_cache.py`); byte-pinned EV golden files are checked
+out with LF (`.gitattributes`). Use `-n 2`, never `-n auto`: the suite is
 disk-bound inside Docker Desktop, and each worker adds about 10-20 sessions
 against `max_connections = 100`.
 
