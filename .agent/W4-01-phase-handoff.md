@@ -1,40 +1,135 @@
-# W4-01 phase handoff - run 4: commit 3 partial (2026-10-20)
+# W4-01 phase handoff - run 8: stopped at q7 questions; commit 4 NOT started (2026-10-20)
 
-Branch `task/W4-01-work-case-core` (worktree `AssetOpsV1-review5`). Commit 1 `4cb89c68`, commit 2 `9533d97d`, run-3
-handoff `69fcbf80`; merge of main `dd57d874` (clean); **commit 3 partial `5973ca09`**. Stopped on pending rulings
-q3 (6-10) in `.agent/W4-01-pending-rulings.md`.
+Merged main (q5 + q6 rulings). Surveyed commit-4 seams against q5/q6 and stopped on five open questions,
+`.agent/W4-01-pending-rulings.md` "q7" (asset label column absent; Action `sai1-` window; mini-grid Action token;
+missing-lineage list provenance shape; list refusal literals). No code written; no tests or check-all run (no code
+change since run 7's 10/10).
 
-## What landed in `5973ca09`
+Resume plan (after q7 answers), files and anchors:
+- `work/adapters/postgres_work_read.py`: add `_ReadTx.site_name`, `eligible_cases(kind,from,to,K)` (B10 membership,
+  r4 order), `asset_label`; expose `lineage` (`pinned is not None`) in `link_selections` output (:146-153);
+  add `LinkReadPorts.action_window` (site_window_on) and the q6 `wce1-` key inputs (already in `_cold_ev` :221-224).
+- `work/link_coverage.py:_token` (:92) stays detail-only; list fences built in new `work/site_index.py`.
+- `work/service.py:case_provenance` (:41) - split cited/selected from DTO so the list can union all cases.
+- `work_api.py`: list routes beside `case_detail` (:143); list refusal body adds `rows:null,total_count:null`.
+- `work/model.py:40-58`: add INVALID_WINDOW/INVALID_LIMIT/INVALID_CURSOR/WORK_BASIS_CHANGED messages+status.
+- `main.py:464-466`: pass the list service. W1 helpers: `actions/site_index.py:_iso` (:75), `fence` (:146).
+- Tests: new `tests/test_w401_site_indexes_postgres.py` (5 nodes: q5 three + Q7 pinned + q6 cold/EV), `runner`
+  tests before `chain` tests; cold `chain` fixture pattern in `test_w401_work_read_postgres.py:179`.
 
-- `backend/assetops_backend/work_api.py`: `build_work_router(service, scope, unavailable, access, command_access,
-  principal)`; `W401_FIXTURE_SERVICE_PRINCIPAL_ID = "service:w401-fixture"`; `Principal` callback type with
-  `no_service_principal` default. Six POST routes: `/api/sites/{site_code}/work/cases`, `cases/{case_id}/events`,
-  `cases/{case_id}/revisions`, `cases/{case_id}/records`, `plans`, `operational-records`. Order: `access`
-  401/403, scope 404 `SITE_NOT_FOUND`, `command_access` 401/403, no service 503, then the service (q2 reading 2).
-  Refusals are `{"detail":{"code","message"}}`; 201 new, 200 exact retry.
-- `backend/assetops_backend/main.py`: Lane A mount after the Action index router, `build_work_service(database_url())`
-  or None, `(WORK_UNAVAILABLE,)`; no SERVICE principal injected (q3 question 10).
-- `backend/tests/test_w401_work_api.py` (7 nodes): `test_scope_before_shape_401_403_404`,
-  `test_mutation_409_422_and_store_503`, `test_idempotent_200_same_body`,
-  `test_user_actor_403_and_service_attestation_422`, `test_client_authorization_basis_422_and_server_basis_persisted`,
-  `test_path_identity_changes_idempotency_hash`, `test_plan_record_operational_literal_responses` (injected
-  `10000000-...` IDs). Fixture: `imported(store)` plus a test scope dict; second Site via `imported(store, code=...)`.
+# W4-01 phase handoff - run 7: q4 applied; commit 4 NOT started (context budget) (2026-10-20)
 
-## Not built (awaiting q3 rulings)
+Merged main twice (`9373b800`, then the q5 merge; `.agent/*` conflicts took main's version). **Commit A (q4)**:
+`a4dfd318` + `f3557bc2`. Commit 4 (lists) not started: stopped at the context budget before writing any list code.
+Resume: build commit 4 per spec item 4, B1/B2/B8/B9/B10/S15, Q7/Q8/Q9/Q11 and **Run 5 rulings (q5) r1-r5**.
 
-- `GET /api/sites/{site_code}/work/cases/{id}?known_at=` (B3 `work-case-detail-1`) and
-  `work/link_coverage.py:linked_coverage` (Q9): blocked by the no-edit rule on
-  `analytics/adapters/postgres_assessment_store.py` (q3 question 6) and adapter placement (7, 8).
-- `test_list_refusal_has_null_rows_and_total` (question 9).
+## Commit A (q4) - what landed
 
-## Checks (this run)
+- q4-1: `work/adapters/postgres_work_read.py` `PostgresWorkRead(..., test_read_clock_override=None)`; `snapshot`
+  calls it once in place of `SELECT clock_timestamp()` after `SET TRANSACTION READ ONLY`; asserts aware UTC.
+  No request/env/`main.py` path sets it.
+- q4-2: `work/adapters/postgres_work_store.py` `finding_pairs_in_scope` adds `created_at <= :command_now`,
+  `action_pairs_in_scope` adds `e.recorded_at <= :command_now` (root join unchanged). Corrections already route
+  copied links through `service.py:_check_links` (line ~300), so create and correction are both covered.
+- Tests: `test_w401_work_service_postgres.py::test_link_pin_newer_than_command_refuses` (new; clock 1 us before the
+  Finding revision, then the Action event -> `WORK_LINK_SCOPE_INVALID`, row counts unchanged; +1 s -> 201);
+  `test_foreign_asset_and_evidence_refuse` now uses the `clocked` fixture (POSITIVE_NOW) so its refusals are the
+  pair checks, not the new cutoff. `test_w401_work_read_postgres.py`: cases created via `Ctx(runner,
+  VirtualDbClock(POSITIVE_NOW))`; mini-grid coverage + detail read at injected `POSITIVE_NOW+1s` (omitted cutoff);
+  new `test_f01_detail_route_under_private_read_clock` (route via `build_work_router(None, ..., details=...)`;
+  omitted -> 200 exact pins, coverage not UNKNOWN; `01:00:02Z` -> 422 `INVALID_KNOWN_AT`; `00:59:59Z` -> 404).
+- Fragility found: a `runner` test placed after the cold `chain` test fails at setup with `AdminShutdown` (the
+  chain fixture's DB reset kills the shared `engine` pool). The route test is ordered before the cold test.
+  Commit 4's new test file should not mix `runner` tests after `chain` tests.
 
-- Focused on private `w401d_test` (created, then dropped): `test_w401_work_api.py` 7 passed (22 s);
-  adjacent `test_w401_work_service_postgres.py` 7 passed (43 s).
-- `create_app()` OpenAPI lists the six work paths.
-- `tools/check-all.ps1`: all 10 guards passed on `5973ca09`.
+## Checks (run 7, private `w401f_test`, dropped after)
 
-## Next
+- On `a4dfd318`: `test_w401_work_{read_postgres,service_postgres,api}.py`: 20 passed, 1 failed, 1 error (mini-grid
+  HISTORICAL at explicit earlier cutoff; route-test setup AdminShutdown after `chain`) -> fixed in `f3557bc2`.
+- On `f3557bc2`: `test_w401_work_read_postgres.py` 4 passed (32 s).
+  `f3557bc2` changed only the read test file; the service/api files' 20 passes stand.
+- `tools/check-all.ps1` on `a4dfd318` (merge of main included): all 10 guards passed.
 
-Answer q3 6-10, then finish commit 3: detail GET, `link_coverage.py` and its adapter reads, and detail tests.
-Review this phase before UI (spec item 3).
+## Commit 4 resume anchors (surveyed, not built)
+
+- W1 at-cutoff, connection-taking ports already exist (W3 q5): `PostgresFindingStore.index_snapshot_on(c,t,s,
+  domain,analytic,known_at)` (`analytics/adapters/postgres_finding_store.py:495`), `fence_on` (:491, live only),
+  `PostgresAssessmentStore.select_dispatch_days_on(c,t,s,from_,to,known_at)` (`postgres_assessment_store.py:683`),
+  `PostgresActionStore.site_window_on(c,t,s,start,end,known_at)` (`actions/adapters/postgres_action_store.py:897`).
+  Example consumer of the Finding pair: `financials/money_eligibility.py:197-206`.
+- W1 Finding token: `analytics/finding_index.py:227 _token` = `"sfi1-"+sha256(json(basis,sort_keys,default=str))`,
+  basis built at `FindingIndexService.read` (:259-:311) from snapshot + per-day `_day` (:236) over dispatch reads;
+  only domain `mini-grid-dispatch` exists (:41). W1 Action token: `actions/site_index.py:146-172` `fence(actions,
+  events)` + scope -> `"sai1-"+sha256`. q5 r1: reproduce these on the work snapshot connection at `known_at` via
+  new `LinkReadPorts` entries (wired in `work/composition.py:_link_read_ports`), else null token / UNKNOWN. Whether
+  `select_dispatch_days_on` rows reproduce `DispatchReadService.window` exactly (keys `status,status_reasons,
+  selection,window_assessment,current_basis`) is unverified - check first. Cold/EV pins have no W1 index; per r1
+  they get null/UNKNOWN unless an exact token exists (flag if that makes every cold/EV list UNKNOWN).
+- Detail-only `work-link-selection/1` token stays in `work/link_coverage.py`; never reuse it as the list fence.
+- Files to add: `work/site_index.py`, list reads in `postgres_work_read.py` (eligible cases by window/kind/cutoff,
+  latest revision, events, latest record per r5, Asset label, `site.name`), list route in `work_api.py`
+  (`GET /api/sites/{site_code}/work/{kind}`), `main.py` mount, `tests/test_w401_site_indexes_postgres.py` (4 nodes
+  named in q5 + Q7) and `test_w401_work_api.py::test_list_refusal_has_null_rows_and_total`. List tests over F01
+  pins use `test_read_clock_override` (q4-1) and the q2 command clock.
+- Run 6 readings r1-r5 are now ruled in spec "Run 5 rulings (q5)"; r1 replaced the fallback; r2-r5 confirmed with
+  additions (missing-lineage guard, fixed cursor cutoff, named assertions).
+
+# W4-01 phase handoff - run 5: commit 3 complete (2026-10-20)
+
+Branch `task/W4-01-work-case-core` (worktree `AssetOpsV1-review5`). Commit 1 `4cb89c68`, commit 2 `9533d97d`,
+commit 3 partial `5973ca09`, merge of main `ec91ed70`, run-5 stop note `b85473aa`, **commit 3 `3353e858` + `99e5fea3`**.
+Next: review of commit 3 (spec item 3: review this phase before UI), then commit 4 (lists).
+
+## Prerequisites cherry-picked (q3 ruling 6; source -> result)
+
+`a75b0291 -> 86d0a074`, `15dae742 -> 5c197d6e`, `2a1b59cf -> b11f20fb`, `c55dadd4 -> aff24bbd`,
+`da15d71f -> 9a5756f9`, `4442d33c -> 3f10893f`, `8d73c035 -> 8a126dd3`, `9956b6b8 -> 0ca3a92e`,
+`381cf1a2 -> 98482cbb`. Conflict resolutions (coordinator rule: independently ruled list appends -> union):
+- `a75b0291`: `tools/checks/configuration-persistence.ps1` `$pgWriters` keeps `$workWriter` (W4 q2) and adds the
+  `$pgReaders` line (W3 q5 ruling 3). Union, stable order.
+- `15dae742`, `381cf1a2`: `.agent/W3-01-phase-handoff.md` only (not code); took HEAD/main's version.
+No code conflict otherwise.
+
+## What landed in commit 3
+
+- `work_api.py`: `GET /api/sites/{site_code}/work/cases/{case_id}?known_at=` (`details=` param); access -> scope
+  -> service 503 -> detail. `read_scope` catches `SiteStoreUnavailable`/`FoundationStoreError`/store errors in
+  `scope()` -> 503 `WORK_STORE_UNAVAILABLE` on reads and POSTs (q3 reading 5). Detail needs no write grant.
+- `work/detail.py`: `WorkDetailService.detail`, `parse_known_at` (single valid UTC instant; repeated/invalid ->
+  422 `INVALID_KNOWN_AT`); `known_at > read_at` -> 422; case `created_at <= known_at` else 404; revision/event/
+  record `recorded_at <= known_at` ordered `(recorded_at,id)`.
+- `work/adapters/postgres_work_read.py`: `PostgresWorkRead.snapshot` (REPEATABLE READ, READ ONLY,
+  `clock_timestamp()` read time), `_ReadTx` scoped SQL, `link_selections` (Q9 port), `_minigrid`
+  (`select_dispatch_days_on` + `index_snapshot_on`), `_cold_ev` (q7-1 evidence cutoff, `selected_windows_on`,
+  shared `_snapshot(..., selection_cutoff=K, selection_seqs=...)`, pinned assessment revision must match).
+  `LinkReadPorts` injected by `work/composition.py:_link_read_ports` via `analytics/composition.py`
+  (`build_cold_ev_selection_pins` added: rule-8 bans the adapter import outside analytics composition).
+- `work/link_coverage.py`: pure `linked_coverage(snapshot,t,s,revision_id,from_,to,known_at)`.
+- `work/service.py`: `case_provenance` (Q11) shared by command and read paths.
+- `work/model.py`: `SCHEMA_DETAIL`, `INVALID_KNOWN_AT` (422).
+- `main.py`: `details=build_work_detail_service(...)`.
+- `tools/checks/configuration-persistence.ps1`: `postgres_work_read.py` in `$pgReaders`.
+
+## Tests (q3 placement)
+
+- `test_w401_work_api.py` +3: `test_detail_omitted_historical_and_future_known_at`,
+  `test_detail_scoped_404_and_refusal_shape`, `test_scoped_site_outage_is_503`.
+  `test_list_refusal_has_null_rows_and_total` moved to commit 4 (ruling 9).
+- `test_w401_work_read_postgres.py` (new, 3): `test_minigrid_pinned_finding_and_action_coverage_on_one_connection`,
+  `test_missing_pin_is_unknown_never_a_head`, `test_cold_pinned_link_keeps_its_seq_after_reselection` (q7 cross-ref).
+
+## Checks (this run, private `w401e_test`, dropped after)
+
+- On `3353e858`: W4 api/service/read/migration + W3 prerequisite tests (`test_w301_*` 5 files): 46 passed (13m33s).
+- On `99e5fea3`: `test_w401_work_read_postgres.py` + `test_w401_work_api.py`: 13 passed (3m06s).
+- `tools/check-all.ps1` on `99e5fea3`: all 10 guards passed.
+- Guard non-vacuity: an `INSERT INTO work_event` in the reader fails rule 8 ("second product database writer");
+  removing the `$pgReaders` entry fails ("Database driver imported outside"). Both reverted.
+
+## Open risks / notes for review and commit 4
+
+- F01 virtual clock: the F01 runner writes from 2026-10-29 (virtual), so at today's wall-clock read time its
+  pinned revisions are not yet created (detail coverage UNKNOWN). The mini-grid test reads coverage at the
+  runner's last recorded instant. A positive F01 detail through the route needs a ruling (pending rulings q4-1).
+- Commit 2 accepts a Finding/Action link whose revision/event post-dates the command's DB instant (pending q4-2).
+- Readings taken in this run: `.agent/W4-01-pending-rulings.md` "Run 5 readings".

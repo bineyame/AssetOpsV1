@@ -67,3 +67,113 @@ body reaches the service as a non-object, so it is 422 only after the principal 
 param, so a malformed ID is 404 `WORK_CASE_NOT_FOUND`, not FastAPI's 422; a Site-store outage inside `scope()`
 stays 500, as on the Action routes, because `main.py` passes only `WORK_UNAVAILABLE`; routes are `async` with
 synchronous service calls, as in `action_api.py`.
+
+## Run 5 stop: cherry-pick conflict (q3 ruling 6)
+
+`main` merged cleanly (`ec91ed70`). Cherry-pick of the first prerequisite `a75b0291` conflicts in
+`tools/checks/configuration-persistence.ps1` at the `$pgWriters` list: HEAD (W4-01 commit 2) appends `$workWriter`;
+`a75b0291` leaves the list without it and adds the `$pgReaders` line below it. Apparent union (not applied):
+keep `$workWriter` in `$pgWriters` and add the `$pgReaders` line. Cherry-pick aborted; no prerequisite applied;
+commit 3 not resumed. Question: may the implementer resolve this as the union, then continue the remaining eight
+picks under the same rule for any identical writer-list/reader-list conflicts?
+
+## Run 5 resolution and readings (commit 3 `3353e858` + `99e5fea3`)
+
+Coordinator ruling applied: the `a75b0291` guard conflict resolved to the union; the other picks hit only
+`.agent/W3-01-phase-handoff.md` (HEAD kept). All nine prerequisites applied; SHAs in the handoff.
+
+Readings taken (each implements a ruled item; please confirm or replace):
+1. Cold/EV pin seq: the Finding revision's run window `(analytic_run.window_start, window_end)` is the exact stored
+   window; the shared `selected_windows_on` (cutoff K, evidence cutoff E) gives each domain analytic's greatest
+   eligible seq for that exact window; **all** domain analytics selected for that window are pinned in one
+   `_snapshot` (as `estate_snapshots_on` does), because pinning only the Finding's analytic left cold probe
+   freshness unknowable. The Finding's analytic must be among them and its selected assessment revision must equal
+   `finding_revision.assessment_revision_id`; otherwise the pin is missing (UNKNOWN/LINK_SELECTION_MISSING).
+2. Cold/EV link state is the shared snapshot `state`; mini-grid day mapping: unavailable or UNASSESSED -> UNKNOWN;
+   PENDING, FAILED, STALE_PROJECTION, or CURRENT not covered by the matcher pass (or deferred) -> PENDING_RECOMPUTE;
+   else CURRENT. A link's CURRENT becomes HISTORICAL when `known_at < read_at` (explicit earlier cutoff).
+3. Mini-grid detail window is the pinned Finding's `[episode_start, episode_end)` (end widened by 1 us when equal).
+4. Action link: `action_event` must match `(action_id, id)` and be recorded by K; its root's
+   `origin_finding_revision_id`/`origin_finding_id` is read as the pinned Finding (created by K).
+5. Per-link `selection_token` = `sha256:` of canonical JSON `{version:"work-link-selection/1",kind,id,selected_id,
+   domain,pin,state}`; null when the pin is missing. Commit 4's Q8 fence may replace it with the W1 index fence.
+6. `INVALID_KNOWN_AT` message (no literal in the refusal table): `'known_at' must be one UTC instant no later than
+   the read time.`
+7. Detail `finding_links`/`action_links` items use the request shape (`{finding_id,finding_revision_id}`,
+   `{action_id,action_event_id}`); timestamps use the existing six-digit `m.iso`; `selected_revision.actor_id` is
+   the stored `service:w401-fixture` (the B3 literal's `w401-fixture` predates Q28).
+8. `analytics/composition.py` gains `build_cold_ev_selection_pins()` (composition only; the assessment store file
+   is untouched) because rule 8 bans the adapter import from `work/composition.py`.
+
+Questions (non-blocking for commit-3 review):
+- q4-1. The F01 runner writes on a virtual clock from 2026-10-29, so a real-time detail read sees its pinned
+  revisions as not yet created (coverage UNKNOWN). May the private test harness inject a test-only read instant
+  into `PostgresWorkRead` (like the store's `test_db_clock_override`), or should F01 positive detail wait?
+- q4-2. Commit 2 `finding_pairs_in_scope`/`action_pairs_in_scope` do not require the pinned revision/event to
+  exist by `command_now` (only evidence is bounded). Should the command refuse a pin recorded after its DB instant?
+
+## Run 6 stop: commit 4 needs q4-1 (2026-10-20, head after `git merge main` = `b36c5b77`)
+
+Merged main cleanly (`b36c5b77`, no `.agent/*` conflict). Commit 4 **not started**; no code changed.
+
+**Blocking: q4-1 is needed by commit 4 itself.** Verified: the DB clock reads `2026-10-20 12:48Z`, while the F01
+runner writes its Finding revisions/Action events on its virtual clock (2026-10-29 onward) and the positive case at
+the q2 test clock `2026-11-01T01:00Z`. The list route takes its read time from `PostgresWorkRead.snapshot`
+(`clock_timestamp()`), defaults `known_at` to it and must refuse a later `known_at` (B8 `INVALID_KNOWN_AT`). So a
+list over F01-pinned cases is empty at the default cutoff and refused at any cutoff that could see them. Two named
+commit-4 nodes depend on a readable pinned F01 link through the list:
+`test_w401_site_indexes_postgres.py::test_pinned_link_survives_later_finding_and_action_heads` (Q7) and
+`::test_pending_link_and_missing_source_keep_gap` (its pending branch needs a real pinned Finding with an
+overlapping PENDING/LEASED/FAILED selection). The commit-3 read test sidestepped this by calling the adapter
+directly at the runner's last instant; a list-route proof cannot. The other nodes (`test_site_window_cutoff_and_empty_count`,
+`test_cursor_fence_and_full_count`, `test_w401_work_api.py::test_list_refusal_has_null_rows_and_total`) can use
+cases written on the real DB clock with no links.
+
+Proposed reading for q4-1 (please confirm or replace): a constructor-only, test-only
+`test_db_read_clock_override: Callable[[], datetime] | None` on `PostgresWorkRead`, mirroring q2 ruling 4: called
+once per `snapshot` in place of `SELECT clock_timestamp()`, timezone-aware UTC asserted, never set by HTTP, env or
+`main.py`; it bounds both detail and list `known_at`. The private harness sets it at or after the last F01/case
+write.
+
+Further commit-4 readings to confirm in the same answer (to avoid a second stop):
+- r1. Q8 `linked_selection_fences[].selection_token`: use the W1 index fence (`finding_index.py` /
+  `actions/site_index.py`) only if a connection-taking token function exists for the work read connection;
+  otherwise keep commit-3 reading 5's `work-link-selection/1` per-link token. Which is binding?
+- r2. List-level `source_provenance`: `PublicProvenance.cited_set(..., detail=False)` over the union of Q11 selected
+  IDs and cited sets of **all** eligible cases before paging; empty union -> UNKNOWN/`EMPTY_CITATION_SET`.
+- r3. List `status`/`coverage`: the B9 precedence maximum over every eligible case's `linked_coverage`;
+  `HISTORICAL` only when explicit `known_at < read_at` and nothing higher; zero cases -> CURRENT/COMPLETE.
+- r4. Row order and cursor `after`: incidents `(occurred_at DESC, id ASC)`, maintenance `(created_at DESC, id ASC)`;
+  cursor bound to `selection_token`, recomputed per page (409 `WORK_BASIS_CHANGED` on difference).
+- r5. Maintenance row `activity`/`record_id`/`outcome_note`: latest same-case `maintenance_record` by
+  `(recorded_at,id)` with `recorded_at <= known_at`.
+
+## q7 - commit-4 questions (run 8, head after main merge; no commit-4 code written)
+
+Surveyed against q5/q6. Builder stops here per "decide nothing"; each item names the reading it would apply.
+
+- q7-1. **Asset label column.** B1 says `asset_label` = `asset.code · asset.name`, but `asset`
+  (`migrations/versions/0001_foundation_identity.py:95`) has `asset_code, asset_type, attributes` and **no
+  `name`**. Options: `asset_code` alone; `asset_code · asset_type`; `attributes->>'name'` when present else code.
+  Which is binding?
+- q7-2. **Action `sai1-` fence window.** W1's token is `"sai1-"+sha256(json.dumps({tenant_id,site_id,from,to} +
+  ActionIndexService.fence(actions,events), sort_keys=True))` (`actions/site_index.py:146-172`) over Actions
+  *created* in the index window. Reading: compute it with `PostgresActionStore.site_window_on(c,t,s,from,to,K)`
+  (new `LinkReadPorts.action_window`, wired via `actions/composition.build_action_store(None)`) over the **list
+  window `[from,to)`**, without requiring the pinned Action to be created inside that window (a case window need
+  not contain the Action's creation; requiring membership makes F01-style links UNKNOWN). Confirm, or require
+  membership (else null/UNKNOWN)?
+- q7-3. **Mini-grid Action link token.** q6-2 makes mini-grid Finding links null/UNKNOWN (no full `sfi1-` port
+  exists; builder will not build one in commit 4). For an Action link whose origin Finding is mini-grid, reading:
+  token = the at-cutoff `sai1-` fence (Q8 Action object), state = origin pin's `link_state` (CURRENT possible).
+  Or is it null/UNKNOWN because the origin Finding's W1 token is not reproducible?
+- q7-4. **Missing-lineage list provenance shape (q5 r2).** `PublicProvenance.cited_set` has no
+  missing-lineage input. Reading: when any eligible case has a pinned link whose revision/event/origin is absent at K,
+  the list `source_provenance` is the `cited_set` DTO of the full union with `classification/state` forced
+  `UNKNOWN` and `reasons` = `[{"code":"LINK_SELECTION_MISSING","accepted_evidence_ids":[]}]` (basis_sha256 left as
+  computed over the union). Confirm, or name the exact DTO (and whether row provenance gets the same guard).
+- q7-5. **List refusal messages.** S15 names `INVALID_WINDOW`/`INVALID_LIMIT` codes but no literal messages.
+  Reading: reuse `actions/site_index.py:86-131` literals (`` `from` must be before `to`. ``, `The window may span
+  at most 31 days.`, `` `limit` must be an integer from 1 to 100. ``, ISO/UTC instant messages), and the refusal
+  table's literals for `INVALID_CURSOR`/`WORK_BASIS_CHANGED`. Also: list paths registered as two literal routes
+  `/work/incidents` and `/work/maintenance` (no `{kind}` param, so `/work/cases` cannot collide). Confirm.
