@@ -10,7 +10,7 @@ import { pathToFileURL } from "node:url";
 
 const [, , OUT, REV, BASE = "http://localhost:6145"] = process.argv;
 const PORT = 9747;
-const MOCK = pathToFileURL("C:/Users/assef/Bineyame/AssetOpsV1-review5/frontend/mockups/v69/index.html").href;
+const MOCK = pathToFileURL("C:/Users/assef/Bineyame/AssetOpsV1-review/frontend/mockups/v69/index.html").href;
 const S = "/sites/KOBO-001/work";
 const STOCK = "from=2026-10-13T00:00:00Z&to=2026-10-21T00:00:00Z";
 const EMPTY = "from=2026-09-01T00:00:00Z&to=2026-09-08T00:00:00Z";
@@ -65,6 +65,9 @@ const MEASURE = `(async () => {
   const hint = panel && panel.querySelector(".work-cases-scroll-hint");
   return { title: panel && panel.querySelector("h2")?.textContent.trim(), status: R(status), panel: R(panel), notice: R(notice),
     statusText: status ? status.textContent.replace(/\\s+/g, " ").trim().slice(0, 160) : null,
+    emptyIcon: !!(panel && panel.querySelector("[data-work-empty] [data-work-empty-icon] svg[data-rail-icon='evidence']")),
+    stripSpans: status ? status.querySelectorAll(":scope > span").length : 0,
+    stripState: status ? status.querySelectorAll(".status-strip__state").length : 0,
     subrow: sub ? { h: Math.round(sub.getBoundingClientRect().height), scrollW: sub.scrollWidth, clientW: sub.clientWidth, labels: Array.from(sub.querySelectorAll("a")).map((a) => a.textContent.trim()) } : null,
     rows: table ? table.querySelectorAll("tbody tr").length : 0,
     cols: table ? Array.from(table.querySelectorAll("thead th")).map((th) => th.textContent.trim() + ":" + Math.round(th.getBoundingClientRect().width)) : [],
@@ -107,7 +110,14 @@ for (const c of CASES) for (const [w, h] of SIZES) {
   check(m.pageH <= cap.page, `page ${m.pageH} <= ${cap.page}`);
   check(m.overflowX <= 0, `no page-level horizontal overflow (${m.overflowX})`);
   check(m.clipped === 0, `no clipped chip/header (${m.clipped})`);
-  check(m.subrow && m.subrow.labels.join("|") === "Actions|Incidents|Maintenance", "one Work subrow, three live links");
+  const want = { stocked: [/^Actions \(\d+\)$/, "Incidents (7)", "Maintenance (3)"], empty: ["Actions (0)", "Incidents (0)", "Maintenance (0)"],
+    refused: ["Actions (—)", "Incidents (—)", "Maintenance (—)"] }[c.state];
+  check(m.subrow && m.subrow.labels.length === 3 && m.subrow.labels.every((l, i) => (want[i] instanceof RegExp ? want[i].test(l) : l === want[i])),
+    `one Work subrow, three live links with counts (${m.subrow && m.subrow.labels.join("|")})`);
+  check(m.subrow.h <= 40, `subrow stays one row (${m.subrow.h})`);
+  check(m.stripSpans === 3 && m.stripState === 0, `strip is lead, detail, Manage (${m.stripSpans}/${m.stripState})`);
+  check(c.state === "empty" ? m.emptyIcon : true, "empty block carries the mock evidence icon");
+  check(c.state === "empty" ? m.rows === 0 : true, "empty state has no rows");
   if (c.state === "stocked") {
     check(m.rows === 5 || (c.kind === "maintenance" && m.rows === 3), `stocked rows ${m.rows}`);
     if (w === 390) {

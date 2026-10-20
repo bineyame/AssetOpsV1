@@ -18,7 +18,6 @@ import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
-import { rowLabels } from "../../test/unavailableEntry";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -157,9 +156,10 @@ describe("W1-F4: sitework keeps the v69 panel structure in every variant", () =>
     mount(workUrl(WINDOW));
     await settledScreen();
     const row = screen.getByRole("navigation", { name: "Work lists" });
-    expect(rowLabels(row)).toEqual(["Actions", "Incidents", "Maintenance"]);
+    // H1: each label carries its count slot; this fixture serves no count read, so each is unknown (a dash, not 0).
+    expect(within(row).getAllByRole("link").map((l) => l.textContent)).toEqual(["Actions (—)", "Incidents (—)", "Maintenance (—)"]);
     const links = within(row).getAllByRole("link");
-    expect(links.map((l) => [l.textContent, l.getAttribute("href"), l.getAttribute("aria-current")])).toEqual([
+    expect(links.map((l) => [l.textContent?.replace(/ \(.*\)$/, ""), l.getAttribute("href"), l.getAttribute("aria-current")])).toEqual([
       ["Actions", "/sites/KOBO-001/work", "page"],
       ["Incidents", "/sites/KOBO-001/work/incidents", null],
       ["Maintenance", "/sites/KOBO-001/work/maintenance", null],

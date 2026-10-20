@@ -1,6 +1,6 @@
 {
- "revision": "0e77205d",
- "captured_at": "2026-10-20T14:05:37.357Z",
+ "revision": "09ea0981",
+ "captured_at": "2026-10-20T15:14:25.460Z",
  "mock": {
   "sitework-incidents-1440": {
    "title": "Incidents at this site",
@@ -20,6 +20,9 @@
     "h": 42
    },
    "statusText": "Scoped to Kobo · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+   "emptyIcon": false,
+   "stripSpans": 2,
+   "stripState": 0,
    "subrow": {
     "h": 35,
     "scrollW": 1161,
@@ -57,6 +60,9 @@
     "h": 78
    },
    "statusText": "Scoped to Kobo · 0 incidentsSame records and states as the global Incidents listManage in Incidents →",
+   "emptyIcon": false,
+   "stripSpans": 2,
+   "stripState": 0,
    "subrow": {
     "h": 35,
     "scrollW": 345,
@@ -94,6 +100,9 @@
     "h": 42
    },
    "statusText": "Scoped to Kobo · 0 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+   "emptyIcon": false,
+   "stripSpans": 2,
+   "stripState": 0,
    "subrow": {
     "h": 35,
     "scrollW": 1161,
@@ -131,6 +140,9 @@
     "h": 78
    },
    "statusText": "Scoped to Kobo · 0 maintenanceSame records and states as the global Maintenance listManage in Maintenance →",
+   "emptyIcon": false,
+   "stripSpans": 2,
+   "stripState": 0,
    "subrow": {
     "h": 35,
     "scrollW": 345,
@@ -174,15 +186,18 @@
     "w": 1160,
     "h": 44
    },
-   "statusText": "Scoped to Kobo · 7 incidentsRead in fullThese are work records at this siteManage in Incidents · Not available yet",
+   "statusText": "Scoped to Kobo · 7 incidentsThese are work records at this siteManage in Incidents · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 1160,
     "clientW": 1160,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (7)",
+     "Maintenance (3)"
     ]
    },
    "rows": 5,
@@ -230,15 +245,18 @@
     "w": 343,
     "h": 63
    },
-   "statusText": "Scoped to Kobo · 7 incidentsRead in fullThese are work records at this siteManage in Incidents · Not available yet",
+   "statusText": "Scoped to Kobo · 7 incidentsThese are work records at this siteManage in Incidents · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 343,
     "clientW": 343,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (7)",
+     "Maintenance (3)"
     ]
    },
    "rows": 5,
@@ -279,22 +297,25 @@
    "panel": {
     "y": 303,
     "w": 1160,
-    "h": 295
+    "h": 337
    },
    "notice": {
-    "y": 616,
+    "y": 658,
     "w": 1160,
     "h": 44
    },
-   "statusText": "Scoped to Kobo · 0 incidentsRead in fullThese are work records at this siteManage in Incidents · Not available yet",
+   "statusText": "Scoped to Kobo · 0 incidentsThese are work records at this siteManage in Incidents · Not available yet",
+   "emptyIcon": true,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 1160,
     "clientW": 1160,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (0)",
+     "Maintenance (0)"
     ]
    },
    "rows": 0,
@@ -307,7 +328,7 @@
    "pageH": 1000,
    "ratio": {
     "status": 1.05,
-    "panel": 0.93,
+    "panel": 1.07,
     "notice": 1.05
    }
   },
@@ -326,22 +347,25 @@
    "panel": {
     "y": 437,
     "w": 343,
-    "h": 379
+    "h": 421
    },
    "notice": {
-    "y": 833,
+    "y": 875,
     "w": 343,
     "h": 63
    },
-   "statusText": "Scoped to Kobo · 0 incidentsRead in fullThese are work records at this siteManage in Incidents · Not available yet",
+   "statusText": "Scoped to Kobo · 0 incidentsThese are work records at this siteManage in Incidents · Not available yet",
+   "emptyIcon": true,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 343,
     "clientW": 343,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (0)",
+     "Maintenance (0)"
     ]
    },
    "rows": 0,
@@ -351,10 +375,10 @@
    "hintVisible": null,
    "overflowX": -15,
    "clipped": 0,
-   "pageH": 936,
+   "pageH": 978,
    "ratio": {
     "status": 0.92,
-    "panel": 1.07,
+    "panel": 1.19,
     "notice": 0.81
    }
   },
@@ -381,14 +405,17 @@
     "h": 44
    },
    "statusText": "Count unknown · work source unavailableThese are work records at this siteManage in Incidents · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 1160,
     "clientW": 1160,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (—)",
+     "Incidents (—)",
+     "Maintenance (—)"
     ]
    },
    "rows": 0,
@@ -428,14 +455,17 @@
     "h": 63
    },
    "statusText": "Count unknown · work source unavailableThese are work records at this siteManage in Incidents · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 358,
     "clientW": 358,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (—)",
+     "Incidents (—)",
+     "Maintenance (—)"
     ]
    },
    "rows": 0,
@@ -474,15 +504,18 @@
     "w": 1160,
     "h": 44
    },
-   "statusText": "Scoped to Kobo · 3 maintenanceRead in fullThese are work records at this siteManage in Maintenance · Not available yet",
+   "statusText": "Scoped to Kobo · 3 maintenanceThese are work records at this siteManage in Maintenance · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 1160,
     "clientW": 1160,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (7)",
+     "Maintenance (3)"
     ]
    },
    "rows": 3,
@@ -530,15 +563,18 @@
     "w": 343,
     "h": 63
    },
-   "statusText": "Scoped to Kobo · 3 maintenanceRead in fullThese are work records at this siteManage in Maintenance · Not available yet",
+   "statusText": "Scoped to Kobo · 3 maintenanceThese are work records at this siteManage in Maintenance · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 343,
     "clientW": 343,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (7)",
+     "Maintenance (3)"
     ]
    },
    "rows": 3,
@@ -579,22 +615,25 @@
    "panel": {
     "y": 303,
     "w": 1160,
-    "h": 275
+    "h": 317
    },
    "notice": {
-    "y": 596,
+    "y": 638,
     "w": 1160,
     "h": 44
    },
-   "statusText": "Scoped to Kobo · 0 maintenanceRead in fullThese are work records at this siteManage in Maintenance · Not available yet",
+   "statusText": "Scoped to Kobo · 0 maintenanceThese are work records at this siteManage in Maintenance · Not available yet",
+   "emptyIcon": true,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 1160,
     "clientW": 1160,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (0)",
+     "Maintenance (0)"
     ]
    },
    "rows": 0,
@@ -607,7 +646,7 @@
    "pageH": 1000,
    "ratio": {
     "status": 1.05,
-    "panel": 0.93,
+    "panel": 1.07,
     "notice": 1.05
    }
   },
@@ -619,29 +658,32 @@
    "width": 390,
    "title": "Maintenance at this site",
    "status": {
-    "y": 336,
-    "w": 358,
+    "y": 335,
+    "w": 343,
     "h": 84
    },
    "panel": {
-    "y": 438,
-    "w": 358,
-    "h": 341
+    "y": 437,
+    "w": 343,
+    "h": 383
    },
    "notice": {
-    "y": 796,
-    "w": 358,
+    "y": 837,
+    "w": 343,
     "h": 63
    },
-   "statusText": "Scoped to Kobo · 0 maintenanceRead in fullThese are work records at this siteManage in Maintenance · Not available yet",
+   "statusText": "Scoped to Kobo · 0 maintenanceThese are work records at this siteManage in Maintenance · Not available yet",
+   "emptyIcon": true,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
-    "scrollW": 358,
-    "clientW": 358,
+    "scrollW": 343,
+    "clientW": 343,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (0)",
+     "Incidents (0)",
+     "Maintenance (0)"
     ]
    },
    "rows": 0,
@@ -649,12 +691,12 @@
    "tableScroll": null,
    "stickyFirst": null,
    "hintVisible": null,
-   "overflowX": 0,
+   "overflowX": -15,
    "clipped": 0,
-   "pageH": 900,
+   "pageH": 940,
    "ratio": {
     "status": 0.92,
-    "panel": 1.08,
+    "panel": 1.21,
     "notice": 0.81
    }
   },
@@ -681,14 +723,17 @@
     "h": 44
    },
    "statusText": "Count unknown · work source unavailableThese are work records at this siteManage in Maintenance · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 1160,
     "clientW": 1160,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (—)",
+     "Incidents (—)",
+     "Maintenance (—)"
     ]
    },
    "rows": 0,
@@ -728,14 +773,17 @@
     "h": 63
    },
    "statusText": "Count unknown · work source unavailableThese are work records at this siteManage in Maintenance · Not available yet",
+   "emptyIcon": false,
+   "stripSpans": 3,
+   "stripState": 0,
    "subrow": {
     "h": 36,
     "scrollW": 358,
     "clientW": 358,
     "labels": [
-     "Actions",
-     "Incidents",
-     "Maintenance"
+     "Actions (—)",
+     "Incidents (—)",
+     "Maintenance (—)"
     ]
    },
    "rows": 0,
@@ -796,7 +844,27 @@
   },
   {
    "case": "sitework-incidents stocked 1440",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (7)|Maintenance (3))",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 1440",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 1440",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 1440",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 1440",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -846,7 +914,27 @@
   },
   {
    "case": "sitework-incidents stocked 390",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (7)|Maintenance (3))",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 390",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 390",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 390",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents stocked 390",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -886,7 +974,7 @@
   },
   {
    "case": "sitework-incidents empty 1440",
-   "what": "panel 295 <= 410",
+   "what": "panel 337 <= 410",
    "ok": true
   },
   {
@@ -911,7 +999,27 @@
   },
   {
    "case": "sitework-incidents empty 1440",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (0)|Maintenance (0))",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 1440",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 1440",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 1440",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 1440",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -936,7 +1044,7 @@
   },
   {
    "case": "sitework-incidents empty 390",
-   "what": "panel 379 <= 460",
+   "what": "panel 421 <= 460",
    "ok": true
   },
   {
@@ -946,7 +1054,7 @@
   },
   {
    "case": "sitework-incidents empty 390",
-   "what": "page 936 <= 1579",
+   "what": "page 978 <= 1579",
    "ok": true
   },
   {
@@ -961,7 +1069,27 @@
   },
   {
    "case": "sitework-incidents empty 390",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (0)|Maintenance (0))",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 390",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 390",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 390",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents empty 390",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1011,7 +1139,27 @@
   },
   {
    "case": "sitework-incidents refused 1440",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (—)|Incidents (—)|Maintenance (—))",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 1440",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 1440",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 1440",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 1440",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1061,7 +1209,27 @@
   },
   {
    "case": "sitework-incidents refused 390",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (—)|Incidents (—)|Maintenance (—))",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 390",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 390",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 390",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-incidents refused 390",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1111,7 +1279,27 @@
   },
   {
    "case": "sitework-maintenance stocked 1440",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (7)|Maintenance (3))",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 1440",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 1440",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 1440",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 1440",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1161,7 +1349,27 @@
   },
   {
    "case": "sitework-maintenance stocked 390",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (7)|Maintenance (3))",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 390",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 390",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 390",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance stocked 390",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1201,7 +1409,7 @@
   },
   {
    "case": "sitework-maintenance empty 1440",
-   "what": "panel 275 <= 384",
+   "what": "panel 317 <= 384",
    "ok": true
   },
   {
@@ -1226,7 +1434,27 @@
   },
   {
    "case": "sitework-maintenance empty 1440",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (0)|Maintenance (0))",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 1440",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 1440",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 1440",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 1440",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1251,7 +1479,7 @@
   },
   {
    "case": "sitework-maintenance empty 390",
-   "what": "panel 341 <= 410",
+   "what": "panel 383 <= 410",
    "ok": true
   },
   {
@@ -1261,12 +1489,12 @@
   },
   {
    "case": "sitework-maintenance empty 390",
-   "what": "page 900 <= 1579",
+   "what": "page 940 <= 1579",
    "ok": true
   },
   {
    "case": "sitework-maintenance empty 390",
-   "what": "no page-level horizontal overflow (0)",
+   "what": "no page-level horizontal overflow (-15)",
    "ok": true
   },
   {
@@ -1276,7 +1504,27 @@
   },
   {
    "case": "sitework-maintenance empty 390",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (0)|Incidents (0)|Maintenance (0))",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 390",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 390",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 390",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance empty 390",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1326,7 +1574,27 @@
   },
   {
    "case": "sitework-maintenance refused 1440",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (—)|Incidents (—)|Maintenance (—))",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 1440",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 1440",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 1440",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 1440",
+   "what": "empty state has no rows",
    "ok": true
   },
   {
@@ -1376,7 +1644,27 @@
   },
   {
    "case": "sitework-maintenance refused 390",
-   "what": "one Work subrow, three live links",
+   "what": "one Work subrow, three live links with counts (Actions (—)|Incidents (—)|Maintenance (—))",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 390",
+   "what": "subrow stays one row (36)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 390",
+   "what": "strip is lead, detail, Manage (3/0)",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 390",
+   "what": "empty block carries the mock evidence icon",
+   "ok": true
+  },
+  {
+   "case": "sitework-maintenance refused 390",
+   "what": "empty state has no rows",
    "ok": true
   },
   {

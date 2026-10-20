@@ -11,7 +11,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 
-ROOT = r"C:\Users\assef\Bineyame\AssetOpsV1-review5"
+ROOT = r"C:\Users\assef\Bineyame\AssetOpsV1-review"
 sys.path.insert(0, ROOT + r"\backend\tests")
 import pg_harness  # noqa: E402
 from sqlalchemy import create_engine, text  # noqa: E402
