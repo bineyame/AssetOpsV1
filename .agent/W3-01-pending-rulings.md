@@ -1,43 +1,11 @@
-# W3-01 pending rulings (q4, Lane A compatibility run 2, 2026-10-20)
+# W3-01 pending rulings (commit 1, 2026-10-20)
 
-q1-q3 are answered in `.agent/W3-01-build-spec.md` (Run 1-3 rulings). Lane A resumed at `9239fb45` and built
-the q3 map up to EV money, then stopped on item 1 below (no-decision rule). **No Lane A code is committed**;
-the uncommitted diff is saved as `.agent/W3-01-lane-a-partial.patch` (see the phase handoff).
+Raised by the Lane B builder at `1c409a3d`. Commit 1 is **partial**: only the unambiguous DTO core is built. Each item below blocks the named remaining part; nothing was built on an assumed answer.
 
-1. **EV money row: the stored row has no pinned Finding (blocking).** q3's EV money row says: select
-   `ev_consequence_revision.finding_revision_id, assessment_revision_id`, cite money IDs union the pinned
-   `finding_revision_evidence`, select `{ev_consequence_revision.id, finding_revision.id, ev_session_revision.id,
-   assessment_revision.id}`, and "Missing pinned Finding/session/assessment for a stored row refuses the read
-   through its existing unavailable path". In code, `ev_consequence_revision.finding_revision_id` is nullable
-   (`migrations/versions/0026_w2_ev_money.py:50`) and the only writer always inserts `NULL`
-   (`financials/adapters/postgres_consequence_store.py:997-1000`, `VALUES (:id, :t, :s, NULL, :ar, ...)`). An EV
-   money row is window-level: it links N sessions through `ev_consequence_session` (`_with_links`, line 1115),
-   not one session named by a Finding claim. Applied literally, every stored EV consequence (current or history)
-   refuses `/ev/financials` (and the EV overview money summary), so `test_w207_ev_money_postgres.py` and the
-   EV Site money reads would all become 503. Which applies?
-   - (a) Row DTO cites `ev_consequence_evidence.evidence_id` only and selects
-     `{ev_consequence_revision.id, assessment_revision_id, every ev_consequence_session.session_revision_id}`
-     (no Finding member; needs a Lane B selection helper or an inline sorted set; Lane A would pass it to
-     `cited_set`).
-   - (b) As (a) but also union the `finding_revision_evidence` of every SUPPORTED EV Finding revision of that
-     assessment whose claim names one of those sessions, selecting those Finding revisions too.
-   - (c) Keep the literal ruling: a NULL pin refuses the read (EV money reads become unavailable until a later
-     writer change pins a Finding; that writer change is outside Lane A's file list).
-   - (d) No row block on EV money rows in this commit (envelope siblings only); defer to a later slice.
-
-## Readings (built in the partial patch; confirm or correct with item 1)
-
-2. **Cold Finding row pin.** `_REVISION` now also selects `er.id, er.assessment_revision_id` (episode revision
-   joined by tenant/Site and the claim's `episode_revision_id`). A missing episode revision, or one whose
-   `assessment_revision_id` differs from `fr.assessment_revision_id`, raises `ColdReadUnavailable` (503) for
-   list, detail and Site reads, rather than an UNKNOWN row. Selection uses `fr.assessment_revision_id` (q3 text).
-3. **Cold consequence pin.** `ColdReadService.consequence_provenance_on(c, snap, head)` requires the pinned
-   `finding_revision` in tenant/Site with `assessment_revision_id = head.assessment_revision_id` and claim
-   `episode_revision_id = head.episode_revision_id` (episode revision of the same assessment); else 503.
-4. **EV Finding pin.** Exactly one `ev_session_revision` among the selected `result.session_revision_ids` whose
-   `session_id` equals the claim's `session_id`; zero or more than one raises `EvReadUnavailable` (503).
-5. **EV pending job vs currentness.** The `recompute_job` query now runs whenever `lo` exists; it gates only the
-   public pending block. `currentness`/`pending` stay as before (`pending = selected is not None and job`), so
-   no-head reads keep `UNKNOWN` currentness and the `_unassessable` limitation.
-6. **Failed link reads.** Both cold and EV bind `link_rows` through one helper that maps any non-DB exception
-   to the route's unavailable error (DB errors already map in `_read`); a missing reader is also unavailable.
+1. **Lane A same-commit integration (blocks closing commit 1).** Spec item 1 and the amended decision say Lane A integrates the compatibility seam *in W3 commit 1, before review/merge*; `post-W2-sequence.md` forbids both lanes editing a shared file in different worktrees. Does Lane A commit onto `task/W3-01-estate-claim-action-roots`, or carry it on its own branch? Confirm the backend call sites are Lane A's ("existing W1/W2 public-read integrations"): `analytics/finding_read.py:313,447,559`, `financials/consequence_read.py:225-265`, `financials/consequence_history.py`, `analytics/cold_site_reads.py`, `financials/cold_consequence.py`, EV/cold `_envelope` in `analytics/adapters/postgres_assessment_store.py:1655-1672,2185-2216`, `site_overview/read.py:47,332`, `actions/service.py:248,340,698`, `finding_api.py:308`, plus `frontend/src/sites/sourceProvenance.tsx`. My reading: Lane B supplies only `evidence/public_provenance.py` (+ tests); every call site above is Lane A.
+2. **`selected_revision_ids` per domain (blocks the digest at every call site and `test_w1_cold_ev_exact_cited_id_mapping`).** Only the Action row is defined (closure 2 D3). Name the exact set for: (a) a W1 Finding row/detail (the `finding_revision.id` alone?); (b) a W1 consequence row (consequence revision + its Finding revision?); (c) a cold selected read (the watermark `assessment_revision_ids`? episode revisions?); (d) an EV selected read (assessment, session, Finding and/or money revision?); (e) an estate Finding row.
+3. **Cold/EV cursor fence.** Today the public `source_provenance.basis_sha256` is the stored immutable basis and is also the cursor fence (`cold_site_reads.py:505`; `postgres_assessment_store.py:1864,1892,2327,2333,2366-2367`, the EV route prefix). Closure B8 makes the public field the selection digest. Do cursors keep fencing on the internal stored basis (read separately), or switch to the digest (changing existing cursor values)?
+4. **EV persisted-class mismatch (blocks `test_persisted_ev_class_disagreement_unknown`).** (a) Does the `SOURCE_CLASS_MISMATCH` reason's `accepted_evidence_ids` carry the full cited set? (b) Are the resolver's own reasons kept beside it? (c) `detail` "mirrors the resolver" but top-level must equal `detail.reasons`: on mismatch does `detail.state/reasons` show the resolver result or the overridden UNKNOWN? (d) Is a null persisted class on a selected row a mismatch? (e) Resolver UNKNOWN vs persisted positive: is the mismatch reason added too?
+5. **Pending dual DTO placement.** Where do `selected_source_provenance` and `pending_source_provenance` sit in the cold/EV envelopes: beside `source_provenance` (kept? with which value?) or replacing it?
+6. **`detail` on estate rows.** The W20 literal row omits `detail`. Confirm estate rows omit it while W1-compatible reads carry it.
+7. **Timing of `test_w1_cold_ev_exact_cited_id_mapping`.** It asserts public reads, which only change with Lane A's integration. Is it written in commit 1 against the integrated reads (after ruling 1), or against `PublicProvenance` called on the exact selected IDs from today's reads?
