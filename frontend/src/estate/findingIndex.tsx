@@ -78,22 +78,17 @@ const LIFECYCLE_WORDS: Readonly<Record<EstateLifecycle, { text: string; tone: st
   NO_LONGER_SUPPORTED: { text: "No longer supported", tone: "neutral", filter: "no_longer_supported" },
   MERGED: { text: "Merged", tone: "neutral", filter: "merged" },
 };
-const LIFECYCLE_ORDER: readonly EstateLifecycle[] = ["SUPPORTED", "UNCONFIRMED", "NO_LONGER_SUPPORTED", "MERGED"];
-const FILTER_LIFECYCLE: Readonly<Record<EstateStateFilter, EstateLifecycle | null>> = {
-  all: null,
-  supported: "SUPPORTED",
-  unconfirmed: "UNCONFIRMED",
-  no_longer_supported: "NO_LONGER_SUPPORTED",
-  merged: "MERGED",
-};
 
 const LENS_FLAG_WORDS: Readonly<Record<string, string>> = { COST: "Cost", RISK: "Risk", OPPORTUNITY: "Opportunity" };
 
 export const AWAITING_ZERO = "No Actions from selected Finding revisions are awaiting verification in this window.";
 export const AWAITING_RULE =
   "Counts Actions from the exact selected Finding revision with an open frozen verification window and no resolved outcome.";
-export const FINDINGS_NOTICE =
-  "Priority, confidence and workflow state stay separate. Opening a finding moves you to Findings with its site in the breadcrumb.";
+export const FINDINGS_NOTICE = "Priority, confidence and workflow state stay separate.";
+export const FINDINGS_LINKED_NOTICE =
+  "A finding title that is a link opens that finding with its site in the breadcrumb; other titles are shown without a link.";
+export const FINDINGS_UNLINKED_NOTICE =
+  "Finding titles on this page are shown without a link; the Site link opens the site.";
 
 /**
  * The Main consequence cell (Run 6 Blocker 2, Run 8 rulings 3-4): a PRICED row shows its stored interval, never a
@@ -173,33 +168,23 @@ function LensTabs({ lens, href }: { lens: EstateLens; href: (lens: EstateLens) =
   );
 }
 
+const STATE_CHIPS: readonly { filter: EstateStateFilter; text: string; tone: string }[] = [
+  { filter: "all", text: "All states", tone: "neutral" },
+  ...(["SUPPORTED", "UNCONFIRMED", "NO_LONGER_SUPPORTED", "MERGED"] as const).map((value) => ({
+    filter: LIFECYCLE_WORDS[value].filter,
+    text: LIFECYCLE_WORDS[value].text,
+    tone: LIFECYCLE_WORDS[value].tone,
+  })),
+];
+
 /**
- * `All states` plus the stored lifecycle values present in the read rows (and the active filter); never a
- * mock-only value. Reading R1 in `.agent/W3-01-pending-rulings.md`: the API carries no full-basis lifecycle set.
+ * The five stable state filter controls (Run 13 ruling 2): `All states` and the four supported filter values, in
+ * that order on every lens and read. They carry no counts and never claim a lifecycle occurs in the basis or page.
  */
-function StateChips({
-  body,
-  active,
-  href,
-}: {
-  body: EstateFindingsBody | null;
-  active: EstateStateFilter;
-  href: (state: EstateStateFilter) => string;
-}) {
-  const present = new Set<EstateLifecycle>((body?.rows ?? []).map((row) => row.lifecycle));
-  const activeLifecycle = FILTER_LIFECYCLE[active];
-  if (activeLifecycle !== null) present.add(activeLifecycle);
-  const chips: { filter: EstateStateFilter; text: string; tone: string }[] = [
-    { filter: "all", text: "All states", tone: "neutral" },
-    ...LIFECYCLE_ORDER.filter((value) => present.has(value)).map((value) => LIFECYCLE_WORDS[value]).map((w) => ({
-      filter: w.filter,
-      text: w.text,
-      tone: w.tone,
-    })),
-  ];
+function StateChips({ active, href }: { active: EstateStateFilter; href: (state: EstateStateFilter) => string }) {
   return (
     <ul className="v69-chips estate-state-chips" aria-label="Workflow state" data-estate-state-chips>
-      {chips.map((chip) => (
+      {STATE_CHIPS.map((chip) => (
         <li key={chip.filter}>
           <Link
             className={`v69-chip estate-state-chip estate-state-chip--${chip.tone}`}
@@ -215,15 +200,31 @@ function StateChips({
   );
 }
 
-function Row({ row, knownAt }: { row: EstateFindingRow; knownAt: string }) {
+/**
+ * Sites whose rows link `links.finding` (Run 13 ruling 3): the mini-grid rows, whose exact `revision_id` the
+ * reviewed W1 Finding detail consumes. The wire has no row domain; the existing coverage reports a mini-grid
+ * Site with a matcher state, while cold and EV Sites report `match_state NOT_APPLICABLE`. A Site missing from
+ * coverage is never linked.
+ */
+function miniGridSiteIds(body: EstateFindingsBody): ReadonlySet<string> {
+  return new Set(body.coverage.sites.filter((site) => site.match_state !== "NOT_APPLICABLE").map((site) => site.site_id));
+}
+
+function Row({ row, knownAt, linked }: { row: EstateFindingRow; knownAt: string; linked: boolean }) {
   const lifecycle = LIFECYCLE_WORDS[row.lifecycle];
   const source = SOURCE_WORDS[sourceState(row.source_provenance as unknown as SourceProvenance)];
   return (
     <tr data-estate-finding={row.finding_id}>
       <td>
-        <Link className="estate-cell__primary" to={row.links.finding} data-estate-finding-link>
-          {row.title}
-        </Link>
+        {linked ? (
+          <Link className="estate-cell__primary" to={row.links.finding} data-estate-finding-link>
+            {row.title}
+          </Link>
+        ) : (
+          <span className="estate-cell__primary" data-estate-finding-inert>
+            {row.title}
+          </span>
+        )}
         <Disclosure summary={row.finding_label} name={`estate-finding-${row.finding_id}`} variant="inline">
           <span className="estate-cell__detail">
             Finding {row.finding_id} · revision {row.finding_revision_id} · {source.label}
@@ -252,7 +253,7 @@ function Row({ row, knownAt }: { row: EstateFindingRow; knownAt: string }) {
   );
 }
 
-function FindingRowsTable({ body }: { body: EstateFindingsBody }) {
+function FindingRowsTable({ body, linkedIds }: { body: EstateFindingsBody; linkedIds: ReadonlySet<string> }) {
   return (
     <DataTable labelledBy="estate-findings-heading">
       <colgroup>
@@ -271,7 +272,7 @@ function FindingRowsTable({ body }: { body: EstateFindingsBody }) {
       </thead>
       <tbody>
         {body.rows.map((row) => (
-          <Row key={row.finding_id} row={row} knownAt={body.window.known_at} />
+          <Row key={row.finding_id} row={row} knownAt={body.window.known_at} linked={linkedIds.has(row.site_id)} />
         ))}
       </tbody>
     </DataTable>
@@ -346,19 +347,21 @@ function Loaded({
   path: string;
   query: ReturnType<typeof queryFromParams>;
 }) {
+  const linkedIds = miniGridSiteIds(body);
+  const anyLinked = body.rows.some((row) => linkedIds.has(row.site_id));
   const complete = body.total_count !== null;
   const empty = complete && body.total_count === 0;
   const next = body.next_cursor === null ? null : estateHref(path, query, { state: active, cursor: body.next_cursor });
   return (
     <>
       <Cards body={body} />
-      <StateChips body={body} active={active} href={stateHref} />
+      <StateChips active={active} href={stateHref} />
       <Panel
         heading={PANEL_TITLE[lens]}
         headingId="estate-findings-heading"
         description="Lens is how a finding is read, not a second object · state is a filter"
       >
-        {body.rows.length > 0 ? <FindingRowsTable body={body} /> : null}
+        {body.rows.length > 0 ? <FindingRowsTable body={body} linkedIds={linkedIds} /> : null}
         {empty ? (
           <div className="estate-empty" data-estate-empty>
             <p>No findings match.</p>
@@ -375,6 +378,7 @@ function Loaded({
       <LimitationNotice sentences={limitationSentences(body, PARTIAL_COVERAGE)} />
       <Notice tone="blue" data={{ "data-estate-notice": "" }}>
         {FINDINGS_NOTICE}
+        {body.rows.length === 0 ? null : ` ${anyLinked ? FINDINGS_LINKED_NOTICE : FINDINGS_UNLINKED_NOTICE}`}
       </Notice>
     </>
   );

@@ -7,6 +7,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { siteDetailHref } from "../shell/operatorSiteRoutes";
 import { DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import {
   createEstateClient,
@@ -31,6 +32,7 @@ export const ESTATE_ACTIONS_PATH = "/actions";
 
 export const ACTIONS_NOTICE =
   "Verification needs a frozen plan and later accepted evidence. An Action event alone does not prove an outcome.";
+export const NO_VERIFIED_OUTCOME = "No verified outcome in the last 30 days";
 export const ACTIONS_LIFECYCLE = "Pending → Applied → Verification window → Verified or withdrawn";
 
 const APPLICATION_WORDS: Readonly<Record<EstateActionRow["application_state"], { text: string; tone: string }>> = {
@@ -50,7 +52,6 @@ function count(value: number | null): string {
 function Cards({ body }: { body: EstateActionsBody }) {
   const s = body.summary;
   const complete = body.total_count !== null;
-  const anyResolved = body.rows.some((row) => row.resolution_state === "RESOLVED");
   return (
     <MetricCards label="Actions summary" data={{ "data-estate-cards": "" }}>
       <MetricCard
@@ -81,7 +82,7 @@ function Cards({ body }: { body: EstateActionsBody }) {
         value={count(s.verified_in_30_days)}
         word={s.verified_in_30_days === null}
         tone={s.verified_in_30_days === null ? "amber" : s.verified_in_30_days > 0 ? "green" : undefined}
-        note={s.verified_in_30_days === 0 && !anyResolved ? "No closed verification yet" : undefined}
+        note={s.verified_in_30_days === 0 && complete ? NO_VERIFIED_OUTCOME : undefined}
         data={{ "data-estate-card": "verified_in_30_days" }}
       />
     </MetricCards>
@@ -98,7 +99,9 @@ function Row({ row }: { row: EstateActionRow }) {
         </Link>
       </td>
       <td>
-        <span className="estate-cell__primary">{row.site_name}</span>
+        <Link className="estate-cell__primary" to={siteDetailHref(row.site_code)} data-estate-site-link>
+          {row.site_name}
+        </Link>
         <span className="estate-cell__secondary">{row.site_code}</span>
       </td>
       <td>

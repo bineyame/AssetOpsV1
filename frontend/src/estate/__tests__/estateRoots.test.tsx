@@ -10,7 +10,7 @@ import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { EstateActionsPage, ESTATE_ACTIONS_PATH, ACTIONS_LIFECYCLE, ACTIONS_NOTICE } from "../actionIndex";
 import { createEstateClient, type EstateClient, type EstateLens } from "../estateClient";
-import { AWAITING_RULE, AWAITING_ZERO, ESTATE_FINDING_LENS_PATHS, EstateFindingsPage, FINDINGS_NOTICE } from "../findingIndex";
+import { AWAITING_RULE, AWAITING_ZERO, ESTATE_FINDING_LENS_PATHS, EstateFindingsPage, FINDINGS_LINKED_NOTICE, FINDINGS_NOTICE, FINDINGS_UNLINKED_NOTICE } from "../findingIndex";
 import {
   FROM,
   KNOWN,
@@ -111,8 +111,9 @@ describe("W3-01 estate roots", () => {
         "Awaiting verification",
       ]);
       const chips = within(screen.getByRole("list", { name: "Workflow state" })).getAllByRole("link");
-      expect(chips[0].textContent).toBe("All states");
-      expect(chips.map((c) => c.textContent)).toContain("Supported");
+      // Run 13 ruling 2: five stable chips in fixed order, whatever rows are on the page.
+      expect(chips.map((c) => c.textContent)).toEqual(["All states", "Supported", "Unconfirmed", "No longer supported", "Merged"]);
+      expect(chips.map((c) => c.getAttribute("aria-current"))).toEqual([null, "true", null, null, null]);
       for (const chip of chips) expect(chip.getAttribute("href")).not.toContain("cursor=");
       expect(main().textContent).toContain(FINDINGS_NOTICE);
       expect(main().textContent).toContain("Lens is how a finding is read, not a second object · state is a filter");
@@ -133,10 +134,238 @@ describe("W3-01 estate roots", () => {
     fireEvent.click(screen.getByRole("link", { name: "Supported" }));
     await settledScreen();
     expect(location()).toBe(`/findings?from=${FROM}&to=${TO}&state=supported`);
-    // Actions root: panel, cards, columns, exact Action and pinned source links.
-    renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, client);
+    // Actions root: panel, exact Action and pinned source links, and a Site link per domain row (L1, L4).
+    const coldRow = actionRow({
+      action_id: "10000000-0000-4000-8000-000000000221",
+      site_code: "COLD 7/a",
+      site_name: "Cold Store",
+      links: { action: "/sites/COLD%207%2Fa/actions/x?event_id=y", source: null },
+    });
+    const evRow = actionRow({
+      action_id: "10000000-0000-4000-8000-000000000231",
+      site_code: "EV-02",
+      site_name: "Depot Chargers",
+      links: { action: "/sites/EV-02/actions/z?event_id=w", source: null },
+    });
+    const three = actionsBody({ rows: [actionRow(), coldRow, evRow] });
+    renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, fakeClient(() => loaded(findingsBody("all")), loaded(three)));
     await settledScreen();
-    expectV69Panels("actions", {}, document.querySelectorAll("main")[1] as HTMLElement);
+    const actionsMain = document.querySelectorAll("main")[1] as HTMLElement;
+    expectV69Panels("actions", {}, actionsMain);
+    const actionRows = Array.from(actionsMain.querySelectorAll("tbody tr")) as HTMLElement[];
+    expect(actionRows).toHaveLength(3);
+    const first = actionRows[0];
+    expect(within(first).getByText("Action ACT-000001").getAttribute("href")).toBe(actionRow().links.action);
+    expect(within(first).getByText("Finding 10000000").getAttribute("href")).toBe(actionRow().links.source);
+    for (const [row, name, code] of [
+      [actionRows[0], "Kobo Mini-grid", "KOBO-001"],
+      [actionRows[1], "Cold Store", "COLD 7/a"],
+      [actionRows[2], "Depot Chargers", "EV-02"],
+    ] as const) {
+      const siteAnchor = within(row).getByText(name);
+      expect(siteAnchor.tagName).toBe("A");
+      expect(siteAnchor.getAttribute("href")).toBe(`/sites/${encodeURIComponent(code)}`);
+      expect(within(row).getByText(code).closest("a")).toBeNull();
+    }
+    const actionHrefs = Array.from(actionsMain.querySelectorAll("a")).map((a) => a.getAttribute("href") ?? "");
+    expect(actionHrefs.some((href) => /incident|maintenance/i.test(href))).toBe(false);
+  });
+
+  it("test_cold_ev_titles_inert_and_notice", async () => {
+    // Run 13 ruling 3: only a mini-grid row links its Finding; cold/EV titles are inert text with the Site link
+    // and disclosure kept, and the notice describes the mixed list.
+    const cold = { ...site(SITE_B, "CURRENT"), match_state: "NOT_APPLICABLE" };
+    const coldLinks = { finding: "/sites/COLD-1/findings/f?revision_id=r", site: "/sites/COLD-1" };
+    const mixed = findingsBody("all", {
+      rows: [findingRow(1), findingRow(2, { site_id: SITE_B, site_code: "COLD-1", links: coldLinks })],
+      coverage: { state: "COMPLETE", sites: [site(SITE_A, "CURRENT"), cold] },
+    });
+    let view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(mixed)));
+    await settledScreen();
+    const rows = Array.from(main().querySelectorAll("tbody tr")) as HTMLElement[];
+    expect(within(rows[0]).getByText("Stored finding title 1").tagName).toBe("A");
+    const inert = within(rows[1]).getByText("Stored finding title 2");
+    expect(inert.tagName).toBe("SPAN");
+    expect(inert.closest("a")).toBeNull();
+    expect(rows[1].querySelector("[data-estate-finding-link]")).toBeNull();
+    expect(within(rows[1]).getByText("COLD-1").getAttribute("href")).toBe("/sites/COLD-1");
+    expect(rows[1].querySelector("details")).not.toBeNull();
+    expect(main().querySelector("[data-estate-notice]")?.textContent).toBe(`${FINDINGS_NOTICE} ${FINDINGS_LINKED_NOTICE}`);
+    view.unmount();
+    const onlyCold = findingsBody("all", {
+      rows: [findingRow(2, { site_id: SITE_B })],
+      coverage: { state: "COMPLETE", sites: [cold] },
+    });
+    view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(onlyCold)));
+    await settledScreen();
+    expect(main().querySelector("[data-estate-finding-link]")).toBeNull();
+    expect(main().querySelector("[data-estate-notice]")?.textContent).toBe(`${FINDINGS_NOTICE} ${FINDINGS_UNLINKED_NOTICE}`);
+    view.unmount();
+  });
+
+  it("test_date_bar_cutoff_copy_by_state", async () => {
+    // L2: loading and refusal read `latest`; page one adds the suffix; a continuation and an explicit cutoff do not.
+    const cutoff = () => main().querySelector("[data-estate-cutoff]")?.textContent;
+    const pending = new Promise<never>(() => undefined);
+    const loading = { ...fakeClient(() => loaded(findingsBody("all"))), findings: () => pending } as EstateClient;
+    let view = renderAt(`/findings?${WINDOW}`, loading);
+    expect(cutoff()).toBe("Evidence cutoff latest");
+    expect(cutoff()).not.toContain("latest (latest at read time)");
+    view.unmount();
+    const refused = fakeClient(() => ({ status: "refused", httpStatus: 422, code: "INVALID_LENS", copy: "Choose a supported Findings lens." }));
+    view = renderAt(`/findings?${WINDOW}`, refused);
+    await settledScreen();
+    expect(cutoff()).toBe("Evidence cutoff latest");
+    view.unmount();
+    view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(findingsBody("all"))));
+    await settledScreen();
+    expect(cutoff()).toBe("Evidence cutoff 2026-10-20 09:30:00 UTC (latest at read time)");
+    view.unmount();
+    view = renderAt(`/findings?${WINDOW}&cursor=abc`, fakeClient(() => loaded(findingsBody("all"))));
+    await settledScreen();
+    expect(cutoff()).toBe("Evidence cutoff 2026-10-20 09:30:00 UTC");
+    view.unmount();
+    const explicit = "2026-10-18T06:00:00Z";
+    view = renderAt(`/findings?${WINDOW}&known_at=${encodeURIComponent(explicit)}`, loading);
+    expect(cutoff()).toBe("Evidence cutoff 2026-10-18 06:00:00 UTC");
+    view.unmount();
+    const explicitBody = actionsBody({ window: { from: FROM, to: TO, bounds: "[from, to)", known_at: explicit } });
+    view = renderAt(
+      `${ESTATE_ACTIONS_PATH}?${WINDOW}&known_at=${encodeURIComponent(explicit)}`,
+      fakeClient(() => loaded(findingsBody("all")), loaded(explicitBody)),
+    );
+    await settledScreen();
+    expect(cutoff()).toBe("Evidence cutoff 2026-10-18 06:00:00 UTC");
+    view.unmount();
+  });
+
+  it("test_every_state_and_empty_string", async () => {
+    // M1: strings previously unasserted, each in its stated state/element.
+    const staleBody = findingsBody("all", {
+      rows: [
+        findingRow(1, { status: "STALE_SOURCE", lifecycle: "SUPPORTED" }),
+        findingRow(2, { status: "UNKNOWN", lifecycle: "UNCONFIRMED" }),
+        findingRow(3, { status: "HISTORICAL", lifecycle: "NO_LONGER_SUPPORTED" }),
+        findingRow(4, { status: "PENDING_RECOMPUTE", lifecycle: "MERGED" }),
+        findingRow(5, { status: "CURRENT" }),
+        findingRow(6, { status: "NOT_APPLICABLE" }),
+      ],
+      coverage: { state: "COMPLETE", sites: [site(SITE_A, "STALE_SOURCE")] },
+    });
+    let view = renderAt(`/findings?${WINDOW}`, fakeClient(() => loaded(staleBody)));
+    await settledScreen();
+    const rows = Array.from(main().querySelectorAll("tbody tr")) as HTMLElement[];
+    const chip = (row: HTMLElement) => row.querySelector("[data-estate-site-state]")?.textContent;
+    expect(chip(rows[0])).toBe("This result may miss newer readings.");
+    expect(chip(rows[1])).toBe("Not yet assessed");
+    expect(chip(rows[2])).toBe("Earlier evidence cutoff");
+    expect(chip(rows[3])).toBe("New evidence is being assessed.");
+    expect(rows[4].querySelector("[data-estate-site-state]")).toBeNull();
+    expect(rows[5].querySelector("[data-estate-site-state]")).toBeNull();
+    const lifecycle = (row: HTMLElement) => row.querySelector("[data-estate-lifecycle]");
+    expect(rows.slice(0, 4).map((r) => lifecycle(r)?.getAttribute("data-estate-lifecycle"))).toEqual([
+      "SUPPORTED",
+      "UNCONFIRMED",
+      "NO_LONGER_SUPPORTED",
+      "MERGED",
+    ]);
+    expect(rows.slice(0, 4).map((r) => lifecycle(r)?.textContent)).toEqual([
+      "Supported",
+      "Unconfirmed",
+      "No longer supported",
+      "Merged",
+    ]);
+    expect(main().querySelector("[data-estate-limitation]")?.textContent).toContain(
+      "Some sites' results may miss newer readings.",
+    );
+    view.unmount();
+
+    // An empty filtered read keeps the five chips and the empty state.
+    view = renderAt(`/findings?${WINDOW}&state=merged`, fakeClient(() => loaded(findingsBody("all", { rows: [] }))));
+    await settledScreen();
+    const stable = within(screen.getByRole("list", { name: "Workflow state" })).getAllByRole("link");
+    expect(stable.map((c) => c.textContent)).toEqual(["All states", "Supported", "Unconfirmed", "No longer supported", "Merged"]);
+    expect(main().querySelector("[data-estate-empty]")?.textContent).toContain("No findings match.");
+    view.unmount();
+
+    // Actions: complete empty, no pinned source, NONE_AT_CUTOFF chip, state-scoped chips.
+    const actionsRead = (body: ReturnType<typeof actionsBody>) => fakeClient(() => loaded(findingsBody("all")), loaded(body));
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actionsRead(actionsBody({ rows: [] })));
+    await settledScreen();
+    expect(main().querySelector("[data-estate-empty]")?.textContent).toBe("No actions match.");
+    view.unmount();
+    const none = actionRow({ application_state: "NONE_AT_CUTOFF", links: { ...actionRow().links, source: null } });
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actionsRead(actionsBody({ rows: [none] })));
+    await settledScreen();
+    expect(main().querySelector("[data-estate-application]")?.textContent).toBe("No action yet");
+    const sourceCell = main().querySelectorAll("tbody tr td")[2];
+    expect(sourceCell.textContent).toBe("Source unavailable");
+    expect(sourceCell.querySelector("a")).toBeNull();
+    view.unmount();
+    const verifiedRow = actionRow({
+      action_id: "10000000-0000-4000-8000-000000000241",
+      application_state: "APPLIED",
+      resolution_state: "RESOLVED",
+      verification_outcome: "VERIFIED",
+    });
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actionsRead(actionsBody({ rows: [actionRow(), verifiedRow] })));
+    await settledScreen();
+    const stateCells = Array.from(main().querySelectorAll("tbody tr")).map((r) => r.querySelectorAll("td")[4]);
+    const chipsIn = (cell: Element) => Array.from(cell.querySelectorAll(".estate-chip")).map((c) => c.textContent);
+    expect(chipsIn(stateCells[0])).toEqual(["Pending"]);
+    expect(chipsIn(stateCells[1])).toEqual(["Applied", "Verified"]);
+    view.unmount();
+
+    // Partial Actions cards, and the complete zero-outcome note (Run 13 ruling 7).
+    const partialActions = actionsBody({
+      rows: [],
+      status: "UNKNOWN",
+      coverage: { state: "PARTIAL", sites: [site(SITE_A, "UNKNOWN")] },
+      total_count: null,
+      summary: { open_actions: null, due_overdue: null, verification_window: null, verified_in_30_days: null, basis_count: null },
+    });
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actionsRead(partialActions));
+    await settledScreen();
+    const card = (label: string) =>
+      Array.from(main().querySelectorAll(".v69-metric")).find(
+        (c) => c.querySelector(".v69-metric__label")?.textContent === label,
+      ) as HTMLElement;
+    for (const label of ["Open actions", "Due / overdue", "Verification window", "Verified in 30 days"]) {
+      expect(card(label).querySelector(".v69-metric__value")?.textContent).toBe("Coverage incomplete");
+    }
+    expect(main().textContent).not.toContain("No verified outcome in the last 30 days");
+    view.unmount();
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actionsRead(actionsBody()));
+    await settledScreen();
+    expect(card("Verified in 30 days").textContent).toContain("No verified outcome in the last 30 days");
+    expect(card("Due / overdue").querySelector(".v69-metric__value")?.textContent).toBe("Not set");
+    expect(main().textContent).not.toContain("No closed verification yet");
+    view.unmount();
+    // The note does not depend on the rows on this page: a RESOLVED, unverified row still shows it.
+    const refuted = actionsBody({ rows: [actionRow({ resolution_state: "RESOLVED", verification_outcome: "REFUTED" })] });
+    view = renderAt(`${ESTATE_ACTIONS_PATH}?${WINDOW}`, actionsRead(refuted));
+    await settledScreen();
+    expect(card("Verified in 30 days").textContent).toContain("No verified outcome in the last 30 days");
+    view.unmount();
+
+    // Refusal copy by code: exact message, and no First page link for these five.
+    for (const [status, code, copy] of [
+      [409, "ESTATE_SELECTION_INCONSISTENT", "Some records are being updated. Reload the list."],
+      [422, "INVALID_WINDOW", "Choose a valid date range of at most 31 days."],
+      [422, "INVALID_KNOWN_AT", "Choose a valid evidence cutoff."],
+      [422, "INVALID_LENS", "Choose a supported Findings lens."],
+      [422, "INVALID_LIMIT", "Choose a page size from 1 to 100."],
+    ] as const) {
+      const body = JSON.stringify({ detail: { code, message: "x", rows: null, total_count: null } });
+      vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(new Response(body, { status }))));
+      view = renderAt(`/findings?${WINDOW}`, createEstateClient());
+      await settledScreen();
+      const refusal = main().querySelector("[data-page-refusal]") as HTMLElement;
+      expect(refusal.getAttribute("data-page-refusal")).toBe(code);
+      expect(refusal.querySelector("p")?.textContent).toBe(copy);
+      expect(within(refusal).queryByRole("link", { name: "First page" })).toBeNull();
+      view.unmount();
+    }
   });
 
   it("test_null_cards_partial_and_unpriced_copy", async () => {

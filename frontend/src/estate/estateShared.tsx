@@ -74,6 +74,16 @@ export const PENDING_EVIDENCE = "New evidence is being assessed.";
 export const PARTIAL_TOTALS = "Some sites have no selected result; totals are unknown.";
 
 /**
+ * The cutoff literal (Commit-3 r1 ruling L2): no response yet reads `latest` for an omitted cutoff; a loaded live
+ * page one adds the read-time suffix; a cursor continuation is pinned by its cursor and has no suffix.
+ */
+function cutoffBarText(query: Pick<EstateQuery, "known_at"> & { cursor?: string | null }, body: EstateEnvelope | null): string {
+  if (body === null) return `Evidence cutoff ${query.known_at ? utcInstant(query.known_at) : "latest"}`;
+  const shown = `Evidence cutoff ${utcInstant(body.window.known_at)}`;
+  return query.known_at || query.cursor ? shown : `${shown} (latest at read time)`;
+}
+
+/**
  * The one UTC date/cutoff bar (S17, Run 12 ruling 3). It shows the request window and the effective cutoff the
  * read reports; a historical top-level read (an explicit earlier cutoff, or a page two read after its cutoff)
  * says `This is an earlier evidence cutoff.`. Changing the window or cutoff restarts at page one.
@@ -83,7 +93,7 @@ export function EstateDateBar({
   body,
   onApply,
 }: {
-  query: Pick<EstateQuery, "from" | "to" | "known_at">;
+  query: Pick<EstateQuery, "from" | "to" | "known_at" | "cursor">;
   body: EstateEnvelope | null;
   onApply: (next: Pick<EstateQuery, "from" | "to" | "known_at">) => void;
 }) {
@@ -96,15 +106,14 @@ export function EstateDateBar({
     const to = midnight(Date.parse(`${last}T00:00:00Z`) + DAY_MS);
     onApply({ from: `${first}T00:00:00Z`, to, known_at: cutoff ? `${cutoff.length === 16 ? `${cutoff}:00` : cutoff}Z` : null });
   };
-  const known = body?.window.known_at ?? query.known_at;
+  const cutoffText = cutoffBarText(query, body);
   return (
     <form className="site-date-bar estate-date-bar" onSubmit={submit} data-estate-date-bar>
       <span className="site-date-bar__window" data-estate-window>
         Window {query.from.slice(0, 10)} to {lastDay(query.to)} (UTC days)
       </span>
       <span className="site-date-bar__cutoff" data-estate-cutoff>
-        Evidence cutoff {known ? utcInstant(known) : "latest"}
-        {query.known_at ? null : " (latest at read time)"}
+        {cutoffText}
       </span>
       {body?.status === "HISTORICAL" ? (
         <span className="estate-date-bar__historical" data-estate-historical>
