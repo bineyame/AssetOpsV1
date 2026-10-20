@@ -42,6 +42,18 @@ _RECORDS = ("SELECT id, activity, outcome_note, occurred_at, recorded_at, supers
 _FINDING_PIN = ("fr.domain, fr.analytic_id, fr.analytic_run_id, fr.assessment_revision_id, fr.episode_start, "
                 "fr.episode_end, fr.created_at")
 _MICROSECOND = timedelta(microseconds=1)
+# W4-01 commit 4 (spec "Commit 4 implementer dry-read"): eligible cases of one kind before paging. Incidents by root
+# `occurred_at`, requests by root `created_at`, both in `[from, to)` and created by the cutoff; a case needs its
+# revision at the cutoff. q7-1: the scoped Asset label inputs are `asset_code`, `asset_type` (no cutoff, no name).
+_ELIGIBLE = ("SELECT CAST(c.id AS text) AS id, c.kind, c.public_code, CAST(c.asset_id AS text) AS asset_id, "
+             "c.occurred_at, c.created_at, CAST(r.incident_id AS text) AS incident_id, a.asset_code, a.asset_type "
+             "FROM work_case c LEFT JOIN maintenance_work_request r ON r.tenant_id = c.tenant_id "
+             "AND r.site_id = c.site_id AND r.id = c.id "
+             "LEFT JOIN asset a ON a.tenant_id = c.tenant_id AND a.site_id = c.site_id AND a.id = c.asset_id "
+             "WHERE c.tenant_id = :t AND c.site_id = :s AND c.kind = :kind AND c.created_at <= :k "
+             "AND c.{member} >= :lo AND c.{member} < :hi AND EXISTS (SELECT 1 FROM work_case_revision v "
+             "WHERE v.tenant_id = c.tenant_id AND v.site_id = c.site_id AND v.case_id = c.id AND v.recorded_at <= :k)")
+_MEMBER = {"INCIDENT": "occurred_at", "MAINTENANCE_REQUEST": "created_at"}
 
 
 def _rows(result) -> list[dict[str, Any]]:
@@ -60,6 +72,8 @@ class LinkReadPorts:
     finding_index: Callable[..., dict[str, Any]]       # PostgresFindingStore.index_snapshot_on
     cold_analytics: tuple[str, ...]
     ev_analytics: tuple[str, ...]
+    # q7-2: `PostgresActionStore.site_window_on` for the exact W1 `sai1-` Action window fence on this connection.
+    action_window: Callable[..., dict[str, Any]] | None = None
 
 
 class _ReadTx:
@@ -123,6 +137,22 @@ class _ReadTx:
             raise WorkStoreUnavailable("The work read has no provenance link-row reader.")
         return list(self._link_rows(self._c, self._t, self._s, evidence_ids))
 
+    # ---- the list selection (commit 4) ---------------------------------------------------------------------
+
+    def site_name(self) -> str | None:
+        return self._c.execute(text("SELECT name FROM site WHERE tenant_id = :t AND id = :s"), self._p()).scalar()
+
+    def eligible_cases(self, kind: str, from_: datetime, to: datetime, known_at: datetime) -> list[dict[str, Any]]:
+        return _rows(self._c.execute(text(_ELIGIBLE.format(member=_MEMBER[kind])),
+                                     self._p(kind=kind, lo=from_, hi=to, k=known_at)))
+
+    def action_window(self, from_: datetime, to: datetime, known_at: datetime) -> dict[str, Any] | None:
+        """q7-2: the W1 Action index window (Actions created in `[from, to)`) at the cutoff on this connection;
+        None when no port is wired (the `sai1-` fence then cannot be reproduced)."""
+        if self._ports is None or self._ports.action_window is None:
+            return None
+        return self._ports.action_window(self._c, self._t, self._s, from_, to, known_at)
+
     # ---- pinned link selections (Q9 coverage port) -----------------------------------------------------------
 
     def link_selections(self, revision_id: str, from_: datetime | None, to: datetime | None,
@@ -136,6 +166,8 @@ class _ReadTx:
             "WHERE l.tenant_id = :t AND l.site_id = :s AND l.case_revision_id = :r"), p))
         action = _rows(self._c.execute(text(
             f"SELECT CAST(l.action_id AS text) AS root_id, CAST(l.action_event_id AS text) AS selected_id, "
+            "CAST(a.origin_finding_id AS text) AS origin_finding_id, "
+            "CAST(a.origin_finding_revision_id AS text) AS origin_finding_revision_id, "
             f"fr.id AS pinned, {_FINDING_PIN} FROM work_case_action_link l "
             "LEFT JOIN action_event ae ON ae.tenant_id = l.tenant_id AND ae.site_id = l.site_id "
             "AND ae.action_id = l.action_id AND ae.id = l.action_event_id AND ae.recorded_at <= :k "
@@ -148,8 +180,12 @@ class _ReadTx:
             for row in rows:
                 domain = row["domain"]
                 pin = None if row["pinned"] is None else self._pin(row, from_, to, known_at)
+                # Commit 4: `lineage` is whether the exact pinned revision (or Action event, root and origin
+                # revision) exists in scope by the cutoff, apart from whether its analytic selection resolves.
                 out.append({"kind": kind, "id": row["root_id"], "selected_id": row["selected_id"],
-                            "domain": domain, "pin": pin})
+                            "domain": domain, "pin": pin, "lineage": row["pinned"] is not None,
+                            "origin_finding_id": row.get("origin_finding_id"),
+                            "origin_finding_revision_id": row.get("origin_finding_revision_id")})
         return out
 
     def _pin(self, fr: dict[str, Any], from_: datetime | None, to: datetime | None,

@@ -9,6 +9,9 @@ Under `/api/sites/{site_code}/work` (Lane A mount in `main.py`):
 - `POST /plans` - an immutable DRAFT plan or its correction successor (`maintenance-plan-1`).
 - `POST /operational-records` - an authored SUBMITTED record or its correction (`operational-record-1`).
 - `GET /cases/{case_id}?known_at=` - the B3 `work-case-detail-1` read at one cutoff (Run 3 ruling 8).
+- `GET /incidents`, `GET /maintenance` `?from=&to=&known_at=&limit=&cursor=` - the commit-4 `site-work-index-1`
+  lists (q7-5: two literal paths mounted before `/cases/{case_id}`, no `{kind}` catch-all). Every list refusal is
+  `{"detail":{"code","message","rows":null,"total_count":null}}`; access and Site scope precede query parsing.
 
 Each POST returns 201 for a first submission and 200 with the stored exact body for an identical retry.
 Refusal order (Run 2 ruling reading 2): Site read access 401/403 (`finding_api.Access`), unknown Site 404, the
@@ -29,12 +32,13 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from assetops_backend.finding_api import Access, Scope, development_access
+from assetops_backend.finding_api import ACCESS_BASIS, Access, Scope, development_access
 from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.sites.ports import SiteStoreUnavailable
 from assetops_backend.work.detail import WorkDetailService
 from assetops_backend.work.model import MESSAGES, WorkRefused, WorkStoreUnavailable
 from assetops_backend.work.service import WorkService
+from assetops_backend.work.site_index import WorkIndexService, parse_list_request
 
 # Closure 3 Q28: the W4 contract constant for the development fixture SERVICE principal. Only a server-side
 # principal injection returns it; it is never read from a request body.
@@ -59,7 +63,8 @@ def _refuse(status: int, code: str, message: str) -> HTTPException:
 def build_work_router(service: WorkService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                       access: Access = development_access, command_access: Access = development_access,
                       principal: Principal = no_service_principal,
-                      details: WorkDetailService | None = None) -> APIRouter:
+                      details: WorkDetailService | None = None, lists: WorkIndexService | None = None,
+                      access_basis: str = ACCESS_BASIS) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
 
@@ -103,6 +108,32 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
         except down as error:
             raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"]) from error
         return JSONResponse(status_code=status, content=body)
+
+    def site_list(request: Request, site_code: str, kind: str) -> JSONResponse:
+        """Commit 4 (q7-5): access, Site scope, then window/limit/`known_at`/cursor, then the one snapshot."""
+        try:
+            tenant_id, site_id, code = read_scope(request, site_code)
+            if lists is None:
+                raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
+            q = request.query_params
+
+            def work() -> tuple[int, dict[str, Any]]:
+                parsed = parse_list_request(q.get("from"), q.get("to"), q.get("limit"), q.getlist("known_at"),
+                                            q.get("cursor"))
+                return 200, lists.read(tenant_id, site_id, code, kind, parsed, access_basis=access_basis)
+
+            return run(work)
+        except HTTPException as refused:
+            raise HTTPException(status_code=refused.status_code, headers=refused.headers,
+                                detail={**refused.detail, "rows": None, "total_count": None}) from refused
+
+    @router.get("/api/sites/{site_code}/work/incidents")
+    async def incident_list(request: Request, site_code: str) -> JSONResponse:
+        return site_list(request, site_code, "incidents")
+
+    @router.get("/api/sites/{site_code}/work/maintenance")
+    async def maintenance_list(request: Request, site_code: str) -> JSONResponse:
+        return site_list(request, site_code, "maintenance")
 
     @router.post("/api/sites/{site_code}/work/cases")
     async def create_case(request: Request, site_code: str) -> JSONResponse:

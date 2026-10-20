@@ -17,7 +17,7 @@ from datetime import datetime
 from typing import Any, Callable, Mapping, Protocol
 from uuid import UUID, uuid4
 
-from assetops_backend.evidence.public_provenance import LinkRowsReads, PublicProvenance
+from assetops_backend.evidence.public_provenance import LinkRowsReads, PublicProvenance, canonical_reasons
 from assetops_backend.work import model as m
 from assetops_backend.work.model import WorkRefused
 
@@ -43,13 +43,42 @@ def case_provenance(tx: Any, tenant_id: UUID, site_id: UUID, links: Mapping[str,
     """Q11 on the caller's transaction (command or read): the selected IDs are the selected revision, the given
     events, the selected latest record, pinned Finding revisions and pinned Action events; the cited set is the
     revision's evidence plus each pinned Finding revision's and each pinned Action's basis and origin revision's."""
+    selected, cited = case_basis(tx, links, revision_id, event_ids, record_id)
+    return provenance_dto(tx, tenant_id, site_id, cited, selected)
+
+
+def case_basis(tx: Any, links: Mapping[str, Any], revision_id: str, event_ids: list[str],
+               record_id: str | None) -> tuple[list[str], list[str]]:
+    """Q11's sorted selected-ID set and full available cited accepted-ID union for one selected case (W4 commit 4
+    splits it from the DTO so the list can classify the union over every eligible case)."""
     finding_revs = [f["finding_revision_id"] for f in links["finding_links"]]
     action_events = [a["action_event_id"] for a in links["action_links"]]
-    selected = [revision_id, *event_ids, *finding_revs, *action_events, *([record_id] if record_id else [])]
+    selected = {revision_id, *event_ids, *finding_revs, *action_events, *([record_id] if record_id else [])}
     cited = set(links["evidence_ids"]) | set(tx.lineage_evidence(
         finding_revs, [a["action_id"] for a in links["action_links"]]))
+    return sorted(str(x) for x in selected), sorted(str(x) for x in cited)
+
+
+def provenance_dto(tx: Any, tenant_id: UUID, site_id: UUID, cited: list[str],
+                   selected: list[str]) -> dict[str, Any]:
     reads = LinkRowsReads(lambda t, s, ids: tx.link_rows(ids))
     return PublicProvenance(reads).cited_set(tenant_id, site_id, sorted(cited), selected, detail=False)
+
+
+LINK_SELECTION_MISSING_REASON = {"code": "LINK_SELECTION_MISSING", "accepted_evidence_ids": []}
+
+
+def missing_lineage(dto: Mapping[str, Any]) -> dict[str, Any]:
+    """q7-4: a pinned Finding revision, Action event, Action root or origin revision absent/foreign at the cutoff.
+    The DTO's IDs and computed basis stay; classification and state become UNKNOWN and the reasons gain
+    `LINK_SELECTION_MISSING` (canonically sorted, identical reasons deduplicated). Never a complete subset claim."""
+    seen, reasons = set(), []
+    for reason in canonical_reasons([*dto["reasons"], LINK_SELECTION_MISSING_REASON]):
+        key = m.canonical_json(reason)
+        if key not in seen:
+            seen.add(key)
+            reasons.append(reason)
+    return {**dto, "classification": "UNKNOWN", "state": "UNKNOWN", "reasons": reasons}
 
 
 class WorkStore(Protocol):

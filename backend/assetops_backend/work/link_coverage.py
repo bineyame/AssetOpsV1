@@ -110,13 +110,16 @@ def linked_coverage(snapshot: LinkSnapshot, tenant_id: UUID, site_id: UUID, revi
         links.append({"kind": row["kind"], "id": row["id"], "selected_id": row["selected_id"],
                       "selection_token": _token(row, state), "state": state})
     links.sort(key=lambda x: (x["kind"], x["id"], x["selected_id"]))
-    states = [x["state"] for x in links]
-    if UNKNOWN in states:
-        state, reason = "UNKNOWN", _REASON[UNKNOWN]
-    elif PENDING in states:
-        state, reason = "PARTIAL", _REASON[PENDING]
-    elif STALE in states:
-        state, reason = "PARTIAL", _REASON[STALE]
-    else:
-        state, reason = "COMPLETE", None
+    state, reason = coverage_of([x["state"] for x in links])
     return {"state": state, "reason": reason, "links": links}
+
+
+def coverage_of(states: Sequence[str]) -> tuple[str, str | None]:
+    """B9 coverage over link states (shared by detail and the commit-4 list)."""
+    if UNKNOWN in states:
+        return "UNKNOWN", _REASON[UNKNOWN]
+    if PENDING in states:
+        return "PARTIAL", _REASON[PENDING]
+    if STALE in states:
+        return "PARTIAL", _REASON[STALE]
+    return "COMPLETE", None

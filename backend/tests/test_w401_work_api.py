@@ -30,9 +30,10 @@ if URL:
     from assetops_backend.evidence.composition import build_link_rows_reader
     from assetops_backend.sites.ports import SiteStoreUnavailable
     from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
-    from assetops_backend.work.composition import build_work_detail_service
+    from assetops_backend.work.composition import build_work_detail_service, build_work_index_service
     from assetops_backend.work.model import MESSAGES
     from assetops_backend.work.service import WorkService
+    from assetops_backend.work.site_index import encode_cursor
     from assetops_backend.work_api import W401_FIXTURE_SERVICE_PRINCIPAL_ID, build_work_router
 
 ISO = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$")
@@ -52,8 +53,9 @@ class Api:
         svc = WorkService(self.store, **({} if new_id is None else {"new_id": new_id})) if service else None
         scopes = {"KOBO-001": ("KOBO-001", self.t, self.s), "kobo-001": ("KOBO-001", self.t, self.s)}
         self.details = build_work_detail_service(url) if service else None
+        self.lists = build_work_index_service(url) if service else None
         kwargs = {"principal": (lambda r, c: W401_FIXTURE_SERVICE_PRINCIPAL_ID) if principal else
-                  (lambda r, c: None), "details": self.details}
+                  (lambda r, c: None), "details": self.details, "lists": self.lists}
         if access is not None:
             kwargs["access"] = access
         if command_access is not None:
@@ -76,8 +78,13 @@ class Api:
     def get(self, case_id: str, *known: str, site: str = "KOBO-001"):
         return self.client.get(f"/api/sites/{site}/work/cases/{case_id}", params=[("known_at", k) for k in known])
 
+    def listing(self, kind: str, site: str = "KOBO-001", **params):
+        return self.client.get(f"/api/sites/{site}/work/{kind}", params=params)
+
     def close(self) -> None:
         self.store.dispose()
+        if self.lists is not None:
+            self.lists._reads.dispose()
         if self.details is not None:
             self.details._reads.dispose()
 
@@ -482,3 +489,70 @@ def test_scoped_site_outage_is_503(engine, site) -> None:  # noqa: F811
     finally:
         api.close()
     assert counts(engine) == before
+
+
+def list_refused(response, status: int, code: str, message: str | None = None) -> None:
+    """q7-5: every list refusal is `{detail:{code,message,rows:null,total_count:null}}` - never 200 empty."""
+    assert response.status_code == status, response.text
+    detail = response.json()["detail"]
+    assert detail == {"code": code, "message": message or MESSAGES[code], "rows": None, "total_count": None}, detail
+
+
+def test_list_refusal_has_null_rows_and_total(engine, site) -> None:  # noqa: F811
+    """Commit 4 (Run 3 ruling 9, q7-5): both literal list paths refuse with null rows and count, in the order
+    access -> Site scope -> window -> limit -> known_at -> cursor -> snapshot; store outages are 503."""
+    window = {"from": "2026-10-06T00:00:00Z", "to": "2026-10-07T00:00:00Z"}
+    for status, code, message in ((401, "UNAUTHENTICATED", "Sign in to read work."),
+                                  (403, "SITE_SCOPE_FORBIDDEN", "No access to Site 'KOBO-001'.")):
+        api = Api(site, access=lambda r, c, s=status: s)
+        try:
+            for kind in ("incidents", "maintenance"):
+                list_refused(api.listing(kind, **{"from": "bad"}), status, code, message)  # scope before shape
+        finally:
+            api.close()
+    api = Api(site)
+    try:
+        for kind in ("incidents", "maintenance"):
+            list_refused(api.listing(kind, site="NOPE-001", **{"from": "bad"}), 404, "SITE_NOT_FOUND",
+                         "No imported Site 'NOPE-001' in this tenant.")
+            list_refused(api.listing(kind, to=window["to"]), 422, "INVALID_WINDOW",
+                         "`from` is required as a UTC instant; choose a bounded window of at most 31 days.")
+            list_refused(api.listing(kind, **{"from": window["from"], "to": "nope"}), 422, "INVALID_WINDOW",
+                         "`to` is not an ISO-8601 instant.")
+            list_refused(api.listing(kind, **{"from": "2026-10-06T00:00:00+03:00", "to": window["to"]}), 422,
+                         "INVALID_WINDOW", "`from` must be a UTC instant (Z or +00:00).")
+            list_refused(api.listing(kind, **{"from": window["to"], "to": window["from"]}), 422, "INVALID_WINDOW",
+                         "`from` must be before `to`.")
+            list_refused(api.listing(kind, **{"from": "2026-09-01T00:00:00Z", "to": window["to"]}), 422,
+                         "INVALID_WINDOW", "The window may span at most 31 days.")
+            for bad in ("0", "101", "five"):
+                list_refused(api.listing(kind, limit=bad, **window), 422, "INVALID_LIMIT",
+                             "`limit` must be an integer from 1 to 100.")
+            list_refused(api.listing(kind, known_at="2999-01-01T00:00:00Z", **window), 422, "INVALID_KNOWN_AT")
+            list_refused(api.client.get(f"/api/sites/KOBO-001/work/{kind}", params=[
+                ("from", window["from"]), ("to", window["to"]), ("known_at", "2026-10-06T00:00:00Z"),
+                ("known_at", "2026-10-06T00:00:01Z")]), 422, "INVALID_KNOWN_AT")
+            list_refused(api.listing(kind, cursor="not-a-cursor", **window), 422, "INVALID_CURSOR",
+                         "The cursor is not a work-list cursor.")
+            # A well-formed cursor for another kind/scope is a changed basis (409), never a silent page.
+            other = "maintenance" if kind == "incidents" else "incidents"
+            foreign = encode_cursor({"v": 1, "tenant_id": str(api.t), "site_id": str(api.s), "kind": other,
+                                     "from": "2026-10-06T00:00:00.000000Z", "to": "2026-10-07T00:00:00.000000Z",
+                                     "known_at": "2026-10-06T12:00:00.000000Z", "selection_token": "sha256:0",
+                                     "after": ["2026-10-06T10:00:00.000000Z", str(uuid4())]})
+            list_refused(api.listing(kind, cursor=foreign, **window), 409, "WORK_BASIS_CHANGED",
+                         "The work list changed; request page one without a cursor.")
+            ok = api.listing(kind, **window)
+            assert ok.status_code == 200 and ok.json()["total_count"] == 0 and ok.json()["rows"] == [], ok.text
+    finally:
+        api.close()
+
+    def outage(code):
+        raise SiteStoreUnavailable("site store down")
+
+    for api in (Api(site, scope=outage), Api(site, service=False)):
+        try:
+            for kind in ("incidents", "maintenance"):
+                list_refused(api.listing(kind, **window), 503, "WORK_STORE_UNAVAILABLE")
+        finally:
+            api.close()

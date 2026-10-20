@@ -22,6 +22,7 @@ SCHEMA_PLAN = "maintenance-plan-1"
 SCHEMA_RECORD = "maintenance-record-1"
 SCHEMA_OPERATIONAL = "operational-record-1"
 SCHEMA_DETAIL = "work-case-detail-1"
+SCHEMA_INDEX = "site-work-index-1"
 
 INCIDENT = "INCIDENT"
 REQUEST = "MAINTENANCE_REQUEST"
@@ -50,22 +51,28 @@ MESSAGES = {
     "WORK_OCCURRED_AT_TOO_OLD": "The occurrence time is more than 30 days before it was recorded.",
     "WORK_STORE_UNAVAILABLE": "Work records could not be read or saved.",
     "INVALID_KNOWN_AT": "'known_at' must be one UTC instant no later than the read time.",
+    # q7-5: list refusals (INVALID_WINDOW carries its per-field message from `work/site_index.py`).
+    "INVALID_WINDOW": "The window may span at most 31 days.",
+    "INVALID_LIMIT": "`limit` must be an integer from 1 to 100.",
+    "INVALID_CURSOR": "The cursor is not a work-list cursor.",
+    "WORK_BASIS_CHANGED": "The work list changed; request page one without a cursor.",
 }
 STATUS = {"WORK_WRITE_FORBIDDEN": 403, "WORK_USER_AUTH_REQUIRED": 403, "WORK_CASE_NOT_FOUND": 404,
           "WORK_EVENT_DUPLICATE_KEY": 409, "WORK_TRANSITION_INVALID": 409, "WORK_OUTCOME_NOT_SUPPORTED": 409,
           "WORK_CORRECTION_CONFLICT": 409, "WORK_INPUT_INVALID": 422, "WORK_ATTESTATION_INVALID": 422,
           "WORK_LINK_SCOPE_INVALID": 422, "WORK_OCCURRED_AT_FUTURE": 422, "WORK_OCCURRED_AT_TOO_OLD": 422,
-          "WORK_STORE_UNAVAILABLE": 503, "INVALID_KNOWN_AT": 422}
+          "WORK_STORE_UNAVAILABLE": 503, "INVALID_KNOWN_AT": 422, "INVALID_WINDOW": 422, "INVALID_LIMIT": 422,
+          "INVALID_CURSOR": 422, "WORK_BASIS_CHANGED": 409}
 
 
 class WorkRefused(Exception):
     """A refused work command; nothing it would have written is committed."""
 
-    def __init__(self, code: str) -> None:
+    def __init__(self, code: str, message: str | None = None) -> None:
         super().__init__(code)
         self.code = code
         self.status = STATUS[code]
-        self.message = MESSAGES[code]
+        self.message = MESSAGES[code] if message is None else message
 
     def detail(self) -> dict[str, str]:
         return {"code": self.code, "message": self.message}
