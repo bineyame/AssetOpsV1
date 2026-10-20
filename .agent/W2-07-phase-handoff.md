@@ -204,3 +204,51 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
   q5 "Commits 4–5 implementer dry-read", closure section 4 (spec lines 438-462) and the commits 4-5 copy ledger
   (spec lines 91-127). The wire is now the corrected q5 contract. Then step 3 (focused, check-all, full backend,
   host; copy `var/sites/mg-001.yaml` from plan2 if missing) and step 4 (packet). `w207g_test` was dropped.
+
+## Run 8 (2026-10-20): main merged (q6), q6 backend landed; stopped at context budget before commits 4-5 UI
+
+- Merged main (q6 rulings, spec "Run 7 rulings (q6)" at `.agent/W2-07-build-spec.md:716`). Landed `cfd299f8`:
+  `ev_site_reads.py` `enabled_connectors()` (components `EV_CONNECTOR` with `ev-connector-enabled=ENABLED`);
+  `service_windows` only resolves enabled connectors; `objective_windows` common = one occurrence covering
+  **every** enabled connector (scheduled or not), `declared` = an enabled connector has weekly entries.
+  Contact (`_contacts.contact`) now returns `by_source` (one per bound source, sorted by `source_id`, keys
+  `source_id,state,last_seen_at,age_seconds,diagnostic_id,diagnostic_received_at,cadence_seconds`); one-source
+  slot copies its details up; multi-source slot -> agreed state or `MIXED`, top-level details null. Coverage code
+  already matched q6 R3; tests extended. `test_objective_resolves...`, `test_source_contact_uses...`,
+  `test_claim_coverage_uses...` 3 passed (62.8s, `w207h_test`, dropped). q6 frontend tests are still owed in
+  `evSiteMoneyRoutes.test.tsx` (`all_five_routes...` three objective labels; `ev_evidence_tabs_and_record_limit`
+  Mixed chip/`Source contacts differ`/footer `Contact checked at {checked_at} UTC`/null + both coverage units;
+  `financial_tabs_and_price_gate` `Metered with complete coverage` only on gross claim `ratio:"1"`).
+- Nothing of commits 4-5 is written yet. Survey results so the next run need not re-read:
+  - Routes are NEW paths `/sites/:siteId/ev`, `/ev/evidence`, `/ev/evidence/analysis`, `/ev/financials`,
+    `/ev/financial-assumptions` (add `*_ROUTE_PATH` + Href helpers in `frontend/src/shell/operatorSiteRoutes.ts`
+    near :107-:200; mount in `frontend/src/App.tsx` route list near :289-:333 passing `evAssessment`).
+    API reads `/api/sites/{code}/ev/overview|evidence|evidence/analysis|financials|financial-assumptions` with
+    `coldWindowSearch(window)` (+`cursor`/`limit` for analysis/financials); add to
+    `frontend/src/sites/evAssessmentClient.ts` (`read()` :174 returns `ColdRead`, shapes :162) or a sibling client.
+  - Reuse from `frontend/src/sites/EvAssessmentViews.tsx`: `evRefusalText` :78 (exact refusal copy already),
+    `useRead` :100, `windowKey` :117, `ShortId`, `Gap` :132, `ProvenanceBadge` :157, `ToneBadge` :202
+    (`ev-chip ev-tone--{green|amber|red}`), frame skeleton `EvSessionsFrame` :532 (Breadcrumbs, SitePageHeader,
+    tabs, `site-tabs site-subtabs` nav, StatusBar, MetricCards, Panel, `panel-pair ev-pair`). Export the helpers.
+    Unsupported in-panel controls: `UnavailableInline`/`UnavailableLinkEntry` (no `UnavailableTab`: +0 multiset).
+  - Wire nested shapes (`backend/assetops_backend/ev_site_reads.py`): capabilities `claim,state,required_roles,
+    missing_roles,coverage{known_seconds,expected_seconds,ratio,unit},accepted_evidence_ids,as_of,limitation`
+    (seven claims in `CLAIMS` :49 order); sources `slot(CONNECTOR_1|CONNECTOR_2|SITE_METER|BILLING),asset_id,
+    display_name,contact{...,by_source},quality{state GOOD|DEGRADED|NO_FACT,accepted_count},roles,as_of,limitation`
+    (DEGRADED -> `Limited`); next_evidence `code,text,why,link`; needs_attention `code(PENDING|FAULT_ABORT|
+    INCOMPLETE_SESSION|METER_OR_SOURCE_GAP|TARIFF_MISSING),text,link`; energy `supported_kwh,complete_kwh,
+    partial_kwh,unknown_seconds`; site_power `observed_peak_kw,configured_limit_kw,coverage,claim_limit`;
+    analysis items per q5 §5 with `record_kind` verbatim and `KIND_TEXT` value_display for events; tariff
+    `revision_id,value,currency,unit,basis,valid_from,valid_to,recorded_at`; `billing_state` always `NO_RECORD`.
+  - Mock panel titles: `v69-rendered-panels.json` has `ev-evidence`, `ev-evidence-analysis`, `ev-financials`,
+    `ev-assumptions`; the EV Overview id in the JSON is `ev-health` with ONE panel `Condition and evidence` --
+    that disagrees with q5's five-title EV Overview array. Check the manifest (`screen-manifest.json:1114-1186`)
+    for which mock screen is `/ev` before using `expectV69Panels`; if no JSON entry has the five titles, that is a
+    pending ruling (the helper reads the JSON, so asserting q5's array needs a JSON entry or approved title map).
+- UI-copy dependence on the three q6 fields (keep isolated): objective line (service_schedule_declared /
+  configured_service_window(s)); Contact chip + `Source details` + footer (contact.state/by_source/checked_at);
+  Site power card, capability What-can-say/coverage text, claim details, Financials Confidence (coverage.unit/ratio).
+- Readings made this run: "enabled connector" = Foundation component property `ev-connector-enabled=ENABLED`
+  (same as `sites/ev_foundation.py:522`); a schedule on a disabled connector is not "declared".
+- Resume: commits 4-5 UI per spec :91-127, closure §4 :438-462, q5 dry-read, q6; then final verification
+  (focused, check-all, full backend, host) and the packet.
