@@ -186,6 +186,7 @@ class Replay:
         self.cursors: dict[str, str] = {}
         self.domains: dict[str, str] = {}  # Site code -> estate domain (the empty test Site copies its source)
         self.tenants: set = set()  # mixed: the tenant of every chain built in the one DB
+        self.offset = timedelta(0)  # forced-clock proof: the read-clock shift, removed from clock-echo wire times
 
     def setup(self, name: str) -> None:
         if name in self.done:
@@ -211,13 +212,17 @@ def pin_clock(monkeypatch, present: Callable[[], datetime]) -> None:
     monkeypatch.setattr(postgres_estate_read, "EstateSnapshot", Pinned)
 
 
-def mini_grid_replay(request, monkeypatch) -> Replay:
+NO_OFFSET = timedelta(0)
+
+
+def mini_grid_replay(request, monkeypatch, offset: timedelta = NO_OFFSET) -> Replay:
     eng = request.getfixturevalue("engine")
+    eng.dispose()  # the `mixed` branch re-creates the worker database under this module-scoped engine's pool
     runner = CaseRunner(request.getfixturevalue("store"), eng)
     request.addfinalizer(lambda: pg_harness.dispose(runner.findings))
-    pin_read_at(monkeypatch, lambda: runner.now + timedelta(minutes=1))
+    pin_read_at(monkeypatch, lambda: runner.now + timedelta(minutes=1) + offset)
     imported_before(eng, runner.tenant, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
-    replay = Replay(eng, runner.tenant, lambda: runner.now + timedelta(minutes=1))
+    replay = Replay(eng, runner.tenant, lambda: runner.now + timedelta(minutes=1) + offset)
     replay.domains = {"KOBO-001": "mini_grid", "W301-EMPTY-001": "mini_grid"}
     replay.steps.update({
         "kobo-s4-F03-recurrence": lambda: run_case(runner, S4_CASES["F03"]),
@@ -270,7 +275,7 @@ def ev_replay(request, monkeypatch, case: str) -> Replay:
     return replay
 
 
-def mixed_replay(request, monkeypatch) -> Replay:
+def mixed_replay(request, monkeypatch, offset: timedelta = NO_OFFSET) -> Replay:
     """q10 ruling 1: the cold `normal` and EV `complete` chains settled, one S4 Finding case and the empty test
     Site, all in one private DB and the one `demo` tenant. Only the cold/EV `Chain.open()` database reset is
     suppressed (test-scoped); every chain, ingestion path and worker runs as in its own branch."""
@@ -293,7 +298,11 @@ def mixed_replay(request, monkeypatch) -> Replay:
         imported_before(eng, runner.tenant, site_id, MIXED_FROM - timedelta(days=1))
     # One frozen read clock after every chain's decisions: the S4 fixture clock (ahead of the DB clock), or the
     # DB clock should that ever be later.
-    frozen = max(runner.now + timedelta(minutes=1), db_now(eng))
+    ordinary = max(runner.now + timedelta(minutes=1), db_now(eng))
+    # The forced-clock proof shifts both candidates before the `max`, so the DB-clock branch is the one taken after the
+    # fixture date; the instant is then at least `offset` after the ordinary fixture pin.
+    frozen = max(runner.now + timedelta(minutes=1) + offset, db_now(eng) + offset)
+    assert frozen - ordinary >= offset
     pin_read_at(monkeypatch, lambda: frozen)
     replay = Replay(eng, runner.tenant, lambda: frozen)
     replay.domains = {"KOBO-001": "mini_grid", "COLD-LAB-001": "cold_chain", "EV-LAB-001": "ev_charging",
@@ -401,7 +410,10 @@ class Resolver:
     def clock(self, name: str) -> datetime:
         if name == "clock.read":
             return self.replay.read_clock()
-        return self.replay.clocks[name.removeprefix("clock.")]
+        at = self.replay.clocks[name.removeprefix("clock.")]
+        # Forced clock: a named step clock used as a request cutoff stays on the data's timeline (the echoed read
+        # instants, not the cutoffs, move with the shifted clock).
+        return at - self.replay.offset if getattr(self, "cutoff", False) else at
 
     def derive(self, rule: str, source: str) -> Any:
         if rule == "wire_second":
@@ -574,6 +586,22 @@ def first_difference(actual: Any, expected: Any, where: str = "$") -> str:
     return f"{where}: actual {actual!r} != expected {expected!r}"
 
 
+def unshift(body: dict, offset: timedelta, only_derived: dict | None = None) -> dict:
+    """Subtract the forced-clock offset from the echoed read instants (`window.known_at`, `summary.as_of`, and the
+    scope root's `known_at`), in wire seconds. A manifest literal is already on the unshifted scale; only a
+    `$derive`d expected value (read from the shifted clock) moves."""
+    out = json.loads(json.dumps(body))
+    for part, key in (("window", "known_at"), ("summary", "as_of"), (None, "known_at")):
+        holder = out if part is None else out.get(part)
+        if only_derived is not None:
+            raw = (only_derived if part is None else only_derived.get(part) or {}).get(key)
+            if not isinstance(raw, dict):
+                continue
+        if isinstance(holder, dict) and isinstance(holder.get(key), str):
+            holder[key] = wire_second(parse(holder[key]) - offset)
+    return out
+
+
 def decode(cursor: str) -> dict:
     return json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)).decode("utf-8"))
 
@@ -594,6 +622,7 @@ def check_cursor(replay: Replay, req: dict, body: dict, known: datetime, digests
         expected.update(lens=req["lens"] or "all", state_filter=req["state_filter"] or "all")
     else:
         expected["kind"] = "actions"
+    expected["page_one_mode"] = "historical" if req["known_at"] is not None else "live"
     after = payload.pop("after")
     assert payload == expected
     assert (after[0][:19] + "Z", after[1]) == (at, row_id)
@@ -628,7 +657,7 @@ def replay_case(replay: Replay, case: dict) -> None:
     req, name = case["request"], case["name"]
     replay.setup(case["setup"])
     plain = Resolver.__new__(Resolver)
-    plain.replay, plain.values = replay, {}
+    plain.replay, plain.values, plain.cutoff = replay, {}, True
     params = request_params(req, lambda v: plain.resolve(v, {}))
     if set(case["expected"]) == {"refusal"}:
         response = replay.estate.get(req["root"], **params)
@@ -649,6 +678,10 @@ def replay_case(replay: Replay, case: dict) -> None:
         check_cursor(replay, req, body, k, digests)
         replay.cursors[name] = resolver.values["self.next_cursor"] = body["next_cursor"]
     expected = resolver.resolve(case["expected"], digests)
+    if replay.offset:  # the forced clock moves only the echoed read instants; compare on the literal manifest's scale
+        if "known_at" not in params:  # an explicit cutoff is echoed as given; only the default read instant moved
+            actual = unshift(actual, replay.offset)
+        expected = unshift(expected, replay.offset, only_derived=case["expected"])
     assert actual == expected, f"{name}: the whole normalized response differs at {first_difference(actual, expected)}"
     for row in actual.get("rows") or ():  # source classifications are literal and every row is attributable
         assert set(row["source_provenance"]) == {"classification", "state", "source_ids", "evidence_ids",
@@ -656,22 +689,36 @@ def replay_case(replay: Replay, case: dict) -> None:
 
 
 BRANCH_REPLAY = {
-    "mini_grid": lambda request, monkeypatch, branch: mini_grid_replay(request, monkeypatch),
+    "mini_grid": lambda request, monkeypatch, branch, offset=NO_OFFSET: mini_grid_replay(request, monkeypatch, offset),
     "cold": lambda request, monkeypatch, branch: cold_replay(request, monkeypatch,
                                                              Path(branch["replay_paths"][0]).stem),
     "ev": lambda request, monkeypatch, branch: ev_replay(request, monkeypatch, Path(branch["replay_paths"][0]).stem),
-    "mixed": lambda request, monkeypatch, branch: mixed_replay(request, monkeypatch),
+    "mixed": lambda request, monkeypatch, branch, offset=NO_OFFSET: mixed_replay(request, monkeypatch, offset),
 }
 
 
 @pytest.mark.parametrize("branch_name", REPLAYED)
 def test_w301_golden_manifest_public_replay(branch_name, request, monkeypatch) -> None:
     """Each branch replays in its own private DB and compares every case's whole normalized response."""
+    replay_branch(branch_name, request, monkeypatch)
+
+
+@pytest.mark.parametrize("branch_name", ("mini_grid", "mixed"))
+def test_w301_golden_clock_plus_30_days(branch_name, request, monkeypatch) -> None:
+    """Forced-clock proof: the read clock, the `Replay` clock and `$derive` timestamps are all 30 days later, so DB-
+    clock-stamped rows that fall after the unshifted pin once real time passes 2026-10-30 through 2026-11-02 cannot
+    move a branch; the literal manifest, whole normalized responses and rebuilt tokens are unchanged."""
+    replay_branch(branch_name, request, monkeypatch, timedelta(days=30))
+
+
+def replay_branch(branch_name, request, monkeypatch, offset: timedelta = NO_OFFSET) -> None:
     document = load_manifest()
     validate(document)
     branch = document["branches"][branch_name]
     assert branch["cases"], f"{branch_name} has cases"
-    replay = BRANCH_REPLAY[branch_name](request, monkeypatch, branch)
+    replay = (BRANCH_REPLAY[branch_name](request, monkeypatch, branch) if offset == NO_OFFSET
+              else BRANCH_REPLAY[branch_name](request, monkeypatch, branch, offset))
+    replay.offset = offset
     for case in branch["cases"]:
         replay_case(replay, case)
     scope = replay.estate.ok("scope", **{"from": branch["cases"][0]["request"]["from"],

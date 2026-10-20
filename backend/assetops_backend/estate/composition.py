@@ -13,11 +13,10 @@ from assetops_backend.estate.index import EstateIndexService
 
 def build_estate_read(database_url: str | None) -> Any:
     from assetops_backend.actions.composition import build_action_store
-    from assetops_backend.analytics.adapters.postgres_assessment_store import SelectionPinRefused
     from assetops_backend.analytics.cold_reads import ColdPinnedLineageUnavailable, ColdReadUnavailable
     from assetops_backend.analytics.composition import (
         build_cold_read_service, build_dispatch_read_service, build_ev_read_service, build_finding_store,
-        build_postgres_assessment_store)
+        build_postgres_assessment_store, selection_pin_refused)
     from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable, EvReadUnavailable
     from assetops_backend.estate.adapters.postgres_estate_read import PostgresEstateRead
     from assetops_backend.evidence.composition import build_link_rows_reader
@@ -36,7 +35,8 @@ def build_estate_read(database_url: str | None) -> Any:
         actions=build_action_store(database_url), consequences=build_consequence_read_service(database_url),
         eligibility=MoneyEligibility(build_dispatch_read_service(database_url), findings),
         cold=build_cold_read_service(database_url), ev=build_ev_read_service(database_url),
-        provenance_reads=provenance_reads, inconsistent=(ColdPinnedLineageUnavailable, EvPinnedLineageUnavailable, SelectionPinRefused),
+        provenance_reads=provenance_reads,
+        inconsistent=(ColdPinnedLineageUnavailable, EvPinnedLineageUnavailable, selection_pin_refused()),
         unavailable=(ColdReadUnavailable, EvReadUnavailable))
 
 
