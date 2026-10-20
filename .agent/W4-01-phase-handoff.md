@@ -1,3 +1,22 @@
+# W4-01 phase handoff - run 8: stopped at q7 questions; commit 4 NOT started (2026-10-20)
+
+Merged main (q5 + q6 rulings). Surveyed commit-4 seams against q5/q6 and stopped on five open questions,
+`.agent/W4-01-pending-rulings.md` "q7" (asset label column absent; Action `sai1-` window; mini-grid Action token;
+missing-lineage list provenance shape; list refusal literals). No code written; no tests or check-all run (no code
+change since run 7's 10/10).
+
+Resume plan (after q7 answers), files and anchors:
+- `work/adapters/postgres_work_read.py`: add `_ReadTx.site_name`, `eligible_cases(kind,from,to,K)` (B10 membership,
+  r4 order), `asset_label`; expose `lineage` (`pinned is not None`) in `link_selections` output (:146-153);
+  add `LinkReadPorts.action_window` (site_window_on) and the q6 `wce1-` key inputs (already in `_cold_ev` :221-224).
+- `work/link_coverage.py:_token` (:92) stays detail-only; list fences built in new `work/site_index.py`.
+- `work/service.py:case_provenance` (:41) - split cited/selected from DTO so the list can union all cases.
+- `work_api.py`: list routes beside `case_detail` (:143); list refusal body adds `rows:null,total_count:null`.
+- `work/model.py:40-58`: add INVALID_WINDOW/INVALID_LIMIT/INVALID_CURSOR/WORK_BASIS_CHANGED messages+status.
+- `main.py:464-466`: pass the list service. W1 helpers: `actions/site_index.py:_iso` (:75), `fence` (:146).
+- Tests: new `tests/test_w401_site_indexes_postgres.py` (5 nodes: q5 three + Q7 pinned + q6 cold/EV), `runner`
+  tests before `chain` tests; cold `chain` fixture pattern in `test_w401_work_read_postgres.py:179`.
+
 # W4-01 phase handoff - run 7: q4 applied; commit 4 NOT started (context budget) (2026-10-20)
 
 Merged main twice (`9373b800`, then the q5 merge; `.agent/*` conflicts took main's version). **Commit A (q4)**:
