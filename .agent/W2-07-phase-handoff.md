@@ -252,3 +252,9 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
   (same as `sites/ev_foundation.py:522`); a schedule on a disabled connector is not "declared".
 - Resume: commits 4-5 UI per spec :91-127, closure §4 :438-462, q5 dry-read, q6; then final verification
   (focused, check-all, full backend, host) and the packet.
+
+## Run 9 (2026-10-20): in progress - commits 4-5 UI
+- Panel JSON keys confirmed: `ev`, `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions` (q5 titles).
+- Plan: new `frontend/src/sites/evSiteClient.ts` (five reads), `frontend/src/sites/EvSiteViews.tsx` (one frame, five
+  views, modelled on `coldSiteViews.tsx::ColdSiteFrame`), `frontend/src/sites/w2-ev-site.css`, routes in
+  `operatorSiteRoutes.ts` + `App.tsx`, tests `frontend/src/sites/__tests__/evSiteMoneyRoutes.test.tsx`.
