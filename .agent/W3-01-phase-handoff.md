@@ -88,3 +88,23 @@ power demo, consequence history, S5 overview 20 passed; evidence history + conse
 Finding API 17 passed. Frontend: typecheck clean; 9 files 344 passed. check-all: 9/10, the one FAIL is pre-existing
 on main (`Evidence width check`: `tools/measure-mock-panels.mjs` from main `29dea85f`, untouched here).
 **Next:** Lane B `test_w1_cold_ev_exact_cited_id_mapping` (use the q4 EV money set), then commit-1 review.
+
+## Lane B ruling-7 test (2026-10-20): landed; commit-1 unit ready for review
+Merged main (`96b86c83`, clean). `6823d7d0` adds `test_w301_provenance_dto_postgres.py::test_w1_cold_ev_exact_cited_id_mapping`
+(params `w1`, `cold`, `ev`). Each digest is recomputed by the file's own `digest()` from scoped DB sets; page size 1
+(all cursors) vs 200 gives identical row and envelope blocks. W1: `power_site` + P01, consequence read, Finding read,
+history at limit 25 vs 1. Cold: findings envelope, Finding rows/detail, `financials.consequences[]`. EV: all six
+replays, sessions/findings rows + detail, envelope, q4 money set on the UNPRICED and priced stored rows.
+Readings (none blocking; confirm at review):
+- L-B1: cold uses `normal` (named) plus `excursion`, which adds the Finding and consequence rows so the row
+  mapping is proven on non-empty sets (the test asserts it saw at least one of each).
+- L-B2: the contract fixtures are pinned replay manifests rather than input data. The test builds each case through the
+  same W2 replay `Chain`, using an inline copy of the `chain` fixture body, because both modules name their
+  fixture `chain`.
+- L-B3: W1 is read through the public service layer, as `test_source_state_compatibility_all_w1_consumers` does.
+  The test makes no HTTP call for W1. Cold/EV selected IDs come from the public read (watermark
+  `assessment_revision_ids`, item `revision_id`s); pins and cited sets come from the DB.
+Checks: whole file 7 passed (264 s) on private `w301f_test`, which was dropped afterwards. Mutation after commit: dropping the cold
+episode revision and the EV money session links from the expected selection made cold and ev FAIL on
+`basis_sha256`. Reverted with `git checkout`. check-all: 10/10 passed.
+**Next:** review `1c409a3d..HEAD` as the W3 commit-1 unit, then the W4 cherry-pick per ruling 1.
