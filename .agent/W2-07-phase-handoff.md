@@ -265,3 +265,5 @@ run). Stopped after spec commit 1: commit 2 is blocked on pending ruling R2 (`.a
 - Run 9: captures committed `5d924f4b` (`.agent/W2-07-evidence/`, all closed panels <=1.28x and under the closure
   ceilings at 1440 and 390). Frontend 91 files / 2328 passed (129 s), build passed. Now: final verification serially
   (focused W2-07 backend+frontend, check-all, full backend serial on base `w207i_test`, host), then the packet.
+- Run 9 done: final verification green (focused 29, check-all 10/10 after `5a26b74b`, backend 3264/0 skipped, host
+  787, frontend 2328 with one isolated-pass load flake); packet `.agent/W2-07-review-packet.md`. DBs dropped.
