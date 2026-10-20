@@ -35,6 +35,7 @@ if URL:
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
 
 HEAD = "0026_w2_ev_money"
+UPGRADED_HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026; head(engine) asserts the upgraded head
 PREVIOUS = "0025_w2_ev_session"
 REFUSED = "Downgrade of 0026_w2_ev_money refused"
 EV_MONEY = ("ev_consequence_revision", "ev_consequence_session", "ev_consequence_evidence", "ev_consequence_work",
@@ -148,7 +149,7 @@ def downgrade_refused(site, engine) -> None:  # noqa: F811
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
         command.downgrade(config, PREVIOUS)
-    assert head(engine) == HEAD and all(table_exists(engine, t) for t in EV_MONEY)  # nothing dropped
+    assert head(engine) == UPGRADED_HEAD and all(table_exists(engine, t) for t in EV_MONEY)  # nothing dropped
 
 
 def dirty(engine, tenant, site_id, start, end, cause, locator) -> str:  # noqa: F811
@@ -168,8 +169,8 @@ class TestMigration0026:
 
         ctx = Ctx(site, engine)
         script = ScriptDirectory.from_config(_alembic())
-        assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
-        assert head(engine) == HEAD
+        assert script.get_heads() == [UPGRADED_HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
+        assert head(engine) == UPGRADED_HEAD
         assert constraint(engine, "financial_assumption_revision_assumption_key_check") == (
             "CHECK ((assumption_key = ANY (ARRAY['diesel_price_per_litre'::text, 'ev_gross_tariff_per_kwh'::text])))")
         assert constraint(engine, "financial_assumption_revision_unit_check") == (
@@ -233,7 +234,7 @@ class TestMigration0026:
             downgrade_refused(site, engine)
         finally:
             remove_money(engine)
-        assert head(engine) == HEAD
+        assert head(engine) == UPGRADED_HEAD
 
     def test_0026_empty_downgrade_on_a_fresh_site_restores_diesel_only_checks(self, site, engine) -> None:  # noqa: F811
         # Review r1 L5: a fresh Site on a fresh 0026 database, before any EV tariff, assignment, consequence, work or
@@ -241,7 +242,7 @@ class TestMigration0026:
         from alembic import command
 
         site.publish("v1")  # diesel/fuel rows exist before the downgrade
-        assert head(engine) == HEAD
+        assert head(engine) == UPGRADED_HEAD
         guarded = (
             f"SELECT count(*) FROM financial_assumption_revision WHERE assumption_key = '{EV_KEY}'",
             f"SELECT count(*) FROM financial_assumption_assignment WHERE assumption_key = '{EV_KEY}'",
@@ -273,7 +274,7 @@ class TestMigration0026:
                                    "'diesel_price_per_litre'") == diesel
             command.upgrade(config, "head")
         finally:
-            if head(engine) != HEAD:
+            if head(engine) != UPGRADED_HEAD:
                 command.upgrade(config, "head")
         assert constraint(engine, "financial_assumption_revision_assumption_key_check") == key_check
         assert financial_constraints(engine) == at_head and minigrid_rows(engine) == before_rows
@@ -606,7 +607,7 @@ def test_0026_trigger_only_work_and_exact_conflict_constraint(chain, monkeypatch
         assert head(engine) == PREVIOUS
         command.upgrade(config, "head")
     finally:
-        if head(engine) != HEAD:
+        if head(engine) != UPGRADED_HEAD:
             command.upgrade(config, "head")
     backfilled = expected(built, [(a.window_start, a.window_end, "BACKFILL", a.id) for a in heads])
     assert work_rows(built) == backfilled
@@ -922,6 +923,80 @@ def test_pending_retry_settles_without_new_assessment_revision(chain) -> None:  
     assert [h["revision_no"] for h in replayed["financials"]["history"]] == [1, 3]
 
 
+def test_ev_money_row_provenance_uses_stored_window_links_without_finding_pin(chain) -> None:  # noqa: F811
+    """W3-01 Run 4 q4 ruling 1: each stored EV money row (current or history) selects `{its id, its stored
+    assessment, every linked session revision}` and cites exactly its `ev_consequence_evidence` set; the W2-07 NULL
+    Finding pin is the expected shape (no Finding ID or citation enters the hash); the digest is independent of
+    the page; a missing/inconsistent assessment or linked session, or a non-null pin, is unavailable."""
+    from assetops_backend.analytics.composition import build_ev_read_service
+    from assetops_backend.analytics.ev_reads import EvReadUnavailable
+    from assetops_backend.evidence.public_provenance import basis_sha256
+    from assetops_backend.financials.composition import build_ev_site_read_service
+    from test_w206_ev_store_postgres import run_worker
+
+    built = chain("complete")
+    built.start_release_upload()
+    run_worker(built)
+    assert all(o.succeeded for o in money(built))  # revision 1: UNPRICED, zero links and citations
+    golden_tariff(built)
+    assert all(o.succeeded for o in money(built))  # revision 2: ESTIMATED over the stored window links
+    rows = ev_money_rows(built)
+    unpriced, head = sorted(rows["ev_consequence_revision"], key=lambda r: r["revision_no"])
+    assert unpriced["finding_revision_id"] is None and head["finding_revision_id"] is None
+    t, s_ = built.tenant_id, built.site_id
+
+    def expected(r: dict) -> tuple[list[str], str]:
+        cited = sorted({str(x["evidence_id"]).lower() for x in rows["ev_consequence_evidence"]
+                        if x["consequence_revision_id"] == r["id"]})
+        sessions = {str(x["session_revision_id"]).lower() for x in rows["ev_consequence_session"]
+                    if x["consequence_revision_id"] == r["id"]}
+        selected = sorted({str(r["id"]).lower(), str(r["assessment_revision_id"]).lower(), *sessions})
+        return cited, basis_sha256(t, s_, selected, cited)
+
+    reads = five_reads(built)
+    body = reads["financials"]
+    current, [old] = body["consequence"], body["history"]
+    assert current["revision_id"] == str(head["id"]) and old["revision_id"] == str(unpriced["id"])
+    head_ids, head_digest = expected(head)
+    assert len(head_ids) == 7 and current["source_provenance"]["evidence_ids"] == head_ids
+    assert current["source_provenance"]["basis_sha256"] == head_digest
+    old_ids, old_digest = expected(unpriced)
+    assert old_ids == [] and old["source_provenance"]["evidence_ids"] == []
+    assert old["source_provenance"]["basis_sha256"] == old_digest is not None
+    envelope = body["selected_source_provenance"]["basis_sha256"]
+    assert len({head_digest, old_digest, envelope}) == 3
+    # No Finding revision of the Site is a member of either row's selected set or citations.
+    with built.engine.connect() as c:
+        finding_ids = {str(x) for x in c.execute(text(
+            "SELECT id FROM finding_revision WHERE site_id = :s"), {"s": s_}).scalars()}
+    for fr in finding_ids:
+        assert basis_sha256(t, s_, sorted({str(head["id"]), str(head["assessment_revision_id"]), fr}), head_ids) \
+            != head_digest
+    # The page size does not change any row digest.
+    svc = build_ev_site_read_service(URL)
+    try:
+        paged = svc.financials(t, s_, "EV-LAB-001", None, None, None, None, 1)
+    finally:
+        svc.dispose()
+    assert paged["consequence"]["source_provenance"] == current["source_provenance"]
+    assert [h["source_provenance"] for h in paged["history"]] == [old["source_provenance"]]
+    # Fail closed: a missing assessment, an unlinked/inconsistent session or a non-null Finding pin is unavailable.
+    ev = build_ev_read_service(URL)
+    try:
+        snap = {"t": t, "s": s_}
+        base = {"id": head["id"], "assessment_revision_id": head["assessment_revision_id"],
+                "finding_revision_id": None, "evidence_ids": head_ids,
+                "session_revision_ids": sorted({str(x["session_revision_id"]) for x in rows["ev_consequence_session"]
+                                                if x["consequence_revision_id"] == head["id"]})}
+        assert ev._read(lambda c: ev.money_row_provenance_on(c, snap, base))["basis_sha256"] == head_digest
+        for bad in ({"assessment_revision_id": uuid4()}, {"session_revision_ids": [str(uuid4())]},
+                    {"finding_revision_id": uuid4()}):
+            with pytest.raises(EvReadUnavailable):
+                ev._read(lambda c: ev.money_row_provenance_on(c, snap, {**base, **bad}))
+    finally:
+        ev.dispose()
+
+
 FIVE = ("overview", "evidence", "analysis", "financials", "assumptions")
 PENDING_COPY = "New evidence is being assessed. The previous result may change."
 
@@ -947,6 +1022,9 @@ def assert_masked(reads: dict, state: str = "PENDING_RECOMPUTE") -> None:
     summary, current = reads["overview"]["consequence_summary"], reads["financials"]["consequence"]
     assert (summary["amount"], summary["currency"]) == (None, None)
     assert current is None or (current["amount"], current["currency"], current["revision_id"]) == (None, None, None)
+    # W3-01 Run 4 q4: a synthetic guard (`revision_id: null`) carries no row block; stored history rows do.
+    assert current is None or "source_provenance" not in current
+    assert all(h["source_provenance"]["basis_sha256"].startswith("sha256:") for h in reads["financials"]["history"])
     assert all(h["label"] == "Historical scenario" for h in reads["financials"]["history"])
 
 

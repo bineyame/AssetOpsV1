@@ -1070,6 +1070,7 @@ def ev_money_basis_on(c: Connection, tenant_id: UUID, site_id: UUID, ws: datetim
 _EV_REVISION_SQL = (
     "SELECT r.id, r.revision_no, r.state, r.reason, r.quantity_kwh, r.tariff_revision_id, r.tariff_value, "
     "r.currency, r.amount, r.overlap_group, r.recorded_at, r.source_gate, r.basis_sha256, r.assessment_revision_id, "
+    "r.finding_revision_id, "
     "t.recorded_at AS tariff_recorded_at FROM ev_consequence_revision AS r LEFT JOIN financial_assumption_revision t "
     "ON t.tenant_id = r.tenant_id AND t.site_id = r.site_id AND t.id = r.tariff_revision_id ")
 

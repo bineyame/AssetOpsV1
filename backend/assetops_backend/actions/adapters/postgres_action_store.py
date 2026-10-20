@@ -20,7 +20,7 @@ from typing import Any, Callable
 from uuid import UUID, uuid4
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
 
 from assetops_backend.actions.lifecycle import ACCEPTED, APPLIED, FAILED, OBSERVED, OBSERVATION_CODE, SYSTEM_DEMO
@@ -892,20 +892,32 @@ class PostgresActionStore:
         """Every Action of this Site created in `[start, end)` and every event of those Actions, from ONE
         repeatable-read snapshot (`D-2026-10-16-a-action-index`). The fence over the whole selection, including
         rows a page will not show, is computed by the caller from exactly these rows."""
-        def work(c):
-            actions = self._rows(c.execute(text(
-                "SELECT a.id, a.action_code, a.created_at, a.origin_finding_id, a.origin_finding_revision_id, "
-                "fr.revision_no AS origin_revision_no FROM action a JOIN finding_revision fr "
-                "ON fr.tenant_id = a.tenant_id AND fr.site_id = a.site_id AND fr.id = a.origin_finding_revision_id "
-                "WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi "
-                "ORDER BY a.created_at DESC, a.id"), {"t": tenant_id, "s": site_id, "lo": start, "hi": end}))
-            events = self._rows(c.execute(text(
-                f"SELECT {', '.join('e.' + col.strip() for col in EVENT_COLUMNS.split(','))} FROM action_event e "
-                "JOIN action a ON a.id = e.action_id AND a.tenant_id = e.tenant_id AND a.site_id = e.site_id "
-                "WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi "
-                "ORDER BY e.recorded_at, e.id"), {"t": tenant_id, "s": site_id, "lo": start, "hi": end}))
-            return {"actions": actions, "events": events}
-        return self._read(work)
+        return self._read(lambda c: self._site_window(c, tenant_id, site_id, start, end, None))
+
+    def site_window_on(self, c: Connection, tenant_id: UUID, site_id: UUID, start: datetime, end: datetime,
+                       known_at: datetime) -> dict[str, Any]:
+        """W3-01 q5: `site_window` on the caller's connection `c` (no transaction of its own), as of `known_at`:
+        Actions created in `[start, end)` and at or before `known_at`, and only their events recorded at or before
+        `known_at`, in `(recorded_at, id)` order. An event's `occurred_at` is never the selection time."""
+        return self._site_window(c, tenant_id, site_id, start, end, known_at)
+
+    def _site_window(self, c: Connection, tenant_id: UUID, site_id: UUID, start: datetime, end: datetime,
+                     known_at: datetime | None) -> dict[str, Any]:
+        p = {"t": tenant_id, "s": site_id, "lo": start, "hi": end, "k": known_at}
+        created = "" if known_at is None else " AND a.created_at <= :k"
+        recorded = "" if known_at is None else " AND e.recorded_at <= :k"
+        actions = self._rows(c.execute(text(
+            "SELECT a.id, a.action_code, a.created_at, a.origin_finding_id, a.origin_finding_revision_id, "
+            "fr.revision_no AS origin_revision_no FROM action a JOIN finding_revision fr "
+            "ON fr.tenant_id = a.tenant_id AND fr.site_id = a.site_id AND fr.id = a.origin_finding_revision_id "
+            f"WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi{created} "
+            "ORDER BY a.created_at DESC, a.id"), p))
+        events = self._rows(c.execute(text(
+            f"SELECT {', '.join('e.' + col.strip() for col in EVENT_COLUMNS.split(','))} FROM action_event e "
+            "JOIN action a ON a.id = e.action_id AND a.tenant_id = e.tenant_id AND a.site_id = e.site_id "
+            f"WHERE a.tenant_id = :t AND a.site_id = :s AND a.created_at >= :lo AND a.created_at < :hi{created}"
+            f"{recorded} ORDER BY e.recorded_at, e.id"), p))
+        return {"actions": actions, "events": events}
 
 
 def _basis(row: dict[str, Any], assets: dict[str, UUID]) -> FoundationBasis:

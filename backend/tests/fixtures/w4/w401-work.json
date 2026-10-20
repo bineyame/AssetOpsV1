@@ -1,0 +1,41 @@
+{
+  "accepted_evidence_ids": [],
+  "case_create_key": "w401-incident-001",
+  "expect": {
+    "activity_record": {
+      "actor_kind": "SERVICE",
+      "outcome": "UNVERIFIED"
+    },
+    "cross_scope_negatives": [
+      "COLD-LAB-001",
+      "EV-LAB-001"
+    ],
+    "incident": {
+      "actor_kind": "SERVICE",
+      "code_prefix": "INC-",
+      "event_kind": "CREATED",
+      "kind": "INCIDENT",
+      "state": "OPEN"
+    },
+    "plan": {
+      "outcome": "UNVERIFIED",
+      "state": "DRAFT"
+    },
+    "request": {
+      "actor_kind": "SERVICE",
+      "code_prefix": "WR-",
+      "kind": "MAINTENANCE_REQUEST"
+    }
+  },
+  "finding_links": [],
+  "plan_create_key": "w401-plan-001",
+  "positive_site": "KOBO-001",
+  "record_create_key": "w401-record-001",
+  "request_create_key": "w401-request-001",
+  "schema": "w401-work/1",
+  "site_codes": [
+    "KOBO-001",
+    "COLD-LAB-001",
+    "EV-LAB-001"
+  ]
+}

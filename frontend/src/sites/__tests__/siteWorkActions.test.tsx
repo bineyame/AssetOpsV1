@@ -16,6 +16,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import contract from "../../../../backend/tests/fixtures/s6_site_action_index_contract.json";
 import { OPERATOR_SITE_TABS } from "../../shell/operatorSiteTabs";
+import { siteWorkIncidentsHref, siteWorkMaintenanceHref } from "../../shell/operatorSiteRoutes";
 import { SiteWorkFrame } from "../../shell/SiteAnalyticsFrames";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
@@ -91,6 +92,13 @@ describe("Site Work tab", () => {
   it("is a rendered Site tab that opens /sites/{site}/work", () => {
     const work = OPERATOR_SITE_TABS.find((tab) => tab.label === "Work");
     expect(work?.href("KOBO-001")).toBe("/sites/KOBO-001/work");
+  });
+
+  it("W4-01: its Incidents and Maintenance subtabs are routes under /work, not new Site tabs", () => {
+    expect(siteWorkIncidentsHref("KOBO-001")).toBe("/sites/KOBO-001/work/incidents");
+    expect(siteWorkMaintenanceHref("KOBO-001", "from=a&to=b")).toBe("/sites/KOBO-001/work/maintenance?from=a&to=b");
+    expect(OPERATOR_SITE_TABS.map((tab) => tab.label)).not.toContain("Incidents");
+    expect(OPERATOR_SITE_TABS.map((tab) => tab.label)).not.toContain("Maintenance");
   });
 });
 

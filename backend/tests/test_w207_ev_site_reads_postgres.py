@@ -61,7 +61,12 @@ if URL:
 CODE = "EV-LAB-001"
 ROUTES = {"overview": "overview", "evidence": "evidence", "analysis": "evidence/analysis",
           "financials": "financials", "assumptions": "financial-assumptions"}
-ENVELOPE = ("site_id", "window", "currentness", "source_provenance", "limitations")
+# W3-01 Run 3 q3: the three literal provenance siblings ride the reused W2-06 envelope.
+ENVELOPE = ("site_id", "window", "currentness", "source_provenance", "selected_source_provenance",
+            "pending_source_provenance", "limitations")
+DTO = {"classification", "state", "source_ids", "evidence_ids", "basis_sha256", "reasons", "detail"}
+EMPTY_ALIAS = {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [], "evidence_ids": [],
+               "basis_sha256": None, "reasons": [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]}
 LINKS = {"self", "evidence", "analysis", "finding", "financials"}
 FIELDS = {
     "overview": {"status", "objective", "denominator", "energy", "site_power", "findings", "needs_attention",
@@ -128,8 +133,7 @@ def check_shape(reads: dict, w206: dict) -> None:
         assert set(body) == set(ENVELOPE) | FIELDS[name], (name, sorted(body))
         assert {k: body[k] for k in ENVELOPE} == {k: w206[k] for k in ENVELOPE}, name
         assert set(body["currentness"]) == {"state", "as_of", "limitation"}
-        assert set(body["source_provenance"]) == {"classification", "source_ids", "evidence_ids", "basis_sha256",
-                                                  "reasons"}
+        assert set(body["source_provenance"]) == DTO or body["source_provenance"] == EMPTY_ALIAS
         assert set(body["links"]) == LINKS and body["links"]["finding"] is None
         assert body["currentness"]["state"] != "STALE_SOURCE"
 
@@ -274,8 +278,8 @@ def test_five_routes_reuse_w206_envelope_and_exact_selection(chain) -> None:  # 
     check_shape(empty, get(c, f"sessions?{empty_q}"))
     for body in empty.values():
         assert body["currentness"] == {"state": "UNKNOWN", "as_of": None, "limitation": NO_SELECTION}
-        assert body["source_provenance"] == {"classification": None, "source_ids": [], "evidence_ids": [],
-                                             "basis_sha256": None, "reasons": []}
+        assert body["source_provenance"] == EMPTY_ALIAS
+        assert body["selected_source_provenance"] is None and body["pending_source_provenance"] is None
         assert body["limitations"] == [NO_SELECTION]
     assert empty["overview"]["status"]["state"] == "UNKNOWN"
     assert all(empty["overview"]["denominator"][k] is None for k in
@@ -303,6 +307,9 @@ def test_only_cursor_basis_change_is_ev_site_409(chain) -> None:  # noqa: F811
     # The route is inside the canonical cursor: an Analysis cursor is a changed basis on Financials.
     seen.add(error(c, f"financials?{q}&cursor={cursor}", 409))
     basis = first["source_provenance"]["basis_sha256"]
+    # W3-01 Run 3 q3: the fence is the private `route|stored basis`; the public digest stays an unprefixed value.
+    assert basis.startswith("sha256:") and "|" not in basis
+    assert get(c, f"evidence/analysis?{q}&cursor={cursor}&limit=1")["items"]  # same selection pages on
     wrong = encode_cursor(lo, hi, _at(known), f"analysis|{'0' * 64}", lo, UUID(int=0))
     seen.add(error(c, f"evidence/analysis?{q}&cursor={wrong}", 409))
     assert seen == {"EV_CURSOR_BASIS_CHANGED"} and basis
@@ -754,7 +761,9 @@ def test_analysis_intervals_and_publication_note(chain) -> None:  # noqa: F811
     f = reads["financials"]["consequence"]
     assert a["consequence_tariff"] == {"revision_id": str(tariff), "value": f["tariff_value"],
                                        "currency": f["currency"], "recorded_at": f["tariff_recorded_at"]}
-    assert set(f) == REVISION_KEYS and set(reads["overview"]["consequence_summary"]) == SUMMARY_KEYS
+    # W3-01 Run 4 q4: a stored current consequence row carries its own window-level source block.
+    assert set(f) == REVISION_KEYS | {"source_provenance"} and set(f["source_provenance"]) == DTO
+    assert set(reads["overview"]["consequence_summary"]) == SUMMARY_KEYS
     assert {"configured_service_window", "configured_service_windows"} <= set(reads["overview"]["objective"])
     # Without a selected current tariff-bearing consequence: explicit nulls.
     empty = all_five(c, "from=2026-10-07T08:00:00Z&to=2026-10-07T16:00:00Z")
@@ -823,3 +832,37 @@ def test_analysis_row_words_for_every_role_state_and_event() -> None:
     assert row("C", "ev_connector_state", "STATE", "STATE", "ODD_CODE", "state")[1:] == (UNRECOGNISED_STATE, None)
     assert row("C", "ev_unknown_role", "NUMBER", "X", "5", "kW") == ("C · EV reading", "5", "kW")
     assert row("C", None, "NUMBER", "X", "5", "kW")[0] == "C · EV reading"
+
+
+def test_claim_rules_source_class_is_selected_not_pending(chain, monkeypatch) -> None:  # noqa: F811
+    """W3-01 r1 M2: a claim rule reports the selected assessment's class even while a different current accepted
+    set is pending; the pending class is only the alias."""
+    import dataclasses
+    import importlib
+
+    from test_w206_ev_store_postgres import LEDGER
+
+    built = _settled(chain, "late-record")
+    c = client(built)
+    selected = get(c, "evidence/analysis")
+    assert selected["selected_source_provenance"]["classification"] == "REGISTERED_SIMULATION"
+    assert selected["claim_rules"] and {r["source_class"] for r in selected["claim_rules"]} == {"REGISTERED_SIMULATION"}
+    keep = {str(x).lower() for x in selected["selected_source_provenance"]["evidence_ids"]}
+    built.advance_late()  # a late accepted record: the job is open, the pending set is wider
+    module = importlib.import_module(LEDGER)
+    original = getattr(module.link_rows_on, "__wrapped__", module.link_rows_on)
+
+    def rows_on(conn, tenant_id, site_id, ids):  # only records outside the selected set lose their binding
+        return [dataclasses.replace(r, link=None) if str(r.requested_id).lower() not in keep else r
+                for r in original(conn, tenant_id, site_id, ids)]
+
+    rows_on.__wrapped__ = original
+    monkeypatch.setattr(module, "link_rows_on", rows_on)
+    c = client(built)  # the reader binds the patched ledger function at construction
+    pending = get(c, "evidence/analysis")
+    assert pending["currentness"]["state"] == "PENDING_RECOMPUTE"
+    assert pending["pending_source_provenance"]["classification"] != "REGISTERED_SIMULATION"
+    assert pending["source_provenance"] == pending["pending_source_provenance"]
+    assert pending["selected_source_provenance"]["classification"] == "REGISTERED_SIMULATION"
+    assert {r["source_class"] for r in pending["claim_rules"]} == {"REGISTERED_SIMULATION"}
+    assert [r["source_class"] for r in pending["claim_rules"]] == [r["source_class"] for r in selected["claim_rules"]]

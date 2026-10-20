@@ -26,7 +26,7 @@ if URL:
     from test_w203_cold_migration_postgres import (
         T0, _replica, _sha, constraint, head, minigrid_rows, scalar, table_exists)
 
-HEAD = "0026_w2_ev_money"  # W2-07: 0026 sits above 0025
+HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026
 PREVIOUS = "0024_w2_ev_config"
 REFUSED = "Downgrade of 0025_w2_ev_session refused"
 EV = ("ev_session", "ev_session_revision", "ev_session_evidence", "ev_meter_interval")

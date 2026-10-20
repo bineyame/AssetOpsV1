@@ -1105,64 +1105,66 @@
     },
     {
       "id": "sitework-incidents",
+      "registry_dependencies": {
+        "product_node_id": "P-work-cases",
+        "node_ids": [
+          "I-incident-read",
+          "I-incident-ui",
+          "D-work-records"
+        ]
+      },
       "mock_route": "#/sitework-incidents",
       "product_destination": "Sites > Work",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 mini-grid breadth",
+      "coverage": "bounded",
+      "task": "W4-01",
+      "follow_on": null,
       "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. IncidentIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Sites > Work and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until IncidentIndex is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Site-scoped incident work records for the selected window, read from stored records with an exact count, pinned Finding and Action links and a source label; outcomes stay Unverified.",
+      "interaction": "Open Sites > Work > Incidents, choose a window and page through the list; a linked Finding opens its pinned revision.",
+      "unknown_or_empty": "No incident work in the window is an exact zero; a linked record without a selected source reads No selected source for linked evidence and an unreadable store reads Count unknown; no mock case is product evidence.",
       "visual_reference": "index.html#/sitework-incidents",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "IncidentIndex"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Incidents at this site"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W4-01 review accepting the exact slice, the owner fidelity tier decision, the missing global Work page and create flow and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
     },
     {
       "id": "sitework-maintenance",
+      "registry_dependencies": {
+        "product_node_id": "P-work-cases",
+        "node_ids": [
+          "I-maintenance-read",
+          "I-maintenance-ui",
+          "D-work-records"
+        ]
+      },
       "mock_route": "#/sitework-maintenance",
       "product_destination": "Sites > Work",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 mini-grid breadth",
+      "coverage": "bounded",
+      "task": "W4-01",
+      "follow_on": null,
       "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. MaintenanceIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Sites > Work and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until MaintenanceIndex is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Site-scoped maintenance work records for the selected window, read from stored records with an exact count, pinned Finding and Action links and a source label; outcomes stay Unverified.",
+      "interaction": "Open Sites > Work > Maintenance, choose a window and page through the list; a linked Finding opens its pinned revision.",
+      "unknown_or_empty": "No maintenance work in the window is an exact zero; a linked record without a selected source reads No selected source for linked evidence and an unreadable store reads Count unknown; no mock case is product evidence.",
       "visual_reference": "index.html#/sitework-maintenance",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "MaintenanceIndex"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Maintenance at this site"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W4-01 review accepting the exact slice, the owner fidelity tier decision, the missing global Work page and create flow and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }

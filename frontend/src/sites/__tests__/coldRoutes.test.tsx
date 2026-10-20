@@ -179,7 +179,13 @@ const detailOf = (findingId: string, kind: string): ColdFindingDetailRead => ({
 /** A valid window with no selected assessment: 200 UNKNOWN, null values, empty arrays. */
 const EMPTY_ENVELOPE = envelope("UNKNOWN", {
   currentness: { state: "UNKNOWN", watermark: { decided_at: KNOWN, assessment_revision_ids: [] }, latest_relevant_evidence_at: null, pending_since: null },
-  source_provenance: { classification: null, source_ids: [], evidence_ids: [], basis_sha256: null },
+  // W3-01 (Run 3 q3): no selection and no job is the literal six-key empty alias with two null siblings.
+  source_provenance: {
+    classification: "UNKNOWN", state: "UNKNOWN", source_ids: [], evidence_ids: [], basis_sha256: null,
+    reasons: [{ code: "EMPTY_CITATION_SET", accepted_evidence_ids: [] }],
+  },
+  selected_source_provenance: null,
+  pending_source_provenance: null,
   limitations: ["No selected cold assessment covers this window yet."],
 });
 const EMPTY_TEMPERATURE: ColdTemperatureRead = { ...EMPTY_ENVELOPE, policy: null, points: [], gaps: [], excursions: [], excluded: [], coverage: { known_points: null, expected_points: null, ratio: null } };
@@ -637,5 +643,46 @@ describe("W2-03 follow-up: M5 chip tones on the selected state and result badge 
     const evidence = Array.from(bar.querySelectorAll(".badge")).find((e) => e.textContent?.startsWith("Evidence:")) as HTMLElement;
     expect(evidence.className).not.toMatch(/cold-temperature-tone/);
     expect(evidence.closest(".cold-result")).toBeNull();
+  });
+});
+
+describe("W3-01 r1 M1/M2: selected versus pending source copy on the cold claim references", () => {
+  const SEL = { classification: "REGISTERED_SIMULATION", state: "REGISTERED_SIMULATION", source_ids: ["cold-backup-failed"], evidence_ids: [id(100)], basis_sha256: `sha256:${"e".repeat(64)}`, reasons: [] };
+  const PEND = { classification: "MIXED", state: "MIXED", source_ids: ["other-run"], evidence_ids: [id(100), id(101)], basis_sha256: null, reasons: [] };
+  const pendingTemperature = (selected: typeof SEL | null) => ({
+    ...STOCKED_TEMPERATURE,
+    currentness: { ...STOCKED_TEMPERATURE.currentness, state: "PENDING_RECOMPUTE", pending_since: KNOWN },
+    source_provenance: PEND,
+    selected_source_provenance: selected,
+    pending_source_provenance: PEND,
+  }) as unknown as ColdTemperatureRead;
+  const claimRefs = () => panelTitled("How each limit is set").querySelector('[data-disclosure="cold-claim-references"]') as HTMLElement;
+
+  it("selected_source_basis_survives_pending", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(SEL)) });
+    await settledScreen();
+    expect(claimRefs().textContent).toContain("Selected source basis (SHA-256)");
+    expect(claimRefs().textContent).toContain(SEL.basis_sha256);
+    expect(claimRefs().textContent).not.toContain("Assessment basis");
+    cleanup();
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(null)) });
+    await settledScreen();
+    expect(claimRefs().textContent).toContain("Selected source basis (SHA-256)Not recorded");
+  });
+
+  it("pending_source_does_not_relabel_cold_claim_or_site_rows", async () => {
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(SEL)) });
+    await settledScreen();
+    expect(claimRefs().querySelector("[data-cold-source]")?.textContent).toBe("Generated test data");
+    expect(claimRefs().querySelector("[data-cold-source-sentence]")).not.toBeNull();
+    expect(claimRefs().textContent).toContain("cold-backup-failed");
+    expect(claimRefs().textContent).not.toContain("other-run");
+    cleanup();
+    // no selected assessment: no selected-result source or simulation copy
+    renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(null)) });
+    await settledScreen();
+    expect(claimRefs().querySelector("[data-cold-source]")).toBeNull();
+    expect(claimRefs().querySelector("[data-cold-source-sentence]")).toBeNull();
+    expect(claimRefs().textContent).not.toContain("other-run");
   });
 });

@@ -24,7 +24,7 @@ if URL:
     from test_w200_source_events_postgres import ASSET_CODE, raw_copy, remove_test_blockers, rows, v4  # noqa: F401
     from test_w203_cold_migration_postgres import constraint, head, scalar
 
-HEAD = "0026_w2_ev_money"  # W2-07: 0026 sits above 0025
+HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026
 PREVIOUS = "0023_w2_cold_consequence"
 INDEX = "accepted_evidence_ev_measurement"
 REFUSED = "Downgrade of 0024_w2_ev_config refused"

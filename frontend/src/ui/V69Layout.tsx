@@ -264,6 +264,9 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   "evidence-analysis": "Evidence · accepted records and how limits are set",
   changes: "Configuration change · the stored policy change and its decision path",
   sitework: "Site-scoped work · the same managed records as global queues",
+  // W4-01: the mock subtitles of the Site Incident and Maintenance lists.
+  "sitework-incidents": "Site-scoped work · incidents",
+  "sitework-maintenance": "Site-scoped work · maintenance",
   recommendation: "Proposed intervention and declared success criterion",
   action: "Current intervention and outcome state",
   verification: "Target and guardrails · outcome from accepted evidence",

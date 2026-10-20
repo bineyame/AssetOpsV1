@@ -16,8 +16,8 @@ under the same advisory lock the ledger uses to coalesce.
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from dataclasses import asdict, dataclass, replace
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any, Callable
 from uuid import UUID, uuid4
@@ -28,7 +28,9 @@ from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
 
 from assetops_contracts.source_envelope_v4 import V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION
 
-from assetops_backend.analytics import cold, ev
+from assetops_backend.analytics import cold, dispatch_v3, ev
+from assetops_backend.analytics.assessment_worker import DISPATCH_ROLES, DOMAIN as DISPATCH_DOMAIN, input_basis
+from assetops_backend.analytics.dispatch_read import day_window, derive_status
 from assetops_backend.analytics.cold_reads import (
     FUTURE_NOTE,
     HISTORICAL_NOTE,
@@ -91,6 +93,18 @@ from assetops_backend.evidence.source_provenance import (
     REGISTERED_SIMULATION,
     classify,
     link_of,
+)
+from assetops_backend.evidence.public_provenance import (
+    LinkRowsReads,
+    PublicProvenance,
+    cold_consequence_row_selection,
+    cold_envelope_selection,
+    cold_finding_row_selection,
+    dual_blocks,
+    ev_envelope_selection,
+    ev_finding_row_selection,
+    ev_withdrawn_finding_row_selection,
+    ev_session_row_selection,
 )
 from assetops_backend.financials.fuel_cost import iso
 from assetops_backend.sites.binding_roles import EV_ROLES_1, ROLE_SET_COLD_1, ROLE_SET_EV_1
@@ -619,7 +633,10 @@ class PostgresAssessmentStore:
         return self._snapshot(work)
 
     def _window(self, c: Connection, query: EvidenceQuery, analytic_id: str,
-                basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> WindowSnapshot:
+                basis: Callable[[EvidenceQueryResult], tuple[str | None, str]], *,
+                cutoff: datetime | None = None, all_jobs: bool = False) -> WindowSnapshot:
+        """`cutoff` (W3-01 q5) keeps only the selection, assessment key heads and jobs recorded at or before it;
+        `all_jobs` returns every overlapping job whatever its status, for the caller to reconstruct at the cutoff."""
         w = query.window
         rng = query.read_range
         rows = c.execute(text(_EVIDENCE), {
@@ -631,21 +648,25 @@ class PostgresAssessmentStore:
             query, readings, config.bindings, config.controls, config.role_sets, config.limits,
             _attestations(c, query.tenant_id, query.site_id, query.knowledge_at)))
         p = {"t": query.tenant_id, "s": query.site_id, "a": analytic_id, "ws": w.start, "we": w.end,
-             "d": query.domain, "lo": rng.start, "hi": rng.end}
+             "d": query.domain, "lo": rng.start, "hi": rng.end, "k": cutoff}
+
+        def by(column: str) -> str:
+            return "" if cutoff is None else f" AND {column} <= :k"
         head = c.execute(text(
             "SELECT seq, selected_at, job_id, run_id FROM analytic_run_selection WHERE tenant_id = :t "
-            "AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we "
+            f"AND site_id = :s AND analytic_id = :a AND window_start = :ws AND window_end = :we{by('selected_at')} "
             "ORDER BY seq DESC LIMIT 1"), p).first()
         jobs = c.execute(text(
             "SELECT id, status, window_start, window_end, attempts, last_error, created_at, available_at "
             "FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
-            f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
+            f"AND {'TRUE' if all_jobs else _LIVE_JOBS} AND window_start < :hi AND window_end >= :lo{by('created_at')} "
             "ORDER BY created_at, id"), p).all()
         run = None if head is None else self._run_detail(c, query.tenant_id, query.site_id, head[3])
         keys = c.execute(text(
             "SELECT DISTINCT ON (assessment_key) assessment_key, id, revision_no, claim_level, created_at "
             "FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
-            "AND window_start = :ws AND window_end = :we ORDER BY assessment_key, revision_no DESC"), p).all()
+            f"AND window_start = :ws AND window_end = :we{by('created_at')} "
+            "ORDER BY assessment_key, revision_no DESC"), p).all()
         read_at = c.execute(text("SELECT clock_timestamp()")).scalar_one()
         return WindowSnapshot(
             reading_count=len(readings), current_input_sha256=input_sha, current_configuration_sha256=config_sha,
@@ -656,6 +677,96 @@ class PostgresAssessmentStore:
             key_heads=[dict(zip(("assessment_key", "id", "revision_no", "claim_level", "created_at"), k))
                        for k in keys],
             read_at=read_at)
+
+    # --- W3-01 Run 5 (q5): S3 dispatch day selection on a caller-owned connection, at a cutoff -----------
+
+    def select_dispatch_days_on(self, c: Connection, tenant_id: UUID, site_id: UUID, from_: datetime,
+                                to: datetime, known_at: datetime) -> list[dict[str, Any]]:
+        """One S3 dispatch result for each UTC day intersecting `[from_, to)`, as of `known_at`, on `c` (no
+        transaction of its own). Each day reuses the S3 selector (`_window`) with `EvidenceQuery(knowledge_at=
+        known_at)`: the accepted basis is decided by then, the selection, assessment key heads and jobs are
+        recorded by then, and the selected run and its revisions must be recorded by then. A day with no
+        selection by then is returned with `selection=None` and its at-cutoff status. A day the stored records
+        cannot reconstruct at the cutoff is returned `available=False` with its reasons and no selection, never
+        a current day labelled historical. Job status is a mutable column with no transition time: below the
+        transaction time a job counts as outstanding at the cutoff (reported PENDING) when it is PENDING or LEASED
+        now, or DONE with its first selection after the cutoff; as finished when a selection is recorded by then;
+        and a DONE job with no selection, or a FAILED job, makes the day unavailable. At or after
+        the transaction time the jobs are read exactly as the S3 read does."""
+        if from_ >= to:
+            return []
+        live = known_at >= self._transaction_time(c)
+
+        def basis(result: EvidenceQueryResult) -> tuple[str | None, str]:
+            inputs, config_sha = input_basis(result, dispatch_v3)
+            return (None if inputs.cohort.status == "EMPTY" else inputs.input_sha256), config_sha
+
+        days: list[dict[str, Any]] = []
+        day = from_.astimezone(timezone.utc).date()
+        while (window := day_window(day)).start < to:
+            if window.end > from_:
+                days.append(self._dispatch_day_on(c, tenant_id, site_id, day, window, known_at, live, basis))
+            day += timedelta(days=1)
+        return days
+
+    @staticmethod
+    def _transaction_time(c: Connection) -> datetime:
+        """The caller's transaction time: at or after it, a job's present status is its status at the cutoff."""
+        return c.execute(text("SELECT now()")).scalar_one()
+
+    def _dispatch_day_on(self, c: Connection, tenant_id: UUID, site_id: UUID, day: date, window: Window,
+                         known_at: datetime, live: bool,
+                         basis: Callable[[EvidenceQueryResult], tuple[str | None, str]]) -> dict[str, Any]:
+        query = EvidenceQuery(tenant_id, site_id, DISPATCH_DOMAIN, window, known_at, roles=DISPATCH_ROLES)
+        snap = self._window(c, query, dispatch_v3.ANALYTIC_ID, basis, cutoff=known_at, all_jobs=not live)
+        unavailable: list[str] = []
+        if not live:
+            outstanding = []
+            for job in snap.jobs:
+                if job["status"] in ("PENDING", "LEASED"):
+                    # open now, created by the cutoff, and job states never return from terminal: open then too;
+                    # the lease state at the cutoff is not recorded, so it is reported as PENDING
+                    outstanding.append({**job, "status": "PENDING"})
+                    continue
+                selected = None
+                if job["status"] == "DONE":
+                    selected = c.execute(text(
+                        "SELECT min(selected_at) FROM analytic_run_selection WHERE tenant_id = :t "
+                        "AND site_id = :s AND job_id = :j"),
+                        {"t": tenant_id, "s": site_id, "j": job["id"]}).scalar_one()
+                if selected is None:
+                    unavailable.append(f"JOB_STATE_AT_CUTOFF_UNKNOWN: job {job['id']} is {job['status']} now and "
+                                       "no stored completion selection establishes its state at the cutoff")
+                elif selected > known_at:
+                    outstanding.append({**job, "status": "PENDING"})  # completed only after the cutoff
+            snap = replace(snap, jobs=outstanding)
+        run = snap.run
+        if run is not None:
+            if run["completed_at"] is None or run["completed_at"] > known_at:
+                unavailable.append(f"SELECTED_RUN_AFTER_CUTOFF: run {run['id']} was recorded after the cutoff")
+            if any(r["created_at"] > known_at for r in run["revisions"]):
+                unavailable.append(f"SELECTED_REVISION_AFTER_CUTOFF: run {run['id']} cites a revision recorded "
+                                   "after the cutoff")
+        base = {"day": day, "window_start": window.start, "window_end": window.end, "known_at": known_at,
+                "available": not unavailable, "unavailable_reasons": unavailable}
+        if unavailable:
+            return {**base, "status": None, "status_reasons": [], "selection": None, "run_id": None,
+                    "assessment_revision_ids": [], "window_assessment_revision_id": None,
+                    "accepted_reading_count": None, "input_sha256": None, "configuration_sha256": None,
+                    "accepted_watermarks": None, "jobs": []}
+        projection = derive_status(snap, dispatch_v3.MODEL_VERSION)
+        revisions = [] if run is None else run["revisions"]
+        window_rev = next((r for r in revisions if r.get("scope") == "WINDOW"), None)
+        return {**base, "status": projection.status, "status_reasons": list(projection.reasons),
+                "selection": None if run is None else {
+                    "seq": snap.head["seq"], "selected_at": snap.head["selected_at"],
+                    "selected_by_job": snap.head["job_id"], "run_id": run["id"]},
+                "run_id": None if run is None else run["id"],
+                "assessment_revision_ids": sorted(str(r["id"]) for r in revisions),
+                "window_assessment_revision_id": None if window_rev is None else window_rev["id"],
+                "accepted_reading_count": snap.reading_count, "input_sha256": snap.current_input_sha256,
+                "configuration_sha256": snap.current_configuration_sha256,
+                "accepted_watermarks": None if run is None else run["watermarks"], "jobs": snap.jobs}
 
     def run_detail(self, tenant_id: UUID, site_id: UUID, run_id: UUID) -> dict[str, Any] | None:
         return self._snapshot(lambda c: self._run_detail(c, tenant_id, site_id, run_id))
@@ -1546,10 +1657,69 @@ def _cold_decimal(raw: str | None) -> str | None:
         return None
 
 
+def _bound_link_rows(c: Connection, link_rows: Callable[..., list], unavailable: type) -> Callable[..., list]:
+    """W3-01: `link_rows` on the snapshot connection; any failed link read is the read's unavailable error."""
+    def read(t: UUID, s: UUID, ids: list[str]) -> list:
+        try:
+            return list(link_rows(c, t, s, ids))
+        except (OperationalError, DBAPIError):
+            raise
+        except Exception as error:  # noqa: BLE001 - a failed link read is unavailable, never a guess
+            raise unavailable(f"The source provenance read failed: {error.__class__.__name__}") from error
+    return read
+
+
+class SelectionPinRefused(LookupError):
+    """W3-01 Run 6: a pinned cold/EV selection whose exact seq is not a consistent selection at the cutoff (the
+    caller's 409 for an internally inconsistent selection); never resolved to another head."""
+
+    def __init__(self, analytic_id: str, seq: int, window_start: datetime, window_end: datetime,
+                 cutoff: datetime) -> None:
+        super().__init__(f"{analytic_id} seq {seq} [{window_start.isoformat()}, {window_end.isoformat()}) is not a "
+                         f"consistent selection at {cutoff.isoformat()}")
+        self.analytic_id, self.seq, self.window_start, self.window_end, self.cutoff = (
+            analytic_id, seq, window_start, window_end, cutoff)
+
+
+def selected_windows_on(c: Connection, t: UUID, s: UUID, analytics: tuple[str, ...], from_: datetime,
+                        to: datetime, cutoff: datetime,
+                        evidence_cutoff: datetime | None = None) -> list[dict[str, Any]]:
+    """W3-01 Run 6 Blocker 1: every exact `(analytic_id, window_start, window_end)` of this tenant/Site whose
+    selection intersects `[from_, to)` (`window_start < to AND window_end > from_`), with the greatest selection
+    seq among rows selected by `cutoff` whose same-tenant/Site run has `knowledge_cutoff` and `completed_at` by it
+    and whose assessment revision was created by it. A later reselection is invisible at an earlier cutoff.
+    W3-01 Run 7 (q7-1): `cutoff` is the requested cutoff (selection, completion and revision-creation bounds);
+    `evidence_cutoff` (default `cutoff`) bounds only the run's `knowledge_cutoff`.
+    Ordered by `(window_start, window_end, analytic_id, seq)`. Read on the caller's `c` only."""
+    rows = c.execute(text(
+        "SELECT DISTINCT ON (sel.analytic_id, sel.window_start, sel.window_end) sel.analytic_id, sel.window_start, "
+        "sel.window_end, sel.seq FROM analytic_run_selection sel JOIN analytic_run r ON r.id = sel.run_id "
+        "AND r.tenant_id = sel.tenant_id AND r.site_id = sel.site_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
+        "AND sel.analytic_id = ANY(:as) AND sel.window_start < :to AND sel.window_end > :from "
+        "AND sel.selected_at <= :k AND r.knowledge_cutoff <= :e AND r.completed_at <= :k AND EXISTS (SELECT 1 "
+        "FROM analytic_run_assessment x JOIN assessment_revision ar ON ar.id = x.assessment_revision_id "
+        "WHERE x.run_id = r.id AND ar.created_at <= :k) "
+        "ORDER BY sel.analytic_id, sel.window_start, sel.window_end, sel.seq DESC"),
+        {"t": t, "s": s, "as": list(analytics), "from": from_, "to": to, "k": cutoff,
+         "e": cutoff if evidence_cutoff is None else evidence_cutoff}).all()
+    out = [{"analytic_id": r[0], "window_start": r[1], "window_end": r[2], "seq": int(r[3])} for r in rows]
+    return sorted(out, key=lambda k: (k["window_start"], k["window_end"], k["analytic_id"], k["seq"]))
+
+
 class ColdReadService:
     def __init__(self, database_url: str | None = None, *, engine=None,
-                 clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc)) -> None:
+                 clock: Callable[[], datetime] = lambda: datetime.now(timezone.utc),
+                 link_rows: Callable[..., list] | None = None) -> None:
         self._url, self._engine, self.clock = database_url, engine, clock
+        # W3-01 (Run 3 q3): the S4-05 link-row reader on the snapshot connection, for the public provenance sets.
+        self._link_rows = link_rows
+
+    def _public(self, c: Connection) -> PublicProvenance:
+        """W3-01: the public DTO resolver bound to this snapshot connection (set reads only). A missing link
+        reader is the read's unavailable error, never a fabricated UNKNOWN block."""
+        if self._link_rows is None:
+            raise ColdReadUnavailable("The cold source provenance reader is not wired.")
+        return PublicProvenance(LinkRowsReads(_bound_link_rows(c, self._link_rows, ColdReadUnavailable)))
 
     def _connect(self):
         if self._engine is None:
@@ -1571,11 +1741,31 @@ class ColdReadService:
     # --- the shared snapshot ---------------------------------------------------------------------------------
 
     def _snapshot(self, c: Connection, t: UUID, s: UUID, code: str, lo: datetime | None, hi: datetime | None,
-                  known_at: datetime | None) -> dict[str, Any]:
+                  known_at: datetime | None, *, selection_cutoff: datetime | None = None,
+                  selection_seqs: dict[str, int] | None = None) -> dict[str, Any]:
+        """The cold read snapshot on the caller's `c` (never a connection or transaction of its own).
+
+        Default (no `selection_cutoff`): the W2 Site selection, unchanged. Pinned mode (W3-01 Run 6 Blocker 1,
+        W4-01 Run 3 ruling 6): `lo`/`hi` are one exact stored selected window and `selection_seqs` maps each
+        analytic to select to its exact `analytic_run_selection.seq`; that row must also be selected, its run
+        completed and its assessment revision created by `selection_cutoff`, or `SelectionPinRefused` is raised
+        (never a fallback to another head). The snapshot then also carries `selection_seqs`."""
+        if selection_seqs is not None and selection_cutoff is None:
+            raise ValueError("selection_seqs requires selection_cutoff: a pin without a cutoff is never read unpinned.")
+        pinned = selection_cutoff is not None
+        if pinned and (lo is None or hi is None or not selection_seqs):
+            raise ValueError("A pinned cold selection needs its exact stored window and selected seqs.")
+        if pinned:
+            unknown = sorted(set(selection_seqs) - {cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC})
+            if unknown:
+                raise ValueError(f"selection_seqs names unknown cold analytic keys: {unknown}")
         p = {"t": t, "s": s}
         watermark = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t "
                                    "AND site_id = :s"), p).scalar()
         known = known_at or watermark
+        if pinned and known is None:
+            raise SelectionPinRefused(sorted(selection_seqs)[0], selection_seqs[sorted(selection_seqs)[0]], lo, hi,
+                                      selection_cutoff)
         if lo is None and known is not None:  # no explicit window: the latest selected cold window at the cutoff
             row = c.execute(text(
                 "SELECT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
@@ -1587,32 +1777,51 @@ class ColdReadService:
         selected: dict[str, ColdSelected] = {}
         if lo is not None and known is not None:
             for analytic in (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC):
-                r = c.execute(text(
-                    "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, sel.window_start, "
-                    "sel.window_end, r.knowledge_cutoff FROM analytic_run_selection sel JOIN analytic_run r "
-                    "ON r.id = sel.run_id JOIN analytic_run_assessment x ON x.run_id = r.id JOIN assessment_revision "
-                    "ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
-                    "AND sel.analytic_id = :a AND sel.window_start <= :lo AND sel.window_end >= :hi "
-                    "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
-                    {**p, "a": analytic, "lo": lo, "hi": hi, "k": known}).first()
+                if pinned:
+                    if analytic not in selection_seqs:
+                        continue
+                    r = c.execute(text(
+                        "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, sel.window_start, "
+                        "sel.window_end, r.knowledge_cutoff FROM analytic_run_selection sel JOIN analytic_run r "
+                        "ON r.id = sel.run_id AND r.tenant_id = sel.tenant_id AND r.site_id = sel.site_id "
+                        "JOIN analytic_run_assessment x ON x.run_id = r.id JOIN assessment_revision "
+                        "ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
+                        "AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
+                        "AND sel.seq = :seq AND sel.selected_at <= :sk AND r.completed_at <= :sk "
+                        "AND ar.created_at <= :sk AND r.knowledge_cutoff <= :k LIMIT 1"),
+                        {**p, "a": analytic, "lo": lo, "hi": hi, "k": known, "seq": selection_seqs[analytic],
+                         "sk": selection_cutoff}).first()
+                    if r is None:
+                        raise SelectionPinRefused(analytic, selection_seqs[analytic], lo, hi, selection_cutoff)
+                else:
+                    r = c.execute(text(
+                        "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, sel.window_start, "
+                        "sel.window_end, r.knowledge_cutoff FROM analytic_run_selection sel JOIN analytic_run r "
+                        "ON r.id = sel.run_id JOIN analytic_run_assessment x ON x.run_id = r.id JOIN assessment_revision "
+                        "ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t AND sel.site_id = :s "
+                        "AND sel.analytic_id = :a AND sel.window_start <= :lo AND sel.window_end >= :hi "
+                        "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
+                        {**p, "a": analytic, "lo": lo, "hi": hi, "k": known}).first()
                 if r is not None:
                     result = r[3] if isinstance(r[3], dict) else json.loads(r[3])
                     ids = r[4] if isinstance(r[4], list) else json.loads(r[4])
                     selected[analytic] = ColdSelected(analytic, r[0], r[1], r[2], result, list(ids), r[5], r[6], r[7])
+        # W3-01 r1 M3.2: an explicit historical cutoff precedes pending-job selection (job status has no as-of
+        # ledger); a current read ignores a job created after the requested `known_at`.
+        historical = known_at is not None and watermark is not None and known_at < watermark
         pending_since = None
-        if lo is not None:
+        if lo is not None and not historical and known is not None:
             pending_since = c.execute(text(
                 "SELECT min(created_at) FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
                 "AND domain = :d AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi "
-                "AND window_end > :lo"),
-                {**p, "d": cold.DOMAIN, "lo": lo - cold.MAX_BRIDGE, "hi": hi + cold.MAX_BRIDGE}).scalar()
+                "AND window_end > :lo AND (CAST(:k AS timestamptz) IS NULL OR created_at <= :k)"),
+                {**p, "d": cold.DOMAIN, "lo": lo - cold.MAX_BRIDGE, "hi": hi + cold.MAX_BRIDGE, "k": known_at}).scalar()
         exc = selected.get(cold.EXCURSION_ANALYTIC)
         support = [UUID(x["evidence_id"]) for x in (exc.result.get("links") or [])
                    if x["use"] == "SUPPORT"] if exc else []
         evidence = self._evidence(c, t, s, support + [UUID(x["evidence_id"]) for x in self._other_links(selected)])
         probes = sorted((evidence[e] for e in support if e in evidence), key=lambda e: (e["source_time"], e["id"]))
         latest_probe = probes[-1]["source_time"] if probes else None
-        historical = known_at is not None and watermark is not None and known_at < watermark
         any_selected = exc or selected.get(cold.START_RESPONSE_ANALYTIC)
         window_to = any_selected.window_end if any_selected else None
         state = currentness_state(pending=pending_since is not None, historical=historical,
@@ -1629,9 +1838,28 @@ class ColdReadService:
             limitations.append(STALE_NOTE)
         elif state == "UNKNOWN":
             limitations.append(FUTURE_NOTE if window_to is not None and window_to > self.clock() else NO_PROBE_NOTE)
-        return {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known, "watermark": watermark,
+        snap = {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known, "watermark": watermark,
                 "selected": selected, "pending_since": pending_since, "evidence": evidence, "probes": probes,
                 "latest_probe": latest_probe, "state": state, "limitations": limitations}
+        if pinned:
+            snap["selection_seqs"] = {a: int(selection_seqs[a]) for a in selected}
+            snap["selection_cutoff"] = selection_cutoff
+        return snap
+
+    def estate_snapshots_on(self, c: Connection, t: UUID, s: UUID, code: str, from_: datetime, to: datetime,
+                            known_at: datetime | None, selection_cutoff: datetime) -> list[dict[str, Any]]:
+        """W3-01 Run 6 Blocker 1: one pinned `_snapshot` per exact stored cold window whose as-of selection
+        intersects `[from_, to)`; both cold analytics of one exact window share one snapshot. Ordered by
+        `(window_start, window_end)`; empty when nothing qualifies (the caller's UNKNOWN, never a zero)."""
+        if known_at is None:  # Run 7 q7-1: no provable evidence basis is UNKNOWN, never a current zero
+            return []
+        keys = selected_windows_on(c, t, s, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC), from_, to,
+                                   selection_cutoff, evidence_cutoff=known_at)
+        windows: dict[tuple[datetime, datetime], dict[str, int]] = {}
+        for k in keys:
+            windows.setdefault((k["window_start"], k["window_end"]), {})[k["analytic_id"]] = k["seq"]
+        return [self._snapshot(c, t, s, code, lo, hi, known_at, selection_cutoff=selection_cutoff,
+                               selection_seqs=seqs) for (lo, hi), seqs in windows.items()]
 
     @staticmethod
     def _other_links(selected: dict[str, ColdSelected]) -> list[dict[str, Any]]:
@@ -1652,10 +1880,38 @@ class ColdReadService:
         return {r[0]: {"id": r[0], "source_time": r[1], "value": r[2], "quality": r[3], "outcome": r[4],
                        "message_id": r[5], "record_kind": r[6], "role": r[7]} for r in rows}
 
-    def _envelope(self, snap: dict[str, Any], analytics: tuple[str, ...]) -> dict[str, Any]:
+    @staticmethod
+    def selected_basis(snap: dict[str, Any], analytics: tuple[str, ...]) -> str | None:
+        """The private stored selection basis of the route's analytics tuple (the cursor fence; W3-01 Run 1 ruling
+        3): one `ColdSelected.basis`, or the existing two-analytic `sha256_json` combination; None if unselected."""
         chosen = [snap["selected"][a] for a in analytics if a in snap["selected"]]
-        gate = chosen[0].result.get("source_gate") if chosen else None
-        basis = (chosen[0].basis if len(chosen) == 1 else sha256_json([x.basis for x in chosen])) if chosen else None
+        return (chosen[0].basis if len(chosen) == 1 else sha256_json([x.basis for x in chosen])) if chosen else None
+
+    @staticmethod
+    def _pending_ids(c: Connection, snap: dict[str, Any]) -> list[str]:
+        """W3-01 Run 2 ruling 2: the complete accepted cold input set of the requested window at the cutoff."""
+        return [str(x) for x in c.execute(text(
+            "SELECT DISTINCT e.id FROM accepted_evidence e JOIN ingestion_batch b ON b.tenant_id = e.tenant_id "
+            "AND b.site_id = e.site_id AND b.id = e.batch_id JOIN ingestion_disposition d ON d.batch_id = e.batch_id "
+            "AND d.accepted_evidence_id = e.id AND d.decision = 'ACCEPTED' WHERE e.tenant_id = :t AND e.site_id = :s "
+            "AND e.source_time >= :lo AND e.source_time < :hi AND e.received_at <= :k AND d.decided_at <= :k "
+            "ORDER BY e.id"),
+            {"t": snap["t"], "s": snap["s"], "lo": snap["lo"], "hi": snap["hi"], "k": snap["known"]}).scalars().all()]
+
+    def _provenance_blocks(self, c: Connection, snap: dict[str, Any], analytics: tuple[str, ...]) -> dict[str, Any]:
+        """W3-01 Run 1 ruling 5 / Run 2-3: the three sibling blocks. Selected: the chosen revisions' full cited
+        union; pending (only when an overlapping cold job exists): the full accepted window set, no digest."""
+        chosen = [snap["selected"][a] for a in analytics if a in snap["selected"]]
+        public = self._public(c)
+        t, s = snap["t"], snap["s"]
+        selected = public.cited_set(t, s, sorted({e for x in chosen for e in x.evidence_ids}),
+                                    cold_envelope_selection(x.revision_id for x in chosen)) if chosen else None
+        pending = public.cited_set(t, s, self._pending_ids(c, snap), []) \
+            if snap["pending_since"] is not None else None
+        return dual_blocks(selected, pending)
+
+    def _envelope(self, c: Connection, snap: dict[str, Any], analytics: tuple[str, ...]) -> dict[str, Any]:
+        chosen = [snap["selected"][a] for a in analytics if a in snap["selected"]]
         return {
             "site_id": str(snap["s"]),
             "window": {"from": _cold_plain(snap["lo"]), "to": _cold_plain(snap["hi"]), "known_at": _cold_plain(snap["known"])},
@@ -1664,11 +1920,7 @@ class ColdReadService:
                                           "assessment_revision_ids": [str(x.revision_id) for x in chosen]},
                             "latest_relevant_evidence_at": _cold_plain(snap["latest_probe"]),
                             "pending_since": _cold_plain(snap["pending_since"])},
-            "source_provenance": {
-                "classification": None if gate is None else gate.get("classification"),
-                "source_ids": [] if gate is None else list(gate.get("source_ids") or ()),
-                "evidence_ids": sorted({e for x in chosen for e in x.evidence_ids}),
-                "basis_sha256": basis},
+            **self._provenance_blocks(c, snap, analytics),
             "limitations": list(snap["limitations"]),
         }
 
@@ -1703,7 +1955,7 @@ class ColdReadService:
 
     def _temperature(self, c, t, s, code, lo, hi, known_at) -> dict[str, Any]:
         snap = self._snapshot(c, t, s, code, lo, hi, known_at)
-        body = self._envelope(snap, (cold.EXCURSION_ANALYTIC,))
+        body = self._envelope(c, snap, (cold.EXCURSION_ANALYTIC,))
         sel = snap["selected"].get(cold.EXCURSION_ANALYTIC)
         as_of = self._as_of(snap, cold.EXCURSION_ANALYTIC)
         if sel is None:
@@ -1752,7 +2004,7 @@ class ColdReadService:
 
     def _backup(self, c, t, s, code, lo, hi, known_at) -> dict[str, Any]:
         snap = self._snapshot(c, t, s, code, lo, hi, known_at)
-        body = self._envelope(snap, (cold.START_RESPONSE_ANALYTIC,))
+        body = self._envelope(c, snap, (cold.START_RESPONSE_ANALYTIC,))
         sel = snap["selected"].get(cold.START_RESPONSE_ANALYTIC)
         if sel is None:
             return {**body, "state": None, "claim_level": None, "chains": [], "contradictions": []}
@@ -1794,8 +2046,9 @@ class ColdReadService:
     _REVISION = (
         "SELECT r.id, r.revision_no, r.transition, r.lifecycle, r.claim_level, r.title, r.claim, r.limitations, "
         "r.assessment_revision_id, r.basis_sha256, r.created_at, er.lower_start, er.upper_start, er.lower_end, "
-        "er.upper_end FROM finding_revision r JOIN analytic_run ar ON ar.id = r.analytic_run_id "
-        "LEFT JOIN cold_episode_revision er ON er.id = CAST(r.claim->>'episode_revision_id' AS uuid) "
+        "er.upper_end, er.id, er.assessment_revision_id FROM finding_revision r JOIN analytic_run ar "
+        "ON ar.id = r.analytic_run_id LEFT JOIN cold_episode_revision er ON er.tenant_id = r.tenant_id "
+        "AND er.site_id = r.site_id AND er.id = CAST(r.claim->>'episode_revision_id' AS uuid) "
         "WHERE r.finding_id = :f AND r.domain = 'cold_chain' AND ar.knowledge_cutoff <= :k ")
 
     def _finding_ids(self, c, snap, after: tuple[datetime, UUID] | None, limit: int | None,
@@ -1844,6 +2097,12 @@ class ColdReadService:
         evidence_ids = self._revision_evidence(c, rev[0])
         snap.setdefault("finding_evidence", {}).update(self._evidence(c, snap["t"], snap["s"],
                                                                       [UUID(e) for e in evidence_ids]))
+        # W3-01 Run 3 q3: the row's own DTO over its exact `finding_revision_evidence`, selecting the pinned
+        # `cold_episode_revision` of its claim; a missing or mismatched pinned revision refuses the read.
+        if rev[15] is None or rev[16] != rev[8]:
+            raise ColdReadUnavailable("A cold Finding revision's pinned episode revision cannot be read.")
+        source = self._public(c).cited_set(snap["t"], snap["s"], evidence_ids,
+                                           cold_finding_row_selection(rev[0], rev[15], rev[8]))
         return {
             "finding_id": str(row[0]), "kind": claim.get("kind"), "subject_asset_id": _cold_plain(row[2]),
             "revision_id": str(rev[0]), "lifecycle": rev[3], "claim_level": rev[4], "title": rev[5],
@@ -1854,14 +2113,15 @@ class ColdReadService:
             "split_from_finding_id": _cold_plain(row[3]),
             "links": self._links(snap, row[0], rev[0], rev[8], evidence_ids),
             "as_of": _cold_plain(rev[10]), "limitation": limits[0] if limits else None,
+            "source_provenance": source,
         }
 
     def findings(self, tenant_id: UUID, site_id: UUID, code: str, lo: datetime | None, hi: datetime | None,
                  known_at: datetime | None, cursor: str | None, limit: int) -> dict[str, Any]:
         def work(c):
             snap = self._snapshot(c, tenant_id, site_id, code, lo, hi, known_at)
-            body = self._envelope(snap, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC))
-            basis = body["source_provenance"]["basis_sha256"] or "none"
+            body = self._envelope(c, snap, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC))
+            basis = self.selected_basis(snap, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC)) or "none"
             after = None if cursor is None else decode_cursor(cursor, basis)
             if not snap["selected"]:
                 return {**body, "items": [], "next_cursor": None}
@@ -1876,7 +2136,7 @@ class ColdReadService:
                 hi: datetime | None, known_at: datetime | None) -> dict[str, Any] | None:
         def work(c):
             snap = self._snapshot(c, tenant_id, site_id, code, lo, hi, known_at)
-            body = self._envelope(snap, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC))
+            body = self._envelope(c, snap, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC))
             if snap["lo"] is None:
                 return None
             rows = self._finding_ids(c, snap, None, None, finding_id)
@@ -1889,7 +2149,8 @@ class ColdReadService:
                         "claim_level": r[4], "basis_sha256": r[9], "created_at": _cold_plain(r[10]),
                         "evidence_ids": self._revision_evidence(c, r[0]), "as_of": _cold_plain(r[10]),
                         "limitation": None} for r in revisions]
-            body["source_provenance"]["basis_sha256"] = revisions[0][9]
+            # W3-01 Run 3 q2: the envelope is spread, then only its top-level `source_provenance` is the row DTO
+            # (from `item`); the siblings stay the window blocks and the stored basis keeps its own field.
             return {**body, **item, "basis_sha256": revisions[0][9], "episode_id": claim.get("episode_id"),
                     "episode_revision_id": claim.get("episode_revision_id"), "revisions": history}
         return self._read(work)
@@ -1907,8 +2168,26 @@ class ColdReadService:
                      known_at: datetime | None) -> dict[str, Any]:
         return self._snapshot(c, t, s, code, lo, hi, known_at)
 
-    def envelope_on(self, snap: dict[str, Any], analytics: tuple[str, ...]) -> dict[str, Any]:
-        return self._envelope(snap, analytics)
+    def envelope_on(self, c: Connection, snap: dict[str, Any], analytics: tuple[str, ...]) -> dict[str, Any]:
+        return self._envelope(c, snap, analytics)
+
+    def consequence_provenance_on(self, c: Connection, snap: dict[str, Any], head: dict[str, Any]) -> dict[str, Any]:
+        """W3-01 Run 3 q3: one cold consequence row's DTO: its stored evidence IDs union its pinned FindingRevision's
+        exact citations, selecting `{consequence, Finding, episode, assessment}` revisions. The pinned Finding
+        must be this Site's, of that assessment and episode; otherwise the read is refused (unavailable)."""
+        t, s = snap["t"], snap["s"]
+        pinned = c.execute(text(
+            "SELECT r.id FROM finding_revision r JOIN cold_episode_revision er ON er.tenant_id = r.tenant_id "
+            "AND er.site_id = r.site_id AND er.id = CAST(r.claim->>'episode_revision_id' AS uuid) "
+            "WHERE r.tenant_id = :t AND r.site_id = :s AND r.id = :f AND r.assessment_revision_id = :a "
+            "AND er.id = :e AND er.assessment_revision_id = :a"),
+            {"t": t, "s": s, "f": UUID(str(head["finding_revision_id"])),
+             "a": UUID(str(head["assessment_revision_id"])), "e": UUID(str(head["episode_revision_id"]))}).first()
+        if pinned is None:
+            raise ColdReadUnavailable("A cold consequence's pinned Finding revision cannot be read.")
+        cited = {str(x) for x in head["evidence_ids"] or ()} | set(self._revision_evidence(c, pinned[0]))
+        return self._public(c).cited_set(t, s, sorted(cited), cold_consequence_row_selection(
+            head["id"], head["finding_revision_id"], head["episode_revision_id"], head["assessment_revision_id"]))
 
     def temperature_on(self, c: Connection, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
         return self._temperature(c, t, s, code, lo, hi, known_at)
@@ -2100,7 +2379,18 @@ class EvReadService:
     # --- the one snapshot --------------------------------------------------------------------------------------
 
     def _snapshot(self, c: Connection, t: UUID, s: UUID, code: str, lo: datetime | None, hi: datetime | None,
-                  known_at: datetime | None) -> dict[str, Any]:
+                  known_at: datetime | None, *, selection_cutoff: datetime | None = None,
+                  selection_seqs: dict[str, int] | None = None) -> dict[str, Any]:
+        """The EV read snapshot on the caller's `c` (never a connection or transaction of its own). Default: the W2
+        Site selection, unchanged. Pinned mode (W3-01 Run 6 Blocker 1, W4-01 Run 3 ruling 6): `lo`/`hi` are one
+        exact stored selected window and `selection_seqs` maps the session analytic to its exact selected seq; the
+        row must be selected, its run completed and its revision created by `selection_cutoff`, or
+        `SelectionPinRefused`. The snapshot then also carries `selection_seqs`."""
+        if selection_seqs is not None and selection_cutoff is None:
+            raise ValueError("selection_seqs requires selection_cutoff: a pin without a cutoff is never read unpinned.")
+        pinned = selection_cutoff is not None
+        if pinned and (lo is None or hi is None or ev.SESSION_ANALYTIC not in (selection_seqs or {})):
+            raise ValueError("A pinned EV selection needs its exact stored window and the session analytic's seq.")
         p = {"t": t, "s": s, "a": ev.SESSION_ANALYTIC}
         watermark = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t "
                                    "AND site_id = :s"), p).scalar()
@@ -2108,6 +2398,9 @@ class EvReadService:
             raise EvReadRefused(422, "EV_TIME_INVALID",
                                 "'known_at' is later than the latest committed evidence cutoff.")
         known = known_at or watermark
+        if pinned and known is None:
+            raise SelectionPinRefused(ev.SESSION_ANALYTIC, selection_seqs[ev.SESSION_ANALYTIC], lo, hi,
+                                      selection_cutoff)
         if lo is None and known is not None:  # the paired default: the latest selected EV window at the cutoff
             row = c.execute(text(
                 "SELECT sel.window_start, sel.window_end FROM analytic_run_selection sel JOIN analytic_run r "
@@ -2116,7 +2409,22 @@ class EvReadService:
             if row is not None:
                 lo, hi = row[0], row[1]
         selected = None
-        if lo is not None and known is not None:
+        if pinned and known is not None:
+            selected = c.execute(text(
+                "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, ar.created_at, "
+                "ar.claim_level, r.id, r.knowledge_cutoff, r.foundation_revision_ids FROM analytic_run_selection sel "
+                "JOIN analytic_run r ON r.id = sel.run_id AND r.tenant_id = sel.tenant_id AND r.site_id = sel.site_id "
+                "JOIN analytic_run_assessment x ON x.run_id = r.id "
+                "JOIN assessment_revision ar ON ar.id = x.assessment_revision_id WHERE sel.tenant_id = :t "
+                "AND sel.site_id = :s AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
+                "AND sel.seq = :seq AND sel.selected_at <= :sk AND r.completed_at <= :sk AND ar.created_at <= :sk "
+                "AND r.knowledge_cutoff <= :k LIMIT 1"),
+                {**p, "lo": lo, "hi": hi, "k": known, "seq": selection_seqs[ev.SESSION_ANALYTIC],
+                 "sk": selection_cutoff}).first()
+            if selected is None:
+                raise SelectionPinRefused(ev.SESSION_ANALYTIC, selection_seqs[ev.SESSION_ANALYTIC], lo, hi,
+                                          selection_cutoff)
+        elif lo is not None and known is not None:
             selected = c.execute(text(
                 "SELECT ar.id, ar.revision_no, ar.basis_sha256, ar.result, ar.evidence_ids, ar.created_at, "
                 "ar.claim_level, r.id, r.knowledge_cutoff, r.foundation_revision_ids FROM analytic_run_selection sel "
@@ -2125,13 +2433,16 @@ class EvReadService:
                 "AND sel.site_id = :s AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
                 "AND r.knowledge_cutoff <= :k ORDER BY sel.seq DESC LIMIT 1"),
                 {**p, "lo": lo, "hi": hi, "k": known}).first()
-        pending = False
-        if selected is not None:
-            pending = c.execute(text(
+        # W3-01 Run 3 q1: the overlapping job is read whenever the window exists, with or without a selected head;
+        # it gates only the public pending block when nothing is selected (currentness is unchanged).
+        historical = known_at is not None and watermark is not None and known_at < watermark
+        job = False
+        if lo is not None and not historical and known is not None:
+            job = c.execute(text(
                 "SELECT EXISTS (SELECT 1 FROM recompute_job WHERE tenant_id = :t AND site_id = :s "
                 "AND domain = 'ev_charging' AND status IN ('PENDING', 'LEASED', 'FAILED') AND window_start < :hi "
-                "AND window_end > :lo)"), {**p, "lo": lo, "hi": hi}).scalar_one()
-        historical = known_at is not None and watermark is not None and known_at < watermark
+                "AND window_end > :lo AND (CAST(:k AS timestamptz) IS NULL OR created_at <= :k))"), {**p, "lo": lo, "hi": hi, "k": known_at}).scalar_one()
+        pending = selected is not None and job
         state = _ev_currentness_state(selected=selected is not None, pending=pending, historical=historical)
         note = {"UNKNOWN": _EV_NO_SELECTION_NOTE, "PENDING_RECOMPUTE": _EV_PENDING_NOTE,
                 "HISTORICAL": _EV_HISTORICAL_NOTE}.get(state)
@@ -2144,7 +2455,7 @@ class EvReadService:
             note = ev.SOURCE_UNASSESSABLE
         snap: dict[str, Any] = {"code": code, "t": t, "s": s, "lo": lo, "hi": hi, "known": known,
                                 "watermark": watermark, "state": state, "note": note, "selected": None,
-                                "unassessable": unassessable}
+                                "unassessable": unassessable, "job": job}
         if selected is not None:
             result = _ev_json(selected[3])
             snap["selected"] = {
@@ -2152,7 +2463,23 @@ class EvReadService:
                 "evidence_ids": sorted(str(x).lower() for x in _ev_json(selected[4])), "created_at": selected[5],
                 "claim_level": selected[6], "run_id": selected[7], "cutoff": selected[8],
                 "foundation_ids": list(_ev_json(selected[9]) or ())}
+        if pinned:
+            snap["selection_seqs"] = {ev.SESSION_ANALYTIC: int(selection_seqs[ev.SESSION_ANALYTIC])}
+            snap["selection_cutoff"] = selection_cutoff
         return snap
+
+    def estate_snapshots_on(self, c: Connection, t: UUID, s: UUID, code: str, from_: datetime, to: datetime,
+                            known_at: datetime | None, selection_cutoff: datetime) -> list[dict[str, Any]]:
+        """W3-01 Run 6 Blocker 1: one pinned `_snapshot` per exact stored EV session window whose as-of selection
+        intersects `[from_, to)`, ordered by `(window_start, window_end)`; empty when nothing qualifies.
+        `known_at` is the caller's clamped Site cutoff (at or before the Site's evidence watermark)."""
+        if known_at is None:  # Run 7 q7-1: no provable evidence basis is UNKNOWN, never a current zero
+            return []
+        keys = selected_windows_on(c, t, s, (ev.SESSION_ANALYTIC,), from_, to, selection_cutoff,
+                                   evidence_cutoff=known_at)
+        return [self._snapshot(c, t, s, code, k["window_start"], k["window_end"], known_at,
+                               selection_cutoff=selection_cutoff, selection_seqs={k["analytic_id"]: k["seq"]})
+                for k in keys]
 
     def _unassessable(self, c: Connection, t: UUID, s: UUID, lo: datetime, hi: datetime,
                       known: datetime) -> dict[str, Any] | None:
@@ -2181,40 +2508,70 @@ class EvReadService:
     def _query(self, snap: dict[str, Any]) -> str:
         return f"?from={_ev_plain(snap['lo'])}&to={_ev_plain(snap['hi'])}&known_at={_ev_plain(snap['known'])}"
 
+    def _public(self, c: Connection) -> PublicProvenance:
+        """W3-01: the public DTO resolver bound to this read connection (set reads only)."""
+        if self._link_rows is None:
+            raise EvReadUnavailable("The EV source provenance reader is unavailable.")
+        return PublicProvenance(LinkRowsReads(_bound_link_rows(c, self._link_rows, EvReadUnavailable)))
+
+    def _provenance_blocks(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any]:
+        """W3-01 Run 1 rulings 4-5, Run 2-3 q1: the selected head's `ev_selected` block (the stored result is not
+        mutated) and, with an overlapping job, the pending block over every `_ev_rows` ID of the window."""
+        sel, t, s = snap["selected"], snap["t"], snap["s"]
+        public = self._public(c)
+        selected = None if sel is None else public.ev_selected(
+            t, s, sel["evidence_ids"],
+            ev_envelope_selection(sel["revision_id"], sel["result"].get("session_revision_ids") or ()),
+            (sel["result"].get("source_provenance") or {}).get("class"))
+        pending = None
+        if snap.get("job"):
+            ids = sorted({str(r[0]).lower() for r in _ev_rows(
+                c, {"t": t, "s": s, "lo": snap["lo"], "hi": snap["hi"], "k": snap["known"]})})
+            pending = public.cited_set(t, s, ids, [])
+        return dual_blocks(selected, pending)
+
+    def money_row_provenance_on(self, c: Connection, snap: dict[str, Any], row: dict[str, Any]) -> dict[str, Any]:
+        """W3-01 Run 4 q4 ruling 1: one stored EV consequence row's own DTO. Selects `{row id, its stored
+        assessment, every linked session revision}` and cites only its `ev_consequence_evidence` set. The stored
+        assessment and each linked session revision (naming that assessment) must exist in this tenant/Site; a
+        non-null Finding pin is outside the reviewed W2-07 row contract. Either fails closed as unavailable."""
+        t, s = snap["t"], snap["s"]
+        if row.get("finding_revision_id") is not None:
+            raise EvReadUnavailable("An EV consequence revision has an unreviewed Finding pin.")
+        ar = row["assessment_revision_id"]
+        if c.execute(text("SELECT 1 FROM assessment_revision WHERE tenant_id = :t AND site_id = :s AND id = :ar"),
+                     {"t": t, "s": s, "ar": ar}).first() is None:
+            raise EvReadUnavailable("An EV consequence revision's stored assessment cannot be read.")
+        sessions = sorted({str(x).lower() for x in row["session_revision_ids"]})
+        if sessions:
+            found = c.execute(text(
+                "SELECT count(*) FROM ev_session_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND assessment_revision_id = :ar AND id = ANY(CAST(:ids AS uuid[]))"),
+                {"t": t, "s": s, "ar": ar, "ids": sessions}).scalar_one()
+            if found != len(sessions):
+                raise EvReadUnavailable("An EV consequence revision's linked session revision cannot be read.")
+        selected = sorted({str(row["id"]).lower(), str(ar).lower(), *sessions})
+        return self._public(c).cited_set(t, s, sorted({str(x).lower() for x in row["evidence_ids"]}), selected)
+
     def _envelope(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any]:
         sel = snap["selected"]
-        source_ids: list[str] = []
-        if sel is not None and sel["evidence_ids"]:
-            source_ids = sorted({str(x).lower() for x in c.execute(text(
-                "SELECT DISTINCT source_id FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s "
-                "AND id = ANY(CAST(:ids AS uuid[])) AND source_id IS NOT NULL"),
-                {"t": snap["t"], "s": snap["s"], "ids": sel["evidence_ids"]}).scalars()})
-        provenance = (sel["result"].get("source_provenance") or {}) if sel else {}
+        blocks = self._provenance_blocks(c, snap)
         bad = snap.get("unassessable")
-        if bad is not None and sel is None:  # r9 M1-a: no exact head; the set's own class, no stored basis
+        if bad is not None and sel is None:  # r9 M1-a: no exact head; `_unassessable` supplies only the limitation
             return {
                 "site_id": str(snap["s"]).lower(),
                 "window": {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]),
                            "known_at": _ev_plain(snap["known"])},
                 "currentness": {"state": snap["state"], "as_of": None, "limitation": snap["note"]},
-                "source_provenance": {"classification": bad["classification"], "source_ids": bad["source_ids"],
-                                      "evidence_ids": bad["evidence_ids"], "basis_sha256": None,
-                                      "reasons": bad["reasons"]},
+                **blocks,
                 "limitations": [ev.SOURCE_UNASSESSABLE],
             }
-        reasons: list[dict[str, Any]] = []
-        if bad is not None:  # a pending prior head: stored facts stay; the current accepted set is public (r10 N2)
-            provenance = {**provenance, "class": bad["classification"]}
-            source_ids, reasons = bad["source_ids"], bad["reasons"]
         return {
             "site_id": str(snap["s"]).lower(),
             "window": {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]), "known_at": _ev_plain(snap["known"])},
             "currentness": {"state": snap["state"], "as_of": None if sel is None else _ev_plain(sel["created_at"]),
                             "limitation": snap["note"]},
-            "source_provenance": {"classification": provenance.get("class"), "source_ids": source_ids,
-                                  "evidence_ids": bad["evidence_ids"] if bad is not None
-                                  else ([] if sel is None else list(sel["evidence_ids"])),
-                                  "basis_sha256": None if sel is None else sel["basis"], "reasons": reasons},
+            **blocks,
             "limitations": ([] if sel is None else list(sel["result"].get("limitations") or ()))
             + ([snap["note"]] if snap["note"] else []) + ([ev.SOURCE_UNASSESSABLE] if bad is not None else []),
         }
@@ -2259,9 +2616,20 @@ class EvReadService:
             "AND fr.lifecycle = 'SUPPORTED'"), {"t": snap["t"], "s": snap["s"], "ar": sel["revision_id"]}).all()}
         names = self._display_names(c, snap)
         q = self._query(snap)
-        provenance = snap["provenance"]
         # r8 M2: completeness from the exact selected revisions' uses, in the same read snapshot.
         revision_ids = [r[4] for r in rows]
+        # W3-01 Run 3 q3: each session revision cites every `ev_session_evidence` and `ev_meter_interval` row of
+        # that revision (no use, reason or page filter).
+        cited: dict[Any, set[str]] = {x: set() for x in revision_ids}
+        if revision_ids:
+            for rid, evidence_id in c.execute(text(
+                    "SELECT revision_id, evidence_id FROM ev_session_evidence WHERE tenant_id = :t AND site_id = :s "
+                    "AND revision_id = ANY(CAST(:ids AS uuid[])) UNION SELECT revision_id, evidence_id "
+                    "FROM ev_meter_interval WHERE tenant_id = :t AND site_id = :s "
+                    "AND revision_id = ANY(CAST(:ids AS uuid[])) AND evidence_id IS NOT NULL"),
+                    {"t": snap["t"], "s": snap["s"], "ids": [str(x) for x in revision_ids]}).all():
+                cited[rid].add(str(evidence_id).lower())
+        public = self._public(c)
         uses: dict[Any, list] = {x: [] for x in revision_ids}
         meters: dict[Any, list] = {x: [] for x in revision_ids}
         if revision_ids:
@@ -2291,7 +2659,9 @@ class EvReadService:
                 "supported_kwh": _ev_plain(r[14]), "energy_complete": _ev_energy_complete(r[7], r[14], r[15]),
                 "unknown_meter_seconds": r[15], "reason_codes": reasons, "fault_evidence_id": _ev_plain(r[16]),
                 "finding_id": _ev_plain(fid), "completeness": _ev_completeness(r[7], r[15], uses[r[4]], meters[r[4]]),
-                "as_of": _ev_plain(sel["created_at"]), "source_provenance": provenance,
+                "as_of": _ev_plain(sel["created_at"]),
+                "source_provenance": public.cited_set(snap["t"], snap["s"], sorted(cited[r[4]]),
+                                                      ev_session_row_selection(sel["revision_id"], r[4])),
                 "links": {"self": f"/api/sites/{snap['code']}/ev/sessions/{_ev_plain(r[0])}{q}", "evidence": None,
                           "analysis": None,
                           "finding": None if fid is None else f"/api/sites/{snap['code']}/ev/findings/{_ev_plain(fid)}{q}",
@@ -2313,25 +2683,24 @@ class EvReadService:
     def _open(self, c: Connection, t: UUID, s: UUID, code: str, lo, hi, known_at) -> tuple[dict, dict]:
         snap = self._snapshot(c, t, s, code, lo, hi, known_at)
         body = self._envelope(c, snap)
-        snap["provenance"] = body["source_provenance"]
         return snap, body
 
     @staticmethod
-    def _page(items: list[dict[str, Any]], snap: dict[str, Any], body: dict[str, Any], cursor: str | None,
+    def _page(items: list[dict[str, Any]], snap: dict[str, Any], basis: str | None, cursor: str | None,
               limit: int) -> tuple[list[dict[str, Any]], str | None]:
+        """`basis` is the private stored selection basis (W3-01 Run 1 ruling 3), never a public DTO digest."""
         if cursor is not None:
             doc, last_time, last_id = _ev_decode_cursor(cursor)
             if snap["lo"] is None or snap["known"] is None:
                 raise EvReadRefused(409, "EV_CURSOR_BASIS_CHANGED",
                                     "No selected EV window matches this cursor; reload the first page.")
-            _ev_check_cursor(doc, snap["lo"], snap["hi"], snap["known"], body["source_provenance"]["basis_sha256"])
+            _ev_check_cursor(doc, snap["lo"], snap["hi"], snap["known"], basis)
             items = [x for x in items if (x["_sort"][0], str(x["_sort"][1])) > (last_time, str(last_id))]
         page, more = items[:limit], len(items) > limit
         nxt = None
         if more:
             at, last = page[-1]["_sort"]
-            nxt = _ev_encode_cursor(snap["lo"], snap["hi"], snap["known"], body["source_provenance"]["basis_sha256"],
-                                at, last)
+            nxt = _ev_encode_cursor(snap["lo"], snap["hi"], snap["known"], basis, at, last)
         return [{k: v for k, v in x.items() if k != "_sort"} for x in page], nxt
 
     # --- W2-07 commit 3: the same snapshot on a caller connection (spec "Five selected reads", q4) ---------------
@@ -2363,9 +2732,12 @@ class EvReadService:
                 cursor: str | None, limit: int) -> tuple[list[dict[str, Any]], str | None]:
         """W2-06 paging with the route inside the canonical cursor (`route|basis`), so a cursor is never reused
         across routes; items carry `_sort=(time, id)`."""
-        scoped = {**body, "source_provenance": {
-            **body["source_provenance"], "basis_sha256": f"{route}|{body['source_provenance']['basis_sha256'] or ''}"}}
-        return self._page(items, snap, scoped, cursor, limit)
+        return self._page(items, snap, f"{route}|{self._basis(snap) or ''}", cursor, limit)
+
+    @staticmethod
+    def _basis(snap: dict[str, Any]) -> str | None:
+        """The selected head's private stored basis (the cursor fence), None with no head."""
+        return None if snap["selected"] is None else snap["selected"]["basis"]
 
     def foundation_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any] | None:
         """The selected assessment's Foundation revision, else the one effective at the cutoff: `{content,
@@ -2470,7 +2842,7 @@ class EvReadService:
         def work(c):
             snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
             status, denominator = self._status(snap)
-            items, nxt = self._page(self._sessions(c, snap), snap, body, cursor, limit)
+            items, nxt = self._page(self._sessions(c, snap), snap, self._basis(snap), cursor, limit)
             # r9 M1-c: the selected assessment's full-window wrong-binding records, independent of paging.
             excluded = [] if snap["selected"] is None else list(snap["selected"]["result"].get("excluded_records")
                                                                 or ())
@@ -2520,7 +2892,7 @@ class EvReadService:
         if sel is None:
             return []
         sql = ("SELECT f.id, fr.id, fr.revision_no, fr.basis_sha256, fr.claim, fr.title, fr.claim_level, "
-               "fr.lifecycle, fr.created_at, f.anchor_start, fr.limitations FROM finding_revision fr JOIN finding f "
+               "fr.lifecycle, fr.created_at, f.anchor_start, fr.limitations, fr.transition FROM finding_revision fr JOIN finding f "
                "ON f.tenant_id = fr.tenant_id AND f.site_id = fr.site_id AND f.id = fr.finding_id "
                "WHERE fr.tenant_id = :t AND fr.site_id = :s AND f.domain = 'ev_charging' "
                "AND fr.assessment_revision_id = :ar ")
@@ -2531,13 +2903,39 @@ class EvReadService:
             sql += "AND f.id = :f "
             p["f"] = finding_id
         q = self._query(snap)
+        found = c.execute(text(sql + "ORDER BY f.anchor_start, f.id"), p).all()
+        # W3-01 Run 3 q3: the selected session revision pinned by each claim's `session_id`, among the selected
+        # assessment's `session_revision_ids`; a missing or ambiguous one is a failed row selection (refused).
+        revisions = list(sel["result"].get("session_revision_ids") or ())
+        by_session: dict[str, list[Any]] = {}
+        if found and revisions:
+            for vid, session in c.execute(text(
+                    "SELECT id, session_id FROM ev_session_revision WHERE tenant_id = :t AND site_id = :s "
+                    "AND id = ANY(CAST(:ids AS uuid[]))"),
+                    {"t": snap["t"], "s": snap["s"], "ids": [str(x) for x in revisions]}).all():
+                by_session.setdefault(str(session).lower(), []).append(vid)
+        public = self._public(c) if found else None
         items = []
-        for r in c.execute(text(sql + "ORDER BY f.anchor_start, f.id"), p).all():
+        for r in found:
             claim = _ev_json(r[4]) or {}
+            pinned = by_session.get(str(claim.get("session_id")).lower(), []) if claim.get("session_id") is not None else []
+            # W3-01 r1 M3.1: only a withdrawal (lifecycle and transition NO_LONGER_SUPPORTED) whose stored session has
+            # zero matches in the selected assessment's full session set reads on the two-ID selection.
+            withdrawn_dropped = (len(pinned) == 0 and claim.get("session_id") is not None
+                                 and r[7] == "NO_LONGER_SUPPORTED" and r[11] == "NO_LONGER_SUPPORTED")
+            if len(pinned) != 1 and not withdrawn_dropped:
+                raise EvReadUnavailable("An EV Finding revision's pinned session revision cannot be read.")
+            cited = [str(x).lower() for x in c.execute(text(
+                "SELECT evidence_id FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s "
+                "AND finding_revision_id = :r"), {"t": snap["t"], "s": snap["s"], "r": r[1]}).scalars().all()]
             items.append({
                 "finding_id": _ev_plain(r[0]), "revision_id": _ev_plain(r[1]), "revision_no": r[2], "basis_sha256": r[3],
                 "session_id": claim.get("session_id"), "title": r[5], "claim_level": r[6], "lifecycle": r[7],
                 "as_of": _ev_plain(r[8]),
+                "source_provenance": public.cited_set(
+                    snap["t"], snap["s"], sorted(cited),
+                    ev_withdrawn_finding_row_selection(sel["revision_id"], r[1]) if withdrawn_dropped
+                    else ev_finding_row_selection(sel["revision_id"], pinned[0], r[1])),
                 "links": {"self": f"/api/sites/{snap['code']}/ev/findings/{_ev_plain(r[0])}{q}", "evidence": None,
                           "analysis": None, "finding": None, "financials": None},
                 "_claim": claim, "_limitations": list(_ev_json(r[10]) or ()), "_sort": (r[9], r[0])})
@@ -2576,7 +2974,7 @@ class EvReadService:
             snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
             rows = [{k: v for k, v in x.items() if k not in ("_claim", "_limitations")}
                     for x in self._findings(c, snap)]
-            items, nxt = self._page(rows, snap, body, cursor, limit)
+            items, nxt = self._page(rows, snap, self._basis(snap), cursor, limit)
             return {**body, "items": items, "next_cursor": nxt}
         return self._read(work)
 

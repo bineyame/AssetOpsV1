@@ -637,6 +637,22 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     expect(text(claim)).not.toContain("Listed by exact ID");
   });
 
+  it("W3-01 r1 M2: record and claim-rule source follow the selected block, never the pending alias", async () => {
+    const sel = { classification: "REGISTERED_SIMULATION", source_ids: [], evidence_ids: [id(11)], basis_sha256: HEX };
+    const pend = { classification: "MIXED", source_ids: [], evidence_ids: [id(11), id(12)], basis_sha256: null };
+    const withSiblings = (selected: typeof sel | null) => ({ ...STOCKED_ANALYSIS, source_provenance: pend, selected_source_provenance: selected, pending_source_provenance: pend }) as ColdAnalysisRead;
+    renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(withSiblings(sel)) });
+    await settledScreen();
+    const records = panelTitled("Accepted records behind the conclusions");
+    expect(text(records.querySelector(`[data-record-detail="${id(11)}"]`)!)).toContain("Generated test data");
+    expect(text(records.querySelector(`[data-record-detail="${id(11)}"]`)!)).not.toContain("Mixed");
+    expect(text(panelTitled("How a claim limit is set"))).not.toContain("Mixed");
+    cleanup();
+    renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(withSiblings(null)) });
+    await settledScreen();
+    expect(text(panelTitled("Accepted records behind the conclusions").querySelector(`[data-record-detail="${id(11)}"]`)!)).toContain("Source classification unknown");
+  });
+
   it("analysis: first three records, 'Show all {total}' from the full count, then only 'Show more'; closed Record and Claim details", async () => {
     const base = STOCKED_ANALYSIS.accepted_records.items[0];
     const items = [11, 12, 13, 14, 15].map((n, i) => ({ ...base, evidence_id: id(n), source_time: `2026-10-06T16:${19 + i}:00Z`, sent_at: "2026-10-06T16:19:01Z" }));

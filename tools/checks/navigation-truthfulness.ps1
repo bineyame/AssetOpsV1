@@ -717,8 +717,8 @@ function Get-OperatorRailFailures {
 
 
 # W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the unbuilt entries of the named
-# v69 in-page rows - Finding > Alternatives, Financials > Scenarios, Work >
-# Incidents and Maintenance, and (W2-03 q3, D-2026-10-18-w2-03-answers) the cold
+# v69 in-page rows - Finding > Alternatives, Financials > Scenarios (W1-F5b also listed
+# Work > Incidents and Maintenance until W4-01 made them live), and (W2-03 q3, D-2026-10-18-w2-03-answers) the cold
 # Performance > Cooling and cold Finding > Recommendation; W2-06 r7 P8 adds the EV
 # Performance > Availability and Energy / site power and EV Finding > Recommendation
 # (so Recommendation appears twice, once per Finding frame) - and the Site Findings lens chips Cost, Risks and
@@ -741,8 +741,10 @@ function Get-InPageUnavailableEntryFailures {
     $componentPath = "frontend/src/ui/UnavailableEntry.tsx"
     $dynamicOwner = "frontend/src/sites/SiteFindingEvidence.tsx"
     # W1-plus-W2 closed multiset (W2-06 r7 P8): Recommendation x 2 (cold and EV Finding
-    # frames), every other entry once.
-    $expectedTabs = @("Alternatives", "Scenarios", "Incidents", "Maintenance", "Cooling",
+    # frames), every other entry once. W4-01 (build spec "Per-panel copy and layout
+    # dry-read") removes Work > Incidents and Maintenance: both subtabs are live
+    # routes now. The rail's unavailable Incidents and Maintenance roots stay (W6).
+    $expectedTabs = @("Alternatives", "Scenarios", "Cooling",
         "Recommendation", "Recommendation", "Availability", "Energy / site power")
     $expectedChips = @("Cost", "Risks", "Opportunities")
 

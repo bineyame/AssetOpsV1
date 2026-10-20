@@ -74,11 +74,11 @@ def build_finding_read_service(database_url: str | None, demo_manifest_path: str
     `demo_manifest_path` only annotates exact matching evidence IDs (fixture or gateway case labels)."""
     from assetops_backend.analytics.finding_read import FindingReadService
 
-    from assetops_backend.evidence.composition import build_source_provenance
+    from assetops_backend.evidence.composition import build_public_provenance
 
     return FindingReadService(build_finding_store(database_url),
                               build_dispatch_read_service(database_url, demo_manifest_path),
-                              build_source_provenance(database_url))
+                              build_public_provenance(database_url))
 
 
 def build_finding_index_service(database_url: str | None, demo_manifest_path: str | None = None):
@@ -126,7 +126,9 @@ def build_cold_read_service(database_url: str):
     """W2-03: the selected cold temperature, backup-chain and cold Finding read (read-only Postgres adapter)."""
     from assetops_backend.analytics.adapters.postgres_assessment_store import ColdReadService
 
-    return ColdReadService(database_url)
+    from assetops_backend.evidence.composition import build_link_rows_reader
+
+    return ColdReadService(database_url, link_rows=build_link_rows_reader())
 
 
 def build_ev_selected_snapshot(link_rows):
@@ -144,3 +146,11 @@ def build_ev_read_service(database_url: str):
     from assetops_backend.evidence.composition import build_link_rows_reader
 
     return EvReadService(database_url, link_rows=build_link_rows_reader())
+
+
+def build_cold_ev_selection_pins():
+    """W4-01 Run 3 ruling 6: the shared W3 exact-window selection helper (`selected_windows_on`, caller's
+    connection) and its pin refusal type, for a pinned cold/EV `_snapshot` caller outside analytics."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import SelectionPinRefused, selected_windows_on
+
+    return selected_windows_on, SelectionPinRefused

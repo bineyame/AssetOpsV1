@@ -1,3 +1,78 @@
+# W4-01 phase handoff - run 10: commit 5 (Site UI) built; q8 open; review packet written (2026-10-20)
+
+Merged main (`291341c4`, `.agent` W3-01 only). **Commit 5**: `8e0f331b` (routes, views, guard, registry tags),
+`888063db` (layout fit to caps), `0e77205d` (test fix). Packet: `.agent/W4-01-review-packet.md`.
+
+## What landed
+- `frontend/src/sites/{workClient.ts,siteWorkCases.tsx,SiteWorkIncidents.tsx,SiteWorkMaintenance.tsx,w4-work-cases.css}`.
+- `shell/operatorSiteRoutes.ts` (`SITE_WORK_{INCIDENTS,MAINTENANCE}_ROUTE_PATH`, href helpers), `SiteAnalyticsFrames.tsx`
+  (`WorkSubrow`, `SiteWorkCasesFrame`), `App.tsx` routes, `ui/V69Layout.tsx` subtitles, `test/settled.ts` loading text.
+- Guard: `navigation-truthfulness.ps1` multiset minus Incidents/Maintenance; `navigation-rail-fixtures.ps1` re-anchored
+  plus two W4 cases. Registry: nine nodes `"task":"W4-01"`.
+- Tests: new `siteWorkCases.test.tsx` (4); updated the four named UI tests.
+- Evidence: `.agent/W4-01-evidence/` (`seed.py`, `capture.mjs`, `evidence.json`, PNGs, `mock-measure.json`).
+
+## Open (q8, `.agent/W4-01-pending-rulings.md`)
+- q8-1 missing-claim scan refuses the literal "Not available yet" copy (check-all 8/10). q8-2 registry panel paths.
+- After rulings: apply, rerun check-all, then the same-revision full backend suite (runs with the review).
+
+# W4-01 phase handoff - run 9: commit 4 (lists) complete; commit 5 next (2026-10-20)
+
+Merged main (q7 rulings + final dry-read). **Commit 4 `998d3330`**: Site Incident/Maintenance lists.
+
+## What landed
+
+- `work/site_index.py`: `parse_list_request` (q7-5 literals; window -> limit -> known_at -> cursor), `select(rx,...)`
+  (all eligible cases at fixed K before paging; B1 rows + maintenance extras; Q8 fences; B8 `work-selection/1`
+  token; full-set Q11 provenance with q7-4 guard), `WorkIndexService.read` (cursor `{v,tenant_id,site_id,kind,from,
+  to,known_at,selection_token,after}`, r4 keyset, 409 `WORK_BASIS_CHANGED` on scope/cutoff/basis change).
+- `work/adapters/postgres_work_read.py`: `_ReadTx.site_name`, `eligible_cases`, `action_window`; `link_selections`
+  rows add `lineage`, `origin_finding_id`, `origin_finding_revision_id`; `LinkReadPorts.action_window`
+  (`build_action_store(None).site_window_on`, wired in `work/composition.py`).
+- `work/service.py`: `case_basis`, `provenance_dto`, `missing_lineage` (case_provenance unchanged in output).
+- `work/link_coverage.py:coverage_of`; `work/model.py` INVALID_WINDOW/LIMIT/CURSOR, WORK_BASIS_CHANGED,
+  `WorkRefused(code, message=None)`, `SCHEMA_INDEX`.
+- `actions/site_index.py`: `window_scope`, `index_token` factored out of `read()` (behavior-preserving).
+- `work_api.py`: `GET /work/incidents`, `GET /work/maintenance` before `/work/cases/{id}`; list refusals add
+  `rows:null,total_count:null`; `lists=`/`access_basis=` router params. `main.py` passes `build_work_index_service`.
+- Tests: new `test_w401_site_indexes_postgres.py` (5 nodes, runner tests before the `chain` test);
+  `test_w401_work_api.py::test_list_refusal_has_null_rows_and_total`.
+
+## Readings taken (none blocks; flag in review)
+
+1. Action link label `Action {first 8 UUID chars}` (B1 names none); href = W1 `selected_action_links(..)["selected"]`
+   (`/sites/{code}/actions/{id}?event_id={event}`); Finding href `/sites/{code}/findings/{id}?revision_id={rev}`.
+   Both null when lineage is missing at K.
+2. Fence `state` inside the token is the B9 link state without HISTORICAL; status HISTORICAL only when the query
+   gives an explicit `known_at < read_at` (else an omitted page-two K from the cursor would change the token).
+3. A lineage-valid pin whose reduced state is UNKNOWN (e.g. dispatch day unavailable) gets a null token.
+4. `wce1-` basis `state` = the pinned snapshot's raw `state` (q6 "come from that pinned snapshot").
+5. Zero-case list provenance has `basis_sha256: null` (shared DTO: no selected IDs); still UNKNOWN/EMPTY_CITATION_SET.
+6. Wire times use six-digit `m.iso` (as detail, q4 r7), not the literal example's no-fraction form.
+7. Row `recorded_at` = selected latest revision's `recorded_at` (dry-read).
+8. A cursor K later than the new `read_at` is 409; explicit future `known_at` is 422 before cursor checks.
+9. A case with no revision at K is not eligible (unreachable under the writer).
+10. `linked_selection_fences` are deduplicated across cases and not on the wire (literal body has none); tests read
+    them through `site_index.select`. Token `access_basis` = `finding_api.ACCESS_BASIS`.
+11. Missing lineage is unreachable under q4-2; tests reach it by a TEST-SCOPED monkeypatch of
+    `postgres_work_store._Tx.finding_pairs_in_scope` (only the cutoff), pending by a TEST-SCOPED dispatch reselection.
+
+## Checks (private `w401g_test`, dropped after)
+
+- On `998d3330`: `test_w401_{site_indexes_postgres,work_api,work_read_postgres,work_service_postgres}.py` +
+  `test_s6_site_action_index{,_postgres}.py`: 45 passed (273 s).
+- `tools/check-all.ps1` on `998d3330`: all 10 guards passed.
+
+## Commit 5 resume point
+
+Build per spec "Commit 5 implementer dry-read" and B10/S19-S31: `frontend/src/sites/{SiteWorkIncidents,
+SiteWorkMaintenance,workClient}.tsx/ts`, `shell/operatorSiteRoutes.ts` (two routes + href helpers),
+`shell/SiteAnalyticsFrames.tsx:1013-1014` subrow links, navigation guard/multiset updates, the four named UI test
+updates and `tools/checks/navigation-rail-fixtures.ps1`. Client: `GET /api/sites/{code}/work/{incidents|maintenance}
+?from&to&limit=5[&known_at][&cursor]`; bind response `known_at` + `next_cursor` across pages; 409 -> first-page
+reload. Stocked capture via the private harness (`W401_FIXTURE_SERVICE_PRINCIPAL_ID`, q3-10). Then registry paths,
+captures at 1440/390, one same-revision full backend suite, independent review.
+
 # W4-01 phase handoff - run 8: stopped at q7 questions; commit 4 NOT started (2026-10-20)
 
 Merged main (q5 + q6 rulings). Surveyed commit-4 seams against q5/q6 and stopped on five open questions,

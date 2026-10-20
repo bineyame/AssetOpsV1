@@ -26,10 +26,13 @@ if URL:
     from assetops_backend.analytics.dispatch_read import DispatchReadService
     from assetops_backend.analytics.finding_read import FindingReadService
     from assetops_backend.finding_api import build_finding_router
+    from assetops_backend.evidence.composition import build_public_provenance
+    from assetops_backend.evidence.public_provenance import basis_sha256
 
 
-def client_for(runner: "CaseRunner", gate_open: bool = True) -> "TestClient":
-    reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)))
+def client_for(runner: "CaseRunner", gate_open: bool = True, provenance=None) -> "TestClient":
+    reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)),
+                               provenance)
     scope = {"KOBO-001": ("KOBO-001", runner.tenant, runner.site)}
     app = FastAPI()
     app.include_router(build_finding_router(reads, scope.get, gate=lambda code, t, s: (
@@ -79,6 +82,7 @@ class TestFindingRead:
             run_case(runner, case)
         rows = runner.reload()
         client = client_for(runner)
+        public = client_for(runner, provenance=build_public_provenance(URL))
         cites = {}
         for c in rows["assessments"]:
             cites.setdefault(str(c["finding_revision_id"]), []).append(c)
@@ -106,6 +110,16 @@ class TestFindingRead:
                                                               body["revision"]["currentness"])
             assert "knowledge_at" not in body["selection"] and "no arbitrary" in body["selection"]["replay"]
             assert body["links"]["canonical"] == f"/sites/KOBO-001/findings/{f['id']}"
+            # W3-01 Run 3 q3: unwired keeps the fail-closed W1 shape; the composed public resolver adds the public
+            # keys to the W1 fields, digesting the selected `{finding_revision.id}` and its exact citations.
+            unwired = body["source_provenance"]
+            assert unwired["state"] == "UNKNOWN" and unwired["reasons"][0]["code"] == "PROVENANCE_NOT_WIRED"
+            assert not ({"classification", "evidence_ids", "basis_sha256", "detail"} & set(unwired))
+            sp = get(public, f["id"])["source_provenance"]
+            assert set(unwired) - {"reasons"} <= set(sp) and sp["classification"] == sp["state"]
+            assert sp["finding_revision_id"] == str(stored[-1]["id"])
+            assert sp["evidence_ids"] == sorted(cited) == sorted(sp["accepted_evidence_ids"])
+            assert sp["basis_sha256"] == basis_sha256(runner.tenant, runner.site, [stored[-1]["id"]], sorted(cited))
 
         # F04: revision 1 stays pinned after late earlier acceptance; revision 2 selects a new S3 revision.
         f04 = by_anchor(rows, "2026-10-13T08:30:00Z")

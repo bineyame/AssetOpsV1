@@ -19,6 +19,7 @@ import {
 } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry, UnavailableTab } from "../ui/UnavailableEntry";
 import { coldWindowSearch } from "./coldAssessmentClient";
+import { selectedSourceBlock } from "./sourceProvenance";
 import { classificationWord, lifecycleWord } from "./coldAssessmentWords";
 import { dayHm, hm } from "./coldFormat";
 import type {
@@ -155,10 +156,15 @@ function historicalStamp(env: EvEnvelope): string | null {
 }
 
 function ProvenanceBadge({ env }: { env: EvEnvelope }) {
-  const simulated = env.source_provenance.classification === "REGISTERED_SIMULATION";
+  const sel = selectedSourceBlock(env);
+  const simulated = sel?.classification === "REGISTERED_SIMULATION";
+  const pending = env.currentness.state === "PENDING_RECOMPUTE" ? (env.pending_source_provenance ?? null) : null;
   return (
     <>
-      <Badge tone="provenance">{classificationWord(env.source_provenance.classification)}</Badge>
+      {sel === null ? null : <Badge tone="provenance">{classificationWord(sel.classification)}</Badge>}
+      {pending === null ? null : (
+        <span className="ev-strip__note" data-ev-pending-source>{`Current accepted evidence source: ${classificationWord(pending.classification)}`}</span>
+      )}
       {simulated ? <span className="ev-strip__note" data-ev-provenance-note>{EV_COPY.simulation}</span> : null}
     </>
   );
@@ -321,7 +327,7 @@ function sessionReferences(read: EvSessionsRead) {
       { label: `Row ${i + 1} · revision ID`, value: s.revision_id },
       { label: `Row ${i + 1} · connector asset ID`, value: s.connector_asset_id },
     ]),
-    { label: "Assessment basis (SHA-256)", value: read.source_provenance.basis_sha256 },
+    { label: "Selected source basis (SHA-256)", value: selectedSourceBlock(read)?.basis_sha256 ?? "Not recorded" },
   ];
 }
 
@@ -360,7 +366,7 @@ function SourceReasons({ read }: { read: EvSessionsRead }) {
     <>
       {reasons.map((r, i) => (
         <p key={`${r.code}-${i}`} className="ev-source-reason" data-ev-source-reason={r.code}>
-          {`Source reason: ${REASON_SENTENCES[r.code] ?? r.code} Accepted record IDs: ${r.accepted_evidence_ids.length ? r.accepted_evidence_ids.join(", ") : "None"}.`}
+          {`${read.currentness.state === "PENDING_RECOMPUTE" ? "Current accepted evidence source reason" : "Source reason"}: ${REASON_SENTENCES[r.code] ?? r.code} Accepted record IDs: ${r.accepted_evidence_ids.length ? r.accepted_evidence_ids.join(", ") : "None"}.`}
         </p>
       ))}
     </>
@@ -370,7 +376,7 @@ function SourceReasons({ read }: { read: EvSessionsRead }) {
 function sourceDetail(read: EvSessionsRead) {
   const p = read.source_provenance;
   return [
-    { label: "Source class", value: p.classification },
+    { label: read.currentness.state === "PENDING_RECOMPUTE" ? "Current accepted evidence source" : "Source class", value: p.classification },
     ...p.evidence_ids.map((v, i) => ({ label: `Accepted record ${i + 1}`, value: v })),
     ...p.source_ids.map((v, i) => ({ label: `Source ${i + 1}`, value: v })),
   ];
@@ -670,7 +676,7 @@ function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; ses
             {[
               { label: "Finding ID", value: finding.finding_id },
               { label: "Finding revision ID", value: finding.revision_id },
-              { label: "Assessment basis (SHA-256)", value: finding.source_provenance.basis_sha256 },
+              { label: "Finding source basis (SHA-256)", value: finding.source_provenance.basis_sha256 },
               { label: "Lifecycle", value: finding.lifecycle },
               { label: "Selected cutoff", value: finding.window.known_at },
               ...finding.limitations.map((l, i) => ({ label: `Stored limitation ${i + 1}`, value: l })),

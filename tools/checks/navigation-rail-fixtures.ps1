@@ -130,7 +130,12 @@ function Invoke-NavigationRailFixturesCheck {
             @{ Name = "the entry becomes a disabled button"; Expect = "carries a button";
                Modules = (Set-ModuleLines $modules $component '<li$' '<button') },
             @{ Name = "an undeclared unbuilt tab is added"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Maintenance" />' '<UnavailableTab label="Maintenance" /><UnavailableTab label="Reports" />') },
+               Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '<UnavailableTab label="Scenarios" /><UnavailableTab label="Reports" />') },
+            # W4-01: Work > Incidents and Maintenance are live; reintroducing either as unavailable text fails.
+            @{ Name = "W4-01: Incidents comes back as an unavailable Work subtab"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '<UnavailableTab label="Scenarios" /><UnavailableTab label="Incidents" />') },
+            @{ Name = "W4-01: Maintenance comes back as an unavailable Work subtab"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '<UnavailableTab label="Scenarios" /><UnavailableTab label="Maintenance" />') },
             @{ Name = "a declared unbuilt tab is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '') },
             @{ Name = "Alternatives loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";

@@ -1,0 +1,420 @@
+[
+ {
+  "screen": "sitework-incidents",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Scoped to Kobo · 0 incidentsSame records and states as the global Incidents list",
+    "top": 354,
+    "h": 37,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Incidents at this site",
+    "top": 409,
+    "h": 316,
+    "w": 1161
+   },
+   {
+    "kind": "notice",
+    "title": "Opening a record moves you to its own area; the breadcrumb keeps this site. New ",
+    "top": 742,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Work",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "p: Site-scoped work · incidents",
+    "top": 206,
+    "h": 20,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: Actions (2)Incidents (0)Maintenance (0)",
+    "top": 301,
+    "h": 35,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 802,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "sitework-incidents",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1158,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Scoped to Kobo · 0 incidentsSame records and states as the global Incidents list",
+    "top": 523,
+    "h": 91,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Incidents at this site",
+    "top": 632,
+    "h": 336,
+    "w": 360
+   },
+   {
+    "kind": "notice",
+    "title": "Opening a record moves you to its own area; the breadcrumb keeps this site. New ",
+    "top": 985,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Work",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "p: Site-scoped work · incidents",
+    "top": 375,
+    "h": 20,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 413,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: Actions (2)Incidents (0)Maintenance (0)",
+    "top": 470,
+    "h": 35,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1082,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "sitework-maintenance",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Scoped to Kobo · 0 maintenanceSame records and states as the global Maintenance ",
+    "top": 354,
+    "h": 37,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Maintenance at this site",
+    "top": 409,
+    "h": 296,
+    "w": 1161
+   },
+   {
+    "kind": "notice",
+    "title": "Opening a record moves you to its own area; the breadcrumb keeps this site. New ",
+    "top": 722,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Work",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "p: Site-scoped work · maintenance",
+    "top": 206,
+    "h": 20,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: Actions (2)Incidents (0)Maintenance (0)",
+    "top": 301,
+    "h": 35,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 783,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "sitework-maintenance",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1138,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Scoped to Kobo · 0 maintenanceSame records and states as the global Maintenance ",
+    "top": 523,
+    "h": 91,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Maintenance at this site",
+    "top": 632,
+    "h": 316,
+    "w": 360
+   },
+   {
+    "kind": "notice",
+    "title": "Opening a record moves you to its own area; the breadcrumb keeps this site. New ",
+    "top": 965,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Work",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "p: Site-scoped work · maintenance",
+    "top": 375,
+    "h": 20,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 413,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: Actions (2)Incidents (0)Maintenance (0)",
+    "top": 470,
+    "h": 35,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1062,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ }
+]

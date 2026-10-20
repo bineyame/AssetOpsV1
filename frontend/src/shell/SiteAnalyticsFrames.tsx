@@ -1,7 +1,7 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
-import { useCallback, useState, type ReactNode } from "react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { FindingsIndex, SiteFindings } from "../sites/FindingsIndexes";
@@ -13,6 +13,10 @@ import {
   type ActionIndexScope,
 } from "../sites/actionIndexClient";
 import { SiteWorkActions } from "../sites/SiteWorkActions";
+import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
+import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
+import type { WorkTrail } from "../sites/siteWorkCases";
+import { createWorkClient, defaultWorkWindow, workPageQuery, type WorkClient, type WorkKind, type WorkScope } from "../sites/workClient";
 import {
   createFindingIndexClient,
   FINDING_INDEX_DOMAIN,
@@ -66,6 +70,8 @@ import {
   siteFoundationViewHref,
   sitePerformanceHref,
   siteWorkHref,
+  siteWorkIncidentsHref,
+  siteWorkMaintenanceHref,
   type FindingChildView,
   type FindingTab,
 } from "./operatorSiteRoutes";
@@ -957,12 +963,13 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
  * S6-03 (`sitework:1#a`): Site > Work > Actions. The window lives in the URL
  * (`?from=&to=&limit=&cursor=`), so reload, back and a shared link reopen the
  * same window and page. Without `from` and `to` the page asks for a window and
- * reads nothing. Actions is Work's only list in this build; W1-F5b shows the mock's
- * Incidents and Maintenance as "Not available yet" text in the row, never links or routes.
+ * reads nothing. W4-01 makes the mock's Incidents and Maintenance subtabs live
+ * (`/work/incidents`, `/work/maintenance`); the row stays one row, Actions first.
  */
 export const SITE_WORK_HEADING_ID = "site-work-heading";
 export const SITE_WORK_SECTIONS_LABEL = "Work lists";
 const DEFAULT_ACTION_INDEX = createActionIndexClient();
+const DEFAULT_WORK_CLIENT = createWorkClient();
 
 function workScopeFromQuery(params: URLSearchParams): ActionIndexScope | null {
   const from = params.get("from");
@@ -981,10 +988,12 @@ export function SiteWorkFrame({
   detail,
   sitesPath,
   actionIndex = DEFAULT_ACTION_INDEX,
+  workClient = DEFAULT_WORK_CLIENT,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   actionIndex?: ActionIndexClient;
+  workClient?: WorkClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -1003,17 +1012,13 @@ export function SiteWorkFrame({
           />
           <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Work" />
-          <nav className="site-tabs site-subtabs" aria-label={SITE_WORK_SECTIONS_LABEL}>
-            <ol className="site-tabs__list">
-              <li className="site-tabs__item">
-                <Link className="site-tabs__link" to={siteWorkHref(site.site_id)} aria-current="page">
-                  Actions
-                </Link>
-              </li>
-              <UnavailableTab label="Incidents" />
-              <UnavailableTab label="Maintenance" />
-            </ol>
-          </nav>
+          <WorkSubrow
+            siteId={site.site_id}
+            current="actions"
+            window={scope ? { from: scope.from, to: scope.to } : null}
+            actionIndex={actionIndex}
+            workClient={workClient}
+          />
           <SiteWorkActions
             siteId={site.site_id}
             siteName={site.display_name}
@@ -1027,6 +1032,168 @@ export function SiteWorkFrame({
               finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId),
             }}
             onScope={(next) => navigate(siteWorkHref(site.site_id, actionIndexQuery(next)))}
+          />
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+/** The Work subrow (v69 `tabs subtabs`): Actions, Incidents, Maintenance, all live, the current one marked. */
+const WORK_SUBTABS: { key: "actions" | WorkKind; label: string; href: (siteId: string) => string }[] = [
+  { key: "actions", label: "Actions", href: (siteId) => siteWorkHref(siteId) },
+  { key: "incidents", label: "Incidents", href: (siteId) => siteWorkIncidentsHref(siteId) },
+  { key: "maintenance", label: "Maintenance", href: (siteId) => siteWorkMaintenanceHref(siteId) },
+];
+
+type WorkCounts = { actions: number | null; incidents: number | null; maintenance: number | null };
+const NO_COUNTS: WorkCounts = { actions: null, incidents: null, maintenance: null };
+const fullCount = (value: number): number | null => (Number.isFinite(value) && value >= 0 ? value : null);
+
+/**
+ * The subtab counts (v69 `scope-count`): the full `total_count` of each list for
+ * this Site and window, one row requested, no cursor or cutoff. Each read is
+ * independent; anything but a successful count stays null (shown as a dash).
+ * No window selected (the Actions choose-window state) reads nothing.
+ */
+function useWorkCounts(
+  siteId: string,
+  window: { from: string; to: string } | null,
+  actionIndex: ActionIndexClient,
+  workClient: WorkClient,
+): WorkCounts {
+  const [state, setState] = useState<{ key: string; counts: WorkCounts }>({ key: "", counts: NO_COUNTS });
+  const from = window?.from ?? null;
+  const to = window?.to ?? null;
+  const key = from && to ? `${siteId}|${from}|${to}` : "";
+  useEffect(() => {
+    if (!from || !to) return;
+    let live = true;
+    const put = (part: Partial<WorkCounts>) => {
+      if (live) setState((prev) => (prev.key === key ? { key, counts: { ...prev.counts, ...part } } : { key, counts: { ...NO_COUNTS, ...part } }));
+    };
+    actionIndex.getActionIndex(siteId, { from, to, limit: 1, cursor: null }).then(
+      (r) => put({ actions: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
+      () => put({ actions: null }),
+    );
+    (["incidents", "maintenance"] as const).forEach((kind) => {
+      workClient.getWorkIndex(siteId, kind, { from, to, limit: 1, knownAt: null, cursor: null }).then(
+        (r) => put({ [kind]: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
+        () => put({ [kind]: null }),
+      );
+    });
+    return () => {
+      live = false;
+    };
+  }, [siteId, from, to, key, actionIndex, workClient]);
+  // Counts belong to one Site and window: a stale key reads as unknown at once.
+  return state.key === key && key !== "" ? state.counts : NO_COUNTS;
+}
+
+function WorkSubrow({
+  siteId,
+  current,
+  window,
+  actionIndex,
+  workClient,
+}: {
+  siteId: string;
+  current: "actions" | WorkKind;
+  window: { from: string; to: string } | null;
+  actionIndex: ActionIndexClient;
+  workClient: WorkClient;
+}) {
+  const counts = useWorkCounts(siteId, window, actionIndex, workClient);
+  return (
+    <nav className="site-tabs site-subtabs" aria-label={SITE_WORK_SECTIONS_LABEL}>
+      <ol className="site-tabs__list">
+        {WORK_SUBTABS.map((tab) => (
+          <li className="site-tabs__item" key={tab.key}>
+            <Link
+              className="site-tabs__link"
+              to={tab.href(siteId)}
+              aria-current={tab.key === current ? "page" : undefined}
+            >
+              {`${tab.label} (${counts[tab.key] ?? "—"})`}
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
+/**
+ * W4-01 (`sitework-incidents`, `sitework-maintenance`): Site > Work >
+ * Incidents | Maintenance. The window, fixed cutoff and server cursor live in
+ * the URL (`?from=&to=&known_at=&cursor=`); the earlier pages' cursors ride in
+ * history state so Previous survives a reload. Without a window the first read
+ * is the seven complete UTC days ending today 00:00 UTC (B10).
+ */
+export const SITE_WORK_CASES_HEADING_ID = "site-work-cases-heading";
+
+function workCasesScope(params: URLSearchParams): WorkScope {
+  const from = params.get("from");
+  const to = params.get("to");
+  const window = from && to ? { from, to } : defaultWorkWindow();
+  return { ...window, knownAt: params.get("known_at"), cursor: params.get("cursor") };
+}
+
+function workTrail(state: unknown): WorkTrail {
+  const trail = (state as { workTrail?: unknown } | null)?.workTrail;
+  return Array.isArray(trail) && trail.every((c) => c === null || typeof c === "string") ? (trail as WorkTrail) : [];
+}
+
+export function SiteWorkCasesFrame({
+  detail,
+  sitesPath,
+  kind,
+  workClient = DEFAULT_WORK_CLIENT,
+  actionIndex = DEFAULT_ACTION_INDEX,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  kind: WorkKind;
+  workClient?: WorkClient;
+  actionIndex?: ActionIndexClient;
+}) {
+  const { siteId } = useParams<{ siteId: string }>();
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const scope = workCasesScope(params);
+  const trail = workTrail(location.state);
+  const hrefFor = kind === "incidents" ? siteWorkIncidentsHref : siteWorkMaintenanceHref;
+  const Body = kind === "incidents" ? SiteWorkIncidents : SiteWorkMaintenance;
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Work" headingId={SITE_WORK_CASES_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_WORK_CASES_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
+              { label: "Work" },
+            ]}
+          />
+          <ChangesWorkPageHeader site={site} screen={`sitework-${kind}`} headingId={SITE_WORK_CASES_HEADING_ID} />
+          <OperatorSiteTabs siteId={siteId} current="Work" />
+          <WorkSubrow
+            siteId={site.site_id}
+            current={kind}
+            window={{ from: scope.from, to: scope.to }}
+            actionIndex={actionIndex}
+            workClient={workClient}
+          />
+          <Body
+            siteId={site.site_id}
+            client={workClient}
+            scope={scope}
+            trail={trail}
+            links={{ finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId) }}
+            onScope={(next, nextTrail) =>
+              navigate(hrefFor(site.site_id, workPageQuery(next)), { state: { workTrail: nextTrail } })
+            }
           />
         </main>
       )}
