@@ -418,3 +418,27 @@ Commits `013cdb38`, `483973f9`:
 - Shell tests: `shell/__tests__/w301EstateShellRoutes.test.tsx`, 3 named tests. Rail/route label lists are updated in 9 existing test files. The t028 global-index test is retargeted to the estate root plus the legacy detail routes, because the `/findings` element was replaced by ruling.
 Checks at `483973f9`: frontend full 94 files / 2370 passed; `npm run build` (tsc + vite) ok; registry checker exit 0; ledger valid; check-all 11/11. Estate api/coverage/golden/index/index-ev + money helpers on `w301y_test`: 46 passed in 1026 s, DB dropped. No full backend suite.
 **Next:** commit-3 review, then commit 4 captures. **Branch released.**
+
+## Commit-3 fix round (Run 13 q13 + c3r1 L1-L4/M1)
+
+Fix commit on top of `75df4089` (main merged clean). All tests in `frontend/src/estate/__tests__/estateRoots.test.tsx`.
+
+| Item | Fix | Test |
+| --- | --- | --- |
+| q13-1 `as_of` | Already built (`8c7be299`); golden keeps `as_of` | estate backend set (40 passed) |
+| q13-2 five chips | `findingIndex.tsx` `STATE_CHIPS`, no body input, no counts | `test_five_mock_panels_and_supported_links`, `test_every_state_and_empty_string` (empty filtered read) |
+| q13-3 finding links | Row links `links.finding` only for mini-grid Sites; cold/EV title is inert `<span>`; notice = `FINDINGS_NOTICE` + linked/unlinked sentence; ledger `supported_claim`/`interaction` (5 occurrences) reworded | `test_cold_ev_titles_inert_and_notice` |
+| q13-7 Verified note | `NO_VERIFIED_OUTCOME` when complete and `verified_in_30_days == 0`, independent of rows; partial has none | `test_every_state_and_empty_string` |
+| q13-4,5,6,8 | Confirmed as built, no change | existing + M1 assertions |
+| L1 Actions Site href | `actionIndex.tsx` Site cell links `siteDetailHref(site_code)`, code kept as secondary text | `test_five_mock_panels_and_supported_links` (mini/cold `COLD 7/a`/EV rows) |
+| L2 date bar | `estateShared.tsx cutoffBarText` | `test_date_bar_cutoff_copy_by_state` |
+| M1 strings | all listed strings asserted | `test_every_state_and_empty_string` |
+| L3 | `FindingsFrame`, `FINDINGS_HEADING_ID`, unused import deleted | tsc clean |
+| L4 | Action/source/Site hrefs and no Incident/Maintenance link asserted | `test_five_mock_panels_and_supported_links` |
+
+Reading to confirm: the wire has no row domain, so mini-grid is derived from the existing coverage entry
+(`coverage.sites[].match_state !== "NOT_APPLICABLE"`; cold/EV report NOT_APPLICABLE per `estate/coverage.py`). A Site
+absent from coverage is never linked. Mutation proof: Actions Site href and the continuation suffix each reverted, tests failed.
+
+Evidence: frontend 94 files / 2373 passed; tsc clean; build ok; check-all 11/11; estate backend (api, coverage,
+golden, index, index_ev) on `w301fa_test`: 40 passed (12m16s); DB dropped.
