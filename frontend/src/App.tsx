@@ -43,6 +43,11 @@ import {
   SITES_PATH,
   SITE_DETAIL_ROUTE_PATH,
   SITE_EVIDENCE_ROUTE_PATH,
+  SITE_EV_ANALYSIS_ROUTE_PATH,
+  SITE_EV_ASSUMPTIONS_ROUTE_PATH,
+  SITE_EV_EVIDENCE_ROUTE_PATH,
+  SITE_EV_FINANCIALS_ROUTE_PATH,
+  SITE_EV_ROUTE_PATH,
   SITE_FOUNDATION_CHANGE_ROUTE_PATH,
   SITE_FOUNDATION_CHANGES_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
@@ -72,6 +77,8 @@ import { createColdFoundationClient, type ColdFoundationClient } from "./sites/c
 import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFoundationClient";
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
+import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
+import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import {
   createSiteEvidenceClient,
@@ -106,6 +113,7 @@ const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultColdSite = createColdSiteClient();
+const defaultEvSite = createEvSiteClient();
 
 /**
  * Route table.
@@ -177,6 +185,8 @@ export interface AppProps {
   coldAssessment?: ColdAssessmentClient;
   /** W2-06: the selected EV session reads, used for an EV_CHARGING Site's Performance/Sessions and Finding routes. */
   evAssessment?: EvAssessmentClient;
+  /** W2-07: the five EV Site reads, used for an EV_CHARGING Site's `/ev` routes. */
+  evSite?: EvSiteClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
   coldSite?: ColdSiteClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
@@ -207,6 +217,7 @@ export function App({
   coldAssessment = defaultColdAssessment,
   evAssessment = defaultEvAssessment,
   coldSite = defaultColdSite,
+  evSite = defaultEvSite,
   siteTemplateLineage,
   now,
   coldScenarios,
@@ -285,6 +296,17 @@ export function App({
             path={SITE_FOUNDATION_CHANGE_ROUTE_PATH}
             element={<SiteFoundationChangeFrame detail={siteDetail} sitesPath={SITES_PATH} />}
           />
+          {(
+            [
+              [SITE_EV_ROUTE_PATH, "overview"],
+              [SITE_EV_EVIDENCE_ROUTE_PATH, "evidence"],
+              [SITE_EV_ANALYSIS_ROUTE_PATH, "analysis"],
+              [SITE_EV_FINANCIALS_ROUTE_PATH, "financials"],
+              [SITE_EV_ASSUMPTIONS_ROUTE_PATH, "assumptions"],
+            ] as const
+          ).map(([path, view]) => (
+            <Route key={path} path={path} element={<SiteEvFrame detail={siteDetail} sitesPath={SITES_PATH} view={view} evSite={evSite} />} />
+          ))}
           <Route
             path={SITE_EVIDENCE_ROUTE_PATH}
             element={

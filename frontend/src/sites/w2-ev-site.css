@@ -1,0 +1,186 @@
+/*
+ * W2-07 commits 4-5: the five EV Site screens (ev, ev-evidence, ev-evidence-analysis, ev-financials,
+ * ev-assumptions), scoped to `[data-ev-site-view]`. They reuse the shared W1-F1 frame, panel, table, card and
+ * attention primitives; this file adds the closure section 4 fixed column widths at desktop, the 390 px minimum
+ * table widths with horizontal scroll, the 1.8:1 pairs, the chart marks and the route-scoped chip tones.
+ */
+
+[data-ev-site-view] .ev-site-pair {
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+}
+
+[data-ev-site-view] .ev-site-chip,
+[data-ev-site-view] .ev-site-nowrap,
+[data-ev-site-view] .ev-site-amount {
+  white-space: nowrap;
+}
+
+[data-ev-site-view] .ev-site-strip-note {
+  margin-left: 6px;
+}
+
+[data-ev-site-view] .ev-site-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted, #5f6b7a);
+}
+
+[data-ev-site-view] .ev-site-line {
+  display: block;
+}
+
+[data-ev-site-view] .ev-site-noop {
+  color: var(--text-muted, #5f6b7a);
+}
+
+[data-ev-site-view] .ev-site-link {
+  margin-top: 10px;
+}
+
+[data-ev-site-view] .ev-site-list {
+  margin: 0;
+  padding-left: 18px;
+  overflow-wrap: anywhere;
+}
+
+[data-ev-site-view] .ev-site-list li + li {
+  margin-top: 4px;
+}
+
+[data-ev-site-view] .ev-site-group + .ev-site-group {
+  margin-top: 10px;
+}
+
+[data-ev-site-view] .data-table th,
+[data-ev-site-view] .data-table td {
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: normal;
+  vertical-align: top;
+}
+
+/* Chart: accepted intervals only; no line joins a gap. */
+[data-ev-site-view] .ev-site-chart {
+  margin: 0;
+}
+
+[data-ev-site-view] .ev-site-chart svg {
+  display: block;
+  width: 100%;
+  height: 190px;
+}
+
+[data-ev-site-view] .ev-site-chart__axis {
+  stroke: var(--border, #d5dae0);
+  stroke-width: 1;
+}
+
+[data-ev-site-view] .ev-site-chart__tick {
+  font-size: 10px;
+  fill: var(--text-muted, #5f6b7a);
+}
+
+[data-ev-site-view] .ev-site-chart__energy {
+  fill: #7fb6a2;
+}
+
+[data-ev-site-view] .ev-site-chart__import {
+  stroke: #2f5f9e;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+[data-ev-site-view] .ev-site-chart__limit {
+  stroke: #a13838;
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+
+[data-ev-site-view] .ev-site-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-muted, #5f6b7a);
+}
+
+[data-ev-site-view] .ev-site-legend__item::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 3px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+[data-ev-site-view] .ev-site-legend__item--energy::before { background: #7fb6a2; height: 8px; }
+[data-ev-site-view] .ev-site-legend__item--import::before { background: #2f5f9e; }
+[data-ev-site-view] .ev-site-legend__item--limit::before { border-top: 1px dashed #a13838; }
+
+/* Closure section 4 fixed widths at desktop. */
+@media (min-width: 641px) {
+  [data-ev-site-view] .data-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-conclude-heading"] :is(th, td):nth-child(1) { width: 19%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-conclude-heading"] :is(th, td):nth-child(2) { width: 13%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-conclude-heading"] :is(th, td):nth-child(3) { width: 27%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-conclude-heading"] :is(th, td):nth-child(4) { width: 25%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-conclude-heading"] :is(th, td):nth-child(5) { width: 16%; }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-sources-heading"] :is(th, td):nth-child(1) { width: 26%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-sources-heading"] :is(th, td):nth-child(2) { width: 16%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-sources-heading"] :is(th, td):nth-child(3) { width: 16%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-sources-heading"] :is(th, td):nth-child(4) { width: 23%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-sources-heading"] :is(th, td):nth-child(5) { width: 19%; }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-records-heading"] :is(th, td):nth-child(1) { width: 28%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-records-heading"] :is(th, td):nth-child(2) { width: 9%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-records-heading"] :is(th, td):nth-child(3) { width: 17%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-records-heading"] :is(th, td):nth-child(4) { width: 14%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-records-heading"] :is(th, td):nth-child(5) { width: 16%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-records-heading"] :is(th, td):nth-child(6) { width: 16%; }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-bridge-heading"] :is(th, td):nth-child(1) { width: 23%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-bridge-heading"] :is(th, td):nth-child(2) { width: 18%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-bridge-heading"] :is(th, td):nth-child(3) { width: 17%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-bridge-heading"] :is(th, td):nth-child(4) { width: 12%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-bridge-heading"] :is(th, td):nth-child(5) { width: 13%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-bridge-heading"] :is(th, td):nth-child(6) { width: 17%; }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-fin-assumptions-heading"] :is(th, td):nth-child(1) { width: 32%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-fin-assumptions-heading"] :is(th, td):nth-child(2) { width: 25%; }
+  [data-ev-site-view] table[aria-labelledby="ev-site-fin-assumptions-heading"] :is(th, td):nth-child(3) { width: 43%; }
+}
+
+/* 390 px: pairs stack (shared rule) and tables scroll in their own region at readable minimum widths. */
+@media (max-width: 640px) {
+  [data-ev-site-view] .ev-site-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-conclude-heading"],
+  [data-ev-site-view] table[aria-labelledby="ev-site-sources-heading"] {
+    min-width: 640px;
+  }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-records-heading"],
+  [data-ev-site-view] table[aria-labelledby="ev-site-bridge-heading"] {
+    min-width: 900px;
+  }
+
+  [data-ev-site-view] table[aria-labelledby="ev-site-fin-assumptions-heading"] {
+    min-width: 600px;
+  }
+}
+
+/* W2-04 Run 9 M5 chip tones with EV values (the word stays visible; neutral adds no override). */
+[data-ev-site-view] .badge.ev-tone--green { background: #e3f4ed; color: #166b50; border-color: #b5dfcd; }
+[data-ev-site-view] .badge.ev-tone--amber { background: #fff1d9; color: #8e580c; border-color: #c9a24a; }
+[data-ev-site-view] .badge.ev-tone--red { background: #fcebea; color: #a13838; border-color: #d26565; }
