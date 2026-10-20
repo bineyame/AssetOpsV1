@@ -23,6 +23,7 @@ class WindowSnapshot:
 
     def __init__(self, probe_fresh: bool = True, jobs: tuple[str, ...] = ()) -> None:
         self.read_at, self.historical, self.continuation = K, False, False
+        self.basis_historical = False
         self.probe_fresh, self.jobs = probe_fresh, list(jobs)
 
     def evidence_cutoff(self, t, s, k):

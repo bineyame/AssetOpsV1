@@ -72,6 +72,15 @@ def _intersects(start: datetime | None, end: datetime | None, from_: datetime, t
 # --- mini-grid --------------------------------------------------------------------------------------------
 
 def _mini_grid(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: datetime) -> dict[str, Any]:
+    """c2 r1 M1: gates, rows and arrays come from page one's basis mode; a continuation whose cutoff is earlier than
+    its read time reports the HISTORICAL response label (never admitting rows its live basis refused)."""
+    out = _mini_grid_basis(snapshot, t, s, from_, to, k)
+    if snapshot.historical and not snapshot.basis_historical and out["state"] != UNKNOWN:
+        out["state"] = HISTORICAL
+    return out
+
+
+def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: datetime) -> dict[str, Any]:
     historical = snapshot.basis_historical
     watermark = snapshot.evidence_cutoff(t, s, k)
     days = snapshot.dispatch_days(t, s, from_, to, k)
@@ -219,7 +228,7 @@ def _windowed(snapshot: Any, t: Any, s: Any, domain: str, from_: datetime, to: d
     if domain == COLD:
         freshness = "STALE" if stale_probe else "UNKNOWN" if any(w.get("probe_fresh") is None for w in windows) \
             else "RECENT"
-    if snapshot.basis_historical:
+    if snapshot.historical:  # the response label (Run 8 ruling 2); the work fence above is the basis mode's
         state = HISTORICAL
     elif jobs or PENDING in states:
         state = PENDING
@@ -308,7 +317,7 @@ def _actions(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: da
             "_open": reduced["application"] in ("PENDING", "APPLIED") and not resolved,
             "_verification_window": in_window and not resolved,
             "_verified_recent": verified_at is not None and k - VERIFIED_LOOKBACK <= verified_at <= k})
-    state = HISTORICAL if snapshot.basis_historical else CURRENT
+    state = HISTORICAL if snapshot.historical else CURRENT
     return {"selection_id": None, "watermark": None, "match_state": "NOT_APPLICABLE",
             "job_state": "NOT_APPLICABLE", "source_freshness": "NOT_APPLICABLE", "state": state, "rows": rows,
             "selected_finding_revision_ids": sorted(origins), "selected_action_event_ids": sorted(events),

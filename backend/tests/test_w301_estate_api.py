@@ -30,7 +30,7 @@ D0, D1 = datetime(2026, 10, 6, tzinfo=timezone.utc), datetime(2026, 10, 7, tzinf
 class FakeSnapshot:
     def __init__(self, sites=(), **reads) -> None:
         self.read_at, self.historical, self._sites, self.reads = READ_AT, False, list(sites), reads
-        self.continuation = False
+        self.continuation = self.basis_historical = False
 
     def imported_sites(self, t, to):
         return self._sites
@@ -155,7 +155,7 @@ def test_selection_token_v2_endpoint_cursor_compatibility() -> None:
     # Cursors: a findings cursor is not an actions cursor and vice versa; a scope root takes none.
     payload = {"v": 1, "tenant_id": str(T), "authorized_site_ids": [str(S)], "access_basis": "sha256:x",
                "from": DAY["from"], "to": DAY["to"], "known_at": "2026-10-07T00:00:00.000000Z", "lens": "all",
-               "state_filter": "all", "selection_token": token, "after": ["2026-10-06T10:00:00.000000Z", "id"]}
+               "state_filter": "all", "selection_token": token, "after": ["2026-10-06T10:00:00.000000Z", "id"], "page_one_mode": "live"}
     assert decode_cursor("findings", encode_cursor(payload)) == payload
     for kind, body in (("actions", payload), ("scope", payload)):
         with pytest.raises(Exception, match="INVALID_CURSOR"):
@@ -217,7 +217,7 @@ def test_mini_grid_currentness_rows_and_money_gates() -> None:
                                   "amount_low": None, "amount_high": None, "currency": None,
                                   "source_revision_id": None}
     historical = mini_grid([day(jobs=[{"status": "PENDING"}])], consequence=PRICED)
-    historical.historical = True
+    historical.historical = historical.basis_historical = True
     cov = coverage.site_coverage(historical, T, S, "mini_grid", D0, D1, D0 + timedelta(hours=20))
     assert cov["state"] == "HISTORICAL" and cov["job_state"] == "PENDING"  # the marker does not demote
     assert cov["rows"][0]["consequence"]["state"] == "UNKNOWN"  # a prior amount is never a current-money claim
@@ -258,3 +258,102 @@ def test_action_reduce_and_verification_counts() -> None:
     assert rows["a"]["action_title"] == "Action ACT-000001" and rows["a"]["success_criterion"] is None
     assert rows["a"]["source_provenance"]["selected"] == sorted(["a", "a-e1", "fr", "p", "fd", "b1"])
     assert cov["selected_action_event_ids"] == ["a-e1", "b-e2", "c-e3"] and cov["state"] == "CURRENT"
+
+
+# --- c2 r1 L1: a link-reader failure is not a selected-lineage conflict ---------------------------------------------
+
+class _Result:
+    def __init__(self, value) -> None:
+        self.value = value
+
+    def scalar_one(self):
+        return self.value
+
+
+class _Conn:
+    def execution_options(self, **_):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        return False
+
+    def begin(self):
+        return self
+
+    def execute(self, *_a, **_k):
+        return _Result(READ_AT)
+
+
+class _Engine:
+    def connect(self):
+        return _Conn()
+
+
+def _real_read(raises) -> object:
+    """The real `PostgresEstateRead.read` seam over a fake connection, wired as `composition` wires it."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import SelectionPinRefused, _bound_link_rows
+    from assetops_backend.analytics.cold_reads import ColdPinnedLineageUnavailable, ColdReadUnavailable
+    from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable, EvReadUnavailable
+    from assetops_backend.estate.adapters.postgres_estate_read import PostgresEstateRead
+
+    store = PostgresEstateRead(
+        None, findings=None, assessments=None, actions=None, consequences=None, eligibility=None, cold=None, ev=None,
+        provenance_reads=lambda c: None,
+        inconsistent=(ColdPinnedLineageUnavailable, EvPinnedLineageUnavailable, SelectionPinRefused),
+        unavailable=(ColdReadUnavailable, EvReadUnavailable), engine=_Engine())
+    calls = {"n": 0}
+
+    class Service(EstateIndexService):
+        def _findings(self, snap, tenant_id, req, admit):
+            calls["n"] += 1
+            return raises(_bound_link_rows)
+
+    return TestClient(_router(Service(store)), raise_server_exceptions=False), calls
+
+
+def _router(service):
+    app = FastAPI()
+    app.include_router(build_estate_router(service, lambda: T, authenticate=lambda request: None))
+    return app
+
+
+def _get(c):
+    response = c.get("/api/estate/findings?" + urlencode(DAY))
+    if response.status_code in (200, 500):
+        return response.status_code, None
+    return response.status_code, response.json()["detail"]["code"]
+
+
+def test_link_reader_programming_error_is_not_selection_409() -> None:
+    def fail(bound):
+        def link_rows(c, t, s, ids):
+            raise TypeError("a programming error in the link reader")
+        return bound(None, link_rows, Exception)(T, S, ["x"])
+
+    c, calls = _real_read(fail)
+    assert _get(c)[0] == 500 and calls["n"] == 1  # never retried, never a selection conflict
+
+
+def test_typed_lineage_refusal_retries_once_then_409() -> None:
+    from assetops_backend.analytics.cold_reads import ColdPinnedLineageUnavailable
+    from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable
+
+    for error in (ColdPinnedLineageUnavailable, EvPinnedLineageUnavailable):
+        def fail(bound, error=error):
+            raise error("a pinned lineage cannot be read")
+        c, calls = _real_read(fail)
+        assert _get(c) == (409, "ESTATE_SELECTION_INCONSISTENT") and calls["n"] == 2
+
+
+def test_absent_link_reader_and_broad_unavailable_are_503() -> None:
+    from assetops_backend.analytics.cold_reads import ColdReadUnavailable
+    from assetops_backend.analytics.ev_reads import EvReadUnavailable
+
+    for error in (ColdReadUnavailable, EvReadUnavailable):
+        def fail(bound, error=error):
+            raise error("The source provenance reader is not wired.")
+        c, calls = _real_read(fail)
+        assert _get(c)[0] == 503 and calls["n"] == 1

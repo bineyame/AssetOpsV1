@@ -21,7 +21,7 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 if URL:
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
-    from sqlalchemy import text
+    from sqlalchemy import create_engine, text
     from test_w202_cold_replay_postgres import chain  # noqa: F401 - the W2-02 replay fixture
     from test_w203_cold_replay_postgres import opened, run
 
@@ -31,6 +31,7 @@ if URL:
     from test_s6_action_store_postgres import CASES as S4_CASES
 
     import pg_harness
+    from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
     from assetops_backend.analytics.adapters.postgres_assessment_store import (
         PostgresAssessmentStore, selected_windows_on)
     from assetops_backend.estate.adapters import postgres_estate_read
@@ -350,6 +351,7 @@ def test_live_open_cold_ev_page_two_keeps_work_fence(chain) -> None:  # noqa: F8
     assert (first["status"], site["state"], site["job_state"]) == ("PENDING_RECOMPUTE", "PENDING_RECOMPUTE",
                                                                    "PENDING")
     cursor = first["next_cursor"]
+    assert decode_cursor("findings", cursor)["page_one_mode"] == "live"
     cursor_k = datetime.fromisoformat(decode_cursor("findings", cursor)["known_at"].replace("Z", "+00:00"))
     # Neither a nonoverlapping job created before the cutoff nor an overlapping job created after it is page one's
     # work: both are stored before page two is read and neither moves its fence.
@@ -713,3 +715,265 @@ def test_action_event_and_verification_counts_full_basis(store, engine, monkeypa
     finally:
         h.close()
         pg_harness.dispose(runner.findings)
+
+
+# --- c2 r1: the cursor carries page one's mode (M1, q11-B 1) -----------------------------------------------------
+
+WIDE = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
+LATE = {"do": "deliver", "decided": "2026-10-31T08:00:00Z", "blocks": [
+    {"from": "2026-10-06T08:25:00Z", "to": "2026-10-06T08:30:00Z", "pv": "41", "only": ["pv"]}]}
+
+
+@pytest.fixture()
+def pair(request, chain, monkeypatch):  # noqa: F811
+    """The cold `late-reading` Site (at least two Findings on 2026-10-06) and the S4 mini-grid Site (F01 chain on
+    the same 2026-10-06 day) in one private DB and one tenant, with a movable frozen read clock (a tick, not a changed basis)."""
+    fresh = pg_harness.fresh_database()
+    monkeypatch.setattr(pg_harness, "fresh_database", lambda: fresh)
+    cold = opened("late-reading", chain)
+    run(cold)
+    store = PostgresFoundationStore(URL)
+    eng = create_engine(URL)
+    request.addfinalizer(lambda: pg_harness.dispose(store, eng))
+    runner = CaseRunner(store, eng)
+    request.addfinalizer(lambda: pg_harness.dispose(runner.findings))
+    run_case(runner, S4_CASES["F01"])
+    for site_id in (cold.site_id, runner.site):
+        imported_before(eng, runner.tenant, site_id, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    clock = {"tick": timedelta(0)}
+    pin_read_at(monkeypatch, lambda: max(runner.now + timedelta(minutes=1), db_now(eng)) + clock["tick"])
+    return runner, cold, Estate(eng, runner.tenant), clock
+
+
+def minigrid(body: dict, runner) -> dict:
+    return next(x for x in body["coverage"]["sites"] if x["site_id"] == str(runner.site))
+
+
+def refusal(response) -> tuple[int, str]:
+    return response.status_code, response.json()["detail"]["code"]
+
+
+def assert_continues_basis(estate, clock, runner, first) -> dict:
+    """Page two of a live page one: 200, one token, the basis mode's mini-grid coverage, no new mini-grid row,
+    an ordered nonduplicate continuation, and the HISTORICAL response label."""
+    clock["tick"] += timedelta(seconds=1)
+    second = estate.ok("findings", **WIDE, limit=1, cursor=first["next_cursor"])
+    assert second["selection_token"] == first["selection_token"] and second["status"] == "HISTORICAL"
+    first_mini = {k: v for k, v in minigrid(first, runner).items() if k != "state"}
+    assert {k: v for k, v in minigrid(second, runner).items() if k != "state"} == first_mini
+    assert not [r for r in first["rows"] + second["rows"] if r["site_id"] == str(runner.site)], \
+        "page two admitted a mini-grid Finding row page one refused"
+    ids = [r["finding_id"] for r in first["rows"] + second["rows"]]
+    assert len(ids) == len(set(ids))
+    return second
+
+
+def test_live_pending_minigrid_page_two_keeps_basis(pair) -> None:
+    runner, cold, estate, clock = pair
+    runner.step(LATE)
+    whole = estate.ok("findings", **WIDE)
+    first = estate.ok("findings", **WIDE, limit=1)
+    assert minigrid(first, runner)["state"] == "PENDING_RECOMPUTE"
+    assert minigrid(whole, runner)["job_state"] == "PENDING"
+    assert first["rows"] and first["next_cursor"] and first["rows"][0]["site_id"] == str(cold.site_id)
+    assert all(r["site_id"] != str(runner.site) for r in whole["rows"])
+    assert decode_cursor("findings", first["next_cursor"])["page_one_mode"] == "live"
+    second = assert_continues_basis(estate, clock, runner, first)
+    assert [r["finding_id"] for r in first["rows"] + second["rows"]] == [r["finding_id"] for r in whole["rows"][:2]]
+    # Control: an overlapping pre-cutoff job whose stored status changes is a real basis change.
+    with runner.engine.begin() as c:
+        assert c.execute(text("UPDATE recompute_job SET status = 'FAILED' WHERE site_id = :s AND status = 'PENDING'"),
+                         {"s": runner.site}).rowcount >= 1
+    assert refusal(estate.get("findings", **WIDE, limit=1, cursor=first["next_cursor"])) == (
+        409, "ESTATE_BASIS_CHANGED")
+
+
+@pytest.mark.parametrize("s3_state", ["STALE_PROJECTION", "PENDING"])
+def test_live_stale_minigrid_page_two_keeps_basis(pair, monkeypatch, s3_state) -> None:
+    """A matched selected day whose stored S3 status is STALE_PROJECTION, and the PENDING control: page two keeps the
+    live gate either way (no newly admitted mini-grid row, same token); a changed stored day status is 409.
+    TEST-SCOPED: the day's stored S3 status is read through the snapshot's `dispatch_days`; it is set directly
+    (a DONE job without a completion selection would make the day unavailable instead)."""
+    runner, cold, estate, clock = pair
+    stored = {"status": s3_state}
+    real = postgres_estate_read.EstateSnapshot.dispatch_days
+
+    def days(self, t, s, from_, to, k):
+        return [{**d, "status": stored["status"], "jobs": []} for d in real(self, t, s, from_, to, k)]
+
+    monkeypatch.setattr(postgres_estate_read.EstateSnapshot, "dispatch_days", days)
+    first = estate.ok("findings", **WIDE, limit=1)
+    assert minigrid(first, runner)["state"] == ("STALE_SOURCE" if s3_state == "STALE_PROJECTION"
+                                                else "PENDING_RECOMPUTE"), minigrid(first, runner)
+    assert decode_cursor("findings", first["next_cursor"])["page_one_mode"] == "live"
+    assert_continues_basis(estate, clock, runner, first)
+    stored["status"] = "CURRENT" if s3_state == "PENDING" else "PENDING"  # the stored day status changes
+    assert refusal(estate.get("findings", **WIDE, limit=1, cursor=first["next_cursor"])) == (
+        409, "ESTATE_BASIS_CHANGED")
+
+
+@pytest.mark.parametrize("status", ["PENDING", "LEASED", "FAILED"])
+def test_explicit_historical_open_job_page_two_keeps_basis(chain, status) -> None:  # noqa: F811
+    """An explicit historical page one suppresses the live cold/EV work fence on page one and on page two."""
+    built, estate = cold_estate(chain)
+    day = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
+    job = add_job(built.engine, built, DAY + timedelta(hours=1), DAY + timedelta(hours=2))
+    with built.engine.begin() as c:
+        c.execute(text("UPDATE recompute_job SET status = :x WHERE id = :j"), {"x": status, "j": job})
+    k = db_now(built.engine)
+    with built.engine.connect() as c:
+        assert c.execute(text("SELECT created_at FROM recompute_job WHERE id = :j"), {"j": job}).scalar_one() <= k
+    whole = estate.ok("findings", **day, known_at=iso(k))
+    first = estate.ok("findings", **day, known_at=iso(k), limit=1)
+    assert len(whole["rows"]) >= 2 and first["next_cursor"] and first["status"] == "HISTORICAL"
+    (site,) = first["coverage"]["sites"]
+    assert (site["state"], site["job_state"]) == ("HISTORICAL", "SETTLED")  # no live work fence
+    cursor = first["next_cursor"]
+    assert decode_cursor("findings", cursor)["page_one_mode"] == "historical"
+    second = estate.ok("findings", **day, limit=1, cursor=cursor)
+    (paged,) = second["coverage"]["sites"]
+    assert (paged["state"], paged["job_state"]) == ("HISTORICAL", "SETTLED")
+    assert second["selection_token"] == first["selection_token"] == whole["selection_token"]
+    assert [r["finding_id"] for r in first["rows"] + second["rows"]] == [r["finding_id"] for r in whole["rows"][:2]]
+    # A changed job status is not a basis change for a historical cursor; a changed token or grant still is.
+    with built.engine.begin() as c:
+        c.execute(text("UPDATE recompute_job SET status = 'FAILED' WHERE id = :j"), {"j": job})
+    assert estate.ok("findings", **day, limit=1, cursor=cursor)["selection_token"] == first["selection_token"]
+    forged = encode_cursor({**decode_cursor("findings", cursor), "selection_token": "sha256:" + "1" * 64})
+    assert refusal(estate.get("findings", **day, limit=1, cursor=forged)) == (409, "ESTATE_BASIS_CHANGED")
+    add_empty_site(built.engine, built.site_id, "W301-EMPTY-001")
+    assert refusal(estate.get("findings", **day, limit=1, cursor=cursor)) == (409, "ESTATE_BASIS_CHANGED")
+
+
+def test_historical_minigrid_outstanding_marker_page_two_keeps_basis(pair) -> None:
+    """A pre-cutoff PENDING marker stays in `job_state` of a provable historical mini-grid Site on both pages."""
+    runner, cold, estate, clock = pair
+    runner.step(LATE)
+    k = runner.now
+    with runner.engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM recompute_job WHERE site_id = :s AND status = 'PENDING' "
+                              "AND created_at <= :k"), {"s": runner.site, "k": k}).scalar_one() >= 1
+    first = estate.ok("findings", **WIDE, known_at=iso(k), limit=1)
+    assert first["status"] == "HISTORICAL"
+    assert decode_cursor("findings", first["next_cursor"])["page_one_mode"] == "historical"
+    clock["tick"] += timedelta(seconds=1)
+    second = estate.ok("findings", **WIDE, limit=1, cursor=first["next_cursor"])
+    assert second["selection_token"] == first["selection_token"]
+    assert minigrid(first, runner) == minigrid(second, runner)
+    assert minigrid(first, runner)["job_state"] == "PENDING"
+
+
+def test_cursor_page_one_mode_shape(chain) -> None:  # noqa: F811
+    built, estate = cold_estate(chain)
+    day = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
+    first = estate.ok("findings", **day, limit=1)
+    cursor = decode_cursor("findings", first["next_cursor"])
+    assert cursor["page_one_mode"] == "live"
+    for bad in ("later", None, 1):
+        forged = encode_cursor({**cursor, "page_one_mode": bad})
+        assert refusal(estate.get("findings", **day, limit=1, cursor=forged)) == (422, "INVALID_CURSOR")
+    missing = encode_cursor({k: v for k, v in cursor.items() if k != "page_one_mode"})  # an old cursor restarts
+    assert refusal(estate.get("findings", **day, limit=1, cursor=missing)) == (422, "INVALID_CURSOR")
+    extra = encode_cursor({**cursor, "surplus": "x"})
+    assert refusal(estate.get("findings", **day, limit=1, cursor=extra)) == (422, "INVALID_CURSOR")
+    other = datetime.fromisoformat(cursor["known_at"].replace("Z", "+00:00")) - timedelta(seconds=5)
+    assert refusal(estate.get("findings", **day, limit=1, cursor=first["next_cursor"], known_at=iso(other))) == (
+        409, "ESTATE_BASIS_CHANGED")
+
+
+# --- c2 r1: L2 and L4 ---------------------------------------------------------------------------------------------
+
+def test_cold_revision_waits_for_its_selected_assessment(chain) -> None:  # noqa: F811
+    """L2: a revision created by the cutoff whose assessment is not yet selected is not the selected row."""
+    built, estate = cold_estate(chain)
+    day = {"from": iso(DAY), "to": iso(DAY + timedelta(days=1))}
+    before = estate.ok("findings", **day, known_at=iso(db_now(built.engine)))
+    old = {r["finding_id"]: r["finding_revision_id"] for r in before["rows"]}
+    built.advance_late()
+    run(built)
+    heads = stored_cold_heads(built.engine, built.site_id)
+    assert any(heads[f] != old[f] for f in old), "the later run must have appended revisions"
+    with built.engine.begin() as c:
+        # TEST-SCOPED: the worker stamps a revision, its assessment and its selection with one transaction time.
+        # Re-date the revision of the last selection one second earlier, so a cutoff between the two exists: the
+        # revision is created by K while its assessment is not yet selected (the L2 shape).
+        selected = c.execute(text("SELECT max(selected_at) FROM analytic_run_selection WHERE site_id = :s"),
+                             {"s": built.site_id}).scalar_one()
+        c.execute(text("ALTER TABLE finding_revision DISABLE TRIGGER USER"))
+        moved = c.execute(text(
+            "UPDATE finding_revision r SET created_at = r.created_at - interval '1 second' FROM finding f "
+            "WHERE f.id = r.finding_id AND f.site_id = :s AND f.domain = 'cold_chain' AND r.created_at = :sel "
+            "RETURNING CAST(r.finding_id AS text)"), {"s": built.site_id, "sel": selected}).scalars().all()
+        c.execute(text("ALTER TABLE finding_revision ENABLE TRIGGER USER"))
+    assert moved, "a revision shares the last selection's transaction time"
+    k = selected - timedelta(milliseconds=500)
+    at_k = estate.ok("findings", **day, known_at=iso(k))
+    seen = {r["finding_id"]: r["finding_revision_id"] for r in at_k["rows"]}
+    for finding in moved:  # created by K, its assessment selected only later: the old selected revision stays
+        assert seen[finding] == old[finding] != heads[finding]
+    assert at_k["selection_token"] != before["selection_token"] or seen == old
+    after = estate.ok("findings", **day, known_at=iso(selected))
+    assert {r["finding_id"]: r["finding_revision_id"] for r in after["rows"]} == {f: heads[f] for f in old}
+    assert after["selection_token"] != at_k["selection_token"]
+
+
+def test_estate_injected_reads_share_one_connection(pair, monkeypatch) -> None:
+    """L4: on the real private DB, an estate read over cold and mini-grid Sites (and Actions) opens exactly one
+    connection and every injected service's connection-taking call receives that object; a service that opens its
+    own engine or connection fails the read."""
+    import inspect
+    import sys
+
+    from sqlalchemy.engine import Connection
+
+    runner, cold, estate, clock = pair
+    read = estate.read
+    received: dict[str, list[object]] = {}
+    connections: list[object] = []
+    real = type(read)._connect
+
+    def counting(self):
+        connection = real(self)
+        connections.append(connection)
+        return connection
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("an injected service opened its own connection")
+
+    monkeypatch.setattr(type(read), "_connect", counting)
+    for module in [m for n, m in list(sys.modules.items()) if n.startswith("assetops_backend") and m is not None]:
+        if getattr(module, "create_engine", None) is not None:
+            monkeypatch.setattr(module, "create_engine", refuse)
+
+    def instrument(label: str, service) -> None:
+        if hasattr(service, "_connect"):
+            monkeypatch.setattr(service, "_connect", refuse)
+        for name in dir(type(service)):
+            if name.startswith("__") or name == "_connect":
+                continue
+            member = getattr(service, name)
+            if not callable(member):
+                continue
+            try:
+                params = list(inspect.signature(member).parameters)
+            except (TypeError, ValueError):
+                continue
+            if not params or params[0] not in ("c", "conn", "connection"):
+                continue
+
+            def wrap(function=member, label=label):
+                def inner(*args, **kwargs):
+                    received.setdefault(label, []).append(args[0] if args else kwargs.get("c"))
+                    return function(*args, **kwargs)
+                return inner
+
+            monkeypatch.setattr(service, name, wrap())
+
+    for label in ("cold", "ev", "consequences", "eligibility", "findings", "assessments", "actions"):
+        instrument(label, getattr(read, label))
+    estate.ok("findings", **WIDE)
+    estate.ok("actions", **WIDE)
+    assert len(connections) == 2 and all(isinstance(c, Connection) for c in connections)
+    for label, seen in received.items():
+        assert all(c in connections for c in seen), f"{label} received a connection the estate did not open"
+    assert {"cold", "findings", "assessments", "actions"} <= set(received), sorted(received)
