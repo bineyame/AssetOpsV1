@@ -2303,3 +2303,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L1: the M1-a "Source reason: …" lines render as paragraphs after the Source class and ID rows, not inline between them, because `ExactReferences` keys its rows by label (`frontend/src/sites/EvAssessmentViews.tsx`). Placement was not ruled; it is a cosmetic choice.
 - L2: the per-record M1-c sentence is deferred to the W2-07 `ev-evidence-analysis` route (r10 N3).
 - L3: layout evidence covers the interrupted state only; the other states are covered by jsdom tests.
+
+## W2-07 Lows (UI/UX pass)
+- L1: `test_0026_trigger_only_work_and_exact_conflict_constraint` still uses `remove_money` for its backfill downgrade; the r1 no-delete ruling covers only the empty-downgrade probe.
+- L2: `siteFinancials.test.tsx` 409 history-reload test failed once in a full frontend run under load, then passed in four isolated runs; watch for flakiness.

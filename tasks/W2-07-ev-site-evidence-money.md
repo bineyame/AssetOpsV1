@@ -1,6 +1,6 @@
 # W2-07 — EV Site, evidence and gross tariff scenario
 
-Status: implementation-ready (planned). Size M; two phases. Branch `task/W2-07-ev-site-evidence-money` from reviewed and merged W2-06. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. Exit: shared selected EV projections, immutable tariff scenario consequence and exact `ev`, `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions` v6.9 routes.
+Status: done (merged 2026-10-20, d99cfd9a; re-review ACCEPT); was implementation-ready (planned). Size M; two phases. Branch `task/W2-07-ev-site-evidence-money` from reviewed and merged W2-06. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. Exit: shared selected EV projections, immutable tariff scenario consequence and exact `ev`, `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions` v6.9 routes.
 
 ## Binding and dependency
 
