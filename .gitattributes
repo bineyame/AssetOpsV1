@@ -1,0 +1,4 @@
+# Byte-pinned W2 EV golden files: tests compare their exact bytes, so check them out with LF on every host
+# (a Windows checkout with core.autocrlf=true otherwise writes CRLF and the byte comparisons fail).
+contract-fixtures/w2/ev/*.json text eol=lf
+backend/tests/fixtures/w2/ev-w206-vectors.json text eol=lf
