@@ -131,3 +131,16 @@ Not done: `test_w302_money_persisted_ev_comparable_same_values` and `::test_w302
 are built with the ruled assertions and skipped under `blocked_c3q3`. Question: authorize an EV scenario document for
 EV-LAB-002 (e.g. a test-only `ev-complete` copy with `site_code: EV-LAB-002`, where it lives and how the Host
 scenario repository finds it), or name another route.
+
+## c3b-q1 - c3b Lane A parser item not on the branch; two-Site tests stay skipped (Lane B, commit 3; N3 still holds)
+
+Lane B c3b items landed in `6f065647`: test-only `backend/tests/fixtures/w3/scenarios/ev-complete-lab-002.yaml`
+(shipped `ev-complete` with only `scenario_id`/`site_code`/`seed` changed), `second_scenario_repository` (temp root:
+six shipped EV docs + the fixture, one `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))`), injected into the
+second chain's `RunSetupService` and `StoreEvInputs` via `Chain.open(..., scenarios=, scenario_id=)`, and
+`test_w302_second_ev_scenario_differs_from_shipped_only_in_three_fields` (mutation `seed: 20519`: failed, reverted).
+Blocker: c3b assigns the `ev_parsing.py` change to Lane A; after merging main, `ev_parsing.py:174/181` still pin
+`EV_SITE_CODE`/`EV_SEED`. Failing call: `second_scenario_repository(root).list_scenarios()` ->
+`ScenarioConfigurationInvalid: EV scenario shipped:ev-complete-lab-002.yaml: site_code must be 'EV-LAB-001'`. No
+Draft, upload or money head exists for EV-LAB-002 (no public IDs). Both comparability tests keep `blocked_c3q3`
+(reason updated) with the c3b assertions. Question: dispatch Lane A's parser item; Lane B then removes the skip.
