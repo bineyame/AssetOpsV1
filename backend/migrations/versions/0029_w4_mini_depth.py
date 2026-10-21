@@ -7,6 +7,8 @@ closure 3; closure 4 B1/B2/N5). Reserved `0028` is unused, so this chains to `00
 - `mini_depth_revision_evidence`: the exact accepted evidence IDs a revision cites.
 - `mini_depth_selection`: append-only selection events; `seq` is the stable persisted order and `job_id` the
   recompute job the selection settled (null only for an explicitly recorded backfill selection).
+- `site_cutover_basis` (q12-6): one explicit `NO_LEGACY_EVIDENCE` cutover basis per Site, naming the exact
+  `site_import` row and digest; written only by the Foundation store's INSERT-only writer.
 
 Enqueue: a DEFERRABLE INITIALLY DEFERRED constraint trigger on `accepted_evidence` enqueues one PENDING
 `mini_*` job per affected Site-local clock hour (renewable: only the local 12:00-13:00 hour) for the domains the
@@ -18,14 +20,19 @@ lifts work only when exactly one current `minigrid-roles-4` binding set is in fo
 `schedule_site_head_stage_check` to admit the tick's `MINI` stage and adds three integer counters
 (`mini_processed`, `mini_deferred`, `mini_failed`, NOT NULL DEFAULT 0) to `schedule_site_head`.
 
-Catalog: three new tables, three mini append-only triggers, two explicit mini indexes, one selection job FK,
-three SQL functions, one accepted-evidence constraint trigger, one replaced existing Site-stage CHECK and three
-added `schedule_site_head` integer columns (net: +3 tables, +3 functions, +4 user triggers, +2 explicit indexes,
+Catalog: four new tables (`mini_depth_revision`, `mini_depth_revision_evidence`, `mini_depth_selection`,
+`site_cutover_basis`), three mini append-only triggers (`mini_depth_revision_immutable`,
+`mini_depth_evidence_immutable`, `mini_depth_selection_immutable`), two explicit mini indexes
+(`mini_depth_selection_head`, `mini_depth_revision_evidence_lookup`), one selection job FK
+(`mini_depth_selection_job_fk`), three SQL functions (`mini_enqueue_hour`, `mini_enqueue_accepted`,
+`mini_enqueue_configuration`), one accepted-evidence constraint trigger (`enqueue_mini_depth`), one replaced
+existing Site-stage CHECK (`schedule_site_head_stage_check`, admitting `MINI`) and three added
+`schedule_site_head` integer columns (net: +4 tables, +3 functions, +4 user triggers, +2 explicit indexes,
 +1 job FK, +3 Site-head columns, zero net CHECK constraints on `schedule_site_head`).
 
-Downgrade refuses while any mini-depth row or any `mini_*` recompute job exists, under locks taken before counting,
-then refuses an active `MINI` Site stage, restores the four-stage CHECK and drops the three counters, then drops
-the trigger and functions before the tables, all in one transaction. No cascade, no deletion.
+Downgrade refuses while any mini-depth row, any `site_cutover_basis` row or any `mini_*` recompute job exists,
+under locks taken before counting, then refuses an active `MINI` Site stage, restores the four-stage CHECK and
+drops the three counters, then drops the trigger and functions before the tables, all in one transaction. No cascade, no deletion.
 """
 
 from alembic import op
@@ -301,7 +308,8 @@ CREATE CONSTRAINT TRIGGER enqueue_mini_depth AFTER INSERT ON accepted_evidence
 """
 
 REFUSE_IF_USED = rf"""
-LOCK TABLE mini_depth_selection, mini_depth_revision_evidence, mini_depth_revision IN ACCESS EXCLUSIVE MODE;
+LOCK TABLE mini_depth_selection, mini_depth_revision_evidence, mini_depth_revision, site_cutover_basis
+    IN ACCESS EXCLUSIVE MODE;
 LOCK TABLE recompute_job IN EXCLUSIVE MODE;
 DO $$
 BEGIN
@@ -309,6 +317,9 @@ BEGIN
        OR EXISTS (SELECT 1 FROM mini_depth_revision)
        OR EXISTS (SELECT 1 FROM recompute_job WHERE domain IN ({_DOMAIN_LIST})) THEN
         RAISE EXCEPTION 'Downgrade of 0029_w4_mini_depth refused: mini-depth history exists';
+    END IF;
+    IF EXISTS (SELECT 1 FROM site_cutover_basis) THEN
+        RAISE EXCEPTION 'Downgrade of 0029_w4_mini_depth refused: cutover basis history exists';
     END IF;
 END;
 $$;

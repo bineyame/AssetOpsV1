@@ -8,7 +8,8 @@ database is upgraded back to head. At the predecessor revision neither the 0029 
 `mini_enqueue_configuration` exists, so the publication writer's 0029 enqueue call is the one head-only step not
 run while seeding (`PostgresFoundationStore._enqueue_mini_configuration`, which would call a function that does
 not exist yet). No row is deleted, no trigger is disabled and the 0029 guard is unchanged; every probe asserts the
-three mini tables and the four mini domains are empty before crossing 0029.
+three mini tables and the four mini domains are empty before crossing 0029. 0029 also refuses while any q12-6 `site_cutover_basis` row exists
+(B-M1); that table exists only at head, so it is asserted empty at head on both sides of the crossing.
 """
 
 from __future__ import annotations
@@ -38,6 +39,12 @@ def assert_no_mini_history(engine) -> None:
     assert mini_history(engine) == [0] * 7
 
 
+def assert_no_cutover_basis(engine) -> None:
+    """At head only: the q12-6 `site_cutover_basis` table, which also blocks the 0029 downgrade, is empty."""
+    with engine.connect() as connection:
+        assert connection.execute(text("SELECT count(*) FROM site_cutover_basis")).scalar_one() == 0
+
+
 def has_mini_jobs(engine) -> bool:
     return sum(mini_history(engine)[len(MINI_TABLES):]) > 0
 
@@ -63,6 +70,7 @@ def seeded_before_0029(config, engine, *holders):
 
     assert _head(engine) == MINI_HEAD
     assert_no_mini_history(engine)
+    assert_no_cutover_basis(engine)
     release()
     command.downgrade(config, PREDECESSOR)
     assert _head(engine) == PREDECESSOR
@@ -75,3 +83,4 @@ def seeded_before_0029(config, engine, *holders):
         command.upgrade(config, "head")
     assert _head(engine) == MINI_HEAD
     assert_no_mini_history(engine)
+    assert_no_cutover_basis(engine)

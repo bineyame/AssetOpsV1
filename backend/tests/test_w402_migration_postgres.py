@@ -40,7 +40,9 @@ if URL:
 HEAD = "0029_w4_mini_depth"
 PREVIOUS = "0027_w4_work_cases"
 REFUSED = "Downgrade of 0029_w4_mini_depth refused: mini-depth history exists"
-TABLES = ("mini_depth_revision", "mini_depth_revision_evidence", "mini_depth_selection")
+REFUSED_BASIS = "Downgrade of 0029_w4_mini_depth refused: cutover basis history exists"
+#: The three mini tables and the q12-6 `site_cutover_basis` table, all created by 0029.
+TABLES = ("mini_depth_revision", "mini_depth_revision_evidence", "mini_depth_selection", "site_cutover_basis")
 FUNCTIONS = ("mini_enqueue_hour", "mini_enqueue_accepted", "mini_enqueue_configuration")
 MINI = tuple(JOB_DOMAIN.values()) if URL else ()
 #: Closure 4 B1, restated independently of the migration module.
@@ -66,7 +68,7 @@ def functiondef(engine, name: str) -> str:  # noqa: F811
 
 
 def catalog(engine) -> tuple[int, int, int, int]:  # noqa: F811
-    """(mini tables, mini functions, triggers on mini tables plus enqueue_mini_depth, the selection job FK)."""
+    """(0029 tables incl. `site_cutover_basis`, mini functions, triggers on mini tables plus enqueue_mini_depth, the selection job FK)."""
     return (
         sum(table_exists(engine, t) for t in TABLES),
         scalar(engine, "SELECT count(*) FROM pg_proc WHERE proname = ANY(:n)", n=list(FUNCTIONS)),
@@ -170,6 +172,10 @@ def revision(ctx, *, lo, hi, domain="service", digest="a", cutoff=None, evidence
         evidence_ids=list(evidence))
 
 
+def cutover_rows(engine, site_id) -> int:  # noqa: F811
+    return scalar(engine, "SELECT count(*) FROM site_cutover_basis WHERE site_id = :s", s=site_id)
+
+
 def downgrade_config(site, engine):  # noqa: F811
     site.store.dispose()
     site.prices.dispose()
@@ -185,7 +191,7 @@ class TestMigration0029:
         config = _alembic()
         assert ScriptDirectory.from_config(config).get_heads() == [HEAD]
         assert ScriptDirectory.from_config(config).get_revision(HEAD).down_revision == PREVIOUS
-        assert head(engine) == HEAD and catalog(engine) == (3, 3, 4, 1)
+        assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
         assert_site_head(engine, upgraded=True)
         assert scalar(engine, "SELECT count(*) FROM pg_indexes WHERE indexname IN ('mini_depth_selection_head', "
                               "'mini_depth_revision_evidence_lookup')") == 2
@@ -200,10 +206,35 @@ class TestMigration0029:
         finally:
             if head(engine) != HEAD:
                 command.upgrade(config, "head")
-        assert head(engine) == HEAD and catalog(engine) == (3, 3, 4, 1)
+        assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
         assert_site_head(engine, upgraded=True)
         assert scalar(engine, "SELECT count(*) FROM information_schema.columns "
                               "WHERE table_name = 'recompute_job'") == recompute_columns
+
+    def test_downgrade_locks_site_cutover_basis_before_counting(self, engine) -> None:  # noqa: F811
+        """B-M1: the downgrade's refusal step takes ACCESS EXCLUSIVE on `site_cutover_basis` (with the mini tables)
+        before counting: a concurrent ACCESS SHARE holder makes it time out, where a plain SELECT would not."""
+        import importlib.util
+        from pathlib import Path
+
+        path = Path(__file__).resolve().parents[1] / "migrations" / "versions" / "0029_w4_mini_depth.py"
+        spec = importlib.util.spec_from_file_location("m0029", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        assert "site_cutover_basis" in module.REFUSE_IF_USED.split("DO $$")[0]
+        holder = engine.connect()
+        try:
+            holding = holder.begin()
+            holder.execute(text("LOCK TABLE site_cutover_basis IN ACCESS SHARE MODE"))
+            with engine.connect() as c, c.begin():
+                c.execute(text("SET LOCAL lock_timeout = '300ms'"))
+                with pytest.raises(DBAPIError) as timed_out:
+                    c.exec_driver_sql(module.REFUSE_IF_USED)
+                assert getattr(timed_out.value.orig, "sqlstate", None) == "55P03"
+            holding.rollback()
+        finally:
+            holder.close()
+        assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
 
     def test_downgrade_refuses_active_mini_stage(self, mg, engine) -> None:  # noqa: F811
         """q7 ruling 1: an active MINI Site stage refuses the downgrade; head and schema are unchanged."""
@@ -219,7 +250,7 @@ class TestMigration0029:
         try:
             with pytest.raises(DBAPIError, match="MINI stage active"):
                 command.downgrade(config, PREVIOUS)
-            assert head(engine) == HEAD and catalog(engine) == (3, 3, 4, 1)
+            assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
             assert_site_head(engine, upgraded=True)
             assert scalar(engine, "SELECT stage FROM schedule_site_head WHERE site_id = :s", s=mg.ctx.s) == "MINI"
         finally:
@@ -229,7 +260,7 @@ class TestMigration0029:
             if head(engine) != HEAD:
                 command.upgrade(config, "head")
 
-    @pytest.mark.parametrize("blocker", ["job_only", "revision"])
+    @pytest.mark.parametrize("blocker", ["job_only", "revision", "cutover_basis"])
     def test_downgrade_refuses_history(self, blocker, mg4, engine) -> None:  # noqa: F811
         mg = mg4
         from alembic import command
@@ -238,18 +269,27 @@ class TestMigration0029:
         if blocker == "job_only":
             mg.accept(role="generator_power", when=lo + timedelta(minutes=5), decided=lo + timedelta(hours=2))
             assert mini_jobs(engine, mg.ctx.s)
+        elif blocker == "cutover_basis":
+            # B-M1: only a q12-6 cutover basis row exists (written by its sole writer); no mini history at all.
+            from assetops_backend.sites.adapters.postgres_foundation_store import PostgresFoundationStore
+
+            PostgresFoundationStore(URL).record_no_legacy_evidence_basis(mg.ctx.t, mg.ctx.s, now=lo)
+            assert not mini_jobs(engine, mg.ctx.s) and cutover_rows(engine, mg.ctx.s) == 1
+            assert scalar(engine, "SELECT count(*) FROM mini_depth_revision") == 0
         else:
             PostgresMiniDepthStore(engine).append_selection(
                 revision(mg.ctx, lo=lo, hi=lo + timedelta(hours=1)), job_id=None, backfill=True)
             assert not mini_jobs(engine, mg.ctx.s)
         config = downgrade_config(mg.site_obj, engine)
         try:
-            with pytest.raises(DBAPIError, match=REFUSED):
+            with pytest.raises(DBAPIError, match=REFUSED_BASIS if blocker == "cutover_basis" else REFUSED):
                 command.downgrade(config, PREVIOUS)
-            assert head(engine) == HEAD and catalog(engine) == (3, 3, 4, 1)  # nothing dropped
+            assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)  # nothing dropped
             assert (blocker == "job_only") == bool(mini_jobs(engine, mg.ctx.s))  # nothing deleted
+            assert cutover_rows(engine, mg.ctx.s) == (1 if blocker == "cutover_basis" else 0)
         finally:
             clear_mini(engine)
+            _replica(engine, "DELETE FROM site_cutover_basis")
             if head(engine) != HEAD:
                 command.upgrade(config, "head")
 
