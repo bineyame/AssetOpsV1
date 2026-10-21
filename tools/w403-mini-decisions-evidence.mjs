@@ -66,8 +66,13 @@ const PIECES = {
 
 const S = `/sites/${MG}`;
 const K = replay.k_before_late ?? null;
+const HIST_K = new Date(Date.now() - 1000).toISOString().replace(/\.(\d{3})Z$/, (_, ms) => `.${ms}000Z`);
 const POSITIVE_CASES = [
   { screen: "opportunity-finding", state: "opportunity-supported-current", app: `${S}/opportunities/${OPP}`, positive: true },
+  // H1 (uF 8): the same selected revision at an explicit past cutoff after it (no newer evidence yet) is HISTORICAL,
+  // the blue chip; the cutoff is the capture start, a six-digit UTC token.
+  { screen: "opportunity-finding", state: "opportunity-supported-historical",
+    app: `${S}/opportunities/${OPP}?${new URLSearchParams({ known_at: HIST_K })}`, historical: HIST_K },
 ];
 const LATE_CASES = [
   { screen: "scenarios", state: "scenarios-populated", app: `${S}/financials/scenarios` },
@@ -187,7 +192,7 @@ const MEASURE = (screen, side) => `(async () => {
     prose: proseEl ? parseFloat(getComputedStyle(proseEl).fontSize) : null } : null;
   extra.openSite = Array.from(document.querySelectorAll(".page-header__actions a")).map((a) => [a.textContent.trim(), a.getAttribute("href")]);
   extra.siteTabs = !!document.querySelector('nav[aria-label="Site sections"]');
-  extra.findingRow = Array.from(document.querySelectorAll("[data-finding-section]")).map((e) => e.textContent.trim());
+  extra.findingRow = Array.from(document.querySelectorAll("[data-finding-section], [data-tab-unavailable]")).map((e) => e.textContent.trim());
   const crumbNav = document.querySelector("nav.mini-finding-crumbs");
   if (crumbNav) {
     const left = crumbNav.getBoundingClientRect().left;
@@ -302,6 +307,12 @@ for (const c of CASES) for (const [w, h] of SIZES) {
       check(b && JSON.stringify(b.days) === JSON.stringify(pins), `selected five-day rows = pins (${b?.days.length})`);
       check(detailGets.length > 0 && detailGets.every((e) => !new URL(e.path, "http://x").searchParams.has("known_at")), `current detail GET without cutoff (${JSON.stringify(detailGets)})`);
     }
+    if (c.historical) {
+      const b = m.extra.wire?.body;
+      check(b && b.status === "SUPPORTED" && b.currentness === "HISTORICAL" && m.extra.chipTone === "blue",
+        `explicit past cutoff: SUPPORTED, HISTORICAL, blue chip (${JSON.stringify(b && [b.status, b.currentness])}; ${m.extra.chipTone})`);
+      check(detailGets.length > 0 && detailGets.every((e) => new URL(e.path, "http://x").searchParams.getAll("known_at").join() === c.historical), `intercepted detail GET carries the cutoff (${JSON.stringify(detailGets)})`);
+    }
     if (c.cutoff) {
       const b = m.extra.wire?.body;
       check(new URLSearchParams(m.extra.location.split("?")[1] ?? "").get("known_at") === c.cutoff, `browser URL carries the cutoff (${m.extra.location})`);
@@ -316,8 +327,8 @@ for (const c of CASES) for (const [w, h] of SIZES) {
     check(m.extra.chipBg === TONE_BG[m.extra.chipTone], `chip ${m.extra.chipTone} computed background ${m.extra.chipBg} = ${TONE_BG[m.extra.chipTone]}`);
     toneSeen.add(m.extra.chipTone);
   }
-  // H2: the Bounded claim is the v69 big claim, larger than the panel prose.
-  if (c.screen === "opportunity-finding" && m.extra.claim) check(m.extra.claim.big && m.extra.claim.font >= 20 && m.extra.claim.font > (m.extra.claim.prose ?? 0),
+  // H2: the Bounded claim is the v69 big claim (v69 `.big-claim` 19px), larger than the panel prose.
+  if (c.screen === "opportunity-finding" && m.extra.claim) check(m.extra.claim.big && m.extra.claim.font >= 19 && m.extra.claim.font > (m.extra.claim.prose ?? 0),
     `Bounded claim is the big claim (${JSON.stringify(m.extra.claim)})`);
   // H3 / M6 / M7 on the Finding-surface screens.
   if (c.screen === "alternatives") {

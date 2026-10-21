@@ -265,7 +265,12 @@ def scenario_context(http: Http, fixture: dict[str, Any], incident: str, writes:
     """uF 2 (M5): `decision-contexts` for the linked Incident at the W4-01 Incident list's exact `known_at`: the
     OPPORTUNITY context, then the SCENARIO one labelled `SCN-* · {name at cutoff}` with `url:null`."""
     base = f"/api/sites/{fixture['opportunity_site_code']}"
-    status, listing = http("GET", f"{base}/work/incidents")
+    # The capture harness's W4-01 window (`WORK_WINDOW`: UTC midnight seven days back to tomorrow).
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+
+    midnight = _dt.now(_tz.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    frm, to = ((midnight + _td(days=d)).strftime("%Y-%m-%dT%H:%M:%SZ") for d in (-7, 1))
+    status, listing = http("GET", f"{base}/work/incidents?from={frm}&to={to}&limit=5")
     assert status == 200, (status, listing)
     known = (listing.get("window") or {}).get("known_at") or listing.get("known_at")
     assert known, listing
