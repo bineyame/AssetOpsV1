@@ -307,8 +307,11 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
                         ({"revision_id": "not-a-uuid"}, "DECISION_INPUT_INVALID"),
                         ({"revision_id": str(uuid4())}, "DECISION_NOT_FOUND"),
                         ({"known_at": iso(r1["created_at"] - timedelta(seconds=1))}, "DECISION_NOT_FOUND"),
-                        # u3 7: R2 requested at a cutoff before R2 exists.
-                        ({"revision_id": str(r2["id"]), "known_at": iso(k_r1)}, "DECISION_NOT_FOUND")):
+                        # uF 1 (final review M1, superseding u3 7's 404): a same-Finding revision later than the
+                        # cutoff, or one whose Finding root is itself later, is the 409 basis refusal.
+                        ({"revision_id": str(r2["id"]), "known_at": iso(k_r1)}, "DECISION_BASIS_CHANGED"),
+                        ({"revision_id": str(r1["id"]), "known_at": iso(r1["created_at"] - timedelta(seconds=1))},
+                         "DECISION_BASIS_CHANGED")):
         with pytest.raises(DecisionRefused) as refused:
             read(**q)
         assert refused.value.code == expected, q
@@ -518,6 +521,15 @@ def test_alternative_routes_refusal_order(monkeypatch) -> None:
         shut.get(path, params={"revision_id": str(uuid4())})
     with pytest.raises(_Reached):
         gated(lambda code, t, s: (True, "")).get(path)
+    # uF 1 (final review M1): the service's future-basis refusal is the list-shaped 409 with the closure-1 message.
+    class _Future:
+        def list(self, *args):
+            raise DecisionRefused("DECISION_BASIS_CHANGED")
+
+    future = api(alternatives=_Future()).get(path, params={"revision_id": str(uuid4())})
+    assert future.status_code == 409 and future.json()["detail"] == {
+        "code": "DECISION_BASIS_CHANGED", "message": "The selected basis changed; reload the first page.",
+        "rows": None, "total_count": None}
     paged = gated(lambda code, t, s: (True, "")).get(path, params={"limit": "0"})
     assert paged.status_code == 422 and paged.json()["detail"] == {
         "code": "INVALID_LIMIT", "message": "Choose 1 to 100 rows.", "rows": None, "total_count": None}

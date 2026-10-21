@@ -432,14 +432,23 @@ class PostgresMiniDecisionStore:
             {"t": tenant_id, "s": site_id, "ids": [str(i) for i in opportunity_ids], "k": known}).mappings())
 
     @staticmethod
+    def failed_opportunity_job_at(c: Connection, tenant_id: UUID, site_id: UUID, lo: Any, hi: Any) -> Any:
+        """uF 6: the latest failure instant (`available_at` of a terminal FAILED job) of this exact study window."""
+        return c.execute(text(
+            "SELECT max(available_at) FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
+            "AND window_start = :lo AND window_end = :hi AND status = 'FAILED'"),
+            {"t": tenant_id, "s": site_id, "d": OPPORTUNITY_JOB_DOMAIN, "lo": lo, "hi": hi}).scalar()
+
+    @staticmethod
     def live_opportunity_jobs_at(c: Connection, tenant_id: UUID, site_id: UUID, lo: Any, hi: Any,
                                  known: Any) -> list[Any]:
-        """u5 ruling 2: `(id, status)` of this Site's `mini_opportunity` jobs overlapping UTC `[lo, hi)` that are
-        PENDING, LEASED or FAILED with `available_at <= known`."""
+        """u5 ruling 2, narrowed by uF 6: `(id, status)` of this Site's `mini_opportunity` jobs overlapping UTC
+        `[lo, hi)` that are PENDING or LEASED and created by `known` (a future `available_at` limits leasing, not
+        whether the job is a pending source), or FAILED with its failure instant `available_at <= known`."""
         return c.execute(text(
             "SELECT id::text, status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
-            "AND window_start < :hi AND window_end > :lo AND status IN ('PENDING', 'LEASED', 'FAILED') "
-            "AND available_at <= :k ORDER BY id"),
+            "AND window_start < :hi AND window_end > :lo AND ((status IN ('PENDING', 'LEASED') "
+            "AND created_at <= :k) OR (status = 'FAILED' AND available_at <= :k)) ORDER BY id"),
             {"t": tenant_id, "s": site_id, "d": OPPORTUNITY_JOB_DOMAIN, "lo": lo, "hi": hi, "k": known}).all()
 
     @staticmethod

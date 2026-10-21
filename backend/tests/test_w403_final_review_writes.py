@@ -109,3 +109,18 @@ def test_l3_scenario_correction_race_is_503() -> None:
     with pytest.raises(DecisionRefused) as raced:
         service.correct(T, S, WHO, str(uuid4()), correction)
     assert (raced.value.status, raced.value.code) == (503, "DECISION_STORE_UNAVAILABLE")
+
+
+def test_u_f5_empty_citation_set_is_the_empty_unknown_six_key_dto() -> None:
+    """uF 5: `EMPTY_CITATION_SET` is the empty UNKNOWN six-key provenance DTO (the S4-05 resolver's alias), not
+    evidence of a cited row, on both non-MINIGRID opportunity bodies and the shared list envelope."""
+    from assetops_backend.evidence import source_provenance as sp
+    from assetops_backend.mini_decisions.opportunities import unsupported_detail
+    from assetops_backend.mini_decisions_api import unsupported_envelope
+
+    dto = {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [], "evidence_ids": [],
+           "basis_sha256": None, "reasons": [{"code": sp.EMPTY_CITATION_SET, "accepted_evidence_ids": []}]}
+    assert sp.EMPTY_CITATION_SET == "EMPTY_CITATION_SET"
+    for body in (unsupported_detail(), unsupported_envelope()):
+        assert body["source_provenance"] == dto
+        assert body["selected_source_provenance"] is None and body["pending_source_provenance"] is None

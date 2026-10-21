@@ -825,7 +825,7 @@ function CanonicalMiniFinding({
           )}
         </ol>
         <span className="mini-finding-crumbs__site" data-mini-finding-site>
-          {"· site: "}
+          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
           <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
         </span>
       </nav>
@@ -843,7 +843,9 @@ function CanonicalMiniFinding({
           ) : undefined
         }
       />
-      <OperatorSiteTabs siteId={routeSiteId} current="Findings" />
+      {/* uF 3 (final review M6): the v69 Alternatives screen is a Findings surface with no Site tab row; every other
+          W1 Finding view keeps it. */}
+      {view === "alternatives" ? null : <OperatorSiteTabs siteId={routeSiteId} current="Findings" />}
       {view === null ? (
         <Panel heading="No such Finding section" headingId="site-finding-section-missing-heading">
           <p data-finding-read="not_found">
@@ -1065,7 +1067,7 @@ function OpportunityScreen({
           </li>
         </ol>
         <span className="mini-finding-crumbs__site" data-opportunity-crumb-site>
-          {"· site: "}
+          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
           <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
         </span>
       </nav>

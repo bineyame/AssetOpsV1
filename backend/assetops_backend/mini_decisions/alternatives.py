@@ -245,7 +245,17 @@ class AlternativeService:
         historical = explicit is not None and known < read_time
 
         finding = self._store.finding_root(c, t, s, root)
-        revisions = [r for r in self._store.finding_revisions(c, t, s, root) if r["created_at"] <= known]
+        every = [] if finding is None else self._store.finding_revisions(c, t, s, root)
+        if revision_id is not None and finding is not None:
+            # uF 1 (final review M1): an exact revision of this scoped mini dispatch Finding that is later than the
+            # read cutoff is the basis refusal 409, not 404 (supersedes u3 PR-5 reading 7 for this narrow case). An
+            # unknown, foreign-Site, wrong-Finding or non-mini/non-dispatch ID stays 404 below.
+            pinned = next((r for r in every if str(r["id"]).lower() == revision_id), None)
+            if (pinned is not None and finding["domain"] == FINDING_DOMAIN
+                    and pinned["analytic_id"] == FINDING_ANALYTIC
+                    and (pinned["created_at"] > known or finding["created_at"] > known)):
+                raise DecisionRefused("DECISION_BASIS_CHANGED")
+        revisions = [r for r in every if r["created_at"] <= known]
         if finding is None or finding["created_at"] > known or not revisions:
             raise DecisionRefused("DECISION_NOT_FOUND")
         latest = revisions[-1]

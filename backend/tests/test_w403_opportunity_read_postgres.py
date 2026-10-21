@@ -253,6 +253,34 @@ def test_pending_stale_missing_historical_current_precedence_and_jobs(store, eng
     settle(engine, touching)
 
 
+def test_uf6_delayed_pending_job_is_pending_throughout_its_delay(store, engine) -> None:  # noqa: F811
+    """uF 6 (final review L10): a PENDING opportunity job whose `available_at` is in the future (a retry back-off)
+    stays a pending source for the current read and for a cutoff after its creation; `available_at` limits leasing,
+    not whether the selected claim is current. The positive CURRENT state is withheld throughout the delay."""
+    t, s = mg(store, engine)
+    w = worker(engine)
+    w.reconcile(CODE, _midnight(DAYS[0]), _midnight(DAYS[-1] + timedelta(days=1)))
+    assert [o.status for o in w.run_pending(scan=False)] == ["DONE"]
+    svc = service(engine)
+
+    def full(**q):
+        body = page(svc, t, s, frm="2026-10-04T21:00:00.000000Z", **q)
+        return next(r for r in body["rows"] if r["opportunity"]["first_day"] == "2026-10-06")["currentness"]
+
+    assert (full()["state"], full()["job_state"]) == ("CURRENT", "SETTLED")
+    with engine.begin() as c:
+        delayed = c.execute(text(
+            "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, attempts, "
+            "available_at, created_at) VALUES (gen_random_uuid(), :t, :s, 'mini_opportunity', :lo, :hi, 'PENDING', 1, "
+            "clock_timestamp() + interval '1 hour', clock_timestamp()) RETURNING id"),
+            {"t": t, "s": s, "lo": _midnight(DAYS[0]), "hi": _midnight(DAYS[-1] + timedelta(days=1))}).scalar_one()
+    during = now(engine)
+    assert (full()["state"], full()["job_state"]) == ("PENDING_RECOMPUTE", "PENDING")
+    assert full(known=during)["state"] == "PENDING_RECOMPUTE"
+    settle(engine, delayed)
+    assert (full()["state"], full()["job_state"]) == ("CURRENT", "SETTLED")
+
+
 def test_stored_supported_result_unchanged_through_s9_pending_and_stale_reads(store, engine, tmp_path,
                                                                              capsys) -> None:  # noqa: F811
     """u4b: the persisted SUPPORTED revision read through the shared S9 basis at an exact cutoff, with pending newer

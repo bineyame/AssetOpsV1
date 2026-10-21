@@ -156,15 +156,33 @@
   color: var(--text-secondary);
 }
 
-/* M7 (final review): the v69 `.breadcrumbs` row is one wrapping flex line, so the Site suffix stays inline. */
+/*
+ * M7 (final review): the crumb trail and its Site suffix are one inline run, as the v69 `.breadcrumbs` line keeps
+ * them. Items carry no whitespace between them, so each separator stays glued to the crumb it introduces and a
+ * wrapped line never starts with `/` or `·`; long text wraps only at its own spaces.
+ */
 nav.mini-finding-crumbs {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 8px;
+  display: block;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+nav.mini-finding-crumbs .breadcrumbs__list,
+nav.mini-finding-crumbs .breadcrumbs__item {
+  display: inline;
+}
+
+nav.mini-finding-crumbs .breadcrumbs__item::before {
+  margin: 0 8px;
+}
+
+.mini-finding-crumbs__lead {
+  white-space: nowrap;
 }
 
 .mini-finding-crumbs__site {
+  margin-left: 8px;
   color: var(--text-secondary);
 }
 
@@ -214,13 +232,3 @@ nav.mini-finding-crumbs {
   color: var(--text-secondary);
 }
 
-/* M7: at narrow width the root gap sentence takes its own line, so the next crumb carries no leading separator. */
-@media (max-width: 600px) {
-  .breadcrumbs__item:has(> .mini-opportunity-crumbs__root) {
-    flex-basis: 100%;
-  }
-
-  .breadcrumbs__item:has(> .mini-opportunity-crumbs__root) + .breadcrumbs__item::before {
-    content: none;
-  }
-}

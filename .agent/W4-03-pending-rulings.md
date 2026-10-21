@@ -1,6 +1,6 @@
 # W4-03 pending rulings
 
-## PR-1 (raised in unit 1; does not block unit 1; needed before unit 4)
+## PR-1 (raised in unit 1) - RESOLVED by u1: `0030` carries the three `schedule_site_head` opportunity counters, the OPPORTUNITY stage CHECK and its downgrade; u3/unit 4 consume them (uF 7)
 
 S1 asks the OPPORTUNITY stage to carry "counters", but the S4/closure-1 catalog delta for 0030 lists only the
 altered stage CHECK and no `schedule_site_head` columns. W4-02 added `mini_processed/mini_deferred/mini_failed`
