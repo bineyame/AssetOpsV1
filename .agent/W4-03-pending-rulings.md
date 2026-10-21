@@ -48,7 +48,7 @@ Question: is the count 45 (u2's 47/48 miscounted), or are three named CHECKs mis
 columns and exact names)? Everything else in commit 1 passes: 11 collected, 10 passed, the only failure is
 `len(CHECKS) == 48` (actual 45). Commit 1 is on the branch with the ruled 48; unit 2b not started.
 
-## PR-4 (raised in unit 2b; does not block; provisional behaviour implemented)
+## PR-4 (RESOLVED by u2c on main 9796b0ed: 4.1/4.2 confirmed; 4.3 tightened; 4.4 decimal strings; 4.5 UNKNOWN empty-union currentness; applied in the u2c fix commit)
 
 The spec rules the non-MINIGRID refusal only for physical reads (closure 4 S10: 200 UNKNOWN `SITE_ROLE_UNSUPPORTED`
 envelope). Unit 2b took these provisional readings for scenarios (`mini_decisions_api.py`); confirm or replace:

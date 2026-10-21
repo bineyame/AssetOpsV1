@@ -48,9 +48,8 @@ ROUTE = "financials/scenarios"
 EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 PAGE_DEFAULT, PAGE_MAX, MAX_PINS = 50, 100, 5
 COMPUTED = (rules.ENERGY_ONLY, rules.GROSS_SCENARIO)
-#: Read-gate limitation codes (unit 2b reading; W4-02 codes reused where they exist).
-GATE_CODES = {"PENDING_RECOMPUTE": "RECOMPUTE_PENDING", "STALE_SOURCE": "SOURCE_STALE",
-              "UNKNOWN": "SELECTION_CHANGED"}
+#: u2c PR-4.3: the read-gate codes of a pin whose selected head matches (W4-02 states reused).
+GATE_CODES = {"PENDING_RECOMPUTE": "RECOMPUTE_PENDING", "STALE_SOURCE": "SOURCE_STALE"}
 
 
 def _shape(fn: Callable[..., Any], *args: Any) -> Any:
@@ -138,11 +137,9 @@ def parse_command(body: Any, *, correction: bool) -> dict[str, Any]:
     return canon
 
 
-def _number(text: str | None) -> int | float | None:
-    if text is None:
-        return None
-    value = Decimal(text)
-    return int(value) if value == value.to_integral_value() else float(value)
+def _decimal(text: str | None) -> str | None:
+    """u2c PR-4.4: the stored exact decimal as a normalized plain base-10 JSON string; null stays null."""
+    return None if text is None else rules.decimal_text(Decimal(text))
 
 
 def _instant(value: str, code: str) -> datetime:
@@ -405,9 +402,13 @@ class ScenarioService:
                                          "from": iso(lo), "to": iso(hi), "known_at": iso(known),
                                          "selection_token": token,
                                          "after": [iso(last["recorded_at"]), str(last["id"])]})
+        # u2c PR-4.5: the W4-02 aggregate over every eligible root's pinned days (before paging); an empty union
+        # asserts no current physical basis.
+        currentness = basis["currentness"] if days else {"state": "HISTORICAL" if historical else "UNKNOWN",
+                                                         "job_state": "NONE"}
         return {"schema_version": SCHEMA_LIST,
                 "window": {"from": iso(lo), "to": iso(hi), "known_at": iso(known)},
-                "status": "UNKNOWN", "currentness": basis["currentness"], **blocks,
+                "status": "UNKNOWN", "currentness": currentness, **blocks,
                 "total_count": len(heads),
                 "rows": [self._row(c, t, s, h, by_day, revisions, historical) for h in page],
                 "next_cursor": next_cursor, "selection_token": token}
@@ -423,8 +424,8 @@ class ScenarioService:
             codes.append(stored["reason"])
         for pin in pins:
             day = by_day[pin["local_day"]]
-            if day["mini_revision_id"] != pin["mini_revision_id"]:
-                codes.append("SELECTION_CHANGED")
+            if day.get("mini_revision_id") is None or day["mini_revision_id"] != pin["mini_revision_id"]:
+                codes.append("SELECTION_CHANGED")  # absent or different head; same revision, new seq is harmless
             elif day["state"] in GATE_CODES:
                 codes.append(GATE_CODES[day["state"]])
         if pins:
@@ -444,8 +445,8 @@ class ScenarioService:
             "authored_at": iso(head["recorded_at"]), "actor_id": head["actor_id"],
             "assumptions": head["assumptions"], "pinned_mini_revision_ids": list(head["pinned_mini_revision_ids"]),
             "scenario_state": "HISTORICAL" if historical else "DEFINED", "calculation_state": state,
-            "energy_kwh": _number(energy),
-            "gross_sales": None if gross is None else {"amount": _number(gross["amount"]),
+            "energy_kwh": _decimal(energy),
+            "gross_sales": None if gross is None else {"amount": _decimal(gross["amount"]),
                                                        "currency": gross["currency"], "basis": "SCENARIO"},
             "limitations": [{"code": code, "evidence_ids": []} for code in dict.fromkeys(codes)], "url": None}
 

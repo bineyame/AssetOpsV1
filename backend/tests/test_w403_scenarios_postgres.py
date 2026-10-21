@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.mini_decisions_api import build_mini_decisions_router
     from assetops_backend.mini_depth import projection
     from assetops_backend.mini_depth.inputs import load_hour_inputs, local_noon
-    from assetops_backend.mini_depth.read import MiniDepthRead
+    from assetops_backend.mini_depth.read import MiniDepthRead, renewable_revisions
     from assetops_backend.mini_depth.store import PostgresMiniDepthStore
 
 PRINCIPAL_ID = "service:w403-fixture"
@@ -303,8 +303,9 @@ def test_rows_pages_provenance_and_gate(store, engine, tmp_path, capsys) -> None
     unpinned = rows[0]
     assert (unpinned["calculation_state"], unpinned["pinned_mini_revision_ids"]) == ("NO_CALCULATION", [])
     assert unpinned["limitations"] == [{"code": "NOT_PRODUCTIVE_LOAD", "evidence_ids": []}]
-    computed = {"calculation_state": "GROSS_SCENARIO", "energy_kwh": 0.001,
-                "gross_sales": {"amount": 0.00025, "currency": "USD", "basis": "SCENARIO"}, "limitations": []}
+    # u2c PR-4.4: exact decimal strings on the wire.
+    computed = {"calculation_state": "GROSS_SCENARIO", "energy_kwh": "0.001",
+                "gross_sales": {"amount": "0.00025", "currency": "USD", "basis": "SCENARIO"}, "limitations": []}
     baseline = {r["id"]: r for r in page()["rows"]}
     for row in (baseline[a["id"]], baseline[b["id"]]):
         assert {k: row[k] for k in computed} == computed and row["scenario_state"] == "DEFINED"
@@ -407,3 +408,218 @@ def test_principal_scope_is_checked_before_the_body() -> None:
                              principal=lambda r, c, who=who: who)
         response = api.post(ROUTE, content=b"not json")
         assert response.status_code == 403 and response.json()["detail"]["code"] == "DECISION_WRITE_FORBIDDEN"
+
+
+# --- u2c (PR-4.1-4.5, corrected 2b anchor, closure 4 S9 owned by this unit-2b fix) ------------------------------
+
+UNSUPPORTED = {
+    "schema_version": "mini-scenarios-1", "window": {"from": None, "to": None, "known_at": None}, "status": "UNKNOWN",
+    "currentness": {"state": "UNKNOWN", "job_state": "NONE"},
+    "source_provenance": {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [], "evidence_ids": [],
+                          "basis_sha256": None,
+                          "reasons": [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]},
+    "selected_source_provenance": None, "pending_source_provenance": None, "total_count": 0, "rows": [],
+    "next_cursor": None, "selection_token": None, "limitations": [{"code": "SITE_ROLE_UNSUPPORTED", "evidence_ids": []}]}
+
+
+def test_u2c_non_minigrid_get_and_post() -> None:
+    body = tariff_command("w403-cold-01")
+    fix = {**tariff_command("w403-cold-02"), "supersedes_revision_id": str(uuid4()), "correction_reason": "Fix."}
+    corr = f"{ROUTE}/{uuid4()}/revisions"
+    # PR-4.1: 200 with the full unsupported envelope even with no decision store.
+    no_store = _router_client(_Registry(site_type="COLD_ROOM"), None, command_access=lambda r, c: None)
+    got = no_store.get(ROUTE)
+    assert got.status_code == 200 and got.json() == UNSUPPORTED
+    # PR-4.2: grant, then store availability, then the Site type; all before principal or body.
+    for path, payload in ((ROUTE, body), (corr, fix)):
+        assert no_store.post(path, json=payload).json()["detail"]["code"] == "DECISION_STORE_UNAVAILABLE"
+        denied = _router_client(_Registry(site_type="COLD_ROOM"), ScenarioService(None, None))  # type: ignore[arg-type]
+        refused = denied.post(path, json=payload)
+        assert refused.status_code == 403 and refused.json()["detail"]["code"] == "DECISION_WRITE_FORBIDDEN"
+        granted = _router_client(_Registry(site_type="COLD_ROOM"), ScenarioService(None, None),  # type: ignore[arg-type]
+                                 command_access=lambda r, c: None, principal=lambda r, c: None)
+        for out in (granted.post(path, json=payload), granted.post(path, content=b"not json")):
+            assert out.status_code == 422 and out.json()["detail"]["code"] == "DECISION_LINK_SCOPE_INVALID"
+
+
+class _Reader:
+    def __init__(self, classification="AUTHORED_DEMONSTRATION"):
+        self.classification = classification
+
+    def provenance_blocks(self, c, **kw):
+        return {"selected_source_provenance": {"classification": self.classification}}
+
+
+def test_u2c_row_gate_order_absent_head_and_decimal_strings() -> None:
+    """PR-4.3/4.4 at the row: stored reason first, absent head is SELECTION_CHANGED, same revision under a new seq is
+    harmless, deduplicated first-seen codes, and the stored arithmetic as exact decimal strings."""
+    rev = str(uuid4())
+    pins = [{"local_day": "2026-10-06", "selection_seq": 1, "mini_revision_id": rev},
+            {"local_day": "2026-10-07", "selection_seq": 2, "mini_revision_id": str(uuid4())}]
+    head = {"id": uuid4(), "public_no": 1, "revision_id": uuid4(), "name": "n", "kind": "PRODUCTIVE_LOAD",
+            "narrative": "x", "recorded_at": datetime(2026, 10, 20, tzinfo=timezone.utc), "actor_id": PRINCIPAL_ID,
+            "assumptions": [], "pinned_mini_revision_ids": sorted(p["mini_revision_id"] for p in pins),
+            "pinned_selection_hours": pins,
+            "calculation": {"state": "GROSS_SCENARIO", "energy_kwh": "0.0010", "reason": None,
+                            "gross_sales": {"amount": "0.000250", "currency": "USD"}}}
+    revisions = {p["mini_revision_id"]: {"evidence_ids": []} for p in pins}
+    service = ScenarioService(None, _Reader())  # type: ignore[arg-type]
+    same = {"2026-10-06": {"mini_revision_id": rev, "selection_seq": 9, "state": "CURRENT"},
+            "2026-10-07": {"mini_revision_id": pins[1]["mini_revision_id"], "selection_seq": 2, "state": "CURRENT"}}
+    row = service._row(None, uuid4(), uuid4(), head, same, revisions, False)
+    assert (row["calculation_state"], row["energy_kwh"], row["gross_sales"]["amount"], row["limitations"]) == (
+        "GROSS_SCENARIO", "0.001", "0.00025", [])
+    assert isinstance(row["energy_kwh"], str) and isinstance(row["gross_sales"]["amount"], str)
+    absent = {"2026-10-06": {"mini_revision_id": None, "selection_seq": None, "state": "UNKNOWN"},
+              "2026-10-07": {**same["2026-10-07"], "state": "PENDING_RECOMPUTE"}}
+    gated = service._row(None, uuid4(), uuid4(), head, absent, revisions, False)
+    assert [x["code"] for x in gated["limitations"]] == ["SELECTION_CHANGED", "RECOMPUTE_PENDING"]
+    assert (gated["calculation_state"], gated["energy_kwh"], gated["gross_sales"]) == ("WITHHELD", None, None)
+    assert head["calculation"]["energy_kwh"] == "0.0010"  # the stored calculation is untouched
+    reasoned = {**head, "calculation": {"state": "WITHHELD", "energy_kwh": None, "gross_sales": None,
+                                         "reason": "HEADROOM_BELOW_LOAD"}}
+    stale = {day: {**v, "state": "STALE_SOURCE"} for day, v in same.items()}
+    mixed = ScenarioService(None, _Reader("MIXED"))  # type: ignore[arg-type]
+    out = mixed._row(None, uuid4(), uuid4(), reasoned, stale, revisions, True)
+    assert [x["code"] for x in out["limitations"]] == ["HEADROOM_BELOW_LOAD", "SOURCE_STALE", "SOURCE_CLASS_MIXED"]
+    assert out["scenario_state"] == "HISTORICAL" and out["energy_kwh"] is None
+
+
+def _w402(engine, t, s, days, known):
+    return _read(engine, t, s, "renewable", _midnight(days[0]), _midnight(days[-1] + timedelta(days=1)),
+                 known_at=known)
+
+
+def test_u2c_currentness_reselection_and_s9_parity(store, engine, tmp_path, capsys) -> None:  # noqa: F811
+    t, s = mg_published(store, engine, tmp_path, capsys)
+    pins = selected_pins(engine, t, s)
+    decisions = {r["day"]: r["decision"] for r in _w402(engine, t, s, DAYS, None)["rows"]}
+    eligible = [i for i, p in enumerate(pins) if decisions[p["local_day"]] == "ELIGIBLE"]
+    start = next(i for i in eligible if i + 1 in eligible)
+    pins_a = pins[start:start + 2]
+    days_a = [DAYS[start], DAYS[start + 1]]
+    service = ScenarioService(PostgresMiniDecisionStore(engine), MiniDepthRead(engine, link_rows_on))
+    who = principal_for(t, s)
+
+    def page(**q):
+        return service.list(t, s, parse_list(q.get("from"), q.get("to"), q.get("limit"),
+                                             [q["known_at"]] if "known_at" in q else [], q.get("cursor")), "basis")
+
+    # PR-4.5: an empty list and an unpinned row assert no current physical basis.
+    empty = page()
+    assert empty["total_count"] == 0 and empty["currentness"] == {"state": "UNKNOWN", "job_state": "NONE"}
+    assert service.create(t, s, who, load_command("w403-u2c-a01", pins_a, "Pinned."))[0] == 201
+    k_pinned = db_now(engine)
+    assert service.create(t, s, who, tariff_command("w403-u2c-b01"))[0] == 201
+    k_both = db_now(engine)
+    window = {"from": k_pinned.isoformat(), "to": (k_both + timedelta(seconds=1)).isoformat()}
+    only_unpinned = page(**window)
+    assert only_unpinned["total_count"] == 1
+    assert only_unpinned["currentness"] == {"state": "UNKNOWN", "job_state": "NONE"}
+    assert only_unpinned["rows"][0]["scenario_state"] == "DEFINED"
+    past_unpinned = page(**window, known_at=k_both.isoformat())
+    assert past_unpinned["currentness"] == {"state": "HISTORICAL", "job_state": "NONE"}
+    assert past_unpinned["rows"][0]["scenario_state"] == "HISTORICAL"
+    # Pagination: page one holds only the unpinned row; the off-page pins still set envelope currentness.
+    first = page(limit="1")
+    assert first["rows"][0]["pinned_mini_revision_ids"] == [] and first["currentness"]["state"] == "CURRENT"
+    assert page(limit="1", cursor=first["next_cursor"])["currentness"] == first["currentness"]
+
+    def parity(known, expected=None):
+        """S9: the W4-02 read and the W4-03 list at one explicit cutoff agree on head, currentness and blocks."""
+        w4 = _w402(engine, t, s, days_a, known)
+        mine = page(known_at=known.isoformat())
+        heads = [w["assessment_revision_id"] for w in w4["currentness"]["windows"]]
+        assert heads == [p["mini_revision_id"] for p in (expected or pins_a)]
+        for key in ("state", "job_state"):
+            assert mine["currentness"][key] == w4["currentness"][key], key
+        # S20: the scenario's selected block is its exact pins' union, so it equals W4-02's only while they are heads.
+        for key in ("selected_source_provenance", "pending_source_provenance", "source_provenance"):
+            if expected is None or key == "pending_source_provenance":
+                assert mine[key] == w4[key], key
+        return w4, next(r for r in mine["rows"] if r["pinned_mini_revision_ids"])
+
+    _, row = parity(db_now(engine))
+    assert row["calculation_state"] == "GROSS_SCENARIO" and row["energy_kwh"] == "0.001"
+    # Harmless same-revision reselection (closure 4 S5): a new seq, no code, arithmetic kept.
+    mini = PostgresMiniDepthStore(engine)
+    with mini.snapshot() as c:
+        cutoff = renewable_revisions(c, t, s, [pins_a[0]["mini_revision_id"]])[pins_a[0]["mini_revision_id"]][
+            "knowledge_cutoff"]  # the same inputs at the same cutoff: the stored revision is reused
+        inputs = load_hour_inputs(c, t, s, local_noon(days_a[0], ZONE), cutoff)
+        mini.append_selection(projection.project("renewable", inputs), job_id=None, backfill=True, connection=c)
+    after = selected_pins(engine, t, s, days_a)
+    assert after[0]["mini_revision_id"] == pins_a[0]["mini_revision_id"]
+    assert after[0]["selection_seq"] != pins_a[0]["selection_seq"]
+    _, row = parity(db_now(engine))
+    assert row["limitations"] == [] and row["calculation_state"] == "GROSS_SCENARIO"
+    k_clean = db_now(engine)
+
+    # Pending newer evidence: a live renewable job on the first pinned day.
+    noon = local_noon(days_a[0], ZONE)
+    with engine.begin() as c:
+        c.execute(text("SELECT mini_enqueue_hour(:t, :s, 'mini_renewable', :lo, :hi, NULL, clock_timestamp())"),
+                  {"t": t, "s": s, "lo": noon.start, "hi": noon.end})
+    w4, row = parity(db_now(engine))
+    assert w4["currentness"]["state"] == "PENDING_RECOMPUTE" and w4["pending_source_provenance"] is not None
+    assert "RECOMPUTE_PENDING" in [x["code"] for x in w4["limitations"]]
+    assert [x["code"] for x in row["limitations"]] == ["RECOMPUTE_PENDING"]
+    assert (row["calculation_state"], row["energy_kwh"], row["gross_sales"]) == ("WITHHELD", None, None)
+    # Historical replay at the earlier cutoff: that cutoff's heads and jobs, the stored arithmetic.
+    _, replay = parity(k_clean)
+    assert replay["scenario_state"] == "HISTORICAL" and replay["energy_kwh"] == "0.001"
+    assert replay["limitations"] == []
+    _reconcile(engine, days_a[:1])  # the job is done; day one now has a new selected revision
+    moved = selected_pins(engine, t, s, days_a)
+    assert moved[0]["mini_revision_id"] != pins_a[0]["mini_revision_id"] and moved[1] == pins_a[1]
+
+    # Stale digest: an ambiguous covering Foundation (test-only replica edit, no job) makes the heads STALE_SOURCE.
+    with engine.begin() as c:
+        c.execute(text("SET LOCAL session_replication_role = replica"))
+        for sql in ("CREATE TEMP TABLE f_copy ON COMMIT DROP AS SELECT * FROM foundation_revision "
+                    "WHERE site_id = :s AND superseded_at IS NULL",
+                    "UPDATE f_copy SET id = gen_random_uuid(), version = version + 1000, "
+                    "recorded_at = clock_timestamp(), superseded_at = '2999-01-01Z', origin = 'PUBLISH'",
+                    "INSERT INTO foundation_revision SELECT * FROM f_copy"):
+            c.execute(text(sql), {"s": s})
+    w4, row = parity(db_now(engine), moved)
+    assert w4["currentness"]["state"] == "STALE_SOURCE"
+    assert "SOURCE_STALE" in [x["code"] for x in w4["limitations"]]
+    assert [x["code"] for x in row["limitations"]] == ["SELECTION_CHANGED", "SOURCE_STALE"]
+    assert row["calculation_state"] == "WITHHELD"
+
+
+def test_u2c_fractional_row_bound_is_the_basis(store, engine) -> None:  # noqa: F811
+    """Corrected 2b anchor: the basis bound is `result.rows[0].opportunity_kwh` of the selected stored revision."""
+    t, s = mg(store, engine)
+    day = DAYS[1]
+    mini = PostgresMiniDepthStore(engine)
+    with mini.snapshot() as c:
+        inputs = load_hour_inputs(c, t, s, local_noon(day, ZONE), mini.clock(c))
+        revision = projection.project("renewable", inputs)
+        result = dict(revision.result)
+        result["hour"] = {**{k: v for k, v in result["hour"].items() if k != "opportunity_kwh"},
+                          "decision": "ELIGIBLE"}
+        result["rows"] = [{**result["rows"][0], "decision": "ELIGIBLE",
+                           "opportunity_kwh": {"low": 0.0125, "high": 0.375}}]
+        mini.append_selection(replace(revision, result=result), job_id=None, backfill=True, connection=c)
+    reader = MiniDepthRead(engine, link_rows_on)
+    with engine.connect() as c:
+        basis = reader.read_selected_renewable_basis(c, tenant_id=t, site_id=s, days=[day], known=db_now(engine),
+                                                     historical=False)
+    assert basis["days"][0]["opportunity_kwh"] == {"low": 0.0125, "high": 0.375}
+    pin = selected_pins(engine, t, s, [day])
+    service = ScenarioService(PostgresMiniDecisionStore(engine), reader)
+    who = principal_for(t, s)
+
+    def stored(key, kw):
+        cmd = load_command(key, pin)
+        cmd["assumptions"][0]["value"] = kw
+        assert service.create(t, s, who, cmd)[0] == 201
+        with engine.connect() as c:
+            return c.execute(text("SELECT calculation FROM mini_scenario_revision WHERE idempotency_key = :k"),
+                             {"k": key}).scalar_one()
+
+    fits = stored("w403-frac-001", "0.0125")
+    assert fits["state"] == "GROSS_SCENARIO" and fits["energy_kwh"] == "0.0125"
+    assert stored("w403-frac-002", "0.0126")["reason"] == "HEADROOM_BELOW_LOAD"
