@@ -21,6 +21,8 @@ def test_limits_and_lease_budget() -> None:
     limits = TickLimits()
     assert (limits.opportunity_jobs_per_site, limits.opportunity_seconds) == (10, 120)
     assert limits.site_lease_seconds == 120 + 120 + 120 + 120 + 60 + 60
+    # u4b: the literal default, so a future stage change forces an explicit budget review.
+    assert limits.site_lease_seconds == 600
     assert OPPORTUNITY_JOB_LEASE_SECONDS == 300 == MiniOpportunityWorker(None, None).lease.total_seconds()
     for bad in (0, -1, 300, 301):
         with pytest.raises(ValueError, match="OPPORTUNITY stage bound"):
@@ -78,3 +80,27 @@ def test_opportunity_only_site_is_selected_and_failed_only_is_not() -> None:
     assert not_selected == 1
     assert [(e["site_code"], [j["status"] for j in e["live_opportunity_jobs"]], e["live_mini_jobs"])
             for e in excluded] == [("ONLY-OPP", ["PENDING"], []), ("GONE", ["LEASED"], [])]
+
+
+def test_run_pending_cli_parses_limit_and_calls_the_worker(monkeypatch) -> None:
+    """u4b: `main(['run-pending', '--limit', '1'])` calls `run_pending(1)` on the built worker (stub, no database)."""
+    from assetops_backend.mini_decisions import worker as worker_module
+
+    calls: list[tuple] = []
+
+    class StubStore:
+        def dispose(self) -> None:
+            calls.append(("dispose",))
+
+    class StubWorker:
+        store = StubStore()
+
+        def run_pending(self, *args, **kwargs):
+            calls.append(("run_pending", args, kwargs))
+            return []
+
+    monkeypatch.setenv("DATABASE_URL", "postgresql://stub")
+    monkeypatch.setattr(worker_module, "build_worker", lambda url: StubWorker())
+    assert worker_module.RUN_PENDING_COMMAND == "run-pending"
+    assert worker_module.main(["run-pending", "--limit", "1"]) == 0
+    assert calls == [("run_pending", (1,), {}), ("dispose",)]

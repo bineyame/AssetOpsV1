@@ -121,6 +121,9 @@ def test_exact_five_day_selection_and_unchanged_reselection(store, engine) -> No
     w.jobs.test_clock_override = lambda: local_noon(DAYS[-1], ZONE).start + timedelta(days=5)
     assert w.enqueue_from_selections(t, s) == [] and w.run_pending(scan=False) == []
     assert counts(engine) == before
+    # u4b ruling 1: both persisted producer columns are unchanged after the unchanged rerun.
+    [kept] = revisions(engine)
+    assert (kept.id, kept.producer_id, kept.model_version) == (rev.id, "mini-opportunity/1", "mini-opportunity/1")
     # The unchanged study is not queued again by reconcile either.
     assert w.reconcile(CODE, *STUDY) == []
     # Resume: a duplicate job for the same study reuses the revision and appends no selection.
