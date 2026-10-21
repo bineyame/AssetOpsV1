@@ -11,7 +11,7 @@ DEFAULT 0) to `schedule_site_head`, with the downgrade dropping them? Or should 
 counts without persisted columns? If the answer is columns, unit 4 amends 0030 and its catalog test, which is
 possible because the branch is not merged.
 
-## PR-2 (raised in unit 2b; blocks unit 2b; amends 0030)
+## PR-2 (RESOLVED by u2: narrative column landed in c351eed1; readings 1-3 confirmed)
 
 The scenario command carries a required `narrative` (closure 1 Q1-Q3 literal request shapes; original Scenario
 domain paragraph: "typed quantities/units, narrative, assumption source"). Neither the original
@@ -32,7 +32,7 @@ Confirmations requested in the same ruling (unit 2b would otherwise take these r
    provenance key is added to the closure-1 row shape.
 3. `scenario_state` is `HISTORICAL` for an explicit past `known_at`, else `DEFINED`.
 
-## PR-3 (raised in commit 1 of u1/u2; blocks commit 1's count assertion and unit 2b)
+## PR-3 (RESOLVED by u2b: count is 45, the 48 was an arithmetic error; no DDL change)
 
 u1/u2 DDL is applied exactly as ruled (three `schedule_site_head` counters, `narrative` column and
 `mini_scenario_revision_narrative_check`, downgrade column drop). `pg_catalog` then reports **45** named CHECKs on the
@@ -47,3 +47,19 @@ authored; the other three tables 0. `schedule_site_head` keeps 2 CHECKs at 0029 
 Question: is the count 45 (u2's 47/48 miscounted), or are three named CHECKs missing from 0030 (if so, which tables,
 columns and exact names)? Everything else in commit 1 passes: 11 collected, 10 passed, the only failure is
 `len(CHECKS) == 48` (actual 45). Commit 1 is on the branch with the ruled 48; unit 2b not started.
+
+## PR-4 (raised in unit 2b; does not block; provisional behaviour implemented)
+
+The spec rules the non-MINIGRID refusal only for physical reads (closure 4 S10: 200 UNKNOWN `SITE_ROLE_UNSUPPORTED`
+envelope). Unit 2b took these provisional readings for scenarios (`mini_decisions_api.py`); confirm or replace:
+1. `GET .../financials/scenarios` on a non-MINIGRID Site returns 200 with the `mini-scenarios-1` keys, `status`
+   UNKNOWN, zero rows, the empty UNKNOWN provenance alias, `selection_token: null`, plus a `limitations` key
+   `[{"code":"SITE_ROLE_UNSUPPORTED","evidence_ids":[]}]` (no store consulted).
+2. A scenario POST on a non-MINIGRID Site is 422 `DECISION_LINK_SCOPE_INVALID` after the write grant and store
+   check, before the principal and body.
+3. Read-gate limitation codes on a scenario row: the stored calculation `reason`, then `SELECTION_CHANGED` (pinned
+   revision is no longer the day's head), `RECOMPUTE_PENDING`, `SOURCE_STALE`, `SOURCE_CLASS_UNKNOWN|MIXED`
+   (W4-02 codes reused), as `{code, evidence_ids: []}`.
+4. `gross_sales.amount` is a JSON number on the read wire, like `energy_kwh` (stored as a decimal string).
+5. Scenario list `currentness` is the W4-02 aggregate over the union of pinned days; with no pinned day it is
+   `CURRENT` (or `HISTORICAL` for an explicit past cutoff) with `job_state: NONE`.
