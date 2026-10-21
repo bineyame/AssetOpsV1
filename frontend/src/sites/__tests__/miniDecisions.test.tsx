@@ -36,8 +36,6 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { settledScreen } from "../../test/settled";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 
 /*
  * W4-03 unit 6a ("Unit-5..12 rulings (u5)" Units 6a-6b; closure 1 Scenarios UI; closure 4 S13/S15): mini
@@ -184,7 +182,10 @@ const atWidth = (w: number) => {
   Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: w });
   window.dispatchEvent(new Event("resize"));
 };
-const MINI_CSS = readFileSync(resolve(__dirname, "../w4-mini-decisions.css"), "utf-8").replace(/\s+/g, " ");
+// The stylesheet as text (jsdom has no layout); Node's fs is untyped here, paths relative to `frontend/` (estate pattern).
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+const FRONTEND_CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+const MINI_CSS = NODE_FS.readFileSync(`${FRONTEND_CWD}/src/sites/w4-mini-decisions.css`, "utf8").replace(/\s+/g, " ");
 
 describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
   it("scenario_empty_populated_and_refused", async () => {
