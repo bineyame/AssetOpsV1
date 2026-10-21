@@ -544,3 +544,12 @@ $expectedTabs = @("Scenarios", "Cooling", "Recommendation", "Recommendation",
 ```
 
 `Alternatives` has zero unavailable occurrences; `Analysis` has one, from the mini canonical Finding row. Unit 6b owns the final guard and positive/negative fixture change from `Alternatives` to `Analysis`; unit 6a owns the preceding Scenarios adjustment. Keep `$expectedChips = @("Cost", "Risks", "Opportunities")`. This resolves the B4 ambiguity in closure 4 and its check without adding tabs to cold or EV Findings.
+
+**Post-W4-03 W2-F amendment (2026-10-21).** The literal above is the W4-03 handoff inventory, after units 6a and 6b and before W2-F. Merge W4-03 before W2-F touches `EvSiteViews.tsx` or the navigation guard. W2-F unit 4 then adds one unavailable EV Financials `Scenarios` tab, shared by its Overview and Assumptions screens, and atomically changes the final guard to:
+
+```powershell
+$expectedTabs = @("Scenarios", "Scenarios", "Cooling", "Recommendation", "Recommendation",
+    "Availability", "Energy / site power", "Analysis")
+```
+
+The two unavailable `Scenarios` literals are cold and EV; mini Scenarios remains live. `Alternatives` remains absent from the unavailable inventory, `Analysis` occurs once, and `$expectedChips` stays `@("Cost", "Risks", "Opportunities")`. The earlier Q24 two-Scenarios list is not the W4-03 handoff contract; its Incidents/Maintenance entries are already live from W4-01. W2-F's `Review closure (2026-10-21)` S11 and unit 4 own this later delta and its fixture.
