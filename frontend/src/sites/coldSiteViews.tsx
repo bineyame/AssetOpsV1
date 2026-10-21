@@ -34,7 +34,7 @@ import { ColdTemperatureChart } from "./assessmentGraphics";
 import { selectedClassification } from "./sourceProvenance";
 import { claimWord, classificationWord, plainCode, plainLimitation, reasonWord, STEP_LABELS } from "./coldAssessmentWords";
 import { roleLabel } from "./ColdFoundationViews";
-import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, hm, windowText } from "./coldFormat";
+import { NOT_ASSESSED, NOT_RECORDED, date, dayHm, decimal, degreeMinutes, hm, windowText } from "./coldFormat";
 import "./w2-cold-site.css";
 
 /*
@@ -158,11 +158,8 @@ const OTHER_SOURCE_NAME: Record<string, string> = {
   manual_temperature: "Manual room log",
 };
 
-const ASSUMPTION_ROWS: [string, string][] = [
-  ["cold_stock_quantity", "Stock quantity in chamber"],
-  ["cold_stock_unit_value", "Stock unit value"],
-  ["cold_exposure_rule", "Product exposure rule"],
-];
+/** W2-F S1: the product claim's required basis, listed as requirements, never as accepted records. */
+const PRODUCT_REQUIRED_BASIS = "Product identity; stock quantity and unit value; currency; reviewed product response rule";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 /** The mock's `Measured (EAT)` time: East Africa Time (UTC+3, no daylight saving), while data stays UTC. */
@@ -453,7 +450,8 @@ function OverviewCards({ o, evidence, routes }: { o: ColdOverviewRead; evidence:
   const backupNote = !backupAssessed
       ? "Backup result not observed"
       : `${b.attempts} ${b.attempts === 1 ? "start attempt" : "start attempts"} · ${b.observed_success} started · ${b.observed_failure} failed`;
-  const coolingChip = { SUPPORTED: "Supported", LIMITED: "Limited", CONTRADICTORY: "Contradictory" }[o.cooling.state] ?? "Unknown";
+  // W2-F S2: cooling recovery is never supported in W2 (no ordered-recovery assessment), so no supported chip exists.
+  const coolingChip = ({ LIMITED: "Limited", CONTRADICTORY: "Contradictory" } as Record<string, string>)[o.cooling.state] ?? "Unknown";
   const caps = evidence?.capabilities ?? [];
   // The same row-based rule as the Evidence status chip (Run-7), so Overview and Evidence agree.
   const evidenceChip = evidenceState(caps);
@@ -614,6 +612,7 @@ function OverviewScreen(p: ScreenProps) {
               <div className="metric-value v69-metric__value" data-cold-money="unpriced">
                 Not priced
               </div>
+              <p className="prose" data-cold-money-basis>{quantityPhrase(money!.quantity)}</p>
               <p className="prose">Potential product exposure. Stock value and product response are not declared, so no loss figure is stated.</p>
             </>
           ) : (
@@ -677,12 +676,9 @@ const COLD_TONE: Record<string, string> = {
 };
 const toneClass = (word: string): string | undefined => (COLD_TONE[word] === undefined ? undefined : `cold-tone--${COLD_TONE[word]}`);
 
-/** Run-9 L1: the quantity phrase from the selected consequence's nullable bounds. */
+/** Run-9 L1 / W2-F S8: the selected consequence's stored quantity bounds, labelled as the consequence basis. */
 function quantityPhrase(b: { low: string | null; high: string | null }): string {
-  const low = decimal(b.low);
-  if (low === null) return "Exposure amount not established";
-  const high = decimal(b.high);
-  return high === null ? `at least ${low} °C-minutes (upper bound unknown)` : `${low}–${high} °C-minutes`;
+  return `Consequence basis: ${degreeMinutes(b.low, b.high)}`;
 }
 
 function qualityText(sources: ColdSource[]): string {
@@ -752,7 +748,8 @@ function EvidenceScreen(p: ScreenProps) {
   const foundation = e === null ? null : coldUiHref(e.links.foundation, p.routes);
   const missing: { role: string; label: string }[] = [];
   for (const row of CAP_ROWS) for (const role of rowMissing(caps, row.claims)) if (!missing.some((m) => m.role === role)) missing.push({ role, label: row.label });
-  const exposureConsidered = ["LIMITED", "SUPPORTED", "CONTRADICTORY"].includes(caps.find((c) => c.claim === "PRODUCT_EXPOSURE")?.state ?? "UNAVAILABLE");
+  // W2-F S5: the stock prompt follows a selected excursion (basis presence), never the product capability chip.
+  const excursionPresent = e?.selected_excursion_present === true;
   const channels = e?.sources ?? [];
   return (
     <>
@@ -786,7 +783,13 @@ function EvidenceScreen(p: ScreenProps) {
               {CAP_ROWS.map((row) => {
                 const chip = rowChip(caps, row.claims);
                 const miss = rowMissing(caps, row.claims).map(roleName);
-                const missText = miss.length > 0 ? miss.join(", ") : chip === "Full" ? "Nothing required for this claim" : "Coverage or claim basis incomplete";
+                // W2-F S1: the cooling and product claims show their missing roles first, then the selected capability's
+                // claim limitation; they never fall back to `Nothing required for this claim`.
+                const claimRow = row.key === "cooling" || row.key === "exposure";
+                const limits = claimRow ? row.claims.flatMap((c) => limitText(caps.find((x) => x.claim === c)?.limitation) ?? []) : [];
+                const parts = [...(miss.length > 0 ? [miss.join(", ")] : []), ...limits];
+                const missText =
+                  parts.length > 0 ? parts.join(" · ") : chip === "Full" && !claimRow ? "Nothing required for this claim" : "Coverage or claim basis incomplete";
                 return (
                   <tr key={row.key} data-capability-row={row.key}>
                     <th scope="row">{row.label}</th>
@@ -794,7 +797,7 @@ function EvidenceScreen(p: ScreenProps) {
                       <Badge tone="neutral" className={toneClass(chip)}>{chip}</Badge>
                     </td>
                     <td>{row.key === "exposure" ? `${SAY[chip]} Thermal exposure does not prove product loss.` : SAY[chip]}</td>
-                    <td>{row.key === "exposure" ? `${missText} · Stock identity and value are not declared` : missText}</td>
+                    <td>{row.key === "exposure" ? `${missText} · Required basis: ${PRODUCT_REQUIRED_BASIS}` : missText}</td>
                     <td>
                       {row.next === "financials" ? <ToLink href={financials}>Review financials</ToLink> : <ToLink href={analysis}>Review evidence</ToLink>}
                     </td>
@@ -934,7 +937,7 @@ function EvidenceScreen(p: ScreenProps) {
             <RefusedGap id="cold-site-next-evidence" refusal={refused} />
           ) : none ? (
             <Gap id="cold-site-next-evidence">{NO_COLD_ASSESSMENT}</Gap>
-          ) : missing.length === 0 && !exposureConsidered ? (
+          ) : missing.length === 0 && !excursionPresent ? (
             <Gap id="cold-site-next-evidence">Next evidence not identified</Gap>
           ) : (
             <AttentionList
@@ -950,7 +953,7 @@ function EvidenceScreen(p: ScreenProps) {
                     </p>
                   ),
                 })),
-                ...(exposureConsidered
+                ...(excursionPresent
                   ? [
                       {
                         key: "stock",
@@ -1194,14 +1197,14 @@ function FinancialsScreen(p: ScreenProps) {
           </StatusBar>
           <MetricCards label="Money consequence">
             <MetricCard
-              label="Product exposure"
+              label="Chamber thermal exposure"
               value={first === undefined ? NOT_ASSESSED : first.state === "WITHHELD" ? "Withheld" : first.state === "UNPRICED" ? "Unpriced" : NOT_ASSESSED}
               note={
                 first !== undefined && first.state === "UNPRICED"
                   ? quantityPhrase(first.quantity_bounds)
                   : first !== undefined && first.state === "WITHHELD"
                     ? (limitText(first.reason) ?? NOT_RECORDED)
-                    : "No product exposure consequence assessed"
+                    : "No chamber thermal exposure consequence assessed"
               }
               word
               data={{ "data-cold-card": "exposure" }}
@@ -1244,7 +1247,7 @@ function FinancialsScreen(p: ScreenProps) {
                   const withheld = c.state === "WITHHELD";
                   return (
                     <tr key={c.id} data-consequence-row={c.kind}>
-                      <th scope="row">{`Chamber temperature exposure: ${quantityPhrase(c.quantity_bounds)}`}</th>
+                      <th scope="row">{`Chamber thermal exposure · ${quantityPhrase(c.quantity_bounds)}`}</th>
                       <td>Stock value × product response rule — not declared</td>
                       <td>{withheld ? "Withheld" : "Not priced"}</td>
                       <td>
@@ -1271,6 +1274,11 @@ function FinancialsScreen(p: ScreenProps) {
             </DataTable>
             {exposures.length === 0 && start === null ? null : (
               <Disclosure summary="Basis details" name="cold-site-basis-details">
+                {exposures.length === 0 ? null : (
+                  <p className="prose" data-cold-thermal-basis-note>
+                    Thermal exposure does not establish product damage or loss. The consequence bound may be wider than the observed excursion estimate.
+                  </p>
+                )}
                 {exposures.map((c, i) => {
                   const bs = c.exact_basis;
                   const code = (v: string | null) => (v === null ? NOT_RECORDED : <code data-vocabulary-exempt="source-reference">{v}</code>);
@@ -1289,7 +1297,7 @@ function FinancialsScreen(p: ScreenProps) {
                   return (
                     <div className="cold-site-group" key={c.id} data-basis-detail={c.id}>
                       <p>
-                        <strong>{exposures.length > 1 ? `Product exposure ${i + 1}` : "Product exposure"}</strong>
+                        <strong>{exposures.length > 1 ? `Chamber thermal exposure ${i + 1}` : "Chamber thermal exposure"}</strong>
                       </p>
                       <dl className="exact-references__list">
                         {rows.map(([label, v]) => (
@@ -1322,7 +1330,6 @@ function FinancialsScreen(p: ScreenProps) {
           ) : (
             <>
               <AssumptionValues read={s!} />
-              <p className="v69-chart-note">No assumption in use · Cold stock and exposure assumptions have not been declared</p>
               <p className="cold-panel-link">
                 <ToLink href={coldUiHref(f?.links.assumptions, p.routes) ?? selected(p.routes.assumptions, s!.window)}>Review assumptions</ToLink>
               </p>
@@ -1355,15 +1362,46 @@ function assumptionValue(read: ColdAssumptionsRead, key: string): string {
   return `${item.value}${item.unit === null ? "" : ` ${item.unit}`}`;
 }
 
+const NOT_DECLARED = "Not declared";
+
+/**
+ * W2-F M7/N6: the one assumption projection shared by Financials `Assumptions in use` and the Assumptions table, in
+ * mock order. Stock value is shown as `{quantity} × {unit value} {currency}` only when both inputs are declared in
+ * the selected read; it is never multiplied, and undeclared inputs give `Not declared`.
+ */
+function coldAssumptionRows(read: ColdAssumptionsRead | null): { key: string; label: string; value: string; used: string }[] {
+  const declared = (key: string) => {
+    const item = read?.items.find((i) => i.key === key);
+    return item === undefined || item.value === null || read!.missing_keys.includes(key) ? null : item;
+  };
+  const quantity = declared("cold_stock_quantity");
+  const unitValue = declared("cold_stock_unit_value");
+  const currency = unitValue?.currency ?? read?.items.find((i) => i.currency !== null)?.currency ?? null;
+  const stock =
+    quantity === null || unitValue === null
+      ? NOT_DECLARED
+      : `${assumptionValue(read!, "cold_stock_quantity")} × ${unitValue.value}${currency === null ? "" : ` ${currency}`}`;
+  return [
+    { key: "stock", label: "Stock value in chamber", value: stock, used: "Pricing product exposure" },
+    { key: "rule", label: "Product exposure rule", value: read === null ? NOT_DECLARED : assumptionValue(read, "cold_exposure_rule"), used: "Translating thermal exposure" },
+    {
+      key: "currency",
+      label: "Currency",
+      value: currency !== null ? currency : read === null || read.currency_state === "UNDECLARED" ? NOT_DECLARED : NOT_RECORDED,
+      used: "Displaying a priced consequence",
+    },
+  ];
+}
+
+const noneDeclared = (rows: { value: string }[]) => rows.every((r) => r.value === NOT_DECLARED);
+
 function AssumptionValues({ read }: { read: ColdAssumptionsRead }) {
+  const rows = coldAssumptionRows(read);
   return (
-    <KeyValues
-      label="Assumptions in use"
-      rows={[
-        ...ASSUMPTION_ROWS.map(([key, label]) => [label, assumptionValue(read, key), key] as [string, string, string]),
-        ["Currency", read.currency_state === "UNDECLARED" ? "Not declared" : NOT_RECORDED, "currency"],
-      ]}
-    />
+    <>
+      <KeyValues label="Assumptions in use" rows={rows.map((r) => [r.label, r.value, r.key] as [string, string, string])} />
+      {noneDeclared(rows) ? <p className="v69-chart-note">No assumption in use · Cold stock and exposure assumptions have not been declared</p> : null}
+    </>
   );
 }
 
@@ -1374,12 +1412,7 @@ function AssumptionsScreen(p: ScreenProps) {
   if (read === null) return <p>{COLD_ASSESSMENT_LOADING}</p>;
   const s = value(read);
   const refused = refusalOf(read);
-  const stock = s === null ? "Not declared" : assumptionValue(s, "cold_stock_quantity") === "Not declared" || assumptionValue(s, "cold_stock_unit_value") === "Not declared" ? "Not declared" : `${assumptionValue(s, "cold_stock_quantity")} × ${assumptionValue(s, "cold_stock_unit_value")}`;
-  const rows: [string, string, string][] = [
-    ["Stock value in chamber", stock, "Pricing product exposure"],
-    ["Product exposure rule", s === null ? "Not declared" : assumptionValue(s, "cold_exposure_rule"), "Translating thermal exposure"],
-    ["Currency", s === null || s.currency_state === "UNDECLARED" ? "Not declared" : NOT_RECORDED, "Displaying a priced consequence"],
-  ];
+  const rows = coldAssumptionRows(s);
   return (
     <>
       <SelectedWindowBar read={s} extra={stateSentence(s)} />
@@ -1399,7 +1432,7 @@ function AssumptionsScreen(p: ScreenProps) {
               </tr>
             </thead>
             <tbody>
-              {rows.map(([label, v, used]) => (
+              {rows.map(({ label, value: v, used }) => (
                 <tr key={label} data-assumption-row={label}>
                   <th scope="row">{label}</th>
                   <td>{v === "Not declared" ? <Badge tone="neutral">{v}</Badge> : v}</td>
@@ -1408,7 +1441,7 @@ function AssumptionsScreen(p: ScreenProps) {
               ))}
             </tbody>
           </DataTable>
-          <p className="v69-chart-note">No assumption in use · Cold stock and exposure assumptions have not been declared</p>
+          {noneDeclared(rows) ? <p className="v69-chart-note">No assumption in use · Cold stock and exposure assumptions have not been declared</p> : null}
           </>
         )}
       </Panel>

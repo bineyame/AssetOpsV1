@@ -315,7 +315,7 @@ describe("W2-03: temperature", () => {
     expect(context).toContain("Door record 19:12");
     expect(document.querySelector('[data-cold-card="duration"]')?.textContent).toContain("At least 45 min");
     expect(document.querySelector('[data-cold-card="exposure"]')?.textContent).toContain("24.5–31");
-    expect(panelTitled("How each limit is set").textContent).toContain("No spoilage");
+    expect(panelTitled("Claim boundary").textContent).toContain("No spoilage");
   });
 
   it("links the excursion Finding only when it is persisted", async () => {
@@ -348,7 +348,7 @@ describe("W2-03: temperature", () => {
     expect(document.querySelectorAll("[data-cold-point]")).toHaveLength(7);
     expect(document.querySelectorAll(".cold-chart__line")).toHaveLength(2);
     expect(document.querySelector("[data-cold-gap]")?.textContent).toContain("No usable reading 19:15–19:45");
-    expect(panelTitled("How each limit is set").textContent).toContain("7 of 13 expected");
+    expect(panelTitled("Claim boundary").textContent).toContain("7 of 13 expected");
   });
 
   it("keeps the selected window in the subtab and Finding addresses", async () => {
@@ -424,11 +424,18 @@ describe("W2-03 q3: unavailable entries, wording and provenance", () => {
     expect(main().querySelector('a[href*="cooling"], a[href*="recommendation"]')).toBeNull();
   });
 
-  it("uses the approved panel title and keeps the mock title out", async () => {
-    renderCold(ROUTES[0][1], STOCKED);
+  // W2-F N0/M4: the v69 title, in the third slot, on loaded, no-selection and refused reads; the plain variant is gone.
+  it.each([
+    ["loaded", STOCKED],
+    ["no selection", EMPTY],
+    ["refused", REFUSED],
+  ] as const)("w2f_temperature_claim_boundary_title (%s)", async (_label, reads) => {
+    renderCold(ROUTES[0][1], reads);
     await settledScreen();
-    expect(panelTitled("How each limit is set")).not.toBeNull();
-    expect(main().textContent).not.toContain("Claim boundary");
+    const headings = Array.from(main().querySelectorAll("h2")).map((h) => h.textContent);
+    expect(headings.indexOf("Claim boundary")).toBe(2);
+    expect(panelTitled("Claim boundary").querySelector("#cold-claim-boundary-heading")).not.toBeNull();
+    expect(main().textContent).not.toContain("How each limit is set");
   });
 
   it("labels the simulated source as generated test data with the adjacent sentence", async () => {
@@ -493,7 +500,7 @@ describe("W2-03 follow-up: closed panels keep the primary form, one disclosure h
   ] as const)("temperature claim panel (%s): sentence closed, facts and limits in the disclosure", async (_name, read, sentence) => {
     renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(read as ColdTemperatureRead) });
     await settledScreen();
-    const panel = panelTitled("How each limit is set");
+    const panel = panelTitled("Claim boundary");
     expect(outside(panel, ".prose").textContent).toContain(sentence);
     expect(closedText(panel)).not.toContain("usable");
     expect(closedText(panel)).not.toContain("No spoilage");
@@ -510,7 +517,7 @@ describe("W2-03 follow-up: closed panels keep the primary form, one disclosure h
   it("temperature claim panel states 'no records set aside' inside the disclosure when empty", async () => {
     renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok({ ...STOCKED_TEMPERATURE, excluded: [] }) });
     await settledScreen();
-    const details = disclosureOf(panelTitled("How each limit is set"));
+    const details = disclosureOf(panelTitled("Claim boundary"));
     expect(details.querySelector("[data-cold-claim-facts]")?.textContent).toContain("no records set aside");
   });
 
@@ -587,11 +594,11 @@ describe("W2-03 follow-up: closed panels keep the primary form, one disclosure h
   it("pending and refused states keep the single disclosure rule and their gaps", async () => {
     renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok({ ...STOCKED_TEMPERATURE, currentness: { ...STOCKED_TEMPERATURE.currentness, state: "PENDING_RECOMPUTE", pending_since: KNOWN } }) });
     await settledScreen();
-    expect(panelTitled("How each limit is set").querySelectorAll("details[data-exact-references]")).toHaveLength(1);
+    expect(panelTitled("Claim boundary").querySelectorAll("details[data-exact-references]")).toHaveLength(1);
     cleanup();
     renderCold(ROUTES[0][1], REFUSED);
     await settledScreen();
-    expect(panelTitled("How each limit is set").querySelector("[data-panel-gap]")).not.toBeNull();
+    expect(panelTitled("Claim boundary").querySelector("[data-panel-gap]")).not.toBeNull();
   });
 });
 
@@ -656,7 +663,7 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy on the cold claim 
     selected_source_provenance: selected,
     pending_source_provenance: PEND,
   }) as unknown as ColdTemperatureRead;
-  const claimRefs = () => panelTitled("How each limit is set").querySelector('[data-disclosure="cold-claim-references"]') as HTMLElement;
+  const claimRefs = () => panelTitled("Claim boundary").querySelector('[data-disclosure="cold-claim-references"]') as HTMLElement;
 
   it("selected_source_basis_survives_pending", async () => {
     renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(pendingTemperature(SEL)) });
@@ -684,5 +691,79 @@ describe("W3-01 r1 M1/M2: selected versus pending source copy on the cold claim 
     expect(claimRefs().querySelector("[data-cold-source]")).toBeNull();
     expect(claimRefs().querySelector("[data-cold-source-sentence]")).toBeNull();
     expect(claimRefs().textContent).not.toContain("other-run");
+  });
+});
+
+describe("W2-F 1b: cold truth on the assessment screens", () => {
+  const exposureCard = () => main().querySelector('[data-cold-card="exposure"]') as HTMLElement;
+  const strip = () => main().querySelector('[aria-label="Finding state"]') as HTMLElement;
+  const withDm = (low: string | null, high: string | null): ColdTemperatureRead => ({
+    ...STOCKED_TEMPERATURE,
+    excursions: [{ ...STOCKED_TEMPERATURE.excursions[0], degree_minute_bounds: { low, high } }],
+  });
+
+  // S8/M6: the temperature card and the excursion Finding name the selected excursion bound as the observed estimate.
+  it("w2f_temperature_bound_is_labelled", async () => {
+    const cases: [string | null, string | null, string][] = [
+      ["24.5", "31", "24.5–31 °C·min"],
+      ["24.5", null, "at least 24.5 °C·min; upper bound not established"],
+      [null, null, "Not assessed"],
+    ];
+    for (const [low, high, phrase] of cases) {
+      renderCold(ROUTES[0][1], { ...STOCKED, temperature: ok(withDm(low, high)) });
+      await settledScreen();
+      expect(exposureCard().textContent).toContain(phrase);
+      expect(exposureCard().textContent).toContain("Observed excursion estimate");
+      expect(main().textContent).not.toContain("Consequence basis");
+      cleanup();
+    }
+    renderCold(ROUTES[3][1], STOCKED);
+    await settledScreen();
+    const details = panelTitled("Temperature").querySelector("details") as HTMLElement;
+    expect(details.textContent).toContain("Observed excursion estimate: 24.5–31 °C·min");
+  });
+
+  // S12/M13: lifecycle badge, selected confidence and selected source classification; pending keeps both.
+  it("w2f_finding_strip_confidence", async () => {
+    renderCold(ROUTES[3][1], STOCKED);
+    await settledScreen();
+    expect(strip().querySelector(".badge, [class*='badge']")?.textContent ?? strip().textContent).toContain("Open");
+    expect(strip().textContent).toContain("Confidence: Bounded");
+    expect(strip().textContent).toContain("Selected source: Generated test data");
+    expect(strip().textContent).not.toMatch(/evidence (bounded|observed)/);
+    cleanup();
+    renderCold(ROUTES[2][1], STOCKED);
+    await settledScreen();
+    expect(strip().textContent).toContain("Confidence: Observed");
+    cleanup();
+    const unknown = { ...detailOf(EXC_FINDING, "EXCURSION"), claim_level: "UNKNOWN" };
+    renderCold(ROUTES[3][1], { ...STOCKED, finding: () => ok(unknown) });
+    await settledScreen();
+    expect(strip().textContent).toContain("Confidence: Not established");
+    cleanup();
+    const pending = { ...detailOf(EXC_FINDING, "EXCURSION"), ...envelope("PENDING_RECOMPUTE") };
+    renderCold(ROUTES[3][1], { ...STOCKED, finding: () => ok(pending) });
+    await settledScreen();
+    expect(strip().textContent).toContain("Open");
+    expect(strip().textContent).toContain("Confidence: Bounded");
+    expect(strip().textContent).toContain("Newer readings waiting to be assessed");
+  });
+
+  // H1/S2: Backup keeps the selected chain's `Not recorded` when the compressor is reported off with no running record.
+  it("w2f_backup_recovery_parity", async () => {
+    const chain = STOCKED_BACKUP.chains[0];
+    const off: ColdBackupRead = {
+      ...STOCKED_BACKUP,
+      chains: [{ ...chain, steps: chain.steps.map((s) => (s.kind === "COMPRESSOR" ? step("COMPRESSOR", 13, "OFF", 304) : s)) }],
+    };
+    for (const backup of [STOCKED_BACKUP, off]) {
+      renderCold(ROUTES[1][1], { ...STOCKED, backup: ok(backup) });
+      await settledScreen();
+      const card = Array.from(main().querySelectorAll("*")).find((el) => el.children.length > 0 && el.firstElementChild?.textContent === "Cooling resumed")!;
+      expect(card.textContent).toContain("Not recorded");
+      if (backup === off) expect(card.textContent).toContain("no running record");
+      expect(main().textContent).not.toMatch(/Cooling resumed\s*\d/);
+      cleanup();
+    }
   });
 });

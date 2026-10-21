@@ -103,6 +103,8 @@ export interface ColdEvidenceRead extends ColdEnvelope {
   capabilities: ColdCapability[];
   sources: ColdSource[];
   links: Record<"analysis" | "foundation" | "temperature" | "backup", string | null>;
+  /** W2-F S5: a selected excursion exists in this read's selected snapshot; a basis-presence flag, never a product outcome. */
+  selected_excursion_present: boolean;
 }
 
 export interface ColdAcceptedRecord extends Dated {
