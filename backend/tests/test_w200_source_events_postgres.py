@@ -547,14 +547,38 @@ def nullable(engine, column):
             "AND column_name = :c"), {"c": column}).scalar()
 
 
+@pytest.fixture()
+def v4_roles4(v4, engine):
+    """q8 ruling 1 (as commit 605ac2d7's mg4): the fixture Site's current binding sets relabelled `minigrid-roles-4`
+    (test-only, as replica) so enqueue creates mini jobs; labels restored after."""
+    site = str(v4.kit.principal.site_id)
+    with engine.connect() as c:
+        prior = c.execute(text("SELECT id, role_set FROM signal_binding_set_revision WHERE site_id = :s "
+                               "AND superseded_at IS NULL"), {"s": site}).all()
+    assert prior
+    _delete_as_replica(engine, ["UPDATE signal_binding_set_revision SET role_set = 'minigrid-roles-4' WHERE id IN ("
+                                + ", ".join(f"'{i}'" for i, _ in prior) + ")"])
+    yield v4
+    _delete_as_replica(engine, [f"UPDATE signal_binding_set_revision SET role_set = '{rs}' WHERE id = '{i}'"
+                                for i, rs in prior])
+
+
 class TestMigration0020:
-    def test_0029_refuses_first_while_the_minigrid_fixture_holds_mini_history(self, v4, engine) -> None:
+    def test_0029_refuses_first_while_the_minigrid_fixture_holds_mini_history(self, v4_roles4, engine) -> None:
+        v4 = v4_roles4
         # W4-02 q1 ruling 2 (split): this module's MINIGRID fixture, published and ingested at head, holds mini-depth
         # history; 0029 refuses before any older migration and leaves every row and the head intact.
         from alembic import command
         from mini_depth_probe import MINI_REFUSED, has_mini_jobs, mini_history
 
         v4.submit(v4.kit.pv(3, first=60))
+        # q8: the roles-4 gate is open now, so an accepted gate-role row (copy of the pv row) enqueues mini work.
+        # The hour is the first one wholly inside the (single, current) roles-4 set: the set begins mid-hour.
+        first = rows(engine, "SELECT id, source_time, published_at, received_at FROM accepted_evidence ORDER BY id")[0]
+        raw_copy(engine, first["id"], accepted=True, role="generator_power",
+                 source_time=first["source_time"] + timedelta(hours=1),
+                 published_at=first["published_at"] + timedelta(hours=1),
+                 received_at=first["received_at"] + timedelta(hours=1))
         assert has_mini_jobs(engine)
         before = (mini_history(engine), rows(engine, "SELECT id FROM accepted_evidence ORDER BY id"),
                   rows(engine, "SELECT id FROM recompute_job ORDER BY id"))
