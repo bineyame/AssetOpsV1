@@ -219,3 +219,39 @@ None blocks the backup page; each is a one-line change.
    `Conflicting records`, `No accepted record`) plus `· chain result {Pass|Fail|Incomplete}`. With no chain: `No
    accepted record` / `No outage-chain assessment`; `Witnessed outcome` is always `No accepted record` / `Readiness
    remains unverified`.
+5. **Overview cards (B3/Q24), provisional.** (a) A value shows only when the read's `currentness.state` is not
+   `PENDING_RECOMPUTE`/`STALE_SOURCE`/`UNKNOWN` (q11-1's downgrade applied to all three cards). (b) Service's
+   "complete aligned feeders" is read as `status === SUPPORTED` with non-null `cards.delivered_load_kw`; its coverage
+   note is `{observed/required}% of the hour covered` (else `coverage unknown`). (c) Renewable's "supported selected
+   noon hour" is read as day-read `status === SUPPORTED` with both `cards.headroom_kw` bounds (no per-hour row check).
+   (d) Fuel shows `Expected use {low}–{high} L` from both `cards.expected_use_l` bounds at any status. (e) Any
+   non-loaded read (503, other refusal, transport, malformed) is `Unavailable` + the closure-2 note, no link; a
+   loading card shows `Loading the site's mini-grid assessment.`. (f) `View detail →` opens the Performance tab with
+   the card's exact `from`/`to`/`known_at`. (g) Dispatch is not refreshed (B3). (h) The Site capability table has no
+   `Backup readiness` row in this tree, so B3's capability-row destination test is not built here.
+
+## q12 (unit 7 run, q11 applied): readings applied provisionally, to confirm or replace
+None blocks unit 7; each is a one-line change.
+1. **q11-1 "selected/pending provenance".** Read as: selected provenance absent/UNKNOWN/MIXED, or a present pending
+   provenance UNKNOWN/MIXED, downgrades a positive read (`renewableDowngraded` in `miniDepthClient.ts`). A null pending
+   block alone does not downgrade.
+2. **q11-1 on the Overview renewable card.** The same downgrade withholds the card's `Headroom {low}–{high} kW` value
+   (shows `Unknown`). q11-5 (Overview readings) remains otherwise open.
+3. **q11-3(a) plural.** `Of 1 witnessed request/result pair in shown chains` (singular at N = 1).
+4. **q11-4 scope label.** The column header reads `Current claim (latest observed outage chain)`.
+5. **q11-2 USE minutes.** "Observed USE minutes exist" is read as a non-null USE-row coverage
+   (`floor(observed_seconds/60)`, which may be 0).
+6. **Overview cards not reachable live (unit 7).** On the seeded `w402p_test` (test-harness install of MG-W402-001),
+   `/sites/MG-W402-001?date=2026-10-06|12` renders the S5 `Awaiting evidence migration` Overview, so the five mini
+   cards never mount through the real backend; the Overview capture shows that state and the card evidence stays
+   jsdom-only (`s5SiteWindowOverview.test.tsx`). Needs a ruling: accept, or name the Overview window source for this Site.
+7. **Height budgets exceeded (unit 7 captures, `.agent/W4-02-evidence/evidence.json`).** 39 of 296 capture checks are region-height failures
+   against the Run 9 budgets on all four pages, both widths (no page overflow on the four pages). Largest: backup
+   `Backup readiness evidence` 598 px at 1440 (budget 316) and 2441 px at 390 (budget 471): the q11-4 row lists every
+   distinct cited UUID across the shown chains. Others are 5-45% over (status strips at 390, card rows, renewable
+   windows table at 390 693-722 vs 482, fuel bridge 601-678 vs 579). Not fixed in this run: the remedy for the readiness
+   ID list (bounded cell scroll, count + drawer, or budget change) and whether to bound the rest by panel scrolling
+   are choices; the spec allows "wrapping or bounded panel scrolling" but names no per-region treatment.
+8. **Selected provenance is UNKNOWN on every seeded read.** The harness install reports `Selected sources: unknown`
+   and `Limited by: Source class unknown`, so renewable and service read LIMITED on positive days. The positive
+   `Watch`/`Supported` states are therefore jsdom-only.
