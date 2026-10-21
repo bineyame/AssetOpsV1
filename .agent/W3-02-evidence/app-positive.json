@@ -1,6 +1,6 @@
 {
   "state": "positive",
-  "captured_at": "2026-10-21T02:39:26.846Z",
+  "captured_at": "2026-10-21T03:13:53.957Z",
   "results": [
     {
       "width": 1440,
@@ -17,7 +17,7 @@
       "h1": "Portfolio evidence",
       "eyebrow": {
         "text": "Evidence",
-        "shown": "EVIDENCE",
+        "shown": "Evidence",
         "box": {
           "top": 24,
           "h": 15,
@@ -36,7 +36,7 @@
         "sameHeader": true,
         "fontSize": "10px",
         "color": "rgb(107, 118, 144)",
-        "transform": "uppercase"
+        "transform": "none"
       },
       "main": "Evidence",
       "railCurrent": "Evidence",
@@ -110,7 +110,7 @@
       "h1": "Portfolio evidence",
       "eyebrow": {
         "text": "Evidence",
-        "shown": "EVIDENCE",
+        "shown": "Evidence",
         "box": {
           "top": 108,
           "h": 15,
@@ -129,7 +129,7 @@
         "sameHeader": true,
         "fontSize": "10px",
         "color": "rgb(107, 118, 144)",
-        "transform": "uppercase"
+        "transform": "none"
       },
       "main": "Evidence",
       "railCurrent": "Evidence",

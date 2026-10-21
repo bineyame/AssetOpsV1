@@ -1392,7 +1392,7 @@
       "coverage": "bounded",
       "task": "W3-02",
       "follow_on": null,
-      "data_owner": "Unassigned Evidence read model",
+      "data_owner": "Estate Evidence read — GET /api/estate/evidence (backend/assetops_backend/estate/evidence_money.py)",
       "supported_claim": "Estate capability readiness across the authorized Sites for a whole-UTC-day window at one cutoff, read from each Site's own selected readiness with per-Site coverage; rows link to Site-owned readiness and the page does not independently score claims.",
       "interaction": "Open Evidence, choose a window and an optional cutoff, and page through the rows; a Site name opens the Site and a readiness link opens that Site's Evidence for the row's selected window when a row-local cutoff is provable, otherwise the current Site view.",
       "unknown_or_empty": "A Site without available selected evidence reads Unknown and never counts as zero; priority and unsupported-claim cards read Not assessed; unsupported gap destinations say Not available yet; a refused read names its reason; no mock row or count is product evidence.",

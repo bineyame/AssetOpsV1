@@ -19,6 +19,7 @@ import {
   type EvidenceResult,
   type EvidenceRow,
 } from "./estateEvidenceMoneyClient";
+import { gapWord, observationSummary, priorSelectionText, reasonSentences } from "./estateEvidenceWords";
 import { EstateDateBar, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
 import "./estateEvidence.css";
 
@@ -141,31 +142,79 @@ function Chip({ tone, text, data }: { tone: string; text: string; data: Record<s
   );
 }
 
+/** The plain readiness and context words of a row (as its visible chips), never the raw state. */
+function assessmentText(row: EvidenceRow): string {
+  const readiness = (READINESS_WORDS[row.readiness] ?? READINESS_WORDS.UNKNOWN).text;
+  const context = row.raw_state === "HISTORICAL" ? null : CONTEXT_WORDS[row.raw_state];
+  return context !== undefined && context !== null ? `${readiness} · ${context.text}` : readiness;
+}
+
+function Lines({ items }: { items: string[] }) {
+  return (
+    <>
+      {items.map((t, i) => (
+        <span key={i} className="estate-evidence-line">
+          {t}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function RowDetails({ row }: { row: EvidenceRow }) {
   const d = row.disclosure;
+  const site = row.site_name !== "" ? `${row.site_name} · ${row.site_code}` : row.site_code;
+  const window = windowText(row);
+  const evidenceIds = row.source_provenance.evidence_ids ?? [];
+  const reasons = reasonSentences(d.reasons);
+  const prior = d.prior_selection !== undefined && d.prior_selection !== null ? d.prior_selection : null;
+  const historical = d.historical;
   return (
     <Disclosure summary="Record details" name="estate-evidence-row" variant="inline">
       <dl className="estate-evidence-facts">
-        <dt>Capability key</dt>
-        <dd>{d.capability_key}</dd>
-        <dt>Selected state</dt>
-        <dd>{row.raw_state}</dd>
-        <dt>Selected revisions</dt>
+        <dt>Capability</dt>
+        <dd>{row.capability_label}</dd>
+        <dt>Site</dt>
+        <dd>{site}</dd>
+        <dt>Evidence window</dt>
+        <dd>{window ?? "Not recorded"}</dd>
+        <dt>Assessment</dt>
+        <dd>{assessmentText(row)}</dd>
+        <dt>Selected record references</dt>
         <dd>{row.selected_revision_ids.length > 0 ? row.selected_revision_ids.join(", ") : "None selected"}</dd>
-        {row.gap_codes.length > 0 ? (
+        <dt>Evidence record references</dt>
+        <dd>{evidenceIds.length > 0 ? evidenceIds.join(", ") : "None recorded"}</dd>
+        {d.constituents.length > 0 ? (
           <>
-            <dt>Gap codes</dt>
-            <dd>{row.gap_codes.join(", ")}</dd>
+            <dt>Selected observations</dt>
+            <dd>
+              <Lines items={d.constituents.map((c) => observationSummary(c, row.capability_label))} />
+            </dd>
           </>
         ) : null}
-        {d.historical !== null ? (
+        {reasons.length > 0 ? (
           <>
-            <dt>{d.historical.label}</dt>
-            <dd>{d.historical.statements.join(" ")}</dd>
+            <dt>Reasons</dt>
+            <dd>
+              <Lines items={reasons} />
+            </dd>
+          </>
+        ) : null}
+        {prior !== null ? (
+          <>
+            <dt>Earlier selection</dt>
+            <dd>{priorSelectionText(prior, row.capability_label)}</dd>
+          </>
+        ) : null}
+        {historical !== null ? (
+          <>
+            <dt>Historical record</dt>
+            <dd>
+              <Lines items={[...historical.statements, ...(historical.gaps ?? []).map(gapWord)]} />
+            </dd>
           </>
         ) : null}
       </dl>
-      <pre className="estate-evidence-raw">{JSON.stringify({ constituents: d.constituents, reasons: d.reasons, prior_selection: d.prior_selection ?? null }, null, 1)}</pre>
     </Disclosure>
   );
 }

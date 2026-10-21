@@ -140,13 +140,6 @@
   overflow-wrap: anywhere;
 }
 
-.estate-evidence-raw {
-  max-height: 160px;
-  overflow: auto;
-  font-size: 11px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
 
 @media (max-width: 640px) {
   /* Let headers and the window wrap at phone width so the tables stay near the mock's 531 / 337 px. */
@@ -162,4 +155,8 @@
   .estate-evidence-table--gaps .data-table__scroll {
     max-height: 420px;
   }
+}
+
+.estate-evidence-line {
+  display: block;
 }

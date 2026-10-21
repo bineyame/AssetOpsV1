@@ -220,6 +220,13 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+/** Node's fs has no types in this DOM-only tsconfig, so it is loaded untyped; paths are relative to `frontend/`. */
+async function readDisk(path: string): Promise<string> {
+  const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+  const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+  return fs.readFileSync(`${cwd}/${path}`, "utf8");
+}
+
 describe("W3-02 estate Evidence root", () => {
   it("rendersMockEvidencePanelsAndHonestCards", async () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
@@ -273,7 +280,8 @@ describe("W3-02 estate Evidence root", () => {
     // The capability key, raw state and selected revisions sit in the closed disclosure.
     const details = cells[0][1].querySelector("details");
     expect(details?.open).toBe(false);
-    expect(details?.textContent).toContain("GENERATOR_SUPPORT@2026-10-14");
+    expect(details?.textContent).not.toContain("GENERATOR_SUPPORT");
+    expect(details?.textContent).not.toContain("LIMITED");
     expect(details?.textContent).toContain("10000000-0000-4000-8000-000000000501");
 
     const gapRows = within(panelTitled(GAPS_PANEL)).getAllByRole("row").slice(1);
@@ -503,6 +511,10 @@ describe("W3-02 estate Evidence root", () => {
     expect(header).not.toBeNull();
     const eyebrow = within(header).getByText(EVIDENCE_EYEBROW, { selector: ".page-header__eyebrow" });
     expect(eyebrow.textContent).toBe("Evidence");
+    // r1 L4: the mock's sentence case; the shared rule must not upper-case it (rendered case measured in the captures).
+    const rule = /\.page-header__eyebrow \{[^}]*\}/.exec(await readDisk("src/ui/primitives.css"))?.[0] ?? "";
+    expect(rule).toContain("text-transform: none");
+    expect(rule).not.toContain("uppercase");
     // Eyebrow precedes the heading, which precedes the subtitle, all in the same header.
     expect(eyebrow.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const subtitle = within(header).getByText(EVIDENCE_SUBTITLE);
@@ -538,5 +550,78 @@ describe("W3-02 estate Evidence root", () => {
     expect(details.textContent).not.toMatch(/\bTRANSFER\b/);
     expect(details.textContent).not.toContain("Not observed:");
     expect(main().textContent).not.toMatch(/Not observed:|\bTRANSFER\b/);
+  });
+
+  it("rendersPlainRecordDetailsWithAndWithoutPriorSelection", async () => {
+    const id = "10000000-0000-4000-8000-000000000777";
+    const base = {
+      ...COLD_ROW,
+      capability_key: "backup@2026-10-14T08:00:00.000000Z/2026-10-14T16:00:00.000000Z",
+      capability_label: "Backup response",
+      raw_state: "PENDING_RECOMPUTE",
+      readiness: "UNKNOWN" as const,
+      gap_codes: ["MISSING_ROLE"],
+      selected_revision_ids: [id],
+      source_provenance: { state: "KNOWN", evidence_ids: ["20000000-0000-4000-8000-000000000001"] },
+    };
+    const constituents = [{ claim: "TRANSFER_POSITION", state: "LIMITED", missing_roles: ["transfer_result"], limitation: "No record of power transferring to the generator.", assessment_revision_id: id }];
+    const populated = row({
+      ...base,
+      disclosure: {
+        capability_key: base.capability_key,
+        constituents,
+        reasons: [{ code: "MISSING_ROLE", role: "transfer_result" }, { code: "MISSING_ROLE", role: "transfer_result" }, { code: "SOMETHING_NEW" }],
+        historical: null,
+        prior_selection: { readiness: "LIMITED", limitation: "No record of a generator start result." },
+      },
+    });
+    const absent = row({
+      ...base,
+      capability_key: "cooling@x",
+      capability_label: "Cooling recovery",
+      source_provenance: { state: "UNKNOWN" },
+      disclosure: { capability_key: "cooling@x", constituents: [], reasons: [], historical: null },
+    });
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body({ rows: [populated, absent] }))));
+    await settledScreen();
+    const all = within(panelTitled(COVERAGE_PANEL)).getAllByRole("row").slice(1);
+    const rows = [all.find((r) => r.textContent?.includes("Backup response")), all.find((r) => r.textContent?.includes("Cooling recovery"))] as HTMLElement[];
+    expect(rows.every((r) => r !== undefined)).toBe(true);
+    const text = (i: number) => (within(rows[i]).getAllByRole("cell")[1].querySelector("details") as HTMLElement).textContent ?? "";
+    const labels = (i: number) => Array.from((within(rows[i]).getAllByRole("cell")[1].querySelector("details") as HTMLElement).querySelectorAll("dt")).map((e) => e.textContent);
+    expect(labels(0)).toEqual(["Capability", "Site", "Evidence window", "Assessment", "Selected record references", "Evidence record references", "Selected observations", "Reasons", "Earlier selection"]);
+    expect(labels(1)).toEqual(["Capability", "Site", "Evidence window", "Assessment", "Selected record references", "Evidence record references"]);
+    expect(text(0)).toContain("Backup response — Limited. No record of power transferring to the generator. Missing: Transfer position.");
+    expect(text(0)).toContain("Transfer position missing.");
+    expect(text(0)).toContain("Reason details are not available");
+    expect(text(0)).toContain("Limited. No record of a generator start result.");
+    expect(text(0)).toContain("Unknown · New evidence is being assessed");
+    expect(text(0)).toContain(id);
+    expect(text(0).match(/Transfer position missing\./g)).toHaveLength(1);
+    expect(text(1)).toContain("None recorded");
+    for (const i of [0, 1]) {
+      for (const raw of ["capability_key", "gap_codes", "raw_state", "missing_roles", "assessment_revision_id", "prior_selection", "PENDING_RECOMPUTE", "MISSING_ROLE", "transfer_result", "TRANSFER_POSITION", "{", "}", "null"]) {
+        expect(text(i)).not.toContain(raw);
+      }
+    }
+  });
+
+  it("meetsMeasuredNarrowLayoutWithoutDocumentOverflow", async () => {
+    // jsdom has no layout: this reads the real-browser 390 px measurements of the mounted page (capture.mjs).
+    for (const state of ["positive", "partial"]) {
+      const file = `../.agent/W3-02-evidence/app-${state}.json`;
+      const narrow = (JSON.parse(await readDisk(file)).results as Record<string, any>[]).find((r) => r.width === 390);
+      expect(narrow, `${state} 390 measurement present`).toBeDefined();
+      expect(narrow!.ready).toBe(true);
+      expect(narrow!.docScrollW).toBeLessThanOrEqual(narrow!.docClientW);
+      expect(narrow!.eyebrow.transform).toBe("none");
+      expect(narrow!.over).toEqual([]);
+      for (const t of [narrow!.coverageTable, narrow!.gapsTable]) {
+        expect(t, "table scroll container measured").not.toBeNull();
+        expect(t.client).toBeGreaterThan(0);
+        expect(t.rows).toBeGreaterThan(0);
+        expect(t.scroll).toBeGreaterThanOrEqual(t.client); // the table scrolls inside its own container
+      }
+    }
   });
 });
