@@ -61,3 +61,13 @@ Lane A recorded, by the W3-01 `I-estate-action-root` precedent: node `requires` 
 
 ## c2-q6 - B5 route-read follow tests and capture copy (Lane A observation, commit 2)
 c2-q3 is unchanged by the captures: Lane A's captures do not follow generated cold/EV links into the W2 Site read.
+
+## c2-q7 - raw role code in the Current ceiling cell (Lane B, commit 2 fixes)
+The cold `backup` row's `Current ceiling` shows `Not observed: TRANSFER.` That text is the stored cold analytic
+limitation (`analytics/cold.py:645`, `"Not observed: " + ", ".join(missing) + "."`, where `missing` holds start-chain
+step names such as `TRANSFER`), carried verbatim into `current_ceiling` by `_shape_window_row` (limitations joined).
+The build spec only says `current_ceiling` displays the selected claim field (ledger `Current ceiling`); no ruling maps
+cold start-chain step names to plain words, and the page does not rewrite server prose. Unchanged in this fix round.
+Question: (a) map on the Evidence wire (estate `current_ceiling` gets a plain sentence, e.g. per-step words, with the
+stored limitation kept in `Record details`), (b) map on the page from a closed step dictionary, or (c) leave the stored
+limitation verbatim and accept it? If (a)/(b), name the step words (the cold chain's steps: which codes and labels).
