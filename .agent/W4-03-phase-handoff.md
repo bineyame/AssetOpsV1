@@ -313,3 +313,53 @@ Tests: `test_w403_opportunity_read_postgres.py` (9: the eight u5-named tests plu
 - `check-all.ps1`: all 11 guards passed (after removing a sqlalchemy import from the router).
 
 Next: unit 6
+
+## u5b tests (commit 4a3f7bda)
+
+All nine u5b items plus the u4b vector are test extensions; no service change was needed (all passed first run).
+`test_w403_opportunity_read_postgres.py`: `UNSUPPORTED_DETAIL` literal (item 1, cold client with closed gate, failing
+store and `not-a-uuid`); exact 409 dicts and composed `permits_performance_cutover` -> `FindingStoreUnavailable` -> 503
+(item 7); exact code arrays with a PENDING job (item 2); touching/adjacent FAILED jobs, later selection keeps pending,
+fixed-cutoff replay before/after settle (items 3, 9); money gate current/historical/pending/stale/MIXED/UNKNOWN/None via
+`mg_published` + monkeypatched `provenance_blocks` (item 4; the 7 Oct `_reconcile` moved before the second link);
+detail key set and exact renewable link (item 6); cursor walk CURRENT then explicit-past HISTORICAL (item 8, uses
+`_ingest`). `test_w403_opportunity_links_postgres.py`: foreign path + own body ID -> 422, no insert (item 5).
+Readings: item 4 MIXED/UNKNOWN is driven by monkeypatching the reader's classification (no fixture yields MIXED);
+item 1 "empty UNKNOWN source provenance" = the existing `EMPTY_CITATION_SET` block.
+
+## Unit 6a (landed; commit after 4a3f7bda) - 6b BLOCKED on PR-8
+
+- `frontend/src/sites/miniDecisionsClient.ts`: `createMiniDecisionsClient().getScenarios(code, scope)`,
+  `readDecision`, `scenarioScopeSearch`, `microsecondBefore`.
+- `frontend/src/sites/MiniScenarios.tsx` (+ `w4-mini-decisions.css`): panel `Financial scenarios`, exact empty/
+  secondary/foot/notice copy, 5 columns with colgroup widths, `Scenario detail unavailable`, `Scenario creation
+  unavailable`, refusal copy, Next/First page; `scenarioMoney` (half-even, `$` for USD else `CODE x.xx`).
+- `shell/SiteAnalyticsFrames.tsx`: `FinancialsSections({scenarios:"live"|"unavailable"})` (single
+  `<UnavailableTab label="Scenarios" />` literal kept for cold), `SiteFinancialsFrame` view `"scenarios"`,
+  `miniDecisions` prop; `operatorSiteRoutes.ts` `SITE_FINANCIAL_SCENARIOS_ROUTE_PATH`/`siteFinancialScenariosHref`;
+  `App.tsx` route + `miniDecisions` prop; `SITE_SCREEN_DESCRIPTIONS.scenarios`; settled regex `the site's scenarios`.
+- Guard: multiset unchanged (the one Scenarios literal is cold's); comment updated. 6b swaps `Alternatives` for
+  `Analysis` per B4.
+- Tests: `frontend/src/sites/__tests__/miniDecisions.test.tsx` (3: the three 6a names).
+
+Readings taken (6a; reviewer may overturn):
+1. `{read time}` is shown as the raw six-digit UTC token (`window.to` minus 1 us), not localized.
+2. After the first unbounded read, the returned `from/to/known_at` are written into the address with `replace` and
+   no second read; Next sends `from,to,known_at,cursor`, so later pages and reloads read `Historical basis` rows
+   (explicit past cutoff).
+3. Pager is `{n} of {total}` with `First page` / `Next` buttons (no Previous).
+4. Declared change = `key value unit` joined by `; `; Physical basis = pinned mini revision UUIDs in a list;
+   Illustrative result: GROSS_SCENARIO -> `{money} gross sales scenario per eligible window, before costs`,
+   ENERGY_ONLY -> `{kWh} kWh energy scenario per eligible window; gross sales unknown`, else `Cannot calculate from the
+   selected evidence`; State = `Defined`/`Historical basis` + ` · ` + calculation words; kind words for the Scenario
+   cell (`Productive load`, ...).
+5. A non-MINIGRID Site at `/financials/scenarios` makes no read and shows panel text `Scenarios are read for mini-grid
+   sites only.` with the unavailable Scenarios tab.
+6. Breadcrumb `Sites › {Site} › Financials › Scenarios`; page title fallback `Financial scenarios`.
+
+## Checks (u5b + 6a)
+- Private DB `w403k_test` (dropped). Read 9 + links 1: 10 passed (794 s).
+- Frontend: miniDecisions 3 passed; full suite 103 files / 2438 tests passed; `tsc --noEmit` clean; `vite build` built.
+- `check-all.ps1`: all 11 guards passed. No full backend suite.
+
+Next: PR-8 rulings, then unit 6b; then unit 7.

@@ -30,6 +30,8 @@ import { ChangesWorkPageHeader, NoChangeSelected, SiteFoundationChange, type Sit
 import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
+import { MiniScenarios } from "../sites/MiniScenarios";
+import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type ScenarioScope } from "../sites/miniDecisionsClient";
 import { SiteFinding } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
@@ -72,6 +74,7 @@ import {
   siteFindingViewHref,
   siteFindingsHref,
   siteFinancialAssumptionsHref,
+  siteFinancialScenariosHref,
   siteFinancialsHref,
   siteFoundationChangeHref,
   siteFoundationHref,
@@ -724,35 +727,49 @@ const DEFAULT_FINANCIALS = createFinancialsClient();
 const FINANCIALS_SECTIONS_LABEL = "Financials sections";
 
 /**
- * The Financials subtab row (Overview, Assumptions, and the mock's Scenarios as "Not available yet" text). W2-04:
- * a cold Site's Financials screens reuse it with the selected window (`search`) carried in both links.
+ * The Financials subtab row (Overview, Assumptions, Scenarios). W2-04: a cold Site's Financials screens reuse it with
+ * the selected window (`search`) carried in both links. W4-03 unit 6a (closure 4 S13): split by Site type - a MINIGRID
+ * Site's Scenarios is a live route; every other Site keeps the mock's Scenarios as "Not available yet" text (one
+ * occurrence, cold's). EV Financials has its own Overview/Assumptions pair in `EvSiteViews.tsx` and no Scenarios slot.
  */
-export function FinancialsSections({ siteId, view, search = "" }: { siteId: string; view: "overview" | "assumptions"; search?: string }) {
+export function FinancialsSections({
+  siteId,
+  view,
+  search = "",
+  scenarios = "unavailable",
+}: {
+  siteId: string;
+  view: "overview" | "assumptions" | "scenarios";
+  search?: string;
+  scenarios?: "live" | "unavailable";
+}) {
+  const links: [string, string, string][] = [
+    ["overview", "Overview", `${siteFinancialsHref(siteId)}${search}`],
+    ["assumptions", "Assumptions", `${siteFinancialAssumptionsHref(siteId)}${search}`],
+  ];
+  if (scenarios === "live") links.push(["scenarios", "Scenarios", siteFinancialScenariosHref(siteId)]);
   return (
     <nav className="site-tabs site-subtabs" aria-label={FINANCIALS_SECTIONS_LABEL}>
       <ol className="site-tabs__list">
-        {(
-          [
-            ["overview", "Overview", `${siteFinancialsHref(siteId)}${search}`],
-            ["assumptions", "Assumptions", `${siteFinancialAssumptionsHref(siteId)}${search}`],
-          ] as const
-        ).map(([id, label, href]) => (
+        {links.map(([id, label, href]) => (
           <li className="site-tabs__item" key={id}>
             <Link className="site-tabs__link" to={href} data-financials-section={id} aria-current={id === view ? "page" : undefined}>
               {label}
             </Link>
           </li>
         ))}
-        <UnavailableTab label="Scenarios" />
+        {scenarios === "live" ? null : <UnavailableTab label="Scenarios" />}
       </ol>
     </nav>
   );
 }
 
+const DEFAULT_MINI_DECISIONS = createMiniDecisionsClient();
+
 /**
  * S4-02a: Site > Financials (Overview with the Finding bridge) and Financials > Assumptions. W1-F5b
  * (D-2026-10-17-f5-subtabs-and-contact): the mock's Scenarios subtab is shown in its place as "Not available yet"
- * text, never a link or a route (G-05 is still unbuilt).
+ * text, never a link or a route. W4-03 unit 6a: a MINIGRID Site's Scenarios is the live `scenarios` view.
  */
 export function SiteFinancialsFrame({
   detail,
@@ -761,21 +778,69 @@ export function SiteFinancialsFrame({
   financials = DEFAULT_FINANCIALS,
   coldSite,
   coldAssessment,
+  miniDecisions = DEFAULT_MINI_DECISIONS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
-  view: "overview" | "assumptions";
+  view: "overview" | "assumptions" | "scenarios";
   financials?: FinancialsClient;
   /** W2-04: a COLDCHAIN Site renders `cold-financials` / `cold-assumptions` from these reads (read-only). */
   coldSite?: ColdSiteClient;
   coldAssessment?: ColdAssessmentClient;
+  /** W4-03 unit 6a: the mini scenario list read. */
+  miniDecisions?: MiniDecisionsClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
-  const title = view === "assumptions" ? "Financial assumptions" : "Financials";
+  const navigate = useNavigate();
+  const title = view === "assumptions" ? "Financial assumptions" : view === "scenarios" ? "Financial scenarios" : "Financials";
+  const scope: ScenarioScope = {
+    from: params.get("from"),
+    to: params.get("to"),
+    known_at: params.get("known_at"),
+    cursor: params.get("cursor"),
+  };
+  const onScope = useCallback(
+    (next: ScenarioScope, replace: boolean) => navigate({ search: scenarioScopeSearch(next) }, { replace }),
+    [navigate],
+  );
   return (
     <SiteScoped siteId={siteId} detail={detail} title={title} headingId={SITE_FINANCIALS_HEADING_ID}>
       {(site) => {
+        if (view === "scenarios") {
+          return (
+            <main aria-labelledby={SITE_FINANCIALS_HEADING_ID}>
+              <Breadcrumbs
+                trail={[
+                  { label: "Sites", to: sitesPath },
+                  { label: site.display_name, to: siteDetailHref(site.site_id) },
+                  { label: "Financials", to: siteFinancialsHref(site.site_id) },
+                  { label: "Scenarios" },
+                ]}
+              />
+              <SitePageHeader
+                siteName={site.display_name}
+                siteId={site.site_id}
+                mode={siteSourceModeLabel(site)}
+                description={SITE_SCREEN_DESCRIPTIONS.scenarios}
+                headingId={SITE_FINANCIALS_HEADING_ID}
+              />
+              <OperatorSiteTabs siteId={siteId} current="Financials" />
+              <FinancialsSections
+                siteId={site.site_id}
+                view="scenarios"
+                scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
+              />
+              {site.site_type === "MINIGRID" ? (
+                <MiniScenarios siteCode={site.site_id} client={miniDecisions} scope={scope} onScope={onScope} />
+              ) : (
+                <Panel heading="Financial scenarios" headingId="site-scenarios-unsupported-heading">
+                  <p data-scenarios-site-type-unsupported>Scenarios are read for mini-grid sites only.</p>
+                </Panel>
+              )}
+            </main>
+          );
+        }
         if (site.site_type === "COLDCHAIN" && coldSite !== undefined && coldAssessment !== undefined) {
           return coldSiteScreen({
             view: view === "assumptions" ? "assumptions" : "financials",
@@ -817,7 +882,11 @@ export function SiteFinancialsFrame({
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
             <OperatorSiteTabs siteId={siteId} current="Financials" />
-            <FinancialsSections siteId={site.site_id} view={view} />
+            <FinancialsSections
+              siteId={site.site_id}
+              view={view}
+              scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
+            />
             {view === "assumptions" ? (
               <SiteAssumptions siteId={site.site_id} client={financials} links={links} />
             ) : (

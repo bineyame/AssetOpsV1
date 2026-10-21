@@ -39,6 +39,7 @@ import {
   SITE_HEALTH_ROUTE_PATH,
   SITE_ACTION_VIEW_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
+  SITE_FINANCIAL_SCENARIOS_ROUTE_PATH,
   SITE_FINANCIALS_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
   SITE_FINDING_VIEW_ROUTE_PATH,
@@ -86,6 +87,7 @@ import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFou
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
 import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
+import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
@@ -135,6 +137,7 @@ const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultMiniDepth = createMiniDepthClient();
+const defaultMiniDecisions = createMiniDecisionsClient();
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
 const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
@@ -213,6 +216,8 @@ export interface AppProps {
   evAssessment?: EvAssessmentClient;
   /** W4-02: the MINIGRID mini-depth reads, used for a MINIGRID Site's Service/Fuel/Renewable/Backup routes. */
   miniDepth?: MiniDepthClient;
+  /** W4-03 unit 6: the read-only mini decision reads (Scenarios). */
+  miniDecisions?: MiniDecisionsClient;
   /** W2-07: the five EV Site reads, used for an EV_CHARGING Site's `/ev` routes. */
   evSite?: EvSiteClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
@@ -251,6 +256,7 @@ export function App({
   coldAssessment = defaultColdAssessment,
   evAssessment = defaultEvAssessment,
   miniDepth = defaultMiniDepth,
+  miniDecisions = defaultMiniDecisions,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
   siteTemplateLineage,
@@ -393,6 +399,10 @@ export function App({
           <Route
             path={SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH}
             element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="assumptions" coldSite={coldSite} coldAssessment={coldAssessment} />}
+          />
+          <Route
+            path={SITE_FINANCIAL_SCENARIOS_ROUTE_PATH}
+            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="scenarios" miniDecisions={miniDecisions} />}
           />
           {[SITE_FINDING_ROUTE_PATH, SITE_FINDING_VIEW_ROUTE_PATH].map((path) => (
             <Route

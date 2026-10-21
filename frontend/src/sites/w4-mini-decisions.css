@@ -1,0 +1,112 @@
+/*
+ * W4-03 unit 6: the v69 `scenarios` slots (closure 1 geometry). Desktop columns 20/24/20/22/14 percent; at 390 px
+ * the panel keeps its width, the inner grid is at least 720 px with a sticky 144 px Scenario column, and the inner
+ * vertical scroll is capped to the header plus three rows. The page itself never scrolls sideways.
+ */
+
+.mini-scenarios-table .data-table {
+  table-layout: fixed;
+}
+
+.mini-scenarios-table th[scope="row"] {
+  font-weight: 600;
+  text-align: left;
+}
+
+.mini-scenarios-pins {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mini-scenarios-pins code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.mini-scenarios-gap {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mini-scenarios-through,
+.mini-scenarios-foot {
+  margin: 6px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* The mock's `.empty` block (`mockups.css`), no fake row. */
+.mini-scenarios-empty {
+  margin: 15px 0;
+  padding: 45px 20px;
+  border: 1px dashed #cdd7e5;
+  border-radius: 6px;
+  background: #fbfcfe;
+  text-align: center;
+}
+
+.mini-scenarios-empty__icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 14px;
+  color: #8a9bb3;
+}
+
+.mini-scenarios-empty__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.mini-scenarios-empty h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.mini-scenarios-empty p {
+  max-width: 480px;
+  margin: 4px auto 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mini-scenarios-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 14px;
+  align-items: baseline;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .mini-scenarios-table .data-table__scroll {
+    max-height: calc(36px + 3 * 72px);
+    overflow: auto;
+  }
+
+  .mini-scenarios-table .data-table {
+    min-width: 720px;
+  }
+
+  .mini-scenarios-table col:first-child {
+    width: 144px !important;
+  }
+
+  .mini-scenarios-table th:first-child,
+  .mini-scenarios-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--surface, #fff);
+  }
+
+  .mini-scenarios-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--surface, #fff);
+  }
+}

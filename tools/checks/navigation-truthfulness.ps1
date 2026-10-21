@@ -744,6 +744,9 @@ function Get-InPageUnavailableEntryFailures {
     # frames), every other entry once. W4-01 (build spec "Per-panel copy and layout
     # dry-read") removes Work > Incidents and Maintenance: both subtabs are live
     # routes now. The rail's unavailable Incidents and Maintenance roots stay (W6).
+    # W4-03 unit 6a (closure 4 S13): the Financials subrow is split by Site type; mini
+    # Scenarios is a live route, so the one remaining Scenarios entry is cold's (EV has
+    # no Scenarios slot).
     $expectedTabs = @("Alternatives", "Scenarios", "Cooling",
         "Recommendation", "Recommendation", "Availability", "Energy / site power")
     $expectedChips = @("Cost", "Risks", "Opportunities")

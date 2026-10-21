@@ -173,6 +173,12 @@ export function siteFindingHref(siteId: string, findingId: string, revisionId?: 
  */
 export const SITE_FINANCIALS_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/financials`;
 export const SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PATH}/assumptions`;
+/** W4-03 unit 6a: mini Financials > Scenarios; the address carries only the read's own `from`/`to`/`known_at`/`cursor`. */
+export const SITE_FINANCIAL_SCENARIOS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PATH}/scenarios`;
+
+export function siteFinancialScenariosHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/financials/scenarios`;
+}
 
 export function siteFinancialsHref(
   siteId: string,
