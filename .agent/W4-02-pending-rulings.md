@@ -157,3 +157,22 @@ gap the spec leaves open. Confirm or replace each; the UI piece (5b) consumes th
 10. **Lineage 503.** A selected revision whose domain/window differs from its selection, or whose
     `basis.accepted_evidence_ids` differs from its `mini_depth_revision_evidence` set, is 503 (Q15 "broken stored
     basis").
+
+## q10 (unit 6, `ee461681`/`512a5429` renewable page): readings applied provisionally, to confirm or replace
+None blocks the service page; each is a one-line change.
+1. **Status word for SUPPORTED without positive headroom.** q9's table lists `Watch` (supported positive headroom),
+   `Evidence limited` or `Not assessed`. Built: LIMITED -> `Evidence limited`; SUPPORTED with `headroom_kw.low > 0`
+   -> `Watch`; everything else, including SUPPORTED with non-positive headroom, -> `Not assessed`. Confirm or name
+   the word for an assessed hour with no usable headroom.
+2. **Productive-use CTA copy.** q9's table says the CTA is disabled with `Opportunity decisions are planned for
+   W4-03`; Q21/N3 say no internal task IDs and pass the bare label. Built: N3's `UnavailableLinkEntry` ->
+   `Opportunity decision · Not available yet`.
+3. **Unbuilt mini tabs.** Until their pages land, Service/Fuel/Backup are left out of the subtab row (S6 order kept
+   over the built tabs: `Dispatch, Renewable`). An inert `UnavailableTab` entry was tried and the
+   navigation-truthfulness guard rejects it ("a new unbuilt entry is a ruling"); untagged placeholder copy fails the
+   missing-claim scan. A direct `/performance/service` URL falls through to the existing imported-Site route.
+   `SitePerformance.RENDERABLE` is unchanged: the mini pages render from the frame's MINIGRID branch, and adding
+   their ids there would render the Dispatch body for them.
+4. **Registry nodes.** N8 needs a `ui` and a `projection` gate per pilot panel; added `I-mini-depth-read`
+   (projection) and `I-mini-depth-ui` (ui), both `open`, `task:W4-02`, and set `I-mini-breadth-store.task` to
+   `W4-02`. Renewable ledger row is `bounded`/`W4-02` with product node `P-mini-area`.
