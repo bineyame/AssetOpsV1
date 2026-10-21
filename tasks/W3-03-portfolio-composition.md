@@ -1,6 +1,6 @@
 # W3-03 — Portfolio composition and W3 closeout
 
-Status: planned; build spec reviewed and closed, with W3-01/02 merge compatibility and owner wave-start gate still required. Lane B, step 2; size L, four reviewable product commits (1a, 1b, 2, 3). Branch `task/W3-03-portfolio-composition` from reviewed and merged W3-01 and W3-02 at their actual single Alembic head; `0030`/W4-03 is not an input or wait gate. USER_REVIEW_REQUIRED: true, after independent slice review at the W3 owner wave checkpoint.
+Status: done (merged 2026-10-22, ab3a88cd; final re-review ACCEPT); was planned; build spec reviewed and closed, with W3-01/02 merge compatibility and owner wave-start gate still required. Lane B, step 2; size L, four reviewable product commits (1a, 1b, 2, 3). Branch `task/W3-03-portfolio-composition` from reviewed and merged W3-01 and W3-02 at their actual single Alembic head; `0030`/W4-03 is not an input or wait gate. USER_REVIEW_REQUIRED: true, after independent slice review at the W3 owner wave checkpoint.
 
 ## Binding and ownership
 

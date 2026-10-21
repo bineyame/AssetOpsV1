@@ -94,7 +94,7 @@ These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev
 
 | Slice | Packet | Visible result and predecessor | Status |
 | --- | --- | --- | --- |
-| W3-03 Portfolio composition | [W3-03](W3-03-portfolio-composition.md) | v69 `portfolio` composes the reviewed W3-01 Finding/Action and W3-02 Evidence/Financials selections at one authorized window/cutoff; finishes global-root cross-links; `0031` unused | Planned; build spec pending; independent spec review and owner wave-start scope/core-panel gate before build |
+| W3-03 Portfolio composition | [W3-03](W3-03-portfolio-composition.md) | v69 `portfolio` composes the reviewed W3-01 Finding/Action and W3-02 Evidence/Financials selections at one authorized window/cutoff; finishes global-root cross-links; `0031` unused | Done 2026-10-22 (merged ab3a88cd; per-unit reviews ACCEPT, final review fixes ACCEPT; container full suite 3703 passed) |
 
 ## Post-W2 step 1 planning packets
 
