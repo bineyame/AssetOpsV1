@@ -577,3 +577,32 @@ The labels are fixed; optional fields collapse without blank rows. Keep exact re
 **L3 — ledger owner.** In the `globalevidence` entry of `frontend/docs/architecture/v69-screen-ledger.json`, set `data_owner` exactly to `Estate Evidence read — GET /api/estate/evidence (backend/assetops_backend/estate/evidence_money.py)` in the commit-2 fix. Keep its bounded coverage and pending owner tier unchanged.
 
 **L5 — Notice icon.** The shared `Notice` primitive omitted the mock's leading info icon before W3-02. Carry that shared visual issue to the UI/UX backlog; it does not block this slice and Lane B does not modify the shared primitive for it.
+
+## Commit-2 rulings (c2d)
+
+**EV missing-input words.** In `frontend/src/estate/estateEvidenceWords.ts`, add the following literal entries to `ROLE_WORDS`. These cover every EV public missing role emitted by the seven selected claims, the terminal-session gap, and the tariff role. Keep `Description not available` for any unmapped role; never show the role ID as display copy.
+
+| EV role | Literal plain words |
+| --- | --- |
+| `session_event` | `Charging session start or end` |
+| `session_terminal` | `Charging session end` |
+| `connector_meter_delta` | `Connector energy reading` |
+| `connector_status` | `Connector availability status` |
+| `fault_event` | `Connector fault report` |
+| `site_import` | `Site import power reading` |
+| `requested_power` | `Requested charging power` |
+| `allocated_limit` | `Allocated charging power limit` |
+| `ev_gross_tariff_per_kwh` | `Published EV gross tariff per kWh` |
+
+The same dictionary also gives plain words to accepted EV binding-role IDs if they appear in a selected observation or earlier selection: `ev_session_event` = `Charging session start or end`; `ev_connector_fault` = `Connector fault report`; `ev_connector_state` = `Connector availability status`; `ev_connector_energy` = `Connector energy reading`; `ev_connector_power` = `Connector power reading`; `ev_site_import` = `Site import power reading`; `ev_requested_power` = `Requested charging power`; `ev_allocated_limit` = `Allocated charging power limit`. These words describe the recorded input, not a claim that its evidence is complete.
+
+**Distinct cold claim words.** In that file's `CLAIM_WORDS`, replace the two shared cold row labels with these exact per-claim labels. Keep the capability row labels unchanged; `Selected observations` names each constituent claim separately.
+
+| Cold claim | Literal label |
+| --- | --- |
+| `TEMPERATURE_POINT` | `Chamber temperature readings` |
+| `EXCURSION_BOUNDS` | `Temperature excursion bounds` |
+| `BACKUP_START_RESULT` | `Backup generator start result` |
+| `TRANSFER_POSITION` | `Power transfer position` |
+| `COOLING_RESPONSE` | `Cooling response` |
+| `PRODUCT_EXPOSURE` | `Potential product exposure` |
