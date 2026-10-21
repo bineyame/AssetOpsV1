@@ -39,7 +39,6 @@ from assetops_backend.mini_decisions.store import (
 )
 from assetops_backend.mini_depth.inputs import zone
 
-RUN_PENDING_COMMAND = "run-pending"
 #: Closure 1 Q2: the producer of every opportunity SERVICE projection.
 PRODUCER_ID = OPPORTUNITY_MODEL_VERSION
 
@@ -265,6 +264,9 @@ class MiniOpportunityWorker:
                 break
             outcomes.append(outcome)
         return outcomes
+
+
+RUN_PENDING_COMMAND = MiniOpportunityWorker.run_pending.__name__.replace("_", "-")
 
 
 def _utc(value: str) -> datetime:
