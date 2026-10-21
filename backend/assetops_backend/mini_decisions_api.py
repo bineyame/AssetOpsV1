@@ -10,6 +10,9 @@ closure 1 Q1-Q3/Q12-Q16; closure 2 Q1; closure 4 B2, S10, S15, N8).
   `POST .../opportunities/{opportunity_id}/scenario-links`. The physical opportunity GETs take the Performance gate
   after Site scope and role (S10, u5): a non-MINIGRID Site is the 200 UNKNOWN `SITE_ROLE_UNSUPPORTED` envelope before
   the gate; a closed gate is 409 `PERFORMANCE_CUTOVER_CLOSED`; a gate or store failure is 503.
+- Unit 8: `POST /api/sites/{site_code}/work/decision-links` (`mini-decision-link-write-1`) and
+  `GET /api/sites/{site_code}/work/decision-contexts?case_ids=&known_at=` (`mini-work-contexts-1`), outside the W4-01
+  list cursor; an authored-association read, so no Performance gate.
 
 Order: Site read access 401/403 -> registered Site lookup (scope outage 503, unknown 404) -> Site type -> for a
 write, the injected command access 401/403, the store 503, and the injected server principal 403, all before the
@@ -35,6 +38,7 @@ from assetops_backend.mini_decisions.opportunities import (
 )
 from assetops_backend.mini_decisions.scenarios import SCHEMA_LIST, ScenarioService, parse_list
 from assetops_backend.mini_decisions.store import MiniDecisionStoreUnavailable
+from assetops_backend.mini_decisions.work_links import WorkLinkService
 from assetops_backend.mini_depth.read import MINIGRID
 from assetops_backend.sites.cutover import ImportedSiteRegistry
 from assetops_backend.sites.foundation_records import FoundationStoreError
@@ -43,6 +47,8 @@ from assetops_backend.sites.ports import SiteStoreUnavailable
 ROUTE = "/api/sites/{site_code}/financials/scenarios"
 ALTERNATIVES_ROUTE = "/api/sites/{site_code}/findings/{finding_id}/alternatives"
 OPPORTUNITIES_ROUTE = "/api/sites/{site_code}/opportunities"
+WORK_LINKS_ROUTE = "/api/sites/{site_code}/work/decision-links"
+WORK_CONTEXTS_ROUTE = "/api/sites/{site_code}/work/decision-contexts"
 #: (site_code, tenant_id, site_id) -> (permitted, reason): the S3 Performance cutover gate (S10).
 PerformanceGate = Callable[[str, Any, Any], "tuple[bool, str]"]
 #: (request, site_code) -> the server-authenticated W4-03 principal, or None (closure 2 Q1).
@@ -90,7 +96,8 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
                                 alternatives: AlternativeService | None = None,
                                 opportunities: OpportunityService | None = None,
                                 gate: PerformanceGate = closed_gate,
-                                gate_unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
+                                gate_unavailable: tuple[type[BaseException], ...] = (),
+                                work_links: WorkLinkService | None = None) -> APIRouter:
     router = APIRouter()
 
     def site_of(request: Request, site_code: str) -> Any:
@@ -263,6 +270,34 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
         except _Refusal as refusal:
             raise _response(refusal, listing=False) from refusal
         return JSONResponse(status_code=status, content=out)
+
+    @router.post(WORK_LINKS_ROUTE)
+    async def link_work_case(request: Request, site_code: str) -> JSONResponse:
+        try:
+            tenant, site, admitted = command(request, site_code, work_links)
+            body = await body_of(request)
+            try:
+                status, out = work_links.link(tenant.id, site.id, admitted, body)  # type: ignore[union-attr]
+            except DecisionRefused as refused:
+                raise _of(refused) from refused
+        except _Refusal as refusal:
+            raise _response(refusal, listing=False) from refusal
+        return JSONResponse(status_code=status, content=out)
+
+    @router.get(WORK_CONTEXTS_ROUTE)
+    def work_contexts(request: Request, site_code: str) -> dict[str, Any]:
+        try:
+            tenant, site = site_of(request, site_code)
+            if work_links is None:
+                raise _Refusal(503, "DECISION_STORE_UNAVAILABLE", MESSAGES["DECISION_STORE_UNAVAILABLE"])
+            q = request.query_params
+            try:
+                return work_links.contexts(tenant.id, site.id, site.site_code, q.getlist("case_ids"),
+                                           q.getlist("known_at"))
+            except DecisionRefused as refused:
+                raise _of(refused) from refused
+        except _Refusal as refusal:
+            raise _response(refusal, listing=False) from refusal
 
     return router
 

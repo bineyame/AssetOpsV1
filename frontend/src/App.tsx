@@ -424,11 +424,11 @@ export function App({
           <Route path={SITE_WORK_ROUTE_PATH} element={<SiteWorkFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route
             path={SITE_WORK_INCIDENTS_ROUTE_PATH}
-            element={<SiteWorkCasesFrame key="incidents" kind="incidents" detail={siteDetail} sitesPath={SITES_PATH} />}
+            element={<SiteWorkCasesFrame key="incidents" kind="incidents" detail={siteDetail} sitesPath={SITES_PATH} miniDecisions={miniDecisions} />}
           />
           <Route
             path={SITE_WORK_MAINTENANCE_ROUTE_PATH}
-            element={<SiteWorkCasesFrame key="maintenance" kind="maintenance" detail={siteDetail} sitesPath={SITES_PATH} />}
+            element={<SiteWorkCasesFrame key="maintenance" kind="maintenance" detail={siteDetail} sitesPath={SITES_PATH} miniDecisions={miniDecisions} />}
           />
           {[SITE_ACTION_ROUTE_PATH, SITE_ACTION_VIEW_ROUTE_PATH].map((path) => (
             <Route

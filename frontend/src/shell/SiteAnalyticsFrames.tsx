@@ -1615,12 +1615,15 @@ export function SiteWorkCasesFrame({
   kind,
   workClient = DEFAULT_WORK_CLIENT,
   actionIndex = DEFAULT_ACTION_INDEX,
+  miniDecisions = DEFAULT_MINI_DECISIONS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   kind: WorkKind;
   workClient?: WorkClient;
   actionIndex?: ActionIndexClient;
+  /** W4-03 unit 8: the decision-context overlay, read only on a mini-grid Site. */
+  miniDecisions?: MiniDecisionsClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -1656,6 +1659,7 @@ export function SiteWorkCasesFrame({
             scope={scope}
             trail={trail}
             links={{ finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId) }}
+            decisions={site.site_type === "MINIGRID" ? miniDecisions : undefined}
             onScope={(next, nextTrail) =>
               navigate(hrefFor(site.site_id, workPageQuery(next)), { state: { workTrail: nextTrail } })
             }

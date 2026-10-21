@@ -40,10 +40,10 @@ STATUS = {
 class DecisionRefused(Exception):
     """A refused mini-decision request; nothing it would have written is committed."""
 
-    def __init__(self, code: str, message: str | None = None) -> None:
+    def __init__(self, code: str, message: str | None = None, status: int | None = None) -> None:
         super().__init__(code)
         self.code = code
-        self.status = STATUS[code]
+        self.status = STATUS[code] if status is None else status
         self.message = MESSAGES[code] if message is None else message
 
     def detail(self) -> dict[str, str]:
@@ -52,6 +52,13 @@ class DecisionRefused(Exception):
 
 def invalid() -> DecisionRefused:
     return DecisionRefused("DECISION_INPUT_INVALID")
+
+
+def case_not_found() -> DecisionRefused:
+    """u5 unit 8: an unknown or foreign W4-01 case is W4-01's own 404 `WORK_CASE_NOT_FOUND` (code and message from
+    `work/model.py`, not remapped)."""
+    from assetops_backend.work.model import MESSAGES as WORK_MESSAGES
+    return DecisionRefused("WORK_CASE_NOT_FOUND", WORK_MESSAGES["WORK_CASE_NOT_FOUND"], status=404)
 
 
 #: Closure 1 Q1-Q3: the server-side W4-03 write grant prefix (`SITE_DECISION_WRITE:<principal id>`).

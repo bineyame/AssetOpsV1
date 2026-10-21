@@ -130,6 +130,7 @@ function renderAt(path: string, answers: DecisionRead<ScenarioListBody>[], siteT
     getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
     getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
     listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+    getWorkContexts: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
   };
   const s = site(code, siteType);
   const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: s }) };
@@ -418,6 +419,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       ),
       getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+      getWorkContexts: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
     };
     const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: site(code, siteType) }) };
     render(
@@ -826,6 +828,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
         getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
         getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
         listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+        getWorkContexts: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       };
       const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: site("OTHER-1", siteType) }) };
       for (const withClient of [true, false]) {
@@ -963,6 +966,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       getOpportunity: vi.fn(() => Promise.resolve(answer)),
       listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+      getWorkContexts: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
     };
     const s = site(CODE, siteType);
     const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: s }) };
@@ -1183,6 +1187,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
         getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
         getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
         listOpportunities: vi.fn(() => Promise.resolve(answer)),
+        getWorkContexts: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       };
       render(
         <MemoryRouter>

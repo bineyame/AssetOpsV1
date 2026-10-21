@@ -182,6 +182,20 @@ export interface AlternativesPage {
   limit?: number | null;
 }
 
+/** W4-03 unit 8 (u5): one explicit decision association of a W4-01 case at the list cutoff. */
+export interface WorkDecisionContext {
+  kind: "OPPORTUNITY" | "SCENARIO";
+  id: string;
+  label: string;
+  url: string | null;
+}
+
+export interface WorkContextsBody {
+  schema_version: "mini-work-contexts-1";
+  known_at: string;
+  contexts: Record<string, WorkDecisionContext[]>;
+}
+
 export interface MiniDecisionsClient {
   getScenarios(siteCode: string, scope: ScenarioScope): Promise<DecisionRead<ScenarioListBody>>;
   getAlternatives(
@@ -195,6 +209,8 @@ export interface MiniDecisionsClient {
     siteCode: string,
     window: { from: string; to: string; known_at: string | null },
   ): Promise<DecisionRead<OpportunityListBody>>;
+  /** The Site Work overlay: every requested case key, read at the W4-01 list's exact `known_at`. */
+  getWorkContexts(siteCode: string, caseIds: string[], knownAt: string): Promise<DecisionRead<WorkContextsBody>>;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
@@ -266,6 +282,13 @@ const isOpportunityList = (value: unknown): boolean =>
   Array.isArray(value.rows) &&
   typeof value.total_count === "number";
 
+const isWorkContexts = (value: unknown): boolean =>
+  isObject(value) &&
+  value.schema_version === "mini-work-contexts-1" &&
+  typeof value.known_at === "string" &&
+  isObject(value.contexts) &&
+  Object.values(value.contexts).every((list) => Array.isArray(list));
+
 export function createMiniDecisionsClient(basePath: string = SITES_API_PATH): MiniDecisionsClient {
   const site = (code: string) => `${basePath}/${encodeURIComponent(code)}`;
   return {
@@ -287,6 +310,10 @@ export function createMiniDecisionsClient(basePath: string = SITES_API_PATH): Mi
       const params = new URLSearchParams({ from: window.from, to: window.to, limit: "100" });
       if (window.known_at !== null) params.set("known_at", window.known_at);
       return readDecision(`${site(code)}/opportunities?${params.toString()}`, isOpportunityList);
+    },
+    getWorkContexts: (code, caseIds, knownAt) => {
+      const params = new URLSearchParams({ case_ids: caseIds.join(","), known_at: knownAt });
+      return readDecision(`${site(code)}/work/decision-contexts?${params.toString()}`, isWorkContexts);
     },
   };
 }

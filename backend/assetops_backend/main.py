@@ -92,6 +92,7 @@ from assetops_backend.mini_depth.read import MiniDepthRead
 from assetops_backend.mini_depth_api import build_mini_depth_router
 from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.opportunities import OpportunityService
+from assetops_backend.mini_decisions.work_links import WorkLinkService
 from assetops_backend.mini_decisions.scenarios import ScenarioService
 from assetops_backend.mini_decisions.store import PostgresMiniDecisionStore
 from assetops_backend.mini_decisions_api import (
@@ -479,7 +480,9 @@ def create_app(
         # W4-03 unit 5 (S10, u5): the physical opportunity reads take the Performance gate after scope and role.
         opportunities=None if decision_store is None or mini_reads is None
         else OpportunityService(decision_store, mini_reads), gate=performance_gate,
-        gate_unavailable=finding_store_unavailable()))
+        gate_unavailable=finding_store_unavailable(),
+        # W4-03 unit 8 (u5): explicit work associations and the Site Work decision-context overlay.
+        work_links=None if decision_store is None else WorkLinkService(decision_store)))
     # S3-02a: selected-assessment capability and claim-limit read; same Performance gate, Finding access seam.
     app.include_router(build_claim_limit_router(
         build_claim_limit_read_service(database_url()) if database_url() else None, registry.ledger_scope,

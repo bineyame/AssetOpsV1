@@ -499,6 +499,68 @@ class PostgresMiniDecisionStore:
             "WHERE tenant_id = :t AND site_id = :s AND idempotency_key = :k"),
             {"t": tenant_id, "s": site_id, "k": key}).mappings().one_or_none()
 
+    # --- work associations and the Site Work context overlay (unit 8, u5) ---------------------------------------
+
+    @staticmethod
+    def lock_work_case(c: Connection, tenant_id: UUID, site_id: UUID, case_id: str) -> Any:
+        """The W4-01 case ID at this tenant/Site, share-locked for a W4-03 association (W4-01 rows are never
+        changed); None for an unknown or foreign case."""
+        return c.execute(text(
+            "SELECT id FROM work_case WHERE tenant_id = :t AND site_id = :s AND id = :id FOR SHARE"),
+            {"t": tenant_id, "s": site_id, "id": case_id}).scalar()
+
+    @staticmethod
+    def opportunity_exists(c: Connection, tenant_id: UUID, site_id: UUID, opportunity_id: str) -> bool:
+        return c.execute(text("SELECT 1 FROM mini_opportunity WHERE tenant_id = :t AND site_id = :s AND id = :id"),
+                         {"t": tenant_id, "s": site_id, "id": opportunity_id}).scalar() is not None
+
+    @staticmethod
+    def work_link_by_key(c: Connection, tenant_id: UUID, site_id: UUID, key: str) -> Mapping[str, Any] | None:
+        return c.execute(text(
+            "SELECT id, case_id, scenario_id, opportunity_id, payload_sha256, created_at FROM mini_decision_work_link "
+            "WHERE tenant_id = :t AND site_id = :s AND idempotency_key = :k"),
+            {"t": tenant_id, "s": site_id, "k": key}).mappings().one_or_none()
+
+    @staticmethod
+    def work_link_pair(c: Connection, tenant_id: UUID, site_id: UUID, case_id: str, scenario_id: str | None,
+                       opportunity_id: str | None) -> Any:
+        """The existing association of this case with this decision, if any (`UNIQUE(case_id, scenario_id)` and
+        `UNIQUE(case_id, opportunity_id)`)."""
+        return c.execute(text(
+            "SELECT id FROM mini_decision_work_link WHERE tenant_id = :t AND site_id = :s AND case_id = :c "
+            "AND (scenario_id = CAST(:sc AS uuid) OR opportunity_id = CAST(:o AS uuid))"),
+            {"t": tenant_id, "s": site_id, "c": case_id, "sc": scenario_id, "o": opportunity_id}).scalar()
+
+    @staticmethod
+    def visible_cases(c: Connection, tenant_id: UUID, site_id: UUID, case_ids: list[str], known: Any) -> set[str]:
+        """The requested W4-01 case IDs that exist at this tenant/Site with `created_at <= known` (W4-01 detail
+        visibility)."""
+        rows = c.execute(text(
+            "SELECT id::text FROM work_case WHERE tenant_id = :t AND site_id = :s "
+            "AND id = ANY(CAST(:ids AS uuid[])) AND created_at <= :k"),
+            {"t": tenant_id, "s": site_id, "ids": case_ids, "k": known}).scalars()
+        return set(rows)
+
+    @staticmethod
+    def work_contexts(c: Connection, tenant_id: UUID, site_id: UUID, case_ids: list[str],
+                      known: Any) -> list[Mapping[str, Any]]:
+        """Every visible association of the named cases at `known`, ordered `(created_at, id)` ascending, with the
+        opportunity public number and the scenario public number and head-revision name at `known` (null when no
+        revision is visible)."""
+        return list(c.execute(text(
+            "SELECT l.id, l.case_id::text AS case_id, l.created_at, l.opportunity_id, l.scenario_id, "
+            "o.public_no AS opportunity_no, m.public_no AS scenario_no, "
+            "(SELECT r.name FROM mini_scenario_revision r WHERE r.tenant_id = m.tenant_id AND r.site_id = m.site_id "
+            " AND r.scenario_id = m.id AND m.created_at <= :k AND r.recorded_at <= :k "
+            " ORDER BY r.recorded_at DESC, r.revision_no DESC, r.id DESC LIMIT 1) AS scenario_name "
+            "FROM mini_decision_work_link l "
+            "LEFT JOIN mini_opportunity o ON o.tenant_id = l.tenant_id AND o.site_id = l.site_id "
+            " AND o.id = l.opportunity_id "
+            "LEFT JOIN mini_scenario m ON m.tenant_id = l.tenant_id AND m.site_id = l.site_id AND m.id = l.scenario_id "
+            "WHERE l.tenant_id = :t AND l.site_id = :s AND l.case_id = ANY(CAST(:ids AS uuid[])) "
+            "AND l.created_at <= :k ORDER BY l.created_at, l.id"),
+            {"t": tenant_id, "s": site_id, "ids": case_ids, "k": known}).mappings())
+
     @staticmethod
     def sites_by_code(c: Connection, site_code: str) -> list[Any]:
         """`reconcile --site <code>`: `(tenant_id, site_id, timezone)` of the Sites with that public code."""
