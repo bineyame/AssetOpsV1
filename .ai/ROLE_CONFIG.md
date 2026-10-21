@@ -444,6 +444,7 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   On 2026-10-20 this found 66 questions in the W4-01 and W3-01 specs before any code was written.
 - **Mock measurements before the spec.** Codex cannot drive Chrome in its sandbox (W3-02, 2026-10-20). Before an Architect spec request, the coordinator runs `node tools/measure-mock-panels.mjs <out-dir> <screen-id>...` and commits the measurements as `.agent/<slice>-mock-measurements.md`. The request must cite that file for the 1440/390 panel budgets.
 - **Never kill all browser processes.** A capture or measurement script stops only the Chrome process it launched, by PID or by its own user-data-dir. `taskkill /IM chrome.exe` is forbidden, because it closes the owner's and other agents' browsers (W3-01, 2026-10-21).
+- **`git add -f` only on named `.agent/` paths.** Never run `git add -f .`, `git add -A -f`, or force-add a directory. Doing so commits ignored build output (`node_modules/`, `dist/`, `*.tsbuildinfo`). W4-02 committed about 5,300 `node_modules` files that way (2026-10-21). Before every commit, `git diff --cached --stat` must show no ignored paths.
 - **Size builder runs to one spec commit each**, with a handoff after each, so
   no run dies mid-commit and the next run reads only the handoff.
 - **Model by risk.** First review of a new build and design-deciding work on
