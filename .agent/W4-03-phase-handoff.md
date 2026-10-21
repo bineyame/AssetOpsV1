@@ -525,3 +525,46 @@ readings 2-15 confirmed without code change (CTA refusal copy is already by code
 - Layout evidence: not run.
 
 Next: unit 9
+
+## Unit 9a (landed; commits 37122434, u8 applied 6915ae31; main merged at 56591c78)
+- `backend/tests/fixtures/w4/w403-mini-decisions.json` (`w403-mini-decisions/1`, sorted keys, final LF): Site codes,
+  W4-02 source, both reconcile windows, the late variant, command templates (`<placeholder>` values), semantic expects.
+- `tools/w403_mini_decisions_walkthrough.py`: `--db <*_test> --work var/<dir>` with `prepare|serve|replay|capture|drop`;
+  library functions the test reuses: `fixture_callbacks(secret, scopes, grants=)`, `import_sites`, `publish_and_ingest`,
+  `ingest_late`, `mini_days`, `opportunity_cli` (worker CLI reconcile + run-pending), `seed_case` (W4-01 `WorkService`,
+  `service:w401-fixture`), `kobo_revision`, `http_replay` (five W4-03 command types), `reads`, `run_replay`, `iso`, `fill`.
+  `serve` binds 127.0.0.1:9761; `capture` delegates to `tools/w403-mini-decisions-evidence.mjs <web> <work>/capture`
+  (NOT YET WRITTEN: unit 9b). The tool runs the Performance comparison for MG-W402-001 (opportunity GETs are gated).
+- `backend/tests/test_w403_replay_postgres.py`: `test_positive_missing_late_replay_and_fresh_reload` (fixture bytes,
+  no-credential/wrong-secret/wrong-Site/no-grant 403 with no write, SUPPORTED 5/5 with 6 Oct EXCLUDED, pins = row tuples,
+  per-eligible-window 10 kWh / 2.50 USD or WITHHELD, no-tariff null gross, OPPORTUNITY context only on the linked
+  Incident, late branch new head + 2-entry history + old-cutoff first head, missing study not SUPPORTED, fresh-app reload)
+  and `test_authored_work_link_preserves_unlinked_case_count` (+u8: same-pair new-key 409 exact body, OPPORTUNITY then
+  SCENARIO at now, OPPORTUNITY only at the earlier cutoff, later case 404). The comparison report goes to `tmp_path`.
+
+Readings taken (9a; reviewer may overturn). PR-11 holds 1-3.
+1. KOBO Alternative POST at wall time is 409 `DECISION_BASIS_CHANGED` (F02 revisions at fixture `SETUP_AT` 29 Oct, after
+   DB time); recorded as the observed exit and asserted conditionally (PR-11.1).
+2. Late branch reads `STALE_SOURCE` before rerun and at the old cutoff (PR-11.2); the late variant is authored in the W4-03
+   fixture and not published under the W4-02 source.
+3. Missing branch uses a second reconcile `[2026-10-07T21Z, 2026-10-12T21Z)` (PR-11.3).
+4. `--db` must be a lower-case identifier ending `_test`; `--work` a folder directly under repo `var/`; `drop` only with
+   the tool's marker.
+5. The work-link test window is the last 20 days to tomorrow (W4-01 31-day cap).
+6. Scenario fresh-reload equality is over authored fields only (state fields legitimately change after the late branch).
+
+## Checks (9a + u8)
+- Private DB `w403o_test` (dropped). `test_w403_replay_postgres.py`: 2 passed (350 s); after u8 vectors the work-link
+  test passed alone (106 s). No full suite.
+- `check-all.ps1` at the 9a code: all 11 guards passed. No frontend change in 9a.
+
+## Unit 9b (not started; context budget)
+Remaining per u5 9b + u8 9: five registry panel entries (screen list at `v69-dependency-registry-pilot.json:408-409`
+holds the two sitework rows; add scenarios/alternatives/opportunity-finding; which opportunity indices count toward
+"five" is open - three panels exist in `v69-rendered-panels.json:856`), `expectV69Panels` for the three W4-03 screens in
+`miniDecisions.test.tsx` plus `narrow_mock_panel_budgets` and `exact_routes_no_dead_cta`, the capture script
+`tools/w403-mini-decisions-evidence.mjs` (pattern: `.agent/W4-01-evidence/capture.mjs`; caps in u5 9b; stocked/refused
+overlay and scenario no-route copy per u8 9), served via `walkthrough serve` + vite, one full backend Postgres suite,
+review packet.
+
+Next: unit 9b, then unit 10
