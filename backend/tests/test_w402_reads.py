@@ -3,6 +3,7 @@ Q33; closure 4 S1, S6, N7; q6 ruling 1). The Postgres reads are in `test_w402_re
 
 from __future__ import annotations
 
+import os
 from datetime import date, datetime, timedelta, timezone
 from types import SimpleNamespace
 from uuid import uuid4
@@ -344,3 +345,44 @@ def test_q9_10_lineage_fails_closed() -> None:
     response = _client(_Reader(broken)).get(URL, params=Q)
     assert response.json() == {"detail": {"code": "MINI_DEPTH_STORE_UNAVAILABLE",
                                           "message": "Mini-grid evidence is unavailable right now. Try again."}}
+
+
+# Final review B-L4: the spec-named `test_w402_api.py::test_missing_assessment_unknown_body` maps here. A MINIGRID
+# hour domain whose window has no selected assessment is served by the production router over the real reader as
+# 200 with an UNKNOWN body (no selection, null cards and basis, no rows, the whole window a coverage gap), never a
+# 404/409 or a fabricated value. Requires ASSETOPS_TEST_DATABASE_URL; the module's other tests stay database-free.
+DB_URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
+if DB_URL:
+    from test_s1_bindings_postgres import engine, store  # noqa: F401
+    from test_w402_authored_v4_postgres import install
+
+
+@pytest.mark.skipif(not DB_URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+@pytest.mark.parametrize("domain", ["service", "fuel", "backup"])
+def test_missing_assessment_unknown_body(domain, store, engine) -> None:  # noqa: F811
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_on
+    from assetops_backend.mini_depth.read import NULL_CARDS, MiniDepthRead
+
+    installed = install(store)  # MG-W402-001 with its minigrid-roles-4 bindings; nothing ingested or selected
+    t, s, code = installed.result.site.tenant_id, installed.result.site.id, installed.result.site.site_code
+    site = SimpleNamespace(id=s, site_code=code, site_type="MINIGRID", timezone=ZONE)
+    registry = SimpleNamespace(tenant=lambda: SimpleNamespace(id=t),
+                               imported=lambda c: site if c.lower() == code.lower() else None)
+    app = FastAPI()
+    app.include_router(build_mini_depth_router(MiniDepthRead(engine, link_rows_on), registry))  # type: ignore[arg-type]
+    noon = local_noon(DAYS[1], ZONE)
+    response = TestClient(app).get(f"/api/sites/{code}/performance/mini/{domain}",
+                                   params={"from": _z(noon.start), "to": _z(noon.end)})
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["domain"] == domain and body["status"] == "UNKNOWN"
+    assert body["currentness"]["state"] == "UNKNOWN" and body["currentness"]["job_state"] == "NONE"
+    [window] = body["currentness"]["windows"]
+    assert window["selection_id"] is None and window["assessment_revision_id"] is None
+    assert window["window_start"] == _z(noon.start) and window["window_end"] == _z(noon.end)
+    assert body["cards"] == NULL_CARDS[domain] and set(body["cards"].values()) == {None}
+    assert body["rows"] == [] and body["basis"] is None and body["selected_source_provenance"] is None
+    assert body["coverage"]["observed_seconds"] in (0, None)
+    assert {"from": _z(noon.start), "to": _z(noon.end)} in body["coverage"]["gaps"]
+    if domain == "service":
+        assert body["critical_delivered_coverage"] is None
