@@ -266,25 +266,50 @@ the literal `site_lease_seconds == 600` and adds `test_run_pending_cli_parses_li
 `build_worker`; `main(['run-pending','--limit','1'])` -> `run_pending(1)`, then `store.dispose()`). Stage 8 + worker 1
 passed (private `w403i_test`, dropped).
 
-## Unit 5 - BLOCKED on PR-7 (not started)
+## Unit 5 (landed; PR-7 resolved by u5)
 
-Seven read-contract questions are in `.agent/W4-03-pending-rulings.md` PR-7 (list status aggregate, currentness
-precedence, read-time codes, history shape, row shape, list window, site_work route). Survey anchors for the builder:
-- Pattern: `mini_decisions/scenarios.py:ScenarioService.list/_list/_row` (snapshot, `db_now`, cursor, token, gate) and
-  `parse_list`/`encode_cursor`/`decode_cursor`; router `mini_decisions_api.py:build_mini_decisions_router` (`site_of`,
-  `command`, `_response(listing=)`), mount in `main.py`.
-- Basis: `mini_depth/read.py:MiniDepthRead.read_selected_renewable_basis` (~435; per-day `selection_seq`,
-  `mini_revision_id`, `decision`, `input_sha256`, `evidence_ids`, `state`, `job_state`, `pending_job_ids`; aggregate
-  `pending_evidence_ids`) and `provenance_blocks` (~480). W4-02 job rule `_JOBS` (~150): live = PENDING/LEASED/FAILED,
-  `available_at<=k`, not cleared by a later selection; `aggregate_state`/`aggregate_job` (~270).
-- Store has no opportunity read yet: add heads at cutoff (selection `selected_at<=k`, revision `created_at<=k`,
-  pinned `selection_at<=k`), revisions/selections history, overlapping opportunity jobs, scenario links. DDL:
-  `0030_w4_mini_decisions.py:144-228`; head index `mini_opportunity_head`.
-- Scenario association command: closure 1 Q1-Q3 (lines ~246-262): `POST .../opportunities/{id}/scenario-links`,
-  `mini-opportunity-scenario-command-1`/`-write-1`, compatibility = scenario head at cutoff pins exactly the opportunity's
-  five tuples, PRODUCTIVE_LOAD, same Site; else `SCENARIO_BASIS_MISMATCH`. Reuse `scenarios.admit/authorize`.
-- u4b read-side vector: persisted SUPPORTED revision through `read_selected_renewable_basis` at an exact cutoff, with
-  pending-newer-evidence and stale-digest cases; frozen `result` unchanged (worker test helpers `mg`, `project`,
-  `revisions`, `pins` in `test_w403_opportunity_worker_postgres.py`).
+Opportunity list/detail reads and the authored opportunity-scenario association (u5 unit 5 rulings 1-7 + command).
+File anchors for later units:
+- `backend/assetops_backend/mini_decisions/opportunities.py`: `OpportunityService.list/detail/link_scenario`,
+  `_study` (one study at the cutoff: head = greatest visible selection whose pins satisfy the cutoff; currentness
+  precedence; read-time codes; compatible-link scenario/load/money; history; scenario_links; token row), `_compatible`,
+  `parse_opportunity_list`, `decode_cursor` (`after=[first_day,id]`), `opportunity_code`, `unsupported_detail`.
+- `store.py` unit-5 reads: `opportunity_roots`, `opportunity_selections`, `live_opportunity_jobs_at`,
+  `opportunity_scenario_links`, `opportunity_work_kinds`, `scenario_head_at`, `lock_opportunity`, `scenario_exists`,
+  `opportunity_link_by_key`.
+- Router `mini_decisions_api.py`: `GET /api/sites/{code}/opportunities`, `GET .../opportunities/{id}`, `POST
+  .../opportunities/{id}/scenario-links`; params `opportunities=`, `gate=` (default `closed_gate`),
+  `gate_unavailable=`; `physical()` gate after scope/role. `main.py` passes `performance_gate` and
+  `finding_store_unavailable()` (the driver-import guard forbids sqlalchemy in the router).
+- Unit 7 consumes `currentness`, `status`, `opportunity.eligible_days` and `selected_source_provenance` for the green
+  display (helper `positive()` in the read test states the u5 ruling 1 inputs).
 
-Next: unit 5 (after PR-7), then unit 6.
+Readings taken (not rulings; reviewer may overturn):
+1. Non-MINIGRID detail returns a 200 `mini-opportunity-detail-1` UNKNOWN envelope (`opportunity:null`, empty history/
+   links, `SITE_ROLE_UNSUPPORTED`), mirroring the list envelope.
+2. `SOURCE_STALE` is appended whenever currentness is `STALE_SOURCE`, so a changed head alone yields
+   `SELECTION_CHANGED, SOURCE_STALE`; `SELECTION_CHANGED` is appended whenever a pin's revision/accepted set differs,
+   even under `PENDING_RECOMPUTE`.
+3. "Overlapping" opportunity jobs are literal window overlap with the study window (an adjacent study's job counts);
+   no clearing by a later opportunity selection (u5 omits the W4-02 clearing clause).
+4. `gross_sales_scenario` from a compatible link is also withheld (null) unless currentness is CURRENT/HISTORICAL and
+   the selected class is not MIXED/UNKNOWN (closure 1 Q7-Q11 read gate, same as the scenario row);
+   `proposed_load_kw`/`scenario_id` still show.
+5. Body `opportunity_id` differing from the path is 422 `DECISION_INPUT_INVALID` (shape), before the store.
+6. Detail has no `window`/`known_at` key (u5 ruling 5 lists none); the cutoff is in `links.renewable`.
+7. A closed gate answers `{"code":"PERFORMANCE_CUTOVER_CLOSED","message":<reason>}` (+ `rows`/`total_count` null on the
+   list), not W1's extra `read` key.
+8. List page two without explicit `known_at` uses the cursor's cutoff but `historical=False`, as the scenario list does.
+9. Job status is not versioned: a replay at an earlier cutoff after a job settled reads it as settled (same as W4-02).
+
+Tests: `test_w403_opportunity_read_postgres.py` (9: the eight u5-named tests plus the u4b vector
+`test_stored_supported_result_unchanged_through_s9_pending_and_stale_reads`), `test_w403_opportunity_links_postgres.py`
+(1: `test_association_retry_scope_and_latest_compatible_head`).
+
+## Checks (unit 5)
+- Private DB `w403j_test` (dropped afterwards). No full suite run.
+- New files: read 9 + links 1 passed (heavy set 780 s; the u4b vector re-run after a test-expectation fix, 2 passed).
+  Scenario router regressions (`router`, `principal`, `u2c_non`): passed.
+- `check-all.ps1`: all 11 guards passed (after removing a sqlalchemy import from the router).
+
+Next: unit 6

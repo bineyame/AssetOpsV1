@@ -401,6 +401,104 @@ class PostgresMiniDecisionStore:
             "AND site_id = :s AND opportunity_id = :o"), params).scalar_one()
         return same, head, int(top)
 
+    # --- opportunity reads and the scenario association (unit 5, u5) -------------------------------------------
+
+    @staticmethod
+    def opportunity_roots(c: Connection, tenant_id: UUID, site_id: UUID, *, known: Any, lo_day: Any = None,
+                          hi_day: Any = None, opportunity_id: str | None = None) -> list[Mapping[str, Any]]:
+        """`mini-opportunity/1` roots visible at `known`: either the one named root, or every study whose
+        `[first_day, last_day + 1 day)` intersects the Site-local day range `[lo_day, hi_day)` (u5 ruling 6)."""
+        where = "o.id = CAST(:o AS uuid)" if opportunity_id is not None else "o.first_day < :hi AND o.last_day >= :lo"
+        return list(c.execute(text(
+            "SELECT o.id, o.public_no, o.first_day, o.last_day, o.model_version, o.created_at FROM mini_opportunity o "
+            f"WHERE o.tenant_id = :t AND o.site_id = :s AND o.model_version = :v AND o.created_at <= :k AND {where}"),
+            {"t": tenant_id, "s": site_id, "v": OPPORTUNITY_MODEL_VERSION, "k": known, "lo": lo_day, "hi": hi_day,
+             "o": opportunity_id}).mappings())
+
+    @staticmethod
+    def opportunity_selections(c: Connection, tenant_id: UUID, site_id: UUID, opportunity_ids: list[Any],
+                               known: Any) -> list[Mapping[str, Any]]:
+        """Every selection of the named roots with `selected_at <= known` and its revision `created_at <= known`,
+        ordered `(selected_at DESC, seq DESC)` (closure 1 Q12-Q16). The caller applies the pinned W4-02 cutoff."""
+        if not opportunity_ids:
+            return []
+        return list(c.execute(text(
+            "SELECT x.seq, x.opportunity_id, x.revision_id, x.job_id, x.selected_at, r.revision_no, r.input_sha256, "
+            "r.created_at, r.selected_hours, r.result FROM mini_opportunity_selection x "
+            "JOIN mini_opportunity_revision r ON r.tenant_id = x.tenant_id AND r.site_id = x.site_id "
+            "AND r.id = x.revision_id WHERE x.tenant_id = :t AND x.site_id = :s "
+            "AND x.opportunity_id = ANY(CAST(:ids AS uuid[])) AND x.selected_at <= :k AND r.created_at <= :k "
+            "ORDER BY x.selected_at DESC, x.seq DESC"),
+            {"t": tenant_id, "s": site_id, "ids": [str(i) for i in opportunity_ids], "k": known}).mappings())
+
+    @staticmethod
+    def live_opportunity_jobs_at(c: Connection, tenant_id: UUID, site_id: UUID, lo: Any, hi: Any,
+                                 known: Any) -> list[Any]:
+        """u5 ruling 2: `(id, status)` of this Site's `mini_opportunity` jobs overlapping UTC `[lo, hi)` that are
+        PENDING, LEASED or FAILED with `available_at <= known`."""
+        return c.execute(text(
+            "SELECT id::text, status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
+            "AND window_start < :hi AND window_end > :lo AND status IN ('PENDING', 'LEASED', 'FAILED') "
+            "AND available_at <= :k ORDER BY id"),
+            {"t": tenant_id, "s": site_id, "d": OPPORTUNITY_JOB_DOMAIN, "lo": lo, "hi": hi, "k": known}).all()
+
+    @staticmethod
+    def opportunity_scenario_links(c: Connection, tenant_id: UUID, site_id: UUID, opportunity_ids: list[Any],
+                                   known: Any) -> list[Mapping[str, Any]]:
+        """The visible associations of the named roots, ordered `(created_at DESC, id DESC)` (u5 ruling 4)."""
+        if not opportunity_ids:
+            return []
+        return list(c.execute(text(
+            "SELECT id, opportunity_id, scenario_id, created_at FROM mini_opportunity_scenario_link "
+            "WHERE tenant_id = :t AND site_id = :s AND opportunity_id = ANY(CAST(:ids AS uuid[])) "
+            "AND created_at <= :k ORDER BY created_at DESC, id DESC"),
+            {"t": tenant_id, "s": site_id, "ids": [str(i) for i in opportunity_ids], "k": known}).mappings())
+
+    @staticmethod
+    def opportunity_work_kinds(c: Connection, tenant_id: UUID, site_id: UUID, opportunity_ids: list[Any],
+                               known: Any) -> list[Any]:
+        """`(opportunity_id, case kind)` of each visible explicit work association (u5 ruling 7)."""
+        if not opportunity_ids:
+            return []
+        return c.execute(text(
+            "SELECT l.opportunity_id, w.kind FROM mini_decision_work_link l JOIN work_case w "
+            "ON w.tenant_id = l.tenant_id AND w.site_id = l.site_id AND w.id = l.case_id "
+            "WHERE l.tenant_id = :t AND l.site_id = :s AND l.opportunity_id = ANY(CAST(:ids AS uuid[])) "
+            "AND l.created_at <= :k"),
+            {"t": tenant_id, "s": site_id, "ids": [str(i) for i in opportunity_ids], "k": known}).all()
+
+    @staticmethod
+    def scenario_head_at(c: Connection, tenant_id: UUID, site_id: UUID, scenario_id: Any,
+                         known: Any) -> Mapping[str, Any] | None:
+        """The scenario's head revision at `known`: greatest `(recorded_at, revision_no, id)` (closure 1 Q12-Q16)."""
+        return c.execute(text(
+            "SELECT r.id, r.kind, r.assumptions, r.pinned_selection_hours, r.calculation FROM mini_scenario m "
+            "JOIN mini_scenario_revision r ON r.tenant_id = m.tenant_id AND r.site_id = m.site_id "
+            "AND r.scenario_id = m.id WHERE m.tenant_id = :t AND m.site_id = :s AND m.id = :id "
+            "AND m.created_at <= :k AND r.recorded_at <= :k "
+            "ORDER BY r.recorded_at DESC, r.revision_no DESC, r.id DESC LIMIT 1"),
+            {"t": tenant_id, "s": site_id, "id": scenario_id, "k": known}).mappings().one_or_none()
+
+    @staticmethod
+    def lock_opportunity(c: Connection, tenant_id: UUID, site_id: UUID, opportunity_id: str) -> Any:
+        """The opportunity root ID, row-locked for an association command (closure 1: a POST locks its root)."""
+        return c.execute(text(
+            "SELECT id FROM mini_opportunity WHERE tenant_id = :t AND site_id = :s AND id = :id FOR UPDATE"),
+            {"t": tenant_id, "s": site_id, "id": opportunity_id}).scalar()
+
+    @staticmethod
+    def scenario_exists(c: Connection, tenant_id: UUID, site_id: UUID, scenario_id: str) -> bool:
+        return c.execute(text("SELECT 1 FROM mini_scenario WHERE tenant_id = :t AND site_id = :s AND id = :id"),
+                         {"t": tenant_id, "s": site_id, "id": scenario_id}).scalar() is not None
+
+    @staticmethod
+    def opportunity_link_by_key(c: Connection, tenant_id: UUID, site_id: UUID,
+                                key: str) -> Mapping[str, Any] | None:
+        return c.execute(text(
+            "SELECT id, opportunity_id, scenario_id, payload_sha256, created_at FROM mini_opportunity_scenario_link "
+            "WHERE tenant_id = :t AND site_id = :s AND idempotency_key = :k"),
+            {"t": tenant_id, "s": site_id, "k": key}).mappings().one_or_none()
+
     @staticmethod
     def sites_by_code(c: Connection, site_code: str) -> list[Any]:
         """`reconcile --site <code>`: `(tenant_id, site_id, timezone)` of the Sites with that public code."""

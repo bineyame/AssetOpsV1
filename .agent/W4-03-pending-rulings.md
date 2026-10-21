@@ -105,7 +105,7 @@ contract leaves these values open. Builder asks; no reading taken:
    MIXED/UNKNOWN provenance test the `selected_source_provenance` block of that same reader over the five days?
 4. `day_rows[].constraints`: the stored W4-02 row's `constraints` list (empty for a missing day)? Confirm.
 
-## PR-7 (raised before unit 5 build) - OPEN, blocking unit 5
+## PR-7 (raised before unit 5 build) - RESOLVED by u5 (build spec "Unit-5..12 rulings (u5)", unit 5 rulings 1-7 and the command paragraph); built in unit 5
 
 u4b test additions landed (ba492755). Unit 5 not started: the read contract (original API block; closure 1 Q1-Q3,
 Q7-Q16; closure 4 S5/S7/S9/S14/S20; u4) leaves these values open. Builder asks; each item gives the reading the

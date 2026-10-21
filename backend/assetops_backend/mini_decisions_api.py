@@ -5,6 +5,11 @@ closure 1 Q1-Q3/Q12-Q16; closure 2 Q1; closure 4 B2, S10, S15, N8).
 - `POST /api/sites/{site_code}/financials/scenarios` and `POST .../financials/scenarios/{scenario_id}/revisions`.
 - Unit 3: `GET /api/sites/{site_code}/findings/{finding_id}/alternatives?revision_id=&known_at=&limit=&cursor=`
   (`mini-alternatives-1`) and `POST .../findings/{finding_id}/alternatives`. Alternatives have no `from`/`to`.
+- Unit 5: `GET /api/sites/{site_code}/opportunities?from=&to=&known_at=&limit=&cursor=` (`mini-opportunities-1`),
+  `GET .../opportunities/{opportunity_id}?known_at=` (`mini-opportunity-detail-1`) and
+  `POST .../opportunities/{opportunity_id}/scenario-links`. The physical opportunity GETs take the Performance gate
+  after Site scope and role (S10, u5): a non-MINIGRID Site is the 200 UNKNOWN `SITE_ROLE_UNSUPPORTED` envelope before
+  the gate; a closed gate is 409 `PERFORMANCE_CUTOVER_CLOSED`; a gate or store failure is 503.
 
 Order: Site read access 401/403 -> registered Site lookup (scope outage 503, unknown 404) -> Site type -> for a
 write, the injected command access 401/403, the store 503, and the injected server principal 403, all before the
@@ -22,7 +27,14 @@ from fastapi.responses import JSONResponse
 from assetops_backend.finding_api import ACCESS_BASIS, Access, development_access
 from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.model import MESSAGES, DecisionPrincipal, DecisionRefused
+from assetops_backend.mini_decisions.opportunities import (
+    SCHEMA_LIST as OPPORTUNITIES_SCHEMA,
+    OpportunityService,
+    parse_opportunity_list,
+    unsupported_detail,
+)
 from assetops_backend.mini_decisions.scenarios import SCHEMA_LIST, ScenarioService, parse_list
+from assetops_backend.mini_decisions.store import MiniDecisionStoreUnavailable
 from assetops_backend.mini_depth.read import MINIGRID
 from assetops_backend.sites.cutover import ImportedSiteRegistry
 from assetops_backend.sites.foundation_records import FoundationStoreError
@@ -30,6 +42,9 @@ from assetops_backend.sites.ports import SiteStoreUnavailable
 
 ROUTE = "/api/sites/{site_code}/financials/scenarios"
 ALTERNATIVES_ROUTE = "/api/sites/{site_code}/findings/{finding_id}/alternatives"
+OPPORTUNITIES_ROUTE = "/api/sites/{site_code}/opportunities"
+#: (site_code, tenant_id, site_id) -> (permitted, reason): the S3 Performance cutover gate (S10).
+PerformanceGate = Callable[[str, Any, Any], "tuple[bool, str]"]
 #: (request, site_code) -> the server-authenticated W4-03 principal, or None (closure 2 Q1).
 DecisionPrincipalResolver = Callable[[Request, str], "DecisionPrincipal | None"]
 
@@ -42,6 +57,11 @@ def deny_decision_writes(request: Request, site_code: str) -> int | None:
 def no_decision_principal(request: Request, site_code: str) -> DecisionPrincipal | None:
     """Development has no authenticated W4-03 principal."""
     return None
+
+
+def closed_gate(site_code: str, tenant_id: Any, site_id: Any) -> tuple[bool, str]:
+    """The default when no Performance gate is composed: physical opportunity reads stay closed."""
+    return False, "No Performance cutover gate is configured."
 
 
 class _Refusal(Exception):
@@ -67,7 +87,10 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
                                 command_access: Access = deny_decision_writes,
                                 principal: DecisionPrincipalResolver = no_decision_principal,
                                 access_basis: str = ACCESS_BASIS,
-                                alternatives: AlternativeService | None = None) -> APIRouter:
+                                alternatives: AlternativeService | None = None,
+                                opportunities: OpportunityService | None = None,
+                                gate: PerformanceGate = closed_gate,
+                                gate_unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
     router = APIRouter()
 
     def site_of(request: Request, site_code: str) -> Any:
@@ -98,6 +121,16 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
             # PR-4 (provisional, pending ruling): no mini scenario is authored on a non-MINIGRID Site.
             raise _Refusal(422, "DECISION_LINK_SCOPE_INVALID", MESSAGES["DECISION_LINK_SCOPE_INVALID"])
         return tenant, site, principal(request, site_code)
+
+    def physical(site_code: str, tenant: Any, site: Any) -> None:
+        """S10: the Performance gate for a physical opportunity read, after Site scope and role."""
+        try:
+            permitted, reason = gate(site_code, tenant.id, site.id)
+        except (SiteStoreUnavailable, FoundationStoreError, MiniDecisionStoreUnavailable,
+                *gate_unavailable) as error:
+            raise _Refusal(503, "DECISION_STORE_UNAVAILABLE", MESSAGES["DECISION_STORE_UNAVAILABLE"]) from error
+        if not permitted:
+            raise _Refusal(409, "PERFORMANCE_CUTOVER_CLOSED", reason)
 
     async def body_of(request: Request) -> Any:
         try:
@@ -181,12 +214,62 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
             raise _response(refusal, listing=False) from refusal
         return JSONResponse(status_code=status, content=out)
 
+    @router.get(OPPORTUNITIES_ROUTE)
+    def list_opportunities(request: Request, site_code: str) -> dict[str, Any]:
+        try:
+            tenant, site = site_of(request, site_code)
+            if site.site_type != MINIGRID:
+                return unsupported_envelope(OPPORTUNITIES_SCHEMA)
+            physical(site_code, tenant, site)
+            q = request.query_params
+            try:
+                parsed = parse_opportunity_list(q.get("from"), q.get("to"), q.get("limit"), q.getlist("known_at"),
+                                                q.get("cursor"))
+                if opportunities is None:
+                    raise DecisionRefused("DECISION_STORE_UNAVAILABLE")
+                return opportunities.list(tenant.id, site.id, parsed, access_basis)
+            except DecisionRefused as refused:
+                raise _of(refused) from refused
+        except _Refusal as refusal:
+            raise _response(refusal, listing=True) from refusal
+
+    @router.get(OPPORTUNITIES_ROUTE + "/{opportunity_id}")
+    def opportunity_detail(request: Request, site_code: str, opportunity_id: str) -> dict[str, Any]:
+        try:
+            tenant, site = site_of(request, site_code)
+            if site.site_type != MINIGRID:
+                return unsupported_detail()
+            physical(site_code, tenant, site)
+            if opportunities is None:
+                raise _Refusal(503, "DECISION_STORE_UNAVAILABLE", MESSAGES["DECISION_STORE_UNAVAILABLE"])
+            try:
+                return opportunities.detail(tenant.id, site.id, opportunity_id,
+                                            request.query_params.getlist("known_at"))
+            except DecisionRefused as refused:
+                raise _of(refused) from refused
+        except _Refusal as refusal:
+            raise _response(refusal, listing=False) from refusal
+
+    @router.post(OPPORTUNITIES_ROUTE + "/{opportunity_id}/scenario-links")
+    async def link_opportunity_scenario(request: Request, site_code: str, opportunity_id: str) -> JSONResponse:
+        try:
+            tenant, site, admitted = command(request, site_code, opportunities)
+            body = await body_of(request)
+            try:
+                status, out = opportunities.link_scenario(  # type: ignore[union-attr]
+                    tenant.id, site.id, admitted, opportunity_id, body)
+            except DecisionRefused as refused:
+                raise _of(refused) from refused
+        except _Refusal as refusal:
+            raise _response(refusal, listing=False) from refusal
+        return JSONResponse(status_code=status, content=out)
+
     return router
 
 
-def unsupported_envelope() -> dict[str, Any]:
-    """S10 (provisional shape, PR-4): an authorized non-MINIGRID Site's scenario list; no store is consulted."""
-    return {"schema_version": SCHEMA_LIST, "window": {"from": None, "to": None, "known_at": None},
+def unsupported_envelope(schema_version: str = SCHEMA_LIST) -> dict[str, Any]:
+    """S10 (provisional shape, PR-4): an authorized non-MINIGRID Site's list; no store is consulted."""
+    return {"schema_version": schema_version, "window": {"from": None, "to": None, "known_at": None},
             "status": "UNKNOWN", "currentness": {"state": "UNKNOWN", "job_state": "NONE"},
             "source_provenance": {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [],
                                   "evidence_ids": [], "basis_sha256": None,
@@ -196,5 +279,5 @@ def unsupported_envelope() -> dict[str, Any]:
             "limitations": [{"code": "SITE_ROLE_UNSUPPORTED", "evidence_ids": []}]}
 
 
-__all__ = ["DecisionPrincipalResolver", "build_mini_decisions_router", "deny_decision_writes",
+__all__ = ["DecisionPrincipalResolver", "PerformanceGate", "build_mini_decisions_router", "closed_gate", "deny_decision_writes",
            "no_decision_principal", "unsupported_envelope"]
