@@ -66,4 +66,29 @@ Readings (flag if wrong):
 4. Temperature card value is the bound; its note carries `Observed excursion estimate`.
 5. Cold Finding refused state unchanged (existing page refusal; no strip), since S12's neutral refused strip is EV.
 
-Next: 2
+## 2: cold frame and counts (M3, cold M5/M10; N1, N7, N9), commit `672671d4`
+
+Landed (`frontend/src/sites/coldSiteViews.tsx`):
+- `RequestedWindowBar`, `RefusedStrip`, `RefusedTiles`, `WINDOW_CANNOT_BE_READ` (above `stateSentence`). Refused
+  Overview/Evidence/Financials: requested date line (none for 422 or unparseable dates; cutoff only when requested),
+  `Window cannot be read` strip, `Not assessed` tiles (Overview 5, Financials 4 + chip `Not assessed`, Evidence none).
+- Evidence footer (`data-cold-evidence-footer` refused/no-link/link): `...cannot be read for this window.`; null
+  Analysis target -> `...are on Evidence › Analysis. No linked page for this item.`
+- Financials: `count = exposures + start row` (`data-cold-line-count`), strip adds `Displayed rows include unpriced
+  context`; Findings unread -> `data-cold-start-context="unread"` paragraph after the table.
+- Analysis Record cell: `REC {full UUID}` in `code.cold-site-id` (aria-label = exact UUID); `Open record` link gets
+  aria-label `Open record REC {UUID}`. CSS `.cold-site-clip` replaced by wrapping `.cold-site-id`.
+Tests (`coldSiteViews.test.tsx`): new `w2f_refused_frames_and_footer`, `w2f_consequence_chip_equals_bridge_rows`,
+`w2f_analysis_record_ids_distinct`; superseded `1 consequence line` -> 2 and `Record {id}` -> `REC {id}`; `Reads`
+gains optional `findings` override.
+Checks: cold files 104/104; tsc clean; full frontend 98 files / 2424 passed; check-all 11/11. Non-vacuous: count
+reverted to `f.consequences.length` fails the chip test; reverted via `git checkout`.
+
+Readings (flag if wrong):
+1. M3 applied to Overview/Evidence/Financials only (ledger scope); Analysis/Assumptions refusal frames unchanged.
+2. `Window cannot be read` is used for every refusal kind (403/404/503/422), per the literal closure text.
+3. Refused date line keeps the `Selected window` label; cutoff span omitted when no `known_at` was requested.
+4. 390 proof is jsdom content + stylesheet rule; rendered 390 capture is unit 5.
+5. Refused footer contains W1 term `claim limits`; recorded under pending 1b-q1, no exemption added.
+
+Next: 3
