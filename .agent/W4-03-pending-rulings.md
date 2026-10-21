@@ -86,3 +86,21 @@ Confirm or replace these Alternatives readings:
 7. A malformed `revision_id` query is 422 `DECISION_INPUT_INVALID`; an unknown or not-yet-visible one is 404.
 8. The command instant is bound to `mini_alternative_revision.created_at` (DB `clock_timestamp()` in production; a
    constructor-only `test_db_clock_override`, as W4-01) because the W1 fixture Findings carry future fixture times.
+
+## PR-6 (raised in unit 4; BLOCKS the opportunity projection, pieces b-remainder/c/d)
+
+Pieces landed: (a) `afd15193` job methods + Rule 8 coalesce allowance + 6 negative/1 positive probes; (b, partial)
+`24e460d3` scan, reconcile and S5 `input_sha256` (tests 3 passed). The projection must write the stored `result`
+`{status,assessed_days,eligible_days,headroom_kw,day_rows,limitations}` (closure 1 Q17-Q30 line "Files:"), and the
+contract leaves these values open. Builder asks; no reading taken:
+
+1. `headroom_kw:{low,high}|null` across the study. Which aggregate of the ELIGIBLE days' one-hour `opportunity_kwh`
+   bounds: (a) `{min low, min high}` (the headroom every eligible day supports), (b) `{min low, max high}` (the
+   envelope), or (c) something else? Null when zero ELIGIBLE days or any status other than SUPPORTED?
+2. Stored `limitations`: which codes and when (e.g. a missing day, a LIMITED/CONFLICT day, MIXED/UNKNOWN provenance),
+   each as `{code, evidence_ids}`? The wire copy "Five-day study incomplete" exists, but no stored code is named.
+3. Stored claim `status` inputs (S7 + closure 1 "Opportunity"): is "W4-02 CURRENT basis at the request cutoff" a
+   projection-time input (a day whose `read_selected_renewable_basis` state is PENDING_RECOMPUTE/STALE_SOURCE makes the
+   stored status LIMITED), or is it only the read-time currentness axis ("status is claim-only")? And is the
+   MIXED/UNKNOWN provenance test the `selected_source_provenance` block of that same reader over the five days?
+4. `day_rows[].constraints`: the stored W4-02 row's `constraints` list (empty for a missing day)? Confirm.

@@ -205,3 +205,21 @@ Still to build (read: u3 "Unit 4 dry-read", u1 PR-1, closure 2 Q4 SQL, closure 4
 - `check-all.ps1` at 17b77a6a: all 11 guards passed.
 
 Next: unit 4 (resume the remainder above), then unit 5.
+
+## Unit 4 resumed (commits afd15193, 24e460d3) - BLOCKED on PR-6
+
+(a) landed `afd15193`: `postgres_assessment_store.py` `enqueue_opportunity_job` (Q4 advisory lock, PENDING FOR UPDATE,
+exact coalesce UPDATE or INSERT; `self.test_clock_override`), `lease_/settle_/fail_opportunity_job`,
+`live_opportunity_jobs` (PENDING/LEASED). Rule 8: `$opportunityCoalesce` exact-text allowance + vacuity check in
+`configuration-persistence.ps1`; probes `opportunity coalesce {other domain,other status,widened,plain set,foreign
+writer,unseen}` all CAUGHT, `controls opportunity coalesce` ALLOWED.
+(b, partial) landed `24e460d3`: `mini_decisions/projection.py` (study window/days, `DayHead`, S5 `input_sha256`,
+`day_heads`), `mini_decisions/worker.py` `MiniOpportunityWorker.enqueue_from_selections(tenant, site)` and
+`reconcile(code, from, to)`; SQL readers in `mini_decisions/store.py` (`renewable_scan_heads`, `renewable_noon_heads`,
+`latest_opportunity_sha`, `sites_by_code`; only store.py may import the driver). Test
+`test_w403_opportunity_scan_postgres.py`: 3 passed (hash vectors, historical reconcile + coalesce, retention edge +
+missing day).
+
+Remaining (after PR-6): worker lease loop + projection (validate job window/five noons before inserts; reuse revision
+on equal hash; selection only on head change; settle in one txn), `run_pending`/CLI; (c) tick stage +
+`record_opportunity`; (d) B3 isolation test + the u3 unit-4 list. Private DB `w403g_test` dropped.
