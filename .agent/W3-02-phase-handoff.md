@@ -1,5 +1,22 @@
 # W3-02 phase handoff
 
+## Commit 2 (Lane B fixes) - c2-q1..q4 and page defects; READY FOR COMMIT-2 REVIEW
+
+Commits `cd98969a`, `ce75d9c4` (after merging main, `d321c76d`). Branch released.
+
+- c2-q1: `evidence_money.py:_groups` emits `gaps[].site_names` (stored name, parallel, full group before paging); page `gapSiteNames` (empty name -> stored code), codes stay in `Record details`. Tests: `test_w302_evidence_api.py::test_w302_evidence_gap_site_names_cover_rows_on_other_pages`, `namesGapSitesFromTheWireNotThePage`.
+- c2-q2: `EVIDENCE_REFUSAL_COPY` pinned to the exhaustive table (`toEqual`); unknown code -> 503 sentence (asserted with copy).
+- c2-q3: new `backend/tests/test_w302_evidence_links_postgres.py` (3 ruled tests): cold/EV row links followed through `/api/sites/{code}/cold/evidence` and `/ev/evidence` with the row's exact window + cutoff (200); no-cutoff Site keeps base route + `Opens current Site view`. 3 passed on private `w302k_test`; non-vacuous (swapping from/to in `window_links` fails both follow tests with 422, reverted).
+- c2-q4: `Conflicting records`; context `Not assessed`; test `showsPlainReadinessAndContextWords` (no raw state words visible).
+- Defects: W3-01 `.estate-page:not(actions) .data-table {min-width:900px}` was overriding; evidence selectors now carry `[data-estate-root="evidence"]`. Capability cell is two lines (label + `Record details`, then window); compact cells; coverage list 176 px; notes on one 12 px line; headers/window wrap at <=640.
+- Defect 4 (`Not observed: TRANSFER.`) is unruled: stored cold limitation text; filed as c2-q7 in pending rulings, unchanged.
+
+Captures (Lane A harness, DB name switched to private `w302k_test` for the run, dropped; serve.py left unchanged):
+positive 1440 cards 115 / coverage 279 / gaps 183 / notice 43; 390 280/421/350/80. partial 1440 108/**302**/183/43; 390 277/445/350/80. All within maxima. 1440 coverage list shows 3 rows (thead + 3 x 48 px). 390 table scroll widths: coverage 520 (mock 531), gaps 330 (mock 337). Document scroll width = client width at both widths.
+
+Checks at `ce75d9c4`: `tsc --noEmit` clean; focused estate 2 files pass; full frontend 96 files / 2382 tests passed; `tools/check-all.ps1` 11/11; backend `test_w302_evidence_api.py` 18 passed, links Postgres 3 passed.
+Open: c2-q5/q6 and the Evidence eyebrow (Architect), c2-q7 (raw role code in Current ceiling).
+
 ## Commit 2 (Lane A shell) - READY FOR REVIEW
 
 Commits `9e05d970`, `8817543b` on `task/W3-02-estate-evidence-money-basis` (Lane A items 1-3, 5, 6 of `.agent/W3-02-lane-a-requests.md` "Commit 2"; captures item 7). Branch released.
