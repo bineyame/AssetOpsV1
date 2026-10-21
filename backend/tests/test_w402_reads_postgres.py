@@ -120,6 +120,47 @@ def test_renewable_composes_five_selected_days(store, engine) -> None:
     assert len(missing["rows"]) == 4 and missing["cards"]["assessed_days"] == 3
 
 
+def test_published_authored_batches_select_authored_demonstration(store, engine, tmp_path, capsys) -> None:  # noqa: F811
+    """Final review L3: every exact authored Batch V2 of the positive variant is registered and published with the
+    server-side authored-publication command (fixture `assetops.w4-mini-depth-cases` v1) before it is ingested. The
+    selected public reads are then classified `AUTHORED_DEMONSTRATION` and, jointly, keep their positive claims:
+    the Service hour SUPPORTED and the Renewable five days SUPPORTED with at least one ELIGIBLE day."""
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+    from assetops_backend.evidence.composition import build_authored_fixture_specs
+    from assetops_backend.publish_source import main as publish_source_main
+
+    installed, t, s = _setup(store, engine)
+    doc, sha = snapshot(engine, installed.binding_set.id)
+    spec, service, specs = cases.load_spec(), ingestion(), build_authored_fixture_specs()
+    batches = cases.build_batches(spec, doc, sha, "positive")
+    assert batches
+    for i, b in enumerate(batches):
+        path = tmp_path / f"batch-{i}.json"
+        path.write_text(b.body, encoding="utf-8")
+        args = ["--site", CODE, "--fixture-id", "assetops.w4-mini-depth-cases", "--fixture-version", "1",
+                "--batch-file", str(path)]
+        assert publish_source_main(args, ledger=PostgresEvidenceLedger(URL), specs=specs) == 0
+        assert " published: publication " in capsys.readouterr().out
+        service.submit(principal(doc), b.body.encode("utf-8"))
+    with engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM evidence_publication WHERE site_id = :s"),
+                         {"s": s}).scalar_one() == len(batches)
+    _reconcile(engine, DAYS)
+
+    renewable = _read(engine, t, s, "renewable", _midnight(DAYS[0]), _midnight(DAYS[-1] + timedelta(days=1)))
+    assert renewable["selected_source_provenance"]["classification"] == "AUTHORED_DEMONSTRATION"
+    assert renewable["source_provenance"]["classification"] == "AUTHORED_DEMONSTRATION"
+    assert renewable["status"] == "SUPPORTED" and renewable["currentness"]["state"] == "CURRENT"
+    assert renewable["cards"]["eligible_days"] >= 1 and "ELIGIBLE" in [r["decision"] for r in renewable["rows"]]
+    assert not [x for x in renewable["limitations"] if x["code"].startswith("SOURCE_CLASS_")]
+
+    noon = local_noon(DAYS[2], ZONE)
+    supported = _read(engine, t, s, "service", noon.start, noon.end)
+    assert supported["selected_source_provenance"]["classification"] == "AUTHORED_DEMONSTRATION"
+    assert supported["status"] == "SUPPORTED" and supported["currentness"]["state"] == "CURRENT"
+    assert not [x for x in supported["limitations"] if x["code"].startswith("SOURCE_CLASS_")]
+
+
 def test_stale_pending_and_historical_currentness(store, engine) -> None:
     installed, t, s = _setup(store, engine)
     day = DAYS[1]
