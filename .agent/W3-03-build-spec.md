@@ -397,3 +397,53 @@ N1. The demo publication path, if cited for source variants, is `backend/convers
 | **3 / Lane B, Lane A registry** | Lower panels, disclosures, browser rectangles, same-revision full suite; Lane A panel rows/checker | Closure 1 disclosures/progress; closure 2 Q24/N6 3; closure 4 S16/S18/N1–N10 | `ui/Disclosure.tsx`, W3-02 capture scripts, dependency registry |
 
 Supersession index for the re-check's 17 delivered items: **strike as new W3-03 work** items 1 (parser/refusals), 2 (access/token), 3 (existing cursor), 4 (snapshot), 5 (authorized Sites), 6 (coverage vocabulary), 7 (Finding rows), 8 (Action rows), 9 (Evidence rows), 10 (Financials), 11 (group key), 12 (server links), 13 (refusal pattern), 14 (frontend shared pieces), 15 (persisted fixture *components*), 16 (guard format), and 17 (mock measurements). These are **inputs** only. Runs 0a/0b add the specifically absent Portfolio cursor/selectors/fields and the combined fixture proof; runs 1a–3 compose and present them. No delivered item is reimplemented under a new name.
+
+## Review closure 5 (2026-10-21)
+
+This closes S4 and S7 in `.agent/W3-03-closure4-check.md`. The following tables supersede closure 4 S4/S7 wherever its prose leaves a boundary or field choice open. They specify additions to the W3-03 Portfolio wire only; the W3-01/02 root responses remain unchanged.
+
+### S4 — exact Evidence and Financials reductions
+
+Reduce the **full authorized scope**, before paging, separately for E (`coverage.evidence_state`) and M (`coverage.money_state`). The page-one basis mode governs the reduction: an explicitly selected as-of head with `site_coverage.state=HISTORICAL` is a settled selection; an absent head at an earlier cutoff is unresolved. A continuation's captured `known_at` does not change that mode. For each root, classify every applicable unit as `G` (settled and known) or `U` (unresolved). Proven non-applicability is `N` and is excluded from both counts. An unknown physical configuration is `U`, never `N`. The Site's seven-key `coverage.sites[]` item remains the Finding selection DTO; E/M are computed from their own full-scope inputs, not that item's `state` alone.
+
+| E input for one authorized Site | Unit class | Reason |
+| --- | --- | --- |
+| Configuration proves that no Evidence capability applies | `N` | Proven non-applicability only. |
+| Configuration or capability applicability is unproved | `U` | Do not infer non-applicability from absent rows. |
+| Any applicable capability has missing selection, `PENDING_RECOMPUTE`, `STALE_SOURCE`, `UNKNOWN`, unsettled/failed job, stale freshness, or unresolved match; or its selected readiness is `UNKNOWN` or `CONTRADICTORY` | `U` | This row wins even if another capability on that Site is selected. A historical row without a selected as-of head is missing. |
+| Every applicable capability has a settled `CURRENT` or valid selected-as-of `HISTORICAL` basis and readiness in `FULL|LIMITED|NONE` | `G` | `LIMITED` and `NONE` are known claim limits, not missing coverage. |
+
+| M input for one authorized Site and one category | Unit class | Reason |
+| --- | --- | --- |
+| Reviewed W3-02 applicability proves the category does not apply | `N` | No category line is required. |
+| Site configuration/category applicability is unproved | `U` | Do not infer `N` from no line. |
+| Applicable selection is missing, `PENDING_RECOMPUTE`, `STALE_SOURCE`, `UNKNOWN`, unsettled/failed, stale or unmatched; cold/EV `windows_covered` is false; or W3-02 emits `UNKNOWN_COVERAGE` for this category | `U` | This row wins even when another category or Site has an eligible line. A historical cutoff with no selected as-of head is missing. |
+| Applicable selection is settled `CURRENT` or valid selected-as-of `HISTORICAL`, its category window is covered, and no `UNKNOWN_COVERAGE` applies; zero selected heads | `G` | W3-02 `NO_LINES` is an empty known category, not an invented amount. |
+| Same settled, covered category with one or more selected heads, regardless of line eligibility, exclusions or comparison diagnostics other than `UNKNOWN_COVERAGE` | `G` | `UNPRICED`, `WITHHELD`, source `UNKNOWN|MIXED`, `INELIGIBLE`, `SINGLE_LINE`, `COMPARABLE`, `OVERLAPPING_BASIS`, mixed currency/period/window/assumption and their exclusions still disclose value limits; they do not erase a known selection. A conflicting **selection** or unproved category/window is `U` under the preceding row. |
+
+For M, form units from every Site/category pair whose applicability W3-02 proves, plus any selected category outside the mock's `APPLICABLE` set (for example `RECORDED_REPAIR`); classify unproved possible pairs `U`. Read `windows_covered`, `groups`, `exclusions` and `diagnostics` from `select_financial_scope`, without treating a comparison-only exclusion as absent selection. The following table is the **complete** estate reduction for either E or M after unit classification. `G` and `U` mean counts of applicable units; any number of `N` units has no effect.
+
+| Authorized Sites | `G` count | `U` count | E or M output |
+| --- | --- | --- | --- |
+| 0 | 0 | 0 | `EMPTY` |
+| >0 | any | 0 | `COMPLETE` (including all-`N` scope, because non-applicability is proved) |
+| >0 | >0 | >0 | `PARTIAL` |
+| >0 | 0 | >0 | `UNKNOWN` |
+
+The four rows are disjoint and exhaustive; no money amount, line count or paged row count participates. Apply the E and M classifications independently. In particular, the persisted cold pending and unselected EV Site variants are `PARTIAL` alongside known Sites; the before-head cutoff is `UNKNOWN`; the source `UNKNOWN|MIXED` and EV `OVERLAPPING_BASIS` variants remain `COMPLETE` for M while their value/comparison claims are withheld. **Run 1a / Lane B** implements both reductions and their exhaustive class/count unit tests; **run 1b / Lane B** asserts all named persisted variants against the full selected Financials/Evidence outputs and their exclusions/diagnostics.
+
+### S7 — one workflow wire and its literal labels
+
+Use `rows[].workflow_label: string` in the Portfolio response. It is required and never null. This replaces closure 4's `workflow_label`/`plan_active` choice and nullable wording; do not add `plan_active`. The server derives it from the exact selected Action joined by `(origin_finding_id,origin_finding_revision_id)`, its selected event and the selected frozen verification plan/outcome at the same cutoff. `_verification_window` is a private input, never a wire field. The frontend renders this supplied string verbatim and does not infer an active plan from a null outcome. The existing `application_state`, `resolution_state` and `verification_outcome` fields remain exact selected facts, not alternative label sources in the client.
+
+| First matching selected fact | `workflow_label` literal |
+| --- | --- |
+| No joined Action | `Recommendation not accepted` |
+| Latest surviving resolution is `RESOLVED` with `verification_outcome=VERIFIED` | `Verified` |
+| Latest resolution is `RESOLUTION_WITHDRAWN` | `Resolution withdrawn` |
+| Selected frozen plan is active at cutoff, no surviving terminal outcome and `_verification_window=true` | `Outcome pending` |
+| `application_state=PENDING` | `Pending` |
+| `application_state=APPLIED` | `Applied` |
+| Joined Action with none of the above, including `NONE_AT_CUTOFF` or a non-VERIFIED terminal outcome | `No action yet` |
+
+The table order is precedence; it covers every joined/no-join input combination. It does not attach an Action to a different Finding revision, and progress still discloses all selected Actions. **Run 0a / Lane A** preserves `_verification_window` and adds exact verification IDs/times to the shared snapshot; **run 1b / Lane B** creates `workflow_label` in the Portfolio row DTO. Add `test_w303_portfolio_workflow_labels.py::test_all_seven_literal_labels_and_precedence` for the table, including an active plan with a null outcome and a null outcome without an active plan. Add `test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal` using the separate `[2026-11-01,2026-11-03)` S6 producer/evaluator chain: assert `Outcome pending` before resolution, `Verified` after the evaluator, `Resolution withdrawn` after later accepted evidence and evaluator withdrawal, with exact selected Action/plan/outcome IDs. The clean 10-06 Finding rows assert `Recommendation not accepted`; the November chain only asserts a Finding-row label when that exact origin revision is also selected in its request window.
