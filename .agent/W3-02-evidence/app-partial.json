@@ -1,6 +1,6 @@
 {
   "state": "partial",
-  "captured_at": "2026-10-21T01:20:04.020Z",
+  "captured_at": "2026-10-21T01:37:05.965Z",
   "results": [
     {
       "width": 1440,
@@ -13,9 +13,7 @@
         "gaps": 316,
         "notice": 66
       },
-      "over": [
-        "coverage 334>314"
-      ],
+      "over": [],
       "h1": "Portfolio evidence",
       "main": "Evidence",
       "railCurrent": "Evidence",
@@ -27,16 +25,16 @@
         },
         "coverage": {
           "top": 308,
-          "h": 334,
+          "h": 302,
           "w": 1160
         },
         "gaps": {
-          "top": 660,
-          "h": 204,
+          "top": 628,
+          "h": 183,
           "w": 1160
         },
         "notice": {
-          "top": 881,
+          "top": 829,
           "h": 43,
           "w": 1160
         }
@@ -54,15 +52,15 @@
       "coverageTable": {
         "client": 1105,
         "scroll": 1105,
-        "clientH": 200,
-        "scrollH": 1389,
+        "clientH": 176,
+        "scrollH": 815,
         "rows": 15
       },
       "gapsTable": {
         "client": 1120,
         "scroll": 1120,
-        "clientH": 97,
-        "scrollH": 97,
+        "clientH": 75,
+        "scrollH": 75,
         "rows": 1
       },
       "panelTitles": [
@@ -97,16 +95,16 @@
         },
         "coverage": {
           "top": 666,
-          "h": 452,
+          "h": 445,
           "w": 358
         },
         "gaps": {
-          "top": 1136,
-          "h": 282,
+          "top": 1128,
+          "h": 350,
           "w": 358
         },
         "notice": {
-          "top": 1436,
+          "top": 1497,
           "h": 80,
           "w": 358
         }
@@ -123,16 +121,16 @@
       ],
       "coverageTable": {
         "client": 318,
-        "scroll": 900,
+        "scroll": 520,
         "clientH": 300,
-        "scrollH": 1543,
+        "scrollH": 1854,
         "rows": 15
       },
       "gapsTable": {
         "client": 318,
-        "scroll": 900,
-        "clientH": 114,
-        "scrollH": 114,
+        "scroll": 330,
+        "clientH": 183,
+        "scrollH": 183,
         "rows": 1
       },
       "panelTitles": [
@@ -142,7 +140,7 @@
       "docScrollW": 390,
       "docClientW": 390,
       "refusal": null,
-      "height": 1558
+      "height": 1619
     }
   ]
 }

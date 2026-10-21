@@ -258,8 +258,9 @@ describe("W3-02 estate Evidence root", () => {
       "Cold replay lab · cold-chain",
       "EV charging lab · EV charging",
     ]);
-    expect(cells[0][1].textContent).toContain("Generator support2026-10-14 00:00 – 2026-10-15 00:00 UTC");
-    expect(cells[1][1].textContent).toContain("Temperature compliance2026-10-14 08:00–16:00 UTC");
+    const capability = (cell: HTMLElement) => [cell.querySelector(".estate-evidence-label")?.textContent, cell.querySelector(".estate-evidence-meta")?.textContent];
+    expect(capability(cells[0][1])).toEqual(["Generator support", "2026-10-14 00:00 – 2026-10-15 00:00 UTC"]);
+    expect(capability(cells[1][1])).toEqual(["Temperature compliance", "2026-10-14 08:00–16:00 UTC"]);
     expect(cells.map((c) => c[2].querySelector("[data-estate-readiness]")?.textContent)).toEqual(["Limited", "Full", "Unknown"]);
     expect(cells[0][2].querySelector("[data-estate-readiness]")?.className).toContain("estate-tone--amber");
     expect(cells[1][2].querySelector("[data-estate-readiness]")?.className).toContain("estate-tone--green");

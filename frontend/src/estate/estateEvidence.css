@@ -59,7 +59,7 @@
 }
 
 .estate-evidence-table .data-table td {
-  padding: 7px 11px;
+  padding: 6px 11px;
 }
 
 .estate-evidence-table .data-table thead th {
@@ -75,14 +75,19 @@
   display: block;
   color: var(--text-secondary);
   font-size: 12px;
+  white-space: nowrap;
 }
 
-.estate-evidence-meta__window {
+.estate-evidence-label {
   margin-right: 8px;
 }
 
+.estate-evidence-table .disclosure--inline > .disclosure__summary {
+  font-size: 12px;
+}
+
 .estate-evidence-table--coverage .data-table__scroll {
-  max-height: 188px;
+  max-height: 176px;
 }
 
 .estate-evidence-table--gaps .data-table__scroll {
@@ -144,6 +149,12 @@
 }
 
 @media (max-width: 640px) {
+  /* Let headers and the window wrap at phone width so the tables stay near the mock's 531 / 337 px. */
+  .estate-evidence-table .data-table thead th,
+  .estate-evidence-meta {
+    white-space: normal;
+  }
+
   .estate-evidence-table--coverage .data-table__scroll {
     max-height: 300px;
   }

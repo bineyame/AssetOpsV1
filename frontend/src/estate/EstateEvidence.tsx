@@ -187,11 +187,12 @@ function CoverageRow({ row, asOf }: { row: EvidenceRow; asOf: string }) {
         ) : null}
       </td>
       <td>
-        <span className="estate-cell__primary">{row.capability_label}</span>
-        <span className="estate-evidence-meta">
-          {window !== null ? <span className="estate-evidence-meta__window">{window}</span> : null}
+        {/* Two lines (label + Record details, then the window) keep the mock's three-row coverage list. */}
+        <span className="estate-cell__primary">
+          <span className="estate-evidence-label">{row.capability_label}</span>
           <RowDetails row={row} />
         </span>
+        {window !== null ? <span className="estate-evidence-meta">{window}</span> : null}
       </td>
       <td>
         <Chip tone={readiness.tone} text={readiness.text} data={{ "data-estate-readiness": row.readiness }} />
