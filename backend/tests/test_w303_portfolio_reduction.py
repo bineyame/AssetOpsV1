@@ -7,7 +7,7 @@ from itertools import product
 import pytest
 
 from assetops_backend.estate.portfolio import (
-    G, N, U, evidence_unit, finding_unit, money_units, reduce_units, settled)
+    G, N, U, evidence_unit, finding_unit, money_pending, money_units, reduce_units, settled)
 
 SETTLED = {"state": "CURRENT", "job_state": "SETTLED", "source_freshness": "RECENT", "match_state": "COMPLETE"}
 
@@ -43,6 +43,21 @@ def test_settled_current_and_historical_bases() -> None:
         assert settled(cov) and finding_unit("ev_charging", cov) == G
     assert settled({**SETTLED, "job_state": "NOT_APPLICABLE", "source_freshness": "NOT_APPLICABLE",
                     "match_state": "NOT_APPLICABLE"})
+    # r1a: UNKNOWN freshness alone does not reject an otherwise selected basis.
+    assert settled({**SETTLED, "source_freshness": "UNKNOWN"})
+    # r1a2 item 1: a selected-as-of HISTORICAL head is settled despite an outstanding PENDING/FAILED job marker.
+    for job in ("PENDING", "FAILED"):
+        hist = {**SETTLED, "state": "HISTORICAL", "job_state": job}
+        assert settled(hist)
+        assert finding_unit("mini_grid", hist) == G and evidence_unit("mini_grid", hist, [row("HISTORICAL")]) == G
+        assert money_units("mini_grid", {**hist, "_windows_covered": True}, []) == {
+            "CANDIDATE_OPERATING_COST_EXPOSURE": G}
+        # Controls: the same marker on a CURRENT basis stays U.
+        assert not settled({**SETTLED, "job_state": job}) and finding_unit("mini_grid", {**SETTLED, "job_state": job}) == U
+    # An absent as-of head (no selected head), a missing/pending match or a stale source stays U under HISTORICAL.
+    for change in ({"job_state": "NONE"}, {"match_state": "MISSING"}, {"match_state": "PENDING"},
+                   {"source_freshness": "STALE"}, {"state": "UNKNOWN"}):
+        assert not settled({**SETTLED, "state": "HISTORICAL", **change})
     # An unknown physical configuration is U, never N.
     assert finding_unit("NOT_APPLICABLE", SETTLED) == U
     assert evidence_unit("NOT_APPLICABLE", SETTLED, [row()]) == U
@@ -83,6 +98,16 @@ def test_money_table() -> None:
     # One covered EV Site beside an uncovered one: PARTIAL, not COMPLETE or UNKNOWN.
     units = [*money_units("ev_charging", covered, []).values(), *money_units("ev_charging", uncovered, []).values()]
     assert reduce_units(2, units) == "PARTIAL"
+    # r1a2 item 2: a cold `withheld` result or an EV ERROR_PENDING guard leaves the window uncovered: M is U,
+    # PARTIAL beside a known unit, otherwise UNKNOWN; the selected PENDING line marks it as explicit pending work.
+    for domain, category in (("cold_chain", "POTENTIAL_PRODUCT_EXPOSURE"), ("ev_charging", "GROSS_TARIFF_SCENARIO")):
+        guarded = [{"category": category, "eligibility": "PENDING"}]
+        assert money_units(domain, uncovered, guarded) == {category: U}
+        assert money_pending(uncovered, guarded) and not money_pending(covered, guarded)
+        assert not money_pending(uncovered, [{"category": category, "eligibility": "WITHHELD"}])
+        alone = list(money_units(domain, uncovered, guarded).values())
+        assert reduce_units(1, alone) == "UNKNOWN"
+        assert reduce_units(2, [*alone, *money_units("mini_grid", covered, []).values()]) == "PARTIAL"
     # A historical cutoff without a selected head is missing: UNKNOWN for that Site's categories.
     assert set(money_units("mini_grid", {**SETTLED, "state": "UNKNOWN", "_windows_covered": False}, []).values()) \
         == {U}

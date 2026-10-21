@@ -19,8 +19,12 @@ from fastapi.testclient import TestClient
 from assetops_backend.estate import portfolio
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import (
-    MESSAGES, EstateSelectionInconsistent, EstateStoreUnavailable, encode_cursor, selection_token)
+    MESSAGES, EstateSelectionInconsistent, EstateStoreUnavailable, encode_cursor, parse_request, selection_token)
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
+from test_w301_estate_index_postgres import URL as _PG_URL
+
+if _PG_URL:
+    from test_w301_estate_index_postgres import engine  # noqa: F401 - fixture for the builder test
 
 T = UUID("30000000-0000-4000-8000-000000000001")
 MG, CO = "30000000-0000-4000-8000-000000000011", "30000000-0000-4000-8000-000000000012"
@@ -251,3 +255,35 @@ def test_cursor_lens_window_cutoff_and_v1_token(world) -> None:
     world.read_at = READ_AT + timedelta(hours=1)
     live = get(c, {**WINDOW, "cursor": encode_cursor(two)}).json()
     assert live["status"] == "CURRENT" and live["window"]["known_at"] == "2026-10-20T12:00:00Z"
+
+
+def test_builder_uses_one_connection_scoped_reader_and_refuses_missing_database(monkeypatch, request) -> None:
+    """r1a2 item 3: the actual Lane B composition builder; no database is 503, never an empty estate."""
+    from assetops_backend.estate.composition import build_estate_portfolio_service
+    from test_w301_estate_index_postgres import URL
+
+    assert build_estate_portfolio_service(None) is None and build_estate_portfolio_service("") is None
+    app = FastAPI()
+    app.include_router(build_estate_portfolio_router(build_estate_portfolio_service(None), lambda: None))
+    refused(TestClient(app).get("/api/estate/portfolio", params=WINDOW), 503, "ESTATE_STORE_UNAVAILABLE")
+    if not URL:
+        pytest.skip("ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+    request.getfixturevalue("engine")  # the migrated run-owned test database
+    from assetops_backend.estate.adapters.postgres_evidence_money_read import (
+        EvidenceMoneySnapshot, PostgresEvidenceMoneyRead)
+
+    service = build_estate_portfolio_service(URL)
+    seen: list = []
+    for name in ("select_finding_scope", "select_action_scope", "select_evidence_scope", "select_financial_scope"):
+        real = getattr(portfolio, name)
+        monkeypatch.setattr(portfolio, name, lambda snap, *a, _real=real: seen.append(snap) or _real(snap, *a))
+    try:
+        assert isinstance(service, EstatePortfolioService) and isinstance(service.store, PostgresEvidenceMoneyRead)
+        # An unknown tenant has no authorized Site: one snapshot, EMPTY_SCOPE, still through all four selectors.
+        req = parse_request("portfolio", list(WINDOW.items()))
+        body = service.portfolio(UUID(int=0), req, lambda code: True)
+        assert body["status"] == "EMPTY_SCOPE" and body["rows"] == []
+        assert len(seen) == 4 and len({id(s) for s in seen}) == 1 and isinstance(seen[0], EvidenceMoneySnapshot)
+        assert len({id(s._c) for s in seen}) == 1
+    finally:
+        service.store.dispose()

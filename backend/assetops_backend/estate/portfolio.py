@@ -50,10 +50,20 @@ def reduce_units(site_count: int, classes: Iterable[str]) -> str:
 
 
 def settled(cov: dict[str, Any]) -> bool:
-    """A settled `CURRENT` or selected-as-of `HISTORICAL` basis: no pending/failed/absent job, no stale source,
-    no unresolved match (S4 row 3)."""
-    return (cov["state"] in COVERED and cov["job_state"] not in _UNSETTLED_JOBS
-            and cov["source_freshness"] != "STALE" and cov["match_state"] not in _UNRESOLVED_MATCH)
+    """A settled `CURRENT` or selected-as-of `HISTORICAL` basis (S4 row 3, r1a2 item 1): a selected head, a settled
+    match and a non-stale source. `CURRENT` also refuses a pending/failed job; a selected `HISTORICAL` head is
+    settled whatever its outstanding W3-01 job marker says (`NONE` = no selected as-of head stays U)."""
+    if cov["state"] not in COVERED or cov["source_freshness"] == "STALE" or cov["match_state"] in _UNRESOLVED_MATCH:
+        return False
+    if cov["state"] == "HISTORICAL":
+        return cov["job_state"] != "NONE"
+    return cov["job_state"] not in _UNSETTLED_JOBS
+
+
+def money_pending(cov: dict[str, Any], lines: list[dict[str, Any]]) -> bool:
+    """r1a2 item 2: an explicit pending guard (cold `withheld` from overlapping recomputation, EV `ERROR_PENDING`)
+    leaves the window uncovered and its selected line `PENDING`; that is unsettled work for overall status."""
+    return not cov.get("_windows_covered") and any(line.get("eligibility") == "PENDING" for line in lines)
 
 
 def finding_unit(domain: str, cov: dict[str, Any]) -> str:
@@ -94,16 +104,37 @@ def order_key(row: dict[str, Any]) -> tuple:
     return (at is None, 0.0 if at is None else -at.timestamp(), *row["_marker"][1:])
 
 
+class ActionSelectionError(RuntimeError):
+    """An Action row reached the Portfolio join without its selected event time: an internal selection error."""
+
+
 def _action_for(row: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """Closure 4 S9: the exact `(origin_finding_id, origin_finding_revision_id)` join; several matches choose the
-    latest selected Action event `recorded_at`, then `action_id` ascending (see pending ruling Q-1a-1)."""
+    """Closure 4 S9 / r1a Q-1a-1: the exact `(origin_finding_id, origin_finding_revision_id)` join; several matches
+    choose the latest selected Action event `recorded_at`, then `action_id` ascending. No fallback."""
     matches = [a for a in actions if (a["source_finding_id"], a["source_finding_revision_id"])
                == (row["finding_id"], row["finding_revision_id"])]
     if not matches:
         return None
-    matches.sort(key=lambda a: a["action_id"])
-    timed = [a for a in matches if a["_raw"].get("_selected_recorded_at") is not None]
-    return max(timed, key=lambda a: a["_raw"]["_selected_recorded_at"]) if timed else matches[0]
+    if any(a["_raw"].get("_selected_recorded_at") is None for a in matches):
+        raise ActionSelectionError("A matching Action has no selected event time.")
+    return min(matches, key=lambda a: (-a["_raw"]["_selected_recorded_at"].timestamp(), a["action_id"]))
+
+
+def workflow_label(action: dict[str, Any] | None) -> str:
+    """Closure 5 S7: the first matching selected fact; table order is precedence."""
+    if action is None:
+        return "Recommendation not accepted"
+    if action["resolution_state"] == "RESOLVED" and action["verification_outcome"] == "VERIFIED":
+        return "Verified"
+    if action["resolution_state"] == "RESOLUTION_WITHDRAWN":
+        return "Resolution withdrawn"
+    if action["_raw"].get("_verification_window") and action["resolution_state"] != "RESOLVED":
+        return "Outcome pending"
+    if action["application_state"] == "PENDING":
+        return "Pending"
+    if action["application_state"] == "APPLIED":
+        return "Applied"
+    return "No action yet"
 
 
 def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str, Any]:
@@ -124,6 +155,7 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]]) -> dict[str,
         "application_state": None if action is None else action["application_state"],
         "resolution_state": None if action is None else action["resolution_state"],
         "verification_outcome": None if action is None else action["verification_outcome"],
+        "workflow_label": workflow_label(action),
         "next_move": None, "source_provenance": r["source_provenance"],
         "links": {"site": f"/sites/{code}",
                   # S12: only the W1 mini-grid exact Finding route is reviewed; cold/EV stay inert.
@@ -192,8 +224,8 @@ class EstatePortfolioService(EstateEvidenceService):
             units["E"].append(e)
             units["M"] += m
             covered += all(c != U for c in (f, e, *m))
-            pending = pending or any(c["state"] == PENDING or c["job_state"] == "PENDING"
-                                     for c in (cov, e_cov, m_cov))
+            pending = pending or money_pending(m_cov, m_lines) or any(
+                c["state"] == PENDING or c["job_state"] == "PENDING" for c in (cov, e_cov, m_cov))
             token_sites.append(token_site(site, domain, cov, [
                 actions_by[sid][1], {**e_cov, **_evidence_arrays(e_rows)}, {**m_cov, **_money_arrays(m_cov, m_lines)}]))
         count = len(scope["sites"])
