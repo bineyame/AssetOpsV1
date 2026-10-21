@@ -703,6 +703,10 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     noControl(crumbs().querySelector("[data-finding-code-gap]"));
     expect(crumbs().textContent).not.toMatch(/F-104|mini:dispatch:key/);
     expect(crumbs().textContent).not.toContain(F);
+    // H3 (final review; ledger l.186): the v69 `Open site` header action resolves the authorized Site Overview.
+    const openSite = document.querySelector(".page-header__actions [data-alternatives-open-site]");
+    expect(openSite).toHaveTextContent(/^Open site$/);
+    expect(openSite).toHaveAttribute("href", `/sites/${CODE}`);
     cleanup();
 
     // Another mini child: the section helper; the sibling tabs are pinned to the W1 read's resolved revision.
@@ -722,6 +726,8 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       /^Analysis unavailable for this Finding section; use the Finding overview and evidence\.$/,
     );
     expect(crumbs().textContent).toBe("FindingsFinding code unavailableHistory· site: MINIGRID site");
+    // H3 is the Alternatives action only; the W1 sibling sections keep their header unchanged.
+    expect(document.querySelector("[data-alternatives-open-site]")).toBeNull();
     expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(1);
     cleanup();
 
@@ -1215,6 +1221,8 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     // PR-12.2: numeric and monetary values keep the large numeric value; no card is a word value here.
     expect(words()).toEqual([false, false, false, false]);
     expect(claim()).toBe("Renewable capacity appears available for a one-hour productive load in 2 adequately observed windows.");
+    // H2 (final review): the claim is the shared v69 big-claim headline, not an unstyled paragraph.
+    expect(document.querySelector("[data-opportunity-claim]")).toHaveClass("v69-big-claim");
     expect(main().textContent).toContain(
       "Electrical feasibility does not establish customer demand, collections or a realised financial benefit.",
     );
@@ -1561,6 +1569,22 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(location()).toBe(`/sites/${CODE}/opportunities/${OPP}`);
     noDeadCta(document.querySelector("[data-opportunity-page]") as HTMLElement);
     expect(document.querySelector('a[href*="/findings/opportunities"]')).toBeNull();
+  });
+
+  it("final_review_chip_tone_and_crumb_row_css", async () => {
+    // Read from disk: vitest serves imported CSS as empty text (the estateRoots pattern). jsdom has no cascade, so the
+    // rendered colour is asserted by the capture; this pins the selector shape that makes it win.
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w4-mini-decisions.css`, "utf8");
+    // H1: `.badge--neutral` loads later at equal specificity, so each tone must be the compound `.badge.` selector.
+    for (const tone of ["green", "amber", "blue", "gray"]) {
+      expect(css).toMatch(new RegExp(`(^|\\n)\\.badge\\.mini-opportunity-tone--${tone} \\{[^}]*background:`));
+      expect(css).not.toMatch(new RegExp(`(^|\\n)\\.mini-opportunity-tone--${tone} \\{`));
+    }
+    // M7: the crumb row is one wrapping flex line (v69 `.breadcrumbs`), so the Site suffix stays inline.
+    expect(css).toMatch(/nav\.mini-finding-crumbs \{[^}]*display: flex;[^}]*flex-wrap: wrap/s);
+    expect(css).toMatch(/:has\(> \.mini-opportunity-crumbs__root\) \+ \.breadcrumbs__item::before \{\s*content: none/s);
   });
 
   it("opportunity_chip_and_estate_lens_stay_unavailable", async () => {

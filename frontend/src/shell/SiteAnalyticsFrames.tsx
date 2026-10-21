@@ -833,6 +833,15 @@ function CanonicalMiniFinding({
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
         subtitle={`${site.display_name} · generator support finding`}
+        // H3 (final review; build-spec ledger l.186): Alternatives carries the v69 `Open site` header action, which
+        // resolves the authorized Site Overview, as the Opportunity frame does.
+        actions={
+          view === "alternatives" ? (
+            <Link to={siteDetailHref(site.site_id)} data-alternatives-open-site>
+              Open site
+            </Link>
+          ) : undefined
+        }
       />
       <OperatorSiteTabs siteId={routeSiteId} current="Findings" />
       {view === null ? (

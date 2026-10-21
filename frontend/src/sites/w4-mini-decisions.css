@@ -156,34 +156,47 @@
   color: var(--text-secondary);
 }
 
+/* M7 (final review): the v69 `.breadcrumbs` row is one wrapping flex line, so the Site suffix stays inline. */
+nav.mini-finding-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 8px;
+}
+
 .mini-finding-crumbs__site {
-  margin-left: 6px;
   color: var(--text-secondary);
 }
 
 /*
+ * H1 (final review): each tone is the compound `.badge.mini-opportunity-tone--*` so it outranks `.badge--neutral`,
+ * which loads later in `primitives.css` at equal single-class specificity.
  * W4-03 unit 7: the typed Opportunity detail (v69 `opportunity-finding`). Chip tones follow closure 1: green only the
  * positive gate, amber limited/pending, blue historical, grey unknown. Pieces keep the shared v69 primitives; the
  * evidence drawer scrolls inside the Bounded opportunity panel so the panel stays within its measured cap.
  */
-.mini-opportunity-tone--green {
+.badge.mini-opportunity-tone--green {
   color: #166b50;
   background: #e6f4ee;
+  border-color: #e6f4ee;
 }
 
-.mini-opportunity-tone--amber {
+.badge.mini-opportunity-tone--amber {
   color: #8e580c;
   background: #fdf3e2;
+  border-color: #fdf3e2;
 }
 
-.mini-opportunity-tone--blue {
+.badge.mini-opportunity-tone--blue {
   color: #245ac0;
   background: #eaf0fd;
+  border-color: #eaf0fd;
 }
 
-.mini-opportunity-tone--gray {
+.badge.mini-opportunity-tone--gray {
   color: var(--text-secondary);
   background: #f1f2f4;
+  border-color: #f1f2f4;
 }
 
 /* PR-12.2: this Opportunity card row only; the shared four-column desktop / two-column narrow grid is unchanged. */
@@ -199,4 +212,15 @@
 
 .mini-opportunity-crumbs__root {
   color: var(--text-secondary);
+}
+
+/* M7: at narrow width the root gap sentence takes its own line, so the next crumb carries no leading separator. */
+@media (max-width: 600px) {
+  .breadcrumbs__item:has(> .mini-opportunity-crumbs__root) {
+    flex-basis: 100%;
+  }
+
+  .breadcrumbs__item:has(> .mini-opportunity-crumbs__root) + .breadcrumbs__item::before {
+    content: none;
+  }
 }
