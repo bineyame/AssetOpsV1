@@ -17,12 +17,18 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Any, Callable, Sequence
 
 from assetops_backend.sites.binding_conversion import plan_requests
 from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
 from assetops_backend.sites.binding_service import BindingService
-from assetops_backend.sites.composition import read_binding_conversion_fixture, read_site_import_source
+from assetops_backend.sites.composition import (
+    legacy_site_documents,
+    read_binding_conversion_fixture,
+    read_site_import_source,
+)
+from assetops_backend.sites.foundation_service import LegacyDocument
+from assetops_backend.sites.identity import site_id_key
 
 MG_W402_SITE_CODE = "MG-W402-001"
 BACKEND = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -43,17 +49,21 @@ class MgW402Install:
     published: bool
 
 
-def install_mg_w402_site(store, *, tenant_slug: str, clock: Callable[[], datetime]) -> MgW402Install:
-    """Import MG-W402-001 and publish its first binding revision (idempotent per step)."""
+def install_mg_w402_site(store, *, tenant_slug: str, clock: Callable[[], datetime],
+                         legacy_documents: Sequence[LegacyDocument] = ()) -> MgW402Install:
+    """Import MG-W402-001 and publish its first binding revision (idempotent per step). `legacy_documents` are the
+    legacy YAML Site documents the import is checked against (the operator entry passes the real stores')."""
     from assetops_backend.sites.foundation_service import import_site
 
     source = read_site_import_source(FIXTURE_PATH)
     result = import_site(store, tenant_slug=tenant_slug, configured_tenant_slug=tenant_slug, source=source,
-                         legacy_documents=(), clock=clock)
+                         legacy_documents=legacy_documents, clock=clock)
     tenant, site = result.tenant, result.site
-    # q12-6: this import carries no legacy documents, so there is no legacy evidence set to compare; record that
-    # explicit basis with the import (idempotent). It is never inferred from a missing comparison.
-    store.record_no_legacy_evidence_basis(tenant.id, site.id, now=clock())
+    # q12-6 (final review B-L2): only when no legacy document declares this Site is there no legacy evidence set to
+    # compare; then record that explicit basis with the import (idempotent). A Site a legacy document declares gets
+    # no basis and keeps the S2 Evidence comparison. It is never inferred from a missing comparison.
+    if not any(site_id_key(d.site_code) == site_id_key(site.site_code) for d in legacy_documents):
+        store.record_no_legacy_evidence_basis(tenant.id, site.id, now=clock())
     existing = store.binding_sets(tenant.id, site.id)
     if existing:
         return MgW402Install(result, existing[0], False)
@@ -76,7 +86,8 @@ def main(argv: list[str] | None = None) -> int:  # pragma: no cover - operator e
     parser.add_argument("--tenant", required=True)
     args = parser.parse_args(argv)
     store = build_foundation_store(database_url())
-    installed = install_mg_w402_site(store, tenant_slug=args.tenant, clock=lambda: datetime.now(timezone.utc))
+    installed = install_mg_w402_site(store, tenant_slug=args.tenant, clock=lambda: datetime.now(timezone.utc),
+                                     legacy_documents=legacy_site_documents())
     site = installed.result.site
     regs = store.registrations(installed.result.tenant.id, site.id)
     print(json.dumps({
