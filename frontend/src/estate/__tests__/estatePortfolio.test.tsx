@@ -119,10 +119,13 @@ describe("estate Portfolio page", () => {
       "Action / next move",
     ]);
     expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 selected Findings · coverage incomplete");
+    const partialObjectives = document.querySelector("[data-portfolio-panel='objectives']") as HTMLElement;
+    expect(text(partialObjectives)).toContain("Site detail is unavailable for these cells.");
+    expect(text(partialObjectives)).not.toContain("Select a linked cell for context.");
     const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td")).map(lines);
     expect(cells[0]).toBe("Kobo Mini-grid Opens current Site view");
-    expect(cells[1]).toBe("Extended generator support Finding f1f1f1f1 · Mechanism not recorded");
+    expect(cells[1]).toBe("Extended generator support Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Mechanism not recorded");
     expect(cells[2]).toBe("$3.31–$3.97 Basis not recorded 6 Oct 2026 · 14:20–15:20 UTC");
     expect(cells[3]).toBe("Not assessed");
     expect(cells[4]).toBe("Not assessed No reviewed confidence measure");
@@ -174,7 +177,10 @@ describe("estate Portfolio page", () => {
     expect(text(cell("EV-LAB-001", "EVIDENCE"))).toBe("FullSite detail unavailable");
     expect(cell("KOBO-001", "SERVICE_PRODUCT").getAttribute("aria-description")).toBe("No reviewed objective assessment");
     expect(objectives.querySelector("a")).toBeNull();
-    expect(text(objectives)).toContain("Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured.");
+    expect(text(objectives)).toContain(
+      "Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured. Site detail is unavailable for these cells.",
+    );
+    expect(text(objectives)).not.toContain("Select a linked cell for context.");
   });
 
   it("rendersTypedEvidencePromptAndExactDestinations", async () => {
@@ -315,6 +321,8 @@ describe("estate Portfolio page", () => {
       expect(document.querySelectorAll("section.panel")).toHaveLength(4);
       if (status === "PENDING") expect(text(document.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-value]"))).toBe("Updating · Unpriced");
       if (status === "EMPTY_SCOPE") {
+        expect(text(document.querySelector("[data-portfolio-count]"))).toBe("0 selected Findings");
+        expect(text(document.querySelector("[data-portfolio-panel='priority']"))).not.toMatch(/coverage incomplete/i);
         expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No selected Findings for this window");
         expect(text(document.querySelector("[data-portfolio-domains]"))).toBe("0 accessible Sites · 0 mini-grid / 0 cold-chain / 0 EV charging");
       }
@@ -376,6 +384,18 @@ describe("estate Portfolio page", () => {
     await settledScreen();
     const footer = () => document.querySelector("[data-portfolio-footer]") as HTMLElement;
     expect(text(footer())).toContain("Business context: Depot delivered 120 kWh in selected records; $36.00 gross tariff scenario.");
+    const basis = footer().querySelector("details") as HTMLDetailsElement;
+    expect(text(basis.querySelector("summary"))).toBe("Energy basis ↗");
+    fireEvent.click(basis.querySelector("summary") as HTMLElement);
+    const basisText = text(basis);
+    expect(basisText).toContain("Selected window: 6 Oct 2026 · 08:00–16:00 UTC.");
+    expect(basisText).toContain("Source basis");
+    expect(basisText).toContain("Classification: SITE_RECORD");
+    expect(basisText).toContain("State: KNOWN");
+    expect(basisText).toContain("Source IDs: src-ev-1");
+    expect(basisText).toContain("Evidence IDs: None selected");
+    expect(basisText).toContain("Basis SHA-256: ab12cd34");
+    expect(basisText).toContain("Reasons: WINDOW_SELECTED");
     expect(within(footer()).getByRole("link", { name: "Inspect energy basis →" }).getAttribute("href")).toBe("/sites/EV-LAB-001/evidence");
     expect(text(footer().querySelector("[data-portfolio-footer-coverage]"))).toBe("Categories and windows remain separate.");
     view.unmount();
@@ -389,12 +409,26 @@ describe("estate Portfolio page", () => {
     expect(text(footer())).toContain("Cross-Site energy and tariff totals are not established.");
     expect(text(footer())).toContain("Energy basis unavailable");
     expect(footer().querySelector("a")).toBeNull();
+    expect(footer().querySelector("details")).toBeNull();
+    expect(text(footer())).not.toContain("Energy basis ↗");
     expect(text(footer().querySelector("[data-portfolio-footer-coverage]"))).toBe("Other Sites may lack comparable full-window coverage.");
   });
 
   it("rendersMeasuredPanelHierarchyAndScrollContainers", async () => {
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    const twin = row({
+      finding_id: "f1f1f1f1-0000-4000-8000-0000000000aa",
+      finding_revision_id: "e1e1e1e1-0000-4000-8000-0000000000aa",
+      links: { ...row().links, finding: "/sites/KOBO-001/findings/aa" },
+    });
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [row(), twin] }))));
     await settledScreen();
+    const labels = Array.from(document.querySelectorAll("[data-portfolio-row] td:nth-child(2) small:first-of-type")).map(text);
+    expect(new Set(labels).size).toBe(2);
+    expect(labels).toEqual([
+      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-000000000001 · Mechanism not recorded",
+      "Finding KOBO-001 · f1f1f1f1-0000-4000-8000-0000000000aa · Mechanism not recorded",
+    ]);
+    expect(document.querySelectorAll("[data-portfolio-finding-link]")).toHaveLength(2);
     expectV69Panels("portfolio");
     expectPlantedPanelRejected("portfolio");
     const main = document.querySelector(".estate-portfolio") as HTMLElement;

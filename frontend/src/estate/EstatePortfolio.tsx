@@ -11,6 +11,7 @@ import {
   type EstatePortfolioRow,
   type EstateQuery,
   type EstateResult,
+  type EstateSourceBlock,
   type EstateValueCard,
 } from "./estateClient";
 import { EstateDateBar, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
@@ -182,7 +183,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
           <strong>{row.title}</strong>
         )}
         <small>
-          Finding {row.finding_id.slice(0, 8)} · {row.mechanism ?? "Mechanism not recorded"}
+          Finding {row.site_code} · {row.finding_id} · {row.mechanism ?? "Mechanism not recorded"}
         </small>
         {row.links.finding === null ? <small>Finding detail unavailable</small> : null}
       </td>
@@ -244,7 +245,7 @@ function PriorityPanel({
   loadMore: (() => void) | null;
 }) {
   const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s.state as string]));
-  const incomplete = body.coverage.finding_state !== "COMPLETE";
+  const incomplete = body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN";
   const count = body.total_count === null ? "Unknown" : String(body.total_count);
   const both = rows.length > 0 && rows.every((r) => r.priority !== null && r.confidence !== null);
   return (
@@ -555,6 +556,32 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
   );
 }
 
+function noneOr(values: string[] | undefined): string {
+  return values && values.length > 0 ? values.join(", ") : "None selected";
+}
+
+function FooterSourceBlock({ block }: { block: EstateSourceBlock | null | undefined }) {
+  if (!block || Object.keys(block).length === 0) return <p>No selected source basis</p>;
+  return (
+    <dl data-portfolio-footer-source>
+      <dt>Source basis</dt>
+      <dd>
+        <div>Classification: {block.classification ?? "None selected"}</div>
+        <div>State: {block.state}</div>
+        <div>Source IDs: {noneOr(block.source_ids)}</div>
+        <div>Evidence IDs: {noneOr(block.evidence_ids)}</div>
+        <div>Basis SHA-256: {block.basis_sha256 ?? "None selected"}</div>
+        <div>
+          Reasons:{" "}
+          {block.reasons && block.reasons.length > 0
+            ? block.reasons.map((r) => r.code).join(", ")
+            : "None selected"}
+        </div>
+      </dd>
+    </dl>
+  );
+}
+
 function ContextFooter({ body }: { body: EstatePortfolioBody }) {
   const footer = body.footer;
   const line = footer === null ? undefined : body.selected_lines.find((x) => x.line_key === footer.line_key);
@@ -573,6 +600,10 @@ function ContextFooter({ body }: { body: EstatePortfolioBody }) {
             Business context: {footer.site_name} delivered <strong>{quantity}</strong> in selected records;{" "}
             <strong>{amount}</strong> gross tariff scenario.
           </span>
+          <Disclosure summary="Energy basis ↗" name="portfolio-energy-basis" variant="inline">
+            <p>Selected window: {moneyWindowText(footer.window_start, footer.window_end) ?? "Window not recorded"}.</p>
+            <FooterSourceBlock block={footer.source_provenance} />
+          </Disclosure>
           <Link to={footer.destination}>Inspect energy basis →</Link>
         </>
       ) : (
