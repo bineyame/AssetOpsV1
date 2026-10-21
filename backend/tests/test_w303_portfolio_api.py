@@ -369,6 +369,7 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
         ("OPERATING_COST", "NO_LINE", "neutral"), ("SERVICE_PRODUCT_RISK", "UNKNOWN", "neutral"),
         ("PRODUCTIVE_USE", "UNSUPPORTED", "neutral"), ("ASSET_LIFE", "UNSUPPORTED", "neutral"),
         ("VERIFIED_RECOVERY", "NOT_ESTABLISHED", "neutral")]
+    assert one["value_cards"][0]["display_value"] == "No supported value"  # r3b exact literal
     assert one["value_cards"][1]["destination"] == "/findings/risks"
     assert [o["site_id"] for o in one["objectives"]] == [MG, CO]
     cells = {o["site_id"]: {x["key"]: x["state"] for x in o["cells"]} for o in one["objectives"]}

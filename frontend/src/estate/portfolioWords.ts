@@ -50,7 +50,7 @@ export const CARD_LABEL: Readonly<Record<EstateValueCardKey, string>> = {
 export const CARD_VALUE: Readonly<Record<string, string>> = {
   UNPRICED: "Unpriced",
   WITHHELD: "Not comparable for this selection",
-  NO_LINE: "No supported value for this window",
+  NO_LINE: "No supported value",
   UNKNOWN: "Not assessed",
   UNSUPPORTED: "Not established",
   NOT_ESTABLISHED: "Not established",

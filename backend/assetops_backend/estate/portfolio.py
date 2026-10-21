@@ -244,7 +244,7 @@ CARD_SLOTS = {
 CARD_DESTINATION = {"OPERATING_COST": "/financials", "SERVICE_PRODUCT_RISK": "/findings/risks",
                     "PRODUCTIVE_USE": None, "ASSET_LIFE": None, "VERIFIED_RECOVERY": "/financials"}
 #: Literal value slots; the bounded amounts of COMPARABLE_GROUP/SITE_OWNED are formatted by the page (S10).
-DISPLAYED_VALUE = {"WITHHELD": "Not comparable for this selection", "NO_LINE": "No supported value for this window",
+DISPLAYED_VALUE = {"WITHHELD": "Not comparable for this selection", "NO_LINE": "No supported value",
                    "UNPRICED": "Unpriced", "UNKNOWN": "Not assessed", "UNSUPPORTED": "Not established",
                    "NOT_ESTABLISHED": "Not established"}
 

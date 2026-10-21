@@ -339,6 +339,23 @@ describe("estate Portfolio page", () => {
     expect(text(document.querySelector("[data-portfolio-card='OPERATING_COST'] [data-portfolio-card-value]"))).toBe("Not comparable for this selection");
   });
 
+  it("noLineCardUsesExactShortLiteralFromApiAndFallback", async () => {
+    // r3b: the API value and the missing-display_value fallback are both exactly "No supported value".
+    const noLine = (display_value: string | null) => portfolioBody({
+      value_cards: portfolioBody().value_cards.map((c) =>
+        c.key === "OPERATING_COST" ? { ...c, state: "NO_LINE" as const, display_value, detail: "No selected operating-cost consequence", basis_text: "No value line", tone: "neutral" as const } : c,
+      ),
+    });
+    const sel = "[data-portfolio-card='OPERATING_COST'] [data-portfolio-card-value]";
+    const first = renderAt(ENTRY, portfolioClient(loadedPortfolio(noLine("No supported value"))));
+    await settledScreen();
+    expect(text(document.querySelector(sel))).toBe("No supported value");
+    first.unmount();
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(noLine(null as unknown as string))));
+    await settledScreen();
+    expect(text(document.querySelector(sel))).toBe("No supported value");
+  });
+
   it("preservesWindowAndCutoffAcrossGlobalRoots", async () => {
     renderAt(`${ENTRY}&known_at=2026-10-07T00:00:00Z&lens=cost`, portfolioClient(loadedPortfolio(portfolioBody({ lens: "cost" }))));
     await settledScreen();

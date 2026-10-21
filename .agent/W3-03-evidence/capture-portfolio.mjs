@@ -124,7 +124,7 @@ try {
       overEmpty: over.length === 0,
       noDocOverflow: m.docScrollW <= m.docClientW,
       ...(w === 390 ? { tableScrolls: !!m.findingsScroll && m.findingsScroll.scroll > m.findingsScroll.client,
-                        matrixScrolls: !!m.matrixScroll && m.matrixScroll.scroll > m.matrixScroll.client } : {}),
+                        matrixScrolls: !!m.matrixScroll && (Number(ARG2) >= 4 ? m.matrixScroll.scroll > m.matrixScroll.client : m.matrixSites === Number(ARG2)) } : {}),
       ...(ARG1 === "EMPTY_SCOPE" ? { noForbiddenText: leaks(m).length === 0, zeroRows: m.rows === 0 } : {}),
     };
     const shot = await tab.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: w, height: Math.min(m.height, 6000), scale: 1 } });
