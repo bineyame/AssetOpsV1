@@ -176,3 +176,46 @@ None blocks the service page; each is a one-line change.
 4. **Registry nodes.** N8 needs a `ui` and a `projection` gate per pilot panel; added `I-mini-depth-read`
    (projection) and `I-mini-depth-ui` (ui), both `open`, `task:W4-02`, and set `I-mini-breadth-store.task` to
    `W4-02`. Renewable ledger row is `bounded`/`W4-02` with product node `P-mini-area`.
+5. **Service page (`8925399a`), same pattern, provisional.** (a) The `See effect on verification` CTA uses N3's
+   `UnavailableLinkEntry` (`See effect on verification · Not available yet`), not the copy-ledger text
+   `No linked verification for this window`, matching item 2; confirm or name the copy. (b) The mock's
+   `Clinic (critical)` card label is not kept as a literal: it reads `{critical row load_label} (critical)`, else
+   `Critical load`. (c) `What was needed` is always the hatched `Unknown` bar: the public service row carries a request
+   state but no requested-kW value. (d) Default hour with no `from/to` is local 12:00-13:00 (handoff Run 15).
+
+## q11 (unit 6, q10 applied and fuel page): readings applied provisionally, to confirm or replace
+None blocks the backup page; each is a one-line change.
+1. **Downgraded positive renewable label.** q10-3 says the currentness/provenance downgrade runs before the label
+   mapping so pending/stale/unknown never gets `Watch`, but names no replacement word. Built: SUPPORTED with
+   `headroom_kw.low > 0` and currentness `PENDING_RECOMPUTE`/`STALE_SOURCE`/`UNKNOWN`, or provenance (pending alias,
+   else selected) `UNKNOWN`/`MIXED`/absent -> `Evidence limited`. `No usable headroom` (low <= 0) is not downgraded.
+   Registry/ledger q10-2 applied: `I-mini-depth-read` requires `A-mini-breadth-projections`, `I-mini-depth-ui`
+   requires `D-mini-breadth-windows`. Ledger rows keep `I-mini-depth-read`, `I-mini-depth-ui`, `D-mini-breadth-windows`:
+   the ledger checker requires them to equal the panel `requires` union; `A-mini-breadth-projections` is reached
+   through `I-mini-depth-read`.
+2. **Fuel page (`f1ba0962`), provisional.** (a) The third card is labelled `Modelled expected use` (q3-3), not the
+   mock's `Expected use`. (b) Q20's note `Modelled: {mean kW} for {minutes} min × {L/kWh}` has no kW or L/kWh in the
+   public read, so it reads `Modelled: generator output for {USE minutes} min × selected fuel coefficient with selected
+   bound` (numbers omitted per Q20). (c) Bridge treatment copy: MODELLED `Modelled range, not a fuel-meter reading`,
+   COMPLETENESS_UNCONFIRMED `Delivery completeness unconfirmed`, CONFLICT `Conflicting records`, ACCEPTED_READING
+   without bound `No bounded tank uncertainty is registered`, RESIDUAL `Needs every term with a supported range; never
+   infers theft`, else `Missing`; the term's value sits beside its name. (d) `No linked dispatch consequence` is an
+   inert tagged span (not N3's `· Not available yet` form), per the q9 dry-read wording. (e) Any non-LIMITED status,
+   including an unreachable SUPPORTED, reads `Fuel balance: Unknown`.
+3. **Backup page, provisional.** (a) `Start success` shows `{n} witnessed success(es)` with note `Of {N} witnessed
+   starts`; the read has no denominator, so N is the number of chains whose START step is not MISSING. (b) A chain
+   cell reads `Observed HH:MM`, `Conflicting records HH:MM` or `No accepted record`; `When` is the local outage start;
+   `Outcome for service` appends `Recovered`/`Missed recovery target`/`Unknown`. (c) A LIMITED chain assessment adds
+   the strip chip `Outage-chain assessment: evidence limited`; the heading stays `Backup readiness: Unknown`. (d) The
+   empty-table copy shows `No outage in the selected hour` only when `cards.outage_count === 0` (never in W4-02,
+   q3-8), else `No complete outage chain can be assessed`. (e) Card notes: `Supply reports do not cover the whole
+   hour`, `No witnessed start request`, `No accepted witnessed test record`, `Needs requested and delivered
+   critical-service power`; recovery `{min} min` with `Target {min} min · latest valid chain`. (f) Limitation words:
+   RECOVERY_TARGET_MISSING `No pinned critical-service recovery target`, BACKUP_CHAIN_INCOMPLETE `No complete outage
+   chain`. (g) Header description is the mock subtitle `Performance · backup start and service recovery` (Q20 gave
+   no backup line). (h) `Open Dispatch`/`Browse Actions` null links use `UnavailableInline` (`· Not available yet`).
+4. **Backup readiness rows.** Available evidence is the union of cited IDs of non-MISSING mapped steps across all
+   chains (Q22 mapping); current claim is the latest chain's mapped-step word (`Observed`, `Partly observed`,
+   `Conflicting records`, `No accepted record`) plus `· chain result {Pass|Fail|Incomplete}`. With no chain: `No
+   accepted record` / `No outage-chain assessment`; `Witnessed outcome` is always `No accepted record` / `Readiness
+   remains unverified`.
