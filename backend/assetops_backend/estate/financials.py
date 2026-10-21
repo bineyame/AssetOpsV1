@@ -29,6 +29,7 @@ from assetops_backend.estate.evidence_money import (
 from assetops_backend.estate.index import _coverage_site, _coverage_state, _status, _token_site
 from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, wire_time
 from assetops_backend.evidence.provenance_read import source_gate
+from assetops_backend.financials.fuel_cost import PRICE_UNIT
 
 FINANCIALS_SCHEMA = "estate-financials-1"
 FINANCIALS_ORDER = "window_start desc nulls last, site_code_key asc, site_id asc, category asc, line_key asc"
@@ -188,7 +189,8 @@ def mini_grid_lines(snap: Any, t: Any, site: dict[str, Any], cov: dict[str, Any]
                       "unit": sel.get("quantity_unit")},
             amount=amount, period_kind=OBSERVED,
             assumptions=[x for x in [cited.get("price_revision_id")] if x],
-            fingerprint=assumption_fingerprint(OPERATING, currency, sel.get("quantity_unit"), price.get("value"),
+            # c3-q2(5): the economic price unit `currency/L`, not the consequence quantity unit `L`.
+            fingerprint=assumption_fingerprint(OPERATING, currency, PRICE_UNIT, price.get("value"),
                                                price.get("state")),
             cited=basis, technical=power, overlap_group=sel.get("overlap_group"),
             limit="; ".join(sel.get("limitations") or ()) or None, provenance=prov, links=links, decision=decision,
@@ -197,13 +199,14 @@ def mini_grid_lines(snap: Any, t: Any, site: dict[str, Any], cov: dict[str, Any]
 
 
 def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: EstateRequest, k: datetime,
-                   site_state: str) -> tuple[list[dict], bool]:
-    """Cold/EV heads per selected pinned window; returns the lines and whether every window is covered (a stale
-    or pending window, or an EV `STALE_BASIS` guard, leaves the category's coverage unknown)."""
+                   site_state: str) -> tuple[list[dict], bool, list[str]]:
+    """Cold/EV heads per selected pinned window; returns the lines, whether every window is covered (a stale
+    or pending window, or an EV `STALE_BASIS` guard, leaves the category's coverage unknown), and the selected EV
+    session revision IDs of every pinned window, with or without a stored head (c3-q2(6))."""
     s = site["site_id"]
     cutoff = snap.evidence_cutoff(t, s, k)
     pins = [] if cutoff is None else snap.pinned_windows(t, s, domain, req.from_, req.to, cutoff, k)
-    lines, covered = [], True
+    lines, covered, sessions = [], True, []
     for pin in pins:
         state = _window_state(snap, site_state, pin.get("state"))
         covered = covered and state in COVERED
@@ -230,6 +233,7 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
                     disclosure={"reason": row["reason"], "counted": row["counted"], "hold": read["hold"]}))
             continue
         read = snap.ev_money(pin)
+        sessions += [str(x) for x in read.get("session_revision_ids") or ()]
         head, guard = read["consequence"], read["guard"]
         history = sorted(read["history"], key=lambda h: (h["revision_no"] or 0))
         if head is not None and head.get("revision_id") is None:  # the transient guard: never a line
@@ -267,7 +271,7 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
             limit=" ".join(x for x in [head.get("limitation"), EV_LIMIT] if x), provenance=prov, links=links,
             decision=decision,
             disclosure={"guard": guard, "history": [h["revision_id"] for h in read["history"]]}))
-    return lines, covered and bool(pins)
+    return lines, covered and bool(pins), _ids(sessions)
 
 
 # --- comparison ---------------------------------------------------------------------------------------------
@@ -386,13 +390,14 @@ def financials_body(service: Any, snap: Any, tenant_id: Any, req: EstateRequest,
         cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k)
         if domain == MINI_GRID:
             site_lines = mini_grid_lines(snap, tenant_id, site, cov, k) if cov["state"] in COVERED else []
-            covered = cov["state"] in COVERED
+            covered, sessions = cov["state"] in COVERED, []
         else:
-            site_lines, windows_covered = windowed_lines(snap, tenant_id, site, domain, req, k, cov["state"])
+            site_lines, windows_covered, sessions = windowed_lines(snap, tenant_id, site, domain, req, k,
+                                                                   cov["state"])
             covered = cov["state"] in COVERED and windows_covered
         for category in APPLICABLE[domain]:
             applicable[category] = applicable.get(category, True) and covered
-        per_site.append((site, domain, cov, site_lines))
+        per_site.append((site, domain, {**cov, "_sessions": sessions}, site_lines))
         lines += site_lines
     seen: set[str] = set()
     lines = [x for x in lines if not (x["line_key"] in seen or seen.add(x["line_key"]))]  # dedupe selected heads
@@ -404,7 +409,9 @@ def financials_body(service: Any, snap: Any, tenant_id: Any, req: EstateRequest,
                   "selected_action_event_ids": [],
                   "selected_consequence_revision_ids": _ids(x["consequence_revision_id"] for x in site_lines),
                   "selected_assumption_revision_ids": _ids(a for x in site_lines for a in x["assumption_revision_ids"]),
-                  "selected_assessment_revision_ids": _ids(cov.get("selected_assessment_revision_ids")),
+                  # c3-q2(6): plus every pinned selected EV window's session revision IDs (c1-q3(5)).
+                  "selected_assessment_revision_ids": _ids([*(cov.get("selected_assessment_revision_ids") or ()),
+                                                            *cov.get("_sessions", ())]),
                   "cited_accepted_evidence_ids": _ids(e for x in site_lines for e in x["basis_evidence_ids"])}
         token_sites.append(_token_site(site, domain, {**cov, **arrays}))
     token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["token_k"], None, None, token_sites)

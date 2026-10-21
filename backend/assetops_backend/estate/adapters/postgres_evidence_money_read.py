@@ -111,5 +111,8 @@ class EvidenceMoneySnapshot(EstateSnapshot):
 
     def ev_money(self, pin: dict[str, Any]) -> dict[str, Any]:
         """W3-02 commit 3: 0c `EvSiteReads.money_on` of this pinned window (its as-of head or transient guard and
-        stored history recorded by the cutoff). Its `historical_label` is not the estate's (c1-q1)."""
-        return self._o.ev_site.money_on(self._c, pin)
+        stored history recorded by the cutoff). Its `historical_label` is not the estate's (c1-q1). Plus the pinned
+        selected assessment's exact session revision IDs, with or without a stored head (c3-q2(6))."""
+        read = self._o.ev_site.money_on(self._c, pin)
+        sessions = sorted({str(x).lower() for x in (pin["selected"]["result"].get("session_revision_ids") or ())})
+        return {**read, "session_revision_ids": sessions}

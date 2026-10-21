@@ -84,6 +84,7 @@ class MoneySnapshot(FakeSnapshot):
 
     def ev_money(self, p):
         return {**self.ev, "window_start": "2026-10-13T08:00:00Z", "window_end": "2026-10-13T09:05:00Z",
+                "session_revision_ids": list(self.sessions),  # c3-q2(6): the pinned selected session revisions
                 "historical_label": "Historical as of 2026-10-13T00:00:00Z"}  # ignored (c1-q1)
 
 
@@ -243,6 +244,11 @@ def test_w302_money_overlap_by_group_ids_and_citations() -> None:
         else:
             assert groups[0]["amount"] is None and {a["eligibility"], b["eligibility"]} == {"CONFLICT"}, name
             assert set(reasons) <= set(groups[0]["reason_codes"]) and len(exclusions) == 2, name
+            # c3-q2(3): missing proof is BASIS_NOT_PROVEN at the group, a proven collision OVERLAPPING_BASIS; each
+            # involved line is CONFLICT with line reason OVERLAPPING_BASIS.
+            other = "OVERLAPPING_BASIS" if reasons == ["BASIS_NOT_PROVEN"] else "BASIS_NOT_PROVEN"
+            assert other not in groups[0]["reason_codes"], name
+            assert all("OVERLAPPING_BASIS" in x["reason_codes"] for x in (a, b)), name
     # One line's own technical and cited arrays being equal is no collision (closure 4).
     same = _eligible("ev_charging:a", tech=[A[1]], cited=[A[1]])
     other = _eligible("ev_charging:b", tech=[A[2]], cited=[A[2]])
@@ -252,6 +258,13 @@ def test_w302_money_overlap_by_group_ids_and_citations() -> None:
              "reason_codes": ["WITHHELD"], "amount": None}
     a, b = _eligible("ev_charging:a", tech=[A[1]], cited=[A[3]]), _eligible("ev_charging:b", tech=[A[2]], cited=[A[4]])
     assert compare([a, b, third], {"GROSS_TARIFF_SCENARIO": True})[0][0]["state"] == "INELIGIBLE"
+    # c3-q2(3): a withheld line sharing the eligible lines' basis is never marked CONFLICT.
+    a, b = _eligible("ev_charging:a", tech=[A[1]], cited=[A[3]]), _eligible("ev_charging:b", tech=[A[1]], cited=[A[4]])
+    held = {**_eligible("ev_charging:c", tech=[A[1]], cited=[A[3]]), "eligibility": "WITHHELD",
+            "reason_codes": ["WITHHELD"], "amount": None}
+    compare([a, b, held], {"GROSS_TARIFF_SCENARIO": True})
+    assert (a["eligibility"], b["eligibility"], held["eligibility"]) == ("CONFLICT", "CONFLICT", "WITHHELD")
+    assert held["reason_codes"] == ["WITHHELD"]
     a, b = _eligible("ev_charging:a", tech=[A[1]], cited=[A[3]]), _eligible("ev_charging:b", tech=[A[2]], cited=[A[4]])
     groups = compare([a, b], {"GROSS_TARIFF_SCENARIO": False})[0]
     assert groups[0]["state"] == "UNKNOWN_COVERAGE" and groups[0]["amount"] is None
@@ -327,3 +340,36 @@ def test_w302_money_decide_order() -> None:
     assert decide(**{**base, "unpriced": True}) == ("UNPRICED", ["UNPRICED"])
     assert decide(**{**base, "eligible": False}) == ("UNKNOWN", ["BASIS_NOT_PROVEN"])
     assert MG and CO and EVS and SITES and timedelta  # fixture Sites shared with the Evidence suite
+
+
+def test_w302_money_w1_price_unit_limit_and_citation_union() -> None:
+    """c3-q2(5): the W1 fingerprint uses the selected `price.state` and `price.value` with the economic unit
+    `currency/L` (not the quantity unit `L`); the selected head's limitations join with `; `; citations are the
+    selected Finding citations plus `cited.power_evidence_ids`, which are also the technical IDs."""
+    head = {**w1_head(A[21], A[31], power=(A[45], A[46])), "limitations": ["First stored limit.", "Second one."]}
+    body = body_of(MoneySnapshot(w1={A[21]: head}))
+    w1 = next(r for r in body["rows"] if r["domain"] == "mini_grid")
+    fp = financials.assumption_fingerprint
+    assert w1["assumption_fingerprint"] == fp("CANDIDATE_OPERATING_COST_EXPOSURE", "USD", "currency/L", "0.97",
+                                              "PUBLISHED")
+    assert w1["assumption_fingerprint"] != fp("CANDIDATE_OPERATING_COST_EXPOSURE", "USD", "L", "0.97", "PUBLISHED")
+    assert w1["limit"] == "First stored limit.; Second one."
+    assert w1["basis_evidence_ids"] == sorted([A[20], A[45], A[46]])
+    assert w1["technical_interval_ids"] == sorted([A[45], A[46]])
+    bare = next(r for r in body_of(MoneySnapshot())["rows"] if r["domain"] == "mini_grid")
+    assert bare["limit"] is None  # no stored limitations
+
+
+def test_w302_money_ev_session_only_change_moves_token_and_fences() -> None:
+    """c3-q2(6): the Financials token's `selected_assessment_revision_ids` carry every pinned selected EV window's
+    session revision IDs, so a session-only change moves the token and fences a cursor, also with no stored head."""
+    for ev in (None, {"guard": None, "consequence": None, "history": []}):
+        label = "head" if ev is None else "no head"
+        before = MoneySnapshot(ev=ev, sessions=(A[40],))
+        after = MoneySnapshot(ev=ev, sessions=(A[41],))
+        first = fin(client(FakeStore(before)), {**WINDOW, "limit": 1}).json()
+        assert first["next_cursor"], label
+        assert body_of(after)["selection_token"] != first["selection_token"], label
+        assert body_of(MoneySnapshot(ev=ev, sessions=(A[40],)))["selection_token"] == first["selection_token"], label
+        response = fin(client(FakeStore(after)), {**WINDOW, "limit": 1, "cursor": first["next_cursor"]})
+        assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED"), label
