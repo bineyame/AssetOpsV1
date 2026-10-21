@@ -478,4 +478,50 @@ copy is new; the `First page` control is an addition beside `Next`.
 - `check-all.ps1`: all 11 guards passed on the final code revision 53e3abf0.
 - Layout evidence: not run (no dev server/browser in this unit); Opportunity 1440/390 caps unverified.
 
-Next: unit 8
+## Unit 8 (landed; commit bb03bdc8)
+- Backend `mini_decisions/work_links.py`: `WorkLinkService.link` (POST `/api/sites/{code}/work/decision-links`,
+  `mini-decision-link-command-1` -> `mini-decision-link-write-1`), `contexts` (GET `.../work/decision-contexts`,
+  `mini-work-contexts-1`), `parse_case_ids`. `store.py` unit-8 block: `lock_work_case` (FOR SHARE),
+  `opportunity_exists`, `work_link_by_key`, `work_link_pair`, `visible_cases`, `work_contexts`. `model.py`:
+  `DecisionRefused(..., status=)` + `case_not_found()` (W4-01 code/message, not remapped). Router kwarg
+  `work_links=`; `main.py` composes `WorkLinkService(decision_store)`.
+- Frontend: `miniDecisionsClient.getWorkContexts`; `siteWorkCases.tsx` `useDecisionOverlay` (keyed by Site, list
+  `known_at`, `selection_token`, page case IDs; other-key answers discarded), `DecisionContext` (Incident `Linked
+  findings` cell after Finding links; Maintenance line under Activity); `SiteWorkCasesFrame` passes the client only
+  for MINIGRID; App wires `miniDecisions`. CSS `.work-cases-context` (2-line clamp, N4 bounded row space).
+- Tests: `test_w403_work_links_postgres.py` (3 named); `siteWorkCases.test.tsx` (2 named; `serve` now answers the
+  overlay with all-`[]` by default and records it in `contextRequests`). Non-vacuity: overlay order swapped to
+  SCENARIO-first fails the contexts test; `DecisionContext` returning null fails the frontend tests.
+
+Readings taken (unit 8; reviewer may overturn). PR-10 holds 1-3.
+1. Already-linked pair under a new key: 409 `DECISION_DUPLICATE_KEY` (PR-10.1).
+2. Refused overlay: `Decision context unavailable` without prefix; nothing while loading (PR-10.2).
+3. Scenario label + `(Scenario detail unavailable)` plain text (PR-10.3).
+4. POST refusal order: scope -> grant -> store -> MINIGRID (non-MINIGRID 422 `DECISION_LINK_SCOPE_INVALID`, as the
+   other W4-03 writes) -> principal -> shape (exactly one of `scenario_id,opportunity_id`, else 422
+   `DECISION_INPUT_INVALID`) -> actor -> [txn] case 404 -> key lookup 200/409 -> decision 422 -> pair 409.
+5. Canonical hash path `{site_id, route:"work/decision-links"}` (no path root).
+6. Contexts: `known_at` optional (omitted = DB read time), one value, future 422 `INVALID_KNOWN_AT`; `case_ids` one
+   parameter, 1-100 distinct lowercase UUIDs, else 422 `DECISION_INPUT_INVALID`; a case is visible iff same
+   tenant/Site and `created_at <= known_at` (W4-01 detail rule), else whole-read 404; any Site type is served (no
+   Performance gate; authored associations only), the UI calls it only for MINIGRID.
+7. Opportunity "visible selected revision" = the detail head rule (a visible selection whose pins satisfy the
+   cutoff); Scenario uses its head revision `name` at the cutoff.
+8. Opportunity URL uses `site.site_code` (public code, u6), not the UUID.
+9. Layout evidence / stocked 1440/390 captures: not run (no dev server or browser); W4-01 Incidents 460 px cap with
+   context lines is unverified until 9b.
+
+## u7 applied (commit 3ba626ba; main merged at the merge after bb03bdc8)
+PR-9.1: Opportunity breadcrumb is `Findings › {OPP} › Overview · site: {Site}` (root gap text, code only once
+loaded, only the Site suffix links); `Sites`/`Renewable evaluation` slots removed. Test in
+`opportunity_history_and_exact_renewable_cta` at innerWidth 1440 and 390 (DOM only; geometry is 9b). PR-9.2/9.3 and
+readings 2-15 confirmed without code change (CTA refusal copy is already by code; empty evidence copy present).
+
+## Checks (unit 8 + u7)
+- Private DB `w403n_test` (dropped). Backend: `test_w403_work_links_postgres.py` 3 passed; with
+  `test_w401_work_api.py` and `test_w403_opportunity_links_postgres.py` 15 passed (600 s). No full suite.
+- Frontend: 103 files / 2452 tests passed; `tsc --noEmit` clean; `vite build` built.
+- `check-all.ps1`: all 11 guards passed (on 3ba626ba).
+- Layout evidence: not run.
+
+Next: unit 9
