@@ -133,7 +133,12 @@ def test_run5_exact_copy() -> None:
     assert csr.OBJECTIVE_TEXT.format(low="2", high="4") == \
         "Keep the chamber between 2\u20134\u00b0C through power, cooling and operating disturbances."
     assert csr.NOT_INCLUDED_TEXT["SOURCE_GATE_WITHHELD"] == SCREEN_WORDING["SOURCE_GATE_WITHHELD"]
-    assert set(csr.COOLING_TEXT) == {"SUPPORTED", "LIMITED", "UNAVAILABLE", "CONTRADICTORY"}
+    # W2-F closure S2: cooling recovery is never SUPPORTED in W2, so there is no SUPPORTED cooling text to render.
+    assert set(csr.COOLING_TEXT) == {"LIMITED", "UNAVAILABLE", "CONTRADICTORY"}
+    assert csr.COOLING_TEXT["LIMITED"] == "Cooling recovery is not established by the selected start chain."
+    assert csr.COOLING_LIMITATION == ("Ordered compressor running after the interruption and a later in-band chamber "
+                                      "reading are not established by this assessment.")
+    assert csr.PRODUCT_LIMITATION == "Product identity, stock value and a reviewed response rule are not declared."
     assert set(csr.REQUIREMENTS) == {"cold-excursion/1", "cold-start-response/1"}
 
 
@@ -437,6 +442,7 @@ def test_missing_probe_and_empty_window(chain) -> None:  # noqa: F811
     assert bodies["overview"]["maintenance"]["state"] == "NOT_RECORDED"
     assert bodies["overview"]["consequence_summary"]["state"] == "UNKNOWN"
     assert (bodies["evidence"]["capabilities"], bodies["evidence"]["sources"]) == ([], [])
+    assert bodies["evidence"]["selected_excursion_present"] is False  # W2-F closure S5: no selection sends false
     assert bodies["evidence/analysis"]["accepted_records"] == {"items": [], "next_cursor": None, "total_count": 0}
     assert bodies["evidence/analysis"]["claim_rules"] == []
     assert (bodies["financials"]["consequences"], bodies["financials"]["not_included"]) == ([], [])
@@ -470,12 +476,98 @@ def test_capability_needs_qualifying_points() -> None:
                                "gaps": [], "excursions": []}, [])
     assert unqualified["TEMPERATURE_POINT"]["state"] == "UNAVAILABLE"
     assert unqualified["EXCURSION_BOUNDS"]["state"] == "UNAVAILABLE"
-    assert unqualified["COOLING_RESPONSE"]["state"] == "LIMITED"  # compressor state alone: a narrower claim
+    # W2-F closure S3: a compressor role without a selected START chain is no cooling claim at all.
+    assert unqualified["COOLING_RESPONSE"]["state"] == "UNAVAILABLE"
     assert unqualified["PRODUCT_EXPOSURE"]["state"] == "UNAVAILABLE"
     for claim in ("BACKUP_START_RESULT", "TRANSFER_POSITION"):
         assert unqualified[claim]["coverage"] == {"known_points": None, "expected_points": None, "ratio": None}
-    # An excursion without proved thermal bounds is LIMITED, never SUPPORTED, product exposure.
+    # W2-F closure S3/S4: an excursion without a declared product basis is UNAVAILABLE (None) product exposure.
     unbounded = _cap_states({"known_points": 7, "expected_points": 13, "coverage": "0.54", "policy": policy,
                              "gaps": [], "excursions": [{"exposure_finding": True, "claim_level": "OBSERVED"}]}, [])
     assert unbounded["TEMPERATURE_POINT"]["state"] == "SUPPORTED"
-    assert unbounded["PRODUCT_EXPOSURE"]["state"] == "LIMITED"
+    assert unbounded["PRODUCT_EXPOSURE"]["state"] == "UNAVAILABLE"
+
+
+# --- W2-F H1: selected recovery and product-exposure truth -----------------------------------------------------
+
+_FIRST_STEPS = ("GRID", "START_REQUEST", "START_RESULT", "GENERATOR", "TRANSFER", "BUS", "COMPRESSOR", "PROBE")
+_BOUNDED_EXCURSION = {"known_points": 13, "expected_points": 13, "coverage": "1",
+                      "policy": {"policy_low": "2", "policy_high": "4"}, "gaps": [], "state": "OBSERVED_EXCURSION",
+                      "excursions": [{"exposure_finding": True, "claim_level": "OBSERVED"}]}
+
+
+def _chain(result="OBSERVED_SUCCESS", **states) -> dict:
+    return {"result": result, "steps": [{"step": n, "state": states.get(n, "OBSERVED"), "at": None,
+                                         "evidence_ids": []} for n in _FIRST_STEPS]}
+
+
+def _recovery_pair(caps: dict) -> tuple:
+    return ((caps["COOLING_RESPONSE"]["state"], caps["COOLING_RESPONSE"]["limitation"]),
+            (caps["PRODUCT_EXPOSURE"]["state"], caps["PRODUCT_EXPOSURE"]["limitation"]))
+
+
+def test_w2f_recovery_and_exposure_capability_vectors() -> None:
+    """W2-F closure B1/S1/S3/S4: the selected W2-03 START chain stores only the first compressor step and the first
+    subsequent probe, so even an apparently complete chain cannot prove an ordered recovery: cooling is LIMITED for
+    a selected noncontradictory chain, CONTRADICTORY for a contradictory chain or step, UNAVAILABLE with no chain.
+    The W2 assumptions read is always empty (`ColdSiteReads.assumptions`), so no product basis can be declared and
+    product exposure is UNAVAILABLE (None) whatever the excursion, CONTRADICTORY only for a contradictory selected
+    excursion assessment. No W2 vector reaches SUPPORTED for either claim: the old ledger's partial-product LIMITED
+    and Full rows are future-contract states, not W2 test vectors."""
+    limited = (("LIMITED", csr.COOLING_LIMITATION), ("UNAVAILABLE", csr.PRODUCT_LIMITATION))
+    # Selected chain with the excursion fixture's shape: compressor reported, start failed.
+    assert _recovery_pair(_cap_states(_BOUNDED_EXCURSION, [_chain("OBSERVED_FAILURE")])) == limited
+    # Apparent first-step completion: every step OBSERVED, start succeeded, bounded proved excursion -> still LIMITED.
+    complete = _cap_states(_BOUNDED_EXCURSION, [_chain()])
+    assert complete["EXCURSION_BOUNDS"]["state"] == "SUPPORTED"  # the thermal bound stays a separate claim
+    assert _recovery_pair(complete) == limited
+    # No selected START chain: compressor and probe roles are present, still no cooling claim.
+    assert _recovery_pair(_cap_states(_BOUNDED_EXCURSION, [])) == (
+        ("UNAVAILABLE", csr.COOLING_LIMITATION), ("UNAVAILABLE", csr.PRODUCT_LIMITATION))
+    # No excursion: product exposure stays UNAVAILABLE.
+    normal = {**_BOUNDED_EXCURSION, "state": "NO_EXCURSION_OBSERVED", "excursions": []}
+    assert _recovery_pair(_cap_states(normal, [_chain()])) == limited
+    # Contradictions: a contradictory chain result, a contradictory compressor step, a contradictory excursion.
+    for chain_doc in (_chain("CONTRADICTORY", START_RESULT="CONTRADICTORY"), _chain(COMPRESSOR="CONTRADICTORY")):
+        caps = _cap_states(_BOUNDED_EXCURSION, [chain_doc])
+        assert caps["COOLING_RESPONSE"]["state"] == "CONTRADICTORY"
+        assert caps["COOLING_RESPONSE"]["limitation"] != csr.COOLING_LIMITATION
+    bad = _cap_states({**_BOUNDED_EXCURSION, "state": "CONTRADICTORY"}, [_chain()])
+    assert bad["PRODUCT_EXPOSURE"]["state"] == "CONTRADICTORY"
+    assert bad["PRODUCT_EXPOSURE"]["limitation"] != csr.PRODUCT_LIMITATION
+    # No selection at all: neither assessment is selected, so both claims are UNAVAILABLE.
+    snap = {"t": uuid4(), "s": uuid4(), "known": TO, "selected": {}}
+    none = {x["claim"]: x for x in csr.ColdSiteReadService(_CapReads(), None)._capabilities(None, snap)}
+    assert [none[k]["state"] for k in ("COOLING_RESPONSE", "PRODUCT_EXPOSURE")] == ["UNAVAILABLE", "UNAVAILABLE"]
+
+
+@needs_db
+@pytest.mark.parametrize("case,excursion", [("excursion", True), ("normal", False)])
+def test_w2f_recovery_and_exposure_truth_across_selected_reads(chain, case, excursion) -> None:  # noqa: F811
+    """W2-F closure B1/S1/S2/S5/S6 through the ordinary W2 replay path. `excursion.json` is the stocked 19-23
+    degC-min / compressor-OFF audit state; `normal.json` (no excursion) proves only the no-excursion branch. Overview,
+    Evidence and Backup read the same selected revisions, window and `known_at`; the cooling card and the Evidence
+    capability are the same selected LIMITED claim; product exposure is None with its declared-basis limitation."""
+    built = opened(case, chain)
+    run(built)
+    drain(built)
+    c = client(built)
+    ov, ev = get(c, f"overview?{W}"), get(c, f"evidence?{W}")
+    back = follow(c, ov["links"]["backup"])
+    revisions = ov["currentness"]["watermark"]["assessment_revision_ids"]
+    assert len(revisions) == 2 and ev["currentness"]["watermark"]["assessment_revision_ids"] == revisions
+    assert set(back["currentness"]["watermark"]["assessment_revision_ids"]) <= set(revisions)
+    assert ov["window"] == ev["window"] == back["window"] and ov["window"]["known_at"]
+    assert ev["selected_excursion_present"] is excursion
+    caps = {x["claim"]: x for x in ev["capabilities"]}
+    cooling, product = caps["COOLING_RESPONSE"], caps["PRODUCT_EXPOSURE"]
+    assert (cooling["state"], cooling["limitation"]) == ("LIMITED", csr.COOLING_LIMITATION)
+    assert (product["state"], product["limitation"]) == ("UNAVAILABLE", csr.PRODUCT_LIMITATION)
+    assert ov["cooling"] == {"state": "LIMITED", "text": csr.COOLING_TEXT["LIMITED"], "as_of": cooling["as_of"],
+                             "limitation": csr.COOLING_LIMITATION}
+    # The selected chain limits the claim: one chain with its first compressor step; no recovery is claimed.
+    [backup_chain] = back["chains"]
+    assert [s["kind"] for s in backup_chain["steps"]].count("COMPRESSOR") == 1
+    if excursion:
+        assert ov["consequence_summary"]["quantity"] == {"low": "19", "high": None, "unit": "degC_min"}
+    assert get(c, f"financial-assumptions?{W}")["items"] == []  # S4: no declared product basis in W2
