@@ -45,3 +45,10 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
   comparability, financials/evidence links, evidence scope snapshot, evidence EV, pinned facades, plus both cursor
   files: 116 passed in 28m04s (golden response bytes unchanged).
 - `tools/check-all.ps1`: all 11 guards passed. No full backend suite (run 3 owns the same-revision full suite).
+
+## Run 0a fix round (review REVISE -> fixed)
+- M1: `financials.py::select_financial_scope` per-Site cov now carries private `_windows_covered` (mini-grid: `state in COVERED`; cold/EV: windowed_lines flag). Pure test in `backend/tests/test_w303_selectors_postgres.py`.
+- L1: Postgres value test (same file) asserts `_episode_end`, `_domain`, `_mechanism`, plan `id/recorded_at`, `_outcome_id`/`_outcomes` equal stored rows.
+- L2 (confirm 422) and L4 (measure site_coverage calls, run 1a) need no 0a change. L3 (EstatePortfolioStatus in estateClient.ts) is left to run 2 per r0a.
+- Checks: 0a tests + W3-02/W3-01 Postgres goldens 65 passed (w303b_test, dropped), golden bytes unchanged; check-all 11/11.
+- Next: run 2 (0b) after re-review.
