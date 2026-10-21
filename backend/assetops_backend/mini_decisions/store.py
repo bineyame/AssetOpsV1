@@ -207,6 +207,58 @@ class PostgresMiniDecisionStore:
     def insert_opportunity_scenario_link(self, c: Connection, row: Mapping[str, Any]) -> None:
         c.execute(text(_INSERT_OPPORTUNITY_SCENARIO_LINK), dict(row))
 
+    @contextmanager
+    def snapshot(self) -> Iterator[Connection]:
+        """One read-only REPEATABLE READ snapshot (closure 1 Q12-Q16); the caller captures DB time first."""
+        try:
+            with self._engine.connect().execution_options(isolation_level="REPEATABLE READ") as c:
+                with c.begin():
+                    c.execute(text("SET TRANSACTION READ ONLY"))
+                    yield c
+        except (OperationalError, ProgrammingError, DBAPIError) as error:
+            raise MiniDecisionStoreUnavailable(f"The mini-decision read failed: {error.__class__.__name__}") from error
+
+    @staticmethod
+    def db_now(c: Connection) -> Any:
+        return c.execute(text("SELECT clock_timestamp()")).scalar_one()
+
+    # --- scenario reads (unit 2b) -----------------------------------------------------------------------------
+
+    @staticmethod
+    def scenario_by_create_key(c: Connection, tenant_id: UUID, site_id: UUID, key: str) -> Mapping[str, Any] | None:
+        return c.execute(text(
+            "SELECT id, public_no, create_payload_sha256 FROM mini_scenario WHERE tenant_id = :t AND site_id = :s "
+            "AND create_key = :k"), {"t": tenant_id, "s": site_id, "k": key}).mappings().one_or_none()
+
+    @staticmethod
+    def lock_scenario(c: Connection, tenant_id: UUID, site_id: UUID, scenario_id: str) -> Mapping[str, Any] | None:
+        """The scenario root, row-locked for a correction (closure 1: every POST locks its root/head)."""
+        return c.execute(text(
+            "SELECT id, public_no FROM mini_scenario WHERE tenant_id = :t AND site_id = :s AND id = :id FOR UPDATE"),
+            {"t": tenant_id, "s": site_id, "id": scenario_id}).mappings().one_or_none()
+
+    @staticmethod
+    def scenario_revisions(c: Connection, tenant_id: UUID, site_id: UUID, scenario_id: Any) -> list[Mapping[str, Any]]:
+        return list(c.execute(text(
+            "SELECT id, revision_no, supersedes_revision_id, idempotency_key, payload_sha256, recorded_at "
+            "FROM mini_scenario_revision WHERE tenant_id = :t AND site_id = :s AND scenario_id = :id "
+            "ORDER BY revision_no"), {"t": tenant_id, "s": site_id, "id": scenario_id}).mappings())
+
+    @staticmethod
+    def scenario_heads(c: Connection, tenant_id: UUID, site_id: UUID, lo: Any, hi: Any,
+                       known: Any) -> list[Mapping[str, Any]]:
+        """Every root created in UTC `[lo, hi)` and visible at `known`, with its head revision at that cutoff:
+        greatest `(recorded_at, revision_no, id)` (closure 1 Q12-Q16; a correction never moves root membership)."""
+        return list(c.execute(text(
+            "SELECT DISTINCT ON (m.id) m.id, m.public_no, m.created_at, r.id AS revision_id, r.revision_no, r.name, "
+            "r.kind, r.narrative, r.assumptions, r.pinned_mini_revision_ids, r.pinned_selection_hours, "
+            "r.calculation, r.actor_id, r.recorded_at FROM mini_scenario m JOIN mini_scenario_revision r "
+            "ON r.tenant_id = m.tenant_id AND r.site_id = m.site_id AND r.scenario_id = m.id "
+            "WHERE m.tenant_id = :t AND m.site_id = :s AND m.created_at >= :lo AND m.created_at < :hi "
+            "AND m.created_at <= :k AND r.recorded_at <= :k "
+            "ORDER BY m.id, r.recorded_at DESC, r.revision_no DESC, r.id DESC"),
+            {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known}).mappings())
+
     def run(self, work: Callable[[Connection], T]) -> T:
         """Run `work` in one write transaction (convenience for callers holding no connection)."""
         with self.transaction() as c:

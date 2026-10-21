@@ -49,7 +49,7 @@ from assetops_backend.analytics.performance_comparison import (
 )
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
-from assetops_backend.finding_api import ACCESS_BASIS, build_finding_router, development_access
+from assetops_backend.finding_api import ACCESS_BASIS, Access, build_finding_router, development_access
 from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.estate.composition import build_estate_index_service, registry_tenant
 from assetops_backend.estate_api import build_estate_router
@@ -88,6 +88,14 @@ from assetops_backend.financials.composition import (
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.mini_depth.read import MiniDepthRead
 from assetops_backend.mini_depth_api import build_mini_depth_router
+from assetops_backend.mini_decisions.scenarios import ScenarioService
+from assetops_backend.mini_decisions.store import PostgresMiniDecisionStore
+from assetops_backend.mini_decisions_api import (
+    DecisionPrincipalResolver,
+    build_mini_decisions_router,
+    deny_decision_writes,
+    no_decision_principal,
+)
 from assetops_backend.claim_limit_api import build_claim_limit_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -196,6 +204,8 @@ def create_app(
     gateway_clock: Callable[[], datetime] | None = None,
     ev_access: EvCatalogAccess = development_access,
     ev_owner: EvCatalogOwner = no_owner_principal,
+    mini_decision_command_access: Access = deny_decision_writes,
+    mini_decision_principal: DecisionPrincipalResolver = no_decision_principal,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -452,6 +462,14 @@ def create_app(
     if mini_reads is not None:
         app.router.on_shutdown.append(mini_reads.dispose)
     app.include_router(build_mini_depth_router(mini_reads, registry))
+    # W4-03 unit 2b (closure 2 Q1, closure 4 B2): mini scenarios. Writes need the two explicit injections; the
+    # default composition refuses every write. Reads use the existing Site-scoped development access.
+    decision_store = PostgresMiniDecisionStore.from_url(database_url()) if mini_reads is not None else None
+    if decision_store is not None:
+        app.router.on_shutdown.append(decision_store.dispose)
+    app.include_router(build_mini_decisions_router(
+        None if decision_store is None or mini_reads is None else ScenarioService(decision_store, mini_reads),
+        registry, command_access=mini_decision_command_access, principal=mini_decision_principal))
     # S3-02a: selected-assessment capability and claim-limit read; same Performance gate, Finding access seam.
     app.include_router(build_claim_limit_router(
         build_claim_limit_read_service(database_url()) if database_url() else None, registry.ledger_scope,

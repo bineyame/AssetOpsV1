@@ -47,3 +47,19 @@ authored; the other three tables 0. `schedule_site_head` keeps 2 CHECKs at 0029 
 Question: is the count 45 (u2's 47/48 miscounted), or are three named CHECKs missing from 0030 (if so, which tables,
 columns and exact names)? Everything else in commit 1 passes: 11 collected, 10 passed, the only failure is
 `len(CHECKS) == 48` (actual 45). Commit 1 is on the branch with the ruled 48; unit 2b not started.
+
+## PR-4 (raised in unit 2b; does not block; provisional behaviour implemented)
+
+The spec rules the non-MINIGRID refusal only for physical reads (closure 4 S10: 200 UNKNOWN `SITE_ROLE_UNSUPPORTED`
+envelope). Unit 2b took these provisional readings for scenarios (`mini_decisions_api.py`); confirm or replace:
+1. `GET .../financials/scenarios` on a non-MINIGRID Site returns 200 with the `mini-scenarios-1` keys, `status`
+   UNKNOWN, zero rows, the empty UNKNOWN provenance alias, `selection_token: null`, plus a `limitations` key
+   `[{"code":"SITE_ROLE_UNSUPPORTED","evidence_ids":[]}]` (no store consulted).
+2. A scenario POST on a non-MINIGRID Site is 422 `DECISION_LINK_SCOPE_INVALID` after the write grant and store
+   check, before the principal and body.
+3. Read-gate limitation codes on a scenario row: the stored calculation `reason`, then `SELECTION_CHANGED` (pinned
+   revision is no longer the day's head), `RECOMPUTE_PENDING`, `SOURCE_STALE`, `SOURCE_CLASS_UNKNOWN|MIXED`
+   (W4-02 codes reused), as `{code, evidence_ids: []}`.
+4. `gross_sales.amount` is a JSON number on the read wire, like `energy_kwh` (stored as a decimal string).
+5. Scenario list `currentness` is the W4-02 aggregate over the union of pinned days; with no pinned day it is
+   `CURRENT` (or `HISTORICAL` for an explicit past cutoff) with `job_state: NONE`.

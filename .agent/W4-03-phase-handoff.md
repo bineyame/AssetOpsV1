@@ -105,4 +105,39 @@ PR-2 in `.agent/W4-03-pending-rulings.md` (plus three readings to confirm). Surv
   `len(CHECKS) == 48` (catalog has 45, matching the exact name array). w402+w401 migration: 16 passed.
 - **Blocked: PR-3** in `.agent/W4-03-pending-rulings.md` (CHECK count 45 vs ruled 48). Unit 2b not started.
 
-Next: PR-3 ruling, then unit 2b (anchors above; u2 readings confirmed), then unit 3.
+PR-3 resolved by u2b (45 is correct; commit d59fc8f1 changes only the test assertion).
+
+## Unit 2b (landed; commit after d59fc8f1)
+
+Spec: API/error table; closure 1 Q1-Q3/Q12-Q16; closure 2 Q1; closure 4 B1/B2/S5/S9/S10/S15/S20/N5-N8; u2; u2b.
+- `mini_depth/read.py`: S9 `MiniDepthRead.read_selected_renewable_basis(c, tenant_id, site_id, days, known,
+  historical)` (per-day seq/revision/decision/`opportunity_kwh`/digest/accepted IDs/state/job IDs, aggregate
+  currentness, `pending_job_ids`, `pending_evidence_ids`, three blocks), `provenance_blocks(...)`, module function
+  `renewable_revisions(c, t, s, ids)`. `_JOBS` now selects `j.id, j.status`; `_Hour.job_ids`. Correction to the 2b
+  survey anchor: the one-hour bound is `result["rows"][0]["opportunity_kwh"]`, not `result["hour"]`.
+- `mini_decisions/model.py`: `GRANT_PREFIX`, `DecisionPrincipal(kind,id,tenant_id,site_id,grant)`.
+- `mini_decisions/store.py`: `snapshot()` (read-only RR), `db_now`, `scenario_by_create_key`, `lock_scenario`
+  (FOR UPDATE), `scenario_revisions`, `scenario_heads` (head per root at cutoff; creation-time window).
+- `mini_decisions/scenarios.py`: `ScenarioService.create/correct/list`; `admit`, `authorize` (W4-01 `ATTESTATION`),
+  `parse_command`, `parse_pins`, `parse_list`, cursor encode/decode, token, per-row read gate.
+- `mini_decisions_api.py`: `build_mini_decisions_router` (GET/POST scenarios, POST revisions), `deny_decision_writes`,
+  `no_decision_principal`, `DecisionPrincipalResolver`. `main.py:create_app` gains `mini_decision_command_access`
+  and `mini_decision_principal`; router mounted after the mini-depth router.
+- Tests: `backend/tests/test_w403_scenarios_postgres.py` (5): create/correct/retry/409/conflict/404/422 and fresh-app
+  persisted read + historical narrative + default-composition 403; pin scope/basis/shape vectors (foreign, other
+  domain, seq mismatch, same-Site non-head, 0/5 pins, duplicate/gap/6, USER/attestation/basis/narrative bounds);
+  published (AUTHORED_DEMONSTRATION) pages/provenance union/own-row UNKNOWN withholding/stale-current vs historical;
+  router refusal order 401/403/404/503 and non-MINIGRID; principal scope before body.
+- Readings taken: PR-4 in `.agent/W4-03-pending-rulings.md` (provisional, non-blocking).
+- Open for later units: S9's "stale digest and pending newer evidence through both W4-02 and W4-03 reads at the
+  same cutoff" vector is not yet written (the code path is the shared `_hour`); the walkthrough tool (closure 2 Q1,
+  unit 9a) and N7 `currentness.windows[]` translation (unit 5) are not in 2b. `ScenarioService` has a
+  `test_read_clock_override` for lists only.
+
+## Checks (2b)
+- Private DB `w403d_test` (dropped afterwards). `test_w403_migration_postgres.py`: 11 passed (66 s) after the u2b fix.
+- `test_w403_scenarios_postgres.py` + `test_w402_reads_postgres.py` + `test_w402_reads.py` +
+  `test_w403_scenario_rules.py`: 61 passed (1020 s). No full suite run.
+- `check-all.ps1`: all 11 guards passed.
+
+Next: unit 3.

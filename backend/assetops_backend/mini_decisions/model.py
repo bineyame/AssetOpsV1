@@ -7,6 +7,9 @@ in `work/model.py`; this module does not remap them.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from uuid import UUID
+
 MESSAGES = {
     "UNAUTHENTICATED": "Sign in to read decisions.",
     "DECISION_WRITE_FORBIDDEN": "This actor cannot change decisions at this Site.",
@@ -49,3 +52,20 @@ class DecisionRefused(Exception):
 
 def invalid() -> DecisionRefused:
     return DecisionRefused("DECISION_INPUT_INVALID")
+
+
+#: Closure 1 Q1-Q3: the server-side W4-03 write grant prefix (`SITE_DECISION_WRITE:<principal id>`).
+GRANT_PREFIX = "SITE_DECISION_WRITE:"
+
+
+@dataclass(frozen=True)
+class DecisionPrincipal:
+    """Closure 2 Q1 / closure 4 N6: the server-derived W4-03 SERVICE principal, scoped to one tenant/Site.
+
+    Only a server-side injection (`create_app(mini_decision_principal=...)`) returns one; a request body never
+    installs or overrides it. W4-01's string `Principal` is a different type and never authorizes a decision."""
+    kind: str
+    id: str
+    tenant_id: UUID
+    site_id: UUID
+    grant: str
