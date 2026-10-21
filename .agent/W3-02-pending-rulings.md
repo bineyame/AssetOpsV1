@@ -205,3 +205,16 @@ consequence on 2026-10-06 or 2026-10-05..12, and no persisted W1 money seed exis
 shows three rows, so the measured register height is below a three-row baseline. Is a two-line, three-Site COMPLETE
 capture acceptable, or must Lane B/Lane A add a persisted W1 consequence seed (`test_s4_consequence_store_postgres.py`
 `PowerSite`) before review?
+
+## c4-q4 - Aggregation closed cap not met at readable prose size (Lane B, commit-4 fixes)
+Ruling c4 implemented (one closed `Disclosure` summary, `Results (3) · No comparable total`, 12/16 px, one line at
+390; accessible name `3 grouping results. Comparable total unavailable for this selection.`; no default no-total
+paragraph; list `max-height`/`overflow` removed). The summary meets its allowance: wrapper 22 px <= 24 at both widths.
+The closed panel does not meet 123/187 because the prose-only part already exceeds the mock's 99/163:
+| width | pad+border | h2 | header gap | prose (14 px, lh 23.1) | summary | closed panel (cap) | mock prose-only |
+| 1440 | 19+19+2 | 23 | 17 | 46 (2 lines) | 22 | **148 (123)** | 99 |
+| 390  | 19+19+2 | 23 | 17 | 92 (4 lines) | 22 | **194 (187)** | 163 |
+The mock prose is 12 px / lh 1.8 (1 line at 1440, 4 at 390); the app's 14 px prose is 2 lines at 1440. Same in
+stocked and partial captures. Opened: 275/398 (positive), 275/434 (partial 390); list scrollH = clientH; 3 groups,
+1 exclusion and the note visible; doc width = client. No type was shrunk and no prose line height changed (not ruled).
+Which applies: a revised Aggregation cap, a prose line-height/size change, or another placement?

@@ -670,3 +670,20 @@ Against `edcd8fce` and `.agent/W3-02-commit3-review.md`: **REVISE**. Close M1 an
 **c4-q2 — confirm registry and ledger.** `I-estate-money-root` has area `money` and requires `A-estate-index-scope` and `I-financial-read`. `globalfinancials:1` `Consequence register` and `globalfinancials:2` `Aggregation rule` each require `I-financial-read`, `I-estate-money-root` and `D-money-comparison`; keep status `gap` until independent review. The `globalfinancials` ledger stays `bounded`/W3-02 with product node `P-money-area`. Its `data_owner` literal is exactly `Estate Financials read — GET /api/estate/financials (backend/assetops_backend/estate/financials.py)`. None of these records asserts owner acceptance.
 
 **c4-q3 — accept the honest two-line capture.** The current capture seed produces selected cold `UNPRICED` and EV `ELIGIBLE` heads, but KOBO's S4 F01/F02 + S6 chain has no stored W1 consequence head in either captured window. Do not turn its Finding or the `NO_LINES` group into a register row, copy a consequence from another Site, or insert a priced head for a screenshot. Add capture/packet copy: `Three Sites are in scope; two have selected consequence lines. The mini-grid has no selected consequence revision for this window, so no mini-grid amount appears in the register.` Preserve the operating-cost `NO_LINES`/`UNKNOWN_COVERAGE` group and applicable pending note. Record that the two-row register height is **not** a three-row mock-density proof; the measured 293/448 px register maxima still apply, and its existing internal table scroll must show the full third row when a real selected W1 head exists. If a later stocked three-line capture is required, extend `.agent/W3-02-evidence/serve-financials.py` through the ordinary `backend/tests/test_s4_consequence_store_postgres.py:PowerSite` / `test_s4_consequence_recompute_postgres.py:Rig` producer pattern: publish a price for a real power-backed 2026-10-06 Finding, complete consequence work, and verify the exact selected head and source gate on that same authorized Site before capture. A separate PowerSite in the database does not make KOBO's missing head real and must not be labelled as KOBO.
+
+## Commit-4 rulings (c4b)
+
+**c4-q4 — match the mock prose and retain both caps.** The v6.9 `globalfinancials` Aggregation prose is `font-size: 12px; line-height: 1.8` (21.6 px), with this exact copy: `Aggregate distinct eligible consequence-line IDs by category, currency and compatible window. Reuse the exact site consequence revision; preserve exclusions and assumption references.` Keep it verbatim. This supersedes c4's 14 px minimum for this prose only; the closed summary remains at least 12 px with at least 16 px line height. Give the Aggregation panel a local class and apply exactly:
+
+```css
+.estate-financials__aggregation .panel__header {
+  margin-bottom: 15px;
+}
+.estate-financials__aggregation .estate-financials__aggregation-prose {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+```
+
+The 2 px local header-gap reduction accounts for the fractional 21.6 px line boxes while preserving the mock's font metrics and the existing 22 px closed summary. At the reported line counts, the predicted closed heights are 121.6 px at 1440 (one prose line) and 186.4 px at 390 (four lines); measured browser rectangles, not these predictions, decide acceptance. In the stocked and partial browser captures, assert at both widths `aggregationPanel.getBoundingClientRect().height <= (width === 1440 ? 123 : 187)`, the prose has the exact copy and computed `fontSize === "12px"` and `lineHeight === "21.6px"`, and the closed summary occupies one line at 390. Retain c4's expanded-content and no-horizontal-overflow assertions. If browser measurement still exceeds either cap, return the measured rectangles; do not increase the caps or clip content.
