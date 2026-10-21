@@ -9,7 +9,8 @@
   table-layout: fixed;
 }
 
-.mini-scenarios-table .data-table__scroll { max-height: calc(36px + 3 * 72px); overflow: auto; }
+/* W4-03 u9c: populated Scenarios table scrolls inside the 348/391 px panel caps. */
+.mini-scenarios-table .data-table__scroll { max-height: 144px; overflow: auto; }
 
 .mini-scenarios-table thead th {
   position: sticky;
@@ -108,6 +109,8 @@
 }
 
 @media (max-width: 600px) {
+  .mini-scenarios-table .data-table__scroll { max-height: 188px; overflow: auto; }
+
   .mini-scenarios-table .data-table {
     min-width: 720px;
   }

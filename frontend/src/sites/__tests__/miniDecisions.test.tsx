@@ -366,24 +366,42 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
   it("narrow_mock_panel_budgets", async () => {
     atWidth(390);
     try {
-      const rows = [1, 2, 3, 4].map((n) => row({ id: id(60 + n), revision_id: id(70 + n), code: `SCN-00000${n}` }));
+      // u9c: the captured populated read has two authored rows; both stay in the scroll box.
+      const rows = [1, 2].map((n) => row({ id: id(60 + n), revision_id: id(70 + n), code: `SCN-00000${n}` }));
       renderAt(`/sites/${CODE}/financials/scenarios`, [ok(list(rows))]);
       await settledScreen();
-      await waitFor(() => expect(cells()).toHaveLength(4));
+      await waitFor(() => expect(cells()).toHaveLength(2));
       // The grid scrolls inside its panel: the table sits in the shared scroll box under the scenarios wrapper.
       const scroll = document.querySelector(".mini-scenarios-table .data-table__scroll");
       expect(scroll?.querySelector("table")).not.toBeNull();
       expect(scroll?.closest(".panel")?.querySelector("h2")?.textContent).toBe("Financial scenarios");
-      // Mock budget at 390: min-width 720, sticky 144 px Scenario column, header plus three rows before scrolling.
-      // PR-12.1: the vertical cap and sticky header apply at every width, before the narrow media block.
-      expect(MINI_CSS).toContain(".mini-scenarios-table .data-table__scroll { max-height: calc(36px + 3 * 72px); overflow: auto; }");
+      // u9c: exactly 144 px at desktop (before the narrow block) and 188 px at <=600 px (inside it).
+      const narrow = MINI_CSS.indexOf("@media (max-width: 600px)");
+      const desktopRule = ".mini-scenarios-table .data-table__scroll { max-height: 144px; overflow: auto; }";
+      const narrowRule = "@media (max-width: 600px) { .mini-scenarios-table .data-table__scroll { max-height: 188px; overflow: auto; }";
+      expect(MINI_CSS).toContain(desktopRule);
+      expect(MINI_CSS.indexOf(desktopRule)).toBeLessThan(narrow);
+      expect(MINI_CSS).toContain(narrowRule);
+      expect(MINI_CSS).not.toContain("calc(36px + 3 * 72px)");
+      expect(MINI_CSS.match(/\.mini-scenarios-table \.data-table__scroll \{ max-height: [^;]+;/g)).toEqual([
+        ".mini-scenarios-table .data-table__scroll { max-height: 144px;",
+        ".mini-scenarios-table .data-table__scroll { max-height: 188px;",
+      ]);
+      // Sticky header at every width; 720 px grid and sticky 144 px Scenario column at 390.
       expect(MINI_CSS).toContain(".mini-scenarios-table thead th { position: sticky; top: 0;");
-      expect(MINI_CSS.indexOf("thead th { position: sticky")).toBeLessThan(MINI_CSS.indexOf("@media (max-width: 600px)"));
+      expect(MINI_CSS.indexOf("thead th { position: sticky")).toBeLessThan(narrow);
       expect(MINI_CSS).toContain("padding: 20px 20px;");
       expect(MINI_CSS).toContain(".mini-scenarios-table .data-table { min-width: 720px; }");
       expect(MINI_CSS).toContain(".mini-scenarios-table col:first-child { width: 144px !important; }");
       expect(MINI_CSS).toContain(".mini-scenarios-table td:first-child { position: sticky; left: 0;");
-      expect(document.querySelectorAll("[data-scenarios-table] tbody th[scope='row']")).toHaveLength(4);
+      // Two rows, the count and the exact-pin disclosure (closed, outside the table) all remain.
+      expect(document.querySelectorAll("[data-scenarios-table] tbody th[scope='row']")).toHaveLength(2);
+      expect(document.querySelector("[data-scenarios-count]")?.textContent).toBe("2 of 2");
+      expect(document.querySelectorAll("[data-scenario-pinned-count]")).toHaveLength(2);
+      expect(document.querySelectorAll("button[data-scenario-inspect]")).toHaveLength(2);
+      const disclosure = document.getElementById("mini-scenarios-pinned");
+      expect(disclosure?.hidden).toBe(true);
+      expect(disclosure?.closest("table")).toBeNull();
     } finally {
       atWidth(1024);
     }

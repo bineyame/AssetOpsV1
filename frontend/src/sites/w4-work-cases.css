@@ -130,8 +130,8 @@
     overflow-x: auto;
   }
 
-  /* W4-03 PR-12.3: the stocked Incident table scrolls vertically inside the 460 px panel cap. */
-  .work-cases [data-work-table="incidents"] .data-table__scroll { max-height: 240px; overflow: auto; }
+  /* W4-03 PR-12.3/u9c: the stocked Incident table scrolls vertically inside the 460 px panel cap. */
+  .work-cases [data-work-table="incidents"] .data-table__scroll { max-height: 224px; overflow: auto; }
 
   .work-cases .work-cases-table .work-cases-first,
   .work-cases .work-cases-table th:first-child {

@@ -665,9 +665,12 @@ describe("W4-03 unit 8: Site Work decision context", () => {
     cleanup();
 
     // A scoped 503 on the overlay leaves the W4-01 list intact: same rows, same count, literal copy, no prefix.
+    // u9c: the refused state is the captured five-row stocked list.
+    const five = [rows[0], ...[2, 3, 4, 5].map((n) => incidentRow(n))];
+    const fiveIds = five.map((r) => r.case_id);
     serve({
-      [api("incidents", DAY)]: { status: 200, body: body(rows, { total_count: 2 }) },
-      [contextsPath(ids)]: { status: 503, body: { detail: { code: "SERVICE_UNAVAILABLE", message: "x" } } },
+      [api("incidents", DAY)]: { status: 200, body: body(five, { total_count: 5 }) },
+      [contextsPath(fiveIds)]: { status: 503, body: { detail: { code: "SERVICE_UNAVAILABLE", message: "x" } } },
     });
     mount(page("incidents", DAY));
     await settledScreen();
@@ -681,16 +684,21 @@ describe("W4-03 unit 8: Site Work decision context", () => {
     const panelLine = refused.querySelector("[data-work-decision-context='unavailable']") as HTMLElement;
     expect(text(panelLine)).toBe("Decision context unavailable");
     expect(panelLine.closest("table")).toBeNull();
-    expect(panelLine.getAttribute("data-work-decision-context-scope")).toBe(ids.join(" "));
+    expect(panelLine.getAttribute("data-work-decision-context-scope")).toBe(fiveIds.join(" "));
     expect(refused.querySelectorAll("table [data-work-decision-context]")).toHaveLength(0); // no row-level copy
     expect(refused.textContent).not.toContain("Decision context:"); // no positive context
     expect(refused.textContent?.split("Decision context unavailable")).toHaveLength(2);
     // The canonical Finding link in the linked row is intact.
     expect(refused.querySelector(`[data-work-row="${ids[0]}"] [data-work-finding-link]`)).not.toBeNull();
-    expect(refused.querySelectorAll("[data-work-row]")).toHaveLength(2);
-    // The 390 px Incident table scrolls vertically inside the 460 px panel cap.
-    expect(WORK_CSS).toContain('.work-cases [data-work-table="incidents"] .data-table__scroll { max-height: 240px; overflow: auto; }');
-    expect(text(strip())).toContain("Scoped to Kobo · 2 incidents");
+    expect(refused.querySelectorAll("[data-work-row]")).toHaveLength(5);
+    expect(refused.querySelectorAll("[data-work-finding-link]").length).toBeGreaterThan(0);
+    // u9c: at <=760 px the Incident table scrolls vertically at exactly 224 px inside the 460 px panel cap.
+    const narrow = WORK_CSS.indexOf("@media (max-width: 760px)");
+    const rule = '.work-cases [data-work-table="incidents"] .data-table__scroll { max-height: 224px; overflow: auto; }';
+    expect(WORK_CSS).toContain(rule);
+    expect(WORK_CSS.indexOf(rule)).toBeGreaterThan(narrow);
+    expect(WORK_CSS).not.toContain("max-height: 240px");
+    expect(text(strip())).toContain("Scoped to Kobo · 5 incidents");
   });
 
   it("unverified_maintenance_and_unavailable_destinations", async () => {
