@@ -340,3 +340,12 @@ Checks: all `test_w302_*` + `test_w301_w1_money_snapshot_helpers_postgres.py` on
 Commit `6f065647` (after merging main). Fixture `backend/tests/fixtures/w3/scenarios/ev-complete-lab-002.yaml`; `Chain.open(..., scenarios=, scenario_id=)` and `ev_request(..., scenario_id=)` (`test_w205b_ev_replay_postgres.py`), defaults unchanged; `second_scenario_repository` + drift test `test_w302_second_ev_scenario_differs_from_shipped_only_in_three_fields` (mutation failed, reverted) in `test_w302_money_comparability_postgres.py`.
 Checks: all `test_w302_*` on `w302r_test`: 112 passed, 2 skipped (the two-Site tests), 9m39s; DB dropped. check-all 11/11. Branch released.
 Not done: both two-Site tests keep `blocked_c3q3` - Lane A's c3b `ev_parsing.py` change is not on the branch, so the fixture is refused at parse (`site_code must be 'EV-LAB-001'`). See pending ruling c3b-q1. Next: Lane A parser item, then Lane B removes the skip and runs the two tests.
+
+## Commit 3 Lane A c3b parser item - READY FOR REVIEW (COMPARABLE test held at c3b-q2)
+
+`ev_parsing.py`: `(EV-LAB-002, 20518)` admitted only for `ev-complete-lab-002` (`EV_SECOND_*` constants); the definition
+carries the validated Site/seed. Parser test `test_the_second_site_pair_parses_only_for_its_one_scenario_id` (pair
+accepted for that ID, refused for other IDs and for mismatched Site/seed). `blocked_c3q3` removed;
+`second_scenario_repository` composes the store like production (c3b-q2 item 1). Different-currency test passes;
+the COMPARABLE test has a `c3b-q2` skip on its live-read token assertion (item 2, needs a ruling). c3b-q1 resolved.
+Checks: see the commit message. Branch released.
