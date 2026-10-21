@@ -139,16 +139,21 @@ class PostgresMiniDecisionStore:
     # --- service relationship checks -------------------------------------------------------------------------
 
     @staticmethod
-    def _check_job(c: Connection, tenant_id: UUID, site_id: UUID, job_id: UUID | None, *, backfill: bool) -> None:
+    def _check_job(c: Connection, tenant_id: UUID, site_id: UUID, job_id: UUID | None, *, backfill: bool,
+                   study_window: tuple[Any, Any] | None = None) -> None:
+        """S3 plus u3 unit-4 dry-read: the job names this tenant, Site and domain and, when the caller passes the
+        study's Site-local midnight bounds, exactly that five-day window."""
         if job_id is None:
             if not backfill:
                 raise MiniDecisionWriteRefused("A null opportunity job is allowed only for a named backfill")
             return
-        job = c.execute(text("SELECT tenant_id, site_id, domain FROM recompute_job WHERE id = :j FOR SHARE"),
-                        {"j": job_id}).one_or_none()
+        job = c.execute(text("SELECT tenant_id, site_id, domain, window_start, window_end FROM recompute_job "
+                             "WHERE id = :j FOR SHARE"), {"j": job_id}).one_or_none()
         if job is None or (job.tenant_id, job.site_id, job.domain) != (tenant_id, site_id, OPPORTUNITY_JOB_DOMAIN):
             raise MiniDecisionWriteRefused(
                 f"Recompute job {job_id} does not match this tenant, Site and {OPPORTUNITY_JOB_DOMAIN} domain")
+        if study_window is not None and (job.window_start, job.window_end) != tuple(study_window):
+            raise MiniDecisionWriteRefused(f"Recompute job {job_id} does not cover exactly this five-day study")
 
     # --- inserts ----------------------------------------------------------------------------------------------
 
@@ -178,8 +183,10 @@ class PostgresMiniDecisionStore:
     def insert_opportunity(self, c: Connection, row: Mapping[str, Any]) -> int:
         return self._one(c, _INSERT_OPPORTUNITY, row)
 
-    def insert_opportunity_revision(self, c: Connection, row: Mapping[str, Any], *, backfill: bool = False) -> None:
-        self._check_job(c, row["tenant_id"], row["site_id"], row.get("source_job_id"), backfill=backfill)
+    def insert_opportunity_revision(self, c: Connection, row: Mapping[str, Any], *, backfill: bool = False,
+                                    study_window: tuple[Any, Any] | None = None) -> None:
+        self._check_job(c, row["tenant_id"], row["site_id"], row.get("source_job_id"), backfill=backfill,
+                        study_window=study_window)
         values = dict(row)
         values.setdefault("source_job_id", None)
         values["selected_hours"] = _json(values["selected_hours"])
@@ -189,8 +196,10 @@ class PostgresMiniDecisionStore:
     def insert_opportunity_evidence(self, c: Connection, row: Mapping[str, Any]) -> None:
         c.execute(text(_INSERT_OPPORTUNITY_EVIDENCE), dict(row))
 
-    def insert_opportunity_selection(self, c: Connection, row: Mapping[str, Any], *, backfill: bool = False) -> int:
-        self._check_job(c, row["tenant_id"], row["site_id"], row.get("job_id"), backfill=backfill)
+    def insert_opportunity_selection(self, c: Connection, row: Mapping[str, Any], *, backfill: bool = False,
+                                     study_window: tuple[Any, Any] | None = None) -> int:
+        self._check_job(c, row["tenant_id"], row["site_id"], row.get("job_id"), backfill=backfill,
+                        study_window=study_window)
         owner = c.execute(text("SELECT opportunity_id FROM mini_opportunity_revision WHERE tenant_id = :t "
                                "AND site_id = :s AND id = :r"),
                           {"t": row["tenant_id"], "s": row["site_id"], "r": row["revision_id"]}).scalar()
@@ -327,12 +336,14 @@ class PostgresMiniDecisionStore:
     @staticmethod
     def renewable_noon_heads(c: Connection, tenant_id: UUID, site_id: UUID, starts: list[Any]) -> list[Any]:
         """Each named noon's latest renewable head: `(window_start, seq, selected_at, revision id, input digest,
-        decision, sorted accepted IDs)`; a noon with no selection is absent."""
+        decision, sorted accepted IDs, selection window_end, revision window_start and window_end, revision result)`;
+        a noon with no selection is absent."""
         return c.execute(text(
             "SELECT DISTINCT ON (s.window_start) s.window_start, s.seq, s.selected_at, r.id::text, r.input_sha256, "
             "r.result->'hour'->>'decision', COALESCE((SELECT array_agg(v.evidence_id::text "
             "ORDER BY v.evidence_id::text) FROM mini_depth_revision_evidence v WHERE v.tenant_id = r.tenant_id "
-            "AND v.site_id = r.site_id AND v.revision_id = r.id), '{}') "
+            "AND v.site_id = r.site_id AND v.revision_id = r.id), '{}'), s.window_end, r.window_start, "
+            "r.window_end, r.result "
             "FROM mini_depth_selection s JOIN mini_depth_revision r ON r.tenant_id = s.tenant_id "
             "AND r.site_id = s.site_id AND r.id = s.revision_id "
             "WHERE s.tenant_id = :t AND s.site_id = :s AND s.domain = 'renewable' AND r.domain = 'renewable' "
@@ -351,6 +362,44 @@ class PostgresMiniDecisionStore:
             "AND r.id = x.revision_id WHERE o.tenant_id = :t AND o.site_id = :s AND o.first_day = :f "
             "AND o.last_day = :l AND o.model_version = :v ORDER BY x.selected_at DESC, x.seq DESC LIMIT 1"),
             {"t": tenant_id, "s": site_id, "f": first_day, "l": last_day, "v": OPPORTUNITY_MODEL_VERSION}).scalar()
+
+    @staticmethod
+    def lock_study(c: Connection, tenant_id: UUID, site_id: UUID, first_day: Any, last_day: Any) -> None:
+        """Closure 2 Q4's study-key advisory lock, so two projections of one study serialize."""
+        c.execute(text(
+            "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:t AS text) || ':' || CAST(:s AS text) || "
+            "':mini_opportunity:' || CAST(:f AS text) || ':' || CAST(:l AS text), 0))"),
+            {"t": tenant_id, "s": site_id, "f": first_day, "l": last_day})
+
+    @staticmethod
+    def site_timezone(c: Connection, tenant_id: UUID, site_id: UUID) -> Any:
+        """The Site's row `(timezone,)`, or None for an unknown Site."""
+        return c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
+                         {"t": tenant_id, "s": site_id}).one_or_none()
+
+    @staticmethod
+    def opportunity_root(c: Connection, tenant_id: UUID, site_id: UUID, first_day: Any, last_day: Any) -> Any:
+        """The study's `mini-opportunity/1` root ID, or None."""
+        return c.execute(text(
+            "SELECT id FROM mini_opportunity WHERE tenant_id = :t AND site_id = :s AND first_day = :f "
+            "AND last_day = :l AND model_version = :v"),
+            {"t": tenant_id, "s": site_id, "f": first_day, "l": last_day, "v": OPPORTUNITY_MODEL_VERSION}).scalar()
+
+    @staticmethod
+    def opportunity_state(c: Connection, tenant_id: UUID, site_id: UUID, opportunity_id: Any,
+                          input_sha256: str) -> tuple[Any, Any, int]:
+        """`(revision ID with this input digest or None, head revision ID or None, greatest revision_no or 0)`."""
+        params = {"t": tenant_id, "s": site_id, "o": opportunity_id, "h": input_sha256}
+        same = c.execute(text(
+            "SELECT id FROM mini_opportunity_revision WHERE tenant_id = :t AND site_id = :s "
+            "AND opportunity_id = :o AND input_sha256 = :h"), params).scalar()
+        head = c.execute(text(
+            "SELECT revision_id FROM mini_opportunity_selection WHERE tenant_id = :t AND site_id = :s "
+            "AND opportunity_id = :o ORDER BY selected_at DESC, seq DESC LIMIT 1"), params).scalar()
+        top = c.execute(text(
+            "SELECT COALESCE(max(revision_no), 0) FROM mini_opportunity_revision WHERE tenant_id = :t "
+            "AND site_id = :s AND opportunity_id = :o"), params).scalar_one()
+        return same, head, int(top)
 
     @staticmethod
     def sites_by_code(c: Connection, site_code: str) -> list[Any]:
