@@ -120,3 +120,11 @@ The packet's own run reports `check-all` 11/11 and the overview-basis tests pass
 
 - Any non-test DB already migrated to the earlier 0029 lacks `site_cutover_basis`.
 - The Overview mini cards fix `known_at` when the reads start, so each re-render can produce a different cutoff (low impact).
+
+## Backend infra fork result (reviewer sub-review, merged by coordinator)
+Checks: 61 focused tests passed (0 skipped); check-all 11/11. Verified: single head, spec DDL, the q7 CHECK and counters, downgrade order, the enqueue gate and recheck, the sole INSERT-only writer with probes, the worker cutoff and settle, q8 scheduling, and non-vacuity.
+- **B-M1 (Medium):** the 0029 downgrade drops the q12-6 `site_cutover_basis` table (0029:342) without locking it or refusing when rows exist (0029:303-315). That contradicts "no cascade, no deletion". It is also untested, because the catalog test covers only the mini tables. Fix: lock it and refuse when rows exist, and add it to the catalog and downgrade tests.
+- **B-L1:** `site_cutover_basis` has no writer rule or probe in `configuration-persistence.ps1`. Fix: sole writer `postgres_foundation_store.py`, INSERT-only, with probes.
+- **B-L2:** `record_no_legacy_evidence_basis` (`postgres_foundation_store.py:231`) is unconditional, and the test for the legacy-import 409 case uses `legacy_documents=()`. Fix: guard the caller, and use real legacy documents in the 409 test.
+- **B-L3:** the 0029 docstring catalog is stale.
+- **B-L4:** the spec-named `test_w402_api.py` and `test_missing_assessment_unknown_body` do not exist. Coverage is in `test_w402_reads.py`; confirm whether anything is missing.
