@@ -218,3 +218,37 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
 3. **Missing branch window.** Built: the W4-02 `missing-conflicting` variant (12 Oct) is published and ingested, the
    8-12 Oct days reconciled, and a second explicit reconcile `[2026-10-07T21Z, 2026-10-12T21Z)` run; the 8-12 Oct study
    is asserted not SUPPORTED. The ruled 6-10 Oct reconcile is unchanged. Confirm the second window.
+
+## PR-12 (raised in unit 9b) - OPEN: capture defects and unproducible states
+
+Evidence: `var/w403p/capture/evidence.json` (265 checks, 240 pass), `<state>-<width>-app.png`, `<screen>-<width>-mock.png`,
+`mock-measure/mock-measure.json` (`tools/measure-mock-panels.mjs`). Panel sets and order match the mock on every produced
+state (Scenarios, Opportunity, both Work screens); no missing or extra panel was observed. Heights over the u9 caps:
+
+1. **Scenarios titled panel over cap.** Populated 645 (1440) / 436 (390) vs 348 / 391 (mock 316 / 355): each row lists
+   its five pinned mini revision UUIDs in full in Physical basis (~213 px a row), and the header-plus-three-rows inner
+   scroll applies only at <=600 px. Successful empty 450 / 490: the empty block carries the closure copy (three
+   sentences plus the explicit no-what-if line) the unit-6a tests pin. Refused 160 is within cap. A fix needs a
+   ruling on how pins are shown (count plus disclosure, abbreviated IDs, or an inner scroll cap at 1440 as well) and
+   whether the empty copy may shorten. Which?
+2. **Opportunity cards over cap.** 162 (1440) vs 137; 350 / 338 / 322 (390) vs 273 (mock 113 / 248-264). Text-valued
+   cards ("Withheld pending evidence", "No load proposed", "Not established") wrap to two lines at the card value
+   size. Options: a smaller value size for text values, shorter value copy, or a raised cap. Which?
+3. **Incidents panel at 390 over cap with the W4-03 overlay.** Linked/stocked five rows 482 vs 460; refused overlay
+   571 vs 460 (each row gains a `Decision context unavailable` line under Linked findings). 1440 is within cap
+   (425 / 447 <= 460); Maintenance is within cap at both widths. Options: keep the overlay line in the cell and raise
+   the 390 cap for overlay states, or show the refusal once for the panel instead of per row. Which?
+4. **Alternatives capture blocked by the walkthrough environment (unproved at both widths).** The frame renders
+   `Site unavailable`: `GET /api/sites/KOBO-001` is 503 `SITE_STORE_UNAVAILABLE` because this worktree's local,
+   git-ignored `var/sites/kobo-001.yaml` differs from the document hash the S4 `CaseRunner` import recorded; and the
+   W1 Finding read for KOBO is 409 `PERFORMANCE_CUTOVER_CLOSED` because `run_replay` runs the Performance comparison
+   only for MG-W402-001. The Alternatives GET itself answers 404 `DECISION_NOT_FOUND` at current DB time. Should the
+   tool (a) also run the Performance comparison for KOBO-001 and (b) serve with a private site-document root (or the
+   CaseRunner's own document), or is the Alternatives screen evidence the component tests only?
+5. **Opportunity SUPPORTED/CURRENT is not producible after replay.** The late variant's fixed 13 Oct receipt is
+   visible at every cutoff (PR-11.2), so after `replay` no read of the 6-10 Oct study is SUPPORTED with CURRENT.
+   Also the detail route carries no `known_at`, so the `k_before_late` capture uses a named harness rule that appends
+   `known_at=<k_before_late>` to the exact detail GET (recorded per state in `evidence.json.app[].harness`; the body
+   is the real backend's). The current read now shows `Source changed since selection` (the missing branch publishes
+   after the late rerun). Options: split `replay` so `capture` can run between the positive and late branches, or
+   accept stale/limited states as the Opportunity evidence. And is the harness `known_at` rewrite acceptable?
