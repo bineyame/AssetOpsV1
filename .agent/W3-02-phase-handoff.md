@@ -1,5 +1,26 @@
 # W3-02 phase handoff
 
+## Commit 3 (Lane B) - Financials read/API built; HELD at closure 2 N3 (c3-q1)
+
+Merge of main (`.agent` W3-02 handoff/rulings kept ours); build commit `54625bdc`. Branch released.
+
+- `backend/assetops_backend/estate/financials.py` (pure): `financials_body` (scope/fence/cursor/envelope reuse),
+  `mini_grid_lines` (W1 `select_consequence_on` + `MoneyEligibility` + consequence provenance), `windowed_lines` (cold
+  `money_on` both kinds, EV `money_on`; transient `STALE_BASIS` guard never a line), `decide` (Q6-Q7 order), `compare`
+  (partitions, Q19 precedence, C1 coverage, NO_LINES sentinel, CONFLICT, exclusions, diagnostics), `assumption_fingerprint`.
+  Estate basis alone gives HISTORICAL (c1-q1); EV `historical_label` ignored.
+- `evidence_money.py`: `group_key_for_partition` (six-field amendment) and `EstateEvidenceService.financials`.
+- `postgres_evidence_money_read.py`: `cold_money` (W3-01 `_cold_window` Findings -> `money_on`), `ev_money`.
+- `estate_evidence_money_api.py`: `/api/estate/financials`, refusal extras `groups/exclusions/diagnostics:null`.
+- Tests: `test_w302_money_api.py` (7 pure), `test_w302_money_comparability_postgres.py` (group key, unknown coverage
+  over NO_LINES - pure; `test_w302_money_persisted_ev_single_site_line` - real replay/tariff/worker). 3 passed on
+  private `w302o_test` (dropped); adjacent evidence/cursor/W3-01 API/EV Postgres 63 passed; check-all 11/11.
+  Non-vacuous: disabling the overlap rule fails `test_w302_money_overlap_by_group_ids_and_citations` (reverted).
+- STOP (N3): no second EV Site via reviewed producers (EV-LAB-001 only; fresh DB per chain). The two-Site COMPARABLE
+  and different-currency persisted tests are not built. Architect question c3-q1; interpretations c3-q2.
+- Lane A: `main.py` needs no change (route rides the mounted router); verify mount + no-DB 503 test
+  (`.agent/W3-02-lane-a-requests.md` "Commit 3"). Review commit 3 only after c3-q1 is ruled and its fixture lands.
+
 ## Commit 2 (Lane B c2c finish) - COMMIT 2 READY FOR REVIEW
 
 Merge of main `13392743` (`.agent/W3-02-pending-rulings.md` kept ours); build commit `93b065e8`. Branch released.
