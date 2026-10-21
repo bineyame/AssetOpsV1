@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from assetops_backend.financials.adapters.postgres_assumption_store import (
     AssumptionStoreUnavailable,
     PostgresAssumptionStore,
@@ -92,6 +94,13 @@ def build_ev_consequence_store(database_url: str | None) -> PostgresConsequenceS
 
 def build_ev_consequence_worker(database_url: str | None) -> EvConsequenceWorker:
     return EvConsequenceWorker(build_ev_consequence_store(database_url), CONSEQUENCE_UNAVAILABLE)
+
+
+def build_ev_money_reads(link_rows: Any):
+    """W3-02 0c: the SELECT-only EV money reads over a caller's link-row reader (the estate owner's connection)."""
+    from assetops_backend.financials.adapters.postgres_consequence_store import EvMoneyReads
+
+    return EvMoneyReads(link_rows)
 
 
 def build_ev_site_read_service(database_url: str):

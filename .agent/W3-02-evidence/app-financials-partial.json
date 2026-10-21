@@ -1,0 +1,273 @@
+{
+  "state": "partial",
+  "captured_at": "2026-10-21T10:03:20.669Z",
+  "limitation": "Three Sites are in scope; two have selected consequence lines. The mini-grid has no selected consequence revision for this window, so no mini-grid amount appears in the register. The two-row register height is not a three-row mock-density proof; the 293/448 px register maxima still apply.",
+  "results": [
+    {
+      "width": 1440,
+      "app_url": "http://localhost:5299/financials?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "image": "financials-partial-1440-app.png",
+      "ready": true,
+      "maxima": {
+        "status": 68,
+        "register": 293,
+        "notice": 66,
+        "aggregation": 123
+      },
+      "over": [],
+      "h1": "Portfolio financials",
+      "eyebrow": "Financials",
+      "main": "Financials",
+      "railCurrent": "Financials",
+      "pieces": {
+        "status": {
+          "top": 201,
+          "h": 46,
+          "w": 1160
+        },
+        "register": {
+          "top": 265,
+          "h": 280,
+          "w": 1160
+        },
+        "notice": {
+          "top": 563,
+          "h": 43,
+          "w": 1160
+        },
+        "aggregation": {
+          "top": 623,
+          "h": 121,
+          "w": 1160
+        }
+      },
+      "registerTable": {
+        "client": 1120,
+        "scroll": 1120,
+        "clientH": 154,
+        "scrollH": 154,
+        "rows": 2,
+        "maxH": "176px",
+        "headH": 30,
+        "rowHs": [
+          62,
+          62
+        ]
+      },
+      "results": {
+        "clientH": 76,
+        "scrollH": 76,
+        "items": 3
+      },
+      "panelTitles": [
+        "Consequence register",
+        "Aggregation rule"
+      ],
+      "notes": [
+        "Some Sites are still being assessed",
+        "The prior mini-grid amount is unavailable in this selection",
+        "Comparable total unavailable for this selection"
+      ],
+      "groupStates": [
+        "Single line",
+        "Not totalled",
+        "Coverage incomplete"
+      ],
+      "docScrollW": 1440,
+      "docClientW": 1440,
+      "refusal": null,
+      "aggSummary": {
+        "open": false,
+        "text": "Results (3) · No comparable total",
+        "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
+        "h": 16,
+        "fontSize": "12px",
+        "lineHeight": "16px",
+        "lines": 1,
+        "wrapperH": 22
+      },
+      "aggParts": {
+        "pad": "19px/19px",
+        "header": 23,
+        "headerMb": "15px",
+        "prose": 22,
+        "proseLh": "21.6px",
+        "proseFs": "12px"
+      },
+      "proseFont": "12px",
+      "reach": {
+        "groups": 3,
+        "diagnostics": 0,
+        "exclusions": 1,
+        "visible": 0,
+        "chipFont": "12px/nowrap"
+      },
+      "height": 1000,
+      "opened": {
+        "image": "financials-partial-1440-open-app.png",
+        "aggregation": {
+          "top": 623,
+          "h": 248,
+          "w": 1160
+        },
+        "results": {
+          "clientH": 95,
+          "scrollH": 95,
+          "items": 3
+        },
+        "aggSummary": {
+          "open": true,
+          "text": "Results (3) · No comparable total",
+          "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
+          "h": 16,
+          "fontSize": "12px",
+          "lineHeight": "16px",
+          "lines": 1,
+          "wrapperH": 149
+        },
+        "reach": {
+          "groups": 3,
+          "diagnostics": 0,
+          "exclusions": 1,
+          "visible": 5,
+          "chipFont": "12px/nowrap"
+        },
+        "docScrollW": 1440,
+        "docClientW": 1440
+      }
+    },
+    {
+      "width": 390,
+      "app_url": "http://localhost:5299/financials?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "image": "financials-partial-390-app.png",
+      "ready": true,
+      "maxima": {
+        "status": 95,
+        "register": 448,
+        "notice": 102,
+        "aggregation": 187
+      },
+      "over": [],
+      "h1": "Portfolio financials",
+      "eyebrow": "Financials",
+      "main": "Financials",
+      "railCurrent": "Financials",
+      "pieces": {
+        "status": {
+          "top": 390,
+          "h": 69,
+          "w": 358
+        },
+        "register": {
+          "top": 476,
+          "h": 332,
+          "w": 358
+        },
+        "notice": {
+          "top": 826,
+          "h": 61,
+          "w": 358
+        },
+        "aggregation": {
+          "top": 905,
+          "h": 186,
+          "w": 358
+        }
+      },
+      "registerTable": {
+        "client": 318,
+        "scroll": 800,
+        "clientH": 185,
+        "scrollH": 185,
+        "rows": 2,
+        "maxH": "300px",
+        "headH": 30,
+        "rowHs": [
+          78,
+          78
+        ]
+      },
+      "results": {
+        "clientH": 150,
+        "scrollH": 150,
+        "items": 3
+      },
+      "panelTitles": [
+        "Consequence register",
+        "Aggregation rule"
+      ],
+      "notes": [
+        "Some Sites are still being assessed",
+        "The prior mini-grid amount is unavailable in this selection",
+        "Comparable total unavailable for this selection"
+      ],
+      "groupStates": [
+        "Single line",
+        "Not totalled",
+        "Coverage incomplete"
+      ],
+      "docScrollW": 390,
+      "docClientW": 390,
+      "refusal": null,
+      "aggSummary": {
+        "open": false,
+        "text": "Results (3) · No comparable total",
+        "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
+        "h": 16,
+        "fontSize": "12px",
+        "lineHeight": "16px",
+        "lines": 1,
+        "wrapperH": 22
+      },
+      "aggParts": {
+        "pad": "19px/19px",
+        "header": 23,
+        "headerMb": "15px",
+        "prose": 86,
+        "proseLh": "21.6px",
+        "proseFs": "12px"
+      },
+      "proseFont": "12px",
+      "reach": {
+        "groups": 3,
+        "diagnostics": 0,
+        "exclusions": 1,
+        "visible": 0,
+        "chipFont": "12px/nowrap"
+      },
+      "height": 1133,
+      "opened": {
+        "image": "financials-partial-390-open-app.png",
+        "aggregation": {
+          "top": 905,
+          "h": 426,
+          "w": 358
+        },
+        "results": {
+          "clientH": 208,
+          "scrollH": 208,
+          "items": 3
+        },
+        "aggSummary": {
+          "open": true,
+          "text": "Results (3) · No comparable total",
+          "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
+          "h": 16,
+          "fontSize": "12px",
+          "lineHeight": "16px",
+          "lines": 1,
+          "wrapperH": 262
+        },
+        "reach": {
+          "groups": 3,
+          "diagnostics": 0,
+          "exclusions": 1,
+          "visible": 5,
+          "chipFont": "12px/nowrap"
+        },
+        "docScrollW": 390,
+        "docClientW": 390
+      }
+    }
+  ]
+}

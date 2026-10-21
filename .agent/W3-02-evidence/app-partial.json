@@ -1,0 +1,192 @@
+{
+  "state": "partial",
+  "captured_at": "2026-10-21T03:14:15.681Z",
+  "results": [
+    {
+      "width": 1440,
+      "app_url": "http://localhost:5299/evidence?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "image": "evidence-partial-1440-app.png",
+      "ready": true,
+      "maxima": {
+        "cards": 137,
+        "coverage": 314,
+        "gaps": 316,
+        "notice": 66
+      },
+      "over": [],
+      "h1": "Portfolio evidence",
+      "eyebrow": {
+        "text": "Evidence",
+        "shown": "Evidence",
+        "box": {
+          "top": 24,
+          "h": 15,
+          "w": 379
+        },
+        "h1": {
+          "top": 43,
+          "h": 34,
+          "w": 220
+        },
+        "subtitle": {
+          "top": 84,
+          "h": 18,
+          "w": 379
+        },
+        "sameHeader": true,
+        "fontSize": "10px",
+        "color": "rgb(107, 118, 144)",
+        "transform": "none"
+      },
+      "main": "Evidence",
+      "railCurrent": "Evidence",
+      "pieces": {
+        "cards": {
+          "top": 201,
+          "h": 108,
+          "w": 1160
+        },
+        "coverage": {
+          "top": 327,
+          "h": 302,
+          "w": 1160
+        },
+        "gaps": {
+          "top": 647,
+          "h": 183,
+          "w": 1160
+        },
+        "notice": {
+          "top": 848,
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "cardTops": [
+        201,
+        201,
+        201
+      ],
+      "cards": [
+        "Sites with limited claimsNot assessedSome Site evidence is unavailable",
+        "Priority evidence actionsNot assessedPriority is not recorded for estate evidence gaps",
+        "Unsupported claimsNot assessedNo cross-domain unsupported-claim count is recorded"
+      ],
+      "coverageTable": {
+        "client": 1105,
+        "scroll": 1105,
+        "clientH": 176,
+        "scrollH": 815,
+        "rows": 15
+      },
+      "gapsTable": {
+        "client": 1120,
+        "scroll": 1120,
+        "clientH": 75,
+        "scrollH": 75,
+        "rows": 1
+      },
+      "panelTitles": [
+        "Capability coverage across sites",
+        "Recurring evidence gaps"
+      ],
+      "docScrollW": 1440,
+      "docClientW": 1440,
+      "refusal": null,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "app_url": "http://localhost:5299/evidence?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "image": "evidence-partial-390-app.png",
+      "ready": true,
+      "maxima": {
+        "cards": 291,
+        "coverage": 468,
+        "gaps": 703,
+        "notice": 102
+      },
+      "over": [],
+      "h1": "Portfolio evidence",
+      "eyebrow": {
+        "text": "Evidence",
+        "shown": "Evidence",
+        "box": {
+          "top": 108,
+          "h": 15,
+          "w": 358
+        },
+        "h1": {
+          "top": 127,
+          "h": 29,
+          "w": 186
+        },
+        "subtitle": {
+          "top": 162,
+          "h": 36,
+          "w": 358
+        },
+        "sameHeader": true,
+        "fontSize": "10px",
+        "color": "rgb(107, 118, 144)",
+        "transform": "none"
+      },
+      "main": "Evidence",
+      "railCurrent": "Evidence",
+      "pieces": {
+        "cards": {
+          "top": 390,
+          "h": 277,
+          "w": 358
+        },
+        "coverage": {
+          "top": 685,
+          "h": 445,
+          "w": 358
+        },
+        "gaps": {
+          "top": 1147,
+          "h": 350,
+          "w": 358
+        },
+        "notice": {
+          "top": 1516,
+          "h": 80,
+          "w": 358
+        }
+      },
+      "cardTops": [
+        390,
+        390,
+        527
+      ],
+      "cards": [
+        "Sites with limited claimsNot assessedSome Site evidence is unavailable",
+        "Priority evidence actionsNot assessedPriority is not recorded for estate evidence gaps",
+        "Unsupported claimsNot assessedNo cross-domain unsupported-claim count is recorded"
+      ],
+      "coverageTable": {
+        "client": 318,
+        "scroll": 520,
+        "clientH": 300,
+        "scrollH": 1854,
+        "rows": 15
+      },
+      "gapsTable": {
+        "client": 318,
+        "scroll": 330,
+        "clientH": 183,
+        "scrollH": 183,
+        "rows": 1
+      },
+      "panelTitles": [
+        "Capability coverage across sites",
+        "Recurring evidence gaps"
+      ],
+      "docScrollW": 390,
+      "docClientW": 390,
+      "refusal": null,
+      "height": 1638
+    }
+  ]
+}

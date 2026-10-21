@@ -23,10 +23,17 @@ import type { ReactNode } from "react";
  * `actions` renders nothing when empty, so a screen with no action gets no
  * container and no gap.
  *
+ * `eyebrow` (W3-02 c2b) is a small muted line above the title row,
+ * the mock's section label over an estate root's heading (`Evidence` over
+ * `Portfolio evidence`). It is not a breadcrumb, and it renders nothing when
+ * empty so every other header keeps its spacing.
+ *
  * The heading carries the id so a surrounding landmark can be labelled by it,
  * which is how every screen in this tree already names its `<main>`.
  */
 export interface PageHeaderProps {
+  /** A small muted line above the title row. Nothing renders when this is empty. */
+  eyebrow?: ReactNode;
   /** The level-1 heading text. */
   title: ReactNode;
   /** The id assigned to the heading, for `aria-labelledby`. */
@@ -50,6 +57,7 @@ function isEmpty(slot: ReactNode): boolean {
 }
 
 export function PageHeader({
+  eyebrow,
   title,
   headingId,
   subtitle,
@@ -59,6 +67,7 @@ export function PageHeader({
   return (
     <header className="page-header">
       <div>
+        {isEmpty(eyebrow) ? null : <p className="page-header__eyebrow">{eyebrow}</p>}
         <div className="page-header__title">
           <h1 className="page-header__heading" id={headingId}>
             {title}

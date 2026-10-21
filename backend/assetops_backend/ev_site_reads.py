@@ -20,7 +20,8 @@ from decimal import Decimal
 from typing import Any, Callable
 from uuid import UUID
 
-from assetops_backend.analytics.ev import plain
+from assetops_backend.analytics.ev import SESSION_ANALYTIC, plain
+from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable
 from assetops_backend.financials import ev_money as em
 
 NO_MONEY = "No gross tariff scenario assessed."
@@ -82,6 +83,10 @@ SOURCE_SUFFIX = {"ev_session_event": "session", "ev_connector_fault": "connector
                  "ev_connector_power": "connector power", "ev_site_import": "site import",
                  "ev_requested_power": "requested power", "ev_allocated_limit": "allocated power limit"}
 UNKNOWN_SOURCE_SUFFIX = "EV reading"
+#: W3-02 0c r1 H1: the pinned `STALE_BASIS` copy (the as-of tariff basis has no stored head by K), and the label of
+#: an explicit earlier cutoff.
+STALE_AS_OF_COPY = "Withheld · tariff basis has no stored consequence at this evidence cutoff"
+HISTORICAL_AS_OF = "Historical as of {known_at}"
 #: Review r1 M3: the plain word of each connector state (`sites/binding_roles.EV_CONNECTOR_STATES`).
 STATE_TEXT = {"AVAILABLE": "Available", "UNPLUGGED": "Unplugged", "PLUGGED": "Plugged in",
               "AUTHORIZING": "Authorizing", "CHARGING": "Charging", "FAULTED": "Faulted", "DISABLED": "Disabled"}
@@ -218,6 +223,13 @@ def objective_windows(foundation: dict[str, Any] | None, assets: dict[str, str],
     return common, windows, declared
 
 
+def _positive(seq: Any) -> bool:
+    try:
+        return int(seq) > 0
+    except (TypeError, ValueError):
+        return False
+
+
 class EvSiteReads:
     def __init__(self, reads: Any, money: Any,
                  derive: Callable[[em.EvMoneyBasis], em.EvConsequence | None] = em.derive) -> None:
@@ -234,8 +246,11 @@ class EvSiteReads:
         ctx["money"] = self._select(ctx)
         return ctx
 
-    def _select(self, ctx: dict[str, Any]) -> dict[str, Any]:
-        """q4: the one shared current-revision selector."""
+    def _select(self, ctx: dict[str, Any], cutoff: datetime | None = None) -> dict[str, Any]:
+        """q4: the one shared current-revision selector. Default (`cutoff` None) unchanged; a pinned estate
+        `cutoff` is `_select_as_of`."""
+        if cutoff is not None:
+            return self._select_as_of(ctx, cutoff)
         c, t, s, snap = ctx["c"], ctx["t"], ctx["s"], ctx["snap"]
         lo, hi, state = snap["lo"], snap["hi"], snap["state"]
         history = [] if lo is None else self._money.history_on(c, t, s, lo, hi)
@@ -252,17 +267,93 @@ class EvSiteReads:
         return {"current": current, "guard": guard, "derived": derived,
                 "history": [h for h in history if current is None or h["id"] != current["id"]]}
 
+    def _select_as_of(self, ctx: dict[str, Any], cutoff: datetime) -> dict[str, Any]:
+        """W3-02 0c r1 H1: the pinned selector as of the estate cutoff K. The basis is derived from the tariff
+        assignments recorded at K and the head is the matching revision recorded by K (a later tariff or head is
+        neither selected nor refused); history is the stored revisions recorded by K. A HISTORICAL pin still
+        identifies its stored as-of head (guard `HISTORICAL_CURRENT_CLAIM`: labelled history, no current claim); no
+        matching head by K is `STALE_BASIS`."""
+        c, t, s, snap = ctx["c"], ctx["t"], ctx["s"], ctx["snap"]
+        lo, hi, state = snap["lo"], snap["hi"], snap["state"]
+        history = [h for h in self._money.history_on(c, t, s, lo, hi) if h["recorded_at"] <= cutoff]
+        current, guard, derived = None, None, None
+        if state in ("CURRENT", "HISTORICAL"):
+            basis = self._money.basis_on(c, t, s, lo, hi, snap["selected"], known_at=cutoff)
+            derived = None if basis is None else self._derive(basis)
+            if derived is not None:
+                current = self._money.select_on(c, t, s, lo, hi, derived.basis_sha256, known_at=cutoff)
+                guard = "STALE_BASIS" if current is None else (
+                    "HISTORICAL_CURRENT_CLAIM" if state == "HISTORICAL" else None)
+            elif state == "HISTORICAL" and history:
+                guard = "HISTORICAL_CURRENT_CLAIM"
+        elif state == "PENDING_RECOMPUTE" and history:
+            guard = em.ERROR_PENDING
+        return {"current": current, "guard": guard, "derived": derived,
+                "history": [h for h in history if current is None or h["id"] != current["id"]]}
+
     def _consequence(self, ctx: dict[str, Any]) -> dict[str, Any] | None:
         m = ctx["money"]
         row = m["current"]
         if row is None and m["guard"] is None:
             return None
+        if row is not None and m["guard"] == "HISTORICAL_CURRENT_CLAIM":  # pinned as-of head: history, no claim
+            return {**self._revision(row, HISTORY_LABEL), "label": HISTORY_LABEL}
         if row is None:  # a read guard: null current amount, never a stored row
             return {"revision_id": None, "revision_no": None, "state": "WITHHELD", "reason": m["guard"], "quantity_kwh": None,
                     "tariff_revision_id": None, "tariff_value": None, "currency": None, "amount": None,
                     "overlap_group": None, "recorded_at": None, "tariff_recorded_at": None, "source_gate": None,
                     "session_revision_ids": [], "evidence_ids": [], "limitation": MONEY_COPY[m["guard"]]}
         return self._revision(row, MONEY_COPY.get(row["reason"]))
+
+    # --- pinned estate facades (W3-02 0c) -------------------------------------------------------------------------
+
+    def _pinned_ctx(self, c, snap: dict[str, Any]) -> dict[str, Any]:
+        """The context of one already pinned estate window (an `EvReadService.estate_snapshots_on` result), built
+        without `_ctx`/`open_on`: its one exact session seq selected, its row-local `known` at or before both the
+        selection cutoff and the committed watermark, and the money selected under that cutoff. Anything else is
+        `EvPinnedLineageUnavailable` (the estate's inconsistent selection), never a re-read. 0c r1 L3: the one seq
+        must be the `ev-session/1` analytic's, positive; the upstream pinned `_snapshot` proves its window."""
+        cutoff, seqs = snap.get("selection_cutoff"), snap.get("selection_seqs")
+        known, mark = snap.get("known"), snap.get("watermark")
+        if (cutoff is None or not seqs or set(seqs) != {SESSION_ANALYTIC} or not _positive(seqs[SESSION_ANALYTIC])
+                or snap.get("selected") is None or snap.get("lo") is None or snap.get("hi") is None
+                or known is None or known > cutoff or (mark is not None and known > mark)):
+            raise EvPinnedLineageUnavailable("The pinned EV window selection cannot be proved.")
+        ctx = {"c": c, "t": snap["t"], "s": snap["s"], "code": snap["code"], "snap": snap, "cutoff": cutoff}
+        ctx["money"] = self._select(ctx, cutoff)
+        return ctx
+
+    @staticmethod
+    def _pinned_ids(snap: dict[str, Any]) -> dict[str, Any]:
+        (analytic, seq), = snap["selection_seqs"].items()
+        return {"window_start": plain(snap["lo"]), "window_end": plain(snap["hi"]), "known_at": plain(snap["known"]),
+                "selection_seqs": {analytic: int(seq)},
+                "assessment_revision_id": str(snap["selected"]["revision_id"]).lower(),
+                "evidence_ids": list(snap["selected"]["evidence_ids"])}
+
+    def capabilities_on(self, c, pinned_snap: dict[str, Any]) -> dict[str, Any]:
+        """W3-02 0c: the W2 capability rows of one already pinned estate window on the caller's connection (no
+        `_ctx`, `open_on`, `overview` or `evidence`), with that window's exact selected IDs. `unknown_meter`
+        (W3-02 c1-q2) is whether any exact selected session has positive unknown meter seconds, from the same
+        cached context (no second snapshot or transaction)."""
+        ctx = self._pinned_ctx(c, pinned_snap)
+        capabilities = self._capabilities(ctx)
+        unknown_meter = any((session.get("unknown_meter_seconds") or 0) > 0 for session in self._sessions(ctx))
+        return {**self._pinned_ids(pinned_snap), "capabilities": capabilities, "unknown_meter": unknown_meter}
+
+    def money_on(self, c, pinned_snap: dict[str, Any]) -> dict[str, Any]:
+        """W3-02 0c: the W2 consequence of one already pinned estate window (the stored head DTO, or the transient
+        `revision_id: null` guard, never a stored row) and its stored history recorded by the cutoff, with full IDs
+        (`financials` without `_ctx`, paging or provenance)."""
+        ctx = self._pinned_ctx(c, pinned_snap)
+        m = ctx["money"]
+        consequence = self._consequence(ctx)
+        if m["guard"] == "STALE_BASIS":
+            consequence = {**consequence, "limitation": STALE_AS_OF_COPY}
+        historical = HISTORICAL_AS_OF.format(known_at=plain(pinned_snap["known"]))             if pinned_snap["state"] == "HISTORICAL" else None
+        return {**self._pinned_ids(pinned_snap), "state": pinned_snap["state"], "guard": m["guard"],
+                "historical_label": historical, "consequence": consequence,
+                "history": [{**self._revision(h, HISTORY_LABEL), "label": HISTORY_LABEL} for h in m["history"]]}
 
     @staticmethod
     def _revision(row: dict[str, Any], limitation: str | None) -> dict[str, Any]:
@@ -298,8 +389,13 @@ class EvSiteReads:
     def _tariffs(self, ctx: dict[str, Any]) -> list[dict[str, Any]]:
         if "tariffs" not in ctx:
             snap = ctx["snap"]
-            ctx["tariffs"] = [] if snap["lo"] is None else self._money.tariff_on(
-                ctx["c"], ctx["t"], ctx["s"], snap["lo"], snap["hi"])
+            if snap["lo"] is None:
+                ctx["tariffs"] = []
+            elif ctx.get("cutoff") is None:
+                ctx["tariffs"] = self._money.tariff_on(ctx["c"], ctx["t"], ctx["s"], snap["lo"], snap["hi"])
+            else:  # W3-02 0c r1: a pinned read discloses the tariff assignments recorded at K
+                ctx["tariffs"] = self._money.tariff_on(ctx["c"], ctx["t"], ctx["s"], snap["lo"], snap["hi"],
+                                                       known_at=ctx["cutoff"])
         return ctx["tariffs"]
 
     def _as_of(self, ctx: dict[str, Any]) -> str | None:

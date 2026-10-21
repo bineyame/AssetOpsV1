@@ -917,6 +917,18 @@ class PostgresAssessmentStore:
         revision["evidence"] = _evidence(c, tenant_id, site_id, revision["evidence_ids"])
         return revision
 
+    def claim_limit_snapshot_on(self, c: Connection, tenant_id: UUID, site_id: UUID, day: date,
+                                revision_id: UUID | None,
+                                known_at: datetime) -> tuple[dict[str, Any], dict[str, Any] | None]:
+        """W3-02 0b: one UTC day's dispatch selection at `known_at` (`select_dispatch_days_on`) and one exact
+        revision's detail (`_revision_detail`), both on the caller's connection `c`, with no transaction of its
+        own. The detail is not cut off here: the claim-limit read validates its records against `known_at`."""
+        window = day_window(day)
+        selected = {**self.select_dispatch_days_on(c, tenant_id, site_id, window.start, window.end, known_at)[0],
+                    "transaction_time": self._transaction_time(c)}
+        detail = None if revision_id is None else self._revision_detail(c, tenant_id, site_id, revision_id)
+        return selected, detail
+
     def lineage_breaks(self, tenant_id: UUID, site_id: UUID, analytic_id: str,
                        model_version: str) -> dict[str, int]:
         """Counts of lineage breaks for the Performance cutover gate; every break count must be zero.

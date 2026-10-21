@@ -171,11 +171,12 @@ def definition(case: str):
     return next(s for s in SCENARIOS.list_scenarios() if s.scenario_id == f"ev-{case}")
 
 
-def ev_request(case: str) -> dict:
+def ev_request(case: str, *, site_code: str = EV, seed: int = 20517, scenario_id: str | None = None) -> dict:
     return {
-        "site_id": EV, "foundation_version": 1, "scenario_id": f"ev-{case}", "scenario_version": 1,
+        "site_id": site_code, "foundation_version": 1, "scenario_id": scenario_id or f"ev-{case}",
+        "scenario_version": 1,
         "interval": {"start_time": WINDOW["start"], "end_time": WINDOW["end"]}, "timestep_minutes": 1,
-        "seed": 20517, "model_profile": {"profile_id": "ev-charger", "profile_version": 1},
+        "seed": seed, "model_profile": {"profile_id": "ev-charger", "profile_version": 1},
         "publication_profile": {"profile_id": "ev-publication", "profile_version": 1}, "run_inputs": [],
     }
 
@@ -227,28 +228,41 @@ class Chain:
     credential: str | None = None
     released: list = field(default_factory=list)
     late: bool = False
+    #: W3-02 c3-q1: the chain's Site code and run seed (one-Site callers keep the EV-LAB-001 defaults).
+    site_code: str = EV
+    seed: int = 20517
 
     def decision_clock(self) -> datetime:
         """W2-06 q4 Q4-1: 09:00 through the first release, 09:05 once `advance_late()` begins. It is both the S2
         decision clock and the batch ingestion clock, so `received_at <= decided_at` in every chunk of a phase."""
         return LATE_DECISION if self.late else FIRST_DECISION
 
-    def open(self) -> "Chain":
+    def open(self, *, fresh: bool = True, install=None, scenarios=None, scenario_id: str | None = None) -> "Chain":
+        """W3-02 c3-q1: `fresh=False` keeps the database another chain already opened; `install(store)` imports
+        this chain's Site (default: the reviewed `install_ev_lab`). W3-02 c3b (c3-q3): `scenarios` is an injected
+        test-scoped repository used by both the Draft setup and `StoreEvInputs`, and `scenario_id` selects this
+        chain's scenario in it by its distinct ID (defaults: the shipped repository and `ev-<case>`)."""
+        repository = scenarios if scenarios is not None else SCENARIOS
+        wanted = scenario_id or f"ev-{self.case}"
+        selected = next(s for s in repository.list_scenarios() if s.scenario_id == wanted)
         url = make_url(URL)
         assert url.database and url.database.endswith("_test"), "Refusing a database not named *_test"
-        pg_harness.fresh_database()
+        if fresh:
+            pg_harness.fresh_database()
         self.engine = create_engine(URL)
         self.store = PostgresFoundationStore(URL)
-        result = install_ev_lab(self.store, tenant_slug="demo", clock=Clock(INSTALL_AT))
+        result = (install or (lambda store: install_ev_lab(store, tenant_slug="demo", clock=Clock(INSTALL_AT))))(
+            self.store)
         self.tenant_id, self.site_id = result.tenant.id, result.site.id
         self.runs = YamlRunStore(self.tmp / "runs")
         setup = RunSetupService(
-            self.runs, FakeSites(()), FakeScenarios((definition(self.case),)),
+            self.runs, FakeSites(()), scenarios if scenarios is not None else FakeScenarios((selected,)),
             model_profiles=(EV_CHARGER_MODEL,), publication_profiles=(EV_PUBLICATION_PROFILE,),
             now=lambda: "2026-10-06T07:00:00Z",
             registered_bases=RegisteredLabBasis(ImportedSiteRegistry(FoundationService(self.store, "demo",
                                                                                        Clock(SETUP_AT)))))
-        self.run = setup.create_draft_run(ev_request(self.case))
+        self.run = setup.create_draft_run(ev_request(self.case, site_code=self.site_code, seed=self.seed,
+                                                     scenario_id=wanted))
         assert self.run.execution_status == "READY", self.run.blocking_reasons
         self._gateway()
         self.host = HostLabExecution(
@@ -257,7 +271,7 @@ class Chain:
             gateway=RegisteredGatewayPublisher(self.process.link),
             schedules=JsonPublicationSchedules(self.tmp / "schedules"),
             source_publisher=publisher_for(URL),
-            ev_inputs=StoreEvInputs(self.store, cached_scenario_repository()),
+            ev_inputs=StoreEvInputs(self.store, scenarios if scenarios is not None else cached_scenario_repository()),
         )
         self.attest()
         return self
@@ -305,7 +319,7 @@ class Chain:
         out = self.tmp / "issued"
         out.mkdir(parents=True)
         flags = [x for s in sources for x in ("--enable-source", s)]
-        assert provision(["--tenant", "demo", "--site", EV, "--gateway", gateway.gateway_external_id, "issue",
+        assert provision(["--tenant", "demo", "--site", self.site_code, "--gateway", gateway.gateway_external_id, "issue",
                           "--credential-out", str(out / "cred"), *flags],
                          store=PostgresGatewayAccess(URL), now=Clock(INSTALL_AT)()) == 0
         [issued] = list(out.glob("cred.*"))
@@ -366,7 +380,7 @@ class Chain:
     # --- reads ---------------------------------------------------------------------------------------
 
     def scope(self, code: str):
-        return (EV, self.tenant_id, self.site_id) if code.upper() == EV else None
+        return (self.site_code, self.tenant_id, self.site_id) if code.upper() == self.site_code else None
 
     def replay_client(self, *, access=None, owner=None, reader=None) -> TestClient:
         app = FastAPI()
@@ -376,7 +390,7 @@ class Chain:
         return TestClient(app)
 
     def replay(self) -> dict:
-        response = self.replay_client().get(f"/api/sites/{EV}/ev/replay", params={"run_id": self.run.run_id})
+        response = self.replay_client().get(f"/api/sites/{self.site_code}/ev/replay", params={"run_id": self.run.run_id})
         assert response.status_code == 200, response.text
         return response.json()
 

@@ -38,11 +38,15 @@ class PostgresEstateRead:
                  consequences: Any, eligibility: Any, cold: Any, ev: Any,
                  provenance_reads: Callable[[Connection], Any],
                  inconsistent: tuple[type[BaseException], ...] = (),
-                 unavailable: tuple[type[BaseException], ...] = (), engine: Any = None) -> None:
+                 unavailable: tuple[type[BaseException], ...] = (), engine: Any = None,
+                 cold_site: Any = None, ev_site: Any = None, ev_money: Any = None) -> None:
         self._url, self._engine = database_url, engine
         self.findings, self.assessments, self.actions = findings, assessments, actions
         self.consequences, self.eligibility, self.cold, self.ev = consequences, eligibility, cold, ev
         self.provenance_reads, self.inconsistent, self.unavailable = provenance_reads, inconsistent, unavailable
+        # W3-02 0c: the pinned cold/EV Site facades (`capabilities_on`/`money_on`) and the SELECT-only EV money
+        # reads, all used on the one estate connection; None leaves the W3-01 reads unchanged.
+        self.cold_site, self.ev_site, self.ev_money = cold_site, ev_site, ev_money
 
     def _connect(self):
         if self._engine is None:
@@ -83,12 +87,13 @@ class EstateSnapshot:
 
     def imported_sites(self, t: UUID, to: datetime) -> list[dict[str, Any]]:
         """All Sites of the tenant with a committed `site_import` before `to`, inactive ones included, ordered by
-        `(site_code_key, id)`."""
+        `(site_code_key, id)`; each item also carries that stored `site_code_key` (W3-02 0c)."""
         rows = self._c.execute(text(
-            "SELECT s.id, s.site_code, s.name, s.site_type FROM site s WHERE s.tenant_id = :t AND EXISTS ("
+            "SELECT s.id, s.site_code, s.name, s.site_type, s.site_code_key FROM site s WHERE s.tenant_id = :t AND EXISTS ("
             "SELECT 1 FROM site_import i WHERE i.tenant_id = s.tenant_id AND i.site_id = s.id AND i.imported_at < :to) "
             "ORDER BY s.site_code_key, s.id"), {"t": t, "to": to}).all()
-        return [{"site_id": r[0], "site_code": r[1], "site_name": r[2], "site_type": r[3]} for r in rows]
+        return [{"site_id": r[0], "site_code": r[1], "site_name": r[2], "site_type": r[3], "site_code_key": r[4]}
+                for r in rows]
 
     def evidence_cutoff(self, t: UUID, s: UUID, k: datetime) -> datetime | None:
         """Run 7 q7-1: the Site's latest disposition decided by the requested cutoff (its evidence watermark)."""

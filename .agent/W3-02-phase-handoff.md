@@ -1,5 +1,15 @@
 # W3-02 phase handoff
 
+## Commit 4 fixes (Lane B) - rulings c4, c4-q1..q3 applied; Aggregation cap open as c4-q4
+
+Merged `main`; built on the branch after `75d30ca0`. Branch released.
+- c4: `EstateFinancials.tsx` `AggregationResults` keeps title + exact prose, then one closed `Disclosure` (`data-disclosure="estate-financials-results"`) with summary `Results (N) · No comparable total|k comparable total(s)` (`aggregationSummary`; visible text `aria-hidden`, accessible name e.g. `3 grouping results. Comparable total unavailable for this selection.`). All groups, diagnostics, per-group exclusion disclosures and the no-total message are inside, in wire order. `estateFinancials.css`: list `max-height`/`overflow` removed; summary 12 px / 16 px; text, reasons and exclusions `overflow-wrap:anywhere`; chips stay `nowrap`.
+- c4-q1: copy unchanged except the no-total paragraph moved into the summary/details. c4-q2: registry and ledger already match the ruling (verified, no edit). c4-q3: honest two-line capture kept; the ruled limitation sentence is recorded as `limitation` in `app-financials-{positive,partial}.json` (written by `capture-financials.mjs`).
+- Captures re-taken (private `w302x_test`, dropped; serve/vite stopped by port; `serve-financials.py` unchanged): closed and open (`financials-*-open-app.png`) at 1440/390. status 46/69, register 256/403 (partial 280/446), notice 43/61, all within maxima. Aggregation closed **148 > 123** at 1440, **194 > 187** at 390 in both states (summary 22 <= 24; the 14 px prose alone is 126/172 vs mock 99/163) - filed as **c4-q4**. Open: 275/398 (partial 390: 434), list scrollH = clientH, all groups/exclusions visible, doc width = client. Positive 1440 closed image viewed.
+- Tests: `estateFinancials.test.tsx` asserts the closed summary, its accessible name and the no-total message in closed details; the 390 capture test asserts summary <= 24 px at 12 px, open list unclipped, all results visible, no doc overflow (panel cap recorded, not asserted, pending c4-q4).
+
+Checks: focused 7/7; full frontend 102 files / 2435 passed; `tsc --noEmit` clean; `npm run build` ok; `tools/check-all.ps1` 11/11. Not run: the full real-Postgres suite (no backend change). Status: W3-02 is ready for its final review, with c4-q4 (Aggregation closed cap) open for the Architect; the reviewer should treat the 148/194 overage as that open ruling.
+
 ## Commit 4 (Lane A shell) - shell, registry, link tests, captures landed; page defects back to Lane B
 
 Commits `d59dad32`, `36fcf8ac`, `e3d18027` (after merging `main`). Branch released. Items 1-5 of `.agent/W3-02-lane-a-requests.md` "Commit 4", plus the closure 5 B5 Financials route-read tests.
@@ -385,3 +395,7 @@ Checks: see the commit message. Branch released.
 
 ## Commit-3 review r1 fix round (done)
 M1 (cold withheld -> covered=False, test extended), M2 (Composite repo already as ruled; RESOLVED marking corrected in pending rulings), L1 (only ERROR_PENDING pends), L2 (TARIFF_UNIT), L4 (PARTITION_INELIGIBLE), L6 (text). L3/L5 carry to commit 4 (copy: "lines in the differing-value category"; mini-grid pending/stale prior amount unavailable in this selection; UI state check; render PARTITION_INELIGIBLE in plain language). Proof: 136 passed, 0 skipped on private DB w302v_test (dropped); check-all 11/11.
+
+## c4b applied - READY FOR FINAL REVIEW
+- c4-q4 resolved: Aggregation panel local class (12px / 1.8 prose, 15px header gap) per c4b. Recaptured (private `w302y_test`, dropped; servers stopped by port): Aggregation closed 121 (cap 123) at 1440, 186 (cap 187) at 390, both states; summary one line; open lists unclipped, doc width = client. 390 image viewed. Test asserts both caps and 12px/21.6px.
+- Frontend 2435 passed, tsc clean, build ok, check-all 11/11. W3-02 is ready for its final review.

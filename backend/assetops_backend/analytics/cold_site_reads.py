@@ -23,6 +23,7 @@ from assetops_backend.analytics.cold_reads import (
     DEFAULT_LIMIT,
     NO_SELECTION_NOTE,
     ColdCursorRefused,
+    ColdPinnedLineageUnavailable,
     decode_cursor,
     encode_cursor,
 )
@@ -194,12 +195,21 @@ class ColdSiteReadService:
 
     # --- money -----------------------------------------------------------------------------------------------
 
-    def _money(self, c, snap: dict[str, Any], findings: list[dict[str, Any]]) -> dict[str, Any]:
+    def _money(self, c, snap: dict[str, Any], findings: list[dict[str, Any]],
+               cutoff: datetime | None = None) -> dict[str, Any]:
+        """Default (`cutoff` None): the W2 Site money, unchanged. With a pinned estate `cutoff` K (W3-02 0c r1 H1/L1),
+        the head per (Finding revision, kind) is the one recorded by K (a later head is neither selected nor refused;
+        no head by K means no row) and the pending work and its last outcome are those known at K."""
         t, s = snap["t"], snap["s"]
-        heads = self._consequences.cold_heads_on(c, t, s, [i["revision_id"] for i in findings]) \
-            if findings else []
-        pending = self._consequences.cold_pending_on(c, t, s, snap["lo"], snap["hi"]) \
-            if snap["lo"] is not None else []
+        ids = [i["revision_id"] for i in findings]
+        if cutoff is None:
+            heads = self._consequences.cold_heads_on(c, t, s, ids) if findings else []
+            pending = self._consequences.cold_pending_on(c, t, s, snap["lo"], snap["hi"]) \
+                if snap["lo"] is not None else []
+        else:
+            heads = self._consequences.cold_heads_on(c, t, s, ids, known_at=cutoff) if findings else []
+            pending = self._consequences.cold_pending_as_of_on(c, t, s, snap["lo"], snap["hi"], cutoff) \
+                if snap["lo"] is not None else []
         failed = any(p.get("last_outcome") == "FAILED" for p in pending)
         withheld = snap["state"] == "PENDING_RECOMPUTE" or bool(pending)
         hold = SCREEN_WORDING["COLD_RECOMPUTE_FAILED"] if failed else PENDING_COPY
@@ -238,6 +248,51 @@ class ColdSiteReadService:
                 "source_gate_sha256": head["source_gate_sha256"].lower(),
                 "assumption_revision_ids": ids(head["assumption_revision_ids"]),
                 "consequence_basis_sha256": head["consequence_basis_sha256"].lower()}
+
+    # --- pinned estate facades (W3-02 0c) -----------------------------------------------------------------------
+
+    @staticmethod
+    def _pinned(snap: dict[str, Any]) -> datetime:
+        """The pinned estate snapshot's selection cutoff, once its exact pin is provable: a `ColdReadService`
+        `estate_snapshots_on` result (pinned `_snapshot`) with one exact window, selection seqs naming exactly its
+        selected analytics, and a row-local `known` at or before both the cutoff and the committed watermark.
+        Anything else is `ColdPinnedLineageUnavailable` (the estate's inconsistent selection), never a re-read."""
+        cutoff, seqs = snap.get("selection_cutoff"), snap.get("selection_seqs")
+        known, mark = snap.get("known"), snap.get("watermark")
+        if (cutoff is None or not seqs or not snap.get("selected") or set(seqs) != set(snap["selected"])
+                or snap.get("lo") is None or snap.get("hi") is None or known is None or known > cutoff
+                or (mark is not None and known > mark)):
+            raise ColdPinnedLineageUnavailable("The pinned cold window selection cannot be proved.")
+        return cutoff
+
+    @staticmethod
+    def _pinned_ids(snap: dict[str, Any]) -> dict[str, Any]:
+        selected = snap["selected"]
+        return {"window_start": _plain(snap["lo"]), "window_end": _plain(snap["hi"]), "known_at": _plain(snap["known"]),
+                "selection_seqs": {a: int(snap["selection_seqs"][a]) for a in sorted(selected)},
+                "assessment_revision_ids": {a: str(selected[a].revision_id).lower() for a in sorted(selected)},
+                "evidence_ids": sorted({str(e).lower() for x in selected.values() for e in x.evidence_ids})}
+
+    def capabilities_on(self, c, pinned_snap: dict[str, Any]) -> dict[str, Any]:
+        """W3-02 0c: the W2 capability rows of one already pinned estate window, on the caller's connection (no
+        `_selected`, `overview` or `evidence`, no transaction of its own), with that window's exact selected IDs."""
+        self._pinned(pinned_snap)
+        return {**self._pinned_ids(pinned_snap), "capabilities": self._capabilities(c, pinned_snap)}
+
+    def money_on(self, c, pinned_snap: dict[str, Any], selected_findings: list[dict[str, Any]]) -> dict[str, Any]:
+        """W3-02 0c: the W2 money of one already pinned estate window over the caller's exact selected Finding
+        revisions (`revision_id` or `finding_revision_id`): every head of both kinds recorded by the pinned cutoff
+        (`counted` marks the W2 counted ones) as a consequence row with its exact basis."""
+        cutoff = self._pinned(pinned_snap)
+        findings = [{"revision_id": str(i.get("revision_id") or i["finding_revision_id"])} for i in selected_findings]
+        money = self._money(c, pinned_snap, findings, cutoff)
+        counted = {str(h["id"]) for h in money["counted"]}
+        rows = [{**self._consequence_row(h, money), "finding_revision_id": str(h["finding_revision_id"]),
+                 "window_start": _plain(h["window_start"]), "window_end": _plain(h["window_end"]),
+                 "counted": str(h["id"]) in counted}
+                for h in sorted(money["heads"], key=lambda h: (str(h["finding_revision_id"]), h["kind"]))]
+        return {**self._pinned_ids(pinned_snap), "withheld": money["withheld"],
+                "hold": money["hold"] if money["withheld"] else None, "consequences": rows}
 
     # --- /overview -------------------------------------------------------------------------------------------
 

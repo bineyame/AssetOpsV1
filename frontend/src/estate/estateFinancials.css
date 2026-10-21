@@ -1,0 +1,83 @@
+/* W3-02 commit 4: the estate Financials root. It reuses the Evidence page's page-local tones and compact table rules
+   (`estateEvidence.css`). The measured 1440/390 maxima (closure 4: status 68/95, register 293/448, notice 66/102,
+   Aggregation 123/187) bound the register list with internal scroll after the mock's three-row baseline; the page
+   never overflows horizontally (mock 390 register scroll width 514). Ruling c4: the Aggregation panel shows the mock
+   prose plus one closed 12/16 px summary row; the opened results list is never clipped or scrolled. */
+
+.estate-page[data-estate-root="financials"] .estate-financials-table .data-table {
+  min-width: 500px;
+}
+
+.estate-financials-table .data-table__scroll {
+  max-height: 176px;
+}
+
+.estate-financials .estate-financials-prose {
+  margin: 0;
+}
+
+.estate-financials-summary {
+  margin: 6px 0 0;
+}
+
+.estate-financials-summary > .disclosure > .disclosure__summary {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.estate-financials-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.estate-financials-result__text,
+.estate-financials-result__reasons,
+.estate-financials-exclusions li {
+  overflow-wrap: anywhere;
+}
+
+.estate-financials .estate-financials-no-total {
+  margin: 4px 0 0;
+}
+
+.estate-financials-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+
+.estate-financials-result__reasons {
+  color: var(--text-secondary);
+}
+
+.estate-financials-exclusions {
+  margin: 2px 0;
+  padding-left: 16px;
+}
+
+@media (max-width: 640px) {
+  /* Final review H1: the three-row baseline (header + 3 measured rows) fits before the list scrolls internally. */
+  .estate-page[data-estate-root="financials"] .estate-financials-table .data-table {
+    min-width: 800px;
+  }
+  .estate-financials-table .data-table__scroll {
+    max-height: 300px;
+  }
+}
+
+/* Ruling c4b: the mock's 12px / 1.8 prose; the 2px header-gap reduction absorbs the fractional 21.6px line boxes. */
+.estate-financials__aggregation .panel__header {
+  margin-bottom: 15px;
+}
+.estate-financials__aggregation .estate-financials__aggregation-prose {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
