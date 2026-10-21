@@ -4,7 +4,7 @@ Router refusals with `groups/exclusions/diagnostics:null`, the literal empty-sco
 domain (W1 priced, cold product exposure and recorded repair unpriced, EV gross tariff), the closure 2 ordered
 eligibility table, the transient EV `STALE_BASIS` guard (no invented head), historical/pending lines, overlap by
 group/IDs/citations, Decimal sums, and page-invariant groups/exclusions with the 5-part cursor. The persisted proof
-is `test_w302_money_persisted_postgres.py`.
+is `test_w302_money_comparability_postgres.py`.
 """
 
 from __future__ import annotations
@@ -212,6 +212,20 @@ def test_w302_money_historical_pending_and_no_gap_rows(money_coverage) -> None:
     assert (gated["eligibility"], gated["reason_codes"]) == ("WITHHELD", ["WITHHELD"])
     quantity = body_of(MoneySnapshot(w1={A[21]: w1_head(A[21], A[31], state="QUANTITY_UNAVAILABLE")}))
     assert next(r for r in quantity["rows"] if r["domain"] == "mini_grid")["reason_codes"] == ["BASIS_NOT_PROVEN"]
+    # c3-q2(2) / M1: pending cold consequence work at K makes product coverage unknown on an otherwise covered Site.
+    def product(**kw):
+        body = body_of(MoneySnapshot(**kw))
+        return ([g for g in body["groups"] if g["category"] == "POTENTIAL_PRODUCT_EXPOSURE"],
+                [r for r in body["rows"] if r["category"] == "POTENTIAL_PRODUCT_EXPOSURE"])
+    groups, _ = product(cold=[], cold_withheld=True)
+    assert [(g["state"], g["reason_codes"]) for g in groups] == [("UNKNOWN_COVERAGE", ["NO_LINES", "UNKNOWN_COVERAGE"])]
+    groups, lines = product(cold_withheld=True)
+    assert [(g["state"], g["amount"]) for g in groups] == [("UNKNOWN_COVERAGE", None)] and lines
+    assert all(g["state"] != "NO_LINES" and "NO_LINES" not in g["reason_codes"] for g in groups)
+    groups, _ = product(cold=[], cold_withheld=False)  # covered-state results are retained
+    assert [(g["state"], g["reason_codes"]) for g in groups] == [("NO_LINES", ["NO_LINES"])]
+    groups, _ = product(cold_withheld=False)
+    assert [g["state"] for g in groups] == ["INELIGIBLE"]
     # No gap rows: a mini-grid Site with no heads has no line; its category gets the NO_LINES sentinel.
     none = body_of(MoneySnapshot(w1={}))
     assert not [r for r in none["rows"] if r["domain"] == "mini_grid"]
@@ -373,3 +387,40 @@ def test_w302_money_ev_session_only_change_moves_token_and_fences() -> None:
         assert body_of(MoneySnapshot(ev=ev, sessions=(A[40],)))["selection_token"] == first["selection_token"], label
         response = fin(client(FakeStore(after)), {**WINDOW, "limit": 1, "cursor": first["next_cursor"]})
         assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED"), label
+
+
+def test_w302_money_ev_guard_withholds_or_pends_the_older_head() -> None:
+    """L1: only a pending recompute is pending; a stale or historical-current-claim guard withholds the older head."""
+    for guard, state, reasons in (("HISTORICAL_CURRENT_CLAIM", "WITHHELD", ["WITHHELD"]),
+                                  ("STALE_BASIS", "WITHHELD", ["WITHHELD"]),
+                                  ("PENDING_RECOMPUTE", "PENDING", ["PENDING"])):
+        transient = {"revision_id": None, "state": "WITHHELD", "reason": guard}
+        body = body_of(MoneySnapshot(ev={"guard": guard, "consequence": transient, "history": [ev_head(A[35])]}))
+        line = next(r for r in body["rows"] if r["domain"] == "ev_charging")
+        assert (line["line_key"], line["eligibility"], line["reason_codes"], line["amount"]) == (
+            f"ev_charging:{A[35]}", state, reasons, None), guard
+        group = next(g for g in body["groups"] if g["category"] == "GROSS_TARIFF_SCENARIO")
+        assert group["state"] == "UNKNOWN_COVERAGE" and group["amount"] is None, guard
+
+
+def test_w302_money_ev_fingerprint_uses_the_economic_tariff_unit() -> None:
+    """L2: the EV fingerprint is the stored tariff value, currency, kind and economic unit `currency/kWh`; the
+    consequence quantity unit stays `kWh`."""
+    ev = next(r for r in body_of(MoneySnapshot())["rows"] if r["domain"] == "ev_charging")
+    fp = financials.assumption_fingerprint
+    assert ev["assumption_fingerprint"] == fp("GROSS_TARIFF_SCENARIO", "KES", "currency/kWh", "0.27775",
+                                              "GROSS_TARIFF_PER_KWH")
+    assert ev["assumption_fingerprint"] != fp("GROSS_TARIFF_SCENARIO", "KES", "kWh", "0.27775", "GROSS_TARIFF_PER_KWH")
+    assert ev["quantity"]["unit"] == "kWh"
+
+
+def test_w302_money_partition_ineligible_reason_is_group_membership_only() -> None:
+    """L4: an eligible line in an INELIGIBLE group carries only PARTITION_INELIGIBLE, not a mate's reason."""
+    ok = _eligible("ev_charging:a", tech=["t1"], cited=["c1"])
+    pending = {**_eligible("ev_charging:b", tech=["t2"], cited=["c2"]), "eligibility": "PENDING",
+               "reason_codes": ["PENDING"], "amount": None}
+    groups, exclusions, _ = compare([ok, pending], {"GROSS_TARIFF_SCENARIO": True})
+    assert [g["state"] for g in groups] == ["INELIGIBLE"] and "PENDING" in groups[0]["reason_codes"]
+    assert ok["eligibility"] == "ELIGIBLE"
+    by = {e["line_key"]: e["reason_codes"] for e in exclusions}
+    assert by == {"ev_charging:a": ["PARTITION_INELIGIBLE"], "ev_charging:b": ["PENDING"]}

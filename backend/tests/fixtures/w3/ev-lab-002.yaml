@@ -15,7 +15,7 @@ source:
 foundation:
   version: 1
   valid_from: '2026-10-01T00:00:00Z'
-  summary: 'Registered EV charging lab for W2-05a (D-2026-10-18-w2-05-buildspec): one site feed through an import
+  summary: 'Second registered EV charging lab (W3-02 estate comparability fixture): one site feed through an import
     meter to one charger with two connectors, each enabled on Tuesdays 08:00-16:00 UTC. Configuration only: nothing
     here says any charging session, energy or connector state has been observed.'
   components:

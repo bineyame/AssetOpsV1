@@ -149,9 +149,9 @@ Resolution (Lane A, commit 3): `ev_parsing.py` admits `(EV-LAB-002, 20518)` only
 validated Site/seed in `EvScenarioDefinition`; `(EV-LAB-001, 20517)` unchanged for every other ID. Parser test
 `test_w205b_ev_scenarios.py::test_the_second_site_pair_parses_only_for_its_one_scenario_id`. The fixture now parses.
 
-## c3b-q2 - RESOLVED (c3c, option a): COMPARABLE traversal assertions replaced, skip removed, test passes (0 skipped)
+## c3b-q2 - RESOLVED, both items (item 1: commit-3 review r1 ruling M2; item 2: c3c, option a)
 
-1. Applied, please confirm: c3b's `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))` cannot work - the shipped
+1. Ruled (commit-3 review r1 rulings, M2: the Composite construction is authorized as test-only): c3b's `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))` cannot work - the shipped
    store has only `list_scenarios`, and the cache calls `get_scenario` (`AttributeError` in `scenario_cache.py:32`).
    `second_scenario_repository` now wraps `CompositeScenarioRepository(shipped=ReadOnlyYamlScenarioStore(root),
    user=UserYamlScenarioStore(<empty temp dir>))`, the same composition as `build_scenario_repository()` over the test

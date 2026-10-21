@@ -131,9 +131,8 @@ def test_w302_money_persisted_ev_single_site_line(chain) -> None:  # noqa: F811
 # --- c3-q1: the persisted two-EV-Site comparable fixture ----------------------------------------------------------
 
 SECOND_EV = "EV-LAB-002"
-#: c3b (`.agent/W3-02-build-spec.md`, c3-q3): the second run uses the test-only scenario below. It parses only once
-#: Lane A's `ev_parsing.py` admits (EV-LAB-002, 20518) for `ev-complete-lab-002`; until then the strict parser pins
-#: EV-LAB-001/20517 and the path cannot run (`.agent/W3-02-pending-rulings.md`, c3b-q1). Commit 3 not done (N3).
+#: c3b (`.agent/W3-02-build-spec.md`, c3-q3): the second run uses the test-only scenario below. It parses because
+#: `ev_parsing.py` admits (EV-LAB-002, 20518) only for `ev-complete-lab-002` (every other ID keeps EV-LAB-001/20517).
 BACKEND = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(BACKEND)
 SECOND_FIXTURE = os.path.join(BACKEND, "tests", "fixtures", "w3", "ev-lab-002.yaml")

@@ -29,6 +29,7 @@ from assetops_backend.estate.evidence_money import (
 from assetops_backend.estate.index import _coverage_site, _coverage_state, _status, _token_site
 from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, wire_time
 from assetops_backend.evidence.provenance_read import source_gate
+from assetops_backend.financials.ev_money import ERROR_PENDING, TARIFF_UNIT
 from assetops_backend.financials.fuel_cost import PRICE_UNIT
 
 FINANCIALS_SCHEMA = "estate-financials-1"
@@ -49,7 +50,7 @@ ELIGIBLE, UNPRICED, UNKNOWN_E, PENDING_E, HISTORICAL_E, WITHHELD, CONFLICT = (
 COMPARABLE, SINGLE_LINE, INELIGIBLE, OVERLAPPING, UNKNOWN_COVERAGE, NO_LINES = (
     "COMPARABLE", "SINGLE_LINE", "INELIGIBLE", "OVERLAPPING_BASIS", "UNKNOWN_COVERAGE", "NO_LINES")
 EV_LIMIT = "Gross scenario only; not cash collected."
-STALE_GUARDS = ("STALE_BASIS",)
+PARTITION_INELIGIBLE = "PARTITION_INELIGIBLE"
 
 
 def assumption_fingerprint(category: str, currency: str | None, unit: str | None, rate: Any,
@@ -214,6 +215,8 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
         common = {"historical": state == HISTORICAL, "pending": state == PENDING}
         if domain == COLD:
             read = snap.cold_money(t, s, pin, k)
+            if read["withheld"]:  # overlapping cold work pending at K: full-scope coverage is unknown (c3-q2(2))
+                covered = False
             for row in read["consequences"]:
                 basis = row["exact_basis"]
                 prov = snap.cited_provenance(t, s, basis["evidence_ids"], [row["id"]])
@@ -241,7 +244,8 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
             if not history:
                 continue
             head = history[-1]  # only the exact older stored head, current amount withheld
-            forced = {"withheld": guard in STALE_GUARDS, "pending": guard not in STALE_GUARDS}
+            # Only a pending recompute is pending work; a stale or historical-current-claim guard withholds.
+            forced = {"withheld": guard != ERROR_PENDING, "pending": guard == ERROR_PENDING}
         elif head is None:
             continue
         else:
@@ -265,7 +269,7 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
                       "unit": None if head["quantity_kwh"] is None else "kWh"},
             amount=amount, period_kind=SCENARIO,
             assumptions=[x for x in [head["tariff_revision_id"]] if x],
-            fingerprint=assumption_fingerprint(TARIFF, head["currency"], "kWh", head["tariff_value"],
+            fingerprint=assumption_fingerprint(TARIFF, head["currency"], TARIFF_UNIT, head["tariff_value"],
                                                "GROSS_TARIFF_PER_KWH"),
             cited=head["evidence_ids"], technical=head["session_revision_ids"], overlap_group=head["overlap_group"],
             limit=" ".join(x for x in [head.get("limitation"), EV_LIMIT] if x), provenance=prov, links=links,
@@ -344,6 +348,8 @@ def compare(lines: list[dict[str, Any]], applicable: dict[str, bool]) -> tuple[l
         if state not in (COMPARABLE, SINGLE_LINE):
             for m in members:
                 own = set(m["reason_codes"]) | ({UNKNOWN_COVERAGE} if uncovered else set())
+                if not own and state == INELIGIBLE and m["eligibility"] == ELIGIBLE and len(eligible) < len(members):
+                    own = {PARTITION_INELIGIBLE}  # group membership only; never a mate's line reason (L4)
                 exclusions.append({"line_key": m["line_key"], "group_key": gkey,
                                    "reason_codes": sorted(own or reasons)})
         else:
