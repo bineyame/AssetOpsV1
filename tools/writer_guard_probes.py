@@ -896,6 +896,30 @@ WRITER_CONTROLS += [
 ]
 
 
+# W4-03 closure 4 S2: the assessment store's one coalescing UPDATE of a PENDING mini_opportunity job is allowed only
+# in its exact text; another domain, status or column, a widened predicate, a foreign writer and a missing UPDATE fail.
+_OPP_COALESCE = ("UPDATE recompute_job SET available_at = greatest(available_at, :at) WHERE id = :pending_id "
+                 "AND domain = 'mini_opportunity' AND status = 'PENDING'")
+NEGATIVE += [
+    ("opportunity coalesce other domain", ASSESS,
+     '_OPS02 = "' + _OPP_COALESCE.replace("'mini_opportunity'", "'mini_renewable'") + '"\n', ASSESS_ONLY),
+    ("opportunity coalesce other status", ASSESS,
+     '_OPS02 = "' + _OPP_COALESCE.replace("'PENDING'", "'DONE'") + '"\n', ASSESS_ONLY),
+    ("opportunity coalesce widened", ASSESS, '_OPS02 = "' + _OPP_COALESCE + ' OR true"\n', ASSESS_ONLY),
+    ("opportunity coalesce plain set", ASSESS,
+     '_OPS02 = "UPDATE recompute_job SET available_at = :at WHERE id = :pending_id"\n', ASSESS_ONLY),
+    ("opportunity coalesce foreign writer", DECISION, '_OPS02 = "' + _OPP_COALESCE + '"\n',
+     "The mini-decision store never updates, deletes, truncates, upserts or runs DDL"),
+    ("opportunity coalesce unseen", ASSESS,
+     ("replace", '"UPDATE recompute_job SET available_at = greatest(available_at, :at) WHERE id = :pending_id "',
+      '"SELECT 1 FROM recompute_job WHERE id = :pending_id "'),
+     "Rule 8 found no opportunity coalescing UPDATE"),
+]
+WRITER_CONTROLS += [
+    ("controls opportunity coalesce", ASSESS, '_OPS02 = "' + _OPP_COALESCE + '"\n'),
+]
+
+
 def restore(path: str) -> None:
     subprocess.run(["git", "checkout", "--", path], cwd=ROOT, check=True)
 

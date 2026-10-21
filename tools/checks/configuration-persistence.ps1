@@ -675,9 +675,15 @@ function Invoke-ConfigurationPersistenceCheck {
     $evSessionTables = @('ev_session', 'ev_session_revision', 'ev_session_evidence', 'ev_meter_interval')
     $coldTransactionOwner = "$backendRoot/analytics/assessment_worker.py"
     $assessInserts = $assessTables + @('recompute_job')
+    # W4-03 closure 4 S2: the one coalescing UPDATE of a PENDING mini_opportunity job, issued only by
+    # enqueue_opportunity_job under the study-key advisory lock. Exact text: no other column, domain or status.
+    $opportunityCoalesce = ('(?i)^\s*UPDATE\s+recompute_job\s+SET\s+available_at\s*=\s*greatest\(available_at,\s*:at\)' +
+        '\s+WHERE\s+id\s*=\s*:pending_id\s+AND\s+domain\s*=\s*''mini_opportunity''\s+AND\s+status\s*=\s*''PENDING''\s*$')
+    $opportunityCoalesceSeen = 0
     $assessUpdates = @(
         '(?i)\bUPDATE\s+recompute_job\s+SET\s+status\s*=',
-        '(?i)\bUPDATE\s+recompute_job\s+SET\s+window_start\s*=\s*:start,\s*window_end\s*=\s*:end\s+WHERE\b')
+        '(?i)\bUPDATE\s+recompute_job\s+SET\s+window_start\s*=\s*:start,\s*window_end\s*=\s*:end\s+WHERE\b',
+        $opportunityCoalesce)
     $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
     $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
         'finding_merge', 'finding_match_pass')
@@ -1004,6 +1010,7 @@ function Invoke-ConfigurationPersistenceCheck {
                     $insertOk = $isInsert -and $assessInserts -contains $Matches[1].ToLowerInvariant()
                     $updateOk = $false
                     foreach ($allowed in $assessUpdates) { if ($line -match $allowed) { $updateOk = $true } }
+                    if ($line -match $opportunityCoalesce) { $opportunityCoalesceSeen++ }
                     if (-not ($insertOk -or $updateOk)) {
                         $failures.Add(("The assessment store inserts only $($assessInserts -join ', ') and updates " +
                             "only a recompute job's lease/retry status or a PENDING job's window; " +
@@ -1313,6 +1320,10 @@ function Invoke-ConfigurationPersistenceCheck {
     if ($evPublishEnqueueSeen -lt 1) {
         $failures.Add(("Rule 8 found no ev_enqueue_configuration call in $pgWriter (W2-06 q3 P7 publication " +
             "enqueue), so its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    if ($opportunityCoalesceSeen -lt 1) {
+        $failures.Add(("Rule 8 found no opportunity coalescing UPDATE in $assessWriter (W4-03 closure 4 S2), so its " +
+            "allowance is vacuous. Update the check, do not delete it.")) | Out-Null
     }
     if ($evEnqueueSqlSeen -lt 1) {
         $failures.Add(("Rule 8 found no EV enqueue SQL call in $assessWriter, so the sole-caller check is " +
