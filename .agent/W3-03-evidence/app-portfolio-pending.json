@@ -1,0 +1,394 @@
+[
+ {
+  "width": 1440,
+  "file": "portfolio-pending-1440-app.png",
+  "ready": true,
+  "kind": "success",
+  "checks": {
+   "status": true,
+   "fourPanels": true,
+   "fiveCards": true,
+   "matrixFullScope": true,
+   "overEmpty": true,
+   "noDocOverflow": true
+  },
+  "failed": [],
+  "leaked": [],
+  "over": [],
+  "missing": [],
+  "docOverflow": false,
+  "h1": "Portfolio Value & Operations",
+  "main": "Portfolio",
+  "railCurrent": "Portfolio",
+  "status": "PENDING",
+  "contextText": "Updating selected SitesPortfolio: Some Sites unavailable4 accessible Sites · 1 mini-grid / 1 cold-chain / 2 EV chargingAssessment scope & periods ↗Portfolio scope & consequence ownershipSite / assessm",
+  "cardStates": [
+   "OPERATING_COST:SITE_OWNED:$0.00–$3.44",
+   "SERVICE_PRODUCT_RISK:UNKNOWN:Not assessed",
+   "PRODUCTIVE_USE:UNSUPPORTED:Not established",
+   "ASSET_LIFE:UNSUPPORTED:Not established",
+   "VERIFIED_RECOVERY:NOT_ESTABLISHED:Not established"
+  ],
+  "rows": 3,
+  "matrixSites": 4,
+  "matrixSiteTexts": [
+   "Cold replay labCOLD-LAB-001",
+   "EV charging labEV-LAB-001",
+   "EV charging lab 2EV-LAB-002",
+   "Kobo mini-gridKOBO-001"
+  ],
+  "panels": [
+   "priority",
+   "objectives",
+   "opportunity",
+   "progress"
+  ],
+  "cardCount": 5,
+  "loadMore": false,
+  "privileged": 20,
+  "blocks": {
+   "header": {
+    "top": 24,
+    "h": 59,
+    "w": 1145
+   },
+   "context": {
+    "top": 182,
+    "h": 23,
+    "w": 1145
+   },
+   "scope": {
+    "top": 185,
+    "h": 15,
+    "w": 150
+   },
+   "card0": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card1": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card2": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card3": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card4": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "pulse0": {
+    "top": 445,
+    "h": 18,
+    "w": 133
+   },
+   "pulse1": {
+    "top": 445,
+    "h": 18,
+    "w": 65
+   },
+   "pulse2": {
+    "top": 445,
+    "h": 18,
+    "w": 94
+   },
+   "pulse3": {
+    "top": 445,
+    "h": 18,
+    "w": 87
+   },
+   "pulseNote": {
+    "top": 447,
+    "h": 14,
+    "w": 239
+   },
+   "priority": {
+    "top": 481,
+    "h": 559,
+    "w": 824
+   },
+   "objectives": {
+    "top": 481,
+    "h": 376,
+    "w": 305
+   },
+   "side": {
+    "top": 481,
+    "h": 559,
+    "w": 305
+   },
+   "opportunity": {
+    "top": 1057,
+    "h": 229,
+    "w": 565
+   },
+   "progress": {
+    "top": 1057,
+    "h": 229,
+    "w": 565
+   },
+   "footQty": {
+    "top": 1302,
+    "h": 14,
+    "w": 403
+   },
+   "footLink": {
+    "top": 1302,
+    "h": 14,
+    "w": 91
+   },
+   "footCoverage": {
+    "top": 1302,
+    "h": 14,
+    "w": 165
+   },
+   "prompt": {
+    "top": 870,
+    "h": 170,
+    "w": 305
+   },
+   "doc": {
+    "h": 1362
+   }
+  },
+  "findingsScroll": {
+   "client": 790,
+   "scroll": 790,
+   "clientH": 310,
+   "scrollH": 310,
+   "maxH": "604px",
+   "rowHs": [
+    93,
+    93,
+    93
+   ],
+   "cols": [
+    95,
+    182,
+    190,
+    71,
+    103,
+    150
+   ]
+  },
+  "matrixScroll": {
+   "client": 275,
+   "scroll": 390,
+   "clientH": 212,
+   "scrollH": 212
+  },
+  "docScrollW": 1425,
+  "docClientW": 1425,
+  "refusal": null,
+  "refusalCode": null,
+  "refusalBlock": null,
+  "height": 1362
+ },
+ {
+  "width": 390,
+  "file": "portfolio-pending-390-app.png",
+  "ready": true,
+  "kind": "success",
+  "checks": {
+   "status": true,
+   "fourPanels": true,
+   "fiveCards": true,
+   "matrixFullScope": true,
+   "overEmpty": true,
+   "noDocOverflow": true,
+   "tableScrolls": true,
+   "matrixScrolls": true
+  },
+  "failed": [],
+  "leaked": [],
+  "over": [],
+  "missing": [],
+  "docOverflow": false,
+  "h1": "Portfolio Value & Operations",
+  "main": "Portfolio",
+  "railCurrent": "Portfolio",
+  "status": "PENDING",
+  "contextText": "Updating selected SitesPortfolio: Some Sites unavailable4 accessible Sites · 1 mini-grid / 1 cold-chain / 2 EV chargingAssessment scope & periods ↗Portfolio scope & consequence ownershipSite / assessm",
+  "cardStates": [
+   "OPERATING_COST:SITE_OWNED:$0.00–$3.44",
+   "SERVICE_PRODUCT_RISK:UNKNOWN:Not assessed",
+   "PRODUCTIVE_USE:UNSUPPORTED:Not established",
+   "ASSET_LIFE:UNSUPPORTED:Not established",
+   "VERIFIED_RECOVERY:NOT_ESTABLISHED:Not established"
+  ],
+  "rows": 3,
+  "matrixSites": 4,
+  "matrixSiteTexts": [
+   "Cold replay labCOLD-LAB-001",
+   "EV charging labEV-LAB-001",
+   "EV charging lab 2EV-LAB-002",
+   "Kobo mini-gridKOBO-001"
+  ],
+  "panels": [
+   "priority",
+   "objectives",
+   "opportunity",
+   "progress"
+  ],
+  "cardCount": 5,
+  "loadMore": false,
+  "privileged": 20,
+  "blocks": {
+   "header": {
+    "top": 108,
+    "h": 72,
+    "w": 358
+   },
+   "context": {
+    "top": 371,
+    "h": 55,
+    "w": 358
+   },
+   "scope": {
+    "top": 410,
+    "h": 15,
+    "w": 150
+   },
+   "card0": {
+    "top": 437,
+    "h": 189,
+    "w": 175
+   },
+   "card1": {
+    "top": 437,
+    "h": 189,
+    "w": 175
+   },
+   "card2": {
+    "top": 634,
+    "h": 185,
+    "w": 175
+   },
+   "card3": {
+    "top": 634,
+    "h": 185,
+    "w": 175
+   },
+   "card4": {
+    "top": 827,
+    "h": 204,
+    "w": 175
+   },
+   "pulse0": {
+    "top": 1057,
+    "h": 18,
+    "w": 133
+   },
+   "pulse1": {
+    "top": 1057,
+    "h": 18,
+    "w": 65
+   },
+   "pulse2": {
+    "top": 1057,
+    "h": 18,
+    "w": 94
+   },
+   "pulse3": {
+    "top": 1087,
+    "h": 18,
+    "w": 87
+   },
+   "pulseNote": {
+    "top": 1089,
+    "h": 14,
+    "w": 239
+   },
+   "priority": {
+    "top": 1123,
+    "h": 539,
+    "w": 358
+   },
+   "objectives": {
+    "top": 1678,
+    "h": 361,
+    "w": 358
+   },
+   "side": {
+    "top": 1678,
+    "h": 546,
+    "w": 358
+   },
+   "opportunity": {
+    "top": 2241,
+    "h": 268,
+    "w": 358
+   },
+   "progress": {
+    "top": 2537,
+    "h": 308,
+    "w": 358
+   },
+   "footQty": {
+    "top": 2860,
+    "h": 29,
+    "w": 356
+   },
+   "footLink": {
+    "top": 2895,
+    "h": 14,
+    "w": 91
+   },
+   "footCoverage": {
+    "top": 2895,
+    "h": 14,
+    "w": 165
+   },
+   "prompt": {
+    "top": 2054,
+    "h": 170,
+    "w": 358
+   },
+   "doc": {
+    "h": 2947
+   }
+  },
+  "findingsScroll": {
+   "client": 336,
+   "scroll": 720,
+   "clientH": 326,
+   "scrollH": 326,
+   "maxH": "604px",
+   "rowHs": [
+    94,
+    94,
+    94
+   ],
+   "cols": [
+    86,
+    166,
+    173,
+    65,
+    94,
+    137
+   ]
+  },
+  "matrixScroll": {
+   "client": 328,
+   "scroll": 390,
+   "clientH": 212,
+   "scrollH": 212
+  },
+  "docScrollW": 390,
+  "docClientW": 390,
+  "refusal": null,
+  "refusalCode": null,
+  "refusalBlock": null,
+  "height": 2947
+ }
+]

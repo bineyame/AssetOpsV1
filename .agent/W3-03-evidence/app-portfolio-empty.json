@@ -1,0 +1,390 @@
+[
+ {
+  "width": 1440,
+  "file": "portfolio-empty-1440-app.png",
+  "ready": true,
+  "kind": "success",
+  "checks": {
+   "status": true,
+   "fourPanels": true,
+   "fiveCards": true,
+   "matrixFullScope": true,
+   "overEmpty": true,
+   "noDocOverflow": true,
+   "noForbiddenText": true,
+   "zeroRows": true
+  },
+  "failed": [],
+  "leaked": [],
+  "over": [],
+  "missing": [],
+  "docOverflow": false,
+  "h1": "Portfolio Value & Operations",
+  "main": "Portfolio",
+  "railCurrent": "Portfolio",
+  "status": "EMPTY_SCOPE",
+  "contextText": "No accessible SitesPortfolio: No accessible Sites0 accessible Sites · 0 mini-grid / 0 cold-chain / 0 EV chargingAssessment scope & periods ↗Portfolio scope & consequence ownershipSite / assessmentPeri",
+  "cardStates": [
+   "OPERATING_COST:NO_LINE:No supported value for this window",
+   "SERVICE_PRODUCT_RISK:UNKNOWN:Not assessed",
+   "PRODUCTIVE_USE:UNSUPPORTED:Not established",
+   "ASSET_LIFE:UNSUPPORTED:Not established",
+   "VERIFIED_RECOVERY:NOT_ESTABLISHED:Not established"
+  ],
+  "rows": 0,
+  "matrixSites": 0,
+  "matrixSiteTexts": [],
+  "panels": [
+   "priority",
+   "objectives",
+   "opportunity",
+   "progress"
+  ],
+  "cardCount": 5,
+  "loadMore": false,
+  "privileged": 13,
+  "blocks": {
+   "header": {
+    "top": 24,
+    "h": 59,
+    "w": 1145
+   },
+   "context": {
+    "top": 182,
+    "h": 23,
+    "w": 1145
+   },
+   "scope": {
+    "top": 185,
+    "h": 15,
+    "w": 150
+   },
+   "card0": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card1": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card2": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card3": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "card4": {
+    "top": 221,
+    "h": 198,
+    "w": 219
+   },
+   "pulse0": {
+    "top": 445,
+    "h": 18,
+    "w": 133
+   },
+   "pulse1": {
+    "top": 445,
+    "h": 18,
+    "w": 65
+   },
+   "pulse2": {
+    "top": 445,
+    "h": 18,
+    "w": 94
+   },
+   "pulse3": {
+    "top": 445,
+    "h": 18,
+    "w": 87
+   },
+   "pulseNote": {
+    "top": 447,
+    "h": 14,
+    "w": 239
+   },
+   "priority": {
+    "top": 481,
+    "h": 429,
+    "w": 824
+   },
+   "objectives": {
+    "top": 481,
+    "h": 289,
+    "w": 305
+   },
+   "side": {
+    "top": 481,
+    "h": 429,
+    "w": 305
+   },
+   "opportunity": {
+    "top": 927,
+    "h": 229,
+    "w": 565
+   },
+   "progress": {
+    "top": 927,
+    "h": 229,
+    "w": 565
+   },
+   "footQty": {
+    "top": 1172,
+    "h": 14,
+    "w": 212
+   },
+   "footLink": {
+    "top": 1172,
+    "h": 14,
+    "w": 97
+   },
+   "footCoverage": {
+    "top": 1172,
+    "h": 14,
+    "w": 165
+   },
+   "prompt": {
+    "top": 783,
+    "h": 127,
+    "w": 305
+   },
+   "doc": {
+    "h": 1232
+   }
+  },
+  "findingsScroll": {
+   "client": 790,
+   "scroll": 790,
+   "clientH": 67,
+   "scrollH": 67,
+   "maxH": "604px",
+   "rowHs": [
+    36
+   ],
+   "cols": [
+    95,
+    182,
+    190,
+    71,
+    103,
+    150
+   ]
+  },
+  "matrixScroll": {
+   "client": 275,
+   "scroll": 275,
+   "clientH": 140,
+   "scrollH": 140
+  },
+  "docScrollW": 1425,
+  "docClientW": 1425,
+  "refusal": null,
+  "refusalCode": null,
+  "refusalBlock": null,
+  "height": 1232
+ },
+ {
+  "width": 390,
+  "file": "portfolio-empty-390-app.png",
+  "ready": true,
+  "kind": "success",
+  "checks": {
+   "status": true,
+   "fourPanels": true,
+   "fiveCards": true,
+   "matrixFullScope": true,
+   "overEmpty": false,
+   "noDocOverflow": true,
+   "tableScrolls": true,
+   "matrixScrolls": false,
+   "noForbiddenText": true,
+   "zeroRows": true
+  },
+  "failed": [
+   "overEmpty",
+   "matrixScrolls"
+  ],
+  "leaked": [],
+  "over": [
+   "card0 218>207",
+   "card1 218>207"
+  ],
+  "missing": [],
+  "docOverflow": false,
+  "h1": "Portfolio Value & Operations",
+  "main": "Portfolio",
+  "railCurrent": "Portfolio",
+  "status": "EMPTY_SCOPE",
+  "contextText": "No accessible SitesPortfolio: No accessible Sites0 accessible Sites · 0 mini-grid / 0 cold-chain / 0 EV chargingAssessment scope & periods ↗Portfolio scope & consequence ownershipSite / assessmentPeri",
+  "cardStates": [
+   "OPERATING_COST:NO_LINE:No supported value for this window",
+   "SERVICE_PRODUCT_RISK:UNKNOWN:Not assessed",
+   "PRODUCTIVE_USE:UNSUPPORTED:Not established",
+   "ASSET_LIFE:UNSUPPORTED:Not established",
+   "VERIFIED_RECOVERY:NOT_ESTABLISHED:Not established"
+  ],
+  "rows": 0,
+  "matrixSites": 0,
+  "matrixSiteTexts": [],
+  "panels": [
+   "priority",
+   "objectives",
+   "opportunity",
+   "progress"
+  ],
+  "cardCount": 5,
+  "loadMore": false,
+  "privileged": 13,
+  "blocks": {
+   "header": {
+    "top": 108,
+    "h": 72,
+    "w": 358
+   },
+   "context": {
+    "top": 371,
+    "h": 55,
+    "w": 358
+   },
+   "scope": {
+    "top": 410,
+    "h": 15,
+    "w": 150
+   },
+   "card0": {
+    "top": 437,
+    "h": 218,
+    "w": 175
+   },
+   "card1": {
+    "top": 437,
+    "h": 218,
+    "w": 175
+   },
+   "card2": {
+    "top": 664,
+    "h": 185,
+    "w": 175
+   },
+   "card3": {
+    "top": 664,
+    "h": 185,
+    "w": 175
+   },
+   "card4": {
+    "top": 857,
+    "h": 204,
+    "w": 175
+   },
+   "pulse0": {
+    "top": 1087,
+    "h": 18,
+    "w": 133
+   },
+   "pulse1": {
+    "top": 1087,
+    "h": 18,
+    "w": 65
+   },
+   "pulse2": {
+    "top": 1087,
+    "h": 18,
+    "w": 94
+   },
+   "pulse3": {
+    "top": 1117,
+    "h": 18,
+    "w": 87
+   },
+   "pulseNote": {
+    "top": 1119,
+    "h": 14,
+    "w": 239
+   },
+   "priority": {
+    "top": 1153,
+    "h": 329,
+    "w": 358
+   },
+   "objectives": {
+    "top": 1498,
+    "h": 289,
+    "w": 358
+   },
+   "side": {
+    "top": 1498,
+    "h": 431,
+    "w": 358
+   },
+   "opportunity": {
+    "top": 1946,
+    "h": 268,
+    "w": 358
+   },
+   "progress": {
+    "top": 2242,
+    "h": 308,
+    "w": 358
+   },
+   "footQty": {
+    "top": 2565,
+    "h": 14,
+    "w": 212
+   },
+   "footLink": {
+    "top": 2565,
+    "h": 14,
+    "w": 97
+   },
+   "footCoverage": {
+    "top": 2585,
+    "h": 14,
+    "w": 165
+   },
+   "prompt": {
+    "top": 1802,
+    "h": 127,
+    "w": 358
+   },
+   "doc": {
+    "h": 2638
+   }
+  },
+  "findingsScroll": {
+   "client": 336,
+   "scroll": 720,
+   "clientH": 80,
+   "scrollH": 80,
+   "maxH": "604px",
+   "rowHs": [
+    36
+   ],
+   "cols": [
+    86,
+    166,
+    173,
+    65,
+    94,
+    137
+   ]
+  },
+  "matrixScroll": {
+   "client": 328,
+   "scroll": 328,
+   "clientH": 140,
+   "scrollH": 140
+  },
+  "docScrollW": 390,
+  "docClientW": 390,
+  "refusal": null,
+  "refusalCode": null,
+  "refusalBlock": null,
+  "height": 2638
+ }
+]

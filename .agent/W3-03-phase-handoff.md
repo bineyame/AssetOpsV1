@@ -368,3 +368,28 @@ First resolve P-2-1. Run 3: registry panel rows (S16), pending/empty/refusal cap
   rerun this run (only the focused portfolio tests).
 
 ## Next: rule P-3-1, then resume run 3 (rows, captures, packet), then final review + full suite
+
+## Run 3 resumed (after r3) - PARTIAL: registry landed; all eight captures taken; stopped on P-3-2
+- Merged main (no conflicts). `8af47c17`: r3 literal nodes `I-estate-portfolio-read`/`-ui` (after
+  `I-estate-money-root`), four portfolio `panels` rows (all `gap`), portfolio ledger `registry_dependencies`; registry
+  checker exit 0, ledger valid, check-all 11/11, no checker change. P-3-1 marked resolved.
+- Harness (`test_serve_portfolio.py`): `W303_DB` (default `w303o_test`), `W303_COLD_DRAIN=0` (pending),
+  `W303_NO_CURSOR_KEY=1` (503), `W303_ROUTER=capture` (same router/service moved to the front of the route list; FastAPI
+  keeps included routers as lazy entries, so a path filter cannot remove the mount) with `/__capture/mode`
+  (`limit1`, `auth=deny`, `tenant=foreign`). `capture-portfolio.mjs`: `success <STATUS> <matrixSites>`,
+  `refusal <CODE>`, `refusal-409 <api-base>` (one tab per width, page one at limit 1, add empty Site, click
+  `Load more Findings`), `W303_FORBID` leak check, per-capture `checks`/`failed`.
+- Captures (Vite :5781 -> API :9781, private `w303o_test` recreated per process and dropped; servers stopped by port):
+  positive CURRENT 4 Sites 3 rows doc 1362/2947; refusal-409 (before click CURRENT 1 row + Load more; after: 409
+  `ESTATE_BASIS_CHANGED`, 0 privileged blocks, no Site text); partial UNKNOWN P/P/P 5 Sites 1319/2966; historical
+  HISTORICAL U/U/U 0 rows, first card WITHHELD 1319/2732; pending PENDING C/C/P, 3 rows, product-exposure group 0
+  lines, `Updating selected Sites`, W1 SITE_OWNED `$0.00–$3.44` 1362/2947; empty EMPTY_SCOPE E/E/E 0 rows 0 Sites
+  1232/2638; refusal-401 (401 + `WWW-Authenticate: Bearer`) and refusal-503 (frozen null body): 0 privileged blocks.
+  All `over=[]` and `failed=[]` except empty 390: `card0 218>207; card1 218>207` and `matrixScrolls` (P-3-2).
+  Mock re-measured (`tools/measure-mock-panels.mjs`, portfolio): panel heights equal the run-2 baseline the caps use.
+  Viewed: pending 390, refusal-409 1440, empty 390.
+- Checks: frontend 104 files, 2448/2449 (1 failure `s404SiteFindingIndex.test.tsx` "changing the dates writes a new
+  window" `toHaveValue(2026-10-20)`; the file alone passes 37/37); tsc clean; build ok.
+- Not done: review packet (waits on P-3-2, which may change the page and require recapture).
+
+## Next: rule P-3-2, then finish run 3 (any fix + recapture, packet), then final review + full suite

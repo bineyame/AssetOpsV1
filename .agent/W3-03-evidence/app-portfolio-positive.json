@@ -3,6 +3,17 @@
   "width": 1440,
   "file": "portfolio-positive-1440-app.png",
   "ready": true,
+  "kind": "success",
+  "checks": {
+   "status": true,
+   "fourPanels": true,
+   "fiveCards": true,
+   "matrixFullScope": true,
+   "overEmpty": true,
+   "noDocOverflow": true
+  },
+  "failed": [],
+  "leaked": [],
   "over": [],
   "missing": [],
   "docOverflow": false,
@@ -20,6 +31,21 @@
   ],
   "rows": 3,
   "matrixSites": 4,
+  "matrixSiteTexts": [
+   "Cold replay labCOLD-LAB-001",
+   "EV charging labEV-LAB-001",
+   "EV charging lab 2EV-LAB-002",
+   "Kobo mini-gridKOBO-001"
+  ],
+  "panels": [
+   "priority",
+   "objectives",
+   "opportunity",
+   "progress"
+  ],
+  "cardCount": 5,
+  "loadMore": false,
+  "privileged": 20,
   "blocks": {
    "header": {
     "top": 24,
@@ -164,12 +190,27 @@
   "docScrollW": 1425,
   "docClientW": 1425,
   "refusal": null,
+  "refusalCode": null,
+  "refusalBlock": null,
   "height": 1362
  },
  {
   "width": 390,
   "file": "portfolio-positive-390-app.png",
   "ready": true,
+  "kind": "success",
+  "checks": {
+   "status": true,
+   "fourPanels": true,
+   "fiveCards": true,
+   "matrixFullScope": true,
+   "overEmpty": true,
+   "noDocOverflow": true,
+   "tableScrolls": true,
+   "matrixScrolls": true
+  },
+  "failed": [],
+  "leaked": [],
   "over": [],
   "missing": [],
   "docOverflow": false,
@@ -187,6 +228,21 @@
   ],
   "rows": 3,
   "matrixSites": 4,
+  "matrixSiteTexts": [
+   "Cold replay labCOLD-LAB-001",
+   "EV charging labEV-LAB-001",
+   "EV charging lab 2EV-LAB-002",
+   "Kobo mini-gridKOBO-001"
+  ],
+  "panels": [
+   "priority",
+   "objectives",
+   "opportunity",
+   "progress"
+  ],
+  "cardCount": 5,
+  "loadMore": false,
+  "privileged": 20,
   "blocks": {
    "header": {
     "top": 108,
@@ -331,6 +387,8 @@
   "docScrollW": 390,
   "docClientW": 390,
   "refusal": null,
+  "refusalCode": null,
+  "refusalBlock": null,
   "height": 2947
  }
 ]
