@@ -206,7 +206,7 @@ shows three rows, so the measured register height is below a three-row baseline.
 capture acceptable, or must Lane B/Lane A add a persisted W1 consequence seed (`test_s4_consequence_store_postgres.py`
 `PowerSite`) before review?
 
-## c4-q4 - Aggregation closed cap not met at readable prose size (Lane B, commit-4 fixes)
+## c4-q4 - Aggregation closed cap not met at readable prose size (Lane B, commit-4 fixes) [RESOLVED by c4b: 12px/1.8 prose; measured 121/186 within 123/187]
 Ruling c4 implemented (one closed `Disclosure` summary, `Results (3) · No comparable total`, 12/16 px, one line at
 390; accessible name `3 grouping results. Comparable total unavailable for this selection.`; no default no-total
 paragraph; list `max-height`/`overflow` removed). The summary meets its allowance: wrapper 22 px <= 24 at both widths.

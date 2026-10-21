@@ -67,3 +67,13 @@
     max-height: 300px;
   }
 }
+
+/* Ruling c4b: the mock's 12px / 1.8 prose; the 2px header-gap reduction absorbs the fractional 21.6px line boxes. */
+.estate-financials__aggregation .panel__header {
+  margin-bottom: 15px;
+}
+.estate-financials__aggregation .estate-financials__aggregation-prose {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.8;
+}

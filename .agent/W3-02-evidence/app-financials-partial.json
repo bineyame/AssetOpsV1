@@ -1,6 +1,6 @@
 {
   "state": "partial",
-  "captured_at": "2026-10-21T08:20:14.357Z",
+  "captured_at": "2026-10-21T08:51:53.802Z",
   "limitation": "Three Sites are in scope; two have selected consequence lines. The mini-grid has no selected consequence revision for this window, so no mini-grid amount appears in the register. The two-row register height is not a three-row mock-density proof; the 293/448 px register maxima still apply.",
   "results": [
     {
@@ -14,9 +14,7 @@
         "notice": 66,
         "aggregation": 123
       },
-      "over": [
-        "aggregation 148>123"
-      ],
+      "over": [],
       "h1": "Portfolio financials",
       "eyebrow": "Financials",
       "main": "Financials",
@@ -39,7 +37,7 @@
         },
         "aggregation": {
           "top": 623,
-          "h": 148,
+          "h": 121,
           "w": 1160
         }
       },
@@ -85,12 +83,12 @@
       "aggParts": {
         "pad": "19px/19px",
         "header": 23,
-        "headerMb": "17px",
-        "prose": 46,
-        "proseLh": "23.1px",
-        "proseFs": "14px"
+        "headerMb": "15px",
+        "prose": 22,
+        "proseLh": "21.6px",
+        "proseFs": "12px"
       },
-      "proseFont": "14px",
+      "proseFont": "12px",
       "reach": {
         "groups": 3,
         "diagnostics": 0,
@@ -103,7 +101,7 @@
         "image": "financials-partial-1440-open-app.png",
         "aggregation": {
           "top": 623,
-          "h": 275,
+          "h": 248,
           "w": 1160
         },
         "results": {
@@ -143,9 +141,7 @@
         "notice": 102,
         "aggregation": 187
       },
-      "over": [
-        "aggregation 194>187"
-      ],
+      "over": [],
       "h1": "Portfolio financials",
       "eyebrow": "Financials",
       "main": "Financials",
@@ -168,7 +164,7 @@
         },
         "aggregation": {
           "top": 1020,
-          "h": 194,
+          "h": 186,
           "w": 358
         }
       },
@@ -214,12 +210,12 @@
       "aggParts": {
         "pad": "19px/19px",
         "header": 23,
-        "headerMb": "17px",
-        "prose": 92,
-        "proseLh": "23.1px",
-        "proseFs": "14px"
+        "headerMb": "15px",
+        "prose": 86,
+        "proseLh": "21.6px",
+        "proseFs": "12px"
       },
-      "proseFont": "14px",
+      "proseFont": "12px",
       "reach": {
         "groups": 3,
         "diagnostics": 0,
@@ -227,12 +223,12 @@
         "visible": 0,
         "chipFont": "12px/nowrap"
       },
-      "height": 1256,
+      "height": 1248,
       "opened": {
         "image": "financials-partial-390-open-app.png",
         "aggregation": {
           "top": 1020,
-          "h": 434,
+          "h": 426,
           "w": 358
         },
         "results": {

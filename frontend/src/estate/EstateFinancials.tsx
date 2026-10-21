@@ -405,8 +405,8 @@ export function EstateFinancialsPage({ client }: { client?: EstateFinancialsClie
           <Notice tone="amber" data={{ "data-estate-notice": "" }}>
             {FINANCIALS_NOTICE}
           </Notice>
-          <Panel heading={AGGREGATION_PANEL} headingId="estate-financials-aggregation-heading">
-            <p className="prose estate-financials-prose">{AGGREGATION_PROSE}</p>
+          <Panel heading={AGGREGATION_PANEL} headingId="estate-financials-aggregation-heading" className="estate-financials__aggregation">
+            <p className="prose estate-financials-prose estate-financials__aggregation-prose">{AGGREGATION_PROSE}</p>
             <AggregationResults body={read.value} />
           </Panel>
         </>

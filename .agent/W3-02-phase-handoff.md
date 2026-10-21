@@ -395,3 +395,7 @@ Checks: see the commit message. Branch released.
 
 ## Commit-3 review r1 fix round (done)
 M1 (cold withheld -> covered=False, test extended), M2 (Composite repo already as ruled; RESOLVED marking corrected in pending rulings), L1 (only ERROR_PENDING pends), L2 (TARIFF_UNIT), L4 (PARTITION_INELIGIBLE), L6 (text). L3/L5 carry to commit 4 (copy: "lines in the differing-value category"; mini-grid pending/stale prior amount unavailable in this selection; UI state check; render PARTITION_INELIGIBLE in plain language). Proof: 136 passed, 0 skipped on private DB w302v_test (dropped); check-all 11/11.
+
+## c4b applied - READY FOR FINAL REVIEW
+- c4-q4 resolved: Aggregation panel local class (12px / 1.8 prose, 15px header gap) per c4b. Recaptured (private `w302y_test`, dropped; servers stopped by port): Aggregation closed 121 (cap 123) at 1440, 186 (cap 187) at 390, both states; summary one line; open lists unclipped, doc width = client. 390 image viewed. Test asserts both caps and 12px/21.6px.
+- Frontend 2435 passed, tsc clean, build ok, check-all 11/11. W3-02 is ready for its final review.

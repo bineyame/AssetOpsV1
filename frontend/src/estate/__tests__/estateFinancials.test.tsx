@@ -488,8 +488,7 @@ describe("W3-02 commit 4 measured Financials layout", () => {
     // jsdom has no layout: this reads the real-browser 390 px measurements of the mounted `/financials` page
     // (`.agent/W3-02-evidence/capture-financials.mjs`). Ruling c4: the closed results summary stays within its 24 px
     // allowance at 12 px; opened, the results list never scrolls internally, every group/diagnostic/exclusion is visible
-    // and the page stays unclipped. The closed panel's 187 px cap is not met by the 14 px prose alone (pending c4-q4),
-    // so the panel height is recorded in the capture, not asserted here.
+    // and the page stays unclipped. Ruling c4b: the 12px/1.8 mock prose keeps the closed Aggregation panel within 123 (1440) / 187 (390).
     for (const state of ["positive", "partial"]) {
       const file = `../.agent/W3-02-evidence/app-financials-${state}.json`;
       const narrow = (JSON.parse(await readDisk(file)).results as Record<string, any>[]).find((r) => r.width === 390);
@@ -500,7 +499,7 @@ describe("W3-02 commit 4 measured Financials layout", () => {
       for (const piece of ["status", "register", "notice", "aggregation"]) {
         expect(narrow!.pieces[piece], `${state} ${piece} measured`).not.toBeNull();
       }
-      for (const piece of ["status", "register", "notice"]) {
+      for (const piece of ["status", "register", "notice", "aggregation"]) {
         expect(narrow!.pieces[piece].h, `${state} ${piece} within its 390 maximum`).toBeLessThanOrEqual(narrow!.maxima[piece]);
       }
       const t = narrow!.registerTable;
@@ -509,6 +508,16 @@ describe("W3-02 commit 4 measured Financials layout", () => {
       expect(t.rows).toBeGreaterThan(0);
       expect(t.scroll).toBeGreaterThanOrEqual(t.client); // the table scrolls inside its own container
       expect(t.client).toBeLessThanOrEqual(narrow!.docClientW);
+      const all = JSON.parse(await readDisk(file)).results as Record<string, any>[];
+      for (const r of all) {
+        expect(r.pieces.aggregation.h, `${state} ${r.width} aggregation within cap`).toBeLessThanOrEqual(r.width === 1440 ? 123 : 187);
+        expect(r.aggParts.proseFs).toBe("12px");
+        expect(r.aggParts.proseLh).toBe("21.6px");
+      }
+      const ap = narrow!.aggParts;
+      expect(ap.proseFs).toBe("12px");
+      expect(ap.proseLh).toBe("21.6px");
+      expect(narrow!.aggSummary.lines).toBe(1);
       const s = narrow!.aggSummary;
       expect(s.open).toBe(false);
       expect(s.fontSize).toBe("12px");
