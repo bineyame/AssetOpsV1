@@ -87,7 +87,7 @@ Confirm or replace these Alternatives readings:
 8. The command instant is bound to `mini_alternative_revision.created_at` (DB `clock_timestamp()` in production; a
    constructor-only `test_db_clock_override`, as W4-01) because the W1 fixture Findings carry future fixture times.
 
-## PR-6 (raised in unit 4; BLOCKS the opportunity projection, pieces b-remainder/c/d)
+## PR-6 (raised in unit 4) - RESOLVED by build-spec "Unit-4 rulings (u4)"; built in c4180e15
 
 Pieces landed: (a) `afd15193` job methods + Rule 8 coalesce allowance + 6 negative/1 positive probes; (b, partial)
 `24e460d3` scan, reconcile and S5 `input_sha256` (tests 3 passed). The projection must write the stored `result`
@@ -104,3 +104,41 @@ contract leaves these values open. Builder asks; no reading taken:
    stored status LIMITED), or is it only the read-time currentness axis ("status is claim-only")? And is the
    MIXED/UNKNOWN provenance test the `selected_source_provenance` block of that same reader over the five days?
 4. `day_rows[].constraints`: the stored W4-02 row's `constraints` list (empty for a missing day)? Confirm.
+
+## PR-7 (raised before unit 5 build) - OPEN, blocking unit 5
+
+u4b test additions landed (ba492755). Unit 5 not started: the read contract (original API block; closure 1 Q1-Q3,
+Q7-Q16; closure 4 S5/S7/S9/S14/S20; u4) leaves these values open. Builder asks; each item gives the reading the
+builder would take, for confirm or replace.
+
+1. **List envelope `status`** (`mini-opportunities-1`). Q12-Q16 says scenarios/alternatives carry UNKNOWN because they
+   are authored; it does not say how the opportunity list aggregates its rows' frozen statuses. Reading: weakest over
+   all eligible rows before paging, `UNKNOWN < LIMITED < SUPPORTED`; zero rows -> UNKNOWN.
+2. **Opportunity `currentness.state` precedence.** Inputs per study day: the stored pin vs the S9 basis head at cutoff
+   (different `mini_revision_id`, or a head now present where the pin was missing = newer selection), the basis day
+   `state`, and overlapping W4-03 `mini_opportunity` jobs. Reading: (a) an overlapping opportunity job
+   PENDING/LEASED/FAILED with `available_at<=known_at` not cleared by a later opportunity selection - the W4-02 `_JOBS`
+   rule, so FAILED also maps to PENDING_RECOMPUTE as in W4-02 - or any basis day PENDING_RECOMPUTE (or with live job
+   IDs on a missing day) -> PENDING_RECOMPUTE; (b) else a newer selection or a basis day STALE_SOURCE -> STALE_SOURCE;
+   (c) else any missing pinned day -> UNKNOWN (S7); (d) else explicit past cutoff -> HISTORICAL; (e) else CURRENT. No
+   revision at cutoff -> UNKNOWN, or PENDING_RECOMPUTE when (a) holds. `job_state` = W4-02 `aggregate_job` over the
+   five basis days plus the opportunity job's own state (SETTLED when none). Is UNKNOWN for an unchanged missing day
+   correctly placed below a newer selection/stale digest?
+3. **Read-time limitation codes.** u4 names `RECOMPUTE_PENDING` and `SOURCE_STALE` as read-time only. Reading: append
+   them (as the scenario row gate does) after the stored codes, plus `SELECTION_CHANGED` for a newer selection and
+   `SCENARIO_BASIS_MISMATCH` (closure 1) for a stored but incompatible association, each once with `evidence_ids:[]`.
+   Confirm the code for a newer selection and the order.
+4. **Detail "selected revision history"** (Q12-Q16) has no shape. Reading: `history:[{revision_id,revision_no,
+   input_sha256,created_at,selection_seq,selected_at,job_id,status,current}]`, one entry per selection visible at the
+   cutoff, ordered `(selected_at DESC, seq DESC)`, with `current` true only on the head; revisions never selected are
+   omitted. Also: are the scenario associations' history (all remain inspectable) a second `scenario_links:[...]`
+   array on the detail, and with which keys?
+5. **List row and detail object shape.** Reading: the original wire `opportunity` object plus S14
+   `first_day,last_day,model_version`, `code` `OPP-%06d` from `public_no`, `day_rows` from the frozen result merged with
+   `selected_hours` `selection_seq`/`mini_revision_id` (and the frozen `constraints`), `headroom_kw` as S8 strings; a
+   list row is that object without `history`. Per-row `status`/`currentness`/limitations sit on the list row too?
+6. **Opportunity list window.** Q12-Q16 says reject partial-day bounds. Reading: `from`/`to` both required (missing ->
+   422 `INVALID_WINDOW`), each exactly a Site-local midnight, `from<to`; intersection on `[first_day,last_day]`.
+7. **`links.site_work` route** when a `mini_decision_work_link` names the opportunity (work-link command is unit 8).
+   Reading: `/sites/<site-uuid>/work` (W4-01 Site Work route); null until unit 8 lands the command. Confirm the
+   literal path.
