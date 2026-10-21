@@ -637,6 +637,49 @@ describe("W4-03 unit 8: Site Work decision context", () => {
     for (const id of ids) expect(row(id).querySelector("[data-work-case-title] a")).toBeNull();
   });
 
+  it("u9b_incident_linked_and_refused_overlay_panels", async () => {
+    const finding = { finding_id: FINDING, finding_revision_id: FINDING_REV, label: "x", href: "/x" };
+    const rows = [incidentRow(1, { finding_links: [finding] }), incidentRow(2)];
+    const ids = rows.map((r) => r.case_id);
+    serve({
+      [api("incidents", DAY)]: { status: 200, body: body(rows, { total_count: 2 }) },
+      [contextsPath(ids)]: contextsBody({
+        [ids[0]]: [{ kind: "SCENARIO", id: SCN, label: "SCN-000002 · Grain mill one-hour trial", url: null }],
+        [ids[1]]: [],
+      }),
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    const linked = panelTitled("Incidents at this site");
+    await vi.waitFor(() => expect(linked.querySelector("[data-work-decision-context]")).not.toBeNull());
+    // The overlay adds no panel: the W4-01 panel structure holds with the linked context rendered.
+    expectV69Panels("sitework-incidents");
+    expectPlantedPanelRejected("sitework-incidents");
+    const line = linked.querySelector("[data-work-decision-context='loaded']") as HTMLElement;
+    expect(text(line)).toBe("Decision context: SCN-000002 · Grain mill one-hour trial (Scenario detail unavailable)");
+    expect(line.querySelector("a")).toBeNull();
+    cleanup();
+
+    // A scoped 503 on the overlay leaves the W4-01 list intact: same rows, same count, literal copy, no prefix.
+    serve({
+      [api("incidents", DAY)]: { status: 200, body: body(rows, { total_count: 2 }) },
+      [contextsPath(ids)]: { status: 503, body: { detail: { code: "SERVICE_UNAVAILABLE", message: "x" } } },
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    const refused = panelTitled("Incidents at this site");
+    await vi.waitFor(() =>
+      expect(refused.querySelectorAll("[data-work-decision-context='unavailable']")).toHaveLength(2),
+    );
+    expectV69Panels("sitework-incidents");
+    expectPlantedPanelRejected("sitework-incidents");
+    for (const el of Array.from(refused.querySelectorAll("[data-work-decision-context]"))) {
+      expect(text(el)).toBe("Decision context unavailable");
+    }
+    expect(refused.querySelectorAll("[data-work-row]")).toHaveLength(2);
+    expect(text(strip())).toContain("Scoped to Kobo · 2 incidents");
+  });
+
   it("unverified_maintenance_and_unavailable_destinations", async () => {
     const rows = [
       requestRow(4, { request_state: "COMPLETED", state: "COMPLETED", activity: "Starter connection inspected" }),

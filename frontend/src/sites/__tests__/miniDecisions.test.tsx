@@ -35,6 +35,9 @@ import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClie
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { settledScreen } from "../../test/settled";
+import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 /*
  * W4-03 unit 6a ("Unit-5..12 rulings (u5)" Units 6a-6b; closure 1 Scenarios UI; closure 4 S13/S15): mini
@@ -163,6 +166,26 @@ const noControl = (el: Element | null) => {
   expect(el!.getAttribute("tabindex")).toBeNull();
 };
 
+/** u9b: every link in the screen content resolves to an exact in-app route; no dead or placeholder control. */
+const noDeadCta = (scope: HTMLElement) => {
+  for (const a of Array.from(scope.querySelectorAll("a"))) {
+    const href = a.getAttribute("href") ?? "";
+    expect(href, `link "${a.textContent}"`).toMatch(/^\/[a-z]/);
+    expect(href, `link "${a.textContent}"`).not.toMatch(/undefined|null|#$|\/\/|\s/);
+  }
+  for (const b of Array.from(scope.querySelectorAll("button"))) {
+    expect(b.hasAttribute("disabled"), `button "${b.textContent}"`).toBe(false);
+    expect(b.getAttribute("aria-disabled"), `button "${b.textContent}"`).not.toBe("true");
+  }
+  expect(scope.querySelector('[href="#"], [data-placeholder], [data-mock-only]')).toBeNull();
+};
+/** u9b: the narrow viewport the mock budgets were measured at. */
+const atWidth = (w: number) => {
+  Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: w });
+  window.dispatchEvent(new Event("resize"));
+};
+const MINI_CSS = readFileSync(resolve(__dirname, "../w4-mini-decisions.css"), "utf-8").replace(/\s+/g, " ");
+
 describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
   it("scenario_empty_populated_and_refused", async () => {
     renderAt(`/sites/${CODE}/financials/scenarios`, [ok(list([]))]);
@@ -284,6 +307,59 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     await screen.findByText("Grain mill one-hour trial");
     expect(reload.getScenarios).toHaveBeenCalledTimes(1);
     expect(reload.getScenarios).toHaveBeenCalledWith(CODE, { from: FROM, to: TO, known_at: KNOWN, cursor: null });
+  });
+
+  it("scenario_v69_panels_and_planted_rejection", async () => {
+    const refused: DecisionRead<ScenarioListBody> = {
+      status: "refused",
+      httpStatus: 422,
+      code: "INVALID_WINDOW",
+      message: "The window end is before its start.",
+    };
+    for (const answer of [ok(list([row()])), ok(list([])), refused]) {
+      cleanup();
+      renderAt(`/sites/${CODE}/financials/scenarios`, [answer]);
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("[data-scenarios-notice]")).not.toBeNull());
+      expectV69Panels("scenarios");
+      expectPlantedPanelRejected("scenarios");
+    }
+  });
+
+  it("narrow_mock_panel_budgets", async () => {
+    atWidth(390);
+    try {
+      const rows = [1, 2, 3, 4].map((n) => row({ id: id(60 + n), revision_id: id(70 + n), code: `SCN-00000${n}` }));
+      renderAt(`/sites/${CODE}/financials/scenarios`, [ok(list(rows))]);
+      await settledScreen();
+      await waitFor(() => expect(cells()).toHaveLength(4));
+      // The grid scrolls inside its panel: the table sits in the shared scroll box under the scenarios wrapper.
+      const scroll = document.querySelector(".mini-scenarios-table .data-table__scroll");
+      expect(scroll?.querySelector("table")).not.toBeNull();
+      expect(scroll?.closest(".panel")?.querySelector("h2")?.textContent).toBe("Financial scenarios");
+      // Mock budget at 390: min-width 720, sticky 144 px Scenario column, header plus three rows before scrolling.
+      expect(MINI_CSS).toContain(
+        "@media (max-width: 600px) { .mini-scenarios-table .data-table__scroll { max-height: calc(36px + 3 * 72px); overflow: auto; }",
+      );
+      expect(MINI_CSS).toContain(".mini-scenarios-table .data-table { min-width: 720px; }");
+      expect(MINI_CSS).toContain(".mini-scenarios-table col:first-child { width: 144px !important; }");
+      expect(MINI_CSS).toContain(".mini-scenarios-table td:first-child { position: sticky; left: 0;");
+      expect(document.querySelectorAll("[data-scenarios-table] tbody th[scope='row']")).toHaveLength(4);
+    } finally {
+      atWidth(1024);
+    }
+  });
+
+  it("exact_routes_no_dead_cta", async () => {
+    renderAt(`/sites/${CODE}/financials/scenarios`, [ok(list([row()]))]);
+    await settledScreen();
+    await waitFor(() => expect(cells()).toHaveLength(1));
+    expect(location()).toMatch(new RegExp(`^/sites/${CODE}/financials/scenarios([?]|$)`));
+    const panel = panelTitled("Financial scenarios");
+    noDeadCta(panel);
+    // A row with url:null has no Scenario route: plain text, no control.
+    const plain = Array.from(panel.querySelectorAll("tbody th *")).find((el) => el.textContent === "Scenario detail unavailable");
+    noControl(plain ?? null);
   });
 
   it("scenario_site_type_tabs_and_no_cold_ev_promotion", async () => {
@@ -614,6 +690,63 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     expect(await probe(findingsClient(() => ({ status: "unavailable", message: null })))).toBe("none");
     expect(await probe(undefined)).toBe("none");
     expect(await probe(findingsClient(() => w1(CODE, REV)), CODE, null)).toBe("none");
+  });
+
+  it("alternative_v69_panels_and_planted_rejection", async () => {
+    const findings = findingsClient(() => w1(CODE, REV));
+    const refused: DecisionRead<AlternativeListBody> = {
+      status: "refused",
+      httpStatus: 503,
+      code: "DECISION_STORE_UNAVAILABLE",
+      message: "The decision store is unavailable.",
+    };
+    for (const answer of [alternatives([alternative()]), alternatives([]), refused]) {
+      cleanup();
+      frameAt(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`, findings, answer);
+      await settledScreen();
+      await waitFor(() => expect(screen.getByRole("heading", { level: 2, name: "Alternatives to investigate" })).toBeTruthy());
+      expectV69Panels("alternatives");
+      expectPlantedPanelRejected("alternatives");
+    }
+  });
+
+  it("narrow_mock_panel_budgets", async () => {
+    atWidth(390);
+    try {
+      const findings = findingsClient(() => w1(CODE, REV));
+      frameAt(
+        `/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`,
+        findings,
+        alternatives([alternative(), alternative({ id: id(44), revision_id: id(45) })]),
+      );
+      await settledScreen();
+      await waitFor(() => expect(tableCells()).toHaveLength(2));
+      // All three columns are kept at 390 (no column dropped); the table scrolls inside its panel.
+      expect(Array.from(document.querySelectorAll("[data-alternatives-table] thead th"), (th) => th.textContent)).toHaveLength(3);
+      for (const r of tableCells()) expect(r).toHaveLength(3);
+      const scroll = document.querySelector(".mini-alternatives-table .data-table__scroll");
+      expect(scroll?.querySelector("table")).not.toBeNull();
+      expect(scroll?.closest(".panel")?.querySelector("h2")?.textContent).toBe("Alternatives to investigate");
+      expect(MINI_CSS).toContain(".mini-alternatives-table .data-table { table-layout: fixed; }");
+    } finally {
+      atWidth(1024);
+    }
+  });
+
+  it("exact_routes_no_dead_cta", async () => {
+    const findings = findingsClient(() => w1(CODE, REV));
+    frameAt(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`, findings, alternatives([alternative()]));
+    await settledScreen();
+    await waitFor(() => expect(tableCells()).toHaveLength(1));
+    expect(location()).toBe(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`);
+    noDeadCta(panelTitled("Alternatives to investigate"));
+    // Section links stay on this Site and carry the exact selected revision; none is a dead control.
+    const sections = Array.from(document.querySelectorAll('nav[aria-label="Finding sections"] a'), (a) => a.getAttribute("href") ?? "");
+    expect(sections.length).toBeGreaterThan(0);
+    for (const href of sections) {
+      expect(href).toMatch(new RegExp(`^/sites/${CODE}/`));
+      expect(href).toContain(REV);
+    }
   });
 
   it("cold_ev_alternatives_absent", async () => {
@@ -1265,6 +1398,38 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     fireEvent.click(screen.getByRole("button", { name: "Inspect opportunity evidence" }));
     expect(document.querySelector("[data-opportunity-evidence]")?.className).toContain("mini-opportunity-drawer");
     // Discovery stays as ruled: no Site/estate Opportunity index row or route is promoted (closure 4 S11/S21).
+    expect(document.querySelector('a[href*="/findings/opportunities"]')).toBeNull();
+  });
+
+  it("opportunity_v69_panels_and_planted_rejection", async () => {
+    await show(body());
+    expectV69Panels("opportunity-finding");
+    expectPlantedPanelRejected("opportunity-finding");
+    const page = document.querySelector("[data-opportunity-page]")!;
+    expect(page.querySelector("[data-opportunity-status]")).not.toBeNull();
+    expect(page.querySelectorAll("[data-opportunity-cards] > li")).toHaveLength(4);
+  });
+
+  it("narrow_mock_panel_budgets", async () => {
+    atWidth(390);
+    try {
+      await show(body());
+      expectV69Panels("opportunity-finding");
+      fireEvent.click(screen.getByRole("button", { name: "Inspect opportunity evidence" }));
+      const drawer = document.querySelector("[data-opportunity-evidence]")!;
+      expect(drawer.className).toContain("mini-opportunity-drawer");
+      expect(drawer.closest(".panel")?.querySelector("h2")?.textContent).toBe("Bounded opportunity");
+      // Evidence list: at most 96 px high with inner scroll.
+      expect(MINI_CSS).toContain(".mini-opportunity-drawer { max-height: 96px; overflow-y: auto; }");
+    } finally {
+      atWidth(1024);
+    }
+  });
+
+  it("exact_routes_no_dead_cta", async () => {
+    await show(body());
+    expect(location()).toBe(`/sites/${CODE}/opportunities/${OPP}`);
+    noDeadCta(document.querySelector("[data-opportunity-page]") as HTMLElement);
     expect(document.querySelector('a[href*="/findings/opportunities"]')).toBeNull();
   });
 
