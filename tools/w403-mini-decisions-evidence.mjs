@@ -271,7 +271,9 @@ for (const c of CASES) for (const [w, h] of SIZES) {
   if (c.screen === "scenarios") check(m.extra.scenarioNotice === "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.", "Scenarios notice unchanged");
   if (c.state === "scenarios-populated") {
     check(SCENARIO_ROWS !== null && m.extra.scenarioRows === SCENARIO_ROWS, `scenario rows ${m.extra.scenarioRows} = read ${SCENARIO_ROWS}`);
-    check(m.extra.scrollBox && m.extra.scrollBox.maxHeight === "252px" && m.extra.scrollBox.overflowY === "auto", `Scenarios table inner vertical scroll box (${JSON.stringify(m.extra.scrollBox)}, ${JSON.stringify(m.extra.tableScroll)})`);
+    // u9c: 144 px at 1440 and 188 px at 390, with the authored rows scrolling vertically inside that box.
+    const cap = w === 390 ? "188px" : "144px";
+    check(m.extra.scrollBox && m.extra.scrollBox.maxHeight === cap && m.extra.scrollBox.overflowY === "auto" && m.extra.tableScroll && m.extra.tableScroll.scrollH > m.extra.tableScroll.clientH, `Scenarios table inner vertical scroll box ${cap} (${JSON.stringify(m.extra.scrollBox)}, ${JSON.stringify(m.extra.tableScroll)})`);
     const d = m.extra.disclosure;
     check(d && d.closedH === 0 && !d.inTable && d.expanded === "true" && d.h <= 96 && d.ids.length >= 1 && d.ids.every((x) => /^[0-9a-f-]{36}$/.test(x)),
       `pinned-revision disclosure: closed 0 px, outside the table, exact IDs in a bounded box (${JSON.stringify(d && { ...d, ids: d.ids.length })})`);

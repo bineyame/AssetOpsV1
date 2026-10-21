@@ -253,7 +253,7 @@ state (Scenarios, Opportunity, both Work screens); no missing or extra panel was
    after the late rerun). Options: split `replay` so `capture` can run between the positive and late branches, or
    accept stale/limited states as the Opportunity evidence. And is the harness `known_at` rewrite acceptable?
 
-## PR-13 (raised applying u9b) - OPEN: two inclusive caps still breached after every ruled PR-12 fix
+## PR-13 (raised applying u9b) - RESOLVED by u9c (Scenarios 144/188 px, Incidents 224 px; `var/w403r/capture/evidence.json` 359/359: Scenarios populated 328 <= 348 at 1440 and 372 <= 391 at 390, Incidents refused 456 and linked 430 <= 460 at 390, 445/425 at 1440)
 
 Capture `var/w403q/capture/evidence.json` (code `6f2bea4b` + stock fix, DB `w403q_test`): 359 checks, 356 passed. The
 check total rose from 265 because u9b added checks (positive phase 44, disclosure, wire/cutoff, 503 order, overlay).
