@@ -170,3 +170,38 @@ Spec: original Alternative paragraph/panel ledger; closure 1 Q1-Q3, Q12-Q16; clo
 - `check-all.ps1`: all 11 guards passed.
 
 Next: unit 4.
+
+## u3 applied (commit cb9211fe)
+
+All eight u3 readings matched the `ff79469b` code; no service change. `test_w403_alternative_postgres.py` gains the
+named vectors: retry after R2, second version 1 on R2, wrong-key and wrong-path predecessor, blank/501 missing reason,
+foreign-Site citation (replica copy), fresh-service stable row IDs, R2 requested before its cutoff, wrong-path revision
+POST 422 / GET 404, and `test_one_command_instant_governs_basis_citation_and_recorded_at` (clock just before a citation's
+`received_at`, across R2's `created_at`, exact `recorded_at`). 5 passed (49 s). PR-5 marked resolved.
+
+## Unit 4 (PARTIAL; commit 17b77a6a) - resume here
+
+Landed: B3 literals add `'mini_opportunity'` at `postgres_finding_store.py:115` and `postgres_evidence_ledger.py:814`;
+`PostgresAssessmentStore.lease_job` refuses `mini_opportunity` (beside the `MINI_JOB_DOMAINS` refusal, ~line 336).
+W4-02 `test_w402_mini_lease_postgres.py` + `test_w402_cold_enqueue_gate_postgres.py`: 4 passed. Stopped for context budget.
+
+Still to build (read: u3 "Unit 4 dry-read", u1 PR-1, closure 2 Q4 SQL, closure 4 B3/S1-S7/S19):
+- `postgres_assessment_store.py`: `enqueue_opportunity_job` (advisory lock, PENDING FOR UPDATE, coalesce UPDATE or INSERT;
+  `test_clock_override` at this seam), `lease_opportunity_job`, `settle_opportunity_job`, `fail_opportunity_job`, each with
+  literal `domain='mini_opportunity'`; pattern: `lease_mini_job`/`settle_mini_job`/`fail_mini_job` (~lines 367-430).
+- Rule 8: allow the coalescing `UPDATE recompute_job SET available_at = greatest(...)` only there
+  (`tools/checks/configuration-persistence.ps1`), with positive/negative probes in `tools/writer_guard_probes.py`.
+- `mini_decisions/worker.py`: scan (head query, `:at - interval '5 days'`, S5 physical identity incl. null missing days),
+  `reconcile`, lease loop, projection (S5 `input_sha256`, reuse existing revision, selection only on change), job
+  window/five-noon validation before inserts; no `recompute_job` DML in the worker.
+- Scheduling: `record_opportunity` + three `_SITE_HEAD` columns (pattern `record_mini`), OPPORTUNITY after MINI in
+  `ScheduleTick._site`, stages, limits, lease budget, `TickReport`; Site selection for PENDING/LEASED opportunity jobs.
+- Tests: `test_w403_opportunity_job_isolation_postgres.py` (B3) plus the u3 unit-4 list (token loss, atomic counters,
+  opportunity-only Site, failed stage, resume, unchanged reselection, late evidence, missing day, retention edge,
+  historical reconcile, window mismatch, coalesced scan, interrupted lease, exact five-day selection).
+
+## Checks (u3 + unit 4 partial)
+- Private DB `w403f_test` (dropped afterwards). No full suite run.
+- `check-all.ps1` at 17b77a6a: all 11 guards passed.
+
+Next: unit 4 (resume the remainder above), then unit 5.
