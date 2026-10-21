@@ -798,6 +798,12 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniTables = @('mini_depth_revision', 'mini_depth_revision_evidence', 'mini_depth_selection')
     $miniInsertsSeen = @{}
     foreach ($table in $miniTables) { $miniInsertsSeen[$table] = 0 }
+    # W4-02 q12-6 (final review B-L1): migration 0029 also creates `site_cutover_basis`, the explicit
+    # NO_LEGACY_EVIDENCE cutover basis. The Foundation store is its sole writer, INSERT-only (its idempotent
+    # ON CONFLICT ... DO NOTHING is not an upsert; no UPDATE, DELETE, DO UPDATE, TRUNCATE, MERGE or COPY from any
+    # module), and it must keep at least one owner INSERT (anti-vacuity below).
+    $cutoverTable = 'site_cutover_basis'
+    $cutoverInsertsSeen = 0
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -1049,6 +1055,17 @@ function Invoke-ConfigurationPersistenceCheck {
                         $miniInsertsSeen[$target]++
                     }
                 }
+                if ($null -ne $target -and $target -eq $cutoverTable) {
+                    if ($module.Path -ne $pgWriter) {
+                        $failures.Add(("Only $pgWriter writes cutover basis table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bDO\s+UPDATE\b') {
+                        $failures.Add(("Cutover basis table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $cutoverInsertsSeen++
+                    }
+                }
                 if ($null -ne $target -and $workTables -contains $target) {
                     if ($module.Path -ne $workWriter) {
                         $failures.Add(("Only $workWriter writes work table '$target'; " +
@@ -1247,6 +1264,10 @@ function Invoke-ConfigurationPersistenceCheck {
         $failures.Add(("Rule 8 found no mini_enqueue_configuration call in $pgWriter (W4-02 publication enqueue), so " +
             "its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
     }
+    if ($extractorRan -and $cutoverInsertsSeen -lt 1) {
+        $failures.Add(("Rule 8 found no INSERT INTO $cutoverTable in $pgWriter, so the cutover basis insert-only " +
+            "check is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
     foreach ($table in $miniTables) {
         if ($extractorRan -and $miniInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $miniWriter, so the mini-depth insert-only check " +
@@ -1413,6 +1434,10 @@ function Invoke-ConfigurationPersistenceCheck {
             "mini $table delete", "mini $table upsert", "mini $table owner insert unseen")
     }
     $workProbeNames += @('mini truncate', 'mini enqueue foreign call', 'mini enqueue hour from publication')
+    # W4-02 B-L1: the q12-6 cutover basis writer policy fails closed the same way.
+    $workProbeNames += @("controls cutover $cutoverTable insert", "cutover $cutoverTable foreign insert",
+        "cutover $cutoverTable update", "cutover $cutoverTable delete", "cutover $cutoverTable upsert",
+        "cutover $cutoverTable truncate", "cutover $cutoverTable owner insert unseen")
     foreach ($probeName in $workProbeNames) {
         if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
             $failures.Add(("Rule 8 work probe '$probeName' is missing from tools/writer_guard_probes.py; " +

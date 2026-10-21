@@ -44,6 +44,9 @@ Sets:
   `mini_depth/store.py`; `mini truncate`; `mini enqueue foreign call` (the assessment store calling the 0029 enqueue
   SQL) and `mini enqueue hour from publication` (the Foundation store calling anything but
   `mini_enqueue_configuration`). Rule 8 fails closed when any name is missing.
+- `cutover site_cutover_basis ...`: W4-02 q12-6 (B-L1) cutover basis table of migration 0029, owned INSERT-only by
+  the Foundation store (its ON CONFLICT DO NOTHING is allowed): foreign INSERT, UPDATE, DELETE, DO UPDATE, TRUNCATE
+  and `owner insert unseen`; `controls cutover site_cutover_basis insert` must pass.
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -704,6 +707,22 @@ NEGATIVE += [
      '_OPS02 = "SELECT mini_enqueue_hour(:t, :s, :d, :lo, :hi, NULL, :at)"\n', MINI_ENQUEUE),
 ]
 
+# W4-02 q12-6 (final review B-L1): the Foundation store alone INSERTs `site_cutover_basis`, which no module
+# updates, deletes, upserts or truncates; the store keeps its one owner INSERT.
+CUTOVER_ONLY = "Cutover basis table 'site_cutover_basis' is insert-only"
+NEGATIVE += [
+    ("cutover site_cutover_basis foreign insert", FINDING, _work_foreign("site_cutover_basis"),
+     "writes cutover basis table 'site_cutover_basis'"),
+    ("cutover site_cutover_basis update", FOUNDATION,
+     split("site_cutover_basis", "source_sha256 = :s WHERE site_id = :i"), CUTOVER_ONLY),
+    ("cutover site_cutover_basis delete", FOUNDATION, _work_delete("site_cutover_basis"), CUTOVER_ONLY),
+    ("cutover site_cutover_basis upsert", FOUNDATION, _work_upsert("site_cutover_basis"), CUTOVER_ONLY),
+    ("cutover site_cutover_basis truncate", FOUNDATION, '_OPS02 = "TRUNCATE site_cutover_basis"\n', CUTOVER_ONLY),
+    ("cutover site_cutover_basis owner insert unseen", FOUNDATION,
+     ("replace", '"INSERT INTO site_cutover_basis (', '"SELECT * FROM site_cutover_basis WHERE ('),
+     "Rule 8 found no INSERT INTO site_cutover_basis in "),
+]
+
 WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls attestation insert", ASSESS,
      '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id, proof_class) "\n    "VALUES (:i, :p)"\n)\n'),
@@ -789,6 +808,7 @@ WRITER_CONTROLS += [
     ("controls mini mini_depth_revision insert", MINI, _work_control("mini_depth_revision")),
     ("controls mini mini_depth_revision_evidence insert", MINI, _work_control("mini_depth_revision_evidence")),
     ("controls mini mini_depth_selection insert", MINI, _work_control("mini_depth_selection")),
+    ("controls cutover site_cutover_basis insert", FOUNDATION, _work_control("site_cutover_basis")),
 ]
 
 
