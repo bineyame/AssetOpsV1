@@ -20,12 +20,12 @@ MESSAGES = {
     "DECISION_CORRECTION_CONFLICT": "This decision has a newer correction; reload its latest version.",
     "DECISION_INPUT_INVALID": "A required decision field or unit is invalid.",
     "DECISION_ATTESTATION_INVALID": "Service attestation must name the authenticated service, job and rule version.",
-    "DECISION_LINK_SCOPE_INVALID": "A linked record is not in this Site and tenant.",
+    "DECISION_LINK_SCOPE_INVALID": "A cited or linked ID is outside this Site or basis.",
     "DECISION_COUNTEREVIDENCE_INVALID": "Ruling out needs cited accepted counterevidence for this Finding's window.",
     "INVALID_WINDOW": "Select a valid Site-local window.",
     "INVALID_KNOWN_AT": "Select a time no later than now.",
     "INVALID_CURSOR": "Reload the first page.",
-    "INVALID_LIMIT": "`limit` must be an integer from 1 to 100.",
+    "INVALID_LIMIT": "Choose 1 to 100 rows.",
     "DECISION_STORE_UNAVAILABLE": "Decision records could not be read or saved.",
 }
 STATUS = {

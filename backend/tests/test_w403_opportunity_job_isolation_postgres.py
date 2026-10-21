@@ -32,7 +32,7 @@ if URL:
         make_tick,
     )
     from test_w203_cold_migration_postgres import _replica
-    from test_w402_reads_postgres import CODE, DAYS, _midnight
+    from test_w402_reads_postgres import CODE, DAYS, _midnight, _setup
     from test_w403_opportunity_worker_postgres import counts, worker
     from test_w403_scenarios_postgres import mg
 
@@ -42,6 +42,7 @@ if URL:
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
     from assetops_backend.mini_decisions import projection
     from assetops_backend.mini_decisions.store import PostgresMiniDecisionStore
+    from assetops_backend.scheduling import stages
     from assetops_backend.scheduling.composition import build_schedule_store
     from assetops_backend.scheduling.tick import TickLimits
 
@@ -74,6 +75,39 @@ def test_b3_opportunity_job_is_invisible_to_both_w1_fences(store, engine) -> Non
     fence, projection_rows = fences(engine, t, s)
     assert fence != before[0] and fence.job_count == before[0].job_count + 1
     assert projection_rows != before[1] and any(r["status"] == "PENDING" for r in projection_rows)
+
+
+def test_u4b_stage_deferred_counts_this_sites_pending_and_leased_only(store, engine) -> None:  # noqa: F811
+    """u4b item 4 (final review M4): the real `stages.opportunity` over this Site's due job that fails on its last
+    attempt, a not-yet-due PENDING job, a LEASED job and another Site's PENDING job. `deferred` is this Site's
+    `live_opportunity_jobs` after the loop (PENDING + LEASED = 2), `failed` the terminal outcomes of this invocation;
+    the foreign job neither runs nor counts. A Site with no renewable heads, so the stage's scan queues nothing."""
+    _, t, s = _setup(store, engine)
+    lo = STUDY[0]
+    ids = {name: uuid4() for name in ("doomed", "later", "leased", "foreign")}
+    rows = (  # (name, tenant, site, window_end, status, available_at, lease_until, attempts)
+        ("doomed", t, s, lo + timedelta(hours=1), "PENDING", "now() - interval '1 hour'", "NULL", 2),
+        ("later", t, s, STUDY[1], "PENDING", "now() + interval '1 day'", "NULL", 0),
+        ("leased", t, s, STUDY[1], "LEASED", "now() - interval '1 hour'", "now() + interval '1 hour'", 1),
+        ("foreign", uuid4(), uuid4(), STUDY[1], "PENDING", "now() - interval '2 hours'", "NULL", 0),
+    )
+    _replica(engine, *(
+        "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, available_at, "
+        f"lease_until, attempts, created_at) VALUES ('{ids[n]}', '{tt}', '{ss}', 'mini_opportunity', "
+        f"'{lo.isoformat()}', '{hi.isoformat()}', '{st}', {at}, {until}, {a}, now())"
+        for n, tt, ss, hi, st, at, until, a in rows))
+    result = stages.opportunity(URL, {"tenant_id": str(t), "site_id": str(s), "limit": 5})
+    assert result["code"] == "OK", result
+    assert [(str(o["job_id"]), o["status"]) for o in result["outcomes"]] == [(str(ids["doomed"]), "FAILED")], result
+    assert (result["processed"], result["failed"], result["deferred"]) == (1, 1, 2)
+    assert sorted((j["id"], j["status"]) for j in result["live_jobs"]) == sorted(
+        [(ids["later"], "PENDING"), (ids["leased"], "LEASED")])
+    with engine.connect() as c:
+        status = dict(c.execute(text("SELECT id, status FROM recompute_job WHERE id = ANY(:i)"),
+                                {"i": list(ids.values())}).all())
+    assert status == {ids["doomed"]: "FAILED", ids["later"]: "PENDING", ids["leased"]: "LEASED",
+                      ids["foreign"]: "PENDING"}
+    _replica(engine, f"DELETE FROM recompute_job WHERE id = '{ids['foreign']}'")
 
 
 def test_record_opportunity_is_token_scoped_and_atomic(store, engine) -> None:  # noqa: F811

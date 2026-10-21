@@ -72,7 +72,7 @@ def parse_command(body: Any) -> dict[str, Any]:
         "evidence_summary": _shape(work.text_value, b["evidence_summary"], 1, 2000),
         "cited_accepted_evidence_ids": sorted({_shape(work.uuid_text, i).lower() for i in cited}),
         "missing_evidence_reason": None if missing is None else _shape(work.text_value, missing, 1, 500),
-        "disposition": b["disposition"], "reason": _shape(work.text_value, b["reason"], 1, 500)}
+        "disposition": b["disposition"], "reason": _shape(work.text_value, b["reason"], 1, 2000)}
     # The original domain paragraph: an alternative cites accepted IDs or states an explicit missing-evidence reason.
     if not canon["cited_accepted_evidence_ids"] and canon["missing_evidence_reason"] is None:
         raise invalid()

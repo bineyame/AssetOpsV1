@@ -133,7 +133,7 @@ def parse_command(body: Any, *, correction: bool) -> dict[str, Any]:
         "narrative": _shape(work.text_value, b["narrative"], 1, 2000)}
     if correction:
         canon["supersedes_revision_id"] = _shape(work.uuid_text, b["supersedes_revision_id"]).lower()
-        canon["correction_reason"] = _shape(work.text_value, b["correction_reason"], 1, 500)
+        canon["correction_reason"] = _shape(work.text_value, b["correction_reason"], 1, 2000)
     return canon
 
 

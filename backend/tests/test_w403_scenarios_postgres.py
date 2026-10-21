@@ -216,6 +216,37 @@ def test_create_correct_retry_and_fresh_persisted_read(store, engine, monkeypatc
     assert refused.status_code == 403 and refused.json()["detail"]["code"] == "DECISION_WRITE_FORBIDDEN"
 
 
+def test_final_review_m3_correction_reason_bounds_2000(store, engine, monkeypatch) -> None:  # noqa: F811
+    """uF 4 (final review M3): `correction_reason` is trimmed nonblank 1-2000 authored text, as closure 1 rules;
+    500, 501 and 2000 are accepted and persist, 2001 is 422 `DECISION_INPUT_INVALID` and writes nothing."""
+    t, s = mg(store, engine)
+    api = client(monkeypatch, t, s)
+    created = api.post(ROUTE, json=tariff_command("w403-m3-create"))
+    assert created.status_code == 201, created.text
+    head = created.json()
+    for n, length in enumerate((500, 501, 2000)):
+        body = {**tariff_command(f"w403-m3-fix-{n:03d}", f"Correction {n}."),
+                "supersedes_revision_id": head["revision_id"], "correction_reason": "r" * length}
+        fixed = api.post(f"{ROUTE}/{head['id']}/revisions", json=body)
+        assert fixed.status_code == 201, (length, fixed.text)
+        head = fixed.json()
+        with engine.connect() as c:
+            stored = c.execute(text("SELECT correction_reason FROM mini_scenario_revision WHERE id = :i"),
+                               {"i": head["revision_id"]}).scalar_one()
+        assert stored == "r" * length
+    count = revision_count(engine)
+    over = api.post(f"{ROUTE}/{head['id']}/revisions",
+                    json={**tariff_command("w403-m3-fix-over"), "supersedes_revision_id": head["revision_id"],
+                          "correction_reason": "r" * 2001})
+    assert over.status_code == 422 and over.json()["detail"]["code"] == "DECISION_INPUT_INVALID"
+    assert revision_count(engine) == count
+    with engine.begin() as c:
+        widths = c.execute(text(
+            "SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conname IN "
+            "('mini_scenario_revision_correction_reason_check', 'mini_alternative_revision_reason_check')")).all()
+    assert len(widths) == 2 and all("2000" in d and "500" not in d for _, d in widths)
+
+
 def test_pin_scope_basis_and_shape_vectors(store, engine, monkeypatch) -> None:  # noqa: F811
     t, s = mg(store, engine)
     pins = selected_pins(engine, t, s)
