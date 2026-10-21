@@ -101,3 +101,15 @@ class EvidenceMoneySnapshot(EstateSnapshot):
         read = self._o.ev_site.capabilities_on(self._c, pin)
         sessions = sorted({str(x).lower() for x in (pin["selected"]["result"].get("session_revision_ids") or ())})
         return {**read, "session_revision_ids": sessions}
+
+    def cold_money(self, t: UUID, s: UUID, pin: dict[str, Any], k: datetime) -> dict[str, Any]:
+        """W3-02 commit 3: 0c `ColdSiteReadService.money_on` over this pinned window's exact selected cold Finding
+        revisions at `k` (W3-01 `_cold_window` on this connection), plus their Finding IDs."""
+        findings = self._cold_window(t, s, pin, k)["findings"]
+        read = self._o.cold_site.money_on(self._c, pin, findings)
+        return {**read, "finding_ids": {str(f["finding_revision_id"]).lower(): f["finding_id"] for f in findings}}
+
+    def ev_money(self, pin: dict[str, Any]) -> dict[str, Any]:
+        """W3-02 commit 3: 0c `EvSiteReads.money_on` of this pinned window (its as-of head or transient guard and
+        stored history recorded by the cutoff). Its `historical_label` is not the estate's (c1-q1)."""
+        return self._o.ev_site.money_on(self._c, pin)

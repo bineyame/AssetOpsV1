@@ -79,3 +79,36 @@ Under full-suite load it flaked twice on `39afe950` (`rendersEvidenceEmptyPendin
 once `namesGapSitesFromTheWireNotThePage`), and the file passes alone (4/4 runs). Not changed: `settled.ts` is shared
 test infra outside c2b's assignment. Question: who adds `evidence across the estate` to `LOADING` (Lane A shared test
 helper, or Lane B with its page), and in which commit?
+
+## c3-q1 - closure 2 N3 STOP: two-EV-Site persisted COMPARABLE fixture unavailable through reviewed producers (Lane B, commit 3)
+Built: Financials read/API (`estate/financials.py`, `estate_evidence_money_api.py` `/api/estate/financials`,
+`postgres_evidence_money_read.py` `cold_money`/`ev_money`, `evidence_money.py:group_key_for_partition`), pure tests
+and one persisted single-EV-Site proof (`test_w302_money_comparability_postgres.py::test_w302_money_persisted_ev_single_site_line`:
+real replay `complete` + golden tariff + W2-07 worker -> one ELIGIBLE `GROSS_TARIFF_SCENARIO` line equal to the
+stored head, its session revision and accepted evidence IDs, `SINGLE_LINE`).
+Failing setup step: a second EV Site in the same tenant/database. The reviewed EV producers support exactly one:
+`sites/ev_lab.py:install_ev_lab` imports only `EV-LAB-001` (`EV_LAB_SITE_CODE`, fixture `tests/fixtures/w2/ev-lab-001.yaml`,
+binding conversion `conversions/ev-lab-001-bindings.json`); the W2-05b `Chain.open()` calls `pg_harness.fresh_database()`
+per chain (a second chain wipes the first) and its scenario request/gateway provisioning/replay route are keyed to
+`EV = "EV-LAB-001"` (`test_w205b_ev_replay_postgres.py:102,176,308,369`). A second Site would need a new Site import
+fixture, binding conversion, gateway provisioning and Host run on a second code - new producer/fixture scope, not a
+reuse. Not built: `test_w302_money_persisted_ev_comparable_same_values` and `test_w302_money_persisted_ev_different_currency`
+(the same two-Site precondition). Per N3, commit 3 is NOT declared done. Question: (a) authorize a second EV Lab Site
+fixture (code, import YAML, bindings, gateway) and a same-DB two-chain harness, owned by which lane; (b) a revised
+proof contract (e.g. two disjoint EV windows on EV-LAB-001 with the same tariff, which differ in `window_start/end`
+and so can never share a partition); or (c) another fixture you name.
+
+## c3-q2 - interpretations taken in commit 3 (confirm or correct)
+1. `RECORDED_REPAIR` lines are listed/partitioned when a stored head exists but the category gets no `NO_LINES`
+   sentinel (outside the three-category mock enum). Sentinel categories: mini-grid operating cost, cold product
+   exposure, EV gross tariff.
+2. An EV `STALE_BASIS` or pending guard (or a stale/pending cold/EV window) makes that category's coverage unknown
+   (`UNKNOWN_COVERAGE`), as Q19 rule 1's stale/pending selection.
+3. Group `reason_codes` for missing disjointness proof is `BASIS_NOT_PROVEN` (state `OVERLAPPING_BASIS`); each involved
+   line is `CONFLICT` with line reason `OVERLAPPING_BASIS` (Q6 table).
+4. Two or more eligible lines with a null `assumption_fingerprint` give `INELIGIBLE` + `ASSUMPTION_UNKNOWN`.
+5. W1 fingerprint `price_kind` = selected price `state`; W1 `limit` = stored `limitations` if the selector exposes
+   them (it does not today, so null). W1 line citations = Finding citations plus power evidence IDs.
+6. The Financials token's `selected_assessment_revision_ids` reuse the W3-01 Site coverage's selected assessments;
+   cited IDs are the lines' basis evidence union; Finding/consequence/assumption arrays come from the lines.
+7. `test_w302_money_unknown_coverage_precedes_no_lines` runs over the fake snapshot (pure) in the named Postgres file.

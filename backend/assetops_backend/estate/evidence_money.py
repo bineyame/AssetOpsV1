@@ -14,6 +14,8 @@ Rows, per display capability (closure 1 Q3, closure 4 "W1 day source, cold/EV wi
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from datetime import datetime
 from typing import Any, Callable
@@ -375,6 +377,16 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
     return rows
 
 
+def group_key_for_partition(category: Any, currency: Any, window_start: Any, window_end: Any, period_kind: Any,
+                            assumption_fingerprint: Any) -> str:
+    """Versioned amendment (shared financial group key): `sha256:` plus lowercase SHA-256 hex of UTF-8 sorted-key
+    compact JSON over exactly these six wire values (JSON nulls kept). W3-03 imports this; never hash elsewhere."""
+    payload = {"category": category, "currency": currency, "window_start": window_start, "window_end": window_end,
+               "period_kind": period_kind, "assumption_fingerprint": assumption_fingerprint}
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return "sha256:" + hashlib.sha256(raw).hexdigest()
+
+
 # --- the service -----------------------------------------------------------------------------------------------
 
 def _groups(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -406,6 +418,12 @@ class EstateEvidenceService(EstateIndexService):
 
     def evidence(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         return self._read(lambda snap: self._evidence(snap, tenant_id, req, admit))
+
+    def financials(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
+        """W3-02 commit 3: the Financials root on the same snapshot/service seam (`estate/financials.py`)."""
+        from assetops_backend.estate.financials import financials_body
+
+        return self._read(lambda snap: financials_body(self, snap, tenant_id, req, admit))
 
     def _evidence(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)

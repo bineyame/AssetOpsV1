@@ -85,3 +85,13 @@ export function EstateEvidenceFrame({ client }: { client: EstateEvidenceMoneyCli
    capture exceeds a maximum, return the numbers to Lane B rather than editing the page CSS.
 8. After mounting, run `src/estate/__tests__/estateEvidence.test.tsx`, the W3-01 `estateRoots.test.tsx`, the shell
    route/rail tests, tsc and `tools/check-all.ps1`.
+
+## Commit 3 (Lane B -> Lane A mount)
+`GET /api/estate/financials` is a second route on the already-mounted `build_estate_evidence_money_router`
+(`backend/assetops_backend/estate_evidence_money_api.py`); its service is the mounted
+`build_estate_evidence_service(...)` (`EstateEvidenceService.financials`, delegating to `estate/financials.py`).
+So `main.py` needs **no change**; Lane A only verifies the mount: `create_app()` serves `/api/estate/financials`
+(no-DB 503 body `{code:ESTATE_STORE_UNAVAILABLE,...,rows:null,total_count:null,groups:null,exclusions:null,diagnostics:null}`)
+and adds a mount test beside `test_w302_evidence_composition_mount_no_db_503`. No guard change: the new domain
+module `estate/financials.py` imports no driver; the adapter additions stay in `estate/adapters/postgres_evidence_money_read.py`
+(`$pgReaders`). Commit 3 is held at closure 2 N3 (c3-q1) - review only after the ruling.

@@ -1,10 +1,10 @@
 """W3-02 estate Evidence root (`I-estate-evidence-root`): read-only, no Site parameter.
 
-`GET /api/estate/evidence?from=&to=&known_at=&limit=&cursor=`. Same order of checks as W3-01 `estate_api.py`:
+`GET /api/estate/evidence` and (W3-02 commit 3) `GET /api/estate/financials`, each `?from=&to=&known_at=&limit=&cursor=`. Same order of checks as W3-01 `estate_api.py`:
 authentication (401 with `WWW-Authenticate: Bearer`) before any tenant lookup or parsing, then the strict shared
 parser, then one read-only snapshot with per-Site admission through the existing `access` seam. Every refusal is
 W3-01's `{code,message,rows:null,total_count:null}` body inside `detail`, plus the endpoint's null extras
-(`gaps:null` for Evidence), including 401 and 503 (closure 4 B1). W3-01 refusal bodies are unchanged.
+(`gaps:null` for Evidence, `groups,exclusions,diagnostics:null` for Financials), including 401 and 503 (closure 4 B1). W3-01 refusal bodies are unchanged.
 Lane A mounts this router in `main.py`.
 """
 
@@ -21,7 +21,8 @@ from assetops_backend.estate_api import Authenticate, development_authenticate
 from assetops_backend.finding_api import Access, development_access
 
 #: The endpoint-specific null fields inside every refusal `detail` (closure 1 "Estate wire").
-EXTRAS = {"evidence": {"gaps": None}}
+EXTRAS = {"evidence": {"gaps": None},
+          "financials": {"groups": None, "exclusions": None, "diagnostics": None}}
 
 
 def build_estate_evidence_money_router(service: Any | None, tenant: Callable[[], UUID | None], *,
@@ -54,5 +55,9 @@ def build_estate_evidence_money_router(service: Any | None, tenant: Callable[[],
     @router.get("/api/estate/evidence")
     def estate_evidence(request: Request) -> dict[str, Any]:
         return serve("evidence", request)
+
+    @router.get("/api/estate/financials")
+    def estate_financials(request: Request) -> dict[str, Any]:
+        return serve("financials", request)
 
     return router
