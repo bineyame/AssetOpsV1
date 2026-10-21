@@ -7,12 +7,16 @@ selected UTC days). Read through the local Evidence router; Lane A mounts it in 
 
 from __future__ import annotations
 
+import json
+import re
 from datetime import datetime, timedelta, timezone
 from urllib.parse import parse_qs, urlencode, urlsplit
 from uuid import uuid4
 
 import pytest
 
+from assetops_backend.analytics import cold
+from assetops_backend.estate.evidence_money import COLD_OBSERVATION_WORDS, plain_limitation
 from test_w301_estate_index_postgres import URL
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -69,6 +73,43 @@ class Evidence:
         return response.json()
 
 
+RAW_CODE = re.compile(r"Not observed:|\b(?:%s)\b" % "|".join(COLD_OBSERVATION_WORDS))
+
+
+def assert_plain_observations(rows: list[dict]) -> None:
+    """No raw observation code or `Not observed:` fragment in any row's client text, disclosure included."""
+    for r in rows:
+        text_ = json.dumps(r)  # the whole wire row: ceiling, next evidence, labels and disclosure
+        assert not RAW_CODE.search(text_), (r["capability_key"], RAW_CODE.search(text_).group(0), text_[:400])
+
+
+def test_w302_cold_observation_codes_map_to_plain_sentences() -> None:
+    """c2c (c2-q7): each of the eight cold step codes becomes its literal sentence; a two-code fragment gives
+    both sentences in stored order; a following plain limitation sentence is kept; an unexpected code or a
+    malformed fragment yields only the fallback; EV's empty mapping fails closed."""
+    expected = {
+        "GRID": "No record of a grid power loss.",
+        "START_REQUEST": "No record of a generator start request.",
+        "START_RESULT": "No record of a generator start result.",
+        "GENERATOR": "No record of the generator running or failing.",
+        "TRANSFER": "No record of power transferring to the generator.",
+        "BUS": "No record of the electrical bus state.",
+        "COMPRESSOR": "No record of the compressor state.",
+        "PROBE": "No record of a room temperature reading.",
+    }
+    assert set(expected) == set(COLD_OBSERVATION_WORDS) == set(cold.STEPS)
+    for code, sentence in expected.items():
+        assert plain_limitation(f"Not observed: {code}.") == sentence
+    assert plain_limitation("Not observed: TRANSFER.") == "No record of power transferring to the generator."
+    assert plain_limitation("Not observed: BUS, PROBE. Contradictory start results block a start-response claim.")         == ("No record of the electrical bus state. No record of a room temperature reading. "
+            "Contradictory start results block a start-response claim.")
+    fallback = "Some required observations have no readable description."
+    assert plain_limitation("Not observed: TRANSFER, DOOR.") == fallback
+    assert plain_limitation("Not observed: TRANSFER") == fallback
+    assert plain_limitation("Not observed: TRANSFER.", {}) == fallback
+    assert plain_limitation("Coverage is partial.") == "Coverage is partial." and plain_limitation(None) is None
+
+
 def test_w302_evidence_cold_scope_windows_and_citations(chain) -> None:  # noqa: F811
     """Every authorized Site appears (a Site without selection has four placeholders), a foreign tenant is an
     empty scope, each cold window gives four grouped rows citing only that window's own analytic revisions and
@@ -107,6 +148,9 @@ def test_w302_evidence_cold_scope_windows_and_citations(chain) -> None:  # noqa:
             assert link.path == f"/sites/{code}/evidence"
             assert q["from"][0].startswith(w["window_start"].strftime("%Y-%m-%dT%H:%M:%S"))
             assert datetime.fromisoformat(q["known_at"][0].replace("Z", "+00:00")) == mark
+    # c2c: no stored observation code or `Not observed:` fragment reaches any client text, disclosure included.
+    assert_plain_observations(body["rows"])
+    assert any("No record of" in (r["current_ceiling"] or "") for r in cold_rows), "a mapped sentence is present"
     placeholders = [r for r in body["rows"] if r["site_id"] == empty]
     assert [r["capability_key"] for r in placeholders] == ["backup", "cooling", "exposure", "temperature"]
     assert {r["raw_state"] for r in placeholders} == {"UNASSESSED"}

@@ -510,4 +510,33 @@ describe("W3-02 estate Evidence root", () => {
     // Not a breadcrumb: the estate root draws none.
     expect(screen.queryByRole("navigation", { name: /breadcrumb/i })).toBeNull();
   });
+  it("rendersTheSelectedColdBackupCeilingInPlainWords", async () => {
+    // c2c: the Evidence wire carries the mapped sentence for stored `Not observed: TRANSFER.`; the page shows it
+    // verbatim and no raw step code or `Not observed:` fragment reaches the cell or Record details.
+    const transfer = "No record of power transferring to the generator.";
+    const backup = row({
+      ...COLD_ROW,
+      capability_key: "backup@2026-10-14T08:00:00.000000Z/2026-10-14T16:00:00.000000Z",
+      capability_label: "Backup start response",
+      raw_state: "LIMITED",
+      readiness: "LIMITED",
+      current_ceiling: transfer,
+      ceiling_source: "COLD_LIMITATION",
+      disclosure: {
+        capability_key: "backup@2026-10-14T08:00:00.000000Z/2026-10-14T16:00:00.000000Z",
+        constituents: [{ claim: "TRANSFER_POSITION", state: "LIMITED", missing_roles: ["transfer_result"], limitation: transfer, assessment_revision_id: "10000000-0000-4000-8000-000000000601" }],
+        reasons: [],
+        historical: null,
+      },
+    });
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body({ rows: [backup] }))));
+    await settledScreen();
+    const [cells] = within(panelTitled(COVERAGE_PANEL)).getAllByRole("row").slice(1).map((r) => within(r).getAllByRole("cell"));
+    expect(cells[3].textContent).toBe(transfer);
+    const details = cells[1].querySelector("details") as HTMLElement;
+    expect(details.querySelector("summary")?.textContent).toBe("Record details");
+    expect(details.textContent).not.toMatch(/\bTRANSFER\b/);
+    expect(details.textContent).not.toContain("Not observed:");
+    expect(main().textContent).not.toMatch(/Not observed:|\bTRANSFER\b/);
+  });
 });

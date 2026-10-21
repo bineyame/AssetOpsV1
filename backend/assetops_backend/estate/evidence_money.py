@@ -14,6 +14,7 @@ Rows, per display capability (closure 1 Q3, closure 4 "W1 day source, cold/EV wi
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 from typing import Any, Callable
 from urllib.parse import quote, urlencode
@@ -60,6 +61,37 @@ COLD_ROWS = (("temperature", "Temperature compliance", ("TEMPERATURE_POINT", "EX
              ("cooling", "Cooling recovery", ("COOLING_RESPONSE",), START),
              ("exposure", "Product exposure", ("PRODUCT_EXPOSURE",), EXC))
 COLD_ROLE_LABEL = {r.role: r.label for r in COLD_ROLES_1}
+
+# c2c (c2-q7): the complete reachable `ColdStep.step` codes of `analytics/cold.py` and their literal plain
+# sentences. A stored `Not observed: CODE[, CODE...].` fragment is replaced before it reaches any client field.
+COLD_OBSERVATION_WORDS = {
+    "GRID": "No record of a grid power loss.",
+    "START_REQUEST": "No record of a generator start request.",
+    "START_RESULT": "No record of a generator start result.",
+    "GENERATOR": "No record of the generator running or failing.",
+    "TRANSFER": "No record of power transferring to the generator.",
+    "BUS": "No record of the electrical bus state.",
+    "COMPRESSOR": "No record of the compressor state.",
+    "PROBE": "No record of a room temperature reading.",
+}
+UNREADABLE_OBSERVATIONS = "Some required observations have no readable description."
+_NOT_OBSERVED = re.compile(r"Not observed:([^.]*)\.?")
+
+
+def plain_limitation(text: str | None, words: dict[str, str] = COLD_OBSERVATION_WORDS) -> str | None:
+    """The stored limitation with each `Not observed:` fragment as one plain sentence per code in stored order;
+    any other sentence is kept in place. An unexpected or malformed fragment fails closed to one fixed sentence.
+    EV passes an empty mapping, so any future EV fragment fails closed until a mapping is approved."""
+    if not text:
+        return text
+
+    def sentence(m: re.Match[str]) -> str:
+        codes = [c.strip() for c in m.group(1).split(",")]
+        if m.group(0).endswith(".") and codes and all(c in words for c in codes):
+            return " ".join(words[c] for c in codes)
+        return UNREADABLE_OBSERVATIONS
+
+    return _NOT_OBSERVED.sub(sentence, text)
 
 #: Closure 1 Q3: EV display rows as `EvSiteViews.tsx:CAP_ROWS`; the other three `CLAIMS` stay in disclosure.
 EV_ROWS = (("sessions", "Session outcomes", ("SESSION_OUTCOME",)),
@@ -295,9 +327,11 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
                            _cited=_ids(read["evidence_by_analytic"].get(analytic)))
                 row["disclosure"]["constituents"] = [
                     {"claim": p["claim"], "state": p["state"], "missing_roles": list(p["missing_roles"]),
-                     "limitation": p["limitation"], "assessment_revision_id": revision} for p in parts]
+                     "limitation": plain_limitation(p["limitation"]), "assessment_revision_id": revision}
+                    for p in parts]
                 readiness = group_readiness([p["state"] for p in parts])
-                limitations = list(dict.fromkeys(p["limitation"] for p in parts if p["limitation"]))
+                limitations = list(dict.fromkeys(plain_limitation(p["limitation"]) for p in parts
+                                                 if p["limitation"]))
                 gaps = [cold_gap(role) for p in parts for role in p["missing_roles"]]
                 _shape_window_row(row, state, readiness, limitations, "COLD_LIMITATION", gaps, k)
                 rows.append(row)
@@ -309,7 +343,7 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
             codes = [c for c in EvSiteReads._next_candidates(missing, power, read["unknown_meter"])
                      if c in EV_GAP_LABEL]
             supporting = [{"claim": caps[c]["claim"], "state": caps[c]["state"],
-                           "missing_roles": list(caps[c]["missing_roles"]), "limitation": caps[c]["limitation"],
+                           "missing_roles": list(caps[c]["missing_roles"]), "limitation": plain_limitation(caps[c]["limitation"], {}),
                            "accepted_evidence_ids": list(caps[c]["accepted_evidence_ids"])}
                           for c in EV_SUPPORTING if c in caps]
             revision = read["assessment_revision_id"]
@@ -323,10 +357,12 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
                            _cited=cited, _token_cited=_ids([*cited, *read["evidence_ids"]]))  # c1 r1 L1
                 row["disclosure"].update(constituents=[
                     {"claim": p["claim"], "state": p["state"], "missing_roles": list(p["missing_roles"]),
-                     "limitation": p["limitation"], "accepted_evidence_ids": list(p["accepted_evidence_ids"]),
+                     "limitation": plain_limitation(p["limitation"], {}),
+                     "accepted_evidence_ids": list(p["accepted_evidence_ids"]),
                      "assessment_revision_id": revision} for p in parts], supporting_claims=supporting)
                 readiness = group_readiness([p["state"] for p in parts])
-                limitations = list(dict.fromkeys(p["limitation"] for p in parts if p["limitation"]))
+                limitations = list(dict.fromkeys(plain_limitation(p["limitation"], {}) for p in parts
+                                                 if p["limitation"]))
                 affected = {r for p in parts for r in p["missing_roles"]}
                 gaps = [ev_gap(c) for c in codes if EV_GAP_ROLES[c] & affected
                         or (c == "METER_GAP" and read["unknown_meter"] and "DELIVERED_ENERGY" in claims)]
