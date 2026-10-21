@@ -31,6 +31,7 @@ from uuid import UUID
 from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend.analytics.performance_comparison import basis_reason
 from assetops_backend.site_overview.read import PinNotFound
 from assetops_backend.sites.ports import SiteStoreUnavailable
 
@@ -154,6 +155,7 @@ class SiteOverviewRoute:
                                                          "message": "No product database is configured."})
         try:
             permitted, reason = self.gate(code, tenant_id, site_id)
+            reason = basis_reason(bool(permitted), reason, empty_legacy)  # final review ruling 3 (M4)
             if day is None:
                 day = self.read.db_today()
             body = self.read.read(code, tenant_id, site_id, day, access_basis=self.access_basis,

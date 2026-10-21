@@ -42,7 +42,11 @@ from assetops_backend.analytics.service import AssessmentService
 from assetops_backend.analytics.composition import (build_dispatch_read_service, build_finding_index_service,
                                                      build_finding_read_service, build_lineage_reader,
                                                      finding_store_unavailable)
-from assetops_backend.analytics.performance_comparison import comparison_summary, permits_performance_cutover
+from assetops_backend.analytics.performance_comparison import (
+    basis_aware_gate,
+    comparison_summary,
+    permits_performance_cutover,
+)
 from assetops_backend.analytics import dispatch_v3
 from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_BRACKET
 from assetops_backend.finding_api import ACCESS_BASIS, build_finding_router, development_access
@@ -465,7 +469,9 @@ def create_app(
     # S4-04 phase 1: the Site Finding index read (D-2026-10-15-s404-contract); typed 503 without a database.
     app.include_router(build_finding_index_router(
         build_finding_index_service(database_url(), finding_manifest) if database_url() else None,
-        registry.ledger_scope, finding_store_unavailable(), gate=performance_gate))
+        registry.ledger_scope, finding_store_unavailable(),
+        # Final review ruling 3 (M4): the Overview's Finding list states the empty-legacy reason, never inferred.
+        gate=basis_aware_gate(performance_gate, basis_reader, (SiteStoreUnavailable,))))
     # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
     actions = (build_action_service(database_url(), finding_reads, registry=registry)
                if finding_reads is not None else None)

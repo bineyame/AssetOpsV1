@@ -424,13 +424,18 @@ function refusalWords(status: string): ProductWords {
 }
 
 function Refused({ result, href, summary }: { result: Exclude<FindingIndexResult, { status: "loaded" }>; href: string; summary: SiteWindowSummary }) {
+  const words = refusalWords(result.status);
+  const refusal = REFUSAL_WORDS[result.status] ?? REFUSAL_WORDS.unavailable;
+  // W4-02 ruling 3 (M4): the refusal sentence appears once; the note repeats it only when the status words differ.
+  const note = [words.sentence === refusal ? null : refusal, result.message || null].filter((t) => t !== null).join(" ");
   return (
     <div data-overview-finding-list={result.status}>
-      <ProductStatus words={refusalWords(result.status)} scope={listScope(summary)} asOf={null}>
-        <p className="product-status__note" data-overview-finding-refusal>
-          {REFUSAL_WORDS[result.status] ?? REFUSAL_WORDS.unavailable}
-          {result.message ? ` ${result.message}` : ""}
-        </p>
+      <ProductStatus words={words} scope={listScope(summary)} asOf={null}>
+        {note === "" ? null : (
+          <p className="product-status__note" data-overview-finding-refusal>
+            {note}
+          </p>
+        )}
       </ProductStatus>
       <p>No Findings are listed and no count is given. This is not a statement that the day has no Findings.</p>
       <FullList href={href} />
