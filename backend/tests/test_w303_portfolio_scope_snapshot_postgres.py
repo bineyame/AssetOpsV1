@@ -331,6 +331,28 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
         return real_many(self, t, items)
 
     monkeypatch.setattr(base, "cited_provenance_many", many)
+    # Review L2: the batched link rows must serve every Site; any `_Prefetched` fallback to the per-Site
+    # `link_rows` read is recorded and fails the test (equal per-Site counts at both limits would hide it).
+    fallback_links: list = []
+    prefetched: list = []
+    real_init = per._Prefetched.__init__
+
+    class _FallbackSpy:
+        def __init__(self, inner) -> None:
+            self._inner = inner
+
+        def link_rows(self, *a):
+            fallback_links.append(a)
+            return self._inner.link_rows(*a)
+
+        def __getattr__(self, name):
+            return getattr(self._inner, name)
+
+    def spied_init(self, rows, site, fallback) -> None:
+        prefetched.append(site)
+        real_init(self, rows, site, _FallbackSpy(fallback))
+
+    monkeypatch.setattr(per._Prefetched, "__init__", spied_init)
     listener = lambda conn, cursor, sql, *a: statements.append(sql)  # noqa: E731
     event.listen(fx.engine, "before_cursor_execute", listener)
     try:
@@ -341,6 +363,7 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monk
             counts.append((sum("AS q(site_id, id)" in x for x in statements),
                            sum("AS q(id)" in x for x in statements)))
         assert counts[0] == counts[1] and counts[0][0] == 1, counts
+        assert prefetched and fallback_links == [], fallback_links
     finally:
         event.remove(fx.engine, "before_cursor_execute", listener)
     assert len(calls) == 2 and calls[0] == calls[1] and len(calls[0]) == 4
@@ -386,7 +409,6 @@ def _w1_withheld(request, monkeypatch, capsys, source: str, reason: str) -> None
     financial = fx.money().ok("financials", **fx.window, limit=100)
     _same_money(body, financial)
     (w1,) = [x for x in financial["rows"] if x["category"] == OPERATING_COST]
-    print(f"W3-03 1b {source}: W1 line {w1['eligibility']} {w1['reason_codes']} {w1['source_provenance']}")
     assert w1["eligibility"] == "WITHHELD" and reason in w1["reason_codes"] and w1["amount"] is None
     assert body["status"] == "CURRENT" and _fem(body) == ("COMPLETE", "COMPLETE", "COMPLETE")
     assert [c["state"] for c in body["value_cards"]] == ["WITHHELD", *CARD_TAIL]
@@ -436,7 +458,6 @@ def test_late_revision_pending_historical_and_mixed_source(variant, request, mon
     body = view.ok(**fx.window, limit=100)
     financial = fx.money().ok("financials", **fx.window, limit=100)
     site = _site_state(body, cold)
-    print(f"W3-03 1b {variant}: status={body['status']} F/E/M={_fem(body)} cold={site}")
     _same_money(body, financial)
     # Pending money wins over UNKNOWN for overall status; the cold category's M unit is U beside covered Sites.
     assert body["status"] == "PENDING" and body["coverage"]["money_state"] == "PARTIAL"
@@ -444,6 +465,9 @@ def test_late_revision_pending_historical_and_mixed_source(variant, request, mon
     assert all(x["amount"] is None for x in cold_lines)  # no current cold amount
     # r1b Q-1b-3: a line-less guard; no selected cold line and no invented exclusion row. The cold Site's own
     # coverage is still CURRENT: the guard, not the Site state, makes the status PENDING (r1a2 item 2).
+    # r1b3 P-1b-1: this is the persisted cold line-less pending path only. The late-cold reduction and status rule
+    # (uncovered cold unit with a selected PENDING line) is the pure `test_money_table`; `fx.cold.advance_late()`
+    # after the drained excursion selects a settled cold head and is not a later-record/unsettled-job proof.
     assert site["state"] == "CURRENT" and _fem(body) == ("COMPLETE", "COMPLETE", "PARTIAL")
     assert cold_lines == []
     assert not [x for x in body["money"]["exclusions"] if x["line_key"].startswith("cold_chain:")]
@@ -455,9 +479,10 @@ def test_late_revision_pending_historical_and_mixed_source(variant, request, mon
 
 
 def _minigrid_historical_marker(request, monkeypatch) -> None:
-    """r1a2 item 1 (persisted): a mini-grid selected-as-of head stays covered at an explicit cutoff although a
-    pre-cutoff PENDING recompute job is outstanding; the before-head cutoff stays UNKNOWN. The S4 F01 chain and its
-    late delivery (W3-01 `LATE`) are the reviewed producer."""
+    """r1a2 item 1 persisted control (r1b3 P-1b-2): the S4 F01 chain and its late delivery (W3-01 `LATE`) at an
+    explicit cutoff with a pre-cutoff PENDING recompute job. Its selected-as-of head is STALE, so the Site stays U;
+    the before-head cutoff stays UNKNOWN. The positive covered-marker rule is the pure
+    `test_settled_current_and_historical_bases`; this control is not a positive covered marker."""
     from test_s4_finding_store_postgres import CaseRunner, run_case
     from test_s6_action_store_postgres import CASES as S4_CASES
     from test_w301_estate_index_postgres import LATE, WIDE
@@ -476,11 +501,10 @@ def _minigrid_historical_marker(request, monkeypatch) -> None:
                               "AND created_at <= :k"), {"s": runner.site, "k": k}).scalar_one() >= 1
     body = view.ok(**WIDE, known_at=iso(k), limit=100)
     (site,) = body["coverage"]["sites"]
-    print(f"W3-03 1b mg marker: status={body['status']} F/E/M={_fem(body)} site={site}")
     assert body["status"] == "HISTORICAL" and site["state"] == "HISTORICAL" and site["job_state"] == "PENDING"
-    # Observed (pending ruling P-1b-2): this reviewed producer's selected-as-of head is STALE at its own cutoff, so
-    # the stale-source rule (not the job marker) keeps the Site U. The positive "covered despite the marker" proof
-    # needs a non-stale historical producer; it is not claimed here.
+    # r1b3 P-1b-2: this reviewed producer's selected-as-of head is STALE at its own cutoff, so the stale-source
+    # rule (not the job marker) keeps the Site U. The positive "covered despite the marker" rule is proved by the
+    # pure `test_settled_current_and_historical_bases`; it is not claimed here.
     assert site["source_freshness"] == "STALE" and _fem(body) == ("UNKNOWN", "UNKNOWN", "UNKNOWN")
     assert body["summary"]["finding_count"] is None
     _declined(body)

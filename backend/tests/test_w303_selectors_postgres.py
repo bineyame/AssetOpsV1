@@ -116,7 +116,9 @@ def test_financial_scope_pending_guard_without_line(monkeypatch) -> None:
     line is emitted; false for an EV STALE_BASIS guard, a missing pin, an uncovered (stale) window and an ordinary
     cold read. `select_financial_scope` carries it as private `_pending_guard` on every per-Site coverage dict
     (false for mini-grid and non-applicable Sites). The W3-02 public golden bytes are proven unchanged by the
-    W3-02 golden run, since `_pending_guard` never reaches a public field or the selection token."""
+    W3-02 golden run, since `_pending_guard` never reaches a public field or the selection token. r1b3 P-1b-4: with
+    the pure `test_money_table`, this fake-snapshot test is the EV guard-to-Portfolio proof; it claims no persisted
+    EV pending head."""
     from assetops_backend.estate import financials as fin
 
     monkeypatch.setattr(fin, "_money_links", lambda *a: {})

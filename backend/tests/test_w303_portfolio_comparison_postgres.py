@@ -160,8 +160,8 @@ def test_selected_action_window_workflow_and_withdrawal(store, engine, monkeypat
         # r1b2 R10: the F01 origin revision is not a selected Finding revision in the November window. No window of
         # this chain selects both: the Action is created 11-01 and only the one-day 10-06 window selects F01's
         # revisions; `[2026-10-06,2026-11-03)` leaves the mini-grid Finding coverage UNKNOWN (unassessed days), so
-        # its selected set is empty and the flag is False too (the persisted True case is pending ruling P-1b-5;
-        # the pure tie test proves both values).
+        # its selected set is empty and the flag is False too (r1b3 P-1b-6: the persisted True case is not
+        # produced; the pure `test_two_actions_one_exact_origin_latest_event_then_id_tie` proves both values).
         assert pending["progress"]["rows"][0]["origin_revision_selected"] is False
         (accepted_at,) = [r[0] for r in stored(
             "SELECT recorded_at FROM action_event WHERE action_id = :a AND kind = 'ACCEPTED'", a=action_id)]
@@ -272,7 +272,9 @@ def test_ineligible_overlap_and_unknown_coverage_decline_total(portfolio_fixture
     """Closure 1 declines: an INELIGIBLE (cold UNPRICED) group, a COMPARABLE EV group with its exact amount, and,
     after an authorized empty EV Site joins, an UNKNOWN_COVERAGE gross-tariff group with no amount. No estate total
     or combined value at any step; exclusions are W3-02's exact rows. The OVERLAPPING_BASIS variant (d) has no
-    reviewed persisted producer (see the pending-rulings file); it is not asserted here."""
+    reviewed persisted producer; r1b3 P-1b-3 rules the pure W3-02
+    `test_w302_money_overlap_by_group_ids_and_citations` sufficient. This test proves the persisted INELIGIBLE,
+    COMPARABLE and UNKNOWN_COVERAGE states only and claims no persisted overlap."""
     fx = portfolio_fixture
     view = Portfolio(fx.engine, fx.tenant_id)
     clean = view.ok(**fx.window, limit=100)

@@ -115,6 +115,14 @@ def test_money_table() -> None:
         assert money_pending(guard_only, []) and money_units(domain, guard_only, []) == {category: U}
         assert reduce_units(2, [*money_units(domain, guard_only, []).values(),
                                 *money_units("mini_grid", covered, []).values()]) == "PARTIAL"
+    # r1b3 P-1b-5: R4's independent line branch. An uncovered Site with a selected PENDING line is pending with
+    # `_pending_guard` absent or explicitly false (the same value under `.get`); covered and nonpending controls
+    # are false. r1b3 P-1b-1/P-1b-4 rest on this table plus the guard-only case above.
+    pending_line = [{"category": "POTENTIAL_PRODUCT_EXPOSURE", "eligibility": "PENDING"}]
+    for cov in (uncovered, {**uncovered, "_pending_guard": False}):
+        assert money_pending(cov, pending_line)
+        assert not money_pending({**cov, "_windows_covered": True}, pending_line)
+        assert not money_pending(cov, [{**pending_line[0], "eligibility": "ELIGIBLE"}])
     # Uncovered without the guard or a PENDING line is UNKNOWN, not PENDING; a false guard changes nothing.
     assert not money_pending({**uncovered, "_pending_guard": False}, [])
     assert not money_pending(uncovered, [{"category": "GROSS_TARIFF_SCENARIO", "eligibility": "UNPRICED"}])

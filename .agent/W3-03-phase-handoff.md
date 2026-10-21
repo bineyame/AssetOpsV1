@@ -1,9 +1,9 @@
-﻿# W3-03 phase handoff
+# W3-03 phase handoff
 
 Branch `task/W3-03-portfolio-composition`. Spec: `.agent/W3-03-build-spec.md` closure 4 "Six builder runs" table,
 plus closure 5 (S4/S7) on main `44307534`.
 
-## Run 1 = seam run 0a (Lane A, existing estate files) â€” landed
+## Run 1 = seam run 0a (Lane A, existing estate files) — landed
 
 - `estate/index.py`: public `select_finding_scope(snap, tenant_id, req, scope) -> (per_site, rows)` and
   `select_action_scope(...) -> (per_site, rows)`; rows unfiltered/unsorted/unpaged, moved verbatim. `_findings`,
@@ -53,7 +53,7 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
 - Checks: 0a tests + W3-02/W3-01 Postgres goldens 65 passed (w303b_test, dropped), golden bytes unchanged; check-all 11/11.
 - Next: run 2 (0b) after re-review.
 
-## Run 2 = seam run 0b (Lane B) â€” landed, clean proof PARTIAL (stopped variant P-0b-1)
+## Run 2 = seam run 0b (Lane B) — landed, clean proof PARTIAL (stopped variant P-0b-1)
 - `backend/tests/test_w303_portfolio_fixture_postgres.py`: `build_portfolio_fixture(request, monkeypatch, capsys,
   cold_case="normal", cold_drain=False) -> PortfolioFixture` (one fresh DB; cold `normal` + EV `complete` per
   `mixed_replay`; EV-LAB-002 per `two_ev_sites` with tag 0x3022, golden KES tariffs + W2-07 money; P01 `PowerSite`,
@@ -64,7 +64,7 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
   COMPLETE; no Action in 10-06 (B4); W1 PRICED from stored consequence = ELIGIBLE operating-cost line; two EV lines
   match stored heads, disjoint technical/evidence IDs, one COMPARABLE group with exact `group_key_for_partition`;
   `estate_total` null; one-day dispatch selection present; every selected head/evidence in (09-30, frozen].
-- RESOLVED (P-0b-1/r0b applied: `cold_case="excursion"`, `cold_drain=True`; cold line UNPRICED/null amount/pins selected cold Finding revision asserted; fixture + 0a tests 29 passed on `w303d_test`). Was: HELD cold `POTENTIAL_PRODUCT_EXPOSURE UNPRICED` â€” named cold `normal` makes no cold Finding/line (group
+- RESOLVED (P-0b-1/r0b applied: `cold_case="excursion"`, `cold_drain=True`; cold line UNPRICED/null amount/pins selected cold Finding revision asserted; fixture + 0a tests 29 passed on `w303d_test`). Was: HELD cold `POTENTIAL_PRODUCT_EXPOSURE UNPRICED` — named cold `normal` makes no cold Finding/line (group
   UNKNOWN_COVERAGE). Probe: `excursion` + W2-04 `drain` makes it pass. See `.agent/W3-03-pending-rulings.md` P-0b-1.
 
 ### Run 2 readings (Architect may overturn)
@@ -83,7 +83,7 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
 ## Next: run 3
 Next: independent review of 0b, then run 1a.
 
-## Run 1a (Lane B) â€” landed: Portfolio scope/coverage/selection, token, cursor, refusal router (unmounted)
+## Run 1a (Lane B) — landed: Portfolio scope/coverage/selection, token, cursor, refusal router (unmounted)
 - `backend/assetops_backend/estate/portfolio.py`: `EstatePortfolioService(EstateEvidenceService).portfolio` runs the
   four 0a selectors once on one `scope` in one `PostgresEvidenceMoneyRead` snapshot; closure 5 S4 `reduce_units`,
   `settled`, `finding_unit`, `evidence_unit`, `money_units`; `portfolio_row` (wire `domain`/`episode_end`/
@@ -279,4 +279,13 @@ Next: independent review of 0b, then run 1a.
   rerun green: B4, page-size); W3-02 comparability + money API + W3-01 golden 24 passed, 7 min (bytes unchanged);
   `tools/check-all.ps1` all 11 guards passed. No frontend touched; no full backend suite.
 
-## Next: independent review of 1b, then run 2 (page)
+## r1b3 + 1b review Lows (Lane B) — landed
+- P-1b-1..6 resolved by r1b3 (pending-rulings file): test comments now cite the ruled pure/fake-snapshot proofs and
+  claim no persisted late-cold, covered mini-grid marker, overlap, EV pending head or origin-true case.
+  `test_money_table` adds the explicit false-guard + PENDING-line case (P-1b-5); the labels test adds Action-order
+  independence for `origin_revision_selected` (P-1b-6).
+- L2: the R11 test spies `_Prefetched` and fails on any per-Site `link_rows` fallback. L4: run-1b prints removed.
+  L5: comparison comment cites P-1b-6. L6: this file is UTF-8 without BOM, dashes restored.
+- Open: L1 (file ownership) and L3 (prompt Site order sentence) are with the Architect as r1b4.
+
+## Next: r1b4, then run 2 (page)
