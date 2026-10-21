@@ -111,51 +111,51 @@
    },
    "priority": {
     "top": 481,
-    "h": 429,
+    "h": 445,
     "w": 824
    },
    "objectives": {
     "top": 481,
-    "h": 289,
+    "h": 305,
     "w": 305
    },
    "side": {
     "top": 481,
-    "h": 429,
+    "h": 445,
     "w": 305
    },
    "opportunity": {
-    "top": 927,
+    "top": 943,
     "h": 229,
     "w": 565
    },
    "progress": {
-    "top": 927,
+    "top": 943,
     "h": 229,
     "w": 565
    },
    "footQty": {
-    "top": 1172,
+    "top": 1188,
     "h": 14,
     "w": 212
    },
    "footLink": {
-    "top": 1172,
+    "top": 1188,
     "h": 14,
     "w": 97
    },
    "footCoverage": {
-    "top": 1172,
+    "top": 1188,
     "h": 14,
     "w": 165
    },
    "prompt": {
-    "top": 783,
+    "top": 799,
     "h": 127,
     "w": 305
    },
    "doc": {
-    "h": 1232
+    "h": 1248
    }
   },
   "findingsScroll": {
@@ -187,7 +187,7 @@
   "refusal": null,
   "refusalCode": null,
   "refusalBlock": null,
-  "height": 1232
+  "height": 1248
  },
  {
   "width": 390,
@@ -303,51 +303,51 @@
    },
    "priority": {
     "top": 1129,
-    "h": 329,
+    "h": 293,
     "w": 358
    },
    "objectives": {
-    "top": 1474,
+    "top": 1437,
     "h": 289,
     "w": 358
    },
    "side": {
-    "top": 1474,
+    "top": 1437,
     "h": 431,
     "w": 358
    },
    "opportunity": {
-    "top": 1922,
+    "top": 1885,
     "h": 268,
     "w": 358
    },
    "progress": {
-    "top": 2218,
+    "top": 2181,
     "h": 308,
     "w": 358
    },
    "footQty": {
-    "top": 2541,
+    "top": 2504,
     "h": 14,
     "w": 212
    },
    "footLink": {
-    "top": 2541,
+    "top": 2504,
     "h": 14,
     "w": 97
    },
    "footCoverage": {
-    "top": 2561,
+    "top": 2525,
     "h": 14,
     "w": 165
    },
    "prompt": {
-    "top": 1778,
+    "top": 1741,
     "h": 127,
     "w": 358
    },
    "doc": {
-    "h": 2614
+    "h": 2577
    }
   },
   "findingsScroll": {
@@ -379,6 +379,6 @@
   "refusal": null,
   "refusalCode": null,
   "refusalBlock": null,
-  "height": 2614
+  "height": 2577
  }
 ]

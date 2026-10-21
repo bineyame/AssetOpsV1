@@ -115,51 +115,51 @@
    },
    "priority": {
     "top": 481,
-    "h": 516,
+    "h": 532,
     "w": 824
    },
    "objectives": {
     "top": 481,
-    "h": 376,
+    "h": 392,
     "w": 305
    },
    "side": {
     "top": 481,
-    "h": 516,
+    "h": 532,
     "w": 305
    },
    "opportunity": {
-    "top": 1014,
+    "top": 1030,
     "h": 229,
     "w": 565
    },
    "progress": {
-    "top": 1014,
+    "top": 1030,
     "h": 229,
     "w": 565
    },
    "footQty": {
-    "top": 1259,
+    "top": 1275,
     "h": 14,
     "w": 212
    },
    "footLink": {
-    "top": 1259,
+    "top": 1275,
     "h": 14,
     "w": 97
    },
    "footCoverage": {
-    "top": 1259,
+    "top": 1275,
     "h": 14,
     "w": 220
    },
    "prompt": {
-    "top": 870,
+    "top": 886,
     "h": 127,
     "w": 305
    },
    "doc": {
-    "h": 1319
+    "h": 1335
    }
   },
   "findingsScroll": {
@@ -191,7 +191,7 @@
   "refusal": null,
   "refusalCode": null,
   "refusalBlock": null,
-  "height": 1319
+  "height": 1335
  },
  {
   "width": 390,

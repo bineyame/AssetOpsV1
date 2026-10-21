@@ -89,6 +89,16 @@ in the first-row cards, no overflow.
 ## Known deviations
 None new. P-3-2 resolved by r3b.
 
+## Final-review fix round (rF; M1, M2, L1-L5)
+- M1: `ContextFooter` `Energy basis ↗` disclosure (selected window + six source fields, `No selected source basis` fallback; none when footer null); test opens it.
+- M2 (docs only): `backend/README-db.md` "Portfolio cursor key" block before `# serve`; the 503 missing/malformed-key assertion already exists in `test_w303_portfolio_api.py` (kept).
+- L1 suffix only for PARTIAL/UNKNOWN; L2 `Finding {site_code} · {finding_id}` (twin-prefix test); L4 footnote literal + absence assertions (stocked and partial); L3/L5 left as ruled.
+- Recaptured positive, pending, partial, historical, empty (refusals unchanged): all `over=[]`, `failed=[]`; positive 1440 image viewed. Docs: positive 1381/2985, partial 1338/3024, historical 1335/2732, empty 1248/2577.
+- Checks: tsc 0; frontend 104 files all pass; build ok; check-all run.
+
+## Owner walkthrough preconditions
+Set ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX in the backend server environment before starting the API; follow backend/README-db.md. Confirm an authenticated GET /api/estate/portfolio returns 200 before opening /portfolio.
+
 ## Residual risk / user-review focus
 Owner walkthrough of the Portfolio page at 390 (stacked cards, matrix horizontal scroll) and the empty state wording;
 registry `gap` statuses after final review.

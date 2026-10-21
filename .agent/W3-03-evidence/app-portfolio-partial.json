@@ -115,63 +115,63 @@
    },
    "priority": {
     "top": 481,
-    "h": 516,
+    "h": 532,
     "w": 824
    },
    "objectives": {
     "top": 481,
-    "h": 376,
+    "h": 392,
     "w": 305
    },
    "side": {
     "top": 481,
-    "h": 516,
+    "h": 532,
     "w": 305
    },
    "opportunity": {
-    "top": 1014,
+    "top": 1030,
     "h": 229,
     "w": 565
    },
    "progress": {
-    "top": 1014,
+    "top": 1030,
     "h": 229,
     "w": 565
    },
    "footQty": {
-    "top": 1259,
-    "h": 14,
+    "top": 1275,
+    "h": 18,
     "w": 403
    },
    "footLink": {
-    "top": 1259,
-    "h": 14,
-    "w": 91
+    "top": 1275,
+    "h": 18,
+    "w": 71
    },
    "footCoverage": {
-    "top": 1259,
-    "h": 14,
+    "top": 1275,
+    "h": 18,
     "w": 220
    },
    "prompt": {
-    "top": 870,
+    "top": 886,
     "h": 127,
     "w": 305
    },
    "doc": {
-    "h": 1319
+    "h": 1338
    }
   },
   "findingsScroll": {
    "client": 790,
    "scroll": 790,
-   "clientH": 310,
-   "scrollH": 310,
+   "clientH": 347,
+   "scrollH": 347,
    "maxH": "604px",
    "rowHs": [
-    93,
-    93,
-    93
+    105,
+    105,
+    105
    ],
    "cols": [
     95,
@@ -193,7 +193,7 @@
   "refusal": null,
   "refusalCode": null,
   "refusalBlock": null,
-  "height": 1319
+  "height": 1338
  },
  {
   "width": 390,
@@ -313,63 +313,63 @@
    },
    "priority": {
     "top": 1149,
-    "h": 576,
+    "h": 610,
     "w": 358
    },
    "objectives": {
-    "top": 1740,
+    "top": 1774,
     "h": 361,
     "w": 358
    },
    "side": {
-    "top": 1740,
+    "top": 1774,
     "h": 503,
     "w": 358
    },
    "opportunity": {
-    "top": 2260,
+    "top": 2294,
     "h": 268,
     "w": 358
    },
    "progress": {
-    "top": 2556,
+    "top": 2590,
     "h": 308,
     "w": 358
    },
    "footQty": {
-    "top": 2879,
+    "top": 2913,
     "h": 29,
     "w": 356
    },
    "footLink": {
-    "top": 2914,
-    "h": 14,
-    "w": 91
+    "top": 2948,
+    "h": 18,
+    "w": 71
    },
    "footCoverage": {
-    "top": 2914,
+    "top": 2972,
     "h": 14,
     "w": 220
    },
    "prompt": {
-    "top": 2116,
+    "top": 2150,
     "h": 127,
     "w": 358
    },
    "doc": {
-    "h": 2966
+    "h": 3024
    }
   },
   "findingsScroll": {
    "client": 336,
    "scroll": 720,
-   "clientH": 326,
-   "scrollH": 326,
+   "clientH": 360,
+   "scrollH": 360,
    "maxH": "604px",
    "rowHs": [
-    94,
-    94,
-    94
+    105,
+    105,
+    105
    ],
    "cols": [
     86,
@@ -391,6 +391,6 @@
   "refusal": null,
   "refusalCode": null,
   "refusalBlock": null,
-  "height": 2966
+  "height": 3024
  }
 ]
