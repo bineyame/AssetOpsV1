@@ -52,3 +52,33 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
 - L2 (confirm 422) and L4 (measure site_coverage calls, run 1a) need no 0a change. L3 (EstatePortfolioStatus in estateClient.ts) is left to run 2 per r0a.
 - Checks: 0a tests + W3-02/W3-01 Postgres goldens 65 passed (w303b_test, dropped), golden bytes unchanged; check-all 11/11.
 - Next: run 2 (0b) after re-review.
+
+## Run 2 = seam run 0b (Lane B) — landed, clean proof PARTIAL (stopped variant P-0b-1)
+- `backend/tests/test_w303_portfolio_fixture_postgres.py`: `build_portfolio_fixture(request, monkeypatch, capsys,
+  cold_case="normal", cold_drain=False) -> PortfolioFixture` (one fresh DB; cold `normal` + EV `complete` per
+  `mixed_replay`; EV-LAB-002 per `two_ev_sites` with tag 0x3022, golden KES tariffs + W2-07 money; P01 `PowerSite`,
+  publish v1-v3, `Rig.run()`; all four Sites `imported_before` 10-05; frozen = max(runner.now+1min, db_now, latest
+  cold/EV stored time+1us); `pin_snapshots` pins `EstateSnapshot`, `EvidenceMoneySnapshot`, assessment
+  `_transaction_time`). `fx.estate()` (findings/actions) and `fx.money()` (evidence/financials) clients; `fx.window`.
+- `::test_one_day_three_domain_fixture_public_roots`: all roots CURRENT, same window/known_at, 4 Sites; F/E/M roots
+  COMPLETE; no Action in 10-06 (B4); W1 PRICED from stored consequence = ELIGIBLE operating-cost line; two EV lines
+  match stored heads, disjoint technical/evidence IDs, one COMPARABLE group with exact `group_key_for_partition`;
+  `estate_total` null; one-day dispatch selection present; every selected head/evidence in (09-30, frozen].
+- HELD: cold `POTENTIAL_PRODUCT_EXPOSURE UNPRICED` — named cold `normal` makes no cold Finding/line (group
+  UNKNOWN_COVERAGE). Probe: `excursion` + W2-04 `drain` makes it pass. See `.agent/W3-03-pending-rulings.md` P-0b-1.
+
+### Run 2 readings (Architect may overturn)
+1. 0b names no test file; used `test_w303_portfolio_fixture_postgres.py`, builder importable by 1a/1b.
+2. Portfolio root does not exist yet: Portfolio-only facts (combined_value, card states, pulse note, F/E/M fields) are
+   1a/1b; 0b asserts the equivalent root facts (`summary.estate_total` null, root coverage COMPLETE).
+3. Price publication steps v1,v2,v3 as in `test_cost_lens_only_exact_eligible_current_rows` (power_estate P01 path).
+4. Variants (a)-(e), empty Site and foreign tenant are 1b (N6); 0b only proves the (b) precondition (heads > 09-30).
+5. B4 workflow-label Action-window test is 1b (closure 5 S7); 0b asserts no Action selected on 10-06.
+6. L3 (`EstatePortfolioStatus` in `estateClient.ts`) stays run 2-page / Lane A per r0a; no frontend change in 0b.
+
+### Run 2 checks
+- `test_w303_portfolio_fixture_postgres.py` + `test_w303_estate_cursor.py` + `test_w303_selectors_postgres.py` on
+  private `w303c_test` (dropped after): 29 passed, 85 s. `tools/check-all.ps1`: all 11 guards passed. No frontend touched.
+
+## Next: run 3
+Seam run 1a (Lane B) after an independent review of 0b's fixture composition and the P-0b-1 ruling.
