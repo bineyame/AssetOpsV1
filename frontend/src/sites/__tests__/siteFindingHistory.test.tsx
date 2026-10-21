@@ -158,7 +158,18 @@ function client(ledger: Ledger): FindingClient & { asked: Asked[] } {
   const asked: Asked[] = [];
   return {
     asked,
-    getFinding: async () => ({ status: "not_found", message: null }),
+    // W4-03 u6b ruling 6: the canonical mini shell's same-Site W1 selection, echoing the supplied revision (latest
+    // when none), so the sibling and money links exist and carry exactly that revision.
+    getFinding: async (siteCode, findingId, revisionId) =>
+      ({
+        status: "loaded",
+        value: {
+          site_code: siteCode,
+          finding: { id: findingId },
+          selection: { revision_id: revisionId ?? rid(ledger.total) },
+          revision: { title: "Generator support merits review" },
+        },
+      }) as unknown as Awaited<ReturnType<FindingClient["getFinding"]>>,
     getFindingWindow: async () => ({ status: "not_found", message: null }),
     getFindingEvidence: async (_s, _f, revisionId) => {
       asked.push({ view: "evidence", revisionId });
@@ -500,7 +511,7 @@ describe("W1-UX-02: Finding History answer card", () => {
     ]);
     // Exact selectors from the card.
     expect(q("[data-history-open-finding]")).toBeNull();
-    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}`);
+    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${rid(205)}`); // u6b ruling 6: the loaded W1 selection
     // W1-F3 review (height table): one head link; the selected row's "Its evidence" carries the same exact ID.
     expect(q("[data-history-open-evidence]")).toBeNull();
     expect(q(`[data-history-evidence-link='${rid(205)}']`)).toHaveAttribute("href", `${EVIDENCE}?revision_id=${rid(205)}`);
