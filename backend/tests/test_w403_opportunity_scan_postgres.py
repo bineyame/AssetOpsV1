@@ -100,3 +100,29 @@ def test_routine_scan_retention_edge_and_missing_day(store, engine) -> None:  # 
                                    "decision": None, "evidence_ids": []}
     assert all(h.mini_revision_id for h in heads[1:])
     assert len(jobs(engine)) == 2
+
+
+def test_concurrent_enqueue_coalesces_to_one_pending_job(store, engine) -> None:  # noqa: F811
+    import threading
+
+    t, s = mg(store, engine)
+    window = projection.study_window(DAYS[0], DAYS[-1], ZONE)
+    stores = [PostgresAssessmentStore(URL) for _ in range(4)]
+    barrier, results, errors = threading.Barrier(4), [], []
+
+    def enqueue(jobs_store) -> None:
+        try:
+            barrier.wait()
+            results.append(jobs_store.enqueue_opportunity_job(t, s, DAYS[0], DAYS[-1], window))
+        except Exception as error:  # noqa: BLE001
+            errors.append(error)
+
+    threads = [threading.Thread(target=enqueue, args=(x,)) for x in stores]
+    for th in threads:
+        th.start()
+    for th in threads:
+        th.join(60)
+    assert not errors
+    assert sorted(a for a, _ in results) == ["COALESCED", "COALESCED", "COALESCED", "INSERTED"]
+    [job] = jobs(engine)
+    assert {j for _, j in results} == {job.id} and job.status == "PENDING"

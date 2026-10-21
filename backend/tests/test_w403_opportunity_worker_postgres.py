@@ -196,3 +196,33 @@ def test_interrupted_lease_retries_once(store, engine) -> None:  # noqa: F811
     with pytest.raises(LeaseLost):
         with PostgresMiniDecisionStore(engine).transaction() as c:
             w.jobs.settle_opportunity_job(c, lease)
+
+
+def test_supported_published_study_and_pending_w402_work_leave_it_frozen(store, engine, tmp_path, capsys) -> None:  # noqa: F811
+    from test_w403_scenarios_postgres import mg_published
+
+    t, s = mg_published(store, engine, tmp_path, capsys)
+    _, [done] = project(engine)
+    [rev] = revisions(engine)
+    heads = pins(engine, t, s)
+    eligible = [h for h in heads if h.decision == "ELIGIBLE"]
+    assert result_class(engine, t, s, heads) == "AUTHORED_DEMONSTRATION"
+    assert (rev.result["status"], rev.result["assessed_days"], rev.result["eligible_days"]) == ("SUPPORTED", 5, 4)
+    bounds = [r["opportunity_kwh"] for r in rev.result["day_rows"] if r["decision"] == "ELIGIBLE"]
+    assert len(bounds) == len(eligible) == 4
+    from decimal import Decimal
+    assert rev.result["headroom_kw"] == {"low": min(bounds, key=lambda b: Decimal(b["low"]))["low"],
+                                         "high": min(bounds, key=lambda b: Decimal(b["high"]))["high"]}
+    assert not [x for x in rev.result["limitations"] if x["code"].startswith("SOURCE_CLASS_")]
+    # Live W4-02 work on a pinned day is read-time currentness only: no new opportunity job, revision or result.
+    before = counts(engine)
+    with engine.begin() as c:
+        noon = local_noon(DAYS[2], ZONE)
+        c.execute(text(
+            "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
+            "available_at, created_at) VALUES (gen_random_uuid(), :t, :s, 'mini_renewable', :lo, :hi, 'PENDING', "
+            "now(), now())"), {"t": t, "s": s, "lo": noon.start, "hi": noon.end})
+    w = worker(engine)
+    w.jobs.test_clock_override = lambda: local_noon(DAYS[-1], ZONE).start + timedelta(days=5)
+    assert w.enqueue_from_selections(t, s) == [] and w.reconcile(CODE, *STUDY) == []
+    assert counts(engine) == before and revisions(engine)[0].result == rev.result
