@@ -146,7 +146,7 @@ acceptance cutoff reads mini-grid Finding coverage UNKNOWN (no selected revision
 `test_two_actions_one_exact_origin_latest_event_then_id_tie`. Question: accept, or name a chain whose Action and
 origin revision share an assessed window.
 
-## P-2-1 (run 2, OPEN): inert opportunity CTAs versus the missing-claim scan
+## P-2-1 — RESOLVED by r2 (`G-portfolio-opportunity` registry gap + `gapCatalogue.ts` mirror + two `<MissingClaim as="span">` wrappers; check-all 11/11): inert opportunity CTAs versus the missing-claim scan
 Closure 1 Q20 / mock ledger require two inert plain-text CTAs, `Review opportunity Finding · Not available yet` and
 `Inspect physical headroom · Not available yet`, with accessible names ending `, Not available yet`, and say
 "No `UnavailableEntry` is added; inert mock-only CTAs are ordinary labelled text." `tools/check-all.ps1`'s

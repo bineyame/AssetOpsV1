@@ -311,7 +311,7 @@ Commits on `task/W3-03-portfolio-composition` after merging main:
 - Not done here (run 3 per closure 4 S16): registry panel rows. Capture harness and script:
   `.agent/W3-03-evidence/test_serve_portfolio.py`, `capture-portfolio.mjs` (all Q24 caps + four panel caps).
 
-### Run 2 readings (Architect may overturn)
+### Run 2 readings (all eleven confirmed by r2; no replacement text)
 1. Lane A shell wiring landed after the page commit (a route needs the page); client + API mount came first.
 2. Matrix header is plain `site_name`/`site_code` (no wire Site link); every null cell destination shows
    `Site detail unavailable`; cell reason is `aria-description` + `title`.

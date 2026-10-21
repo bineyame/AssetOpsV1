@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
+import { Badge, DataTable, Disclosure, MissingClaim, PageHeader } from "../ui";
 import {
   createEstateClient,
   type EstateClient,
@@ -413,12 +413,12 @@ function OpportunityPanel() {
       </div>
       <p className="chart-note">{OPPORTUNITY_NOTE}</p>
       <div className="panel-bottom">
-        <span className="portfolio-inert" aria-label="Review opportunity Finding, Not available yet">
-          Review opportunity Finding · Not available yet
-        </span>
-        <span className="portfolio-inert" aria-label="Inspect physical headroom, Not available yet">
-          Inspect physical headroom · Not available yet
-        </span>
+        <MissingClaim as="span" className="portfolio-inert" gapId="G-portfolio-opportunity" placement="portfolio.opportunity.review-finding">
+          <span aria-label="Review opportunity Finding, Not available yet">Review opportunity Finding · Not available yet</span>
+        </MissingClaim>
+        <MissingClaim as="span" className="portfolio-inert" gapId="G-portfolio-opportunity" placement="portfolio.opportunity.inspect-headroom">
+          <span aria-label="Inspect physical headroom, Not available yet">Inspect physical headroom · Not available yet</span>
+        </MissingClaim>
       </div>
     </section>
   );
