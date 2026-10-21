@@ -35,4 +35,35 @@ Readings (no ruling requested; flag if wrong):
 Open for 1b: type and consume `selected_excursion_present`; all frontend copy (Overview `Recovery comparison not
 assessed`, Evidence missing column, Financials rename). Frontend mocks still carry old cooling copy.
 
-Next: 1b
+## 1b: cold truth UI (H1 S1/S2/S5/S7/S8/S12, N0/M4, M6, M7/N6, cold M13), commit `f3ccb41c`
+
+Landed:
+- `coldSiteClient.ts`: `ColdEvidenceRead.selected_excursion_present: boolean` (S5).
+- `coldSiteViews.tsx`: Evidence `What is missing` for cooling/exposure = missing roles, then capability `limitation`,
+  never `Nothing required` (S1); exposure appends `Required basis: ...` (`PRODUCT_REQUIRED_BASIS`). Stock prompt and
+  `Next evidence not identified` keyed to `selected_excursion_present` (`excursionPresent`). Overview cooling chip has
+  no SUPPORTED mapping (S2); money card adds `data-cold-money-basis` `Consequence basis: ...` (S8). Financials tile and
+  basis label `Chamber thermal exposure`, row th `Chamber thermal exposure · Consequence basis: ...`, basis note
+  `data-cold-thermal-basis-note` (S7/S8). `coldAssumptionRows` shared by Financials and Assumptions (M7/N6).
+- `coldFormat.ts::degreeMinutes` (open upper -> `upper bound not established`; null -> `Not assessed`).
+- `ColdAssessmentViews.tsx`: panel 3 `Claim boundary` (N0); Temperature exposure card and excursion Finding labelled
+  `Observed excursion estimate` (S8); `FindingStatus` = lifecycle, `Confidence: {claimWord}`, `Selected source: ...`.
+- `v69PanelTitles.ts`: `temperature:3` override and deviation-18 comment removed.
+Tests: `coldRoutes.test.tsx` `w2f_temperature_claim_boundary_title` (loaded/none/refused), `w2f_temperature_bound_is_labelled`,
+`w2f_finding_strip_confidence`, `w2f_backup_recovery_parity`; `coldSiteViews.test.tsx` `w2f_recovery_and_exposure_copy`,
+`w2f_stock_prompt_follows_selected_excursion`, `w2f_consequence_bound_is_labelled`, `w2f_assumption_rows_match`.
+Checks: cold files 50 + 51 passed; tsc clean; full frontend 2420/2421 - one failure in untouched
+`s404SiteFindingIndex.test.tsx` ("changing the dates", got 2026-10-25), passes 37/37 alone (load flake);
+check-all 11/11. Non-vacuous: S5 prompt reverted to the capability predicate fails `w2f_stock_prompt...`; reverted.
+
+Readings (flag if wrong):
+1. **Vocabulary glosses added** (`productVocabulary.json` top-level `glosses`): exact `Claim boundary` and exact
+   `Ordered compressor running after the interruption`. Both mandated texts hit T028 terms `claim`/`running`; glosses
+   are exact-phrase, so the words stay flagged elsewhere. Reviewer should confirm this is acceptable vs a ruling.
+2. Contradictory cooling with no limitation shows `Coverage or claim basis incomplete`.
+3. Currency label comes from the unit-value item's `currency` (else any item's); `No assumption in use` note only when
+   all three rows are `Not declared`.
+4. Temperature card value is the bound; its note carries `Observed excursion estimate`.
+5. Cold Finding refused state unchanged (existing page refusal; no strip), since S12's neutral refused strip is EV.
+
+Next: 2
