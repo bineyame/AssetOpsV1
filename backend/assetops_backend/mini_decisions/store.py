@@ -308,6 +308,56 @@ class PostgresMiniDecisionStore:
             {"t": tenant_id, "s": site_id, "ids": evidence_ids, "now": now}).all()
         return {str(r[0]).lower(): (r[1], r[2]) for r in rows}
 
+    # --- opportunity scan reads (unit 4: closure 2 Q4, closure 4 S5/S6) ------------------------------------------
+
+    @staticmethod
+    def renewable_scan_heads(c: Connection, retention_start: Any, tenant_id: UUID | None = None,
+                             site_id: UUID | None = None) -> list[Any]:
+        """Closure 2 Q4's head query: the latest committed renewable selection `(selected_at DESC, seq DESC)` of
+        each Site/noon whose UTC instant is `>= retention_start`, with the Site's time zone; optionally one Site."""
+        scope = "" if site_id is None else " AND s.tenant_id = :t AND s.site_id = :s"
+        return c.execute(text(
+            "SELECT DISTINCT ON (s.tenant_id, s.site_id, s.window_start) s.tenant_id, s.site_id, s.window_start, "
+            "s.window_end, s.seq, s.revision_id, s.selected_at, st.timezone "
+            "FROM mini_depth_selection AS s JOIN site AS st ON st.tenant_id = s.tenant_id AND st.id = s.site_id "
+            "WHERE s.domain = 'renewable' AND s.window_start >= :retention_start" + scope +
+            " ORDER BY s.tenant_id, s.site_id, s.window_start, s.selected_at DESC, s.seq DESC"),
+            {"retention_start": retention_start, "t": tenant_id, "s": site_id}).all()
+
+    @staticmethod
+    def renewable_noon_heads(c: Connection, tenant_id: UUID, site_id: UUID, starts: list[Any]) -> list[Any]:
+        """Each named noon's latest renewable head: `(window_start, seq, selected_at, revision id, input digest,
+        decision, sorted accepted IDs)`; a noon with no selection is absent."""
+        return c.execute(text(
+            "SELECT DISTINCT ON (s.window_start) s.window_start, s.seq, s.selected_at, r.id::text, r.input_sha256, "
+            "r.result->'hour'->>'decision', COALESCE((SELECT array_agg(v.evidence_id::text "
+            "ORDER BY v.evidence_id::text) FROM mini_depth_revision_evidence v WHERE v.tenant_id = r.tenant_id "
+            "AND v.site_id = r.site_id AND v.revision_id = r.id), '{}') "
+            "FROM mini_depth_selection s JOIN mini_depth_revision r ON r.tenant_id = s.tenant_id "
+            "AND r.site_id = s.site_id AND r.id = s.revision_id "
+            "WHERE s.tenant_id = :t AND s.site_id = :s AND s.domain = 'renewable' AND r.domain = 'renewable' "
+            "AND s.window_start = ANY(CAST(:starts AS timestamptz[])) "
+            "ORDER BY s.window_start, s.selected_at DESC, s.seq DESC"),
+            {"t": tenant_id, "s": site_id, "starts": starts}).all()
+
+    @staticmethod
+    def latest_opportunity_sha(c: Connection, tenant_id: UUID, site_id: UUID, first_day: Any,
+                               last_day: Any) -> str | None:
+        """The `input_sha256` of the study's latest projected revision (greatest selection `(selected_at, seq)`)."""
+        return c.execute(text(
+            "SELECT r.input_sha256 FROM mini_opportunity o JOIN mini_opportunity_selection x "
+            "ON x.tenant_id = o.tenant_id AND x.site_id = o.site_id AND x.opportunity_id = o.id "
+            "JOIN mini_opportunity_revision r ON r.tenant_id = x.tenant_id AND r.site_id = x.site_id "
+            "AND r.id = x.revision_id WHERE o.tenant_id = :t AND o.site_id = :s AND o.first_day = :f "
+            "AND o.last_day = :l AND o.model_version = :v ORDER BY x.selected_at DESC, x.seq DESC LIMIT 1"),
+            {"t": tenant_id, "s": site_id, "f": first_day, "l": last_day, "v": OPPORTUNITY_MODEL_VERSION}).scalar()
+
+    @staticmethod
+    def sites_by_code(c: Connection, site_code: str) -> list[Any]:
+        """`reconcile --site <code>`: `(tenant_id, site_id, timezone)` of the Sites with that public code."""
+        return c.execute(text("SELECT tenant_id, id, timezone FROM site WHERE site_code_key = lower(:c)"),
+                         {"c": site_code}).all()
+
     def run(self, work: Callable[[Connection], T]) -> T:
         """Run `work` in one write transaction (convenience for callers holding no connection)."""
         with self.transaction() as c:
