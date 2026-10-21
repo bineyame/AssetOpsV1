@@ -481,6 +481,26 @@ Owner decision, recorded in `.agent/owner-W5-W6-spec-readiness-2026-10-21.md`: "
 - **Size cap.** A slice with more than 6 build units, or with both a backend pipeline and more than 2 new pages, is split into two slices, each with its own review and merge.
 - **Mid-build stops count against the spec.** Record each mid-build ruling round in the handoff. More than 2 rounds on one slice triggers a fresh readiness pass on the remaining units before continuing.
 
+### W3/W4 lessons applied to W5 and W6 (owner, 2026-10-21)
+
+The owner asked to "adopt best practices and learning for waves 5 and 6 for quality and speed". Each rule below cites the W3/W4 defect it prevents.
+
+**Spec quality (before the readiness gate passes)**
+1. **Guard-checked literals.** Every registry row, `mock_gaps` entry, copy string and nav entry in a spec is checked against the actual checkers: `check_v69_dependency_registry.cjs`, the missing-claim, vocabulary and navigation guards, and check-all. A literal that a guard would reject is not closed. (W3-03 r2 registry rows and P-2-1 copy both failed guards mid-build.)
+2. **Worst-case content in measurements.** Mock measurements include each text slot's worst-case length at 390 px: long IDs, the longest gap or empty copy, and refusal overlays. The spec states the scroll or truncation rule per slot. (W4-03 Scenarios, Opportunity and Incidents, and the W3-03 empty card, all broke caps at capture.)
+3. **Producible states.** Every capture state and persisted test variant names a real producer path, which the readiness reviewer has run or traced to its rows, with a pinned clock. A state with no producer is ruled up front as a pure or fake-snapshot test, or as an honest limitation. (W4-03 KOBO Alternatives, Opportunity supported and DB-time 409; W3-03 cold `normal` and P-1b-1..6.)
+4. **One clock per fixture.** Each fixture states its frozen clock, and how every read and pin uses it. (W3-03 0b re-pin H1; W4-03 PR-11.)
+5. **Consolidated unit cards.** After any ruling round, the Architect folds the rulings into the affected unit's section as one current card: literals, tests and reading index. Builders read one card, not a stack of appended rulings. (W4-03 builders read u1–u9c layers and ran out of context 4 times.)
+6. **Mock-consistency pass.** The readiness reviewer checks the spec against the mock and against itself for contradictions. (W4-03 u5 breadcrumb vs mock; W3-03 L3 prompt-Site rule.)
+7. **File ownership per unit.** Each unit names every existing shared file it may edit, and the lane that owns it. (W3-03 L1 implied edits.)
+
+**Build and review flow**
+8. **Unit size.** One builder run per unit: one to three commits, with a reading index of 4 sections or fewer. Split before dispatch, not after a context stop.
+9. **Per-unit review for shared code or schema.** Any unit touching shared files, schema or a cross-slice seam gets an independent review before the next unit builds on it. Pure-UI units may batch into the final review. (W3-03's per-unit reviews caught H/M defects early; W4-03 deferred everything to one large final review.)
+10. **Rulings in parallel.** Builder readings go to the Architect while the next unit builds. The builder applies the rulings at its next commit boundary.
+11. **One full suite at a time, never alongside 3+ heavy builders.** (W3-02 had 2 load-timing failures.)
+12. **Captures are part of the unit that builds the page,** not a separate late unit, so cap and state failures surface while the code is fresh.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record
