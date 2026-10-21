@@ -15,8 +15,9 @@ admit only that bearer for the exact resolved tenant/Site pairs and derive `serv
 server. `replay` runs the W4-02 authored publication and ingestion, the explicit historical reconcile, seeds the MG
 work cases in process through W4-01 `WorkService` (`service:w401-fixture`; never a W4-01 HTTP POST), submits the
 five W4-03 command types over HTTP, and records the reads (`<work>/replay.json`, no secret). `capture` delegates the
-1440/390 captures to `tools/w403-mini-decisions-evidence.mjs`. `drop` drops the database and work folder that this
-tool made. Nothing reads private Lab state or inserts accepted evidence directly.
+1440/390 captures to `tools/w403-mini-decisions-evidence.mjs`, after seeding the capture stock (four more
+Incidents, two more Requests) through W4-01 `WorkService` into `<work>/capture/stock.json`. `drop` drops the
+database and work folder that this tool made. Nothing reads private Lab state or inserts accepted evidence directly.
 
 PYTHONPATH must hold backend, backend/tests, contracts, gateway, simulator and host (the brief's list plus tests).
 """
@@ -359,7 +360,32 @@ class Walk:
         engine.dispose()
         print(f"replayed: {self.work / 'replay.json'}")
 
+    def stock(self) -> dict[str, Any]:
+        """u9 9b capture stock: four more MG Incidents and two more Requests through W4-01 `WorkService`.
+
+        Recorded in `<work>/capture/stock.json`, separately from `replay.json`; never a direct case-row insert. The
+        W4-01 idempotency keys make a second `capture` return the same cases.
+        """
+        from uuid import UUID
+
+        fixture, ids = load_fixture(), self.ids()
+        [incident] = [c for c in fixture["commands"]["cases"] if c["body"]["kind"] == "INCIDENT"]
+        [request] = [c for c in fixture["commands"]["cases"] if c["body"]["kind"] == "MAINTENANCE_REQUEST"]
+        scope = tuple(UUID(v) for v in ids["scopes"][incident["site_code"]])
+        out: dict[str, Any] = {"site_code": incident["site_code"], "principal": WORK_PRINCIPAL, "incidents": {},
+                               "requests": {}}
+        for kind, template, n in (("incidents", incident, 4), ("requests", request, 2)):
+            for i in range(1, n + 1):
+                key = f"w403-capture-{kind}-{i}"
+                body = {**template["body"], "idempotency_key": key, "title": f"{template['body']['title']} ({i + 1})"}
+                out[kind][key] = seed_case(scope, body)
+        out["counts"] = {"incidents_added": len(out["incidents"]), "requests_added": len(out["requests"])}
+        (self.work / "capture").mkdir(parents=True, exist_ok=True)
+        (self.work / "capture" / "stock.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
+        return out
+
     def capture(self, web: str) -> None:
+        self.stock()
         done = subprocess.run(["node", str(REPO / "tools" / "w403-mini-decisions-evidence.mjs"), web,
                                str(self.work / "capture")], cwd=REPO)
         raise SystemExit(done.returncode)
