@@ -87,7 +87,7 @@ Confirm or replace these Alternatives readings:
 8. The command instant is bound to `mini_alternative_revision.created_at` (DB `clock_timestamp()` in production; a
    constructor-only `test_db_clock_override`, as W4-01) because the W1 fixture Findings carry future fixture times.
 
-## PR-6 (raised in unit 4; BLOCKS the opportunity projection, pieces b-remainder/c/d)
+## PR-6 (raised in unit 4) - RESOLVED by build-spec "Unit-4 rulings (u4)"; built in c4180e15
 
 Pieces landed: (a) `afd15193` job methods + Rule 8 coalesce allowance + 6 negative/1 positive probes; (b, partial)
 `24e460d3` scan, reconcile and S5 `input_sha256` (tests 3 passed). The projection must write the stored `result`

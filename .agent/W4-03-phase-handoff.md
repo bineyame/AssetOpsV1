@@ -223,3 +223,37 @@ missing day).
 Remaining (after PR-6): worker lease loop + projection (validate job window/five noons before inserts; reuse revision
 on equal hash; selection only on head change; settle in one txn), `run_pending`/CLI; (c) tick stage +
 `record_opportunity`; (d) B3 isolation test + the u3 unit-4 list. Private DB `w403g_test` dropped.
+
+## Unit 4 complete (commits c4180e15, de4301f2, 791e36c2 + run-pending fix)
+
+PR-6 resolved by u4. (b2) `mini_decisions/projection.py`: `frozen_result(days, classification)` (u4 status precedence,
+weakest-eligible-hour `headroom_kw`, ordered limitations), `day_row` (copies the selected revision's single `rows[0]`;
+integrity mismatch -> `ProjectionIntegrityError`, never a missing day), `selected_hours`; `DayHead` carries non-hashed
+integrity fields. `worker.py`: `MiniOpportunityWorker(jobs, store, reader)`, `run_once`/`run_pending(scan=True)` (scan
+first, then lease), `_project` (job window = exact Site-local midnights, study advisory lock, reuse revision on equal
+`input_sha256`, selection only when the head revision changes, evidence links = union of selected accepted IDs, settle on
+the same txn; any error -> `fail_opportunity_job`), `build_worker`, CLI. Provenance class = `MiniDepthRead.provenance_blocks`
+over the pinned revisions/accepted IDs (`selected_source_provenance.classification`). `store.py`: `_check_job(study_window=)`,
+`lock_study`, `site_timezone`, `opportunity_root`, `opportunity_state`; `renewable_noon_heads` adds selection/revision windows
+and result. (c) `scheduling`: OPPORTUNITY stage after MINI (`stages.opportunity`, `OPPORTUNITY_JOB_LEASE_SECONDS`),
+`TickLimits.opportunity_jobs_per_site/opportunity_seconds` (Site lease now 600 s), `record_opportunity` (token-scoped, all
+three), discover/`select_sites` with `live_opportunity_jobs` (FAILED diagnostic); Rule 8 schedule allowlist gains the three
+counters (proved non-vacuous: removing `opportunity_failed` fails the architecture check). W4-02 stage tests updated for the
+new stage order and 600 s lease.
+Readings (reviewer may overturn): `producer_id='mini-opportunity/1'` (closure 1 Q1-Q3); a missing day's `selected_hours`
+keeps `window_from/to` with null seq/at/revision and `evidence_ids: []`; a day row's cited IDs must be a subset of the
+revision's accepted set; `deferred` = this Site's PENDING/LEASED opportunity jobs after the loop.
+Tests: `test_w403_opportunity_result.py` (18, pure u4 vectors), `test_w403_opportunity_worker_postgres.py` (5),
+`test_w403_opportunity_scan_postgres.py` (+concurrent coalesce), `test_w403_opportunity_stage.py` (pure, 8),
+`test_w403_opportunity_job_isolation_postgres.py` (4: B3 fences, token/atomic counters, opportunity-only Site + resume,
+unchanged-fence SKIPPED with an opportunity job settled). Left for unit 5: the u4 read-time tests (pending/stale
+currentness on a stored SUPPORTED revision, no positive chip) and the opportunity page mapping.
+
+## Checks (unit 4)
+- Private DB `w403h_test` (dropped afterwards). No full suite run.
+- New files: result 18 + stage 8 passed (pure); worker 5, isolation 4, scan +1 passed (Postgres).
+- Adjacent: `test_w402_mini_stage_postgres` + `test_s4_schedule_tick_postgres` + w403 scan + worker + `test_w402_mini_lease_postgres`
+  + `test_w403_migration_postgres`: 33 passed (1454 s). `test_w402_mini_stage.py` (updated): passed.
+- `check-all.ps1`: all 11 guards passed (after naming run-pending from the method, as W4-02 does).
+
+Next: unit 5
