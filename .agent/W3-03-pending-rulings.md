@@ -88,7 +88,7 @@ Question: should Lane A add a private per-Site `_pending_guard: bool` (cold `wit
 financial selector's Site coverage, root bytes unchanged, or is the line-based rule sufficient for the named
 persisted variant (a)?
 
-## P-1b-1 (run 1b 3b, variant stopped): Q9 (a) "later cold accepted record and unsettled cold job" not produced
+## P-1b-1 — RESOLVED by r1b3 (pure `test_money_table`; persisted `a_lineless_cold` is the line-less path only) (run 1b 3b, variant stopped): Q9 (a) "later cold accepted record and unsettled cold job" not produced
 
 Producer step: clean `build_portfolio_fixture` (cold `excursion` + drain), then `fx.cold.advance_late()` (the W2-02
 chain's late publication upload, no worker run), re-pinned read clock `max(db_now, latest cold recorded + 1us)`.
@@ -101,7 +101,7 @@ line-less guard) -> `status=PENDING`, F/E/M `COMPLETE/COMPLETE/PARTIAL`, cold Si
 exclusion, W1 card `SITE_OWNED`. Question: which reviewed producer step gives (a) (a `late-reading` cold case in
 the four-Site fixture? a worker-created overlapping job?), or is the line-less variant sufficient for (a)?
 
-## P-1b-2 (run 1b 3b): r1a2 item 1 persisted positive proof - the reviewed mini-grid marker producer is STALE
+## P-1b-2 — RESOLVED by r1b3 (pure `test_settled_current_and_historical_bases`; `mg_historical_marker` stays a STALE control) (run 1b 3b): r1a2 item 1 persisted positive proof - the reviewed mini-grid marker producer is STALE
 
 Producer: S4 `F01` (`CaseRunner`) then W3-01 `LATE` (`runner.step`, decided 2026-10-31), `k = runner.now`, at
 least one PENDING `recompute_job` created by `k`. Portfolio `[2026-10-06,2026-10-07)` at `known_at=k`: status
@@ -111,7 +111,7 @@ covered despite its outstanding job marker" is not shown persisted; the test ass
 and the before-head cutoff (`known_at=2026-10-01`: Site UNKNOWN, F/E/M UNKNOWN). Question: name a non-stale
 historical mini-grid producer, or accept the pure `test_settled_current_and_historical_bases` as the proof.
 
-## P-1b-3 (run 1b 3b, variant stopped): Q9 (d) OVERLAPPING_BASIS has no persisted producer
+## P-1b-3 — RESOLVED by r1b3 (pure W3-02 `test_w302_money_overlap_by_group_ids_and_citations`; no persisted overlap claimed) (run 1b 3b, variant stopped): Q9 (d) OVERLAPPING_BASIS has no persisted producer
 
 The two EV Sites' heads cite their own Site's accepted evidence and technical intervals (W3-02 `two_ev_sites`);
 no reviewed producer makes two otherwise eligible EV heads share a persisted technical/cited ID, and W3-02 proves
@@ -119,7 +119,7 @@ OVERLAPPING_BASIS only in the pure `test_w302_money_api.py`. Not built. Question
 pure W3-02 proof plus the persisted INELIGIBLE/COMPARABLE/UNKNOWN_COVERAGE declines in
 `test_ineligible_overlap_and_unknown_coverage_decline_total`.
 
-## P-1b-4 (run 1b 3b): persisted limits of the operating-cost and EV-pending proofs
+## P-1b-4 — RESOLVED by r1b3 (fake-snapshot `test_financial_scope_pending_guard_without_line` + pure `test_money_table`) (run 1b 3b): persisted limits of the operating-cost and EV-pending proofs
 
 (1) The fixture has the one and only W1 Site (`KOBO-001`), so COMPARABLE_GROUP, multiple operating-cost partitions
 and UNPRICED operating cost are not producible persisted; `test_operating_cost_first_match_wins_across_partitions`
@@ -128,7 +128,7 @@ proves rule 3 (SITE_OWNED) against a COMPARABLE EV and an INELIGIBLE cold partit
 history) in the four-Site fixture; only the cold line-less guard is persisted (R3/Q-1b-3 EV half is the pure
 `_GuardSnap` test). Question: accept, or name producers.
 
-## P-1b-5 (r1b2 R4): the persisted false-guard plus selected PENDING-line case has no producer
+## P-1b-5 — RESOLVED by r1b3 (pure `test_money_table` line branch, guard absent/false; persisted demand removed) (r1b2 R4): the persisted false-guard plus selected PENDING-line case has no producer
 
 r1b2 R4 asks the persisted late-revision test to add `_pending_guard=false` with an uncovered selected
 `eligibility=PENDING` line. In `financials.windowed_lines` a cold/EV line becomes PENDING only from the same
@@ -137,7 +137,7 @@ covered window, so no reviewed producer yields that combination. The rule stays 
 `test_w303_portfolio_reduction.py::test_money_table` (`money_pending(uncovered, guarded)`). Question: accept the
 pure proof, or name a producer.
 
-## P-1b-6 (r1b2 R10): the persisted `origin_revision_selected=true` case has no window in the B4 chain
+## P-1b-6 — RESOLVED by r1b3 (pure `test_two_actions_one_exact_origin_latest_event_then_id_tie`; persisted stays false) (r1b2 R10): the persisted `origin_revision_selected=true` case has no window in the B4 chain
 
 The B4 S6 chain's Action is created 2026-11-01; F01's origin revision is selected only in the one-day 10-06
 window (which selects no Action: Actions are those created in `[from,to)`), and `[2026-10-06,2026-11-03)` at the
@@ -145,3 +145,15 @@ acceptance cutoff reads mini-grid Finding coverage UNKNOWN (no selected revision
 `false` (November window and the wide window); `true` is proved by the pure
 `test_two_actions_one_exact_origin_latest_event_then_id_tie`. Question: accept, or name a chain whose Action and
 origin revision share an assessed window.
+
+## P-2-1 (run 2, OPEN): inert opportunity CTAs versus the missing-claim scan
+Closure 1 Q20 / mock ledger require two inert plain-text CTAs, `Review opportunity Finding · Not available yet` and
+`Inspect physical headroom · Not available yet`, with accessible names ending `, Not available yet`, and say
+"No `UnavailableEntry` is added; inert mock-only CTAs are ordinary labelled text." `tools/check-all.ps1`'s
+missing-claim orphan scan (and its fixtures run) rejects exactly that copy at `frontend/src/estate/EstatePortfolio.tsx`
+(`OpportunityPanel`, 4 hits: "untagged missing-capability copy ... register a mock_gaps gap and render it through
+<MissingClaim gapId placement>"). Satisfying the scan needs a new registry `mock_gaps` entry (claim, boundary,
+owner/allocation, `ui_placements`) mirrored in `frontend/src/ui/gapCatalogue.ts` - a registry decision, not a run-2
+build choice. The page keeps the ruled literal text; check-all therefore fails 2 of 11 guards on this one cause.
+Question: (a) register a `G-portfolio-opportunity` gap (two placements) and render both through `<MissingClaim>`
+keeping the literal copy, or (b) another ruled treatment.
