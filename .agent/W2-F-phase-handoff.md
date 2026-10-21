@@ -91,4 +91,32 @@ Readings (flag if wrong):
 4. 390 proof is jsdom content + stylesheet rule; rendered 390 capture is unit 5.
 5. Refused footer contains W1 term `claim limits`; recorded under pending 1b-q1, no exemption added.
 
-Next: 3
+## 3: EV configuration and Overview (M2, M8, M9, M14, EV Overview M10; B2, S9, N3, N8), commit `d0f8abd9`
+
+Landed:
+- `ColdFoundationViews.tsx` / `EvFoundationViews.tsx` `needed(items, configured)`: readiness messages first (deduped),
+  then `Commissioning record` while `commissioning.evidence_ids` is empty; empty list -> `Nothing further recorded` for a
+  configured row, else `—`. Constants `COMMISSIONING_RECORD`, `NOTHING_FURTHER_RECORDED` (exported from cold).
+- `EvFoundationViews.tsx::ChargerRow` empty slot: Part `Charger {slot+1} · Not declared` via existing `label` (N8).
+- `evSiteRoutes.tsx`: `sld: (at) => siteFoundationViewHref(siteId, "sld", at)`; `EvSiteRoutes.sld` typed in `EvSiteViews.tsx`.
+- `EvSiteViews.tsx`: `overviewStatusWord` / `overviewConfidenceWord` (S9) as first two strip chips; refused Overview
+  renders a strip with `Unknown` / `Confidence: Unknown`. SLD link `data-ev-sld-link` at selected `o.window.to`
+  (requested `p.window.to` when refused or currentness `UNKNOWN`; no `to` -> `No linked page for this item`) with
+  `SLD_CUTOFF_NOTE`. Timeline record label `REC {full UUID}` in `code.ev-site-id` (CSS wraps).
+Tests: `evFoundation.test.tsx` `w2f_unconfirmed_needs_commissioning`, `w2f_undeclared_charger_slot_keeps_name` (+2
+superseded `Not declared` slot assertions); `coldFoundation.test.tsx` `w2f_unconfirmed_needs_commissioning`;
+`evSiteMoneyRoutes.test.tsx` `w2f_overview_sld_link_is_real` (incl. click to SLD), `w2f_overview_status_confidence`,
+`w2f_timeline_analysis_ids_distinct` (timeline part; EV Analysis/Finding IDs are unit 4); superseded `:593`/`:603`.
+Checks: focused 3 files 63/63; tsc clean; full frontend 98 files / 2430 passed; check-all 11/11. Non-vacuous: dropping
+the commissioning append and mapping BOUNDED -> Bounded fail the two named tests; reverted via `git checkout`.
+
+Readings (flag if wrong):
+1. SLD href is built in the shell (`routes.sld`) because the site-substrate guard forbids `sites/` importing `shell/`;
+   it calls `siteFoundationViewHref(siteId, "sld", at)` exactly as B2 names.
+2. "No selected version" = Overview `currentness.state === "UNKNOWN"`.
+3. Refused Overview strip has no window line or action (only the two Unknown chips).
+4. `Commissioning record` is appended to every unconfirmed row, including the optional cold manual-log row; a
+   confirmed but unconfigured row with no message keeps `—`.
+5. New copy passes the vocabulary guard; nothing added to 1b-q1. EV Evidence `Record {short}` (~:1050) is unit 4.
+
+Next: 4
