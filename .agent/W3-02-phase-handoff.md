@@ -1,5 +1,28 @@
 # W3-02 phase handoff
 
+## Commit 2 (Lane A shell) - READY FOR REVIEW
+
+Commits `9e05d970`, `8817543b` on `task/W3-02-estate-evidence-money-basis` (Lane A items 1-3, 5, 6 of `.agent/W3-02-lane-a-requests.md` "Commit 2"; captures item 7). Branch released.
+
+- `frontend/src/shell/EstateRootFrames.tsx:EstateEvidenceFrame` (`<main aria-label="Evidence">`); `App.tsx` optional `estateEvidenceMoney` prop defaulted to `createEstateEvidenceMoneyClient()`; route after Actions.
+- Deviation (guard-forced, by W3-01 precedent): the route uses shell `EVIDENCE_PATH="/evidence"` (`shell/operatorSiteRoutes.ts`), not `ESTATE_EVIDENCE_PATH`, because `navigation-truthfulness.ps1` resolves only `frontend/src/shell` constants; `w302EstateEvidenceShellRoute.test.tsx` pins `EVIDENCE_PATH === ESTATE_EVIDENCE_PATH`. No existing `/evidence` route shadows it; `/sites/{code}/evidence` keeps its handler (test).
+- Rail `Evidence` live (`OperatorShellLayout.tsx`); `navigation-truthfulness.ps1` tuple `live|Evidence|ASSURANCE|/evidence`; four new `navigation-rail-fixtures.ps1` cases (missing route target, route removed, demoted, Financials promoted), all failing as expected inside the fixture check. Pinned rail inventories in 9 shell/ui tests updated.
+- Eyebrow (item 4): estate roots render no shell breadcrumb, so no crumb was added; mock eyebrow `Evidence` remains absent (no `PageHeader` slot).
+- Registry: `I-estate-evidence-root` (open, W3-02), `globalevidence:1` `Capability coverage across sites`, `:2` `Recurring evidence gaps`, status `gap`, awaiting independent review, no owner-acceptance claim; ledger row `bounded`/W3-02 with `registry_dependencies`; brief lists the node. Prerequisite choice is c2-q5 in pending rulings.
+- Worksheet `.agent/W3-02-mock-measurements.md` corrected to closure-4 ceiling maxima (Aggregation 390 = 187).
+
+Captures `.agent/W3-02-evidence/` (harness `serve.py` copied from W3-01 with the `EvidenceMoneySnapshot` read clock pinned TEST-SCOPED; private `w302j_test`, dropped; `capture.mjs`; mock `node tools/measure-mock-panels.mjs .agent/W3-02-evidence/mock globalevidence` reproduces the worksheet: 113/285/287/42 and 264/425/639/78).
+- `positive` = `/evidence?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z`, three Sites COMPLETE, 9 rows, 1 gap. 1440: cards 115, coverage 303, gaps 204, notice 43 (max 137/314/316/66); 390: 280/421/282/80 (max 291/468/703/102); all within. Cards 2+1 at 390. Document scroll width = client width (1440/1440, 390/390).
+- `partial` = 2026-10-05..12 (KOBO UNKNOWN, 15 rows): 1440 coverage **334 > 314**; others within.
+
+For Lane B (page defects/observations, not edited - `frontend/src/estate/` untouched):
+1. Partial state at 1440: Capability panel 334 px exceeds the 314 maximum (likely the partial note plus the 200 px scroll region).
+2. At 390 both table scroll widths are 900 (coverage client 318, gaps 318) against mock 531/337; min-widths are 520/330, so a cell is forcing ~900 px. It scrolls inside the panel (no page overflow), but is far wider than the mock.
+3. At 1440 the 200 px coverage scroll region shows about two of nine rows; mock panel shows three rows.
+4. Ceiling cell shows a raw code: `Not observed: TRANSFER.` (cold Backup response row).
+
+Checks on `8817543b`: focused shell + estate 57 files pass; `tsc --noEmit` clean; `npm run build` ok; registry checker valid (242 nodes, 18 pilot panels); `tools/check-architecture.ps1` passed; `tools/check-all.ps1` 11/11. Full frontend 96 files / 2380 tests passed (an earlier run at `9e05d970` had the 2 `sharedVisualVocabulary` rail pins, fixed in `8817543b`, and one load-flaky `siteFinancials` 409-reload test that passes alone).
+
 ## Commit 2 (Lane B) - Evidence page landed; READY FOR LANE A SHELL
 
 Commit `d9f898e7` (after merging main into `33b9711e`). Branch released to Lane A.
