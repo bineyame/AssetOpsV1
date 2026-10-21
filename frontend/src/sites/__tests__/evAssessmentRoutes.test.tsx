@@ -428,7 +428,9 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     await settledScreen();
     expectV69Panels("ev-finding");
     expect(strip()).toContain("Evidence pending");
-    expect(strip()).not.toContain("Observed interruption");
+    // W2-F S12 supersedes the old pending-replaces-lifecycle rule: pending adds its notice beside the selected values.
+    expect(strip()).toContain("Open");
+    expect(strip()).toContain("Confidence: Observed");
     expect(strip()).toContain("New evidence is being assessed. The previous result may change.");
   });
 
@@ -592,20 +594,20 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     expectV69Panels("ev-finding");
     expectPlantedPanelRejected("ev-finding");
     expect(client.getSession).toHaveBeenCalledWith(CODE, id(11), { from: FROM, to: TO, known_at: KNOWN });
-    expect(strip()).toContain(`Finding ${FINDING.slice(0, 8)}`);
+    expect(strip()).toContain(`F ${FINDING}`);
     expect(strip()).toContain("Observed interruption");
     const conclusion = panelTitled("Bounded conclusion").textContent ?? "";
     expect(conclusion).toContain("A connector fault and session abort were observed; component cause and unmet demand remain unknown.");
     expect(conclusion).toContain("12.500 kWh delivered before abort · complete meter coverage");
     expect(conclusion).toContain("The records do not establish charger hardware failure, vehicle fault or lost revenue.");
-    expect(conclusion).toContain(`Record ${id(150).slice(0, 8)}`);
+    expect(conclusion).toContain(`REC ${id(150)}`);
     expect(conclusion).toContain("No analysis link");
     expect(conclusion).toContain("Analysis view not available for this EV record");
     expect(screen.queryByText("Inspect claim evidence")).toBeNull();
     const context = Array.from(panelTitled("Operational context").querySelectorAll("[data-key-value]")).map((x) => [
       x.querySelector("dt")?.textContent, x.querySelector("dd")?.textContent,
     ]);
-    expect(context).toEqual([["Session", "S-11"], ["Connector", "Connector c2"], ["Energy delta", "12.500 kWh"], ["Outcome", "Observed abort"]]);
+    expect(context).toEqual([["Session", "SES S-11"], ["Connector", "Connector c2"], ["Energy delta", "12.500 kWh"], ["Outcome", "Observed abort"]]);
     const next = panelTitled("Recommended next step");
     expect(next.textContent).toContain("Retrieve charger diagnostics and witness a complete session with start, end and meter records.");
     expect(next.querySelector('[data-link-unavailable="Review recommendation"]')?.textContent).toBe("Review recommendation · Not available yet");
@@ -633,7 +635,7 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     await settledScreen();
     const conclusion = panelTitled("Bounded conclusion");
     const line = conclusion.querySelector("[data-ev-record]") as HTMLElement;
-    expect(line.textContent).toBe(`Record ${id(150).slice(0, 8)} · No analysis link`);
+    expect(line.textContent).toBe(`REC ${id(150)} · No analysis link`);
     expect(screen.getByLabelText(`Record ${id(150)}`)).toBeTruthy();
     const refs = conclusion.querySelector('[data-disclosure="ev-finding-references"]') as HTMLDetailsElement;
     expect(refs.open).toBe(false);
@@ -656,6 +658,75 @@ describe("W2-06: ev-finding keeps the v69 panels and the disabled Recommendation
     const partial = Array.from(limited.querySelectorAll("[data-ev-record-id]")).map((x) => x.textContent);
     expect(partial).toEqual([`Start record ID: ${id(149)}`, `Fault record ID: ${id(150)}`]);
     expect(limited.textContent).not.toContain("Abort record ID");
+  });
+
+  // W2-F M10/N1: no DTO has a finding code, so full stored UUIDs with their domain prefix stay distinct.
+  it("w2f_finding_record_ids_distinct", async () => {
+    const a = "00000777-0000-4000-8000-000000000001";
+    const b = "00000777-0000-4000-8000-000000000002";
+    const labels = async (findingId: string, record: string) => {
+      cleanup();
+      renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, finding_id: findingId, claim: { ...FINDING_DETAIL.claim, fault_evidence_id: record, external_session_id: null } }));
+      await settledScreen();
+      const f = document.querySelector(".status-strip code.ev-id") as HTMLElement;
+      const r = panelTitled("Bounded conclusion").querySelector("[data-ev-record] code.ev-id") as HTMLElement;
+      const ses = panelTitled("Operational context").querySelector("code.ev-id") as HTMLElement;
+      return [f, r, ses].map((el) => ({ text: el.textContent, aria: el.getAttribute("aria-label") }));
+    };
+    const first = await labels(a, a);
+    const second = await labels(b, b);
+    expect(first).toEqual([
+      { text: `F ${a}`, aria: `Finding ${a}` },
+      { text: `REC ${a}`, aria: `Record ${a}` },
+      // No stored external session ID: the full session UUID.
+      { text: `SES ${id(11)}`, aria: `Session ${id(11)}` },
+    ]);
+    expect(second.slice(0, 2)).toEqual([
+      { text: `F ${b}`, aria: `Finding ${b}` },
+      { text: `REC ${b}`, aria: `Record ${b}` },
+    ]);
+    expect(first[0].text).not.toBe(second[0].text);
+    expect(first[1].text).not.toBe(second[1].text);
+    // A stored external session ID is shown in full; the exact UUID stays the accessible name.
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted));
+    await settledScreen();
+    const ses = panelTitled("Operational context").querySelector("code.ev-id") as HTMLElement;
+    expect([ses.textContent, ses.getAttribute("aria-label")]).toEqual(["SES S-11", `Session ${id(11)}`]);
+  });
+
+  // W2-F S12/M13: lifecycle from the selected Finding, confidence from its claim level, pending adds a notice.
+  it("w2f_finding_strip_lifecycle_confidence", async () => {
+    const vector = async (over: Partial<EvFindingDetailRead>) => {
+      cleanup();
+      renderEv(FINDING_PATH, ok(STATES.interrupted), ok({ ...FINDING_DETAIL, ...over }));
+      await settledScreen();
+      const s = document.querySelector(".status-strip") as HTMLElement;
+      return {
+        lifecycle: Array.from(s.querySelectorAll(".badge, [class*='badge']")).map((b) => b.textContent).find((t) => t === "Open" || t === "No longer supported" || t === "Not recorded") ?? null,
+        confidence: s.querySelector("[data-ev-finding-confidence]")?.textContent ?? null,
+        phrase: s.querySelector("[data-ev-claim-phrase]")?.textContent ?? null,
+        pending: s.querySelector("[data-ev-pending-notice]")?.textContent ?? null,
+      };
+    };
+    expect(await vector({})).toEqual({ lifecycle: "Open", confidence: "Confidence: Observed", phrase: "Observed interruption", pending: null });
+    expect((await vector({ claim_level: "BOUNDED" })).confidence).toBe("Confidence: Bounded");
+    expect((await vector({ claim_level: "UNKNOWN" })).confidence).toBe("Confidence: Unknown");
+    expect((await vector({ claim_level: "CONTRADICTORY" })).confidence).toBe("Confidence: Records disagree");
+    // Withdrawn: the true lifecycle, no supported-claim phrase.
+    expect(await vector({ lifecycle: "NO_LONGER_SUPPORTED", claim_level: "UNKNOWN" })).toEqual({ lifecycle: "No longer supported", confidence: "Confidence: Unknown", phrase: null, pending: null });
+    // Pending keeps the selected lifecycle and claim level and adds its notice.
+    expect(await vector({ ...envelope("PENDING_RECOMPUTE") })).toEqual({ lifecycle: "Open", confidence: "Confidence: Observed", phrase: "Observed interruption", pending: "Evidence pending" });
+    // No invented Limited confidence.
+    expect(document.querySelector(".status-strip")?.textContent).not.toContain("Limited");
+    // Refused: a neutral Unknown strip.
+    cleanup();
+    renderEv(FINDING_PATH, ok(STATES.interrupted), { status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: "refused" } as never);
+    await settledScreen();
+    const refusedStrip = document.querySelector('[data-ev-strip="refused"]') as HTMLElement;
+    expect(refusedStrip.textContent).toContain("Unknown");
+    expect(refusedStrip.textContent).toContain("Confidence: Unknown");
+    expect(refusedStrip.textContent).not.toContain("Open");
   });
 
   it("withdrawn Finding is history, not a supported claim", async () => {

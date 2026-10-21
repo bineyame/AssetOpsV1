@@ -130,6 +130,17 @@ function ShortId({ value }: { value: string | null }) {
   );
 }
 
+/** W2-F M10/N1: `SES {external session ID}` when stored, else `SES {full session UUID}`; the full UUID stays the accessible name. */
+function SessionId({ external, id }: { external: string | null; id: string | null }) {
+  const shown = external ?? id;
+  if (shown === null) return <>Unknown</>;
+  return (
+    <code className="ev-id" aria-label={`Session ${id ?? shown}`} data-vocabulary-exempt="source-reference">
+      {`SES ${shown}`}
+    </code>
+  );
+}
+
 function Gap({ id, children }: { id: string; children: ReactNode }) {
   return (
     <p className="not-available-yet v69-chart-note" data-panel-gap={id}>
@@ -609,16 +620,36 @@ function deliveredLine(f: EvFindingDetailRead): string {
   return `${c.supported_kwh} kWh delivered before abort · ${c.energy_complete === true ? "complete" : "partial"} meter coverage`;
 }
 
+/** W2-F S12/M13: the selected EV Finding's claim level as a confidence word; no `Limited` level is invented. */
+const EV_FINDING_CONFIDENCE: Record<string, string> = { OBSERVED: "Observed", BOUNDED: "Bounded", UNKNOWN: "Unknown", CONTRADICTORY: "Records disagree" };
+
 function FindingStrip({ finding, siteName }: { finding: EvFindingDetailRead; siteName: string }) {
   const pending = finding.currentness.state === "PENDING_RECOMPUTE";
-  const word = pending ? "Evidence pending" : finding.lifecycle === "SUPPORTED" ? "Observed interruption" : lifecycleWord(finding.lifecycle);
+  // W2-F S12/M13: lifecycle is always the selected lifecycle; pending adds its notice and never replaces it.
+  const word = lifecycleWord(finding.lifecycle);
+  const confidence = EV_FINDING_CONFIDENCE[finding.claim_level] ?? "Unknown";
   const lines = [currentnessLine(finding), historicalStamp(finding)].filter(Boolean);
   return (
     <StatusBar label="Finding state" data={{ "data-ev-strip": finding.currentness.state }}>
       <Badge tone="neutral" className="ev-chip">
-        <span aria-label={`Finding ${finding.finding_id}`}>{`Finding ${short(finding.finding_id)}`}</span>
+        {/* W2-F M10/N1: no DTO carries a finding code, so the full stored UUID is shown with its domain prefix. */}
+        <code className="ev-id" aria-label={`Finding ${finding.finding_id}`} data-vocabulary-exempt="source-reference">{`F ${finding.finding_id}`}</code>
       </Badge>{" "}
-      <Badge tone="lifecycle">{word}</Badge> <span className="ev-strip__note">{siteName}</span> <ProvenanceBadge env={finding} />
+      <Badge tone="lifecycle">{word}</Badge>{" "}
+      <Badge tone="neutral" className="ev-chip">
+        <span data-ev-finding-confidence>{`Confidence: ${confidence}`}</span>
+      </Badge>{" "}
+      {finding.lifecycle === "SUPPORTED" ? (
+        <span className="ev-strip__note" data-ev-claim-phrase>
+          Observed interruption
+        </span>
+      ) : null}{" "}
+      <span className="ev-strip__note">{siteName}</span> <ProvenanceBadge env={finding} />
+      {pending ? (
+        <span className="ev-strip__note" data-ev-pending-notice>
+          Evidence pending
+        </span>
+      ) : null}
       {lines.map((line) => (
         <span key={line} className="ev-strip__note" data-ev-state-line>
           {line}
@@ -657,7 +688,7 @@ function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; ses
           {record === null ? (
             <span>Record Unknown</span>
           ) : (
-            <span aria-label={`Record ${record}`}>{`Record ${short(record)}`}</span>
+            <code className="ev-id" aria-label={`Record ${record}`} data-vocabulary-exempt="source-reference">{`REC ${record}`}</code>
           )}{" "}
           · <span>No analysis link</span>
         </p>
@@ -694,7 +725,7 @@ function FindingPanels({ finding, session }: { finding: EvFindingDetailRead; ses
           <KeyValues
             label="Operational context"
             rows={[
-              ["Session", <ShortId value={c.external_session_id} />, "session"],
+              ["Session", <SessionId external={c.external_session_id} id={c.session_id} />, "session"],
               ["Connector", connector ?? "Unknown", "connector"],
               ["Energy delta", c.supported_kwh === null ? "Unknown" : `${c.supported_kwh} kWh`, "energy"],
               ["Outcome", c.abort_at === null ? "Unknown" : "Observed abort", "outcome"],
@@ -770,7 +801,11 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
       ) : finding.status !== "loaded" ? (
         <>
           <StatusBar label="Finding state" data={{ "data-ev-strip": "refused" }}>
-            <Badge tone="neutral" className="ev-chip">Unknown</Badge> <span data-ev-refusal>{evRefusalText(finding)}</span>
+            <Badge tone="neutral" className="ev-chip">Unknown</Badge>{" "}
+            <Badge tone="neutral" className="ev-chip">
+              Confidence: Unknown
+            </Badge>{" "}
+            <span data-ev-refusal>{evRefusalText(finding)}</span>
           </StatusBar>
           <FindingSkeleton gap={evRefusalText(finding)} />
         </>

@@ -343,7 +343,7 @@ describe("W2-07 EV Site routes", () => {
     const headers = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("thead th")).map((th) => th.textContent);
     expect(headers).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (UTC)", "Received (UTC)", "Record"]);
     const first = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody tr")[0].children).map((c) => c.textContent);
-    expect(first).toEqual(["Connector c1 · session", "Session started", "11:41:00", "Not recorded", "08:59:01", `Record ${id(101).slice(0, 8)} · No analysis link`]);
+    expect(first).toEqual(["Connector c1 · session", "Session started", "11:41:00", "Not recorded", "08:59:01", `REC ${id(101)} · No analysis link`]);
     // Review r1 M3: plain first-cell and value words, never a role code or enum in a visible cell.
     const recordsPanel = panelTitled("Accepted records behind the conclusions");
     const closed = Array.from(recordsPanel.querySelectorAll("tbody tr"));
@@ -494,7 +494,9 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-financials"], client({ state: "PENDING_RECOMPUTE", consequence: GUARD("PENDING_RECOMPUTE", "New evidence is being assessed. The previous result may change.") }));
     expectV69Panels("ev-financials");
-    expect(strip()).toContain("0 consequence lines");
+    // W2-F M5: the displayed withheld scenario row is counted (unpriced context), never a priced revision.
+    expect(strip()).toContain("1 consequence line");
+    expect(strip()).toContain("Displayed rows include unpriced context");
     expect(main().querySelector('[data-ev-fin-card="gross"] .v69-metric__value')?.textContent).toBe("Withheld");
     expect(main().textContent).not.toContain("8.33");
 
@@ -762,5 +764,69 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
       { text: `REC ${b}`, aria: `Record ${b}` },
     ]);
     expect(new Set(labels.map((l) => l.text)).size).toBe(2);
+    cleanup();
+    // EV Analysis: the same full stored IDs in the Record column.
+    await renderAt(PATHS["ev-evidence-analysis"], { ...client(), getAnalysis: vi.fn(() => Promise.resolve(ok(read))) });
+    const rows = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("tbody code.ev-site-id"));
+    expect(rows.map((c) => ({ text: c.textContent, aria: c.getAttribute("aria-label") }))).toEqual([
+      { text: `REC ${a}`, aria: `Record ${a}` },
+      { text: `REC ${b}`, aria: `Record ${b}` },
+    ]);
+  });
+
+  // W2-F M5/N9: the chip counts exactly the displayed bridge rows from the selected responses.
+  it("w2f_consequence_chip_equals_bridge_rows", async () => {
+    const counted = () => panelTitled("What happened → what it means in money").querySelectorAll('tbody [data-bridge-row]:not([data-bridge-row="none"])');
+    const chip = () => document.querySelector("[data-ev-line-count]");
+    // Empty: no consequence, no Finding -> 0 rows / 0 lines (the explanatory `none` row is not a consequence line).
+    await renderAt(PATHS["ev-financials"], client({ consequence: null }));
+    expect(counted()).toHaveLength(0);
+    expect(chip()?.textContent).toBe("0 consequence lines");
+    expect(document.querySelector('[data-bridge-row="none"]')).not.toBeNull();
+    cleanup();
+    // EV interrupted: the scenario plus the interruption and repair context rows -> 3 / 3.
+    const interrupted = { ...overview(), findings: { ...overview().findings, count: 1 } };
+    await renderAt(PATHS["ev-financials"], { ...client(), getOverview: vi.fn(() => Promise.resolve(ok(interrupted))) });
+    expect(Array.from(counted()).map((r) => r.getAttribute("data-bridge-row"))).toEqual(["scenario", "interruption", "repair"]);
+    expect(chip()?.getAttribute("data-ev-line-count")).toBe(String(counted().length));
+    expect(chip()?.textContent).toBe("3 consequence lines");
+    expect(strip()).toContain("Displayed rows include unpriced context");
+    cleanup();
+    // Refused: no count is claimed at all, never a zero.
+    await renderAt(PATHS["ev-financials"], client({}, refused(503, "EV_SITE_UNAVAILABLE")));
+    expect(chip()).toBeNull();
+    expect(main().textContent).not.toMatch(/\d+ consequence lines?/);
+  });
+
+  // W2-F S10/M11: one missing-basis renderer for the Evidence table and its request details.
+  it("w2f_limited_rows_name_missing_basis", async () => {
+    const SERVICE_NO_ROLE = cap("SERVICE_STATE", "LIMITED", NULL_COV, [], null);
+    const FAULT_NO_ROLE = cap("FAULT_ASSOCIATION", "LIMITED", NULL_COV, [], "Cause is not established.");
+    const ENERGY_GAP = cap("DELIVERED_ENERGY", "LIMITED", WINDOW_COV, [], null);
+    const SESSIONS_DISAGREE = cap("SESSION_OUTCOME", "CONTRADICTORY", SESSION_COV, ["session_event"]);
+    const capList = [SESSIONS_DISAGREE, SERVICE_NO_ROLE, ENERGY_GAP, FAULT_NO_ROLE, cap("GROSS_TARIFF_SCENARIO", "SUPPORTED", SESSION_COV)];
+    await renderAt(PATHS["ev-evidence"], client({ capList }));
+    const cell = (key: string) => document.querySelector(`[data-ev-missing-basis="${key}"]`)?.textContent;
+    expect(cell("sessions")).toBe("Accepted records disagree");
+    expect(cell("availability")).toBe("Connector status coverage not assessed");
+    // Limited, no missing role, no limitation: the exact selected coverage, no invented one-hour gap.
+    expect(cell("energy")).toBe("3600/3900 s of selected window covered");
+    expect(cell("cause")).toBe("Charger diagnostics and vehicle request not recorded");
+    expect(main().textContent).not.toContain("No required role missing");
+    expect(main().textContent).not.toMatch(/one hour|1 h gap/i);
+    const details = Array.from(document.querySelectorAll("[data-ev-request-basis]")).map((li) => [li.getAttribute("data-ev-request-basis"), li.textContent?.split(" · ")[0]]);
+    expect(details).toEqual([
+      ["SESSION_OUTCOME", "Accepted records disagree"],
+      ["SERVICE_STATE", "Connector status coverage not assessed"],
+      ["DELIVERED_ENERGY", "3600/3900 s of selected window covered"],
+      ["FAULT_ASSOCIATION", "Charger diagnostics and vehicle request not recorded"],
+    ]);
+    cleanup();
+    // Limited with missing roles names the roles; Full with no limitation is the only `Nothing required`.
+    await renderAt(PATHS["ev-evidence"], client({ capList: [cap("SESSION_OUTCOME", "SUPPORTED", SESSION_COV), cap("SERVICE_STATE", "LIMITED", NULL_COV, ["connector_status"], "Availability is not assessed.")] }));
+    expect(cell("sessions")).toBe("Nothing required for this claim");
+    expect(cell("availability")).not.toBe("Connector status coverage not assessed");
+    expect(cell("availability")).not.toContain("Nothing required");
+    expect(cell("energy")).toBe("Not assessed");
   });
 });
