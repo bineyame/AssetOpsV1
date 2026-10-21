@@ -811,7 +811,7 @@ class PostgresEvidenceLedger:
                 "SELECT status, count(*) AS jobs, min(created_at) AS oldest_created_at, "
                 "min(window_start) AS window_start, max(window_end) AS window_end FROM recompute_job "
                 "WHERE tenant_id = :t AND site_id = :site AND status IN ('PENDING','LEASED','FAILED') "
-                "AND domain NOT IN ('mini_renewable','mini_service','mini_fuel','mini_backup') "
+                "AND domain NOT IN ('mini_renewable','mini_service','mini_fuel','mini_backup','mini_opportunity') "
                 "AND (CAST(:end AS timestamptz) IS NULL OR window_start < CAST(:end AS timestamptz)) "
                 "AND (CAST(:start AS timestamptz) IS NULL OR window_end > CAST(:start AS timestamptz)) "
                 "GROUP BY status ORDER BY status"

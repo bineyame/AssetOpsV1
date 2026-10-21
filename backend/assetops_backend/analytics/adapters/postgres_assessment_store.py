@@ -333,6 +333,8 @@ class PostgresAssessmentStore:
         the lease are scoped the same way."""
         if domain in MINI_JOB_DOMAINS:
             raise ValueError("Mini-depth jobs are leased only by lease_mini_job (W4-02 closure 4 S2).")
+        if domain == "mini_opportunity":
+            raise ValueError("Opportunity jobs are leased only by lease_opportunity_job (W4-03 closure 4 S2).")
         if (tenant_id is None) != (site_id is None):
             raise ValueError("A Site-scoped lease names both the tenant and the Site.")
         scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
