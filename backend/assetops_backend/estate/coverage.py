@@ -317,6 +317,8 @@ def _actions(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: da
             # W3-03 closure 4 S8 / closure 5 S7: the selected plans (id, recorded_at, bounds) and outcomes at `k`.
             "_plans": list(v.get("plans") or ()), "_outcomes": dict(v.get("outcomes") or {}),
             "_outcome_id": None if resolution is None else resolution.get("outcome_id"),
+            # W3-03 r1a Q-1a-1: the selected Action event's own `recorded_at` (Portfolio tie key; never public).
+            "_selected_recorded_at": selected["recorded_at"],
             "_open": reduced["application"] in ("PENDING", "APPLIED") and not resolved,
             "_verification_window": in_window and not resolved,
             "_verified_recent": verified_at is not None and k - VERIFIED_LOOKBACK <= verified_at <= k})

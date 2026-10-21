@@ -65,6 +65,8 @@ def test_portfolio_row_facts_and_verification_ids_match_stored_rows(store, engin
             plans = [(str(r[0]), r[1]) for r in c.execute(text(
                 "SELECT id, recorded_at FROM verification_plan WHERE action_id = :a ORDER BY recorded_at, id"),
                 {"a": action_id})]
+            event_at = {str(r[0]): r[1] for r in c.execute(text(
+                "SELECT id, recorded_at FROM action_event WHERE action_id = :a"), {"a": action_id})}
             outcome_id = str(c.execute(text(
                 "SELECT id FROM verification_outcome WHERE action_id = :a"), {"a": action_id}).scalar())
         frows = [r for _, rows in caught["f"] for r in rows]
@@ -77,6 +79,8 @@ def test_portfolio_row_facts_and_verification_ids_match_stored_rows(store, engin
         assert [(p["id"], p["recorded_at"]) for p in raw["_plans"]] == plans
         assert plan["plan_id"] == plans[0][0] and raw["_outcome_id"] == outcome_id
         assert raw["_outcomes"] and list(raw["_outcomes"]) == [outcome_id]
+        # r1a Q-1a-1: the private tie key is the selected stored Action event's own recorded_at.
+        assert raw["_selected_recorded_at"] == event_at[arow["selected_event_id"]]
     finally:
         h.close()
         pg_harness.dispose(runner.findings)
