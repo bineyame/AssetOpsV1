@@ -725,7 +725,8 @@ function Invoke-ConfigurationPersistenceCheck {
     # line so every assigned column is checked; upserts (DO UPDATE), DELETE, TRUNCATE and DDL are refused. No other
     # module writes a schedule table. Migration 0013 owns the DDL; no trigger is ratified. W4-02 q7 ruling 1:
     # migration 0029 replaces the Site stage CHECK (adds MINI) and adds the three mini_* counters, which only the
-    # store's token-scoped record_mini assigns.
+    # store's token-scoped record_mini assigns. W4-03 migration 0030 adds OPPORTUNITY and the three opportunity_*
+    # counters, which only the store's token-scoped record_opportunity assigns.
     $scheduleWriter = "$backendRoot/scheduling/adapters/postgres_schedule_store.py"
     $scheduleTables = @('schedule_tick_head', 'schedule_site_head', 'schedule_cursor', 'schedule_enrolment')
     $scheduleClaim = @('claim_token', 'claim_owner', 'claimed_at', 'lease_until')
@@ -736,7 +737,7 @@ function Invoke-ConfigurationPersistenceCheck {
             'last_excluded_with_work', 'last_reconcile_ms')
         'schedule_site_head' = $scheduleClaim + @('stage', 'stage_started_at', 'selected_count', 'last_selected_at',
             'last_completed_at', 's3_processed', 's3_deferred', 'mini_processed', 'mini_deferred', 'mini_failed',
-            'consequence_processed', 'consequence_deferred', 's4_outcome', 's4_outcome_at', 'matched_fence', 'matched_version', 'matched_at', 'fence_moved_streak',
+            'opportunity_processed', 'opportunity_deferred', 'opportunity_failed', 'consequence_processed', 'consequence_deferred', 's4_outcome', 's4_outcome_at', 'matched_fence', 'matched_version', 'matched_at', 'fence_moved_streak',
             'last_failure_stage', 'last_failure_code', 'last_failure_detail', 'last_failed_at',
             'consecutive_failures', 'retry_due_at', 'claim_skips', 'last_skipped_at')
         'schedule_cursor' = @('after_tenant_id', 'after_site_id', 'updated_at')

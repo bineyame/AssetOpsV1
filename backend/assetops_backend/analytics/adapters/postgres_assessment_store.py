@@ -547,12 +547,17 @@ class PostgresAssessmentStore:
         except LeaseLost:
             return "LEASE_LOST"
 
-    def live_opportunity_jobs(self, tenant_id: UUID, site_id: UUID) -> list[dict[str, Any]]:
-        """This Site's PENDING or LEASED `mini_opportunity` jobs; FAILED stays diagnostic (u3 unit-4 dry-read)."""
+    def live_opportunity_jobs(self, tenant_id: UUID | None = None,
+                              site_id: UUID | None = None) -> list[dict[str, Any]]:
+        """PENDING or LEASED `mini_opportunity` jobs of every Site, or of one Site; FAILED stays diagnostic (u3
+        unit-4 dry-read)."""
+        if (tenant_id is None) != (site_id is None):
+            raise ValueError("A Site-scoped read names both the tenant and the Site.")
+        scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
         return self._run(lambda c: [dict(r._mapping) for r in c.execute(text(
-            "SELECT id, status, window_start, window_end, attempts, available_at, lease_until, created_at "
-            "FROM recompute_job WHERE domain = 'mini_opportunity' AND status IN ('PENDING', 'LEASED') "
-            "AND tenant_id = :t AND site_id = :s ORDER BY available_at, created_at"),
+            "SELECT id, tenant_id, site_id, domain, status, window_start, window_end, attempts, available_at, "
+            "lease_until, last_error, created_at FROM recompute_job WHERE domain = 'mini_opportunity' "
+            "AND status IN ('PENDING', 'LEASED')" + scope + " ORDER BY tenant_id, site_id, available_at, created_at"),
             {"t": tenant_id, "s": site_id})])
 
     def _still_mine(self, c: Connection, lease: JobLease) -> None:

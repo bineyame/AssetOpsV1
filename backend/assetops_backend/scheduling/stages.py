@@ -1,6 +1,6 @@
 """One schedule stage, run in its own killable child process (S4-02d phase 1).
 
-    python -m assetops_backend.scheduling.stages discover|s3|mini|s4|consequence '<json arguments>'
+    python -m assetops_backend.scheduling.stages discover|s3|mini|opportunity|s4|consequence '<json arguments>'
 
 The tick (`scheduling/tick.py`) starts each stage as a child with `PGOPTIONS` carrying `statement_timeout` and
 `lock_timeout` (S4-02d N2: the existing stores build their own engines and are not edited; libpq applies the
@@ -8,7 +8,7 @@ options to every connection the child opens), and kills it when the stage's wall
 reaches the database only through the existing writer and store modules, by their compositions. Its last stdout
 line is `STAGE_RESULT {json}` with a typed `code`:
 
-- `OK` (discover, s3, mini, consequence), `MATCHED` or `SKIPPED_UNCHANGED_FENCE` (s4): the stage did its work.
+- `OK` (discover, s3, mini, opportunity, consequence), `MATCHED` or `SKIPPED_UNCHANGED_FENCE` (s4): the stage did its work.
 - `FENCE_MOVED`: the matcher fence moved under every planned attempt; retryable.
 - `MATCH_EVIDENCE_NOT_ACCEPTED`: the matcher cited an evidence ID that is not accepted in this Site; the same
   `FindingFenceMoved` type, but deterministic (S4-02d N3), so it is reported apart from a moved fence.
@@ -95,9 +95,11 @@ def discover(url: str, args: dict[str, Any]) -> dict[str, Any]:
     assessments = build_postgres_assessment_store(url)
     live = assessments.live_jobs(dispatch_v3.ANALYTIC_ID, DOMAIN)
     live_mini = assessments.live_mini_jobs()
+    live_opportunity = assessments.live_opportunity_jobs()  # W4-03: opportunity work keeps a Site scheduled
     pending = build_consequence_store(url).pending_work_sites()
     return {"code": "OK", "reconcile_ms": reconcile_ms, "reconciled_windows": len(reconciled),
-            "inventory": inventory, "live_jobs": live, "live_mini_jobs": live_mini, "pending_work_sites": pending}
+            "inventory": inventory, "live_jobs": live, "live_mini_jobs": live_mini,
+            "live_opportunity_jobs": live_opportunity, "pending_work_sites": pending}
 
 
 def s3(url: str, args: dict[str, Any]) -> dict[str, Any]:
@@ -196,8 +198,36 @@ def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
                          for o in report.outcomes]}
 
 
+OPPORTUNITY_JOB_LEASE_SECONDS = 300  # MiniOpportunityWorker's five-minute lease; the stage bound stays below it.
+
+
+def opportunity(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    """This Site's bounded W4-03 OPPORTUNITY stage (closure 4 S1, u3 unit-4 dry-read): the worker's scan of this
+    Site's committed renewable heads, then at most `limit` due `mini_opportunity` jobs of this Site, leased at DB
+    time. `processed` counts the jobs leased, `failed` those left FAILED, `deferred` this Site's opportunity jobs
+    still PENDING or LEASED after the loop."""
+    from datetime import timedelta
+
+    from assetops_backend.analytics.composition import build_postgres_assessment_store
+    from assetops_backend.mini_decisions.worker import build_worker
+
+    tenant_id, site_id = _uuid(args["tenant_id"]), _uuid(args["site_id"])
+    worker = build_worker(url, lease=timedelta(seconds=OPPORTUNITY_JOB_LEASE_SECONDS))
+    try:
+        outcomes = worker.run_pending(int(args["limit"]), tenant_id, site_id)
+    finally:
+        worker.store.dispose()
+    live = build_postgres_assessment_store(url).live_opportunity_jobs(tenant_id, site_id)
+    return {"code": "OK", "processed": len(outcomes),
+            "failed": sum(1 for o in outcomes if o.status == "FAILED"),
+            "deferred": len(live),
+            "outcomes": [o.as_json() for o in outcomes],
+            "live_jobs": [{k: j[k] for k in ("id", "status", "window_start", "window_end", "attempts",
+                                              "lease_until", "last_error")} for j in live]}
+
+
 STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
-    "discover": discover, "s3": s3, "mini": mini, "s4": s4, "consequence": consequence}
+    "discover": discover, "s3": s3, "mini": mini, "opportunity": opportunity, "s4": s4, "consequence": consequence}
 
 
 def main(argv: list[str] | None = None) -> int:

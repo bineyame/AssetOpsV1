@@ -33,7 +33,7 @@ class ScheduleStoreUnavailable(RuntimeError):
 _CLAIM_COLUMNS = "claim_token, claim_owner, claimed_at, lease_until"
 _SITE_HEAD = ("tenant_id, site_id, " + _CLAIM_COLUMNS + ", stage, stage_started_at, selected_count, "
               "last_selected_at, last_completed_at, s3_processed, s3_deferred, mini_processed, mini_deferred, "
-              "mini_failed, consequence_processed, "
+              "mini_failed, opportunity_processed, opportunity_deferred, opportunity_failed, consequence_processed, "
               "consequence_deferred, s4_outcome, s4_outcome_at, matched_fence, matched_version, matched_at, "
               "fence_moved_streak, last_failure_stage, last_failure_code, last_failure_detail, last_failed_at, "
               "consecutive_failures, retry_due_at, claim_skips, last_skipped_at, created_at")
@@ -224,6 +224,18 @@ class PostgresScheduleStore:
             raise ValueError("The MINI stage counts are nonnegative.")
         return self._run(lambda c: c.execute(text(
             "UPDATE schedule_site_head SET mini_processed = :p, mini_deferred = :d, mini_failed = :f WHERE tenant_id = :t AND site_id = :s "  # noqa: E501
+            "AND claim_token = :k RETURNING site_id"),
+            {"t": tenant_id, "s": site_id, "k": token, **counts}).first() is not None)
+
+    def record_opportunity(self, tenant_id: UUID, site_id: UUID, token: UUID, processed: int, deferred: int,
+                           failed: int) -> bool:
+        """W4-03 u3 unit-4 dry-read: the three counts of an `OK` OPPORTUNITY stage, written together under the
+        Site claim (a lost token writes nothing)."""
+        counts = {"p": int(processed), "d": int(deferred), "f": int(failed)}
+        if min(counts.values()) < 0:
+            raise ValueError("The OPPORTUNITY stage counts are nonnegative.")
+        return self._run(lambda c: c.execute(text(
+            "UPDATE schedule_site_head SET opportunity_processed = :p, opportunity_deferred = :d, opportunity_failed = :f WHERE tenant_id = :t AND site_id = :s "  # noqa: E501
             "AND claim_token = :k RETURNING site_id"),
             {"t": tenant_id, "s": site_id, "k": token, **counts}).first() is not None)
 
