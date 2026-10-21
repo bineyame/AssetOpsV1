@@ -257,3 +257,34 @@ currentness on a stored SUPPORTED revision, no positive chip) and the opportunit
 - `check-all.ps1`: all 11 guards passed (after naming run-pending from the method, as W4-02 does).
 
 Next: unit 5
+
+## u4b tests (commit ba492755)
+
+`test_w403_opportunity_worker_postgres.py::test_exact_five_day_selection_and_unchanged_reselection` re-reads the one
+revision after the unchanged rerun and asserts `producer_id`/`model_version`; `test_w403_opportunity_stage.py` asserts
+the literal `site_lease_seconds == 600` and adds `test_run_pending_cli_parses_limit_and_calls_the_worker` (stub
+`build_worker`; `main(['run-pending','--limit','1'])` -> `run_pending(1)`, then `store.dispose()`). Stage 8 + worker 1
+passed (private `w403i_test`, dropped).
+
+## Unit 5 - BLOCKED on PR-7 (not started)
+
+Seven read-contract questions are in `.agent/W4-03-pending-rulings.md` PR-7 (list status aggregate, currentness
+precedence, read-time codes, history shape, row shape, list window, site_work route). Survey anchors for the builder:
+- Pattern: `mini_decisions/scenarios.py:ScenarioService.list/_list/_row` (snapshot, `db_now`, cursor, token, gate) and
+  `parse_list`/`encode_cursor`/`decode_cursor`; router `mini_decisions_api.py:build_mini_decisions_router` (`site_of`,
+  `command`, `_response(listing=)`), mount in `main.py`.
+- Basis: `mini_depth/read.py:MiniDepthRead.read_selected_renewable_basis` (~435; per-day `selection_seq`,
+  `mini_revision_id`, `decision`, `input_sha256`, `evidence_ids`, `state`, `job_state`, `pending_job_ids`; aggregate
+  `pending_evidence_ids`) and `provenance_blocks` (~480). W4-02 job rule `_JOBS` (~150): live = PENDING/LEASED/FAILED,
+  `available_at<=k`, not cleared by a later selection; `aggregate_state`/`aggregate_job` (~270).
+- Store has no opportunity read yet: add heads at cutoff (selection `selected_at<=k`, revision `created_at<=k`,
+  pinned `selection_at<=k`), revisions/selections history, overlapping opportunity jobs, scenario links. DDL:
+  `0030_w4_mini_decisions.py:144-228`; head index `mini_opportunity_head`.
+- Scenario association command: closure 1 Q1-Q3 (lines ~246-262): `POST .../opportunities/{id}/scenario-links`,
+  `mini-opportunity-scenario-command-1`/`-write-1`, compatibility = scenario head at cutoff pins exactly the opportunity's
+  five tuples, PRODUCTIVE_LOAD, same Site; else `SCENARIO_BASIS_MISMATCH`. Reuse `scenarios.admit/authorize`.
+- u4b read-side vector: persisted SUPPORTED revision through `read_selected_renewable_basis` at an exact cutoff, with
+  pending-newer-evidence and stale-digest cases; frozen `result` unchanged (worker test helpers `mg`, `project`,
+  `revisions`, `pins` in `test_w403_opportunity_worker_postgres.py`).
+
+Next: unit 5 (after PR-7), then unit 6.
