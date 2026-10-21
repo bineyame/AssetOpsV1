@@ -16,7 +16,8 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 
-from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, MESSAGES, parse_request
+from assetops_backend.estate.scope import (
+    EstateRefusal, EstateStoreUnavailable, MESSAGES, parse_request, portfolio_cursor_key)
 from assetops_backend.estate_api import Authenticate, development_authenticate
 from assetops_backend.finding_api import Access, development_access
 
@@ -42,6 +43,9 @@ def build_estate_portfolio_router(service: Any | None, tenant: Callable[[], UUID
                                 detail=refusal("UNAUTHENTICATED"))
         try:
             parsed = parse_request("portfolio", request.query_params.multi_items())
+            # r1b2 R1: the deployment cursor key is checked at the parsed API boundary, before the store opens a
+            # snapshot (a missing/malformed key makes zero database reads); the snapshot re-reads it for the MAC.
+            portfolio_cursor_key()
             if service is None:
                 raise EstateStoreUnavailable("No product database is configured.")
             body = service.portfolio(tenant(), parsed, lambda code: access(request, code) is None)

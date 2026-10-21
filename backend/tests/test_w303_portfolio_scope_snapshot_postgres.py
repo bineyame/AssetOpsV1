@@ -32,7 +32,7 @@ if URL:
     from test_w303_portfolio_fixture_postgres import (
         CODES, _stamped_tables, build_portfolio_fixture, pin_snapshots)
 
-    from assetops_backend.estate import coverage, evidence_money, financials, index
+    from assetops_backend.estate import coverage, evidence_money, financials, index, portfolio
     from assetops_backend.estate.portfolio import EstatePortfolioService
     from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
 
@@ -237,7 +237,7 @@ FULL_SCOPE = ("summary", "value_cards", "objectives", "evidence_prompt", "opport
               "selected_lines", "money", "scope_disclosure", "coverage", "status", "total_count", "selection_token")
 
 
-def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture) -> None:
+def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture, monkeypatch) -> None:
     """Run 1b (closure 2 N6 / r1b cards): limits 1 and 100 give equal full-scope projections; the clean fixture's
     five cards, matrix, prompt, progress, footer and money are the W3-02/W3-01 full-scope selections."""
     fx = portfolio_fixture
@@ -305,6 +305,48 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture) -> N
     assert sorted(sites) == sorted(CODES)
     assert w1[0]["consequence_revision_id"] in sites["KOBO-001"]["selected_revision_ids"]
     assert all(s["window"] == {"from": fx.window["from"], "to": fx.window["to"]} for s in sites.values())
+
+    # r1b2 R7: every Site cell has a null destination (no reviewed Site route accepts this selection); an unknown
+    # physical configuration is UNKNOWN for cost and evidence, never N/A (no persisted producer: the real
+    # `objective` over a NOT_APPLICABLE domain).
+    assert {x["destination"] for o in full["objectives"] for x in o["cells"]} == {None}
+    assert all(len(o["cells"]) == 5 for o in full["objectives"]) and len(full["objectives"]) == 4
+    odd = {"site_id": "s", "site_code": "X", "site_name": "X", "site_type": "WIND"}
+    cells = {x["key"]: x["state"] for x in portfolio.objective(
+        odd, (odd, coverage.NOT_APPLICABLE, {}, []), (odd, coverage.NOT_APPLICABLE, {}, []), False)["cells"]}
+    assert cells["COST_CONTROL"] == cells["EVIDENCE"] == "UNKNOWN" and "NOT_APPLICABLE" not in cells.values()
+
+    # r1b2 R11: one batched provenance read per request, constant at limits 1 and 100; each Site DTO equals the
+    # existing single-Site `cited_provenance` truth for the same IDs.
+    from sqlalchemy import event
+    from assetops_backend.estate.adapters import postgres_estate_read as per
+
+    statements: list[str] = []
+    calls: list = []
+    base = getattr(per.EstateSnapshot, "_real", per.EstateSnapshot)  # the unpinned class (the pin subclasses it)
+    real_many = base.cited_provenance_many
+
+    def many(self, t, items):
+        calls.append([(str(s), list(c), list(sel)) for s, c, sel in items])
+        return real_many(self, t, items)
+
+    monkeypatch.setattr(base, "cited_provenance_many", many)
+    listener = lambda conn, cursor, sql, *a: statements.append(sql)  # noqa: E731
+    event.listen(fx.engine, "before_cursor_execute", listener)
+    try:
+        counts = []
+        for limit in (1, 100):
+            statements.clear()
+            body = view.ok(**fx.window, limit=limit)
+            counts.append((sum("AS q(site_id, id)" in x for x in statements),
+                           sum("AS q(id)" in x for x in statements)))
+        assert counts[0] == counts[1] and counts[0][0] == 1, counts
+    finally:
+        event.remove(fx.engine, "before_cursor_execute", listener)
+    assert len(calls) == 2 and calls[0] == calls[1] and len(calls[0]) == 4
+    truth = view.read.read(lambda snap: [snap.cited_provenance(fx.tenant_id, s, c, sel) for s, c, sel in calls[0]])
+    by_site = {s["site_id"]: s["source_provenance"] for s in body["scope_disclosure"]["sites"]}
+    assert [by_site[s] for s, _, _ in calls[0]] == truth and all(truth)
 
 
 # --- run 1b: the successful Q9 variants (closure 2 Q9 table as amended by NQ1, r1a2 items 1/2, r1b Q-1b-3) --------
@@ -470,8 +512,6 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
     wins over any gap and withholds the count."""
     from test_w303_portfolio_api import CO, MG, SITES, WINDOW, World, client, get
 
-    from assetops_backend.estate import portfolio
-
     mg, co = SITES
     world = World(monkeypatch)
     rows: dict[str, list[dict]] = {}
@@ -499,6 +539,19 @@ def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None
         "site_code": "COLD-1", "gap_code": "G-B", "destination": "/evidence"}
     assert body["summary"]["evidence_gap_site_count"] == 2
     assert get(c, {**WINDOW, "limit": 4}).json()["evidence_prompt"] == body["evidence_prompt"]
+
+    # r1b2 R8: the EVIDENCE cell reduces the Site's rows: all FULL -> FULL, any NONE -> NONE, else LIMITED;
+    # CONTRADICTORY or no row -> UNKNOWN.
+    def cell(site_id: str) -> str:
+        body = get(c, WINDOW).json()
+        item = next(o for o in body["objectives"] if o["site_id"] == site_id)
+        return next(x["state"] for x in item["cells"] if x["key"] == "EVIDENCE")
+
+    for readiness, expected in ((["FULL", "FULL"], "FULL"), (["FULL", "NONE", "LIMITED"], "NONE"),
+                                (["FULL", "LIMITED"], "LIMITED"), (["FULL", "CONTRADICTORY"], "UNKNOWN"),
+                                ([], "UNKNOWN")):
+        rows[MG] = [_gap_row(mg, f"cap-{i}", [], readiness=r) for i, r in enumerate(readiness)]
+        assert cell(MG) == expected, (readiness, expected)
 
     # Only a null-step gap: NO_GAP, while the gap Site still counts.
     rows.update({MG: [_gap_row(mg, "backup", [("G-A-NULL", None)])], CO: [_gap_row(co, "product", [])]})
@@ -553,6 +606,16 @@ def test_ev_footer_first_eligible_and_coverage_warning(portfolio_fixture) -> Non
                               "destination": first["links"]["evidence"]}
     assert body["footer"]["destination"]
     assert all(s["state"] == "CURRENT" for s in body["coverage"]["sites"])
+    # r1b2 R12: an otherwise eligible exact line without a reviewed `links.evidence` target is skipped; the next
+    # eligible line (EV-LAB-002) is the footer. Derived from the persisted DTOs through the real `footer`.
+    m_sites = [({"site_id": sid, "site_code_key": code.lower()}, None, None, None) for code, sid in fx.site_ids.items()]
+    unrouted = [{**x, "links": {**x["links"], "evidence": None}} if x["line_key"] == first["line_key"] else x
+                for x in body["selected_lines"]]
+    second = min((x for x in eligible if x["line_key"] != first["line_key"]),
+                 key=lambda x: (keys[x["site_id"]], x["site_id"], x["line_key"]))
+    assert portfolio.footer(m_sites, body["selected_lines"])["line_key"] == first["line_key"]
+    assert portfolio.footer(m_sites, unrouted)["line_key"] == second["line_key"]
+    assert portfolio.footer(m_sites, [{**x, "links": {**x["links"], "evidence": None}} for x in eligible]) is None
 
     empty = add_empty_site(fx.engine, fx.site_ids["EV-LAB-001"], "W303-EMPTY-001")
     later = view.ok(**fx.window, limit=1)

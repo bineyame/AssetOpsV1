@@ -362,10 +362,13 @@ def _plan_id(plans: list[dict[str, Any]], k: datetime) -> str | None:
     return None if pick is None else str(pick["id"])
 
 
-def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime) -> tuple[dict[str, Any], bool]:
+def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime,
+             selected_pairs: set[tuple[str, str]]) -> tuple[dict[str, Any], bool]:
     """Closure 1 Q21 / r1b: every full-scope selected Action (several per origin pair, and one whose origin revision
-    is no longer selected), the nine fields, `(recorded_at desc nulls last, action_id)`. Counts only on complete
-    applicable Action coverage (cold/EV NOT_APPLICABLE does not force null)."""
+    is no longer selected), `(recorded_at desc nulls last, action_id)`. r1b2 R10 adds the tenth field
+    `origin_revision_selected`: the exact origin `(finding_id, finding_revision_id)` is in `selected_pairs`, the full
+    selected Finding revision set before lifecycle/lens/page filtering (a disclosure fact only). Counts only on
+    complete applicable Action coverage (cold/EV NOT_APPLICABLE does not force null)."""
     complete = _coverage_state([cov["state"] for _, cov in a_sites]) == "COMPLETE"
     rows = []
     for a in a_rows:
@@ -376,7 +379,9 @@ def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime) ->
                      "verification_plan_id": _plan_id(raw.get("_plans") or [], k),
                      "verification_outcome_id": None if raw.get("_outcome_id") is None else str(raw["_outcome_id"]),
                      "application_state": a["application_state"], "resolution_state": a["resolution_state"],
-                     "verification_outcome": a["verification_outcome"], "recorded_at": wire_time(at), "_at": at})
+                     "verification_outcome": a["verification_outcome"], "recorded_at": wire_time(at),
+                     "origin_revision_selected": (a["source_finding_id"], a["source_finding_revision_id"])
+                     in selected_pairs, "_at": at})
     rows.sort(key=lambda r: (r["_at"] is None, 0.0 if r["_at"] is None else -r["_at"].timestamp(), r["action_id"]))
 
     def count(flag: str) -> int | None:
@@ -398,7 +403,7 @@ def footer(m_sites: list[tuple], lines: list[dict[str, Any]]) -> dict[str, Any] 
     keys = {str(site["site_id"]).lower(): str(site["site_code_key"]) for site, _, _, _ in m_sites}
     eligible = [x for x in lines if x["domain"] == EV and x["category"] == GROSS_TARIFF
                 and x["eligibility"] == ELIGIBLE and _exact(x["quantity"]) and _exact(x["amount"])
-                and x["links"].get("current_view_label") is None]
+                and x["links"].get("current_view_label") is None and x["links"].get("evidence")]  # r1b2 R12
     if not eligible:
         return None
     x = min(eligible, key=lambda x: (keys.get(x["site_id"].lower(), ""), x["site_id"].lower(), x["line_key"]))
@@ -472,7 +477,8 @@ class EstatePortfolioService(EstateEvidenceService):
                                "sites": [_coverage_site(site, cov) for site, _, cov in f_sites]})
         empty = count == 0
         gaps = evidence_gap_groups(e_rows_all)
-        prog, actions_complete = progress(a_sites, a_rows, scope["k"])
+        prog, actions_complete = progress(a_sites, a_rows, scope["k"],
+                                          {(r["finding_id"], r["finding_revision_id"]) for r in f_rows})
         finding_known, evidence_known = states["F"] in (COMPLETE, EMPTY), states["E"] in (COMPLETE, EMPTY)
         # r1a M1 / wire: estate counts are claims only on complete (or complete-empty) coverage of their root.
         summary: dict[str, Any] = {
@@ -483,16 +489,20 @@ class EstatePortfolioService(EstateEvidenceService):
             "accepted_action_count": len(a_rows) if actions_complete else None,
             "verified_resolution_count": prog["verified_resolution_count"],
             "combined_value": None, "combined_value_state": "NOT_COMPARABLE"}
+        # r1b2 R11: one batched provenance read for every represented Site with a selected ID (no per-Site query
+        # loop); a Site without a selected ID has null provenance ("No selected source basis").
+        site_ids = [_ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])
+                    for (_, _, cov), item in zip(f_sites, token_sites)]
+        wanted = [(site["site_id"], item["cited_accepted_evidence_ids"], ids)
+                  for (site, _, _), item, ids in zip(f_sites, token_sites, site_ids) if ids]
+        resolved = iter(snap.cited_provenance_many(tenant_id, wanted) if wanted else [])
         disclosure_sites = []
-        for (site, domain, cov), item in zip(f_sites, token_sites):
-            ids = _ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])
-            provenance = (snap.cited_provenance(tenant_id, site["site_id"], item["cited_accepted_evidence_ids"], ids)
-                          if ids else None)
+        for (site, domain, cov), ids in zip(f_sites, site_ids):
             disclosure_sites.append({"site_id": str(site["site_id"]), "site_code": site["site_code"],
                                      "site_name": site["site_name"], "domain": site["site_type"],
                                      "window": {"from": wire_time(req.from_), "to": wire_time(req.to)},
                                      "coverage": _coverage_site(site, cov), "selected_revision_ids": ids,
-                                     "source_provenance": provenance})
+                                     "source_provenance": next(resolved) if ids else None})
         body.update({"lens": req.lens, "summary": summary,
                      "value_cards": value_cards(m_lines_all, applicable, groups),
                      "objectives": [objective(site, evidence_by[str(site["site_id"])], money_by[str(site["site_id"])],

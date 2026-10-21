@@ -84,9 +84,9 @@ def test_selected_action_window_workflow_and_withdrawal(store, engine, monkeypat
     captured: list = []
     real_progress = portfolio.progress
 
-    def spy(a_sites, a_rows, k):  # the full-scope selected Action rows the Portfolio reads (never a page)
-        captured[:] = [a_rows]
-        return real_progress(a_sites, a_rows, k)
+    def spy(a_sites, a_rows, k, selected_pairs):  # the full-scope selected Action rows (never a page)
+        captured[:] = [a_rows, selected_pairs]
+        return real_progress(a_sites, a_rows, k, selected_pairs)
 
     monkeypatch.setattr(portfolio, "progress", spy)
 
@@ -103,6 +103,12 @@ def test_selected_action_window_workflow_and_withdrawal(store, engine, monkeypat
         assert body["window"] == root["window"]
         (row,) = body["progress"]["rows"]
         (selected,) = captured[0]
+        # r1b2 R10: the origin disclosure against the public Finding root's full selected revisions (all
+        # lifecycles), read over the same window and cutoff; never inferred from the paged Finding table.
+        findings = estate.ok("findings", **NOVEMBER, limit=100, **params)
+        selected_pairs = {(r["finding_id"], r["finding_revision_id"]) for r in findings["rows"]}
+        assert findings["next_cursor"] is None and captured[1] == selected_pairs
+        assert body["progress"]["rows"][0]["origin_revision_selected"] is (origin in selected_pairs)
         (public,) = root["rows"]
         assert portfolio.workflow_label(selected) == label
         assert (row["action_id"], row["selected_action_event_id"]) == (public["action_id"],
@@ -151,6 +157,19 @@ def test_selected_action_window_workflow_and_withdrawal(store, engine, monkeypat
         assert pending["summary"]["accepted_action_count"] == 1 and pending["status"] == "HISTORICAL"
         assert pending["progress"]["completed_activity_count"] is None
         assert pending["progress"]["recovered_value"] is None
+        # r1b2 R10: the F01 origin revision is not a selected Finding revision in the November window. No window of
+        # this chain selects both: the Action is created 11-01 and only the one-day 10-06 window selects F01's
+        # revisions; `[2026-10-06,2026-11-03)` leaves the mini-grid Finding coverage UNKNOWN (unassessed days), so
+        # its selected set is empty and the flag is False too (the persisted True case is pending ruling P-1b-5;
+        # the pure tie test proves both values).
+        assert pending["progress"]["rows"][0]["origin_revision_selected"] is False
+        (accepted_at,) = [r[0] for r in stored(
+            "SELECT recorded_at FROM action_event WHERE action_id = :a AND kind = 'ACCEPTED'", a=action_id)]
+        wide = {"from": "2026-10-06T00:00:00Z", "to": "2026-11-03T00:00:00Z"}
+        early = view.ok(**wide, known_at=iso(accepted_at), limit=1)
+        (mine,) = [r for r in early["progress"]["rows"] if r["action_id"] == action_id]
+        assert early["coverage"]["finding_state"] == "UNKNOWN" and captured[1] == set()
+        assert mine["origin_revision_selected"] is False
         # Control: before the window opens the same plan is selected but not active (no `Outcome pending`).
         before, _ = read(start - timedelta(microseconds=1), "Applied")
         assert before["progress"]["pending_trial_count"] == 0
@@ -235,6 +254,15 @@ def test_operating_cost_first_match_wins_across_partitions(portfolio_fixture) ->
     foreign = {x["line_key"] for c, xs in by_cat.items() if c != OPERATING_COST for x in xs}
     assert not foreign & set(card["line_keys"]) and foreign
     assert card["group_key"] not in {g["group_key"] for g in financial["groups"] if g["category"] != OPERATING_COST}
+    # r1b2 R5, both priced states: one W1 Site gives no persisted COMPARABLE operating-cost partition (P-1b-4), so
+    # rule 2 runs the real `operating_cost_card` over the persisted W1 DTO and a second copy in one COMPARABLE
+    # partition. Both priced states leave `display_value`/`basis` null (run 2 formats the exact line/group).
+    mate = {**w1, "line_key": w1["line_key"] + "-mate"}
+    group = {**parts[0], "state": "COMPARABLE", "line_keys": [w1["line_key"], mate["line_key"]]}
+    comparable = portfolio.operating_cost_card([w1, mate], {OPERATING_COST: True}, [group])
+    assert (comparable["state"], comparable["display_value"], comparable["basis"]) == ("COMPARABLE_GROUP", None, None)
+    assert comparable["group_key"] == parts[0]["group_key"] and comparable["line_keys"] == sorted(group["line_keys"])
+    assert (card["display_value"], card["basis"]) == (None, None)
     # The card is a full-scope projection: equal at the page sizes 1 and 100.
     assert view.ok(**fx.window, limit=100)["value_cards"] == body["value_cards"]
     assert_declined(body)

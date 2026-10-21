@@ -19,7 +19,7 @@ def build_estate_read(database_url: str | None) -> Any:
         build_postgres_assessment_store, selection_pin_refused)
     from assetops_backend.analytics.ev_reads import EvPinnedLineageUnavailable, EvReadUnavailable
     from assetops_backend.estate.adapters.postgres_estate_read import PostgresEstateRead
-    from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.evidence.composition import build_link_rows_many_reader, build_link_rows_reader
     from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
     from assetops_backend.ev_site_reads import EvSiteReads
     from assetops_backend.evidence.public_provenance import LinkRowsReads
@@ -40,7 +40,7 @@ def build_estate_read(database_url: str | None) -> Any:
         database_url, findings=findings, assessments=build_postgres_assessment_store(database_url),
         actions=build_action_store(database_url), consequences=build_consequence_read_service(database_url),
         eligibility=MoneyEligibility(build_dispatch_read_service(database_url), findings),
-        cold=cold, ev=ev, provenance_reads=provenance_reads,
+        cold=cold, ev=ev, provenance_reads=provenance_reads, link_rows_many=build_link_rows_many_reader(),
         inconsistent=(ColdPinnedLineageUnavailable, EvPinnedLineageUnavailable, selection_pin_refused()),
         unavailable=(ColdReadUnavailable, EvReadUnavailable),
         cold_site=ColdSiteReadService(cold, build_cold_consequence_store(database_url)),
@@ -62,7 +62,7 @@ def build_estate_evidence_service(database_url: str | None) -> Any:
 
     base = build_estate_read(database_url)
     keys = ("findings", "assessments", "actions", "consequences", "eligibility", "cold", "ev", "provenance_reads",
-            "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money")
+            "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money", "link_rows_many")
     return EstateEvidenceService(PostgresEvidenceMoneyRead(
         database_url, claim_limits=ClaimLimitReadService(base.assessments), claim_limit_refused=(ClaimLimitRefusal,),
         **{k: getattr(base, k) for k in keys}))

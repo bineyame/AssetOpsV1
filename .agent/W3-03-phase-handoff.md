@@ -242,4 +242,41 @@ Next: independent review of 0b, then run 1a.
   route; the "other Sites may lack coverage" sentence is left to the page from `coverage.sites` + domains.
   R13 `evidence_gap_site_count` counts Sites in every typed gap (null-step gaps included).
 
-## Next: finish run 1b Lane B commit 3b (NOT built list above), independent review of 1b, then run 2 (page)
+## Run 1b Lane B (resumed 3) - commit 3b, main merge, r1b2 applied
+- Commit 3b `0f29d4cb`: new `test_w303_portfolio_comparison_postgres.py` (`::test_selected_action_window_workflow_and_withdrawal`
+  B4 `[11-01,11-03)` cutoffs Outcome pending -> Verified -> Resolution withdrawn, IDs/times vs Action root + stored rows;
+  `::test_operating_cost_first_match_wins_across_partitions`, `::test_ineligible_overlap_and_unknown_coverage_decline_total`,
+  `::test_ev_window_money_has_no_finding_attribution`); scope snapshot `::test_late_revision_pending_historical_and_mixed_source`
+  [a_lineless_cold, b_historical, c1_unbound, c2_mixed, mg_historical_marker], `::test_evidence_prompt_null_steps_and_coverage_precedence`
+  (fake World snapshot), `::test_ev_footer_first_eligible_and_coverage_warning`; fixture `w1_source` (P01/MIXED/UNBOUND).
+  No code defect found. Notes: wire `recorded_at`/`known_at` are whole seconds, so tests compare via `wire_time`
+  against the exact cutoff; at the 09-30 cutoff `accepted_action_count=0` (Action coverage complete), not null.
+- Merge of main `12673d16` (r1b2 `cdc43856`); handoff and pending-rulings files kept.
+- r1b2 commit: R1 `estate_portfolio_api.py` checks `portfolio_cursor_key()` after parse, before `store.read`
+  (snapshot check kept); R10 `progress(..., selected_pairs)` adds `origin_revision_selected` (tenth field, full
+  selected Finding pairs before lifecycle/lens/page); R11 `postgres_evidence_ledger.link_rows_many_on` (one query,
+  `_links_sql` shared, single-Site SQL text byte-identical), `evidence/composition.build_link_rows_many_reader`,
+  `PostgresEstateRead(link_rows_many=)` + `EstateSnapshot.cited_provenance_many` (`_Prefetched` reads; per-Site
+  fallback when unset), `portfolio.py` scope disclosure batched, key passed in both compositions and W3-02 test
+  `evidence_read`; R12 footer requires nonnull `links.evidence`. Tests: R1/R2 zero-read + refusal order
+  (`test_cursor_lens_window_cutoff_and_v1_token`), R5 both priced states, R7 null destinations + unknown config,
+  R8 evidence-cell vectors, R10 tie test + B4, R11 constant batched count (1 per request at limits 1/100) + per-Site
+  truth, R12 null-route skip, R13 null-step-only count. R1/R2 touch the Lane A cursor seam boundary (coordinator
+  instructed "apply every r1b2 change").
+- Pending rulings added (no decision taken): P-1b-1 variant (a) not produced by `advance_late`; P-1b-2 mini-grid
+  marker producer is STALE (positive r1a2-1 proof missing); P-1b-3 (d) overlap no producer; P-1b-4 single W1 Site /
+  no persisted EV ERROR_PENDING; P-1b-5 R4 false-guard + PENDING line no producer; P-1b-6 R10 persisted `true`.
+- Run 2 items from r1b2: type/render ten progress-row fields and `Origin Finding revision not selected` only when
+  `origin_revision_selected=false` (page size 1, nonmatching lens) in `rendersChangeDisclosureWithoutRecoveredMoney`;
+  R12 warning predicate (`Other Sites may lack comparable full-window coverage.` only from another applicable EV
+  Site with UNKNOWN/PENDING/STALE coverage, else `Categories and windows remain separate.`) in
+  `rendersEvFooterAndMissingEnergyBasis`; preserve R2 refusal order; R5 formatted value + UNPRICED copy and R6
+  `Not assessed` (empty Risks lens) in `rendersContextFiveCardsPulseAndSelectedRows`; R7 `Site detail unavailable`
+  and R8 labels in `rendersFiveObjectiveRowsForEveryAuthorizedSite`; R9 `site_code` typed in
+  `rendersTypedEvidencePromptAndExactDestinations`; never infer origin selection from the paged Finding table.
+- Checks (private `w303k_test`, dropped after): pure W3-03 (api, labels, reduction, cursor, fake prompt) 85
+  passed; W3-03 persisted (comparison, scope snapshot, fixture, selectors) 19 passed, 23 min (two then fixed and
+  rerun green: B4, page-size); W3-02 comparability + money API + W3-01 golden 24 passed, 7 min (bytes unchanged);
+  `tools/check-all.ps1` all 11 guards passed. No frontend touched; no full backend suite.
+
+## Next: independent review of 1b, then run 2 (page)

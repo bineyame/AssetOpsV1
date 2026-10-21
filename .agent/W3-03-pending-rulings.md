@@ -127,3 +127,21 @@ proves rule 3 (SITE_OWNED) against a COMPARABLE EV and an INELIGIBLE cold partit
 (2) No reviewed producer gives a persisted EV `ERROR_PENDING` (EV `PENDING_RECOMPUTE` pin with stored money
 history) in the four-Site fixture; only the cold line-less guard is persisted (R3/Q-1b-3 EV half is the pure
 `_GuardSnap` test). Question: accept, or name producers.
+
+## P-1b-5 (r1b2 R4): the persisted false-guard plus selected PENDING-line case has no producer
+
+r1b2 R4 asks the persisted late-revision test to add `_pending_guard=false` with an uncovered selected
+`eligibility=PENDING` line. In `financials.windowed_lines` a cold/EV line becomes PENDING only from the same
+`withheld` / `ERROR_PENDING` read that sets `_pending_guard` (r1b Q-1b-3), and mini-grid PENDING lines sit on a
+covered window, so no reviewed producer yields that combination. The rule stays covered by the pure
+`test_w303_portfolio_reduction.py::test_money_table` (`money_pending(uncovered, guarded)`). Question: accept the
+pure proof, or name a producer.
+
+## P-1b-6 (r1b2 R10): the persisted `origin_revision_selected=true` case has no window in the B4 chain
+
+The B4 S6 chain's Action is created 2026-11-01; F01's origin revision is selected only in the one-day 10-06
+window (which selects no Action: Actions are those created in `[from,to)`), and `[2026-10-06,2026-11-03)` at the
+acceptance cutoff reads mini-grid Finding coverage UNKNOWN (no selected revisions). So the persisted test asserts
+`false` (November window and the wide window); `true` is proved by the pure
+`test_two_actions_one_exact_origin_latest_event_then_id_tie`. Question: accept, or name a chain whose Action and
+origin revision share an assessed window.

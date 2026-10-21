@@ -96,6 +96,7 @@ class World:
         snap.read_at = self.read_at
         snap.imported_sites = lambda tenant, to: [s for s in self.sites]
         snap.cited_provenance = lambda t, s, cited, selected: {"classification": "UNKNOWN", "selected": selected}
+        snap.cited_provenance_many = lambda t, items: [snap.cited_provenance(t, *x) for x in items]
         return work(snap)
 
     def rows(self):
@@ -184,6 +185,12 @@ def test_auth_before_parse_and_all_refusals(world) -> None:
     refused(get(c, WINDOW), 409, "ESTATE_SELECTION_INCONSISTENT")
     world.inconsistent = 1  # one retry recovers
     assert get(c, WINDOW).status_code == 200
+
+
+def _encode(payload) -> str:
+    """A cursor envelope with exactly these fields (no signing): the URL-safe base64 of compact JSON."""
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return base64.urlsafe_b64encode(raw).decode().rstrip("=")
 
 
 def _payload(cursor):
@@ -288,15 +295,32 @@ def test_cursor_lens_window_cutoff_and_v1_token(world) -> None:
             else:
                 mp.setenv(PORTFOLIO_CURSOR_KEY_ENV, value)
             for params in (WINDOW, {**WINDOW, "cursor": signed(two)}):
+                reads = world.reads
                 response = get(c, params)
                 refused(response, 503, "ESTATE_STORE_UNAVAILABLE")
+                assert world.reads == reads  # r1b2 R1: refused at the API boundary, zero store reads
                 assert response.json() == {"detail": {
                     "code": "ESTATE_STORE_UNAVAILABLE", "message": "Estate records could not be read.", "rows": None,
                     "total_count": None, "value_cards": None, "objectives": None, "money": None}}
                 assert KEY_HEX not in response.text
             world.sites = []
+            reads = world.reads
             refused(get(c, WINDOW), 503, "ESTATE_STORE_UNAVAILABLE")
+            assert world.reads == reads
             world.sites = list(SITES)
+            # r1b2 R2: the envelope is parsed before the key check, so a malformed envelope is 422 even without a
+            # key; a well-shaped envelope with a wrong MAC needs the key, so it is 503 here. Both make zero reads.
+            wrong_mac = _encode({**_payload(signed(two)), "mac": "0" * 64})
+            for cursor, status, code in (("not*base64", 422, "INVALID_CURSOR"),
+                                         (_encode({k: v for k, v in _payload(signed(two)).items() if k != "mac"}),
+                                          422, "INVALID_CURSOR"),
+                                         (_encode({**_payload(signed(two)), "mac": "ABC"}), 422, "INVALID_CURSOR"),
+                                         (wrong_mac, 503, "ESTATE_STORE_UNAVAILABLE")):
+                reads = world.reads
+                refused(get(c, {**WINDOW, "cursor": cursor}), status, code)
+                assert world.reads == reads, cursor
+    # With a valid key the same wrong-MAC envelope is 422 after the snapshot opens (MAC verified in the snapshot).
+    refused(get(c, {**WINDOW, "cursor": wrong_mac}), 422, "INVALID_CURSOR")
 
 
 def test_builder_uses_one_connection_scoped_reader_and_refuses_missing_database(monkeypatch, request) -> None:
@@ -369,6 +393,22 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
     # Historical display: the EVIDENCE cell is UNKNOWN for the current objective.
     hist = get(c, {**WINDOW, "known_at": "2026-10-19T00:00:00Z"}).json()
     assert {x["key"]: x["state"] for x in hist["objectives"][0]["cells"]}["EVIDENCE"] == "UNKNOWN"
+    # r1b2 R13: a null-step-only gap Site counts in `evidence_gap_site_count` (1) while the prompt is NO_GAP.
+    real = world.select_evidence_scope
+
+    def null_step(snap, t, req, scope):
+        per, _ = real(snap, t, req, scope)
+        mg = next(s for s in scope["sites"] if str(s["site_id"]) == MG)
+        row = {"site_id": MG, "site_code": mg["site_code"], "site_name": mg["site_name"], "capability_key": "backup",
+               "_key": (mg["site_code_key"], MG, "backup"),
+               "_gaps": [{"key": ("mini_grid", "G-NULL", "role"), "domain": "mini_grid", "gap_code": "G-NULL",
+                          "missing_role": "role", "label": "label", "next_step": None}]}
+        return per, [row]
+
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(portfolio, "select_evidence_scope", null_step)
+        gapped = get(c, WINDOW).json()
+    assert gapped["summary"]["evidence_gap_site_count"] == 1 and gapped["evidence_prompt"]["state"] == "NO_GAP"
     world.sites = []
     empty = get(c, WINDOW).json()
     assert empty["status"] == "EMPTY_SCOPE" and empty["objectives"] == [] and empty["footer"] is None

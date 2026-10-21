@@ -48,7 +48,7 @@ def evidence_read(engine):  # noqa: F811
     url = engine.url.render_as_string(hide_password=False)
     base = build_estate_read(url)
     keys = ("findings", "assessments", "actions", "consequences", "eligibility", "cold", "ev", "provenance_reads",
-            "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money")
+            "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money", "link_rows_many")
     return pemr.PostgresEvidenceMoneyRead(
         url, claim_limits=ClaimLimitReadService(base.assessments), claim_limit_refused=(ClaimLimitRefusal,),
         engine=engine, **{k: getattr(base, k) for k in keys})

@@ -68,9 +68,14 @@ def test_two_actions_one_exact_origin_latest_event_then_id_tie() -> None:
     other = action("c-3", rev=OTHER_REV, at=T0)
     other["action_code"] = "C-3"
     covered = [({"site_id": "s"}, {"state": "CURRENT"})]
-    prog, complete = progress(covered, [older, newer, other], T0 + timedelta(hours=1))
+    prog, complete = progress(covered, [older, newer, other], T0 + timedelta(hours=1), {(FINDING, REV)})
     assert complete and [r["action_id"] for r in prog["rows"]] == ["z-9", "a-1", "c-3"]
-    assert prog["rows"][0]["recorded_at"] == "2026-11-01T12:05:00Z" and len(prog["rows"][0]) == 9
+    assert prog["rows"][0]["recorded_at"] == "2026-11-01T12:05:00Z" and len(prog["rows"][0]) == 10
+    # r1b2 R10: the server-computed origin disclosure; c-3's origin revision is not in the selected Finding set.
+    assert [r["origin_revision_selected"] for r in prog["rows"]] == [True, True, False]
+    flipped, _ = progress(covered, [older, newer, other], T0 + timedelta(hours=1), {(FINDING, OTHER_REV)})
+    assert [r["origin_revision_selected"] for r in flipped["rows"]] == [False, False, True]
+    assert {r["origin_revision_selected"] for r in progress(covered, [older], T0, set())[0]["rows"]} == {False}
     # A different revision of the same Finding never joins.
     assert _action_for(finding_row(OTHER_REV), [older, newer]) is None
     assert _action_for(finding_row(OTHER_REV), [action("c-3", rev=OTHER_REV), newer])["action_id"] == "c-3"
