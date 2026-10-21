@@ -186,7 +186,9 @@ describe("Recommendation (recommendation:1#a)", () => {
     expect(document.body.textContent).not.toMatch(/approv/i);
     expect(q("[data-finding-section='recommendation']")).toHaveAttribute("aria-current", "page");
     noVocabularyViolations("recommendation:1#a available");
-    expect(s.unmatched).toEqual([]);
+    // W4-03 unit 6b (u6 ruling 5): the canonical mini shell's own W1 Finding read (this stub does not serve it, so the
+    // Alternatives slot stays the noninteractive gap) is the one expected extra request.
+    expect(s.unmatched).toEqual([`GET /api/sites/KOBO-001/findings/${FINDING}?revision_id=${REV}`]);
   });
 
   it("shows the typed unavailable reason and no control when the rule proposes nothing", async () => {

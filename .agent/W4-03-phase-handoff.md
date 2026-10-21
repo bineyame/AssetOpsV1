@@ -362,4 +362,52 @@ Readings taken (6a; reviewer may overturn):
 - Frontend: miniDecisions 3 passed; full suite 103 files / 2438 tests passed; `tsc --noEmit` clean; `vite build` built.
 - `check-all.ps1`: all 11 guards passed. No full backend suite.
 
-Next: PR-8 rulings, then unit 6b; then unit 7.
+## u6 applied: no 6a amendment
+u6 confirmed all six unit-6a readings unchanged (raw UTC token, replace with no second read, pager copy, cell
+strings, non-mini refusal, breadcrumb/fallback; `site.site_id` is the public code). No code change, so no commit 1.
+
+## Unit 6b (landed; PR-8 resolved by u6)
+- `sites/miniDecisionsClient.ts`: `getAlternatives(code, findingId, revisionId)` (`mini-alternatives-1`).
+- `sites/MiniAlternatives.tsx`: panel `Alternatives to investigate`, columns Explanation/Evidence/Disposition,
+  exact empty/notice/NEEDS_REVIEW/no-evidence copy, `ALTERNATIVES_FINDING_UNAVAILABLE`.
+- `shell/SiteAnalyticsFrames.tsx`: `SiteFindingFrame` routes MINIGRID to `CanonicalMiniFinding` (one W1 read
+  resolves the revision; six-slot row; global breadcrumb; replace on absent `revision_id`); cold/EV child addresses
+  render `Finding section unavailable for this site.` + `Open Finding overview`. `operatorSiteRoutes.ts`:
+  `FINDING_CHILD_VIEWS` gains `alternatives`; `siteFindingAlternativesHref`.
+- `sites/SiteFindingEvidence.tsx` `FindingSections`: `gap` section variant and `helper` prop.
+- `sites/SitePerformance.tsx` `useResolvedAlternativesHref` + `assessmentAnalysis.tsx` `alternativesUnavailable`:
+  the analytic CTA links only after a same-Site W1 read; `FindingDetail` untouched.
+- Guard: `$expectedTabs` is the final u6/B4 multiset; fixtures swap the Alternatives case for two Analysis cases.
+- Tests: `miniDecisions.test.tsx` `alternative_cells_and_revision_state`, `canonical_mini_tabs_breadcrumb_and_analytic_cta`,
+  `cold_ev_alternatives_absent`; `siteFindingEvidence` row and `siteAction` unmatched-request expectation updated.
+
+Readings taken (6b; reviewer may overturn):
+1. The Overview tab keeps its `data-finding-section="finding"` id; only the label changes.
+2. Analysis is declared `{ id: "analysis", label: "Analysis", unavailable: true }` in the frame, which renders
+   `<UnavailableTab label="Analysis" />` through `FindingSections` (the guard's declared-entry form).
+3. The helper renders inside the section-row `nav`, after the money aside, as plain `<p data-analysis-helper>`, on
+   child views only (the root Overview has none). Inside the row it is chrome, so the v69 panel checks accept it.
+4. Breadcrumb `Findings` links `/findings`; `Finding code unavailable` appears only after the W1 read loads (omitted
+   while loading or refused); the section crumb is `Overview` on the root, omitted for an unknown section name; then
+   `· site: {display_name}` linking the Site Overview. MINIGRID only; the Site tabs row stays.
+5. While the W1 read loads or refuses, the Alternatives slot is a plain span with `Alternatives for this Finding
+   unavailable` (new `gap` variant, not an `UnavailableTab`, so outside the guard multiset).
+6. Sibling tabs use the resolved revision once loaded, the raw `revision_id` while loading or refused.
+7. "Same-Site exact" means `site_code === site.site_id` and `finding.id` equals the route ID (case-insensitive).
+8. After the replace, the frame does not re-read the W1 Finding (a ref holds the resolved selection).
+9. Body states: W1 loading `Loading the Finding.`; W1 refused `Alternatives for this Finding unavailable`; Alternatives
+   loading `Loading the Finding's alternatives.`; any Alternatives refusal `Alternatives unavailable` (ledger's 503
+   copy); `currentness.state` HISTORICAL adds `Historical basis`.
+10. Evidence cell: `evidence_summary`, then each cited ID linking the Site Evidence record inspector (no shared
+    provenance drawer exists); none gives the ledger copy; `missing_evidence_reason` is not displayed.
+11. Disposition words are the original ledger's four; no pager (at most one row per key, so 3 rows).
+12. Alternatives page heading is the W1 `revision.title`.
+13. Cold/EV `/recommendation` and unknown child names also render the section gap. The cold/EV link carries the window
+    query. A cold/EV root without a domain client (test-only) renders `SiteFinding` with no section row.
+14. Analytic CTA: the gap also shows while its W1 read loads; `finding_id: null` shows no CTA, as before.
+
+## Checks (6b)
+- No DB used. Frontend: miniDecisions 6 passed; full suite 103 files / 2441 tests passed; `tsc --noEmit` clean;
+  `vite build` built. `check-all.ps1`: all 11 guards passed (in-page fixtures include the two new Analysis cases). No full backend suite (frontend-only unit).
+
+Next: unit 7.

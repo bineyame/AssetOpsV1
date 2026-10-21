@@ -160,8 +160,11 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '<UnavailableTab label="Scenarios" /><UnavailableTab label="Maintenance" />') },
             @{ Name = "a declared unbuilt tab is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '') },
-            @{ Name = "Alternatives loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $frames 'label: "Alternatives", unavailable: true' 'label: "Alternatives", href: "/x"') },
+            # W4-03 unit 6b: the mini Finding row's Analysis slot is the declared entry; Alternatives is live.
+            @{ Name = "W4-03: Analysis loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", href: "/x"') },
+            @{ Name = "W4-03: Alternatives comes back as an unavailable Finding section"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", unavailable: true }, { id: "x", label: "Alternatives", unavailable: true') },
             @{ Name = "the cold Cooling entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Cooling" />' '') },
             @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";

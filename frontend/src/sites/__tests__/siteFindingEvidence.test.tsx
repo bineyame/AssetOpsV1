@@ -580,16 +580,18 @@ describe("Finding frame sections (S4-03 phase 2)", () => {
     expect(q("[data-finding-section='evidence']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R1}`);
     // W1-F5b carry 10: the heading is the Finding's own name, as on the Finding and in the mock.
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support merits review$/);
-    // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's order, with Alternatives unbuilt in its place.
+    // W4-03 unit 6b (u5 6b, u6): the canonical mini row is Overview, unavailable Analysis, Evidence, Alternatives,
+    // Recommendation, History. This fake's W1 Finding read refuses, so Alternatives is the noninteractive gap.
     const sections = screen.getByRole("navigation", { name: "Finding sections" });
     expect(rowLabels(sections)).toEqual([
-      "Finding",
+      "Overview",
+      `Analysis (${UNAVAILABLE_STATUS})`,
       "Evidence",
-      `Alternatives (${UNAVAILABLE_STATUS})`,
+      "Alternatives for this Finding unavailable",
       "Recommendation",
       "History",
     ]);
-    expectUnavailableEntry(sections, "Alternatives");
+    expectUnavailableEntry(sections, "Analysis");
     expect(document.querySelectorAll('a[href*="alternatives" i]')).toHaveLength(0);
   });
 

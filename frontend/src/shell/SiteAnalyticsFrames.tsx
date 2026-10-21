@@ -1,6 +1,6 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
@@ -31,6 +31,7 @@ import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
 import { MiniScenarios } from "../sites/MiniScenarios";
+import { ALTERNATIVES_FINDING_UNAVAILABLE, MiniAlternatives } from "../sites/MiniAlternatives";
 import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type ScenarioScope } from "../sites/miniDecisionsClient";
 import { SiteFinding } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
@@ -72,6 +73,7 @@ import {
   siteEvidenceAcceptedRecordHref,
   siteFindingHref,
   siteFindingViewHref,
+  siteFindingAlternativesHref,
   siteFindingsHref,
   siteFinancialAssumptionsHref,
   siteFinancialScenariosHref,
@@ -328,6 +330,7 @@ export function SitePerformanceFrame({
             findingHref={(id) => findingHref(site.site_id, id)}
             findings={DEFAULT_FINDINGS}
             siteFindingHref={(id) => siteFindingHref(site.site_id, id)}
+            findingAlternativesHref={(id, rev) => siteFindingAlternativesHref(site.site_id, id, rev)}
             findingAnalysisHref={(id) => findingHref(site.site_id, id, "analysis")}
             recordHref={(link) =>
               siteEvidenceRecordHref(
@@ -525,12 +528,26 @@ const SITE_FINDING_HEADING_ID = "site-finding-heading";
  * S4-03: the same frame renders the root's named child views at
  * `/sites/{site}/findings/{finding}/{view}[?revision_id=]` (`FINDING_CHILD_VIEWS`).
  * The section links keep the exact selected version (Evidence and History).
+ *
+ * W4-03 unit 6b (u5 6b, u6): a MINIGRID Site's Finding is the canonical mini Finding (`CanonicalMiniFinding`); a
+ * COLDCHAIN or EV_CHARGING Site's Finding root is its domain frame, and its child addresses are a noninteractive
+ * section gap with a link back to that root (u6 ruling 3).
  */
 const FINDING_SECTION_LABELS: Record<FindingChildView, string> = {
   evidence: "Evidence",
   history: "History",
   recommendation: "Recommendation",
+  alternatives: "Alternatives",
 };
+
+/** u6 ruling 4: the plain helper beside the canonical mini row on child views (outside the guarded tab). */
+export const ANALYSIS_HELPER_ALTERNATIVES =
+  "Analysis unavailable for this authored alternative; use the Finding overview and evidence.";
+export const ANALYSIS_HELPER_SECTION = "Analysis unavailable for this Finding section; use the Finding overview and evidence.";
+/** u6 ruling 1: the W1 detail supplies no public Finding code. */
+export const FINDING_CODE_UNAVAILABLE = "Finding code unavailable";
+/** u6 ruling 3: a cold or EV Finding child address. */
+export const FINDING_SECTION_UNAVAILABLE = "Finding section unavailable for this site.";
 
 export function SiteFindingFrame({
   detail,
@@ -539,6 +556,7 @@ export function SiteFindingFrame({
   actions = DEFAULT_ACTIONS,
   coldAssessment,
   evAssessment,
+  miniDecisions = DEFAULT_MINI_DECISIONS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
@@ -548,6 +566,8 @@ export function SiteFindingFrame({
   coldAssessment?: ColdAssessmentClient;
   /** W2-06: an EV_CHARGING Site's Finding renders `ev-finding` from the selected EV reads. */
   evAssessment?: EvAssessmentClient;
+  /** W4-03 unit 6b: the authored Alternatives read of the canonical mini Finding. */
+  miniDecisions?: MiniDecisionsClient;
 }) {
   const { siteId, findingId, findingView } = useParams<{ siteId: string; findingId: string; findingView?: string }>();
   const [params] = useSearchParams();
@@ -600,22 +620,25 @@ export function SiteFindingFrame({
             />
           );
         }
-        const dispatch = (day: string, intervalRevisionId?: string | null) =>
-          `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
-          (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : "");
-        const child = (c: FindingChildView) => ({
-          id: c,
-          label: FINDING_SECTION_LABELS[c],
-          href: siteFindingViewHref(site.site_id, id, c, revisionId),
-        });
-        // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the mock's order, with Alternatives unbuilt in its place.
-        const sections: FindingSectionLink[] = [
-          { id: "finding", label: "Finding", href: siteFindingHref(site.site_id, id, revisionId) },
-          child("evidence"),
-          { id: "alternatives", label: "Alternatives", unavailable: true },
-          child("recommendation"),
-          child("history"),
-        ];
+        if (site.site_type === "MINIGRID") {
+          return (
+            <CanonicalMiniFinding
+              site={site}
+              routeSiteId={siteId}
+              findingId={id}
+              view={view}
+              revisionId={revisionId}
+              title={title}
+              onTitle={onTitle}
+              findings={findings}
+              actions={actions}
+              miniDecisions={miniDecisions}
+            />
+          );
+        }
+        // u6 ruling 3: a cold/EV (or other non-mini) Finding has no W1 canonical section row. A child address is a
+        // noninteractive gap with a real link to the domain Finding root; it issues no W4-03 Alternatives read.
+        const root = `${siteFindingHref(site.site_id, id)}${coldWindowSearch(coldWindowFromParams(params))}`;
         return (
           <main aria-labelledby={SITE_FINDING_HEADING_ID}>
             <Breadcrumbs
@@ -623,102 +646,269 @@ export function SiteFindingFrame({
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
                 { label: "Findings", to: siteFindingsHref(site.site_id) },
-                view === "finding" || view === null
-                  ? { label: "Finding" }
-                  : { label: "Finding", to: siteFindingHref(site.site_id, id, revisionId) },
-                ...(view === "finding" || view === null ? [] : [{ label: FINDING_SECTION_LABELS[view] }]),
+                view === "finding" ? { label: "Finding" } : { label: "Finding", to: root },
               ]}
             />
-            <PageHeader
-              title={title}
-              headingId={SITE_FINDING_HEADING_ID}
-              subtitle={`${site.display_name} · generator support finding`}
-            />
+            <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={`${site.display_name} · finding`} />
             <OperatorSiteTabs siteId={siteId} current="Findings" />
-            {view === null ? (
-              <Panel heading="No such Finding section" headingId="site-finding-section-missing-heading">
-                <p data-finding-read="not_found">
-                  A Finding has no section with that name. <Link to={siteFindingHref(site.site_id, id, revisionId)}>Open the Finding</Link>
+            {view === "finding" ? (
+              <SiteFinding
+                siteId={site.site_id}
+                findingId={id}
+                client={findings}
+                onTitle={onTitle}
+                links={{
+                  finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                  dispatch: (day) => `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}`,
+                  evidence: siteEvidenceHref(site.site_id),
+                  findingEvidence: () => root,
+                  history: () => root,
+                  recommendation: () => root,
+                }}
+              />
+            ) : (
+              <Panel heading="Finding section" headingId="site-finding-section-unavailable-heading">
+                <p data-finding-section-unavailable={findingView}>
+                  {FINDING_SECTION_UNAVAILABLE} <Link to={root}>Open Finding overview</Link>
                 </p>
               </Panel>
-            ) : (
-              <>
-                {/* W1-F3: the money link sits on the section-tab line; W1-F4: on Recommendation it is a qualified line inside "Proposed intervention" instead. */}
-                <FindingSections
-                  sections={sections}
-                  current={view}
-                  aside={
-                    view === "recommendation" ? undefined : (
-                      <span className="finding-financials-link" data-finding-financials-link>
-                        <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId })}>
-                          What this finding means in money
-                        </Link>
-                      </span>
-                    )
-                  }
-                />
-                {view === "evidence" ? (
-                  <SiteFindingEvidence
-                    siteId={site.site_id}
-                    findingId={id}
-                    client={findings}
-                    onTitle={onTitle}
-                    links={{
-                      evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
-                      finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
-                      dispatch,
-                      record: (evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId),
-                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
-                    }}
-                  />
-                ) : view === "recommendation" ? (
-                  <SiteRecommendation
-                    siteId={site.site_id}
-                    findingId={id}
-                    client={actions}
-                    onTitle={onTitle}
-                    links={{
-                      finding: (rev) => siteFindingHref(site.site_id, id, rev),
-                      action: (actionId) => siteActionHref(site.site_id, actionId),
-                      actionChild: (actionId, view, chosen) => siteActionHref(site.site_id, actionId, view, chosen),
-                      money: (rev) => siteFinancialsHref(site.site_id, { findingId: id, revisionId: rev }),
-                    }}
-                  />
-                ) : view === "history" ? (
-                  <SiteFindingHistory
-                    siteId={site.site_id}
-                    findingId={id}
-                    client={findings}
-                    onTitle={onTitle}
-                    links={{
-                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
-                      evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
-                      finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
-                      otherHistory: (other) => siteFindingViewHref(site.site_id, other, "history"),
-                    }}
-                  />
-                ) : (
-                  <SiteFinding
-                    siteId={site.site_id}
-                    findingId={id}
-                    client={findings}
-                    onTitle={onTitle}
-                    links={{
-                      finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
-                      dispatch,
-                      evidence: siteEvidenceHref(site.site_id),
-                      findingEvidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
-                      history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
-                      recommendation: (rev) => siteFindingViewHref(site.site_id, id, "recommendation", rev),
-                    }}
-                  />
-                )}
-              </>
             )}
           </main>
         );
       }}
     </SiteScoped>
+  );
+}
+
+type MiniSelection =
+  | { status: "loading" }
+  | { status: "loaded"; revisionId: string; title: string }
+  | { status: "refused" };
+
+/**
+ * W4-03 unit 6b: the canonical mini Finding shell. Its six context tabs are, in order, `Overview`, unavailable
+ * `Analysis`, `Evidence`, live `Alternatives`, `Recommendation`, `History` (u5 6b). One W1 Finding read
+ * (`getFinding(site, finding, revision_id|null)`) resolves the exact selected revision before any Alternatives href or
+ * Alternatives read exists, and the same resolved selection pins the sibling tabs (u6 ruling 5). The global breadcrumb
+ * is `Findings › Finding code unavailable › {section} · site: {Site}` (u6 ruling 1, u5 6b).
+ */
+function CanonicalMiniFinding({
+  site,
+  routeSiteId,
+  findingId: id,
+  view,
+  revisionId,
+  title,
+  onTitle,
+  findings,
+  actions,
+  miniDecisions,
+}: {
+  site: SiteDetailReadModel;
+  routeSiteId: string | undefined;
+  findingId: string;
+  view: FindingChildView | "finding" | null;
+  revisionId: string | null;
+  title: string;
+  onTitle: (next: string) => void;
+  findings: FindingClient;
+  actions: ActionClient;
+  miniDecisions: MiniDecisionsClient;
+}) {
+  const navigate = useNavigate();
+  const [selection, setSelection] = useState<MiniSelection>({ status: "loading" });
+  // The address replaced with the revision this read already resolved is the same selection: no second read.
+  const settled = useRef<{ key: string; revisionId: string } | null>(null);
+  useEffect(() => {
+    const key = `${site.site_id}/${id}`;
+    if (revisionId !== null && settled.current?.key === key && settled.current.revisionId === revisionId) return;
+    let active = true;
+    setSelection({ status: "loading" });
+    void findings.getFinding(site.site_id, id, revisionId).then((read) => {
+      if (!active) return;
+      // u6 ruling 6: only a same-Site canonical W1 read of this exact Finding resolves a revision.
+      if (
+        read.status === "loaded" &&
+        read.value.site_code === site.site_id &&
+        read.value.finding.id.toLowerCase() === id.toLowerCase()
+      ) {
+        settled.current = { key, revisionId: read.value.selection.revision_id };
+        setSelection({ status: "loaded", revisionId: read.value.selection.revision_id, title: read.value.revision.title });
+      } else {
+        settled.current = null;
+        setSelection({ status: "refused" });
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [findings, site.site_id, id, revisionId]);
+  const resolved = selection.status === "loaded" ? selection.revisionId : null;
+  // u6 ruling 5: an Alternatives address without `revision_id` is replaced with the resolved exact revision.
+  useEffect(() => {
+    if (view === "alternatives" && revisionId === null && resolved !== null) {
+      navigate(siteFindingAlternativesHref(site.site_id, id, resolved), { replace: true });
+    }
+  }, [view, revisionId, resolved, navigate, site.site_id, id]);
+  useEffect(() => {
+    if (view === "alternatives" && selection.status === "loaded") onTitle(selection.title);
+  }, [view, selection, onTitle]);
+
+  const pinned = resolved ?? revisionId;
+  const child = (c: FindingChildView): FindingSectionLink => ({
+    id: c,
+    label: FINDING_SECTION_LABELS[c],
+    href: siteFindingViewHref(site.site_id, id, c, pinned),
+  });
+  const sections: FindingSectionLink[] = [
+    { id: "finding", label: "Overview", href: siteFindingHref(site.site_id, id, pinned) },
+    { id: "analysis", label: "Analysis", unavailable: true },
+    child("evidence"),
+    resolved === null
+      ? { id: "alternatives", gap: ALTERNATIVES_FINDING_UNAVAILABLE }
+      : { id: "alternatives", label: "Alternatives", href: siteFindingAlternativesHref(site.site_id, id, resolved) },
+    child("recommendation"),
+    child("history"),
+  ];
+  const section = view === "finding" ? "Overview" : view === null ? null : FINDING_SECTION_LABELS[view];
+  const dispatch = (day: string, intervalRevisionId?: string | null) =>
+    `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}` +
+    (intervalRevisionId ? `&revision=${encodeURIComponent(intervalRevisionId)}` : "");
+  return (
+    <main aria-labelledby={SITE_FINDING_HEADING_ID}>
+      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-mini-finding-crumbs>
+        <ol className="breadcrumbs__list">
+          <li className="breadcrumbs__item">
+            <Link to={FINDINGS_PATH}>Findings</Link>
+          </li>
+          {selection.status === "loaded" ? (
+            <li className="breadcrumbs__item">
+              <span data-finding-code-gap>{FINDING_CODE_UNAVAILABLE}</span>
+            </li>
+          ) : null}
+          {section === null ? null : (
+            <li className="breadcrumbs__item">
+              <span className="breadcrumbs__current" aria-current="page">
+                {section}
+              </span>
+            </li>
+          )}
+        </ol>
+        <span className="mini-finding-crumbs__site" data-mini-finding-site>
+          {"· site: "}
+          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+        </span>
+      </nav>
+      <PageHeader
+        title={title}
+        headingId={SITE_FINDING_HEADING_ID}
+        subtitle={`${site.display_name} · generator support finding`}
+      />
+      <OperatorSiteTabs siteId={routeSiteId} current="Findings" />
+      {view === null ? (
+        <Panel heading="No such Finding section" headingId="site-finding-section-missing-heading">
+          <p data-finding-read="not_found">
+            A Finding has no section with that name. <Link to={siteFindingHref(site.site_id, id, pinned)}>Open the Finding</Link>
+          </p>
+        </Panel>
+      ) : (
+        <>
+          {/* W1-F3: the money link sits on the section-tab line; W1-F4: on Recommendation it is a qualified line inside "Proposed intervention" instead. */}
+          <FindingSections
+            sections={sections}
+            current={view}
+            aside={
+              view === "recommendation" ? undefined : (
+                <span className="finding-financials-link" data-finding-financials-link>
+                  <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId: pinned })}>
+                    What this finding means in money
+                  </Link>
+                </span>
+              )
+            }
+            helper={
+              view === "finding"
+                ? undefined
+                : view === "alternatives"
+                  ? ANALYSIS_HELPER_ALTERNATIVES
+                  : ANALYSIS_HELPER_SECTION
+            }
+          />
+          {view === "alternatives" ? (
+            selection.status === "loaded" && revisionId !== null ? (
+              <MiniAlternatives
+                siteCode={site.site_id}
+                findingId={id}
+                revisionId={selection.revisionId}
+                client={miniDecisions}
+                recordHref={(evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId)}
+              />
+            ) : selection.status === "refused" ? (
+              <p className="mini-alternatives-note" data-alternatives-finding-unavailable>
+                {ALTERNATIVES_FINDING_UNAVAILABLE}
+              </p>
+            ) : (
+              <p data-alternatives-finding-loading>Loading the Finding.</p>
+            )
+          ) : view === "evidence" ? (
+            <SiteFindingEvidence
+              siteId={site.site_id}
+              findingId={id}
+              client={findings}
+              onTitle={onTitle}
+              links={{
+                evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
+                finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                dispatch,
+                record: (evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId),
+                history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+              }}
+            />
+          ) : view === "recommendation" ? (
+            <SiteRecommendation
+              siteId={site.site_id}
+              findingId={id}
+              client={actions}
+              onTitle={onTitle}
+              links={{
+                finding: (rev) => siteFindingHref(site.site_id, id, rev),
+                action: (actionId) => siteActionHref(site.site_id, actionId),
+                actionChild: (actionId, view, chosen) => siteActionHref(site.site_id, actionId, view, chosen),
+                money: (rev) => siteFinancialsHref(site.site_id, { findingId: id, revisionId: rev }),
+              }}
+            />
+          ) : view === "history" ? (
+            <SiteFindingHistory
+              siteId={site.site_id}
+              findingId={id}
+              client={findings}
+              onTitle={onTitle}
+              links={{
+                history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                evidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
+                finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                otherHistory: (other) => siteFindingViewHref(site.site_id, other, "history"),
+              }}
+            />
+          ) : (
+            <SiteFinding
+              siteId={site.site_id}
+              findingId={id}
+              client={findings}
+              onTitle={onTitle}
+              links={{
+                finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
+                dispatch,
+                evidence: siteEvidenceHref(site.site_id),
+                findingEvidence: (rev) => siteFindingViewHref(site.site_id, id, "evidence", rev),
+                history: (rev) => siteFindingViewHref(site.site_id, id, "history", rev),
+                recommendation: (rev) => siteFindingViewHref(site.site_id, id, "recommendation", rev),
+              }}
+            />
+          )}
+        </>
+      )}
+    </main>
   );
 }
 

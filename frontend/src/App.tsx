@@ -408,7 +408,7 @@ export function App({
             <Route
               key={path}
               path={path}
-              element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} evAssessment={evAssessment} />}
+              element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} evAssessment={evAssessment} miniDecisions={miniDecisions} />}
             />
           ))}
           <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} />} />

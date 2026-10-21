@@ -80,6 +80,11 @@ export interface SitePerformanceProps {
   /** S4-01: an imported Site's durable Findings, linked from the Dispatch day. */
   findings?: FindingClient;
   siteFindingHref?: (findingId: string) => string;
+  /**
+   * W4-03 unit 6b (u6 ruling 6): the canonical mini Alternatives address of a Finding at the exact revision a
+   * same-Site W1 Finding read resolved. Without it (or `findings`) the analytic CTA is the noninteractive gap.
+   */
+  findingAlternativesHref?: (findingId: string, revisionId: string) => string;
   /** W4-02: the mini-depth reads whose capabilities join the imported Site's subtab row (S6). */
   miniDepth?: MiniDepthClient;
 }
@@ -99,6 +104,7 @@ export function SitePerformance({
   performance = DEFAULT_PERFORMANCE,
   findings,
   siteFindingHref,
+  findingAlternativesHref,
   miniDepth,
 }: SitePerformanceProps) {
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
@@ -201,6 +207,8 @@ export function SitePerformance({
           findingAnalysisHref={findingAnalysisHref}
           recordHref={recordHref}
           coverageHref={coverageHref}
+          findings={findings}
+          findingAlternativesHref={findingAlternativesHref}
         />
       ) : (
         <Panel heading={current.label} headingId="site-performance-unbuilt-heading">
@@ -225,6 +233,8 @@ function DispatchView({
   findingAnalysisHref,
   recordHref,
   coverageHref,
+  findings,
+  findingAlternativesHref,
 }: {
   siteId: string;
   client: SiteAnalyticsClient;
@@ -232,6 +242,8 @@ function DispatchView({
   findingAnalysisHref: (assessmentId: string) => string;
   recordHref: (link: EvidenceLink) => string;
   coverageHref?: (assessmentId: string) => string;
+  findings?: FindingClient;
+  findingAlternativesHref?: (findingId: string, revisionId: string) => string;
 }) {
   const [result, setResult] = useState<EvidenceRead<DispatchAssessments> | null>(null);
   const [params, setParams] = useSearchParams();
@@ -318,13 +330,15 @@ function DispatchView({
       ) : null}
       {view === "analysis" ? (
         <DispatchAnalysis
+          siteId={siteId}
           rows={rows}
           selected={selected}
           intervalSearch={intervalSearch}
-          findingHref={findingHref}
           findingAnalysisHref={findingAnalysisHref}
           recordHref={recordHref}
           coverageHref={coverageHref}
+          findings={findings}
+          findingAlternativesHref={findingAlternativesHref}
         />
       ) : (
         <LegacySlots
@@ -552,23 +566,67 @@ function SelectedInterval({
   );
 }
 
+/**
+ * W4-03 unit 6b (u6 ruling 6): the dispatch summary carries only `finding_id`, so the analytic Alternatives CTA links
+ * only after a same-Site canonical W1 Finding read resolves that exact Finding and its selected revision. Until then,
+ * or on any refusal, it is `null` (the noninteractive gap). Never `/alternatives` on an unpinned Finding href.
+ */
+export function useResolvedAlternativesHref(
+  findings: FindingClient | undefined,
+  siteCode: string,
+  findingId: string | null,
+  hrefFor: ((findingId: string, revisionId: string) => string) | undefined,
+): string | null {
+  const [resolved, setResolved] = useState<{ key: string; revisionId: string | null } | null>(null);
+  const key = `${siteCode}/${findingId ?? ""}`;
+  const linkable = findings !== undefined && hrefFor !== undefined;
+  useEffect(() => {
+    if (!linkable || findings === undefined || findingId === null) return;
+    let active = true;
+    void findings.getFinding(siteCode, findingId, null).then((read) => {
+      if (!active) return;
+      const exact =
+        read.status === "loaded" &&
+        read.value.site_code === siteCode &&
+        read.value.finding.id.toLowerCase() === findingId.toLowerCase();
+      setResolved({ key, revisionId: exact ? read.value.selection.revision_id : null });
+    });
+    return () => {
+      active = false;
+    };
+  }, [findings, siteCode, findingId, linkable, key]);
+  return resolved !== null && resolved.key === key && resolved.revisionId !== null && hrefFor !== undefined && findingId !== null
+    ? hrefFor(findingId, resolved.revisionId)
+    : null;
+}
+
 function DispatchAnalysis({
+  siteId,
   rows,
   selected,
   intervalSearch,
-  findingHref,
   findingAnalysisHref,
   recordHref,
   coverageHref,
+  findings,
+  findingAlternativesHref,
 }: {
+  siteId: string;
   rows: DispatchRow[];
   selected: DispatchRow | null;
   intervalSearch: (id: string, view: LocalView) => string;
-  findingHref: (assessmentId: string) => string;
   findingAnalysisHref: (assessmentId: string) => string;
   recordHref: (link: EvidenceLink) => string;
   coverageHref?: (assessmentId: string) => string;
+  findings?: FindingClient;
+  findingAlternativesHref?: (findingId: string, revisionId: string) => string;
 }) {
+  const alternativesHref = useResolvedAlternativesHref(
+    findings,
+    siteId,
+    selected?.finding_id ?? null,
+    findingAlternativesHref,
+  );
   const fuel = selected?.reading?.fuel ?? null;
   return (
     <div data-dispatch-analysis={selected?.assessment_id ?? "none"}>
@@ -603,9 +661,8 @@ function DispatchAnalysis({
                   assessment={selected.assessment}
                   records={{ kind: "record", href: recordHref }}
                   coverageHref={coverageHref?.(selected.assessment_id)}
-                  alternativesHref={
-                    selected.finding_id === null ? null : `${findingHref(selected.finding_id)}/alternatives`
-                  }
+                  alternativesHref={selected.finding_id === null ? null : alternativesHref}
+                  alternativesUnavailable={selected.finding_id !== null}
                   links={
                     selected.finding_id === null ? null : (
                       <li>

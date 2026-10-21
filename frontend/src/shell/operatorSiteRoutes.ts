@@ -237,8 +237,10 @@ export function siteEvHref(siteId: string, view: keyof typeof SITE_EV_SUFFIX = "
  * each view from this list (Evidence: phase 2, History: phase 3).
  * S6-01b adds Recommendation (`recommendation:1`), which keeps the same
  * `?revision_id=` so the recommendation is always for an exact version.
+ * W4-03 unit 6b adds `alternatives`: the authored alternatives of the exact
+ * selected revision, on MINIGRID Sites only (u6 ruling 3).
  */
-export const FINDING_CHILD_VIEWS = ["evidence", "history", "recommendation"] as const;
+export const FINDING_CHILD_VIEWS = ["evidence", "history", "recommendation", "alternatives"] as const;
 export type FindingChildView = (typeof FINDING_CHILD_VIEWS)[number];
 export const SITE_FINDING_VIEW_ROUTE_PATH = `${SITE_FINDING_ROUTE_PATH}/:findingView`;
 
@@ -250,6 +252,14 @@ export function siteFindingViewHref(
 ): string {
   const base = `${siteFindingsHref(siteId)}/${encodeURIComponent(findingId)}/${view}`;
   return revisionId ? `${base}?revision_id=${encodeURIComponent(revisionId)}` : base;
+}
+
+/**
+ * W4-03 unit 6b (u6 rulings 5 and 6): the canonical mini Alternatives address. It takes the revision a same-Site W1
+ * Finding read resolved (`selection.revision_id`), never an absent one: there is no unpinned Alternatives href.
+ */
+export function siteFindingAlternativesHref(siteId: string, findingId: string, resolvedRevisionId: string): string {
+  return siteFindingViewHref(siteId, findingId, "alternatives", resolvedRevisionId);
 }
 
 /**

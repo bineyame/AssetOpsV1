@@ -5,6 +5,10 @@
  *   server resolves creation-time `[1970-01-01, read_time + 1 microsecond)` and returns them with `known_at`, which
  *   the page reuses for every cursor page and reload (closure 4 S15, u5 unit 6a).
  *
+ * - `GET /api/sites/{site_code}/findings/{finding_id}/alternatives?revision_id=` (`mini-alternatives-1`, unit 6b):
+ *   the authored alternatives of one exact W1 Finding revision. The caller passes the revision resolved by the W1
+ *   Finding read (u6 ruling 5), never a raw missing query parameter.
+ *
  * The frontend has no write path: no scenario drawer or create form (closure 1).
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
@@ -52,6 +56,30 @@ export interface ScenarioListBody {
   limitations?: DecisionLimitation[];
 }
 
+export interface AlternativeRow {
+  id: string;
+  revision_id: string;
+  finding_revision_id: string;
+  explanation: string;
+  evidence_summary: string;
+  cited_accepted_evidence_ids: string[];
+  missing_evidence_reason: string | null;
+  disposition: "PLAUSIBLE" | "CANNOT_EXCLUDE" | "INDETERMINATE" | "RULED_OUT" | string;
+  reason: string;
+  review_state: "CURRENT" | "HISTORICAL" | "NEEDS_REVIEW" | string;
+}
+
+export interface AlternativeListBody {
+  schema_version: string;
+  window: { from: string | null; to: string | null; known_at: string | null };
+  status: string;
+  currentness: { state: string; job_state: string };
+  total_count: number;
+  rows: AlternativeRow[];
+  next_cursor: string | null;
+  selection_token: string | null;
+}
+
 /** The page's scope: all null on the first request; afterwards the server's own effective bounds and cutoff. */
 export interface ScenarioScope {
   from: string | null;
@@ -69,6 +97,7 @@ export type DecisionRead<T> =
 
 export interface MiniDecisionsClient {
   getScenarios(siteCode: string, scope: ScenarioScope): Promise<DecisionRead<ScenarioListBody>>;
+  getAlternatives(siteCode: string, findingId: string, revisionId: string): Promise<DecisionRead<AlternativeListBody>>;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
@@ -120,11 +149,23 @@ const isScenarioList = (value: unknown): boolean =>
   isObject(value.window) &&
   typeof value.total_count === "number";
 
+const isAlternativeList = (value: unknown): boolean =>
+  isObject(value) &&
+  value.schema_version === "mini-alternatives-1" &&
+  Array.isArray(value.rows) &&
+  isObject(value.window) &&
+  typeof value.total_count === "number";
+
 export function createMiniDecisionsClient(basePath: string = SITES_API_PATH): MiniDecisionsClient {
   const site = (code: string) => `${basePath}/${encodeURIComponent(code)}`;
   return {
     getScenarios: (code, scope) =>
       readDecision(`${site(code)}/financials/scenarios${scenarioScopeSearch(scope)}`, isScenarioList),
+    getAlternatives: (code, findingId, revisionId) =>
+      readDecision(
+        `${site(code)}/findings/${encodeURIComponent(findingId)}/alternatives?revision_id=${encodeURIComponent(revisionId)}`,
+        isAlternativeList,
+      ),
   };
 }
 

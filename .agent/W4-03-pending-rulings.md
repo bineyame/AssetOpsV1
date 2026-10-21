@@ -143,7 +143,7 @@ builder would take, for confirm or replace.
    Reading: `/sites/<site-uuid>/work` (W4-01 Site Work route); null until unit 8 lands the command. Confirm the
    literal path.
 
-## PR-8 (raised in unit 6, after 6a; blocks 6b)
+## PR-8 (raised in unit 6, after 6a) - RESOLVED by u6 (build spec "Unit-6 rulings (u6)", rulings 1-6 and the unit-6a readings paragraph); built in unit 6b
 
 Unit 6a landed (Scenarios page). Unit 6b not started: the canonical mini Finding shell needs these values the spec
 leaves open. Each item gives the reading the builder would take, for confirm or replace.

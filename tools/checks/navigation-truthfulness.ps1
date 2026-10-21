@@ -747,8 +747,10 @@ function Get-InPageUnavailableEntryFailures {
     # W4-03 unit 6a (closure 4 S13): the Financials subrow is split by Site type; mini
     # Scenarios is a live route, so the one remaining Scenarios entry is cold's (EV has
     # no Scenarios slot).
-    $expectedTabs = @("Alternatives", "Scenarios", "Cooling",
-        "Recommendation", "Recommendation", "Availability", "Energy / site power")
+    # W4-03 unit 6b (closure 4 B4, closure 5, u5 6b, u6 ruling 4): canonical mini Alternatives is a live route, so
+    # Alternatives has zero unavailable occurrences; the mini Finding row's Analysis slot is the one new entry.
+    $expectedTabs = @("Scenarios", "Cooling", "Recommendation", "Recommendation", "Availability",
+        "Energy / site power", "Analysis")
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
     if ($null -eq $Modules) {

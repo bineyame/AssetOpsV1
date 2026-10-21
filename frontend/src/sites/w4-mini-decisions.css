@@ -110,3 +110,35 @@
     background: var(--surface, #fff);
   }
 }
+
+/*
+ * W4-03 unit 6b: the v69 `alternatives` slots. The full Explanation/Evidence/Disposition columns are kept; the inner
+ * table scrolls, the page does not.
+ */
+.mini-alternatives-table .data-table {
+  table-layout: fixed;
+}
+
+.mini-alternatives-cited {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mini-alternatives-cited code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.mini-alternatives-note,
+.finding-sections__helper {
+  display: block;
+  margin: 6px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mini-finding-crumbs__site {
+  margin-left: 6px;
+  color: var(--text-secondary);
+}
