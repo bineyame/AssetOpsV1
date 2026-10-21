@@ -218,7 +218,7 @@ function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: st
               <Link to={row.links.finding}>Review Finding</Link>
             </small>
           ) : (
-            <small>Review Finding · Finding detail unavailable</small>
+            <small>Finding detail unavailable</small>
           )
         ) : null}
       </td>
