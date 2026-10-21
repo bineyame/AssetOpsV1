@@ -355,3 +355,16 @@ Pending/empty/refusal captures remain run 3.
 
 ## Next: run 3 (packet + final review)
 First resolve P-2-1. Run 3: registry panel rows (S16), pending/empty/refusal captures, packet, final review.
+
+## Run 3 (after r2) - PARTIAL: P-2-1 landed; stopped on P-3-1
+- Merged main (no conflicts). `63e83d83`: `G-portfolio-opportunity` in registry `mock_gaps.gaps` (after
+  `G-asset-remaining-life`; `portfolio` not enrolled; no portfolio ledger `gap_ids` exists), mirror in
+  `ui/gapCatalogue.ts`, `EstatePortfolio.tsx` `OpportunityPanel` wraps both inert spans in
+  `<MissingClaim as="span" className="portfolio-inert" ...>` with literal inner spans. Scan passed (41 tagged uses),
+  scan fixtures 24/24, check-all 11/11, portfolio page+route tests 15/15. r2 readings 1-11 all Confirm (no
+  replacement text); P-2-1 marked resolved.
+- Stopped: r2's four panel rows fail `check_v69_dependency_registry.cjs` (P-3-1). Reverted, uncommitted.
+- Not done: registry rows, pending/empty/refusal captures, recaptures, packet. Frontend full suite/tsc/build not
+  rerun this run (only the focused portfolio tests).
+
+## Next: rule P-3-1, then resume run 3 (rows, captures, packet), then final review + full suite

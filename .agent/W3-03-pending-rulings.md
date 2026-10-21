@@ -157,3 +157,23 @@ owner/allocation, `ui_placements`) mirrored in `frontend/src/ui/gapCatalogue.ts`
 build choice. The page keeps the ruled literal text; check-all therefore fails 2 of 11 guards on this one cause.
 Question: (a) register a `G-portfolio-opportunity` gap (two placements) and render both through `<MissingClaim>`
 keeping the literal copy, or (b) another ruled treatment.
+
+## P-3-1 (run 3, OPEN): the four r2 Portfolio panel rows fail the dependency-registry checker
+Inserting r2's four `panels` rows verbatim (before `actions:1`) makes
+`node frontend/docs/architecture/check_v69_dependency_registry.cjs` fail in two places:
+1. `portfolio: ledger and registry node IDs diverge` - `v69-screen-ledger.json` `portfolio` has no
+   `registry_dependencies`. The checker forces its value (governed product for area `estate-aggregation` =
+   `P-estate-area`; `node_ids` = de-duplicated `requires` in panel order). Adding that object clears this error, but the
+   ledger edit was not named in r2.
+2. `portfolio:1: missing UI or projection gate` (checker line 343: each panel's `requires` must include one
+   `layer:"ui"` and one `layer:"projection"` node). Layers of the r2 `requires`:
+   - panel 1 `A-estate-index-scope`(none), `I-estate-finding-root`(ui), `A-estate-action-summary`(none): no projection;
+   - panel 2 `A-evidence-shared-projections`(none), `I-estate-evidence-root`(ui), `D-estate-comparable-sites`(none): no projection;
+   - panel 3 `A-estate-comparability`(none), `I-mini-depth-read`(projection): no ui;
+   - panel 4 `A-estate-projections`(none), `I-estate-action-root`(ui): no projection.
+   Existing estate projection/ui nodes: projection `I-mini-depth-read`; ui `I-estate-{finding,action,evidence,money}-root`,
+   `I-mini-depth-ui`. Peer rows use `I-action-read` / `I-capability-read` / `I-finding-index` as projection gates.
+The rows and ledger edit were reverted (not committed); check-all stays 11/11 at the P-2-1 commit. Run 3 stopped here
+per the dispatch rule; no captures were taken.
+Question: (a) amend each row's `requires` (which projection/ui node per panel), or a new registry node; and
+(b) confirm the forced `portfolio` ledger `registry_dependencies` (`P-estate-area` + panel-order union).
