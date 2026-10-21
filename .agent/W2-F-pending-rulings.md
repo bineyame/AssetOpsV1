@@ -17,7 +17,10 @@ Unit 2 renders it verbatim (`coldSiteViews.tsx`, `data-cold-evidence-footer="ref
 added. The current vocabulary tests do not scan the refused Evidence state, so nothing fails today. The Architect must
 confirm this copy, or give replacement copy, together with the two 1b phrases.
 
-## 4-q1 — M12 EV Scenarios slot held for W4-03 (OPEN, sequencing)
+## 4-q1 — M12 EV Scenarios slot held for W4-03 (RESOLVED)
+
+Resolved 2026-10-21 by the coordinator: M12 (EV Scenarios tab, guard and rail fixture) lands as a separate unit 4b
+AFTER W4-03 merges, the merge order the Architect already ruled. EV Financials captures are re-taken after 4b.
 
 Unit 4's M12/S11/N4 (one literal `<UnavailableTab label="Scenarios" />` in EV Financials/Assumptions, the
 `navigation-rail-fixtures.ps1` EvSiteViews fixture, and the guard's final `$expectedTabs`) is NOT built. The dispatch
