@@ -255,6 +255,15 @@ button:focus-visible {
   margin-bottom: var(--space-5);
 }
 
+.page-header__eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .page-header__title {
   display: flex;
   flex-wrap: wrap;

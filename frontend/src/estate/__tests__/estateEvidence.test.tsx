@@ -14,7 +14,9 @@ import {
   COVERAGE_PANEL,
   COVERAGE_SUBTITLE,
   ESTATE_EVIDENCE_PATH,
+  EVIDENCE_EYEBROW,
   EVIDENCE_NOTICE,
+  EVIDENCE_SUBTITLE,
   EstateEvidencePage,
   GAPS_PANEL,
   NO_ACCESSIBLE_SITES,
@@ -490,5 +492,22 @@ describe("W3-02 estate Evidence root", () => {
     expect((await client.evidence(query)) as { code: string }).toMatchObject({ code: "ESTATE_STORE_UNAVAILABLE" });
     expect(await client.evidence(query)).toEqual({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "Estate data is temporarily unavailable. Try again." });
     expect(decodeURIComponent(fetched[0])).toBe(`/api/estate/evidence?from=${FROM}&to=${TO}&known_at=${KNOWN}&limit=50&cursor=abc`);
+  });
+
+  it("test_evidence_eyebrow_above_title_on_estate_root", async () => {
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
+    await settledScreen();
+    const h1 = screen.getByRole("heading", { level: 1 });
+    expect(h1.textContent).toBe("Portfolio evidence");
+    const header = h1.closest("header") as HTMLElement;
+    expect(header).not.toBeNull();
+    const eyebrow = within(header).getByText(EVIDENCE_EYEBROW, { selector: ".page-header__eyebrow" });
+    expect(eyebrow.textContent).toBe("Evidence");
+    // Eyebrow precedes the heading, which precedes the subtitle, all in the same header.
+    expect(eyebrow.compareDocumentPosition(h1) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const subtitle = within(header).getByText(EVIDENCE_SUBTITLE);
+    expect(h1.compareDocumentPosition(subtitle) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Not a breadcrumb: the estate root draws none.
+    expect(screen.queryByRole("navigation", { name: /breadcrumb/i })).toBeNull();
   });
 });

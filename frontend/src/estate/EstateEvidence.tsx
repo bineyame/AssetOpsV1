@@ -25,7 +25,7 @@ import "./estateEvidence.css";
 export const ESTATE_EVIDENCE_PATH = "/evidence";
 
 export const EVIDENCE_TITLE = "Portfolio evidence";
-/** The mock eyebrow; `PageHeader` has no eyebrow slot, so the shell crumb carries it (Lane A request). */
+/** The mock eyebrow, rendered by `PageHeader`'s eyebrow slot above the title (W3-02 c2b). */
 export const EVIDENCE_EYEBROW = "Evidence";
 export const EVIDENCE_SUBTITLE = "Cross-site claim readiness, recurring gaps and instrumentation priorities";
 export const COVERAGE_PANEL = "Capability coverage across sites";
@@ -363,7 +363,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
 
   return (
     <div className="estate-page estate-evidence" data-estate-root="evidence">
-      <PageHeader title={EVIDENCE_TITLE} subtitle={EVIDENCE_SUBTITLE} />
+      <PageHeader eyebrow={EVIDENCE_EYEBROW} title={EVIDENCE_TITLE} subtitle={EVIDENCE_SUBTITLE} />
       <EstateDateBar
         key={`${query.from}|${query.to}|${query.known_at ?? ""}`}
         query={query}
