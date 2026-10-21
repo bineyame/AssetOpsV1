@@ -553,3 +553,27 @@ $expectedTabs = @("Scenarios", "Scenarios", "Cooling", "Recommendation", "Recomm
 ```
 
 The two unavailable `Scenarios` literals are cold and EV; mini Scenarios remains live. `Alternatives` remains absent from the unavailable inventory, `Analysis` occurs once, and `$expectedChips` stays `@("Cost", "Risks", "Opportunities")`. The earlier Q24 two-Scenarios list is not the W4-03 handoff contract; its Incidents/Maintenance entries are already live from W4-01. W2-F's `Review closure (2026-10-21)` S11 and unit 4 own this later delta and its fixture.
+
+## Unit-1 rulings (u1)
+
+**PR-1 — persist OPPORTUNITY stage counters in `0030` now.** Closure 4 S1's counters follow W4-02 q7's MINI precedent: the durable Site-stage report needs its own three `schedule_site_head` columns. Unit 1 amends the unmerged `0030_w4_mini_decisions` migration and its catalog/downgrade tests before unit-1 review; unit 4 consumes the columns in the tick, schedule store and report. Do not defer the schema amendment to unit 4 or derive these counts from opportunity revisions/jobs. In `SCHEMA`, after replacing `schedule_site_head_stage_check`, add exactly:
+
+```sql
+ALTER TABLE schedule_site_head
+  ADD COLUMN opportunity_processed integer NOT NULL DEFAULT 0,
+  ADD COLUMN opportunity_deferred integer NOT NULL DEFAULT 0,
+  ADD COLUMN opportunity_failed integer NOT NULL DEFAULT 0;
+```
+
+After `REFUSE_IF_USED` has locked the tables, `recompute_job` and `schedule_site_head` and refused decision history, any `mini_opportunity` job and an active OPPORTUNITY stage, `DROP` restores the 0029 stage CHECK and drops these columns in the same Alembic transaction, before dropping the W4-03 tables:
+
+```sql
+ALTER TABLE schedule_site_head
+  DROP COLUMN opportunity_processed,
+  DROP COLUMN opportunity_deferred,
+  DROP COLUMN opportunity_failed;
+```
+
+The `0030` catalog delta is now **10 tables, 10 PKs, 22 non-PK UNIQUE constraints, 20 FKs, five explicit indexes, ten immutable triggers, one sequence, three `schedule_site_head` integer columns and one replaced existing Site-stage CHECK**. The new columns have no new CHECKs; net Site-head CHECK count remains zero. Unit 1 extends `test_w403_migration_postgres.py` to assert the exact three column names, `integer` type, `NOT NULL`, default `0`, zero on a pre-existing Site head after upgrade, absence at 0029 after an empty downgrade, and restoration on re-upgrade. Keep the exact named-constraint/index/trigger arrays and head assertion. The existing job-only and active-stage downgrade-refusal tests must also show that all three columns and values survive a refused downgrade. Unit 4 tests token-scoped, nonnegative, all-three-together `record_opportunity` writes; processed/deferred/failed accounting, failed-stage reporting without invented counts, OPPORTUNITY-only Site selection and interrupted-run resume. Use the MINI q7 `record_mini`/`site_head`/`TickReport` pattern; no new timer.
+
+**Unit-1 handoff readings.** Confirm the builder's W4-01-derived bounds in `c3713564`: trimmed actor ID 1–128, trimmed authorization basis 1–500, trimmed attestation 1–1000, idempotency/create key 8–128, and lowercase 64-hex hashes. These are the merged `0027` work-table limits; closure 1's actor 1–160 / grant 1–256 wording is superseded for authored metadata. The distinct scenario name limit remains 1–160. Confirm the explicit builder CHECK names, including `mini_opportunity_window_check`, `mini_scenario_revision_chain_check`, `mini_alternative_revision_rank_key_check` and `mini_decision_work_link_target_check`, and the `<table>_<column>_check` names for the remaining column checks: they satisfy closure 4 S4's semantic-role naming rule. Keep `mini_opportunity_window_check` in unit 1 for `last_day >= first_day` and a 0–4-day span. Unit 4 validates that the actual five selected Site-local noon days and job window match that study; a row-level SQL CHECK cannot establish the selected W4-02 sequence or its tenant/Site provenance. Test the 0–4-day DB boundary in unit 1 and the exact five-day selection/window match and mismatch in unit 4.
