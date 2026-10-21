@@ -189,7 +189,7 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
 3. **503 for multiple CTA matches.** Built as the u6b ruling-9 503 copy `Decisions are unavailable right now. Try
    again.` (noninteractive) for more than one exact root and for any list refusal by code. Confirm.
 
-## PR-10 (raised in unit 8; non-blocking, built with the readings below)
+## PR-10 (raised in unit 8) - RESOLVED by u8 (build spec "Unit-8 rulings (u8)"); all three confirmed, no product change; unit-9 vectors in test_w403_replay_postgres.py
 
 1. **Already-linked pair under a new key.** `UNIQUE(case_id,scenario_id)` / `UNIQUE(case_id,opportunity_id)` make a
    second association of the same case and decision impossible. Built: a new idempotency key naming an
@@ -199,3 +199,22 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
    `Decision context:` prefix) in each row's slot; while the overlay is loading nothing is shown. Confirm.
 3. **Scenario without a route.** Built: `{label} (Scenario detail unavailable)` as plain text. Confirm the
    parenthetical form.
+
+## PR-11 (raised in unit 9a; non-blocking, built with the readings below)
+
+1. **KOBO Alternative at wall-clock time.** The only W1 mini dispatch Finding on KOBO-001 comes from the S4
+   `CaseRunner` (F02), whose revisions carry fixture time `SETUP_AT = 2026-10-29T12:00Z`, later than today's DB time.
+   The u3 rule "selected revision visible at command time" therefore refuses the replay's HTTP Alternative POST with
+   409 `DECISION_BASIS_CHANGED` (the served app has no test clock, rightly). Built: the replay records that observed
+   exit and the test asserts it whenever the revision is still in the future (and the created/listed row otherwise);
+   the positive Alternative lifecycle stays proved by `test_w403_alternative_postgres.py` with its test clocks.
+   Alternative: a dated KOBO Finding producer whose revisions precede wall time. Which?
+2. **Late contradictory branch currentness.** The late rows (an authored W4-03 variant: 8 Oct noon PV mean 25 kW,
+   minute 30, accepted through public ingestion, not published under the W4-02 source) enqueue no mini job, so the
+   opportunity read before the rerun is `STALE_SOURCE` with `SOURCE_STALE`, not `PENDING_RECOMPUTE`. The harness
+   ingestion stamps receipt at W4-02's fixed `RECEIVED` (13 Oct), before any later cutoff, so the explicit old-cutoff
+   read is also `STALE_SOURCE` (precedes HISTORICAL) while still showing the first revision and one-entry history.
+   Confirm these as the fixture's semantic outcomes.
+3. **Missing branch window.** Built: the W4-02 `missing-conflicting` variant (12 Oct) is published and ingested, the
+   8-12 Oct days reconciled, and a second explicit reconcile `[2026-10-07T21Z, 2026-10-12T21Z)` run; the 8-12 Oct study
+   is asserted not SUPPORTED. The ruled 6-10 Oct reconcile is unchanged. Confirm the second window.
