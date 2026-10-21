@@ -51,7 +51,7 @@ spec's second key). No fixture exercises two Actions on one origin pair (10-06 h
 Finding). Question: should Lane A add private `_selected_recorded_at` (the selected event's `recorded_at`) to
 `coverage.py::_actions` rows, with root bytes unchanged, before 1b's workflow-label tests?
 
-## Q-1b-1 — OPEN (run 1b, blocks r1a2 item 4): Portfolio cursor signing key has no configuration seam
+## Q-1b-1 — RESOLVED by r1b (build spec "Run-1b rulings"); was blocking r1a2 item 4: Portfolio cursor signing key has no configuration seam
 
 r1a2 item 4: "Use a server-held cursor signing key; refuse issuance if it is unavailable. ... Lane A owns the shared
 `scope.py` encode/decode seam and configuration in a pre-1b handoff; Lane B uses it for Portfolio in 1b."
@@ -65,7 +65,7 @@ absent, and confirm which run/lane builds the `scope.py` seam (a Lane A pre-run 
 Not built: the HMAC, the 422 tamper tests, and the signed page-one-mode assertions in
 `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token`.
 
-## Q-1b-2 — OPEN (run 1b): `workflow_label` for an APPLIED Action with a non-VERIFIED terminal outcome
+## Q-1b-2 — RESOLVED by r1b (`Applied` by first match): `workflow_label` for an APPLIED Action with a non-VERIFIED terminal outcome
 
 Closure 5 S7: "The table order is precedence", and the last row "Joined Action with none of the above, including
 `NONE_AT_CUTOFF` or a non-VERIFIED terminal outcome" -> `No action yet`. A RESOLVED Action with outcome other than
@@ -76,7 +76,7 @@ so APPLIED + RESOLVED/NOT_VERIFIED reads `Applied`; the test asserts only the un
 Question: is APPLIED + RESOLVED non-VERIFIED `Applied` (strict order) or `No action yet` (terminal clause wins over
 the application rows)? Same question for PENDING + non-VERIFIED terminal, if reachable.
 
-## Q-1b-3 — OPEN (run 1b): r1a2 item 2 pending guard without a selected line is invisible to Lane B
+## Q-1b-3 — RESOLVED by r1b (private `_pending_guard`): r1a2 item 2 pending guard without a selected line is invisible to Lane B
 
 r1a2 item 2: "Lane B uses the full selected Financials inputs, including the guard/withheld reason". The selector
 (`financials.py::select_financial_scope` / `windowed_lines`, Lane A files) exposes per Site only
@@ -87,3 +87,61 @@ not PENDING. Built: `portfolio.py::money_pending` = window uncovered and any sel
 Question: should Lane A add a private per-Site `_pending_guard: bool` (cold `withheld` or EV `ERROR_PENDING`) to the
 financial selector's Site coverage, root bytes unchanged, or is the line-based rule sufficient for the named
 persisted variant (a)?
+
+## P-1b-1 (run 1b 3b, variant stopped): Q9 (a) "later cold accepted record and unsettled cold job" not produced
+
+Producer step: clean `build_portfolio_fixture` (cold `excursion` + drain), then `fx.cold.advance_late()` (the W2-02
+chain's late publication upload, no worker run), re-pinned read clock `max(db_now, latest cold recorded + 1us)`.
+Actual Portfolio read (one-day 10-06, no `known_at`): `status=UNKNOWN`, F/E/M `PARTIAL/PARTIAL/PARTIAL`, cold
+`coverage.sites` item `state=CURRENT`, `job_state=SETTLED`, `match_state=NOT_APPLICABLE`, selection unchanged
+(`...0173`). Mismatched assertions: `status=PENDING`, cold `PENDING_RECOMPUTE`. No overlapping PENDING cold job
+appears for the excursion case, and the PARTIAL comes from a Site not identified in this run. Not built: variant
+(a) as specified. Built instead and passing: `a_lineless_cold` (fixture with `cold_drain=False`: the r1b Q-1b-3
+line-less guard) -> `status=PENDING`, F/E/M `COMPLETE/COMPLETE/PARTIAL`, cold Site `CURRENT`, no cold line or
+exclusion, W1 card `SITE_OWNED`. Question: which reviewed producer step gives (a) (a `late-reading` cold case in
+the four-Site fixture? a worker-created overlapping job?), or is the line-less variant sufficient for (a)?
+
+## P-1b-2 (run 1b 3b): r1a2 item 1 persisted positive proof - the reviewed mini-grid marker producer is STALE
+
+Producer: S4 `F01` (`CaseRunner`) then W3-01 `LATE` (`runner.step`, decided 2026-10-31), `k = runner.now`, at
+least one PENDING `recompute_job` created by `k`. Portfolio `[2026-10-06,2026-10-07)` at `known_at=k`: status
+`HISTORICAL`, Site `state=HISTORICAL`, `job_state=PENDING`, `match_state=COMPLETE`, **`source_freshness=STALE`**,
+F/E/M `UNKNOWN`. The stale-source rule (not the marker) makes the Site U, so "a selected-as-of head remains
+covered despite its outstanding job marker" is not shown persisted; the test asserts the observed stale control
+and the before-head cutoff (`known_at=2026-10-01`: Site UNKNOWN, F/E/M UNKNOWN). Question: name a non-stale
+historical mini-grid producer, or accept the pure `test_settled_current_and_historical_bases` as the proof.
+
+## P-1b-3 (run 1b 3b, variant stopped): Q9 (d) OVERLAPPING_BASIS has no persisted producer
+
+The two EV Sites' heads cite their own Site's accepted evidence and technical intervals (W3-02 `two_ev_sites`);
+no reviewed producer makes two otherwise eligible EV heads share a persisted technical/cited ID, and W3-02 proves
+OVERLAPPING_BASIS only in the pure `test_w302_money_api.py`. Not built. Question: name the producer, or accept the
+pure W3-02 proof plus the persisted INELIGIBLE/COMPARABLE/UNKNOWN_COVERAGE declines in
+`test_ineligible_overlap_and_unknown_coverage_decline_total`.
+
+## P-1b-4 (run 1b 3b): persisted limits of the operating-cost and EV-pending proofs
+
+(1) The fixture has the one and only W1 Site (`KOBO-001`), so COMPARABLE_GROUP, multiple operating-cost partitions
+and UNPRICED operating cost are not producible persisted; `test_operating_cost_first_match_wins_across_partitions`
+proves rule 3 (SITE_OWNED) against a COMPARABLE EV and an INELIGIBLE cold partition, and c1/c2 prove WITHHELD.
+(2) No reviewed producer gives a persisted EV `ERROR_PENDING` (EV `PENDING_RECOMPUTE` pin with stored money
+history) in the four-Site fixture; only the cold line-less guard is persisted (R3/Q-1b-3 EV half is the pure
+`_GuardSnap` test). Question: accept, or name producers.
+
+## P-1b-5 (r1b2 R4): the persisted false-guard plus selected PENDING-line case has no producer
+
+r1b2 R4 asks the persisted late-revision test to add `_pending_guard=false` with an uncovered selected
+`eligibility=PENDING` line. In `financials.windowed_lines` a cold/EV line becomes PENDING only from the same
+`withheld` / `ERROR_PENDING` read that sets `_pending_guard` (r1b Q-1b-3), and mini-grid PENDING lines sit on a
+covered window, so no reviewed producer yields that combination. The rule stays covered by the pure
+`test_w303_portfolio_reduction.py::test_money_table` (`money_pending(uncovered, guarded)`). Question: accept the
+pure proof, or name a producer.
+
+## P-1b-6 (r1b2 R10): the persisted `origin_revision_selected=true` case has no window in the B4 chain
+
+The B4 S6 chain's Action is created 2026-11-01; F01's origin revision is selected only in the one-day 10-06
+window (which selects no Action: Actions are those created in `[from,to)`), and `[2026-10-06,2026-11-03)` at the
+acceptance cutoff reads mini-grid Finding coverage UNKNOWN (no selected revisions). So the persisted test asserts
+`false` (November window and the wide window); `true` is proved by the pure
+`test_two_actions_one_exact_origin_latest_event_then_id_tie`. Question: accept, or name a chain whose Action and
+origin revision share an assessed window.
