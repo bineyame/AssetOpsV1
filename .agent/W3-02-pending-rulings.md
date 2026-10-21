@@ -50,3 +50,14 @@ The ledger says pending amber / historical blue context is shown separately from
 `New evidence is being assessed` (PENDING_RECOMPUTE), `May miss newer readings` (STALE_SOURCE), `Not yet assessed`
 (UNASSESSED/UNKNOWN placeholder) and `Historical as of {estate known_at}`; the server's row
 `disclosure.historical.label` stays in the row disclosure. Confirm the words.
+
+## c2-q5 - registry prerequisites for `I-estate-evidence-root` (Lane A, commit 2)
+Closure 5 S13 names the node, title and paths but not prerequisites or area. The checker forces the panel area to the
+subject-area brief's owner of `globalevidence` (`estate-aggregation`), and needs a UI, a projection and a data gate.
+Lane A recorded, by the W3-01 `I-estate-action-root` precedent: node `requires` `A-estate-index-scope`,
+`I-capability-read`; panels `globalevidence:1-2` `requires` `I-capability-read`, `I-estate-evidence-root`,
+`D-estate-comparable-sites`, status `gap` (awaiting independent review, no owner acceptance); ledger product node
+`P-estate-area`; the brief's `implementation_nodes` lists the new node. Confirm or name the intended nodes.
+
+## c2-q6 - B5 route-read follow tests and capture copy (Lane A observation, commit 2)
+c2-q3 is unchanged by the captures: Lane A's captures do not follow generated cold/EV links into the W2 Site read.
