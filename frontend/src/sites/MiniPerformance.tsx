@@ -278,7 +278,7 @@ function MiniRefusal({ read, onRetry }: { read: Exclude<MiniRead<unknown>, { sta
       </p>
       <p>{copy.body}</p>
       {copy.key === "unavailable" ? (
-        <button type="button" className="v69-claim-button" onClick={onRetry} data-mini-retry>
+        <button type="button" className="link-button v69-claim-button" onClick={onRetry} data-mini-retry>
           Try again
         </button>
       ) : null}
@@ -524,7 +524,7 @@ function OpportunityDrawer({ read, timeZone, onClose }: { read: RenewableRead; t
         <li>Energy sale: Not assessed</li>
         <li>Tariff: Not assessed</li>
       </ul>
-      <button type="button" className="v69-claim-button" onClick={onClose}>
+      <button type="button" className="link-button v69-claim-button" onClick={onClose}>
         Close
       </button>
     </div>
@@ -549,7 +549,7 @@ function ProductiveUsePanel({ read, timeZone }: { read: RenewableRead; timeZone:
       <p>
         <button
           type="button"
-          className="v69-claim-button"
+          className="link-button v69-claim-button"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           data-mini-drawer-open="opportunity"
@@ -1303,7 +1303,7 @@ function FuelBasisDrawer({ read, onClose }: { read: FuelRead; onClose: () => voi
           </li>
         ))}
       </ul>
-      <button type="button" className="v69-claim-button" onClick={onClose}>
+      <button type="button" className="link-button v69-claim-button" onClick={onClose}>
         Close
       </button>
     </div>
@@ -1322,7 +1322,7 @@ function FuelInterpretationPanel({ read }: { read: FuelRead }) {
         </span>{" "}
         <button
           type="button"
-          className="v69-claim-button"
+          className="link-button v69-claim-button"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
           data-mini-drawer-open="fuel"
