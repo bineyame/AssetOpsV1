@@ -1,0 +1,233 @@
+"""W4-03 unit 9a: the private two-Site replay of `backend/tests/fixtures/w4/w403-mini-decisions.json`.
+
+`.agent/W4-03-build-spec.md` "Fixture and one-run commit proof", closure 2 Q1, closure 4 B1/B2/S6/S16 and u5 9a. The
+replay is `tools/w403_mini_decisions_walkthrough.py:run_replay` itself; here its HTTP side is a TestClient over
+`main.create_app` with the walkthrough's two injected callbacks, so the same bearer/scope/grant rules apply. W4-01
+cases are seeded in process through `WorkService` (B2); nothing inserts accepted evidence directly.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
+from pathlib import Path
+
+import pytest
+
+URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
+
+pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+
+REPO = Path(__file__).resolve().parents[2]
+if str(REPO / "tools") not in sys.path:
+    sys.path.insert(0, str(REPO / "tools"))
+
+import w403_mini_decisions_walkthrough as walk  # noqa: E402
+
+if URL:
+    from fastapi.testclient import TestClient
+    from sqlalchemy import text
+    from test_s1_bindings_postgres import engine, store  # noqa: F401
+
+    import pg_harness
+
+SECRET = "w403-test-bearer"
+
+
+def http_for(client: TestClient, secret: str | None = SECRET):
+    headers = {} if secret is None else {"Authorization": f"Bearer {secret}"}
+
+    def call(method: str, path: str, body=None):
+        r = client.request(method, path, json=body, headers=headers)
+        return r.status_code, r.json()
+    return call
+
+
+def app_client(monkeypatch, scopes, **kw) -> TestClient:
+    from assetops_backend import main
+
+    monkeypatch.setenv("DATABASE_URL", URL)
+    access, principal = walk.fixture_callbacks(SECRET, scopes, **kw)
+    return TestClient(main.create_app(mini_decision_command_access=access, mini_decision_principal=principal))
+
+
+def table_counts(engine) -> tuple:
+    with engine.connect() as c:
+        return tuple(c.execute(text(f"SELECT count(*) FROM {t}")).scalar_one()
+                     for t in ("mini_scenario", "mini_alternative_revision", "mini_opportunity_scenario_link",
+                               "mini_decision_work_link"))
+
+
+@pytest.fixture
+def sites(store, engine, monkeypatch, tmp_path):  # noqa: F811
+    from assetops_backend.evidence.adapters import json_evidence_store
+
+    monkeypatch.setenv("DATABASE_URL", URL)  # the worker CLI and the performance comparison read it
+    # The comparison report lands in this test's own folder, never the repository's var/evidence.
+    monkeypatch.setattr(json_evidence_store, "EVIDENCE_STORE_ROOT", tmp_path / "evidence")
+    imported = walk.import_sites(store, engine)
+    yield imported
+    pg_harness.dispose(imported["runner"].findings)
+
+
+def test_positive_missing_late_replay_and_fresh_reload(sites, engine, monkeypatch) -> None:  # noqa: F811
+    fixture = walk.load_fixture()
+    assert fixture["schema_version"] == "w403-mini-decisions/1"
+    assert (fixture["opportunity_site_code"], fixture["alternative_site_code"], fixture["work_link_site_code"]) == (
+        "MG-W402-001", "KOBO-001", "MG-W402-001")
+    raw = walk.FIXTURE.read_bytes()
+    assert raw.endswith(b"\n") and not raw.endswith(b"\n\n")
+    assert raw.decode("utf-8") == json.dumps(fixture, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
+    scopes = sites["scopes"]
+    client = app_client(monkeypatch, scopes)
+    mg = fixture["opportunity_site_code"]
+    route = f"/api/sites/{mg}/financials/scenarios"
+    body = walk.fill(fixture["commands"]["scenario_missing_tariff"], pinned_selection=[])
+
+    # No credential, a wrong Site and a missing grant never reach a W4-03 write.
+    before = table_counts(engine)
+    refusals = [http_for(client, None)("POST", route, body),
+                http_for(client, "not-the-secret")("POST", route, body),
+                http_for(app_client(monkeypatch, {"KOBO-001": scopes["KOBO-001"]}))("POST", route, body),
+                http_for(app_client(monkeypatch, scopes, grants=set()))("POST", route, body)]
+    assert [(s, b["detail"]["code"]) for s, b in refusals] == [(403, "DECISION_WRITE_FORBIDDEN")] * 4
+    assert table_counts(engine) == before
+
+    record = walk.run_replay(engine, sites["installed"], fixture, scopes, http_for(client))
+    assert record["performance_exit"] == 0
+    assert record["accepted"]["positive"] and record["accepted"]["late"] and record["accepted"]["missing"]
+
+    # S16: all five 6-10 Oct selected noon tuples are pinned, the EXCLUDED 6 Oct day included.
+    pins = record["pins"]
+    assert [p["local_day"] for p in pins] == fixture["study_days"]
+    assert all(p["selection_seq"] and p["mini_revision_id"] for p in pins)
+
+    pos = record["positive"]
+    opp = pos["opportunity"]
+    o = opp["opportunity"]
+    rows = o["day_rows"]
+    eligible = [r for r in rows if r["decision"] == "ELIGIBLE"]
+    assert (opp["status"], o["assessed_days"], o["eligible_days"], o["study_days"]) == ("SUPPORTED", 5, len(eligible), 5)
+    assert rows[0]["local_day"] == "2026-10-06" and rows[0]["decision"] == "EXCLUDED"
+    assert opp["currentness"]["state"] == "CURRENT"
+    assert [(r["selection_seq"], r["mini_revision_id"]) for r in rows] == [
+        (p["selection_seq"], p["mini_revision_id"]) for p in pins]
+    assert o["scenario_id"] == record["writes"]["scenario"]["id"]
+    assert opp["links"]["site_work"] == f"/sites/{scopes[mg][1]}/work/incidents"
+    assert [link["scenario_id"] for link in opp["scenario_links"]] == [record["writes"]["scenario"]["id"]]
+
+    # Money per eligible window, from the actual selected lower bounds; otherwise the ruled WITHHELD state.
+    scenarios = {r["id"]: r for r in pos["scenarios"]["rows"]}
+    positive = scenarios[record["writes"]["scenario"]["id"]]
+    assert positive["revision_id"] == record["writes"]["corrected"]["revision_id"]
+    if all(Decimal(r["opportunity_kwh"]["low"]) >= Decimal("10") for r in eligible):
+        assert Decimal(positive["energy_kwh"]) == Decimal("10")
+        assert Decimal(positive["gross_sales"]["amount"]) == Decimal("2.50")
+        assert positive["gross_sales"]["currency"] == "USD"
+    else:
+        assert positive["calculation_state"] == "WITHHELD" and positive["gross_sales"] is None
+    no_tariff = scenarios[record["writes"]["no_tariff"]["id"]]
+    assert no_tariff["gross_sales"] is None and no_tariff["energy_kwh"] == positive["energy_kwh"]
+
+    # The explicit association reaches the MG Incident only; the unlinked request keeps an empty context.
+    contexts = pos["contexts"]["contexts"]
+    incident, request = record["cases"]["w403-walk-case-incident"], record["cases"]["w403-walk-case-request"]
+    assert [c["kind"] for c in contexts[incident]] == ["OPPORTUNITY"] and contexts[request] == []
+    assert contexts[incident][0]["label"] == o["code"]
+    # The KOBO Alternative on the selected W1 Finding revision (its own Site, never the MG opportunity).
+    # Reading 9a-4 (PR-11): the S4 F02 revision carries fixture time SETUP_AT; before it, the write is refused.
+    alt = record["writes"]["alternative"]
+    with engine.connect() as c:
+        future = c.execute(text("SELECT min(created_at) > clock_timestamp() FROM finding_revision WHERE id = :r"),
+                           {"r": record["finding"][1]}).scalar_one()
+    if future:
+        assert (alt["status"], alt["body"]["detail"]["code"]) == (409, "DECISION_BASIS_CHANGED")
+        assert pos["alternatives"]["status"] != 200 or pos["alternatives"]["body"]["rows"] == []
+    else:
+        assert alt["status"] == 201 and [r["revision_id"] for r in pos["alternatives"]["body"]["rows"]] == [
+            alt["body"]["revision_id"]]
+
+    # Late contradictory evidence: pending before the rerun, a new head after it, the old cutoff keeps history.
+    pending = record["late_pending"]["opportunity"]
+    # Observed: accepting the late rows enqueues no mini job here, so the changed digest reads STALE_SOURCE
+    # (u5 ruling 2 precedence) with the SOURCE_STALE read limitation; the frozen selection is unchanged.
+    assert pending["currentness"]["state"] == fixture["expect"]["late"]["before_rerun"], pending["currentness"]
+    assert "SOURCE_STALE" in [x["code"] for x in pending["limitations"]]
+    assert pending["opportunity"]["revision_id"] == o["revision_id"]
+    if pending["pending_source_provenance"] is not None:
+        assert set(record["accepted"]["late"]) <= set(pending["pending_source_provenance"]["evidence_ids"])
+    assert not set(record["accepted"]["late"]) & set(pending["selected_source_provenance"]["evidence_ids"])
+    settled = record["late_settled"]["opportunity"]
+    assert settled["opportunity"]["revision_id"] != o["revision_id"] and len(settled["history"]) == 2
+    assert settled["history"][0]["current"] and settled["history"][1]["revision_id"] == o["revision_id"]
+    old = record["late_old_cutoff"]["opportunity"]
+    # Reading 9a-5: the harness ingestion stamps receipt at the fixed W4-02 RECEIVED time (13 Oct), before the old
+    # cutoff, so the late rows are inside it and the old head reads STALE_SOURCE (which precedes HISTORICAL).
+    assert old["opportunity"]["revision_id"] == o["revision_id"]
+    assert old["currentness"]["state"] == fixture["expect"]["late"]["old_cutoff_currentness"]
+    assert [h["revision_id"] for h in old["history"]] == [o["revision_id"]]
+
+    # Missing branch: the 8-12 Oct study holding the missing/conflicting day is never a positive display.
+    [missing] = [r for r in record["missing"]["rows"] if r["opportunity"]["first_day"] == "2026-10-08"]
+    assert missing["status"] != "SUPPORTED"
+
+    # A fresh app and service read the same persisted decisions.
+    fresh = http_for(app_client(monkeypatch, scopes))
+    again = walk.reads(fresh, fixture, record["writes"]["opportunity_id"], list(record["cases"].values()),
+                       tuple(record["finding"]))
+    authored = ("id", "code", "revision_id", "name", "kind", "narrative", "authored_at", "actor_id", "assumptions",
+                "pinned_mini_revision_ids")
+    assert [{k: r[k] for k in authored} for r in again["scenarios"]["rows"]] == [
+        {k: r[k] for k in authored} for r in pos["scenarios"]["rows"]]
+    assert again["alternatives"] == pos["alternatives"]
+    assert again["opportunity"]["history"] == settled["history"]
+    assert again["contexts"]["contexts"] == contexts
+
+
+def test_authored_work_link_preserves_unlinked_case_count(sites, engine, monkeypatch) -> None:  # noqa: F811
+    fixture = walk.load_fixture()
+    scopes = sites["scopes"]
+    mg, kobo = scopes["MG-W402-001"], scopes["KOBO-001"]
+    walk.publish_and_ingest(engine, sites["installed"], fixture, "positive")
+    walk.mini_days(engine, fixture["study_days"])
+    walk.opportunity_cli(fixture["reconcile"])
+    cases = {c["body"]["idempotency_key"]: walk.seed_case(scopes[c["site_code"]], c["body"])
+             for c in fixture["commands"]["cases"]}
+    foreign = walk.seed_case(kobo, {**fixture["commands"]["cases"][0]["body"], "idempotency_key": "w403-walk-kobo"})
+    client = app_client(monkeypatch, scopes)
+    call = http_for(client)
+    from test_w403_opportunity_read_postgres import page, service
+
+    oid = page(service(engine), mg[0], mg[1])["rows"][0]["opportunity"]["id"]
+    now = datetime.now(timezone.utc)
+    window = f"from={walk.iso(now - timedelta(days=20))}&to={walk.iso(now + timedelta(days=1))}"
+
+    def lists():
+        out = {}
+        for k in ("incidents", "maintenance"):
+            r = client.get(f"/api/sites/MG-W402-001/work/{k}?{window}")
+            assert r.status_code == 200, r.text
+            out[k] = r.json()
+        return out
+
+    before = lists()
+    assert [before[k]["total_count"] for k in ("incidents", "maintenance")] == [1, 1]
+    link = fixture["commands"]["work_link"]
+    # A KOBO case cannot carry the MG opportunity (404 at the MG path); the MG Incident can.
+    status, out = call("POST", "/api/sites/MG-W402-001/work/decision-links",
+                       walk.fill(link, case_id=foreign, opportunity_id=oid))
+    assert status == 404 and out["detail"]["code"] == "WORK_CASE_NOT_FOUND"
+    status, out = call("POST", "/api/sites/MG-W402-001/work/decision-links",
+                       walk.fill(link, case_id=cases["w403-walk-case-incident"], opportunity_id=oid))
+    assert status == 201 and out["kind"] == "OPPORTUNITY"
+    after = lists()
+    for k in ("incidents", "maintenance"):
+        assert after[k]["total_count"] == before[k]["total_count"]
+        assert [r["case_id"] for r in after[k]["rows"]] == [r["case_id"] for r in before[k]["rows"]]
+    status, ctx = call("GET", "/api/sites/MG-W402-001/work/decision-contexts?case_ids="
+                              + ",".join(cases.values()))
+    assert status == 200 and ctx["contexts"][cases["w403-walk-case-request"]] == []
+    assert [c["id"] for c in ctx["contexts"][cases["w403-walk-case-incident"]]] == [oid]
