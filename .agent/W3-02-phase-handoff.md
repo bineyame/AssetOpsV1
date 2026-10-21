@@ -1,5 +1,16 @@
 # W3-02 phase handoff
 
+## Commit 2 (Lane B c2c finish) - COMMIT 2 READY FOR REVIEW
+
+Merge of main `13392743` (`.agent/W3-02-pending-rulings.md` kept ours); build commit `93b065e8`. Branch released.
+
+- c2-q7 (c2c): `backend/assetops_backend/estate/evidence_money.py` `COLD_OBSERVATION_WORDS` (the eight literal sentences) and `plain_limitation()`; applied to cold `current_ceiling`, `prior_selection` and disclosure `constituents[].limitation`; EV passes an empty mapping (fail closed to `Some required observations have no readable description.`). Stored limitation unchanged.
+- Tests: `test_w302_evidence_scope_snapshot_postgres.py::test_w302_cold_observation_codes_map_to_plain_sentences` (8 codes, two-code, kept following sentence, unexpected/malformed/EV fallback) and `assert_plain_observations` over every wire row of the cold scope test, plus a non-empty proof (`No record of` present). Non-vacuous: disabling the mapping fails both (reverted). `estateEvidence.test.tsx::rendersTheSelectedColdBackupCeilingInPlainWords` (cell text; Record details has no `TRANSFER`/`Not observed:`).
+- c2-q6: the three link-following tests in `test_w302_evidence_links_postgres.py` were already built; they pass.
+- c2-q8: `frontend/src/test/settled.ts` `LOADING` gains `evidence across the estate`.
+- Checks: touched backend files (snapshot, links, ev, api) 28 passed on private `w302m_test` (dropped); frontend full suite twice 96 files / 2384 tests green both runs; tsc 0; build 0; check-all 11/11.
+- Capture: positive 2026-10-06 window re-taken (harness copy on `w302m_test`, vite 5299 -> 9751); 1440 backup row ceiling reads `No record of power transferring to the generator.` (viewed); 1440 cards 115/coverage 279/gaps 183/notice 43, 390 280/421/350/80, over=[]; doc scroll = client.
+
 ## Commit 2 (Lane A c2b eyebrow) - READY FOR COMMIT-2 REVIEW
 
 Merge of main `44743fb5`; build commit `39afe950`. Branch released.
