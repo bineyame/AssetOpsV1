@@ -219,7 +219,7 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
    8-12 Oct days reconciled, and a second explicit reconcile `[2026-10-07T21Z, 2026-10-12T21Z)` run; the 8-12 Oct study
    is asserted not SUPPORTED. The ruled 6-10 Oct reconcile is unchanged. Confirm the second window.
 
-## PR-12 (raised in unit 9b) - OPEN: capture defects and unproducible states
+## PR-12 (raised in unit 9b) - RESOLVED by u9b except two cap breaches carried as PR-13 (12.2, 12.4, 12.5, 12.6 and the 12.3 overlay copy proved in var/w403q/capture/evidence.json, 356/359)
 
 Evidence: `var/w403p/capture/evidence.json` (265 checks, 240 pass), `<state>-<width>-app.png`, `<screen>-<width>-mock.png`,
 `mock-measure/mock-measure.json` (`tools/measure-mock-panels.mjs`). Panel sets and order match the mock on every produced
@@ -252,3 +252,21 @@ state (Scenarios, Opportunity, both Work screens); no missing or extra panel was
    is the real backend's). The current read now shows `Source changed since selection` (the missing branch publishes
    after the late rerun). Options: split `replay` so `capture` can run between the positive and late branches, or
    accept stale/limited states as the Opportunity evidence. And is the harness `known_at` rewrite acceptable?
+
+## PR-13 (raised applying u9b) - OPEN: two inclusive caps still breached after every ruled PR-12 fix
+
+Capture `var/w403q/capture/evidence.json` (code `6f2bea4b` + stock fix, DB `w403q_test`): 359 checks, 356 passed. The
+check total rose from 265 because u9b added checks (positive phase 44, disclosure, wire/cutoff, 503 order, overlay).
+Builder made no further layout change, because neither ruling authorizes one for these cases.
+
+1. **Scenarios populated, both widths (PR-12.1).** 1440: panel 381 > 348 (mock 316). 390: 436 > 391 (mock 355).
+   The read has 2 rows. 1440 table box 197 px (no inner scroll needed; header + 2 rows with the count + disclosure
+   button); panel overhead outside the table is 184 px (padding, heading + description, `Scenarios created through`,
+   `2 of 2` pager, `Scenario creation unavailable`). 390: inner box clientH 237 / scrollH 288 (scrolls), panel still
+   +45. Empty (325) and refused (160) pass. Question: which of these is ruled - (a) a lower Scenarios inner
+   `max-height` at one or both widths (e.g. header + 2 rows), (b) scoped compact spacing for the through/pager/gap
+   lines and table cell padding (as PR-12.2 allowed for cards), or (c) another change? The cap is not amended by me.
+2. **Incidents refused overlay, 390 (PR-12.3).** Panel 472 > 460 (linked state 446 passes; 1440 passes at 445). The
+   single panel-level `Decision context unavailable` line (+26 px) is what exceeds. PR-12.3 lets me adjust the 240 px
+   table limit only "if it makes the panel too short to navigate"; here it is too tall. Question: may the 390 Incident
+   `max-height` drop to about 224 px (refused 456, linked 430), or should the panel line move / shrink instead?
