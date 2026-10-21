@@ -670,7 +670,7 @@ function WindowsPanel({ read, timeZone, evidenceHref }: { read: RenewableRead; t
 export interface OpportunityLink {
   client: MiniDecisionsClient;
   siteCode: string;
-  href: (opportunityId: string) => string;
+  href: (opportunityId: string, knownAt: string | null) => string;
 }
 
 export function MiniRenewablePage({
@@ -713,7 +713,7 @@ export function MiniRenewable({
   client: MiniDepthClient;
   /** W4-03 unit 7: the opportunity list read and the typed detail address for the exact five-day CTA. */
   decisions?: MiniDecisionsClient;
-  opportunityHref?: (opportunityId: string) => string;
+  opportunityHref?: (opportunityId: string, knownAt: string | null) => string;
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;

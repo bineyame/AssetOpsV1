@@ -38,6 +38,7 @@ export const NO_OPPORTUNITY_EVIDENCE = "No selected opportunity evidence";
 
 const STUDY_DAYS = 5;
 const UNKNOWN = "Unknown";
+const NOT_ESTABLISHED = "Not established";
 const PENDING_STATES = new Set(["PENDING_RECOMPUTE", "STALE_SOURCE"]);
 const GATE_STATES = new Set(["CURRENT", "HISTORICAL"]);
 const BLOCKED_CLASSES = new Set(["MIXED", "UNKNOWN"]);
@@ -154,25 +155,35 @@ function OpportunityStatus({ body }: { body: OpportunityDetailBody }) {
 function OpportunityCards({ body }: { body: OpportunityDetailBody }) {
   const o = body.opportunity!;
   const headroom = body.status === "SUPPORTED" ? kwText(o.headroom_kw) : null;
-  const days = fiveAssessed(body) && o.eligible_days !== null ? `${o.eligible_days} / ${o.assessed_days}` : "Not established";
+  const days = fiveAssessed(body) && o.eligible_days !== null ? `${o.eligible_days} / ${o.assessed_days}` : NOT_ESTABLISHED;
   const linked = o.scenario_id !== null;
+  const gross = grossText(body);
   return (
     <MetricCards label="Opportunity summary" data={{ "data-opportunity-cards": "" }}>
-      <MetricCard label="Usable headroom" value={headroom ?? UNKNOWN} note="After the selected retained margin" />
+      {/* PR-12.2: a nonnumeric honest state is a `word` value; numeric and monetary values stay verbatim. */}
+      <MetricCard
+        label="Usable headroom"
+        value={headroom ?? UNKNOWN}
+        word={headroom === null}
+        note="After the selected retained margin"
+      />
       <MetricCard
         label="Eligible days"
         value={days}
+        word={days === NOT_ESTABLISHED}
         note={fiveAssessed(body) ? "Separate five-day study" : "Five-day study incomplete"}
       />
       <MetricCard
         label="Proposed load"
         value={o.proposed_load_kw === null ? "No load proposed" : `${o.proposed_load_kw} kW`}
-        note={linked ? "Linked scenario; name unavailable in this read" : "No scenario linked"}
+        word={o.proposed_load_kw === null}
+        note={linked ? "Linked scenario (name unavailable)" : "No scenario linked"}
       />
       <MetricCard
         label="Gross sales scenario"
-        value={grossText(body) ?? grossGap(body)}
-        note="Illustrative per eligible window, before costs; collections unverified"
+        value={gross ?? grossGap(body)}
+        word={gross === null}
+        note="Before costs; collections unverified"
       />
     </MetricCards>
   );
@@ -298,19 +309,22 @@ export function useOpportunity(
   siteCode: string,
   opportunityId: string,
   enabled: boolean,
+  knownAt: readonly string[] = [],
 ): DecisionRead<OpportunityDetailBody> | null {
-  const key = `${siteCode}|${opportunityId}`;
+  // PR-12.6: keyed by Site, ID and cutoff, so a changed `known_at` is a new read.
+  const cutoff = JSON.stringify(knownAt);
+  const key = `${siteCode}|${opportunityId}|${cutoff}`;
   const [state, setState] = useState<{ key: string; read: DecisionRead<OpportunityDetailBody> } | null>(null);
   useEffect(() => {
     if (!enabled) return;
     let active = true;
-    void client.getOpportunity(siteCode, opportunityId).then((read) => {
+    void client.getOpportunity(siteCode, opportunityId, JSON.parse(cutoff) as string[]).then((read) => {
       if (active) setState({ key, read });
     });
     return () => {
       active = false;
     };
-  }, [client, siteCode, opportunityId, key, enabled]);
+  }, [client, siteCode, opportunityId, cutoff, key, enabled]);
   return state !== null && state.key === key ? state.read : null;
 }
 
@@ -370,7 +384,8 @@ export function OpportunityDecisionEntry({
   siteCode: string;
   timeZone: string;
   window: { from: string | null; to: string | null; known_at: string | null };
-  detailHref: (opportunityId: string) => string;
+  /** PR-12.6: the detail address carries the renewable read's cutoff (null: current time). */
+  detailHref: (opportunityId: string, knownAt: string | null) => string;
 }): ReactNode {
   const days = selectedLocalDays(timeZone, window.from, window.to);
   const five = days !== null && days.days === STUDY_DAYS;
@@ -396,7 +411,7 @@ export function OpportunityDecisionEntry({
   return (
     <p data-opportunity-decision={cta.kind}>
       {cta.kind === "one" ? (
-        <Link to={detailHref(cta.id)}>Opportunity decision →</Link>
+        <Link to={detailHref(cta.id, window.known_at)}>Opportunity decision →</Link>
       ) : (
         <span className="mini-scenarios-gap">
           {cta.kind === "short"

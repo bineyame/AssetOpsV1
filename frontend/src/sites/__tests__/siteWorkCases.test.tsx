@@ -182,6 +182,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+const FRONTEND_CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+const WORK_CSS = NODE_FS.readFileSync(`${FRONTEND_CWD}/src/sites/w4-work-cases.css`, "utf8").replace(/\s+/g, " ");
+
 describe("W4-01: Site > Work > Incidents", () => {
   it("incident_stocked_empty_and_refused", async () => {
     // Stocked: seven cases, page one holds five; the count is the full set.
@@ -669,14 +673,23 @@ describe("W4-03 unit 8: Site Work decision context", () => {
     await settledScreen();
     const refused = panelTitled("Incidents at this site");
     await vi.waitFor(() =>
-      expect(refused.querySelectorAll("[data-work-decision-context='unavailable']")).toHaveLength(2),
+      expect(refused.querySelectorAll("[data-work-decision-context='unavailable']")).toHaveLength(1),
     );
     expectV69Panels("sitework-incidents");
     expectPlantedPanelRejected("sitework-incidents");
-    for (const el of Array.from(refused.querySelectorAll("[data-work-decision-context]"))) {
-      expect(text(el)).toBe("Decision context unavailable");
-    }
+    // PR-12.3: exactly one panel-level literal, beside (not inside) the table, scoped to the displayed rows.
+    const panelLine = refused.querySelector("[data-work-decision-context='unavailable']") as HTMLElement;
+    expect(text(panelLine)).toBe("Decision context unavailable");
+    expect(panelLine.closest("table")).toBeNull();
+    expect(panelLine.getAttribute("data-work-decision-context-scope")).toBe(ids.join(" "));
+    expect(refused.querySelectorAll("table [data-work-decision-context]")).toHaveLength(0); // no row-level copy
+    expect(refused.textContent).not.toContain("Decision context:"); // no positive context
+    expect(refused.textContent?.split("Decision context unavailable")).toHaveLength(2);
+    // The canonical Finding link in the linked row is intact.
+    expect(refused.querySelector(`[data-work-row="${ids[0]}"] [data-work-finding-link]`)).not.toBeNull();
     expect(refused.querySelectorAll("[data-work-row]")).toHaveLength(2);
+    // The 390 px Incident table scrolls vertically inside the 460 px panel cap.
+    expect(WORK_CSS).toContain('.work-cases [data-work-table="incidents"] .data-table__scroll { max-height: 240px; overflow: auto; }');
     expect(text(strip())).toContain("Scoped to Kobo · 2 incidents");
   });
 

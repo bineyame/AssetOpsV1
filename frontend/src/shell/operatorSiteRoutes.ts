@@ -186,8 +186,17 @@ export function siteFinancialScenariosHref(siteId: string): string {
  */
 export const SITE_OPPORTUNITY_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/opportunities/:opportunityId`;
 
-export function siteOpportunityHref(siteId: string, opportunityId: string): string {
-  return `${siteDetailHref(siteId)}/opportunities/${encodeURIComponent(opportunityId)}`;
+/**
+ * PR-12.6: `?known_at=<six-digit UTC>` is the explicit historical cutoff of the detail read; no query keeps current
+ * time. Every value given is kept in order, so a duplicate stays visible to the server's refusal.
+ */
+export function siteOpportunityHref(siteId: string, opportunityId: string, knownAt?: string | readonly string[] | null): string {
+  const base = `${siteDetailHref(siteId)}/opportunities/${encodeURIComponent(opportunityId)}`;
+  const values = knownAt === null || knownAt === undefined ? [] : typeof knownAt === "string" ? [knownAt] : knownAt;
+  if (values.length === 0) return base;
+  const params = new URLSearchParams();
+  for (const v of values) params.append("known_at", v);
+  return `${base}?${params.toString()}`;
 }
 
 export function siteFinancialsHref(

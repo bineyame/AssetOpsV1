@@ -26,7 +26,7 @@ import type {
   ScenarioListBody,
   ScenarioRow,
 } from "../miniDecisionsClient";
-import { microsecondBefore } from "../miniDecisionsClient";
+import { createMiniDecisionsClient, microsecondBefore } from "../miniDecisionsClient";
 import { scenarioMoney } from "../MiniScenarios";
 import { OpportunityDecisionEntry } from "../MiniOpportunity";
 import { SiteFindingIndex } from "../SiteFindingIndex";
@@ -195,10 +195,11 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     expect(main().textContent).toContain(
       "A scenario compares a declared what-if with the measured case. None has been defined for this site.",
     );
-    expect(main().textContent).toContain(
-      "For example, a different stop setting, stock value or tariff may be declared when an authorized authoring path is available.",
-    );
-    expect(main().textContent).toContain("No authored what-if at this site and cutoff.");
+    // PR-12.1: the mock's single explanatory sentence only; no secondary example and no foot line.
+    expect(main().textContent).not.toContain("For example, a different stop setting");
+    expect(main().textContent).not.toContain("No authored what-if at this site and cutoff.");
+    expect(document.querySelectorAll("[data-scenarios-empty] p")).toHaveLength(1);
+    expect(document.querySelector("[data-scenario-creation-unavailable]")?.textContent).toBe("Scenario creation unavailable");
     expect(main().textContent).toContain("Declared scenarios are separate from measured results.");
     expect(main().textContent).not.toMatch(/Placeholder|to be designed/);
     expect(document.querySelector("[data-scenarios-table]")).toBeNull(); // no invented row
@@ -233,7 +234,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     const [first, second] = cells();
     expect(first[0]).toBe("Grain mill one-hour trial · Productive load · SCN-000004Scenario detail unavailable");
     expect(first[1]).toBe("proposed_kw 10 kW; duration_hours 1 h; tariff_per_kwh 0.25 USD/kWh");
-    expect(first[2]).toBe(`${id(21)}${id(22)}`);
+    expect(first[2]).toBe("2 pinned renewable revisions Inspect pinned revisions");
     expect(first[3]).toBe("$2.50 gross sales scenario per eligible window, before costs");
     expect(first[4]).toBe("Defined · Gross scenario");
     expect(second[0]).toContain("SCN-1234567"); // never truncated above 999999
@@ -310,6 +311,41 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     expect(reload.getScenarios).toHaveBeenCalledWith(CODE, { from: FROM, to: TO, known_at: KNOWN, cursor: null });
   });
 
+  it("u9b_pinned_revisions_disclosure_keyboard_reachable", async () => {
+    const pins = [41, 42, 43, 44, 45].map((n) => id(n));
+    renderAt(`/sites/${CODE}/financials/scenarios`, [ok(list([row({ pinned_mini_revision_ids: pins }), row({ id: id(50), revision_id: id(51), code: "SCN-000005" })]))]);
+    await settledScreen();
+    await waitFor(() => expect(cells()).toHaveLength(2));
+    // The cell states the count; no exact ID is inside the row layout.
+    expect(cells()[0][2]).toBe("5 pinned renewable revisions Inspect pinned revisions");
+    const table = document.querySelector("[data-scenarios-table] table") as HTMLElement;
+    for (const pin of pins) expect(table.textContent).not.toContain(pin);
+    const region = document.getElementById("mini-scenarios-pinned") as HTMLElement;
+    expect(region.hidden).toBe(true); // closed: no rendered height
+    expect(region.textContent).toBe("");
+    expect(region.closest("table")).toBeNull(); // outside the row layout
+    const button = document.querySelector(`[data-scenario-inspect="${id(10)}"]`) as HTMLButtonElement;
+    expect(button.tagName).toBe("BUTTON"); // native button: Enter and Space operate it
+    expect(button.type).toBe("button");
+    expect(button).toHaveAttribute("aria-controls", "mini-scenarios-pinned");
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    button.focus();
+    expect(document.activeElement).toBe(button);
+    fireEvent.click(button);
+    expect(button).toHaveAttribute("aria-expanded", "true");
+    expect(region.hidden).toBe(false);
+    expect(region.tabIndex).toBe(0); // the bounded list scrolls by keyboard
+    expect(Array.from(region.querySelectorAll("code"), (c) => c.textContent)).toEqual(pins); // exact, untruncated
+    // Another row's control switches the one disclosure; pressing again closes it.
+    const other = document.querySelector(`[data-scenario-inspect="${id(50)}"]`) as HTMLButtonElement;
+    fireEvent.click(other);
+    expect(button).toHaveAttribute("aria-expanded", "false");
+    expect(Array.from(region.querySelectorAll("code"), (c) => c.textContent)).toEqual([id(21), id(22)]);
+    fireEvent.click(other);
+    expect(region.hidden).toBe(true);
+    expect(MINI_CSS).toContain(".mini-scenarios-pinned { max-height: 96px; overflow-y: auto;");
+  });
+
   it("scenario_v69_panels_and_planted_rejection", async () => {
     const refused: DecisionRead<ScenarioListBody> = {
       status: "refused",
@@ -339,9 +375,11 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       expect(scroll?.querySelector("table")).not.toBeNull();
       expect(scroll?.closest(".panel")?.querySelector("h2")?.textContent).toBe("Financial scenarios");
       // Mock budget at 390: min-width 720, sticky 144 px Scenario column, header plus three rows before scrolling.
-      expect(MINI_CSS).toContain(
-        "@media (max-width: 600px) { .mini-scenarios-table .data-table__scroll { max-height: calc(36px + 3 * 72px); overflow: auto; }",
-      );
+      // PR-12.1: the vertical cap and sticky header apply at every width, before the narrow media block.
+      expect(MINI_CSS).toContain(".mini-scenarios-table .data-table__scroll { max-height: calc(36px + 3 * 72px); overflow: auto; }");
+      expect(MINI_CSS).toContain(".mini-scenarios-table thead th { position: sticky; top: 0;");
+      expect(MINI_CSS.indexOf("thead th { position: sticky")).toBeLessThan(MINI_CSS.indexOf("@media (max-width: 600px)"));
+      expect(MINI_CSS).toContain("padding: 20px 20px;");
       expect(MINI_CSS).toContain(".mini-scenarios-table .data-table { min-width: 720px; }");
       expect(MINI_CSS).toContain(".mini-scenarios-table col:first-child { width: 144px !important; }");
       expect(MINI_CSS).toContain(".mini-scenarios-table td:first-child { position: sticky; left: 0;");
@@ -1094,7 +1132,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     };
   }
 
-  function openAt(answer: DecisionRead<OpportunityDetailBody>, siteType = "MINIGRID") {
+  function openAt(answer: DecisionRead<OpportunityDetailBody>, siteType = "MINIGRID", query = "") {
     const decisions: MiniDecisionsClient = {
       getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
@@ -1106,7 +1144,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: s }) };
     const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [s] }) };
     render(
-      <MemoryRouter initialEntries={[`/sites/${CODE}/opportunities/${OPP}`]}>
+      <MemoryRouter initialEntries={[`/sites/${CODE}/opportunities/${OPP}${query}`]}>
         <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} miniDecisions={decisions} />
         <Where />
       </MemoryRouter>,
@@ -1125,6 +1163,8 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       d.querySelector("dt")?.textContent,
       d.querySelector("dd")?.textContent,
     ]);
+  const words = () =>
+    Array.from(document.querySelectorAll("[data-opportunity-cards] > li"), (li) => li.classList.contains("v69-metric--word"));
   const claim = () => document.querySelector("[data-opportunity-claim]")?.textContent;
   const secondary = () => document.querySelector("[data-opportunity-secondary]")?.textContent;
   const noMock = () => {
@@ -1148,9 +1188,11 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(cards()).toEqual([
       ["Usable headroom", "12–15 kW", "After the selected retained margin"],
       ["Eligible days", "2 / 5", "Separate five-day study"],
-      ["Proposed load", "10 kW", "Linked scenario; name unavailable in this read"],
-      ["Gross sales scenario", "$2.50", "Illustrative per eligible window, before costs; collections unverified"],
+      ["Proposed load", "10 kW", "Linked scenario (name unavailable)"],
+      ["Gross sales scenario", "$2.50", "Before costs; collections unverified"],
     ]);
+    // PR-12.2: numeric and monetary values keep the large numeric value; no card is a word value here.
+    expect(words()).toEqual([false, false, false, false]);
     expect(claim()).toBe("Renewable capacity appears available for a one-hour productive load in 2 adequately observed windows.");
     expect(main().textContent).toContain(
       "Electrical feasibility does not establish customer demand, collections or a realised financial benefit.",
@@ -1181,6 +1223,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       expect(secondary()).toBe("Decision pending · evidence limited");
       expect(cards()[0][1]).toBe("12–15 kW");
       expect(cards()[3][1]).toBe("Withheld pending evidence");
+      expect(words()).toEqual([false, false, false, true]); // a withheld value is a state word, never zero
       expect(basis()[3]).toEqual(["Gross sales", "Withheld pending evidence"]);
       expect(claim()).toBe("The selected evidence does not establish a recurring productive-use opportunity.");
       expect(main().textContent).not.toContain("appears available");
@@ -1217,8 +1260,9 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       ["Usable headroom", "Unknown", "After the selected retained margin"],
       ["Eligible days", "Not established", "Five-day study incomplete"],
       ["Proposed load", "No load proposed", "No scenario linked"],
-      ["Gross sales scenario", "Not calculated", "Illustrative per eligible window, before costs; collections unverified"],
+      ["Gross sales scenario", "Not calculated", "Before costs; collections unverified"],
     ]);
+    expect(words()).toEqual([true, true, true, true]);
     expect(basis()).toEqual([
       ["Technical quantity", "Unknown"],
       ["Scenario energy", "No load scenario"],
@@ -1227,6 +1271,63 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       ["Managed Action", "Not yet accepted"],
     ]);
     noMock();
+  });
+
+  it("u9b_detail_known_at_address_and_wire", async () => {
+    // No query: current-time semantics, no cutoff sent; the Overview tab keeps the bare address.
+    cleanup();
+    let client = openAt(loaded(body()));
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-opportunity-page]")).not.toBeNull());
+    expect(client.getOpportunity).toHaveBeenCalledWith(CODE, OPP, []);
+    expect(document.querySelector("[data-opportunity-tabs] a")?.getAttribute("href")).toBe(`/sites/${CODE}/opportunities/${OPP}`);
+
+    // An explicit historical cutoff is parsed, sent and preserved; it never makes the read current.
+    const k = "2026-10-14T09:30:00.123456Z";
+    const historical = body({ currentness: { state: "HISTORICAL", job_state: "SETTLED" } });
+    cleanup();
+    client = openAt(loaded(historical), "MINIGRID", `?${new URLSearchParams({ known_at: k })}`);
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-opportunity-page]")).not.toBeNull());
+    expect(client.getOpportunity).toHaveBeenCalledTimes(1);
+    expect(client.getOpportunity).toHaveBeenCalledWith(CODE, OPP, [k]);
+    expect(document.querySelector("[data-opportunity-tabs] a")?.getAttribute("href")).toBe(
+      `/sites/${CODE}/opportunities/${OPP}?${new URLSearchParams({ known_at: k })}`,
+    );
+    expect(chip()?.getAttribute("data-opportunity-chip")).toBe("blue");
+
+    // A duplicate or refused cutoff reaches the server unchanged; its refusal shows, with no positive badge.
+    for (const [query, code] of [
+      [`?known_at=${encodeURIComponent(k)}&known_at=${encodeURIComponent(k)}`, "INVALID_KNOWN_AT"],
+      ["?known_at=2099-01-01T00:00:00.000000Z", "INVALID_KNOWN_AT"],
+      ["?known_at=yesterday", "INVALID_KNOWN_AT"],
+    ] as const) {
+      cleanup();
+      client = openAt({ status: "refused", httpStatus: 422, code, message: "The cutoff is not valid." }, "MINIGRID", query);
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("[data-opportunity-refusal]")).not.toBeNull());
+      expect(client.getOpportunity).toHaveBeenCalledWith(CODE, OPP, new URLSearchParams(query).getAll("known_at"));
+      expect(document.querySelector("[data-opportunity-refusal]")?.getAttribute("data-opportunity-refusal")).toBe(code);
+      expect(chip()).toBeNull();
+      expect(document.querySelector("[data-opportunity-cards]")).toBeNull();
+    }
+
+    // The production client puts every given cutoff on the detail GET, and none when omitted.
+    const fetchMock = vi.fn((_url: string) => Promise.resolve(new Response("{}", { status: 503 })));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      const real = createMiniDecisionsClient("/api/sites");
+      await real.getOpportunity(CODE, OPP);
+      await real.getOpportunity(CODE, OPP, k);
+      await real.getOpportunity(CODE, OPP, [k, k]);
+      expect(fetchMock.mock.calls.map((c) => c[0])).toEqual([
+        `/api/sites/${CODE}/opportunities/${OPP}`,
+        `/api/sites/${CODE}/opportunities/${OPP}?${new URLSearchParams({ known_at: k })}`,
+        `/api/sites/${CODE}/opportunities/${OPP}?${new URLSearchParams([["known_at", k], ["known_at", k]])}`,
+      ]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("opportunity_history_and_exact_renewable_cta", async () => {
@@ -1337,7 +1438,7 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
             siteCode={CODE}
             timeZone={TZ}
             window={{ from, to, known_at: S_KNOWN }}
-            detailHref={(oid) => siteOpportunityHref(CODE, oid)}
+            detailHref={(oid, k) => siteOpportunityHref(CODE, oid, k)}
           />
         </MemoryRouter>,
       );
@@ -1355,7 +1456,10 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(client.listOpportunities).toHaveBeenCalledTimes(1);
     expect(client.listOpportunities).toHaveBeenCalledWith(CODE, { from: S_FROM, to: S_TO, known_at: S_KNOWN });
     expect(decision()?.getAttribute("data-opportunity-decision")).toBe("one");
-    expect(decision()?.querySelector("a")?.getAttribute("href")).toBe(`/sites/${CODE}/opportunities/${OPP}`);
+    // PR-12.6: the exact CTA carries the selection's cutoff into the detail address.
+    expect(decision()?.querySelector("a")?.getAttribute("href")).toBe(
+      `/sites/${CODE}/opportunities/${OPP}?${new URLSearchParams({ known_at: S_KNOWN })}`,
+    );
 
     // Zero exact matches (intersection alone never selects).
     await entry(list([listRow(id(701), "2026-10-05", "2026-10-09"), listRow(id(703), "2026-10-06", "2026-10-11")]), S_FROM, S_TO);
@@ -1393,6 +1497,10 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
       "Consequence basis",
     ]);
     expect(page.querySelectorAll("[data-opportunity-cards] > li")).toHaveLength(4);
+    // PR-12.2: compact spacing scoped to this card row; the shared grid rules are not overridden here.
+    expect(MINI_CSS).toContain(".v69-cards[data-opportunity-cards] .v69-metric { padding: 10px 12px; }");
+    expect(MINI_CSS).toContain(".v69-cards[data-opportunity-cards] .v69-metric--word .v69-metric__value { margin: 5px 0 4px; }");
+    expect(MINI_CSS).not.toMatch(/data-opportunity-cards\][^{]*\{[^}]*grid-template-columns/);
     const pair = page.querySelector(".panel-pair")!;
     expect(Array.from(pair.querySelectorAll(".panel h2, .panel h3")).map((h) => h.textContent)).toEqual(["Next decision", "Consequence basis"]);
     // The evidence list scrolls inside its panel (bounded drawer) so the panel keeps its measured cap.

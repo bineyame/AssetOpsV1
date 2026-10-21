@@ -510,10 +510,26 @@ function Rows({
   links: SiteWorkCasesLinks;
   overlay: DecisionRead<WorkContextsBody> | null;
 }) {
+  // PR-12.3: a refused Incident overlay is one line beside the table for the displayed rows, not one per row; the
+  // rows keep their canonical Finding links and show no context. Maintenance keeps its row-level copy.
+  const panelRefused = copy.kind === "incidents" && overlay !== null && overlay.status !== "loaded";
   const contextsOf = (caseId: string): CaseContexts =>
-    overlay === null ? null : overlay.status === "loaded" ? (overlay.value.contexts[caseId] ?? "refused") : "refused";
+    overlay === null || panelRefused
+      ? null
+      : overlay.status === "loaded"
+        ? (overlay.value.contexts[caseId] ?? "refused")
+        : "refused";
   return (
     <div className="work-cases-table" data-work-table={copy.kind}>
+      {panelRefused ? (
+        <p
+          className="work-cases-context work-cases-context--panel muted"
+          data-work-decision-context="unavailable"
+          data-work-decision-context-scope={body.rows.map((r) => r.case_id).join(" ")}
+        >
+          {DECISION_CONTEXT_UNAVAILABLE}
+        </p>
+      ) : null}
       <DataTable labelledBy={`site-work-${copy.kind}-heading`}>
         <colgroup>
           {copy.widths.map((width, i) => (

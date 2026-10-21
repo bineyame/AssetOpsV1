@@ -299,7 +299,7 @@ export function SitePerformanceFrame({
                 <MiniRenewable
                   client={miniDepth}
                   decisions={miniDecisions ?? DEFAULT_MINI_DECISIONS}
-                  opportunityHref={(opportunityId) => siteOpportunityHref(site.site_id, opportunityId)}
+                  opportunityHref={(opportunityId, knownAt) => siteOpportunityHref(site.site_id, opportunityId, knownAt)}
                   siteCode={site.site_id}
                   timeZone={timeZone}
                   window={timeZone === null ? null : renewableWindowFromParams(params, timeZone)}
@@ -1007,10 +1007,13 @@ export function SiteOpportunityFrame({
   miniDecisions?: MiniDecisionsClient;
 }) {
   const { siteId, opportunityId } = useParams<{ siteId: string; opportunityId: string }>();
+  // PR-12.6: `?known_at=` is parsed and preserved as given; no query means current time.
+  const [params] = useSearchParams();
+  const knownAt = params.getAll("known_at");
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Opportunity" headingId={SITE_OPPORTUNITY_HEADING_ID}>
       {(site) => (
-        <OpportunityScreen site={site} opportunityId={opportunityId ?? ""} client={miniDecisions} />
+        <OpportunityScreen site={site} opportunityId={opportunityId ?? ""} client={miniDecisions} knownAt={knownAt} />
       )}
     </SiteScoped>
   );
@@ -1020,13 +1023,15 @@ function OpportunityScreen({
   site,
   opportunityId,
   client,
+  knownAt,
 }: {
   site: LoadedSite;
   opportunityId: string;
   client: MiniDecisionsClient;
+  knownAt: readonly string[];
 }) {
   const mini = site.site_type === "MINIGRID";
-  const read = useOpportunity(client, site.site_id, opportunityId, mini);
+  const read = useOpportunity(client, site.site_id, opportunityId, mini, knownAt);
   const loaded = mini && read !== null && read.status === "loaded" && read.value.opportunity !== null ? read.value : null;
   const renewable =
     loaded === null ? null : renewableHref(loaded, site.site_id, sitePerformanceHref(site.site_id, "renewable"));
@@ -1064,7 +1069,7 @@ function OpportunityScreen({
       <nav className="site-tabs site-subtabs" aria-label="Opportunity sections" data-opportunity-tabs>
         <ol className="site-tabs__list">
           <li className="site-tabs__item">
-            <Link className="site-tabs__link" to={siteOpportunityHref(site.site_id, opportunityId)} aria-current="page">
+            <Link className="site-tabs__link" to={siteOpportunityHref(site.site_id, opportunityId, knownAt)} aria-current="page">
               Overview
             </Link>
           </li>

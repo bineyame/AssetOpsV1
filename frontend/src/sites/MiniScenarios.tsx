@@ -28,10 +28,13 @@ export const SCENARIOS_PANEL_DESCRIPTION = "Declared scenarios are separate from
 export const SCENARIOS_EMPTY = {
   heading: "No scenario defined yet",
   body: "A scenario compares a declared what-if with the measured case. None has been defined for this site.",
-  secondary:
-    "For example, a different stop setting, stock value or tariff may be declared when an authorized authoring path is available.",
-  foot: "No authored what-if at this site and cutoff.",
 } as const;
+
+/** PR-12.1: the Physical basis cell states the pinned count; the exact IDs are in the disclosure below the table. */
+export function pinnedCount(n: number): string {
+  return `${n} pinned renewable revision${n === 1 ? "" : "s"}`;
+}
+export const PINNED_DISCLOSURE_ID = "mini-scenarios-pinned";
 
 const KIND_WORDS: Record<string, string> = {
   STOP_SOC: "Stop setting",
@@ -80,6 +83,9 @@ function illustrative(row: ScenarioRow): string {
 }
 
 function Rows({ rows }: { rows: ScenarioRow[] }) {
+  // PR-12.1: one disclosure outside the row layout; closed it is `hidden` and adds no height to any row.
+  const [inspected, setInspected] = useState<string | null>(null);
+  const open = rows.find((r) => r.id === inspected && r.pinned_mini_revision_ids.length > 0) ?? null;
   return (
     <div className="mini-scenarios-table" data-scenarios-table>
       <DataTable labelledBy={SCENARIOS_HEADING_ID}>
@@ -119,13 +125,19 @@ function Rows({ rows }: { rows: ScenarioRow[] }) {
                 {row.pinned_mini_revision_ids.length === 0 ? (
                   "No measured basis pinned"
                 ) : (
-                  <ul className="mini-scenarios-pins">
-                    {row.pinned_mini_revision_ids.map((id) => (
-                      <li key={id}>
-                        <code>{id}</code>
-                      </li>
-                    ))}
-                  </ul>
+                  <>
+                    <span data-scenario-pinned-count>{pinnedCount(row.pinned_mini_revision_ids.length)}</span>{" "}
+                    <button
+                      type="button"
+                      className="link-button mini-scenarios-inspect"
+                      aria-expanded={open?.id === row.id}
+                      aria-controls={PINNED_DISCLOSURE_ID}
+                      data-scenario-inspect={row.id}
+                      onClick={() => setInspected(open?.id === row.id ? null : row.id)}
+                    >
+                      Inspect pinned revisions
+                    </button>
+                  </>
                 )}
               </td>
               <td data-scenario-result>{illustrative(row)}</td>
@@ -137,6 +149,25 @@ function Rows({ rows }: { rows: ScenarioRow[] }) {
           ))}
         </tbody>
       </DataTable>
+      <div
+        id={PINNED_DISCLOSURE_ID}
+        className="mini-scenarios-pinned"
+        role="region"
+        aria-label={open === null ? "Pinned revisions" : `Pinned revisions of ${open.name}`}
+        tabIndex={open === null ? undefined : 0}
+        hidden={open === null}
+        data-scenario-pinned={open?.id ?? ""}
+      >
+        {open === null ? null : (
+          <ul className="mini-scenarios-pins">
+            {open.pinned_mini_revision_ids.map((pin) => (
+              <li key={pin}>
+                <code>{pin}</code>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -167,11 +198,7 @@ function Loaded({
             </span>
             <h3>{SCENARIOS_EMPTY.heading}</h3>
             <p>{SCENARIOS_EMPTY.body}</p>
-            <p data-scenarios-empty-secondary>{SCENARIOS_EMPTY.secondary}</p>
           </div>
-          <p className="mini-scenarios-foot" data-scenarios-empty-foot>
-            {SCENARIOS_EMPTY.foot}
-          </p>
         </>
       ) : (
         <>

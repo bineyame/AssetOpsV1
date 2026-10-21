@@ -204,7 +204,15 @@ export interface MiniDecisionsClient {
     revisionId: string,
     page?: AlternativesPage,
   ): Promise<DecisionRead<AlternativeListBody>>;
-  getOpportunity(siteCode: string, opportunityId: string): Promise<DecisionRead<OpportunityDetailBody>>;
+  /**
+   * PR-12.6: zero or one `known_at` is the wire contract; every value the address carried is sent unchanged so a
+   * duplicate, future or invalid cutoff is the server's own refusal. Omitted means current time.
+   */
+  getOpportunity(
+    siteCode: string,
+    opportunityId: string,
+    knownAt?: string | readonly string[] | null,
+  ): Promise<DecisionRead<OpportunityDetailBody>>;
   listOpportunities(
     siteCode: string,
     window: { from: string; to: string; known_at: string | null },
@@ -304,8 +312,15 @@ export function createMiniDecisionsClient(basePath: string = SITES_API_PATH): Mi
         isAlternativeList,
       );
     },
-    getOpportunity: (code, opportunityId) =>
-      readDecision(`${site(code)}/opportunities/${encodeURIComponent(opportunityId)}`, isOpportunityDetail),
+    getOpportunity: (code, opportunityId, knownAt) => {
+      const params = new URLSearchParams();
+      for (const k of knownAtValues(knownAt)) params.append("known_at", k);
+      const query = params.toString();
+      return readDecision(
+        `${site(code)}/opportunities/${encodeURIComponent(opportunityId)}${query === "" ? "" : `?${query}`}`,
+        isOpportunityDetail,
+      );
+    },
     listOpportunities: (code, window) => {
       const params = new URLSearchParams({ from: window.from, to: window.to, limit: "100" });
       if (window.known_at !== null) params.set("known_at", window.known_at);
@@ -326,4 +341,10 @@ export function microsecondBefore(token: string): string | null {
   if (micros > 0) return `${m[1]}.${String(micros - 1).padStart(6, "0")}Z`;
   const second = new Date(Date.parse(`${m[1]}Z`) - 1000).toISOString().slice(0, 19);
   return `${second}.999999Z`;
+}
+
+/** PR-12.6: the detail cutoff(s) as an ordered list (none, one, or every duplicate the address carried). */
+export function knownAtValues(knownAt: string | readonly string[] | null | undefined): readonly string[] {
+  if (knownAt === null || knownAt === undefined) return [];
+  return typeof knownAt === "string" ? [knownAt] : knownAt;
 }
