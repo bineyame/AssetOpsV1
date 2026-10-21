@@ -673,3 +673,325 @@ Lane A adds exactly four `panels` rows in `frontend/docs/architecture/v69-depend
 ```
 
 The packet is `.agent/W3-03-review-packet.md`. It must give: task/spec revision and `04474b3c` baseline; exact commit range and file list split by Lane A/B; one-head Alembic proof and `0031 unused`; four-panel registry path/status and the P-2-1 gap/mirror/usage proof; one-snapshot/auth/cursor/selection and unchanged W3-01/02 root checks; B3 one-day three-domain selected IDs and W1/cold/EV money boundaries; all pure-versus-persisted variant limits from r1b3; full-scope cards/matrix/progress/EV footer and refusal-clearing results; the eight capture states above with 1440/390 JSON/PNG paths and measured caps; same-revision full backend suite, frontend suite, `tsc`, build and 11/11 `check-all` results; known deviations and the exact independent-review command `git diff <reviewed W3-02 merge base>..HEAD -- ':!.agent'`. Record failed or skipped commands literally. The independent reviewer checks that diff plus the packet and captures before any owner W3 walkthrough; the packet cannot declare acceptance on the reviewer's behalf. No owner W3 wave-exit acceptance is inferred from a passing test or registry row.
+
+
+## Run-3 registry rulings (r3)
+
+P-3-1 is resolved for run 3. Insert the following two new nodes in `v69-dependency-registry-pilot.json` `nodes`; keep both `open` until independent review supplies evidence. These are the literal complete objects:
+
+```json
+[
+  {
+    "id": "I-estate-portfolio-read",
+    "kind": "implementation",
+    "layer": "projection",
+    "area": "estate-aggregation",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-projections",
+      "I-estate-finding-root",
+      "I-estate-action-root",
+      "I-estate-evidence-root",
+      "I-estate-money-root",
+      "D-estate-comparable-sites"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-03",
+    "acceptance_target": "One authorized, selected Portfolio snapshot composes full-scope Finding, Action, Evidence and Financials reads with exact coverage, provenance and no combined value."
+  },
+  {
+    "id": "I-estate-portfolio-ui",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "estate-aggregation",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "I-estate-portfolio-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-03",
+    "acceptance_target": "Four Portfolio panels render the selected snapshot, honest missing states and refusal clearing at desktop and narrow widths."
+  }
+]
+```
+
+The following complete node objects are reused unchanged. Architecture and data nodes have no `layer` field; their kind is their gate type. Do not insert duplicate copies:
+
+```json
+[
+  {
+    "id": "A-estate-index-scope",
+    "kind": "architecture",
+    "area": "platform",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-claim-work-routes"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "decision": "Tenant, Site, window, coverage and freshness for global Findings and Actions lists.",
+    "task": "W3-01"
+  },
+  {
+    "id": "I-estate-finding-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "claims",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-finding-index"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-01"
+  },
+  {
+    "id": "A-estate-action-summary",
+    "kind": "architecture",
+    "area": "estate-aggregation",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "A-action-index"
+    ],
+    "effort": "S",
+    "evidence": null,
+    "decision": "Optional ActionSummary cross-Site scope and freshness; not a prerequisite of ranked Findings or value cards.",
+    "task": "W3-01"
+  },
+  {
+    "id": "D-estate-comparable-sites",
+    "kind": "data",
+    "area": "estate-aggregation",
+    "owner": "Planner specifies; Implementer builds",
+    "status": "open",
+    "requires": [
+      "A-estate-comparability",
+      "I-finding-store",
+      "I-S2-02",
+      "I-S4-02"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "fixture": "Multiple Sites with aligned windows, coverage, currency, price basis and overlap groups through normal ingestion."
+  },
+  {
+    "id": "A-evidence-shared-projections",
+    "kind": "architecture",
+    "area": "evidence",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-S2-evidence",
+      "A-evidence-readiness-health"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "decision": "CapabilityReadiness, SourceHealth, AcceptedEvidenceIndex and SiteEvidenceMatrix contracts for all known mini-grid, cold-chain, EV and estate consumers.",
+    "task": "W2-04"
+  },
+  {
+    "id": "I-estate-evidence-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "estate-aggregation",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-capability-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-02"
+  },
+  {
+    "id": "A-estate-comparability",
+    "kind": "architecture",
+    "area": "estate-aggregation",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "A-money-comparability"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "decision": "Cross-Site aligned windows, coverage, currency/price basis, consequence overlap and non-double-counting rules."
+  },
+  {
+    "id": "I-mini-depth-read",
+    "kind": "implementation",
+    "layer": "projection",
+    "area": "mini-grid-analytics",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-mini-breadth-projections",
+      "I-mini-breadth-store"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W4-02"
+  },
+  {
+    "id": "D-mini-breadth-windows",
+    "kind": "data",
+    "area": "mini-grid-analytics",
+    "owner": "Planner specifies; Implementer builds",
+    "status": "open",
+    "requires": [
+      "A-mini-breadth-rules",
+      "I-mini-breadth-store"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "fixture": "Distinct service, renewable, fuel and backup windows with accepted evidence and attested deliveries/requests."
+  },
+  {
+    "id": "A-estate-projections",
+    "kind": "architecture",
+    "area": "estate-aggregation",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-estate-comparability",
+      "A-evidence-shared-projections",
+      "A-finding-index"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "decision": "PortfolioSummary, PortfolioEvidenceMatrix, consequence rollup and SiteAssessmentSummary source/sort/freshness/drill-down contracts."
+  },
+  {
+    "id": "I-estate-action-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "work-verification",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-action-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-01"
+  },
+  {
+    "id": "I-estate-money-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "money",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-financial-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-02"
+  }
+]
+```
+
+Replace the r2 initial Portfolio rows with these four literal `panels` rows, in this order:
+
+```json
+[
+  {
+    "screen_id": "portfolio",
+    "panel_index": 1,
+    "title": "Where management should act first",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-estate-index-scope",
+      "I-estate-finding-root",
+      "A-estate-action-summary",
+      "I-estate-portfolio-read",
+      "I-estate-portfolio-ui",
+      "D-estate-comparable-sites"
+    ],
+    "status": "gap",
+    "reason": "W3-03 selected Finding/Action composition awaits independent whole-slice review; priority and confidence remain unassessed."
+  },
+  {
+    "screen_id": "portfolio",
+    "panel_index": 2,
+    "title": "Objectives across the estate",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-evidence-shared-projections",
+      "I-estate-evidence-root",
+      "D-estate-comparable-sites",
+      "I-estate-portfolio-read",
+      "I-estate-portfolio-ui"
+    ],
+    "status": "gap",
+    "reason": "W3-03 selected capability matrix awaits independent whole-slice review; unknown cells are not health conclusions."
+  },
+  {
+    "screen_id": "portfolio",
+    "panel_index": 3,
+    "title": "An opportunity beyond reducing cost",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-estate-comparability",
+      "I-mini-depth-read",
+      "I-estate-portfolio-ui",
+      "D-mini-breadth-windows"
+    ],
+    "status": "gap",
+    "reason": "The W3-03 panel is an honest unavailable scenario; no reviewed opportunity Finding, physical-headroom or demand basis supports its quantities or destinations."
+  },
+  {
+    "screen_id": "portfolio",
+    "panel_index": 4,
+    "title": "What changed in this review",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-estate-projections",
+      "I-estate-action-root",
+      "I-estate-portfolio-read",
+      "I-estate-portfolio-ui",
+      "D-estate-comparable-sites"
+    ],
+    "status": "gap",
+    "reason": "W3-03 exact selected Action/verification disclosure awaits independent whole-slice review; recovered value and completed activity remain unestablished."
+  }
+]
+```
+
+Add this literal `registry_dependencies` object to the existing `portfolio` screen-ledger row, preserving that row's other fields:
+
+```json
+{
+  "product_node_id": "P-estate-area",
+  "node_ids": [
+    "A-estate-index-scope",
+    "I-estate-finding-root",
+    "A-estate-action-summary",
+    "I-estate-portfolio-read",
+    "I-estate-portfolio-ui",
+    "D-estate-comparable-sites",
+    "A-evidence-shared-projections",
+    "I-estate-evidence-root",
+    "A-estate-comparability",
+    "I-mini-depth-read",
+    "D-mini-breadth-windows",
+    "A-estate-projections",
+    "I-estate-action-root"
+  ]
+}
+```
+
+Checker reasoning: `P-estate-area` governs the `estate-aggregation` screen; the ledger `node_ids` above are exactly the first-occurrence union of the four `requires` arrays in panel order. Each panel directly names a `layer:"ui"` and a `layer:"projection"` implementation node and a data node, so the UI/projection and non-structural claim gates pass. Both new nodes have allowed implementation layers, `open` status, effort, known non-product prerequisites and an architecture ancestor; the read depends on the reviewed W3 roots and the UI depends on the read, with no cycle. The opportunity row retains the open W4 depth and data gates as honest missing-state dependencies; it does not declare a headroom claim real. All four rows remain `gap`, so the checker cannot treat any open prerequisite as a real-panel closure. No checker change or node closure is authorized by these declarations.
