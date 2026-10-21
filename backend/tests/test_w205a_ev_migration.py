@@ -25,7 +25,7 @@ if URL:
         ASSET_CODE, patched_v4, raw_copy, remove_test_blockers, rows, v4)
     from test_w203_cold_migration_postgres import constraint, head, scalar
 
-HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026)
+HEAD = "0030_w4_mini_decisions"  # W4-03: 0030 sits above 0029 (W4-02 above 0027)
 PREVIOUS = "0023_w2_cold_consequence"
 INDEX = "accepted_evidence_ev_measurement"
 REFUSED = "Downgrade of 0024_w2_ev_config refused"

@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 from sqlalchemy import text
 
-MINI_HEAD = "0029_w4_mini_depth"
+MINI_HEAD = "0030_w4_mini_decisions"  # W4-03: current head above 0029
 PREDECESSOR = "0027_w4_work_cases"
 MINI_TABLES = ("mini_depth_revision", "mini_depth_revision_evidence", "mini_depth_selection")
 MINI_JOB_DOMAINS = ("mini_renewable", "mini_service", "mini_fuel", "mini_backup")

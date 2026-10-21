@@ -44,6 +44,8 @@ Sets:
   `mini_depth/store.py`; `mini truncate`; `mini enqueue foreign call` (the assessment store calling the 0029 enqueue
   SQL) and `mini enqueue hour from publication` (the Foundation store calling anything but
   `mini_enqueue_configuration`). Rule 8 fails closed when any name is missing.
+- `decision <table> ...`: W4-03 unit 1 (migration 0030) ten mini-decision tables, the same family as `work`, owned
+  by `mini_decisions/store.py`; `decision truncate`; `controls decision <table> insert` must pass.
 - `cutover site_cutover_basis ...`: W4-02 q12-6 (B-L1) cutover basis table of migration 0029, owned INSERT-only by
   the Foundation store (its ON CONFLICT DO NOTHING is allowed): foreign INSERT, UPDATE, DELETE, DO UPDATE, TRUNCATE
   and `owner insert unseen`; `controls cutover site_cutover_basis insert` must pass.
@@ -71,6 +73,7 @@ CONSEQUENCE = f"{B}/financials/adapters/postgres_consequence_store.py"
 ACTION = f"{B}/actions/adapters/postgres_action_store.py"
 WORK = f"{B}/work/adapters/postgres_work_store.py"
 MINI = f"{B}/mini_depth/store.py"
+DECISION = f"{B}/mini_decisions/store.py"
 TICK = f"{B}/scheduling/tick.py"
 WORKER = f"{B}/analytics/assessment_worker.py"
 COLD_MIGRATION = "backend/migrations/versions/0023_w2_cold_consequence.py"
@@ -723,6 +726,75 @@ NEGATIVE += [
      "Rule 8 found no INSERT INTO site_cutover_basis in "),
 ]
 
+# W4-03 unit 1 (migration 0030): the mini-decision store alone INSERTs each of the ten decision tables, which no
+# module updates, deletes, upserts, truncates, merges or copies; each table keeps at least one owner INSERT.
+
+def _decision_only(table: str) -> str:
+    return f"Mini-decision table '{table}' is insert-only"
+
+
+def _decision_unseen(table: str) -> tuple:
+    return (DECISION, ("replace", f'"INSERT INTO {table} (', f'"SELECT * FROM {table} WHERE ('),
+            f"Rule 8 found no INSERT INTO {table} in ")
+
+
+NEGATIVE += [
+    ("decision mini_scenario foreign insert", FINDING, _work_foreign("mini_scenario"), "writes mini-decision table 'mini_scenario'"),
+    ("decision mini_scenario update", DECISION, split("mini_scenario", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_scenario")),
+    ("decision mini_scenario delete", DECISION, _work_delete("mini_scenario"), _decision_only("mini_scenario")),
+    ("decision mini_scenario upsert", DECISION, _work_upsert("mini_scenario"), _decision_only("mini_scenario")),
+    ("decision mini_scenario owner insert unseen", *_decision_unseen("mini_scenario")),
+    ("decision mini_scenario_revision foreign insert", FINDING, _work_foreign("mini_scenario_revision"), "writes mini-decision table 'mini_scenario_revision'"),
+    ("decision mini_scenario_revision update", DECISION, split("mini_scenario_revision", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_scenario_revision")),
+    ("decision mini_scenario_revision delete", DECISION, _work_delete("mini_scenario_revision"), _decision_only("mini_scenario_revision")),
+    ("decision mini_scenario_revision upsert", DECISION, _work_upsert("mini_scenario_revision"), _decision_only("mini_scenario_revision")),
+    ("decision mini_scenario_revision owner insert unseen", *_decision_unseen("mini_scenario_revision")),
+    ("decision mini_alternative_revision foreign insert", FINDING, _work_foreign("mini_alternative_revision"), "writes mini-decision table 'mini_alternative_revision'"),
+    ("decision mini_alternative_revision update", DECISION, split("mini_alternative_revision", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_alternative_revision")),
+    ("decision mini_alternative_revision delete", DECISION, _work_delete("mini_alternative_revision"), _decision_only("mini_alternative_revision")),
+    ("decision mini_alternative_revision upsert", DECISION, _work_upsert("mini_alternative_revision"), _decision_only("mini_alternative_revision")),
+    ("decision mini_alternative_revision owner insert unseen", *_decision_unseen("mini_alternative_revision")),
+    ("decision mini_alternative_evidence foreign insert", FINDING, _work_foreign("mini_alternative_evidence"), "writes mini-decision table 'mini_alternative_evidence'"),
+    ("decision mini_alternative_evidence update", DECISION, split("mini_alternative_evidence", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_alternative_evidence")),
+    ("decision mini_alternative_evidence delete", DECISION, _work_delete("mini_alternative_evidence"), _decision_only("mini_alternative_evidence")),
+    ("decision mini_alternative_evidence upsert", DECISION, _work_upsert("mini_alternative_evidence"), _decision_only("mini_alternative_evidence")),
+    ("decision mini_alternative_evidence owner insert unseen", *_decision_unseen("mini_alternative_evidence")),
+    ("decision mini_opportunity foreign insert", FINDING, _work_foreign("mini_opportunity"), "writes mini-decision table 'mini_opportunity'"),
+    ("decision mini_opportunity update", DECISION, split("mini_opportunity", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_opportunity")),
+    ("decision mini_opportunity delete", DECISION, _work_delete("mini_opportunity"), _decision_only("mini_opportunity")),
+    ("decision mini_opportunity upsert", DECISION, _work_upsert("mini_opportunity"), _decision_only("mini_opportunity")),
+    ("decision mini_opportunity owner insert unseen", *_decision_unseen("mini_opportunity")),
+    ("decision mini_opportunity_revision foreign insert", FINDING, _work_foreign("mini_opportunity_revision"), "writes mini-decision table 'mini_opportunity_revision'"),
+    ("decision mini_opportunity_revision update", DECISION, split("mini_opportunity_revision", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_opportunity_revision")),
+    ("decision mini_opportunity_revision delete", DECISION, _work_delete("mini_opportunity_revision"), _decision_only("mini_opportunity_revision")),
+    ("decision mini_opportunity_revision upsert", DECISION, _work_upsert("mini_opportunity_revision"), _decision_only("mini_opportunity_revision")),
+    ("decision mini_opportunity_revision owner insert unseen", *_decision_unseen("mini_opportunity_revision")),
+    ("decision mini_opportunity_evidence foreign insert", FINDING, _work_foreign("mini_opportunity_evidence"), "writes mini-decision table 'mini_opportunity_evidence'"),
+    ("decision mini_opportunity_evidence update", DECISION, split("mini_opportunity_evidence", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_opportunity_evidence")),
+    ("decision mini_opportunity_evidence delete", DECISION, _work_delete("mini_opportunity_evidence"), _decision_only("mini_opportunity_evidence")),
+    ("decision mini_opportunity_evidence upsert", DECISION, _work_upsert("mini_opportunity_evidence"), _decision_only("mini_opportunity_evidence")),
+    ("decision mini_opportunity_evidence owner insert unseen", *_decision_unseen("mini_opportunity_evidence")),
+    ("decision mini_opportunity_selection foreign insert", FINDING, _work_foreign("mini_opportunity_selection"), "writes mini-decision table 'mini_opportunity_selection'"),
+    ("decision mini_opportunity_selection update", DECISION, split("mini_opportunity_selection", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_opportunity_selection")),
+    ("decision mini_opportunity_selection delete", DECISION, _work_delete("mini_opportunity_selection"), _decision_only("mini_opportunity_selection")),
+    ("decision mini_opportunity_selection upsert", DECISION, _work_upsert("mini_opportunity_selection"), _decision_only("mini_opportunity_selection")),
+    ("decision mini_opportunity_selection owner insert unseen", *_decision_unseen("mini_opportunity_selection")),
+    ("decision mini_decision_work_link foreign insert", FINDING, _work_foreign("mini_decision_work_link"), "writes mini-decision table 'mini_decision_work_link'"),
+    ("decision mini_decision_work_link update", DECISION, split("mini_decision_work_link", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_decision_work_link")),
+    ("decision mini_decision_work_link delete", DECISION, _work_delete("mini_decision_work_link"), _decision_only("mini_decision_work_link")),
+    ("decision mini_decision_work_link upsert", DECISION, _work_upsert("mini_decision_work_link"), _decision_only("mini_decision_work_link")),
+    ("decision mini_decision_work_link owner insert unseen", *_decision_unseen("mini_decision_work_link")),
+    ("decision mini_opportunity_scenario_link foreign insert", FINDING, _work_foreign("mini_opportunity_scenario_link"), "writes mini-decision table 'mini_opportunity_scenario_link'"),
+    ("decision mini_opportunity_scenario_link update", DECISION, split("mini_opportunity_scenario_link", "site_id = :s WHERE tenant_id = :i"), _decision_only("mini_opportunity_scenario_link")),
+    ("decision mini_opportunity_scenario_link delete", DECISION, _work_delete("mini_opportunity_scenario_link"), _decision_only("mini_opportunity_scenario_link")),
+    ("decision mini_opportunity_scenario_link upsert", DECISION, _work_upsert("mini_opportunity_scenario_link"), _decision_only("mini_opportunity_scenario_link")),
+    ("decision mini_opportunity_scenario_link owner insert unseen", *_decision_unseen("mini_opportunity_scenario_link")),
+]
+NEGATIVE += [
+    ("decision truncate", DECISION, '_OPS02 = "TRUNCATE mini_scenario"\n',
+     "The mini-decision store never updates, deletes, truncates, upserts or runs DDL"),
+]
+
 WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls attestation insert", ASSESS,
      '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id, proof_class) "\n    "VALUES (:i, :p)"\n)\n'),
@@ -809,6 +881,18 @@ WRITER_CONTROLS += [
     ("controls mini mini_depth_revision_evidence insert", MINI, _work_control("mini_depth_revision_evidence")),
     ("controls mini mini_depth_selection insert", MINI, _work_control("mini_depth_selection")),
     ("controls cutover site_cutover_basis insert", FOUNDATION, _work_control("site_cutover_basis")),
+]
+WRITER_CONTROLS += [
+    ("controls decision mini_scenario insert", DECISION, _work_control("mini_scenario")),
+    ("controls decision mini_scenario_revision insert", DECISION, _work_control("mini_scenario_revision")),
+    ("controls decision mini_alternative_revision insert", DECISION, _work_control("mini_alternative_revision")),
+    ("controls decision mini_alternative_evidence insert", DECISION, _work_control("mini_alternative_evidence")),
+    ("controls decision mini_opportunity insert", DECISION, _work_control("mini_opportunity")),
+    ("controls decision mini_opportunity_revision insert", DECISION, _work_control("mini_opportunity_revision")),
+    ("controls decision mini_opportunity_evidence insert", DECISION, _work_control("mini_opportunity_evidence")),
+    ("controls decision mini_opportunity_selection insert", DECISION, _work_control("mini_opportunity_selection")),
+    ("controls decision mini_decision_work_link insert", DECISION, _work_control("mini_decision_work_link")),
+    ("controls decision mini_opportunity_scenario_link insert", DECISION, _work_control("mini_opportunity_scenario_link")),
 ]
 
 

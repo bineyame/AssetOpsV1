@@ -804,6 +804,16 @@ function Invoke-ConfigurationPersistenceCheck {
     # module), and it must keep at least one owner INSERT (anti-vacuity below).
     $cutoverTable = 'site_cutover_basis'
     $cutoverInsertsSeen = 0
+    # W4-03 unit 1 (build spec closure 1 "Rule-8 registers exactly", closure 4 S4): the mini-decision store is the
+    # sole runtime writer of the ten migration-0030 tables, INSERT-only (0030 triggers refuse UPDATE/DELETE; no
+    # upsert, TRUNCATE, MERGE, COPY or DDL), and it writes no other table (it reads and share-locks a recompute_job
+    # row but never writes one). Each table keeps at least one owner INSERT in the store (anti-vacuity below).
+    $decisionWriter = "$backendRoot/mini_decisions/store.py"
+    $decisionTables = @('mini_scenario', 'mini_scenario_revision', 'mini_alternative_revision',
+        'mini_alternative_evidence', 'mini_opportunity', 'mini_opportunity_revision', 'mini_opportunity_evidence',
+        'mini_opportunity_selection', 'mini_decision_work_link', 'mini_opportunity_scenario_link')
+    $decisionInsertsSeen = @{}
+    foreach ($table in $decisionTables) { $decisionInsertsSeen[$table] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -811,7 +821,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSql = '(?i)\bSELECT\s+mini_enqueue_configuration\s*\('
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
-        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter)
+        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -861,10 +871,10 @@ function Invoke-ConfigurationPersistenceCheck {
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
-        $miniWriter = 0 }
+        $miniWriter = 0; $decisionWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
-        $actionWriter = $false; $workWriter = $false; $miniWriter = $false }
+        $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -916,6 +926,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $miniWriter -and $line -match $actionForbidden) {
                 $failures.Add("The mini-depth store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $decisionWriter -and $line -match $actionForbidden) {
+                $failures.Add("The mini-decision store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1053,6 +1067,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $miniInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $decisionWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $decisionTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The mini-decision store only inserts into $($decisionTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $decisionTables -contains $target) {
+                    if ($module.Path -ne $decisionWriter) {
+                        $failures.Add(("Only $decisionWriter writes mini-decision table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Mini-decision table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $decisionInsertsSeen[$target]++
                     }
                 }
                 if ($null -ne $target -and $target -eq $cutoverTable) {
@@ -1274,6 +1304,12 @@ function Invoke-ConfigurationPersistenceCheck {
                 "is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
+    foreach ($table in $decisionTables) {
+        if ($extractorRan -and $decisionInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $decisionWriter, so the mini-decision insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
     if ($evPublishEnqueueSeen -lt 1) {
         $failures.Add(("Rule 8 found no ev_enqueue_configuration call in $pgWriter (W2-06 q3 P7 publication " +
             "enqueue), so its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
@@ -1434,6 +1470,13 @@ function Invoke-ConfigurationPersistenceCheck {
             "mini $table delete", "mini $table upsert", "mini $table owner insert unseen")
     }
     $workProbeNames += @('mini truncate', 'mini enqueue foreign call', 'mini enqueue hour from publication')
+    # W4-03 unit 1: the mini-decision writer policy fails closed the same way, with a denied-writer probe per table.
+    foreach ($table in $decisionTables) {
+        $workProbeNames += @("controls decision $table insert", "decision $table foreign insert",
+            "decision $table update", "decision $table delete", "decision $table upsert",
+            "decision $table owner insert unseen")
+    }
+    $workProbeNames += @('decision truncate')
     # W4-02 B-L1: the q12-6 cutover basis writer policy fails closed the same way.
     $workProbeNames += @("controls cutover $cutoverTable insert", "cutover $cutoverTable foreign insert",
         "cutover $cutoverTable update", "cutover $cutoverTable delete", "cutover $cutoverTable upsert",

@@ -27,7 +27,7 @@ if URL:
 
     from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
 
-HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026)
+HEAD = "0030_w4_mini_decisions"  # W4-03: 0030 sits above 0029 (W4-02 above 0027)
 PREVIOUS = "0021_w2_cold_config"
 REFUSED = "Downgrade of 0022_w2_cold_assessment refused"
 COLD = ("cold_episode", "cold_episode_revision", "cold_episode_evidence")
