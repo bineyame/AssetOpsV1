@@ -349,3 +349,6 @@ accepted for that ID, refused for other IDs and for mismatched Site/seed). `bloc
 `second_scenario_repository` composes the store like production (c3b-q2 item 1). Different-currency test passes;
 the COMPARABLE test has a `c3b-q2` skip on its live-read token assertion (item 2, needs a ruling). c3b-q1 resolved.
 Checks: see the commit message. Branch released.
+
+## Commit-3 review r1 fix round (done)
+M1 (cold withheld -> covered=False, test extended), M2 (Composite repo already as ruled; RESOLVED marking corrected in pending rulings), L1 (only ERROR_PENDING pends), L2 (TARIFF_UNIT), L4 (PARTITION_INELIGIBLE), L6 (text). L3/L5 carry to commit 4 (copy: "lines in the differing-value category"; mini-grid pending/stale prior amount unavailable in this selection; UI state check; render PARTITION_INELIGIBLE in plain language). Proof: 136 passed, 0 skipped on private DB w302v_test (dropped); check-all 11/11.
