@@ -567,4 +567,51 @@ holds the two sitework rows; add scenarios/alternatives/opportunity-finding; whi
 overlay and scenario no-route copy per u8 9), served via `walkthrough serve` + vite, one full backend Postgres suite,
 review packet.
 
-Next: unit 9b, then unit 10
+Next: unit 9b, then unit 10 (superseded by the Unit 9b section below)
+
+## Unit 9b (landed except the PR-12 fixes; commits 09bae780, d56c25c3, fb2e3eb2, e1590a74, 5014fe32, 2eba1be3)
+- Registry (`09bae780`): the five u9 `panels[]` keys, `status:"gap"`, areas money/claims; new nodes
+  `I-mini-decision-store|read|ui`, `D-mini-decisions` (task W4-03); ledger `registry_dependencies` for `scenarios`,
+  `alternatives`, `opportunity-finding` (coverage left `deferred`). `check_v69_dependency_registry.cjs` valid (249 nodes,
+  39 linked panels); `analysis:3#b` and the estate Opportunities index untouched.
+- Tests: `miniDecisions.test.tsx` per screen `*_v69_panels_and_planted_rejection` (Scenarios populated/empty/refused,
+  Alternatives rows/empty/503, Opportunity) plus `narrow_mock_panel_budgets` and `exact_routes_no_dead_cta` in each of
+  the three describes (24 tests); `siteWorkCases.test.tsx` adds `u9b_incident_linked_and_refused_overlay_panels`
+  (expectV69Panels + planted rejection with the linked Scenario `(Scenario detail unavailable)` line and a scoped 503).
+  `noDeadCta` proved non-vacuous (planted `href="#"` fails); CSS budget asserts failed on an empty stylesheet.
+- `tools/w403-mini-decisions-evidence.mjs` (shared width guard, 32 width claims all ok) and `Walk.stock()` in
+  `tools/w403_mini_decisions_walkthrough.py` (four more Incidents, two more Requests through `WorkService`, keys
+  `w403-capture-{incidents,requests}-N`, recorded in `<work>/capture/stock.json`, run inside `capture`).
+- Capture (run 2, code `2eba1be3`, DB `w403p_test` dropped after): `var/w403p/capture/evidence.json` 240/265 checks;
+  `<state>-<1440|390>-app.png`, `<screen>-<w>-mock.png`, `mock-measure/mock-measure.json`. Panel set and order match
+  the mock on every produced state. 25 failures are PR-12 (Scenarios, Opportunity cards and Incidents-390 over cap;
+  Alternatives blocked: KOBO site 503 from the worktree's local `var/sites/kobo-001.yaml`, KOBO Finding read
+  `PERFORMANCE_CUTOVER_CLOSED`). Unproved: Opportunity SUPPORTED/CURRENT, stocked Alternative (u9: not a gate).
+- Viewed: `incidents-linked-stocked-390-app.png`, `opportunity-current-late-settled-1440-app.png`,
+  `scenarios-populated-1440-app.png`, `scenarios-1440-mock.png`.
+
+Readings taken (9b; reviewer may overturn):
+1. Opportunity panels `requires` also name `I-mini-depth-read` (W4-02 read beside the W4-03 nodes); each new panel
+   carries the W4-03 read/UI/data nodes.
+2. Capture stock is seeded by `capture` itself (no new subcommand); IDs/counts live in `stock.json`, not `replay.json`.
+3. Work window for captures: the last 7 days through tomorrow at 00:00Z.
+4. Scenarios empty uses `from=1970-01-01T00:00:00.000000Z&to=2026-10-01T00:00:00.000000Z`; refused uses reversed bounds.
+5. Opportunity states: current detail (after the missing branch it reads `Source changed since selection`),
+   `k_before_late` via a harness rule appending `known_at` to the exact detail GET (PR-12.5), missing via the
+   `first_day=2026-10-08` row of `replay.missing`.
+6. jsdom budget tests assert the stylesheet rules as text plus structure; geometry is the capture's.
+7. Captures use `mobile:false` (W4-01 pattern); `measure-mock-panels.mjs` uses `mobile:true` at 390 (mock 360 wide vs
+   345 in the capture's own mock shots).
+8. The Alternatives scoped-503 rule never fired (the frame stopped at `Site unavailable`); recorded, not retried.
+
+## Checks (9b)
+- Focused: `miniDecisions.test.tsx` 24 passed; `siteWorkCases.test.tsx` 9 passed.
+- Frontend suite at `2eba1be3`: 103 files, 2462 tests passed. `tsc -b --noEmit` 0. `npm run build` 0.
+- `tools/check-all.ps1`: all 11 guards passed (incl. navigation truthfulness, rail fixtures via architecture seams,
+  dependency registry, screen ledger, evidence width check). No backend suite run (brief).
+
+PR-12 is OPEN in `.agent/W4-03-pending-rulings.md` (five questions). Build stopped there.
+
+Next: unit 10
+(Per u9, 9b is unit 12 and the last build unit; what remains after the PR-12 rulings is the cap fixes, an
+Alternatives/Opportunity recapture, the one full backend Postgres suite and `.agent/W4-03-review-packet.md`.)
