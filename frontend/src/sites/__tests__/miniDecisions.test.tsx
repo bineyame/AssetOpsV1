@@ -1106,7 +1106,6 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     const expected = `/sites/${CODE}/performance/renewable?${new URLSearchParams({ from: S_FROM, to: S_TO, known_at: S_KNOWN })}`;
     const cta = screen.getByRole("link", { name: "Open renewable evaluation" });
     expect(cta.getAttribute("href")).toBe(expected);
-    expect(document.querySelector("[data-opportunity-crumb-renewable] a")?.getAttribute("href")).toBe(expected);
     expect(main().innerHTML).not.toContain(SITE_UUID);
 
     // Header, description, Open site, one selected Overview tab and the disabled Findings root.
@@ -1118,17 +1117,25 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     const tabs = Array.from(document.querySelectorAll("[data-opportunity-tabs] li"));
     expect(tabs.map((li) => li.textContent)).toEqual(["Overview"]);
     expect(tabs[0].querySelector("a")?.getAttribute("aria-current")).toBe("page");
-    const crumbs = Array.from(document.querySelectorAll("[data-opportunity-crumbs] li")).map((li) => li.textContent);
-    expect(crumbs).toEqual([
-      "Global Findings unavailable; this opportunity is reached from Renewable evaluation.",
-      "Sites",
-      "MINIGRID site",
-      "Renewable evaluation",
-      "OPP-000001",
-      "Overview",
-    ]);
-    noControl(document.querySelector("[data-opportunity-root]"));
-    expect(document.querySelector('[data-opportunity-crumbs] a[href="/findings"]')).toBeNull();
+    // u7 PR-9 (1): exactly `Findings › {OPP code} › Overview · site: {Site}`, the same DOM at 1440 and 390.
+    for (const width of [1440, 390]) {
+      Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+      window.dispatchEvent(new Event("resize"));
+      await show(body());
+      const nav = document.querySelector("[data-opportunity-crumbs]") as HTMLElement;
+      expect(Array.from(nav.querySelectorAll("li")).map((li) => li.textContent)).toEqual([
+        "Global Findings unavailable; this opportunity is reached from Renewable evaluation.",
+        "OPP-000001",
+        "Overview",
+      ]);
+      expect(nav.querySelector("[data-opportunity-crumb-site]")?.textContent).toBe("· site: MINIGRID site");
+      // Only the Site suffix links (authorized Site Overview); root, code and Overview are text.
+      expect(Array.from(nav.querySelectorAll("a")).map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+        ["MINIGRID site", `/sites/${CODE}`],
+      ]);
+      noControl(nav.querySelector("[data-opportunity-root]"));
+      expect(nav.textContent).not.toMatch(/Sites|Renewable evaluation ›|F-109/);
+    }
 
     // Evidence inspection: the exact accepted-ID union of the five day rows.
     fireEvent.click(screen.getByRole("button", { name: "Inspect opportunity evidence" }));

@@ -992,15 +992,17 @@ export const SITE_OPPORTUNITY_HEADING_ID = "site-opportunity-heading";
 
 /**
  * W4-03 unit 7: the typed five-day Opportunity detail at `/sites/:siteId/opportunities/:opportunityId`. Overview is
- * the only context tab (closure 4 B5). The breadcrumb's `Findings` root is disabled text (closure 3), followed by the
- * u5 trail `Sites › {Site} › Renewable evaluation › {OPP code} › Overview`; the code is `opportunity.code` (u6).
+ * the only context tab (closure 4 B5). u7 PR-9 (1): the breadcrumb is exactly
+ * `Findings › {opportunity.code} › Overview · site: {Site}`; the `Findings` slot is the noninteractive root gap, the
+ * code (only once loaded) and `Overview` are text, and the Site suffix links the authorized Site Overview. There is
+ * no `Sites` or `Renewable evaluation` slot; `Open renewable evaluation` stays the separate exact study link.
  */
 export function SiteOpportunityFrame({
   detail,
-  sitesPath,
   miniDecisions = DEFAULT_MINI_DECISIONS,
 }: {
   detail: SiteDetailClient;
+  /** Kept for the shared frame signature; u7 PR-9 removed the `Sites` breadcrumb slot. */
   sitesPath: string;
   miniDecisions?: MiniDecisionsClient;
 }) {
@@ -1008,7 +1010,7 @@ export function SiteOpportunityFrame({
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Opportunity" headingId={SITE_OPPORTUNITY_HEADING_ID}>
       {(site) => (
-        <OpportunityScreen site={site} sitesPath={sitesPath} opportunityId={opportunityId ?? ""} client={miniDecisions} />
+        <OpportunityScreen site={site} opportunityId={opportunityId ?? ""} client={miniDecisions} />
       )}
     </SiteScoped>
   );
@@ -1016,12 +1018,10 @@ export function SiteOpportunityFrame({
 
 function OpportunityScreen({
   site,
-  sitesPath,
   opportunityId,
   client,
 }: {
   site: LoadedSite;
-  sitesPath: string;
   opportunityId: string;
   client: MiniDecisionsClient;
 }) {
@@ -1039,15 +1039,6 @@ function OpportunityScreen({
               {OPPORTUNITY_ROOT_GAP}
             </span>
           </li>
-          <li className="breadcrumbs__item">
-            <Link to={sitesPath}>Sites</Link>
-          </li>
-          <li className="breadcrumbs__item">
-            <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
-          </li>
-          <li className="breadcrumbs__item" data-opportunity-crumb-renewable>
-            {renewable === null ? <span>Renewable evaluation</span> : <Link to={renewable}>Renewable evaluation</Link>}
-          </li>
           {loaded === null ? null : (
             <li className="breadcrumbs__item">
               <span data-opportunity-code>{loaded.opportunity!.code}</span>
@@ -1059,6 +1050,10 @@ function OpportunityScreen({
             </span>
           </li>
         </ol>
+        <span className="mini-finding-crumbs__site" data-opportunity-crumb-site>
+          {"· site: "}
+          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+        </span>
       </nav>
       <PageHeader
         title={`Productive-use headroom at ${site.display_name}`}
