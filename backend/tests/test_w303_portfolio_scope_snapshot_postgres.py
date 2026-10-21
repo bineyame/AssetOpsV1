@@ -132,6 +132,7 @@ def test_three_domains_same_window_cutoff_and_full_selection_ids(portfolio_fixtu
                     "consequence", "source_provenance", "episode_start"):
             assert row[key] == source[key], key
         assert row["domain"] == domains[row["site_code"]] and row["mechanism"] is None
+        assert row["episode_end"] == source.get("episode_end", row["episode_end"])
         # B4: the aligned 10-06 window selects no Action, so no row joins one.
         assert (row["action_id"], row["application_state"], row["resolution_state"],
                 row["verification_outcome"], row["links"]["action"]) == (None,) * 5
@@ -191,6 +192,9 @@ def test_foreign_tenant_missing_site_and_grant_fence(portfolio_fixture) -> None:
     assert (same["scope"], same["selection_token"]) == (one["scope"], one["selection_token"])
     assert other not in str(same) and view.get(**fx.window, cursor=cursor).status_code == 200
 
+    clean_rows = view.ok(**fx.window, limit=100)["rows"]
+    clean_total = view.ok(**fx.window, limit=100)["summary"]["finding_count"]
+    assert clean_total == len(clean_rows)
     # An authorized empty Site (no selection) changes the access basis: the old cursor is 409, page one is partial.
     empty = add_empty_site(fx.engine, fx.site_ids["KOBO-001"], "W303-EMPTY-001")
     stale = view.get(**fx.window, cursor=cursor)
@@ -203,7 +207,9 @@ def test_foreign_tenant_missing_site_and_grant_fence(portfolio_fixture) -> None:
     assert partial["status"] == "UNKNOWN" and partial["coverage"]["state"] == "PARTIAL"
     assert (partial["coverage"]["finding_state"], partial["coverage"]["evidence_state"],
             partial["coverage"]["money_state"]) == ("PARTIAL", "PARTIAL", "PARTIAL")
-    assert sorted(_pairs(partial["rows"])) == sorted(_pairs(view.ok(**fx.window, limit=100)["rows"]))
+    assert sorted(_pairs(partial["rows"])) == sorted(_pairs(clean_rows))
+    # r1a M1: partial Finding coverage withholds the estate count; null never renders as 0.
+    assert partial["summary"]["finding_count"] is None and partial["total_count"] == len(clean_rows)
     assert empty not in {r["site_id"] for r in partial["rows"]} and other not in str(partial)
 
     # A changed grant (EV-LAB-002 denied) fences the cursor before its marker lookup.

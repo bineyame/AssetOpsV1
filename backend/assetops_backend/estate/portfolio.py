@@ -224,7 +224,8 @@ class EstatePortfolioService(EstateEvidenceService):
                               {"state": coverage_state, "finding_state": states["F"],
                                "evidence_state": states["E"], "money_state": states["M"],
                                "sites": [_coverage_site(site, cov) for site, _, cov in f_sites]})
-        summary: dict[str, Any] = {"finding_count": len(members)}
+        # r1a M1: the all-lens count is an estate claim; only complete (or complete-empty) Finding coverage makes it.
+        summary: dict[str, Any] = {"finding_count": len(members) if states["F"] in (COMPLETE, "EMPTY") else None}
         body.update({"lens": req.lens, "summary": summary, "order": PORTFOLIO_ORDER, "total_count": len(shown),
                      "rows": [{k: v for k, v in r.items() if not k.startswith("_")} for r in page],
                      "next_cursor": None if last is None else self._cursor(tenant_id, req, scope, token,
