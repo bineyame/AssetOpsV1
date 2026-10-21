@@ -1,5 +1,28 @@
 # W3-02 phase handoff
 
+## Commit 3 (Lane B c2d + c3 finish) - c2d and c3-q2 done; c3-q1 fixture HELD at c3-q3 (N3 still bars commit 3)
+
+Merge of main (`.agent` W3-02 handoff/rulings kept ours). Commits `f9ef4034` (c2d), `181f62c6` (c3-q2), `fefa5ab4` (c3-q1). Branch released.
+
+- c2d: `frontend/src/estate/estateEvidenceWords.ts` `ROLE_WORDS` gains the 9 EV missing roles + 8 EV binding roles (literal);
+  `CLAIM_WORDS` six distinct cold labels. Tests `estateEvidence.test.tsx` "W3-02 c2d Evidence words" (2) + updated record-details
+  line (`Power transfer position — Limited...`). c2d names no backend mapping; none changed.
+- c3-q2: (5) W1 fingerprint unit `PRICE_UNIT` (`currency/L`) in `estate/financials.py:mini_grid_lines`; Lane B already joins
+  `sel["limitations"]` with `; ` - **Lane A still owes `limitations` on `ConsequenceReadService.select_consequence_on`** (until then
+  the persisted W1 `limit` is null). (6) `windowed_lines` returns the pinned EV windows' session revision IDs (adapter
+  `ev_money` adds them from `pin["selected"]["result"]`), merged into Financials `selected_assessment_revision_ids`.
+  (3) overlap test asserts group BASIS_NOT_PROVEN vs OVERLAPPING_BASIS and a withheld line never CONFLICT. (1,2,4,7) confirmed as built.
+  New pure tests `test_w302_money_w1_price_unit_limit_and_citation_union`, `test_w302_money_ev_session_only_change_moves_token_and_fences`
+  (head and no-head windows); both fail when their rule is reverted (reverted).
+- c3-q1: `backend/tests/fixtures/w3/ev-lab-002.yaml`, `backend/conversions/ev-lab-002-bindings.json`, `install_second_ev_site` +
+  `two_ev_sites` + the two ruled tests in `test_w302_money_comparability_postgres.py`; W2-05b harness parameterized
+  (`ev_request(..., site_code, seed)`, `Chain.open(*, fresh, install)`, `site_code`/`seed` fields; one-Site defaults unchanged).
+  STOP: EV-LAB-002 imports and publishes bindings in the same DB, then `create_draft_run` is refused (every shipped
+  `config/scenarios/ev-*.yaml` names EV-LAB-001). Both two-Site tests are skipped under `blocked_c3q3`. Question c3-q3.
+- Checks: backend pure money+evidence 27 passed; Postgres comparability + evidence ev/links/scope + W2-05b replay 26 passed, 2 skipped (c3-q3) in 12m25s on private `w302p_test` (dropped); estateEvidence.test.tsx 14 passed; tsc 0; check-all 11/11.
+- Lane A (commit-3 confirmation): mount + no-DB 503 as before; the `select_consequence_on` `limitations` field (c3-q2(5)).
+  Commit-3 review waits for c3-q3 and the persisted two-Site proof.
+
 ## Commit 3 (Lane B) - Financials read/API built; HELD at closure 2 N3 (c3-q1)
 
 Merge of main (`.agent` W3-02 handoff/rulings kept ours); build commit `54625bdc`. Branch released.

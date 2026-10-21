@@ -112,3 +112,22 @@ and so can never share a partition); or (c) another fixture you name.
 6. The Financials token's `selected_assessment_revision_ids` reuse the W3-01 Site coverage's selected assessments;
    cited IDs are the lines' basis evidence union; Finding/consequence/assumption arrays come from the lines.
 7. `test_w302_money_unknown_coverage_precedes_no_lines` runs over the fake snapshot (pure) in the named Postgres file.
+
+## c3-q3 - c3-q1 fixture: the second registered draft run is refused (Lane B, commit 3; N3 still holds)
+Built per c3-q1 at `fefa5ab4`: `backend/tests/fixtures/w3/ev-lab-002.yaml`, `backend/conversions/ev-lab-002-bindings.json`,
+`install_second_ev_site` and `two_ev_sites` in `test_w302_money_comparability_postgres.py`, and the W2-05b harness
+parameters (`ev_request(case, *, site_code, seed)`, `Chain.open(*, fresh, install)`, Site-coded `_gateway/scope/replay`).
+In one `w302p_test` database the first chain (EV-LAB-001, seed 20517) ran; `install_second_ev_site` then imported
+EV-LAB-002 into the same tenant and published its `ev-roles-1` bindings without error.
+Failing call: `RunSetupService.create_draft_run(ev_request("complete", site_code="EV-LAB-002", seed=20518))`
+(`assetops_backend/runs/service.py:601` `_create_ev_draft`). Returned error: `RunSetupRefused VERSION_UNAVAILABLE:
+Scenario ev-complete is a ev-scenario/1 document for the registered Site EV-LAB-001; site EV-LAB-002 is not that
+registered Site.` Every shipped EV scenario (`config/scenarios/ev-*.yaml`) names `site_code: EV-LAB-001`, and the Host
+re-reads the shipped scenario through `StoreEvInputs(..., cached_scenario_repository())` and verifies its digest, so no
+draft, gateway upload, replay, assessment or money head exists for EV-LAB-002 (no public IDs to report).
+Device IDs stay the `ev-publication/1` profile channels (`runs/profiles.py` pins them); EV-LAB-002 has its own gateway
+`edge-ev-lab-002` and its own source rows (source external IDs are unique per gateway).
+Not done: `test_w302_money_persisted_ev_comparable_same_values` and `::test_w302_money_persisted_ev_different_currency`
+are built with the ruled assertions and skipped under `blocked_c3q3`. Question: authorize an EV scenario document for
+EV-LAB-002 (e.g. a test-only `ev-complete` copy with `site_code: EV-LAB-002`, where it lives and how the Host
+scenario repository finds it), or name another route.
