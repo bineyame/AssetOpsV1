@@ -165,6 +165,8 @@ describe("W4-02 unit 6: backup keeps the v69 strip, cards, chains, readiness, op
     expect(document.querySelector("[data-mini-limitations] summary")?.textContent).toMatch(/^(Limited by \d+ conditions?|Outage-chain assessment: evidence limited)$/);
     expect(Array.from(document.querySelectorAll("[data-mini-limitations] li"), (li) => li.textContent).join("; ")).toContain("No complete outage chain");
     expect(strip()).not.toContain("evidence limited");
+    expect(strip()).toContain("Selected sources: Generated test data, not field readings");
+    expect(strip()).not.toMatch(/registered_simulation/i);
     expect(cardValues()).toEqual(["Unknown", "Unknown", "No record", "Unknown"]);
     expect(rowsOf("Backup event chains")).toEqual([
       ["No complete outage chain can be assessed", "—", "—", "—", "—", "—", "—", "No event"],

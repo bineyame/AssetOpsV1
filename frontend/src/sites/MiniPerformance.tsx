@@ -20,6 +20,7 @@ import {
 } from "../ui";
 import type { PanelProps } from "../ui/Panel";
 import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
+import { sourceQualification } from "../ui/productWords";
 import {
   localDateOf,
   localDaysWindow,
@@ -366,8 +367,8 @@ function provenanceChips(read: Pick<RenewableRead, "selected_source_provenance" 
   const selected = read.selected_source_provenance?.classification ?? null;
   const pending = read.pending_source_provenance?.classification ?? null;
   const chips: string[] = [];
-  if (selected !== null) chips.push(`Selected sources: ${selected.toLowerCase()}`);
-  if (pending !== null) chips.push(`Pending sources: ${pending.toLowerCase()}`);
+  if (selected !== null) chips.push(`Selected sources: ${sourceQualification(selected).label}`);
+  if (pending !== null) chips.push(`Pending sources: ${sourceQualification(pending).label}`);
   return chips;
 }
 

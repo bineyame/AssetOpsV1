@@ -152,7 +152,7 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
       known_at: null,
     });
     expect(main().textContent).toContain("See delivered power and where requested service remains unknown.");
-    expect(strip()).toContain("Selected sources: registered_simulation");
+    expect(strip()).toContain("Selected sources: Generated test data, not field readings");
     expect(strip()).not.toContain("requested-service baseline is incomplete");
     expect(cardValues()).toEqual(["34 kW", "None seen in measured intervals", "4 kW", "0 kWh"]);
     expect(document.querySelector("[data-mini-cards]")?.textContent).toContain("Health post (critical)");

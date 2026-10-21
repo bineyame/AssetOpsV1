@@ -159,7 +159,7 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
     });
     expect(main().textContent).toContain("Review the generator-use model and incomplete inventory balance.");
     expect(strip()).toContain("A complete inventory balance needs deliveries and closing evidence.");
-    expect(strip()).toContain("Selected sources: registered_simulation");
+    expect(strip()).toContain("Selected sources: Generated test data, not field readings");
     // q12-7: the ordered limitations sit behind the closed strip disclosure (count line visible).
     expect(document.querySelector("[data-mini-limitations]")).not.toHaveAttribute("open");
     expect(document.querySelector("[data-mini-limitations] summary")?.textContent).toMatch(/^(Limited by \d+ conditions?|Outage-chain assessment: evidence limited)$/);

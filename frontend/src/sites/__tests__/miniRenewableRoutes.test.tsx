@@ -158,7 +158,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     });
     expect(main().textContent).toContain("Assess measured solar headroom and its limits.");
     expect(strip()).toContain("Lens: Opportunity");
-    expect(strip()).toContain("Selected sources: registered_simulation");
+    expect(strip()).toContain("Selected sources: Generated test data, not field readings");
     expect(strip()).toContain("Solar headroom on 1 of 1 assessed days");
     const dispatch = document.querySelector("[data-mini-dispatch-link] a") as HTMLAnchorElement;
     expect(dispatch.getAttribute("href")).toBe(`/sites/${CODE}/performance/dispatch?day=2026-10-06`);
@@ -268,7 +268,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     const unknown = { classification: "UNKNOWN", source_ids: [id(2)], evidence_ids: [id(100)] };
     renderRenewable([ok(read({ selected_source_provenance: unknown, source_provenance: unknown }))]);
     await settledScreen();
-    await screen.findByText("Selected sources: unknown");
+    await screen.findByText("Selected sources: Where these readings came from is not established");
     expect(strip()).not.toContain("Watch");
     expect(strip()).toContain("Evidence limited");
     cleanup();
@@ -278,6 +278,15 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     await settledScreen();
     await screen.findByText("Evidence limited");
     expect(strip()).not.toContain("Watch");
+    expect(strip()).toContain("Pending sources: Where these readings came from is not established");
+    expect(strip()).not.toMatch(/mixed|registered_simulation|authored_demonstration/);
+    cleanup();
+    // H2: authored selected provenance renders the shared plain words, never the enum.
+    const authored = { classification: "AUTHORED_DEMONSTRATION", source_ids: [id(2)], evidence_ids: [id(100)] };
+    renderRenewable([ok(read({ selected_source_provenance: authored, source_provenance: authored }))]);
+    await settledScreen();
+    await screen.findByText("Selected sources: Prepared example data, not field readings");
+    expect(strip()).not.toMatch(/authored_demonstration/i);
   });
 
   it("historical selection says so and keeps the frozen status", async () => {
