@@ -178,7 +178,7 @@ per the dispatch rule; no captures were taken.
 Question: (a) amend each row's `requires` (which projection/ui node per panel), or a new registry node; and
 (b) confirm the forced `portfolio` ledger `registry_dependencies` (`P-estate-area` + panel-order union).
 
-## P-3-2 (run 3, OPEN): `empty` (EMPTY_SCOPE) capture at 390 exceeds two card caps; matrix cannot scroll with zero Sites
+## P-3-2 — RESOLVED by r3b ("No supported value" literal, API + fallback; matrix-scroll gate only for >=4 Sites; empty 390 card0.h=card1.h=194 <= 207, over=[]): `empty` (EMPTY_SCOPE) capture at 390 exceeds two card caps; matrix cannot scroll with zero Sites
 Captured on the real API (`W303_ROUTER=capture`, `tenant=foreign`, fresh UUID; API 200 `EMPTY_SCOPE`, F/E/M
 `EMPTY/EMPTY/EMPTY`, 0 rows, 0 Sites). `app-portfolio-empty.json` / `portfolio-empty-390-app.png`:
 1. `card0 218>207; card1 218>207`. Card 0 is `OPERATING_COST:NO_LINE` with the large value line

@@ -37,7 +37,7 @@ import type { WorkspaceChrome } from "./WorkspaceShellLayout";
  *
  * W1-UX-07 (owner decision 2026-10-17, `D-2026-10-17-w1-rail`): the rail shows
  * the full v6.9 root inventory, in the groups, labels and order of the mock's
- * `ROOTS` and `rail()`. Only Sites, Findings, Actions, Evidence and Financials own a truthful cross-site
+ * `ROOTS` and `rail()`. Only Portfolio, Sites, Findings, Actions, Evidence and Financials own a truthful cross-site
  * destination today, so only they are live; every other root is an
  * `unavailable` item, which the item model forbids from carrying a route. A
  * site-scoped screen does not make its root live: the rail cannot choose a
@@ -48,7 +48,7 @@ import type { WorkspaceChrome } from "./WorkspaceShellLayout";
  * One item per line: the navigation-truthfulness guard parses this list.
  */
 const operatorRailItems: NavRailItem[] = [
-  { kind: "unavailable", label: "Portfolio", group: "OPERATIONS", icon: "grid" },
+  { kind: "live", to: "/portfolio", label: "Portfolio", end: false, group: "OPERATIONS", icon: "grid" },
   { kind: "live", to: "/sites", label: "Sites", end: false, group: "OPERATIONS", icon: "site" },
   { kind: "unavailable", label: "Assets", group: "OPERATIONS", icon: "asset" },
   { kind: "live", to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE", icon: "finding" },

@@ -35,6 +35,14 @@ cd backend && ../.venv/Scripts/python.exe -m alembic upgrade head && cd ..
 # change; a rerun writes nothing). Decision D-2026-10-08-s1-bindings-roles-and-snapshot.
 .venv/Scripts/python.exe -m assetops_backend.sites.convert_kobo_bindings   --fixture backend/conversions/kobo-001-bindings.json --tenant demo
 
+# Portfolio cursor key. /api/estate/portfolio answers 503 ESTATE_STORE_UNAVAILABLE without
+# one and there is no default. Generate it once per local server start, in the same shell
+# that runs uvicorn (64 hex characters = 32 bytes); do not print, commit or log the value.
+# POSIX:
+export ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+# PowerShell:
+#   $env:ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX = (& .venv/Scripts/python.exe -c 'import secrets; print(secrets.token_hex(32))')
+
 # serve
 .venv/Scripts/python.exe -m uvicorn assetops_backend.main:app --port 8000
 ```

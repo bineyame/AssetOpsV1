@@ -384,6 +384,6 @@ describe("the landing route", () => {
       within(screen.getByRole("navigation", { name: "Operator routes" }))
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Sites", "Findings", "Actions", "Evidence", "Financials"]);
+    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Evidence", "Financials"]);
   });
 });

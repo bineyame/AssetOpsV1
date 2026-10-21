@@ -49,8 +49,8 @@ function Invoke-NavigationRailFixturesCheck {
 
         $cases = @(
             @{ Name = "baseline: the real tree passes"; Expect = $null },
-            @{ Name = "unavailable root gains a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Portfolio' carries 'to'";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Portfolio"' 'kind: "unavailable", to: "/portfolio", label: "Portfolio"') },
+            @{ Name = "unavailable root gains a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Assets' carries 'to'";
+               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Assets"' 'kind: "unavailable", to: "/assets", label: "Assets"') },
             @{ Name = "unavailable root gains a click handler"; Expect = "carries 'onClick'";
                Rail = (Edit-Lines $rail 'label: "Settings", group: "ADMIN"' 'label: "Settings", onClick: openSettings, group: "ADMIN"') },
             @{ Name = "live root points at a missing route"; Expect = "points at '/findingz'";

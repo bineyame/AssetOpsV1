@@ -5,6 +5,7 @@ import type { EstateEvidenceMoneyClient } from "../estate/estateEvidenceMoneyCli
 import { EstateFinancialsPage } from "../estate/EstateFinancials";
 import type { EstateFinancialsClient } from "../estate/estateEvidenceMoneyClient";
 import { EstateFindingsPage } from "../estate/findingIndex";
+import { EstatePortfolioPage } from "../estate/EstatePortfolio";
 
 /**
  * W3-01 commit 3: the operator shell's frames for the estate roots. Each estate page renders its own
@@ -41,6 +42,15 @@ export function EstateFinancialsFrame({ client }: { client: EstateFinancialsClie
   return (
     <main aria-label="Financials">
       <EstateFinancialsPage client={client} />
+    </main>
+  );
+}
+
+/** W3-03 run 2: the estate Portfolio root. */
+export function EstatePortfolioFrame({ client }: { client: EstateClient }) {
+  return (
+    <main aria-label="Portfolio">
+      <EstatePortfolioPage client={client} />
     </main>
   );
 }
