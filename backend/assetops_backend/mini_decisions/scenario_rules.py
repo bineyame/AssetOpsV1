@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, Inexact, InvalidOperation, localcontext
 from typing import Any, Iterable, Mapping, Sequence
 
 from assetops_backend.financials.assumptions import ISO_4217
@@ -213,12 +213,19 @@ def calculate(kind: str, items: Sequence[Mapping[str, Any]], days: Iterable[DayR
             return calculation(WITHHELD, reason=REASON_INCOMPLETE_STUDY)
         if Decimal(bound["low"]) < proposed:
             return calculation(WITHHELD, reason=REASON_HEADROOM_BELOW_LOAD)
-    energy = proposed * Decimal(_value(items, "duration_hours")["value"])
     tariff = _value(items, "tariff_per_kwh")
+    # Final review L4: the products are exact or refused. Authored decimal strings are unbounded, so a product that
+    # would round in the default 28-digit context traps `Inexact` and is 422 `DECISION_INPUT_INVALID`.
+    try:
+        with localcontext() as ctx:
+            ctx.traps[Inexact] = True
+            energy = proposed * Decimal(_value(items, "duration_hours")["value"])
+            gross = None if tariff is None else energy * Decimal(tariff["value"])
+    except Inexact:
+        raise invalid() from None
     if tariff is None:
         return calculation(ENERGY_ONLY, energy=energy)
-    return calculation(GROSS_SCENARIO, energy=energy, gross=energy * Decimal(tariff["value"]),
-                       currency=tariff_currency(tariff["unit"]))
+    return calculation(GROSS_SCENARIO, energy=energy, gross=gross, currency=tariff_currency(tariff["unit"]))
 
 
 def eligible_days(days: Iterable[DayRow]) -> int:

@@ -588,7 +588,9 @@ export function useResolvedAlternativesHref(
       const exact =
         read.status === "loaded" &&
         read.value.site_code === siteCode &&
-        read.value.finding.id.toLowerCase() === findingId.toLowerCase();
+        read.value.finding.id.toLowerCase() === findingId.toLowerCase() &&
+        // Final review L6 (u6b ruling 7): an empty revision never yields an unpinned href.
+        read.value.selection.revision_id !== "";
       setResolved({ key, revisionId: exact ? read.value.selection.revision_id : null });
     });
     return () => {

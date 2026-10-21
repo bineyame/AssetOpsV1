@@ -252,7 +252,9 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       { status: "refused", httpStatus: 503, code: "DECISION_STORE_UNAVAILABLE", message: "The decision store is unavailable." },
     ]);
     await settledScreen();
-    await screen.findByText("The decision store is unavailable.");
+    // Final review L7: the shared decision copy, as Alternatives and Opportunity use; never the raw server message.
+    await screen.findByText("Decisions are unavailable right now. Try again.");
+    expect(main().textContent).not.toContain("The decision store is unavailable.");
     expect(document.querySelector("[data-scenarios-refused]")).toHaveAttribute("data-scenarios-refused", "DECISION_STORE_UNAVAILABLE");
     expect(main().textContent).not.toContain("No scenario defined yet");
     expect(document.querySelector("[data-scenarios-notice]")?.textContent).toBe(NOTICE);
@@ -749,6 +751,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     };
     expect(await probe(findingsClient(() => w1(CODE, REV)))).toBe(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`);
     expect(await probe(findingsClient(() => w1("MG-OTHER", REV)))).toBe("none");
+    expect(await probe(findingsClient(() => w1(CODE, "")))).toBe("none"); // final review L6
     expect(await probe(findingsClient(() => w1(CODE, REV, id(99))))).toBe("none");
     expect(await probe(findingsClient(() => ({ status: "unavailable", message: null })))).toBe("none");
     expect(await probe(undefined)).toBe("none");

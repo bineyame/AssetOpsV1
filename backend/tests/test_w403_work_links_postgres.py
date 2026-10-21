@@ -142,7 +142,10 @@ def test_same_site_explicit_link_only(store, engine) -> None:  # noqa: F811
         assert r.status_code == 404 and r.json()["detail"] == {"code": "WORK_CASE_NOT_FOUND",
                                                                "message": "No work case with this ID at this site."}
     # Foreign or unknown decision in the body: 422 DECISION_LINK_SCOPE_INVALID.
-    foreign_scenario = uuid4()
+    # Final review L9: a real scenario persisted on the other Site, not a random UUID.
+    _, foreign = scenarios_for(engine).create(t, foreign_site, principal_for(t, foreign_site),
+                                              tariff_command("w403-u8-scn-fx"))
+    foreign_scenario = foreign["id"]
     for decision in ({"opportunity_id": uuid4()}, {"scenario_id": foreign_scenario}):
         r = client.post(ROUTE, json=body("w403-u8-lnk-04", incident, **decision))
         assert r.status_code == 422 and r.json()["detail"]["code"] == "DECISION_LINK_SCOPE_INVALID"

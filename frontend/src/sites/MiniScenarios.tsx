@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { DataTable, Panel, RailIcon } from "../ui";
 import { Notice } from "../ui/V69Layout";
 import {
+  decisionRefusalCopy,
   microsecondBefore,
   type DecisionRead,
   type MiniDecisionsClient,
@@ -276,9 +277,11 @@ export function MiniScenarios({
           <Loaded body={result.value} scope={scope} onScope={(next) => onScope(next, false)} />
         ) : (
           <p className="mini-scenarios-refused" data-scenarios-refused={result.status === "refused" ? result.code : "unavailable"}>
-            {result.status === "refused" && result.message !== null
+            {/* Final review L7: a store or transport failure is the shared decision copy, never a raw server
+                message; a 4xx refusal keeps its ruled message. */}
+            {result.status === "refused" && result.httpStatus < 500 && result.message !== null
               ? result.message
-              : "The scenario read is unavailable; no scenario is shown."}
+              : decisionRefusalCopy(result)}
           </p>
         )}
         <p className="mini-scenarios-gap" data-scenario-creation-unavailable>

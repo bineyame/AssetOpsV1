@@ -118,11 +118,13 @@ class AlternativeService:
         sha = work.command_sha256({"site_id": str(site_id), "route": ROUTE, "root_id": root}, cmd)
 
         def write(c: Any) -> tuple[int, dict[str, Any]]:
-            now = (self.test_db_clock_override() if self.test_db_clock_override is not None
-                   else self._store.db_now(c))
             finding = self._store.finding_root(c, tenant_id, site_id, root, lock=True)
             if finding is None:
                 raise DecisionRefused("DECISION_NOT_FOUND")
+            # Final review L2: the command instant is read after the Finding lock, so two interleaved same-Finding
+            # commands cannot invert `created_at` order.
+            now = (self.test_db_clock_override() if self.test_db_clock_override is not None
+                   else self._store.db_now(c))
             history = self._store.alternative_revisions(c, tenant_id, site_id, root)
             prior = next((r for r in history if r["idempotency_key"] == cmd["idempotency_key"]), None)
             if prior is not None:
@@ -176,12 +178,19 @@ class AlternativeService:
         try:
             return self._write(write)
         except MiniDecisionWriteRefused:
-            return self._write(write)  # a concurrent same-key or same-version write committed first: re-decide
+            return self._write(write, final=True)  # a concurrent same-key or same-version write committed first: re-decide
 
-    def _write(self, work_: Callable[[Any], tuple[int, dict[str, Any]]]) -> tuple[int, dict[str, Any]]:
+    def _write(self, work_: Callable[[Any], tuple[int, dict[str, Any]]],
+               final: bool = False) -> tuple[int, dict[str, Any]]:
+        """One write transaction. `final` (the single retry, or a write with none): a further race or store
+        refusal is 503 `DECISION_STORE_UNAVAILABLE`, never an uncaught 500 (final review L3, uF 5)."""
         try:
             with self._store.transaction() as c:
                 return work_(c)
+        except MiniDecisionWriteRefused as error:
+            if final:
+                raise DecisionRefused("DECISION_STORE_UNAVAILABLE") from error
+            raise
         except (MiniDecisionStoreUnavailable, MiniReadUnavailable) as error:
             raise DecisionRefused("DECISION_STORE_UNAVAILABLE") from error
 
