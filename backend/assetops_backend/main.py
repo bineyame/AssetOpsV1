@@ -82,6 +82,8 @@ from assetops_backend.financials.composition import (
     build_ev_site_read_service,
 )
 from assetops_backend.performance_api import build_performance_router
+from assetops_backend.mini_depth.read import MiniDepthRead
+from assetops_backend.mini_depth_api import build_mini_depth_router
 from assetops_backend.claim_limit_api import build_claim_limit_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
@@ -94,6 +96,7 @@ from assetops_backend.config import (
 from assetops_backend.evidence.composition import (
     build_cold_replay_reader,
     build_ev_replay_reader,
+    build_link_rows_reader,
     build_comparison_reports,
     build_performance_comparison_reports,
     build_evidence_ledger,
@@ -369,6 +372,11 @@ def create_app(
                                       development_access, ACCESS_BASIS,
                                       (LedgerUnavailable, AssessmentStoreUnavailable, SCHEDULE_UNAVAILABLE,
                                        *finding_store_unavailable(), *CONSEQUENCE_UNAVAILABLE))
+    # W4-02 q12-6: the persisted empty-legacy cutover basis (Postgres Foundation store only); any other store keeps
+    # the S2 comparison requirement.
+    basis_reader = getattr(foundation_store, "no_legacy_evidence_basis", None)
+    if basis_reader is not None:
+        site_overview.no_legacy_basis = basis_reader
     app.include_router(
         build_evidence_router(
             ingestion,
@@ -435,6 +443,11 @@ def create_app(
 
     app.include_router(build_performance_router(performance_reads, registry.ledger_scope, performance_gate,
                                                 performance_report))
+    # W4-02 unit 5: the mini-grid depth reads; no Dispatch gate (closure 4 S1); typed 503 without a database.
+    mini_reads = MiniDepthRead.from_url(database_url(), build_link_rows_reader()) if database_url() else None
+    if mini_reads is not None:
+        app.router.on_shutdown.append(mini_reads.dispose)
+    app.include_router(build_mini_depth_router(mini_reads, registry))
     # S3-02a: selected-assessment capability and claim-limit read; same Performance gate, Finding access seam.
     app.include_router(build_claim_limit_router(
         build_claim_limit_read_service(database_url()) if database_url() else None, registry.ledger_scope,

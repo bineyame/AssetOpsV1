@@ -11,6 +11,7 @@ import { SiteOverview } from "../sites/SiteOverview";
 import type { SiteOverviewClient } from "../sites/siteOverviewClient";
 import { createFindingIndexClient, type FindingIndexClient } from "../sites/findingIndexClient";
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
+import { miniWindowSearch, type MiniDepthClient } from "../sites/miniDepthClient";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
@@ -96,6 +97,8 @@ export interface SiteDetailFrameProps {
   coldSite?: ColdSiteClient;
   /** W2-04: the W2-03 selected temperature read behind the cold Overview's chamber chart. */
   coldAssessment?: ColdAssessmentClient;
+  /** W4-02 B3: the mini-grid reads behind a MINIGRID Overview's Service, Fuel and Renewable cards. */
+  miniDepth?: MiniDepthClient;
 }
 
 const DEFAULT_FINDING_INDEX = createFindingIndexClient();
@@ -109,6 +112,7 @@ export function SiteDetailFrame({
   findingIndex = DEFAULT_FINDING_INDEX,
   coldSite,
   coldAssessment,
+  miniDepth,
 }: SiteDetailFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -134,8 +138,18 @@ export function SiteDetailFrame({
         templateLineage={templateLineage}
         tabs={<OperatorSiteTabs siteId={siteId} current="Overview" />}
         parentTrail={() => [{ label: "Sites", to: sitesPath }]}
-        overview={(canonicalId) => (
+        overview={(canonicalId, site) => (
           <SiteOverview
+            mini={
+              miniDepth !== undefined && site.site_type === "MINIGRID" && site.timezone
+                ? {
+                    client: miniDepth,
+                    siteCode: canonicalId,
+                    timeZone: site.timezone,
+                    detailHref: (domain, window) => `${sitePerformanceHref(canonicalId, domain)}${miniWindowSearch(window)}`,
+                  }
+                : undefined
+            }
             siteId={canonicalId}
             client={overview}
             evidencePageHref={siteEvidenceHref(canonicalId)}

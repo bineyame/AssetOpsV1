@@ -23,11 +23,11 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError, IntegrityError
     from test_s1_bindings_postgres import _alembic, engine, store  # noqa: F401
-    from test_s4_consequence_store_postgres import _release_connections, site  # noqa: F401
+    from test_s4_consequence_store_postgres import _release_connections, site, site_before_0029  # noqa: F401
 
     from assetops_backend.analytics.adapters.postgres_finding_store import PostgresFindingStore
 
-HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026
+HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026)
 PREVIOUS = "0021_w2_cold_config"
 REFUSED = "Downgrade of 0022_w2_cold_assessment refused"
 COLD = ("cold_episode", "cold_episode_revision", "cold_episode_evidence")
@@ -216,7 +216,8 @@ def minigrid_rows(engine) -> dict:  # noqa: F811
 
 
 class TestMigration0022:
-    def test_upgrade_preserves_minigrid_and_constraints(self, site, engine) -> None:  # noqa: F811
+    def test_upgrade_preserves_minigrid_and_constraints(self, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
 
         ctx = Ctx(site, engine)
@@ -233,6 +234,7 @@ class TestMigration0022:
         reader._engine.dispose()
         engine.dispose()
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS
             assert not any(table_exists(engine, t) for t in COLD)
@@ -424,7 +426,8 @@ class TestMigration0022:
         assert scalar(engine, "SELECT count(*) FROM cold_episode_revision") == 3
         remove_cold(engine)
 
-    def test_downgrade_refuses_live_cold(self, site, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_live_cold(self, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
 
         ctx = Ctx(site, engine)
@@ -439,6 +442,7 @@ class TestMigration0022:
                 counts = {t: scalar(engine, f"SELECT count(*) FROM {t}") for t in COLD}
                 _replica(engine, *CLEAR_W204)
                 with pytest.raises(DBAPIError, match=REFUSED):
+                    __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                     command.downgrade(config, PREVIOUS)
                 assert head(engine) == HEAD  # the whole downgrade rolled back
                 assert {t: scalar(engine, f"SELECT count(*) FROM {t}") for t in COLD} == counts  # nothing deleted
@@ -446,10 +450,12 @@ class TestMigration0022:
             insert_cold_finding(engine, ctx)  # a cold Finding alone blocks too
             _replica(engine, *CLEAR_W204)
             with pytest.raises(DBAPIError, match=REFUSED):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD
             assert scalar(engine, "SELECT count(*) FROM finding WHERE domain = 'cold_chain'") == 1
             remove_cold(engine)
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS and minigrid_rows(engine) == before
             trigger = scalar(engine, "SELECT pg_get_triggerdef(oid) FROM pg_trigger "

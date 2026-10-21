@@ -475,21 +475,28 @@ class TestRegisteredSimulation:
 
 
 class TestDatabaseImmutability:
-    def test_downgrade_refuses_while_a_publication_exists(self, kit, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_while_a_publication_exists(self, store, engine) -> None:  # noqa: F811
         """Phase-1 review L3: 0014's downgrade never deletes immutable provenance; it refuses and stays at head."""
         from alembic import command
         from alembic.config import Config
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
 
-        reg = publish(kit, kit.seal(kit.pv(1)))
         config = Config(str(BACKEND / "alembic.ini"))
         config.attributes["database_url"] = URL
+        # W4-02 q1 ruling 2: the MINIGRID Site and its publication are seeded before 0029 is installed.
+        with seeded_before_0029(config, engine, store):
+            _, outcome = converted_enabled(store, engine)
+            kit = Kit(engine, outcome.published.changed.id)
+            reg = publish(kit, kit.seal(kit.pv(1)))
+        assert_no_mini_history(engine)
         engine.dispose()
         try:
             with pytest.raises(Exception, match="Downgrade of 0017_evidence_publication refused"):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0016_action_store")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0027_w4_work_cases")
+                    "0029_w4_mini_depth")
                 assert c.execute(text("SELECT id FROM evidence_publication")).scalar_one() == reg.publication_id
         finally:
             command.upgrade(config, "head")

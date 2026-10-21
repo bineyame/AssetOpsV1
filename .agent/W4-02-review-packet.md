@@ -1,8 +1,8 @@
 # W4-02 review packet (mini-grid depth: renewable, service, fuel, backup)
 
 Contract `.agent/W4-02-build-spec.md` (closures 1-5, Run 1-11 rulings q1-q11). Handoff `.agent/W4-02-phase-handoff.md`
-(Runs 1-19 + unit 7 below). Rulings queue `.agent/W4-02-pending-rulings.md` (q12 open). Branch
-`task/W4-02-mini-grid-depth`, head `3ec1fb25` (+ this packet), main merged at `c632077b`. Lane A. USER_REVIEW: owner
+(Runs 1-19 + unit 7 below). Rulings queue `.agent/W4-02-pending-rulings.md` (q12 applied; q13 readings non-blocking). Branch
+`task/W4-02-mini-grid-depth`, head `b065ee8d` (+ this packet), main merged at `067113ec`. Lane A. USER_REVIEW: owner
 W4 result review follows independent review. Full backend suite: **not run here by instruction** (runs beside the
 final review).
 
@@ -17,6 +17,7 @@ final review).
 | 6 | `ee461681`..`88294183` (q10 `a82c7a6a`) | Renewable, Service, Fuel, Backup pages; five-tab row; Overview Service/Fuel/Renewable cards |
 | q11 | `607f73f5`, `33780a7a` | Run 11 rulings on the four pages + Overview; q12 readings |
 | 7 | `3ec1fb25` | captures `.agent/W4-02-evidence/` |
+| q12 | `46226fe3`, `0ef42ba5`, `9e8d9e5d`, `b065ee8d` (q12-7); `34ab5d22` (q12-6); `ef979314` (q12-8); `99ce8f19` (q12-1..5, q11-5) | Run 12 rulings; recapture |
 
 ## q11 applied (`607f73f5`)
 - Renewable (q11-1): `renewableDowngraded` (`frontend/src/sites/miniDepthClient.ts`) runs before `Watch`: currentness
@@ -53,39 +54,41 @@ final review).
 | unit 7 | **q12-6** Overview unreachable live; **q12-7** height budgets; **q12-8** UNKNOWN selected provenance on seed | **open** |
 
 ## Captures (`.agent/W4-02-evidence/`: `seed.py`, `capture.mjs`, `evidence.json`, `replay.json`, `mock-measure.json`)
-Seed: private `w402p_test` (created, dropped after), harness of `test_w402_replay_selection_postgres.py`: MG-W402-001
-installed, gateway credential issued by the provisioning CLI, both authored variants posted to
-`POST /api/ingestion/batches` (TLS boundary): accepted positive 3321 / missing-conflicting 326; worker 123 jobs DONE,
-123 selections (seqs/revision IDs in `replay.json`, no credential). Read only via uvicorn 9748 + vite 6146. Mock via
-`node tools/measure-mock-panels.mjs` (renewable, service, fuel, backup, mini). Files `{screen}-{positive|gap}-{1440|390}-app.png`,
-`mock-{screen}-{w}.png`. Positive = 06 Oct (renewable 06-10 Oct); gap = 12 Oct (renewable 08-12 Oct). Revision `33780a7a`.
+Seed (q12 run): private `w402q_test` (created, dropped after), harness of `test_w402_replay_selection_postgres.py`:
+MG-W402-001 installed (now with its persisted `NO_LEGACY_EVIDENCE` basis, q12-6); each of the 29 exact sealed Batch V2
+bodies published first with `assetops_backend.publish_source` (`assetops.w4-mini-depth-cases` v1, q12-8), then posted to
+`POST /api/ingestion/batches`: accepted positive 3321 / missing-conflicting 326; worker 123 jobs DONE, 123 selections.
+`replay.json` holds body digests, publication IDs and selection seqs (no credential). Read only via uvicorn 9748 + vite
+6146. Positive = 06 Oct (renewable 06-10 Oct); gap = 12 Oct (renewable 08-12 Oct). Revision `b065ee8d`.
 
 | Page · state | Observed (1440) |
 | --- | --- |
-| renewable + | `Evidence limited` (LIMITED, sources unknown); cards 41–43 / 20 / 18–20 kW / 4 of 5 days; 5 rows, 06 Oct Excluded |
+| renewable + | `Watch`, `Selected sources: authored_demonstration`, Current; 41–43 / 20 / 18–20 kW / 4 of 5 days |
 | renewable gap | `Not assessed`, `No selected assessment`; 3 / 3 days |
-| service + | `Service assessment: Limited` (Source class unknown); 20 kW, 3.87 kW critical, 0 kWh; clinic row Supported |
+| service + | `Service assessment: Supported` (authored); 20 kW, None seen, 3.87 kW, 0 kWh |
 | service gap | `Unknown`; only Delivered 20 kW; honest null notes |
-| fuel + | `Fuel balance: Unknown`; Expected use 0–2.39 L, note `... for 60 min × selected fuel coefficient ...`; bridge 5 rows |
+| fuel + | `Fuel balance: Unknown`; Expected use 0–2.39 L, note disclosure `Modelled from generator output` |
 | fuel gap | `Fuel balance: evidence limited`; `Modelled quantity unavailable` |
-| backup + | `Backup readiness: Unknown` + `Outage-chain assessment: evidence limited`; `1 witnessed success` / `Of 1 witnessed request/result pair in shown chains`; 3 min vs target 5; chain Pass; `Open Dispatch → ?day=2026-10-06`, `Browse Actions → /actions` |
-| backup gap | chain Incomplete with `Conflicting records 12:06`; null-card notes |
-| Overview | `Awaiting evidence migration` (S5) on both days: mini cards not mounted (q12-6) |
+| backup + | `Backup readiness: Unknown`; `1 witnessed success`; 3 min; readiness cells `{N} cited records` + `Inspect IDs` |
+| backup gap | strip summary `Outage-chain assessment: evidence limited`; chain Incomplete; null-card notes |
+| Overview 06 Oct | five cards Service, Dispatch, Battery, Fuel, Renewable: `Delivered 20 kW` (60 of 60 min covered), Dispatch `CLOSED`, Battery `Not available`, `Expected use 0–2.39 L`, Renewable `Unknown` (06 Oct is the excluded day, no headroom) |
+| Overview 12 Oct | five cards; Service/Fuel/Renewable `Unknown` (LIMITED/UNKNOWN reads) |
 
-Checks (296): pass on page overflow for all four pages at both widths (scrollW <= 1425/390), region count/kind
-order and panel titles equal to the mock, 390 table internal scroll minimums. **Fail: 39 region heights** (renewable
-10, service 11, fuel 10, backup 8; worst backup readiness 598/316 at 1440, 2441/471 at 390, from the q11-4 UUID list)
-and 6 Overview checks (cards absent; 1440 scrollW 1440 on a page shorter than the viewport). Not fixed: q12-7.
+Checks: **424 passed, 0 failed** (`capture.mjs`, all 10 cases x 2 widths): page width at 1440/390 (also with every
+disclosure and drawer opened), region count/kind/title order equal to the mock, every region height within its
+Run 9 budget (closed **and** opened), 390 table internal scroll minimums, five Overview cards in order. Overview card
+rows measure 140 px at 1440 (mock 150) and 466-485 at 390 (mock 507). Bounded regions that scroll internally by design
+(q12-7): renewable windows table (390), service loads table (390) and unlock list (gap), fuel bridge (390), backup
+readiness (1440); no region clips (probe: no bounded panel body overflows without its own scroller).
 
-## Checks run (this run, serial)
-- `tsc --noEmit`: 0. `npm run build`: passed (10.3 s).
-- Frontend full `npx vitest run` at `3ec1fb25`: 98 files, 2401 passed, 1 failed (188 s):
-  `siteFindingEvidence.test.tsx > Finding frame sections (S4-03 phase 2) > renders Evidence as ...` (empty text
-  content). File not touched by this branch; reruns alone: fail, pass, pass, pass -> intermittent.
-- `tools/check-all.ps1`: all 11 guards passed.
-- Earlier runs (handoff "Checks" lines): unit 3 focused 230 + gateway 93 + cold/provenance 74 passed; units 4-5
-  focused Postgres sets (Run 6-14: e.g. 48 passed Run 10, `test_w402_reads*` 17 passed Run 13); Run 19 full frontend
-  98 files / 2399 passed, check-all 11/11.
+## Checks run (q12 run, serial)
+- `tsc --noEmit`: 0. `npm run build`: passed (9.7 s). `tools/check-all.ps1`: all 11 guards passed.
+- Frontend full `npx vitest run` at `b065ee8d`: 98 files, **2404 passed** (164 s).
+- Focused backend (private `w402t_test`, dropped): `test_w402_overview_basis_postgres.py` 3 passed (non-vacuous: with
+  the route's basis branch removed, the serve test fails with 409; reverted); adjacent `test_s5_overview_postgres`,
+  `test_s5_overview_read`, `test_w402_migration_postgres`, `test_s1_cutover`, `test_t027_overview`,
+  `test_s1_bindings_postgres`: 110 passed (84 s).
+- Earlier runs: see handoff "Checks" lines (Run 6-20).
 - Full backend Postgres suite: not run (instruction).
 
 ## Accepted limitations (per rulings)
@@ -98,7 +101,10 @@ and 6 Overview checks (cards absent; 1440 scrollW 1440 on a page shorter than th
 - Dispatch link only, financials null (`No linked dispatch consequence` inert) (q9, q11-2).
 
 ## Residual risk / review focus
-- q12-7 budgets: the pages render honest content but 39 regions exceed the Run 9 height budgets; needs a ruling.
-- q12-6: Overview mini cards are proved only in jsdom; live MG-W402-001 Overview is the S5 migration state.
-- q12-8: positive `Watch`/`Supported` states not reachable on the seeded replay (sources UNKNOWN); jsdom-only.
-- Intermittent `siteFindingEvidence` test (outside W4-02).
+- q12-6 schema: `site_cutover_basis` was added inside this branch's unmerged `0029_w4_mini_depth` (as the q8 amend did),
+  not a new 0030; any DB already at 0029 from earlier runs lacks it (test DBs only). Wiring uses the Postgres
+  Foundation store's `no_legacy_evidence_basis` (other stores keep the 409 default).
+- q12-7: closed disclosures hide limitation lists, ID lists and coverage text by default (strip summary
+  `Limited by N conditions`; backup strip summary is the chain-status chip). Reviewer: side-by-side with the mock.
+- Overview Renewable shows a value only on a SUPPORTED day with a matching noon row; neither captured day has one
+  (06 excluded, 12 limited); 07-10 Oct would. Builder readings logged as q13 (non-blocking).

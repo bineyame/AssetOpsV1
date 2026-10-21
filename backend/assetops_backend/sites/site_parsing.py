@@ -26,6 +26,7 @@ from typing import Any, Mapping, NoReturn
 from assetops_backend.document_bounds import DocumentLimits, reject_oversized
 from assetops_backend.sites.cold_foundation import validate_cold_foundation
 from assetops_backend.sites.ev_foundation import EV_SITE_TYPE, validate_ev_foundation
+from assetops_backend.sites.minigrid_foundation import validate_minigrid_properties
 from assetops_backend.sites.foundation_parsing import (
     FOUNDATION_CONTENT_KEYS,
     parse_component_properties,
@@ -194,6 +195,8 @@ def parse_site_document(document: Mapping[str, Any], *, source: str) -> SiteReco
     site_source = _parse_source(document.get("source"), source=source)
     template = _parse_template_provenance(document.get("template"), source=source)
     foundation = _parse_foundation(document.get("foundation"), source=source)
+    # W4-02 closure 4 N2: the three typed mini-grid depth properties keep their carrier and sign on every type.
+    validate_minigrid_properties(foundation, source=source, invalid=_invalid)
     if site_type == "COLDCHAIN":
         # W2-01: the cold section 3 rules run after the shared strict parser, on every import and on
         # every later revision (`record_at` re-parses through here), so a bad cold Foundation is never stored.

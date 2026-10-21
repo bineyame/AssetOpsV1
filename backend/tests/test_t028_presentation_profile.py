@@ -19,8 +19,11 @@ from assetops_backend.analytics.service import AssessmentService
 PROFILES = Path(__file__).resolve().parents[2] / "frontend" / "src" / "sites" / "presentationProfiles.json"
 
 #: Planned profile capability ids no analytic declares yet, per Site type, with
-#: the slice that owns each. Empty in T028: the profile names only `dispatch`.
-EXPECTED_ORPHANS: dict[str, dict[str, str]] = {"MINIGRID": {}}
+#: the slice that owns each. W4-02 (S6): the four mini-depth tabs are served by
+#: `/performance/mini/capabilities`, not by an AnalyticDeclaration.
+EXPECTED_ORPHANS: dict[str, dict[str, str]] = {
+    "MINIGRID": {"service": "W4-02", "fuel": "W4-02", "renewable": "W4-02", "backup": "W4-02"},
+}
 
 CAPABILITY_KEYS = {"id", "label", "order", "group", "emphasis"}
 

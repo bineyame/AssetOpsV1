@@ -234,37 +234,35 @@
     },
     {
       "id": "renewable",
+      "registry_dependencies": {
+        "product_node_id": "P-mini-area",
+        "node_ids": [
+          "I-mini-depth-read",
+          "I-mini-depth-ui",
+          "D-mini-breadth-windows"
+        ]
+      },
       "mock_route": "#/renewable",
       "product_destination": "Sites > Performance",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 mini-grid breadth",
+      "coverage": "bounded",
+      "task": "W4-02",
+      "follow_on": null,
       "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. RenewableOpportunityWindow needs a reviewed data and claim contract.",
-      "interaction": "Open Sites > Performance and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until RenewableOpportunityWindow is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Selected noon-hour solar headroom for one to five site-local days of a MINIGRID Site, read from stored mini-depth revisions: bounded PV capability, use and headroom after retained margin, eligible/assessed days and per-hour constraints with cited accepted records; the retained-margin value itself reads Unknown.",
+      "interaction": "Open Sites > Performance > Renewable, choose a first site-local day and one to five days; open the opportunity-constraints drawer; follow the Dispatch link only when one UTC day contains the selected hours.",
+      "unknown_or_empty": "A missing value reads Unknown, an unselected day is a Not assessed row, no assessed window reads No renewable window has been assessed for this period, and productive use reads No productive-use scenario has been assessed; no mock value is product evidence.",
       "visual_reference": "index.html#/renewable",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "RenewableOpportunityWindow",
-            "ServiceWindow"
-          ],
-          "projection_contracts": [
-            "FinancialConsequence"
-          ],
-          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "From physical headroom to an opportunity",
             "Productive-use evaluation",
             "Eligible and excluded windows"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W4-02 review accepting the renewable slice, the exact retained-margin read (q9-7), the W4-03 opportunity decision, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
@@ -919,28 +917,28 @@
     },
     {
       "id": "service",
+      "registry_dependencies": {
+        "product_node_id": "P-mini-area",
+        "node_ids": [
+          "I-mini-depth-read",
+          "I-mini-depth-ui",
+          "D-mini-breadth-windows"
+        ]
+      },
       "mock_route": "#/service",
       "product_destination": "Sites > Performance",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 mini-grid breadth",
+      "coverage": "bounded",
+      "task": "W4-02",
+      "follow_on": null,
       "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. ServiceWindow needs a reviewed data and claim contract.",
-      "interaction": "Open Sites > Performance and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until ServiceWindow is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Delivered power per addressed load for one site-local clock hour of a MINIGRID Site, read from the stored mini-depth service revision: the Supported/Limited/Unknown service status, delivered load, interruptions, critical delivered power and unserved energy with measured minutes, and each load's requested-power evidence state with cited accepted records; what customers required reads Unknown without an accepted request.",
+      "interaction": "Open Sites > Performance > Service, choose a site-local day and clock hour; follow a row's Evidence link; the verification link is unavailable until an exact selected Action exists.",
+      "unknown_or_empty": "A missing value reads Unknown (never 0 or None seen), What was needed stays a hatched Unknown bar, and no accepted addressed-load reading reads No addressed-load readings were accepted for this period; no mock value is product evidence.",
       "visual_reference": "index.html#/service",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "ServiceWindow",
-            "LoadRequestEvidence"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Where the power went",
@@ -948,72 +946,70 @@
             "What is supported",
             "What unlocks a service conclusion"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W4-02 review accepting the service slice, an exact selected Action verification link, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
     },
     {
       "id": "fuel",
+      "registry_dependencies": {
+        "product_node_id": "P-mini-area",
+        "node_ids": [
+          "I-mini-depth-read",
+          "I-mini-depth-ui",
+          "D-mini-breadth-windows"
+        ]
+      },
       "mock_route": "#/fuel",
       "product_destination": "Sites > Performance",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 mini-grid breadth",
+      "coverage": "bounded",
+      "task": "W4-02",
+      "follow_on": null,
       "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. FuelBalanceWindow needs a reviewed data and claim contract.",
-      "interaction": "Open Sites > Performance and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until FuelBalanceWindow is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Modelled expected generator fuel use for one site-local clock hour of a MINIGRID Site, read from the stored mini-depth fuel revision: the five fixed balance terms (opening, deliveries, use, closing, residual) with their basis, treatment, coverage and cited accepted records, and the selected fuel-coefficient revisions and generator-power records; no complete inventory balance or residual is claimed while delivery completeness is unconfirmed.",
+      "interaction": "Open Sites > Performance > Fuel, choose a site-local day and clock hour; open the fuel-basis drawer; follow a term's Evidence link; the dispatch consequence stays unlinked until an exact financial destination exists.",
+      "unknown_or_empty": "A missing term reads Unknown, deliveries read Delivery completeness unconfirmed and the residual reads Cannot compute (never 0 L); expected use is always labelled Modelled; no selected revision reads No fuel hour has been assessed for this period; no mock value is product evidence.",
       "visual_reference": "index.html#/fuel",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "FuelBalanceWindow",
-            "OperationalRecord"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Fuel balance at a glance",
             "Balance bridge",
             "Inspect existing generator fuel interpretation"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W4-02 review accepting the fuel slice, an exact dispatch-consequence destination, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
     },
     {
       "id": "backup",
+      "registry_dependencies": {
+        "product_node_id": "P-mini-area",
+        "node_ids": [
+          "I-mini-depth-read",
+          "I-mini-depth-ui",
+          "D-mini-breadth-windows"
+        ]
+      },
       "mock_route": "#/backup",
       "product_destination": "Sites > Performance",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 mini-grid breadth",
+      "coverage": "bounded",
+      "task": "W4-02",
+      "follow_on": null,
       "data_owner": "Unassigned Site/domain read model",
-      "supported_claim": "No S1-S7 product claim. BackupEventChain needs a reviewed data and claim contract.",
-      "interaction": "Open Sites > Performance and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until BackupEventChain is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Observed outage chains for one site-local clock hour of a MINIGRID Site, read from the stored mini-depth backup revision: each correlated chain's ordered loss, start request, start result, power path, load response and service steps with their states, times and cited accepted records, and that chain's own PASS/FAIL/INCOMPLETE result; backup readiness stays Unknown because no general readiness rule or accepted witnessed test record exists.",
+      "interaction": "Open Sites > Performance > Backup, choose a site-local day and clock hour; read the chain table and the four fixed readiness rows; Open Dispatch follows the selected Dispatch link when one exists, and Browse Actions opens the real Actions estate (no backup Action is implied).",
+      "unknown_or_empty": "Readiness always reads Backup readiness: Unknown; the outage count reads Unknown (never 0) without complete supply observation; with no chain the table keeps one No event row reading No complete outage chain can be assessed; a missing step reads No accepted record and Witnessed outcome reads No accepted record; no mock value is product evidence.",
       "visual_reference": "index.html#/backup",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "BackupEventChain",
-            "ServiceWindow"
-          ],
-          "projection_contracts": [
-            "CapabilityReadiness"
-          ],
-          "fixture_or_record_gate": "Distinct mini-grid service, renewable, fuel or backup windows with human attestations where required.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Backup event chains",
@@ -1021,7 +1017,7 @@
             "Operating evidence",
             "Next evidence"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W4-02 review accepting the backup slice, an accepted witnessed-test record path, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }

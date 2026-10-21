@@ -17,6 +17,7 @@
  * The shell supplies the destination builders, because the substrate does not know routes.
  */
 
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -45,6 +46,21 @@ import type { SiteWindowSummary, WindowMoney } from "./siteOverviewClient";
 import type { FindingIndexClient, FindingIndexScope } from "./findingIndexClient";
 import { OverviewFindingList } from "./OverviewFindingList";
 import { HourNotSelected, OverviewGrid } from "./overviewSlots";
+import {
+  DEFAULT_SERVICE_HOUR,
+  localDateOf,
+  localDaysWindow,
+  localHourWindow,
+  type FuelRead,
+  type MiniBound,
+  type MiniDepthClient,
+  type MiniEnvelope,
+  type MiniRead,
+  type MiniWindowQuery,
+  type RenewableRead,
+  type ServiceRead,
+  renewableDowngraded,
+} from "./miniDepthClient";
 import "./w1ux02-site.css";
 
 export interface WindowOverviewLinks {
@@ -62,6 +78,20 @@ export interface WindowOverviewLinks {
   findingList?: (scope: FindingIndexScope) => string;
 }
 
+/** W4-02 B3: the mini-grid domains whose Overview cards read the mini depth endpoints (Backup has no card). */
+export type OverviewMiniDomain = "service" | "fuel" | "renewable";
+
+/** W4-02 B3: what a MINIGRID Overview needs to read its Service, Fuel and Renewable cards. */
+export interface OverviewMiniReads {
+  client: MiniDepthClient;
+  /** The public Site code (S9). */
+  siteCode: string;
+  /** The Site's IANA zone: the cards read the Site-local day and its local noon hour. */
+  timeZone: string;
+  /** The Performance tab for one domain at the exact window and cutoff the card read. */
+  detailHref: (domain: OverviewMiniDomain, window: MiniWindowQuery) => string;
+}
+
 export interface SiteWindowOverviewProps {
   summary: SiteWindowSummary;
   links: WindowOverviewLinks;
@@ -71,6 +101,8 @@ export interface SiteWindowOverviewProps {
   findingIndex?: FindingIndexClient;
   /** S5-02: read the Overview again (the list's reload affordance). */
   onReload?: () => void;
+  /** W4-02 B3: the mini reads; without them the Service, Fuel and Renewable cards keep their no-read state. */
+  mini?: OverviewMiniReads;
 }
 
 /**
@@ -354,21 +386,217 @@ function ObjectiveLine({ summary }: { summary: SiteWindowSummary }) {
   );
 }
 
+/** The loading sentence `settledScreen` waits on, shown on a mini card while its read is in flight. */
+export const OVERVIEW_MINI_LOADING = "Loading the site's mini-grid assessment.";
+/** Spec closure 2: a failed Overview mini read (503, transport, malformed) reads as unavailable, never as zero. */
+export const OVERVIEW_MINI_UNAVAILABLE = "Mini-grid evidence is unavailable right now. Try again.";
+/** A read whose evidence basis is pending, superseded or unknown never shows a value (q10-3, q11-1, q11-5). */
+const DOWNGRADED = new Set(["PENDING_RECOMPUTE", "STALE_SOURCE", "UNKNOWN"]);
+const MINI_NUMBER = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+
+interface OverviewMiniState {
+  key: string;
+  localDay: string;
+  hour: MiniWindowQuery;
+  day: MiniWindowQuery;
+  service: MiniRead<ServiceRead> | null;
+  fuel: MiniRead<FuelRead> | null;
+  renewable: MiniRead<RenewableRead> | null;
+}
+
 /**
- * The mock's five objective cards. Only Dispatch has a read (the day's dispatch assessment); every other
- * objective is its own unknown cell, never a value drawn from the mock.
+ * Q24/B3: one renewable read for the Site-local day of the selected UTC day's start, and one service and one fuel
+ * read for that local day's noon hour, all sharing one `known_at` fixed when the reads start. No backup read.
  */
-function ObjectiveCards({ summary }: { summary: SiteWindowSummary }) {
+function useOverviewMini(mini: OverviewMiniReads | undefined, utcDay: string): OverviewMiniState | null {
+  const client = mini?.client;
+  const siteCode = mini?.siteCode;
+  const timeZone = mini?.timeZone;
+  const key = `${siteCode}|${timeZone}|${utcDay}`;
+  const [state, setState] = useState<OverviewMiniState | null>(null);
+  useEffect(() => {
+    if (client === undefined || siteCode === undefined || timeZone === undefined) {
+      setState(null);
+      return;
+    }
+    let current = true;
+    const known_at = new Date().toISOString();
+    const localDay = localDateOf(timeZone, Date.parse(`${utcDay}T00:00:00Z`));
+    const hour = { ...localHourWindow(timeZone, localDay, DEFAULT_SERVICE_HOUR), known_at };
+    const day = { ...localDaysWindow(timeZone, localDay, 1), known_at };
+    setState({ key, localDay, hour, day, service: null, fuel: null, renewable: null });
+    const settle = <K extends "service" | "fuel" | "renewable">(name: K, read: OverviewMiniState[K]) => {
+      if (current) setState((prev) => (prev === null || prev.key !== key ? prev : { ...prev, [name]: read }));
+    };
+    void client.getService(siteCode, hour).then((r) => settle("service", r));
+    void client.getFuel(siteCode, hour).then((r) => settle("fuel", r));
+    void client.getRenewable(siteCode, day).then((r) => settle("renewable", r));
+    return () => {
+      current = false;
+    };
+  }, [client, siteCode, timeZone, utcDay, key]);
+  return state !== null && state.key === key ? state : null;
+}
+
+function bothBounds(bound: MiniBound | null | undefined): bound is { low: number; high: number } {
+  return bound !== null && bound !== undefined && bound.low !== null && bound.high !== null;
+}
+
+function rangeText(bound: { low: number; high: number }): string {
+  return bound.low === bound.high
+    ? MINI_NUMBER.format(bound.low)
+    : `${MINI_NUMBER.format(bound.low)}–${MINI_NUMBER.format(bound.high)}`;
+}
+
+/** A successful read's evidence basis allows a value: it is not downgraded by its currentness. */
+function valueAllowed(read: MiniEnvelope<unknown, unknown>): boolean {
+  return !DOWNGRADED.has(read.currentness.state);
+}
+
+/** q12 (q11-5 b): the actual observed/required coverage, never a claim of a complete hour from a number alone. */
+function coverageText(read: MiniEnvelope<unknown, unknown>): string {
+  const c = read.coverage;
+  if (c === null || c.required_seconds <= 0) return "coverage unknown";
+  return `${MINI_NUMBER.format(c.observed_seconds / 60)} of ${MINI_NUMBER.format(c.required_seconds / 60)} min covered`;
+}
+
+/** q12 (q11-5 b): complete aligned 3600/3600-second coverage with no gap. */
+function completeHour(read: MiniEnvelope<unknown, unknown>): boolean {
+  const c = read.coverage;
+  return c !== null && c.required_seconds === 3600 && c.observed_seconds >= 3600 && c.gaps.length === 0;
+}
+
+interface MiniCardWords {
+  state: string;
+  value: string;
+  note: string;
+  link: string | null;
+}
+
+function miniCardWords<T extends MiniEnvelope<unknown, unknown>>(
+  read: MiniRead<T> | null,
+  answered: (value: T) => { value: string | null; note: string },
+  link: string,
+): MiniCardWords {
+  if (read === null) return { state: "loading", value: "Loading", note: OVERVIEW_MINI_LOADING, link: null };
+  if (read.status !== "loaded") return { state: "unavailable", value: "Unavailable", note: OVERVIEW_MINI_UNAVAILABLE, link: null };
+  const words = answered(read.value);
+  return { state: words.value === null ? "unknown" : "value", value: words.value ?? "Unknown", note: words.note, link };
+}
+
+function MiniObjectiveCard({ domain, label, words }: { domain: OverviewMiniDomain; label: string; words: MiniCardWords }) {
+  return (
+    <MetricCard
+      label={label}
+      value={words.value}
+      note={
+        <>
+          {words.note}
+          {words.link === null ? null : (
+            <>
+              {" "}
+              <Link to={words.link} data-objective-card-detail={domain}>
+                View detail →
+              </Link>
+            </>
+          )}
+        </>
+      }
+      tone={words.state === "value" ? undefined : "muted"}
+      word
+      data={{ "data-objective-card": domain, "data-objective-card-state": words.state }}
+    />
+  );
+}
+
+function serviceWords(state: OverviewMiniState, mini: OverviewMiniReads): MiniCardWords {
+  return miniCardWords(
+    state.service,
+    (read) => {
+      const kw = read.cards?.delivered_load_kw ?? null;
+      const shown = read.status === "SUPPORTED" && valueAllowed(read) && kw !== null && completeHour(read);
+      return {
+        value: shown ? `Delivered ${MINI_NUMBER.format(kw)} kW` : null,
+        note: `Local ${state.localDay} 12:00–13:00 · ${coverageText(read)}`,
+      };
+    },
+    mini.detailHref("service", state.hour),
+  );
+}
+
+function fuelWords(state: OverviewMiniState, mini: OverviewMiniReads): MiniCardWords {
+  return miniCardWords(
+    state.fuel,
+    (read) => {
+      const use = read.cards?.expected_use_l;
+      return {
+        value: valueAllowed(read) && bothBounds(use) ? `Expected use ${rangeText(use)} L` : null,
+        note: `Local ${state.localDay} 12:00–13:00 · Inventory residual unavailable`,
+      };
+    },
+    mini.detailHref("fuel", state.hour),
+  );
+}
+
+function renewableWords(state: OverviewMiniState, mini: OverviewMiniReads): MiniCardWords {
+  return miniCardWords(
+    state.renewable,
+    (read) => {
+      const headroom = read.cards?.headroom_kw;
+      // q12 (q11-5 c): the one-day status alone is not proof of the row. The selected window must be this local
+      // day's noon hour, and an assessed row must match that window exactly.
+      const noon = state.hour.from === null ? Number.NaN : Date.parse(state.hour.from);
+      const window = read.currentness.windows.find(
+        (w) => w.local_day === state.localDay && w.selection_id !== null && Date.parse(w.window_start) === noon,
+      );
+      const row =
+        window === undefined
+          ? undefined
+          : read.rows.find(
+              (r) =>
+                r.day === window.local_day &&
+                Date.parse(r.from) === Date.parse(window.window_start) &&
+                Date.parse(r.to) === Date.parse(window.window_end),
+            );
+      return {
+        value:
+          // q11-1 applied to the card: a source/currentness downgrade withholds the positive headroom value.
+          read.status === "SUPPORTED" &&
+          valueAllowed(read) &&
+          !renewableDowngraded(read) &&
+          row !== undefined &&
+          bothBounds(headroom)
+            ? `Headroom ${rangeText(headroom)} kW`
+            : null,
+        note: `Local ${state.localDay} · One selected day; recurrence not established`,
+      };
+    },
+    mini.detailHref("renewable", state.day),
+  );
+}
+
+/**
+ * The mock's five objective cards, in its order: Service, Dispatch, Battery, Fuel, Renewable (B3; no Backup card).
+ * Dispatch reads the day's dispatch assessment. On a MINIGRID Site with mini reads, Service, Fuel and Renewable read
+ * the W4-02 mini endpoints (Q24); every other cell is its own no-read state, never a value drawn from the mock.
+ */
+function ObjectiveCards({ summary, mini }: { summary: SiteWindowSummary; mini?: OverviewMiniReads }) {
   const a = summary.assessment;
   const current = a.state === "CURRENT" && a.claim_level !== null;
   const w = objectiveWords(a.state);
   const n = a.dispatch_intervals.length;
+  const miniState = useOverviewMini(mini, summary.window.utc_date);
   const unknown = (key: string, label: string, note: string) => (
     <MetricCard key={key} label={label} value="Not available" note={note} tone="muted" word data={{ "data-objective-card": key, "data-objective-card-state": "no-read" }} />
   );
+  const reads = mini !== undefined && miniState !== null ? { mini, state: miniState } : null;
   return (
     <MetricCards columns={5} label="Operating objectives for this day">
-      {unknown("service", "Service", "No service read for this day: what customers needed is not measured here")}
+      {reads !== null ? (
+        <MiniObjectiveCard domain="service" label="Service" words={serviceWords(reads.state, reads.mini)} />
+      ) : (
+        unknown("service", "Service", "No service read for this day: what customers needed is not measured here")
+      )}
       <MetricCard
         label="Dispatch"
         value={current ? (OUTCOME_WORDS[a.claim_level as string] ?? "Assessed") : w.label}
@@ -377,8 +605,16 @@ function ObjectiveCards({ summary }: { summary: SiteWindowSummary }) {
         data={{ "data-objective-card": "dispatch", "data-objective-card-state": a.state }}
       />
       {unknown("battery", "Battery", "No battery condition read on this Overview")}
-      {unknown("fuel", "Fuel", "No fuel balance read for this day")}
-      {unknown("renewable", "Renewable", "No renewable read for this day")}
+      {reads !== null ? (
+        <MiniObjectiveCard domain="fuel" label="Fuel" words={fuelWords(reads.state, reads.mini)} />
+      ) : (
+        unknown("fuel", "Fuel", "No fuel balance read for this day")
+      )}
+      {reads !== null ? (
+        <MiniObjectiveCard domain="renewable" label="Renewable" words={renewableWords(reads.state, reads.mini)} />
+      ) : (
+        unknown("renewable", "Renewable", "No renewable read for this day")
+      )}
     </MetricCards>
   );
 }
@@ -903,7 +1139,7 @@ function NextStep({ summary, links }: { summary: SiteWindowSummary; links: Windo
   );
 }
 
-export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, onReload }: SiteWindowOverviewProps) {
+export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, onReload, mini }: SiteWindowOverviewProps) {
   const day = summary.window.utc_date;
   return (
     <div className="site-window-overview" data-overview-state="window" data-window-site={summary.site_code}>
@@ -915,7 +1151,7 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
             <DaySelector summary={summary} onSelectDay={onSelectDay} />
             <DayStatus summary={summary} links={links} />
             <ObjectiveLine summary={summary} />
-            <ObjectiveCards summary={summary} />
+            <ObjectiveCards summary={summary} mini={mini} />
           </>
         }
         happened={{

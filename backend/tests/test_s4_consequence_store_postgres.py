@@ -131,6 +131,26 @@ def site(store, engine, capsys):  # noqa: F811
     s.store.dispose()
 
 
+@pytest.fixture()
+def site_before_0029(store, engine, capsys):  # noqa: F811
+    """W4-02 q1 ruling 2: the same MINIGRID PowerSite, seeded before 0029 is installed so it holds no mini history;
+    for downgrade probes that cross 0029."""
+    from alembic.config import Config
+    from mini_depth_probe import assert_no_mini_history, seeded_before_0029
+    from test_s1_bindings_postgres import BACKEND
+
+    config = Config(str(BACKEND / "alembic.ini"))
+    config.attributes["database_url"] = URL
+    with seeded_before_0029(config, engine, store):
+        s = PowerSite(store, engine, capsys)
+        s.prices.dispose()
+        s.store.dispose()
+    assert_no_mini_history(engine)
+    yield s
+    s.prices.dispose()
+    s.store.dispose()
+
+
 class TestQuantityFromPersistedInputs:
     def test_power_finding_is_quantified_from_exact_accepted_ids_and_survives_restart(self, site, engine) -> None:  # noqa: F811
         site.publish("v1", "v2", "v3")
@@ -384,8 +404,9 @@ class TestReviewCarries:
                 if w["finding_revision_id"] == nid]
         assert w["affected_from"] == w["affected_to"] == rev["episode_start"]
 
-    def test_upgrade_enqueues_finding_revisions_recorded_before_0011(self, site, engine) -> None:  # noqa: F811
+    def test_upgrade_enqueues_finding_revisions_recorded_before_0011(self, site_before_0029, engine) -> None:  # noqa: F811
         """Review L4: a database upgraded from 0010 has work for every existing FindingRevision."""
+        site = site_before_0029
         from alembic import command
         from alembic.config import Config
         from test_s1_bindings_postgres import BACKEND
@@ -393,6 +414,7 @@ class TestReviewCarries:
         config = Config(str(BACKEND / "alembic.ini"))
         config.attributes["database_url"] = URL
         site.store.dispose()
+        __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
         command.downgrade(config, "0010_financial_assumptions")
         command.upgrade(config, "head")
         with engine.connect() as c:
@@ -421,7 +443,8 @@ class TestMigration0015Downgrade:
             return bool(c.execute(text("SELECT 1 FROM pg_constraint WHERE conname = 'finding_revision_basis_unique'"))
                         .first())
 
-    def test_downgrade_refuses_while_a_returning_basis_exists_and_keeps_history(self, site, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_while_a_returning_basis_exists_and_keeps_history(self, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029
         from alembic import command
         from sqlalchemy.exc import DBAPIError
 
@@ -437,21 +460,24 @@ class TestMigration0015Downgrade:
                       {"nid": str(uuid4()), "id": rev["id"]})
         site.store.dispose()
         with pytest.raises(DBAPIError, match="returning basis"):
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(self._config(), "0014_source_clock_attestation")
         with engine.connect() as c:
             count = c.execute(text("SELECT count(*) FROM finding_revision WHERE finding_id = :f"),
                               {"f": rev["finding_id"]}).scalar_one()
             version = c.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
-        assert count == 2 and version == "0027_w4_work_cases"
+        assert count == 2 and version == "0029_w4_mini_depth"
         assert not self._basis_constraint(engine)
 
-    def test_downgrade_without_a_returning_basis_restores_the_constraint(self, site, engine) -> None:  # noqa: F811
+    def test_downgrade_without_a_returning_basis_restores_the_constraint(self, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029
         from alembic import command
 
         site.on(STATE_DAY)
         site.store.dispose()
         config = self._config()
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, "0014_source_clock_attestation")
             assert self._basis_constraint(engine)
         finally:

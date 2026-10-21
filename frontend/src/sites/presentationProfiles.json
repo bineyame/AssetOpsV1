@@ -24,11 +24,39 @@
     ],
     "capabilities": [
       {
-        "id": "dispatch",
-        "label": "Dispatch assessment",
+        "id": "service",
+        "label": "Service",
         "order": 1,
         "group": "Performance",
+        "emphasis": "default"
+      },
+      {
+        "id": "dispatch",
+        "label": "Dispatch assessment",
+        "order": 2,
+        "group": "Performance",
         "emphasis": "primary"
+      },
+      {
+        "id": "fuel",
+        "label": "Fuel",
+        "order": 3,
+        "group": "Performance",
+        "emphasis": "default"
+      },
+      {
+        "id": "renewable",
+        "label": "Renewable",
+        "order": 4,
+        "group": "Performance",
+        "emphasis": "default"
+      },
+      {
+        "id": "backup",
+        "label": "Backup",
+        "order": 5,
+        "group": "Performance",
+        "emphasis": "default"
       }
     ],
     "finding_types": [

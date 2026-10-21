@@ -34,6 +34,14 @@ import { SiteFinding } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
+import { BUILT_MINI_PAGES, MiniBackup, MiniFuel, MiniPerformanceSubtabs, MiniRenewable, MiniService } from "../sites/MiniPerformance";
+import {
+  createMiniDepthClient,
+  isMiniDomain,
+  renewableWindowFromParams,
+  serviceWindowFromParams,
+  type MiniDepthClient,
+} from "../sites/miniDepthClient";
 import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
@@ -146,12 +154,15 @@ function coldLinks(siteId: string, window: ColdWindowQuery): ColdLinks {
 
 const COLD_PERFORMANCE_VIEWS: Record<string, "temperature" | "backup"> = { temperature: "temperature", backup: "backup" };
 
+const DEFAULT_MINI_DEPTH = createMiniDepthClient();
+
 export function SitePerformanceFrame({
   detail,
   analytics,
   sitesPath,
   coldAssessment,
   evAssessment,
+  miniDepth = DEFAULT_MINI_DEPTH,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
@@ -160,6 +171,8 @@ export function SitePerformanceFrame({
   coldAssessment?: ColdAssessmentClient;
   /** W2-06: the selected EV session reads; an EV_CHARGING Site renders `sessions` from them. */
   evAssessment?: EvAssessmentClient;
+  /** W4-02: the MINIGRID mini-depth reads; a MINIGRID Site renders `service|fuel|renewable|backup` from them. */
+  miniDepth?: MiniDepthClient;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
   const [params] = useSearchParams();
@@ -214,6 +227,69 @@ export function SitePerformanceFrame({
             />
           );
         }
+        if (site.site_type === "MINIGRID" && isMiniDomain(capabilityId) && BUILT_MINI_PAGES.has(capabilityId)) {
+          const timeZone = site.timezone || null;
+          const pageHref = (search: string) => `${sitePerformanceHref(site.site_id, capabilityId)}${search}`;
+          return (
+            <main aria-labelledby={SITE_PERFORMANCE_HEADING_ID}>
+              <Breadcrumbs
+                trail={[
+                  { label: "Sites", to: sitesPath },
+                  { label: site.display_name, to: siteDetailHref(site.site_id) },
+                  { label: "Performance" },
+                ]}
+              />
+              <SitePageHeader
+                siteName={site.display_name}
+                siteId={site.site_id}
+                mode={deriveSiteView(site).sourceMode}
+                description={SITE_SCREEN_DESCRIPTIONS[capabilityId]}
+                headingId={SITE_PERFORMANCE_HEADING_ID}
+              />
+              <OperatorSiteTabs siteId={siteId} current="Performance" />
+              <MiniPerformanceSubtabs
+                client={miniDepth}
+                siteCode={site.site_id}
+                profile={presentationProfileFor(site.site_type)}
+                current={capabilityId}
+                subtabHref={(id) => sitePerformanceHref(site.site_id, id)}
+              />
+              {capabilityId === "service" ? (
+                <MiniService
+                  client={miniDepth}
+                  siteCode={site.site_id}
+                  timeZone={timeZone}
+                  window={timeZone === null ? null : serviceWindowFromParams(params, timeZone)}
+                  pageHref={pageHref}
+                />
+              ) : capabilityId === "backup" ? (
+                <MiniBackup
+                  client={miniDepth}
+                  siteCode={site.site_id}
+                  timeZone={timeZone}
+                  window={timeZone === null ? null : serviceWindowFromParams(params, timeZone)}
+                  pageHref={pageHref}
+                />
+              ) : capabilityId === "fuel" ? (
+                <MiniFuel
+                  client={miniDepth}
+                  siteCode={site.site_id}
+                  timeZone={timeZone}
+                  window={timeZone === null ? null : serviceWindowFromParams(params, timeZone)}
+                  pageHref={pageHref}
+                />
+              ) : (
+                <MiniRenewable
+                  client={miniDepth}
+                  siteCode={site.site_id}
+                  timeZone={timeZone}
+                  window={timeZone === null ? null : renewableWindowFromParams(params, timeZone)}
+                  pageHref={pageHref}
+                />
+              )}
+            </main>
+          );
+        }
         return (
         <main aria-labelledby={SITE_PERFORMANCE_HEADING_ID}>
           <Breadcrumbs
@@ -242,6 +318,7 @@ export function SitePerformanceFrame({
           <SitePerformance
             siteId={site.site_id}
             client={analytics}
+            miniDepth={site.site_type === "MINIGRID" ? miniDepth : undefined}
             profile={presentationProfileFor(site.site_type)}
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}

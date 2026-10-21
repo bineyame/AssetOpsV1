@@ -717,7 +717,9 @@ function Invoke-ConfigurationPersistenceCheck {
     # selected/processed/deferred counts, last failure, retry due and the completed matcher fence/skip state; the
     # fair cursor position; explicit enrolment state). Each of its UPDATEs keeps table, SET list and WHERE on one
     # line so every assigned column is checked; upserts (DO UPDATE), DELETE, TRUNCATE and DDL are refused. No other
-    # module writes a schedule table. Migration 0013 owns the DDL; no trigger is ratified.
+    # module writes a schedule table. Migration 0013 owns the DDL; no trigger is ratified. W4-02 q7 ruling 1:
+    # migration 0029 replaces the Site stage CHECK (adds MINI) and adds the three mini_* counters, which only the
+    # store's token-scoped record_mini assigns.
     $scheduleWriter = "$backendRoot/scheduling/adapters/postgres_schedule_store.py"
     $scheduleTables = @('schedule_tick_head', 'schedule_site_head', 'schedule_cursor', 'schedule_enrolment')
     $scheduleClaim = @('claim_token', 'claim_owner', 'claimed_at', 'lease_until')
@@ -727,8 +729,8 @@ function Invoke-ConfigurationPersistenceCheck {
             'claim_skips', 'last_skipped_at', 'last_sites_selected', 'last_sites_processed', 'last_sites_deferred',
             'last_excluded_with_work', 'last_reconcile_ms')
         'schedule_site_head' = $scheduleClaim + @('stage', 'stage_started_at', 'selected_count', 'last_selected_at',
-            'last_completed_at', 's3_processed', 's3_deferred', 'consequence_processed', 'consequence_deferred',
-            's4_outcome', 's4_outcome_at', 'matched_fence', 'matched_version', 'matched_at', 'fence_moved_streak',
+            'last_completed_at', 's3_processed', 's3_deferred', 'mini_processed', 'mini_deferred', 'mini_failed',
+            'consequence_processed', 'consequence_deferred', 's4_outcome', 's4_outcome_at', 'matched_fence', 'matched_version', 'matched_at', 'fence_moved_streak',
             'last_failure_stage', 'last_failure_code', 'last_failure_detail', 'last_failed_at',
             'consecutive_failures', 'retry_due_at', 'claim_skips', 'last_skipped_at')
         'schedule_cursor' = @('after_tenant_id', 'after_site_id', 'updated_at')
@@ -788,11 +790,27 @@ function Invoke-ConfigurationPersistenceCheck {
         'operational_record')
     $workInsertsSeen = @{}
     foreach ($table in $workTables) { $workInsertsSeen[$table] = 0 }
+    # W4-02 unit 1 (build spec closure 1 Q25, closure 4 S2) adds the eleventh writer, the mini-depth store: the sole
+    # runtime writer of the three migration-0029 tables, INSERT-only (0029 triggers refuse UPDATE/DELETE; no upsert,
+    # TRUNCATE, MERGE, COPY or DDL), and it writes no other table. It reads and locks a recompute_job row but never
+    # writes one. Each mini table must have at least one owner INSERT in the store (per-table anti-vacuity below).
+    $miniWriter = "$backendRoot/mini_depth/store.py"
+    $miniTables = @('mini_depth_revision', 'mini_depth_revision_evidence', 'mini_depth_selection')
+    $miniInsertsSeen = @{}
+    foreach ($table in $miniTables) { $miniInsertsSeen[$table] = 0 }
+    # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
+    # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
+    # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
+    $miniEnqueueSql = '(?i)\b(?:SELECT|PERFORM|CALL)\s+(?:mini_enqueue_[a-z_]+)\s*\('
+    $miniPublishEnqueueSql = '(?i)\bSELECT\s+mini_enqueue_configuration\s*\('
+    $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
-        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter)
+        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
-        "$backendRoot/work/adapters/postgres_work_read.py")
+        "$backendRoot/work/adapters/postgres_work_read.py",
+        # W4-02 unit 5 (closure 1 Q25): the read-only mini-depth reader; the SQL-write refusal still applies to it.
+        "$backendRoot/mini_depth/read.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
@@ -836,10 +854,11 @@ function Invoke-ConfigurationPersistenceCheck {
     }
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
-        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0 }
+        $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
+        $miniWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
-        $actionWriter = $false; $workWriter = $false }
+        $actionWriter = $false; $workWriter = $false; $miniWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -888,6 +907,18 @@ function Invoke-ConfigurationPersistenceCheck {
             if ($module.Path -eq $workWriter -and $line -match $actionForbidden) {
                 $failures.Add("The work store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $miniWriter -and $line -match $actionForbidden) {
+                $failures.Add("The mini-depth store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($line -match $miniEnqueueSql) {
+                if ($module.Path -eq $pgWriter -and $line -match $miniPublishEnqueueSql) { $miniPublishEnqueueSeen++ }
+                else {
+                    $failures.Add(("Only $pgWriter calls the 0029 mini enqueue SQL (SELECT mini_enqueue_configuration, " +
+                        "a recompute_job write) after a successful publication; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
             }
             if ($module.Path -eq $ledgerWriter -and $line -match '^\s*_REREAD_ORDER\s*=') {
                 $rereadOrderLines.Add($line.Trim()) | Out-Null
@@ -1001,6 +1032,22 @@ function Invoke-ConfigurationPersistenceCheck {
                         $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $workTables -contains $Matches[1].ToLowerInvariant())) {
                     $failures.Add(("The work store only inserts into $($workTables -join ', ') " +
                         "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $miniWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $miniTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The mini-depth store only inserts into $($miniTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $miniTables -contains $target) {
+                    if ($module.Path -ne $miniWriter) {
+                        $failures.Add(("Only $miniWriter writes mini-depth table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Mini-depth table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, MERGE, " +
+                            "COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $miniInsertsSeen[$target]++
+                    }
                 }
                 if ($null -ne $target -and $workTables -contains $target) {
                     if ($module.Path -ne $workWriter) {
@@ -1196,6 +1243,16 @@ function Invoke-ConfigurationPersistenceCheck {
             "line '$rereadOrderExpected' in $ledgerWriter (found $($rereadOrderLines.Count): " +
             "$($rereadOrderLines -join ' | ')).")) | Out-Null
     }
+    if ($miniPublishEnqueueSeen -lt 1) {
+        $failures.Add(("Rule 8 found no mini_enqueue_configuration call in $pgWriter (W4-02 publication enqueue), so " +
+            "its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    foreach ($table in $miniTables) {
+        if ($extractorRan -and $miniInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $miniWriter, so the mini-depth insert-only check " +
+                "is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
     if ($evPublishEnqueueSeen -lt 1) {
         $failures.Add(("Rule 8 found no ev_enqueue_configuration call in $pgWriter (W2-06 q3 P7 publication " +
             "enqueue), so its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
@@ -1350,6 +1407,12 @@ function Invoke-ConfigurationPersistenceCheck {
         $workProbeNames += @("controls work $table insert", "work $table foreign insert", "work $table update",
             "work $table delete", "work $table upsert", "work $table owner insert unseen")
     }
+    # W4-02 unit 1: the mini-depth writer policy fails closed the same way.
+    foreach ($table in $miniTables) {
+        $workProbeNames += @("controls mini $table insert", "mini $table foreign insert", "mini $table update",
+            "mini $table delete", "mini $table upsert", "mini $table owner insert unseen")
+    }
+    $workProbeNames += @('mini truncate', 'mini enqueue foreign call', 'mini enqueue hour from publication')
     foreach ($probeName in $workProbeNames) {
         if ($probeText -notmatch [regex]::Escape("(""$probeName""")) {
             $failures.Add(("Rule 8 work probe '$probeName' is missing from tools/writer_guard_probes.py; " +

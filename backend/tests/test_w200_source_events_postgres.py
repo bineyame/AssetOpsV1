@@ -31,7 +31,8 @@ if URL:
         FIXTURE, KOBO_SOURCE, NOW, BindingService, Clock, ImportSource, _alembic, convert, engine,
         import_site, read_import_source, store,
     )
-    from test_s2_evidence_ledger_postgres import RECEIVED, Kit, _z, enable, ingestion, kit, submit  # noqa: F401
+    from test_s2_evidence_ledger_postgres import (  # noqa: F401
+        RECEIVED, Kit, _z, converted_enabled, enable, ingestion, kit, submit)
 
     from assetops_backend.evidence import ledger_service
     from assetops_backend.evidence.adapters import postgres_evidence_ledger as adapter_module
@@ -55,6 +56,10 @@ ASSET_CODE = "pv-inverter"  # the template binding's frozen asset code: the "con
 @pytest.fixture()
 def v4(kit, monkeypatch):
     """Patch S2's basis so the closed v4 channels are bound (test-only), and return an envelope builder."""
+    return patched_v4(kit, monkeypatch)
+
+
+def patched_v4(kit, monkeypatch):
     original = ledger_service.basis_from_snapshot
     overrides: dict = {}
 
@@ -173,12 +178,15 @@ class TestAdmission:
         # W2-00 ruling 5 kept: v4 records enqueue no dispatch job. W2-03: a v4 record bound to a cold-roles-1
         # role (the chamber probe here) enqueues cold work only. W2-06: the accepted EV session START (an
         # ev-roles-1 record) enqueues ev_charging work through the 0025 deferred trigger, never dispatch work.
-        assert rows(engine, "SELECT * FROM recompute_job WHERE domain NOT IN ('cold_chain', 'ev_charging')") == []
+        # W4-02 q1 ruling 2: the four exact mini domains are excluded alongside cold/EV (this fixture is MINIGRID).
+        assert rows(engine, "SELECT * FROM recompute_job WHERE domain NOT IN ('cold_chain', 'ev_charging', "
+                            f"{MINI_DOMAINS_SQL})") == []
         assert rows(engine, "SELECT 1 FROM recompute_job WHERE domain = 'ev_charging'")
         v3 = v4.submit(v4.kit.pv(1, first=50))
         assert decisions(v3.receipt) == [("ACCEPTED", None, None)]
         assert [j["domain"] for j in rows(engine, "SELECT domain FROM recompute_job "
-                                                  "WHERE domain NOT IN ('cold_chain', 'ev_charging')")] == ["dispatch"]
+                                                  f"WHERE domain NOT IN ('cold_chain', 'ev_charging', {MINI_DOMAINS_SQL})"
+                                                  )] == ["dispatch"]
 
     def test_a_valid_header_batch_completes_with_one_persisted_ordinal_refusal_each(self, v4, engine) -> None:
         def v3_event(seq):
@@ -469,16 +477,35 @@ V3_COLUMNS = (
 )
 
 
-def raw_copy(engine, source_id, **changes):
-    """Insert a modified copy of an accepted row directly (test-only; proves the 0020 constraints)."""
+#: W4-02 q1 ruling 2: the four exact mini-depth job domains 0029 adds.
+MINI_DOMAINS_SQL = "'mini_renewable', 'mini_service', 'mini_fuel', 'mini_backup'"
+
+
+def raw_copy(engine, source_id, *, accepted=False, **changes):
+    """Insert a modified copy of an accepted row directly (test-only; proves the 0020 constraints).
+
+    W4-02 q1 ruling 2: a copy meant to be admitted (`accepted=True`) takes a fresh ordinal and gets its matching
+    ACCEPTED `ingestion_disposition` in the same transaction, as the 0029 deferred mini-depth trigger requires of
+    an accepted MINIGRID row; the trigger itself is untouched."""
     with engine.connect() as connection:
         row = dict(connection.execute(text("SELECT * FROM accepted_evidence WHERE id = :i"),
                                       {"i": source_id}).mappings().one())
     row.update(id=uuid4(), message_id=uuid4().hex + uuid4().hex, **changes)
-    columns = ", ".join(row)
-    values = ", ".join(f":{k}" for k in row)
     with engine.begin() as connection:
+        if accepted:
+            row["ordinal"] = connection.execute(text(
+                "SELECT greatest((SELECT coalesce(max(ordinal), 0) FROM ingestion_disposition WHERE batch_id = :b), "
+                "(SELECT coalesce(max(ordinal), 0) FROM accepted_evidence WHERE batch_id = :b)) + 1"),
+                {"b": row["batch_id"]}).scalar_one()
+        columns = ", ".join(row)
+        values = ", ".join(f":{k}" for k in row)
         connection.execute(text(f"INSERT INTO accepted_evidence ({columns}) VALUES ({values})"), row)
+        if accepted:
+            connection.execute(text(
+                "INSERT INTO ingestion_disposition (batch_id, ordinal, tenant_id, site_id, message_id, decision, "
+                "accepted_evidence_id, rejection_id, decided_at) VALUES (:b, :o, :t, :s, :m, 'ACCEPTED', :e, NULL, "
+                ":at)"), {"b": row["batch_id"], "o": row["ordinal"], "t": row["tenant_id"], "s": row["site_id"],
+                          "m": row["message_id"], "e": row["id"], "at": row["received_at"]})
     return row["id"]
 
 
@@ -521,13 +548,36 @@ def nullable(engine, column):
 
 
 class TestMigration0020:
-    def test_upgrade_keeps_v3_rows_and_reads_and_downgrade_refuses_while_v4_facts_exist(self, v4, engine) -> None:
+    def test_0029_refuses_first_while_the_minigrid_fixture_holds_mini_history(self, v4, engine) -> None:
+        # W4-02 q1 ruling 2 (split): this module's MINIGRID fixture, published and ingested at head, holds mini-depth
+        # history; 0029 refuses before any older migration and leaves every row and the head intact.
         from alembic import command
+        from mini_depth_probe import MINI_REFUSED, has_mini_jobs, mini_history
+
+        v4.submit(v4.kit.pv(3, first=60))
+        assert has_mini_jobs(engine)
+        before = (mini_history(engine), rows(engine, "SELECT id FROM accepted_evidence ORDER BY id"),
+                  rows(engine, "SELECT id FROM recompute_job ORDER BY id"))
+        with pytest.raises(DBAPIError, match=MINI_REFUSED):
+            command.downgrade(_alembic(), "0019_verification_core")
+        assert head(engine) == "0029_w4_mini_depth"
+        assert (mini_history(engine), rows(engine, "SELECT id FROM accepted_evidence ORDER BY id"),
+                rows(engine, "SELECT id FROM recompute_job ORDER BY id")) == before
+
+    def test_upgrade_keeps_v3_rows_and_reads_and_downgrade_refuses_while_v4_facts_exist(
+            self, store, engine, monkeypatch) -> None:
+        from alembic import command
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
 
         from assetops_backend.evidence.ledger_reads import record_payload
 
         config = _alembic()
-        v4.submit(v4.kit.pv(3, first=60))
+        # W4-02 q1 ruling 2: the MINIGRID Site and its v3 rows are seeded before 0029 is installed.
+        with seeded_before_0029(config, engine, store):
+            _, outcome = converted_enabled(store, engine)
+            v4 = patched_v4(Kit(engine, outcome.published.changed.id), monkeypatch)
+            v4.submit(v4.kit.pv(3, first=60))
+        assert_no_mini_history(engine)
         ledger = PostgresEvidenceLedger(URL)
         t, s = v4.kit.principal.tenant_id, v4.kit.principal.site_id
 
@@ -542,6 +592,7 @@ class TestMigration0020:
         refused = "Downgrade of 0020_w2_source_event refused"
         before_rows, before_reads = v3_rows(), v3_reads()
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, "0019_verification_core")
             assert head(engine) == "0019_verification_core" and nullable(engine, "record_kind") is None
             assert v3_rows() == before_rows
@@ -558,19 +609,23 @@ class TestMigration0020:
             assert rows(engine, "SELECT 1 FROM recompute_job WHERE domain = 'ev_charging'")
             _delete_as_replica(engine, ("DELETE FROM recompute_job WHERE domain = 'ev_charging'",))
             with pytest.raises(DBAPIError, match=refused):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0019_verification_core")
-            assert head(engine) == "0027_w4_work_cases"
+            assert head(engine) == "0029_w4_mini_depth"
             assert len(rows(engine, "SELECT 1 FROM accepted_evidence")) == evidence_count  # nothing deleted
             remove_test_blockers(engine)
 
-            # 2. an accepted interval delta
+            # 2. an accepted interval delta. W4-02 q1 ruling 2: 0024's refusal depends only on the INTERVAL_DELTA
+            # measurement, so the copy carries an explicitly unmapped role and enqueues no mini work.
             source_time = before_rows[0]["source_time"]
-            raw_copy(engine, before_rows[0]["id"], measurement="INTERVAL_DELTA", original_unit="kWh",
+            raw_copy(engine, before_rows[0]["id"], accepted=True, measurement="INTERVAL_DELTA", original_unit="kWh",
                      normalized_unit="kWh", original_value_text="1.5", normalized_value_text="1.5",
                      interval_start=source_time - timedelta(minutes=5), interval_end=source_time,
-                     session_id="sess-1", connector_id=ASSET_CODE)
+                     session_id="sess-1", connector_id=ASSET_CODE, role="test-unmapped-ev-delta")
+            assert_no_mini_history(engine)
             # W2-05a: 0024 sits above 0020 and refuses first while an EV measurement exists (its own message).
             with pytest.raises(DBAPIError, match="Downgrade of 0024_w2_ev_config refused"):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0019_verification_core")
             remove_test_blockers(engine)
 
@@ -584,6 +639,7 @@ class TestMigration0020:
                 "WHERE r.conflicts_with_evidence_id = e.id)",
             ))
             with pytest.raises(DBAPIError, match=refused):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0019_verification_core")
             remove_test_blockers(engine)
 
@@ -594,9 +650,11 @@ class TestMigration0020:
                     "available_at, created_at) VALUES (:i, :t, :s, 'cold_chain', now(), "
                     "now() + interval '1 minute', 'PENDING', now(), now())"), {"i": uuid4(), "t": t, "s": s})
             with pytest.raises(DBAPIError, match=refused):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0019_verification_core")
             remove_test_blockers(engine)
 
+            assert_no_mini_history(engine)
             command.downgrade(config, "0019_verification_core")
             assert [nullable(engine, c) for c in ("measurement", "conversion_kind", "original_unit",
                                                   "normalized_unit")] == ["NO"] * 4
@@ -608,7 +666,7 @@ class TestMigration0020:
             assert v3_rows() == before_rows
         finally:
             command.upgrade(config, "head")
-        assert head(engine) == "0027_w4_work_cases" and v3_reads() == before_reads
+        assert head(engine) == "0029_w4_mini_depth" and v3_reads() == before_reads
 
     def test_constraints_indexes_site_fks_and_append_only_hold(self, v4, engine) -> None:
         answer = v4.submit([v4.event(1, "START_RESULT", "evt-1", "FAILED"), v4.start(2, "start-1"), v4.point(3)])
@@ -630,8 +688,8 @@ class TestMigration0020:
         ):
             with pytest.raises(IntegrityError, match=constraint):
                 raw_copy(engine, source_id, **changes)
-        raw_copy(engine, start_id, event_id="start-3", session_id="sess-2", correlation_id="sess-2")
-        raw_copy(engine, event_id, event_id="evt-9")  # a distinct event key is admitted
+        raw_copy(engine, start_id, accepted=True, event_id="start-3", session_id="sess-2", correlation_id="sess-2")
+        raw_copy(engine, event_id, accepted=True, event_id="evt-9")  # a distinct event key is admitted
         with pytest.raises(DBAPIError, match="append-only"):
             with engine.begin() as connection:
                 connection.execute(text("UPDATE accepted_evidence SET outcome = 'SUCCEEDED' WHERE id = :i"),

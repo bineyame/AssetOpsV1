@@ -1,0 +1,293 @@
+{
+  "schema": {
+    "id": "assetops.binding-conversion",
+    "version": 1
+  },
+  "status": "W4-02 authored mini-grid depth demonstration (D-2026-10-20-w4-02-buildspec closure 5, q1 ruling 1); configuration only, no observation.",
+  "site_code": "MG-W402-001",
+  "role_set": "minigrid-roles-4",
+  "effective_from": "FOUNDATION_ORIGINAL_VALID_FROM",
+  "note": "First minigrid-roles-4 binding set for MG-W402-001: existing v3 channels plus the three exact authored-mini-depth-cases/1 v4 tuples.",
+  "declare_signals": [],
+  "bindings": [
+    {
+      "legacy_mapping_id": null,
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "asset_code": "pv-inverter",
+      "role": "pv_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "pv-irradiance-sensor",
+      "signal_id": "irradiance",
+      "asset_code": "pv-array",
+      "role": "pv_irradiance",
+      "source_unit": "W/m2",
+      "canonical_unit": "W/m2",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "battery-pcs-controller",
+      "signal_id": "ac-power",
+      "asset_code": "battery-pcs",
+      "role": "battery_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "asset_code": "battery",
+      "role": "battery_soc",
+      "source_unit": "%",
+      "canonical_unit": "%",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "generator-controller",
+      "signal_id": "ac-power",
+      "asset_code": "generator",
+      "role": "generator_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "fuel-level-sensor",
+      "signal_id": "fuel-level",
+      "asset_code": "fuel-tank",
+      "role": "fuel_level",
+      "source_unit": "L",
+      "canonical_unit": "L",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "residential-meter",
+      "signal_id": "active-power",
+      "asset_code": "load-res",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "clinic-meter",
+      "signal_id": "active-power",
+      "asset_code": "load-clinic",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "mill-meter",
+      "signal_id": "active-power",
+      "asset_code": "load-mill",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "generator-controller",
+      "signal_id": "status",
+      "asset_code": "generator",
+      "role": "generator_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "STOPPED": "STOPPED",
+            "STARTING": "STARTING",
+            "RUNNING": "RUNNING",
+            "FAILED": "FAILED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "pv-inverter-controller",
+      "signal_id": "available-power",
+      "asset_code": "pv-inverter",
+      "role": "pv_available_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "battery-pcs-controller",
+      "signal_id": "discharge-capability",
+      "asset_code": "battery-pcs",
+      "role": "pcs_discharge_capability",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "clinic-meter",
+      "signal_id": "requested-power",
+      "asset_code": "load-clinic",
+      "role": "critical_load_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "clinic-meter",
+      "signal_id": "delivered-power",
+      "asset_code": "load-clinic",
+      "role": "critical_load_delivered_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "battery-pcs-controller",
+      "signal_id": "charge-requested-power",
+      "asset_code": "battery",
+      "role": "storage_charge_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "residential-meter",
+      "signal_id": "requested-power",
+      "asset_code": "load-res",
+      "role": "feeder_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "mill-meter",
+      "signal_id": "requested-power",
+      "asset_code": "load-mill",
+      "role": "feeder_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "mini-primary-bus-meter",
+      "signal_id": "state",
+      "asset_code": "ac-bus",
+      "role": "site_supply_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "ENERGIZED": "ENERGIZED",
+            "LOST": "LOST",
+            "UNKNOWN": "UNKNOWN"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "mini-generator-controller",
+      "signal_id": "start-event",
+      "asset_code": "generator",
+      "role": "mini_backup_start_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "mini-backup-bus-meter",
+      "signal_id": "state",
+      "asset_code": "ac-bus",
+      "role": "mini_backup_bus_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "ENERGIZED": "ENERGIZED",
+            "DEENERGIZED": "DEENERGIZED",
+            "UNKNOWN": "UNKNOWN"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -16,6 +16,8 @@ _CONVERSIONS = Path(__file__).resolve().parents[3] / "conversions"
 AUTHORED_FIXTURES: dict[str, Path] = {
     "assetops.s4-power-demo-cases": _CONVERSIONS / "s4-power-demo-cases-v1.json",
     "assetops.s4-power-late-demo-cases": _CONVERSIONS / "s4-power-late-demo-cases-v1.json",
+    # W4-02 closure 5: the authored MG-W402-001 mini-grid depth cases.
+    "assetops.w4-mini-depth-cases": _CONVERSIONS / "w4-mini-depth-cases-v1.json",
 }
 
 

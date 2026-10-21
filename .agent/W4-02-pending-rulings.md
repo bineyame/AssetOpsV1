@@ -255,3 +255,18 @@ None blocks unit 7; each is a one-line change.
 8. **Selected provenance is UNKNOWN on every seeded read.** The harness install reports `Selected sources: unknown`
    and `Limited by: Source class unknown`, so renewable and service read LIMITED on positive days. The positive
    `Watch`/`Supported` states are therefore jsdom-only.
+
+## q13 (q12 run): builder readings applied provisionally, to confirm or replace (none blocks review)
+1. **q12-6 storage.** The basis is table `site_cutover_basis` (tenant, site, `site_import_id`, `source_sha256`,
+   `basis = 'NO_LEGACY_EVIDENCE'`), added to this branch's unmerged 0029 (not a new 0030); it matches only while it
+   names the Site's current import row and digest. Written by the Foundation store, called only by `install_mg_w402_site`.
+2. **q12-7 strip copy.** The closed strip disclosure reads `Limited by {N} condition(s)`, counting the page's claim-limit
+   sentence (service `requested-service baseline is incomplete`, fuel and backup secondary sentences) with the codes;
+   on backup a LIMITED chain makes the chip `Outage-chain assessment: evidence limited` the summary. Source chips now
+   precede currentness (renewable, fuel, backup) so the 390 strips fit.
+3. **q12-7 card values.** Gap words in the fuel and backup cards (`Unknown`, `No record`, `Delivery completeness
+   unconfirmed`, `Cannot compute`, `{n} witnessed success`) use the existing word value size; numbers are unchanged.
+4. **q12-5 minutes.** Observed USE time of 60 s or more is shown as `{seconds/60} min` (up to 2 decimals); under 60 s
+   as `{seconds} s`.
+5. **q11-5 (b) note.** Service coverage note is `{observed/60} of {required/60} min covered` (else `coverage unknown`).
+

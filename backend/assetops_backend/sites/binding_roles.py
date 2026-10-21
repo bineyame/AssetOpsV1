@@ -26,6 +26,10 @@ ROLE_SET_MINIGRID_2 = "minigrid-roles-2"
 #: trial's service guardrail needs. A Site opts in by publishing with this
 #: role set explicitly; new publications still default to roles-2.
 ROLE_SET_MINIGRID_3 = "minigrid-roles-3"
+#: W4-02 (`D-2026-10-20-w4-02-buildspec` closure 1 Q1, closure 4 B2): roles-3
+#: plus the requested-service, storage-charge, primary-supply and mini backup
+#: chain channels the mini-grid depth pages need. Opt-in, like roles-3.
+ROLE_SET_MINIGRID_4 = "minigrid-roles-4"
 #: The set a new MINIGRID binding publication is recorded under.
 ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
 #: W2-01 (`.agent/W2-technical-design-cold.md` section 3, `D-2026-10-17-w2-01-answers`
@@ -40,6 +44,10 @@ GENERATOR_STATES: tuple[str, ...] = ("STOPPED", "STARTING", "RUNNING", "FAILED")
 COMPRESSOR_STATES: tuple[str, ...] = ("OFF", "STARTING", "RUNNING", "FAILED")
 GRID_STATES: tuple[str, ...] = ("AVAILABLE", "LOST")
 BUS_STATES: tuple[str, ...] = ("POWERED", "UNPOWERED")
+#: W4-02 closure 1 Q1: the Site primary supply bus states (never inferred from a utility grid state).
+MINI_SUPPLY_STATES: tuple[str, ...] = ("ENERGIZED", "LOST", "UNKNOWN")
+#: W4-02 closure 4 B2: the mini backup bus states; the cold `POWERED|UNPOWERED` set is a different vocabulary.
+MINI_BUS_STATES: tuple[str, ...] = ("ENERGIZED", "DEENERGIZED", "UNKNOWN")
 EV_CONNECTOR_STATES: tuple[str, ...] = ("AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING", "FAULTED", "DISABLED")
 
 #: The nonquantitative declared unit of an event channel (`SIGNAL_UNITS`).
@@ -110,6 +118,28 @@ MINIGRID_ROLES_3: tuple[Role, ...] = MINIGRID_ROLES_2 + (
     Role(
         "critical_load_delivered_power", "Critical load delivered power", "LOAD", "kW", "NUMBER", ONE, False,
         critical_load=True,
+    ),
+)
+
+#: W4-02 `minigrid-roles-4` (closure 1 Q1 as amended by closure 4 B2). Every
+#: added role is optional: an absent binding limits a claim, never refuses a
+#: publication. Immutable: a change is a new named version.
+MINIGRID_ROLES_4: tuple[Role, ...] = MINIGRID_ROLES_3 + (
+    Role(
+        "storage_charge_requested_power", "Storage charge requested power", "BATTERY", "kW", "NUMBER", ONE, False,
+    ),
+    Role("feeder_requested_power", "Feeder requested power", "LOAD", "kW", "NUMBER", PER_ASSET, False),
+    Role(
+        "site_supply_state", "Primary supply state", "AC_BUS", "state", "STATE", ONE, False,
+        states=MINI_SUPPLY_STATES,
+    ),
+    Role(
+        "mini_backup_start_event", "Backup start request and result", "GENERATOR", EVENT_UNIT, "EVENT", ONE, False,
+        event_kinds=("START_REQUEST", "START_RESULT"),
+    ),
+    Role(
+        "mini_backup_bus_state", "Backup bus state", "AC_BUS", "state", "STATE", ONE, False,
+        states=MINI_BUS_STATES,
     ),
 )
 
@@ -211,6 +241,7 @@ ROLES_BY_SET: dict[str, tuple[Role, ...]] = {
     ROLE_SET_MINIGRID_1: MINIGRID_ROLES,
     ROLE_SET_MINIGRID_2: MINIGRID_ROLES_2,
     ROLE_SET_MINIGRID_3: MINIGRID_ROLES_3,
+    ROLE_SET_MINIGRID_4: MINIGRID_ROLES_4,
     ROLE_SET_COLD_1: COLD_ROLES_1,
     ROLE_SET_EV_1: EV_ROLES_1,
 }
@@ -222,7 +253,8 @@ ROLE_SET_BY_SITE_TYPE: dict[str, str] = {
 #: older version stays interpretable (and selectable as a historical basis)
 #: under the role definitions it was published with, never today's.
 SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
-    "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2, ROLE_SET_MINIGRID_3}),
+    "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2, ROLE_SET_MINIGRID_3,
+                           ROLE_SET_MINIGRID_4}),
     "COLDCHAIN": frozenset({ROLE_SET_COLD_1}),
     "EV_CHARGING": frozenset({ROLE_SET_EV_1}),
 }
@@ -230,7 +262,7 @@ SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
 #: S6-02a verification inputs (Architect S6-02a Q2). Interval-power roles
 #: need five-minute interval-valued readings covering each UTC slot; point
 #: roles need an accepted sample at each five-minute boundary.
-VERIFICATION_ROLE_SETS: frozenset[str] = frozenset({ROLE_SET_MINIGRID_3})
+VERIFICATION_ROLE_SETS: frozenset[str] = frozenset({ROLE_SET_MINIGRID_3, ROLE_SET_MINIGRID_4})
 VERIFICATION_POWER_ROLES: tuple[str, ...] = (
     "generator_power", "feeder_demand", "pv_available_power", "pcs_discharge_capability",
     "critical_load_requested_power", "critical_load_delivered_power",

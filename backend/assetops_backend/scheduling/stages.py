@@ -1,6 +1,6 @@
 """One schedule stage, run in its own killable child process (S4-02d phase 1).
 
-    python -m assetops_backend.scheduling.stages discover|s3|s4|consequence '<json arguments>'
+    python -m assetops_backend.scheduling.stages discover|s3|mini|s4|consequence '<json arguments>'
 
 The tick (`scheduling/tick.py`) starts each stage as a child with `PGOPTIONS` carrying `statement_timeout` and
 `lock_timeout` (S4-02d N2: the existing stores build their own engines and are not edited; libpq applies the
@@ -8,7 +8,7 @@ options to every connection the child opens), and kills it when the stage's wall
 reaches the database only through the existing writer and store modules, by their compositions. Its last stdout
 line is `STAGE_RESULT {json}` with a typed `code`:
 
-- `OK` (discover, s3, consequence), `MATCHED` or `SKIPPED_UNCHANGED_FENCE` (s4): the stage did its work.
+- `OK` (discover, s3, mini, consequence), `MATCHED` or `SKIPPED_UNCHANGED_FENCE` (s4): the stage did its work.
 - `FENCE_MOVED`: the matcher fence moved under every planned attempt; retryable.
 - `MATCH_EVIDENCE_NOT_ACCEPTED`: the matcher cited an evidence ID that is not accepted in this Site; the same
   `FindingFenceMoved` type, but deterministic (S4-02d N3), so it is reported apart from a moved fence.
@@ -76,8 +76,9 @@ def _uuid(value: Any) -> UUID:
 
 
 def discover(url: str, args: dict[str, Any]) -> dict[str, Any]:
-    """Global `reconcile_all()` (measured, never omitted), then the persisted Site inventory, live S3 jobs and
-    pending consequence work of every tenant. Selection is applied by the tick."""
+    """Global `reconcile_all()` (measured, never omitted), then the persisted Site inventory, live S3 jobs, live
+    four-domain mini jobs (W4-02 q7 ruling 2) and pending consequence work of every tenant. Selection is applied by
+    the tick."""
     from assetops_backend.analytics import dispatch_v3
     from assetops_backend.analytics.assessment_worker import DOMAIN
     from assetops_backend.analytics.composition import (
@@ -91,10 +92,12 @@ def discover(url: str, args: dict[str, Any]) -> dict[str, Any]:
     reconciled = build_dispatch_assessment_worker(url, clock=db_clock(url)).reconcile_all()  # I3: DB time
     reconcile_ms = int((time.perf_counter() - started) * 1000)
     inventory = build_schedule_store(url).site_inventory()
-    live = build_postgres_assessment_store(url).live_jobs(dispatch_v3.ANALYTIC_ID, DOMAIN)
+    assessments = build_postgres_assessment_store(url)
+    live = assessments.live_jobs(dispatch_v3.ANALYTIC_ID, DOMAIN)
+    live_mini = assessments.live_mini_jobs()
     pending = build_consequence_store(url).pending_work_sites()
     return {"code": "OK", "reconcile_ms": reconcile_ms, "reconciled_windows": len(reconciled),
-            "inventory": inventory, "live_jobs": live, "pending_work_sites": pending}
+            "inventory": inventory, "live_jobs": live, "live_mini_jobs": live_mini, "pending_work_sites": pending}
 
 
 def s3(url: str, args: dict[str, Any]) -> dict[str, Any]:
@@ -116,6 +119,33 @@ def s3(url: str, args: dict[str, Any]) -> dict[str, Any]:
                          for o in outcomes],
             "deferred": sum(1 for j in live if j["status"] in ("PENDING", "LEASED")),
             "live_jobs": [{k: j[k] for k in ("id", "status", "window_start", "window_end", "attempts",
+                                              "lease_until", "last_error")} for j in live]}
+
+
+MINI_JOB_LEASE_SECONDS = 300  # MiniDepthWorker's five-minute lease; the MINI stage bound must stay below it.
+
+
+def mini(url: str, args: dict[str, Any]) -> dict[str, Any]:
+    """This Site's bounded mini-depth stage (W4-02 closure 4 S7, q7 rulings 1-3): at most `limit` due jobs of the
+    four `mini_*` domains of this Site only, leased at DB time by `MiniDepthWorker`. `processed` counts the jobs
+    this stage leased, `failed` those it left FAILED, `deferred` this Site's mini jobs still PENDING or LEASED."""
+    from datetime import timedelta
+
+    from assetops_backend.analytics.composition import build_postgres_assessment_store
+    from assetops_backend.mini_depth.worker import build_worker
+
+    tenant_id, site_id = _uuid(args["tenant_id"]), _uuid(args["site_id"])
+    worker = build_worker(url, lease=timedelta(seconds=MINI_JOB_LEASE_SECONDS))
+    try:
+        outcomes = worker.run_pending(int(args["limit"]), tenant_id, site_id)
+    finally:
+        worker.store.dispose()
+    live = build_postgres_assessment_store(url).live_mini_jobs(tenant_id, site_id)
+    return {"code": "OK", "processed": len(outcomes),
+            "failed": sum(1 for o in outcomes if o.status == "FAILED"),
+            "deferred": sum(1 for j in live if j["status"] in ("PENDING", "LEASED")),
+            "outcomes": [o.as_json() for o in outcomes],
+            "live_jobs": [{k: j[k] for k in ("id", "domain", "status", "window_start", "window_end", "attempts",
                                               "lease_until", "last_error")} for j in live]}
 
 
@@ -167,7 +197,7 @@ def consequence(url: str, args: dict[str, Any]) -> dict[str, Any]:
 
 
 STAGES: dict[str, Callable[[str, dict[str, Any]], dict[str, Any]]] = {
-    "discover": discover, "s3": s3, "s4": s4, "consequence": consequence}
+    "discover": discover, "s3": s3, "mini": mini, "s4": s4, "consequence": consequence}
 
 
 def main(argv: list[str] | None = None) -> int:

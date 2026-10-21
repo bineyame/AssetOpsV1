@@ -7,7 +7,9 @@ composition":
 1. `access(request, site_code)` before any tenant/Site discovery: 401 / 403 (the Finding read's convention).
 2. `scope(site_code)` (`registry.ledger_scope`): None means a legacy Site, served by the legacy branch.
 3. the S2-02 Evidence comparison (`imported_scope`, raising 409 `AWAITING_EVIDENCE_MIGRATION` when absent or
-   failed) for the whole imported Overview; a closed Performance gate never bypasses it.
+   failed) for the whole imported Overview; a closed Performance gate never bypasses it. W4-02 q12-6: only a
+   persisted `NO_LEGACY_EVIDENCE` cutover basis for the Site's current import (`no_legacy_basis`) stands in for
+   the comparison; it is never inferred from a missing comparison, and every other import keeps the 409.
 4. one UTC day: `date=YYYY-MM-DD`, or `from`/`to` exactly one midnight-to-midnight day; anything else 422.
    No selection: the database clock's current UTC day.
 5. the Performance gate (`performance_gate`) supplies `source_open`; the read applies it to every S3, Finding and
@@ -93,6 +95,11 @@ def _uuid(params: Any, name: str) -> UUID | None:
         raise _invalid(f"{name} is a UUID", "INVALID_FINDING_PIN") from error
 
 
+def _closed_basis(tenant_id: UUID, site_id: UUID) -> bool:
+    """No empty-legacy basis reader: the S2 comparison stays required."""
+    return False
+
+
 @dataclass
 class SiteOverviewRoute:
     read: Any  # SiteOverviewRead, or None when no product database is configured
@@ -102,7 +109,13 @@ class SiteOverviewRoute:
     access_basis: str
     unavailable: tuple[type, ...] = ()
     scope_unavailable: tuple[type, ...] = (SiteStoreUnavailable,)
+    #: q12-6: True only for a persisted empty-legacy cutover basis; the default keeps the S2 comparison required.
+    no_legacy_basis: Callable[[UUID, UUID], bool] = None  # type: ignore[assignment]  # set in __post_init__
     legacy_window = staticmethod(legacy_window)
+
+    def __post_init__(self) -> None:
+        if self.no_legacy_basis is None:
+            self.no_legacy_basis = _closed_basis
 
     def serve(self, request: Request, site_code: str, s2_scope: Callable[[str], Any]) -> dict[str, Any] | None:
         refusal = self.access(request, site_code)
@@ -121,7 +134,13 @@ class SiteOverviewRoute:
             return None
         code, tenant_id, site_id = found
         # 409 AWAITING_EVIDENCE_MIGRATION unless the S2 comparison passed; no comparison reader is also closed.
-        if s2_scope(site_code) is None:
+        # q12-6: a persisted NO_LEGACY_EVIDENCE basis for this import is the one alternative to the comparison.
+        try:
+            empty_legacy = bool(self.no_legacy_basis(tenant_id, site_id))
+        except self.scope_unavailable as error:
+            raise HTTPException(status_code=503, detail={"code": "SITE_STORE_UNAVAILABLE",
+                                                         "message": str(error)}) from error
+        if not empty_legacy and s2_scope(site_code) is None:
             raise HTTPException(status_code=409, detail={
                 "code": "AWAITING_EVIDENCE_MIGRATION",
                 "message": f"Site {code!r} has no passing Evidence comparison, so its Overview is not served."})

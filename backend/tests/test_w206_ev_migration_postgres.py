@@ -22,11 +22,11 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError, IntegrityError
     from test_s1_bindings_postgres import _alembic, engine, store  # noqa: F401
-    from test_s4_consequence_store_postgres import _release_connections, site  # noqa: F401
+    from test_s4_consequence_store_postgres import _release_connections, site, site_before_0029  # noqa: F401
     from test_w203_cold_migration_postgres import (
         T0, _replica, _sha, constraint, head, minigrid_rows, scalar, table_exists)
 
-HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026
+HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026)
 PREVIOUS = "0024_w2_ev_config"
 REFUSED = "Downgrade of 0025_w2_ev_session refused"
 EV = ("ev_session", "ev_session_revision", "ev_session_evidence", "ev_meter_interval")
@@ -156,7 +156,8 @@ def ev_functions(engine) -> int:  # noqa: F811
 
 
 class TestMigration0025:
-    def test_upgrade_downgrade_round_trip_preserves_minigrid_and_restores_0022_checks(self, site, engine) -> None:  # noqa: F811
+    def test_upgrade_downgrade_round_trip_preserves_minigrid_and_restores_0022_checks(self, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
 
         Ctx(site, engine)
@@ -173,6 +174,7 @@ class TestMigration0025:
         site.prices.dispose()
         engine.dispose()
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS
             assert not any(table_exists(engine, t) for t in EV) and ev_triggers(engine) == 0 and ev_functions(engine) == 0
@@ -196,7 +198,8 @@ class TestMigration0025:
                       "'ev_meter_interval_bounds')") == 4
 
     @pytest.mark.parametrize("blocker", ["session", "finding", "job"])
-    def test_downgrade_refuses_while_ev_rows_exist(self, blocker, site, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_while_ev_rows_exist(self, blocker, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
 
         ctx = Ctx(site, engine)
@@ -216,6 +219,7 @@ class TestMigration0025:
         engine.dispose()
         try:
             with pytest.raises(DBAPIError, match=REFUSED):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD and all(table_exists(engine, t) for t in EV)  # nothing dropped
         finally:

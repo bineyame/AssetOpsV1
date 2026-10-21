@@ -124,6 +124,16 @@ def _uuid_or_none(value: str) -> UUID | None:
         return None
 
 
+def _site_type_on(c: Connection, tenant_id: UUID, site_id: UUID) -> str:
+    """W4-02 closure 5: the batch Site's type, read on the chunk's own transaction. A missing Site aborts the
+    chunk: nothing is decided, written or enqueued."""
+    site_type = c.execute(text("SELECT site_type FROM site WHERE tenant_id = :t AND id = :site"),
+                          {"t": tenant_id, "site": site_id}).scalar_one_or_none()
+    if site_type is None:
+        raise LedgerUnavailable("the batch's tenant/Site was not found, so no ordinal was decided")
+    return site_type
+
+
 class PostgresEvidenceLedger:
     """`EvidenceLedger` over a migrated PostgreSQL database."""
 
@@ -449,6 +459,8 @@ class PostgresEvidenceLedger:
                 return row.status
             if len(envelopes) != row.total_count:
                 raise ValueError("the retried bytes do not hold the stored batch's ordinals")
+            # W4-02 closure 5: the Site type gates cold work for any (future) shared role name; same connection.
+            site_type = _site_type_on(c, row.tenant_id, row.site_id)
             start = row.processed_count
             end = min(row.total_count, start + limit)
             # S4-07: one decision instant per chunk, DB time taken after the batch row lock (any lock wait is
@@ -469,7 +481,8 @@ class PostgresEvidenceLedger:
                     first_new = first_new or evidence_id
                 # W2-03: only a new accepted v4 record bound to a cold role enqueues cold work (a late one too);
                 # a duplicate, conflict or rejected ordinal is never ACCEPTED here and enqueues nothing.
-                if outcome == "ACCEPTED" and decision.is_v4 and decision.binding.role in COLD_ROLE_NAMES:  # type: ignore[union-attr]
+                if (outcome == "ACCEPTED" and site_type == "COLDCHAIN" and decision.is_v4  # type: ignore[union-attr]
+                        and decision.binding.role in COLD_ROLE_NAMES):  # type: ignore[union-attr]
                     cold.append(decision)  # type: ignore[arg-type]
                     first_cold = first_cold or evidence_id
                 c.execute(
@@ -798,6 +811,7 @@ class PostgresEvidenceLedger:
                 "SELECT status, count(*) AS jobs, min(created_at) AS oldest_created_at, "
                 "min(window_start) AS window_start, max(window_end) AS window_end FROM recompute_job "
                 "WHERE tenant_id = :t AND site_id = :site AND status IN ('PENDING','LEASED','FAILED') "
+                "AND domain NOT IN ('mini_renewable','mini_service','mini_fuel','mini_backup') "
                 "AND (CAST(:end AS timestamptz) IS NULL OR window_start < CAST(:end AS timestamptz)) "
                 "AND (CAST(:start AS timestamptz) IS NULL OR window_end > CAST(:start AS timestamptz)) "
                 "GROUP BY status ORDER BY status"
@@ -959,7 +973,7 @@ class PostgresEvidenceLedger:
             return [dict(r._mapping) for r in c.execute(
                 text("SELECT id, domain, window_start, window_end, cause_evidence_id, status, available_at, "
                      "attempts, created_at FROM recompute_job WHERE tenant_id = :t AND site_id = :site "
-                     "ORDER BY created_at, id"),
+                     "AND domain = 'dispatch' ORDER BY created_at, id"),
                 {"t": tenant_id, "site": site_id},
             ).all()]
 
