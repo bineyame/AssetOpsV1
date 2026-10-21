@@ -647,3 +647,17 @@ Readings (u9b; reviewer may overturn):
 - Frontend suite 103 files / 2464 passed; `tsc -b` 0 and `npm run build` 0 after the test type fix; check-all 11/11.
 
 Next: PR-13 rulings, then the Scenarios/Incidents cap fix and recapture; then units 10-12 (packet), final review + full suite.
+
+## u9c applied and unit 10 packet (commits 87595bdd, de919d91, this commit; main merged first)
+- CSS: `w4-mini-decisions.css` Scenarios `.data-table__scroll` 144px desktop / 188px at <=600px; `w4-work-cases.css`
+  Incidents 224px at <=760px. Tests: `narrow_mock_panel_budgets` (two rows, count, disclosure, both exact limits) and
+  `u9b_incident_linked_and_refused_overlay_panels` (five rows, 224px, one refusal line); both fail on the parent CSS.
+- Capture harness: Scenarios scroll-box check now 144/188px plus scrollH > clientH (total unchanged).
+- Capture `var/w403r/capture/evidence.json` 359/359 (DB `w403r_test` dropped). PR-13 marked RESOLVED.
+- Packet: `.agent/W4-03-review-packet.md` (readings, ruling rounds, limitations, tests, captures).
+
+## Checks (u9c)
+- Frontend 103 files / 2464 passed; `tsc -b --noEmit` 0; `npm run build` 0; check-all 11/11. No backend suite.
+
+Next: final review + full suite (coordinator: one same-revision real-Postgres full backend suite, record it in the
+packet's test-evidence line; then unit 11 independent review and unit 12 owner closeout).
