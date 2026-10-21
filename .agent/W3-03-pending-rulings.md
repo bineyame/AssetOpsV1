@@ -145,3 +145,15 @@ acceptance cutoff reads mini-grid Finding coverage UNKNOWN (no selected revision
 `false` (November window and the wide window); `true` is proved by the pure
 `test_two_actions_one_exact_origin_latest_event_then_id_tie`. Question: accept, or name a chain whose Action and
 origin revision share an assessed window.
+
+## P-2-1 (run 2, OPEN): inert opportunity CTAs versus the missing-claim scan
+Closure 1 Q20 / mock ledger require two inert plain-text CTAs, `Review opportunity Finding · Not available yet` and
+`Inspect physical headroom · Not available yet`, with accessible names ending `, Not available yet`, and say
+"No `UnavailableEntry` is added; inert mock-only CTAs are ordinary labelled text." `tools/check-all.ps1`'s
+missing-claim orphan scan (and its fixtures run) rejects exactly that copy at `frontend/src/estate/EstatePortfolio.tsx`
+(`OpportunityPanel`, 4 hits: "untagged missing-capability copy ... register a mock_gaps gap and render it through
+<MissingClaim gapId placement>"). Satisfying the scan needs a new registry `mock_gaps` entry (claim, boundary,
+owner/allocation, `ui_placements`) mirrored in `frontend/src/ui/gapCatalogue.ts` - a registry decision, not a run-2
+build choice. The page keeps the ruled literal text; check-all therefore fails 2 of 11 guards on this one cause.
+Question: (a) register a `G-portfolio-opportunity` gap (two placements) and render both through `<MissingClaim>`
+keeping the literal copy, or (b) another ruled treatment.

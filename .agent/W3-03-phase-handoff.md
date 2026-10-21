@@ -289,3 +289,69 @@ Next: independent review of 0b, then run 1a.
 - Open: L1 (file ownership) and L3 (prompt Site order sentence) are with the Architect as r1b4.
 
 ## Next: r1b4, then run 2 (page)
+
+## Run 2 (Lane A + Lane B, page) - landed; one open ruling P-2-1
+Commits on `task/W3-03-portfolio-composition` after merging main:
+- `2845897c` Lane A: `main.py` mounts `build_estate_portfolio_router` (reviewed 1b); `estateClient.ts` adds
+  `PORTFOLIO_SCHEMA`, `EstatePortfolioStatus` (5), F/E/M `EstatePortfolioCoverage`, row/card/objective/prompt types,
+  ten-field `EstateProgressRow`, `EstatePortfolioBody` (`Omit<EstateEnvelope,"status"|"coverage">`),
+  `EstatePortfolioQuery` (lens, no state) and `EstateClient.portfolio()`; existing root types unchanged.
+- `a0631e80`, `d3fb632b`, `5cef129c` Lane B: `estate/EstatePortfolio.tsx` (+ `portfolioWords.ts`,
+  `estatePortfolio.css` = mock `portfolio.css` scoped to `.estate-portfolio`, print rules dropped, app additions
+  last), `__tests__/estatePortfolio.test.tsx` (14 tests: all run-2 and run-3 named page tests incl.
+  `rendersEmptyPendingHistoricalAndSourceConflict` five typed statuses and
+  `rendersMeasuredPanelHierarchyAndScrollContainers` with `expectV69Panels`/`expectPlantedPanelRejected("portfolio")`),
+  `__tests__/portfolioFixtures.ts`. `test/panelStructure.ts` LEADING_SELECTOR admits only
+  `.portfolio-v2 > .portfolio-context|.value-grid|.portfolio-pulse` (proved: without it the panel test fails with 3
+  leading intruders); `test/settled.ts` learns `Loading the Portfolio across the estate.`.
+- `4a1fd7f9`, `c501d089` Lane A: `/portfolio` route (`PORTFOLIO_ROOT_PATH`, `EstatePortfolioFrame`, no `/` alias),
+  rail `live|Portfolio|OPERATIONS|/portfolio`; rail/route tests, `navigation-truthfulness.ps1`,
+  `navigation-rail-fixtures.ps1` (dead-link subject now Assets) and six shell/ui tests updated together;
+  `estatePortfolioRoutes.test.tsx::test_w303_global_route_precedence_and_unavailable_multiset`.
+- Not done here (run 3 per closure 4 S16): registry panel rows. Capture harness and script:
+  `.agent/W3-03-evidence/test_serve_portfolio.py`, `capture-portfolio.mjs` (all Q24 caps + four panel caps).
+
+### Run 2 readings (Architect may overturn)
+1. Lane A shell wiring landed after the page commit (a route needs the page); client + API mount came first.
+2. Matrix header is plain `site_name`/`site_code` (no wire Site link); every null cell destination shows
+   `Site detail unavailable`; cell reason is `aria-description` + `title`.
+3. Row Site link is `links.site` with visible `Opens current Site view`; cold/EV Finding and review line are inert
+   `Finding detail unavailable`; W1 rows show `Review Finding` link to the exact Finding route.
+4. Value first line: PRICED outward bounds, UNPRICED `Unpriced`, other states `Source unverified`, null source with
+   no price `No consequence recorded`; PENDING_RECOMPUTE/HISTORICAL Site prefixes `Updating · `/`Historical · `
+   and a priced row shows `Value withheld`. Second line always `Basis not recorded` (no basis field on the wire).
+5. SITE_OWNED card uses outward rounding unless the line domain is `ev_charging` (half-even 2); detail built when
+   the API detail is null. Footer amount uses half-even 2 and `quantityText`; `{amount}` includes the currency.
+6. Evidence aside is a `div.note` with a `role=heading` title (panel-structure guard allows `.note` between panels;
+   a `section`/`h3` there is flagged); it renders `Site {site_code}` from the server, no link.
+7. R12 warning: another EV Site (by `scope_disclosure` domain) other than the footer line's Site whose coverage is
+   UNKNOWN/PENDING_RECOMPUTE/STALE_SOURCE.
+8. Load more refusal (401/409/503) replaces the whole page with the refusal (no stale names/cards/rows).
+9. Mock `screen-foot` and topbar `portfolio-name`/search block are mock chrome; not reproduced or measured.
+10. Unsupported opportunity quantities use neutral grey, 16px (13px at 390) to fit the 247/272 caps.
+11. Real rows carry more honest-gap lines than mock examples; Findings cell spacing tightened (10px/7px padding,
+    2px small margins) to keep each row within its cap.
+
+### Run 2 captures (private `w303m_test`, dropped after; app via Vite :5781 -> API :9781)
+| state | w | status | doc h | scrollW | priority | objectives | side | opp | progress | context | cards | rows | table scroll | matrix scroll |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| positive | 1440 | CURRENT | 1362 | 1425/1425 | 559 | 376 | 559 | 229 | 229 | 23 | 198x5 | 93,93,93 | 790=790 | 390>275 |
+| positive | 390 | CURRENT | 2947 | 390/390 | 539 | 361 | 546 | 268 | 308 | 55 | 189,189,185,185,204 | 94,94,94 | 720>336 | 390>328 |
+| partial (+W303-EMPTY-001) | 1440 | UNKNOWN | 1319 | 1425/1425 | 516 | 376 | 516 | 229 | 229 | 23 | 198x5 | 93x3 | 790=790 | 467>275 |
+| partial | 390 | UNKNOWN | 2966 | 390/390 | 576 | 361 | 503 | 268 | 308 | 55 | as positive | 94x3 | 720>336 | 467>328 |
+| historical (known_at 09-30, after empty Site) | 1440 | HISTORICAL | 1319 | 1425/1425 | 516 | 376 | 516 | 229 | 229 | 23 | 198x5 | empty row 36 | 790=790 | 467>275 |
+| historical | 390 | HISTORICAL | 2732 | 390/390 | 329 | 361 | 503 | 268 | 308 | 55 | 178,178,185,185,204 | 36 | 720>336 | 467>328 |
+All blocks within caps (`over=[]` in every JSON). Columns 1440 95/182/190/71/103/150 (mock 96/184/192/72/104/152);
+390 86/166/173/65/94/137 (exact). Cards: positive/partial SITE_OWNED `$0.00–$3.44`/UNKNOWN/UNSUPPORTED x2/
+NOT_ESTABLISHED; historical WITHHELD first. Viewed: positive 1440 and 390 PNGs.
+Pending/empty/refusal captures remain run 3.
+
+### Run 2 checks
+- Frontend full suite 104 files / 2449 tests passed; `tsc --noEmit` clean; `npm run build` ok.
+- `tools/check-all.ps1`: 9/11 pass; FAIL missing-claim orphan scan + its fixtures run, solely on the two ruled inert
+  CTAs (P-2-1 in `.agent/W3-03-pending-rulings.md`). Architecture (shell-overflow: tables via `DataTable`) passes.
+- Backend: `test_w303_portfolio_api.py` 4 passed 1 skipped; TestClient `/api/estate/portfolio` without DB -> 503
+  frozen body. No full backend suite (per dispatch).
+
+## Next: run 3 (packet + final review)
+First resolve P-2-1. Run 3: registry panel rows (S16), pending/empty/refusal captures, packet, final review.
