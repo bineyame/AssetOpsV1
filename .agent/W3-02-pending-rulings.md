@@ -187,3 +187,21 @@ Built and tested; not blocking. Each is page copy only (`frontend/src/estate/est
    currency displays as `{code} {value}`, USD as `$`.
 7. Exclusions render per group in a closed `Excluded: N lines` disclosure (Site · category: reasons; an off-page line
    shows its line key).
+
+## c4-q2 - registry prerequisites and ledger literal for `I-estate-money-root` (Lane A, commit 4)
+Closure 5 S13 names the node, screen title and paths but not area or prerequisites. The checker forces the panel area
+to the subject-area brief owner of `globalfinancials` (`money`). Lane A recorded, by the c2-q5 Evidence precedent:
+node area `money`, `requires` `A-estate-index-scope`, `I-financial-read`; panels `globalfinancials:1`
+`Consequence register` and `:2` `Aggregation rule` `requires` `I-financial-read`, `I-estate-money-root`,
+`D-money-comparison`, status `gap` (awaiting independent review, no owner acceptance); ledger `globalfinancials`
+`bounded`/W3-02, product node `P-money-area`, `data_owner` literal exactly as `.agent/W3-02-lane-a-requests.md`
+commit-4 item 4 proposed; money brief `implementation_nodes` lists the node. Confirm, or name the intended
+area/nodes and the data_owner literal.
+
+## c4-q3 - stocked capture has no mini-grid line (Lane A, commit 4 captures)
+The capture seed (`.agent/W3-02-evidence/serve-financials.py`: KOBO S4 F01/F02 + S6, COLD excursion + W2-04 worker,
+EV interrupted + W2-07 money) yields two register lines (cold UNPRICED, EV ELIGIBLE); KOBO has no stored W1
+consequence on 2026-10-06 or 2026-10-05..12, and no persisted W1 money seed exists in the W3-02 tests. The mock
+shows three rows, so the measured register height is below a three-row baseline. Is a two-line, three-Site COMPLETE
+capture acceptable, or must Lane B/Lane A add a persisted W1 consequence seed (`test_s4_consequence_store_postgres.py`
+`PowerSite`) before review?

@@ -1,5 +1,28 @@
 # W3-02 phase handoff
 
+## Commit 4 (Lane A shell) - shell, registry, link tests, captures landed; page defects back to Lane B
+
+Commits `d59dad32`, `36fcf8ac`, `e3d18027` (after merging `main`). Branch released. Items 1-5 of `.agent/W3-02-lane-a-requests.md` "Commit 4", plus the closure 5 B5 Financials route-read tests.
+- `shell/EstateRootFrames.tsx:EstateFinancialsFrame` (`<main aria-label="Financials">`); `App.tsx` optional `estateFinancials` prop defaulted to `createEstateFinancialsClient()`; route after Evidence via shell `FINANCIALS_PATH="/financials"` (`operatorSiteRoutes.ts`, same guard-forced deviation as c2 `EVIDENCE_PATH`), pinned `=== ESTATE_FINANCIALS_PATH` in new `shell/__tests__/w302EstateFinancialsShellRoute.test.tsx`; `/sites/{code}/financials` keeps its handler (test).
+- Rail `Financials` live (`to:"/financials"`, `end:false`); `navigation-truthfulness.ps1` tuple `live|Financials|BUSINESS|/financials`; `navigation-rail-fixtures.ps1` replaces "Financials promoted" with four cases (missing target, route removed, demoted, pointed at `/evidence`). Rail pins in 10 shell/ui tests updated.
+- Registry: `I-estate-money-root` (open, W3-02, area `money`), `globalfinancials:1` `Consequence register`, `:2` `Aggregation rule`, `gap`, awaiting independent review, no owner-acceptance claim; ledger row `bounded`/W3-02 with `registry_dependencies` and the requested `data_owner` literal; money brief lists the node. Prerequisites and literal are c4-q2.
+- `backend/tests/test_w302_financials_links_postgres.py` (3): cold and EV `links.bridge` + `links.evidence` followed through `/api/sites/{code}/cold|ev/financials` and `/evidence` with the link query (row window, row-local cutoff = watermark, not the estate day, 200); a link-builder watermark tamper keeps base route + `Opens current Site view`. 3/3 plus the c2 evidence link tests 3/3 on private `w302w_test` (dropped).
+- Captures `.agent/W3-02-evidence/` (`serve-financials.py`, `capture-financials.mjs`, `app-financials-{positive,partial}.json`, `financials-*-app.png`; mock `mock-financials/` reproduces the worksheet 44/266/42/99 and 71/407/78/163). `positive` = 2026-10-06 (three Sites COMPLETE, 2 lines; c4-q3), `partial` = 2026-10-05..12 after a late KOBO reading (UNKNOWN/PARTIAL, pending note). Document scroll width = client width in all four. `estateFinancials.test.tsx` `meetsMeasuredNarrowLayoutWithoutDocumentOverflow` reads the 390 captures (proved failing on a planted 520 px overflow, reverted); it does not assert the Aggregation cap (defect 1).
+
+| state / width | status (max) | register (max) | notice (max) | Aggregation (max) | register table client/scroll | results list clientH/scrollH |
+| --- | --- | --- | --- | --- | --- | --- |
+| positive 1440 | 46 (68) | 256 (293) | 43 (66) | **211 (123)** | 1120/1120 | 56/76 |
+| positive 390 | 69 (95) | 403 (448) | 61 (102) | **298 (187)** | 318/500 | 96/114 |
+| partial 1440 | 46 (68) | 280 (293) | 43 (66) | **211 (123)** | 1120/1120 | 56/76 |
+| partial 390 | 69 (95) | 446 (448) | 61 (102) | **298 (187)** | 318/500 | 96/150 |
+
+For Lane B (page defects, not edited - `frontend/src/estate/` CSS untouched):
+1. Aggregation panel over its maximum in every capture: 211 > 123 at 1440 (+88), 298 > 187 at 390 (+111), with the results list already clipped at its 56/96 px bound (3 group chips; scrollH 76/114/150). Mock panel is prose only (99/163).
+2. Partial 390 register is 446 against 448: 2 px headroom with two lines; a third (mini-grid) line or longer note would exceed it.
+3. Register scroll region at 390 is 300 px tall for 2 rows (scrollH 345), so it already scrolls with two lines.
+
+Checks at `e3d18027`: full frontend 102 files / 2435 passed; `tsc --noEmit` clean; `npm run build` ok; registry checker valid (245 nodes, 34 linked pilot panels); `tools/check-all.ps1` 11/11. Not done: the one same-revision full real-Postgres suite, independent commit-4 review, closeout. Open: pending rulings c4-q1 (Lane B copy), c4-q2 (registry/ledger), c4-q3 (no mini-grid line in the capture seed).
+
 ## Commit 4 (Lane B) - Financials page landed; READY FOR LANE A SHELL
 
 Branch released to Lane A. Read: closure 5 commit-4 index sections, money display/copy rulings, commit-3 L3/L5 (and L4 plain words), mock-measurement financials rows.
