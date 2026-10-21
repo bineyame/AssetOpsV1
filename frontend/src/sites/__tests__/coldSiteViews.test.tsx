@@ -246,6 +246,8 @@ interface Reads {
   financials: ColdRead<ColdFinancialsRead>;
   assumptions: ColdRead<ColdAssumptionsRead>;
   temperature: ColdRead<ColdTemperatureRead>;
+  /** W2-F N9: overrides the Findings list read, which otherwise follows the Financials read. */
+  findings?: ColdRead<never>;
 }
 const STOCKED: Reads = {
   overview: ok(STOCKED_OVERVIEW),
@@ -293,7 +295,9 @@ function renderCold(path: string, reads: Reads) {
     getBackupChain: vi.fn(() => Promise.resolve(DOWN)),
     listFindings: vi.fn(() =>
       Promise.resolve(
-        reads.financials.status === "loaded" && reads.financials.value.consequences.length > 0
+        reads.findings !== undefined
+          ? reads.findings
+          : reads.financials.status === "loaded" && reads.financials.value.consequences.length > 0
           ? ok({
               ...envelope(),
               items: [
@@ -626,7 +630,7 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
     const row = panelTitled("Accepted records behind the conclusions").querySelector(`[data-accepted-record="${id(11)}"]`)!;
     expect(text(row)).toContain("4.6 degC");
     expect(text(row)).toContain(eatTime("2026-10-06T16:19:00Z")!);
-    expect(text(row)).toContain(`Record ${id(11)}`);
+    expect(text(row)).toContain(`REC ${id(11)}`);
     expect(text(row)).toContain("No analysis link");
     expect(text(row)).not.toContain("Analysis view not available for this cold record");
     expect(row.querySelector("code")?.getAttribute("aria-label")).toBe(id(11));
@@ -774,7 +778,7 @@ describe("W2-04: cold Evidence, Analysis, Financials and Assumptions", () => {
   it("financials: one exposure row with its exact basis, the backup gap row and no price", async () => {
     renderCold(ROUTES[3][1], STOCKED);
     await settledScreen();
-    expect(text(document.querySelector(".status-strip")!)).toContain("1 consequence line");
+    expect(text(document.querySelector(".status-strip")!)).toContain("2 consequence lines"); // W2-F M5: exposure row + start-response row
     const bridge = panelTitled("What happened → what it means in money");
     expect(text(bridge)).toContain("Chamber thermal exposure · Consequence basis: at least 50 °C·min; upper bound not established");
     expect(text(bridge)).toContain("Observed backup start failure");
@@ -974,5 +978,137 @@ describe("W2-F 1b: one honest cooling and product rule across the cold screens",
     await settledScreen();
     expect(panelTitled("Assumptions in use").querySelectorAll("dt")).toHaveLength(0);
     expect(panelTitled("Assumptions in use").querySelector("[data-panel-gap]")).not.toBeNull();
+  });
+});
+
+describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () => {
+  const INVALID = { status: "refused", httpStatus: 422, code: "COLD_WINDOW_INVALID", message: "bad window" } as const;
+  const strip = () => document.querySelector(".status-strip") as HTMLElement;
+  const tiles = () => Array.from(document.querySelectorAll<HTMLElement>("[data-cold-refused-card]"));
+
+  // M3/N7. jsdom has no layout: this asserts the frame content shared by 1440 and 390; rendered widths are unit 5's captures.
+  it("w2f_refused_frames_and_footer", async () => {
+    const frames: [string, string, string[]][] = [
+      ["cold", ROUTES[0][1], ["Temperature", "Backup", "Cooling", "Maintenance", "Evidence"]],
+      ["cold-evidence", ROUTES[1][1], []],
+      ["cold-financials", ROUTES[3][1], ["Chamber thermal exposure", "Confirmed loss", "Repair and call-out", "Verified savings"]],
+    ];
+    for (const [screenId, path, cards] of frames) {
+      // Refused valid window: requested date line, refusal strip, Not assessed tile slots, in-panel gaps kept.
+      renderCold(path, all(DOWN as never));
+      await settledScreen();
+      const bar = document.querySelector("[data-cold-date-bar]")!;
+      expect(text(bar)).toContain("Selected window 6 Oct 2026 16:00–17:05 UTC");
+      expect(text(bar)).toContain("Selected evidence through 6 Oct 17:06 UTC");
+      expect(document.querySelectorAll(".status-strip")).toHaveLength(1);
+      expect(text(strip())).toContain("Window cannot be read");
+      expect(tiles().map((t) => t.getAttribute("data-cold-refused-card"))).toEqual(cards);
+      for (const t of tiles()) expect(text(t.querySelector(".v69-metric__value")!)).toBe("Not assessed");
+      if (screenId === "cold-evidence") expect(document.querySelector(".v69-cards")).toBeNull();
+      if (screenId === "cold-financials") {
+        expect(text(strip())).toContain("Not assessed");
+        expect(text(strip())).not.toMatch(/consequence line/);
+      }
+      for (const t of PANELS[screenId]) expect(text(panelTitled(t))).toContain(COLD_SITE_UNAVAILABLE);
+      cleanup();
+      // Invalid window: the malformed dates are not echoed; the strip and the panel gaps remain.
+      renderCold(path.replace(encodeURIComponent(FROM), "not-a-date"), all(INVALID as never));
+      await settledScreen();
+      expect(document.querySelector("[data-cold-date-bar]")).toBeNull();
+      expect(text(main())).not.toContain("not-a-date");
+      expect(text(strip())).toContain("Window cannot be read");
+      expect(tiles().map((t) => t.getAttribute("data-cold-refused-card"))).toEqual(cards);
+      for (const t of PANELS[screenId]) expect(panelTitled(t).querySelector("[data-panel-gap]")).not.toBeNull();
+      cleanup();
+      // A 422 for a well-formed window also suppresses the date line.
+      renderCold(path, all(INVALID as never));
+      await settledScreen();
+      expect(document.querySelector("[data-cold-date-bar]")).toBeNull();
+      cleanup();
+    }
+    // Evidence footer: refused -> one grammatical sentence; loaded -> exact Analysis link; null target -> separate sentence.
+    renderCold(ROUTES[1][1], all(DOWN as never));
+    await settledScreen();
+    expect(text(document.querySelector("[data-cold-evidence-footer]")!)).toBe("Record-level detail and claim limits cannot be read for this window.");
+    cleanup();
+    renderCold(ROUTES[1][1], STOCKED);
+    await settledScreen();
+    const footer = document.querySelector("[data-cold-evidence-footer=\"link\"]")!;
+    expect(footer.querySelector("a")?.getAttribute("href")).toBe(`/sites/COLD-001/evidence${Q}&view=analysis`);
+    expect(document.querySelector("[data-cold-refused-strip]")).toBeNull();
+    cleanup();
+    renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok({ ...STOCKED_EVIDENCE, links: { ...STOCKED_EVIDENCE.links, analysis: null } } as unknown as ColdEvidenceRead) });
+    await settledScreen();
+    const noLink = document.querySelector("[data-cold-evidence-footer=\"no-link\"]")!;
+    expect(text(noLink)).toBe("Record-level detail and claim limits are on Evidence › Analysis. No linked page for this item.");
+    expect(noLink.querySelector("a")).toBeNull();
+  });
+
+  // M5/N9: the chip counts the displayed bridge rows from the selected responses.
+  it("w2f_consequence_chip_equals_bridge_rows", async () => {
+    const rows = () => panelTitled("What happened → what it means in money").querySelectorAll("table [data-consequence-row]");
+    const chip = () => document.querySelector("[data-cold-line-count]");
+    renderCold(ROUTES[3][1], EMPTY);
+    await settledScreen();
+    expect(rows()).toHaveLength(0);
+    expect(text(chip()!)).toBe("0 consequence lines");
+    cleanup();
+    renderCold(ROUTES[3][1], STOCKED);
+    await settledScreen();
+    expect(rows()).toHaveLength(2);
+    expect(text(chip()!)).toBe("2 consequence lines");
+    expect(text(strip())).toContain("Displayed rows include unpriced context");
+    expect(document.querySelector("[data-cold-start-context]")).toBeNull();
+    cleanup();
+    // Findings refused: consequence rows and their count, plus the context statement outside the counted table.
+    renderCold(ROUTES[3][1], { ...STOCKED, findings: DOWN as never });
+    await settledScreen();
+    expect(rows()).toHaveLength(1);
+    expect(text(chip()!)).toBe("1 consequence line");
+    const unread = document.querySelector("[data-cold-start-context=\"unread\"]")!;
+    expect(text(unread)).toBe("Start-response context cannot be read for this window");
+    expect(unread.closest("table")).toBeNull();
+    expect(text(panelTitled("What happened → what it means in money").querySelector("table")!)).not.toContain("Start-response context");
+    cleanup();
+    // Financials refused: Not assessed, never a zero claim.
+    renderCold(ROUTES[3][1], { ...STOCKED, financials: DOWN as never });
+    await settledScreen();
+    expect(chip()).toBeNull();
+    expect(text(strip())).toContain("Not assessed");
+    expect(text(main())).not.toMatch(/\d+ consequence line/);
+  });
+
+  // M10/N1: the full stored ID, visibly and distinctly, in a wrapping cell.
+  it("w2f_analysis_record_ids_distinct", async () => {
+    const base = STOCKED_ANALYSIS.accepted_records.items[0];
+    const a = id(11);
+    const b = id(12);
+    expect(a.slice(0, 8)).toBe(b.slice(0, 8));
+    const proved = { ...base, evidence_id: id(13), record_target_state: "PROVED", link: `${API}/evidence/analysis${Q}` };
+    const analysis = { ...STOCKED_ANALYSIS, accepted_records: { items: [{ ...base, evidence_id: a }, { ...base, evidence_id: b }, proved], next_cursor: null, total_count: 3 } };
+    renderCold(ROUTES[2][1], { ...STOCKED, analysis: ok(analysis as unknown as ColdAnalysisRead) });
+    await settledScreen();
+    const records = panelTitled("Accepted records behind the conclusions");
+    const codes = Array.from(records.querySelectorAll<HTMLElement>("table code[data-record-id]"));
+    expect(codes.map((c) => text(c))).toEqual([`REC ${a}`, `REC ${b}`]);
+    expect(codes.map((c) => c.getAttribute("aria-label"))).toEqual([a, b]);
+    for (const c of codes) {
+      expect(c.className).toBe("cold-site-id");
+      expect(c.closest("a")).toBeNull();
+    }
+    const open = records.querySelector(`[data-accepted-record="${id(13)}"] a`)!;
+    expect(text(open)).toBe("Open record");
+    expect(open.getAttribute("aria-label")).toBe(`Open record REC ${id(13)}`);
+    expect(records.querySelector(".cold-site-clip")).toBeNull();
+    expect(records.querySelector(".data-table__scroll table")).not.toBeNull();
+    // 390: jsdom has no layout, so the wrap rule is asserted on the stylesheet (read from disk; vitest serves CSS empty).
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w2-cold-site.css`, "utf8");
+    const start = css.indexOf(".cold-site-id {");
+    const rule = css.slice(start, css.indexOf("}", start));
+    expect(rule).toContain("overflow-wrap: anywhere");
+    expect(rule).not.toMatch(/max-width|text-overflow|nowrap/);
+    expect(css).not.toContain(".cold-site-clip");
   });
 });

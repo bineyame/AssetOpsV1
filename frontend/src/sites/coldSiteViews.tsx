@@ -386,6 +386,43 @@ function SelectedWindowBar({ read, extra }: { read: { window: ColdWindowQuery } 
     </p>
   );
 }
+/**
+ * W2-F M3/N7: a refused read keeps the date line from the requested window, unless the window itself is invalid
+ * (malformed dates are not echoed). The cutoff is shown only when one was requested.
+ */
+function RequestedWindowBar({ window, refusal }: { window: ColdWindowQuery; refusal: Refusal }) {
+  if (refusal.key === "invalid-window" || date(window.from) === null || date(window.to) === null) return null;
+  return (
+    <p className="site-date-bar" data-cold-date-bar data-cold-date-bar-requested>
+      <span className="site-date-bar__window">Selected window {windowText(window.from, window.to)}</span>
+      {date(window.known_at) === null ? null : <span className="site-date-bar__cutoff">Selected evidence through {utc(window.known_at)}</span>}
+    </p>
+  );
+}
+export const WINDOW_CANNOT_BE_READ = "Window cannot be read";
+/** W2-F M3: the refused-window status strip; `chip` fills the strip's own chip slot where the screen has one. */
+function RefusedStrip({ label, chip }: { label: string; chip?: string }) {
+  return (
+    <StatusBar label={label} data={{ "data-cold-refused-strip": "" }}>
+      {chip === undefined ? null : (
+        <>
+          <Badge tone="neutral">{chip}</Badge>{" "}
+        </>
+      )}
+      <Badge tone="neutral">{WINDOW_CANNOT_BE_READ}</Badge>
+    </StatusBar>
+  );
+}
+/** W2-F M3: the screen's tile slots, each `Not assessed`, so a refusal is never read as a zero. */
+function RefusedTiles({ label, cards, columns }: { label: string; cards: string[]; columns?: 5 }) {
+  return (
+    <MetricCards columns={columns} label={label}>
+      {cards.map((c) => (
+        <MetricCard key={c} label={c} value={NOT_ASSESSED} tone="muted" word data={{ "data-cold-refused-card": c }} />
+      ))}
+    </MetricCards>
+  );
+}
 const stateSentence = (read: { currentness: { state: string } } | null) =>
   read === null ? null : (CURRENTNESS_SENTENCE[read.currentness.state] ?? null);
 
@@ -518,7 +555,15 @@ function OverviewScreen(p: ScreenProps) {
     link === null ? "No linked page for this item" : link.includes("/cold/findings/") ? "Open Finding →" : link.includes("/cold/backup-chain") ? "Performance › Backup →" : "Evidence →";
   return (
     <>
-      {o === null ? null : (
+      {o === null ? (
+        refused === null ? null : (
+          <>
+            <RequestedWindowBar window={p.window} refusal={refused} />
+            <RefusedStrip label="Cold room state" />
+            <RefusedTiles label="Cold room conditions" columns={5} cards={["Temperature", "Backup", "Cooling", "Maintenance", "Evidence"]} />
+          </>
+        )
+      ) : (
         <>
           <SelectedWindowBar read={o} />
           <StatusBar label="Cold room state" action={<ToLink href={coldUiHref(o.links.evidence, p.routes)}>Inspect evidence</ToLink>}>
@@ -754,7 +799,14 @@ function EvidenceScreen(p: ScreenProps) {
   return (
     <>
       <SelectedWindowBar read={e} />
-      {e === null ? null : (
+      {e === null ? (
+        refused === null ? null : (
+          <>
+            <RequestedWindowBar window={p.window} refusal={refused} />
+            <RefusedStrip label="Evidence state" />
+          </>
+        )
+      ) : (
         <StatusBar
           label="Evidence state"
           action={foundation === null ? <span>Configuration link not available</span> : <Link to={foundation}>Configuration at window end</Link>}
@@ -972,8 +1024,19 @@ function EvidenceScreen(p: ScreenProps) {
           )}
         </Panel>
       </div>
+      {/* W2-F M3: refused -> one grammatical sentence; loaded with no Analysis target -> the null-link copy is its own sentence. */}
       <Notice tone="blue">
-        Record-level detail and claim limits are on <ToLink href={analysis}>Evidence › Analysis</ToLink>.
+        {e === null ? (
+          <span data-cold-evidence-footer="refused">Record-level detail and claim limits cannot be read for this window.</span>
+        ) : analysis === null ? (
+          <span data-cold-evidence-footer="no-link">
+            Record-level detail and claim limits are on Evidence › Analysis. <ToLink href={null}>{null}</ToLink>.
+          </span>
+        ) : (
+          <span data-cold-evidence-footer="link">
+            Record-level detail and claim limits are on <ToLink href={analysis}>Evidence › Analysis</ToLink>.
+          </span>
+        )}
       </Notice>
     </>
   );
@@ -1067,12 +1130,14 @@ function AnalysisScreen(p: ScreenProps) {
                       <td>{utcClock(r.received_at)}</td>
                       <td>
                         {r.record_target_state === "PROVED" && r.link !== null ? (
-                          <ToLink href={coldUiHref(r.link, p.routes) ?? r.link}>Open record</ToLink>
+                          <ToLink href={coldUiHref(r.link, p.routes) ?? r.link} data={{ "aria-label": `Open record REC ${r.evidence_id}` }}>
+                            Open record
+                          </ToLink>
                         ) : (
                           <span data-record-target="unavailable">
-                            Record{" "}
-                            <code className="cold-site-clip" title={r.evidence_id} aria-label={r.evidence_id} data-vocabulary-exempt="source-reference">
-                              {r.evidence_id}
+                            {/* W2-F M10/N1: the full stored ID, visibly, in a wrapping cell; never a shortened prefix. */}
+                            <code className="cold-site-id" title={r.evidence_id} aria-label={r.evidence_id} data-record-id={r.evidence_id} data-vocabulary-exempt="source-reference">
+                              {`REC ${r.evidence_id}`}
                             </code>
                             <span className="cold-site-line">No analysis link</span>
                           </span>
@@ -1182,17 +1247,31 @@ function FinancialsScreen(p: ScreenProps) {
   const findingOf = (revisionId: string) => findings?.items.find((i) => i.revision_id === revisionId) ?? null;
   const findingLink = (id: string) => selected(p.routes.finding(id), f!.window);
   const anyLink = exposures.some((c) => findingOf(c.exact_basis.finding_revision_id) !== null) || start !== null;
-  const count = f?.consequences.length ?? 0;
+  // W2-F M5/N9: the chip counts the bridge rows actually displayed from the selected responses (consequence rows from
+  // Financials, the start-response context row from Findings), so the chip and the table always agree.
+  const count = exposures.length + (start === null ? 0 : 1);
+  const startUnread = findings === null;
   const first = exposures[0];
   const s = value(assumptions);
   const sRefused = refusalOf(assumptions);
   return (
     <>
-      {f === null ? null : (
+      {f === null ? (
+        refused === null ? null : (
+          <>
+            <RequestedWindowBar window={p.window} refusal={refused} />
+            <RefusedStrip label="Financial consequence" chip={NOT_ASSESSED} />
+            <RefusedTiles label="Money consequence" cards={["Chamber thermal exposure", "Confirmed loss", "Repair and call-out", "Verified savings"]} />
+          </>
+        )
+      ) : (
         <>
           <SelectedWindowBar read={f} />
           <StatusBar label="Financial consequence">
-            <Badge tone="neutral">{`${count} consequence ${count === 1 ? "line" : "lines"}`}</Badge> selected window · no financial status here
+            <Badge tone="neutral">
+              <span data-cold-line-count={count}>{`${count} consequence ${count === 1 ? "line" : "lines"}`}</span>
+            </Badge>{" "}
+            selected window · no financial status here · Displayed rows include unpriced context
             {stateSentence(f) === null ? null : ` · ${stateSentence(f)}`}
           </StatusBar>
           <MetricCards label="Money consequence">
@@ -1272,6 +1351,11 @@ function FinancialsScreen(p: ScreenProps) {
                 )}
               </tbody>
             </DataTable>
+            {startUnread ? (
+              <p className="prose" data-cold-start-context="unread">
+                Start-response context cannot be read for this window
+              </p>
+            ) : null}
             {exposures.length === 0 && start === null ? null : (
               <Disclosure summary="Basis details" name="cold-site-basis-details">
                 {exposures.length === 0 ? null : (
