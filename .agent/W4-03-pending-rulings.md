@@ -105,7 +105,7 @@ contract leaves these values open. Builder asks; no reading taken:
    MIXED/UNKNOWN provenance test the `selected_source_provenance` block of that same reader over the five days?
 4. `day_rows[].constraints`: the stored W4-02 row's `constraints` list (empty for a missing day)? Confirm.
 
-## PR-7 (raised before unit 5 build) - OPEN, blocking unit 5
+## PR-7 (raised before unit 5 build) - RESOLVED by u5 (build spec "Unit-5..12 rulings (u5)", unit 5 rulings 1-7 and the command paragraph); built in unit 5
 
 u4b test additions landed (ba492755). Unit 5 not started: the read contract (original API block; closure 1 Q1-Q3,
 Q7-Q16; closure 4 S5/S7/S9/S14/S20; u4) leaves these values open. Builder asks; each item gives the reading the
@@ -142,3 +142,35 @@ builder would take, for confirm or replace.
 7. **`links.site_work` route** when a `mini_decision_work_link` names the opportunity (work-link command is unit 8).
    Reading: `/sites/<site-uuid>/work` (W4-01 Site Work route); null until unit 8 lands the command. Confirm the
    literal path.
+
+## PR-8 (raised in unit 6, after 6a; blocks 6b)
+
+Unit 6a landed (Scenarios page). Unit 6b not started: the canonical mini Finding shell needs these values the spec
+leaves open. Each item gives the reading the builder would take, for confirm or replace.
+
+1. **`{Finding code}` source.** u5 6b and closure 2 render `Findings › {Finding code} › {section} · site: {Site}`.
+   The W1 Finding detail wire (`frontend/src/sites/findingClient.ts:FindingDetailBody.finding`) carries `id` (UUID)
+   and `finding_key`, and no public code; no screen shows a Finding code today (the mock's `F-104` is a mock token).
+   Reading: none taken. Options: (a) `finding.finding_key`; (b) the Finding page title (`onTitle`); (c) a new W1 public
+   code (out of W4-03 scope). Which field?
+2. **First tab label.** The current mini row's first slot is labelled `Finding` (W1-F5b). 6b names it `Overview`.
+   Reading: relabel it `Overview` for MINIGRID Sites only, same route (`siteFindingHref`), and the root view's
+   breadcrumb section text is `Overview`. Confirm.
+3. **Non-MINIGRID child views.** A cold/EV Finding child address (`/findings/{id}/evidence|recommendation|history`)
+   falls through to the same generic frame (`SiteAnalyticsFrames.tsx:600-615`), which today renders
+   `{label:"Alternatives", unavailable:true}`. The final multiset has zero `Alternatives`. Reading: on non-MINIGRID
+   Sites the generic child row keeps `Finding | Evidence | Recommendation | History` with the Alternatives slot
+   removed (absent, not unavailable), and the old Site-rooted breadcrumb. Confirm, or should those addresses render
+   the cold/EV frames instead?
+4. **Analysis helper text.** S11 puts the longer Analysis explanation in nearby helper text. Reading: the closure-2
+   sentence `Analysis unavailable for this authored alternative; use the Finding overview and evidence.` on the
+   Alternatives view only; other mini child views show the bare `<UnavailableTab label="Analysis" />`. Confirm.
+5. **Alternatives without `revision_id`.** The live path carries `?revision_id=<exact-selected-uuid>`. Reading: the
+   Alternatives tab href is built only from the frame's resolved `revision_id`; when the address has none, the page
+   resolves the latest revision through the existing Finding read and redirects (replace) to the exact
+   `?revision_id=`. Alternatively render `Alternatives for this Finding unavailable`. Which?
+6. **Analytic CTA.** `SitePerformance.tsx:606` links `${findingHref(finding_id)}/alternatives` (no Site, no
+   revision). Reading: link `/sites/{site}/findings/{finding}/alternatives?revision_id=<id>` only when the period
+   summary carries the exact Finding revision ID; the summary has `finding_id` only, so today it always renders the
+   noninteractive `Alternatives for this Finding unavailable`. Same for `FindingDetail.tsx:236`
+   (`tabHref("alternatives")`). Confirm.
