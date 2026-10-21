@@ -293,29 +293,57 @@ function GroupResult({ group, body }: { group: FinancialGroup; body: EstateFinan
   );
 }
 
+/**
+ * Commit-4 ruling c4: the panel keeps the mock's title and prose; every grouping result sits behind one closed
+ * summary row (`Results (N) · No comparable total`), so the default panel stays within its measured cap. Opened, it
+ * shows all groups and diagnostics in wire order, unclipped, plus the no-comparable message when it applies.
+ */
+export function aggregationSummary(body: EstateFinancialsBody): { visible: string; spoken: string } {
+  const count = body.groups.length + body.diagnostics.length;
+  const comparable = body.groups.filter((g) => g.state === "COMPARABLE").length;
+  const totals = comparable === 0 ? "No comparable total" : comparable === 1 ? "1 comparable total" : `${comparable} comparable totals`;
+  const spokenTotals = comparable === 0 ? `${NO_COMPARABLE_TOTAL}.` : `${totals} by basis; no estate total.`;
+  const results = count === 1 ? "1 grouping result" : `${count} grouping results`;
+  return { visible: `Results (${count}) · ${totals}`, spoken: `${results}. ${spokenTotals}` };
+}
+
 function AggregationResults({ body }: { body: EstateFinancialsBody }) {
   const comparable = body.groups.some((g) => g.state === "COMPARABLE");
+  const summary = aggregationSummary(body);
   return (
-    <>
-      {body.groups.length > 0 || body.diagnostics.length > 0 ? (
-        <ul className="estate-financials-results" aria-label="Grouping results" data-estate-results>
-          {body.groups.map((group, index) => (
-            <GroupResult key={group.group_key ?? `${group.category}|${index}`} group={group} body={body} />
-          ))}
-          {body.diagnostics.map((d) => (
-            <li key={`${d.category}|${d.code}`} className="estate-financials-result" data-estate-diagnostic={d.code}>
-              <Chip tone="gray" text="Different values" data={{ "data-estate-diagnostic-chip": d.code }} />
-              <span className="estate-financials-result__text">{diagnosticText(d.category, d.code, d.line_keys.length)}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {comparable ? null : (
-        <p className="estate-evidence-note" data-estate-note="no-comparable">
-          {NO_COMPARABLE_TOTAL}
-        </p>
-      )}
-    </>
+    <div className="estate-financials-summary" data-estate-aggregation-summary>
+      <Disclosure
+        summary={
+          <>
+            <span aria-hidden="true" data-estate-summary-text>
+              {summary.visible}
+            </span>
+            <span className="visually-hidden">{summary.spoken}</span>
+          </>
+        }
+        name="estate-financials-results"
+        variant="tech"
+      >
+        {body.groups.length > 0 || body.diagnostics.length > 0 ? (
+          <ul className="estate-financials-results" aria-label="Grouping results" data-estate-results>
+            {body.groups.map((group, index) => (
+              <GroupResult key={group.group_key ?? `${group.category}|${index}`} group={group} body={body} />
+            ))}
+            {body.diagnostics.map((d) => (
+              <li key={`${d.category}|${d.code}`} className="estate-financials-result" data-estate-diagnostic={d.code}>
+                <Chip tone="gray" text="Different values" data={{ "data-estate-diagnostic-chip": d.code }} />
+                <span className="estate-financials-result__text">{diagnosticText(d.category, d.code, d.line_keys.length)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {comparable ? null : (
+          <p className="estate-evidence-note estate-financials-no-total" data-estate-note="no-comparable">
+            {NO_COMPARABLE_TOTAL}
+          </p>
+        )}
+      </Disclosure>
+    </div>
   );
 }
 

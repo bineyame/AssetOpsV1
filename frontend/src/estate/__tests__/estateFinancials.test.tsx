@@ -307,6 +307,12 @@ describe("W3-02 estate Financials root", () => {
     expect(results[3].textContent).toContain("Potential product exposure");
     expect(results[3].querySelector("[data-estate-group-reasons]")?.textContent).toBe("No consequence lines in this category");
     expect(aggregation.querySelector("[data-estate-note='no-comparable']")).toBeNull();
+    // Ruling c4: every result sits in one closed summary row; four groups plus one diagnostic, one comparable total.
+    const resultsDisclosure = aggregation.querySelector<HTMLDetailsElement>("[data-disclosure='estate-financials-results']");
+    expect(resultsDisclosure?.open).toBe(false);
+    expect(resultsDisclosure?.querySelector("[data-estate-summary-text]")?.textContent).toBe("Results (5) · 1 comparable total");
+    expect(resultsDisclosure?.querySelector("summary")?.textContent).toContain("5 grouping results. 1 comparable total by basis; no estate total.");
+    expect(resultsDisclosure?.querySelector("[data-estate-results]")).not.toBeNull();
     // L4 in plain words: the eligible mate is grouped with a line that cannot be totalled; the pending line is pending.
     expect(results[0].querySelector(`[data-estate-exclusion='${MINI_LINE.line_key}']`)?.textContent).toBe(
       "Kobo Mini-grid · Candidate operating-cost exposure: Grouped with a line that cannot be totalled",
@@ -340,6 +346,11 @@ describe("W3-02 estate Financials root", () => {
     expect(panelTitled(REGISTER_PANEL).textContent).not.toContain(NO_CONSEQUENCE_LINES);
     expect(note(AGGREGATION_PANEL, "no-comparable")).toBe(NO_COMPARABLE_TOTAL);
     expect(panelTitled(AGGREGATION_PANEL).querySelector("[data-estate-results]")).toBeNull();
+    // Ruling c4: the no-total meaning is the summary's accessible name and lives in the closed details, not a default paragraph.
+    const emptySummary = panelTitled(AGGREGATION_PANEL).querySelector("[data-disclosure='estate-financials-results'] > summary");
+    expect(emptySummary?.querySelector("[data-estate-summary-text]")?.textContent).toBe("Results (0) · No comparable total");
+    expect(emptySummary?.textContent).toContain(`0 grouping results. ${NO_COMPARABLE_TOTAL}.`);
+    expect(panelTitled(AGGREGATION_PANEL).querySelector("[data-estate-note='no-comparable']")?.closest("details")?.open).toBe(false);
     view.unmount();
 
     // Scope with no selected line.
@@ -475,8 +486,10 @@ async function readDisk(path: string): Promise<string> {
 describe("W3-02 commit 4 measured Financials layout", () => {
   it("meetsMeasuredNarrowLayoutWithoutDocumentOverflow", async () => {
     // jsdom has no layout: this reads the real-browser 390 px measurements of the mounted `/financials` page
-    // (`.agent/W3-02-evidence/capture-financials.mjs`). The Aggregation panel's measured overage against its
-    // closure-4 maximum is a recorded Lane B page defect (phase handoff), so its cap is reported, not asserted here.
+    // (`.agent/W3-02-evidence/capture-financials.mjs`). Ruling c4: the closed results summary stays within its 24 px
+    // allowance at 12 px; opened, the results list never scrolls internally, every group/diagnostic/exclusion is visible
+    // and the page stays unclipped. The closed panel's 187 px cap is not met by the 14 px prose alone (pending c4-q4),
+    // so the panel height is recorded in the capture, not asserted here.
     for (const state of ["positive", "partial"]) {
       const file = `../.agent/W3-02-evidence/app-financials-${state}.json`;
       const narrow = (JSON.parse(await readDisk(file)).results as Record<string, any>[]).find((r) => r.width === 390);
@@ -496,6 +509,16 @@ describe("W3-02 commit 4 measured Financials layout", () => {
       expect(t.rows).toBeGreaterThan(0);
       expect(t.scroll).toBeGreaterThanOrEqual(t.client); // the table scrolls inside its own container
       expect(t.client).toBeLessThanOrEqual(narrow!.docClientW);
+      const s = narrow!.aggSummary;
+      expect(s.open).toBe(false);
+      expect(s.fontSize).toBe("12px");
+      expect(s.wrapperH).toBeLessThanOrEqual(24);
+      const o = narrow!.opened;
+      expect(o.results.items).toBeGreaterThan(0);
+      expect(o.results.scrollH).toBe(o.results.clientH);
+      const { groups, diagnostics, exclusions, visible } = o.reach;
+      expect(visible).toBeGreaterThanOrEqual(groups + diagnostics + exclusions);
+      expect(o.docScrollW).toBeLessThanOrEqual(o.docClientW);
     }
   });
 });

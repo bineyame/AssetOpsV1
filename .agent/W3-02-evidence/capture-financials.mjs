@@ -51,6 +51,10 @@ try {
       groupStates: Array.from(root.querySelectorAll("[data-estate-group-state]")).map((n) => n.textContent.trim()),
       docScrollW: document.documentElement.scrollWidth, docClientW: document.documentElement.clientWidth,
       refusal: root.querySelector("[role=alert]")?.textContent ?? null,
+      aggSummary: (() => { const d = agg?.querySelector("[data-disclosure='estate-financials-results']"); const sm = d?.querySelector(":scope > summary"); const t = sm?.querySelector("[data-estate-summary-text]"); if (!sm) return null; const cs = getComputedStyle(sm); const tr = t.getBoundingClientRect(); return { open: d.open, text: t.textContent, name: sm.textContent.replace(/\\s+/g, " ").trim(), h: Math.round(sm.getBoundingClientRect().height), fontSize: cs.fontSize, lineHeight: cs.lineHeight, lines: Math.round(tr.height / parseFloat(cs.lineHeight)), wrapperH: Math.round(agg.querySelector("[data-estate-aggregation-summary]").getBoundingClientRect().height + parseFloat(getComputedStyle(agg.querySelector("[data-estate-aggregation-summary]")).marginTop)) }; })(),
+      aggParts: agg ? (() => { const cs = getComputedStyle(agg); const hd = agg.querySelector(".panel__header") ?? agg.querySelector("h2"); const pr = agg.querySelector(".estate-financials-prose"); const pcs = getComputedStyle(pr); return { pad: cs.paddingTop + "/" + cs.paddingBottom, header: Math.round(hd.getBoundingClientRect().height), headerMb: getComputedStyle(hd).marginBottom, prose: Math.round(pr.getBoundingClientRect().height), proseLh: pcs.lineHeight, proseFs: pcs.fontSize }; })() : null,
+      proseFont: agg ?getComputedStyle(agg.querySelector(".estate-financials-prose")).fontSize : null,
+      reach: agg ? { groups: agg.querySelectorAll("[data-estate-group]").length, diagnostics: agg.querySelectorAll("[data-estate-diagnostic]").length, exclusions: agg.querySelectorAll("[data-estate-exclusion]").length, visible: Array.from(agg.querySelectorAll("[data-estate-group],[data-estate-diagnostic],[data-estate-exclusion],[data-estate-note]")).filter((e) => e.checkVisibility()).length, chipFont: (() => { const c = agg.querySelector(".estate-chip"); return c ? getComputedStyle(c).fontSize + "/" + getComputedStyle(c).whiteSpace : null; })() } : null,
       height: document.documentElement.scrollHeight };
   })()`;
 
@@ -69,12 +73,24 @@ try {
     const shotPng = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: w, height: Math.min(m.height, 6000), scale: 1 } });
     const file = `financials-${STATE}-${w}-app.png`;
     writeFileSync(join(OUT, file), Buffer.from(shotPng.data, "base64"));
-    results.push({ width: w, app_url: `${BASE}${PATH}`, image: file, ready, maxima: MAX[w], over, ...m });
+    // Ruling c4: open the results summary and every nested exclusions disclosure, then re-measure and re-shoot.
+    await evalv(`(() => { const a = Array.from(document.querySelectorAll("section.panel")).find((p) => p.querySelector("h2")?.textContent.trim() === "Aggregation rule"); a?.querySelectorAll("details").forEach((d) => { d.open = true; }); return true; })()`);
+    await sleep(300);
+    const o = await evalv(MEASURE);
+    const openShot = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: w, height: Math.min(o.height, 6000), scale: 1 } });
+    const openFile = `financials-${STATE}-${w}-open-app.png`;
+    writeFileSync(join(OUT, openFile), Buffer.from(openShot.data, "base64"));
+    const opened = { image: openFile, aggregation: o.pieces.aggregation, results: o.results, aggSummary: o.aggSummary, reach: o.reach, docScrollW: o.docScrollW, docClientW: o.docClientW };
+    results.push({ width: w, app_url: `${BASE}${PATH}`, image: file, ready, maxima: MAX[w], over, ...m, opened });
   }
-  writeFileSync(join(OUT, `app-financials-${STATE}.json`), JSON.stringify({ state: STATE, captured_at: new Date().toISOString(), results }, null, 2));
+  // Ruling c4-q3: the honest capture limitation, recorded with the capture.
+  const limitation = "Three Sites are in scope; two have selected consequence lines. The mini-grid has no selected consequence revision for this window, so no mini-grid amount appears in the register. The two-row register height is not a three-row mock-density proof; the 293/448 px register maxima still apply.";
+  writeFileSync(join(OUT, `app-financials-${STATE}.json`), JSON.stringify({ state: STATE, captured_at: new Date().toISOString(), limitation, results }, null, 2));
   for (const r of results) {
     const p = Object.entries(r.pieces).map(([k, v]) => `${k}=${v ? v.h : "absent"}`).join(" ");
     console.log(`${r.width} ready=${r.ready} h1=${r.h1} main=${r.main} rail=${r.railCurrent} doc=${r.docScrollW}/${r.docClientW} ${p} reg=${JSON.stringify(r.registerTable)} results=${JSON.stringify(r.results)} groups=${JSON.stringify(r.groupStates)} notes=${JSON.stringify(r.notes)} over=[${r.over}] refusal=${r.refusal}`);
+    console.log(`  parts=${JSON.stringify(r.aggParts)} closed summary=${JSON.stringify(r.aggSummary)} prose=${r.proseFont} reach=${JSON.stringify(r.reach)}`);
+    console.log(`  open agg=${r.opened.aggregation?.h} results=${JSON.stringify(r.opened.results)} reach=${JSON.stringify(r.opened.reach)} doc=${r.opened.docScrollW}/${r.opened.docClientW}`);
   }
 } finally {
   try { ws?.close(); } catch {}
