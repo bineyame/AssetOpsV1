@@ -16,6 +16,7 @@ import {
   SiteFindingFrame,
   SiteFindingsFrame,
   SitePerformanceFrame,
+  SiteOpportunityFrame,
 } from "./shell/SiteAnalyticsFrames";
 import { SiteAssetFrame, SiteAssetsFrame, SiteHealthFrame } from "./shell/SiteHealthFrames";
 import { SiteDetailFrame } from "./shell/SiteDetailFrame";
@@ -40,6 +41,7 @@ import {
   SITE_ACTION_VIEW_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIAL_SCENARIOS_ROUTE_PATH,
+  SITE_OPPORTUNITY_ROUTE_PATH,
   SITE_FINANCIALS_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
   SITE_FINDING_VIEW_ROUTE_PATH,
@@ -377,6 +379,7 @@ export function App({
                   coldAssessment={coldAssessment}
                   evAssessment={evAssessment}
                   miniDepth={miniDepth}
+                  miniDecisions={miniDecisions}
                 />
               }
             />
@@ -403,6 +406,10 @@ export function App({
           <Route
             path={SITE_FINANCIAL_SCENARIOS_ROUTE_PATH}
             element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="scenarios" miniDecisions={miniDecisions} />}
+          />
+          <Route
+            path={SITE_OPPORTUNITY_ROUTE_PATH}
+            element={<SiteOpportunityFrame detail={siteDetail} sitesPath={SITES_PATH} miniDecisions={miniDecisions} />}
           />
           {[SITE_FINDING_ROUTE_PATH, SITE_FINDING_VIEW_ROUTE_PATH].map((path) => (
             <Route

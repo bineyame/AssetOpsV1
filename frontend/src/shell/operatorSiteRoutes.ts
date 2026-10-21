@@ -180,6 +180,16 @@ export function siteFinancialScenariosHref(siteId: string): string {
   return `${siteDetailHref(siteId)}/financials/scenarios`;
 }
 
+/**
+ * W4-03 unit 7: the typed five-day Opportunity detail, reached only from the exact W4-02 renewable CTA (S14). The
+ * Site token is the public Site code, never the database UUID (u6 dry-read).
+ */
+export const SITE_OPPORTUNITY_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/opportunities/:opportunityId`;
+
+export function siteOpportunityHref(siteId: string, opportunityId: string): string {
+  return `${siteDetailHref(siteId)}/opportunities/${encodeURIComponent(opportunityId)}`;
+}
+
 export function siteFinancialsHref(
   siteId: string,
   bridge?: { findingId: string; revisionId?: string | null; consequenceRevisionId?: string | null },

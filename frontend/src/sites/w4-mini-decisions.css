@@ -142,3 +142,37 @@
   margin-left: 6px;
   color: var(--text-secondary);
 }
+
+/*
+ * W4-03 unit 7: the typed Opportunity detail (v69 `opportunity-finding`). Chip tones follow closure 1: green only the
+ * positive gate, amber limited/pending, blue historical, grey unknown. Pieces keep the shared v69 primitives; the
+ * evidence drawer scrolls inside the Bounded opportunity panel so the panel stays within its measured cap.
+ */
+.mini-opportunity-tone--green {
+  color: #166b50;
+  background: #e6f4ee;
+}
+
+.mini-opportunity-tone--amber {
+  color: #8e580c;
+  background: #fdf3e2;
+}
+
+.mini-opportunity-tone--blue {
+  color: #245ac0;
+  background: #eaf0fd;
+}
+
+.mini-opportunity-tone--gray {
+  color: var(--text-secondary);
+  background: #f1f2f4;
+}
+
+.mini-opportunity-drawer {
+  max-height: 96px;
+  overflow-y: auto;
+}
+
+.mini-opportunity-crumbs__root {
+  color: var(--text-secondary);
+}

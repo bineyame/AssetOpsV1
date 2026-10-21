@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import { FinancialsSections, SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
-import { siteFindingAlternativesHref } from "../../shell/operatorSiteRoutes";
+import { siteFindingAlternativesHref, siteOpportunityHref } from "../../shell/operatorSiteRoutes";
 import type { FindingClient, FindingDetailBody, FindingReadResult } from "../findingClient";
 import { useResolvedAlternativesHref } from "../SitePerformance";
 import type {
@@ -13,11 +13,17 @@ import type {
   AlternativeRow,
   DecisionRead,
   MiniDecisionsClient,
+  OpportunityDetailBody,
+  OpportunityListBody,
+  OpportunityObject,
   ScenarioListBody,
   ScenarioRow,
 } from "../miniDecisionsClient";
 import { microsecondBefore } from "../miniDecisionsClient";
 import { scenarioMoney } from "../MiniScenarios";
+import { OpportunityDecisionEntry } from "../MiniOpportunity";
+import { SiteFindingIndex } from "../SiteFindingIndex";
+import type { FindingIndexClient } from "../findingIndexClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -107,6 +113,8 @@ function renderAt(path: string, answers: DecisionRead<ScenarioListBody>[], siteT
   const client: MiniDecisionsClient = {
     getScenarios: vi.fn(() => Promise.resolve(queue.length > 1 ? queue.shift()! : queue[0])),
     getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+    getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+    listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
   };
   const s = site(code, siteType);
   const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: s }) };
@@ -389,6 +397,8 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     const decisions: MiniDecisionsClient = {
       getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       getAlternatives: vi.fn(() => Promise.resolve(answer)),
+      getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+      listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
     };
     const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: site(code, siteType) }) };
     render(
@@ -599,6 +609,405 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
         expect(document.querySelector('a[href*="/alternatives"]')).toBeNull();
         expect(main().textContent).not.toContain("Alternatives to investigate");
         cleanup();
+      }
+    }
+  });
+});
+
+describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", () => {
+  const OPP = id(700);
+  const SITE_UUID = "11111111-2222-4333-8444-555555555555";
+  const EV1 = id(901);
+  const EV2 = id(902);
+  // The stored study 6-10 Oct 2026, Nairobi midnights (closure 1 Q12-Q16 example).
+  const S_FROM = "2026-10-05T21:00:00.000000Z";
+  const S_TO = "2026-10-10T21:00:00.000000Z";
+  const S_KNOWN = "2026-10-11T06:00:00.000000Z";
+  const MOCK_LITERALS = ["F-109", "Medium", "18–20", "3 / 5", "10 kW × 1 h", "$0.25", "3 kW", "Grain-mill"];
+
+  const dayRow = (day: string, decision: string | null, low: string | null, high: string | null, ids: string[]) => ({
+    local_day: day,
+    decision,
+    opportunity_kwh: low === null || high === null ? null : { low, high },
+    constraints: [],
+    evidence_ids: ids,
+    selection_seq: decision === null ? null : 1,
+    mini_revision_id: decision === null ? null : id(800),
+  });
+
+  function body(over: Partial<OpportunityDetailBody> = {}, opp: Partial<OpportunityObject> = {}): OpportunityDetailBody {
+    return {
+      schema_version: "mini-opportunity-detail-1",
+      opportunity: {
+        id: OPP,
+        code: "OPP-000001",
+        revision_id: id(710),
+        revision_no: 1,
+        first_day: "2026-10-06",
+        last_day: "2026-10-10",
+        model_version: "mini-opportunity/1",
+        study_days: 5,
+        eligible_days: 2,
+        assessed_days: 5,
+        headroom_kw: { low: "12", high: "15" },
+        proposed_load_kw: "10",
+        gross_sales_scenario: { amount: "2.5", currency: "USD", basis: "SCENARIO" },
+        demand_state: "UNVERIFIED",
+        collection_state: "UNVERIFIED",
+        scenario_id: id(720),
+        day_rows: [
+          dayRow("2026-10-06", "ELIGIBLE", "18", "20", [EV2]),
+          dayRow("2026-10-07", "EXCLUDED", null, null, []),
+          dayRow("2026-10-08", "ELIGIBLE", "12", "15", [EV1, EV2]),
+          dayRow("2026-10-09", "EXCLUDED", null, null, []),
+          dayRow("2026-10-10", "EXCLUDED", null, null, []),
+        ],
+        ...opp,
+      },
+      status: "SUPPORTED",
+      currentness: { state: "CURRENT", job_state: "SETTLED" },
+      selected_source_provenance: { classification: "AUTHORED_DEMONSTRATION" },
+      pending_source_provenance: null,
+      limitations: [],
+      history: [],
+      scenario_links: [],
+      links: {
+        renewable: `/sites/${SITE_UUID}/performance/renewable?from=${S_FROM}&to=${S_TO}&known_at=${S_KNOWN}`,
+        site_work: null,
+        scenario: null,
+      },
+      ...over,
+    };
+  }
+
+  function openAt(answer: DecisionRead<OpportunityDetailBody>, siteType = "MINIGRID") {
+    const decisions: MiniDecisionsClient = {
+      getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+      getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+      getOpportunity: vi.fn(() => Promise.resolve(answer)),
+      listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+    };
+    const s = site(CODE, siteType);
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: s }) };
+    const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [s] }) };
+    render(
+      <MemoryRouter initialEntries={[`/sites/${CODE}/opportunities/${OPP}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} miniDecisions={decisions} />
+        <Where />
+      </MemoryRouter>,
+    );
+    return decisions;
+  }
+
+  const loaded = (b: OpportunityDetailBody): DecisionRead<OpportunityDetailBody> => ({ status: "loaded", value: b });
+  const chip = () => document.querySelector("[data-opportunity-chip]");
+  const cards = () =>
+    Array.from(document.querySelectorAll("[data-opportunity-cards] > li")).map((li) =>
+      Array.from(li.children).map((c) => c.textContent),
+    );
+  const basis = () =>
+    Array.from(document.querySelectorAll(".v69-key-values > div")).map((d) => [
+      d.querySelector("dt")?.textContent,
+      d.querySelector("dd")?.textContent,
+    ]);
+  const claim = () => document.querySelector("[data-opportunity-claim]")?.textContent;
+  const secondary = () => document.querySelector("[data-opportunity-secondary]")?.textContent;
+  const noMock = () => {
+    for (const literal of MOCK_LITERALS) expect(main().textContent).not.toContain(literal);
+  };
+
+  async function show(b: OpportunityDetailBody) {
+    cleanup();
+    openAt(loaded(b));
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("[data-opportunity-page]")).not.toBeNull());
+  }
+
+  it("opportunity_supported_limited_pending_and_null_money", async () => {
+    // Supported, current, resolved selected class: the only green state (u5 ruling 1 positive gate).
+    await show(body());
+    expect(chip()?.getAttribute("data-opportunity-chip")).toBe("green");
+    expect(chip()?.textContent).toBe("OPP-000001 · Opportunity");
+    expect(document.querySelector("[data-opportunity-confidence]")?.textContent).toBe("Confidence: Not assessed");
+    expect(secondary()).toBe("Recommendation · demand unverified");
+    expect(cards()).toEqual([
+      ["Usable headroom", "12–15 kW", "After the selected retained margin"],
+      ["Eligible days", "2 / 5", "Separate five-day study"],
+      ["Proposed load", "10 kW", "Linked scenario; name unavailable in this read"],
+      ["Gross sales scenario", "$2.50", "Illustrative per eligible window, before costs; collections unverified"],
+    ]);
+    expect(claim()).toBe("Renewable capacity appears available for a one-hour productive load in 2 adequately observed windows.");
+    expect(main().textContent).toContain(
+      "Electrical feasibility does not establish customer demand, collections or a realised financial benefit.",
+    );
+    expect(main().textContent).toContain(
+      "Validate local demand, schedule any proposed load, and check critical service and storage guardrails before a trial.",
+    );
+    expect(basis()).toEqual([
+      ["Technical quantity", "12–15 kW usable headroom"],
+      ["Scenario energy", "Unavailable in this read"],
+      ["Tariff", "Unavailable in this read"],
+      ["Gross sales", "$2.50 · scenario"],
+      ["Managed Action", "Not yet accepted"],
+    ]);
+    noMock();
+
+    // A proposal above one eligible day's lower bound is not claimed to fit every counted hour.
+    await show(body({}, { proposed_load_kw: "13" }));
+    expect(claim()).toBe("Measured renewable headroom is available in 2 of 5 assessed windows; no added load has been validated.");
+
+    // The u4b gated read: a stored SUPPORTED result read while W4-02 is pending or stale keeps its frozen values,
+    // withholds money and never renders the positive chip or claim.
+    for (const state of ["PENDING_RECOMPUTE", "STALE_SOURCE"]) {
+      await show(
+        body({ currentness: { state, job_state: state === "PENDING_RECOMPUTE" ? "PENDING" : "SETTLED" } }, { gross_sales_scenario: null }),
+      );
+      expect(chip()?.getAttribute("data-opportunity-chip")).toBe("amber");
+      expect(secondary()).toBe("Decision pending · evidence limited");
+      expect(cards()[0][1]).toBe("12–15 kW");
+      expect(cards()[3][1]).toBe("Withheld pending evidence");
+      expect(basis()[3]).toEqual(["Gross sales", "Withheld pending evidence"]);
+      expect(claim()).toBe("The selected evidence does not establish a recurring productive-use opportunity.");
+      expect(main().textContent).not.toContain("appears available");
+    }
+
+    // MIXED or UNKNOWN selected class: no green chip even when current and SUPPORTED.
+    for (const classification of ["MIXED", "UNKNOWN"]) {
+      await show(body({ selected_source_provenance: { classification } }));
+      expect(chip()?.getAttribute("data-opportunity-chip")).not.toBe("green");
+    }
+
+    // Supported with zero eligible days: counts shown, no positive chip, no headroom.
+    await show(body({}, { eligible_days: 0, headroom_kw: null, proposed_load_kw: null, scenario_id: null, gross_sales_scenario: null }));
+    expect(chip()?.getAttribute("data-opportunity-chip")).toBe("gray");
+    expect(cards()[1][1]).toBe("0 / 5");
+    expect(cards()[0][1]).toBe("Unknown");
+
+    // LIMITED: amber, Unknown headroom, the limited claim and the missing-evidence next decision.
+    await show(body({ status: "LIMITED" }, { headroom_kw: null, eligible_days: 1 }));
+    expect(chip()?.getAttribute("data-opportunity-chip")).toBe("amber");
+    expect(cards()[0][1]).toBe("Unknown");
+    expect(claim()).toBe("The selected evidence does not establish a recurring productive-use opportunity.");
+    expect(main().textContent).toContain("Complete the missing renewable and service evidence before a load decision.");
+
+    // UNKNOWN incomplete study without a scenario: every authored slot states its own gap; money is null.
+    await show(
+      body(
+        { status: "UNKNOWN", currentness: { state: "UNKNOWN", job_state: "NONE" }, selected_source_provenance: null },
+        { assessed_days: 3, eligible_days: 1, headroom_kw: null, proposed_load_kw: null, scenario_id: null, gross_sales_scenario: null },
+      ),
+    );
+    expect(chip()?.getAttribute("data-opportunity-chip")).toBe("gray");
+    expect(cards()).toEqual([
+      ["Usable headroom", "Unknown", "After the selected retained margin"],
+      ["Eligible days", "Not established", "Five-day study incomplete"],
+      ["Proposed load", "No load proposed", "No scenario linked"],
+      ["Gross sales scenario", "Not calculated", "Illustrative per eligible window, before costs; collections unverified"],
+    ]);
+    expect(basis()).toEqual([
+      ["Technical quantity", "Unknown"],
+      ["Scenario energy", "No load scenario"],
+      ["Tariff", "No tariff declared"],
+      ["Gross sales", "Not calculated"],
+      ["Managed Action", "Not yet accepted"],
+    ]);
+    noMock();
+  });
+
+  it("opportunity_history_and_exact_renewable_cta", async () => {
+    // Historical basis is blue, never green, and keeps the frozen values.
+    await show(body({ currentness: { state: "HISTORICAL", job_state: "SETTLED" } }));
+    expect(chip()?.getAttribute("data-opportunity-chip")).toBe("blue");
+    expect(document.querySelector("[data-opportunity-currentness]")?.textContent).toBe("Historical basis");
+
+    // Open renewable evaluation: the public Site code plus the stored study bounds and cutoff, never the UUID.
+    await show(body());
+    const expected = `/sites/${CODE}/performance/renewable?${new URLSearchParams({ from: S_FROM, to: S_TO, known_at: S_KNOWN })}`;
+    const cta = screen.getByRole("link", { name: "Open renewable evaluation" });
+    expect(cta.getAttribute("href")).toBe(expected);
+    expect(document.querySelector("[data-opportunity-crumb-renewable] a")?.getAttribute("href")).toBe(expected);
+    expect(main().innerHTML).not.toContain(SITE_UUID);
+
+    // Header, description, Open site, one selected Overview tab and the disabled Findings root.
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Productive-use headroom at MINIGRID site");
+    expect(main().textContent).toContain(
+      "Five-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.",
+    );
+    expect(screen.getByRole("link", { name: "Open site" }).getAttribute("href")).toBe(`/sites/${CODE}`);
+    const tabs = Array.from(document.querySelectorAll("[data-opportunity-tabs] li"));
+    expect(tabs.map((li) => li.textContent)).toEqual(["Overview"]);
+    expect(tabs[0].querySelector("a")?.getAttribute("aria-current")).toBe("page");
+    const crumbs = Array.from(document.querySelectorAll("[data-opportunity-crumbs] li")).map((li) => li.textContent);
+    expect(crumbs).toEqual([
+      "Global Findings unavailable; this opportunity is reached from Renewable evaluation.",
+      "Sites",
+      "MINIGRID site",
+      "Renewable evaluation",
+      "OPP-000001",
+      "Overview",
+    ]);
+    noControl(document.querySelector("[data-opportunity-root]"));
+    expect(document.querySelector('[data-opportunity-crumbs] a[href="/findings"]')).toBeNull();
+
+    // Evidence inspection: the exact accepted-ID union of the five day rows.
+    fireEvent.click(screen.getByRole("button", { name: "Inspect opportunity evidence" }));
+    const cited = Array.from(document.querySelectorAll("[data-opportunity-cited]"));
+    expect(cited.map((a) => a.getAttribute("data-opportunity-cited"))).toEqual([EV1, EV2]);
+    expect(cited[0].getAttribute("href")).toContain(`/sites/${CODE}/evidence`);
+
+    // No renewable link and no evidence: noninteractive gaps.
+    await show(
+      body({ links: { renewable: null, site_work: null, scenario: null } }, {
+        day_rows: body().opportunity!.day_rows.map((r) => ({ ...r, evidence_ids: [] })),
+      }),
+    );
+    const gap = screen.getByText("Renewable evaluation unavailable");
+    noControl(gap);
+    expect(screen.queryByRole("link", { name: "Open renewable evaluation" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Inspect opportunity evidence" }));
+    expect(document.querySelector("[data-opportunity-evidence]")?.textContent).toBe("No selected opportunity evidence");
+
+    // Refusals keep the shell and state the code's copy; no authored or positive state.
+    for (const [read, copy] of [
+      [{ status: "refused", httpStatus: 404, code: "DECISION_NOT_FOUND", message: null }, "This decision was not found at this site."],
+      [{ status: "refused", httpStatus: 503, code: "DECISION_STORE_UNAVAILABLE", message: null }, "Decisions are unavailable right now. Try again."],
+      [{ status: "unavailable", message: null }, "Decisions are unavailable right now. Try again."],
+    ] as [DecisionRead<OpportunityDetailBody>, string][]) {
+      cleanup();
+      openAt(read);
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("[data-opportunity-refusal]")?.textContent).toBe(copy));
+      expect(document.querySelector("[data-opportunity-chip]")).toBeNull();
+      expect(document.querySelector("[data-opportunity-code]")).toBeNull();
+    }
+
+    // A non-mini Site makes no read.
+    cleanup();
+    const client = openAt(loaded(body()), "COLDCHAIN");
+    await settledScreen();
+    expect(document.querySelector("[data-opportunity-site-type-unsupported]")).not.toBeNull();
+    expect(client.getOpportunity).not.toHaveBeenCalled();
+  });
+
+  it("opportunity_zero_multiple_and_short_study", async () => {
+    const TZ = "Africa/Nairobi";
+    const listRow = (oid: string, first: string, last: string, model = "mini-opportunity/1") => ({
+      ...body(),
+      opportunity: { ...body().opportunity!, id: oid, first_day: first, last_day: last, model_version: model },
+    });
+    const list = (rows: ReturnType<typeof listRow>[]): DecisionRead<OpportunityListBody> => ({
+      status: "loaded",
+      value: { schema_version: "mini-opportunities-1", window: { from: S_FROM, to: S_TO, known_at: S_KNOWN }, total_count: rows.length, rows, next_cursor: null },
+    });
+    async function entry(answer: DecisionRead<OpportunityListBody>, from: string, to: string) {
+      cleanup();
+      const client: MiniDecisionsClient = {
+        getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+        getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+        getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+        listOpportunities: vi.fn(() => Promise.resolve(answer)),
+      };
+      render(
+        <MemoryRouter>
+          <OpportunityDecisionEntry
+            client={client}
+            siteCode={CODE}
+            timeZone={TZ}
+            window={{ from, to, known_at: S_KNOWN }}
+            detailHref={(oid) => siteOpportunityHref(CODE, oid)}
+          />
+        </MemoryRouter>,
+      );
+      await waitFor(() => expect(document.querySelector('[data-opportunity-decision="loading"]')).toBeNull());
+      return client;
+    }
+    const decision = () => document.querySelector("[data-opportunity-decision]");
+
+    // Exactly one study with both days and the model: its typed detail link; one scoped list read.
+    let client = await entry(
+      list([listRow(OPP, "2026-10-06", "2026-10-10"), listRow(id(701), "2026-10-05", "2026-10-09"), listRow(id(702), "2026-10-06", "2026-10-10", "other/1")]),
+      S_FROM,
+      S_TO,
+    );
+    expect(client.listOpportunities).toHaveBeenCalledTimes(1);
+    expect(client.listOpportunities).toHaveBeenCalledWith(CODE, { from: S_FROM, to: S_TO, known_at: S_KNOWN });
+    expect(decision()?.getAttribute("data-opportunity-decision")).toBe("one");
+    expect(decision()?.querySelector("a")?.getAttribute("href")).toBe(`/sites/${CODE}/opportunities/${OPP}`);
+
+    // Zero exact matches (intersection alone never selects).
+    await entry(list([listRow(id(701), "2026-10-05", "2026-10-09"), listRow(id(703), "2026-10-06", "2026-10-11")]), S_FROM, S_TO);
+    expect(decision()?.textContent).toBe("Opportunity decision unavailable for this selected five-day study.");
+    noControl(decision()!.querySelector("span"));
+
+    // More than one exact root: the 503 integrity state, never a chosen row.
+    await entry(list([listRow(OPP, "2026-10-06", "2026-10-10"), listRow(id(704), "2026-10-06", "2026-10-10")]), S_FROM, S_TO);
+    expect(decision()?.getAttribute("data-opportunity-decision")).toBe("refused");
+    expect(decision()?.textContent).toBe("Decisions are unavailable right now. Try again.");
+    expect(decision()?.querySelector("a")).toBeNull();
+
+    // A refused list read states its code's copy.
+    await entry({ status: "refused", httpStatus: 403, code: "SITE_ACCESS_DENIED", message: null }, S_FROM, S_TO);
+    expect(decision()?.textContent).toBe("You do not have access to this site.");
+
+    // One to four complete local days: the shorter-study copy without a lookup.
+    for (const to of ["2026-10-06T21:00:00.000000Z", "2026-10-09T21:00:00.000000Z"]) {
+      client = await entry(list([listRow(OPP, "2026-10-06", "2026-10-10")]), S_FROM, to);
+      expect(decision()?.textContent).toBe("Opportunity decision unavailable for fewer than five assessed days.");
+      expect(client.listOpportunities).not.toHaveBeenCalled();
+    }
+  });
+
+  it("opportunity_panel_order_and_narrow_budget", async () => {
+    await show(body());
+    const page = document.querySelector("[data-opportunity-page]")!;
+    // Mock order: status bar, four cards, Bounded opportunity, then the Next decision | Consequence basis pair.
+    const pieces = Array.from(page.querySelectorAll("[data-opportunity-status], [data-opportunity-cards], .panel h2, .panel h3"));
+    expect(pieces.map((el) => (el.matches("[data-opportunity-status]") ? "status" : el.matches("[data-opportunity-cards]") ? "cards" : el.textContent))).toEqual([
+      "status",
+      "cards",
+      "Bounded opportunity",
+      "Next decision",
+      "Consequence basis",
+    ]);
+    expect(page.querySelectorAll("[data-opportunity-cards] > li")).toHaveLength(4);
+    const pair = page.querySelector(".panel-pair")!;
+    expect(Array.from(pair.querySelectorAll(".panel h2, .panel h3")).map((h) => h.textContent)).toEqual(["Next decision", "Consequence basis"]);
+    // The evidence list scrolls inside its panel (bounded drawer) so the panel keeps its measured cap.
+    fireEvent.click(screen.getByRole("button", { name: "Inspect opportunity evidence" }));
+    expect(document.querySelector("[data-opportunity-evidence]")?.className).toContain("mini-opportunity-drawer");
+    // Discovery stays as ruled: no Site/estate Opportunity index row or route is promoted (closure 4 S11/S21).
+    expect(document.querySelector('a[href*="/findings/opportunities"]')).toBeNull();
+  });
+
+  it("opportunity_chip_and_estate_lens_stay_unavailable", async () => {
+    const findingIndex: FindingIndexClient = {
+      getFindingIndex: vi.fn(() => Promise.resolve({ status: "forbidden" as const, message: null })),
+    };
+    for (const helper of [true, false]) {
+      cleanup();
+      render(
+        <MemoryRouter>
+          <SiteFindingIndex
+            siteId={CODE}
+            client={findingIndex}
+            scope={{ domain: "all", from: S_FROM, to: S_TO }}
+            links={{ scope: () => "/x", finding: () => "/y" }}
+            onScope={() => undefined}
+            fallback={null}
+            opportunityHelper={helper}
+          />
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      const chipEl = document.querySelector('[data-site-findings-lenses] [data-chip-unavailable="Opportunities"], [data-site-findings-lenses] li:last-child');
+      expect(chipEl?.textContent).toContain("Opportunities");
+      expect(chipEl?.querySelector("a")).toBeNull();
+      const note = document.querySelector("[data-opportunity-index-helper]");
+      if (helper) {
+        expect(note?.textContent).toBe("Opportunity index unavailable; open the renewable evaluation for this site's five-day study.");
+        noControl(note);
+      } else {
+        expect(note).toBeNull();
       }
     }
   });

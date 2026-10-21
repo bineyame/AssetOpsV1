@@ -44,6 +44,8 @@ import {
   type ServiceRead,
   type ServiceRow,
 } from "./miniDepthClient";
+import type { MiniDecisionsClient } from "./miniDecisionsClient";
+import { OpportunityDecisionEntry } from "./MiniOpportunity";
 import { performanceSubtabs, type DomainPresentationProfile } from "./presentationProfile";
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
 import "./w4-mini-performance.css";
@@ -532,7 +534,7 @@ function OpportunityDrawer({ read, timeZone, onClose }: { read: RenewableRead; t
   );
 }
 
-function ProductiveUsePanel({ read, timeZone }: { read: RenewableRead; timeZone: string }) {
+function ProductiveUsePanel({ read, timeZone, decision }: { read: RenewableRead; timeZone: string; decision?: OpportunityLink }) {
   const [open, setOpen] = useState(false);
   return (
     <BoundedPanel
@@ -546,7 +548,17 @@ function ProductiveUsePanel({ read, timeZone }: { read: RenewableRead; timeZone:
         No productive-use scenario has been assessed.
       </p>
       <p className="prose">Electrical capacity does not establish customer demand.</p>
-      <UnavailableLinkEntry label="Opportunity decision" />
+      {decision === undefined ? (
+        <UnavailableLinkEntry label="Opportunity decision" />
+      ) : (
+        <OpportunityDecisionEntry
+          client={decision.client}
+          siteCode={decision.siteCode}
+          timeZone={timeZone}
+          window={read.window}
+          detailHref={decision.href}
+        />
+      )}
       <p>
         <button
           type="button"
@@ -654,12 +666,21 @@ function WindowsPanel({ read, timeZone, evidenceHref }: { read: RenewableRead; t
   );
 }
 
+/** W4-03 unit 7: the exact five-day Opportunity CTA's reads and address (closure 4 S14). */
+export interface OpportunityLink {
+  client: MiniDecisionsClient;
+  siteCode: string;
+  href: (opportunityId: string) => string;
+}
+
 export function MiniRenewablePage({
   read,
   timeZone,
+  decision,
 }: {
   read: RenewableRead;
   timeZone: string;
+  decision?: OpportunityLink;
 }) {
   return (
     <>
@@ -667,7 +688,7 @@ export function MiniRenewablePage({
       <RenewableCardsRow read={read} />
       <div className="panel-pair">
         <HeadroomPanel read={read} />
-        <ProductiveUsePanel read={read} timeZone={timeZone} />
+        <ProductiveUsePanel read={read} timeZone={timeZone} decision={decision} />
       </div>
       <WindowsPanel read={read} timeZone={timeZone} evidenceHref={read.links.evidence} />
       <Notice tone="blue" data={{ "data-mini-notice": "renewable" }}>
@@ -682,12 +703,17 @@ export const MINI_LOADING = "Loading the site's mini-grid assessment.";
 /** The Renewable page body: the period bar, then the selected read or its refusal. */
 export function MiniRenewable({
   client,
+  decisions,
+  opportunityHref,
   siteCode,
   timeZone,
   window,
   pageHref,
 }: {
   client: MiniDepthClient;
+  /** W4-03 unit 7: the opportunity list read and the typed detail address for the exact five-day CTA. */
+  decisions?: MiniDecisionsClient;
+  opportunityHref?: (opportunityId: string) => string;
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;
@@ -717,7 +743,15 @@ export function MiniRenewable({
       ) : read.status !== "loaded" ? (
         <MiniRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
       ) : (
-        <MiniRenewablePage read={read.value} timeZone={read.value.site.timezone ?? timeZone} />
+        <MiniRenewablePage
+          read={read.value}
+          timeZone={read.value.site.timezone ?? timeZone}
+          decision={
+            decisions === undefined || opportunityHref === undefined
+              ? undefined
+              : { client: decisions, siteCode, href: opportunityHref }
+          }
+        />
       )}
     </>
   );

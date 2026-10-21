@@ -31,6 +31,14 @@ import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
 import { MiniScenarios } from "../sites/MiniScenarios";
+import {
+  MiniOpportunityPage,
+  OPPORTUNITY_LOADING,
+  OPPORTUNITY_ROOT_GAP,
+  decisionRefusalCopy,
+  renewableHref,
+  useOpportunity,
+} from "../sites/MiniOpportunity";
 import { ALTERNATIVES_FINDING_UNAVAILABLE, MiniAlternatives } from "../sites/MiniAlternatives";
 import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type ScenarioScope } from "../sites/miniDecisionsClient";
 import { SiteFinding } from "../sites/SiteFinding";
@@ -78,6 +86,7 @@ import {
   siteFinancialAssumptionsHref,
   siteFinancialScenariosHref,
   siteFinancialsHref,
+  siteOpportunityHref,
   siteFoundationChangeHref,
   siteFoundationHref,
   siteFoundationViewHref,
@@ -168,6 +177,7 @@ export function SitePerformanceFrame({
   coldAssessment,
   evAssessment,
   miniDepth = DEFAULT_MINI_DEPTH,
+  miniDecisions,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
@@ -178,6 +188,8 @@ export function SitePerformanceFrame({
   evAssessment?: EvAssessmentClient;
   /** W4-02: the MINIGRID mini-depth reads; a MINIGRID Site renders `service|fuel|renewable|backup` from them. */
   miniDepth?: MiniDepthClient;
+  /** W4-03 unit 7: the scoped opportunity list behind the renewable page's exact five-day CTA (S14). */
+  miniDecisions?: MiniDecisionsClient;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
   const [params] = useSearchParams();
@@ -286,6 +298,8 @@ export function SitePerformanceFrame({
               ) : (
                 <MiniRenewable
                   client={miniDepth}
+                  decisions={miniDecisions ?? DEFAULT_MINI_DECISIONS}
+                  opportunityHref={(opportunityId) => siteOpportunityHref(site.site_id, opportunityId)}
                   siteCode={site.site_id}
                   timeZone={timeZone}
                   window={timeZone === null ? null : renewableWindowFromParams(params, timeZone)}
@@ -425,6 +439,7 @@ export function SiteFindingsFrame({
           <OperatorSiteTabs siteId={siteId} current="Findings" />
           <SiteFindingIndex
             siteId={site.site_id}
+            opportunityHelper={site.site_type === "MINIGRID"}
             client={findingIndex}
             scope={scope}
             links={{
@@ -955,6 +970,123 @@ export function FinancialsSections({
 }
 
 const DEFAULT_MINI_DECISIONS = createMiniDecisionsClient();
+
+
+export const SITE_OPPORTUNITY_HEADING_ID = "site-opportunity-heading";
+
+/**
+ * W4-03 unit 7: the typed five-day Opportunity detail at `/sites/:siteId/opportunities/:opportunityId`. Overview is
+ * the only context tab (closure 4 B5). The breadcrumb's `Findings` root is disabled text (closure 3), followed by the
+ * u5 trail `Sites › {Site} › Renewable evaluation › {OPP code} › Overview`; the code is `opportunity.code` (u6).
+ */
+export function SiteOpportunityFrame({
+  detail,
+  sitesPath,
+  miniDecisions = DEFAULT_MINI_DECISIONS,
+}: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  miniDecisions?: MiniDecisionsClient;
+}) {
+  const { siteId, opportunityId } = useParams<{ siteId: string; opportunityId: string }>();
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Opportunity" headingId={SITE_OPPORTUNITY_HEADING_ID}>
+      {(site) => (
+        <OpportunityScreen site={site} sitesPath={sitesPath} opportunityId={opportunityId ?? ""} client={miniDecisions} />
+      )}
+    </SiteScoped>
+  );
+}
+
+function OpportunityScreen({
+  site,
+  sitesPath,
+  opportunityId,
+  client,
+}: {
+  site: LoadedSite;
+  sitesPath: string;
+  opportunityId: string;
+  client: MiniDecisionsClient;
+}) {
+  const mini = site.site_type === "MINIGRID";
+  const read = useOpportunity(client, site.site_id, opportunityId, mini);
+  const loaded = mini && read !== null && read.status === "loaded" && read.value.opportunity !== null ? read.value : null;
+  const renewable =
+    loaded === null ? null : renewableHref(loaded, site.site_id, sitePerformanceHref(site.site_id, "renewable"));
+  return (
+    <main aria-labelledby={SITE_OPPORTUNITY_HEADING_ID} className="mini-opportunity-screen">
+      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-opportunity-crumbs>
+        <ol className="breadcrumbs__list">
+          <li className="breadcrumbs__item">
+            <span className="mini-opportunity-crumbs__root" data-opportunity-root>
+              {OPPORTUNITY_ROOT_GAP}
+            </span>
+          </li>
+          <li className="breadcrumbs__item">
+            <Link to={sitesPath}>Sites</Link>
+          </li>
+          <li className="breadcrumbs__item">
+            <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+          </li>
+          <li className="breadcrumbs__item" data-opportunity-crumb-renewable>
+            {renewable === null ? <span>Renewable evaluation</span> : <Link to={renewable}>Renewable evaluation</Link>}
+          </li>
+          {loaded === null ? null : (
+            <li className="breadcrumbs__item">
+              <span data-opportunity-code>{loaded.opportunity!.code}</span>
+            </li>
+          )}
+          <li className="breadcrumbs__item">
+            <span className="breadcrumbs__current" aria-current="page">
+              Overview
+            </span>
+          </li>
+        </ol>
+      </nav>
+      <PageHeader
+        title={`Productive-use headroom at ${site.display_name}`}
+        headingId={SITE_OPPORTUNITY_HEADING_ID}
+        subtitle={SITE_SCREEN_DESCRIPTIONS.opportunity}
+        actions={<Link to={siteDetailHref(site.site_id)}>Open site</Link>}
+      />
+      <nav className="site-tabs site-subtabs" aria-label="Opportunity sections" data-opportunity-tabs>
+        <ol className="site-tabs__list">
+          <li className="site-tabs__item">
+            <Link className="site-tabs__link" to={siteOpportunityHref(site.site_id, opportunityId)} aria-current="page">
+              Overview
+            </Link>
+          </li>
+        </ol>
+      </nav>
+      {!mini ? (
+        <Panel heading="Opportunity" headingId="site-opportunity-unsupported-heading">
+          <p data-opportunity-site-type-unsupported>Opportunities are read for mini-grid sites only.</p>
+        </Panel>
+      ) : read === null ? (
+        <p role="status">{OPPORTUNITY_LOADING}</p>
+      ) : read.status !== "loaded" ? (
+        <div
+          className="page-refusal"
+          role="status"
+          data-opportunity-refusal={read.status === "refused" ? read.code : "unavailable"}
+        >
+          <p>{decisionRefusalCopy(read)}</p>
+        </div>
+      ) : loaded === null ? (
+        <div className="page-refusal" role="status" data-opportunity-refusal="SITE_ROLE_UNSUPPORTED">
+          <p>Opportunities are read for mini-grid sites only.</p>
+        </div>
+      ) : (
+        <MiniOpportunityPage
+          body={loaded}
+          renewable={renewable}
+          recordHref={(evidenceId) => siteEvidenceAcceptedRecordHref(site.site_id, evidenceId)}
+        />
+      )}
+    </main>
+  );
+}
 
 /**
  * S4-02a: Site > Financials (Overview with the Finding bridge) and Financials > Assumptions. W1-F5b
