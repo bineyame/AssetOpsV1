@@ -92,4 +92,17 @@ PR-2 in `.agent/W4-03-pending-rulings.md` (plus three readings to confirm). Surv
 - `pytest tests/test_w403_scenario_rules.py`: 26 passed. No database used; `w403b_test` not created.
 - `check-all.ps1` at 011961ec: all 11 guards passed.
 
-Next: unit 2b after PR-2 is ruled, then unit 3
+
+## u1/u2 0030 amendment (commit c351eed1)
+
+- `0030`: `narrative text NOT NULL` + `mini_scenario_revision_narrative_check` beside name/kind; `SCHEMA` ends with
+  the three `schedule_site_head` counters; `DROP` drops them right after restoring the 0029 stage CHECK.
+- `store.py:_INSERT_SCENARIO_REVISION` inserts `narrative`. Test helpers `scenario_revision`, `site_head`,
+  `head_counters`, constants `COUNTERS`, `NARRATIVE_CHECK`, `HEAD_CHECKS = 2` (schedule_site_head CHECKs, unchanged).
+- New tests: `test_counters_zero_on_existing_site_head_and_round_trip`, `test_narrative_trimmed_length_bounds`;
+  history/job-only/active-stage refusals now assert narrative and counter values survive.
+- Checks (private `w403c_test`, dropped): w403 migration 11 collected, 10 passed, 1 failed - only
+  `len(CHECKS) == 48` (catalog has 45, matching the exact name array). w402+w401 migration: 16 passed.
+- **Blocked: PR-3** in `.agent/W4-03-pending-rulings.md` (CHECK count 45 vs ruled 48). Unit 2b not started.
+
+Next: PR-3 ruling, then unit 2b (anchors above; u2 readings confirmed), then unit 3.
