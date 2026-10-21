@@ -1,10 +1,16 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { act } from "react";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
-import { FinancialsSections, SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
+import {
+  ANALYSIS_HELPER_ALTERNATIVES,
+  ANALYSIS_HELPER_SECTION,
+  FinancialsSections,
+  SiteFindingFrame,
+} from "../../shell/SiteAnalyticsFrames";
 import { siteFindingAlternativesHref, siteOpportunityHref } from "../../shell/operatorSiteRoutes";
 import type { FindingClient, FindingDetailBody, FindingReadResult } from "../findingClient";
 import { useResolvedAlternativesHref } from "../SitePerformance";
@@ -12,6 +18,7 @@ import type {
   AlternativeListBody,
   AlternativeRow,
   DecisionRead,
+  AlternativesPage,
   MiniDecisionsClient,
   OpportunityDetailBody,
   OpportunityListBody,
@@ -102,6 +109,14 @@ function list(rows: ScenarioRow[], over: Partial<ScenarioListBody> = {}): Scenar
 }
 
 const ok = (value: ScenarioListBody): DecisionRead<ScenarioListBody> => ({ status: "loaded", value });
+
+/** A test-only in-app navigation (an identity change within one mounted frame, u6b ruling 8). */
+let goTo: ((path: string) => void) | null = null;
+function Go() {
+  const navigate = useNavigate();
+  goTo = (path) => navigate(path);
+  return null;
+}
 
 function Where() {
   const location = useLocation();
@@ -390,13 +405,17 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
   function frameAt(
     path: string,
     findings: FindingClient,
-    answer: DecisionRead<AlternativeListBody> = alternatives([]),
+    answer:
+      | DecisionRead<AlternativeListBody>
+      | ((page: AlternativesPage | undefined) => DecisionRead<AlternativeListBody>) = alternatives([]),
     siteType = "MINIGRID",
     code = CODE,
   ) {
     const decisions: MiniDecisionsClient = {
       getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
-      getAlternatives: vi.fn(() => Promise.resolve(answer)),
+      getAlternatives: vi.fn((_c: string, _f: string, _r: string, page?: AlternativesPage) =>
+        Promise.resolve(typeof answer === "function" ? answer(page) : answer),
+      ),
       getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
       listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
     };
@@ -412,6 +431,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
                 <>
                   <SiteFindingFrame detail={detail} sitesPath="/sites" findings={findings} miniDecisions={decisions} />
                   <Where />
+                  <Go />
                 </>
               }
             />
@@ -450,7 +470,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     );
     await settledScreen();
     await screen.findByText("Authored stop-threshold explanation");
-    expect(decisions.getAlternatives).toHaveBeenCalledWith(CODE, F, REV);
+    expect(decisions.getAlternatives).toHaveBeenCalledWith(CODE, F, REV, undefined);
     expect(screen.getByRole("heading", { name: "Alternatives to investigate" })).toBeInTheDocument();
     expect(Array.from(document.querySelectorAll("[data-alternatives-table] thead th")).map((th) => th.textContent)).toEqual([
       "Explanation",
@@ -493,7 +513,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     expect(unpinned.asked[0]).toBeNull();
     expect(location()).toBe(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${LATEST}`);
     expect(later.getAlternatives).toHaveBeenCalledTimes(1);
-    expect(later.getAlternatives).toHaveBeenCalledWith(CODE, F, LATEST);
+    expect(later.getAlternatives).toHaveBeenCalledWith(CODE, F, LATEST, undefined);
     cleanup();
 
     // A refused W1 read: the noninteractive gap, no Alternatives GET, no Alternatives link.
@@ -610,6 +630,263 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
         expect(main().textContent).not.toContain("Alternatives to investigate");
         cleanup();
       }
+    }
+  });
+  /* ---------- u6b builder rulings ---------- */
+
+  const rowHrefs = () =>
+    Array.from(document.querySelectorAll('nav[aria-label="Finding sections"] a')).map((a) => a.getAttribute("href") ?? "");
+
+  it("u6b_helper_after_row_and_sibling_predicate", async () => {
+    // Root: no helper (the root body's own W1 read is out of scope here, so the selection refuses).
+    frameAt(`/sites/${CODE}/findings/${F}?revision_id=${REV}`, findingsClient(() => ({ status: "unavailable", message: null })));
+    await waitFor(() => expect(document.querySelector("[data-finding-section-gap='finding']")).not.toBeNull());
+    expect(document.querySelector("[data-analysis-helper]")).toBeNull();
+    cleanup();
+
+    // Child views: the helper is the section row's noninteractive next sibling, outside the navigation.
+    for (const [view, text] of [
+      ["alternatives", ANALYSIS_HELPER_ALTERNATIVES],
+      ["evidence", ANALYSIS_HELPER_SECTION],
+      ["history", ANALYSIS_HELPER_SECTION],
+    ]) {
+      frameAt(`/sites/${CODE}/findings/${F}/${view}?revision_id=${REV}`, findingsClient(() => w1(CODE, REV)));
+      await settledScreen();
+      const helper = await waitFor(() => {
+        const h = document.querySelector("[data-analysis-helper]");
+        expect(h).not.toBeNull();
+        return h!;
+      });
+      expect(helper.textContent).toBe(text);
+      expect(helper.closest("nav")).toBeNull();
+      expect(helper.previousElementSibling?.matches('nav[aria-label="Finding sections"]')).toBe(true);
+      noControl(helper);
+      expect(document.querySelectorAll("[data-analysis-helper]")).toHaveLength(1);
+      // Loaded: Overview, every live sibling and the money link (6 links) carry the same W1-selected revision.
+      expect(rowHrefs()).toHaveLength(6);
+      for (const href of rowHrefs()) expect(href).toContain(`revision_id=${REV}`);
+      expect(document.querySelector("[data-finding-financials-link] a")?.getAttribute("href")).toContain(REV);
+      cleanup();
+    }
+
+    // A stale supplied UUID (W1 selects another revision), a refusal, and a read still loading: no sibling, Overview
+    // or money href carries the raw token, and no W4-03 GET is made.
+    const RAW = id(77);
+    const loading: FindingClient = { ...findingsClient(() => w1(CODE, RAW)), getFinding: () => new Promise(() => undefined) };
+    for (const findings of [
+      findingsClient(() => w1(CODE, LATEST)),
+      findingsClient(() => ({ status: "unavailable", message: null })),
+      loading,
+    ]) {
+      const decisions = frameAt(`/sites/${CODE}/findings/${F}/evidence?revision_id=${RAW}`, findings);
+      await waitFor(() => expect(document.querySelector("[data-finding-section-gap='evidence']")).not.toBeNull());
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(rowHrefs()).toEqual([]);
+      for (const gap of ["finding", "evidence", "alternatives", "recommendation", "history"]) {
+        noControl(document.querySelector(`[data-finding-section-gap='${gap}']`));
+      }
+      expect(document.querySelector("[data-finding-financials-link]")).toBeNull();
+      expect(document.querySelectorAll(`nav a[href*="${RAW}"]`)).toHaveLength(0);
+      expect(decisions.getAlternatives).not.toHaveBeenCalled();
+      cleanup();
+    }
+  });
+
+  it("u6b_same_site_identity_and_replace_reread", async () => {
+    const F2 = "59281b7c-96ac-456d-ab6b-040bb0760555";
+    const asked: string[] = [];
+    const findings = {
+      ...findingsClient(() => w1(CODE, REV)),
+      getFinding: async (_siteCode: string, findingId: string, revisionId: string | null) => {
+        asked.push(`${findingId}|${revisionId}`);
+        return w1(CODE, revisionId ?? REV, findingId);
+      },
+    } as FindingClient;
+    // One GET across the absent-revision replace.
+    const decisions = frameAt(`/sites/${CODE}/findings/${F}/alternatives`, findings);
+    await settledScreen();
+    await waitFor(() => expect(location()).toBe(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`));
+    await waitFor(() => expect(decisions.getAlternatives).toHaveBeenCalledTimes(1));
+    expect(asked).toEqual([`${F}|null`]);
+    // A changed revision, then a changed Finding, each issue a new W1 read.
+    act(() => goTo!(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${LATEST}`));
+    await waitFor(() => expect(asked).toHaveLength(2));
+    act(() => goTo!(`/sites/${CODE}/findings/${F2}/alternatives?revision_id=${LATEST}`));
+    await waitFor(() => expect(asked).toHaveLength(3));
+    expect(asked.slice(1)).toEqual([`${F}|${LATEST}`, `${F2}|${LATEST}`]);
+    cleanup();
+
+    // Same-Site exact: wrong Site code or wrong Finding refuse; a UUID case variation is the same Finding.
+    for (const [answer, live] of [
+      [w1("MG-OTHER", REV), false],
+      [w1(CODE, REV, id(99)), false],
+      [w1(CODE, REV, F.toUpperCase()), true],
+    ] as [FindingReadResult<FindingDetailBody>, boolean][]) {
+      const d = frameAt(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`, findingsClient(() => answer));
+      await settledScreen();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      if (live) {
+        await waitFor(() => expect(d.getAlternatives).toHaveBeenCalledTimes(1));
+        expect(document.querySelector("[data-finding-section='alternatives']")).not.toBeNull();
+      } else {
+        expect(d.getAlternatives).not.toHaveBeenCalled();
+        expect(document.querySelector("[data-finding-section='alternatives']")).toBeNull();
+        expect(document.querySelector("[data-finding-section-gap='alternatives']")?.textContent).toBe(
+          "Alternatives for this Finding unavailable",
+        );
+      }
+      cleanup();
+    }
+  });
+
+  it("u6b_alternatives_refusal_copy_reason_and_paging", async () => {
+    const path = `/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`;
+    // Refusals by code: no authored rows and no positive state.
+    for (const [read, copy] of [
+      [{ status: "refused", httpStatus: 401, code: "UNAUTHENTICATED", message: null }, "Sign in to see this page."],
+      [{ status: "refused", httpStatus: 403, code: "SITE_ACCESS_DENIED", message: null }, "You do not have access to this site."],
+      [{ status: "refused", httpStatus: 404, code: "DECISION_NOT_FOUND", message: null }, "This decision was not found at this site."],
+      [{ status: "refused", httpStatus: 409, code: "DECISION_BASIS_CHANGED", message: null }, "The evidence changed. Reload this page."],
+      [{ status: "refused", httpStatus: 503, code: "DECISION_STORE_UNAVAILABLE", message: null }, "Decisions are unavailable right now. Try again."],
+      [{ status: "unavailable", message: null }, "Decisions are unavailable right now. Try again."],
+    ] as [DecisionRead<AlternativeListBody>, string][]) {
+      frameAt(path, findingsClient(() => w1(CODE, REV)), read);
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("[data-alternatives-refused]")?.textContent).toBe(copy));
+      expect(document.querySelector("[data-alternatives-table]")).toBeNull();
+      expect(document.querySelector("[data-alternatives-empty]")).toBeNull();
+      cleanup();
+    }
+
+    // Authored missing-evidence context shows with and without citations; an empty citation set keeps its copy.
+    frameAt(
+      path,
+      findingsClient(() => w1(CODE, REV)),
+      alternatives([
+        alternative({ id: id(60), missing_evidence_reason: "Logger offline for part of the window" }),
+        alternative({ id: id(61), cited_accepted_evidence_ids: [], missing_evidence_reason: "No fuel record was kept" }),
+        alternative({ id: id(62), cited_accepted_evidence_ids: [] }),
+      ]),
+    );
+    await settledScreen();
+    await waitFor(() => expect(document.querySelectorAll("[data-alternative-row]")).toHaveLength(3));
+    const rows = Array.from(document.querySelectorAll("[data-alternative-row]"));
+    expect(rows[0].querySelector("[data-alternative-missing-reason]")?.textContent).toBe("Logger offline for part of the window");
+    expect(rows[0].querySelector("[data-alternative-cited]")?.getAttribute("href")).toContain(id(50));
+    expect(rows[1].querySelector("[data-alternative-missing-reason]")?.textContent).toBe("No fuel record was kept");
+    expect(rows[1].querySelector("[data-alternative-no-evidence]")).not.toBeNull();
+    expect(rows[2].querySelector("[data-alternative-missing-reason]")).toBeNull();
+    expect(rows[2].querySelector("[data-alternative-cited]")).toBeNull();
+    cleanup();
+
+    // Four keys over two pages: Next sends the returned cutoff and cursor; no duplicate or skipped row.
+    const page = (ids: number[], next: string | null): DecisionRead<AlternativeListBody> => {
+      const read = alternatives(ids.map((n) => alternative({ id: id(n), explanation: `Explanation ${n}` })));
+      if (read.status === "loaded") read.value = { ...read.value, total_count: 4, next_cursor: next };
+      return read;
+    };
+    const seen: (AlternativesPage | undefined)[] = [];
+    const paged = frameAt(path, findingsClient(() => w1(CODE, REV)), (p) => {
+      seen.push(p);
+      return p === undefined ? page([71, 72], "cursor-1") : page([73, 74], null);
+    });
+    await settledScreen();
+    await waitFor(() => expect(document.querySelectorAll("[data-alternative-row]")).toHaveLength(2));
+    const first = tableCells().map((r) => r[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await waitFor(() => expect(tableCells().map((r) => r[0])).toEqual(["Explanation 73", "Explanation 74"]));
+    expect(first).toEqual(["Explanation 71", "Explanation 72"]);
+    expect(seen).toEqual([undefined, { known_at: KNOWN, cursor: "cursor-1" }]);
+    expect(paged.getAlternatives).toHaveBeenLastCalledWith(CODE, F, REV, { known_at: KNOWN, cursor: "cursor-1" });
+    expect(screen.queryByRole("button", { name: "Next" })).toBeNull();
+    cleanup();
+
+    // A cursor whose basis changed is the 409 copy, with no rows kept as current.
+    frameAt(path, findingsClient(() => w1(CODE, REV)), (p) =>
+      p === undefined
+        ? page([71, 72], "cursor-1")
+        : { status: "refused", httpStatus: 409, code: "DECISION_BASIS_CHANGED", message: null },
+    );
+    await settledScreen();
+    await waitFor(() => expect(document.querySelectorAll("[data-alternative-row]")).toHaveLength(2));
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    await waitFor(() =>
+      expect(document.querySelector("[data-alternatives-refused]")?.textContent).toBe("The evidence changed. Reload this page."),
+    );
+    expect(document.querySelector("[data-alternatives-table]")).toBeNull();
+  });
+
+  it("u6b_cold_ev_recommendation_stays_in_domain_row", async () => {
+    const pending = new Proxy({}, { get: () => () => new Promise(() => undefined) });
+    for (const siteType of ["COLDCHAIN", "EV_CHARGING"]) {
+      // `/recommendation` with the domain client: the domain frame's Overview | Recommendation row, no section gap.
+      const findings = findingsClient(() => w1("OTHER-1", REV));
+      const decisions: MiniDecisionsClient = {
+        getScenarios: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+        getAlternatives: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+        getOpportunity: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+        listOpportunities: vi.fn(() => Promise.resolve({ status: "unavailable" as const, message: null })),
+      };
+      const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: site("OTHER-1", siteType) }) };
+      for (const withClient of [true, false]) {
+        for (const tail of ["", "/recommendation"]) {
+          render(
+            <MemoryRouter initialEntries={[`/sites/OTHER-1/findings/${F}${tail}?from=2026-10-01T00:00:00Z&to=2026-10-02T00:00:00Z`]}>
+              <Routes>
+                {["/sites/:siteId/findings/:findingId", "/sites/:siteId/findings/:findingId/:findingView"].map((p) => (
+                  <Route
+                    key={p}
+                    path={p}
+                    element={
+                      <SiteFindingFrame
+                        detail={detail}
+                        sitesPath="/sites"
+                        findings={findings}
+                        miniDecisions={decisions}
+                        coldAssessment={withClient && siteType === "COLDCHAIN" ? (pending as never) : undefined}
+                        evAssessment={withClient && siteType === "EV_CHARGING" ? (pending as never) : undefined}
+                      />
+                    }
+                  />
+                ))}
+              </Routes>
+            </MemoryRouter>,
+          );
+          await waitFor(() => expect(document.querySelector("main h1")).not.toBeNull());
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          expect(main().textContent).not.toContain("Finding section unavailable for this site.");
+          if (withClient) {
+            const row = Array.from(document.querySelectorAll('nav[aria-label="Finding sections"] li'));
+            expect(row).toHaveLength(2);
+            expect(row[0].textContent).toBe("Overview");
+            expect(row[1].textContent).toContain("Recommendation");
+            expect(document.querySelectorAll('nav[aria-label="Finding sections"] [data-tab-unavailable]')).toHaveLength(1);
+          } else {
+            expect(document.querySelector("[data-finding-domain-unavailable]")?.textContent).toBe(
+              "This site's Finding view is unavailable.",
+            );
+          }
+          expect(findings.asked).toEqual([]);
+          expect(decisions.getAlternatives).not.toHaveBeenCalled();
+          cleanup();
+        }
+      }
+      // A direct unsupported child keeps the exact gap and its window query on the Overview link.
+      render(
+        <MemoryRouter initialEntries={[`/sites/OTHER-1/findings/${F}/history?from=2026-10-01T00:00:00Z&to=2026-10-02T00:00:00Z`]}>
+          <Routes>
+            <Route
+              path="/sites/:siteId/findings/:findingId/:findingView"
+              element={<SiteFindingFrame detail={detail} sitesPath="/sites" findings={findings} miniDecisions={decisions} />}
+            />
+          </Routes>
+        </MemoryRouter>,
+      );
+      await screen.findByText(/Finding section unavailable for this site\./);
+      expect(screen.getByRole("link", { name: "Open Finding overview" }).getAttribute("href")).toBe(
+        `/sites/OTHER-1/findings/${F}?from=2026-10-01T00%3A00%3A00Z&to=2026-10-02T00%3A00%3A00Z`,
+      );
+      cleanup();
     }
   });
 });

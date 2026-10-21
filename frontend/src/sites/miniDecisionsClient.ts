@@ -164,9 +164,32 @@ export type DecisionRead<T> =
   /** No answer, or an answer that is not the documented shape. */
   | { status: "unavailable"; message: string | null };
 
+/** u6b ruling 9: the decision-read refusal copy by code, shared by the detail and the CTA list read. */
+export function decisionRefusalCopy(read: Exclude<DecisionRead<unknown>, { status: "loaded" }>): string {
+  if (read.status === "refused") {
+    if (read.httpStatus === 401) return "Sign in to see this page.";
+    if (read.httpStatus === 403) return "You do not have access to this site.";
+    if (read.httpStatus === 404) return "This decision was not found at this site.";
+    if (read.httpStatus === 409) return "The evidence changed. Reload this page.";
+  }
+  return "Decisions are unavailable right now. Try again.";
+}
+
+/** u6b ruling 11: a later Alternatives page reuses the returned cutoff and cursor; the first page sends neither. */
+export interface AlternativesPage {
+  known_at: string | null;
+  cursor: string | null;
+  limit?: number | null;
+}
+
 export interface MiniDecisionsClient {
   getScenarios(siteCode: string, scope: ScenarioScope): Promise<DecisionRead<ScenarioListBody>>;
-  getAlternatives(siteCode: string, findingId: string, revisionId: string): Promise<DecisionRead<AlternativeListBody>>;
+  getAlternatives(
+    siteCode: string,
+    findingId: string,
+    revisionId: string,
+    page?: AlternativesPage,
+  ): Promise<DecisionRead<AlternativeListBody>>;
   getOpportunity(siteCode: string, opportunityId: string): Promise<DecisionRead<OpportunityDetailBody>>;
   listOpportunities(
     siteCode: string,
@@ -248,11 +271,16 @@ export function createMiniDecisionsClient(basePath: string = SITES_API_PATH): Mi
   return {
     getScenarios: (code, scope) =>
       readDecision(`${site(code)}/financials/scenarios${scenarioScopeSearch(scope)}`, isScenarioList),
-    getAlternatives: (code, findingId, revisionId) =>
-      readDecision(
-        `${site(code)}/findings/${encodeURIComponent(findingId)}/alternatives?revision_id=${encodeURIComponent(revisionId)}`,
+    getAlternatives: (code, findingId, revisionId, page) => {
+      const params = new URLSearchParams({ revision_id: revisionId });
+      if (page?.known_at) params.set("known_at", page.known_at);
+      if (page?.cursor) params.set("cursor", page.cursor);
+      if (page?.limit) params.set("limit", String(page.limit));
+      return readDecision(
+        `${site(code)}/findings/${encodeURIComponent(findingId)}/alternatives?${params.toString()}`,
         isAlternativeList,
-      ),
+      );
+    },
     getOpportunity: (code, opportunityId) =>
       readDecision(`${site(code)}/opportunities/${encodeURIComponent(opportunityId)}`, isOpportunityDetail),
     listOpportunities: (code, window) => {

@@ -11,7 +11,14 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { DataTable, Panel } from "../ui";
 import { Notice } from "../ui/V69Layout";
-import type { AlternativeListBody, AlternativeRow, DecisionRead, MiniDecisionsClient } from "./miniDecisionsClient";
+import {
+  decisionRefusalCopy,
+  type AlternativeListBody,
+  type AlternativeRow,
+  type AlternativesPage,
+  type DecisionRead,
+  type MiniDecisionsClient,
+} from "./miniDecisionsClient";
 import "./w4-mini-decisions.css";
 
 export const ALTERNATIVES_HEADING_ID = "mini-alternatives-heading";
@@ -60,6 +67,11 @@ function Rows({ rows, recordHref }: { rows: AlternativeRow[]; recordHref: (evide
               <td data-alternative-explanation>{row.explanation}</td>
               <td data-alternative-evidence>
                 <span>{row.evidence_summary}</span>
+                {row.missing_evidence_reason === null ? null : (
+                  <span className="mini-alternatives-note" data-alternative-missing-reason>
+                    {row.missing_evidence_reason}
+                  </span>
+                )}
                 {row.cited_accepted_evidence_ids.length === 0 ? (
                   <span className="mini-alternatives-note" data-alternative-no-evidence>
                     {ALTERNATIVES_NO_EVIDENCE}
@@ -100,16 +112,24 @@ export function MiniAlternatives({
   recordHref: (evidenceId: string) => string;
 }) {
   const [result, setResult] = useState<DecisionRead<AlternativeListBody> | null>(null);
+  // u6b ruling 11: the page request; null is the first page (no cutoff, no cursor).
+  const [page, setPage] = useState<AlternativesPage | null>(null);
+  const [pending, setPending] = useState(false);
+  // The frame keys this component by Site, Finding and revision, so a new identity starts again at page one.
   useEffect(() => {
     let active = true;
-    setResult(null);
-    void client.getAlternatives(siteCode, findingId, revisionId).then((loaded) => {
-      if (active) setResult(loaded);
+    setPending(true);
+    void client.getAlternatives(siteCode, findingId, revisionId, page ?? undefined).then((loaded) => {
+      if (!active) return;
+      // The current page's rows stay until this response resolves.
+      setResult(loaded);
+      setPending(false);
     });
     return () => {
       active = false;
     };
-  }, [client, siteCode, findingId, revisionId]);
+  }, [client, siteCode, findingId, revisionId, page]);
+  const next = result !== null && result.status === "loaded" ? result.value.next_cursor : null;
   return (
     <div className="mini-alternatives" data-mini-alternatives>
       <Panel heading={ALTERNATIVES_HEADING} headingId={ALTERNATIVES_HEADING_ID}>
@@ -127,13 +147,33 @@ export function MiniAlternatives({
             ) : (
               <Rows rows={result.value.rows} recordHref={recordHref} />
             )}
+            {next === null && page === null ? null : (
+              <p className="mini-alternatives-pager" data-alternatives-pager>
+                {page === null ? null : (
+                  <button type="button" className="link-button" disabled={pending} onClick={() => setPage(null)}>
+                    First page
+                  </button>
+                )}
+                {next === null ? null : (
+                  <button
+                    type="button"
+                    className="link-button"
+                    disabled={pending}
+                    data-alternatives-next
+                    onClick={() => setPage({ known_at: result.value.window.known_at, cursor: next })}
+                  >
+                    Next
+                  </button>
+                )}
+              </p>
+            )}
           </>
         ) : (
           <p
             className="mini-alternatives-note"
             data-alternatives-refused={result.status === "refused" ? result.code : "unavailable"}
           >
-            Alternatives unavailable
+            {decisionRefusalCopy(result)}
           </p>
         )}
       </Panel>

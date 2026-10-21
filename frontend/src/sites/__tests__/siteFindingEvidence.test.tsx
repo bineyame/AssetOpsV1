@@ -575,9 +575,13 @@ describe("Finding frame sections (S4-03 phase 2)", () => {
     const client = fake({ status: "loaded", value: body() });
     await frame(`/sites/${SITE}/findings/${F}/evidence?revision_id=${R1}`, client);
     expect(client.asked[0]?.revisionId).toBe(R1);
-    expect(q("[data-finding-section='evidence']")).toHaveAttribute("aria-current", "page");
-    expect(q("[data-finding-section='finding']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}?revision_id=${R1}`);
-    expect(q("[data-finding-section='evidence']")).toHaveAttribute("href", `/sites/${SITE}/findings/${F}/evidence?revision_id=${R1}`);
+    // u6b ruling 6: this fake's canonical W1 Finding read refuses, so no sibling or money href carries the supplied
+    // `revision_id`; each sibling is noninteractive text (the loaded case is in miniDecisions.test.tsx).
+    expect(q("[data-finding-section='evidence']")).toBeNull();
+    expect(q("[data-finding-section-gap='evidence']")).toHaveTextContent("Evidence");
+    expect(q("[data-finding-section-gap='finding']")).toHaveTextContent("Overview");
+    expect(document.querySelectorAll(`nav[aria-label="Finding sections"] a[href*="${R1}"]`)).toHaveLength(0);
+    expect(q("[data-finding-financials-link]")).toBeNull();
     // W1-F5b carry 10: the heading is the Finding's own name, as on the Finding and in the mock.
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/^Generator support merits review$/);
     // W4-03 unit 6b (u5 6b, u6): the canonical mini row is Overview, unavailable Analysis, Evidence, Alternatives,

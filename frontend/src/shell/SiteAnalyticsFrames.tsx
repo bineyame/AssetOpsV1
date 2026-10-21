@@ -563,6 +563,8 @@ export const ANALYSIS_HELPER_SECTION = "Analysis unavailable for this Finding se
 export const FINDING_CODE_UNAVAILABLE = "Finding code unavailable";
 /** u6 ruling 3: a cold or EV Finding child address. */
 export const FINDING_SECTION_UNAVAILABLE = "Finding section unavailable for this site.";
+/** u6b ruling 13: a cold/EV Finding root whose domain read is not composed; never the generic W1 read. */
+export const FINDING_DOMAIN_UNAVAILABLE = "This site's Finding view is unavailable.";
 
 export function SiteFindingFrame({
   detail,
@@ -599,7 +601,10 @@ export function SiteFindingFrame({
     <SiteScoped siteId={siteId} detail={detail} title="Finding" headingId={SITE_FINDING_HEADING_ID}>
       {(site) => {
         const id = findingId ?? "";
-        if (site.site_type === "EV_CHARGING" && evAssessment !== undefined && findingView === undefined) {
+        // u6b ruling 13: a cold/EV `/recommendation` address stays in its domain frame's Overview | Recommendation row.
+        const domainRoot = findingView === undefined || findingView === "recommendation";
+        const domainSite = site.site_type === "COLDCHAIN" || site.site_type === "EV_CHARGING";
+        if (site.site_type === "EV_CHARGING" && evAssessment !== undefined && domainRoot) {
           return (
             <EvFindingFrame
               siteId={site.site_id}
@@ -616,7 +621,7 @@ export function SiteFindingFrame({
             />
           );
         }
-        if (site.site_type === "COLDCHAIN" && coldAssessment !== undefined && findingView === undefined) {
+        if (site.site_type === "COLDCHAIN" && coldAssessment !== undefined && domainRoot) {
           const window = coldWindowFromParams(params);
           return (
             <ColdFindingFrame
@@ -666,7 +671,11 @@ export function SiteFindingFrame({
             />
             <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={`${site.display_name} · finding`} />
             <OperatorSiteTabs siteId={siteId} current="Findings" />
-            {view === "finding" ? (
+            {domainSite && domainRoot ? (
+              <Panel heading="Finding" headingId="site-finding-domain-unavailable-heading">
+                <p data-finding-domain-unavailable>{FINDING_DOMAIN_UNAVAILABLE}</p>
+              </Panel>
+            ) : view === "finding" ? (
               <SiteFinding
                 siteId={site.site_id}
                 findingId={id}
@@ -742,10 +751,13 @@ function CanonicalMiniFinding({
     void findings.getFinding(site.site_id, id, revisionId).then((read) => {
       if (!active) return;
       // u6 ruling 6: only a same-Site canonical W1 read of this exact Finding resolves a revision.
+      // u6b ruling 6: a supplied UUID is an input to W1 validation; a different selected revision never replaces it.
       if (
         read.status === "loaded" &&
         read.value.site_code === site.site_id &&
-        read.value.finding.id.toLowerCase() === id.toLowerCase()
+        read.value.finding.id.toLowerCase() === id.toLowerCase() &&
+        read.value.selection.revision_id !== "" &&
+        (revisionId === null || read.value.selection.revision_id.toLowerCase() === revisionId.toLowerCase())
       ) {
         settled.current = { key, revisionId: read.value.selection.revision_id };
         setSelection({ status: "loaded", revisionId: read.value.selection.revision_id, title: read.value.revision.title });
@@ -769,14 +781,17 @@ function CanonicalMiniFinding({
     if (view === "alternatives" && selection.status === "loaded") onTitle(selection.title);
   }, [view, selection, onTitle]);
 
-  const pinned = resolved ?? revisionId;
-  const child = (c: FindingChildView): FindingSectionLink => ({
-    id: c,
-    label: FINDING_SECTION_LABELS[c],
-    href: siteFindingViewHref(site.site_id, id, c, pinned),
-  });
+  // u6b ruling 6: a revision-carrying sibling, Overview or money href exists only for the loaded W1 selection; before
+  // that each sibling is noninteractive text and the money link is omitted, so no raw `revision_id` leaks.
+  const pinned = resolved;
+  const child = (c: FindingChildView): FindingSectionLink =>
+    resolved === null
+      ? { id: c, gap: FINDING_SECTION_LABELS[c] }
+      : { id: c, label: FINDING_SECTION_LABELS[c], href: siteFindingViewHref(site.site_id, id, c, resolved) };
   const sections: FindingSectionLink[] = [
-    { id: "finding", label: "Overview", href: siteFindingHref(site.site_id, id, pinned) },
+    resolved === null
+      ? { id: "finding", gap: "Overview" }
+      : { id: "finding", label: "Overview", href: siteFindingHref(site.site_id, id, resolved) },
     { id: "analysis", label: "Analysis", unavailable: true },
     child("evidence"),
     resolved === null
@@ -833,7 +848,7 @@ function CanonicalMiniFinding({
             sections={sections}
             current={view}
             aside={
-              view === "recommendation" ? undefined : (
+              view === "recommendation" || resolved === null ? undefined : (
                 <span className="finding-financials-link" data-finding-financials-link>
                   <Link to={siteFinancialsHref(site.site_id, { findingId: id, revisionId: pinned })}>
                     What this finding means in money
@@ -852,6 +867,7 @@ function CanonicalMiniFinding({
           {view === "alternatives" ? (
             selection.status === "loaded" && revisionId !== null ? (
               <MiniAlternatives
+                key={`${site.site_id}|${id}|${selection.revisionId}`}
                 siteCode={site.site_id}
                 findingId={id}
                 revisionId={selection.revisionId}

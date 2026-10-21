@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 
 import { Badge, KeyValues, MetricCard, MetricCards, Panel, StatusBar } from "../ui";
 import { localDateOf, addDays, localMidnightUtc } from "./miniDepthClient";
+import { decisionRefusalCopy } from "./miniDecisionsClient";
 import type {
   DecisionRead,
   MiniDecisionsClient,
@@ -21,6 +22,8 @@ import type {
 } from "./miniDecisionsClient";
 import { scenarioMoney } from "./MiniScenarios";
 import "./w4-mini-decisions.css";
+
+export { decisionRefusalCopy };
 
 export const OPPORTUNITY_MODEL = "mini-opportunity/1";
 export const OPPORTUNITY_LOADING = "Loading the opportunity.";
@@ -46,17 +49,6 @@ const CURRENTNESS_WORDS: Record<string, string> = {
   HISTORICAL: "Historical basis",
   UNKNOWN: "Selection unknown",
 };
-
-/** u6b ruling 9: the decision-read refusal copy by code, shared by the detail and the CTA list read. */
-export function decisionRefusalCopy(read: Exclude<DecisionRead<unknown>, { status: "loaded" }>): string {
-  if (read.status === "refused") {
-    if (read.httpStatus === 401) return "Sign in to see this page.";
-    if (read.httpStatus === 403) return "You do not have access to this site.";
-    if (read.httpStatus === 404) return "This decision was not found at this site.";
-    if (read.httpStatus === 409) return "The evidence changed. Reload this page.";
-  }
-  return "Decisions are unavailable right now. Try again.";
-}
 
 type Body = Pick<OpportunityDetailBody, "opportunity" | "status" | "currentness" | "selected_source_provenance">;
 

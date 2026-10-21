@@ -81,6 +81,7 @@ export function FindingSections({
 }) {
   const rowRef = useCurrentTabInView<HTMLElement>();
   return (
+    <>
     <nav className="site-tabs site-subtabs finding-sections" aria-label={FINDING_SECTIONS_LABEL} ref={rowRef}>
       <ol className="site-tabs__list">
         {sections.map((section) =>
@@ -107,12 +108,14 @@ export function FindingSections({
         )}
       </ol>
       {aside === undefined ? null : <span className="finding-sections__aside">{aside}</span>}
-      {helper === undefined ? null : (
-        <p className="finding-sections__helper" data-analysis-helper>
-          {helper}
-        </p>
-      )}
     </nav>
+    {/* u6b ruling 3: the helper is the row's noninteractive sibling, outside the tab and navigation semantics. */}
+    {helper === undefined ? null : (
+      <p className="finding-sections__helper" data-analysis-helper>
+        {helper}
+      </p>
+    )}
+    </>
   );
 }
 

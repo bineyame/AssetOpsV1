@@ -662,7 +662,7 @@ function DispatchAnalysis({
                   records={{ kind: "record", href: recordHref }}
                   coverageHref={coverageHref?.(selected.assessment_id)}
                   alternativesHref={selected.finding_id === null ? null : alternativesHref}
-                  alternativesUnavailable={selected.finding_id !== null}
+                  alternativesUnavailable={findingAlternativesHref !== undefined}
                   links={
                     selected.finding_id === null ? null : (
                       <li>
