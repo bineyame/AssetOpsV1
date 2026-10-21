@@ -170,11 +170,11 @@ def recorded_times(engine, ids) -> dict[str, datetime]:
     return found
 
 
-def build_portfolio_fixture(request, monkeypatch, capsys, cold_case: str = "normal",
-                            cold_drain: bool = False) -> PortfolioFixture:
-    """Closure 4 B3: the one-day three-domain composition in one private DB and the `demo` tenant. `cold_case` is
-    B3's named cold `normal` replay; `cold_drain` runs the W2-04 cold consequence worker after it. Both stay at
-    B3's values until the Architect rules on `.agent/W3-03-pending-rulings.md` P-0b-1."""
+def build_portfolio_fixture(request, monkeypatch, capsys, cold_case: str = "excursion",
+                            cold_drain: bool = True) -> PortfolioFixture:
+    """Closure 4 B3: the one-day three-domain composition in one private DB and the `demo` tenant. P-0b-1 (resolved): the cold
+    producer is `excursion` plus the W2-04 consequence drain before the frozen public reads; `normal` selects no
+    cold Finding or product-exposure line on 2026-10-06."""
     fresh = pg_harness.fresh_database()  # the only database reset
     monkeypatch.setattr(pg_harness, "fresh_database", lambda: fresh)
     # Cold `normal` and EV `complete`, settled as in `mixed_replay` (their Chain.open() resets suppressed).
@@ -298,8 +298,12 @@ def test_one_day_three_domain_fixture_public_roots(portfolio_fixture) -> None:
     assert w1_line["consequence_revision_id"] == w1["consequence"]["source_revision_id"]
     assert w1_line["finding_revision_id"] == w1["finding_revision_id"]
     assert w1_line["amount"]["low"] == stored[2] and w1_line["amount"]["high"] == stored[3]
-    # P-0b-1 (pending Architect ruling): B3's cold POTENTIAL_PRODUCT_EXPOSURE UNPRICED line is NOT asserted here.
-    # The named cold `normal` replay selects no cold Finding or line on 2026-10-06; the clean proof is incomplete.
+    # P-0b-1: the selected cold POTENTIAL_PRODUCT_EXPOSURE line is UNPRICED, null amount, pins a selected cold Finding.
+    cold_rows = lines.get(fx.site_ids["COLD-LAB-001"], [])
+    (cold_line,) = [r for r in cold_rows if r["category"] == "POTENTIAL_PRODUCT_EXPOSURE"]
+    assert cold_line["eligibility"] == "UNPRICED" and cold_line["amount"] is None, cold_line
+    cold_revisions = {r["finding_revision_id"] for r in rows.get(fx.site_ids["COLD-LAB-001"], [])}
+    assert cold_line["finding_revision_id"] in cold_revisions, (cold_line["finding_revision_id"], cold_revisions)
     ev_stored = {b.site_code: _stored(b, fx.tariffs[b.site_code]) for b in fx.evs}
     for built in fx.evs:
         (line,) = lines[str(built.site_id)]

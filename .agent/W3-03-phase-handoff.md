@@ -64,7 +64,7 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
   COMPLETE; no Action in 10-06 (B4); W1 PRICED from stored consequence = ELIGIBLE operating-cost line; two EV lines
   match stored heads, disjoint technical/evidence IDs, one COMPARABLE group with exact `group_key_for_partition`;
   `estate_total` null; one-day dispatch selection present; every selected head/evidence in (09-30, frozen].
-- HELD: cold `POTENTIAL_PRODUCT_EXPOSURE UNPRICED` — named cold `normal` makes no cold Finding/line (group
+- RESOLVED (P-0b-1/r0b applied: `cold_case="excursion"`, `cold_drain=True`; cold line UNPRICED/null amount/pins selected cold Finding revision asserted; fixture + 0a tests 29 passed on `w303d_test`). Was: HELD cold `POTENTIAL_PRODUCT_EXPOSURE UNPRICED` — named cold `normal` makes no cold Finding/line (group
   UNKNOWN_COVERAGE). Probe: `excursion` + W2-04 `drain` makes it pass. See `.agent/W3-03-pending-rulings.md` P-0b-1.
 
 ### Run 2 readings (Architect may overturn)
@@ -74,11 +74,11 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
 3. Price publication steps v1,v2,v3 as in `test_cost_lens_only_exact_eligible_current_rows` (power_estate P01 path).
 4. Variants (a)-(e), empty Site and foreign tenant are 1b (N6); 0b only proves the (b) precondition (heads > 09-30).
 5. B4 workflow-label Action-window test is 1b (closure 5 S7); 0b asserts no Action selected on 10-06.
-6. L3 (`EstatePortfolioStatus` in `estateClient.ts`) stays run 2-page / Lane A per r0a; no frontend change in 0b.
+6. L3 (`EstatePortfolioStatus` in `estateClient.ts`) belongs to seam run 2 (the page run after 1b) / Lane A per r0a/r0b; no frontend change in 0b.
 
 ### Run 2 checks
 - `test_w303_portfolio_fixture_postgres.py` + `test_w303_estate_cursor.py` + `test_w303_selectors_postgres.py` on
   private `w303c_test` (dropped after): 29 passed, 85 s. `tools/check-all.ps1`: all 11 guards passed. No frontend touched.
 
 ## Next: run 3
-Seam run 1a (Lane B) after an independent review of 0b's fixture composition and the P-0b-1 ruling.
+Next: independent review of 0b, then run 1a.

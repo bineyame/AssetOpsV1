@@ -1,6 +1,6 @@
 # W3-03 pending rulings
 
-## P-0b-1 — B3 clean fixture: cold `normal` makes no POTENTIAL_PRODUCT_EXPOSURE line (run 0b, stopped variant)
+## P-0b-1 — RESOLVED (r0b applied: `excursion` + drain, cold line assertions added) — B3 clean fixture: cold `normal` makes no POTENTIAL_PRODUCT_EXPOSURE line (run 0b, stopped variant)
 
 Spec: closure 4 B3 names cold `normal` (via `mixed_replay` mechanics) and requires "cold `POTENTIAL_PRODUCT_EXPOSURE`
 UNPRICED" in the clean four-Site fixture, plus F/E/M COMPLETE.
