@@ -198,4 +198,48 @@ Next: independent review of 0b, then run 1a.
   `cov["_pending_guard"]` (PENDING line = consistency assertion only), `workflow_label` tests per r1b Q-1b-2 table
   (code already matches). Commit 3 = everything in the "NOT built" list of run 1b above except the cursor.
 
-## Next: finish run 1b Lane B (commits 2-3 above), independent review of 1b, then run 2 (page)
+## Run 1b Lane B (resumed 2) - PARTIAL: commits 2 and 3a landed; stopped at context budget before 3b
+- Commit 2 `3a0d96bc`: `test_w303_portfolio_api.py` autouse test-only key + `signed()`; signed live/historical page two,
+  unsigned/wrong-MAC/tampered 422, valid-MAC changed selection/grant 409, missing/malformed key 503 exact body (page
+  one, page two, empty scope). `portfolio.money_pending` uses `_pending_guard`. Label table (r1b Q-1b-2) and line-less
+  guard cases in `test_money_table`.
+- Commit 3a `6c4e0449` (`portfolio.py` "run 1b: full-scope projections" block + `_portfolio` body): `selected_lines`,
+  `money`, `scope_disclosure`, `value_cards` (`operating_cost_card` N2), `objectives` (`objective`, N5 reasons),
+  `evidence_prompt`, `opportunity`, `progress` (nine fields, `_plan_id`), `footer`, full `summary`. Tests:
+  `test_w303_portfolio_api.py::test_full_scope_projections_ignore_page_size_and_empty_scope`,
+  `::test_evidence_prompt_null_steps_and_coverage_precedence_pure`; persisted
+  `test_w303_portfolio_scope_snapshot_postgres.py::test_page_size_does_not_change_cards_matrix_or_money`; tie test
+  now asserts both Actions (plus another-revision Action) in `progress.rows`. Autouse key fixture added to the
+  persisted scope-snapshot file (its 1a tests would otherwise 503 after Lane A).
+- Checks: pure W3-03 (api, labels, reduction, cursor) 84 passed; scope snapshot postgres 3 passed, 334 s (private
+  `w303j_test`, dropped after); `tools/check-all.ps1` all 11 guards passed (before 3a's last test edit; rerun next).
+- NOT built (resume 3b here): `test_w303_portfolio_comparison_postgres.py` (new file) with
+  `::test_selected_action_window_workflow_and_withdrawal` (B4 `[11-01,11-03)` successive cutoffs per r1b "Progress and
+  B4"), `::test_operating_cost_first_match_wins_across_partitions`, `::test_ineligible_overlap_and_unknown_coverage_decline_total`,
+  `::test_ev_window_money_has_no_finding_attribution`; scope-snapshot `::test_late_revision_pending_historical_and_mixed_source`
+  (variants a/b/c1/c2/d/empty-Site incl. r1a2 1/2 and r1b Q-1b-3 line-less guard), `::test_evidence_prompt_null_steps_and_coverage_precedence`
+  (fake snapshot; a pure version exists in the API file), `::test_ev_footer_first_eligible_and_coverage_warning`.
+- Readings (Architect may overturn):
+  R4 `money_pending` = `_pending_guard` OR (uncovered window AND a selected PENDING line): the line stays sufficient,
+  not required ("consistency assertion" read as sufficiency, since mini-grid PENDING_REASSESSMENT and Site PENDING
+  lines carry no guard).
+  R5 Card `detail` is null for COMPARABLE_GROUP/SITE_OWNED (page formats category/window per S10); UNPRICED detail is
+  server-filled `{site_name} · consequence recorded without a price`; `display_value` null for the two money states,
+  literal otherwise; `basis` null always; VERIFIED_RECOVERY destination `/financials` (wire example).
+  R6 Risk card is always UNKNOWN (no reviewed RISK producer, closure 4 N4); no COUNT path built.
+  R7 All objective `destination`s null (no reviewed Site Evidence/Financials route named); matrix item adds
+  `site_name` and stored `site_type` as `domain`. Unknown configuration gives UNKNOWN cost/evidence cells.
+  R8 Evidence cell: FULL if all rows FULL, else NONE if any NONE, else LIMITED; UNKNOWN when historical, `evidence_unit`
+  is U (incl. CONTRADICTORY/no rows).
+  R9 `evidence_prompt` also carries `site_code`; text is server-built from the three literals.
+  R10 `progress.verification_plan_id` = plan active at the cutoff, else latest recorded selected plan; outcome id =
+  `_raw._outcome_id`. Counts use W3-01 `_coverage_state` over Action coverage (as the Actions root) and its
+  `_verification_window` / `_verified_recent` flags. No per-row "origin revision not selected" field (nine exact
+  fields); the page must derive that disclosure - flag for run 2.
+  R11 `scope_disclosure.sites[].source_provenance` = `snap.cited_provenance(site, union cited ids, selected_revision_ids)`
+  (one extra same-connection query per Site with selected IDs), null when the Site has no selected ID.
+  R12 Footer requires `quantity.low == high`, `amount.low == high`, ELIGIBLE, and a non-current-view EV `links.evidence`
+  route; the "other Sites may lack coverage" sentence is left to the page from `coverage.sites` + domains.
+  R13 `evidence_gap_site_count` counts Sites in every typed gap (null-step gaps included).
+
+## Next: finish run 1b Lane B commit 3b (NOT built list above), independent review of 1b, then run 2 (page)
