@@ -343,13 +343,13 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
 
 def _groups(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Closure 1 Q4 / 0b ruling: one group per `(domain, gap_code, missing_role)` over the full unpaged rows,
-    unioning Site IDs/codes and the affected capability keys; sorted by key, Sites by code. No priority."""
+    unioning Site IDs/codes/names and the affected capability keys; sorted by key, Sites by code. No priority."""
     held: dict[tuple, dict[str, Any]] = {}
     for row in rows:
         for gap, unlocks in [*((g, True) for g in row["_gaps"]), *((g, False) for g in row.get("_window_gaps", ()))]:
             group = held.setdefault(gap["key"], {**{k: v for k, v in gap.items() if k != "key"},
                                                  "_sites": {}, "unlocks": set(), "link": None})
-            group["_sites"][row["site_id"]] = (row["_key"][0], row["site_code"])
+            group["_sites"][row["site_id"]] = (row["_key"][0], row["site_code"], row.get("site_name"))
             if unlocks:
                 group["unlocks"].add(row["capability_key"])
     out = []
@@ -358,7 +358,9 @@ def _groups(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         sites = sorted(group.pop("_sites").items(), key=lambda item: (item[1][0], item[0]))
         out.append({"domain": group["domain"], "gap_code": group["gap_code"], "missing_role": group["missing_role"],
                     "label": group["label"], "site_ids": [sid for sid, _ in sites],
-                    "site_codes": [c for _, (_, c) in sites], "unlocks": sorted(group["unlocks"]),
+                    "site_codes": [c for _, (_, c, _) in sites],
+                    # c2-q1: the authorized stored Site name, parallel to `site_ids`/`site_codes`, full group.
+                    "site_names": [n for _, (_, _, n) in sites], "unlocks": sorted(group["unlocks"]),
                     "next_step": group["next_step"], "link": None})
     return out
 

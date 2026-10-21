@@ -42,16 +42,47 @@
   overflow: auto;
 }
 
-.estate-evidence-table--coverage .data-table {
+/* The W3-01 estate rule (`.estate-page:not(actions) .data-table { min-width: 900px }`) is for the wide index
+   tables; the Evidence tables keep the mock's 390 scroll widths (531 coverage / 337 gaps), so these selectors
+   carry the root attribute to outrank it. */
+.estate-page[data-estate-root="evidence"] .estate-evidence-table--coverage .data-table {
   min-width: 520px;
 }
 
-.estate-evidence-table--gaps .data-table {
+.estate-page[data-estate-root="evidence"] .estate-evidence-table--gaps .data-table {
   min-width: 330px;
 }
 
+/* Compact rows so the bounded coverage list shows the mock's three rows (mock rows 51 px, thead 33 px). */
+.estate-evidence-table .data-table {
+  line-height: 1.45;
+}
+
+.estate-evidence-table .data-table td {
+  padding: 7px 11px;
+}
+
+.estate-evidence-table .data-table thead th {
+  padding: 8px 11px;
+}
+
+.estate-evidence-table .estate-chip {
+  margin-bottom: 1px;
+  line-height: 1.35;
+}
+
+.estate-evidence-meta {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.estate-evidence-meta__window {
+  margin-right: 8px;
+}
+
 .estate-evidence-table--coverage .data-table__scroll {
-  max-height: 200px;
+  max-height: 188px;
 }
 
 .estate-evidence-table--gaps .data-table__scroll {
@@ -66,8 +97,10 @@
 }
 
 .estate-evidence-note {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .estate-evidence-examples {

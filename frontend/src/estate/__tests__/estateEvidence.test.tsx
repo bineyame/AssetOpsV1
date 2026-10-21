@@ -118,6 +118,7 @@ const GAPS: EvidenceGap[] = [
     label: "Feeder demand not observed",
     site_ids: [MINI],
     site_codes: ["KOBO-001"],
+    site_names: ["Kobo Mini-grid"],
     unlocks: ["GENERATOR_SUPPORT@2026-10-15", "GENERATOR_SUPPORT@2026-10-14"],
     next_step: "Record Feeder demand",
     link: null,
@@ -129,6 +130,7 @@ const GAPS: EvidenceGap[] = [
     label: "Missing EV tariff",
     site_ids: [COLD, EV],
     site_codes: ["COLD-LAB-001", "EV-LAB-001"],
+    site_names: ["Cold replay lab", "EV charging lab"],
     unlocks: [],
     next_step: null,
     link: null,
@@ -262,7 +264,7 @@ describe("W3-02 estate Evidence root", () => {
     expect(cells[0][2].querySelector("[data-estate-readiness]")?.className).toContain("estate-tone--amber");
     expect(cells[1][2].querySelector("[data-estate-readiness]")?.className).toContain("estate-tone--green");
     expect(cells[2][2].querySelector("[data-estate-readiness]")?.className).toContain("estate-tone--gray");
-    expect(cells[2][2].querySelector("[data-estate-row-context]")?.textContent).toBe("Not yet assessed");
+    expect(cells[2][2].querySelector("[data-estate-row-context]")?.textContent).toBe("Not assessed");
     expect(cells.map((c) => c[3].textContent)).toEqual(["Candidate in supported intervals", "No current ceiling", "No current ceiling"]);
     expect(cells.map((c) => c[4].textContent)).toEqual(["Record Feeder demand", "Not recorded", "Not recorded"]);
     // The capability key, raw state and selected revisions sit in the closed disclosure.
@@ -382,11 +384,63 @@ describe("W3-02 estate Evidence root", () => {
       expect(main().textContent).not.toContain("Kobo Mini-grid");
       view.unmount();
     }
-    expect(EVIDENCE_REFUSAL_COPY.UNAUTHENTICATED).toBe("Sign in to view estate evidence and financials.");
-    expect(EVIDENCE_REFUSAL_COPY.ESTATE_BASIS_CHANGED).toBe("The selection changed. Refresh to see the latest basis.");
-    expect(EVIDENCE_REFUSAL_COPY.INVALID_WINDOW).toBe("Choose a UTC window of up to 31 days with a start before its end.");
-    expect(EVIDENCE_REFUSAL_COPY.ESTATE_STORE_UNAVAILABLE).toBe("Estate data is temporarily unavailable. Try again.");
+    // c2-q2: the exhaustive literal table, aliases included, and nothing else.
+    const RESET = "This selection cannot be read. Reset the filters.";
+    expect(EVIDENCE_REFUSAL_COPY).toEqual({
+      UNAUTHENTICATED: "Sign in to view estate evidence and financials.",
+      ESTATE_SCOPE_FORBIDDEN: "You do not have access to this estate view.",
+      ESTATE_SOURCE_DISCLOSURE_FORBIDDEN: "Source details for one or more Sites cannot be shown.",
+      ESTATE_SITE_NOT_FOUND: "This Site is no longer in the selected estate.",
+      ESTATE_STORE_UNAVAILABLE: "Estate data is temporarily unavailable. Try again.",
+      ESTATE_READ_UNAVAILABLE: "Estate data is temporarily unavailable. Try again.",
+      ESTATE_BASIS_CHANGED: "The selection changed. Refresh to see the latest basis.",
+      ESTATE_SELECTION_INCONSISTENT: "The selection changed. Refresh to see the latest basis.",
+      INVALID_WINDOW: "Choose a UTC window of up to 31 days with a start before its end.",
+      INVALID_KNOWN_AT: RESET,
+      INVALID_LIMIT: RESET,
+      INVALID_CURSOR: RESET,
+      ESTATE_PARAMETER_UNKNOWN: RESET,
+      ESTATE_CURSOR_INVALID: RESET,
+    });
     for (const copy of Object.values(EVIDENCE_REFUSAL_COPY)) expect(copy.toLowerCase()).not.toContain("cutoff");
+  });
+
+  it("namesGapSitesFromTheWireNotThePage", async () => {
+    // c2-q1: the gap's Sites are on another page (only the Kobo row is here); names come from `site_names`, an
+    // empty stored name shows its stored code, and every code stays in `Record details`.
+    const offPage: EvidenceGap = { ...GAPS[1], site_names: ["Cold replay lab", ""] };
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body({ rows: [MINI_ROW], total_count: 3, gaps: [offPage] }))));
+    await settledScreen();
+    const cells = within(within(panelTitled(GAPS_PANEL)).getAllByRole("row")[1]).getAllByRole("cell");
+    expect(cells[1].textContent).toBe("Cold replay lab · EV-LAB-001");
+    expect(cells[0].querySelector("details")?.textContent).toContain("COLD-LAB-001, EV-LAB-001");
+  });
+
+  it("showsPlainReadinessAndContextWords", async () => {
+    // c2-q4: readiness chip words, and a separate context chip only for pending/stale/unassessed/historical rows.
+    const rows = [
+      { ...COLD_ROW, capability_key: "a", raw_state: "CONTRADICTORY", readiness: "CONTRADICTORY" as const },
+      { ...COLD_ROW, capability_key: "b", raw_state: "PENDING_RECOMPUTE", readiness: "UNKNOWN" as const },
+      { ...COLD_ROW, capability_key: "c", raw_state: "STALE_SOURCE", readiness: "UNKNOWN" as const },
+      { ...COLD_ROW, capability_key: "d", raw_state: "UNASSESSED", readiness: "UNKNOWN" as const },
+      { ...COLD_ROW, capability_key: "e", raw_state: "NOT_APPLICABLE", readiness: "NOT_APPLICABLE" as const },
+      { ...COLD_ROW, capability_key: "f", raw_state: "FULL", readiness: "FULL" as const },
+    ];
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body({ rows, total_count: rows.length, gaps: [] }))));
+    await settledScreen();
+    const cells = within(panelTitled(COVERAGE_PANEL)).getAllByRole("row").slice(1).map((r) => within(r).getAllByRole("cell")[2]);
+    const words = cells.map((c) => [...c.querySelectorAll(".estate-chip")].map((chip) => [chip.textContent, chip.className.replace(/.*estate-tone--/, "")]));
+    expect(words).toEqual([
+      [["Conflicting records", "red"]],
+      [["Unknown", "gray"], ["New evidence is being assessed", "amber"]],
+      [["Unknown", "gray"], ["May miss newer readings", "amber"]],
+      [["Unknown", "gray"], ["Not assessed", "gray"]],
+      [["N/A", "gray"]],
+      [["Full", "green"]],
+    ]);
+    // Raw state IDs stay in `Record details` only.
+    const visible = cells.map((c) => c.textContent).join(" ");
+    for (const raw of ["PENDING_RECOMPUTE", "STALE_SOURCE", "UNASSESSED", "CONTRADICTORY", "Contradictory"]) expect(visible).not.toContain(raw);
   });
 
   it("preservesSupportedSiteLinksAndCurrentViewLabel", async () => {
@@ -433,7 +487,7 @@ describe("W3-02 estate Evidence root", () => {
     expect((await client.evidence(query)).status).toBe("loaded");
     expect(await client.evidence(query)).toEqual({ status: "refused", httpStatus: 409, code: "ESTATE_BASIS_CHANGED", copy: EVIDENCE_REFUSAL_COPY.ESTATE_BASIS_CHANGED });
     expect((await client.evidence(query)) as { code: string }).toMatchObject({ code: "ESTATE_STORE_UNAVAILABLE" });
-    expect((await client.evidence(query)) as { code: string }).toMatchObject({ code: "ESTATE_STORE_UNAVAILABLE" });
+    expect(await client.evidence(query)).toEqual({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "Estate data is temporarily unavailable. Try again." });
     expect(decodeURIComponent(fetched[0])).toBe(`/api/estate/evidence?from=${FROM}&to=${TO}&known_at=${KNOWN}&limit=50&cursor=abc`);
   });
 });

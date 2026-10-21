@@ -329,6 +329,20 @@ def test_w302_evidence_typed_gaps_exclude_billing() -> None:
     assert day["selected_revision_ids"] and hist["gaps"] == []
 
 
+def test_w302_evidence_gap_site_names_cover_rows_on_other_pages() -> None:
+    """c2-q1: `gaps[].site_names` is the full group's stored names, parallel to `site_ids`/`site_codes`, built
+    before row pagination, so a gap whose Site rows are all on another page still names its Sites."""
+    full = get(client(FakeStore(FakeSnapshot())), {**WINDOW, "limit": 100}).json()
+    first = get(client(FakeStore(FakeSnapshot())), {**WINDOW, "limit": 1}).json()
+    on_page = {r["site_id"] for r in first["rows"]}
+    off_page = [g for g in first["gaps"] if not on_page & set(g["site_ids"])]
+    assert off_page, "expected a gap whose Site rows are all on a later page"
+    assert first["gaps"] == full["gaps"]
+    for gap in first["gaps"]:
+        assert len(gap["site_names"]) == len(gap["site_codes"]) == len(gap["site_ids"])
+        assert gap["site_names"] == [f"{code} name" for code in gap["site_codes"]]
+
+
 def test_w302_evidence_meter_gap_and_frozen_basis_mode() -> None:
     """c1-q2: the public `unknown_meter` gives METER_GAP on the energy row; c1-q7: W1 receives the frozen basis."""
     snap = FakeSnapshot(unknown_meter=True)

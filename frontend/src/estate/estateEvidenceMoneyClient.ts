@@ -70,6 +70,8 @@ export interface EvidenceGap {
   label: string;
   site_ids: string[];
   site_codes: string[];
+  /** c2-q1: the authorized stored Site names, parallel to `site_ids`/`site_codes`, for the full group. */
+  site_names: (string | null)[];
   unlocks: string[];
   next_step: string | null;
   link: string | null;
@@ -92,8 +94,8 @@ export interface EstateEvidenceBody extends EvidenceEnvelope {
 }
 
 /**
- * The W3-02 refusal copy ("Refusals and UI states"), keyed by the code the estate wrapper sends. Codes that table
- * does not name use its generic `This selection cannot be read. Reset the filters.` (see pending ruling c2-q2).
+ * c2-q2: the exhaustive Evidence refusal copy, keyed by every code the shared parser, scope/read fence and Evidence
+ * endpoint can send (plus the older wrapper aliases). Any other code fails closed to the 503 sentence.
  */
 export const EVIDENCE_REFUSAL_COPY: Readonly<Record<string, string>> = {
   UNAUTHENTICATED: "Sign in to view estate evidence and financials.",

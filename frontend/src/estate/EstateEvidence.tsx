@@ -5,7 +5,7 @@
  * example destinations and the Unlocks dictionary) and closure 5 S13 (the two panel titles). Every value is a
  * server field; the page scores nothing, builds no Site route and invents no Action. Mock numbers never render.
  */
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
@@ -63,16 +63,17 @@ const READINESS_WORDS: Readonly<Record<EvidenceReadiness, { text: string; tone: 
   LIMITED: { text: "Limited", tone: "amber" },
   NONE: { text: "None", tone: "gray" },
   UNKNOWN: { text: "Unknown", tone: "gray" },
-  CONTRADICTORY: { text: "Contradictory", tone: "red" },
+  CONTRADICTORY: { text: "Conflicting records", tone: "red" },
   NOT_APPLICABLE: { text: "N/A", tone: "gray" },
 };
 
-/** Row context shown beside the readiness chip: pending amber, historical blue (ledger `Readiness`). */
+/** c2-q4: the context chip beside the readiness chip (pending/stale amber, unassessed gray, historical blue). A
+ *  current selected row has none; raw state IDs stay in `Record details`. */
 const CONTEXT_WORDS: Readonly<Record<string, { text: string; tone: string }>> = {
   PENDING_RECOMPUTE: { text: "New evidence is being assessed", tone: "amber" },
   STALE_SOURCE: { text: "May miss newer readings", tone: "amber" },
-  UNASSESSED: { text: "Not yet assessed", tone: "gray" },
-  UNKNOWN: { text: "Not yet assessed", tone: "gray" },
+  UNASSESSED: { text: "Not assessed", tone: "gray" },
+  UNKNOWN: { text: "Not assessed", tone: "gray" },
 };
 
 export function historicalAsOf(instant: string): string {
@@ -187,8 +188,10 @@ function CoverageRow({ row, asOf }: { row: EvidenceRow; asOf: string }) {
       </td>
       <td>
         <span className="estate-cell__primary">{row.capability_label}</span>
-        {window !== null ? <span className="estate-cell__secondary">{window}</span> : null}
-        <RowDetails row={row} />
+        <span className="estate-evidence-meta">
+          {window !== null ? <span className="estate-evidence-meta__window">{window}</span> : null}
+          <RowDetails row={row} />
+        </span>
       </td>
       <td>
         <Chip tone={readiness.tone} text={readiness.text} data={{ "data-estate-readiness": row.readiness }} />
@@ -233,8 +236,16 @@ function CoverageTable({ body }: { body: EstateEvidenceBody }) {
   );
 }
 
-function GapRow({ gap, names }: { gap: EvidenceGap; names: ReadonlyMap<string, string> }) {
-  const sites = gap.site_codes.map((code) => names.get(code) ?? code);
+/** c2-q1: the gap's full-group stored Site names (server order); an empty or missing name shows its stored code. */
+export function gapSiteNames(gap: EvidenceGap): string[] {
+  return gap.site_codes.map((code, index) => {
+    const name = gap.site_names?.[index];
+    return typeof name === "string" && name.trim() !== "" ? name : code;
+  });
+}
+
+function GapRow({ gap }: { gap: EvidenceGap }) {
+  const sites = gapSiteNames(gap);
   return (
     <tr data-estate-gap={`${gap.domain}|${gap.gap_code}|${gap.missing_role ?? ""}`}>
       <td>
@@ -260,7 +271,6 @@ function GapRow({ gap, names }: { gap: EvidenceGap; names: ReadonlyMap<string, s
 }
 
 function GapsTable({ body }: { body: EstateEvidenceBody }) {
-  const names = new Map(body.rows.map((row) => [row.site_code, row.site_name]));
   return (
     <div className="estate-evidence-table estate-evidence-table--gaps">
       <DataTable labelledBy="estate-evidence-gaps-heading">
@@ -280,7 +290,7 @@ function GapsTable({ body }: { body: EstateEvidenceBody }) {
         </thead>
         <tbody>
           {body.gaps.map((gap) => (
-            <GapRow key={`${gap.domain}|${gap.gap_code}|${gap.missing_role ?? ""}`} gap={gap} names={names} />
+            <GapRow key={`${gap.domain}|${gap.gap_code}|${gap.missing_role ?? ""}`} gap={gap} />
           ))}
         </tbody>
       </DataTable>
@@ -306,14 +316,17 @@ function CoverageNotes({ body }: { body: EstateEvidenceBody }) {
   else if (body.total_count === 0) notes.push(["no-selection", NO_SELECTED_EVIDENCE]);
   if (body.status !== "EMPTY_SCOPE" && body.coverage.state !== "COMPLETE") notes.push(["partial", STILL_ASSESSED]);
   if (body.status === "HISTORICAL") notes.push(["historical", historicalAsOf(body.summary.as_of ?? body.window.known_at)]);
+  if (notes.length === 0) return null;
+  // One compact line under the table (closure 1 coverage-panel budget); each note keeps its own marker.
   return (
-    <>
-      {notes.map(([key, text]) => (
-        <p key={key} className="estate-evidence-note" data-estate-note={key}>
-          {text}
-        </p>
+    <p className="estate-evidence-note">
+      {notes.map(([key, text], index) => (
+        <Fragment key={key}>
+          {index > 0 ? " · " : null}
+          <span data-estate-note={key}>{text}</span>
+        </Fragment>
       ))}
-    </>
+    </p>
   );
 }
 
