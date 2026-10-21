@@ -615,3 +615,35 @@ PR-12 is OPEN in `.agent/W4-03-pending-rulings.md` (five questions). Build stopp
 Next: unit 10
 (Per u9, 9b is unit 12 and the last build unit; what remains after the PR-12 rulings is the cap fixes, an
 Alternatives/Opportunity recapture, the one full backend Postgres suite and `.agent/W4-03-review-packet.md`.)
+
+## u9b applied (stopped at PR-13; commits 80b7e166, 4c64418f, 6f2bea4b, stock fix, this commit)
+- (a) `MiniScenarios.tsx`: `N pinned renewable revisions` + `Inspect pinned revisions` button, one bounded `hidden`
+  disclosure `#mini-scenarios-pinned` below the table; empty block without secondary/foot. CSS
+  `w4-mini-decisions.css`: Scenarios inner `max-height` + sticky header at every width, empty padding 20px, Opportunity
+  card spacing scoped to `.v69-cards[data-opportunity-cards]`. `MiniOpportunity.tsx`: `word` values, shortened notes,
+  detail `known_at` (`useOpportunity` keyed by cutoff), CTA `detailHref(id, known_at)`. `siteWorkCases.tsx`: one
+  panel-level refused-overlay line for Incidents (Maintenance keeps row copy); `w4-work-cases.css` 240px Incident
+  scroll at 760px. `operatorSiteRoutes.siteOpportunityHref(site,id,knownAt?)`; `miniDecisionsClient.getOpportunity(
+  code,id,knownAt?)`. `MiniAlternatives.tsx`: `Alternatives unavailable` label on 503/transport (reading, below).
+- (b) `tools/w403_mini_decisions_walkthrough.py`: private KOBO byte copy + `legacy_documents()` checked against
+  `site_import`; KOBO cutover (`performance_exits`), `kobo_reads`; `replay-positive` / `replay-late` / `replay`;
+  `capture --phase positive|late`; `stock()` replays recorded `occurred_at`. `tools/w403-mini-decisions-evidence.mjs`:
+  phases, Network status log, explicit `?known_at=` (rewrite rule removed), new checks. Replay test runs both phases.
+- (c) Capture `var/w403q/capture/evidence.json` (+ `evidence-positive.json`): 356/359. Failing: Scenarios populated
+  1440 381>348 and 390 436>391; Incidents refused 390 472>460 -> PR-13 (OPEN). Supported/current, Alternatives
+  (db-time and asserted 503 hit after 200 Site/Finding reads) and k_before_late explicit URL all pass.
+- Viewed: scenarios-populated 1440/390, opportunity-supported-current 1440/390, alternatives-read-503 1440,
+  incidents-refused-overlay 390.
+
+Readings (u9b; reviewer may overturn):
+1. `Alternatives unavailable` renders as a bold panel line above the 503 copy for HTTP 503 and transport failure only
+   (spec line 190, u7.9 "panel-level 503 label", PR-12.4 assertion).
+2. Refused-overlay panel line is Incidents-only; Maintenance keeps per-row copy (PR-12.3 names Incidents).
+3. A duplicate/invalid `known_at` in the address is sent unchanged (all values) so the server's refusal shows.
+4. Check total is 359, not 265: u9b added checks; reading 9b(7) holds (app and mock both `mobile:false` in capture).
+
+## Checks (u9b)
+- `test_w403_replay_postgres.py`: 2 passed (449 s), base DB `w403q_test`; DBs dropped. No full backend suite.
+- Frontend suite 103 files / 2464 passed; `tsc -b` 0 and `npm run build` 0 after the test type fix; check-all 11/11.
+
+Next: PR-13 rulings, then the Scenarios/Incidents cap fix and recapture; then units 10-12 (packet), final review + full suite.

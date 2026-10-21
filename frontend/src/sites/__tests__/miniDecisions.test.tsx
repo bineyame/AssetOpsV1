@@ -929,7 +929,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       await waitFor(() => expect(document.querySelector("[data-alternatives-refused]")?.textContent).toBe(copy));
       // The panel-level `Alternatives unavailable` label belongs to the 503 (and transport) state only.
       const label = document.querySelector("[data-alternatives-unavailable]")?.textContent ?? null;
-      expect(label).toBe(read.status === "unavailable" || read.httpStatus === 503 ? "Alternatives unavailable" : null);
+      expect(label).toBe(read.status === "unavailable" || (read.status === "refused" && read.httpStatus === 503) ? "Alternatives unavailable" : null);
       expect(document.querySelector("[data-alternatives-table]")).toBeNull();
       expect(document.querySelector("[data-alternatives-empty]")).toBeNull();
       cleanup();
