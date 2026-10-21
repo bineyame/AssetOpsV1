@@ -46,12 +46,23 @@ def http_for(client: TestClient, secret: str | None = SECRET):
     return call
 
 
+def kobo_documents():
+    """u9b PR-12.4: the imported KOBO fixture's own legacy document (path as recorded, digest of its bytes)."""
+    import hashlib
+
+    from assetops_backend.sites.foundation_service import LegacyDocument
+
+    digest = hashlib.sha256(walk.KOBO_SOURCE.read_bytes()).hexdigest()
+    return lambda: (LegacyDocument(site_code=walk.KOBO_CODE, path=walk.KOBO_RECORDED_PATH, sha256=digest),)
+
+
 def app_client(monkeypatch, scopes, **kw) -> TestClient:
     from assetops_backend import main
 
     monkeypatch.setenv("DATABASE_URL", URL)
     access, principal = walk.fixture_callbacks(SECRET, scopes, **kw)
-    return TestClient(main.create_app(mini_decision_command_access=access, mini_decision_principal=principal))
+    return TestClient(main.create_app(mini_decision_command_access=access, mini_decision_principal=principal,
+                                      legacy_documents=kobo_documents()))
 
 
 def table_counts(engine) -> tuple:
@@ -96,8 +107,30 @@ def test_positive_missing_late_replay_and_fresh_reload(sites, engine, monkeypatc
     assert [(s, b["detail"]["code"]) for s, b in refusals] == [(403, "DECISION_WRITE_FORBIDDEN")] * 4
     assert table_counts(engine) == before
 
-    record = walk.run_replay(engine, sites["installed"], fixture, scopes, http_for(client))
+    # u9b PR-12.5: phase 1 (positive) only; no late or missing evidence exists yet.
+    record = walk.run_replay_positive(engine, sites["installed"], fixture, scopes, http_for(client))
     assert record["performance_exit"] == 0
+    assert record["performance_exits"] == {"MG-W402-001": 0, "KOBO-001": 0}
+    # PR-12.4: the KOBO Site and its exact F02 Finding read are open before any capture.
+    assert record["kobo_reads"]["site_status"] == 200
+    assert record["kobo_reads"]["finding_code"] != "PERFORMANCE_CUTOVER_CLOSED"
+    assert not {"k_before_late", "late_pending", "late_settled", "missing"} & set(record)
+    assert set(record["accepted"]) == {"positive"}
+    selection = record["positive_selection"]
+    assert (selection["status"], selection["currentness"]["state"]) == ("SUPPORTED", "CURRENT")
+    assert selection["pins"] == record["pins"]
+    # A fresh app reloads the same positive/current selection before phase 2.
+    status, reloaded = http_for(app_client(monkeypatch, scopes))(
+        "GET", f"/api/sites/{mg}/opportunities/{selection['opportunity_id']}")
+    assert status == 200
+    assert (reloaded["status"], reloaded["currentness"]["state"]) == ("SUPPORTED", "CURRENT")
+    assert reloaded["opportunity"]["revision_id"] == selection["revision_id"]
+    assert reloaded["selected_source_provenance"] == selection["selected_source_provenance"]
+    # Phase 2 runs on the phase-1 record as `positive.json` stores it (a JSON round trip), without new keys.
+    stored = json.loads(json.dumps(record, sort_keys=True))
+    before_late = table_counts(engine)
+    record = walk.run_replay_late(engine, sites["installed"], fixture, http_for(client), stored)
+    assert table_counts(engine) == before_late  # the five W4-03 commands are not repeated
     assert record["accepted"]["positive"] and record["accepted"]["late"] and record["accepted"]["missing"]
 
     # S16: all five 6-10 Oct selected noon tuples are pinned, the EXCLUDED 6 Oct day included.

@@ -10,11 +10,15 @@
 
 `prepare` makes the private `*_test` database at head, imports KOBO-001 (the S4 CaseRunner, W1 dispatch Finding F02)
 and MG-W402-001 (the W4-02 installer), and writes a random loopback bearer secret to the private work folder.
-`serve` runs `create_app(mini_decision_command_access=..., mini_decision_principal=...)` on 127.0.0.1; both callbacks
+`serve` runs `create_app(mini_decision_command_access=..., mini_decision_principal=...,
+legacy_documents=...)` on 127.0.0.1 (u9b PR-12.4: the KOBO document is the private byte copy of the imported fixture,
+its digest checked against the `site_import` record); both callbacks
 admit only that bearer for the exact resolved tenant/Site pairs and derive `service:w403-fixture` and its grant on the
 server. `replay` runs the W4-02 authored publication and ingestion, the explicit historical reconcile, seeds the MG
 work cases in process through W4-01 `WorkService` (`service:w401-fixture`; never a W4-01 HTTP POST), submits the
-five W4-03 command types over HTTP, and records the reads (`<work>/replay.json`, no secret). `capture` delegates the
+five W4-03 command types over HTTP, and records the reads (`<work>/replay.json`, no secret). u9b PR-12.5: `replay` is
+`replay-positive` (writes `positive.json` and a phase marker) then `replay-late` (requires the marker, writes
+`replay.json`); `capture --phase positive` runs between them and `capture --phase late` after. `capture` delegates the
 1440/390 captures to `tools/w403-mini-decisions-evidence.mjs`, after seeding the capture stock (four more
 Incidents, two more Requests) through W4-01 `WorkService` into `<work>/capture/stock.json`. `drop` drops the
 database and work folder that this tool made. Nothing reads private Lab state or inserts accepted evidence directly.
@@ -50,6 +54,12 @@ PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 API_PORT = 9761
 MARKER = ".w403-walkthrough-work"
 SECRET_FILE = "bearer.secret"
+POSITIVE_MARKER = "replay-positive.done"
+KOBO_CODE = "KOBO-001"
+# u9b PR-12.4: the fixture `prepare` imports KOBO from, and the path the import recorded for it.
+KOBO_SOURCE = REPO / "backend" / "tests" / "fixtures" / "s1" / "kobo-001.yaml"
+KOBO_RECORDED_PATH = "var/sites/kobo-001.yaml"
+KOBO_PRIVATE_COPY = "kobo-001.yaml"
 
 
 def load_fixture(path: Path = FIXTURE) -> dict[str, Any]:
@@ -312,6 +322,8 @@ class Walk:
         pg_harness.dispose(sites["runner"].findings, store)
         engine.dispose()
         (self.work / SECRET_FILE).write_text(secrets.token_urlsafe(32), encoding="ascii")
+        # PR-12.4: the exact fixture bytes the import read, kept privately for the served app's legacy documents.
+        (self.work / KOBO_PRIVATE_COPY).write_bytes(KOBO_SOURCE.read_bytes())
         scopes = {k: [str(v[0]), str(v[1])] for k, v in sites["scopes"].items()}
         (self.work / "ids.json").write_text(json.dumps({"scopes": scopes}, indent=2), encoding="utf-8")
         print(f"prepared {self.db}: {sorted(scopes)}; next: serve, then replay")
@@ -323,7 +335,51 @@ class Walk:
 
         scopes = {k: (UUID(v[0]), UUID(v[1])) for k, v in self.ids()["scopes"].items()}
         access, principal = fixture_callbacks(self.secret(), scopes)
-        return main.create_app(mini_decision_command_access=access, mini_decision_principal=principal)
+        return main.create_app(mini_decision_command_access=access, mini_decision_principal=principal,
+                               legacy_documents=self.legacy_documents())
+
+    def legacy_documents(self) -> Callable[[], tuple[Any, ...]]:
+        """u9b PR-12.4: the served app's legacy Site documents.
+
+        KOBO-001 is the imported fixture's own document: the digest is derived from the private byte copy and must
+        equal the `site_import` record (path `var/sites/kobo-001.yaml`), or the app is not built. The operator's
+        gitignored `var/sites/kobo-001.yaml` is not used, and the product collision check is unchanged: every other
+        legacy document whose code does not collide with KOBO-001 is still returned.
+        """
+        import hashlib
+
+        from sqlalchemy import create_engine, text
+
+        from assetops_backend.sites.composition import legacy_site_documents
+        from assetops_backend.sites.foundation_service import LegacyDocument
+        from assetops_backend.sites.identity import site_id_key
+
+        copy_path = self.work / KOBO_PRIVATE_COPY
+
+        def digest() -> str:
+            return hashlib.sha256(copy_path.read_bytes()).hexdigest()
+
+        engine = create_engine(self.url)
+        try:
+            with engine.connect() as c:
+                rows = c.execute(text("SELECT i.source_path, i.source_sha256 FROM site_import i JOIN site s "
+                                      "ON s.tenant_id = i.tenant_id AND s.id = i.site_id WHERE s.site_code = :code"),
+                                 {"code": KOBO_CODE}).all()
+        finally:
+            engine.dispose()
+        if len(rows) != 1 or rows[0][0] != KOBO_RECORDED_PATH:
+            raise SystemExit(f"Refused: {KOBO_CODE} import record is {rows!r}, not one {KOBO_RECORDED_PATH} import")
+        recorded = rows[0][1]
+        if digest() != recorded:
+            raise SystemExit(f"Refused: {copy_path} sha256 {digest()} != imported {recorded}")
+        others = tuple(d for d in legacy_site_documents() if site_id_key(d.site_code) != site_id_key(KOBO_CODE))
+
+        def documents() -> tuple[Any, ...]:
+            now = digest()
+            if now != recorded:  # the private copy changed after the check: never serve a made-up digest
+                raise RuntimeError(f"{copy_path} sha256 {now} != imported {recorded}")
+            return (LegacyDocument(site_code=KOBO_CODE, path=KOBO_RECORDED_PATH, sha256=now), *others)
+        return documents
 
     def serve(self) -> None:
         import uvicorn
@@ -346,7 +402,7 @@ class Walk:
                 return e.code, json.loads(e.read() or b"null")
         return call
 
-    def replay(self) -> None:
+    def _context(self):
         from uuid import UUID
 
         from sqlalchemy import create_engine
@@ -354,11 +410,42 @@ class Walk:
         fixture, ids = load_fixture(), self.ids()
         scopes = {k: (UUID(v[0]), UUID(v[1])) for k, v in ids["scopes"].items()}
         engine = create_engine(self.url)
-        installed = _Installed.read(engine, scopes["MG-W402-001"][1])
-        record = run_replay(engine, installed, fixture, scopes, self.http())
+        return fixture, scopes, engine, _Installed.read(engine, scopes["MG-W402-001"][1])
+
+    def replay_positive(self) -> dict[str, Any]:
+        """u9b PR-12.5 phase 1, idempotent: once its marker exists the stored `positive.json` is returned unchanged."""
+        if (self.work / POSITIVE_MARKER).is_file():
+            print(f"replay-positive already done: {self.work / 'positive.json'}")
+            return json.loads((self.work / "positive.json").read_text(encoding="utf-8"))
+        fixture, scopes, engine, installed = self._context()
+        try:
+            record = run_replay_positive(engine, installed, fixture, scopes, self.http())
+        finally:
+            engine.dispose()
+        (self.work / "positive.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        (self.work / POSITIVE_MARKER).write_text(f"opportunity_id={record['writes']['opportunity_id']}\n",
+                                                 encoding="utf-8")
+        print(f"replay-positive: {self.work / 'positive.json'}; next: capture --phase positive, then replay-late")
+        return record
+
+    def replay_late(self) -> None:
+        """u9b PR-12.5 phase 2: requires the positive marker; never redoes the positive commands."""
+        if not (self.work / POSITIVE_MARKER).is_file():
+            raise SystemExit("Refused: replay-late needs replay-positive first (no phase marker)")
+        if (self.work / "replay.json").is_file():
+            raise SystemExit(f"Refused: {self.work / 'replay.json'} exists; the late phase runs once")
+        record = json.loads((self.work / "positive.json").read_text(encoding="utf-8"))
+        fixture, scopes, engine, installed = self._context()
+        try:
+            record = run_replay_late(engine, installed, fixture, self.http(), record)
+        finally:
+            engine.dispose()
         (self.work / "replay.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-        engine.dispose()
         print(f"replayed: {self.work / 'replay.json'}")
+
+    def replay(self) -> None:
+        self.replay_positive()
+        self.replay_late()
 
     def stock(self) -> dict[str, Any]:
         """u9 9b capture stock: four more MG Incidents and two more Requests through W4-01 `WorkService`.
@@ -384,10 +471,10 @@ class Walk:
         (self.work / "capture" / "stock.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
         return out
 
-    def capture(self, web: str) -> None:
+    def capture(self, web: str, phase: str = "late") -> None:
         self.stock()
         done = subprocess.run(["node", str(REPO / "tools" / "w403-mini-decisions-evidence.mjs"), web,
-                               str(self.work / "capture")], cwd=REPO)
+                               str(self.work / "capture"), phase], cwd=REPO)
         raise SystemExit(done.returncode)
 
     def drop(self) -> None:
@@ -420,7 +507,25 @@ class _Installed:
 
 def run_replay(engine, installed, fixture: dict[str, Any], scopes: dict[str, tuple[Any, Any]], http: Http,
                performance: bool = True) -> dict[str, Any]:
-    """The whole replay after `prepare`: positive physical path, the HTTP decisions, missing and late branches."""
+    """The whole replay after `prepare`: both u9b PR-12.5 phases in order (backend regression use)."""
+    record = run_replay_positive(engine, installed, fixture, scopes, http, performance)
+    return run_replay_late(engine, installed, fixture, http, record)
+
+
+def kobo_reads(http: Http, fixture: dict[str, Any], finding: tuple[str, str]) -> dict[str, Any]:
+    """u9b PR-12.4: the KOBO Site and the exact F02 Finding read the Alternatives page needs, before any capture."""
+    kobo = fixture["alternative_site_code"]
+    site_status = http("GET", f"/api/sites/{kobo}")[0]
+    status, body = http("GET", f"/api/sites/{kobo}/findings/{finding[0]}?revision_id={finding[1]}")
+    detail = body.get("detail") if isinstance(body, dict) else None
+    return {"site_status": site_status, "finding_status": status,
+            "finding_code": detail.get("code") if isinstance(detail, dict) else None}
+
+
+def run_replay_positive(engine, installed, fixture: dict[str, Any], scopes: dict[str, tuple[Any, Any]], http: Http,
+                        performance: bool = True) -> dict[str, Any]:
+    """u9b PR-12.5 phase 1: positive publication, five mini days, both Performance cutovers, opportunity reconcile,
+    the W4-01 case seed and the five W4-03 HTTP commands, then the current reads (no late or missing evidence)."""
     mg = scopes[fixture["opportunity_site_code"]]
     record: dict[str, Any] = {"schema_version": fixture["schema_version"]}
     record["accepted"] = {"positive": publish_and_ingest(engine, installed, fixture, "positive")}
@@ -428,9 +533,13 @@ def run_replay(engine, installed, fixture: dict[str, Any], scopes: dict[str, tup
     if performance:
         from assetops_backend.performance_migration import main as performance_main
 
-        with contextlib.redirect_stdout(io.StringIO()):
-            record["performance_exit"] = performance_main(["run", "--tenant", "demo", "--site",
-                                                           fixture["opportunity_site_code"]])
+        exits = {}
+        # PR-12.4: the KOBO cutover runs after its F02 setup (`prepare`), as the MG one does after its publication.
+        for code in (fixture["opportunity_site_code"], fixture["alternative_site_code"]):
+            with contextlib.redirect_stdout(io.StringIO()):
+                exits[code] = performance_main(["run", "--tenant", "demo", "--site", code])
+        record["performance_exits"] = exits
+        record["performance_exit"] = exits[fixture["opportunity_site_code"]]
     record["opportunity_runs"] = [opportunity_cli(fixture["reconcile"])]
     pins = selected_pins(engine, mg, fixture["study_days"])
     cases = {c["body"]["idempotency_key"]: seed_case(scopes[c["site_code"]], c["body"])
@@ -456,6 +565,28 @@ def run_replay(engine, installed, fixture: dict[str, Any], scopes: dict[str, tup
         assert (alt["status"], alt["body"]["detail"]["code"]) == (409, "DECISION_BASIS_CHANGED"), alt
     oid = record["writes"]["opportunity_id"]
     record["positive"] = reads(http, fixture, oid, list(cases.values()), finding)
+    if performance:
+        record["kobo_reads"] = kobo_reads(http, fixture, finding)
+    detail = record["positive"]["opportunity"]
+    # positive.json: the selected Opportunity, its exact pins, the current read and its selected provenance.
+    record["positive_selection"] = {
+        "opportunity_id": oid,
+        "revision_id": (detail.get("opportunity") or {}).get("revision_id"),
+        "status": detail.get("status"),
+        "currentness": detail.get("currentness"),
+        "pins": pins,
+        "selected_source_provenance": detail.get("selected_source_provenance"),
+    }
+    return record
+
+
+def run_replay_late(engine, installed, fixture: dict[str, Any], http: Http, record: dict[str, Any]) -> dict[str, Any]:
+    """u9b PR-12.5 phase 2 on the phase-1 record: `k_before_late`, the fixed 13 October late variant and its rerun,
+    then the 8-12 October missing branch. The positive commands are not repeated."""
+    from sqlalchemy import text
+
+    oid = record["writes"]["opportunity_id"]
+    cases = record["cases"]
     # Late contradictory evidence after the first selection: pending first, then a new head after the rerun.
     with engine.connect() as c:
         record["k_before_late"] = iso(c.execute(text("SELECT clock_timestamp()")).scalar_one())
@@ -480,16 +611,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--db", required=True)
     parser.add_argument("--work", required=True)
     sub = parser.add_subparsers(dest="command", required=True)
-    for name in ("prepare", "serve", "replay", "drop"):
+    for name in ("prepare", "serve", "replay", "replay-positive", "replay-late", "drop"):
         sub.add_parser(name)
     cap = sub.add_parser("capture")
     cap.add_argument("--web", default="http://localhost:6147")
+    cap.add_argument("--phase", choices=("positive", "late"), default="late")
     args = parser.parse_args(argv)
     walk = Walk(args.db, args.work)
     if args.command == "capture":
-        walk.capture(args.web)
+        walk.capture(args.web, args.phase)
     else:
-        getattr(walk, args.command)()
+        getattr(walk, args.command.replace("-", "_"))()
     return 0
 
 
