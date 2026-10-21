@@ -279,17 +279,17 @@ describe("AC18 rules for Evidence capability rows", () => {
   it("rule 1: a served analytic the profile does not know renders by its backend name, after known rows", async () => {
     await renderEvidence(
       served([
-        { analytic_id: "renewable", display_name: "Renewable headroom", readiness: LIMITED_READINESS },
+        { analytic_id: "battery-stress", display_name: "Battery stress", readiness: LIMITED_READINESS },
         DISPATCH_LIMITED,
       ]),
     );
     expect(rows().map((row) => row.getAttribute("data-capability"))).toEqual([
       "dispatch",
-      "renewable",
+      "battery-stress",
     ]);
     const unknown = rows()[1];
     expect(unknown).toHaveAttribute("data-capability-known", "no");
-    expect(within(unknown).getByRole("rowheader")).toHaveTextContent("Renewable headroom");
+    expect(within(unknown).getByRole("rowheader")).toHaveTextContent("Battery stress");
   });
 
   it("rule 2: the profile's dispatch entry renders nothing when the backend does not serve it", async () => {

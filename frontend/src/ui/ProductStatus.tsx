@@ -310,12 +310,19 @@ export interface ValueBarItem {
   value: number | null;
   /** Readable value text, e.g. "288 readings". Ignored when value is null. */
   valueText: string;
+  /**
+   * Draw the known value as an unscaled range marker, not a proportional bar (W4-02 L4: a lone numeric term has
+   * nothing to be scaled against). Off by default.
+   */
+  marker?: boolean;
 }
 
 export interface ValueBarsProps {
   /** Accessible name of the whole graphic. */
   title: string;
   items: readonly ValueBarItem[];
+  /** The words for a null value; "not known" unless a page's mock names it otherwise (W4 mini pages: "Unknown"). */
+  unknownText?: string;
 }
 
 /**
@@ -324,10 +331,10 @@ export interface ValueBarsProps {
  * bar; a known zero draws an empty track with its "0" text. The scale is the
  * largest known value; with no known positive value every bar is empty.
  */
-export function ValueBars({ title, items }: ValueBarsProps) {
+export function ValueBars({ title, items, unknownText = "not known" }: ValueBarsProps) {
   const known = items.map((i) => i.value).filter((v): v is number => v !== null && v > 0);
   const max = known.length === 0 ? 0 : Math.max(...known);
-  const description = items.map((i) => `${i.label}: ${i.value === null ? "not known" : i.valueText}`).join("; ");
+  const description = items.map((i) => `${i.label}: ${i.value === null ? unknownText : i.valueText}`).join("; ");
   return (
     <figure className="value-bars" data-value-bars>
       <figcaption className="value-bars__title">{title}</figcaption>
@@ -343,6 +350,8 @@ export function ValueBars({ title, items }: ValueBarsProps) {
             <span className="value-bars__track" aria-hidden="true">
               {item.value === null ? (
                 <span className="value-bars__unknown" data-value-bar-mark="not-known" />
+              ) : item.marker ? (
+                <span className="value-bars__marker" data-value-bar-mark="range-marker" />
               ) : (
                 <span
                   className="value-bars__fill"
@@ -351,7 +360,7 @@ export function ValueBars({ title, items }: ValueBarsProps) {
                 />
               )}
             </span>
-            <span className="value-bars__value">{item.value === null ? "not known" : item.valueText}</span>
+            <span className="value-bars__value">{item.value === null ? unknownText : item.valueText}</span>
           </li>
         ))}
       </ul>

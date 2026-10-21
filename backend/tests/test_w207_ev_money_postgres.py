@@ -26,7 +26,7 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError, IntegrityError
     from test_s1_bindings_postgres import _alembic, engine, store  # noqa: F401
-    from test_s4_consequence_store_postgres import _release_connections, site  # noqa: F401
+    from test_s4_consequence_store_postgres import _release_connections, site, site_before_0029  # noqa: F401
     from test_w203_cold_migration_postgres import T0, _replica, _sha, constraint, head, minigrid_rows, scalar, table_exists
     from test_w205b_ev_replay_postgres import chain  # noqa: F401
     from test_w206_ev_migration_postgres import Ctx, insert_revision, insert_session
@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER, Publication, PublicationRefused
 
 HEAD = "0026_w2_ev_money"
-UPGRADED_HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026; head(engine) asserts the upgraded head
+UPGRADED_HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026); head(engine) asserts the upgraded head
 PREVIOUS = "0025_w2_ev_session"
 REFUSED = "Downgrade of 0026_w2_ev_money refused"
 EV_MONEY = ("ev_consequence_revision", "ev_consequence_session", "ev_consequence_evidence", "ev_consequence_work",
@@ -148,6 +148,7 @@ def downgrade_refused(site, engine) -> None:  # noqa: F811
     site.prices.dispose()
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
+        __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
         command.downgrade(config, PREVIOUS)
     assert head(engine) == UPGRADED_HEAD and all(table_exists(engine, t) for t in EV_MONEY)  # nothing dropped
 
@@ -163,7 +164,8 @@ def dirty(engine, tenant, site_id, start, end, cause, locator) -> str:  # noqa: 
 
 
 class TestMigration0026:
-    def test_0026_follows_installed_0025_and_preserves_diesel(self, site, engine) -> None:  # noqa: F811
+    def test_0026_follows_installed_0025_and_preserves_diesel(self, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
         from alembic.script import ScriptDirectory
 
@@ -236,7 +238,8 @@ class TestMigration0026:
             remove_money(engine)
         assert head(engine) == UPGRADED_HEAD
 
-    def test_0026_empty_downgrade_on_a_fresh_site_restores_diesel_only_checks(self, site, engine) -> None:  # noqa: F811
+    def test_0026_empty_downgrade_on_a_fresh_site_restores_diesel_only_checks(self, site_before_0029, engine) -> None:  # noqa: F811
+        site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         # Review r1 L5: a fresh Site on a fresh 0026 database, before any EV tariff, assignment, consequence, work or
         # attempt row exists; no delete, replica-role DELETE or trigger bypass manufactures the empty state.
         from alembic import command
@@ -261,6 +264,7 @@ class TestMigration0026:
         site.prices.dispose()
         engine.dispose()
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS == "0025_w2_ev_session" and not any(table_exists(engine, t) for t in EV_MONEY)
             assert counted(engine, "SELECT count(*) FROM pg_trigger WHERE tgname = ANY(:n)", n=list(TRIGGERS)) == 0

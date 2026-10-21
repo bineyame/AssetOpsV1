@@ -115,7 +115,7 @@ class TestMigration:
             tables = set(connection.execute(text(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
             )).scalars())
-        assert head == "0027_w4_work_cases"
+        assert head == "0029_w4_mini_depth"
         assert {"signal_binding_set_revision", "signal_binding_revision"} <= tables
 
 
@@ -351,10 +351,16 @@ class TestReviewM1HistoricalBytesInTheDatabase:
                 _set_row(connection, result, body=b"{}", sha="0" * 64)
 
     def test_migration_0004_backfills_only_bytes_that_reproduce_the_pinned_hash(self, store, engine) -> None:
-        result, outcome = converted(store)
-        original = _download(store, result)
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
+
         config = _alembic()
+        # W4-02 q1 ruling 2: the converted MINIGRID Site is seeded before 0029 is installed, so no mini history.
+        with seeded_before_0029(config, engine, store):
+            result, outcome = converted(store)
+        original = _download(store, result)
+        assert_no_mini_history(engine)
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, "0003_pinned_binding_snapshots")
             with engine.begin() as connection:
                 connection.execute(text("UPDATE gateway SET gateway_external_id = 'renamed' WHERE site_id = :s"),

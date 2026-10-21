@@ -103,7 +103,11 @@ class Rig:
 
     def counts(self, tables) -> dict[str, int]:
         with self.engine.connect() as c:
-            return {t: c.execute(text(f"SELECT count(*) FROM {t}")).scalar_one() for t in tables}
+            # W4-02 q1 ruling 2: `recompute_job` is counted for the dispatch domain only; this MINIGRID Site's
+            # publication legitimately enqueues 0029 mini work.
+            return {t: c.execute(text(
+                f"SELECT count(*) FROM {t}" + (" WHERE domain = 'dispatch'" if t == "recompute_job" else ""))
+            ).scalar_one() for t in tables}
 
     def diagnostic(self, sequence: int = 1, *, contacts=None, queue: int = 3, site=None, gateway=None):
         return seal_gateway_diagnostics_v1(

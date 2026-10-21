@@ -83,6 +83,7 @@ import { createColdFoundationClient, type ColdFoundationClient } from "./sites/c
 import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFoundationClient";
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
+import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
@@ -120,6 +121,7 @@ const defaultColdFoundation = createColdFoundationClient();
 const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
+const defaultMiniDepth = createMiniDepthClient();
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
 const defaultEvSite = createEvSiteClient();
@@ -194,6 +196,8 @@ export interface AppProps {
   coldAssessment?: ColdAssessmentClient;
   /** W2-06: the selected EV session reads, used for an EV_CHARGING Site's Performance/Sessions and Finding routes. */
   evAssessment?: EvAssessmentClient;
+  /** W4-02: the MINIGRID mini-depth reads, used for a MINIGRID Site's Service/Fuel/Renewable/Backup routes. */
+  miniDepth?: MiniDepthClient;
   /** W2-07: the five EV Site reads, used for an EV_CHARGING Site's `/ev` routes. */
   evSite?: EvSiteClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
@@ -227,6 +231,7 @@ export function App({
   evFoundation = defaultEvFoundation,
   coldAssessment = defaultColdAssessment,
   evAssessment = defaultEvAssessment,
+  miniDepth = defaultMiniDepth,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
   siteTemplateLineage,
@@ -269,6 +274,7 @@ export function App({
                 findingIndex={siteFindingIndex}
                 coldSite={coldSite}
                 coldAssessment={coldAssessment}
+                miniDepth={miniDepth}
               />
             }
           />
@@ -343,6 +349,7 @@ export function App({
                   sitesPath={SITES_PATH}
                   coldAssessment={coldAssessment}
                   evAssessment={evAssessment}
+                  miniDepth={miniDepth}
                 />
               }
             />

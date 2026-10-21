@@ -101,7 +101,7 @@ export interface SiteDetailsProps {
    * the tab row. A function for the same reason as `parentTrail`: only this
    * side has the record's spelling of the identity. Nothing here reads it.
    */
-  overview?: (siteId: string) => ReactNode;
+  overview?: (siteId: string, site: SiteDetailReadModel) => ReactNode;
   /**
    * The gated template-lineage read, passed only when the composing shell's
    * gate is open. Absent, "Created from template" shows the recorded lineage
@@ -210,7 +210,7 @@ export interface SiteDetailFactsProps {
   /** See `SiteDetailsProps.quickActions`. */
   quickActions?: ReactNode;
   /** See `SiteDetailsProps.overview`. */
-  overview?: (siteId: string) => ReactNode;
+  overview?: (siteId: string, site: SiteDetailReadModel) => ReactNode;
   /** This site's lineage answer, if the shell supplied a lineage read. */
   lineage?: SiteTemplateLineageReadModel;
 }
@@ -263,7 +263,7 @@ export function SiteDetailFacts({
         * ingested; evidence availability is now stated by the Overview from
         * the evidence itself.
         */}
-      {overview === undefined ? null : overview(view.siteId)}
+      {overview === undefined ? null : overview(view.siteId, site)}
 
       {/*
         * W1-F2 (D-2026-10-17-mockup-layout-spec): the v69 `mini` screen has five panels and no

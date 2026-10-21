@@ -40,6 +40,13 @@ Sets:
   DELETE and DO UPDATE from the work store (sole INSERT-only owner), and `owner insert unseen` (the store's one INSERT
   replaced by a SELECT; rule 8's per-table inserts-seen assertion must report the check vacuous); `work truncate|merge|
   copy` from the work store; `controls work <table> insert` must pass. Rule 8 fails closed when any name is missing.
+- `mini <table> ...`: W4-02 unit 1 (migration 0029) mini-depth tables, the same family as `work`, owned by
+  `mini_depth/store.py`; `mini truncate`; `mini enqueue foreign call` (the assessment store calling the 0029 enqueue
+  SQL) and `mini enqueue hour from publication` (the Foundation store calling anything but
+  `mini_enqueue_configuration`). Rule 8 fails closed when any name is missing.
+- `cutover site_cutover_basis ...`: W4-02 q12-6 (B-L1) cutover basis table of migration 0029, owned INSERT-only by
+  the Foundation store (its ON CONFLICT DO NOTHING is allowed): foreign INSERT, UPDATE, DELETE, DO UPDATE, TRUNCATE
+  and `owner insert unseen`; `controls cutover site_cutover_basis insert` must pass.
 - `controls`: allowed multiline SQL, case, aliases, reads, docstrings and comments in one run, which must pass,
   plus one allowed multiline insert per merged writer table family.
 """
@@ -63,6 +70,7 @@ ASSUMPTION = f"{B}/financials/adapters/postgres_assumption_store.py"
 CONSEQUENCE = f"{B}/financials/adapters/postgres_consequence_store.py"
 ACTION = f"{B}/actions/adapters/postgres_action_store.py"
 WORK = f"{B}/work/adapters/postgres_work_store.py"
+MINI = f"{B}/mini_depth/store.py"
 TICK = f"{B}/scheduling/tick.py"
 WORKER = f"{B}/analytics/assessment_worker.py"
 COLD_MIGRATION = "backend/migrations/versions/0023_w2_cold_consequence.py"
@@ -154,6 +162,10 @@ NEGATIVE: list[tuple[str, str, str, str]] = [
      "Dirty consequence work is inserted only by the migration"),
     ("second writer split", TICK, split("schedule_tick_head", "heartbeat_at = now() WHERE environment = 'x'"),
      "A second product database writer"),
+    ("q7 unlisted mini Site-head column", SCHEDULE, split("schedule_site_head", "mini_total = 1 WHERE tenant_id = :t"),
+     "may not update schedule_site_head.mini_total"),
+    ("q7 mini counter outside the schedule store", TICK,
+     split("schedule_site_head", "mini_processed = 1 WHERE tenant_id = :t"), "A second product database writer"),
     ("dynamic f-string target", SCHEDULE,
      '_T = "site"\n_OPS02 = f"UPDATE {_T} SET stage = :s WHERE tenant_id = :t"\n', LITERAL_TARGET),
     ("dynamic percent target", FOUNDATION, '_T = "site"\n_OPS02 = "DELETE FROM %s WHERE id = :i" % _T\n',
@@ -546,6 +558,8 @@ CONTROLS = (
     '_OPS02_B = "update schedule_cursor set after_tenant_id = :t where environment = :e"\n'
     '_OPS02_C = (\n    "UPDATE schedule_enrolment "\n    "SET enrolled = :n, changed_at = clock_timestamp() "\n'
     '    "WHERE tenant_id = :t"\n)\n'
+    '_OPS02_M = "UPDATE schedule_site_head SET mini_processed = :p, mini_deferred = :d, mini_failed = :f '
+    'WHERE tenant_id = :t AND site_id = :s AND claim_token = :k RETURNING site_id"\n'
     '_OPS02_D = "UPDATE schedule_cursor AS c SET after_site_id = :s WHERE c.environment = :e"\n'
     '_OPS02_E = "Update Schedule_Cursor Set after_site_id = :s Where environment = :e"\n'
     '_OPS02_F = "SELECT h.stage FROM schedule_site_head h JOIN site s ON s.id = h.site_id WHERE h.tenant_id = :t '
@@ -647,6 +661,68 @@ NEGATIVE += [
     ("work copy", WORK, '_OPS02 = "COPY work_event FROM STDIN"\n', MERGE_COPY),
 ]
 
+# W4-02 unit 1 (migration 0029): the mini-depth store alone INSERTs each mini table, which no module updates,
+# deletes, upserts, truncates, merges or copies; each table keeps at least one owner INSERT in the store. Only the
+# Foundation store calls the 0029 enqueue SQL, and only `mini_enqueue_configuration`.
+def _mini_only(table: str) -> str:
+    return f"Mini-depth table '{table}' is insert-only"
+
+
+def _mini_unseen(table: str) -> tuple:
+    return (MINI, ("replace", f'"INSERT INTO {table} (', f'"SELECT * FROM {table} WHERE ('),
+            f"Rule 8 found no INSERT INTO {table} in ")
+
+
+MINI_ENQUEUE = "calls the 0029 mini enqueue SQL"
+NEGATIVE += [
+    ("mini mini_depth_revision foreign insert", FINDING, _work_foreign("mini_depth_revision"),
+     "writes mini-depth table 'mini_depth_revision'"),
+    ("mini mini_depth_revision update", MINI, split("mini_depth_revision", "site_id = :s WHERE id = :i"),
+     _mini_only("mini_depth_revision")),
+    ("mini mini_depth_revision delete", MINI, _work_delete("mini_depth_revision"), _mini_only("mini_depth_revision")),
+    ("mini mini_depth_revision upsert", MINI, _work_upsert("mini_depth_revision"), _mini_only("mini_depth_revision")),
+    ("mini mini_depth_revision owner insert unseen", *_mini_unseen("mini_depth_revision")),
+    ("mini mini_depth_revision_evidence foreign insert", FINDING, _work_foreign("mini_depth_revision_evidence"),
+     "writes mini-depth table 'mini_depth_revision_evidence'"),
+    ("mini mini_depth_revision_evidence update", MINI,
+     split("mini_depth_revision_evidence", "site_id = :s WHERE revision_id = :i"),
+     _mini_only("mini_depth_revision_evidence")),
+    ("mini mini_depth_revision_evidence delete", MINI, _work_delete("mini_depth_revision_evidence"),
+     _mini_only("mini_depth_revision_evidence")),
+    ("mini mini_depth_revision_evidence upsert", MINI, _work_upsert("mini_depth_revision_evidence"),
+     _mini_only("mini_depth_revision_evidence")),
+    ("mini mini_depth_revision_evidence owner insert unseen", *_mini_unseen("mini_depth_revision_evidence")),
+    ("mini mini_depth_selection foreign insert", FINDING, _work_foreign("mini_depth_selection"),
+     "writes mini-depth table 'mini_depth_selection'"),
+    ("mini mini_depth_selection update", MINI, split("mini_depth_selection", "site_id = :s WHERE seq = :i"),
+     _mini_only("mini_depth_selection")),
+    ("mini mini_depth_selection delete", MINI, _work_delete("mini_depth_selection"), _mini_only("mini_depth_selection")),
+    ("mini mini_depth_selection upsert", MINI, _work_upsert("mini_depth_selection"), _mini_only("mini_depth_selection")),
+    ("mini mini_depth_selection owner insert unseen", *_mini_unseen("mini_depth_selection")),
+    ("mini truncate", MINI, '_OPS02 = "TRUNCATE mini_depth_selection"\n',
+     "The mini-depth store never updates, deletes, truncates, upserts or runs DDL"),
+    ("mini enqueue foreign call", ASSESS,
+     '_OPS02 = "SELECT mini_enqueue_configuration(:t, :s, :f, :to, :at)"\n', MINI_ENQUEUE),
+    ("mini enqueue hour from publication", FOUNDATION,
+     '_OPS02 = "SELECT mini_enqueue_hour(:t, :s, :d, :lo, :hi, NULL, :at)"\n', MINI_ENQUEUE),
+]
+
+# W4-02 q12-6 (final review B-L1): the Foundation store alone INSERTs `site_cutover_basis`, which no module
+# updates, deletes, upserts or truncates; the store keeps its one owner INSERT.
+CUTOVER_ONLY = "Cutover basis table 'site_cutover_basis' is insert-only"
+NEGATIVE += [
+    ("cutover site_cutover_basis foreign insert", FINDING, _work_foreign("site_cutover_basis"),
+     "writes cutover basis table 'site_cutover_basis'"),
+    ("cutover site_cutover_basis update", FOUNDATION,
+     split("site_cutover_basis", "source_sha256 = :s WHERE site_id = :i"), CUTOVER_ONLY),
+    ("cutover site_cutover_basis delete", FOUNDATION, _work_delete("site_cutover_basis"), CUTOVER_ONLY),
+    ("cutover site_cutover_basis upsert", FOUNDATION, _work_upsert("site_cutover_basis"), CUTOVER_ONLY),
+    ("cutover site_cutover_basis truncate", FOUNDATION, '_OPS02 = "TRUNCATE site_cutover_basis"\n', CUTOVER_ONLY),
+    ("cutover site_cutover_basis owner insert unseen", FOUNDATION,
+     ("replace", '"INSERT INTO site_cutover_basis (', '"SELECT * FROM site_cutover_basis WHERE ('),
+     "Rule 8 found no INSERT INTO site_cutover_basis in "),
+]
+
 WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls attestation insert", ASSESS,
      '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id, proof_class) "\n    "VALUES (:i, :p)"\n)\n'),
@@ -725,6 +801,14 @@ WRITER_CONTROLS += [
     ("controls work maintenance_plan insert", WORK, _work_control("maintenance_plan")),
     ("controls work maintenance_record insert", WORK, _work_control("maintenance_record")),
     ("controls work operational_record insert", WORK, _work_control("operational_record")),
+]
+
+
+WRITER_CONTROLS += [
+    ("controls mini mini_depth_revision insert", MINI, _work_control("mini_depth_revision")),
+    ("controls mini mini_depth_revision_evidence insert", MINI, _work_control("mini_depth_revision_evidence")),
+    ("controls mini mini_depth_selection insert", MINI, _work_control("mini_depth_selection")),
+    ("controls cutover site_cutover_basis insert", FOUNDATION, _work_control("site_cutover_basis")),
 ]
 
 

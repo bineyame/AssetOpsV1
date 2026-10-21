@@ -251,6 +251,18 @@ describe("S5-02 Overview Finding list: assessed zero and Unknown (mini:3#a)", ()
     expect(document.querySelector("[data-money-state]")).not.toBeNull();
     expect(document.querySelector("[data-freshness-state]")).not.toBeNull();
   });
+
+  it("W4-02 ruling 3 (M4): a closed list states the empty-legacy reason and the closed sentence only once", async () => {
+    const reason = "No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.";
+    const result = { status: "closed", message: reason, note: null } as FindingIndexResult;
+    renderAt(`/sites/${SITE_ID}?date=${DAY}`, overviewOf(() => day(DAY)).client, indexOf(() => result).client);
+    await settledScreen();
+    expect(listState()).toBe("closed");
+    const text = document.body.textContent ?? "";
+    expect(text.split("The Findings list is closed").length - 1).toBe(1);
+    expect(text).toContain(reason);
+    expect(text).not.toContain("file-backed");
+  });
 });
 
 describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () => {

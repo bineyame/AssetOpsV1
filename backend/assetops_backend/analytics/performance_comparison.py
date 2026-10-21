@@ -181,12 +181,47 @@ def comparison_summary(report: dict | None) -> dict[str, Any] | None:
             "claims": [{k: c[k] for k in keep if k in c} for c in report.get("claims") or []]}
 
 
+#: The gate's reason when no comparison report exists for the Site.
+NO_REPORT_REASON = "No Performance comparison report exists for this Site; the file-backed comparison must run."
+#: Final review ruling 3 (M4): the reason for a persisted NO_LEGACY_EVIDENCE cutover basis with no Dispatch comparison.
+NO_LEGACY_EVIDENCE_REASON = ("No legacy evidence was imported for this Site. "
+                             "Dispatch has no assessed comparison for this selection.")
+
+
+def basis_reason(permitted: bool, reason: str, empty_legacy: bool) -> str:
+    """Ruling 3: only a persisted empty-legacy basis with no comparison report gets the plain empty-legacy reason;
+    a legacy import (or any other closed reason) keeps the gate's own reason. Never inferred from a missing report."""
+    if empty_legacy and not permitted and reason == NO_REPORT_REASON:
+        return NO_LEGACY_EVIDENCE_REASON
+    return reason
+
+
+def basis_aware_gate(gate: Callable[[str, Any, Any], tuple[bool, str]],
+                     no_legacy_basis: Callable[[Any, Any], bool] | None,
+                     unavailable: tuple[type, ...] = ()) -> Callable[[str, Any, Any], tuple[bool, str]]:
+    """The Performance gate with ruling 3's reason applied. A basis that cannot be read keeps the gate's reason."""
+    if no_legacy_basis is None:
+        return gate
+
+    def gated(site_code: str, tenant_id: Any, site_id: Any) -> tuple[bool, str]:
+        permitted, reason = gate(site_code, tenant_id, site_id)
+        if permitted or reason != NO_REPORT_REASON:
+            return permitted, reason
+        try:
+            empty_legacy = bool(no_legacy_basis(tenant_id, site_id))
+        except unavailable:
+            return permitted, reason
+        return permitted, basis_reason(permitted, reason, empty_legacy)
+
+    return gated
+
+
 def permits_performance_cutover(report: dict | None, site_code: str, site_id: str, *, tenant_id: str,
                                 environment: str | None, legacy_claims: list[dict],
                                 live_lineage: dict[str, int] | None, model_version: str,
                                 selected_revision_ids: Callable[[], set[str]] | None = None) -> tuple[bool, str]:
     if report is None:
-        return False, "No Performance comparison report exists for this Site; the file-backed comparison must run."
+        return False, NO_REPORT_REASON
     if report.get("schema") != SCHEMA or report.get("site_uuid") != site_id or report.get("site_id") != site_code:
         return False, "The newest Performance comparison report names another schema or Site."
     if report.get("tenant_id") != tenant_id or environment is None or report.get("environment") != environment:

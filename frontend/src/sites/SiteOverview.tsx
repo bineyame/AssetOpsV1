@@ -23,7 +23,7 @@ import { HourNotSelected, OverviewGrid, OverviewRefused } from "./overviewSlots"
 import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { SiteWindowOverview, type WindowOverviewLinks } from "./SiteWindowOverview";
+import { SiteWindowOverview, type OverviewMiniReads, type WindowOverviewLinks } from "./SiteWindowOverview";
 import type { FindingIndexClient } from "./findingIndexClient";
 
 import { Badge, ChartNote, KeyValues, MetricCard, MetricCards, StatusBar } from "../ui";
@@ -70,6 +70,8 @@ export interface SiteOverviewProps {
   windowLinks?: WindowOverviewLinks;
   /** S5-02: the Site Finding index read for the selected day's list, handed in by the shell (imported Sites only). */
   findingIndex?: FindingIndexClient;
+  /** W4-02 B3: the mini-grid reads behind a MINIGRID Site's Service, Fuel and Renewable cards. */
+  mini?: OverviewMiniReads;
 }
 
 /** S5-01: the address parameters an imported Site's Overview keeps across reloads. */
@@ -106,6 +108,7 @@ export function SiteOverview({
   analysisHref,
   windowLinks,
   findingIndex,
+  mini,
 }: SiteOverviewProps) {
   const [result, setResult] =
     useState<EvidenceRead<SiteOverviewReadModel | SiteWindowSummary> | null>(null);
@@ -223,6 +226,7 @@ export function SiteOverview({
         onSelectDay={selectDay}
         findingIndex={findingIndex}
         onReload={reload}
+        mini={mini}
       />
     );
   }

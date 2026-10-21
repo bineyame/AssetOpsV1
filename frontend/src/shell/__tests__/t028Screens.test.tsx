@@ -245,12 +245,12 @@ describe("AC18 rules for Performance subtabs", () => {
 
   it("rule 1: a served id the profile does not know renders by its backend name, after known ids", () => {
     const subtabs = performanceSubtabs(profile, [
-      { id: "renewable", display_name: "Renewable headroom" },
+      { id: "battery-stress", display_name: "Battery stress" },
       { id: "dispatch", display_name: "Dispatch" },
     ]);
     expect(subtabs.map((s) => [s.id, s.label, s.known])).toEqual([
       ["dispatch", "Dispatch assessment", true],
-      ["renewable", "Renewable headroom", false],
+      ["battery-stress", "Battery stress", false],
     ]);
     expect(subtabs[1].order).toBe(DEFAULT_CAPABILITY_ORDER);
   });
@@ -264,7 +264,7 @@ describe("AC18 rules for Performance subtabs", () => {
             status: "loaded",
             value: declaration(SITE_ID, [
               { analytic_id: "dispatch", display_name: "Dispatch" },
-              { analytic_id: "renewable", display_name: "Renewable headroom" },
+              { analytic_id: "battery-stress", display_name: "Battery stress" },
             ]),
           }),
       },
@@ -272,7 +272,7 @@ describe("AC18 rules for Performance subtabs", () => {
     await settledScreen();
     expect(linkLabels("Performance sections")).toEqual([
       "Dispatch assessment",
-      "Renewable headroom",
+      "Battery stress",
     ]);
   });
 

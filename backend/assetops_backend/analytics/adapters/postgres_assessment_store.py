@@ -154,6 +154,11 @@ _ASSESS_LOCK = "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text
 _JOB_LOCK = "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:site AS text) || ':' || :d, 0))"
 
 
+#: W4-02 closure 4 S2: the four mini-depth job domains, and the literal predicate every mini lease/settle keeps.
+MINI_JOB_DOMAINS = ("mini_renewable", "mini_service", "mini_fuel", "mini_backup")
+_MINI_DOMAIN_SQL = "domain IN ('mini_renewable','mini_service','mini_fuel','mini_backup')"
+
+
 def _attestation(r) -> ClockAttestation:
     return ClockAttestation(r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], timedelta(milliseconds=r[9]),
                             r[10], r[11], r[12])
@@ -208,6 +213,14 @@ _LIVE_JOBS = ("(status IN ('PENDING', 'LEASED') OR (status = 'FAILED' AND NOT EX
               "analytic_run_selection x WHERE x.tenant_id = recompute_job.tenant_id AND x.site_id = "
               "recompute_job.site_id AND x.analytic_id = :a AND x.selected_at > recompute_job.available_at "
               "AND x.window_start < recompute_job.window_end AND x.window_end > recompute_job.window_start)))")
+
+# W4-02 q7 ruling 2: a mini job is live while PENDING or LEASED, and a FAILED one until a later selection of the same
+# tenant, Site, domain (without the `mini_` prefix) and an overlapping hour supersedes it.
+_LIVE_MINI_JOBS = ("(status IN ('PENDING', 'LEASED') OR (status = 'FAILED' AND NOT EXISTS (SELECT 1 FROM "
+                   "mini_depth_selection x WHERE x.tenant_id = recompute_job.tenant_id AND x.site_id = "
+                   "recompute_job.site_id AND 'mini_' || x.domain = recompute_job.domain "
+                   "AND x.selected_at > recompute_job.available_at "
+                   "AND x.window_start < recompute_job.window_end AND x.window_end > recompute_job.window_start)))")
 
 
 class PostgresAssessmentStore:
@@ -318,6 +331,8 @@ class PostgresAssessmentStore:
         """Lease the oldest due job of `domain`; with `tenant_id` and `site_id`, only that Site's jobs (S4-02d:
         the schedule leases per Site, which the global FIFO cannot make fair). Both the expire-to-FAILED step and
         the lease are scoped the same way."""
+        if domain in MINI_JOB_DOMAINS:
+            raise ValueError("Mini-depth jobs are leased only by lease_mini_job (W4-02 closure 4 S2).")
         if (tenant_id is None) != (site_id is None):
             raise ValueError("A Site-scoped lease names both the tenant and the Site.")
         scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
@@ -343,6 +358,79 @@ class PostgresAssessmentStore:
             return JobLease(row[0], row[1], row[2], row[3], Window(row[4], row[5]), row[6], now)
 
         return self._run(work, write=True)
+
+    # --- mini-depth jobs (W4-02 closure 4 S2) ------------------------------------------------------------------
+    # The mini worker issues no recompute_job SQL: it leases, settles and fails through these methods. Every
+    # statement keeps the literal four-domain predicate, and settle/fail also the job's id, tenant and Site, so a
+    # Dispatch, cold or EV job can never be leased, settled or failed here.
+
+    def lease_mini_job(self, lease: timedelta, *, max_attempts: int = 3, tenant_id: UUID | None = None,
+                       site_id: UUID | None = None, now: datetime | None = None) -> JobLease | None:
+        """Lease the oldest due mini-depth job of any of the four domains, optionally of one Site. The instant is
+        the database `clock_timestamp()` unless a test passes `now`; it is the returned lease's knowledge cutoff."""
+        if (tenant_id is None) != (site_id is None):
+            raise ValueError("A Site-scoped lease names both the tenant and the Site.")
+        scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
+        scoped = {} if site_id is None else {"t": tenant_id, "s": site_id}
+
+        def work(c: Connection) -> JobLease | None:
+            at = now if now is not None else c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            c.execute(text(
+                "UPDATE recompute_job SET status = 'FAILED', lease_until = NULL, last_error = "
+                "'lease expired on attempt ' || attempts || ' of ' || CAST(:max AS integer) || "
+                "' without completing' WHERE " + _MINI_DOMAIN_SQL + " AND status = 'LEASED' AND lease_until < :now "
+                "AND attempts >= :max" + scope), {"now": at, "max": max_attempts, **scoped})
+            row = c.execute(text(
+                "UPDATE recompute_job SET status = 'LEASED', lease_until = :until, attempts = attempts + 1 "
+                "WHERE " + _MINI_DOMAIN_SQL + " AND id = (SELECT id FROM recompute_job WHERE " + _MINI_DOMAIN_SQL +
+                " AND ((status = 'PENDING' AND available_at <= :now) OR (status = 'LEASED' AND lease_until < :now))"
+                + scope + " ORDER BY available_at, created_at LIMIT 1 FOR UPDATE SKIP LOCKED) "
+                "RETURNING id, tenant_id, site_id, domain, window_start, window_end, attempts"),
+                {"now": at, "until": at + lease, **scoped}).first()
+            if row is None:
+                return None
+            return JobLease(row[0], row[1], row[2], row[3], Window(row[4], row[5]), row[6], at)
+
+        return self._run(work, write=True)
+
+    @staticmethod
+    def _mini_still_mine(c: Connection, lease: JobLease) -> None:
+        row = c.execute(text(
+            "SELECT status, attempts FROM recompute_job WHERE id = :id AND tenant_id = :t AND site_id = :s AND "
+            + _MINI_DOMAIN_SQL + " FOR UPDATE"), {"id": lease.job_id, "t": lease.tenant_id, "s": lease.site_id}).first()
+        if row is None or row[0] != "LEASED" or row[1] != lease.attempts:
+            raise LeaseLost(f"mini job {lease.job_id} is {row[0] if row else 'missing'} (attempt "
+                            f"{row[1] if row else '-'}), not our attempt {lease.attempts}")
+
+    def settle_mini_job(self, connection: Connection, lease: JobLease) -> None:
+        """Mark a still-held mini job DONE on the worker's own connection, so the revision, its selection and DONE
+        commit together; it neither begins nor commits. Raises `LeaseLost` (the caller rolls back) otherwise."""
+        self._mini_still_mine(connection, lease)
+        connection.execute(text(
+            "UPDATE recompute_job SET status = 'DONE', lease_until = NULL, last_error = NULL "
+            "WHERE id = :id AND tenant_id = :t AND site_id = :s AND " + _MINI_DOMAIN_SQL + " AND status = 'LEASED' "
+            "AND attempts = :a"), {"id": lease.job_id, "t": lease.tenant_id, "s": lease.site_id, "a": lease.attempts})
+
+    def fail_mini_job(self, lease: JobLease, error: str, *, max_attempts: int, backoff: timedelta,
+                      now: datetime | None = None) -> str:
+        """In its own transaction (the worker's was rolled back): back to PENDING after `backoff x attempts`, or
+        FAILED on the last allowed attempt. Returns RETRY, FAILED or LEASE_LOST."""
+        def work(c: Connection) -> str:
+            self._mini_still_mine(c, lease)
+            at = now if now is not None else c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            final = lease.attempts >= max_attempts
+            c.execute(text(
+                "UPDATE recompute_job SET status = :st, lease_until = NULL, available_at = :at, last_error = :e "
+                "WHERE id = :id AND tenant_id = :t AND site_id = :s AND " + _MINI_DOMAIN_SQL +
+                " AND status = 'LEASED' AND attempts = :a"),
+                {"st": "FAILED" if final else "PENDING", "at": at if final else at + backoff * lease.attempts,
+                 "e": error, "id": lease.job_id, "t": lease.tenant_id, "s": lease.site_id, "a": lease.attempts})
+            return "FAILED" if final else "RETRY"
+
+        try:
+            return self._run(work, write=True)
+        except LeaseLost:
+            return "LEASE_LOST"
 
     def _still_mine(self, c: Connection, lease: JobLease) -> None:
         row = c.execute(text("SELECT status, attempts FROM recompute_job WHERE id = :id FOR UPDATE"),
@@ -594,6 +682,16 @@ class PostgresAssessmentStore:
             "last_error, created_at FROM recompute_job WHERE domain = :d AND " + _LIVE_JOBS + scope +
             " ORDER BY tenant_id, site_id, available_at, created_at"),
             {"a": analytic_id, "d": domain, "t": tenant_id, "s": site_id})])
+
+    def live_mini_jobs(self, tenant_id: UUID | None = None, site_id: UUID | None = None) -> list[dict[str, Any]]:
+        """Live four-domain mini jobs (`_LIVE_MINI_JOBS`) of every Site, or of one Site: the `live_jobs` fields
+        and order, plus the job's domain (W4-02 q7 ruling 2). `live_jobs` stays Dispatch-only."""
+        scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
+        return self._run(lambda c: [dict(r._mapping) for r in c.execute(text(
+            "SELECT id, tenant_id, site_id, domain, status, window_start, window_end, attempts, available_at, "
+            "lease_until, last_error, created_at FROM recompute_job WHERE " + _MINI_DOMAIN_SQL + " AND "
+            + _LIVE_MINI_JOBS + scope + " ORDER BY tenant_id, site_id, available_at, created_at"),
+            {"t": tenant_id, "s": site_id})])
 
     def job(self, tenant_id: UUID, site_id: UUID, job_id: UUID, analytic_id: str) -> dict[str, Any] | None:
         """One job of this tenant/Site (never another Site's), with whether it is still live (`_LIVE_JOBS`)."""
