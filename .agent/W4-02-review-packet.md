@@ -49,9 +49,9 @@ final review).
 | 13 | q9 1-10 read/API (basis wire, no default window, dual provenance, ...) | ruled q9 |
 | 15-16 | q10 1-5 (no-headroom word, CTA copy, unbuilt tabs, registry nodes, service choices) | ruled q10, q11-1 |
 | 17-18 | q11 1-4 (downgraded word, fuel copy, backup copy, readiness rows) | ruled q11 |
-| 19 | **q11-5 a-h Overview cards** (currentness gate on all three; service SUPPORTED + delivered; renewable SUPPORTED + both bounds; fuel any status; unavailable/loading copy; `View detail →` exact window; Dispatch not refreshed; no capability-table Backup row) | **open** |
-| unit 7 | **q12-1..5** (provenance read of q11-1; q11-1 on Overview; pair plural; scope header; USE minutes = non-null coverage) | **open** |
-| unit 7 | **q12-6** Overview unreachable live; **q12-7** height budgets; **q12-8** UNKNOWN selected provenance on seed | **open** |
+| 19 | **q11-5 a-h Overview cards** (currentness gate on all three; service SUPPORTED + delivered; renewable SUPPORTED + both bounds; fuel any status; unavailable/loading copy; `View detail →` exact window; Dispatch not refreshed; no capability-table Backup row) | ruled Run 12 |
+| unit 7 | **q12-1..5** (provenance read of q11-1; q11-1 on Overview; pair plural; scope header; USE minutes = non-null coverage) | ruled Run 12; q12-1 served numeric Renewable headroom (final review M3) **open** until the served 07–10 Oct numeric capture passes |
+| unit 7 | **q12-6** Overview unreachable live; **q12-7** height budgets; **q12-8** UNKNOWN selected provenance on seed | ruled Run 12 |
 
 ## Captures (`.agent/W4-02-evidence/`: `seed.py`, `capture.mjs`, `evidence.json`, `replay.json`, `mock-measure.json`)
 Seed (q12 run): private `w402q_test` (created, dropped after), harness of `test_w402_replay_selection_postgres.py`:
