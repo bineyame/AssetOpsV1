@@ -41,3 +41,47 @@ No shell, registry or guard change is needed for commit 1. Please run the W3-01 
 
 ## Open questions for Lane A facades
 See `.agent/W3-02-pending-rulings.md` c1-q1 (EV `historical_label` condition) and c1-q2 (`unknown_meter` not exposed by `EvSiteReads.capabilities_on`).
+
+## Commit 2 - Evidence shell route, rail, registry and captures (closure 4 B6 row `2`)
+
+Lane B landed `frontend/src/estate/EstateEvidence.tsx` (`EstateEvidencePage`, `ESTATE_EVIDENCE_PATH = "/evidence"`),
+`estateEvidenceMoneyClient.ts` (`EstateEvidenceMoneyClient`, `createEstateEvidenceMoneyClient`), `estateEvidence.css`
+and `estate/__tests__/estateEvidence.test.tsx` (6 tests). The page renders its own `PageHeader`; the frame owns `<main>`.
+
+1. `frontend/src/shell/EstateRootFrames.tsx` - add:
+```tsx
+import { EstateEvidencePage } from "../estate/EstateEvidence";
+import type { EstateEvidenceMoneyClient } from "../estate/estateEvidenceMoneyClient";
+
+export function EstateEvidenceFrame({ client }: { client: EstateEvidenceMoneyClient }) {
+  return (
+    <main aria-label="Evidence">
+      <EstateEvidencePage client={client} />
+    </main>
+  );
+}
+```
+2. `frontend/src/App.tsx` - closure 4: a new optional prop, the W3-01 `estateIndex` unchanged:
+   import `createEstateEvidenceMoneyClient, type EstateEvidenceMoneyClient` and `ESTATE_EVIDENCE_PATH`;
+   `const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();` beside `defaultEstateIndex` (App.tsx:124);
+   prop `/** W3-02: the read-only estate Evidence (and, at commit 4, Financials) roots. */ estateEvidenceMoney?: EstateEvidenceMoneyClient;`
+   after `estateIndex` (App.tsx:210), defaulted like it (App.tsx:236); route after the Actions root (App.tsx:404):
+   `<Route path={ESTATE_EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} />} />`.
+   Check no existing `/evidence` route shadows it (`operatorSiteRoutes.ts:217` is a Site-relative suffix only).
+3. `frontend/src/shell/OperatorShellLayout.tsx:59` - the rail `Evidence` root becomes live:
+   `{ kind: "live", to: "/evidence", label: "Evidence", end: false, group: "ASSURANCE", icon: "evidence" }`, plus the
+   navigation-rail fixtures/truthfulness inventory that pins the unavailable roots (`tools/checks/navigation-*`).
+4. Eyebrow: the mock eyebrow `Evidence` has no `PageHeader` slot (no page uses one); if the shell breadcrumb carries
+   root crumbs, it should read `Evidence`. Lane B rendered no extra pre-panel element (the panel guard forbids one).
+5. Registry/checker: `I-estate-evidence-root`, screen title `Portfolio evidence`, reviewed paths
+   `globalevidence:1` = `Capability coverage across sites`, `globalevidence:2` = `Recurring evidence gaps` (closure 5
+   S13); delivered only after this phase's independent review. Cards and notice stay inside those paths.
+6. Worksheet: correct `.agent/W3-02-mock-measurements.md` to closure 4's ceiling maxima (Aggregation 390 = 187).
+7. Captures (closure 1 "Mock copy, navigation and measured layout"): `node tools/layout-evidence.mjs` / CDP at
+   1440 and 390 on the mounted `/evidence` with a three-Site stocked estate; record cards/coverage/gaps/notice rects and
+   coverage/gaps table client/scroll width, document scroll width = client width. Maxima 1440/390: cards 137/291,
+   coverage 314/468, gaps 316/703, notice 66/102. Lane B bounded the tables with internal scroll in
+   `estateEvidence.css` (coverage scroll region max-height 200/300 px, gaps 180/420 px, min-width 520/330 px); if a
+   capture exceeds a maximum, return the numbers to Lane B rather than editing the page CSS.
+8. After mounting, run `src/estate/__tests__/estateEvidence.test.tsx`, the W3-01 `estateRoots.test.tsx`, the shell
+   route/rail tests, tsc and `tools/check-all.ps1`.

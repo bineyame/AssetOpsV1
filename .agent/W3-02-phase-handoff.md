@@ -1,5 +1,20 @@
 # W3-02 phase handoff
 
+## Commit 2 (Lane B) - Evidence page landed; READY FOR LANE A SHELL
+
+Commit `d9f898e7` (after merging main into `33b9711e`). Branch released to Lane A.
+
+What landed (build spec: mock ledger 72-104, states 105-119, closure 1 "Mock copy..." 183-194, closure 2 Q27, closure 4 wire/links 398-407, closure 5 S13):
+- `frontend/src/estate/estateEvidenceMoneyClient.ts`: typed `estate-evidence-1` envelope/rows/gaps, `EMPTY_SCOPE`/`EMPTY` unions, `EVIDENCE_REFUSAL_COPY` (W3-02 state-table copy), `createEstateEvidenceMoneyClient` (`GET /api/estate/evidence`); the W3-01 `EstateClient` is unchanged. Commit 4 adds Financials here.
+- `frontend/src/estate/EstateEvidence.tsx`: `EstateEvidencePage`, `ESTATE_EVIDENCE_PATH="/evidence"`. Header `Portfolio evidence` + subtitle; shared `EstateDateBar`; three neutral (`muted`) cards with the ruled values/notes; panel `Capability coverage across sites` (mock subtitle, 5 columns, server `links.site_readiness` + `Opens current Site view`, readiness chips with page-local `estate-tone--*`, context chip, `No current ceiling`/`Not recorded`, closed `Record details` disclosure); panel `Recurring evidence gaps` (4 columns, Unlocks dictionary, `{next_step} · Not available yet` via `UnavailableInline`, `Next step not recorded`, inert `Example destinations` via `UnavailableLinkEntry`); blue mock notice. Empty-scope, no-selection, partial and historical notes sit outside the tables with headers kept. Refusals clear rows.
+- `frontend/src/estate/estateEvidence.css`: tones, bounded internal table scroll (coverage 200/300 px, gaps 180/420 px at 1440/<=640), table min-widths 520/330 px.
+- `frontend/src/estate/__tests__/estateEvidence.test.tsx`: `rendersMockEvidencePanelsAndHonestCards` (with `expectV69Panels` + planted-panel rejection), `rendersGroupedCapabilitiesAndTypedGaps`, `keepsInertMockActions`, `rendersEvidenceEmptyPendingAndRefusals`, `preservesSupportedSiteLinksAndCurrentViewLabel`, `readsTheEvidenceWireAndMapsRefusals`.
+
+Checks at `d9f898e7`: focused 6/6; `tsc --noEmit` clean; full frontend 95 files / 2379 tests passed; `tools/check-all.ps1` 11/11.
+Not run: 1440/390 captures (blocked: no shell route until Lane A mounts `/evidence`); layout claims unverified.
+
+Next (Lane A, `.agent/W3-02-lane-a-requests.md` "Commit 2"): frame, App prop/route, live rail entry, registry `I-estate-evidence-root` paths, worksheet correction, captures; then independent commit-2 review. Open: `.agent/W3-02-pending-rulings.md` c2-q1..q4 (gap Site names, refusal copy for unnamed codes, B5 route-read follow tests, row context words).
+
 ## Commit 1 - READY FOR COMBINED REVIEW (Lane B c1 follow-ups landed)
 
 `9efa3914` applies the c1 rulings (build spec "Commit-1 rulings (c1)") on top of Lane A's `cb39fdc9`. Lane B files only.
