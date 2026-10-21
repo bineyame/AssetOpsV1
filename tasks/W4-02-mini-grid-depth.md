@@ -1,6 +1,6 @@
 # W4-02 — Mini-grid depth
 
-Status: planned; Architect spec-review closure recorded 2026-10-20; independent re-review and owner wave-start gate still required. Lane A, step 2; size L, divided into seven reviewable units. Branch `task/W4-02-mini-grid-depth` after reviewed and merged W4-01/W3-01 shared DTO; reserved `0028` is unused. USER_REVIEW_REQUIRED: true at the W4 wave checkpoint after independent review. Architect contract: [W4-02 build spec](../.agent/W4-02-build-spec.md), especially its Review closure.
+Status: done (merged 2026-10-21, ce098e5c; re-review ACCEPT); was planned; Architect spec-review closure recorded 2026-10-20; independent re-review and owner wave-start gate still required. Lane A, step 2; size L, divided into seven reviewable units. Branch `task/W4-02-mini-grid-depth` after reviewed and merged W4-01/W3-01 shared DTO; reserved `0028` is unused. USER_REVIEW_REQUIRED: true at the W4 wave checkpoint after independent review. Architect contract: [W4-02 build spec](../.agent/W4-02-build-spec.md), especially its Review closure.
 
 ## Scope and dependency
 
