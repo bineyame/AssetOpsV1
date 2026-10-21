@@ -107,7 +107,7 @@
 .estate-portfolio .value-card.neutral .value-number{font-size:20px;color:#6b7b91}
 .estate-portfolio .value-card__link{font-size:9px;margin-top:6px}
 .estate-portfolio .portfolio-badge--amber{background:#fbf0da;color:#916220}.estate-portfolio .portfolio-badge--blue{background:#eaf0fd;color:#245ac0}
-.estate-portfolio .portfolio-findings{max-height:604px;overflow:auto}
+.estate-portfolio .portfolio-findings .data-table__scroll{max-height:604px;overflow:auto}
 .estate-portfolio .portfolio-findings thead th{position:sticky;top:0;z-index:1}
 .estate-portfolio .portfolio-matrix-scroll{overflow-x:auto}
 .estate-portfolio .objective-matrix{min-width:max-content}

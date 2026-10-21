@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Badge, Disclosure, PageHeader } from "../ui";
+import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
 import {
   createEstateClient,
   type EstateClient,
@@ -275,7 +275,7 @@ function PriorityPanel({
         </span>
       </div>
       <div className="portfolio-findings" data-portfolio-scroll="findings">
-        <table>
+        <DataTable>
           <thead>
             <tr>
               {TABLE_HEADS.map((h) => (
@@ -298,7 +298,7 @@ function PriorityPanel({
               ))
             )}
           </tbody>
-        </table>
+        </DataTable>
       </div>
       {loadMore !== null ? (
         <p className="portfolio-more">
@@ -438,7 +438,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
         <Disclosure summary="Inspect basis ↗" name="portfolio-progress" variant="inline">
           <div className="portfolio-drawer" data-portfolio-drawer="progress">
             <h3>Change and verification basis</h3>
-            <table>
+            <DataTable>
               <thead>
                 <tr>
                   <th scope="col">Source object</th>
@@ -463,7 +463,7 @@ function ProgressPanel({ body }: { body: EstatePortfolioBody }) {
                   <td>Verified outcome is not recovered value</td>
                 </tr>
               </tbody>
-            </table>
+            </DataTable>
             {p.rows.length === 0 ? (
               <p data-portfolio-no-actions>No selected Actions in this window</p>
             ) : (
@@ -509,7 +509,7 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
     <Disclosure summary="Assessment scope & periods ↗" name="portfolio-scope" variant="inline">
       <div className="portfolio-drawer" data-portfolio-drawer="scope">
         <h3>Portfolio scope & consequence ownership</h3>
-        <table>
+        <DataTable>
           <thead>
             <tr>
               <th scope="col">Site / assessment</th>
@@ -533,7 +533,7 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
               </tr>
             ))}
           </tbody>
-        </table>
+        </DataTable>
         <p>
           <strong>Assessment rule</strong> {SCOPE_RULE}
         </p>
