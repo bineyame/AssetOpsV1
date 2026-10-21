@@ -393,3 +393,12 @@ First resolve P-2-1. Run 3: registry panel rows (S16), pending/empty/refusal cap
 - Not done: review packet (waits on P-3-2, which may change the page and require recapture).
 
 ## Next: rule P-3-2, then finish run 3 (any fix + recapture, packet), then final review + full suite
+
+## Run 3 finished (after r3b)
+- `13624ab2`: `NO_LINE` value `No supported value` (API `DISPLAYED_VALUE` + `CARD_VALUE` fallback; exact tests
+  `test_w303_portfolio_api.py::test_full_scope_projections...` and `estatePortfolio.test.tsx` noLineCard test); capture
+  matrix-scroll gate (>=4 Sites needs overflow; fewer asserts the exact column count and the container). All eight
+  states recaptured at 1440/390 (Vite via `localhost`, API :9781, private `w303p_test` dropped); empty 390 card0/card1
+  194, over=[]. P-3-2 resolved. Packet: `.agent/W3-03-review-packet.md`.
+
+## Next: final review + full suite
