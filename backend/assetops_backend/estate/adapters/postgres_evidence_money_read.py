@@ -44,6 +44,11 @@ class PostgresEvidenceMoneyRead(PostgresEstateRead):
             raise EstateStoreUnavailable(f"The estate store is unavailable: {error.__class__.__name__}") from error
 
 
+#: c1 r1 M2: the finite W1 reconstruction refusals, each one UNKNOWN day (never a tenant-wide 409).
+W1_RECONSTRUCTION_REFUSALS = frozenset({"UNSUPPORTED_RULE_VERSION", "ASSESSMENT_REVISION_NOT_FOUND",
+                                        "REVISION_OUTSIDE_WINDOW", "REVISION_NOT_WINDOW", "ACCEPTED_LINEAGE_ABSENT"})
+
+
 class EvidenceMoneySnapshot(EstateSnapshot):
     """W3-01 `EstateSnapshot` reads plus the W3-02 connection-taking projections, every one on `self._c`."""
 
@@ -56,7 +61,15 @@ class EvidenceMoneySnapshot(EstateSnapshot):
             return self._o.claim_limits.claim_limit_on(self._c, t, s, day, window_revision_id, k,
                                                        basis_mode=basis_mode)
         except self._o.claim_limit_refused as error:
-            raise EstateSelectionInconsistent(str(error)) from error
+            code = getattr(error, "detail", {}).get("code")
+            if code not in W1_RECONSTRUCTION_REFUSALS:  # c1 r1 M2: only these are one unprovable day
+                raise EstateSelectionInconsistent(str(error)) from error
+            return {"day": day.isoformat(), "site_id": str(s), "available": False, "currentness": None,
+                    "intervals": [], "window_reasons": [], "window_assessment_revision_id": None, "known_at": k,
+                    "reasons": [{"code": "HISTORICAL_SELECTION_UNAVAILABLE",
+                                 "text": "The day's selection at the cutoff cannot be reconstructed from stored "
+                                         "records."},
+                                {"code": code, "text": str(error)}]}
 
     def pinned_windows(self, t: UUID, s: UUID, domain: str, from_: datetime, to: datetime,
                        evidence_cutoff: datetime, k: datetime) -> list[dict[str, Any]]:

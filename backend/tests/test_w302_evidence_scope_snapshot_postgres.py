@@ -204,5 +204,7 @@ def test_w302_evidence_w1_days_reduced_and_historical(mini, monkeypatch) -> None
         assert row["raw_state"] == "HISTORICAL" and row["readiness"] in ("UNKNOWN", "CONTRADICTORY")
         assert row["current_ceiling"] is None and row["ceiling_source"] == "NONE" and row["gap_codes"] == []
         assert row["disclosure"]["historical"]["label"] == f"Historical as of {old['window']['known_at']}"
+        assert row["disclosure"]["historical"]["statements"][0] == row["disclosure"]["historical"]["label"]  # c1 r1 L3
+        assert all("+00:00" not in x for x in row["disclosure"]["historical"]["statements"])
     assert all(g["domain"] != "mini_grid" for g in old["gaps"])
     assert old["summary"]["full_count"] is None and old["summary"]["limited_site_count"] is None

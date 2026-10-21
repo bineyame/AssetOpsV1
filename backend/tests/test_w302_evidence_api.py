@@ -18,7 +18,9 @@ from fastapi.testclient import TestClient
 
 from assetops_backend.analytics.cold_site_reads import EXC, START
 from assetops_backend.analytics.dispatch import CANDIDATE
+from assetops_backend.analytics.claim_limit_read import ClaimLimitRefusal
 from assetops_backend.estate import evidence_money
+from assetops_backend.estate.adapters.postgres_evidence_money_read import EvidenceMoneySnapshot
 from assetops_backend.estate.evidence_money import EstateEvidenceService
 from assetops_backend.estate.scope import EstateSelectionInconsistent, EstateStoreUnavailable, decode_cursor
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
@@ -338,6 +340,16 @@ def test_w302_evidence_meter_gap_and_frozen_basis_mode() -> None:
     old = FakeSnapshot(historical=True)
     get(client(FakeStore(old)), {**WINDOW, "known_at": "2026-10-20T06:00:00Z"})
     assert set(old.basis_modes) == {"historical"}
+    # c1 r1 M1: on a live basis a W2 pin HISTORICAL is the as-of selection, not an unknown pin; a missing pin is.
+    live = get(client(FakeStore(FakeSnapshot(cold_pins=[pin(D0, "HISTORICAL"), pin(D0 + timedelta(days=1))],
+                                            ev_pins=[pin(D0, "HISTORICAL")]))), {**WINDOW, "limit": 100}).json()
+    base = get(client(FakeStore(FakeSnapshot())), {**WINDOW, "limit": 100}).json()
+    assert live["status"] == "CURRENT"
+    assert [(r["capability_key"], r["raw_state"], r["readiness"]) for r in live["rows"]] == [
+        (r["capability_key"], r["raw_state"], r["readiness"]) for r in base["rows"]]
+    assert live["gaps"] == base["gaps"]
+    odd = get(client(FakeStore(FakeSnapshot(ev_pins=[pin(D0, "MISSING")]))), {**WINDOW, "limit": 100}).json()
+    assert {r["raw_state"] for r in odd["rows"] if r["domain"] == "ev_charging"} == {"UNKNOWN"}
 
 
 def test_w302_evidence_cursor_same_selection_and_changed_grant() -> None:
@@ -373,3 +385,133 @@ def test_w302_evidence_cursor_same_selection_and_changed_grant() -> None:
     wrong = encode_cursor({**payload, "kind": "financials"})
     response = get(c, {**WINDOW, "cursor": wrong})
     assert (response.status_code, response.json()["detail"]["code"]) == (422, "INVALID_CURSOR")
+
+
+REFUSALS = (("UNSUPPORTED_RULE_VERSION", 422), ("ASSESSMENT_REVISION_NOT_FOUND", 404),
+            ("REVISION_OUTSIDE_WINDOW", 422), ("REVISION_NOT_WINDOW", 422), ("ACCEPTED_LINEAGE_ABSENT", 409))
+MG2 = UUID("10000000-0000-4000-8000-000000000014")
+
+
+class RefusingSnapshot(FakeSnapshot):
+    """The real adapter mapping over a claim-limit store that refuses one Site's day."""
+    claim_limit_on = EvidenceMoneySnapshot.claim_limit_on
+
+    def __init__(self, refuse_site, code, **kwargs):
+        super().__init__(**kwargs)
+        outer = self
+
+        class Limits:
+            def claim_limit_on(self, c, t, s, day, revision, k, basis_mode):
+                if s == refuse_site:
+                    raise ClaimLimitRefusal(dict(REFUSALS)[code], code, f"refused {code}")
+                return dict(outer.days)[day]
+        self._o, self._c = SimpleNamespace(claim_limits=Limits(), claim_limit_refused=ClaimLimitRefusal), None
+
+
+@pytest.mark.parametrize("code,status", REFUSALS)
+def test_w302_evidence_w1_refusals_are_unknown_days(code, status) -> None:
+    sites = [SITES[0], site(MG2, "KOBO-002", "MINIGRID")]
+    response = get(client(FakeStore(RefusingSnapshot(MG, code, sites=sites))), {**WINDOW, "limit": 100})
+    assert response.status_code == 200
+    rows = {(r["site_code"], r["capability_key"]): r for r in response.json()["rows"]}
+    for day in ("2026-10-13", "2026-10-14"):  # every day of the refused Site is a refused day
+        r = rows[("KOBO-001", f"GENERATOR_SUPPORT@{day}")]
+        assert (r["raw_state"], r["readiness"], r["current_ceiling"], r["next_evidence"]) == (
+            "UNKNOWN", "UNKNOWN", None, None)
+        assert r["gap_codes"] == [] and r["selected_revision_ids"] == []
+        assert [x["code"] for x in r["disclosure"]["reasons"]] == ["HISTORICAL_SELECTION_UNAVAILABLE", code]
+        assert r["disclosure"]["window_assessment_revision_id"] is None
+    other = rows[("KOBO-002", "GENERATOR_SUPPORT@2026-10-13")]  # other Sites still render
+    assert (other["raw_state"], other["readiness"], other["selected_revision_ids"]) == ("LIMITED", "LIMITED", [A[1]])
+
+
+def test_w302_evidence_w1_refusal_preserves_other_sites() -> None:
+    sites = [SITES[0], site(MG2, "KOBO-002", "MINIGRID"), SITES[1], SITES[2]]
+    body = get(client(FakeStore(RefusingSnapshot(MG, "UNSUPPORTED_RULE_VERSION", sites=sites))),
+               {**WINDOW, "limit": 100}).json()
+    by_site: dict = {}
+    for r in body["rows"]:
+        by_site.setdefault(r["site_code"], set()).add(r["raw_state"])
+    assert by_site["KOBO-001"] == {"UNKNOWN"} and "LIMITED" in by_site["KOBO-002"]
+    assert by_site["COLD 1"] != {"UNKNOWN"} and by_site["EV-1"] != {"UNKNOWN"}
+    assert all(str(MG) not in g["site_ids"] for g in body["gaps"])
+
+
+def _w1_days(spec):
+    return [(date(2026, 10, 13 + n), projection(date(2026, 10, 13 + n), [
+        interval(A[1 + n], state, evidence=[A[20]], reasons=reasons)], window=A[2 + n], currentness=current))
+        for n, (state, reasons, current) in enumerate(spec)]
+
+
+def test_w302_evidence_w1_unobserved_role_copy() -> None:
+    days = _w1_days([("LIMITED", [{"code": "GENERATOR_UNOBSERVED", "role": "feeder_demand", "text": "x"},
+                                  {"code": "GENERATOR_UNOBSERVED", "role": "generator_state", "text": "y"}],
+                      "CURRENT")])
+    body = get(client(FakeStore(FakeSnapshot(sites=[SITES[0]], days=days))), {**WINDOW, "limit": 100}).json()
+    groups = {g["missing_role"]: g for g in body["gaps"] if g["gap_code"] == "GENERATOR_UNOBSERVED"}
+    assert set(groups) == {"feeder_demand", "generator_state"}
+    assert (groups["feeder_demand"]["label"], groups["feeder_demand"]["next_step"]) == (
+        "Load (feeder demand) not observed", "Record Load (feeder demand)")
+    assert (groups["generator_state"]["label"], groups["generator_state"]["next_step"]) == (
+        "Generator state not observed", "Record generator state")
+    assert evidence_money.w1_gap("GENERATOR_UNOBSERVED", "odd_role")["label"] == "odd_role not observed"
+
+
+def test_w302_evidence_w1_interval_reasons_and_prior_selection() -> None:
+    conflict = {"code": "CONFLICTING", "role": "battery_soc", "text": "SOC sources disagree"}
+    days = _w1_days([("CONTRADICTORY", [conflict], "CURRENT"),
+                     ("LIMITED", [{"code": "MISSING_ROLE", "role": "battery_soc", "text": "gone"}], "PENDING"),
+                     ("LIMITED", [{"code": "MISSING_ROLE", "role": "pv_available_power", "text": "gone2"}],
+                      "STALE")])
+    body = get(client(FakeStore(FakeSnapshot(sites=[SITES[0]], days=days))), {**WINDOW, "limit": 100}).json()
+    rows = {r["capability_key"][-2:]: r for r in body["rows"]}
+    cur = rows["13"]
+    assert conflict in cur["disclosure"]["reasons"] and conflict in cur["disclosure"]["constituents"][0]["reasons"]
+    for day in ("14", "15"):
+        r = rows[day]
+        prior = r["disclosure"]["prior_selection"]
+        assert prior["interval_ceilings"][0]["reasons"] and prior["reasons"] and r["gap_codes"] == []
+        assert r["disclosure"]["constituents"][0]["reasons"] == prior["reasons"]
+    assert [(g["gap_code"], g["missing_role"]) for g in body["gaps"]] == [("CONFLICTING", "battery_soc")]  # current day only
+
+
+def test_w302_evidence_ev_full_token_citations(monkeypatch) -> None:
+    """L1: the Site token cites the selected assessment's complete evidence IDs; a claimless row cites nothing."""
+    seen = []
+    real = evidence_money.selection_token
+    monkeypatch.setattr(evidence_money, "selection_token", lambda *a: seen.append(a[-1]) or real(*a))
+    snap = FakeSnapshot(sites=[SITES[2]])
+    full = [A[30], A[45]]  # A[45]: a supporting-only citation no display claim carries
+    snap.ev_capabilities = lambda p: {**FakeSnapshot.ev_capabilities(snap, p), "evidence_ids": full}
+    body = get(client(FakeStore(snap)), {**WINDOW, "limit": 100}).json()
+    display = {A[30 + n] for n in range(4)}  # ev_caps numbering: SESSION_OUTCOME..FAULT_ASSOCIATION
+    assert seen[-1][0]["cited_accepted_evidence_ids"] == sorted({*display, A[45]})
+    own = [tuple(c) for _, c, _ in snap.provenance_calls]  # a row's provenance stays its own constituents'
+    assert (A[30],) in own and all(A[45] not in c for c in own)
+    snap2 = FakeSnapshot(sites=[SITES[2]])  # claimless control: cites nothing, no all-window fallback
+    snap2.ev_capabilities = lambda p: {**FakeSnapshot.ev_capabilities(snap2, p), "capabilities": []}
+    get(client(FakeStore(snap2)), {**WINDOW, "limit": 100})
+    assert all(c == [] for _, c, _ in snap2.provenance_calls) and seen[-1][0]["cited_accepted_evidence_ids"] == [A[30]]
+    assert body["total_count"] == 4
+
+
+def test_w302_evidence_live_cursor_summary_counts() -> None:
+    first = get(client(FakeStore(FakeSnapshot())), {**WINDOW, "limit": 5}).json()
+    later = FakeSnapshot()
+    later.read_at = READ_AT + timedelta(hours=1)  # page two reads after the frozen cutoff
+    page = get(client(FakeStore(later)), {**WINDOW, "limit": 5, "cursor": first["next_cursor"]}).json()
+    assert page["status"] == "HISTORICAL"  # the presentation label (Run 8 ruling 2)
+    assert first["summary"]["full_count"] is not None
+    assert {k: v for k, v in page["summary"].items() if k != "as_of"} == first["summary"]
+    old = get(client(FakeStore(FakeSnapshot(historical=True))), {**WINDOW, "known_at": "2026-10-20T06:00:00Z"}).json()
+    assert old["summary"]["full_count"] is None  # an explicitly historical basis keeps the limit
+
+
+def test_w302_evidence_composition_mount_no_db_503(monkeypatch) -> None:
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    from assetops_backend.main import create_app
+    response = TestClient(create_app()).get("/api/estate/evidence?" + urlencode(WINDOW))
+    assert response.status_code in (401, 503)
+    if response.status_code == 503:
+        assert response.json()["detail"]["code"] == "ESTATE_STORE_UNAVAILABLE"
+        assert response.json()["detail"]["gaps"] is None

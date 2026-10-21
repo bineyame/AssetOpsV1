@@ -193,3 +193,11 @@ Next: `0b` (Lane A, W1 day projection), after 0a has its independent review.
   (c1-q7); add the estate METER_GAP test for a selected session with positive unknown meter seconds (c1-q2), the
   c1-q1 label change in `evidence_money.py`, and the c1-q3 token replacement (5). `evidence_read` in
   `test_w302_evidence_scope_snapshot_postgres.py` may now call `build_estate_evidence_service`.
+
+## Commit-1 fix r1
+
+Implements "Commit-1 review r1 rulings" (build spec) against `.agent/W3-02-commit1-review.md`; no new pending rulings.
+- M1: `_window_state` (`estate/evidence_money.py`): a live basis maps pin `HISTORICAL` to CURRENT; PENDING/STALE precedence kept; a missing pin stays UNKNOWN. Pure test in `test_w302_evidence_meter_gap_and_frozen_basis_mode`; Postgres `test_w302_evidence_live_cursor_later_disposition_preserves_rows_and_token` (ordinary late disposition after the cursor cutoff) plus control `..._changed_selected_id_is_409`.
+- M2: `adapters/postgres_evidence_money_read.py` maps the five finite `ClaimLimitRefusal` codes to an unavailable day projection (HISTORICAL_SELECTION_UNAVAILABLE + original code); the row is UNKNOWN with no IDs. Other refusals still 409. Tests `..._w1_refusals_are_unknown_days` (5 codes), `..._w1_refusal_preserves_other_sites`.
+- R1 role-specific `GENERATOR_UNOBSERVED` copy (generator_state unchanged); R2 confirmed (energy row only); L1 token cites full `read["evidence_ids"]`, claimless row cites nothing (`_token_cited`); L2 interval reasons in constituents and labelled `prior_selection` for non-current days; L3 canonical six-digit `Z` historical statements; L4 `complete` keyed on `snap.basis_historical`; L5 token session IDs asserted in the EV Postgres test, plus `test_w302_evidence_composition_mount_no_db_503`.
+- Note: two live reads at different cutoffs have different tokens (k is in the token); the M1 test compares page two to page one only.

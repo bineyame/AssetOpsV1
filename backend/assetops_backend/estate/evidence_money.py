@@ -126,6 +126,8 @@ def _gap(domain: str, code: str, role: str | None, label: str, step: str) -> dic
 def w1_gap(code: str, role: str) -> dict[str, Any]:
     label = W1_ROLE_LABEL.get(role, role)  # closure 2 Q4: an unknown typed role uses its exact ID
     text, step = W1_GAP_TEXT[code]
+    if code == "GENERATOR_UNOBSERVED" and role != w1.GEN:  # c1 r1 R1: role-specific copy, same typed identity
+        text, step = "{label} not observed", "Record {label}"
     return _gap(MINI_GRID, code, role, text.format(label=label), step.format(label=label))
 
 
@@ -148,7 +150,7 @@ def _row(site: dict[str, Any], domain: str, key: str, label: str, **values: Any)
                      "site_readiness_label": CURRENT_VIEW},
            "disclosure": {"capability_key": key, "constituents": [], "reasons": [], "historical": None},
            "_key": (str(site["site_code_key"]), str(site["site_id"]).lower(), key), "_gaps": [],
-           "_cited": [], "_assessments": []}
+           "_cited": [], "_token_cited": [], "_assessments": []}
     row.update(values)
     return row
 
@@ -171,6 +173,14 @@ def _historical(row: dict[str, Any], k: datetime, readiness: str, statements: li
         "statements": statements or [HISTORICAL_AS_OF.format(known_at=wire_time(k)), NO_CURRENT_CEILING]}
 
 
+def _unique_reasons(reasons: Any) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for r in reasons:
+        if r not in out:
+            out.append(r)
+    return out
+
+
 # --- mini-grid -------------------------------------------------------------------------------------------------
 
 def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, k: datetime) -> list[dict[str, Any]]:
@@ -182,14 +192,20 @@ def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, 
         projection = snap.claim_limit_on(t, s, day["day"], revision, k,
                                          "historical" if snap.basis_historical else "live")
         reduced = w1.reduce_day(projection)
+        raw = {str(i["assessment_revision_id"]): [dict(r) for r in i["reasons"]]
+               for i in (projection["intervals"] if projection["available"] else [])}
+        constituents = [{**c, "reasons": raw.get(str(c["assessment_revision_id"]), [])}
+                        for c in reduced["interval_ceilings"]]
+        refusal = [dict(r) for r in projection.get("reasons") or () if r["code"] != w1.HISTORICAL_SELECTION_UNAVAILABLE
+                   and not projection["available"]]
         key = f"{W1_KEY}@{day['day'].isoformat()}"
         row = _row(site, MINI_GRID, key, W1_LABEL, window_start=wire_time(day["window_start"]),
                    window_end=wire_time(day["window_end"]))
         row["disclosure"].update(
-            constituents=reduced["interval_ceilings"],
+            constituents=constituents,
             window_assessment_revision_id=None if reduced["window_assessment_revision_id"] is None
             else str(reduced["window_assessment_revision_id"]),
-            reasons=list(reduced["reasons"]) or list(projection.get("reasons") or ()))
+            reasons=[*reduced["reasons"], *refusal] or list(projection.get("reasons") or ()))
         if not projection["available"]:  # closure 1 Q1: unreconstructable -> UNKNOWN, no IDs fabricated
             row.update(raw_state=UNKNOWN)
         elif revision is None:
@@ -199,7 +215,9 @@ def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, 
             row.update(selected_revision_ids=assessments, _cited=_ids(reduced["accepted_evidence_ids"]),
                        _assessments=assessments + _ids([reduced["window_assessment_revision_id"]]))
             if snap.basis_historical or reduced["currentness"] == w1.HISTORICAL:  # c1-q1: the estate basis
-                _historical(row, k, reduced["state"], reduced["historical_statements"] or None)
+                stated = reduced["historical_statements"]  # c1 r1 L3: the estate's canonical `known_at` copy
+                _historical(row, k, reduced["state"], None if not stated else [
+                    HISTORICAL_AS_OF.format(known_at=wire_time(k)), NO_CURRENT_CEILING, *stated[2:]])
                 row["disclosure"]["historical"]["gaps"] = [
                     {k2: v for k2, v in w1_gap(g["gap_code"], g["missing_role"]).items() if k2 != "key"}
                     for g in reduced["historical_gaps"]]
@@ -212,6 +230,12 @@ def mini_grid_rows(snap: Any, t: Any, site: dict[str, Any], req: EstateRequest, 
                                ceiling_source="W1_CLAIM_LIMIT")
                 if current:
                     _with_gaps(row, [w1_gap(g["gap_code"], g["missing_role"]) for g in reduced["gaps"]])
+                    row["disclosure"]["reasons"] = _unique_reasons(
+                        [*row["disclosure"]["reasons"], *(r for c in constituents for r in c["reasons"])])
+                else:  # c1 r1 L2: a non-current day's selected facts and reasons are labelled prior selection
+                    row["disclosure"]["prior_selection"] = {
+                        "state": reduced["state"], "interval_ceilings": constituents,
+                        "reasons": _unique_reasons(r for c in constituents for r in c["reasons"])}
         rows.append(row)
     return rows
 
@@ -225,7 +249,9 @@ def _window_state(snap: Any, site_state: str, window_state: str | None) -> str:
         return PENDING
     if site_state == STALE or window_state == STALE:
         return STALE
-    return CURRENT if window_state == CURRENT else UNKNOWN
+    # c1 r1 M1: on a live basis a W2 pin `HISTORICAL` is the valid as-of selection at the frozen `known_at`
+    # (row-local cutoff earlier than the Site watermark), not an unknown pin.
+    return CURRENT if window_state in (CURRENT, HISTORICAL) else UNKNOWN
 
 
 def _shape_window_row(row: dict[str, Any], state: str, readiness: str, limitations: list[str],
@@ -294,7 +320,7 @@ def windowed_rows(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Est
                            window_end=wire_time(pin["hi"]), links=links,
                            selected_revision_ids=_ids([revision]),
                            _assessments=_ids([revision, *read["session_revision_ids"]]),  # c1-q3(5)
-                           _cited=_ids(read["evidence_ids"]) if not parts else cited)
+                           _cited=cited, _token_cited=_ids([*cited, *read["evidence_ids"]]))  # c1 r1 L1
                 row["disclosure"].update(constituents=[
                     {"claim": p["claim"], "state": p["state"], "missing_roles": list(p["missing_roles"]),
                      "limitation": p["limitation"], "accepted_evidence_ids": list(p["accepted_evidence_ids"]),
@@ -367,7 +393,7 @@ class EstateEvidenceService(EstateIndexService):
             arrays = {"selected_finding_revision_ids": [], "selected_action_event_ids": [],
                       "selected_consequence_revision_ids": [], "selected_assumption_revision_ids": [],
                       "selected_assessment_revision_ids": _ids(x for r in site_rows for x in r["_assessments"]),
-                      "cited_accepted_evidence_ids": _ids(x for r in site_rows for x in r["_cited"])}
+                      "cited_accepted_evidence_ids": _ids(x for r in site_rows for x in (*r["_cited"], *r["_token_cited"]))}
             token_sites.append(_token_site(site, domain, {**cov, **arrays}))
         token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["token_k"], None, None,
                                 token_sites)
@@ -379,7 +405,8 @@ class EstateEvidenceService(EstateIndexService):
         empty = not scope["sites"]
         status = EMPTY_SCOPE if empty else _status(scope["historical"], states)
         coverage_state = EMPTY if empty else _coverage_state([cov["state"] for _, _, cov, _ in per_site])
-        complete = empty or (status == CURRENT and coverage_state == "COMPLETE")
+        basis_status = EMPTY_SCOPE if empty else _status(snap.basis_historical, states)  # c1 r1 L4: page one's mode
+        complete = empty or (basis_status == CURRENT and coverage_state == "COMPLETE")
         counts = {r: sum(1 for x in rows if x["readiness"] == r) for r in (FULL, LIMITED, NONE, UNKNOWN)}
         contradictory = any(r["readiness"] == CONTRADICTORY for r in rows)
         summary: dict[str, Any] = {

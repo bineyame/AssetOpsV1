@@ -17,9 +17,13 @@ from test_w205b_ev_replay_postgres import URL, chain  # noqa: F401 - the W2-05b 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
 if URL:
-    from test_w301_estate_index_ev_postgres import settled
+    import test_w205b_ev_replay_postgres as w205b
+    from test_w206_ev_store_postgres import LATE_HI, LATE_LO, run_worker, select_exact
+    from test_w301_estate_index_ev_postgres import day_of, settled
     from test_w301_estate_index_postgres import ESTATE_KEYS, db_now, iso, watermark
     from test_w302_evidence_scope_snapshot_postgres import Evidence
+    from assetops_backend.estate import evidence_money
+    from assetops_backend.estate.scope import decode_cursor
 
 
 def at(value: str) -> datetime:
@@ -57,7 +61,7 @@ def test_w302_evidence_ev_window_rows_links_and_gaps(chain) -> None:  # noqa: F8
     assert body["summary"]["full_count"] is not None  # complete and current: truth counts are present
 
 
-def test_w302_evidence_ev_meter_gap_from_unknown_meter_seconds(chain) -> None:  # noqa: F811
+def test_w302_evidence_ev_meter_gap_from_unknown_meter_seconds(chain, monkeypatch) -> None:  # noqa: F811
     """c1-q2: a selected session with positive unknown meter seconds gives the estate METER_GAP group through the
     public `capabilities_on` `unknown_meter`, unlocking that window's energy row; the token carries the selected
     session revision IDs (c1-q3(5))."""
@@ -71,3 +75,58 @@ def test_w302_evidence_ev_meter_gap_from_unknown_meter_seconds(chain) -> None:  
     assert meter[0]["unlocks"] and all(key.startswith("energy@") for key in meter[0]["unlocks"])
     rows = {r["capability_key"]: r for r in body["rows"]}
     assert all("METER_GAP" in rows[key]["gap_codes"] for key in meter[0]["unlocks"])
+    # c1 r1 L5: the Site token input carries the selected session revision IDs beyond the assessment revision.
+    captured = []
+    real = evidence_money.selection_token
+    monkeypatch.setattr(evidence_money, "selection_token", lambda *x: captured.append(x[-1]) or real(*x))
+    evidence.ok(**{"from": iso(day), "to": iso(day + timedelta(days=1))}, limit=100)
+    token_ids = set(captured[-1][0]["selected_assessment_revision_ids"])
+    row_ids = {x for r in body["rows"] for x in r["selected_revision_ids"]}
+    assert row_ids and row_ids < token_ids  # the session revision IDs are token input (their 409 fence is pure-tested)
+
+
+LIVE_KEYS = ("capability_key", "raw_state", "readiness", "selected_revision_ids", "gap_codes", "current_ceiling")
+
+
+def test_w302_evidence_live_cursor_later_disposition_preserves_rows_and_token(chain, monkeypatch) -> None:  # noqa: F811
+    """c1 r1 M1: page one is live; a Site disposition decided after the cursor cutoff (the ordinary ingestion path,
+    never backdated) moves only the W2 watermark. Page two, at the frozen cursor whose cutoff is earlier than its
+    read time, keeps the page-one selection token and the rows' states, IDs and gaps: no row turns UNKNOWN."""
+    built, _, _ = settled(chain, "late-record")
+    select_exact(built, LATE_LO, LATE_HI)
+    day = day_of(LATE_LO)
+    evidence = Evidence(built.engine, built.tenant_id)
+    params = {"from": iso(day), "to": iso(day + timedelta(days=1)), "limit": 4}
+    whole = evidence.ok(**{**params, "limit": 100})
+    first = evidence.ok(**params)
+    assert first["next_cursor"] and first["status"] == "CURRENT" and len(whole["rows"]) > 4
+    assert "UNKNOWN" not in {r["raw_state"] for r in whole["rows"]}
+    cursor_k = at(decode_cursor("evidence", first["next_cursor"])["known_at"])
+    late_at = db_now(built.engine)
+    assert late_at > cursor_k
+    monkeypatch.setattr(w205b, "LATE_DECISION", late_at)
+    built.advance_late()
+    run_worker(built)
+    assert watermark(built.engine, built.site_id) > cursor_k  # a later disposition: the watermark moved
+    second = evidence.ok(**params, cursor=first["next_cursor"])
+    assert second["selection_token"] == first["selection_token"]
+    assert [{k: r[k] for k in LIVE_KEYS} for r in second["rows"]] == [
+        {k: r[k] for k in LIVE_KEYS} for r in whole["rows"][4:8]]
+    assert "UNKNOWN" not in {r["raw_state"] for r in second["rows"]}
+    assert second["gaps"] == whole["gaps"] and second["summary"]["full_count"] == whole["summary"]["full_count"]
+
+
+def test_w302_evidence_live_cursor_changed_selected_id_is_409(chain) -> None:  # noqa: F811
+    """Control for the M1 test: the late phase's backdated disposition re-heads a selected window, so the same live
+    cursor is refused 409 `ESTATE_BASIS_CHANGED`."""
+    built, _, _ = settled(chain, "late-record")
+    select_exact(built, LATE_LO, LATE_HI)
+    day = day_of(LATE_LO)
+    evidence = Evidence(built.engine, built.tenant_id)
+    params = {"from": iso(day), "to": iso(day + timedelta(days=1)), "limit": 4}
+    first = evidence.ok(**params)
+    assert first["next_cursor"]
+    built.advance_late()
+    run_worker(built)
+    response = evidence.get(**params, cursor=first["next_cursor"])
+    assert (response.status_code, response.json()["detail"]["code"]) == (409, "ESTATE_BASIS_CHANGED")
