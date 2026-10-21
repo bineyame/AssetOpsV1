@@ -23,7 +23,7 @@ import type { ReactNode } from "react";
  * `actions` renders nothing when empty, so a screen with no action gets no
  * container and no gap.
  *
- * `eyebrow` (W3-02 c2b) is a small muted uppercase line above the title row,
+ * `eyebrow` (W3-02 c2b) is a small muted line above the title row,
  * the mock's section label over an estate root's heading (`Evidence` over
  * `Portfolio evidence`). It is not a breadcrumb, and it renders nothing when
  * empty so every other header keeps its spacing.
@@ -32,7 +32,7 @@ import type { ReactNode } from "react";
  * which is how every screen in this tree already names its `<main>`.
  */
 export interface PageHeaderProps {
-  /** A small muted uppercase line above the title row. Nothing renders when this is empty. */
+  /** A small muted line above the title row. Nothing renders when this is empty. */
   eyebrow?: ReactNode;
   /** The level-1 heading text. */
   title: ReactNode;

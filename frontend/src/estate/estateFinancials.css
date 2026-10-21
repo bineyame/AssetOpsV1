@@ -63,6 +63,10 @@
 }
 
 @media (max-width: 640px) {
+  /* Final review H1: the three-row baseline (header + 3 measured rows) fits before the list scrolls internally. */
+  .estate-page[data-estate-root="financials"] .estate-financials-table .data-table {
+    min-width: 800px;
+  }
   .estate-financials-table .data-table__scroll {
     max-height: 300px;
   }

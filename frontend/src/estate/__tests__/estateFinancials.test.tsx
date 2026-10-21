@@ -253,12 +253,12 @@ describe("W3-02 estate Financials root", () => {
     expect(cold[3].querySelector("[data-estate-eligibility='UNPRICED']")?.textContent).toBe("Unpriced");
     expect(cold[3].querySelector(".estate-chip")?.className).toContain("estate-tone--amber");
     expect(cold[4].textContent).toContain("Stock value is not declared");
-    expect(cold[4].textContent).toContain("Basis: 0 revisions");
+    expect(cold[4].textContent).toContain("Basis details");
     // EV: half even to two places as its Site page; a two-day window shows both endpoints; one kWh value.
     expect(ev[2].textContent).toBe("14 Oct 2026 · 08:00 UTC – 15 Oct 2026 · 08:00 UTC12.5 kWh");
     expect(ev[3].textContent).toBe("$36.00");
     expect(ev[4].textContent).toContain("Gross scenario only; not cash collected.");
-    expect(ev[4].textContent).toContain("Basis: 1 revision");
+    expect(ev[4].textContent).toContain("Basis details");
     // Exact IDs live in the closed basis disclosure only.
     const details = ev[4].querySelector("details") as HTMLDetailsElement;
     expect(details.open).toBe(false);
@@ -507,6 +507,13 @@ describe("W3-02 commit 4 measured Financials layout", () => {
       expect(t.client).toBeGreaterThan(0);
       expect(t.rows).toBeGreaterThan(0);
       expect(t.scroll).toBeGreaterThanOrEqual(t.client); // the table scrolls inside its own container
+      // Final review H1: the mock's three-row baseline is visible at 390 before any vertical internal scroll, and a
+      // register of up to three rows plus its notes stays within the 448 px cap.
+      const cap = parseFloat(t.maxH);
+      const threeRows = t.headH + 3 * Math.max(...t.rowHs);
+      expect(threeRows, `${state} header + 3 rows fit the list cap`).toBeLessThanOrEqual(cap);
+      expect(t.scrollH, `${state} register list does not scroll vertically at ${t.rows} rows`).toBeLessThanOrEqual(t.clientH);
+      expect(narrow!.pieces.register.h - t.clientH + threeRows, `${state} three-row register within 448`).toBeLessThanOrEqual(448);
       expect(t.client).toBeLessThanOrEqual(narrow!.docClientW);
       const all = JSON.parse(await readDisk(file)).results as Record<string, any>[];
       for (const r of all) {

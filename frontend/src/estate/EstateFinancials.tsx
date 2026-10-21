@@ -100,10 +100,9 @@ function ids(values: string[]): string {
 }
 
 function BasisDetails({ row }: { row: FinancialRow }) {
-  const n = row.assumption_revision_ids.length;
   const pinned = row.eligibility === "ELIGIBLE" ? null : lineMoney(row, row.disclosure.pinned_amount);
   return (
-    <Disclosure summary={`Basis: ${n} ${n === 1 ? "revision" : "revisions"}`} name="estate-financials-row" variant="inline">
+    <Disclosure summary="Basis details" name="estate-financials-row" variant="inline">
       <dl className="estate-evidence-facts">
         <dt>Site</dt>
         <dd>{row.site_name.trim() !== "" ? `${row.site_name} · ${row.site_code}` : row.site_code}</dd>
@@ -315,10 +314,10 @@ function AggregationResults({ body }: { body: EstateFinancialsBody }) {
       <Disclosure
         summary={
           <>
-            <span aria-hidden="true" data-estate-summary-text>
+            <span data-estate-summary-text>
               {summary.visible}
             </span>
-            <span className="visually-hidden">{summary.spoken}</span>
+            <span className="visually-hidden"> {summary.spoken}</span>
           </>
         }
         name="estate-financials-results"

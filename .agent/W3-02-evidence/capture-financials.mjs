@@ -37,7 +37,7 @@ try {
     const panels = Array.from(root.querySelectorAll("section.panel"));
     const panel = (t) => panels.find((p) => p.querySelector("h2")?.textContent.trim() === t) ?? null;
     const reg = panel("Consequence register"), agg = panel("Aggregation rule");
-    const tbl = (p) => { const s = p?.querySelector(".data-table__scroll"); return s ? { client: s.clientWidth, scroll: s.scrollWidth, clientH: s.clientHeight, scrollH: s.scrollHeight, rows: s.querySelectorAll("tbody tr").length } : null; };
+    const tbl = (p) => { const s = p?.querySelector(".data-table__scroll"); return s ? { client: s.clientWidth, scroll: s.scrollWidth, clientH: s.clientHeight, scrollH: s.scrollHeight, rows: s.querySelectorAll("tbody tr").length, maxH: getComputedStyle(s).maxHeight, headH: Math.round(s.querySelector("thead").getBoundingClientRect().height), rowHs: Array.from(s.querySelectorAll("tbody tr")).map((r) => Math.round(r.getBoundingClientRect().height)) } : null; };
     const list = (e) => e ? { clientH: e.clientHeight, scrollH: e.scrollHeight, items: e.children.length } : null;
     return {
       h1: document.querySelector("h1")?.textContent.trim() ?? null,

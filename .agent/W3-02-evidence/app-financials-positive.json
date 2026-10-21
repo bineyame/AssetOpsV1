@@ -1,6 +1,6 @@
 {
   "state": "positive",
-  "captured_at": "2026-10-21T08:51:42.578Z",
+  "captured_at": "2026-10-21T10:02:33.988Z",
   "limitation": "Three Sites are in scope; two have selected consequence lines. The mini-grid has no selected consequence revision for this window, so no mini-grid amount appears in the register. The two-row register height is not a three-row mock-density proof; the 293/448 px register maxima still apply.",
   "results": [
     {
@@ -46,7 +46,13 @@
         "scroll": 1120,
         "clientH": 154,
         "scrollH": 154,
-        "rows": 2
+        "rows": 2,
+        "maxH": "176px",
+        "headH": 30,
+        "rowHs": [
+          62,
+          62
+        ]
       },
       "results": {
         "clientH": 76,
@@ -71,7 +77,7 @@
       "aggSummary": {
         "open": false,
         "text": "Results (3) · No comparable total",
-        "name": "Results (3) · No comparable total3 grouping results. Comparable total unavailable for this selection.",
+        "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
         "h": 16,
         "fontSize": "12px",
         "lineHeight": "16px",
@@ -110,7 +116,7 @@
         "aggSummary": {
           "open": true,
           "text": "Results (3) · No comparable total",
-          "name": "Results (3) · No comparable total3 grouping results. Comparable total unavailable for this selection.",
+          "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
           "h": 16,
           "fontSize": "12px",
           "lineHeight": "16px",
@@ -152,26 +158,32 @@
         },
         "register": {
           "top": 476,
-          "h": 403,
+          "h": 288,
           "w": 358
         },
         "notice": {
-          "top": 897,
+          "top": 782,
           "h": 61,
           "w": 358
         },
         "aggregation": {
-          "top": 976,
+          "top": 862,
           "h": 186,
           "w": 358
         }
       },
       "registerTable": {
         "client": 318,
-        "scroll": 500,
-        "clientH": 300,
-        "scrollH": 345,
-        "rows": 2
+        "scroll": 800,
+        "clientH": 185,
+        "scrollH": 185,
+        "rows": 2,
+        "maxH": "300px",
+        "headH": 30,
+        "rowHs": [
+          78,
+          78
+        ]
       },
       "results": {
         "clientH": 114,
@@ -196,7 +208,7 @@
       "aggSummary": {
         "open": false,
         "text": "Results (3) · No comparable total",
-        "name": "Results (3) · No comparable total3 grouping results. Comparable total unavailable for this selection.",
+        "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
         "h": 16,
         "fontSize": "12px",
         "lineHeight": "16px",
@@ -219,11 +231,11 @@
         "visible": 0,
         "chipFont": "12px/nowrap"
       },
-      "height": 1204,
+      "height": 1090,
       "opened": {
         "image": "financials-positive-390-open-app.png",
         "aggregation": {
-          "top": 976,
+          "top": 862,
           "h": 390,
           "w": 358
         },
@@ -235,7 +247,7 @@
         "aggSummary": {
           "open": true,
           "text": "Results (3) · No comparable total",
-          "name": "Results (3) · No comparable total3 grouping results. Comparable total unavailable for this selection.",
+          "name": "Results (3) · No comparable total 3 grouping results. Comparable total unavailable for this selection.",
           "h": 16,
           "fontSize": "12px",
           "lineHeight": "16px",
