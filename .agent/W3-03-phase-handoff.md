@@ -82,3 +82,52 @@ Q9 as amended, closure 3). Requires an independent 0a review first (unchanged W3
 
 ## Next: run 3
 Next: independent review of 0b, then run 1a.
+
+## Run 1a (Lane B) — landed: Portfolio scope/coverage/selection, token, cursor, refusal router (unmounted)
+- `backend/assetops_backend/estate/portfolio.py`: `EstatePortfolioService(EstateEvidenceService).portfolio` runs the
+  four 0a selectors once on one `scope` in one `PostgresEvidenceMoneyRead` snapshot; closure 5 S4 `reduce_units`,
+  `settled`, `finding_unit`, `evidence_unit`, `money_units`; `portfolio_row` (wire `domain`/`episode_end`/
+  `mechanism`, exact-pair Action join `_action_for`, quoted links); `token_site` (Finding-domain base + union of
+  Finding/Action/Evidence/Financials arrays); `order_key`/`_marker` five-member Portfolio order. Body keys in 1a:
+  envelope + `coverage{state,finding_state,evidence_state,money_state,sites}`, `lens`, `summary{finding_count}`,
+  `order`, `total_count`, `rows`, `next_cursor`, `selection_token`. 1b adds cards/objectives/prompt/opportunity/
+  progress/money and the remaining summary fields.
+- `backend/assetops_backend/estate_portfolio_api.py::build_estate_portfolio_router` (not mounted; Lane A mounts after
+  1b); `estate/composition.py::build_estate_portfolio_service`.
+- Tests: `test_w303_portfolio_api.py` (2, fake selectors), `test_w303_portfolio_reduction.py` (41, S4 tables),
+  `test_w303_portfolio_scope_snapshot_postgres.py` (2, on the 0b fixture).
+- r0a L4 measured: one snapshot; `site_coverage` calls {mini_grid 3, cold_chain 3, ev_charging 6} = 12 for the
+  three selectors, plus actions 1 (Action selector, KOBO only). No caching added.
+
+### Run 1a readings (Architect may overturn)
+1. "Settled" (S4 row 3) = `state in CURRENT|HISTORICAL`, `job_state` not `PENDING|FAILED|NONE`, freshness not
+   `STALE`, match not `MISSING|PENDING`. Freshness `UNKNOWN` alone is not U (spec names only stale freshness).
+2. F uses the same per-Site settled test on the Finding `site_coverage`; a Site type outside `DOMAIN_OF_SITE_TYPE`
+   is U for F, E and M (unknown configuration, never N).
+3. E: a Site with zero Evidence rows is U. A `HISTORICAL` row is G when it carries `selected_revision_ids` and is
+   not `CONTRADICTORY` (the historical rule clears display readiness to UNKNOWN, so readiness is not re-read).
+4. M: W3-02 `UNKNOWN_COVERAGE` is applied per Site/category through that Site's `_windows_covered` (its per-Site
+   source), not category-wide, so a covered EV Site beside an uncovered one reduces to PARTIAL (r0a M1 intent).
+5. Overall `coverage.state` = the same four-row reduction over all F, E and M units together.
+6. `scope.covered_site_count` = Sites whose F, E and every M unit are not U. Status: EMPTY_SCOPE, then
+   `snap.basis_historical` HISTORICAL, then PENDING if any Finding/Evidence/Financial Site coverage is
+   `PENDING_RECOMPUTE` or job `PENDING`, then UNKNOWN if any of F/E/M is not COMPLETE, else CURRENT.
+7. `total_count` is always the lens count (not nulled when incomplete; the UI appends `coverage incomplete`).
+8. Rows: `action_state` = `application_state` (legacy projection); `next_move` null; links per S12 (quoted code;
+   Finding route only for MINIGRID; Action link = W3-01 Action route) although S12 is outside 1a's reading list,
+   because rows need links. `workflow_label` is 1b (closure 5 S7).
+9. L4 "unchanged exact selected IDs and token versus the public roots": asserted as Portfolio rows == the public
+   Findings rows filtered to SUPPORTED|UNCONFIRMED (field-by-field), `coverage.sites` == Findings root items, one
+   window/cutoff across all roots, and a stable token across reads; the token digest itself has no public root
+   counterpart to compare.
+10. Foreign-tenant Site perturbation: a new tenant row plus a copied KOBO Site/import under it (test-scoped SQL).
+11. Q-1a-1 (open, `.agent/W3-03-pending-rulings.md`): S9 tie key `recorded_at` is not in the Lane A Action rows.
+
+### Run 1a checks
+- Pure: `test_w303_portfolio_api.py`, `test_w303_portfolio_reduction.py`, `test_w303_estate_cursor.py`,
+  `test_w302_estate_cursor.py`, `test_w301_estate_api.py`, `test_w302_evidence_api.py`, `test_w302_money_api.py`:
+  134 passed.
+- Postgres on private `w303f_test` (dropped after): `test_w303_portfolio_scope_snapshot_postgres.py` 2 passed, 230 s.
+- `tools/check-all.ps1`: all 11 guards passed. No frontend touched.
+
+## Next: run 1b

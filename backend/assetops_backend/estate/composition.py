@@ -68,6 +68,16 @@ def build_estate_evidence_service(database_url: str | None) -> Any:
         **{k: getattr(base, k) for k in keys}))
 
 
+def build_estate_portfolio_service(database_url: str | None) -> Any:
+    """W3-03: the Portfolio service on the W3-02 one-transaction reader; None without a product database (503)."""
+    evidence = build_estate_evidence_service(database_url)
+    if evidence is None:
+        return None
+    from assetops_backend.estate.portfolio import EstatePortfolioService
+
+    return EstatePortfolioService(evidence.store)
+
+
 def registry_tenant(registry: Any) -> Callable[[], UUID | None]:
     """The server's configured tenant from `ImportedSiteRegistry.tenant()`; never a client-supplied ID."""
     def tenant() -> UUID | None:
