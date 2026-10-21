@@ -220,6 +220,7 @@ describe("operator route navigation", () => {
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
     ).toEqual([
+      ["Portfolio", "/portfolio"],
       ["Sites", "/sites"],
       ["Findings", "/findings"],
       ["Actions", "/actions"],
@@ -258,7 +259,7 @@ describe("operator route navigation", () => {
     expect(groups).toEqual([
       [
         [["OPERATIONS", "OPERATIONS"]],
-        [`Portfolio | ${off}`, "Sites | live", `Assets | ${off}`],
+        ["Portfolio | live", "Sites | live", `Assets | ${off}`],
       ],
       [[["INTELLIGENCE", "INTELLIGENCE"]], ["Findings | live"]],
       [

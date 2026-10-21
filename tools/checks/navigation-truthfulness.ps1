@@ -542,7 +542,7 @@ function Get-OperatorRailFailures {
     if ($failures.Count -gt 0) { return $failures }
 
     $expected = @(
-        "unavailable|Portfolio|OPERATIONS|",
+        "live|Portfolio|OPERATIONS|/portfolio",
         "live|Sites|OPERATIONS|/sites",
         "unavailable|Assets|OPERATIONS|",
         "live|Findings|INTELLIGENCE|/findings",

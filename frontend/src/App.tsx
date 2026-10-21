@@ -26,6 +26,7 @@ import {
   ACTIONS_PATH,
   EVIDENCE_PATH,
   FINANCIALS_PATH,
+  PORTFOLIO_ROOT_PATH,
   FINDINGS_COST_PATH,
   FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
@@ -101,6 +102,7 @@ import {
   EstateEvidenceFrame,
   EstateFinancialsFrame,
   EstateFindingsFrame,
+  EstatePortfolioFrame,
 } from "./shell/EstateRootFrames";
 import {
   createSiteEvidenceClient,
@@ -434,6 +436,8 @@ export function App({
           <Route path={EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} />} />
           {/* W3-02 commit 4: the estate Financials root (`ESTATE_FINANCIALS_PATH`; a shell test pins the equality). */}
           <Route path={FINANCIALS_PATH} element={<EstateFinancialsFrame client={estateFinancials} />} />
+          {/* W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH`; a shell test pins the equality). */}
+          <Route path={PORTFOLIO_ROOT_PATH} element={<EstatePortfolioFrame client={estateIndex} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}
