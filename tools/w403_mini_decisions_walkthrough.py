@@ -188,11 +188,13 @@ def opportunity_cli(reconcile: dict[str, str]) -> list[Any]:
     return lines
 
 
-def seed_case(scope, body: dict[str, Any]) -> str:
-    """One W4-01 case through `WorkService` in process with `service:w401-fixture` (B2), never over HTTP."""
+def seed_case(scope, body: dict[str, Any], when: str | None = None) -> str:
+    """One W4-01 case through `WorkService` in process with `service:w401-fixture` (B2), never over HTTP.
+
+    `when` replays a recorded `occurred_at`, so the same idempotency key and payload return the same case."""
     from assetops_backend.work.composition import build_work_service
 
-    when = iso(datetime.now(timezone.utc) - timedelta(hours=1))
+    when = when or iso(datetime.now(timezone.utc) - timedelta(hours=1))
     status, out = build_work_service(os.environ["ASSETOPS_TEST_DATABASE_URL"]).create_case(
         scope[0], scope[1], {**body, "occurred_at": when}, WORK_PRINCIPAL)
     assert status in (200, 201), (status, out)
@@ -459,13 +461,20 @@ class Walk:
         [incident] = [c for c in fixture["commands"]["cases"] if c["body"]["kind"] == "INCIDENT"]
         [request] = [c for c in fixture["commands"]["cases"] if c["body"]["kind"] == "MAINTENANCE_REQUEST"]
         scope = tuple(UUID(v) for v in ids["scopes"][incident["site_code"]])
+        path = self.work / "capture" / "stock.json"
+        # u9b PR-12.5: a second `capture` (late phase) replays the recorded payloads under the same W4-01 keys.
+        prior = json.loads(path.read_text(encoding="utf-8")).get("occurred_at", {}) if path.is_file() else {}
         out: dict[str, Any] = {"site_code": incident["site_code"], "principal": WORK_PRINCIPAL, "incidents": {},
-                               "requests": {}}
+                               "requests": {}, "occurred_at": {}}
         for kind, template, n in (("incidents", incident, 4), ("requests", request, 2)):
             for i in range(1, n + 1):
                 key = f"w403-capture-{kind}-{i}"
                 body = {**template["body"], "idempotency_key": key, "title": f"{template['body']['title']} ({i + 1})"}
-                out[kind][key] = seed_case(scope, body)
+                when = prior.get(key) or iso(datetime.now(timezone.utc) - timedelta(hours=1))
+                out[kind][key] = seed_case(scope, body, when)
+                out["occurred_at"][key] = when
+                if key in prior and path.is_file():
+                    assert out[kind][key] == json.loads(path.read_text(encoding="utf-8"))[kind][key], key
         out["counts"] = {"incidents_added": len(out["incidents"]), "requests_added": len(out["requests"])}
         (self.work / "capture").mkdir(parents=True, exist_ok=True)
         (self.work / "capture" / "stock.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
