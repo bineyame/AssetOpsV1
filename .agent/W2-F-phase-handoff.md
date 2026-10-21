@@ -159,3 +159,17 @@ Readings (flag if wrong):
    overview timeline, Analysis and Finding.
 
 Next: 5
+
+## 5: integration (captures, re-audit, packet), commit `a869805f`
+
+Landed (no feature behavior): `.agent/W2-F-evidence/` (`seed.py`, `capture.mjs`, `evidence.json`, 116 PNGs; 72 pairs,
+22 screens, 1440/390; cold excursion stocked/no-selection/refused, cold normal, EV interrupted/refused) and
+`.agent/W2-F-review-packet.md` (all builder readings, 14-finding re-audit: 13 closed, M12 open). Private DB `w2fe_test`
+re-created per phase and dropped. Panel set/order equal on all 72 pairs; 8 title differences are data-derived names.
+Checks at `4d4fa252` code: frontend 98 files / 2435 passed; tsc 0; build 0; check-all 11/11.
+4-q1 RESOLVED: M12 (EV Scenarios tab, guard `$expectedTabs`, rail fixture, `w2f_ev_scenarios_slot_unavailable`) lands as
+unit 4b AFTER W4-03 merges. The EV Financials (and Assumptions) captures are re-taken after 4b
+(`node .agent/W2-F-evidence/capture.mjs <out> <rev> ev finding=<uuid>` after `seed.py ev interrupted`).
+Full backend suite deferred to the final post-4b revision (same-revision rule).
+
+Next: 4b (M12) after W4-03 merges, then final review
