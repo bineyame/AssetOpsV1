@@ -95,6 +95,7 @@ class World:
         snap = type("Snap", (), {})()
         snap.read_at = self.read_at
         snap.imported_sites = lambda tenant, to: [s for s in self.sites]
+        snap.cited_provenance = lambda t, s, cited, selected: {"classification": "UNKNOWN", "selected": selected}
         return work(snap)
 
     def rows(self):
@@ -328,3 +329,62 @@ def test_builder_uses_one_connection_scoped_reader_and_refuses_missing_database(
         assert len({id(s._c) for s in seen}) == 1
     finally:
         service.store.dispose()
+
+
+PROJECTIONS = ("summary", "value_cards", "objectives", "evidence_prompt", "opportunity", "progress", "footer",
+               "selected_lines", "money", "scope_disclosure", "coverage", "status", "total_count", "selection_token")
+
+
+def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
+    """Run 1b on the fake world: every projection is full scope (limits 1 and 4 agree), with the closure-1 literal
+    slots; an empty scope keeps every key with zero counts and no money."""
+    c = client(world)
+    one, four = get(c, {**WINDOW, "limit": 1}).json(), get(c, {**WINDOW, "limit": 4}).json()
+    assert {k: one[k] for k in PROJECTIONS} == {k: four[k] for k in PROJECTIONS}
+    assert [(x["key"], x["state"], x["tone"]) for x in one["value_cards"]] == [
+        ("OPERATING_COST", "NO_LINE", "neutral"), ("SERVICE_PRODUCT_RISK", "UNKNOWN", "neutral"),
+        ("PRODUCTIVE_USE", "UNSUPPORTED", "neutral"), ("ASSET_LIFE", "UNSUPPORTED", "neutral"),
+        ("VERIFIED_RECOVERY", "NOT_ESTABLISHED", "neutral")]
+    assert one["value_cards"][1]["destination"] == "/findings/risks"
+    assert [o["site_id"] for o in one["objectives"]] == [MG, CO]
+    cells = {o["site_id"]: {x["key"]: x["state"] for x in o["cells"]} for o in one["objectives"]}
+    assert cells[MG] == {"SERVICE_PRODUCT": "UNKNOWN", "BACKUP": "UNKNOWN", "ASSET_CONDITION": "UNKNOWN",
+                         "COST_CONTROL": "UNASSESSED", "EVIDENCE": "FULL"}
+    assert cells[CO]["COST_CONTROL"] == "NOT_APPLICABLE" and cells[CO]["EVIDENCE"] == "FULL"
+    assert one["evidence_prompt"] == {"state": "NO_GAP", "text": "No selected decision-changing evidence step",
+                                      "site_id": None, "site_code": None, "gap_code": None, "destination": "/evidence"}
+    assert one["progress"] == {"state": "NO_COMPARABLE_BASELINE", "completed_activity_count": None,
+                               "pending_trial_count": 0, "verified_resolution_count": 0, "recovered_value": None,
+                               "rows": []}
+    assert one["summary"] == {"finding_count": 4, "priority_site_count": None, "opportunity_count": 0,
+                              "evidence_gap_site_count": 0, "accepted_action_count": 0,
+                              "verified_resolution_count": 0, "combined_value": None,
+                              "combined_value_state": "NOT_COMPARABLE"}
+    assert one["money"] == {"groups": [], "exclusions": [], "diagnostics": [], "estate_total": None}
+    assert one["footer"] is None and one["selected_lines"] == []
+    site = one["scope_disclosure"]["sites"][0]
+    assert set(site) == {"site_id", "site_code", "site_name", "domain", "window", "coverage",
+                         "selected_revision_ids", "source_provenance"}
+    assert site["window"] == WINDOW and FINDING[31] in site["selected_revision_ids"]
+    # Historical display: the EVIDENCE cell is UNKNOWN for the current objective.
+    hist = get(c, {**WINDOW, "known_at": "2026-10-19T00:00:00Z"}).json()
+    assert {x["key"]: x["state"] for x in hist["objectives"][0]["cells"]}["EVIDENCE"] == "UNKNOWN"
+    world.sites = []
+    empty = get(c, WINDOW).json()
+    assert empty["status"] == "EMPTY_SCOPE" and empty["objectives"] == [] and empty["footer"] is None
+    assert empty["summary"]["finding_count"] == 0 and empty["summary"]["accepted_action_count"] == 0
+    assert empty["scope_disclosure"] == {"sites": [], "exclusions": []}
+
+
+def test_evidence_prompt_null_steps_and_coverage_precedence_pure() -> None:
+    """S13 (no persisted null-step producer): incomplete coverage wins; null-step gaps are skipped; the first Site
+    with a code in the group's own order is chosen."""
+    gap = lambda step, ids, codes: {"gap_code": f"G-{step}", "next_step": step, "site_ids": ids,  # noqa: E731
+                                    "site_codes": codes, "site_names": [f"name {c}" for c in codes]}
+    gaps = [gap(None, [MG], ["KOBO 001"]), gap("Upload a log", [CO, MG], [None, "KOBO 001"])]
+    assert portfolio.evidence_prompt("PARTIAL", gaps)["state"] == "COVERAGE_INCOMPLETE"
+    assert portfolio.evidence_prompt("UNKNOWN", [])["text"] == "Evidence coverage incomplete"
+    chosen = portfolio.evidence_prompt("COMPLETE", gaps)
+    assert (chosen["state"], chosen["site_id"], chosen["gap_code"]) == ("AVAILABLE", MG, "G-Upload a log")
+    assert chosen["text"] == "Upload a log at name KOBO 001 to address the selected evidence gap."
+    assert portfolio.evidence_prompt("COMPLETE", gaps[:1])["state"] == "NO_GAP"

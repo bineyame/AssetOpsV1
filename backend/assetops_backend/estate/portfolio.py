@@ -5,20 +5,25 @@ One read-only snapshot (`PostgresEvidenceMoneyRead.read`) runs the four reviewed
 `scope` (`.agent/W3-03-build-spec.md` closure 4 B1/B2). It reduces F/E/M independently (closure 5 S4), assembles one
 `estate-selection/2` token from unions of each Site's full selected arrays, filters the Finding set to the
 `SUPPORTED|UNCONFIRMED` management-action membership, re-sorts it in the Portfolio order and pages it with the
-five-member marker. Cards, objectives, prompt, progress, money and footer are run 1b.
+five-member marker. Run 1b adds the full-scope projections (selected lines, money, scope disclosure, five value
+cards, objectives, evidence prompt, opportunity, progress, footer, summary) from the same six selector returns,
+never from the page (`.agent/W3-03-build-spec.md` closure 1 projections, closure 2 N2/N5, r1a, r1b).
 """
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Iterable
 from urllib.parse import quote
 
-from assetops_backend.estate.coverage import COVERED, MINI_GRID, NOT_APPLICABLE, PENDING
+from assetops_backend.estate.coverage import COVERED, EV, MINI_GRID, NOT_APPLICABLE, PENDING
 from assetops_backend.estate.evidence_money import (
     CONTRADICTORY, EMPTY, EMPTY_SCOPE, FULL, LIMITED, NONE, EstateEvidenceService, select_evidence_scope)
-from assetops_backend.estate.financials import APPLICABLE, select_financial_scope
+from assetops_backend.estate.evidence_money import _groups as evidence_gap_groups
+from assetops_backend.estate.financials import (
+    APPLICABLE, COMPARABLE, ELIGIBLE, SINGLE_LINE, UNPRICED, select_financial_scope)
 from assetops_backend.estate.index import (
-    LENS_FLAG, Admit, _coverage_site, _token_site, select_action_scope, select_finding_scope)
+    LENS_FLAG, Admit, _coverage_site, _coverage_state, _token_site, select_action_scope, select_finding_scope)
 from assetops_backend.estate.scope import (
     SITE_TOKEN_ARRAYS, EstateRequest, resume_after, selection_token, wire_time)
 
@@ -197,6 +202,211 @@ def token_site(site: dict[str, Any], domain: str, cov: dict[str, Any], parts: li
     return _token_site(site, domain, {**cov, **arrays})
 
 
+# --- run 1b: full-scope projections (never from the page) --------------------------------------------------------
+
+OPERATING_COST = "CANDIDATE_OPERATING_COST_EXPOSURE"
+GROSS_TARIFF = "GROSS_TARIFF_SCENARIO"
+OBJECTIVE_KEYS = ("SERVICE_PRODUCT", "BACKUP", "ASSET_CONDITION", "COST_CONTROL", "EVIDENCE")
+OBJECTIVE_LABEL = {"FULL": "Full", "LIMITED": "Limited", "NONE": "None", "REVIEW": "Review",
+                   "UNASSESSED": "Unassessed", "UNKNOWN": "Unknown", "NOT_APPLICABLE": "N/A"}
+#: Closure 2 N5: the only emitted (key, state) reason strings.
+OBJECTIVE_REASON = {
+    **{(key, "UNKNOWN"): "No reviewed objective assessment" for key in OBJECTIVE_KEYS[:3]},
+    **{(key, "NOT_APPLICABLE"): "Site configuration proves this objective is not applicable"
+       for key in OBJECTIVE_KEYS[:3]},
+    ("COST_CONTROL", "REVIEW"): "Eligible selected operating-cost consequence",
+    ("COST_CONTROL", "UNASSESSED"): "No selected operating-cost consequence",
+    ("COST_CONTROL", "UNKNOWN"): "Operating-cost basis or coverage is incomplete",
+    ("COST_CONTROL", "NOT_APPLICABLE"): "Site configuration proves cost control is not applicable",
+    ("EVIDENCE", "FULL"): "All applicable selected capabilities are full",
+    ("EVIDENCE", "LIMITED"): "At least one selected capability is limited",
+    ("EVIDENCE", "NONE"): "At least one selected capability has no support",
+    ("EVIDENCE", "UNKNOWN"): "Evidence selection is missing, historical or unsettled",
+    ("EVIDENCE", "NOT_APPLICABLE"): "Site configuration proves evidence is not applicable"}
+PROMPT_TEXT = "{next_step} at {site_name} to address the selected evidence gap."
+NO_GAP_TEXT, INCOMPLETE_TEXT = "No selected decision-changing evidence step", "Evidence coverage incomplete"
+#: Closure 1 card table: (card, state) -> (detail, or None when the page formats it from money; basis_text; tone).
+CARD_SLOTS = {
+    ("OPERATING_COST", "COMPARABLE_GROUP"): (None, "Comparable selected basis", "amber"),
+    ("OPERATING_COST", "SITE_OWNED"): (None, "Site-owned selected consequence", "amber"),
+    ("OPERATING_COST", "UNPRICED"): (None, "Price not established", "neutral"),
+    ("OPERATING_COST", "WITHHELD"): ("Inspect Site records and exclusions", "No combined operating-cost amount",
+                                     "neutral"),
+    ("OPERATING_COST", "NO_LINE"): ("No selected operating-cost consequence", "No value line", "neutral"),
+    ("SERVICE_PRODUCT_RISK", "UNKNOWN"): ("No reviewed estate risk classification", "Risk count unavailable",
+                                          "neutral"),
+    ("PRODUCTIVE_USE", "UNSUPPORTED"): ("No reviewed opportunity Finding or headroom basis",
+                                        "Demand and scenario basis unavailable", "neutral"),
+    ("ASSET_LIFE", "UNSUPPORTED"): ("Capacity and life exposure are not assessed", "No reviewed life assessment",
+                                    "neutral"),
+    ("VERIFIED_RECOVERY", "NOT_ESTABLISHED"): ("Verification outcome is separate from recovered value",
+                                               "Completed work does not establish savings", "neutral")}
+CARD_DESTINATION = {"OPERATING_COST": "/financials", "SERVICE_PRODUCT_RISK": "/findings/risks",
+                    "PRODUCTIVE_USE": None, "ASSET_LIFE": None, "VERIFIED_RECOVERY": "/financials"}
+#: Literal value slots; the bounded amounts of COMPARABLE_GROUP/SITE_OWNED are formatted by the page (S10).
+DISPLAYED_VALUE = {"WITHHELD": "Not comparable for this selection", "NO_LINE": "No supported value for this window",
+                   "UNPRICED": "Unpriced", "UNKNOWN": "Not assessed", "UNSUPPORTED": "Not established",
+                   "NOT_ESTABLISHED": "Not established"}
+
+
+def public(item: dict[str, Any]) -> dict[str, Any]:
+    return {k: v for k, v in item.items() if not k.startswith("_")}
+
+
+def _card(key: str, state: str, *, line_keys: Iterable[str] = (), group_key: str | None = None,
+          currency: str | None = None, detail: str | None = None) -> dict[str, Any]:
+    slot_detail, basis_text, tone = CARD_SLOTS[(key, state)]
+    return {"key": key, "state": state, "display_value": DISPLAYED_VALUE.get(state), "currency": currency,
+            "line_keys": sorted(line_keys), "group_key": group_key, "basis": None,
+            "destination": CARD_DESTINATION[key], "detail": detail if slot_detail is None else slot_detail,
+            "basis_text": basis_text, "tone": tone}
+
+
+def operating_cost_card(lines: list[dict[str, Any]], applicable: dict[str, bool],
+                        groups: list[dict[str, Any]]) -> dict[str, Any]:
+    """Closure 2 N2 first match over every selected operating-cost head before paging; rule (1) tests **line**
+    eligibility, so a lone UNPRICED line reaches rule (4) whatever its one-line group says (S11)."""
+    heads = [x for x in lines if x["category"] == OPERATING_COST]
+    parts = [g for g in groups if g["category"] == OPERATING_COST and g["line_keys"]]
+    keys = [x["line_key"] for x in heads]
+    if (applicable.get(OPERATING_COST) is False or len(parts) > 1
+            or any(x["eligibility"] not in (ELIGIBLE, UNPRICED) for x in heads)):
+        return _card("OPERATING_COST", "WITHHELD", line_keys=keys)
+    if parts and parts[0]["state"] == COMPARABLE and len(heads) == len(parts[0]["line_keys"]):
+        return _card("OPERATING_COST", "COMPARABLE_GROUP", line_keys=keys, group_key=parts[0]["group_key"],
+                     currency=parts[0]["currency"])
+    if len(heads) == 1 and heads[0]["eligibility"] == ELIGIBLE and parts and parts[0]["state"] == SINGLE_LINE:
+        return _card("OPERATING_COST", "SITE_OWNED", line_keys=keys, group_key=parts[0]["group_key"],
+                     currency=(heads[0]["amount"] or {}).get("currency"))
+    if len(heads) == 1 and heads[0]["eligibility"] == UNPRICED:
+        return _card("OPERATING_COST", "UNPRICED", line_keys=keys,
+                     detail=f"{heads[0]['site_name']} · consequence recorded without a price")
+    if not heads:
+        return _card("OPERATING_COST", "NO_LINE")
+    return _card("OPERATING_COST", "WITHHELD", line_keys=keys)
+
+
+def value_cards(lines: list[dict[str, Any]], applicable: dict[str, bool],
+                groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The five cards in mock order. No reviewed RISK producer exists, so risk is UNKNOWN (closure 4 N4); the other
+    three are fixed unsupported/not-established slots that never inherit mock values."""
+    return [operating_cost_card(lines, applicable, groups), _card("SERVICE_PRODUCT_RISK", "UNKNOWN"),
+            _card("PRODUCTIVE_USE", "UNSUPPORTED"), _card("ASSET_LIFE", "UNSUPPORTED"),
+            _card("VERIFIED_RECOVERY", "NOT_ESTABLISHED")]
+
+
+def _cell(key: str, state: str) -> dict[str, Any]:
+    return {"key": key, "state": state, "label": OBJECTIVE_LABEL[state], "reason": OBJECTIVE_REASON[(key, state)],
+            "destination": None}
+
+
+def evidence_cell_state(domain: str, cov: dict[str, Any], rows: list[dict[str, Any]], historical: bool) -> str:
+    """The per-Site W3-02 readiness reduction; a historical display, an unsettled selection or CONTRADICTORY
+    readiness is UNKNOWN (closure 4 N6)."""
+    if historical or evidence_unit(domain, cov, rows) == U:
+        return "UNKNOWN"
+    states = [r["readiness"] for r in rows]
+    if all(s == FULL for s in states):
+        return "FULL"
+    return "NONE" if NONE in states else "LIMITED"
+
+
+def cost_cell_state(domain: str, cov: dict[str, Any], lines: list[dict[str, Any]]) -> str:
+    """S19: a configured domain without the operating-cost category under `APPLICABLE` is NOT_APPLICABLE; mini-grid
+    is REVIEW for an eligible operating-cost line, UNASSESSED on complete money coverage with no line, else UNKNOWN.
+    An unknown configuration is UNKNOWN, never N/A."""
+    if domain == NOT_APPLICABLE:
+        return "UNKNOWN"
+    if OPERATING_COST not in APPLICABLE[domain]:
+        return "NOT_APPLICABLE"
+    mine = [x for x in lines if x["category"] == OPERATING_COST]
+    if any(x["eligibility"] == ELIGIBLE for x in mine):
+        return "REVIEW"
+    if not mine and all(c == G for c in money_units(domain, cov, lines).values()):
+        return "UNASSESSED"
+    return "UNKNOWN"
+
+
+def objective(site: dict[str, Any], e: tuple, m: tuple, historical: bool) -> dict[str, Any]:
+    """One matrix item per authorized Site; the first three cells have no reviewed objective producer."""
+    _, e_domain, e_cov, e_rows = e
+    _, m_domain, m_cov, m_lines = m
+    cells = [_cell(key, "UNKNOWN") for key in OBJECTIVE_KEYS[:3]]
+    cells.append(_cell("COST_CONTROL", cost_cell_state(m_domain, m_cov, m_lines)))
+    cells.append(_cell("EVIDENCE", evidence_cell_state(e_domain, e_cov, e_rows, historical)))
+    return {"site_id": str(site["site_id"]), "site_code": site["site_code"], "site_name": site["site_name"],
+            "domain": site["site_type"], "cells": cells}
+
+
+def evidence_prompt(evidence_state: str, gaps: list[dict[str, Any]]) -> dict[str, Any]:
+    """Closure 2 N5 / closure 4 N5: incomplete coverage wins; else the first canonical gap with a nonnull step and
+    its first Site with a code in the group's `(site_code_key, site_id)` order; null-step gaps are skipped."""
+    out = {"state": "COVERAGE_INCOMPLETE", "text": INCOMPLETE_TEXT, "site_id": None, "site_code": None,
+           "gap_code": None, "destination": "/evidence"}
+    if evidence_state not in (COMPLETE, EMPTY):
+        return out
+    for gap in gaps:
+        if gap["next_step"] is None:
+            continue
+        for sid, code, name in zip(gap["site_ids"], gap["site_codes"], gap["site_names"]):
+            if code is not None:
+                return {**out, "state": "AVAILABLE", "site_id": sid, "site_code": code, "gap_code": gap["gap_code"],
+                        "text": PROMPT_TEXT.format(next_step=gap["next_step"], site_name=name)}
+    return {**out, "state": "NO_GAP", "text": NO_GAP_TEXT}
+
+
+def _plan_id(plans: list[dict[str, Any]], k: datetime) -> str | None:
+    """The selected plan active at the cutoff, else the latest recorded selected plan; null when none."""
+    active = [p for p in plans if p["later_start"] <= k < p["later_end"]]
+    pick = max(active or plans, key=lambda p: (p["recorded_at"], str(p["id"])), default=None)
+    return None if pick is None else str(pick["id"])
+
+
+def progress(a_sites: list[tuple], a_rows: list[dict[str, Any]], k: datetime) -> tuple[dict[str, Any], bool]:
+    """Closure 1 Q21 / r1b: every full-scope selected Action (several per origin pair, and one whose origin revision
+    is no longer selected), the nine fields, `(recorded_at desc nulls last, action_id)`. Counts only on complete
+    applicable Action coverage (cold/EV NOT_APPLICABLE does not force null)."""
+    complete = _coverage_state([cov["state"] for _, cov in a_sites]) == "COMPLETE"
+    rows = []
+    for a in a_rows:
+        raw = a["_raw"]
+        at = raw.get("_selected_recorded_at")
+        rows.append({"action_id": a["action_id"], "action_code": a["action_code"],
+                     "selected_action_event_id": a["selected_event_id"],
+                     "verification_plan_id": _plan_id(raw.get("_plans") or [], k),
+                     "verification_outcome_id": None if raw.get("_outcome_id") is None else str(raw["_outcome_id"]),
+                     "application_state": a["application_state"], "resolution_state": a["resolution_state"],
+                     "verification_outcome": a["verification_outcome"], "recorded_at": wire_time(at), "_at": at})
+    rows.sort(key=lambda r: (r["_at"] is None, 0.0 if r["_at"] is None else -r["_at"].timestamp(), r["action_id"]))
+
+    def count(flag: str) -> int | None:
+        return sum(1 for a in a_rows if a["_raw"].get(flag)) if complete else None
+
+    return {"state": "NO_COMPARABLE_BASELINE", "completed_activity_count": None,
+            "pending_trial_count": count("_verification_window"),
+            "verified_resolution_count": count("_verified_recent"), "recovered_value": None,
+            "rows": [public(r) for r in rows]}, complete
+
+
+def _exact(bounds: dict[str, Any] | None) -> bool:
+    return bool(bounds) and bounds.get("low") is not None and bounds.get("low") == bounds.get("high")
+
+
+def footer(m_sites: list[tuple], lines: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Closure 1: the first eligible EV gross-tariff line with exact quantity and amount and a reviewed EV route
+    (not the current-view fallback), ordered `(site_code_key, site_id, line_key)`; never a group or a Finding."""
+    keys = {str(site["site_id"]).lower(): str(site["site_code_key"]) for site, _, _, _ in m_sites}
+    eligible = [x for x in lines if x["domain"] == EV and x["category"] == GROSS_TARIFF
+                and x["eligibility"] == ELIGIBLE and _exact(x["quantity"]) and _exact(x["amount"])
+                and x["links"].get("current_view_label") is None]
+    if not eligible:
+        return None
+    x = min(eligible, key=lambda x: (keys.get(x["site_id"].lower(), ""), x["site_id"].lower(), x["line_key"]))
+    return {"line_key": x["line_key"], "site_name": x["site_name"], "quantity_display": None,
+            "amount_display": None, "source_provenance": x["source_provenance"], "window_start": x["window_start"],
+            "window_end": x["window_end"], "destination": x["links"]["evidence"]}
+
+
 # --- the service -------------------------------------------------------------------------------------------------
 
 class EstatePortfolioService(EstateEvidenceService):
@@ -209,8 +419,9 @@ class EstatePortfolioService(EstateEvidenceService):
         scope = self._scope(snap, tenant_id, req, admit)
         f_sites, f_rows = select_finding_scope(snap, tenant_id, req, scope)
         a_sites, a_rows = select_action_scope(snap, tenant_id, req, scope)
-        e_sites, _ = select_evidence_scope(snap, tenant_id, req, scope)
-        m_sites, _, _, _, _, _ = select_financial_scope(snap, tenant_id, req, scope)
+        e_sites, e_rows_all = select_evidence_scope(snap, tenant_id, req, scope)
+        m_sites, m_lines_all, applicable, groups, exclusions, diagnostics = select_financial_scope(
+            snap, tenant_id, req, scope)
         by = lambda per: {str(x[0]["site_id"]): x for x in per}  # noqa: E731 - per-Site lookup
         actions_by, evidence_by, money_by = by(a_sites), by(e_sites), by(m_sites)
 
@@ -259,9 +470,42 @@ class EstatePortfolioService(EstateEvidenceService):
                               {"state": coverage_state, "finding_state": states["F"],
                                "evidence_state": states["E"], "money_state": states["M"],
                                "sites": [_coverage_site(site, cov) for site, _, cov in f_sites]})
-        # r1a M1: the all-lens count is an estate claim; only complete (or complete-empty) Finding coverage makes it.
-        summary: dict[str, Any] = {"finding_count": len(members) if states["F"] in (COMPLETE, "EMPTY") else None}
-        body.update({"lens": req.lens, "summary": summary, "order": PORTFOLIO_ORDER, "total_count": len(shown),
+        empty = count == 0
+        gaps = evidence_gap_groups(e_rows_all)
+        prog, actions_complete = progress(a_sites, a_rows, scope["k"])
+        finding_known, evidence_known = states["F"] in (COMPLETE, EMPTY), states["E"] in (COMPLETE, EMPTY)
+        # r1a M1 / wire: estate counts are claims only on complete (or complete-empty) coverage of their root.
+        summary: dict[str, Any] = {
+            "finding_count": len(members) if finding_known else None, "priority_site_count": None,
+            "opportunity_count": (sum(1 for r in members if LENS_FLAG["opportunities"] in r["lens_flags"])
+                                  if finding_known else None),
+            "evidence_gap_site_count": len({sid for g in gaps for sid in g["site_ids"]}) if evidence_known else None,
+            "accepted_action_count": len(a_rows) if actions_complete else None,
+            "verified_resolution_count": prog["verified_resolution_count"],
+            "combined_value": None, "combined_value_state": "NOT_COMPARABLE"}
+        disclosure_sites = []
+        for (site, domain, cov), item in zip(f_sites, token_sites):
+            ids = _ids([*(x for key in SITE_TOKEN_ARRAYS for x in item[key]), cov["selection_id"]])
+            provenance = (snap.cited_provenance(tenant_id, site["site_id"], item["cited_accepted_evidence_ids"], ids)
+                          if ids else None)
+            disclosure_sites.append({"site_id": str(site["site_id"]), "site_code": site["site_code"],
+                                     "site_name": site["site_name"], "domain": site["site_type"],
+                                     "window": {"from": wire_time(req.from_), "to": wire_time(req.to)},
+                                     "coverage": _coverage_site(site, cov), "selected_revision_ids": ids,
+                                     "source_provenance": provenance})
+        body.update({"lens": req.lens, "summary": summary,
+                     "value_cards": value_cards(m_lines_all, applicable, groups),
+                     "objectives": [objective(site, evidence_by[str(site["site_id"])], money_by[str(site["site_id"])],
+                                              bool(snap.basis_historical)) for site, _, _ in f_sites],
+                     "evidence_prompt": evidence_prompt(states["E"], gaps),
+                     "opportunity": {"state": "UNSUPPORTED", "finding_id": None, "scenario_amount": None,
+                                     "headroom": None, "destination": None},
+                     "progress": prog, "footer": footer(m_sites, m_lines_all),
+                     "selected_lines": [public(x) for x in m_lines_all],
+                     "money": {"groups": [] if empty else groups, "exclusions": [] if empty else exclusions,
+                               "diagnostics": [] if empty else diagnostics, "estate_total": None},
+                     "scope_disclosure": {"sites": disclosure_sites, "exclusions": [] if empty else exclusions},
+                     "order": PORTFOLIO_ORDER, "total_count": len(shown),
                      "rows": [{k: v for k, v in r.items() if not k.startswith("_")} for r in page],
                      "next_cursor": None if last is None else self._cursor(tenant_id, req, scope, token,
                                                                           *last["_marker"]),

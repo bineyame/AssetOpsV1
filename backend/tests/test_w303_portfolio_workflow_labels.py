@@ -7,7 +7,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from assetops_backend.estate.portfolio import ActionSelectionError, _action_for, portfolio_row, workflow_label
+from assetops_backend.estate.portfolio import (
+    ActionSelectionError, _action_for, portfolio_row, progress, workflow_label)
 
 T0 = datetime(2026, 11, 1, 12, tzinfo=timezone.utc)
 FINDING, REV, OTHER_REV = "f-1", "r-1", "r-2"
@@ -60,6 +61,16 @@ def test_two_actions_one_exact_origin_latest_event_then_id_tie() -> None:
     # Equal selected event times choose the smaller action_id.
     tied = [action("b-2", at=T0), action("a-1", at=T0)]
     assert _action_for(finding_row(), tied)["action_id"] == "a-1"
+    # r1b: both matching Actions (and one on another origin revision) remain in unpaged `progress.rows`; only the
+    # Finding cell uses the tie. Order is (recorded_at desc, action_id).
+    for a in (older, newer, *tied):
+        a["action_code"], a["_raw"]["_plans"] = a["action_id"].upper(), []
+    other = action("c-3", rev=OTHER_REV, at=T0)
+    other["action_code"] = "C-3"
+    covered = [({"site_id": "s"}, {"state": "CURRENT"})]
+    prog, complete = progress(covered, [older, newer, other], T0 + timedelta(hours=1))
+    assert complete and [r["action_id"] for r in prog["rows"]] == ["z-9", "a-1", "c-3"]
+    assert prog["rows"][0]["recorded_at"] == "2026-11-01T12:05:00Z" and len(prog["rows"][0]) == 9
     # A different revision of the same Finding never joins.
     assert _action_for(finding_row(OTHER_REV), [older, newer]) is None
     assert _action_for(finding_row(OTHER_REV), [action("c-3", rev=OTHER_REV), newer])["action_id"] == "c-3"

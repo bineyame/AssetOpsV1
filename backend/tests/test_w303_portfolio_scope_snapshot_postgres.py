@@ -64,6 +64,13 @@ class Portfolio:
         return response.json()
 
 
+@pytest.fixture(autouse=True)
+def _cursor_key(monkeypatch):
+    """r1b Q-1b-1: every Portfolio request needs the deployment key; a test-only value, never a default."""
+    from assetops_backend.estate.scope import PORTFOLIO_CURSOR_KEY_ENV
+    monkeypatch.setenv(PORTFOLIO_CURSOR_KEY_ENV, "3e" * 32)
+
+
 @pytest.fixture()
 def portfolio_fixture(request, monkeypatch, capsys):
     return build_portfolio_fixture(request, monkeypatch, capsys)
@@ -220,3 +227,77 @@ def test_foreign_tenant_missing_site_and_grant_fence(portfolio_fixture) -> None:
     narrowed = view.ok(**fx.window, limit=100)
     assert narrowed["scope"]["authorized_site_count"] == 4
     assert fx.site_ids["EV-LAB-002"] not in str(narrowed)
+
+
+FULL_SCOPE = ("summary", "value_cards", "objectives", "evidence_prompt", "opportunity", "progress", "footer",
+              "selected_lines", "money", "scope_disclosure", "coverage", "status", "total_count", "selection_token")
+
+
+def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture) -> None:
+    """Run 1b (closure 2 N6 / r1b cards): limits 1 and 100 give equal full-scope projections; the clean fixture's
+    five cards, matrix, prompt, progress, footer and money are the W3-02/W3-01 full-scope selections."""
+    fx = portfolio_fixture
+    view = Portfolio(fx.engine, fx.tenant_id)
+    one, full = view.ok(**fx.window, limit=1), view.ok(**fx.window, limit=100)
+    assert {k: one[k] for k in FULL_SCOPE} == {k: full[k] for k in FULL_SCOPE} and len(one["rows"]) == 1
+    financial = fx.money().ok("financials", **fx.window, limit=100)
+    evidence = fx.money().ok("evidence", **fx.window, limit=100)
+    # Exact unpaged W3-02 line DTOs, groups, exclusions and diagnostics; no estate total (closure-1 declines).
+    assert full["selected_lines"] == financial["rows"] and financial["next_cursor"] is None
+    assert full["money"] == {"groups": financial["groups"], "exclusions": financial["exclusions"],
+                             "diagnostics": financial["diagnostics"], "estate_total": None}
+    assert full["scope_disclosure"]["exclusions"] == financial["exclusions"]
+    assert full["summary"]["combined_value"] is None and full["summary"]["combined_value_state"] == "NOT_COMPARABLE"
+    by_cat = {}
+    for line in financial["rows"]:
+        by_cat.setdefault(line["category"], []).append(line)
+    w1 = by_cat["CANDIDATE_OPERATING_COST_EXPOSURE"]
+    assert [x["eligibility"] for x in w1] == ["ELIGIBLE"]
+    # Clean card states SITE_OWNED / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED, cost from W1 only.
+    cards = full["value_cards"]
+    assert [x["state"] for x in cards] == ["SITE_OWNED", "UNKNOWN", "UNSUPPORTED", "UNSUPPORTED", "NOT_ESTABLISHED"]
+    assert cards[0]["line_keys"] == [w1[0]["line_key"]] and cards[0]["group_key"] == w1[0]["group_key"]
+    assert cards[0]["currency"] == w1[0]["amount"]["currency"] and cards[0]["display_value"] is None
+    ev = sorted(by_cat["GROSS_TARIFF_SCENARIO"], key=lambda x: x["line_key"])
+    ev_group = next(g for g in financial["groups"] if g["category"] == "GROSS_TARIFF_SCENARIO")
+    assert ev_group["state"] == "COMPARABLE" and sorted(ev_group["line_keys"]) == [x["line_key"] for x in ev]
+    assert all(line["finding_id"] is None for line in ev)  # EV window money never attaches to a Finding
+    # Matrix: one item per authorized Site, five fixed cells; cold/EV cost control N/A, W1 REVIEW.
+    code_of = {v: k for k, v in fx.site_ids.items()}
+    cells = {code_of[o["site_id"]]: {x["key"]: x["state"] for x in o["cells"]} for o in full["objectives"]}
+    assert sorted(cells) == sorted(CODES)
+    assert all([x["key"] for x in o["cells"]] == ["SERVICE_PRODUCT", "BACKUP", "ASSET_CONDITION", "COST_CONTROL",
+                                                  "EVIDENCE"] for o in full["objectives"])
+    assert cells["KOBO-001"]["COST_CONTROL"] == "REVIEW"
+    assert {cells[c]["COST_CONTROL"] for c in CODES if c != "KOBO-001"} == {"NOT_APPLICABLE"}
+    assert all(cells[c][k] == "UNKNOWN" for c in CODES for k in ("SERVICE_PRODUCT", "BACKUP", "ASSET_CONDITION"))
+    readiness = {}
+    for row in evidence["rows"]:
+        readiness.setdefault(code_of[row["site_id"]], []).append(row["readiness"])
+    for code, states in readiness.items():
+        expected = "FULL" if all(s == "FULL" for s in states) else ("NONE" if "NONE" in states else "LIMITED")
+        assert cells[code]["EVIDENCE"] == expected, (code, states)
+    # Prompt: the first typed W3-02 gap with a nonnull step, else NO_GAP; CTA /evidence.
+    stepped = [g for g in evidence["gaps"] if g["next_step"] is not None]
+    prompt = full["evidence_prompt"]
+    assert prompt["destination"] == "/evidence"
+    if stepped:
+        assert (prompt["state"], prompt["gap_code"], prompt["site_id"]) == (
+            "AVAILABLE", stepped[0]["gap_code"], stepped[0]["site_ids"][0])
+    else:
+        assert prompt["state"] == "NO_GAP" and prompt["site_id"] is None
+    assert full["summary"]["evidence_gap_site_count"] == len({s for g in evidence["gaps"] for s in g["site_ids"]})
+    # B4: no selected Action in the 10-06 window; complete applicable Action coverage gives zero counts.
+    assert full["progress"]["rows"] == [] and full["progress"]["pending_trial_count"] == 0
+    assert full["summary"]["accepted_action_count"] == 0 and full["progress"]["recovered_value"] is None
+    assert full["opportunity"] == {"state": "UNSUPPORTED", "finding_id": None, "scenario_amount": None,
+                                   "headroom": None, "destination": None}
+    # Footer: the first eligible EV gross-tariff line by (site_code_key, site_id, line_key).
+    first = min(ev, key=lambda x: (x["site_code"].lower(), x["site_id"], x["line_key"]))
+    assert full["footer"]["line_key"] == first["line_key"] and full["footer"]["destination"] == first["links"][
+        "evidence"]
+    # Scope disclosure: one item per authorized Site with the union of its selected IDs.
+    sites = {code_of[s["site_id"]]: s for s in full["scope_disclosure"]["sites"]}
+    assert sorted(sites) == sorted(CODES)
+    assert w1[0]["consequence_revision_id"] in sites["KOBO-001"]["selected_revision_ids"]
+    assert all(s["window"] == {"from": fx.window["from"], "to": fx.window["to"]} for s in sites.values())
