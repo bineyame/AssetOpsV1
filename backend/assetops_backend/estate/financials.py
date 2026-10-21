@@ -384,8 +384,9 @@ def _order(line: dict[str, Any]) -> tuple:
 
 # --- the read --------------------------------------------------------------------------------------------------
 
-def financials_body(service: Any, snap: Any, tenant_id: Any, req: EstateRequest, admit: Any) -> dict[str, Any]:
-    scope = service._scope(snap, tenant_id, req, admit)
+def select_financial_scope(snap: Any, tenant_id: Any, req: EstateRequest, scope: dict[str, Any]) -> tuple:
+    """W3-03 closure 4 B1/B2: `(per_site, lines, applicable, groups, exclusions, diagnostics)` over every selected
+    line before paging, on the caller's one snapshot and `scope` (moved verbatim from `financials_body`)."""
     k = scope["k"]
     per_site, lines, applicable = [], [], {}
     for site in scope["sites"]:
@@ -409,6 +410,13 @@ def financials_body(service: Any, snap: Any, tenant_id: Any, req: EstateRequest,
     lines = [x for x in lines if not (x["line_key"] in seen or seen.add(x["line_key"]))]  # dedupe selected heads
     groups, exclusions, diagnostics = compare(lines, applicable)
     lines.sort(key=_order)
+    return per_site, lines, applicable, groups, exclusions, diagnostics
+
+
+def financials_body(service: Any, snap: Any, tenant_id: Any, req: EstateRequest, admit: Any) -> dict[str, Any]:
+    scope = service._scope(snap, tenant_id, req, admit)
+    k = scope["k"]
+    per_site, lines, applicable, groups, exclusions, diagnostics = select_financial_scope(snap, tenant_id, req, scope)
     token_sites = []
     for site, domain, cov, site_lines in per_site:
         arrays = {"selected_finding_revision_ids": _ids(x["finding_revision_id"] for x in site_lines),

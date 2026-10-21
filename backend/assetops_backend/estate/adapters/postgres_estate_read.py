@@ -308,13 +308,16 @@ class EstateSnapshot:
         """Frozen verification plans and outcome decision times recorded by `k`, per Action."""
         p = {"t": t, "s": s, "k": k, "ids": [str(x) for x in action_ids]}
         out: dict[str, dict[str, Any]] = {}
-        for aid, start, end in self._c.execute(text(
-                "SELECT action_id, later_start, later_end FROM verification_plan WHERE tenant_id = :t "
-                "AND site_id = :s AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k"), p):
+        # W3-03 closure 4 S8: each plan also carries its `id` and `recorded_at` (outcomes map id -> recorded_at);
+        # the existing `later_start`/`later_end` and outcome-map consumers are unchanged. Ordered for determinism.
+        for aid, pid, recorded, start, end in self._c.execute(text(
+                "SELECT action_id, id, recorded_at, later_start, later_end FROM verification_plan WHERE tenant_id = :t "
+                "AND site_id = :s AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k "
+                "ORDER BY recorded_at, id"), p):
             out.setdefault(str(aid), {"plans": [], "outcomes": {}})["plans"].append(
-                {"later_start": start, "later_end": end})
+                {"id": str(pid), "recorded_at": recorded, "later_start": start, "later_end": end})
         for aid, oid, at in self._c.execute(text(
                 "SELECT action_id, id, recorded_at FROM verification_outcome WHERE tenant_id = :t AND site_id = :s "
-                "AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k"), p):
+                "AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k ORDER BY recorded_at, id"), p):
             out.setdefault(str(aid), {"plans": [], "outcomes": {}})["outcomes"][str(oid)] = at
         return out

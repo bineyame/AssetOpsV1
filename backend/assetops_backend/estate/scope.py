@@ -43,14 +43,19 @@ KEYS = {"scope": ("from", "to", "known_at"),
         "findings": ("from", "to", "known_at", "lens", "state", "limit", "cursor"),
         "actions": ("from", "to", "known_at", "limit", "cursor"),
         "evidence": ("from", "to", "known_at", "limit", "cursor"),
-        "financials": ("from", "to", "known_at", "limit", "cursor")}
+        "financials": ("from", "to", "known_at", "limit", "cursor"),
+        # W3-03 closure 4 B1/B2: Portfolio validates its lens as Findings does and forbids `state`.
+        "portfolio": ("from", "to", "known_at", "lens", "limit", "cursor")}
 _FINDING_CURSOR_KEYS = {"v", "tenant_id", "authorized_site_ids", "access_basis", "from", "to", "known_at", "lens",
                         "state_filter", "selection_token", "after", "page_one_mode"}
 _ACTION_CURSOR_KEYS = (_FINDING_CURSOR_KEYS - {"lens", "state_filter"}) | {"kind"}
 # W3-02 closure 4 B1: the Evidence and Financials cursors carry the Action key set (with `kind` equal to the root)
 # and a kind-specific ordered marker: Evidence [site_code_key, site_id, capability_key]; Financials
 # [window_start_or_null, site_code_key, site_id, category, line_key]. Finding/Action markers stay two-part.
-_MARKER_KINDS = {"evidence": 3, "financials": 5}
+# W3-03 closure 4 B1/B2: the Portfolio cursor is the Finding key set plus `kind`, with `state_filter` null, and the
+# five-part marker [episode_start_or_null, site_code_key, site_id, finding_id, finding_revision_id].
+_PORTFOLIO_CURSOR_KEYS = _FINDING_CURSOR_KEYS | {"kind"}
+_MARKER_KINDS = {"evidence": 3, "financials": 5, "portfolio": 5}
 
 
 class EstateRefusal(Exception):
@@ -114,6 +119,10 @@ def parse_request(kind: str, items: Iterable[tuple[str, str]]) -> EstateRequest:
         raise EstateRefusal("INVALID_WINDOW")
     known_at = None if "known_at" not in one else _instant(one["known_at"], "INVALID_KNOWN_AT")
     lens = state_filter = None
+    if kind == "portfolio":
+        lens = one.get("lens", "all")
+        if lens not in LENSES:
+            raise EstateRefusal("INVALID_LENS")
     if kind == "findings":
         lens = one.get("lens", "all")
         state_filter = one.get("state", "all")
@@ -224,6 +233,9 @@ def _marker_ok(kind: str, after: Any) -> bool:
             return False
         if kind == "evidence":
             return all(_nonempty(x) for x in after) and _uuid(after[1])
+        if kind == "portfolio":
+            return ((after[0] is None or _canonical_instant(after[0])) and _nonempty(after[1])
+                    and all(_uuid(x) for x in after[2:]))
         return ((after[0] is None or _canonical_instant(after[0])) and all(_nonempty(x) for x in after[1:])
                 and _uuid(after[2]))
     if len(after) != 2 or not all(isinstance(x, str) for x in after):
@@ -244,7 +256,7 @@ def decode_cursor(kind: str, value: str) -> dict[str, Any]:
         payload = json.loads(raw.decode("utf-8"))
     except (binascii.Error, ValueError, UnicodeDecodeError) as error:
         raise EstateRefusal("INVALID_CURSOR") from error
-    keys = _FINDING_CURSOR_KEYS if kind == "findings" else _ACTION_CURSOR_KEYS
+    keys = {"findings": _FINDING_CURSOR_KEYS, "portfolio": _PORTFOLIO_CURSOR_KEYS}.get(kind, _ACTION_CURSOR_KEYS)
     ok = (isinstance(payload, dict) and set(payload) == keys and payload.get("v") == 1
           and (kind == "findings" or payload.get("kind") == kind)
           and payload.get("page_one_mode") in ("live", "historical")
@@ -253,6 +265,7 @@ def decode_cursor(kind: str, value: str) -> dict[str, Any]:
           and (payload.get("tenant_id") is None or isinstance(payload["tenant_id"], str))
           and isinstance(payload.get("authorized_site_ids"), list)
           and all(isinstance(x, str) for x in payload["authorized_site_ids"])
+          and (kind != "portfolio" or (payload.get("state_filter") is None and payload.get("lens") in LENSES))
           and _marker_ok(kind, payload.get("after")))
     if ok:
         try:
@@ -268,12 +281,13 @@ def decode_cursor(kind: str, value: str) -> dict[str, Any]:
 
 def cursor_after(payload: dict[str, Any]) -> tuple:
     """The ordered resume marker: `(at, row_id)` for Findings/Actions (unchanged); the stored string tuple for
-    Evidence; `(window_start_or_None, site_code_key, site_id, category, line_key)` for Financials."""
+    Evidence; `(window_start_or_None, site_code_key, site_id, category, line_key)` for Financials;
+    `(episode_start_or_None, site_code_key, site_id, finding_id, finding_revision_id)` for Portfolio."""
     kind = payload.get("kind")
     after = payload["after"]
     if kind == "evidence":
         return tuple(after)
-    if kind == "financials":
+    if kind in ("financials", "portfolio"):
         return (None if after[0] is None else _instant(after[0], "INVALID_CURSOR"), *after[1:])
     return _instant(after[0], "INVALID_CURSOR"), after[1]
 
@@ -282,7 +296,7 @@ def cursor_marker(kind: str, after: tuple) -> list[Any]:
     """The wire form of a resume marker (inverse of `cursor_after`)."""
     if kind == "evidence":
         return [str(x) for x in after]
-    if kind == "financials":
+    if kind in ("financials", "portfolio"):
         return [token_time(after[0]), *(str(x) for x in after[1:])]
     return [token_time(after[0]), after[1]]
 
