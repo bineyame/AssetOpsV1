@@ -24,7 +24,16 @@ const CASES = [
   { screen: "backup", state: "gap", app: `${S}/performance/backup?${HOUR("12")}` },
   { screen: "mini", state: "positive", app: `${S}?date=2026-10-06` },
   { screen: "mini", state: "gap", app: `${S}?date=2026-10-12` },
+  // Final review M3: a served Overview on an authored positive day (07-10 Oct) whose selected local noon hour is eligible.
+  { screen: "mini", state: "numeric", app: `${S}?date=2026-10-08` },
 ];
+// Final fix round (q14) ruled texts.
+const MINIGRID_OBJECTIVE = "Objective: serve residential, clinic and productive loads while protecting the battery reserve. Check each card for the supported result and its limits.";
+const NO_LEGACY_REASON = "No legacy evidence was imported for this Site. Dispatch has no assessed comparison for this selection.";
+const PREPARED = "Prepared example data, not field readings";
+const CRITICAL_RECORD = "Critical-service delivered power record";
+const CLINIC = "Clinic feeder delivered power";
+const HEADROOM = /^Headroom \d+(\.\d+)?–\d+(\.\d+)? kW$/;
 const SIZES = [[1440, 1000], [390, 900]];
 const BUDGET = {
   renewable: { 1440: [69, 137, 269, 269, 401, 66], 390: [138, 291, 300, 266, 482, 102] },
@@ -77,6 +86,40 @@ const MEASURE = `(async () => {
     pageH: document.documentElement.scrollHeight };
 })()`;
 
+// Final fix round probes, taken on the fresh load (every disclosure closed).
+const PROBE = `(() => {
+  const main = document.querySelector("main") || document.body;
+  const T = (e) => (e ? e.textContent.replace(/\\s+/g, " ").trim() : null);
+  const p = { openDetails: main.querySelectorAll("details[open]").length };
+  p.authored = /authored_demonstration/i.test(document.body.textContent);
+  p.enums = [...new Set(document.body.textContent.match(/\\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\\b/g) || [])];
+  p.prepared = document.body.innerText.includes(${JSON.stringify(PREPARED)});
+  p.strip = T(main.querySelector(".v69-statusbar__other"));
+  p.objective = T(main.querySelector("[data-objective-statement]"));
+  p.refusal = T(main.querySelector("[data-overview-finding-refusal]"));
+  p.closedCount = (main.innerText.match(/The Findings list is closed/g) || []).length;
+  p.renewableValue = T(main.querySelector('[data-objective-card="renewable"] .v69-metric__value'));
+  p.notes = [...main.querySelectorAll(".v69-metric__note")].map(T);
+  p.clinic = [...main.querySelectorAll("td, th, span")].some((e) => T(e) === ${JSON.stringify(CLINIC)});
+  p.buttons = [...main.querySelectorAll(".v69-claim-button")].map((b) => { const s = getComputedStyle(b);
+    return { bw: s.borderTopWidth, bs: s.borderTopStyle, bg: s.backgroundColor, deco: s.textDecorationLine, text: T(b).slice(0, 40) }; });
+  p.bars = [...main.querySelectorAll(".value-bars__value")].map(T);
+  const panel = main.querySelector(".mini-max--backup-readiness");
+  if (panel) {
+    const box = (e) => { const b = e.getBoundingClientRect(); return { l: b.left + e.clientLeft, t: b.top + e.clientTop, r: b.left + e.clientLeft + e.clientWidth, b: b.top + e.clientTop + e.clientHeight }; };
+    const clips = [panel];
+    const rows = [...panel.querySelectorAll("tr[data-mini-readiness]")].map((r) => {
+      const b = r.getBoundingClientRect(); const anc = [];
+      for (let e = r.parentElement; e && e !== panel; e = e.parentElement) { const s = getComputedStyle(e); if (/(auto|scroll|hidden|clip)/.test(s.overflowX + s.overflowY)) anc.push(e); }
+      const inside = [panel, ...anc].every((e) => { const c = box(e); return b.left >= c.l - 0.5 && b.right <= c.r + 0.5 && b.top >= c.t - 0.5 && b.bottom <= c.b + 0.5; });
+      const scrolled = [panel, ...anc].some((e) => e.scrollTop !== 0 || e.scrollLeft !== 0);
+      return { label: r.getAttribute("data-mini-readiness"), inside, scrolled, h: Math.round(b.height) };
+    });
+    p.readiness = { h: Math.round(panel.getBoundingClientRect().height), open: panel.querySelectorAll("details[open]").length, rows };
+  }
+  return p;
+})()`;
+
 async function shoot(target, w, h, file) {
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: 1, mobile: w < 500 });
   await send("Page.navigate", { url: target });
@@ -84,6 +127,7 @@ async function shoot(target, w, h, file) {
   for (let i = 0; i < 300; i++) { await sleep(150); if (await evalv(ready)) break; }
   await sleep(1500);
   const m = await evalv(MEASURE);
+  m.probe = await evalv(PROBE);
   let opened = null;
   if (!file.startsWith("mini-")) {
     // q12-7: every disclosure and drawer opened; data stay reachable, regions stay within budget, no page overflow.
@@ -103,6 +147,7 @@ async function shoot(target, w, h, file) {
 
 const results = { revision: REV, captured_at: new Date().toISOString(), app: [], checks: [] };
 const fail = [];
+const totals = { buttons: 0, unknownBars: 0 };
 const ONLY = process.env.ONLY ? process.env.ONLY.split(",") : null;
 for (const c of CASES.filter((x) => ONLY === null || ONLY.includes(x.screen))) for (const [w, h] of SIZES) {
   const m = await shoot(`${BASE}${c.app}`, w, h, `${c.screen}-${c.state}-${w}-app.png`);
@@ -114,6 +159,33 @@ for (const c of CASES.filter((x) => ONLY === null || ONLY.includes(x.screen))) f
     check(m.opened.overflowX <= 0 && m.opened.docScrollW <= PAGE_W[w], `opened (${m.opened.disclosures} disclosures/drawers): no page horizontal overflow (scrollW ${m.opened.docScrollW})`);
     check(m.opened.items.length === m.items.length, `opened: ${m.opened.items.length} regions = ${m.items.length}`);
   }
+  // Final fix round assertions (q14 rulings), on the fresh load.
+  const p = m.probe;
+  check(!p.authored, "H2: no authored_demonstration text");
+  check(p.enums.length === 0, `H2: no raw enum text (${p.enums.join(",") || "none"})`);
+  if (c.screen === "mini") {
+    check(p.strip?.startsWith("Reads on this Overview:") === true, `H3: strip starts "Reads on this Overview:" ("${(p.strip ?? "").slice(0, 60)}")`);
+    check(p.objective === MINIGRID_OBJECTIVE, `H3: mini-grid objective ("${(p.objective ?? "").slice(0, 60)}")`);
+    check(p.refusal === NO_LEGACY_REASON, `M4: Needs-attention reason exact ("${p.refusal}")`);
+    check(p.closedCount <= 1, `M4: "The Findings list is closed" at most once (${p.closedCount})`);
+    if (c.state === "numeric") check(HEADROOM.test(p.renewableValue ?? ""), `M3: served Renewable card value "${p.renewableValue}" matches Headroom low–high kW`);
+  } else {
+    check(p.prepared, `H2: shows "${PREPARED}"`);
+    check(p.bars.every((b) => !/not known/i.test(b)), `L1: hatched bars say Unknown (${p.bars.filter((b) => /unknown/i.test(b)).length} Unknown, 0 "not known")`);
+    for (const b of p.buttons) check((b.bs === "none" || b.bw === "0px") && b.bg === "rgba(0, 0, 0, 0)", `M1: claim button "${b.text}" link styling (border ${b.bw} ${b.bs}, bg ${b.bg})`);
+  }
+  if (c.screen === "service") {
+    check(p.notes.some((t) => t.startsWith(CRITICAL_RECORD)), `M2: critical card note starts "${CRITICAL_RECORD}" (${p.notes.find((t) => t.includes("Critical")) ?? "none"})`);
+    check(p.clinic, `M2: clinic row says "${CLINIC}"`);
+  }
+  if (c.screen === "backup" && w === 1440) {
+    const r = p.readiness;
+    check(r !== undefined && p.openDetails === 0 && r.open === 0, "H4: readiness panel present with every detail closed");
+    check(r !== undefined && r.h <= 316, `H4: closed readiness panel h ${r?.h} <= 316`);
+    check(r !== undefined && r.rows.length === 4 && r.rows.every((x) => x.inside && !x.scrolled), `H4: all four readiness rows visible inside the closed panel without scrolling (${r?.rows.map((x) => x.label + ":" + (x.inside && !x.scrolled)).join(", ")})`);
+    check(r?.rows.find((x) => x.label === "Witnessed outcome")?.inside === true, 'H4: "Witnessed outcome" row ("Readiness remains unverified") fully visible');
+  }
+  totals.buttons += p.buttons.length; totals.unknownBars += p.bars.filter((b) => b === "Unknown").length;
   if (c.screen === "mini") {
     const keys = m.objective.map((x) => x.split("|")[0]);
     check(JSON.stringify(keys) === JSON.stringify(["service", "dispatch", "battery", "fuel", "renewable"]), `five Overview cards in order (${keys.join(",")})`);
@@ -133,6 +205,9 @@ for (const c of CASES.filter((x) => ONLY === null || ONLY.includes(x.screen))) f
     const min = w === 390 ? TABLE_MIN[c.screen]?.[i] : undefined;
     if (min !== undefined && it.table) check(it.table.scroll >= min, `region ${i} table scrolls internally (${it.table.scroll}/${it.table.client}, min ${min})`);
   });
+}
+if (ONLY === null) for (const [ok, what] of [[totals.buttons > 0, `M1: claim buttons seen (${totals.buttons})`], [totals.unknownBars > 0, `L1: Unknown hatched bars seen (${totals.unknownBars})`]]) {
+  results.checks.push({ case: "all", what, ok }); if (!ok) fail.push(`all: ${what}`);
 }
 writeFileSync(join(OUT, "evidence.json"), JSON.stringify(results, null, 1));
 for (const r of results.app) console.log(`${r.screen} ${r.state} ${r.width}: ${r.screen === "mini" ? "cards " + (r.items.find((i) => i.kind === "cards")?.h ?? "-") + " (mock " + r.mockCardsH + ")" : r.items.map((i) => i.h).join("/")} page ${r.pageH} scrollW ${r.docScrollW}`);

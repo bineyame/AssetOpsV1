@@ -1,4 +1,4 @@
-"""Seed w402q_test for the W4-02 unit-7 captures: a fresh migrated DB, MG-W402-001 installed by the W4-02 installer,
+"""Seed w402r_test for the W4-02 unit-7 captures: a fresh migrated DB, MG-W402-001 installed by the W4-02 installer,
 an MG-W402-001 gateway credential issued by the provisioning CLI, both authored variants of
 `backend/conversions/w4-mini-depth-cases-v1.json` posted as public Batch V2 content to `POST /api/ingestion/batches`
 (TLS boundary, registered credential), the mini worker drained, and the replay record (accepted IDs + selection seqs,
@@ -19,7 +19,7 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-URL = "postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/w402q_test"
+URL = "postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/w402r_test"
 os.environ["ASSETOPS_TEST_DATABASE_URL"] = URL
 for k in ("ASSETOPS_TEST_RUN_ID", "ASSETOPS_TEST_DATABASE_BASE_URL"):
     os.environ.pop(k, None)
