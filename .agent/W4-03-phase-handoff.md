@@ -53,4 +53,43 @@ All runs used private DB `w403a_test` (dropped afterwards). No full suite was ru
   fixtures 24 passed, 0 failed).
 - Open question for unit 4: PR-1 in `.agent/W4-03-pending-rulings.md` (OPPORTUNITY counter columns).
 
-Next: unit 2
+## Unit 2a (landed, commit 011961ec)
+
+Pure scenario rules; no database. Spec: original Scenario paragraph, closure 1 Q7-Q11, closure 2 N1, closure 4 S8/S16.
+- `backend/assetops_backend/mini_decisions/model.py`: `DecisionRefused(code)` with the W4-03 error table plus closure
+  codes (`DECISION_USER_AUTH_REQUIRED`, `DECISION_ATTESTATION_INVALID`, `DECISION_CORRECTION_CONFLICT`,
+  `DECISION_LINK_SCOPE_INVALID`, `DECISION_COUNTEREVIDENCE_INVALID`, `INVALID_LIMIT`); `invalid()`.
+- `backend/assetops_backend/mini_decisions/scenario_rules.py`: `assumptions(kind, items)` (closed keys, canonical
+  sorted list, decimal strings), `tariff_currency(unit)` (`<ISO 4217>/kWh`, list imported from
+  `financials/assumptions.py:ISO_4217`), `physical_decimal`/`physical_range`/`decimal_text` (S8),
+  `DayRow`, `calculate(kind, items, days)` -> `{state,energy_kwh,gross_sales,reason}`, `eligible_days(days)`.
+- `backend/tests/test_w403_scenario_rules.py`: 26 passed (USD/kWh accepted, `ISO4217/kWh` refused, $2.50 pure
+  vector, 4/5 EXCLUDED-day vector, 18/18.0/fractional/1e-7 serialization, withheld states).
+
+Readings (2a; reviewer may overturn):
+7. Authored decimals must be JSON strings in plain base-10 form; a JSON number or exponent is 422.
+8. `OTHER`: `declared_value` carries a signed decimal and `declared_unit` carries the 1-32 character text, both with
+   `unit: null`.
+9. Assumption `source` is 1-500 trimmed characters.
+10. Calculation reasons: `NOT_PRODUCTIVE_LOAD`, `NO_PINNED_SELECTION` (NO_CALCULATION); `INCOMPLETE_STUDY` (a LIMITED,
+    CONFLICT or bound-less pinned day), `NO_ELIGIBLE_DAY`, `HEADROOM_BELOW_LOAD` (WITHHELD); null when computed.
+    Energy and gross are per eligible one-hour window, not five-day totals.
+
+## Unit 2b (not started: blocked on PR-2)
+
+Stopped before the scenario store/POST: `narrative` is required by the command but 0030 has no column for it. See
+PR-2 in `.agent/W4-03-pending-rulings.md` (plus three readings to confirm). Survey already done for 2b; anchors:
+- S9 basis reader goes on `mini_depth/read.py:MiniDepthRead` beside `_hour` (lines ~408-430), reusing `_HEAD`,
+  `_JOBS`, `_cutoff_sha`, `mini_blocks`, `aggregate_state/job`, `inputs.local_noon`; stored ELIGIBLE bound is
+  `result["hour"]["opportunity_kwh"]`, decision `result["hour"]["decision"]`. `_JOBS` returns statuses only, so
+  pending job IDs for the selection token need an ID-returning variant inside read.py.
+- Gate/principal pattern: `work_api.py:build_work_router` (`read_scope`/`open_scope`); actor/attestation:
+  `work/model.py:actor_shape`, `authorize`, `ATTESTATION`, `canonical_json`, `command_sha256`, `idempotency_key`,
+  `closed`, `uuid_text` (N6: import, do not copy). Registry/MINIGRID: `mini_depth_api.py:site_of`.
+- Mount: `main.py` beside `build_mini_depth_router` (~line 451); `create_app` params end at line 198.
+
+## Checks (2a)
+- `pytest tests/test_w403_scenario_rules.py`: 26 passed. No database used; `w403b_test` not created.
+- `check-all.ps1` at 011961ec: all 11 guards passed.
+
+Next: unit 2b after PR-2 is ruled, then unit 3
