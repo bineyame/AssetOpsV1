@@ -30,6 +30,8 @@ export const ALTERNATIVES_NEEDS_REVIEW = "Needs review for this revision";
 export const ALTERNATIVES_NO_EVIDENCE = "No accepted record supports or excludes this explanation.";
 /** u6 rulings 5 and 6: the noninteractive gap where no exact Finding revision is resolved. */
 export const ALTERNATIVES_FINDING_UNAVAILABLE = "Alternatives for this Finding unavailable";
+/** u7 ruling 9 / u9b PR-12.4: the shorter panel-level 503 label (also for a transport failure, which uses the 503 copy). */
+export const ALTERNATIVES_UNAVAILABLE = "Alternatives unavailable";
 
 /** The original Alternatives ledger's disposition words. */
 const DISPOSITION_WORDS: Record<string, string> = {
@@ -169,12 +171,19 @@ export function MiniAlternatives({
             )}
           </>
         ) : (
-          <p
-            className="mini-alternatives-note"
-            data-alternatives-refused={result.status === "refused" ? result.code : "unavailable"}
-          >
-            {decisionRefusalCopy(result)}
-          </p>
+          <>
+            {result.status === "unavailable" || result.httpStatus === 503 ? (
+              <p className="mini-alternatives-note" data-alternatives-unavailable>
+                <strong>{ALTERNATIVES_UNAVAILABLE}</strong>
+              </p>
+            ) : null}
+            <p
+              className="mini-alternatives-note"
+              data-alternatives-refused={result.status === "refused" ? result.code : "unavailable"}
+            >
+              {decisionRefusalCopy(result)}
+            </p>
+          </>
         )}
       </Panel>
       <Notice tone="blue" data={{ "data-alternatives-notice": "" }}>
