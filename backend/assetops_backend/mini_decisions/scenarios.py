@@ -160,14 +160,19 @@ def encode_cursor(payload: Mapping[str, Any]) -> str:
 def decode_cursor(value: str) -> dict[str, Any]:
     try:
         payload = json.loads(base64.urlsafe_b64decode(value + "=" * (-len(value) % 4)).decode("utf-8"))
-        ok = (isinstance(payload, dict) and payload.get("v") == 1
+        # Unit 3: an Alternatives cursor encodes null for both `from` and `to` (closure 1 Q12-Q16).
+        bounds = isinstance(payload, dict) and (
+            all(isinstance(payload.get(k), str) for k in ("from", "to"))
+            or (payload.get("from") is None and payload.get("to") is None and "from" in payload and "to" in payload))
+        ok = (bounds and payload.get("v") == 1
               and all(isinstance(payload.get(k), str)
-                      for k in ("tenant_id", "site_id", "route", "from", "to", "known_at", "selection_token"))
+                      for k in ("tenant_id", "site_id", "route", "known_at", "selection_token"))
               and isinstance(payload.get("after"), list) and len(payload["after"]) == 2
               and all(isinstance(x, str) for x in payload["after"]))
         if ok:
             for key in ("from", "to", "known_at"):
-                _instant(payload[key], "INVALID_CURSOR")
+                if payload[key] is not None:
+                    _instant(payload[key], "INVALID_CURSOR")
             _instant(payload["after"][0], "INVALID_CURSOR")
             UUID(payload["after"][1])
     except (binascii.Error, ValueError, UnicodeDecodeError, TypeError, DecisionRefused):

@@ -140,4 +140,33 @@ Spec: API/error table; closure 1 Q1-Q3/Q12-Q16; closure 2 Q1; closure 4 B1/B2/S5
   `test_w403_scenario_rules.py`: 61 passed (1020 s). No full suite run.
 - `check-all.ps1`: all 11 guards passed.
 
-Next: unit 3.
+u2c merged from main (3476b97b) and applied as commit 17d91aa1 (fix to unit 2b): decimal-string energy/gross,
+empty-union currentness UNKNOWN/HISTORICAL, no UNKNOWN->SELECTION_CHANGED mapping, S9 W4-02/W4-03 parity test
+(`test_u2c_currentness_reselection_and_s9_parity`), rows[0] fractional bound test, PR-4.1/4.2 route tests. PR-4 resolved.
+
+## Unit 3 (landed; commit after 17d91aa1)
+
+Spec: original Alternative paragraph/panel ledger; closure 1 Q1-Q3, Q12-Q16; closure 4 B1/S17/S20/N1/N2.
+- `mini_decisions/alternatives.py`: `AlternativeService.create/list`, `parse_command`, `rules_out` (N2), `RANKS`,
+  constants; reuses `admit`/`authorize`/`_shape`/`encode_cursor` from `scenarios.py`. Constructor-only test clocks
+  `test_db_clock_override` (command instant, bound to `created_at`) and `test_read_clock_override`.
+- `store.py`: `finding_root` (`FOR NO KEY UPDATE` on commands), `finding_revisions`, `alternative_revisions` (with
+  sorted `cited`), `accepted_intervals` (point evidence `+1us`); `_INSERT_ALTERNATIVE_REVISION` now writes
+  `created_at = COALESCE(:created_at, clock_timestamp())`.
+- `scenarios.decode_cursor` accepts null `from`/`to` together (alternatives cursor).
+- `mini_decisions_api.py`: `GET/POST /api/sites/{code}/findings/{finding_id}/alternatives`; `command()` takes the
+  service; `build_mini_decisions_router(..., alternatives=)`. `main.py` mounts `AlternativeService`.
+- Tests: `backend/tests/test_w403_alternative_postgres.py` (4): F02 R1 -> R2 lifecycle (create/retry/409, RULED_OUT
+  outside-only and absence refused, refusal vectors write nothing, R1 HISTORICAL, R2 NEEDS_REVIEW, carry-forward
+  CURRENT, both cutoffs, S20 basis digests incl. no-citation case, pages/cursor/token, W1 Finding read unchanged before
+  and after writes); N1 cold-domain and non-dispatch replica copies (GET 404, POST 422); N2 interval vectors; route
+  refusal order plus `create_app` mount.
+- Readings: PR-5 in `.agent/W4-03-pending-rulings.md` (non-blocking).
+
+## Checks (u2c + 3)
+- Private DB `w403e_test` (dropped afterwards). `test_w403_alternative_postgres.py` + `test_w403_migration_postgres.py`
+  + `test_s4_finding_read_postgres.py` (W1 Finding regression) + `test_w403_scenarios_postgres.py` +
+  `test_w403_scenario_rules.py`: 53 passed (891 s). No full suite run.
+- `check-all.ps1`: all 11 guards passed.
+
+Next: unit 4.

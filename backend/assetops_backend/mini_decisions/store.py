@@ -64,10 +64,11 @@ _INSERT_ALTERNATIVE_REVISION = (
     "INSERT INTO mini_alternative_revision (id, tenant_id, site_id, finding_id, finding_revision_id, "
     "alternative_key, version_no, supersedes_revision_id, rank, explanation, evidence_summary, "
     "missing_evidence_reason, disposition, reason, actor_kind, actor_id, authorization_basis, attestation, "
-    "idempotency_key, payload_sha256) VALUES (:id, :tenant_id, :site_id, :finding_id, :finding_revision_id, "
-    ":alternative_key, :version_no, :supersedes_revision_id, :rank, :explanation, :evidence_summary, "
-    ":missing_evidence_reason, :disposition, :reason, :actor_kind, :actor_id, :authorization_basis, "
-    ":attestation, :idempotency_key, :payload_sha256)"
+    "idempotency_key, payload_sha256, created_at) VALUES (:id, :tenant_id, :site_id, :finding_id, "
+    ":finding_revision_id, :alternative_key, :version_no, :supersedes_revision_id, :rank, :explanation, "
+    ":evidence_summary, :missing_evidence_reason, :disposition, :reason, :actor_kind, :actor_id, "
+    ":authorization_basis, :attestation, :idempotency_key, :payload_sha256, "
+    "COALESCE(CAST(:created_at AS timestamptz), clock_timestamp()))"
 )
 _INSERT_ALTERNATIVE_EVIDENCE = (
     "INSERT INTO mini_alternative_evidence (tenant_id, site_id, alternative_revision_id, evidence_id) "
@@ -167,7 +168,9 @@ class PostgresMiniDecisionStore:
         if owner != row["finding_id"]:
             raise MiniDecisionWriteRefused(
                 f"Finding revision {row['finding_revision_id']} does not belong to Finding {row['finding_id']}")
-        c.execute(text(_INSERT_ALTERNATIVE_REVISION), dict(row))
+        values = dict(row)
+        values.setdefault("created_at", None)  # unit 3: the command instant (DB time, or the test-only override)
+        c.execute(text(_INSERT_ALTERNATIVE_REVISION), values)
 
     def insert_alternative_evidence(self, c: Connection, row: Mapping[str, Any]) -> None:
         c.execute(text(_INSERT_ALTERNATIVE_EVIDENCE), dict(row))
@@ -258,6 +261,52 @@ class PostgresMiniDecisionStore:
             "AND m.created_at <= :k AND r.recorded_at <= :k "
             "ORDER BY m.id, r.recorded_at DESC, r.revision_no DESC, r.id DESC"),
             {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known}).mappings())
+
+    # --- alternative reads (unit 3) ---------------------------------------------------------------------------
+
+    @staticmethod
+    def finding_root(c: Connection, tenant_id: UUID, site_id: UUID, finding_id: str, *,
+                     lock: bool = False) -> Mapping[str, Any] | None:
+        """The W1 Finding root of this tenant/Site. A command row-locks it (`FOR NO KEY UPDATE`: it serializes
+        alternative commands on one Finding without blocking W1's own revision inserts, which take KEY SHARE)."""
+        sql = "SELECT id, domain, created_at FROM finding WHERE tenant_id = :t AND site_id = :s AND id = :id"
+        if lock:
+            sql += " FOR NO KEY UPDATE"
+        return c.execute(text(sql), {"t": tenant_id, "s": site_id, "id": finding_id}).mappings().one_or_none()
+
+    @staticmethod
+    def finding_revisions(c: Connection, tenant_id: UUID, site_id: UUID, finding_id: Any) -> list[Mapping[str, Any]]:
+        return list(c.execute(text(
+            "SELECT id, revision_no, analytic_id, episode_start, episode_end, created_at FROM finding_revision "
+            "WHERE tenant_id = :t AND site_id = :s AND finding_id = :f ORDER BY revision_no"),
+            {"t": tenant_id, "s": site_id, "f": finding_id}).mappings())
+
+    @staticmethod
+    def alternative_revisions(c: Connection, tenant_id: UUID, site_id: UUID,
+                              finding_id: Any) -> list[Mapping[str, Any]]:
+        """Every alternative revision of one Finding with its exact sorted cited accepted IDs, by key then version."""
+        return list(c.execute(text(
+            "SELECT r.id, r.finding_revision_id, r.alternative_key, r.version_no, r.supersedes_revision_id, "
+            "r.explanation, r.evidence_summary, r.missing_evidence_reason, r.disposition, r.reason, "
+            "r.idempotency_key, r.payload_sha256, r.created_at, COALESCE((SELECT array_agg(e.evidence_id::text "
+            "ORDER BY e.evidence_id::text) FROM mini_alternative_evidence e WHERE e.tenant_id = r.tenant_id "
+            "AND e.site_id = r.site_id AND e.alternative_revision_id = r.id), '{}') AS cited "
+            "FROM mini_alternative_revision r WHERE r.tenant_id = :t AND r.site_id = :s AND r.finding_id = :f "
+            "ORDER BY r.alternative_key, r.version_no"), {"t": tenant_id, "s": site_id, "f": finding_id}).mappings())
+
+    @staticmethod
+    def accepted_intervals(c: Connection, tenant_id: UUID, site_id: UUID, evidence_ids: list[str],
+                           now: Any) -> dict[str, tuple[Any, Any]]:
+        """The named accepted rows of this tenant/Site received by `now`, keyed by lowercase ID, each with its
+        accepted interval; point evidence is `[source_time, source_time + 1us)` as 0029 normalizes it (N2)."""
+        if not evidence_ids:
+            return {}
+        rows = c.execute(text(
+            "SELECT id::text, COALESCE(interval_start, source_time), "
+            "COALESCE(interval_end, source_time + interval '1 microsecond') FROM accepted_evidence "
+            "WHERE tenant_id = :t AND site_id = :s AND id = ANY(CAST(:ids AS uuid[])) AND received_at <= :now"),
+            {"t": tenant_id, "s": site_id, "ids": evidence_ids, "now": now}).all()
+        return {str(r[0]).lower(): (r[1], r[2]) for r in rows}
 
     def run(self, work: Callable[[Connection], T]) -> T:
         """Run `work` in one write transaction (convenience for callers holding no connection)."""

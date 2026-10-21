@@ -3,6 +3,8 @@ closure 1 Q1-Q3/Q12-Q16; closure 2 Q1; closure 4 B2, S10, S15, N8).
 
 - `GET /api/sites/{site_code}/financials/scenarios?from=&to=&known_at=&limit=&cursor=` (`mini-scenarios-1`).
 - `POST /api/sites/{site_code}/financials/scenarios` and `POST .../financials/scenarios/{scenario_id}/revisions`.
+- Unit 3: `GET /api/sites/{site_code}/findings/{finding_id}/alternatives?revision_id=&known_at=&limit=&cursor=`
+  (`mini-alternatives-1`) and `POST .../findings/{finding_id}/alternatives`. Alternatives have no `from`/`to`.
 
 Order: Site read access 401/403 -> registered Site lookup (scope outage 503, unknown 404) -> Site type -> for a
 write, the injected command access 401/403, the store 503, and the injected server principal 403, all before the
@@ -18,6 +20,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from assetops_backend.finding_api import ACCESS_BASIS, Access, development_access
+from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.model import MESSAGES, DecisionPrincipal, DecisionRefused
 from assetops_backend.mini_decisions.scenarios import SCHEMA_LIST, ScenarioService, parse_list
 from assetops_backend.mini_depth.read import MINIGRID
@@ -26,6 +29,7 @@ from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.sites.ports import SiteStoreUnavailable
 
 ROUTE = "/api/sites/{site_code}/financials/scenarios"
+ALTERNATIVES_ROUTE = "/api/sites/{site_code}/findings/{finding_id}/alternatives"
 #: (request, site_code) -> the server-authenticated W4-03 principal, or None (closure 2 Q1).
 DecisionPrincipalResolver = Callable[[Request, str], "DecisionPrincipal | None"]
 
@@ -62,7 +66,8 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
                                 access: Access = development_access,
                                 command_access: Access = deny_decision_writes,
                                 principal: DecisionPrincipalResolver = no_decision_principal,
-                                access_basis: str = ACCESS_BASIS) -> APIRouter:
+                                access_basis: str = ACCESS_BASIS,
+                                alternatives: AlternativeService | None = None) -> APIRouter:
     router = APIRouter()
 
     def site_of(request: Request, site_code: str) -> Any:
@@ -80,14 +85,14 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
             raise _Refusal(404, "SITE_NOT_FOUND", f"No imported Site '{site_code}' in this tenant.")
         return tenant, site
 
-    def command(request: Request, site_code: str) -> tuple[Any, Any, DecisionPrincipal | None]:
+    def command(request: Request, site_code: str, service: Any) -> tuple[Any, Any, DecisionPrincipal | None]:
         tenant, site = site_of(request, site_code)
         grant = command_access(request, site_code)
         if grant == 401:
             raise _Refusal(401, "UNAUTHENTICATED", MESSAGES["UNAUTHENTICATED"])
         if grant == 403:
             raise _Refusal(403, "DECISION_WRITE_FORBIDDEN", MESSAGES["DECISION_WRITE_FORBIDDEN"])
-        if scenarios is None:
+        if service is None:
             raise _Refusal(503, "DECISION_STORE_UNAVAILABLE", MESSAGES["DECISION_STORE_UNAVAILABLE"])
         if site.site_type != MINIGRID:
             # PR-4 (provisional, pending ruling): no mini scenario is authored on a non-MINIGRID Site.
@@ -121,7 +126,7 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
     @router.post(ROUTE)
     async def create_scenario(request: Request, site_code: str) -> JSONResponse:
         try:
-            tenant, site, admitted = command(request, site_code)
+            tenant, site, admitted = command(request, site_code, scenarios)
             body = await body_of(request)
             try:
                 status, out = scenarios.create(tenant.id, site.id, admitted, body)  # type: ignore[union-attr]
@@ -134,11 +139,42 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
     @router.post(ROUTE + "/{scenario_id}/revisions")
     async def correct_scenario(request: Request, site_code: str, scenario_id: str) -> JSONResponse:
         try:
-            tenant, site, admitted = command(request, site_code)
+            tenant, site, admitted = command(request, site_code, scenarios)
             body = await body_of(request)
             try:
                 status, out = scenarios.correct(tenant.id, site.id, admitted, scenario_id,  # type: ignore[union-attr]
                                                 body)
+            except DecisionRefused as refused:
+                raise _of(refused) from refused
+        except _Refusal as refusal:
+            raise _response(refusal, listing=False) from refusal
+        return JSONResponse(status_code=status, content=out)
+
+    @router.get(ALTERNATIVES_ROUTE)
+    def list_alternatives(request: Request, site_code: str, finding_id: str) -> dict[str, Any]:
+        """N1: a Finding that is not a W1 mini-grid dispatch Finding (any Finding of a non-MINIGRID Site included)
+        is 404 `DECISION_NOT_FOUND` after scope, the store check and the query parse."""
+        try:
+            tenant, site = site_of(request, site_code)
+            if alternatives is None:
+                raise _Refusal(503, "DECISION_STORE_UNAVAILABLE", MESSAGES["DECISION_STORE_UNAVAILABLE"])
+            q = request.query_params
+            try:
+                parsed = parse_list(None, None, q.get("limit"), q.getlist("known_at"), q.get("cursor"))
+                return alternatives.list(tenant.id, site.id, finding_id, q.get("revision_id"), parsed, access_basis)
+            except DecisionRefused as refused:
+                raise _of(refused) from refused
+        except _Refusal as refusal:
+            raise _response(refusal, listing=True) from refusal
+
+    @router.post(ALTERNATIVES_ROUTE)
+    async def create_alternative(request: Request, site_code: str, finding_id: str) -> JSONResponse:
+        try:
+            tenant, site, admitted = command(request, site_code, alternatives)
+            body = await body_of(request)
+            try:
+                status, out = alternatives.create(tenant.id, site.id, admitted,  # type: ignore[union-attr]
+                                                  finding_id, body)
             except DecisionRefused as refused:
                 raise _of(refused) from refused
         except _Refusal as refusal:
