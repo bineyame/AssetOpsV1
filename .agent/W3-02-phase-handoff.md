@@ -1,6 +1,17 @@
 # W3-02 phase handoff
 
-## Commit 1 (Lane B) - Evidence read/API READY; awaiting Lane A router mount, then combined review
+## Commit 1 - READY FOR COMBINED REVIEW (Lane B c1 follow-ups landed)
+
+`9efa3914` applies the c1 rulings (build spec "Commit-1 rulings (c1)") on top of Lane A's `cb39fdc9`. Lane B files only.
+- c1-q2: `EvidenceMoneySnapshot.ev_capabilities` uses the public `capabilities_on` `unknown_meter`; the private `_sessions(_pinned_ctx(...))` call is gone.
+- c1-q7: the adapter's `claim_limit_on` passes the estate `page_one_mode` (`snap.basis_historical`) as `basis_mode`.
+- c1-q1: the W1 day is labelled `Historical as of {estate known_at}` from the estate basis (cold/EV already were).
+- c1-q3(5): EV token `selected_assessment_revision_ids` adds the pinned selected session revision IDs.
+- Tests: pure `test_w302_evidence_meter_gap_and_frozen_basis_mode`, W1 historical-label and session-only 409 asserts; Postgres `test_w302_evidence_ev_meter_gap_from_unknown_meter_seconds` (`missing-meter` replay).
+- Checks: `test_w301_estate_*` + `test_w302_*` on private `w302h_test` (dropped): 119 passed, 0 skipped, 16m38s. `check-all` 11/11. No full suite.
+- No new pending rulings. Branch released.
+
+### Earlier: commit 1 (Lane B) - Evidence read/API, before the c1 rulings
 
 Commits `8d1e6325` (code + pure tests) and `c9e19695` (Postgres proofs) on `task/W3-02-estate-evidence-money-basis`, after `git merge main`. Lane A files were not touched. The branch is released to Lane A for the mount (exact diff in `.agent/W3-02-lane-a-requests.md`).
 
