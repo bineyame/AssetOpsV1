@@ -1,0 +1,148 @@
+{
+  "state": "partial",
+  "captured_at": "2026-10-21T07:54:57.697Z",
+  "results": [
+    {
+      "width": 1440,
+      "app_url": "http://localhost:5299/financials?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "image": "financials-partial-1440-app.png",
+      "ready": true,
+      "maxima": {
+        "status": 68,
+        "register": 293,
+        "notice": 66,
+        "aggregation": 123
+      },
+      "over": [
+        "aggregation 211>123"
+      ],
+      "h1": "Portfolio financials",
+      "eyebrow": "Financials",
+      "main": "Financials",
+      "railCurrent": "Financials",
+      "pieces": {
+        "status": {
+          "top": 201,
+          "h": 46,
+          "w": 1160
+        },
+        "register": {
+          "top": 265,
+          "h": 280,
+          "w": 1160
+        },
+        "notice": {
+          "top": 563,
+          "h": 43,
+          "w": 1160
+        },
+        "aggregation": {
+          "top": 623,
+          "h": 211,
+          "w": 1160
+        }
+      },
+      "registerTable": {
+        "client": 1120,
+        "scroll": 1120,
+        "clientH": 154,
+        "scrollH": 154,
+        "rows": 2
+      },
+      "results": {
+        "clientH": 56,
+        "scrollH": 76,
+        "items": 3
+      },
+      "panelTitles": [
+        "Consequence register",
+        "Aggregation rule"
+      ],
+      "notes": [
+        "Some Sites are still being assessed",
+        "The prior mini-grid amount is unavailable in this selection",
+        "Comparable total unavailable for this selection"
+      ],
+      "groupStates": [
+        "Single line",
+        "Not totalled",
+        "Coverage incomplete"
+      ],
+      "docScrollW": 1440,
+      "docClientW": 1440,
+      "refusal": null,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "app_url": "http://localhost:5299/financials?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "image": "financials-partial-390-app.png",
+      "ready": true,
+      "maxima": {
+        "status": 95,
+        "register": 448,
+        "notice": 102,
+        "aggregation": 187
+      },
+      "over": [
+        "aggregation 298>187"
+      ],
+      "h1": "Portfolio financials",
+      "eyebrow": "Financials",
+      "main": "Financials",
+      "railCurrent": "Financials",
+      "pieces": {
+        "status": {
+          "top": 390,
+          "h": 69,
+          "w": 358
+        },
+        "register": {
+          "top": 476,
+          "h": 446,
+          "w": 358
+        },
+        "notice": {
+          "top": 940,
+          "h": 61,
+          "w": 358
+        },
+        "aggregation": {
+          "top": 1020,
+          "h": 298,
+          "w": 358
+        }
+      },
+      "registerTable": {
+        "client": 318,
+        "scroll": 500,
+        "clientH": 300,
+        "scrollH": 345,
+        "rows": 2
+      },
+      "results": {
+        "clientH": 96,
+        "scrollH": 150,
+        "items": 3
+      },
+      "panelTitles": [
+        "Consequence register",
+        "Aggregation rule"
+      ],
+      "notes": [
+        "Some Sites are still being assessed",
+        "The prior mini-grid amount is unavailable in this selection",
+        "Comparable total unavailable for this selection"
+      ],
+      "groupStates": [
+        "Single line",
+        "Not totalled",
+        "Coverage incomplete"
+      ],
+      "docScrollW": 390,
+      "docClientW": 390,
+      "refusal": null,
+      "height": 1360
+    }
+  ]
+}
