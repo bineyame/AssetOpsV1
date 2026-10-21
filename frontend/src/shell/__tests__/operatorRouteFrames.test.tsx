@@ -209,7 +209,7 @@ describe("operator route navigation", () => {
       screen.getByRole("heading", { level: 1, name: "Sites" }),
     ).toBeInTheDocument();
 
-    // Exactly three items (W3-01 adds the estate Actions root). Both parameterless site destinations have been
+    // Exactly four items (W3-01 adds the estate Actions root, W3-02 the estate Evidence root). Both parameterless site destinations have been
     // removed by the slices that gave them identified replacements, and
     // neither replacement is a navigation item, because a navigation item
     // cannot name which site it would open. Findings (T028,
@@ -223,6 +223,7 @@ describe("operator route navigation", () => {
       ["Sites", "/sites"],
       ["Findings", "/findings"],
       ["Actions", "/actions"],
+      ["Evidence", "/evidence"],
     ]);
   });
 
@@ -237,7 +238,7 @@ describe("operator route navigation", () => {
     // W1-UX-07 (`D-2026-10-17-w1-rail`): the full v6.9 root inventory, in the
     // mock's groups and order. A group is headed even when every root in it is
     // unavailable. Each root reads as its label, plus the visible status for
-    // the nine roots with no truthful cross-site destination yet.
+    // the seven roots with no truthful cross-site destination yet.
     const groups = Array.from(
       operatorNavigation.querySelectorAll(".nav-rail__group"),
     ).map((group) => [
@@ -268,7 +269,7 @@ describe("operator route navigation", () => {
           `Operational records | ${off}`,
         ],
       ],
-      [[["ASSURANCE", "ASSURANCE"]], [`Evidence | ${off}`]],
+      [[["ASSURANCE", "ASSURANCE"]], ["Evidence | live"]],
       [[["BUSINESS", "BUSINESS"]], [`Financials | ${off}`]],
       [[["ADMIN", "ADMIN"]], [`Settings | ${off}`]],
     ]);

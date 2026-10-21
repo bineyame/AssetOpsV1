@@ -550,7 +550,7 @@ function Get-OperatorRailFailures {
         "unavailable|Incidents|WORK|",
         "unavailable|Maintenance|WORK|",
         "unavailable|Operational records|WORK|",
-        "unavailable|Evidence|ASSURANCE|",
+        "live|Evidence|ASSURANCE|/evidence",
         "unavailable|Financials|BUSINESS|",
         "unavailable|Settings|ADMIN|"
     )

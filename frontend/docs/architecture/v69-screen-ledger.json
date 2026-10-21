@@ -1379,34 +1379,34 @@
     },
     {
       "id": "globalevidence",
+      "registry_dependencies": {
+        "product_node_id": "P-estate-area",
+        "node_ids": [
+          "I-capability-read",
+          "I-estate-evidence-root",
+          "D-estate-comparable-sites"
+        ]
+      },
       "mock_route": "#/globalevidence",
       "product_destination": "Evidence",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 estate roots",
+      "coverage": "bounded",
+      "task": "W3-02",
+      "follow_on": null,
       "data_owner": "Unassigned Evidence read model",
-      "supported_claim": "No S1-S7 product claim. PortfolioEvidenceMatrix needs a reviewed data and claim contract.",
-      "interaction": "Open Evidence and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until PortfolioEvidenceMatrix is backed by accepted records; no mock value is product evidence.",
+      "supported_claim": "Estate capability readiness across the authorized Sites for a whole-UTC-day window at one cutoff, read from each Site's own selected readiness with per-Site coverage; rows link to Site-owned readiness and the page does not independently score claims.",
+      "interaction": "Open Evidence, choose a window and an optional cutoff, and page through the rows; a Site name opens the Site and a readiness link opens that Site's Evidence for the row's selected window when a row-local cutoff is provable, otherwise the current Site view.",
+      "unknown_or_empty": "A Site without available selected evidence reads Unknown and never counts as zero; priority and unsupported-claim cards read Not assessed; unsupported gap destinations say Not available yet; a refused read names its reason; no mock row or count is product evidence.",
       "visual_reference": "index.html#/globalevidence",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "PortfolioEvidenceMatrix",
-            "CapabilityReadiness"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Capability coverage across sites",
             "Recurring evidence gaps"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-02 commit-2 review accepting the exact slice and its 1440/390 captures, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }

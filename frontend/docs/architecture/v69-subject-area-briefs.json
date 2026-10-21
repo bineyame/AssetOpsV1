@@ -87,7 +87,7 @@
       "models_owned": ["ActionSummary", "PortfolioConsequenceRollup", "PortfolioEvidenceMatrix", "PortfolioSummary", "SiteAssessmentSummary", "SiteDirectorySummary", "SiteOverview"],
       "primary_screens": ["portfolio", "sites", "globalevidence"],
       "decision_nodes": ["A-estate-index-scope", "A-estate-comparability"],
-      "projection_nodes": ["A-estate-projections", "A-estate-action-summary"], "implementation_nodes": ["I-estate-finding-root", "I-estate-action-root"], "fixture_nodes": ["D-estate-comparable-sites"],
+      "projection_nodes": ["A-estate-projections", "A-estate-action-summary"], "implementation_nodes": ["I-estate-finding-root", "I-estate-action-root", "I-estate-evidence-root"], "fixture_nodes": ["D-estate-comparable-sites"],
       "projection_contracts": ["PortfolioSummary", "PortfolioEvidenceMatrix", "PortfolioConsequenceRollup", "SiteAssessmentSummary", "ActionSummary"],
       "fixture_gate": "Multiple Sites with aligned windows, coverage, currency/price basis and consequence overlap groups, reloaded through normal ingestion.",
       "owner_choice": "Decide core ranked Findings and value cards before building Portfolio; unlike bases remain separate."
