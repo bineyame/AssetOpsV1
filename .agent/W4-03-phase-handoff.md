@@ -410,4 +410,72 @@ Readings taken (6b; reviewer may overturn):
 - No DB used. Frontend: miniDecisions 6 passed; full suite 103 files / 2441 tests passed; `tsc --noEmit` clean;
   `vite build` built. `check-all.ps1`: all 11 guards passed (in-page fixtures include the two new Analysis cases). No full backend suite (frontend-only unit).
 
-Next: unit 7.
+## Unit 7 (landed; commit 8bd3b5c4)
+- `sites/miniDecisionsClient.ts`: `getOpportunity(code,id)` (`mini-opportunity-detail-1`), `listOpportunities(code,
+  {from,to,known_at})` (`mini-opportunities-1`, limit 100); `decisionRefusalCopy` (u6b 9 copy by code).
+- `sites/MiniOpportunity.tsx`: `MiniOpportunityPage` (status, four cards, Bounded opportunity, Next decision | Consequence
+  basis), `positiveOpportunity` (= read test `positive()`), `supportedRead`, `opportunityTone`, `renewableHref` (Site code
+  + stored `from/to/known_at` parsed from `links.renewable`; never the UUID), `OpportunityDecisionEntry` +
+  `selectedLocalDays` + `matchStudy` (S14 CTA).
+- `shell/SiteAnalyticsFrames.tsx` `SiteOpportunityFrame`; `operatorSiteRoutes.ts` `SITE_OPPORTUNITY_ROUTE_PATH`,
+  `siteOpportunityHref`; `App.tsx` route + `miniDecisions` passed to `SitePerformanceFrame` -> `MiniRenewable` ->
+  `ProductiveUsePanel` (the W4-02 `Opportunity decision` unavailable entry is replaced only when the client is wired).
+- `SITE_SCREEN_DESCRIPTIONS.opportunity`; settled regex `the opportunity|the opportunity decision`; CSS tones in
+  `w4-mini-decisions.css`. Site Findings: `SiteFindingIndex opportunityHelper` (MINIGRID) renders the S11 helper below
+  the lens row; the `Opportunities` chip stays `UnavailableChip`. Estate lens untouched (S21).
+- Tests (`miniDecisions.test.tsx`): the four named unit-7 tests + `opportunity_chip_and_estate_lens_stay_unavailable`;
+  `miniRenewableRoutes.test.tsx` one-day CTA expectation updated to the shorter-study copy. Backend vector
+  `test_stored_supported_result_unchanged_through_s9_pending_and_stale_reads` already landed in unit 5 (unchanged, not
+  rerun: no backend change). Non-vacuity: removing the CURRENT term from the positive gate fails the supported test.
+
+Readings taken (unit 7; reviewer may overturn). PR-9 holds 1-3.
+1. Breadcrumb: disabled root copy then `Sites › {Site} › Renewable evaluation › {OPP} › Overview` (PR-9.1); the
+   Renewable crumb links the same exact href as the CTA; code crumb only once loaded.
+2. Proposed-load card value `{kW} kW`, note `Linked scenario; name unavailable in this read` / `No scenario linked`
+   (PR-9.2).
+3. Multiple exact roots or any list refusal: noninteractive u6b-9 copy (PR-9.3).
+4. Tone: green = positive gate; else HISTORICAL blue; else LIMITED or PENDING_RECOMPUTE/STALE_SOURCE amber; else grey
+   (so SUPPORTED with zero eligible days is grey).
+5. Usable headroom/Technical quantity show the frozen `headroom_kw` whenever status is SUPPORTED, including pending/
+   stale reads (u4b: unchanged frozen values); the chip, secondary line, claim and Next decision use `supportedRead`
+   (SUPPORTED, five assessed, CURRENT|HISTORICAL, resolved selected class).
+6. Positive claim sentence only when the proposal is at most every eligible day's lower bound; a non-fitting proposal
+   uses the `Measured renewable headroom ...` sentence.
+7. Gross sales gap: `Withheld pending evidence` for PENDING_RECOMPUTE/STALE_SOURCE, else `Not calculated` (card and
+   basis row). Scenario energy/Tariff: `Unavailable in this read` with a linked scenario, else the no-scenario copy.
+8. Evidence drawer: an inline bounded list (max-height 96 px, inner scroll) of the day rows' accepted-ID union, each
+   linking the Site Evidence accepted-record inspector.
+9. Status bar shows currentness words (`Current selection`, `Recompute pending`, `Source changed since selection`,
+   `Historical basis`, `Selection unknown`). No Site tabs row (mock has only the Overview context row); header action
+   `Open site` links `/sites/{code}`.
+10. CTA list read passes the renewable read's `known_at`; detail link carries no query. A non-MINIGRID Site at the
+    opportunity route makes no read and shows `Opportunities are read for mini-grid sites only.`; a 200 with
+    `opportunity:null` shows the same text.
+11. The S11 Site Findings helper renders only for MINIGRID Sites, as `<p data-opportunity-index-helper>` after the chip
+    list inside the controls block.
+12. 1440/390 captures and layout evidence for the Opportunity page: not run (no browser run in this unit); the
+    per-piece caps are unverified until 9b's captures.
+
+## u6b applied (commits b28b4ed3, 53e3abf0; main merged at 2f98f72a)
+All 14 checked. Changed: 3 (helper is the section row's next sibling, outside `nav`; panel guard
+`test/panelStructure.ts` LEADING_SELECTOR admits exactly `[data-analysis-helper]`), 6 (sibling/Overview/money hrefs only
+from the loaded selection; before that `gap` text and no money link; a W1 selection differing from a supplied
+`revision_id` refuses), 9 (refusal copy by code via `decisionRefusalCopy`), 10 (`missing_evidence_reason` shown), 11
+(`getAlternatives(..., page?)` with `known_at/cursor/limit`; `Next` iff `next_cursor`, `First page`; component keyed by
+Site|Finding|revision), 13 (cold/EV `/recommendation` renders the domain frame; cold/EV root or `/recommendation`
+without a domain client shows `This site's Finding view is unavailable.`), 14 (`alternativesUnavailable` whenever the
+CTA destination exists, so `finding_id:null` shows the gap). Confirmed, tests only: 1, 2, 4, 5, 7, 8 (existing ref key
+already carried Site/Finding/revision), 12.
+Tests: `miniDecisions.test.tsx` `u6b_helper_after_row_and_sibling_predicate`, `u6b_same_site_identity_and_replace_reread`,
+`u6b_alternatives_refusal_copy_reason_and_paging`, `u6b_cold_ev_recommendation_stays_in_domain_row`;
+`t028Screens.test.tsx` null-Finding gap; `siteFindingEvidence`/`siteFindingHistory`/`siteAction` fixtures updated to
+the ruling-6 predicate. Non-vacuity: restoring `resolved ?? revisionId` fails the sibling-predicate test.
+Readings (u6b): gap text for an unresolved sibling is its own label (`Overview`, `Evidence`, ...); the domain-unavailable
+copy is new; the `First page` control is an addition beside `Next`.
+
+## Checks (unit 7 + u6b)
+- No DB used (frontend-only). Frontend: 103 files / 2450 tests passed; `tsc --noEmit` clean; `vite build` built.
+- `check-all.ps1`: all 11 guards passed on the final code revision 53e3abf0.
+- Layout evidence: not run (no dev server/browser in this unit); Opportunity 1440/390 caps unverified.
+
+Next: unit 8
