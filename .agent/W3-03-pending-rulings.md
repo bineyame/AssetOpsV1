@@ -158,7 +158,7 @@ build choice. The page keeps the ruled literal text; check-all therefore fails 2
 Question: (a) register a `G-portfolio-opportunity` gap (two placements) and render both through `<MissingClaim>`
 keeping the literal copy, or (b) another ruled treatment.
 
-## P-3-1 (run 3, OPEN): the four r2 Portfolio panel rows fail the dependency-registry checker
+## P-3-1 — RESOLVED by r3 (two new open nodes `I-estate-portfolio-read`/`-ui`, four r3 panel rows, portfolio ledger `registry_dependencies`; registry checker exit 0, check-all 11/11, no checker change) (run 3): the four r2 Portfolio panel rows fail the dependency-registry checker
 Inserting r2's four `panels` rows verbatim (before `actions:1`) makes
 `node frontend/docs/architecture/check_v69_dependency_registry.cjs` fail in two places:
 1. `portfolio: ledger and registry node IDs diverge` - `v69-screen-ledger.json` `portfolio` has no
@@ -177,3 +177,19 @@ The rows and ledger edit were reverted (not committed); check-all stays 11/11 at
 per the dispatch rule; no captures were taken.
 Question: (a) amend each row's `requires` (which projection/ui node per panel), or a new registry node; and
 (b) confirm the forced `portfolio` ledger `registry_dependencies` (`P-estate-area` + panel-order union).
+
+## P-3-2 (run 3, OPEN): `empty` (EMPTY_SCOPE) capture at 390 exceeds two card caps; matrix cannot scroll with zero Sites
+Captured on the real API (`W303_ROUTER=capture`, `tenant=foreign`, fresh UUID; API 200 `EMPTY_SCOPE`, F/E/M
+`EMPTY/EMPTY/EMPTY`, 0 rows, 0 Sites). `app-portfolio-empty.json` / `portfolio-empty-390-app.png`:
+1. `card0 218>207; card1 218>207`. Card 0 is `OPERATING_COST:NO_LINE` with the large value line
+   `No supported value for this window` (wraps to three lines at 175 px); card 1 shares the grid row so it stretches to
+   the same 218. 1440 is within caps (`over=[]`); positive/partial/historical/pending 390 cards are 189/178.
+2. The r2 success check "table/matrix internal scrolling at 390" fails for the matrix only: with zero matrix Sites the
+   matrix is 328 = 328 (nothing to scroll). The Findings table scrolls (720>336); no document overflow (390/390).
+All other empty checks pass: exact status, four named panels, five cards, matrix count 0, zero rows, no fixture Site
+name/code in page text. Options (builder decides nothing):
+- (a) accept item 1 as a recorded limitation (the cap derives from a money-valued mock card; NO_LINE copy is longer);
+- (b) a CSS-only fix, as in run-2 reading 10: the NO_LINE value line at a smaller size at 390 (e.g. 16 px), then
+  recapture all eight states;
+- (c) a shorter literal NO_LINE value (copy change, owner/Architect wording).
+For item 2: confirm the matrix-scroll requirement does not apply when the matrix has zero Site columns.
