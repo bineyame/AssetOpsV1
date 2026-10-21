@@ -10,7 +10,9 @@ from __future__ import annotations
 import base64
 import binascii
 import hashlib
+import hmac
 import json
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Iterable
@@ -137,7 +139,9 @@ def parse_request(kind: str, items: Iterable[tuple[str, str]]) -> EstateRequest:
             raise EstateRefusal("INVALID_LIMIT")
         limit = int(raw)
     cursor = one.get("cursor")
-    if cursor is not None:
+    if cursor is not None and kind == "portfolio":
+        _portfolio_envelope(cursor)  # envelope only; the MAC and shape are verified inside the snapshot (r1b)
+    elif cursor is not None:
         decode_cursor(kind, cursor)  # shape only; the fence is compared inside the snapshot
     return EstateRequest(kind, from_, to, known_at, lens, state_filter, limit, cursor)
 
@@ -247,15 +251,26 @@ def _marker_ok(kind: str, after: Any) -> bool:
     return True
 
 
-def decode_cursor(kind: str, value: str) -> dict[str, Any]:
-    """A structurally valid estate cursor of this root, else 422 INVALID_CURSOR (unsigned; no tamper claim)."""
-    if kind not in KEYS or kind == "scope" or not isinstance(value, str):
+def _json_cursor(value: Any) -> Any:
+    if not isinstance(value, str):
         raise EstateRefusal("INVALID_CURSOR")
     try:
         raw = base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
-        payload = json.loads(raw.decode("utf-8"))
+        return json.loads(raw.decode("utf-8"))
     except (binascii.Error, ValueError, UnicodeDecodeError) as error:
         raise EstateRefusal("INVALID_CURSOR") from error
+
+
+def decode_cursor(kind: str, value: str) -> dict[str, Any]:
+    """A structurally valid estate cursor of this root, else 422 INVALID_CURSOR (unsigned; no tamper claim).
+    Portfolio has no unsigned path (W3-03 r1b Q-1b-1): use `decode_portfolio_cursor`."""
+    if kind not in KEYS or kind in ("scope", "portfolio"):
+        raise EstateRefusal("INVALID_CURSOR")
+    return _shaped(kind, _json_cursor(value))
+
+
+def _shaped(kind: str, payload: Any) -> dict[str, Any]:
+    """The existing v1 shape checks of one root's decoded cursor payload, else 422 INVALID_CURSOR."""
     keys = {"findings": _FINDING_CURSOR_KEYS, "portfolio": _PORTFOLIO_CURSOR_KEYS}.get(kind, _ACTION_CURSOR_KEYS)
     ok = (isinstance(payload, dict) and set(payload) == keys and payload.get("v") == 1
           and (kind == "findings" or payload.get("kind") == kind)
@@ -277,6 +292,54 @@ def decode_cursor(kind: str, value: str) -> dict[str, Any]:
     if not ok:
         raise EstateRefusal("INVALID_CURSOR")
     return payload
+
+
+# --- authenticated Portfolio cursor (W3-03 r1b Q-1b-1) ------------------------------------------------------
+
+PORTFOLIO_CURSOR_KEY_ENV = "ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX"
+_HEX = frozenset("0123456789abcdefABCDEF")
+_MAC_HEX = frozenset("0123456789abcdef")
+
+
+def portfolio_cursor_key() -> bytes:
+    """The deployment's Portfolio cursor key: exactly 64 ASCII hex characters (32 bytes) from the host
+    environment, with no default; missing or malformed configuration is 503 ESTATE_STORE_UNAVAILABLE. The key is
+    never echoed, carried in a cursor or response, or logged."""
+    raw = os.environ.get(PORTFOLIO_CURSOR_KEY_ENV)
+    if not isinstance(raw, str) or len(raw) != 64 or not set(raw) <= _HEX:
+        raise EstateRefusal("ESTATE_STORE_UNAVAILABLE")
+    return bytes.fromhex(raw)
+
+
+def _portfolio_mac(payload: dict[str, Any], key: bytes) -> str:
+    body = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return hmac.new(key, body, hashlib.sha256).hexdigest()
+
+
+def encode_portfolio_cursor(payload: dict[str, Any], key: bytes) -> str:
+    """The v1 Portfolio payload plus `mac`, HMAC-SHA-256 over its canonical JSON, in the URL-safe base64 form."""
+    return encode_cursor({**payload, "mac": _portfolio_mac(payload, key)})
+
+
+def _portfolio_envelope(value: Any) -> dict[str, Any]:
+    """Base64/JSON object with exactly the Portfolio key set plus a lowercase 64-hex `mac`; nothing else is
+    trusted before the MAC verifies."""
+    payload = _json_cursor(value)
+    if (not isinstance(payload, dict) or set(payload) != _PORTFOLIO_CURSOR_KEYS | {"mac"}
+            or not isinstance(payload["mac"], str) or len(payload["mac"]) != 64
+            or not set(payload["mac"]) <= _MAC_HEX):
+        raise EstateRefusal("INVALID_CURSOR")
+    return payload
+
+
+def decode_portfolio_cursor(value: Any, key: bytes) -> dict[str, Any]:
+    """Verify the MAC with `hmac.compare_digest` before any payload field is used, then the existing shape checks.
+    Missing, malformed or wrong MAC: 422 INVALID_CURSOR. Returns the payload without `mac`."""
+    payload = _portfolio_envelope(value)
+    body = {k: v for k, v in payload.items() if k != "mac"}
+    if not hmac.compare_digest(payload["mac"], _portfolio_mac(body, key)):
+        raise EstateRefusal("INVALID_CURSOR")
+    return _shaped("portfolio", body)
 
 
 def cursor_after(payload: dict[str, Any]) -> tuple:

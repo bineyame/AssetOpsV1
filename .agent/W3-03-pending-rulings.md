@@ -51,7 +51,7 @@ spec's second key). No fixture exercises two Actions on one origin pair (10-06 h
 Finding). Question: should Lane A add private `_selected_recorded_at` (the selected event's `recorded_at`) to
 `coverage.py::_actions` rows, with root bytes unchanged, before 1b's workflow-label tests?
 
-## Q-1b-1 — OPEN (run 1b, blocks r1a2 item 4): Portfolio cursor signing key has no configuration seam
+## Q-1b-1 — RESOLVED by r1b (build spec "Run-1b rulings"); was blocking r1a2 item 4: Portfolio cursor signing key has no configuration seam
 
 r1a2 item 4: "Use a server-held cursor signing key; refuse issuance if it is unavailable. ... Lane A owns the shared
 `scope.py` encode/decode seam and configuration in a pre-1b handoff; Lane B uses it for Portfolio in 1b."
@@ -65,7 +65,7 @@ absent, and confirm which run/lane builds the `scope.py` seam (a Lane A pre-run 
 Not built: the HMAC, the 422 tamper tests, and the signed page-one-mode assertions in
 `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token`.
 
-## Q-1b-2 — OPEN (run 1b): `workflow_label` for an APPLIED Action with a non-VERIFIED terminal outcome
+## Q-1b-2 — RESOLVED by r1b (`Applied` by first match): `workflow_label` for an APPLIED Action with a non-VERIFIED terminal outcome
 
 Closure 5 S7: "The table order is precedence", and the last row "Joined Action with none of the above, including
 `NONE_AT_CUTOFF` or a non-VERIFIED terminal outcome" -> `No action yet`. A RESOLVED Action with outcome other than
@@ -76,7 +76,7 @@ so APPLIED + RESOLVED/NOT_VERIFIED reads `Applied`; the test asserts only the un
 Question: is APPLIED + RESOLVED non-VERIFIED `Applied` (strict order) or `No action yet` (terminal clause wins over
 the application rows)? Same question for PENDING + non-VERIFIED terminal, if reachable.
 
-## Q-1b-3 — OPEN (run 1b): r1a2 item 2 pending guard without a selected line is invisible to Lane B
+## Q-1b-3 — RESOLVED by r1b (private `_pending_guard`): r1a2 item 2 pending guard without a selected line is invisible to Lane B
 
 r1a2 item 2: "Lane B uses the full selected Financials inputs, including the guard/withheld reason". The selector
 (`financials.py::select_financial_scope` / `windowed_lines`, Lane A files) exposes per Site only

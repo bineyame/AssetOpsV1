@@ -200,14 +200,17 @@ def mini_grid_lines(snap: Any, t: Any, site: dict[str, Any], cov: dict[str, Any]
 
 
 def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: EstateRequest, k: datetime,
-                   site_state: str) -> tuple[list[dict], bool, list[str]]:
+                   site_state: str) -> tuple[list[dict], bool, list[str], bool]:
     """Cold/EV heads per selected pinned window; returns the lines, whether every window is covered (a stale
-    or pending window, or an EV `STALE_BASIS` guard, leaves the category's coverage unknown), and the selected EV
-    session revision IDs of every pinned window, with or without a stored head (c3-q2(6))."""
+    or pending window, or an EV `STALE_BASIS` guard, leaves the category's coverage unknown), the selected EV
+    session revision IDs of every pinned window, with or without a stored head (c3-q2(6)), and `pending_guard`
+    (W3-03 r1b Q-1b-3): true if any selected cold pinned window is `withheld` or any selected EV pinned window
+    has guard `ERROR_PENDING`, whether or not that window emits a line. A `STALE_BASIS` guard, a missing pin, an
+    uncovered window or an ordinary UNPRICED head never sets it."""
     s = site["site_id"]
     cutoff = snap.evidence_cutoff(t, s, k)
     pins = [] if cutoff is None else snap.pinned_windows(t, s, domain, req.from_, req.to, cutoff, k)
-    lines, covered, sessions = [], True, []
+    lines, covered, sessions, pending_guard = [], True, [], False
     for pin in pins:
         state = _window_state(snap, site_state, pin.get("state"))
         covered = covered and state in COVERED
@@ -217,6 +220,7 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
             read = snap.cold_money(t, s, pin, k)
             if read["withheld"]:  # overlapping cold work pending at K: full-scope coverage is unknown (c3-q2(2))
                 covered = False
+                pending_guard = True
             for row in read["consequences"]:
                 basis = row["exact_basis"]
                 prov = snap.cited_provenance(t, s, basis["evidence_ids"], [row["id"]])
@@ -238,6 +242,7 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
         read = snap.ev_money(pin)
         sessions += [str(x) for x in read.get("session_revision_ids") or ()]
         head, guard = read["consequence"], read["guard"]
+        pending_guard = pending_guard or guard == ERROR_PENDING
         history = sorted(read["history"], key=lambda h: (h["revision_no"] or 0))
         if head is not None and head.get("revision_id") is None:  # the transient guard: never a line
             covered = False
@@ -275,7 +280,7 @@ def windowed_lines(snap: Any, t: Any, site: dict[str, Any], domain: str, req: Es
             limit=" ".join(x for x in [head.get("limitation"), EV_LIMIT] if x), provenance=prov, links=links,
             decision=decision,
             disclosure={"guard": guard, "history": [h["revision_id"] for h in read["history"]]}))
-    return lines, covered and bool(pins), _ids(sessions)
+    return lines, covered and bool(pins), _ids(sessions), pending_guard
 
 
 # --- comparison ---------------------------------------------------------------------------------------------
@@ -392,20 +397,21 @@ def select_financial_scope(snap: Any, tenant_id: Any, req: EstateRequest, scope:
     for site in scope["sites"]:
         domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
         if domain is None:
-            per_site.append((site, NOT_APPLICABLE, not_applicable(), []))
+            per_site.append((site, NOT_APPLICABLE, {**not_applicable(), "_pending_guard": False}, []))
             continue
         cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k)
         if domain == MINI_GRID:
             site_lines = mini_grid_lines(snap, tenant_id, site, cov, k) if cov["state"] in COVERED else []
-            covered, sessions = cov["state"] in COVERED, []
+            covered, sessions, pending_guard = cov["state"] in COVERED, [], False
         else:
-            site_lines, windows_covered, sessions = windowed_lines(snap, tenant_id, site, domain, req, k,
-                                                                   cov["state"])
+            site_lines, windows_covered, sessions, pending_guard = windowed_lines(
+                snap, tenant_id, site, domain, req, k, cov["state"])
             covered = cov["state"] in COVERED and windows_covered
         for category in APPLICABLE[domain]:
             applicable[category] = applicable.get(category, True) and covered
         per_site.append((site, domain, {**cov, "_sessions": sessions, "_windows_covered": covered if domain == MINI_GRID
-                                                                                else windows_covered}, site_lines))
+                                                                                else windows_covered,
+                                       "_pending_guard": pending_guard}, site_lines))
         lines += site_lines
     seen: set[str] = set()
     lines = [x for x in lines if not (x["line_key"] in seen or seen.add(x["line_key"]))]  # dedupe selected heads

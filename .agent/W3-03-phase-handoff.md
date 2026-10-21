@@ -172,4 +172,30 @@ Next: independent review of 0b, then run 1a.
   W3-03 scope snapshot + selectors: 18 passed, 556 s. W3-01 golden + selectors after Lane A: 8 passed, 218 s.
 - `tools/check-all.ps1`: all 11 guards passed. No frontend touched; no full backend suite (run 3).
 
-## Next: rulings Q-1b-1..3, then resume run 1b (remaining projections/tests above); then run 2 (page)
+## Run 1b resumed (after r1b) - PARTIAL: Lane A commit landed; stopped at context budget before Lane B
+- Lane A (r1b Q-1b-1, Q-1b-3): `scope.py` `PORTFOLIO_CURSOR_KEY_ENV`, `portfolio_cursor_key()`,
+  `encode_portfolio_cursor`, `_portfolio_envelope` (parser: base64/JSON, exact key set + lowercase 64-hex `mac`),
+  `decode_portfolio_cursor` (compare_digest before `_shaped`); `decode_cursor("portfolio")` now always 422 (no
+  unsigned path). `index.py::_scope` checks the key first for Portfolio (before any snapshot read, page one/empty
+  scope too) and decodes signed; `_cursor` signs only Portfolio. `financials.py::windowed_lines` returns 4th
+  `pending_guard`; `select_financial_scope` puts private `_pending_guard` on every per-Site cov (False for mini-grid
+  and non-applicable). Tests: `test_w303_estate_cursor.py` (autouse key fixture; `::test_portfolio_signed_round_trip_and_tamper`,
+  `::test_portfolio_signing_key_missing_or_malformed`, `::test_w301_w302_cursor_bytes_unchanged` sha256 of pre-seam
+  bytes); `test_w303_selectors_postgres.py::test_financial_scope_pending_guard_without_line` (pure fake snap driving
+  the real `windowed_lines`/`select_financial_scope`).
+- Checks (private `w303i_test`, dropped after): W3-03 selectors + cursor, W3-02 cursor/money API/comparability/
+  pinned facades/financials links, W3-01 golden + coverage: 102 passed, 1094 s (goldens unchanged).
+  `tools/check-all.ps1`: all 11 guards passed.
+- Known red until Lane B commit 2: `test_w303_portfolio_api.py::test_auth_before_parse_and_all_refusals` and
+  `::test_cursor_lens_window_cutoff_and_v1_token` (no key set -> 503). Lane B adds the autouse key fixture there.
+- Readings (Architect may overturn): R1 key check placed at the top of `_scope` (before `imported_sites`); admission
+  is a filter with no refusal, so "admission precedes the key check" is unobservable. R2 parser does the envelope
+  check only (no key), so a malformed envelope is 422 before a missing key 503; MAC/shape run in the snapshot.
+  R3 the line-less guard test is pure (fake snap), not persisted; W3-02 public bytes proven by the W3-02 goldens.
+- Resume (Lane B, commits 2 and 3 of the dispatch): commit 2 = autouse key fixture + extend
+  `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` (signed live/historical page two,
+  valid-MAC changed grant/selection 409, missing-key 503 exact body), `portfolio.py::money_pending` ->
+  `cov["_pending_guard"]` (PENDING line = consistency assertion only), `workflow_label` tests per r1b Q-1b-2 table
+  (code already matches). Commit 3 = everything in the "NOT built" list of run 1b above except the cursor.
+
+## Next: finish run 1b Lane B (commits 2-3 above), independent review of 1b, then run 2 (page)

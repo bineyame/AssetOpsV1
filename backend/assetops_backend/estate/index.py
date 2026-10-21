@@ -15,8 +15,8 @@ from assetops_backend.estate.coverage import (
     not_applicable, site_coverage)
 from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
-    cursor_marker,
-    decode_cursor, encode_cursor, selection_token, token_time, wire_time)
+    cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
+    portfolio_cursor_key, selection_token, token_time, wire_time)
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
@@ -135,8 +135,14 @@ class EstateIndexService:
     def _scope(snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         """Read time, cutoff and the authorized imported Site set. The tenant is the server's; a denied candidate
         never enters a row, count or digest."""
+        if req.kind == "portfolio":
+            # W3-03 r1b Q-1b-1: the key is checked on every Portfolio request (page one and an empty scope too)
+            # before any selection read; the MAC verifies before any cursor field is trusted.
+            key = portfolio_cursor_key()
+            cursor = None if req.cursor is None else decode_portfolio_cursor(req.cursor, key)
+        else:
+            cursor = None if req.cursor is None else decode_cursor(req.kind, req.cursor)
         read_at: datetime = snap.read_at
-        cursor = None if req.cursor is None else decode_cursor(req.kind, req.cursor)
         known = req.known_at
         if known is not None and known > read_at:
             raise EstateRefusal("INVALID_KNOWN_AT")
@@ -192,8 +198,9 @@ class EstateIndexService:
             payload.update(lens=req.lens, state_filter=req.state_filter)
         else:
             payload["kind"] = req.kind
-            if req.kind == "portfolio":
+            if req.kind == "portfolio":  # W3-03 r1b Q-1b-1: only Portfolio is authenticated
                 payload.update(lens=req.lens, state_filter=None)
+                return encode_portfolio_cursor(payload, portfolio_cursor_key())
         return encode_cursor(payload)
 
     @staticmethod
