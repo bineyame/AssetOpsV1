@@ -286,7 +286,8 @@ class ConsequenceReadService:
         cutoff, the money gate and the source gate are the caller's (Run 6 Blocker 2).
 
         W3-02 0c adds the head's immutable `window_start/window_end`, `quantity_low/quantity_high`,
-        `quantity_unit` and `overlap_group` (whatever the state; null without a head). `cited.power_evidence_ids`
+        `quantity_unit` and `overlap_group` (whatever the state; null without a head); W3-02 c3 adds that same
+        selected row's stored `limitations`, in stored order (null without a head). `cited.power_evidence_ids`
         are `financial_consequence_power_interval.evidence_id` values (the estate wire's `technical_interval_ids`)."""
         k = known_at
         got = self._store.selected_on(c, tenant_id, site_id, finding_revision_id, k)
@@ -305,6 +306,8 @@ class ConsequenceReadService:
             "quantity_high": None if head is None else _text(head["quantity_high"]),
             "quantity_unit": None if head is None else head["quantity_unit"],
             "overlap_group": None if head is None else head["overlap_group"],
+            # W3-02 c3 (c3-q2 5): the selected head's stored `limitations`, in stored order (null without a head).
+            "limitations": None if head is None else list(head["limitations"] or ()),
             "amount_low": None, "amount_high": None, "currency": None, "basis": None, "price": None,
             "cited": {"assessment_revision_ids": [], "assumption_revision_ids": [], "power_evidence_ids": [],
                       "price_revision_id": None}}

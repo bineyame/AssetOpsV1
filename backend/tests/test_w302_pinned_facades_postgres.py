@@ -286,7 +286,8 @@ def test_ev_pinned_read_at_k_survives_a_later_tariff_correction(chain) -> None: 
     assert stale["money"]["consequence"]["amount"] is None
 
 
-HEAD_FIELDS = ("window_start", "window_end", "quantity_low", "quantity_high", "quantity_unit", "overlap_group")
+HEAD_FIELDS = ("window_start", "window_end", "quantity_low", "quantity_high", "quantity_unit", "overlap_group",
+               "limitations")
 W301_KEYS = {"finding_revision_id", "known_at", "finding_id", "consequence_revision_id", "revision_no", "recorded_at",
              "consequence_state", "amount_low", "amount_high", "currency", "basis", "price", "cited", "currentness"}
 
@@ -294,8 +295,28 @@ W301_KEYS = {"finding_revision_id", "known_at", "finding_id", "consequence_revis
 def stored_head(engine, revision_id) -> dict:  # noqa: F811
     with engine.connect() as c:
         return dict(c.execute(text(
-            "SELECT window_start, window_end, quantity_low, quantity_high, quantity_unit, overlap_group "
+            "SELECT window_start, window_end, quantity_low, quantity_high, quantity_unit, overlap_group, limitations "
             "FROM financial_consequence_revision WHERE id = :r"), {"r": revision_id}).one()._mapping)
+
+
+def test_select_consequence_on_carries_the_selected_head_limitations(rig) -> None:  # noqa: F811
+    """c3-q2 (5): `limitations` is the exact selected head's stored list, in stored order, at each cutoff."""
+    from test_s4_consequence_store_postgres import POWER_DAY
+
+    rig.run()  # revision 1: UNPRICED
+    rev = rig.site.on(POWER_DAY)
+    created_at = rig.now()
+    rig.site.publish("v1")
+    rig.run()  # revision 2: PRICED
+    live, at1 = rig.on(rev["id"], rig.now()), rig.on(rev["id"], created_at)
+    assert at1["consequence_revision_id"] != live["consequence_revision_id"]
+    for got in (live, at1):
+        stored = list(stored_head(rig.engine, got["consequence_revision_id"])["limitations"])
+        assert stored, "the fixture head must carry limitations, or null-vs-list is unproven"
+        assert got["limitations"] == stored and all(isinstance(x, str) for x in got["limitations"])
+    with rig.engine.connect() as c:
+        made = c.execute(text("SELECT created_at FROM finding_revision WHERE id = :r"), {"r": rev["id"]}).scalar_one()
+    assert rig.on(rev["id"], made)["limitations"] is None  # no head recorded by the cutoff
 
 
 def test_select_consequence_on_carries_immutable_head_fields(rig) -> None:  # noqa: F811

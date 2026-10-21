@@ -529,3 +529,16 @@ def test_w302_evidence_composition_mount_no_db_503(monkeypatch) -> None:
     if response.status_code == 503:
         assert response.json()["detail"]["code"] == "ESTATE_STORE_UNAVAILABLE"
         assert response.json()["detail"]["gaps"] is None
+
+
+def test_w302_financials_composition_mount_no_db_503(monkeypatch) -> None:
+    """W3-02 c3 (Lane A): `create_app()` serves `/api/estate/financials` on the already-mounted Evidence/money
+    router; with no database it is the typed 503 with every Financials null field."""
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    from assetops_backend.main import create_app
+    response = TestClient(create_app()).get("/api/estate/financials?" + urlencode(WINDOW))
+    assert response.status_code == 503
+    detail = response.json()["detail"]
+    assert detail["code"] == "ESTATE_STORE_UNAVAILABLE" and detail["message"]
+    assert set(detail) == {"code", "message", "rows", "total_count", "groups", "exclusions", "diagnostics"}
+    assert all(detail[k] is None for k in ("rows", "total_count", "groups", "exclusions", "diagnostics"))
