@@ -131,12 +131,57 @@ def test_w302_money_persisted_ev_single_site_line(chain) -> None:  # noqa: F811
 # --- c3-q1: the persisted two-EV-Site comparable fixture ----------------------------------------------------------
 
 SECOND_EV = "EV-LAB-002"
-#: c3-q3 (`.agent/W3-02-pending-rulings.md`): the second registered draft run is refused because every shipped EV
-#: scenario document (`config/scenarios/ev-*.yaml`) names EV-LAB-001. Held for the Architect; commit 3 not done (N3).
-blocked_c3q3 = pytest.mark.skip(reason="c3-q3: RunSetupService refuses ev-complete for EV-LAB-002 (VERSION_UNAVAILABLE)")
+#: c3b (`.agent/W3-02-build-spec.md`, c3-q3): the second run uses the test-only scenario below. It parses only once
+#: Lane A's `ev_parsing.py` admits (EV-LAB-002, 20518) for `ev-complete-lab-002`; until then the strict parser pins
+#: EV-LAB-001/20517 and the path cannot run (`.agent/W3-02-pending-rulings.md`, c3b-q1). Commit 3 not done (N3).
+blocked_c3q3 = pytest.mark.skip(reason="c3b-q1: ev_parsing.py still pins site_code EV-LAB-001 / seed 20517 (Lane A)")
 BACKEND = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(BACKEND)
 SECOND_FIXTURE = os.path.join(BACKEND, "tests", "fixtures", "w3", "ev-lab-002.yaml")
 SECOND_CONVERSION = os.path.join(BACKEND, "conversions", "ev-lab-002-bindings.json")
+SHIPPED_EV_COMPLETE = os.path.join(ROOT, "config", "scenarios", "ev-complete.yaml")
+SECOND_SCENARIO_ID = "ev-complete-lab-002"
+SECOND_SCENARIO = os.path.join(BACKEND, "tests", "fixtures", "w3", "scenarios", f"{SECOND_SCENARIO_ID}.yaml")
+#: The only lines the test-only scenario may change against the shipped `ev-complete` (c3b).
+SECOND_SCENARIO_CHANGES = {"scenario_id: ev-complete": "scenario_id: ev-complete-lab-002",
+                           "site_code: EV-LAB-001": "site_code: EV-LAB-002", "seed: 20517": "seed: 20518"}
+
+
+def test_w302_second_ev_scenario_differs_from_shipped_only_in_three_fields() -> None:
+    """c3b: the test-only `ev-complete-lab-002` is the shipped `ev-complete` line for line (comments included)
+    except `scenario_id`, `site_code` and `seed`, so the fixture cannot drift from the shipped scenario silently."""
+    import yaml
+
+    with open(SHIPPED_EV_COMPLETE, encoding="utf-8") as f:
+        shipped = f.read()
+    with open(SECOND_SCENARIO, encoding="utf-8") as f:
+        second = f.read()
+    shipped_lines, second_lines = shipped.splitlines(), second.splitlines()
+    assert len(shipped_lines) == len(second_lines)
+    changed = {a: b for a, b in zip(shipped_lines, second_lines) if a != b}
+    assert changed == SECOND_SCENARIO_CHANGES
+    a, b = yaml.safe_load(shipped), yaml.safe_load(second)
+    assert (b["scenario_id"], b["site_code"], b["seed"]) == (SECOND_SCENARIO_ID, SECOND_EV, 20518)
+    assert {k: v for k, v in a.items() if k not in ("scenario_id", "site_code", "seed")} == {
+        k: v for k, v in b.items() if k not in ("scenario_id", "site_code", "seed")}
+    assert not os.path.exists(os.path.join(ROOT, "config", "scenarios", f"{SECOND_SCENARIO_ID}.yaml"))
+
+
+def second_scenario_repository(root):
+    """c3b: one test-scoped repository over a temporary root holding the six unchanged shipped EV documents plus
+    the test-only `ev-complete-lab-002` (no duplicate IDs); the default production repository is untouched."""
+    import glob
+    import shutil
+
+    from assetops_backend.scenarios.adapters.yaml_shipped_scenario_store import ReadOnlyYamlScenarioStore
+    from scenario_cache import CachedScenarioRepository
+
+    root.mkdir(parents=True)
+    shipped = sorted(glob.glob(os.path.join(ROOT, "config", "scenarios", "ev-*.yaml")))
+    assert len(shipped) == 6 and SECOND_SCENARIO_ID not in {os.path.basename(p)[:-5] for p in shipped}
+    for path in (*shipped, SECOND_SCENARIO):
+        shutil.copyfile(path, root / os.path.basename(path))
+    return CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))
 
 
 def install_second_ev_site(store):
@@ -188,7 +233,8 @@ def two_ev_sites(tmp_path, monkeypatch):
         hold_uuids(monkeypatch, 0x3022)
         second = Chain("complete", tmp_path / "ev-lab-002", site_code=SECOND_EV, seed=20518)
         opened.append(second)
-        second.open(fresh=False, install=install_second_ev_site)
+        second.open(fresh=False, install=install_second_ev_site,
+                    scenarios=second_scenario_repository(tmp_path / "scenarios"), scenario_id=SECOND_SCENARIO_ID)
         second.start_release_upload()
         run_worker(second)
         assert first.tenant_id == second.tenant_id and first.site_id != second.site_id

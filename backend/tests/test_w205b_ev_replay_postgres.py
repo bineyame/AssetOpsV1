@@ -171,9 +171,10 @@ def definition(case: str):
     return next(s for s in SCENARIOS.list_scenarios() if s.scenario_id == f"ev-{case}")
 
 
-def ev_request(case: str, *, site_code: str = EV, seed: int = 20517) -> dict:
+def ev_request(case: str, *, site_code: str = EV, seed: int = 20517, scenario_id: str | None = None) -> dict:
     return {
-        "site_id": site_code, "foundation_version": 1, "scenario_id": f"ev-{case}", "scenario_version": 1,
+        "site_id": site_code, "foundation_version": 1, "scenario_id": scenario_id or f"ev-{case}",
+        "scenario_version": 1,
         "interval": {"start_time": WINDOW["start"], "end_time": WINDOW["end"]}, "timestep_minutes": 1,
         "seed": seed, "model_profile": {"profile_id": "ev-charger", "profile_version": 1},
         "publication_profile": {"profile_id": "ev-publication", "profile_version": 1}, "run_inputs": [],
@@ -236,9 +237,14 @@ class Chain:
         decision clock and the batch ingestion clock, so `received_at <= decided_at` in every chunk of a phase."""
         return LATE_DECISION if self.late else FIRST_DECISION
 
-    def open(self, *, fresh: bool = True, install=None) -> "Chain":
+    def open(self, *, fresh: bool = True, install=None, scenarios=None, scenario_id: str | None = None) -> "Chain":
         """W3-02 c3-q1: `fresh=False` keeps the database another chain already opened; `install(store)` imports
-        this chain's Site (default: the reviewed `install_ev_lab`)."""
+        this chain's Site (default: the reviewed `install_ev_lab`). W3-02 c3b (c3-q3): `scenarios` is an injected
+        test-scoped repository used by both the Draft setup and `StoreEvInputs`, and `scenario_id` selects this
+        chain's scenario in it by its distinct ID (defaults: the shipped repository and `ev-<case>`)."""
+        repository = scenarios if scenarios is not None else SCENARIOS
+        wanted = scenario_id or f"ev-{self.case}"
+        selected = next(s for s in repository.list_scenarios() if s.scenario_id == wanted)
         url = make_url(URL)
         assert url.database and url.database.endswith("_test"), "Refusing a database not named *_test"
         if fresh:
@@ -250,12 +256,13 @@ class Chain:
         self.tenant_id, self.site_id = result.tenant.id, result.site.id
         self.runs = YamlRunStore(self.tmp / "runs")
         setup = RunSetupService(
-            self.runs, FakeSites(()), FakeScenarios((definition(self.case),)),
+            self.runs, FakeSites(()), scenarios if scenarios is not None else FakeScenarios((selected,)),
             model_profiles=(EV_CHARGER_MODEL,), publication_profiles=(EV_PUBLICATION_PROFILE,),
             now=lambda: "2026-10-06T07:00:00Z",
             registered_bases=RegisteredLabBasis(ImportedSiteRegistry(FoundationService(self.store, "demo",
                                                                                        Clock(SETUP_AT)))))
-        self.run = setup.create_draft_run(ev_request(self.case, site_code=self.site_code, seed=self.seed))
+        self.run = setup.create_draft_run(ev_request(self.case, site_code=self.site_code, seed=self.seed,
+                                                     scenario_id=wanted))
         assert self.run.execution_status == "READY", self.run.blocking_reasons
         self._gateway()
         self.host = HostLabExecution(
@@ -264,7 +271,7 @@ class Chain:
             gateway=RegisteredGatewayPublisher(self.process.link),
             schedules=JsonPublicationSchedules(self.tmp / "schedules"),
             source_publisher=publisher_for(URL),
-            ev_inputs=StoreEvInputs(self.store, cached_scenario_repository()),
+            ev_inputs=StoreEvInputs(self.store, scenarios if scenarios is not None else cached_scenario_repository()),
         )
         self.attest()
         return self
