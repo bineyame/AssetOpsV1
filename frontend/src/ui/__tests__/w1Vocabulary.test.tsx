@@ -9,6 +9,7 @@ import {
   scanProductVocabulary,
   W1_VOCABULARY_VERSION,
 } from "../../test/productVocabulary";
+import vocabulary from "../../test/productVocabulary.json";
 import { currentnessWords, ExactReferences, HeadlineVisualCard, ProductStatus, ValueBars } from "..";
 
 describe("W1 vocabulary set: raw-code pattern", () => {
@@ -43,6 +44,28 @@ describe("W1 vocabulary set: raw-code pattern", () => {
     expect(forbiddenPhrases("The scenario run finished", "w1")).toEqual(expect.arrayContaining(["scenario", "run"]));
     // The T028 list alone is unchanged.
     expect(forbiddenPhrases("Why the generator ran at 06:00")).toEqual(["ran"]);
+  });
+
+  // W2-F q1 (.agent/W2-F-build-spec.md "Copy rulings (q1)").
+  it("w2f_q1: only the exact Claim boundary heading is glossed; the ruled plain copy passes both sets", () => {
+    expect(forbiddenPhrases("Claim boundary", "w1")).toEqual([]);
+    expect(forbiddenPhrases("claim", "w1")).toContain("claim");
+    for (const sentence of [
+      "We cannot confirm that the compressor switched on after the interruption and that a later chamber reading returned to the allowed temperature range.",
+      "Record-level detail and how each limit is set cannot be read for this window.",
+      "Record-level detail and how each limit is set are on Evidence \u203a Analysis.",
+    ]) {
+      for (const set of ["t028", "w1"] as const) expect(forbiddenPhrases(sentence, set), `${set}: ${sentence}`).toEqual([]);
+    }
+    const glosses = (vocabulary as { glosses: { text: string; why: string }[] }).glosses;
+    expect(glosses.filter((g) => g.text === "Claim boundary")).toEqual([
+      {
+        text: "Claim boundary",
+        why: "W2-F q1: exact v6.9 cold Temperature panel 3 heading (frontend/mockups/v69/screens.js); only this heading is allowed, while other uses of claim remain guarded.",
+      },
+    ]);
+    expect(glosses.some((g) => g.text === "Ordered compressor running after the interruption")).toBe(false);
+    expect(glosses.some((g) => /claim limits/i.test(g.text))).toBe(false);
   });
 });
 

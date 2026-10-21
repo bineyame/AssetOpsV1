@@ -434,7 +434,13 @@ describe("W2-03 q3: unavailable entries, wording and provenance", () => {
     await settledScreen();
     const headings = Array.from(main().querySelectorAll("h2")).map((h) => h.textContent);
     expect(headings.indexOf("Claim boundary")).toBe(2);
-    expect(panelTitled("Claim boundary").querySelector("#cold-claim-boundary-heading")).not.toBeNull();
+    const heading = panelTitled("Claim boundary").querySelector("#cold-claim-boundary-heading") as HTMLElement;
+    expect(heading).not.toBeNull();
+    expect(heading.textContent).toBe("Claim boundary");
+    // W2-F q1: the exact heading is the one allowed gloss; a populated W1 scan of it finds nothing.
+    const scan = scanProductVocabulary(heading, "cold", { set: "w1" });
+    expect(scan.scanned).toBeGreaterThan(0);
+    expect(describeViolations(scan.violations)).toBe("");
     expect(main().textContent).not.toContain("How each limit is set");
   });
 

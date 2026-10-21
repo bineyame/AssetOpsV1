@@ -81,11 +81,7 @@
     },
     {
       "text": "Claim boundary",
-      "why": "W2-F review closure N0/M4 (.agent/W2-F-build-spec.md): the exact v6.9 title of the cold temperature screen's third panel, superseding deviation 18's plain variant; exact phrase, so `claim` stays flagged in other prose."
-    },
-    {
-      "text": "Ordered compressor running after the interruption",
-      "why": "W2-F review closure S1 (.agent/W2-F-build-spec.md): the exact backend cooling-claim limitation; ordinary operational wording like `generator running` (D-2026-10-16-w1-ux); exact phrase, so `running` stays flagged in other prose."
+      "why": "W2-F q1: exact v6.9 cold Temperature panel 3 heading (frontend/mockups/v69/screens.js); only this heading is allowed, while other uses of claim remain guarded."
     },
     {
       "text": "solar power (PV)",

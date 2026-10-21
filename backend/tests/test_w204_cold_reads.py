@@ -51,6 +51,9 @@ ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "selected_s
 DTO = {"classification", "state", "source_ids", "evidence_ids", "basis_sha256", "reasons", "detail"}
 RAW_CODES = tuple(SCREEN_WORDING)
 EXCURSION_ATTENTION = ["COLD_START_FAILURE", "COLD_TRANSFER_UNKNOWN"]  # the excursion replay's chain
+# W2-F q1 ruling (.agent/W2-F-build-spec.md "Copy rulings (q1)"): the exact cooling limitation literal.
+Q1_COOLING_LIMITATION = ("We cannot confirm that the compressor switched on after the interruption and that a later "
+                         "chamber reading returned to the allowed temperature range.")
 
 
 def _registry(site_id, tenant_id, site_type="COLDCHAIN"):
@@ -136,8 +139,7 @@ def test_run5_exact_copy() -> None:
     # W2-F closure S2: cooling recovery is never SUPPORTED in W2, so there is no SUPPORTED cooling text to render.
     assert set(csr.COOLING_TEXT) == {"LIMITED", "UNAVAILABLE", "CONTRADICTORY"}
     assert csr.COOLING_TEXT["LIMITED"] == "Cooling recovery is not established by the selected start chain."
-    assert csr.COOLING_LIMITATION == ("Ordered compressor running after the interruption and a later in-band chamber "
-                                      "reading are not established by this assessment.")
+    assert csr.COOLING_LIMITATION == Q1_COOLING_LIMITATION
     assert csr.PRODUCT_LIMITATION == "Product identity, stock value and a reviewed response rule are not declared."
     assert set(csr.REQUIREMENTS) == {"cold-excursion/1", "cold-start-response/1"}
 
@@ -521,6 +523,7 @@ def test_w2f_recovery_and_exposure_capability_vectors() -> None:
     complete = _cap_states(_BOUNDED_EXCURSION, [_chain()])
     assert complete["EXCURSION_BOUNDS"]["state"] == "SUPPORTED"  # the thermal bound stays a separate claim
     assert _recovery_pair(complete) == limited
+    assert complete["COOLING_RESPONSE"]["limitation"] == Q1_COOLING_LIMITATION
     # No selected START chain: compressor and probe roles are present, still no cooling claim.
     assert _recovery_pair(_cap_states(_BOUNDED_EXCURSION, [])) == (
         ("UNAVAILABLE", csr.COOLING_LIMITATION), ("UNAVAILABLE", csr.PRODUCT_LIMITATION))
@@ -561,10 +564,11 @@ def test_w2f_recovery_and_exposure_truth_across_selected_reads(chain, case, excu
     assert ev["selected_excursion_present"] is excursion
     caps = {x["claim"]: x for x in ev["capabilities"]}
     cooling, product = caps["COOLING_RESPONSE"], caps["PRODUCT_EXPOSURE"]
-    assert (cooling["state"], cooling["limitation"]) == ("LIMITED", csr.COOLING_LIMITATION)
+    # W2-F q1: the exact ruled limitation literal, for the compressor-OFF/no later running report vector.
+    assert (cooling["state"], cooling["limitation"]) == ("LIMITED", Q1_COOLING_LIMITATION)
     assert (product["state"], product["limitation"]) == ("UNAVAILABLE", csr.PRODUCT_LIMITATION)
     assert ov["cooling"] == {"state": "LIMITED", "text": csr.COOLING_TEXT["LIMITED"], "as_of": cooling["as_of"],
-                             "limitation": csr.COOLING_LIMITATION}
+                             "limitation": Q1_COOLING_LIMITATION}
     # The selected chain limits the claim: one chain with its first compressor step; no recovery is claimed.
     [backup_chain] = back["chains"]
     assert [s["kind"] for s in backup_chain["steps"]].count("COMPRESSOR") == 1

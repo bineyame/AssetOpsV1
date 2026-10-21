@@ -1024,17 +1024,20 @@ function EvidenceScreen(p: ScreenProps) {
           )}
         </Panel>
       </div>
-      {/* W2-F M3: refused -> one grammatical sentence; loaded with no Analysis target -> the null-link copy is its own sentence. */}
+      {/* W2-F M3 + q1 ruling: refused -> one plain sentence, no link; loaded with no Analysis target -> the null-link copy is its own sentence. */}
       <Notice tone="blue">
         {e === null ? (
-          <span data-cold-evidence-footer="refused">Record-level detail and claim limits cannot be read for this window.</span>
+          <span data-cold-evidence-footer="refused">Record-level detail and how each limit is set cannot be read for this window.</span>
         ) : analysis === null ? (
           <span data-cold-evidence-footer="no-link">
-            Record-level detail and claim limits are on Evidence › Analysis. <ToLink href={null}>{null}</ToLink>.
+            <span>Record-level detail and how each limit is set are on Evidence › Analysis.</span>{" "}
+            <span data-cold-evidence-footer-target="none">
+              <ToLink href={null}>{null}</ToLink>.
+            </span>
           </span>
         ) : (
           <span data-cold-evidence-footer="link">
-            Record-level detail and claim limits are on <ToLink href={analysis}>Evidence › Analysis</ToLink>.
+            Record-level detail and how each limit is set are on <ToLink href={analysis}>Evidence › Analysis</ToLink>.
           </span>
         )}
       </Notice>

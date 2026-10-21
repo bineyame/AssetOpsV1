@@ -81,8 +81,9 @@ COOLING_TEXT = {
     "CONTRADICTORY": "Cooling response has contradictory records",
 }
 # W2-F closure S1: claim-specific limitations, carried within the same selected snapshot.
-COOLING_LIMITATION = ("Ordered compressor running after the interruption and a later in-band chamber reading are "
-                      "not established by this assessment.")
+# W2-F q1 ruling: plain copy for the missing ordered-recovery proof.
+COOLING_LIMITATION = ("We cannot confirm that the compressor switched on after the interruption and that a later "
+                      "chamber reading returned to the allowed temperature range.")
 PRODUCT_LIMITATION = "Product identity, stock value and a reviewed response rule are not declared."
 MAINTENANCE_TEXT = "No maintenance work record is available for this window"
 MAINTENANCE_LIMITATION = "No accepted maintenance work record is in the W2-04 read contract."

@@ -56,7 +56,8 @@ function envelope(state = "CURRENT", selected = true): ColdEnvelope {
 }
 const dated = { as_of: KNOWN, limitation: null };
 // W2-F 1a backend claim limitations (cold_site_reads.py COOLING_LIMITATION / PRODUCT_LIMITATION), verbatim.
-const COOLING_LIMITATION = "Ordered compressor running after the interruption and a later in-band chamber reading are not established by this assessment.";
+// W2-F q1 ruled literal.
+const COOLING_LIMITATION = "We cannot confirm that the compressor switched on after the interruption and that a later chamber reading returned to the allowed temperature range.";
 const PRODUCT_LIMITATION = "Product identity, stock value and a reviewed response rule are not declared.";
 
 const STOCKED_OVERVIEW: ColdOverviewRead = {
@@ -345,7 +346,6 @@ const LEDGER_CLAIM = new RegExp(
       "Coverage or claim basis incomplete",
       "Claim effect not assessed",
       "Claim limit not assessed",
-      "Record-level detail and claim limits are on",
       "How a claim limit is set",
       // Run-7 ruled copy for the closed claim panel and its one disclosure.
       "Each claim needs accepted readings and enough coverage for the selected window\.",
@@ -1029,19 +1029,34 @@ describe("W2-F 2: cold frame on refusal, consequence counts and record IDs", () 
     // Evidence footer: refused -> one grammatical sentence; loaded -> exact Analysis link; null target -> separate sentence.
     renderCold(ROUTES[1][1], all(DOWN as never));
     await settledScreen();
-    expect(text(document.querySelector("[data-cold-evidence-footer]")!)).toBe("Record-level detail and claim limits cannot be read for this window.");
+    // W2-F q1: plain refused copy, no link, and a populated W1 scan with zero violations (jsdom: one DOM for 1440 and 390).
+    const refused = document.querySelector("[data-cold-evidence-footer=\"refused\"]") as HTMLElement;
+    expect(text(refused)).toBe("Record-level detail and how each limit is set cannot be read for this window.");
+    expect(refused.querySelector("a")).toBeNull();
+    const refusedScan = scanProductVocabulary(refused, "cold-evidence", { set: "w1" });
+    expect(refusedScan.scanned).toBeGreaterThan(0);
+    expect(describeViolations(refusedScan.violations)).toBe("");
     cleanup();
     renderCold(ROUTES[1][1], STOCKED);
     await settledScreen();
-    const footer = document.querySelector("[data-cold-evidence-footer=\"link\"]")!;
+    const footer = document.querySelector("[data-cold-evidence-footer=\"link\"]") as HTMLElement;
+    expect(text(footer)).toBe("Record-level detail and how each limit is set are on Evidence \u203a Analysis.");
     expect(footer.querySelector("a")?.getAttribute("href")).toBe(`/sites/COLD-001/evidence${Q}&view=analysis`);
+    expect(footer.querySelector("a")?.textContent).toBe("Evidence \u203a Analysis");
+    const loadedScan = scanProductVocabulary(footer, "cold-evidence", { set: "w1" });
+    expect(loadedScan.scanned).toBeGreaterThan(0);
+    expect(describeViolations(loadedScan.violations)).toBe("");
+    expect(text(main())).not.toMatch(/claim limits/i);
     expect(document.querySelector("[data-cold-refused-strip]")).toBeNull();
     cleanup();
     renderCold(ROUTES[1][1], { ...STOCKED, evidence: ok({ ...STOCKED_EVIDENCE, links: { ...STOCKED_EVIDENCE.links, analysis: null } } as unknown as ColdEvidenceRead) });
     await settledScreen();
     const noLink = document.querySelector("[data-cold-evidence-footer=\"no-link\"]")!;
-    expect(text(noLink)).toBe("Record-level detail and claim limits are on Evidence › Analysis. No linked page for this item.");
+    expect(text(noLink)).toBe("Record-level detail and how each limit is set are on Evidence › Analysis. No linked page for this item.");
+    expect(text(noLink.querySelector("[data-cold-evidence-footer-target=\"none\"]")!)).toBe("No linked page for this item.");
     expect(noLink.querySelector("a")).toBeNull();
+    const noLinkScan = scanProductVocabulary(noLink as HTMLElement, "cold-evidence", { set: "w1" });
+    expect(describeViolations(noLinkScan.violations)).toBe("");
   });
 
   // M5/N9: the chip counts the displayed bridge rows from the selected responses.
