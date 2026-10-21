@@ -24,7 +24,7 @@ if URL:
     from fastapi.testclient import TestClient
     from sqlalchemy import text
     from test_s1_bindings_postgres import engine, store  # noqa: F401
-    from test_w402_reads_postgres import CODE, DAYS, ZONE, _midnight, _read, _reconcile, _setup
+    from test_w402_reads_postgres import CODE, DAYS, ZONE, _ingest, _midnight, _read, _reconcile, _setup
     from test_w403_opportunity_worker_postgres import project, revisions, worker
     from test_w403_scenarios_postgres import (
         _Registry,
@@ -57,6 +57,17 @@ LIST_KEYS = {"schema_version", "window", "status", "currentness", "source_proven
 DAY_KEYS = {"local_day", "decision", "opportunity_kwh", "constraints", "evidence_ids", "selection_seq",
             "mini_revision_id"}
 READ_CODES = {"SELECTION_CHANGED", "RECOMPUTE_PENDING", "SOURCE_STALE", "SCENARIO_BASIS_MISMATCH"}
+#: u5b ruling 1: an authorized non-MINIGRID Site's detail, before the Performance gate and the decision store.
+UNSUPPORTED_DETAIL = {
+    "schema_version": "mini-opportunity-detail-1", "opportunity": None, "status": "UNKNOWN",
+    "currentness": {"state": "UNKNOWN", "job_state": "NONE", "selection_seq": None, "selected_at": None,
+                    "windows": []},
+    "source_provenance": {"classification": "UNKNOWN", "state": "UNKNOWN", "source_ids": [], "evidence_ids": [],
+                          "basis_sha256": None,
+                          "reasons": [{"code": "EMPTY_CITATION_SET", "accepted_evidence_ids": []}]},
+    "selected_source_provenance": None, "pending_source_provenance": None,
+    "limitations": [{"code": "SITE_ROLE_UNSUPPORTED", "evidence_ids": []}], "history": [], "scenario_links": [],
+    "links": {"renewable": None, "site_work": None, "scenario": None}}
 
 
 def service(engine) -> "OpportunityService":
@@ -210,6 +221,37 @@ def test_pending_stale_missing_historical_current_precedence_and_jobs(store, eng
     _, missing, full = states(known=k_clean)
     assert (full["state"], missing["state"]) == ("HISTORICAL", "UNKNOWN")
 
+    # u5b ruling 3: the literal overlap predicate. A job touching the 6-10 Oct study's end (11-16 Oct) never counts.
+    touching = job(engine, t, s, _midnight(date(2026, 10, 11)), _midnight(date(2026, 10, 16)), "FAILED")
+    env, missing, full = states()
+    assert (full["state"], missing["state"]) == ("STALE_SOURCE", "STALE_SOURCE")
+    # The adjacent 10-14 Oct study's five-day job overlaps 6-10 Oct on 10 Oct and only touches 5-9 Oct.
+    adjacent = job(engine, t, s, _midnight(date(2026, 10, 10)), _midnight(date(2026, 10, 15)), "FAILED")
+    env, missing, full = states()
+    assert (full["state"], full["job_state"]) == ("PENDING_RECOMPUTE", "FAILED")
+    assert missing["state"] == "STALE_SOURCE" and env["state"] == "PENDING_RECOMPUTE"
+    # A later opportunity selection of the 6-10 Oct study never clears the still-live overlapping job.
+    seq_before = full["selection_seq"]
+    project(engine)
+    env, missing, full = states()
+    assert full["selection_seq"] > seq_before and (full["state"], full["job_state"]) == ("PENDING_RECOMPUTE", "FAILED")
+
+    # u5b ruling 9: job status has no history. At one fixed earlier cutoff the live job is pending; once settled, the
+    # same cutoff reads it as settled (status filter plus `available_at <= known_at`, as W4-02).
+    k_live = now(engine)
+
+    def full_row(known):
+        body = page(svc, t, s, frm="2026-10-04T21:00:00.000000Z", known=known)
+        return next(r for r in body["rows"] if r["opportunity"]["first_day"] == "2026-10-06")
+
+    before = full_row(k_live)
+    assert before["currentness"]["state"] == "PENDING_RECOMPUTE" and "RECOMPUTE_PENDING" in codes(before)
+    settle(engine, adjacent)
+    after = full_row(k_live)
+    assert after["currentness"]["state"] == "HISTORICAL" and after["currentness"]["job_state"] == "SETTLED"
+    assert not {"RECOMPUTE_PENDING", "SOURCE_STALE", "SELECTION_CHANGED"} & set(codes(after))
+    settle(engine, touching)
+
 
 def test_stored_supported_result_unchanged_through_s9_pending_and_stale_reads(store, engine, tmp_path,
                                                                              capsys) -> None:  # noqa: F811
@@ -268,8 +310,13 @@ def test_stored_supported_result_unchanged_through_s9_pending_and_stale_reads(st
     assert stale["opportunity"]["revision_id"] == str(rev.id)
     assert revisions(engine)[0].result == frozen and len(revisions(engine)) == 1
     # The earlier cutoffs replay. Job status is not versioned, so k1 after the job settled agrees with W4-02's k1.
-    replay, w4, _ = at(k1)
+    replay, w4, basis = at(k1)
     assert replay["currentness"]["state"] == w4["currentness"]["state"] == "HISTORICAL"
+    # u5b (u4b vector confirmed): W4-02's renewable read and the shared S9 basis agree at that same cutoff; the
+    # immutable SUPPORTED result stands and read-time currentness alone gates the display.
+    assert basis["currentness"]["state"] == "HISTORICAL" and basis["pending_job_ids"] == []
+    assert basis["selected_source_provenance"] == w4["selected_source_provenance"] == replay["selected_source_provenance"]
+    assert replay["status"] == "SUPPORTED" and "RECOMPUTE_PENDING" not in codes(replay)
     assert at(k0)[0] == clean
 
 
@@ -304,6 +351,17 @@ def test_read_limitations_are_ordered_and_frozen_result_survives(store, engine) 
     assert len(codes(body)) == len(set(codes(body)))
     assert not READ_CODES & {x["code"] for x in stored}
     assert revisions(engine)[0].result == rev.result and body["status"] == rev.result["status"]
+    # u5b ruling 2, the two exact arrays: a changed head alone is SELECTION_CHANGED, SOURCE_STALE; a changed head
+    # plus a live (PENDING) overlapping job is SELECTION_CHANGED, RECOMPUTE_PENDING, never SOURCE_STALE as well.
+    base = [x["code"] for x in stored]
+    assert body["currentness"]["state"] == "STALE_SOURCE"
+    assert codes(body) == base + ["SELECTION_CHANGED", "SOURCE_STALE", "SCENARIO_BASIS_MISMATCH"]
+    live = job(engine, t, s, _midnight(DAYS[2]), _midnight(DAYS[2] + timedelta(days=1)))
+    body = detail(svc, t, s, oid)
+    assert body["currentness"]["state"] == "PENDING_RECOMPUTE"
+    assert codes(body) == base + ["SELECTION_CHANGED", "RECOMPUTE_PENDING", "SCENARIO_BASIS_MISMATCH"]
+    settle(engine, live)
+    assert revisions(engine) == [rev] and len(revisions(engine)[0].result["limitations"]) == len(stored)
 
 
 def link_body(key, oid, scenario_id, **actor):
@@ -313,8 +371,10 @@ def link_body(key, oid, scenario_id, **actor):
             "opportunity_id": str(oid), "scenario_id": str(scenario_id)}
 
 
-def test_selection_and_scenario_link_history_at_two_cutoffs(store, engine) -> None:  # noqa: F811
-    t, s = mg(store, engine)
+def test_selection_and_scenario_link_history_at_two_cutoffs(store, engine, tmp_path, capsys,  # noqa: F811
+                                                            monkeypatch) -> None:
+    # The published (AUTHORED_DEMONSTRATION) baseline, so the u5b ruling 4 money gate has a positive selected class.
+    t, s = mg_published(store, engine, tmp_path, capsys)
     _, [done] = project(engine)
     svc = service(engine)
     oid = page(svc, t, s)["rows"][0]["opportunity"]["id"]
@@ -333,6 +393,37 @@ def test_selection_and_scenario_link_history_at_two_cutoffs(store, engine) -> No
     row = next(r for r in scenarios.list(t, s, parse_list(None, None, None, [k1], None), "basis")["rows"]
                if r["id"] == fits["id"])
     assert one["opportunity"]["gross_sales_scenario"] == row["gross_sales"]
+
+    # u5b ruling 4: a compatible association always shows its scenario and load; gross only on a GROSS_SCENARIO
+    # calculation, CURRENT or HISTORICAL currentness and a present selected class that is neither MIXED nor UNKNOWN.
+    calc = scenarios.list(t, s, parse_list(None, None, None, [], None), "basis")
+    assert next(r for r in calc["rows"] if r["id"] == fits["id"])["calculation_state"] == "GROSS_SCENARIO"
+
+    def money(body):
+        o = body["opportunity"]
+        return body["currentness"]["state"], o["scenario_id"], o["proposed_load_kw"], o["gross_sales_scenario"]
+
+    gross = {"amount": one["opportunity"]["gross_sales_scenario"]["amount"], "currency": "USD", "basis": "SCENARIO"}
+    assert money(one) == ("HISTORICAL", fits["id"], "0.001", gross)
+    assert money(detail(svc, t, s, oid)) == ("CURRENT", fits["id"], "0.001", gross)
+    live = job(engine, t, s, _midnight(DAYS[0]), _midnight(DAYS[0] + timedelta(days=1)), "FAILED")
+    assert money(detail(svc, t, s, oid)) == ("PENDING_RECOMPUTE", fits["id"], "0.001", None)
+    settle(engine, live)
+    blocks = svc._reader.provenance_blocks
+    for selected_class in ("MIXED", "UNKNOWN", None):
+        def classed(*args, _c=selected_class, **kwargs):
+            out = blocks(*args, **kwargs)
+            chosen = None if _c is None else {**out["selected_source_provenance"], "classification": _c}
+            return {**out, "selected_source_provenance": chosen}
+
+        monkeypatch.setattr(svc._reader, "provenance_blocks", classed)
+        assert money(detail(svc, t, s, oid)) == ("CURRENT", fits["id"], "0.001", None), selected_class
+        monkeypatch.undo()
+    assert money(detail(svc, t, s, oid)) == ("CURRENT", fits["id"], "0.001", gross)
+    # A new W4-02 head on 7 Oct: STALE_SOURCE withholds gross; revision 1 and its compatible scenario are unchanged.
+    _reconcile(engine, [DAYS[1]])
+    assert money(detail(svc, t, s, oid)) == ("STALE_SOURCE", fits["id"], "0.001", None)
+    assert money(detail(svc, t, s, oid, k1)) == ("HISTORICAL", fits["id"], "0.001", gross)
     _, second_link = svc.link_scenario(t, s, who, oid, link_body("w403-u5-his-04", oid, other["id"]))
     k2 = now(engine)
     two = detail(svc, t, s, oid, k2)
@@ -344,8 +435,7 @@ def test_selection_and_scenario_link_history_at_two_cutoffs(store, engine) -> No
     assert (o["scenario_id"], o["proposed_load_kw"], o["gross_sales_scenario"]) == (None, None, None)
     assert codes(two)[-1] == "SCENARIO_BASIS_MISMATCH"
 
-    # Late change: a new W4-02 head, then revision 2 and its selection.
-    _reconcile(engine, [DAYS[1]])
+    # Late change: the new W4-02 head (above), then revision 2 and its selection.
     project(engine)
     r1, r2 = revisions(engine)
     head = detail(svc, t, s, oid)
@@ -418,6 +508,16 @@ def test_list_detail_shape_full_count_pins_decimals_and_provenance(store, engine
     assert one["links"]["renewable"].startswith(f"/sites/{s}/performance/renewable?from={FROM}&to={TO}&known_at=")
     k = now(engine)
     assert iso_k(detail(svc, t, s, o["id"], k)) == k and one["links"]["scenario"] is None
+    # u5b ruling 6: the complete detail key set has no top-level `window` or `known_at`; the effective cutoff is the
+    # six-digit UTC `known_at` in `links.renewable`, beside the exact study midnights.
+    at_k = detail(svc, t, s, o["id"], k)
+    assert set(at_k) == {"schema_version", "opportunity", "status", "currentness", "source_provenance",
+                         "selected_source_provenance", "pending_source_provenance", "limitations", "history",
+                         "scenario_links", "links"}
+    assert "window" not in at_k and "known_at" not in at_k and set(at_k["links"]) == {"renewable", "site_work",
+                                                                                      "scenario"}
+    assert at_k["links"]["renewable"] == f"/sites/{s}/performance/renewable?from={FROM}&to={TO}&known_at={k}"
+    assert re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z", k)
     for unknown in (uuid4(), "not-a-uuid"):
         with pytest.raises(DecisionRefused) as refused:
             detail(svc, t, s, unknown)
@@ -433,7 +533,7 @@ def iso_k(body) -> str:
 
 
 def test_local_midnight_intersection_cursor_and_basis_change(store, engine) -> None:  # noqa: F811
-    _, t, s = _setup(store, engine)
+    installed, t, s = _setup(store, engine)
     svc = service(engine)
     a = bare_root(engine, t, s, DAYS[0], DAYS[-1])
     c_ = bare_root(engine, t, s, DAYS[0], DAYS[2])  # a second root on the same first day (id ASC)
@@ -484,6 +584,33 @@ def test_local_midnight_intersection_cursor_and_basis_change(store, engine) -> N
     with pytest.raises(DecisionRefused) as refused:
         page(svc, t, s, limit="1", cursor=fresh["next_cursor"])
     assert (refused.value.status, refused.value.code) == (409, "DECISION_BASIS_CHANGED")
+
+    # u5b ruling 8: a cursor page without an explicit `known_at` keeps the cursor's cutoff but not HISTORICAL; an
+    # explicit past cutoff is HISTORICAL on both pages. The projected 6-10 Oct study is the non-empty proof.
+    _ingest(engine, installed)
+    _reconcile(engine, DAYS)
+    project(engine)
+
+    def walk(known=None):
+        body, rows, tokens = page(svc, t, s, limit="1", known=known), [], []
+        while True:
+            rows += body["rows"]
+            tokens.append(body["selection_token"])
+            if body["next_cursor"] is None:
+                return rows, tokens
+            body = page(svc, t, s, limit="1", known=known, cursor=body["next_cursor"])
+
+    whole = {r["opportunity"]["id"]: r["currentness"] for r in page(svc, t, s)["rows"]}
+    rows, tokens = walk()
+    projected = [r for r in rows if r["opportunity"]["revision_id"] is not None]
+    assert len(projected) == 1 and rows.index(projected[0]) > 0 and len(set(tokens)) == 1
+    assert projected[0]["currentness"]["state"] == "CURRENT"
+    assert {r["opportunity"]["id"]: r["currentness"] for r in rows} == whole
+    k_past = now(engine)
+    rows, tokens = walk(k_past)
+    projected = [r for r in rows if r["opportunity"]["revision_id"] is not None]
+    assert rows.index(projected[0]) > 0 and projected[0]["currentness"]["state"] == "HISTORICAL"
+    assert len(set(tokens)) == 1
 
 
 def new_case(engine, t, s, kind):
@@ -562,15 +689,22 @@ def test_role_cutover_scope_and_store_refusals(store, engine, monkeypatch) -> No
     assert envelope["schema_version"] == "mini-opportunities-1" and envelope["rows"] == []
     assert envelope["status"] == "UNKNOWN" and envelope["limitations"] == [
         {"code": "SITE_ROLE_UNSUPPORTED", "evidence_ids": []}]
-    one = cold.get(item)
-    assert one.status_code == 200 and one.json()["schema_version"] == "mini-opportunity-detail-1"
-    assert one.json()["opportunity"] is None and one.json()["limitations"][0]["code"] == "SITE_ROLE_UNSUPPORTED"
-    # MINIGRID with the default (closed) gate: 409 before query parsing.
+    # u5b ruling 1: the whole envelope, with a closed gate, an unavailable store and a malformed detail ID; the
+    # decision store is never consulted and the ID is never validated.
+    for client_ in (cold, _client(_Registry(site_type="COLD_ROOM"), OpportunityService(_FailingStore(), None))):  # type: ignore[arg-type]
+        for path in (item, f"{route}/not-a-uuid"):
+            one = client_.get(path)
+            assert one.status_code == 200 and one.json() == UNSUPPORTED_DETAIL, path
+    # MINIGRID with the default (closed) gate: 409 before query parsing, the exact u5b ruling 7 dictionaries with no
+    # W1 `read` key.
     closed = _client(_Registry())
+    reason = "No Performance cutover gate is configured."
     for path, listing in ((route, True), (item, False)):
         r = closed.get(path)
-        assert r.status_code == 409 and r.json()["detail"]["code"] == "PERFORMANCE_CUTOVER_CLOSED"
-        assert ("rows" in r.json()["detail"]) is listing
+        expected = {"code": "PERFORMANCE_CUTOVER_CLOSED", "message": reason}
+        if listing:
+            expected.update(rows=None, total_count=None)
+        assert r.status_code == 409 and r.json() == {"detail": expected}, path
     # Gate failure and missing/failing store are 503, never a 200 empty result.
     from assetops_backend.sites.ports import SiteStoreUnavailable
 
@@ -600,6 +734,24 @@ def test_role_cutover_scope_and_store_refusals(store, engine, monkeypatch) -> No
     app = TestClient(main.create_app())
     r = app.get(route, params=query)
     assert r.status_code == 409 and r.json()["detail"]["code"] == "PERFORMANCE_CUTOVER_CLOSED", r.json()
+    assert set(r.json()) == {"detail"} and set(r.json()["detail"]) == {"code", "message", "rows", "total_count"}
+    d = app.get(f"{route}/not-a-uuid")
+    assert d.status_code == 409 and set(d.json()["detail"]) == {"code", "message"}
+    assert d.json()["detail"]["message"] == r.json()["detail"]["message"]
+    # u5b ruling 7: the composed gate's Finding-store failure is 503, never a closed gate or an empty result.
+    from assetops_backend.analytics.adapters.postgres_finding_store import FindingStoreUnavailable
+
+    def gate_store_down(*args, **kwargs):
+        raise FindingStoreUnavailable("down")
+
+    monkeypatch.setattr(main, "permits_performance_cutover", gate_store_down)
+    for path in (route, f"{route}/not-a-uuid"):
+        r = TestClient(main.create_app()).get(path, params=query)
+        assert r.status_code == 503 and r.json()["detail"]["code"] == "DECISION_STORE_UNAVAILABLE", (path, r.json())
+    monkeypatch.undo()
+    # The router alone, given the composed exception tuple, types the same failure.
+    assert _client(_Registry(), gate=gate_store_down, gate_unavailable=(FindingStoreUnavailable,)).get(
+        route, params=query).json()["detail"]["code"] == "DECISION_STORE_UNAVAILABLE"
     # Through the router with an open gate, the same persisted store answers (a fresh request).
     live = _client(SimpleNamespace(tenant=lambda: SimpleNamespace(id=t),
                                    imported=lambda code: SimpleNamespace(id=s, site_code=CODE, site_type="MINIGRID")

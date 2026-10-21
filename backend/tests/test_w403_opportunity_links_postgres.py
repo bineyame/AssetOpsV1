@@ -90,6 +90,12 @@ def test_association_retry_scope_and_latest_compatible_head(store, engine) -> No
     assert r.status_code == 422 and r.json()["detail"]["code"] == "DECISION_LINK_SCOPE_INVALID"
     r = client.post(route, json=link_body("w403-u5-lnk-07", uuid4(), fits["id"]))  # body ID differs from path
     assert r.status_code == 422 and r.json()["detail"]["code"] == "DECISION_INPUT_INVALID"
+    # u5b ruling 5: the unequal body/path vector is refused before any store lookup, so a foreign path root with a
+    # body naming this Site's root is still 422 (not 404), and nothing is inserted.
+    r = client.post(f"/api/sites/{CODE}/opportunities/{foreign}/scenario-links",
+                    json=link_body("w403-u5-lnk-07b", oid, fits["id"]))
+    assert r.status_code == 422 and r.json()["detail"]["code"] == "DECISION_INPUT_INVALID"
+    assert links_count(engine) == 1
     for bad in ({**link_body("w403-u5-lnk-08", oid, fits["id"]), "extra": 1},
                 {**link_body("w403-u5-lnk-08", oid, fits["id"]), "schema_version": "mini-decision-link-command-1"},
                 link_body("short", oid, fits["id"])):
