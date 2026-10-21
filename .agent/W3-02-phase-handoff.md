@@ -1,6 +1,6 @@
 # W3-02 phase handoff
 
-## Commit 3 (Lane B c2d + c3 finish) - c2d and c3-q2 done; c3-q1 fixture HELD at c3-q3 (N3 still bars commit 3)
+## Commit 3 - READY FOR REVIEW (c3c applied: COMPARABLE two-Site test unskipped and passing; N3 closed)
 
 Merge of main (`.agent` W3-02 handoff/rulings kept ours). Commits `f9ef4034` (c2d), `181f62c6` (c3-q2), `fefa5ab4` (c3-q1). Branch released.
 

@@ -149,7 +149,7 @@ Resolution (Lane A, commit 3): `ev_parsing.py` admits `(EV-LAB-002, 20518)` only
 validated Site/seed in `EvScenarioDefinition`; `(EV-LAB-001, 20517)` unchanged for every other ID. Parser test
 `test_w205b_ev_scenarios.py::test_the_second_site_pair_parses_only_for_its_one_scenario_id`. The fixture now parses.
 
-## c3b-q2 - two readings needed to run the two-Site tests; COMPARABLE test still skipped on its traversal assertion (Lane A, commit 3)
+## c3b-q2 - RESOLVED (c3c, option a): COMPARABLE traversal assertions replaced, skip removed, test passes (0 skipped)
 
 1. Applied, please confirm: c3b's `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))` cannot work - the shipped
    store has only `list_scenarios`, and the cache calls `get_scenario` (`AttributeError` in `scenario_cache.py:32`).

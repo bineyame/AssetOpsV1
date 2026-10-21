@@ -318,9 +318,6 @@ def _line_matches(line: dict, built, stored: dict) -> None:
 
 
 @needs_db
-@pytest.mark.skip(reason="c3b-q2: the ruled limit=1 traversal asserts page-one selection_token == the full read's, "
-                         "but each live read's cutoff is its own read time (estate/index.py:85), so two live reads "
-                         "never share a token; every other assertion up to that line passes")
 def test_w302_money_persisted_ev_comparable_same_values(two_ev_sites) -> None:
     """c3-q1: two EV Sites, the same KES gross tariff rate and unit, one tenant and day: one COMPARABLE
     GROSS_TARIFF_SCENARIO group of exactly the two stored heads, summed unrounded, and still no estate total."""
@@ -361,11 +358,11 @@ def test_w302_money_persisted_ev_comparable_same_values(two_ev_sites) -> None:
     assert body["summary"]["estate_total"] is None
     page = _read_financials(first.tenant_id, day, limit=1)
     assert len(page["rows"]) == 1 and page["next_cursor"]
-    assert page["groups"] == body["groups"] and page["selection_token"] == body["selection_token"]
+    assert page["groups"] == body["groups"]
     rest = _read_financials(first.tenant_id, day, limit=1, cursor=page["next_cursor"])
     assert len(rest["rows"]) == 1
     assert {page["rows"][0]["line_key"], rest["rows"][0]["line_key"]} == set(group["line_keys"])
-    assert rest["groups"] == body["groups"] and rest["selection_token"] == body["selection_token"]
+    assert rest["groups"] == body["groups"] and rest["selection_token"] == page["selection_token"]
 
 
 @needs_db
