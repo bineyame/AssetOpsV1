@@ -21,7 +21,7 @@ import type {
 import { createSiteOverviewClient } from "../../sites/siteOverviewClient";
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
-import { MONEY_STATE_WORDS, OVERVIEW_MINI_UNAVAILABLE } from "../../sites/SiteWindowOverview";
+import { MINIGRID_OBJECTIVE, MONEY_STATE_WORDS, OVERVIEW_MINI_UNAVAILABLE, SiteWindowOverview, overviewReadsStrip } from "../../sites/SiteWindowOverview";
 import type { MiniDepthClient, MiniRead, MiniWindowQuery } from "../../sites/miniDepthClient";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
@@ -157,7 +157,8 @@ describe("S5-01 selected-window Overview: money states", () => {
     expect(within(card).getByText("0.00 to 15.82 USD")).toBeTruthy();
     expect(card.querySelector('[data-source-provenance="AUTHORED_DEMONSTRATION"]')).toHaveTextContent("Prepared example data.");
     // Slice review L3: the Operating objective panel reads the day's claim level and coverage; no objective is implied.
-    expect(document.querySelector("[data-objective-statement]")?.textContent).toContain("does not state an operating objective");
+    // Final review ruling 1 (H3): a MINIGRID Overview states the mini-grid objective, not the dispatch-only line.
+    expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
     expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Possibly avoidable");
     const financials = card.querySelector("[data-window-financials-link]")?.getAttribute("href");
     expect(financials).toContain(`finding_id=${FID}`);
@@ -843,5 +844,67 @@ describe("W4-02 Overview mini cards", () => {
     expect(note("service")).toContain("30 of 60 min covered");
     expect(value("renewable")).toBe("Unknown");
     expect(value("fuel")).toBe("Expected use 0–3.3 L");
+  });
+
+  // Final review ruling 1 (H3): the strip names only the readable reads, in Service, Dispatch, Fuel, Renewable order.
+  const stripText = () => document.querySelector("[data-overview-status]")?.textContent ?? "";
+  const READS = (names: string) => `Reads on this Overview: ${names}. Each card shows what its selected period supports.`;
+
+  it("H3: a numeric MINIGRID set names every read and states the mini-grid objective", async () => {
+    renderMini(miniClient({ fuel: () => loaded(envelope("fuel", "SUPPORTED", FUEL)) }));
+    await settledScreen();
+    await screen.findByText("Delivered 12.5 kW");
+    await screen.findByText("Headroom 1–2 kW");
+    expect(stripText()).toContain(READS("Service, Dispatch, Fuel, Renewable"));
+    expect(stripText()).not.toContain("dispatch only");
+    expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
+    expect(document.body.textContent).not.toContain("Objective: nothing here is a current answer.");
+  });
+
+  it("H3: a partial set lists only the readable reads; 409 and 503 are not readable", async () => {
+    renderMini(
+      miniClient({
+        fuel: () => Promise.resolve({ status: "refused", httpStatus: 503, code: "MINI_STORE_UNAVAILABLE", message: null }),
+        renewable: () => Promise.resolve({ status: "refused", httpStatus: 409, code: "MINI_NOT_SETTLED", message: null }),
+      }),
+    );
+    await settledScreen();
+    await screen.findByText("Delivered 12.5 kW");
+    await screen.findAllByText(OVERVIEW_MINI_UNAVAILABLE, { exact: false });
+    expect(stripText()).toContain(READS("Service, Dispatch"));
+  });
+
+  it("H3: an UNKNOWN read is listed while its card stays Unknown; malformed reads are not listed", async () => {
+    renderMini(
+      miniClient({
+        service: () => loaded(envelope("service", "UNKNOWN", { ...SERVICE, delivered_load_kw: null })),
+        fuel: () => Promise.resolve({ status: "unavailable", message: "malformed" }),
+      }),
+    );
+    await settledScreen();
+    await screen.findByText("Headroom 1–2 kW");
+    expect(value("service")).toBe("Unknown");
+    expect(stripText()).toContain(READS("Service, Dispatch, Renewable"));
+  });
+
+  it("H3: an empty readable set says no objective read is available", () => {
+    expect(overviewReadsStrip({ service: false, dispatch: false, fuel: false, renewable: false })).toBe(
+      "No objective read is available for this selection.",
+    );
+    expect(overviewReadsStrip({ service: false, dispatch: true, fuel: false, renewable: true })).toBe(READS("Dispatch, Renewable"));
+  });
+
+  it("H3: a non-MINIGRID Overview (no mini reads) keeps the dispatch-only strip and objective", async () => {
+    const href = () => "/x";
+    const links = { dispatchDay: href, finding: href, financials: href, assumption: href, evidenceRecord: href };
+    render(
+      <MemoryRouter>
+        <SiteWindowOverview summary={summary("2026-10-23")} links={links} onSelectDay={() => undefined} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(stripText()).toContain("Assessed for this day: dispatch only · the other objectives have no read on this Overview");
+    expect(document.querySelector("[data-objective-statement]")?.textContent).toContain("does not state an operating objective");
+    expect(document.body.textContent).not.toContain("Reads on this Overview");
   });
 });

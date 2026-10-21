@@ -352,13 +352,17 @@ function objectiveWords(state: string): ProductWords {
  * W1-F2: the mock's statusbar - the day's assessment state, scope and "as of" - above the panels. It is a state
  * line, not a panel, and it claims nothing beyond the dispatch assessment this Overview reads.
  */
-function DayStatus({ summary, links }: { summary: SiteWindowSummary; links: WindowOverviewLinks }) {
+function DayStatus({ summary, links, reads }: { summary: SiteWindowSummary; links: WindowOverviewLinks; reads: OverviewReadable | null }) {
   const a = summary.assessment;
   const day = summary.window.utc_date;
   return (
     <StatusBar
       data={{ "data-overview-status": a.state }}
-      other="Assessed for this day: dispatch only · the other objectives have no read on this Overview"
+      other={
+        reads === null
+          ? "Assessed for this day: dispatch only · the other objectives have no read on this Overview"
+          : overviewReadsStrip(reads)
+      }
       action={
         a.state === "CLOSED" ? undefined : (
           <Link to={links.dispatchDay(day, a.window_assessment_revision_id)} data-window-dispatch-link={day}>
@@ -374,8 +378,52 @@ function DayStatus({ summary, links }: { summary: SiteWindowSummary; links: Wind
   );
 }
 
+/** Final review ruling 1 (H3): which objective reads on a MINIGRID Overview completed with a well-formed answer. */
+export interface OverviewReadable {
+  service: boolean;
+  dispatch: boolean;
+  fuel: boolean;
+  renewable: boolean;
+}
+
+/** Ruling 1: the readable names in Service, Dispatch, Fuel, Renewable order; never a value inferred from readability. */
+export function overviewReadsStrip(reads: OverviewReadable): string {
+  const names = (
+    [
+      ["Service", reads.service],
+      ["Dispatch", reads.dispatch],
+      ["Fuel", reads.fuel],
+      ["Renewable", reads.renewable],
+    ] as const
+  )
+    .filter(([, readable]) => readable)
+    .map(([name]) => name);
+  if (names.length === 0) return "No objective read is available for this selection.";
+  return `Reads on this Overview: ${names.join(", ")}. Each card shows what its selected period supports.`;
+}
+
+/**
+ * Ruling 1: a mini read is readable when it completed with an authorized, well-formed response (an UNKNOWN envelope
+ * included); loading, refused (409/503/401/403) and unavailable or malformed reads are not. Dispatch is the loaded
+ * Overview summary itself, so it is readable whenever this Overview renders.
+ */
+function overviewReadable(state: OverviewMiniState | null): OverviewReadable {
+  const ok = (read: MiniRead<unknown> | null | undefined) => read !== null && read !== undefined && read.status === "loaded";
+  return { service: ok(state?.service), dispatch: true, fuel: ok(state?.fuel), renewable: ok(state?.renewable) };
+}
+
+export const MINIGRID_OBJECTIVE =
+  "Objective: serve residential, clinic and productive loads while protecting the battery reserve. Check each card for the supported result and its limits.";
+
 /** The mock's objective line: the assessment states no operating objective, so none is shown. */
-function ObjectiveLine({ summary }: { summary: SiteWindowSummary }) {
+function ObjectiveLine({ summary, minigrid }: { summary: SiteWindowSummary; minigrid: boolean }) {
+  if (minigrid) {
+    return (
+      <p className="v69-objective" data-objective-statement="minigrid">
+        {MINIGRID_OBJECTIVE}
+      </p>
+    );
+  }
   if (summary.assessment.state === "CLOSED") {
     return <p className="v69-objective">Objective: nothing here is a current answer.</p>;
   }
@@ -580,12 +628,11 @@ function renewableWords(state: OverviewMiniState, mini: OverviewMiniReads): Mini
  * Dispatch reads the day's dispatch assessment. On a MINIGRID Site with mini reads, Service, Fuel and Renewable read
  * the W4-02 mini endpoints (Q24); every other cell is its own no-read state, never a value drawn from the mock.
  */
-function ObjectiveCards({ summary, mini }: { summary: SiteWindowSummary; mini?: OverviewMiniReads }) {
+function ObjectiveCards({ summary, mini, miniState }: { summary: SiteWindowSummary; mini?: OverviewMiniReads; miniState: OverviewMiniState | null }) {
   const a = summary.assessment;
   const current = a.state === "CURRENT" && a.claim_level !== null;
   const w = objectiveWords(a.state);
   const n = a.dispatch_intervals.length;
-  const miniState = useOverviewMini(mini, summary.window.utc_date);
   const unknown = (key: string, label: string, note: string) => (
     <MetricCard key={key} label={label} value="Not available" note={note} tone="muted" word data={{ "data-objective-card": key, "data-objective-card-state": "no-read" }} />
   );
@@ -1141,6 +1188,8 @@ function NextStep({ summary, links }: { summary: SiteWindowSummary; links: Windo
 
 export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, onReload, mini }: SiteWindowOverviewProps) {
   const day = summary.window.utc_date;
+  const miniState = useOverviewMini(mini, day);
+  const minigrid = mini !== undefined;
   return (
     <div className="site-window-overview" data-overview-state="window" data-window-site={summary.site_code}>
       <OverviewGrid
@@ -1149,9 +1198,9 @@ export function SiteWindowOverview({ summary, links, onSelectDay, findingIndex, 
             {/* Review Low 7b: the app-only day chooser is the v69 chip row above the statusbar, the same place as
                 on Dispatch and Evidence. */}
             <DaySelector summary={summary} onSelectDay={onSelectDay} />
-            <DayStatus summary={summary} links={links} />
-            <ObjectiveLine summary={summary} />
-            <ObjectiveCards summary={summary} mini={mini} />
+            <DayStatus summary={summary} links={links} reads={minigrid ? overviewReadable(miniState) : null} />
+            <ObjectiveLine summary={summary} minigrid={minigrid} />
+            <ObjectiveCards summary={summary} mini={mini} miniState={miniState} />
           </>
         }
         happened={{
