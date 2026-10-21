@@ -48,7 +48,7 @@ Question: is the count 45 (u2's 47/48 miscounted), or are three named CHECKs mis
 columns and exact names)? Everything else in commit 1 passes: 11 collected, 10 passed, the only failure is
 `len(CHECKS) == 48` (actual 45). Commit 1 is on the branch with the ruled 48; unit 2b not started.
 
-## PR-4 (raised in unit 2b; does not block; provisional behaviour implemented)
+## PR-4 (RESOLVED by u2c on main 9796b0ed: 4.1/4.2 confirmed; 4.3 tightened; 4.4 decimal strings; 4.5 UNKNOWN empty-union currentness; applied in the u2c fix commit)
 
 The spec rules the non-MINIGRID refusal only for physical reads (closure 4 S10: 200 UNKNOWN `SITE_ROLE_UNSUPPORTED`
 envelope). Unit 2b took these provisional readings for scenarios (`mini_decisions_api.py`); confirm or replace:
@@ -63,3 +63,26 @@ envelope). Unit 2b took these provisional readings for scenarios (`mini_decision
 4. `gross_sales.amount` is a JSON number on the read wire, like `energy_kwh` (stored as a decimal string).
 5. Scenario list `currentness` is the W4-02 aggregate over the union of pinned days; with no pinned day it is
    `CURRENT` (or `HISTORICAL` for an explicit past cutoff) with `job_state: NONE`.
+
+## PR-5 (raised in unit 3; does not block; provisional behaviour implemented in `mini_decisions/alternatives.py`)
+
+Confirm or replace these Alternatives readings:
+1. A command must name the Finding revision that is latest at command DB time; an older revision is 409
+   `DECISION_BASIS_CHANGED`. A version-1 command (null predecessor) for a key that already has a chain is 409
+   `DECISION_CORRECTION_CONFLICT`; an unknown predecessor or a revision not of the path Finding is 422
+   `DECISION_LINK_SCOPE_INVALID`.
+2. Cited IDs must be accepted rows of this tenant/Site received by the command instant (else 422
+   `DECISION_LINK_SCOPE_INVALID`); citations are deduplicated, no count bound. `missing_evidence_reason` is null or
+   1-500 trimmed characters; at least one citation or a missing-evidence reason is required (else 422 input).
+3. Row `id` is the chain root (the key's version-1 revision UUID); `revision_id` is the displayed revision.
+4. A NEEDS_REVIEW row keeps its stored `disposition` and its own (earlier) `finding_revision_id`; `review_state`
+   alone marks it as not current. Only heads from Finding revisions with a lower `revision_no` than the selected one
+   are shown as NEEDS_REVIEW.
+5. `review_state` is relative to the Finding revision only (CURRENT on the latest-at-cutoff revision, HISTORICAL on
+   an older one). Envelope `currentness` is `{HISTORICAL|CURRENT, job_state: NONE}`: HISTORICAL for an explicit past
+   cutoff or a pinned older revision. Pending provenance is null (no recompute job exists for authored rows).
+6. S20 selected block: `selected_revision_ids = {selected Finding revision} + displayed CURRENT/HISTORICAL alternative
+   revision IDs`, evidence = union of their citations; NEEDS_REVIEW rows contribute neither.
+7. A malformed `revision_id` query is 422 `DECISION_INPUT_INVALID`; an unknown or not-yet-visible one is 404.
+8. The command instant is bound to `mini_alternative_revision.created_at` (DB `clock_timestamp()` in production; a
+   constructor-only `test_db_clock_override`, as W4-01) because the W1 fixture Findings carry future fixture times.
