@@ -149,9 +149,9 @@ Resolution (Lane A, commit 3): `ev_parsing.py` admits `(EV-LAB-002, 20518)` only
 validated Site/seed in `EvScenarioDefinition`; `(EV-LAB-001, 20517)` unchanged for every other ID. Parser test
 `test_w205b_ev_scenarios.py::test_the_second_site_pair_parses_only_for_its_one_scenario_id`. The fixture now parses.
 
-## c3b-q2 - two readings needed to run the two-Site tests; COMPARABLE test still skipped on its traversal assertion (Lane A, commit 3)
+## c3b-q2 - RESOLVED, both items (item 1: commit-3 review r1 ruling M2; item 2: c3c, option a)
 
-1. Applied, please confirm: c3b's `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))` cannot work - the shipped
+1. Ruled (commit-3 review r1 rulings, M2: the Composite construction is authorized as test-only): c3b's `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))` cannot work - the shipped
    store has only `list_scenarios`, and the cache calls `get_scenario` (`AttributeError` in `scenario_cache.py:32`).
    `second_scenario_repository` now wraps `CompositeScenarioRepository(shipped=ReadOnlyYamlScenarioStore(root),
    user=UserYamlScenarioStore(<empty temp dir>))`, the same composition as `build_scenario_repository()` over the test
@@ -164,3 +164,44 @@ validated Site/seed in `EvScenarioDefinition`; `(EV-LAB-001, 20517)` unchanged f
    (`reason_codes: ['HISTORICAL']`) and the `CURRENT` assertion fails, so that is not a fix either. Options: (a) compare
    page one's token with page two's (cursor-carried) and groups with the full read, not the token across live reads;
    (b) change the token or cutoff semantics (product change, outside this run). The test carries a `c3b-q2` skip until ruled.
+
+# W3-02 pending rulings (Lane B, commit 4)
+
+## c4-q1 - copy readings taken on the Financials page (confirm or correct)
+Built and tested; not blocking. Each is page copy only (`frontend/src/estate/estateFinancialsWords.ts`, `EstateFinancials.tsx`).
+1. `PENDING` line `Value` word `Pending` (amber); the ledger lists Unpriced/Withheld/Unknown/Historical/Not comparable
+   only. `CONFLICT` = `Not comparable` (red); `HISTORICAL` = `Historical as of {as_of}` (blue).
+2. Group words: COMPARABLE `Comparable`, SINGLE_LINE `Single line`, INELIGIBLE `Not totalled`, OVERLAPPING_BASIS
+   `Overlapping basis`, UNKNOWN_COVERAGE `Coverage incomplete`, NO_LINES `No lines`. Reason words, e.g.
+   `PARTITION_INELIGIBLE` = `grouped with a line that cannot be totalled` (L4), `UNKNOWN_COVERAGE` = `some Sites have
+   no complete selection`, `BASIS_NOT_PROVEN` = `a separate technical basis is not proven`.
+3. L3 diagnostic: `{Category}: more than one currency|period kind|window|assumption value · {n} lines in the
+   differing-value category`, chip `Different values`; line keys are not listed.
+4. L5: the register note `The prior mini-grid amount is unavailable in this selection` shows whenever a
+   `CANDIDATE_OPERATING_COST_EXPOSURE` group is `UNKNOWN_COVERAGE`. The wire's seven-key coverage Site has no domain, so
+   the page cannot tie the note to a specific pending/stale mini-grid Site without inferring one.
+5. Source cell: cold rows link `links.evidence` (`Site evidence →`, the mock's temperature link); mini-grid/EV link
+   `links.bridge` (`Site bridge →`), each falling back to the other link, else `Source detail unavailable`.
+6. `Window / quantity`: null window with a quantity shows only the quantity; null both `Window or quantity not
+   established`; null quantity under a window `Quantity not established`. Null limit `Limit not recorded`. Non-USD
+   currency displays as `{code} {value}`, USD as `$`.
+7. Exclusions render per group in a closed `Excluded: N lines` disclosure (Site · category: reasons; an off-page line
+   shows its line key).
+
+## c4-q2 - registry prerequisites and ledger literal for `I-estate-money-root` (Lane A, commit 4)
+Closure 5 S13 names the node, screen title and paths but not area or prerequisites. The checker forces the panel area
+to the subject-area brief owner of `globalfinancials` (`money`). Lane A recorded, by the c2-q5 Evidence precedent:
+node area `money`, `requires` `A-estate-index-scope`, `I-financial-read`; panels `globalfinancials:1`
+`Consequence register` and `:2` `Aggregation rule` `requires` `I-financial-read`, `I-estate-money-root`,
+`D-money-comparison`, status `gap` (awaiting independent review, no owner acceptance); ledger `globalfinancials`
+`bounded`/W3-02, product node `P-money-area`, `data_owner` literal exactly as `.agent/W3-02-lane-a-requests.md`
+commit-4 item 4 proposed; money brief `implementation_nodes` lists the node. Confirm, or name the intended
+area/nodes and the data_owner literal.
+
+## c4-q3 - stocked capture has no mini-grid line (Lane A, commit 4 captures)
+The capture seed (`.agent/W3-02-evidence/serve-financials.py`: KOBO S4 F01/F02 + S6, COLD excursion + W2-04 worker,
+EV interrupted + W2-07 money) yields two register lines (cold UNPRICED, EV ELIGIBLE); KOBO has no stored W1
+consequence on 2026-10-06 or 2026-10-05..12, and no persisted W1 money seed exists in the W3-02 tests. The mock
+shows three rows, so the measured register height is below a three-row baseline. Is a two-line, three-Site COMPLETE
+capture acceptable, or must Lane B/Lane A add a persisted W1 consequence seed (`test_s4_consequence_store_postgres.py`
+`PowerSite`) before review?
