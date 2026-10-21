@@ -445,7 +445,20 @@ Branch `task/W4-02-mini-grid-depth`. Unit 1 `00a5703a` (+ q1-ruling-2 repairs `1
   q12-5/q11-5 `99ce8f19`. Capture `capture.mjs` (+ `ONLY=` filter, opened-disclosure checks); private DBs dropped.
 - Checks: tsc 0; build ok; frontend 98 files / 2404 passed; check-all 11/11; focused backend 3 + adjacent 110 passed.
 
-## Next: final review (full backend suite runs beside it); q13 readings (non-blocking)
+## Run 20: final fix round
+- Branch `task/W4-02-mini-grid-depth-clean`. Fixes `a9fdc260`..`9efa6715` (H2, H3, H4, M1, M2, M4, L1, L2, L4, L5,
+  B-M1, B-L1..L4, L3); this round adds the recapture commit and records (see `git log 9efa6715..HEAD`).
+- q14 readings 1-5 (`.agent/W4-02-pending-rulings.md` "## q14 (final fix round)") are applied and pending confirmation.
+- Captures at `9efa6715` (private `w402r_test`, dropped; uvicorn 9748 + vite 6146, stopped): `capture.mjs` 556/556,
+  new assertions H2/H3/H4/M1/M2/M3/M4/L1; M3 closed (08 Oct Overview `Headroom 18–20 kW`); M3 regex break proved
+  non-vacuous and reverted.
+- Checks: focused backend 149 passed (`test_w402_*` + `test_s5_overview_read` + `test_w401_migration_postgres`);
+  frontend 98 files / 2412 passed; tsc 0; build ok; check-all 11/11.
+- Migration note: a non-test DB already at 0029 must be downgraded and upgraded again to pick up the changed 0029
+  (B-M1/B-L1 `site_cutover_basis` locks and rule).
+- Next: independent re-review, plus the full backend suite at the same revision.
+
+## Next (superseded by Run 20: final fix round): final review (full backend suite runs beside it); q13 readings
 
 ## Run 18: unit 6 backup page built
 - Backup `2c0085c2`: `miniDepthClient.ts` `BackupCards`/`BackupRow`/`BackupStep`/`BackupRecovery`/`BACKUP_STEPS`/`getBackup`;
