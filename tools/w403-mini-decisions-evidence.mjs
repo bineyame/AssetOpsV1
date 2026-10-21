@@ -12,6 +12,7 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const [, , WEB = "http://localhost:6147", OUT] = process.argv;
 if (!OUT) { console.error("usage: node tools/w403-mini-decisions-evidence.mjs <web> <work>/capture"); process.exit(2); }
@@ -111,6 +112,8 @@ ws.addEventListener("message", (e) => {
 const evalv = async (expression) => (await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true })).result.value;
 await send("Page.enable"); await send("Runtime.enable");
 await send("Fetch.enable", { patterns: [{ urlPattern: "*/api/*", requestStage: "Request" }] });
+const widthClaims = [];
+const requireWidth = widthGuard({ send, claim: (name, ok, detail) => widthClaims.push({ name, ok, ...detail }) });
 
 const MEASURE = (screen, side) => `(async () => {
   await document.fonts.ready;
@@ -154,10 +157,13 @@ const MEASURE = (screen, side) => `(async () => {
 
 async function shoot(target, screen, side, w, h, file, ready) {
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: 1, mobile: false });
+  await requireWidth(w, h, `resize ${file}`, { record: false });
   await send("Page.navigate", { url: target });
+  await requireWidth(w, h, `navigate ${file}`, { record: false });
   let ok = false;
   for (let i = 0; i < 300 && !ok; i++) { await sleep(150); ok = await evalv(ready).catch(() => false); }
   await sleep(500);
+  await requireWidth(w, h, `measure ${file}`);
   const m = await evalv(MEASURE(screen, side));
   m.ready = ok;
   if (side === "app" && screen === "opportunity-finding") {
@@ -225,6 +231,7 @@ for (const c of CASES) for (const [w, h] of SIZES) {
   }
   if (c.state === "maintenance-unlinked-stocked") check(m.extra.contexts.length === 0, `no context on unlinked requests (${JSON.stringify(m.extra.contexts)})`);
 }
+results.width_checks = widthClaims;
 writeFileSync(join(OUT, "evidence.json"), JSON.stringify(results, null, 1));
 for (const r of results.app) console.log(`${r.state} ${r.width}: ${Object.entries(r.pieces).map(([k, v]) => `${k} ${v ? `${v.w}x${v.h}` : "-"}`).join(" | ")} | doc ${r.doc.scrollW}/${r.doc.clientW}${r.harness.length ? " | harness " + r.harness.length : ""}`);
 for (const [k, m] of Object.entries(results.mock)) console.log(`mock ${k}: ${Object.entries(m.pieces).map(([p, v]) => `${p} ${v ? `${v.w}x${v.h}` : "-"}`).join(" | ")} | order ${JSON.stringify(m.panelOrder)}`);
