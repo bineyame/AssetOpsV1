@@ -400,6 +400,9 @@ class MiniDepthRead:
             **blocks,
             "status": status, "coverage": coverage, "cards": cards, "rows": rows,
             "limitations": limitations, "basis": basis, "links": links(code, hours),
+            # Final review ruling 2 (M2): Service only; the stored pinned critical series' coverage, else null.
+            **({"critical_delivered_coverage": (hours[0].head.result.get("critical_delivered_coverage")
+                                                if hours[0].head else None)} if domain == "service" else {}),
         }
 
     def _hour(self, c: Connection, t: UUID, s: UUID, domain: str, day: date, window: rules.Window, known: datetime,

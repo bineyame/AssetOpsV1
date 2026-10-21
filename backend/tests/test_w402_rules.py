@@ -209,6 +209,48 @@ def test_service_request_supported_interruptions_and_critical_row() -> None:
     assert instant_b.evidence_id in with_instant.evidence_ids
 
 
+def test_critical_delivered_coverage_is_the_pinned_series_own_coverage() -> None:
+    """Final review ruling 2 (M2): the critical card's coverage is the pinned critical series', never the feeder's."""
+    clinic = (LoadAsset(CRIT, "FDR-C", "Clinic", True, False),)
+    feeder = minutes("feeder_demand", "4", CRIT) + minutes("critical_load_requested_power", "4", CRIT)
+
+    # Complete feeder, missing critical: no value, zero observed critical coverage; the feeder row stays complete.
+    missing = assess_service_hour(HOUR, feeder, clinic)
+    assert missing.critical_delivered_kw is None
+    assert missing.critical_delivered_coverage is not None
+    assert (missing.critical_delivered_coverage.required_seconds,
+            missing.critical_delivered_coverage.observed_seconds) == (3600, 0)
+    assert [(g.start, g.end) for g in missing.critical_delivered_coverage.gaps] == [(HOUR.start, HOUR.end)]
+    assert missing.rows[0].delivered_kw == Decimal("4") and missing.rows[0].coverage.observed_seconds == 3600
+
+    # Complete feeder, partial critical: no value; the critical coverage states its own 40 of 60 minutes and gap.
+    part = minutes("critical_load_delivered_power", "4", CRIT, spans=((0, 40),))
+    partial = assess_service_hour(HOUR, feeder + part, clinic)
+    assert partial.critical_delivered_kw is None
+    assert (partial.critical_delivered_coverage.required_seconds,
+            partial.critical_delivered_coverage.observed_seconds) == (3600, 2400)
+    assert [(g.start, g.end) for g in partial.critical_delivered_coverage.gaps]         == [(HOUR.start + timedelta(minutes=40), HOUR.end)]
+    assert partial.rows[0].coverage.observed_seconds == 3600
+
+    # Two complete but different values: the critical card keeps its own 3.87 kW beside the 4 kW feeder row.
+    different = assess_service_hour(HOUR, feeder + minutes("critical_load_delivered_power", "3.87", CRIT), clinic)
+    assert different.critical_delivered_kw == Decimal("3.87")
+    assert different.rows[0].delivered_kw == Decimal("4")
+    assert (different.critical_delivered_coverage.observed_seconds,
+            different.critical_delivered_coverage.gaps) == (3600, ())
+
+    # No single pinned critical asset: coverage unknown (null), never the feeder's.
+    unpinned = assess_service_hour(HOUR, minutes("feeder_demand", "6", LOAD_B),
+                                   (LoadAsset(LOAD_B, "FDR-B", "Feeder B", False, True),))
+    assert unpinned.critical_delivered_coverage is None
+
+    from assetops_backend.mini_depth.projection import _service
+    wire = _service(partial)
+    assert wire["critical_delivered_coverage"]["observed_seconds"] == 2400
+    assert wire["critical_delivered_coverage"]["gaps"] == [{"from": "2026-10-06T09:40:00.000000Z", "to": "2026-10-06T10:00:00.000000Z"}]
+    assert _service(unpinned)["critical_delivered_coverage"] is None
+
+
 def test_renewable_hour_headroom_constraints_and_precedence() -> None:
     day = date(2026, 10, 6)
     ok = assess_renewable_hour(day, HOUR, positive_hour(), INPUTS)

@@ -123,7 +123,10 @@ export interface ServiceRow {
   evidence_ids: string[];
 }
 
-export type ServiceRead = MiniEnvelope<ServiceCards, ServiceRow>;
+export type ServiceRead = MiniEnvelope<ServiceCards, ServiceRow> & {
+  /** Final review ruling 2 (M2): the pinned critical-delivered series' own coverage; null when not known. */
+  critical_delivered_coverage?: MiniCoverage | null;
+};
 
 export interface FuelCards {
   opening_l: MiniBound | null;

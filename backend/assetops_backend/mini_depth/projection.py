@@ -139,6 +139,9 @@ def _service(h: rules.ServiceHour) -> dict[str, Any]:
         "status": h.status,
         "cards": {"delivered_load_kw": _num(h.delivered_load_kw), "interruptions_seen": h.interruptions_seen,
                   "critical_delivered_kw": _num(h.critical_delivered_kw), "unserved_kwh": _num(h.unserved_kwh)},
+        # Final review ruling 2 (M2): the pinned critical-delivered series' own coverage (null: no pinned asset).
+        "critical_delivered_coverage": None if h.critical_delivered_coverage is None
+        else _coverage(h.critical_delivered_coverage),
         "rows": [{"asset_id": str(r.asset_id), "asset_code": r.asset_code, "load_label": r.load_label,
                   "role": r.role, "delivered_kw": _num(r.delivered_kw),
                   "requested_evidence_state": r.requested_evidence_state, "assessment": r.assessment,

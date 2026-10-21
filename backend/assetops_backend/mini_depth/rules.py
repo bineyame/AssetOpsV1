@@ -467,6 +467,9 @@ class ServiceHour:
     limitations: tuple[Limitation, ...]
     coverage: Coverage
     evidence_ids: tuple[UUID, ...]
+    #: Final review ruling 2 (M2): the pinned `critical_load_delivered_power` series' own coverage, from the same
+    #: selected series as `critical_delivered_kw`; None when no single critical asset is pinned. Never feeder coverage.
+    critical_delivered_coverage: Coverage | None = None
 
 
 def _interruptions(req: Series, dlv: Series) -> int:
@@ -571,6 +574,7 @@ def assess_service_hour(w: Window, readings: Sequence[Reading], loads: Sequence[
         unserved_kwh=sum((r.unserved_kwh or _ZERO for r in rows), _ZERO) if all_supported else None,
         rows=rows, limitations=tuple(sorted(limitations, key=lambda l: LIMITATION_ORDER.index(l.code))),
         coverage=coverage, evidence_ids=_cited((*delivered, *requests, *crit_parts), in_hour),
+        critical_delivered_coverage=crit_del.coverage if crit_del is not None else None,
     )
 
 

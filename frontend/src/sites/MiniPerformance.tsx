@@ -759,6 +759,26 @@ const requestMissing = (read: ServiceRead): boolean =>
 
 const loadName = (row: ServiceRow): string => (row.role === "CRITICAL" ? `${row.load_label} (critical)` : row.load_label);
 
+/** Final review ruling 2 (M2): the clinic bar and row name the feeder series, never the critical-service record. */
+export const CLINIC_FEEDER_LABEL = "Clinic feeder delivered power";
+const feederName = (row: ServiceRow): string => (row.role === "CRITICAL" ? CLINIC_FEEDER_LABEL : row.load_label);
+
+/** Ruling 2: the critical card's note names its own record and its own coverage; never the feeder's. */
+const CRITICAL_RECORD = "Critical-service delivered power record";
+function criticalNote(coverage: MiniCoverage | null | undefined): string {
+  if (coverage === null || coverage === undefined || coverage.required_seconds <= 0) return `${CRITICAL_RECORD} · Coverage unknown`;
+  return `${CRITICAL_RECORD} · ${minutes(coverage)}`;
+}
+function criticalComplete(coverage: MiniCoverage | null | undefined): boolean {
+  return (
+    coverage !== null &&
+    coverage !== undefined &&
+    coverage.required_seconds > 0 &&
+    coverage.observed_seconds >= coverage.required_seconds &&
+    coverage.gaps.length === 0
+  );
+}
+
 /** The hour bar: one Site-local clock hour (Q4/Q5), sent as UTC bounds. */
 function MiniHourBar({
   timeZone,
@@ -846,7 +866,10 @@ function ServiceCardsRow({ read }: { read: ServiceRead }) {
   const critical = read.rows.find((row) => row.role === "CRITICAL") ?? null;
   const interruptions = cards?.interruptions_seen ?? null;
   const delivered = cards?.delivered_load_kw ?? null;
-  const criticalKw = cards?.critical_delivered_kw ?? null;
+  const criticalCoverage = read.critical_delivered_coverage ?? null;
+  const criticalValue = cards?.critical_delivered_kw ?? null;
+  // Ruling 2: a numeric critical card needs a value and its own complete coverage for the selected hour.
+  const criticalKw = criticalValue !== null && criticalComplete(criticalCoverage) ? criticalValue : null;
   const unserved = cards?.unserved_kwh ?? null;
   return (
     <MetricCards label="Service summary" data={{ "data-mini-cards": "service" }} boundClass="mini-cards-bound mini-max--service-cards">
@@ -863,7 +886,7 @@ function ServiceCardsRow({ read }: { read: ServiceRead }) {
       <MetricCard
         label={critical === null ? "Critical load" : `${critical.load_label} (critical)`}
         value={kw(criticalKw)}
-        note={criticalKw === null ? "Critical delivered power is not measured for the whole hour" : minutes(critical?.coverage ?? null)}
+        note={criticalNote(criticalCoverage)}
       />
       <MetricCard
         label="Unserved energy"
@@ -890,7 +913,7 @@ function PowerPanel({ read }: { read: ServiceRead }) {
         <ValueBars
           title="Delivered power by addressed load"
           items={[
-            ...read.rows.map((row) => ({ key: row.asset_id, label: loadName(row), value: row.delivered_kw, valueText: kw(row.delivered_kw) })),
+            ...read.rows.map((row) => ({ key: row.asset_id, label: feederName(row), value: row.delivered_kw, valueText: kw(row.delivered_kw) })),
             { key: "needed", label: "What was needed", value: null, valueText: UNKNOWN },
           ]}
         />
@@ -927,7 +950,7 @@ function LoadTablePanel({ read, evidenceHref }: { read: ServiceRead; evidenceHre
               {read.rows.map((row) => (
                 <tr key={row.asset_id} data-mini-row={row.assessment.toLowerCase()}>
                   <td>
-                    {row.load_label}
+                    {feederName(row)}
                     <span className="mini-cited">{` · ${row.asset_code}`}</span>
                   </td>
                   <td>{ROLE_WORD[row.role] ?? row.role}</td>

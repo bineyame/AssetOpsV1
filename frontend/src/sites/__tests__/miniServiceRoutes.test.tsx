@@ -72,6 +72,7 @@ function read(over: Partial<ServiceRead> = {}): ServiceRead {
     status: "SUPPORTED",
     coverage: FULL,
     cards: { delivered_load_kw: 34, interruptions_seen: 0, critical_delivered_kw: 4, unserved_kwh: 0 },
+    critical_delivered_coverage: FULL,
     rows: [row(0, { load_label: "Health post", asset_code: "CRIT-1", role: "CRITICAL", delivered_kw: 4 }), row(1), row(2)],
     limitations: [],
     basis: {},
@@ -156,12 +157,12 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
     expect(strip()).not.toContain("requested-service baseline is incomplete");
     expect(cardValues()).toEqual(["34 kW", "None seen in measured intervals", "4 kW", "0 kWh"]);
     expect(document.querySelector("[data-mini-cards]")?.textContent).toContain("Health post (critical)");
-    expect(document.querySelector("[data-mini-cards]")?.textContent).toContain("Measured 60 of 60 minutes");
+    expect(document.querySelector("[data-mini-cards]")?.textContent).toContain("Critical-service delivered power record · Measured 60 of 60 minutes");
     const power = panelTitled("Where the power went");
     expect(power.textContent).toContain("Delivered and requested power use the same accepted hour");
     expect(power.querySelector('[data-value-bar-key="needed"]')?.getAttribute("data-value-bar")).toBe("not-known");
     expect(bodyRows()[0]).toEqual([
-      "Health post · CRIT-1",
+      "Clinic feeder delivered power · CRIT-1",
       "Critical service",
       "4 kW · measured 60 of 60 minutes",
       "Accepted requested-power record · 1 cited record · Evidence",
@@ -176,7 +177,7 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
       "See effect on verification · Not available yet",
     );
     expect(unlock.querySelector("a")).toBeNull();
-    expect(main().textContent).not.toMatch(/grain mill|residential|clinic|18 kW|30 kW/i);
+    expect(main().textContent).not.toMatch(/grain mill|residential|health clinic|18 kW|30 kW/i);
   });
 
   it("request missing and a partial hour: Limited/Unknown, Unknown cards never 0, missing request roles named", async () => {
@@ -184,6 +185,7 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
       status: "LIMITED",
       coverage: PART,
       cards: { delivered_load_kw: null, interruptions_seen: null, critical_delivered_kw: 4, unserved_kwh: null },
+      critical_delivered_coverage: FULL,
       rows: [
         row(0, { load_label: "Health post", asset_code: "CRIT-1", role: "CRITICAL", delivered_kw: 4, requested_evidence_state: "MISSING", assessment: "UNKNOWN" }),
         row(1, { coverage: PART, assessment: "LIMITED", delivered_kw: 9.5 }),
@@ -215,6 +217,46 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
     expect(unlock).toContain("Health post (critical): an accepted requested-power record for the same hour");
     expect(unlock).toContain("Readings that cover the whole hour");
     expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe(`Site-local hour 2026-10-06 12:00–13:00 (${TZ})`);
+  });
+
+  it("ruling 2 (M2): the critical card shows its own record and coverage, never the clinic feeder's", async () => {
+    const criticalCard = () => document.querySelectorAll("[data-mini-cards] .v69-metric")[2] as HTMLElement;
+    const clinicBar = () => panelTitled("Where the power went").querySelector(`[data-value-bar-key="${id(10)}"]`);
+    // Complete feeder, missing critical: Unknown with the critical record's own zero coverage.
+    const MISSING = { required_seconds: 3600, observed_seconds: 0, source_count: 0, gaps: [{ from: "2026-10-06T09:00:00Z", to: "2026-10-06T10:00:00Z" }] };
+    renderService([ok(read({ cards: { delivered_load_kw: 34, interruptions_seen: 0, critical_delivered_kw: null, unserved_kwh: 0 }, critical_delivered_coverage: MISSING }))]);
+    await settledScreen();
+    await screen.findByText("Service assessment: Supported");
+    expect(cardValues()[2]).toBe("Unknown");
+    expect(criticalCard().textContent).toContain("Critical-service delivered power record · Measured 0 of 60 minutes");
+    expect(criticalCard().textContent).not.toContain("Measured 60 of 60 minutes");
+    expect(clinicBar()?.textContent).toContain("Clinic feeder delivered power");
+    expect(bodyRows()[0][0]).toBe("Clinic feeder delivered power · CRIT-1");
+    expect(bodyRows()[0][2]).toBe("4 kW · measured 60 of 60 minutes");
+    cleanup();
+    // Complete feeder, partial critical: a value without complete coverage stays Unknown, coverage stated.
+    renderService([ok(read({ critical_delivered_coverage: PART }))]);
+    await settledScreen();
+    await screen.findByText("Service assessment: Supported");
+    expect(cardValues()[2]).toBe("Unknown");
+    expect(criticalCard().textContent).toContain("Critical-service delivered power record · Measured 40 of 60 minutes");
+    expect(bodyRows()[0][2]).toBe("4 kW · measured 60 of 60 minutes");
+    cleanup();
+    // Two complete but different values: 3.87 kW critical beside the 4 kW clinic feeder row.
+    renderService([ok(read({ cards: { delivered_load_kw: 34, interruptions_seen: 0, critical_delivered_kw: 3.87, unserved_kwh: 0 } }))]);
+    await settledScreen();
+    await screen.findByText("Service assessment: Supported");
+    expect(cardValues()[2]).toBe("3.87 kW");
+    expect(criticalCard().textContent).toContain("Critical-service delivered power record · Measured 60 of 60 minutes");
+    expect(clinicBar()?.textContent).toContain("4 kW");
+    expect(bodyRows()[0]).toEqual(expect.arrayContaining(["Clinic feeder delivered power · CRIT-1", "4 kW · measured 60 of 60 minutes"]));
+    cleanup();
+    // No critical coverage on the wire: Coverage unknown, never the feeder's.
+    renderService([ok(read({ critical_delivered_coverage: null }))]);
+    await settledScreen();
+    await screen.findByText("Service assessment: Supported");
+    expect(cardValues()[2]).toBe("Unknown");
+    expect(criticalCard().textContent).toContain("Critical-service delivered power record · Coverage unknown");
   });
 
   it("no selected revision keeps the page shell: Unknown cards and the empty addressed-load copy", async () => {

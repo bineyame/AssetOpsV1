@@ -91,6 +91,7 @@ def unsupported_envelope(domain: str, site_code: str, timezone_name: str | None,
         "limitations": [{"code": "SITE_ROLE_UNSUPPORTED", "evidence_ids": []}], "basis": None,
         "links": {"dispatch": None, "evidence": f"{site_path(site_code)}/evidence", "financials": None,
                   "actions": None},
+        **({"critical_delivered_coverage": None} if domain == "service" else {}),
     }
 
 
