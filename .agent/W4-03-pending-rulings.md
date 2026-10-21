@@ -175,7 +175,7 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
    noninteractive `Alternatives for this Finding unavailable`. Same for `FindingDetail.tsx:236`
    (`tabHref("alternatives")`). Confirm.
 
-## PR-9 (raised in unit 7; non-blocking, built with the readings below)
+## PR-9 (raised in unit 7) - RESOLVED by u7 (build spec "Unit-7 rulings (u7)"); 9.1 breadcrumb replaced in 3ba626ba, 9.2 and 9.3 confirmed
 
 1. **Opportunity breadcrumb shape.** u5 unit 7 says breadcrumb `Sites › {Site} › Renewable evaluation › {OPP code} ›
    Overview` "with disabled Findings root"; closure 3, B5 and N9 (and the v69 measurement `Findings›F-109›Overview·
@@ -188,3 +188,14 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
    `No scenario linked`; value `{proposed_load_kw} kW` (no `× 1 h`). Confirm.
 3. **503 for multiple CTA matches.** Built as the u6b ruling-9 503 copy `Decisions are unavailable right now. Try
    again.` (noninteractive) for more than one exact root and for any list refusal by code. Confirm.
+
+## PR-10 (raised in unit 8; non-blocking, built with the readings below)
+
+1. **Already-linked pair under a new key.** `UNIQUE(case_id,scenario_id)` / `UNIQUE(case_id,opportunity_id)` make a
+   second association of the same case and decision impossible. Built: a new idempotency key naming an
+   already-linked pair is 409 `DECISION_DUPLICATE_KEY` (checked after the decision-scope 422). Alternative: 200 with
+   the existing link's original body. Which?
+2. **Refused overlay copy.** Built: a refused/unavailable contexts read shows `Decision context unavailable` (no
+   `Decision context:` prefix) in each row's slot; while the overlay is loading nothing is shown. Confirm.
+3. **Scenario without a route.** Built: `{label} (Scenario detail unavailable)` as plain text. Confirm the
+   parenthetical form.
