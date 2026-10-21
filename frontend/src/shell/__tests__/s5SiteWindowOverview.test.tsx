@@ -21,7 +21,8 @@ import type {
 import { createSiteOverviewClient } from "../../sites/siteOverviewClient";
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
-import { MONEY_STATE_WORDS } from "../../sites/SiteWindowOverview";
+import { MINIGRID_OBJECTIVE, MONEY_STATE_WORDS, OVERVIEW_MINI_UNAVAILABLE, SiteWindowOverview, overviewReadsStrip } from "../../sites/SiteWindowOverview";
+import type { MiniDepthClient, MiniRead, MiniWindowQuery } from "../../sites/miniDepthClient";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { expectV69Panels } from "../../test/panelStructure";
@@ -49,6 +50,12 @@ function clientOf(answer: (selection: OverviewSelection) => SiteWindowSummary) {
 /** S5-02: the Finding list's own read; these S5-01 tests keep it unavailable (S5-02 cases live in their own file). */
 const NO_INDEX: FindingIndexClient = { getFindingIndex: () => Promise.resolve({ status: "unavailable", message: null }) };
 
+/** W4-02: these S5-01 tests keep the mini reads unavailable (the mini card cases have their own block). */
+const NO_MINI: MiniDepthClient = (() => {
+  const no = () => Promise.resolve({ status: "unavailable" as const, message: null });
+  return { getCapabilities: no, getService: no, getFuel: no, getRenewable: no, getBackup: no };
+})();
+
 function renderAt(path: string, overview: SiteOverviewClient) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -59,6 +66,7 @@ function renderAt(path: string, overview: SiteOverviewClient) {
         siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
         siteOverview={overview}
         siteFindingIndex={NO_INDEX}
+        miniDepth={NO_MINI}
       />
       <LocationProbe />
     </MemoryRouter>,
@@ -149,7 +157,8 @@ describe("S5-01 selected-window Overview: money states", () => {
     expect(within(card).getByText("0.00 to 15.82 USD")).toBeTruthy();
     expect(card.querySelector('[data-source-provenance="AUTHORED_DEMONSTRATION"]')).toHaveTextContent("Prepared example data.");
     // Slice review L3: the Operating objective panel reads the day's claim level and coverage; no objective is implied.
-    expect(document.querySelector("[data-objective-statement]")?.textContent).toContain("does not state an operating objective");
+    // Final review ruling 1 (H3): a MINIGRID Overview states the mini-grid objective, not the dispatch-only line.
+    expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
     expect(document.querySelector('[data-assessment-claim="CANDIDATE_AVOIDABLE"]')?.textContent).toContain("Possibly avoidable");
     const financials = card.querySelector("[data-window-financials-link]")?.getAttribute("href");
     expect(financials).toContain(`finding_id=${FID}`);
@@ -656,5 +665,246 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     expect(expectStateLineVisible(moneyCard())).toBe("We cannot judge this yet");
     expect(moneyCard().querySelector("[data-product-status]")?.getAttribute("data-product-status")).not.toBe("positive");
     expect(moneyCard().querySelector('[data-money-amount="none"]')).not.toBeNull();
+  });
+});
+
+/*
+ * W4-02 B3/Q24: the five Overview cards. Service, Fuel and Renewable read the mini endpoints (one Site-local day for
+ * renewable, its local noon hour for service and fuel, one shared cutoff); Dispatch and Battery are unchanged; there
+ * is no Backup card and no Overview backup read.
+ */
+describe("W4-02 Overview mini cards", () => {
+  // HYBRID_MINI_GRID_SITE is Africa/Kampala (UTC+3): UTC day 2026-10-23 starts on local 2026-10-23.
+  const HOUR = { from: "2026-10-23T09:00:00.000Z", to: "2026-10-23T10:00:00.000Z" };
+  const DAY = { from: "2026-10-22T21:00:00.000Z", to: "2026-10-23T21:00:00.000Z" };
+  const FULL = { required_seconds: 3600, observed_seconds: 3600, source_count: 1, gaps: [] };
+  const HALF = { required_seconds: 3600, observed_seconds: 1800, source_count: 1, gaps: [{ from: "2026-10-23T09:30:00Z", to: "2026-10-23T10:00:00Z" }] };
+
+  function envelope<C>(domain: string, status: string, cards: C, currentness = "CURRENT") {
+    return {
+      schema_version: "w4-02.mini.v1",
+      domain,
+      site: { code: SITE_ID, timezone: "Africa/Kampala" },
+      window: { from: HOUR.from, to: HOUR.to, known_at: null, bounds: "[from,to)" },
+      currentness: { state: currentness, job_state: "SETTLED", windows: [] },
+      source_provenance: null,
+      selected_source_provenance: { classification: "REGISTERED_SIMULATION", source_ids: [], evidence_ids: [] },
+      pending_source_provenance: null,
+      status,
+      coverage: FULL,
+      cards,
+      rows: [],
+      limitations: [],
+      basis: null,
+      links: { dispatch: null, evidence: null, financials: null, actions: null },
+    };
+  }
+  const loaded = <T,>(value: T) => Promise.resolve({ status: "loaded" as const, value } as MiniRead<never>);
+  const SERVICE = { delivered_load_kw: 12.5, interruptions_seen: null, critical_delivered_kw: null, unserved_kwh: null };
+  const FUEL = { opening_l: null, deliveries_l: null, expected_use_l: { low: 0, high: 3.3 }, closing_l: null, residual_l: null };
+  const RENEWABLE = { capability_kw: null, used_kw: null, headroom_kw: { low: 1, high: 2 }, eligible_days: 1, assessed_days: 1 };
+  // q12 (q11-5 c): the selected local-noon window and its exactly matching assessed row.
+  const NOON_WINDOW = { local_day: "2026-10-23", window_start: "2026-10-23T09:00:00Z", window_end: "2026-10-23T10:00:00Z", selection_id: 7 };
+  const NOON_ROW = { day: "2026-10-23", from: "2026-10-23T09:00:00Z", to: "2026-10-23T10:00:00Z", decision: "ELIGIBLE",
+    opportunity_kwh: { low: 1, high: 2 }, constraints: [], evidence_ids: [] };
+  function renewableEnvelope(status = "SUPPORTED", cards: unknown = RENEWABLE, rows: unknown[] = [NOON_ROW]) {
+    const base = envelope("renewable", status, cards);
+    return { ...base, currentness: { ...base.currentness, windows: [NOON_WINDOW] }, rows };
+  }
+
+  function miniClient(over: Partial<Record<"service" | "fuel" | "renewable", () => Promise<MiniRead<never>>>> = {}) {
+    const unavailable = () => Promise.resolve({ status: "unavailable" as const, message: null });
+    return {
+      getCapabilities: vi.fn(() => Promise.resolve({ status: "loaded" as const, value: [] })),
+      getService: vi.fn(over.service ?? (() => loaded(envelope("service", "SUPPORTED", SERVICE)))),
+      getFuel: vi.fn(over.fuel ?? (() => loaded(envelope("fuel", "UNKNOWN", FUEL)))),
+      getRenewable: vi.fn(over.renewable ?? (() => loaded(renewableEnvelope()))),
+      getBackup: vi.fn(unavailable),
+    };
+  }
+
+  function renderMini(mini: MiniDepthClient) {
+    const { client } = clientOf(() => summary("2026-10-23"));
+    return render(
+      <MemoryRouter initialEntries={[`/sites/${SITE_ID}?date=2026-10-23`]}>
+        <App
+          flags={featureFlagsWith(false)}
+          siteDirectory={DIRECTORY}
+          siteDetail={DETAIL}
+          siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
+          siteOverview={client}
+          siteFindingIndex={NO_INDEX}
+          miniDepth={mini}
+        />
+      </MemoryRouter>,
+    );
+  }
+
+  const card = (key: string) => document.querySelector(`[data-objective-card="${key}"]`) as HTMLElement;
+  const value = (key: string) => card(key).querySelector(".v69-metric__value")?.textContent;
+  const note = (key: string) => card(key).querySelector(".v69-metric__note")?.textContent ?? "";
+  const detail = (key: string) => card(key).querySelector(`[data-objective-card-detail="${key}"]`)?.getAttribute("href") ?? null;
+
+  it("keeps the five mock cards in order and reads Service, Fuel and Renewable with one shared cutoff", async () => {
+    const mini = miniClient();
+    renderMini(mini);
+    await settledScreen();
+    await screen.findByText("Delivered 12.5 kW");
+    const keys = [...document.querySelectorAll("[data-objective-card]")].map((n) => n.getAttribute("data-objective-card"));
+    expect(keys).toEqual(["service", "dispatch", "battery", "fuel", "renewable"]);
+    expect(document.querySelector('[data-objective-card="backup"]')).toBeNull();
+    expect(mini.getBackup).not.toHaveBeenCalled();
+    expect(mini.getService).toHaveBeenCalledTimes(1);
+    const [serviceSite, serviceWindow] = mini.getService.mock.calls[0] as unknown as [string, MiniWindowQuery];
+    const [, fuelWindow] = mini.getFuel.mock.calls[0] as unknown as [string, MiniWindowQuery];
+    const [, renewableWindow] = mini.getRenewable.mock.calls[0] as unknown as [string, MiniWindowQuery];
+    expect(serviceSite).toBe(SITE_ID);
+    expect({ from: serviceWindow.from, to: serviceWindow.to }).toEqual(HOUR);
+    expect({ from: fuelWindow.from, to: fuelWindow.to }).toEqual(HOUR);
+    expect({ from: renewableWindow.from, to: renewableWindow.to }).toEqual(DAY);
+    expect(serviceWindow.known_at).not.toBeNull();
+    expect(fuelWindow.known_at).toBe(serviceWindow.known_at);
+    expect(renewableWindow.known_at).toBe(serviceWindow.known_at);
+
+    expect(value("service")).toBe("Delivered 12.5 kW");
+    expect(note("service")).toContain("Local 2026-10-23 12:00–13:00 · 60 of 60 min covered");
+    expect(value("fuel")).toBe("Expected use 0–3.3 L");
+    expect(note("fuel")).toContain("Inventory residual unavailable");
+    expect(value("renewable")).toBe("Headroom 1–2 kW");
+    expect(note("renewable")).toContain("Local 2026-10-23 · One selected day; recurrence not established");
+    expect(value("battery")).toBe("Not available");
+    expect(card("dispatch").getAttribute("data-objective-card-state")).toBe(summary("2026-10-23").assessment.state);
+    const known = encodeURIComponent(serviceWindow.known_at as string);
+    expect(detail("service")).toBe(
+      `/sites/${SITE_ID}/performance/service?from=${encodeURIComponent(HOUR.from)}&to=${encodeURIComponent(HOUR.to)}&known_at=${known}`,
+    );
+    expect(detail("renewable")).toBe(
+      `/sites/${SITE_ID}/performance/renewable?from=${encodeURIComponent(DAY.from)}&to=${encodeURIComponent(DAY.to)}&known_at=${known}`,
+    );
+    expect(card("fuel").textContent).toContain("View detail →");
+  });
+
+  it("shows Unknown for an unsettled answer and Unavailable without a link for a failed read, never zero", async () => {
+    const mini = miniClient({
+      service: () => loaded(envelope("service", "SUPPORTED", SERVICE, "STALE_SOURCE")),
+      fuel: () => Promise.resolve({ status: "refused", httpStatus: 503, code: "MINI_STORE_UNAVAILABLE", message: null }),
+      renewable: () => loaded(envelope("renewable", "LIMITED", RENEWABLE)),
+    });
+    renderMini(mini);
+    await settledScreen();
+    await screen.findByText(OVERVIEW_MINI_UNAVAILABLE, { exact: false });
+    expect(value("service")).toBe("Unknown");
+    expect(detail("service")).not.toBeNull();
+    expect(value("renewable")).toBe("Unknown");
+    expect(detail("renewable")).not.toBeNull();
+    expect(value("fuel")).toBe("Unavailable");
+    expect(note("fuel")).toBe(OVERVIEW_MINI_UNAVAILABLE);
+    expect(detail("fuel")).toBeNull();
+    for (const key of ["service", "fuel", "renewable"]) expect(value(key)).not.toMatch(/^0\b|Delivered 0/);
+    expect(card("dispatch").getAttribute("data-objective-card-state")).toBe(summary("2026-10-23").assessment.state);
+  });
+
+  it("keeps a null value Unknown even when the read is SUPPORTED", async () => {
+    const mini = miniClient({
+      service: () => loaded(envelope("service", "SUPPORTED", { ...SERVICE, delivered_load_kw: null })),
+      fuel: () => loaded(envelope("fuel", "LIMITED", { ...FUEL, expected_use_l: { low: 0, high: null } })),
+      renewable: () => loaded(envelope("renewable", "SUPPORTED", { ...RENEWABLE, headroom_kw: null })),
+    });
+    renderMini(mini);
+    await settledScreen();
+    await screen.findAllByText("Unknown");
+    expect([value("service"), value("fuel"), value("renewable")]).toEqual(["Unknown", "Unknown", "Unknown"]);
+    expect(note("fuel")).toContain("Inventory residual unavailable");
+  });
+
+  it("q11-1: an unknown selected source withholds the positive headroom value", async () => {
+    const mini = miniClient({
+      renewable: () =>
+        loaded({
+          ...renewableEnvelope(),
+          selected_source_provenance: { classification: "UNKNOWN", source_ids: [], evidence_ids: [] },
+        }),
+    });
+    renderMini(mini);
+    await settledScreen();
+    await screen.findAllByText("Unknown");
+    expect(value("renewable")).toBe("Unknown");
+    expect(value("service")).toBe("Delivered 12.5 kW");
+  });
+
+  it("q12 (q11-5 b, c): a partial service hour and a one-day read without the matching noon row stay Unknown", async () => {
+    const mini = miniClient({
+      service: () => loaded({ ...envelope("service", "SUPPORTED", SERVICE), coverage: HALF }),
+      renewable: () => loaded(renewableEnvelope("SUPPORTED", RENEWABLE, [])),
+    });
+    renderMini(mini);
+    await settledScreen();
+    await screen.findAllByText("Unknown");
+    expect(value("service")).toBe("Unknown");
+    expect(note("service")).toContain("30 of 60 min covered");
+    expect(value("renewable")).toBe("Unknown");
+    expect(value("fuel")).toBe("Expected use 0–3.3 L");
+  });
+
+  // Final review ruling 1 (H3): the strip names only the readable reads, in Service, Dispatch, Fuel, Renewable order.
+  const stripText = () => document.querySelector("[data-overview-status]")?.textContent ?? "";
+  const READS = (names: string) => `Reads on this Overview: ${names}. Each card shows what its selected period supports.`;
+
+  it("H3: a numeric MINIGRID set names every read and states the mini-grid objective", async () => {
+    renderMini(miniClient({ fuel: () => loaded(envelope("fuel", "SUPPORTED", FUEL)) }));
+    await settledScreen();
+    await screen.findByText("Delivered 12.5 kW");
+    await screen.findByText("Headroom 1–2 kW");
+    expect(stripText()).toContain(READS("Service, Dispatch, Fuel, Renewable"));
+    expect(stripText()).not.toContain("dispatch only");
+    expect(document.querySelector("[data-objective-statement]")?.textContent).toBe(MINIGRID_OBJECTIVE);
+    expect(document.body.textContent).not.toContain("Objective: nothing here is a current answer.");
+  });
+
+  it("H3: a partial set lists only the readable reads; 409 and 503 are not readable", async () => {
+    renderMini(
+      miniClient({
+        fuel: () => Promise.resolve({ status: "refused", httpStatus: 503, code: "MINI_STORE_UNAVAILABLE", message: null }),
+        renewable: () => Promise.resolve({ status: "refused", httpStatus: 409, code: "MINI_NOT_SETTLED", message: null }),
+      }),
+    );
+    await settledScreen();
+    await screen.findByText("Delivered 12.5 kW");
+    await screen.findAllByText(OVERVIEW_MINI_UNAVAILABLE, { exact: false });
+    expect(stripText()).toContain(READS("Service, Dispatch"));
+  });
+
+  it("H3: an UNKNOWN read is listed while its card stays Unknown; malformed reads are not listed", async () => {
+    renderMini(
+      miniClient({
+        service: () => loaded(envelope("service", "UNKNOWN", { ...SERVICE, delivered_load_kw: null })),
+        fuel: () => Promise.resolve({ status: "unavailable", message: "malformed" }),
+      }),
+    );
+    await settledScreen();
+    await screen.findByText("Headroom 1–2 kW");
+    expect(value("service")).toBe("Unknown");
+    expect(stripText()).toContain(READS("Service, Dispatch, Renewable"));
+  });
+
+  it("H3: an empty readable set says no objective read is available", () => {
+    expect(overviewReadsStrip({ service: false, dispatch: false, fuel: false, renewable: false })).toBe(
+      "No objective read is available for this selection.",
+    );
+    expect(overviewReadsStrip({ service: false, dispatch: true, fuel: false, renewable: true })).toBe(READS("Dispatch, Renewable"));
+  });
+
+  it("H3: a non-MINIGRID Overview (no mini reads) keeps the dispatch-only strip and objective", async () => {
+    const href = () => "/x";
+    const links = { dispatchDay: href, finding: href, financials: href, assumption: href, evidenceRecord: href };
+    render(
+      <MemoryRouter>
+        <SiteWindowOverview summary={summary("2026-10-23")} links={links} onSelectDay={() => undefined} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(stripText()).toContain("Assessed for this day: dispatch only · the other objectives have no read on this Overview");
+    expect(document.querySelector("[data-objective-statement]")?.textContent).toContain("does not state an operating objective");
+    expect(document.body.textContent).not.toContain("Reads on this Overview");
   });
 });

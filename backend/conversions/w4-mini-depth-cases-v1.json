@@ -1,0 +1,106 @@
+{
+  "schema": {"id": "assetops.w4-mini-depth-cases", "version": 1},
+  "label": "w4-mini-depth-cases-v1",
+  "status": "AUTHORED W4-02 DEMONSTRATION CASES (D-2026-10-20-w4-02-buildspec closure 2 'Role sets and replay source', closure 4 B2/S5, closure 5). Labelled AUTHORED_DEMONSTRATION by the shared provenance resolver, never REGISTERED_SIMULATION.",
+  "statement": "Authored public Batch V2 content for the isolated MINIGRID demonstration Site MG-W402-001 only (never KOBO-001), sealed with its registered minigrid-roles-4 binding snapshot and posted through its registered gateway. Quantitative channels are existing v3 INTERVAL_MEAN or STATE_AT_INSTANT envelopes; the primary supply state, backup start request/result and backup bus state are the three authored-mini-depth-cases/1 v4 tuples. No Lab private truth, no fabricated delivery, dip or witnessed test record. Generated IDs are written only to replay output.",
+  "site_code": "MG-W402-001",
+  "role_set": "minigrid-roles-4",
+  "v4_mapping_profile": {"id": "authored-mini-depth-cases", "version": 1},
+  "mean_minutes": 1,
+  "quality": "GOOD",
+  "variants": [
+    {
+      "variant": "positive",
+      "sequence_epoch": "w402-positive",
+      "label": "five separately selected Nairobi noon hours with complete request, charge and critical evidence; one correlated backup chain on 2026-10-06",
+      "hours": [
+        {"day": "2026-10-06", "from": "2026-10-06T09:00:00Z", "to": "2026-10-06T10:00:00Z"},
+        {"day": "2026-10-07", "from": "2026-10-07T09:00:00Z", "to": "2026-10-07T10:00:00Z"},
+        {"day": "2026-10-08", "from": "2026-10-08T09:00:00Z", "to": "2026-10-08T10:00:00Z"},
+        {"day": "2026-10-09", "from": "2026-10-09T09:00:00Z", "to": "2026-10-09T10:00:00Z"},
+        {"day": "2026-10-10", "from": "2026-10-10T09:00:00Z", "to": "2026-10-10T10:00:00Z"}
+      ],
+      "means_kw": [
+        {"device": "pv-inverter-controller", "signal": "available-power", "kw": "42"},
+        {"device": "pv-inverter-controller", "signal": "ac-power", "kw": "20"},
+        {"device": "residential-meter", "signal": "active-power", "kw": "8"},
+        {"device": "clinic-meter", "signal": "active-power", "kw": "4"},
+        {"device": "mill-meter", "signal": "active-power", "kw": "8"},
+        {"device": "residential-meter", "signal": "requested-power", "kw": "8"},
+        {"device": "mill-meter", "signal": "requested-power", "kw": "8"},
+        {"device": "battery-pcs-controller", "signal": "charge-requested-power", "kw": "0"},
+        {"device": "clinic-meter", "signal": "requested-power", "kw": "4"},
+        {"device": "clinic-meter", "signal": "delivered-power", "kw": "4"},
+        {"device": "generator-controller", "signal": "ac-power", "kw": "0"}
+      ],
+      "points": [
+        {"device": "battery-pcs-controller", "signal": "state-of-charge", "minute": 0, "value": "80", "unit": "%"},
+        {"device": "fuel-level-sensor", "signal": "fuel-level", "minute": 0, "value": "180", "unit": "L"},
+        {"device": "fuel-level-sensor", "signal": "fuel-level", "minute": 59, "value": "176", "unit": "L"}
+      ],
+      "backup_chain": {
+        "day": "2026-10-06",
+        "correlation_id": "w402-backup-1",
+        "states": [
+          {"device": "mini-primary-bus-meter", "signal": "state", "at": "2026-10-06T08:55:00Z", "value": "ENERGIZED"},
+          {"device": "mini-primary-bus-meter", "signal": "state", "at": "2026-10-06T09:10:00Z", "value": "LOST"},
+          {"device": "mini-backup-bus-meter", "signal": "state", "at": "2026-10-06T09:11:30Z", "value": "ENERGIZED"},
+          {"device": "mini-primary-bus-meter", "signal": "state", "at": "2026-10-06T09:40:00Z", "value": "ENERGIZED"}
+        ],
+        "events": [
+          {"device": "mini-generator-controller", "signal": "start-event", "at": "2026-10-06T09:10:30Z",
+           "record_kind": "START_REQUEST", "outcome": "REQUESTED", "event_id": "w402-start-request-1"},
+          {"device": "mini-generator-controller", "signal": "start-event", "at": "2026-10-06T09:11:00Z",
+           "record_kind": "START_RESULT", "outcome": "SUCCEEDED", "event_id": "w402-start-result-1"}
+        ],
+        "mean_overrides_kw": [
+          {"device": "generator-controller", "signal": "ac-power", "from_minute": 11, "to_minute": 40, "kw": "15"},
+          {"device": "clinic-meter", "signal": "delivered-power", "from_minute": 10, "to_minute": 12, "kw": "0"}
+        ]
+      }
+    },
+    {
+      "variant": "missing-conflicting",
+      "sequence_epoch": "w402-missing",
+      "label": "one Nairobi noon hour without request, charge-obligation or backup-bus evidence, with an overlapping PV mean and contradictory start results",
+      "hours": [
+        {"day": "2026-10-12", "from": "2026-10-12T09:00:00Z", "to": "2026-10-12T10:00:00Z"}
+      ],
+      "means_kw": [
+        {"device": "pv-inverter-controller", "signal": "available-power", "kw": "42"},
+        {"device": "pv-inverter-controller", "signal": "ac-power", "kw": "20"},
+        {"device": "residential-meter", "signal": "active-power", "kw": "8"},
+        {"device": "clinic-meter", "signal": "active-power", "kw": "4"},
+        {"device": "mill-meter", "signal": "active-power", "kw": "8"},
+        {"device": "generator-controller", "signal": "ac-power", "kw": "15", "to_minute": 20}
+      ],
+      "points": [],
+      "conflicting_means_kw": [
+        {"device": "pv-inverter-controller", "signal": "ac-power", "from_minute": 30, "to_minute": 31, "kw": "25"}
+      ],
+      "backup_chain": {
+        "day": "2026-10-12",
+        "correlation_id": "w402-backup-2",
+        "states": [
+          {"device": "mini-primary-bus-meter", "signal": "state", "at": "2026-10-12T08:55:00Z", "value": "ENERGIZED"},
+          {"device": "mini-primary-bus-meter", "signal": "state", "at": "2026-10-12T09:05:00Z", "value": "LOST"}
+        ],
+        "events": [
+          {"device": "mini-generator-controller", "signal": "start-event", "at": "2026-10-12T09:05:30Z",
+           "record_kind": "START_REQUEST", "outcome": "REQUESTED", "event_id": "w402-start-request-2"},
+          {"device": "mini-generator-controller", "signal": "start-event", "at": "2026-10-12T09:06:00Z",
+           "record_kind": "START_RESULT", "outcome": "SUCCEEDED", "event_id": "w402-start-result-2a"},
+          {"device": "mini-generator-controller", "signal": "start-event", "at": "2026-10-12T09:06:10Z",
+           "record_kind": "START_RESULT", "outcome": "FAILED", "event_id": "w402-start-result-2b"}
+        ],
+        "mean_overrides_kw": []
+      }
+    }
+  ],
+  "not_claimed": [
+    "fuel residual (delivery completeness is never attested)",
+    "witnessed backup test history",
+    "general backup readiness",
+    "selection seqs (unit 4 reruns this fixture and records them)"
+  ]
+}

@@ -455,15 +455,23 @@ class TestMigrationPaths:
         config.attributes["database_url"] = URL
         return config
 
-    def test_bootstrap_rows_survive_upgrade_and_an_empty_downgrade_restores_0011(self, site, engine) -> None:  # noqa: F811
+    def test_bootstrap_rows_survive_upgrade_and_an_empty_downgrade_restores_0011(self, store, engine, capsys) -> None:  # noqa: F811
         from alembic import command
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
 
         config = self._config()
+        # W4-02 q1 ruling 2: the MINIGRID PowerSite is seeded before 0029 is installed, so it holds no mini history.
+        with seeded_before_0029(config, engine, store):
+            site = PowerSite(store, engine, capsys)
+            site.store.dispose()
+            site.prices.dispose()
+        assert_no_mini_history(engine)
         site.store.dispose()
         site.prices.dispose()
         engine.dispose()
         cols = ("id", "cause", "finding_id", "finding_revision_id", "affected_from", "affected_to")
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, "0010_financial_assumptions")
             command.upgrade(config, "0011_financial_consequences")
             boot = sorted(tuple(w[k] for k in cols) for w in all_work(engine))
@@ -473,6 +481,7 @@ class TestMigrationPaths:
             assert sorted(tuple(w[k] for k in cols) for w in after) == boot
             assert all(w["accepted_evidence_id"] is None for w in after)
             # Empty-case downgrade: the original 0011 trigger body, two-arm CHECK and UNIQUE constraint return.
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 src = c.execute(text("SELECT prosrc FROM pg_proc WHERE proname = "
@@ -500,11 +509,19 @@ class TestMigrationPaths:
         finally:
             command.upgrade(config, "head")
 
-    def test_downgrade_refuses_while_evidence_work_exists(self, site, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_while_evidence_work_exists(self, store, engine, capsys) -> None:  # noqa: F811
         from alembic import command
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
 
-        rev = site.on(POWER_DAY)
-        submit(site, body(site, [power(site, rev["episode_start"], rev["episode_start"] + timedelta(minutes=5))]))
+        # W4-02 q1 ruling 2: the Site and its accepted generator-power row (a mini-mapped role at head) are seeded
+        # before 0029 is installed, so 0011's own refusal is the one reached.
+        with seeded_before_0029(self._config(), engine, store):
+            site = PowerSite(store, engine, capsys)
+            rev = site.on(POWER_DAY)
+            submit(site, body(site, [power(site, rev["episode_start"], rev["episode_start"] + timedelta(minutes=5))]))
+            site.store.dispose()
+            site.prices.dispose()
+        assert_no_mini_history(engine)
         before = all_work(engine)
         assert any(w["cause"] == "EVIDENCE_ACCEPTED" for w in before)
         config = self._config()
@@ -513,18 +530,26 @@ class TestMigrationPaths:
         engine.dispose()
         try:
             with pytest.raises(Exception, match="refused: EVIDENCE_ACCEPTED consequence work exists"):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0027_w4_work_cases")  # the whole downgrade rolled back: still head
+                    "0029_w4_mini_depth")  # the whole downgrade rolled back: still head
             assert all_work(engine) == before
         finally:
             command.upgrade(config, "head")
 
-    def test_downgrade_refuses_while_a_no_op_reason_exists(self, site, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_while_a_no_op_reason_exists(self, store, engine, capsys) -> None:  # noqa: F811
         """Phase 1 review L3: a typed no-op attempt on FindingRevision work alone blocks the downgrade."""
         from alembic import command
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
 
+        # W4-02 q1 ruling 2: the MINIGRID PowerSite is seeded before 0029 is installed, so it holds no mini history.
+        with seeded_before_0029(self._config(), engine, store):
+            site = PowerSite(store, engine, capsys)
+            site.store.dispose()
+            site.prices.dispose()
+        assert_no_mini_history(engine)
         (w,) = [x for x in all_work(engine) if x["cause"] == "FINDING_REVISION_APPENDED"
                 and x["finding_revision_id"] == site.on(POWER_DAY)["id"]]
         site.store.record_attempt(site.tenant, site.site, w["id"], succeeded=True,
@@ -536,10 +561,11 @@ class TestMigrationPaths:
         engine.dispose()
         try:
             with pytest.raises(Exception, match="refused: work attempts record a no-op reason"):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, "0011_financial_consequences")
             with engine.connect() as c:
                 assert c.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == (
-                    "0027_w4_work_cases")  # the whole downgrade rolled back: still head
+                    "0029_w4_mini_depth")  # the whole downgrade rolled back: still head
                 assert c.execute(text("SELECT no_op_reason FROM financial_consequence_work_attempt "
                                       "WHERE work_id = :w"), {"w": w["id"]}).scalar_one() == (
                     "FINDING_REVISION_SUPERSEDED")

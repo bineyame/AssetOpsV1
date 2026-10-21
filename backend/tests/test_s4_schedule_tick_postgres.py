@@ -110,6 +110,8 @@ def rows(engine, sql: str, **p) -> list[dict]:  # noqa: F811
 
 def count(engine, table: str, site=None) -> int:  # noqa: F811
     where = "" if site is None else " WHERE site_id = :s"
+    if table == "recompute_job":  # W4-02 q1 ruling 2: dispatch jobs only; the MINIGRID Site also enqueues mini work
+        where += (" AND" if where else " WHERE") + " domain = 'dispatch'"
     return rows(engine, f"SELECT count(*) AS n FROM {table}{where}", s=site)[0]["n"]
 
 
@@ -121,7 +123,8 @@ def ledger_counts(engine, site) -> dict:  # noqa: F811
 
 def jobs(engine, site) -> list[dict]:  # noqa: F811
     return rows(engine, "SELECT id, status, window_start, window_end, attempts, lease_until, last_error, "
-                        "available_at FROM recompute_job WHERE site_id = :s ORDER BY created_at", s=site)
+                        "available_at FROM recompute_job WHERE site_id = :s AND domain = 'dispatch' ORDER BY created_at",
+                s=site)  # W4-02 q1 ruling 2: dispatch jobs only; the MINIGRID Site also enqueues 0029 mini work
 
 
 def make_tick(limits: TickLimits, runner=None, env=None, owner=None):

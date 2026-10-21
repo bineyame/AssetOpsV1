@@ -30,6 +30,8 @@ from assetops_contracts.source_envelope_v4 import (
     V4_CHANNEL_MAPPINGS_BY_PROFILE,
     V4_EV_MAPPING_PROFILE_ID,
     V4_EV_MAPPING_PROFILE_VERSION,
+    V4_MINI_MAPPING_PROFILE_ID,
+    V4_MINI_MAPPING_PROFILE_VERSION,
 )
 
 from assetops_backend.sites.binding_alignment import (
@@ -44,6 +46,7 @@ from assetops_backend.sites.binding_roles import (
     ROLE_SET_BY_SITE_TYPE,
     ROLE_SET_COLD_1,
     ROLE_SET_EV_1,
+    ROLE_SET_MINIGRID_4,
     VERIFICATION_MESSAGES,
     VERIFICATION_POINT_ROLES,
     VERIFICATION_POWER_ROLES,
@@ -222,6 +225,15 @@ class DeclaredSignal:
 _V4_TABLE_BY_ROLE_SET = {
     ROLE_SET_COLD_1: V4_CHANNEL_MAPPINGS,
     ROLE_SET_EV_1: V4_CHANNEL_MAPPINGS_BY_PROFILE[(V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION)],
+    ROLE_SET_MINIGRID_4: V4_CHANNEL_MAPPINGS_BY_PROFILE[(V4_MINI_MAPPING_PROFILE_ID,
+                                                         V4_MINI_MAPPING_PROFILE_VERSION)],
+}
+
+#: W4-02 q1 ruling 1: a *mixed* v3/v4 role set. Only the roles named here are v4 rows of the set's closed table;
+#: every other channel role stays a v3 binding whose channel must not be a row of that table, and carries no v4
+#: metadata. Cold/EV are not mixed: every one of their channels is checked against their table.
+_MIXED_V4_ROLES_BY_ROLE_SET: Mapping[str, frozenset[str]] = {
+    ROLE_SET_MINIGRID_4: frozenset({"site_supply_state", "mini_backup_start_event", "mini_backup_bus_state"}),
 }
 
 
@@ -393,7 +405,19 @@ def validate_bindings(
                 # table serves exactly the role it names, with exactly the role's event kinds. W2-05a: the
                 # same rule for ev-roles-1 against the EV profile's table.
                 entry = _V4_TABLE_BY_ROLE_SET[role_set].get(channel)
-                if entry is not None and entry.role != role.role:
+                mixed_v4 = _MIXED_V4_ROLES_BY_ROLE_SET.get(role_set)
+                if mixed_v4 is not None and role.role not in mixed_v4:
+                    # q1 ruling 1: a v3 role of a mixed set may not take an authored v4 tuple.
+                    if entry is not None:
+                        problem(
+                            "BINDING_CHANNEL_ROLE_MISMATCH", index,
+                            f"Channel {name} serves {entry.role}, not {role.role}.",
+                        )
+                elif mixed_v4 is not None and entry is None:
+                    # q1 ruling 1: a v4 role of a mixed set requires its exact authored tuple, publish or not.
+                    problem("BINDING_CHANNEL_V4_UNKNOWN", index,
+                            f"Channel {name} is not in the closed v4 channel table.")
+                elif entry is not None and entry.role != role.role:
                     problem(
                         "BINDING_CHANNEL_ROLE_MISMATCH", index,
                         f"Channel {name} serves {entry.role or 'no cold role'}, not {role.role}.",

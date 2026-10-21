@@ -57,18 +57,21 @@ export function MetricCards({
   label,
   children,
   data,
+  boundClass,
 }: {
   columns?: 3 | 4 | 5;
   /** Accessible name of the list. */
   label: string;
   children: ReactNode;
   data?: Record<string, string>;
+  /** W4-02 q12-7: a height-bounded row (extra class); the row becomes a keyboard-focusable scroll region. */
+  boundClass?: string;
 }) {
-  const className = ["v69-cards", columns === 3 ? "v69-cards--three" : columns === 5 ? "v69-cards--five" : ""]
+  const className = ["v69-cards", columns === 3 ? "v69-cards--three" : columns === 5 ? "v69-cards--five" : "", boundClass ?? ""]
     .filter(Boolean)
     .join(" ");
   return (
-    <ul className={className} aria-label={label} {...data}>
+    <ul className={className} aria-label={label} tabIndex={boundClass === undefined ? undefined : 0} {...data}>
       {children}
     </ul>
   );
@@ -283,6 +286,11 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   coldbackup: "Performance · grid outage to cooling-service recovery",
   // W2-06: the EV Sessions screen's mock subtitle (no illustrative values in it).
   sessions: "Performance · charging sessions and delivered service",
+  // W4-02 Q20: the mini-depth Performance pages.
+  renewable: "Assess measured solar headroom and its limits.",
+  service: "See delivered power and where requested service remains unknown.",
+  fuel: "Review the generator-use model and incomplete inventory balance.",
+  backup: "Performance · backup start and service recovery",
   // W1-F5a: Health and the carry-1 site-level screens (sitefindings, financials, assumptions).
   health: "Health · site-level asset-condition summary",
   sitefindings: "Findings · conclusions about this site and the limits of their evidence",

@@ -2325,3 +2325,10 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L3: the mini-grid domain is derived from `coverage.match_state`, which is an implicit backend invariant. A wire `domain` field would be sturdier.
 - L4: the accepted limitations are the widened-job overlap (L2 of the commit-2 review), clock-drift residual, zero awaiting-verification count, and the 150 px card waiver.
 - L5: the second inline `except Exception` in the EV store link read was outside L1's scope.
+
+## W4-02 Lows
+- L1: the Overview strip lists Dispatch as readable while its card reads "Not open for current use". The ruling allows an UNKNOWN read to be listed; revisit in the UI/UX pass.
+- L2: the retained-margin value is an honest Unknown (q9), because the read does not expose it.
+- L3: "No outage in the selected hour" is unreachable from instant supply reports (q3). Its slot keeps honest copy.
+- L4: the old branch `task/W4-02-mini-grid-depth` committed build output and must never be merged. The clean squash branch was merged instead.
+- L5: the test-only `v4_roles4` fixture inserts one accepted `generator_power` row to create mini history for the 0029 refusal test.

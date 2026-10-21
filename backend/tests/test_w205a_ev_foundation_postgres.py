@@ -185,10 +185,13 @@ def test_source_bound_to_another_asset_is_refused(store, device, other) -> None:
 
 def test_legacy_w200_tuples_cannot_bind_under_the_ev_profile(store) -> None:
     """QF: the unsuffixed W2-00 tuples keep their role labels globally but are outside simulator-lab-gateway-ev/1."""
-    from assetops_contracts.source_envelope_v4 import V4_CHANNEL_MAPPINGS, V4_COLD_CHANNEL_MAPPINGS
+    from assetops_contracts.source_envelope_v4 import (
+        V4_CHANNEL_MAPPINGS, V4_COLD_CHANNEL_MAPPINGS, V4_MINI_CHANNEL_MAPPINGS)
 
+    # W4-02 B2: the authored mini tuples are their own profile, not legacy W2-00 tuples.
     legacy = {k: v for k, v in V4_CHANNEL_MAPPINGS.items()
-              if k not in V4_EV_CHANNEL_MAPPINGS and k not in V4_COLD_CHANNEL_MAPPINGS}
+              if k not in V4_EV_CHANNEL_MAPPINGS and k not in V4_COLD_CHANNEL_MAPPINGS
+              and k not in V4_MINI_CHANNEL_MAPPINGS}
     assert {v.role for v in legacy.values()} == {"ev_session_event", "ev_connector_fault"}
     result = install(store)
     template = {(r.device_id, r.signal_id): r for r in complete_requests(store, result)}

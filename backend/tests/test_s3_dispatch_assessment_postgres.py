@@ -110,8 +110,9 @@ def rows(engine, sql: str, **params):
 
 
 def jobs(engine):
+    # W4-02 q1 ruling 2: dispatch jobs only; this MINIGRID Site also enqueues 0029 mini work.
     return rows(engine, "SELECT status, attempts, window_start, window_end, last_error FROM recompute_job "
-                        "ORDER BY created_at, id")
+                        "WHERE domain = 'dispatch' ORDER BY created_at, id")
 
 
 def revisions(engine, key_like: str):

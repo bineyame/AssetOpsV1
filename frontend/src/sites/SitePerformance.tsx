@@ -15,6 +15,8 @@
 import type { FindingClient } from "./findingClient";
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { PerformanceDispatch } from "./PerformanceDispatch";
+import { MiniPerformanceSubtabs } from "./MiniPerformance";
+import type { MiniDepthClient } from "./miniDepthClient";
 import {
   createPerformanceDispatchClient,
   type PerformanceDispatchClient,
@@ -50,7 +52,8 @@ import type {
 } from "./siteAnalyticsClient";
 import type { EvidenceRead } from "./siteEvidenceClient";
 
-export const PERFORMANCE_SUBTABS_LABEL = "Performance sections";
+export { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
+import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
 
 /** The served capability whose body this build can render. */
 const RENDERABLE = new Set(["dispatch"]);
@@ -77,6 +80,8 @@ export interface SitePerformanceProps {
   /** S4-01: an imported Site's durable Findings, linked from the Dispatch day. */
   findings?: FindingClient;
   siteFindingHref?: (findingId: string) => string;
+  /** W4-02: the mini-depth reads whose capabilities join the imported Site's subtab row (S6). */
+  miniDepth?: MiniDepthClient;
 }
 
 const DEFAULT_PERFORMANCE = createPerformanceDispatchClient();
@@ -94,6 +99,7 @@ export function SitePerformance({
   performance = DEFAULT_PERFORMANCE,
   findings,
   siteFindingHref,
+  miniDepth,
 }: SitePerformanceProps) {
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
 
@@ -118,20 +124,14 @@ export function SitePerformance({
     // assessment through its cutover gate (S3-01). It is the only Performance section served.
     return (
       <div className="site-performance">
-        <nav className="site-tabs site-subtabs" aria-label={PERFORMANCE_SUBTABS_LABEL}>
-          <ol className="site-tabs__list">
-            <li className="site-tabs__item">
-              <Link
-                className="site-tabs__link"
-                to={subtabHref("dispatch")}
-                data-performance-subtab="dispatch"
-                aria-current="page"
-              >
-                Dispatch
-              </Link>
-            </li>
-          </ol>
-        </nav>
+        {/* W4-02 (S6): the MINIGRID mini tabs merge with Dispatch in the profile order. */}
+        <MiniPerformanceSubtabs
+          client={miniDepth}
+          siteCode={siteId}
+          profile={profile}
+          current={capabilityId ?? "dispatch"}
+          subtabHref={subtabHref}
+        />
         {capabilityId === undefined || capabilityId === "dispatch" ? (
           <PerformanceDispatch
             siteId={siteId}

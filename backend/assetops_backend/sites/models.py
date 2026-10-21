@@ -248,6 +248,19 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "ev-clock-error-bound": PropertyDefinition(
         unit="s", kind="PHYSICAL", display_name="Clock error bound"
     ),
+    # W4-02 (`D-2026-10-20-w4-02-buildspec` closure 1 Q9, closure 4 N2): the
+    # three typed mini-grid depth inputs. Their carrier is in
+    # `MINIGRID_PROPERTY_CARRIERS`; sign rules are enforced by
+    # `minigrid_foundation.validate_minigrid_properties`.
+    "pv-available-uncertainty": PropertyDefinition(
+        unit="kW", kind="PHYSICAL", display_name="Solar available power uncertainty"
+    ),
+    "renewable-retained-margin": PropertyDefinition(
+        unit="kW", kind="CONTROL", display_name="Renewable retained margin"
+    ),
+    "backup-recovery-target": PropertyDefinition(
+        unit="min", kind="CONTROL", display_name="Backup recovery target"
+    ),
 }
 
 #: W2-05a: the component type that must carry each EV property.
@@ -287,6 +300,16 @@ COLD_PROPERTY_CARRIERS: dict[str, str] = {
     "cold-probe-error": "TEMPERATURE_PROBE",
     "cold-compressor-start-delay": "COMPRESSOR",
 }
+
+#: W4-02 closure 4 N2: the component type that must carry each mini-grid depth property.
+MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
+    "pv-available-uncertainty": "INVERTER",
+    "renewable-retained-margin": "AC_BUS",
+    "backup-recovery-target": "AC_BUS",
+}
+#: W4-02 closure 4 N2: the mini-grid depth properties that must be strictly positive (the other two are
+#: nonnegative, which the shared parser already enforces for every unsigned unit).
+MINIGRID_STRICTLY_POSITIVE_PROPERTIES: frozenset[str] = frozenset({"backup-recovery-target"})
 
 #: Property units whose values are signed: a temperature below zero is a
 #: temperature, not a direction (`D-2026-10-17-w2-01-answers` C). Every other

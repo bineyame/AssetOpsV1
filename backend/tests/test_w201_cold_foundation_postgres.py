@@ -453,7 +453,7 @@ class TestMigration0021:
                 return connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
 
         before = snapshot()
-        assert head() == "0027_w4_work_cases"
+        assert head() == "0029_w4_mini_depth"
         config = _alembic()
         engine.dispose()
         try:
@@ -461,7 +461,7 @@ class TestMigration0021:
             assert head() == "0020_w2_source_event" and snapshot() == before
         finally:
             command.upgrade(config, "head")
-        assert head() == "0027_w4_work_cases" and snapshot() == before
+        assert head() == "0029_w4_mini_depth" and snapshot() == before
         service = FoundationService(store, "demo", Clock(NOW))
         kobo_site = service.site(service.tenant(), "KOBO-001")
         assert service.read(kobo_site, service.tenant(), None, None).revision.content["components"]

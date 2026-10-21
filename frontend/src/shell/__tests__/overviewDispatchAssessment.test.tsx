@@ -137,8 +137,9 @@ describe("the Overview Dispatch card's assessment slot (T028)", () => {
   it("rule 2: a profile id the backend does not serve renders nothing and is named", () => {
     const profile = presentationProfileFor("MINIGRID");
     expect(servedCapabilities(profile, []).map((c) => c.id)).toEqual([]);
-    expect(orphanCapabilityIds(profile, [])).toEqual(["dispatch"]);
-    expect(orphanCapabilityIds(profile, ["dispatch"])).toEqual([]);
+    // W4-02 (S6): the four mini tabs are served by the mini capabilities read, not by an analytic.
+    expect(orphanCapabilityIds(profile, [])).toEqual(["service", "dispatch", "fuel", "renewable", "backup"]);
+    expect(orphanCapabilityIds(profile, ["dispatch", "service", "fuel", "renewable", "backup"])).toEqual([]);
     expect(
       servedCapabilities(profile, [
         { id: "later", display_name: "Later" },

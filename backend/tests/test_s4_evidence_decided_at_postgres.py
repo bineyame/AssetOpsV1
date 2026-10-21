@@ -88,7 +88,7 @@ def batch(engine, site, external_id: str) -> dict:  # noqa: F811
 
 def jobs(engine, site) -> list[dict]:  # noqa: F811
     return rows(engine, "SELECT id, status, window_start, window_end, available_at, created_at FROM recompute_job "
-                        "WHERE site_id = :s ORDER BY created_at, id", s=site)
+                        "WHERE site_id = :s AND domain = 'dispatch' ORDER BY created_at, id", s=site)  # W4-02 q1 R2
 
 
 def selected(engine, site, day: datetime) -> dict | None:  # noqa: F811

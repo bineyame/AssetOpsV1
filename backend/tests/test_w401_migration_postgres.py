@@ -22,10 +22,10 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError, IntegrityError
     from test_s1_bindings_postgres import _alembic, engine, imported, store  # noqa: F401
-    from test_s4_consequence_store_postgres import _release_connections, site  # noqa: F401
+    from test_s4_consequence_store_postgres import _release_connections, site, site_before_0029  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, constraint, head, minigrid_rows, scalar, table_exists
 
-HEAD = "0027_w4_work_cases"
+HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027
 PREVIOUS = "0026_w2_ev_money"
 REFUSED = "0027 downgrade requires empty W4 work tables"
 APPEND_ONLY = "W4 work history is append only"
@@ -205,12 +205,13 @@ def remove_work(engine) -> None:  # noqa: F811
 # --- tests -------------------------------------------------------------------------------------------------------
 
 
-def test_0027_parent_scoped_fks_append_only_and_clean_downgrade(site, store, engine) -> None:  # noqa: F811
+def test_0027_parent_scoped_fks_append_only_and_clean_downgrade(site_before_0029, store, engine) -> None:  # noqa: F811
+    site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
     from alembic import command
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())
-    assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
+    assert script.get_heads() == [HEAD] and script.get_revision("0027_w4_work_cases").down_revision == PREVIOUS
     assert head(engine) == HEAD
     installed = {"tables": 11, "triggers": 11, "explicit_indexes": 7, "all_indexes": INDEX_TOTAL, "sequence": 1,
                  "function": 1}
@@ -228,6 +229,7 @@ def test_0027_parent_scoped_fks_append_only_and_clean_downgrade(site, store, eng
     config = _alembic()
     release(site, engine)
     try:
+        __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
         command.downgrade(config, PREVIOUS)
         assert head(engine) == PREVIOUS
         assert not any(table_exists(engine, t) for t in TABLES)
@@ -366,8 +368,9 @@ def test_0027_parent_scoped_fks_append_only_and_clean_downgrade(site, store, eng
     assert stocked(engine) == {t_: 0 for t_ in TABLES}
 
 
-def test_0027_nonempty_downgrade_refuses(site, engine) -> None:  # noqa: F811
+def test_0027_nonempty_downgrade_refuses(site_before_0029, engine) -> None:  # noqa: F811
     """A single row in any W4 root (operational record, plan, case) refuses the downgrade; nothing is dropped."""
+    site = site_before_0029  # W4-02 q1 ruling 2: seeded before 0029
     for stock in ("operational_record", "maintenance_plan", "case"):
         refuse_with(site, engine, stock)
 
@@ -391,6 +394,7 @@ def refuse_with(site, engine, stock: str) -> None:  # noqa: F811
         release(site, engine)
         try:
             with pytest.raises(RuntimeError, match=REFUSED):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, PREVIOUS)
         finally:
             if head(engine) != HEAD:

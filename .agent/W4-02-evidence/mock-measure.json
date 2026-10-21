@@ -1,0 +1,1653 @@
+[
+ {
+  "screen": "renewable",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1300,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Watch Confidence: Mediumⓘ Lens: OpportunitySolar left unused on 3 of 5 adequatel",
+    "top": 354,
+    "h": 45,
+    "w": 1161
+   },
+   {
+    "kind": "cards",
+    "title": "PV capability | PV used | Usable headroom | Recurring opportunity",
+    "top": 417,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 417,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 417,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 417,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 417,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "From physical headroom to an opportunity",
+    "top": 548,
+    "h": 244,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Productive-use evaluation",
+    "top": 548,
+    "h": 244,
+    "w": 408
+   },
+   {
+    "kind": "panel",
+    "title": "Eligible and excluded windows",
+    "top": 810,
+    "h": 364,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     51,
+     51,
+     51,
+     51,
+     51
+    ],
+    "thead": 33,
+    "cols": [
+     "Day / period:247",
+     "Opportunity:196",
+     "Constraint check:515",
+     "Decision:163"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Opportunity is an evidence-backed capacity estimate. A paired load-addition comp",
+    "top": 1192,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · renewable use and productive-load opportunity",
+    "top": 206,
+    "h": 20,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 301,
+    "h": 35,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1252,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "renewable",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 2114,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Watch Confidence: Mediumⓘ Lens: OpportunitySolar left unused on 3 of 5 adequatel",
+    "top": 523,
+    "h": 114,
+    "w": 360
+   },
+   {
+    "kind": "cards",
+    "title": "PV capability | PV used | Usable headroom | Recurring opportunity",
+    "top": 655,
+    "h": 264,
+    "w": 360,
+    "children": [
+     {
+      "top": 655,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 655,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 793,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 793,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "From physical headroom to an opportunity",
+    "top": 937,
+    "h": 272,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Productive-use evaluation",
+    "top": 1227,
+    "h": 241,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Eligible and excluded windows",
+    "top": 1486,
+    "h": 438,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 379,
+    "rows": [
+     80,
+     62,
+     62,
+     62,
+     62
+    ],
+    "thead": 33,
+    "cols": [
+     "Day / period:89",
+     "Opportunity:92",
+     "Constraint check:121",
+     "Decision:77"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "Opportunity is an evidence-backed capacity estimate. A paired load-addition comp",
+    "top": 1941,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · renewable use and productive-load opportunity",
+    "top": 375,
+    "h": 20,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 413,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 470,
+    "h": 35,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2038,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "service",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1328,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Service assessment: UnknownDelivered power is observed; requested-service baseli",
+    "top": 354,
+    "h": 44,
+    "w": 1161
+   },
+   {
+    "kind": "cards",
+    "title": "Delivered load | Interruptions seen | Clinic (critical) | Unserved energy",
+    "top": 416,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Where the power went",
+    "top": 547,
+    "h": 240,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Delivered power by addressed load",
+    "top": 805,
+    "h": 262,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     51,
+     51,
+     51
+    ],
+    "thead": 33,
+    "cols": [
+     "Load:189",
+     "Role:166",
+     "Observed power:194",
+     "Required-service evidence:424",
+     "Assessment:149"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "What is supported",
+    "top": 1085,
+    "h": 177,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "What unlocks a service conclusion",
+    "top": 1085,
+    "h": 177,
+    "w": 408
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · delivered load and service claim limits",
+    "top": 206,
+    "h": 20,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 301,
+    "h": 35,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1280,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "service",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1939,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Service assessment: UnknownDelivered power is observed; requested-service baseli",
+    "top": 523,
+    "h": 98,
+    "w": 360
+   },
+   {
+    "kind": "cards",
+    "title": "Delivered load | Interruptions seen | Clinic (critical) | Unserved energy",
+    "top": 639,
+    "h": 264,
+    "w": 360,
+    "children": [
+     {
+      "top": 639,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 639,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 777,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 777,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Where the power went",
+    "top": 921,
+    "h": 256,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Delivered power by addressed load",
+    "top": 1195,
+    "h": 296,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 511,
+    "rows": [
+     62,
+     62,
+     62
+    ],
+    "thead": 33,
+    "cols": [
+     "Load:74",
+     "Role:74",
+     "Observed power:111",
+     "Required-service evidence:166",
+     "Assessment:86"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "What is supported",
+    "top": 1508,
+    "h": 142,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "What unlocks a service conclusion",
+    "top": 1668,
+    "h": 177,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · delivered load and service claim limits",
+    "top": 375,
+    "h": 20,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 413,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 470,
+    "h": 35,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1863,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "fuel",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1477,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Fuel balance: evidence limitedIllustrates the minimum balance terms; no residual",
+    "top": 354,
+    "h": 44,
+    "w": 1161
+   },
+   {
+    "kind": "cards",
+    "title": "Opening evidence | Recorded deliveries | Expected use | Residual",
+    "top": 416,
+    "h": 129,
+    "w": 1161,
+    "children": [
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 129,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 563,
+    "h": 271,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 852,
+    "h": 332,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     45,
+     45,
+     45,
+     45,
+     44
+    ],
+    "thead": 33,
+    "cols": [
+     "Term:268",
+     "Evidence basis:379",
+     "Treatment:474"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "A fuel residual is unexplained inventory movement with uncertainty. It cannot es",
+    "top": 1202,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Inspect existing generator fuel interpretation",
+    "top": 1262,
+    "h": 149,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · fuel reconciliation and uncertainty",
+    "top": 206,
+    "h": 20,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 301,
+    "h": 35,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1429,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "fuel",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 2125,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Fuel balance: evidence limitedIllustrates the minimum balance terms; no residual",
+    "top": 523,
+    "h": 71,
+    "w": 360
+   },
+   {
+    "kind": "cards",
+    "title": "Opening evidence | Recorded deliveries | Expected use | Residual",
+    "top": 612,
+    "h": 264,
+    "w": 360,
+    "children": [
+     {
+      "top": 612,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 612,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 750,
+      "h": 126,
+      "w": 174
+     },
+     {
+      "top": 750,
+      "h": 126,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Fuel balance at a glance",
+    "top": 894,
+    "h": 287,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Balance bridge",
+    "top": 1199,
+    "h": 526,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 320,
+    "rows": [
+     62,
+     97,
+     80,
+     80,
+     97
+    ],
+    "thead": 33,
+    "cols": [
+     "Term:94",
+     "Evidence basis:115",
+     "Treatment:111"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "A fuel residual is unexplained inventory movement with uncertainty. It cannot es",
+    "top": 1742,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Inspect existing generator fuel interpretation",
+    "top": 1839,
+    "h": 192,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · fuel reconciliation and uncertainty",
+    "top": 375,
+    "h": 20,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 413,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 470,
+    "h": 35,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2049,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "backup",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1274,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Backup readiness: UnknownGenerator operation alone is not a witnessed start-and-",
+    "top": 354,
+    "h": 44,
+    "w": 1161
+   },
+   {
+    "kind": "cards",
+    "title": "Outages in window | Start success | Last witnessed test | Critical service recovery",
+    "top": 416,
+    "h": 113,
+    "w": 1161,
+    "children": [
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     },
+     {
+      "top": 416,
+      "h": 113,
+      "w": 281
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Backup event chains",
+    "top": 547,
+    "h": 183,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     51
+    ],
+    "thead": 33,
+    "cols": [
+     "When:234",
+     "Grid:63",
+     "Start requested:151",
+     "Generator:108",
+     "Power to load:140",
+     "Load response:138",
+     "Outcome for service:183",
+     "Result:105"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Backup readiness evidence",
+    "top": 748,
+    "h": 287,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     45,
+     45,
+     45,
+     44
+    ],
+    "thead": 33,
+    "cols": [
+     "Required step:317",
+     "Available evidence:415",
+     "Current claim:389"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Operating evidence",
+    "top": 1053,
+    "h": 155,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Next evidence",
+    "top": 1053,
+    "h": 155,
+    "w": 408
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · backup start and service recovery",
+    "top": 206,
+    "h": 20,
+    "w": 365
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 301,
+    "h": 35,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1226,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "backup",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 2084,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Backup readiness: UnknownGenerator operation alone is not a witnessed start-and-",
+    "top": 523,
+    "h": 98,
+    "w": 360
+   },
+   {
+    "kind": "cards",
+    "title": "Outages in window | Start success | Last witnessed test | Critical service recovery",
+    "top": 639,
+    "h": 232,
+    "w": 360,
+    "children": [
+     {
+      "top": 639,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 639,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 761,
+      "h": 110,
+      "w": 174
+     },
+     {
+      "top": 761,
+      "h": 110,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Backup event chains",
+    "top": 889,
+    "h": 265,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 719,
+    "rows": [
+     114
+    ],
+    "thead": 33,
+    "cols": [
+     "When:62",
+     "Grid:46",
+     "Start requested:112",
+     "Generator:80",
+     "Power to load:103",
+     "Load response:102",
+     "Outcome for service:136",
+     "Result:77"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Backup readiness evidence",
+    "top": 1172,
+    "h": 428,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 326,
+    "rows": [
+     80,
+     80,
+     80,
+     79
+    ],
+    "thead": 33,
+    "cols": [
+     "Required step:98",
+     "Available evidence:126",
+     "Current claim:102"
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "Operating evidence",
+    "top": 1618,
+    "h": 177,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Next evidence",
+    "top": 1813,
+    "h": 177,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Performance",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "p: Performance · backup start and service recovery",
+    "top": 375,
+    "h": 20,
+    "w": 336
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 413,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs subtabs: ServiceDispatchFuelRenewableBackup",
+    "top": 470,
+    "h": 35,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2008,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ },
+ {
+  "screen": "mini",
+  "width": 1440,
+  "h1": "Kobo Mini-grid",
+  "pageH": 1487,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attention Confidence: LowⓘAssessed this hour: dispatch only · other object",
+    "top": 304,
+    "h": 45,
+    "w": 1161
+   },
+   {
+    "kind": "cards",
+    "title": "Service | Dispatch | Battery | Fuel | Renewable",
+    "top": 413,
+    "h": 150,
+    "w": 1161,
+    "children": [
+     {
+      "top": 413,
+      "h": 150,
+      "w": 222
+     },
+     {
+      "top": 413,
+      "h": 150,
+      "w": 222
+     },
+     {
+      "top": 413,
+      "h": 150,
+      "w": 222
+     },
+     {
+      "top": 413,
+      "h": 150,
+      "w": 222
+     },
+     {
+      "top": 413,
+      "h": 150,
+      "w": 222
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 580,
+    "h": 238,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 836,
+    "h": 373,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 836,
+    "h": 373,
+    "w": 408
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 1227,
+    "h": 193,
+    "w": 735
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 1227,
+    "h": 193,
+    "w": 408
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "searchbox: Find a screen",
+    "top": 59,
+    "h": 34,
+    "w": 116
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 61,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 62,
+    "h": 29,
+    "w": 327
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 61,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Overview",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 165,
+    "h": 34,
+    "w": 398
+   },
+   {
+    "kind": "block",
+    "title": "p: 60 kWp PV · 200 kWh battery · 40 kW genset · residential, cl",
+    "top": 206,
+    "h": 20,
+    "w": 398
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 244,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: serve residential, clinic and productive loads wh",
+    "top": 367,
+    "h": 46,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1439,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "mini",
+  "width": 390,
+  "h1": "Kobo Mini-grid",
+  "pageH": 2965,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Needs attention Confidence: LowⓘAssessed this hour: dispatch only · other object",
+    "top": 515,
+    "h": 114,
+    "w": 360
+   },
+   {
+    "kind": "cards",
+    "title": "Service | Dispatch | Battery | Fuel | Renewable",
+    "top": 712,
+    "h": 507,
+    "w": 360,
+    "children": [
+     {
+      "top": 712,
+      "h": 166,
+      "w": 174
+     },
+     {
+      "top": 712,
+      "h": 166,
+      "w": 174
+     },
+     {
+      "top": 890,
+      "h": 150,
+      "w": 174
+     },
+     {
+      "top": 890,
+      "h": 150,
+      "w": 174
+     },
+     {
+      "top": 1053,
+      "h": 166,
+      "w": 174
+     }
+    ]
+   },
+   {
+    "kind": "panel",
+    "title": "What happened in the selected hour",
+    "top": 1236,
+    "h": 523,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Operating context",
+    "top": 1777,
+    "h": 286,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Needs attention",
+    "top": 2082,
+    "h": 370,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Bounded money consequence",
+    "top": 2470,
+    "h": 190,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Next step",
+    "top": 2678,
+    "h": 193,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "select: Kobo Mini-grid · Mini-gridGreenHarvest Cold Room · Cold-chai",
+    "top": 205,
+    "h": 31,
+    "w": 222
+   },
+   {
+    "kind": "block",
+    "title": "range-picker: Window: Event window6 Oct 2026 · 14:20–15:20 EAT▾",
+    "top": 247,
+    "h": 29,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "avatar: BY",
+    "top": 246,
+    "h": 30,
+    "w": 30
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Sites›Kobo Mini-grid›Overview",
+    "top": 307,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "title-row: Kobo Mini-grid",
+    "top": 339,
+    "h": 29,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "p: 60 kWp PV · 200 kWh battery · 40 kW genset · residential, cl",
+    "top": 375,
+    "h": 40,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "tabs : OverviewFoundationHealthPerformanceFindingsWorkFinancialsEvi",
+    "top": 455,
+    "h": 42,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "objective: Objective: serve residential, clinic and productive loads wh",
+    "top": 647,
+    "h": 64,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 2889,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ }
+]

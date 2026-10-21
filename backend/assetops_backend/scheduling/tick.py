@@ -1,4 +1,5 @@
-"""The bounded environment tick: S3 -> conditional S4 -> consequence drain per selected Site (S4-02d phase 1).
+"""The bounded environment tick: S3 -> MINI -> conditional S4 -> consequence drain per selected Site (S4-02d
+phase 1; W4-02 closure 4 S7 and q7 rulings 1-3 add the `mini` stage).
 
 One timer per environment invokes `ScheduleTick.tick()` (phase 2 installs it; this module installs nothing).
 A tick:
@@ -8,12 +9,12 @@ A tick:
    `RETRY_DUE`;
 2. runs the `discover` stage child: global `reconcile_all()` (measured) and the persisted inventory;
 3. selects active Sites (imported, lifecycle neither `DECOMMISSIONED` nor `ARCHIVED`, with at least one
-   `accepted_evidence` row or explicit enrolment; `PLANNED` qualifies) plus every Site with live S3 jobs or pending
-   consequence work (reported as `EXCLUDED_WITH_WORK` when it is not otherwise active, never discarded);
+   `accepted_evidence` row or explicit enrolment; `PLANNED` qualifies) plus every Site with live S3 jobs, live mini
+   jobs or pending consequence work (reported as `EXCLUDED_WITH_WORK` when it is not otherwise active, never discarded);
 4. visits at most `max_sites` of them in (tenant_id, site_id) order after the durable fair cursor, skipping a
    Site inside its schedule-level back-off (`RETRY_DUE`) and deferring the rest to later ticks;
-5. per visited Site takes the Site claim (`schedule_site_head`; held -> `SKIPPED_CLAIMED`), runs the `s3`, `s4`
-   and `consequence` stage children in that order, each killable at its wall-time bound with server-side
+5. per visited Site takes the Site claim (`schedule_site_head`; held -> `SKIPPED_CLAIMED`), runs the `s3`, `mini`,
+   `s4` and `consequence` stage children in that order, each killable at its wall-time bound with server-side
    statement/lock timeouts, records typed outcomes and releases the claim with completion or the first failure
    and its back-off, then advances the cursor;
 6. finishes: success and heartbeat on completion; failure and back-off (no heartbeat) when discovery fails.
@@ -35,6 +36,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from assetops_backend.scheduling.ports import ScheduleStore
+from assetops_backend.scheduling.stages import MINI_JOB_LEASE_SECONDS
 
 EXCLUDED_LIFECYCLES = frozenset({"DECOMMISSIONED", "ARCHIVED"})
 S3_JOB_LEASE_SECONDS = 300  # DispatchAssessmentWorker's lease; the S3 stage bound must stay below it.
@@ -50,6 +52,8 @@ class TickLimits:
     consequence_items_per_site: int = 50
     discover_seconds: float = 120
     s3_seconds: float = 120
+    mini_jobs_per_site: int = 10
+    mini_seconds: float = 120
     s4_seconds: float = 120
     consequence_seconds: float = 60
     tick_seconds: float = 240
@@ -59,17 +63,19 @@ class TickLimits:
     backoff_cap_seconds: float = 960
 
     def __post_init__(self) -> None:
-        if min(self.max_sites, self.s3_jobs_per_site, self.consequence_items_per_site) < 1:
+        if min(self.max_sites, self.s3_jobs_per_site, self.mini_jobs_per_site, self.consequence_items_per_site) < 1:
             raise ValueError("Every per-tick bound is at least 1.")
         if self.s3_seconds >= S3_JOB_LEASE_SECONDS:
             raise ValueError("The S3 stage bound must be shorter than the five-minute S3 job lease.")
-        if self.statement_timeout_ms / 1000 >= min(self.discover_seconds, self.s3_seconds, self.s4_seconds,
-                                                   self.consequence_seconds):
+        if not 0 < self.mini_seconds < MINI_JOB_LEASE_SECONDS:
+            raise ValueError("The MINI stage bound must be positive and shorter than the five-minute mini job lease.")
+        if self.statement_timeout_ms / 1000 >= min(self.discover_seconds, self.s3_seconds, self.mini_seconds,
+                                                   self.s4_seconds, self.consequence_seconds):
             raise ValueError("The server statement timeout must be shorter than every stage bound.")
 
     @property
     def site_lease_seconds(self) -> float:
-        return self.s3_seconds + self.s4_seconds + self.consequence_seconds + 60
+        return self.s3_seconds + self.mini_seconds + self.s4_seconds + self.consequence_seconds + 60
 
     @property
     def tick_lease_seconds(self) -> float:
@@ -150,17 +156,29 @@ class TickReport:
                       for s in self.selected]}, default=str))
 
 
+#: W4-02 q8 ruling 2: only these mini job statuses build Site work; FAILED is terminal for scheduling.
+RUNNABLE_MINI_STATUSES = frozenset({"PENDING", "LEASED"})
+
+
 def select_sites(discovered: dict[str, Any]) -> tuple[list[SiteResult], list[dict[str, Any]], int]:
     """Apply the active-Site predicate to the discovered inventory (packet item 1, N4). Returns the selected Sites
     in (tenant_id, site_id) order, the excluded Sites kept for their work, and the count left unselected."""
     work: dict[tuple[UUID, UUID], dict[str, Any]] = {}
     for job in discovered["live_jobs"]:
         key = (UUID(str(job["tenant_id"])), UUID(str(job["site_id"])))
-        w = work.setdefault(key, {"live_jobs": [], "pending_work": 0})
+        w = work.setdefault(key, {"live_jobs": [], "live_mini_jobs": [], "pending_work": 0})
         w["live_jobs"].append({"id": str(job["id"]), "status": job["status"], "last_error": job["last_error"]})
+    for job in discovered.get("live_mini_jobs", []):  # W4-02 q7 ruling 2: mini work keeps a Site scheduled
+        if job["status"] not in RUNNABLE_MINI_STATUSES:  # q8 ruling 2: a FAILED row is diagnostic, not work
+            continue
+        key = (UUID(str(job["tenant_id"])), UUID(str(job["site_id"])))
+        w = work.setdefault(key, {"live_jobs": [], "live_mini_jobs": [], "pending_work": 0})
+        w["live_mini_jobs"].append({"id": str(job["id"]), "domain": job["domain"], "status": job["status"],
+                                    "last_error": job["last_error"]})
     for row in discovered["pending_work_sites"]:
         key = (UUID(str(row["tenant_id"])), UUID(str(row["site_id"])))
-        work.setdefault(key, {"live_jobs": [], "pending_work": 0})["pending_work"] = int(row["pending"])
+        work.setdefault(key, {"live_jobs": [], "live_mini_jobs": [], "pending_work": 0})["pending_work"] = int(
+            row["pending"])
     selected: list[SiteResult] = []
     excluded: list[dict[str, Any]] = []
     not_selected = 0
@@ -284,6 +302,15 @@ class ScheduleTick:
             self.store.record_s3(t, s, token, int(r3["processed"]), int(r3["deferred"]))
         else:
             failure = ("S3", r3["code"], str(r3.get("error")))
+
+        if not stage("MINI"):
+            return
+        rm = self.runner.run("mini", {**ids, "limit": self.limits.mini_jobs_per_site}, self.limits.mini_seconds)
+        site.stages["mini"] = rm
+        if rm["code"] == "OK":
+            self.store.record_mini(t, s, token, int(rm["processed"]), int(rm["deferred"]), int(rm["failed"]))
+        else:
+            failure = failure or ("MINI", rm["code"], str(rm.get("error")))
 
         if not stage("S4"):
             return

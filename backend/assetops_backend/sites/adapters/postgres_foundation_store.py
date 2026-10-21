@@ -228,6 +228,46 @@ class PostgresFoundationStore:
 
         return self._run(work)
 
+    def record_no_legacy_evidence_basis(self, tenant_id: UUID, site_id: UUID, *, now: datetime) -> None:
+        """q12-6: persist the explicit `NO_LEGACY_EVIDENCE` cutover basis for the Site's current import. Only an
+        installer whose import carries no legacy documents calls this; idempotent for the same import."""
+        params = {"tenant_id": tenant_id, "site_id": site_id, "now": now}
+
+        def work(connection: Connection) -> None:
+            imported = connection.execute(
+                text("SELECT id, source_sha256 FROM site_import WHERE tenant_id = :tenant_id AND site_id = :site_id"),
+                params,
+            ).one_or_none()
+            if imported is None:
+                raise ValueError("A cutover basis needs the Site's import record.")
+            connection.execute(
+                text(
+                    "INSERT INTO site_cutover_basis (tenant_id, site_id, site_import_id, source_sha256, basis, recorded_at) "
+                    "VALUES (:tenant_id, :site_id, :import_id, :sha, 'NO_LEGACY_EVIDENCE', :now) "
+                    "ON CONFLICT (tenant_id, site_id) DO NOTHING"
+                ),
+                {**params, "import_id": imported.id, "sha": imported.source_sha256},
+            )
+
+        self._run(work, write=True)
+
+    def no_legacy_evidence_basis(self, tenant_id: UUID, site_id: UUID) -> bool:
+        """q12-6: True only when a persisted `NO_LEGACY_EVIDENCE` basis names the Site's current import row and
+        digest. A missing basis (or one for another import) is False; it is never inferred from a comparison."""
+
+        def work(connection: Connection) -> bool:
+            return connection.execute(
+                text(
+                    "SELECT EXISTS (SELECT 1 FROM site_cutover_basis b JOIN site_import i "
+                    "ON i.id = b.site_import_id AND i.tenant_id = b.tenant_id AND i.site_id = b.site_id "
+                    "AND i.source_sha256 = b.source_sha256 "
+                    "WHERE b.tenant_id = :tenant_id AND b.site_id = :site_id AND b.basis = 'NO_LEGACY_EVIDENCE')"
+                ),
+                {"tenant_id": tenant_id, "site_id": site_id},
+            ).scalar_one()
+
+        return bool(self._run(work))
+
     def list_sites(self, tenant_id: UUID) -> Sequence[StoredSite]:
         return tuple(
             self._run(lambda connection: self._select_sites(connection, "TRUE", {"tenant_id": tenant_id}))
@@ -469,6 +509,9 @@ class PostgresFoundationStore:
                     )
             for revision in plan.inserts:
                 self._insert_revision(connection, tenant_id, site_id, revision)
+            self._enqueue_mini_configuration(
+                connection, tenant_id, site_id, [(r.valid_from, r.valid_to) for r in plan.inserts],
+                plan.superseded_at)
             return plan
 
         return self._run(work, write=True)
@@ -674,11 +717,40 @@ class PostgresFoundationStore:
             for row in plan.binding_set_inserts:
                 self._insert_binding_set(connection, tenant_id, site_id, row)
             self._enqueue_ev_configuration(connection, tenant_id, site_id, plan)
+            self._enqueue_mini_configuration(
+                connection, tenant_id, site_id,
+                [(r.valid_from, r.valid_to) for r in plan.revision_inserts]
+                + [(r.valid_from, r.valid_to) for r in plan.binding_set_inserts],
+                plan.superseded_at)
             if then is not None:
                 then(plan)
             return plan
 
         return self._run(work, write=True, connection=connection)
+
+    @staticmethod
+    def _enqueue_mini_configuration(
+        connection: Connection, tenant_id: UUID, site_id: UUID,
+        changed: Sequence[tuple[datetime, datetime | None]], at: datetime,
+    ) -> None:
+        """W4-02 closure 2 / closure 4 S2: on a MINIGRID Site, every inserted Foundation or binding-set revision
+        enqueues the mini-depth hours of its `[valid_from, valid_to)` within the configured retention, through the
+        SQL `mini_enqueue_configuration` on this publishing connection after the publish and before commit, so a
+        failed enqueue rolls the publication back. The SQL function itself enqueues nothing for another Site type."""
+        if not changed:
+            return
+        site_type = connection.execute(
+            text("SELECT site_type FROM site WHERE tenant_id = :tenant_id AND id = :site_id"),
+            {"tenant_id": tenant_id, "site_id": site_id},
+        ).scalar_one()
+        if site_type != "MINIGRID":
+            return
+        for valid_from, valid_to in changed:
+            connection.execute(
+                text("SELECT mini_enqueue_configuration(:tenant_id, :site_id, :valid_from, :valid_to, :at)"),
+                {"tenant_id": tenant_id, "site_id": site_id, "valid_from": valid_from, "valid_to": valid_to,
+                 "at": at},
+            )
 
     @staticmethod
     def _enqueue_ev_configuration(

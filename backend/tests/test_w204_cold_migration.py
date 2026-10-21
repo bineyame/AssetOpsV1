@@ -27,7 +27,7 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError, IntegrityError
     from test_s1_bindings_postgres import BACKEND, _alembic, engine, store  # noqa: F401
-    from test_s4_consequence_store_postgres import POWER_DAY, _release_connections, site  # noqa: F401
+    from test_s4_consequence_store_postgres import POWER_DAY, _release_connections, site, site_before_0029  # noqa: F401
     from test_w203_cold_migration_postgres import (
         T0, Ctx, _replica, _sha, constraint, head, insert_cold_finding, insert_episode, insert_link, insert_revision,
         scalar, table_exists)
@@ -35,7 +35,7 @@ if URL:
     from assetops_backend.financials.composition import CONSEQUENCE_UNAVAILABLE
     from assetops_backend.financials.recompute import ConsequenceRecomputeWorker
 
-HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026
+HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026)
 PREVIOUS = "0022_w2_cold_assessment"
 REFUSED = "Downgrade of 0023_w2_cold_consequence refused"
 TABLES = ("cold_consequence_revision", "cold_consequence_evidence", "cold_consequence_work",
@@ -163,8 +163,19 @@ def ctx(site, engine):  # noqa: F811
     remove_all_cold(engine)
 
 
+@pytest.fixture()
+def ctx_before_0029(site_before_0029, engine):  # noqa: F811
+    """W4-02 q1 ruling 2: `ctx` on the PowerSite seeded before 0029 is installed (no mini history)."""
+    c = Ctx(site_before_0029, engine)
+    remove_all_cold(engine)
+    yield c
+    remove_all_cold(engine)
+
+
 class TestMigration0023:
-    def test_upgrade_preserves_minigrid_money_and_downgrade_drops_only_w204(self, site, ctx, engine) -> None:  # noqa: F811
+    def test_upgrade_preserves_minigrid_money_and_downgrade_drops_only_w204(self, site_before_0029, ctx_before_0029,
+                                                                           engine) -> None:  # noqa: F811
+        site, ctx = site_before_0029, ctx_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
 
         site.publish("v1")
@@ -183,6 +194,7 @@ class TestMigration0023:
         site.prices.dispose()
         engine.dispose()
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS
             assert not any(table_exists(engine, t) for t in TABLES)
@@ -424,7 +436,8 @@ class TestTriggerOnlyWork:
         assert gate["dirty_key_sha256"] == dirty_key("SOURCE_GATE_CHANGED", batch["id"], ctx.t, ctx.s, start, end,
                                                      ctx.assets[0])
 
-    def test_backfill_enqueues_latest_heads_once(self, ctx, engine) -> None:  # noqa: F811
+    def test_backfill_enqueues_latest_heads_once(self, ctx_before_0029, engine) -> None:  # noqa: F811
+        ctx = ctx_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
 
         episode = insert_episode(engine, ctx)
@@ -436,6 +449,7 @@ class TestTriggerOnlyWork:
         config = _alembic()
         engine.dispose()
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, PREVIOUS)
             command.upgrade(config, "head")
         finally:
@@ -453,7 +467,8 @@ class TestTriggerOnlyWork:
 
 
 class TestDowngradeRefusal:
-    def test_downgrade_refuses_while_any_w204_row_exists(self, ctx, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_while_any_w204_row_exists(self, ctx_before_0029, engine) -> None:  # noqa: F811
+        ctx = ctx_before_0029  # W4-02 q1 ruling 2: seeded before 0029
         from alembic import command
 
         cold_heads(engine, ctx)
@@ -463,6 +478,7 @@ class TestDowngradeRefusal:
         engine.dispose()
         try:
             with pytest.raises(DBAPIError, match=REFUSED):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD  # the whole downgrade rolled back
             assert {t: scalar(engine, f"SELECT count(*) FROM {t}") for t in TABLES} == counts  # nothing deleted

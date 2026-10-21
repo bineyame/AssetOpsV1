@@ -105,8 +105,9 @@ class TestPhase1ReviewCarries:
         runner = InProcessRunner(lim, before={"s3": steal})
         tick, _ = make_tick(lim, runner)
         r = by_site(tick.tick())[str(kobo.site)]
-        assert r.result == "CLAIM_LOST" and r.failure[:2] == ("S4", "CLAIM_LOST")
-        assert [c for c, _ in runner.calls] == ["discover", "s3"]  # no S4 and no drain after the loss
+        # W4-02 q7 ruling 3: MINI now follows S3, so the loss is found before MINI.
+        assert r.result == "CLAIM_LOST" and r.failure[:2] == ("MINI", "CLAIM_LOST")
+        assert [c for c, _ in runner.calls] == ["discover", "s3"]  # no MINI, S4 or drain after the loss
         head = tick.store.site_head(kobo.tenant, kobo.site)
         assert head["claim_owner"] == "host-x" and head["claim_token"] == thief
 
@@ -241,6 +242,10 @@ class TestHealthAndSeam:
         with engine.begin() as c:
             c.execute(text("UPDATE site SET lifecycle = 'DECOMMISSIONED' WHERE id = :s"), {"s": kobo.site})
         tick.runner = InProcessRunner(tick.limits)
+        # W4-02 q8 rulings 1-3: KOBO-001's roles-1/2/3 evidence enqueues no mini work, so nothing keeps it selected.
+        with engine.connect() as c:
+            assert c.execute(text("SELECT count(*) FROM recompute_job WHERE site_id = :s AND domain LIKE 'mini\\_%'"),
+                             {"s": kobo.site}).scalar_one() == 0
         assert str(kobo.site) not in by_site(tick.tick())  # no live S3 or consequence work keeps it selected
         s = site_of(health(env), kobo.site)
         assert s["active"] is False and s["s4"]["backlog"] is True

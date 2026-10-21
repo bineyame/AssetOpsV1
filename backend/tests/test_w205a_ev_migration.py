@@ -20,11 +20,12 @@ if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError
     from test_s1_bindings_postgres import _alembic, engine, store  # noqa: F401
-    from test_s2_evidence_ledger_postgres import kit  # noqa: F401
-    from test_w200_source_events_postgres import ASSET_CODE, raw_copy, remove_test_blockers, rows, v4  # noqa: F401
+    from test_s2_evidence_ledger_postgres import Kit, converted_enabled, kit  # noqa: F401
+    from test_w200_source_events_postgres import (  # noqa: F401
+        ASSET_CODE, patched_v4, raw_copy, remove_test_blockers, rows, v4)
     from test_w203_cold_migration_postgres import constraint, head, scalar
 
-HEAD = "0027_w4_work_cases"  # W4-01: 0027 sits above 0026
+HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026)
 PREVIOUS = "0023_w2_cold_consequence"
 INDEX = "accepted_evidence_ev_measurement"
 REFUSED = "Downgrade of 0024_w2_ev_config refused"
@@ -70,15 +71,21 @@ class TestMigration0024:
             command.upgrade(config, "head")
         assert head(engine) == HEAD and index_def(engine) is not None
 
-    def test_downgrade_refuses_while_an_ev_measurement_exists(self, v4, engine) -> None:  # noqa: F811
+    def test_downgrade_refuses_while_an_ev_measurement_exists(self, store, engine, monkeypatch) -> None:  # noqa: F811
         from alembic import command
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
 
         config = _alembic()
-        ev_delta(engine, v4)
+        # W4-02 q1 ruling 2: the MINIGRID Site, its v3 rows and the EV delta are seeded before 0029 is installed.
+        with seeded_before_0029(config, engine, store):
+            _, outcome = converted_enabled(store, engine)
+            ev_delta(engine, patched_v4(Kit(engine, outcome.published.changed.id), monkeypatch))
+        assert_no_mini_history(engine)
         count = scalar(engine, "SELECT count(*) FROM accepted_evidence")
         engine.dispose()
         try:
             with pytest.raises(DBAPIError, match=REFUSED):
+                __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD and index_def(engine) is not None  # the whole downgrade rolled back
             assert scalar(engine, "SELECT count(*) FROM accepted_evidence") == count  # nothing deleted

@@ -56,7 +56,9 @@ class TestVocabulary:
         assert serves("MINIGRID", "minigrid-roles-1") and serves("MINIGRID", "minigrid-roles-2")
         # S6-02a: roles-3 is served (opt-in by explicit role_set); new publications stay roles-2.
         assert serves("MINIGRID", "minigrid-roles-3")
-        assert not serves("MINIGRID", "minigrid-roles-4")
+        # W4-02 closure 2: roles-4 is served the same way (explicit role_set only); no later version exists.
+        assert serves("MINIGRID", "minigrid-roles-4")
+        assert not serves("MINIGRID", "minigrid-roles-5")
 
 
 class TestPublication:

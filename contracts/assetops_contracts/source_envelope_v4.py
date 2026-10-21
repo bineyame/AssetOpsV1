@@ -599,6 +599,10 @@ V4_MAPPING_PROFILE_VERSION = 1
 #: W2-05a Q8: the distinct EV profile EV-LAB-001 binds under; 05b registers its producer.
 V4_EV_MAPPING_PROFILE_ID = "simulator-lab-gateway-ev"
 V4_EV_MAPPING_PROFILE_VERSION = 1
+#: W4-02 closure 4 B2: the *authored* (non-Lab) mini-grid depth profile `minigrid-roles-4` binds its three v4 roles
+#: under. No simulator publication emits these tuples.
+V4_MINI_MAPPING_PROFILE_ID = "authored-mini-depth-cases"
+V4_MINI_MAPPING_PROFILE_VERSION = 1
 
 
 @dataclass(frozen=True)
@@ -689,6 +693,15 @@ V4_EV_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
     ("site-meter", "import"): replace(_interval("kW"), role="ev_site_import"),
 }
 
+#: W4-02 closure 4 B2: the closed `authored-mini-depth-cases/1` table - exactly these three tuples. Distinct role
+#: names from cold's `backup_start_event`/`backup_bus_state`; the cold table above is unchanged.
+V4_MINI_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
+    ("mini-primary-bus-meter", "state"): replace(_point(DISCRETE_UNIT), role="site_supply_state"),
+    ("mini-generator-controller", "start-event"): replace(_events("START_REQUEST", "START_RESULT"),
+                                                          role="mini_backup_start_event"),
+    ("mini-backup-bus-meter", "state"): replace(_point(DISCRETE_UNIT), role="mini_backup_bus_state"),
+}
+
 #: Every closed v4 tuple: the cold table, the two reserved W2-00 EV tuples (kept for their tests, now labelled
 #: with their EV roles, never bound by EV-LAB-001) and the EV table.
 V4_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
@@ -698,12 +711,14 @@ V4_CHANNEL_MAPPINGS: Mapping[tuple[str, str], ChannelMapping] = {
     ("connector-controller", "fault-event"): replace(_events("EV_CONNECTOR_FAULT", "EV_CONNECTOR_CLEAR"),
                                                      role="ev_connector_fault"),
     **V4_EV_CHANNEL_MAPPINGS,
+    **V4_MINI_CHANNEL_MAPPINGS,
 }
 
 #: The explicit profile-to-closed-table lookup (Q8).
 V4_CHANNEL_MAPPINGS_BY_PROFILE: Mapping[tuple[str, int], Mapping[tuple[str, str], ChannelMapping]] = {
     (V4_MAPPING_PROFILE_ID, V4_MAPPING_PROFILE_VERSION): V4_COLD_CHANNEL_MAPPINGS,
     (V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION): V4_EV_CHANNEL_MAPPINGS,
+    (V4_MINI_MAPPING_PROFILE_ID, V4_MINI_MAPPING_PROFILE_VERSION): V4_MINI_CHANNEL_MAPPINGS,
 }
 
 V4_BINDING_METADATA_KEYS = ("allowed_record_kinds", "allowed_outcomes", "requires_correlation",

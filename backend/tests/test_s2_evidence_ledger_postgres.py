@@ -121,7 +121,11 @@ class Kit:
 
     def counts(self) -> dict[str, int]:
         with self.engine.connect() as connection:
-            return {t: connection.execute(text(f"SELECT count(*) FROM {t}")).scalar_one() for t in LEDGER_TABLES}
+            # W4-02 q1 ruling 2: `recompute_job` is counted for the dispatch domain only. This converted Site is
+            # MINIGRID, so its publication (and any accepted mini-mapped row) legitimately enqueues 0029 mini work.
+            return {t: connection.execute(text(
+                f"SELECT count(*) FROM {t}" + (" WHERE domain = 'dispatch'" if t == "recompute_job" else ""))
+            ).scalar_one() for t in LEDGER_TABLES}
 
 
 def ingestion(**options) -> BatchIngestionService:
@@ -168,7 +172,7 @@ class TestAcceptedEvidence:
             row = connection.execute(text(
                 "SELECT e.*, b.external_batch_id FROM accepted_evidence e JOIN ingestion_batch b ON b.id = e.batch_id "
                 "WHERE e.id = :id"), {"id": r.dispositions[0].evidence_id}).mappings().one()
-            job = connection.execute(text("SELECT * FROM recompute_job")).mappings().all()
+            job = connection.execute(text("SELECT * FROM recompute_job WHERE domain = 'dispatch'")).mappings().all()
         binding = kit.binding("pv-inverter-controller")
         assert row["original_value_text"] == "1.5" and row["normalized_value_text"] == "1.5"
         assert (row["original_unit"], row["normalized_unit"], row["conversion_kind"]) == ("kW", "kW", "IDENTITY")
@@ -427,13 +431,20 @@ class TestIdentityHardening:
                 {"a": binding["asset_id"], "f": kit.doc["foundation"]["revision_id"]}).scalar_one()
         assert code == "pv-inverter"
 
-    def test_migration_0005_refuses_to_freeze_a_drifted_asset_code(self, kit, engine) -> None:
+    def test_migration_0005_refuses_to_freeze_a_drifted_asset_code(self, store, engine) -> None:
         from alembic import command
+        from mini_depth_probe import assert_no_mini_history, seeded_before_0029
         from test_s1_bindings_postgres import _alembic
 
-        asset_id = kit.binding("pv-inverter-controller")["asset_id"]
         config = _alembic()
+        # W4-02 q1 ruling 2: the converted MINIGRID Site is seeded before 0029 is installed, so no mini history.
+        with seeded_before_0029(config, engine, store):
+            _, outcome = converted_enabled(store, engine)
+        kit = Kit(engine, outcome.published.changed.id)
+        asset_id = kit.binding("pv-inverter-controller")["asset_id"]
+        assert_no_mini_history(engine)
         try:
+            __import__("mini_depth_probe").assert_no_mini_history(engine)  # q1 ruling 2: before 0029
             command.downgrade(config, "0004_snapshot_canonical_bytes")
             with engine.begin() as connection:
                 connection.execute(text("UPDATE asset SET asset_code = 'drifted' WHERE id = :a"), {"a": asset_id})
@@ -444,7 +455,7 @@ class TestIdentityHardening:
         finally:
             command.upgrade(config, "head")
         with engine.connect() as connection:
-            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0027_w4_work_cases"
+            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0029_w4_mini_depth"
 
     def test_registration_affiliation_and_mode_are_immutable(self, kit, engine) -> None:
         source_id = kit.binding("pv-inverter-controller")["source_id"]
