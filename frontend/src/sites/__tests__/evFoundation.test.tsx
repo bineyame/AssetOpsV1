@@ -479,7 +479,7 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(Array.from(parts.querySelectorAll("tbody th")).map((th) => th.textContent)).toEqual([
       "Grid supply + load manager",
       "Charger 1",
-      "Not declared",
+      "Charger 2 · Not declared",
       "Depot auxiliary",
     ]);
     expect(text(parts)).toContain("Site import limit 80 kW; Load manager · Not declared");
@@ -501,7 +501,7 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     await settledScreen();
     const rows = Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"));
     expect(rows).toHaveLength(4);
-    expect(text(rows[2] as Element)).toBe("Not declaredNot declaredNot declared");
+    expect(text(rows[2] as Element)).toBe("Charger 2 · Not declaredNot declaredNot declared");
     expect((rows[2] as Element).querySelector("details")).toBeNull();
     cleanup();
     const three: EvFoundationReadModel = {
@@ -667,5 +667,64 @@ describe("W2-05a: the Site record accepts the one state-valued property", () => 
     expect(isSiteDetail(detailWith("ENABLED", "state"))).toBe(true);
     expect(isSiteDetail(detailWith(60, "kW"))).toBe(true);
     expect(isSiteDetail(detailWith("60", "kW"))).toBe(false);
+  });
+});
+
+/*
+ * W2-F unit 3 (`.agent/W2-F-build-spec.md` ledger M2/M14, closure N3/N8): What is needed lists the selected readiness
+ * message first, then `Commissioning record` while no commissioning evidence is stored; an undeclared charger slot keeps
+ * its topology label.
+ */
+describe("W2-F: EV readiness and parts rows", () => {
+  const neededLists = () =>
+    Array.from(panelTitled("Readiness and commissioning evidence").querySelectorAll("tbody tr"))
+      .slice(0, 2)
+      .map((row) => {
+        const cell = row.querySelectorAll("td")[2] as Element;
+        const items = Array.from(cell.querySelectorAll("li")).map((li) => li.textContent);
+        return items.length === 0 ? cell.textContent : items;
+      });
+  const CONFIRMED = { state: "CONFIRMED", evidence_ids: ["commissioning-ev-1"] } as unknown as EvFoundationReadModel["commissioning"];
+
+  it("w2f_unconfirmed_needs_commissioning", async () => {
+    renderEv(`${BASE}/readiness`, loaded(STOCKED));
+    await settledScreen();
+    expect(neededLists()).toEqual([["Commissioning record"], ["Commissioning record"]]);
+    cleanup();
+    renderEv(`${BASE}/readiness`, loaded(MISSING_ROLE));
+    await settledScreen();
+    const gap = neededLists();
+    expect(gap[0]).toEqual(["Site import limit not declared", "Needs a source: site import power (optional); site power comparison is unavailable", "Commissioning record"]);
+    expect(gap[1]).toEqual(["Needs a source: connector status for Connector c2", "Commissioning record"]);
+    cleanup();
+    renderEv(`${BASE}/readiness`, loaded({ ...MISSING_ROLE, commissioning: CONFIRMED }));
+    await settledScreen();
+    expect(neededLists()).toEqual([
+      ["Site import limit not declared", "Needs a source: site import power (optional); site power comparison is unavailable"],
+      ["Needs a source: connector status for Connector c2"],
+    ]);
+    cleanup();
+    renderEv(`${BASE}/readiness`, loaded({ ...STOCKED, commissioning: CONFIRMED }));
+    await settledScreen();
+    expect(neededLists()).toEqual(["Nothing further recorded", "Nothing further recorded"]);
+  });
+
+  it("w2f_undeclared_charger_slot_keeps_name", async () => {
+    renderEv(`${BASE}/sld`, loaded(STOCKED));
+    await settledScreen();
+    const rows = Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"));
+    const second = rows[2] as Element;
+    expect(second.querySelector("th")?.textContent).toBe("Charger 2 · Not declared");
+    expect(Array.from(second.querySelectorAll("td")).map((td) => td.textContent)).toEqual(["Not declared", "Not declared"]);
+    expect(text(second)).not.toContain("CHG-002");
+    // The diagram labels the same slot identically.
+    expect(text(document.querySelector('[data-ev-feeder="2"]') as Element)).toContain("Charger 2 · Not declared");
+    cleanup();
+    renderEv(`${BASE}/sld`, loaded({ ...STOCKED, chargers: [], bindings: [] }));
+    await settledScreen();
+    const empty = Array.from(panelTitled("What each part does").querySelectorAll("tbody tr"));
+    expect(empty).toHaveLength(4);
+    expect(empty[1]!.querySelector("th")?.textContent).toBe("Charger 1 · Not declared");
+    expect(empty[2]!.querySelector("th")?.textContent).toBe("Charger 2 · Not declared");
   });
 });

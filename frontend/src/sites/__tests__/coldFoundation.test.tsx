@@ -466,3 +466,43 @@ describe("W2-01: the selected time drives the read and survives reload", () => {
     expect(document.querySelector("[data-cold-foundation-view]")).toBeNull();
   });
 });
+
+/*
+ * W2-F unit 3 (`.agent/W2-F-build-spec.md` ledger M2, closure N3): What is needed lists the selected readiness message
+ * first, then `Commissioning record` while no commissioning evidence is stored; `Nothing further recorded` only for a
+ * configured row with nothing left.
+ */
+describe("W2-F: cold readiness What is needed", () => {
+  const needed = (key: string) => {
+    const cell = panelTitled("Readiness and commissioning evidence").querySelector(`[data-cold-readiness-row="${key}"]`)!.querySelectorAll("td")[2] as Element;
+    const items = Array.from(cell.querySelectorAll("li")).map((li) => li.textContent);
+    return items.length === 0 ? cell.textContent : items;
+  };
+  const CONFIRMED = { state: "CONFIRMED", evidence_ids: ["commissioning-cold-1"] } as unknown as ColdFoundationReadModel["commissioning"];
+
+  it("w2f_unconfirmed_needs_commissioning", async () => {
+    renderCold(`${BASE}/readiness`, loaded(STOCKED));
+    await settledScreen();
+    const keys = Array.from(document.querySelectorAll("[data-cold-readiness-row]")).map((r) => r.getAttribute("data-cold-readiness-row")!);
+    expect(keys.length).toBeGreaterThan(5);
+    for (const key of keys) expect(needed(key)).toEqual(["Commissioning record"]);
+    cleanup();
+    renderCold(`${BASE}/readiness`, loaded(MISSING_PROBE));
+    await settledScreen();
+    const chamber = needed("chamber") as string[];
+    expect(chamber[0]).toContain("Add a chamber temperature probe");
+    expect(chamber.at(-1)).toBe("Commissioning record");
+    expect(chamber).toHaveLength(2);
+    cleanup();
+    renderCold(`${BASE}/readiness`, loaded({ ...MISSING_PROBE, commissioning: CONFIRMED }));
+    await settledScreen();
+    expect(needed("chamber")).toEqual([chamber[0]]);
+    cleanup();
+    renderCold(`${BASE}/readiness`, loaded({ ...STOCKED, commissioning: CONFIRMED }));
+    await settledScreen();
+    expect(needed("chamber")).toBe("Nothing further recorded");
+    expect(needed("definition")).toBe("Nothing further recorded");
+    // An unconfigured optional reading is not called complete.
+    expect(needed("manual")).toBe("—");
+  });
+});

@@ -48,6 +48,8 @@ export const CONFIGURED = "Configured";
 export const NEEDS_A_SOURCE = "Needs a source";
 export const NOT_CONFIGURED = "Not configured";
 export const NOT_DECLARED = "Not declared";
+export const COMMISSIONING_RECORD = "Commissioning record";
+export const NOTHING_FURTHER_RECORDED = "Nothing further recorded";
 export const SOURCE_CONTACT_UNAVAILABLE = "Source contact unavailable";
 export const CONFIDENCE_NOT_ASSESSED = "Confidence is not assessed";
 export const FUNCTION_UNKNOWN = "Function description not recorded";
@@ -484,14 +486,19 @@ function ReadinessView(props: ViewProps) {
   const confirmed = (
     <Badge tone="neutral">{unconfirmed ? "Unconfirmed" : `${read.commissioning.evidence_ids.length} records`}</Badge>
   );
-  const needed = (items: string[]) =>
-    items.length === 0 ? "—" : (
+  // W2-F M2/N3: the selected readiness messages first (deduped), then `Commissioning record` while no commissioning
+  // evidence is stored; `Nothing further recorded` only for a configured row with nothing left to record.
+  const needed = (items: string[], configured: boolean) => {
+    const list = Array.from(new Set([...items, ...(unconfirmed ? [COMMISSIONING_RECORD] : [])]));
+    if (list.length === 0) return configured ? NOTHING_FURTHER_RECORDED : "—";
+    return (
       <ul className="plain-list">
-        {items.map((text) => (
+        {list.map((text) => (
           <li key={text}>{text}</li>
         ))}
       </ul>
     );
+  };
   const matched = new Set<string>();
   const forRoles = (roles: string[]) =>
     messages.filter((m) => m.role !== null && roles.includes(m.role)).map((m) => {
@@ -529,7 +536,7 @@ function ReadinessView(props: ViewProps) {
           {detail === null ? null : <span className="cold-readiness__detail muted">{detail}</span>}
         </>
       ),
-      needed: needed(roleNeeds),
+      needed: needed(roleNeeds, configured),
       next: <Link to={props.viewHref("sld")}>Single line diagram →</Link>,
     };
   });
@@ -586,7 +593,7 @@ function ReadinessView(props: ViewProps) {
                 </span>
               </td>
               <td>{confirmed}</td>
-              <td>{needed(definitionNeeds)}</td>
+              <td>{needed(definitionNeeds, policy !== null)}</td>
               <td>
                 <Link to={props.viewHref("model")}>Site model →</Link>
               </td>

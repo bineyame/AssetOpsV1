@@ -72,6 +72,8 @@ export interface EvSiteRoutes {
   assumptions: string;
   sessions: string;
   finding: (findingId: string) => string;
+  /** W2-F B2/M8: the Foundation single line diagram at one instant (`at` only; no `from` or `known_at`). */
+  sld: (at: string) => string;
 }
 
 /* ---------- words ---------- */
@@ -129,6 +131,8 @@ const TONE: Record<string, "green" | "amber" | "red"> = {
   Mixed: "amber",
   "Not declared": "amber",
   "Evidence limited": "amber",
+  "Needs attention": "amber",
+  "Records disagree": "red",
   Unpriced: "amber",
   Withheld: "amber",
   Contradictory: "red",
@@ -477,7 +481,8 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
     title: (
       <>
         {`${i.value_display ?? "Accepted event"} · `}
-        <span aria-label={`Record ${i.evidence_id}`}>{`Record ${short(i.evidence_id)}`}</span>
+        {/* W2-F M10/N1: the full stored record ID, never a shortened prefix. */}
+        <code className="ev-site-id" aria-label={`Record ${i.evidence_id}`} data-vocabulary-exempt="source-reference">{`REC ${i.evidence_id}`}</code>
       </>
     ),
     tone: i.record_kind === "EV_CONNECTOR_FAULT" || i.record_kind === "EV_SESSION_ABORT" ? "danger" : undefined,
@@ -486,6 +491,30 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
   while (events.length < CHRONOLOGY_SLOTS) events.push({ key: `empty-${events.length}`, time: "—", title: "No accepted event", tone: "gap" });
   return { events, extra: accepted };
 }
+
+/**
+ * W2-F S9/M9: the Overview strip status. Refused or no selection -> Unknown; then a selected contradiction, pending
+ * work, a selected observed abort or Finding, and otherwise the selected session state.
+ */
+export function overviewStatusWord(o: EvOverviewRead | null): string {
+  if (o === null || o.currentness.state === "UNKNOWN") return "Unknown";
+  if (o.status.state === "CONTRADICTORY") return "Records disagree";
+  if (o.currentness.state === "PENDING_RECOMPUTE") return "Evidence pending";
+  if ((o.denominator.observed_abort ?? 0) > 0 || o.findings.count > 0) return "Needs attention";
+  if (o.status.state === "OBSERVED_SESSIONS") return "Sessions observed";
+  if (o.status.state === "NO_SESSIONS_OBSERVED") return "No sessions observed";
+  return "Unknown";
+}
+
+/** W2-F S9/M9: a cautious presentation of the selected `status.claim_level`, never a rewrite of it. */
+export function overviewConfidenceWord(o: EvOverviewRead | null): string {
+  if (o === null || o.currentness.state === "UNKNOWN" || o.currentness.state === "PENDING_RECOMPUTE") return "Confidence: Unknown";
+  if (o.status.claim_level === "OBSERVED") return "Confidence: Bounded";
+  if (o.status.claim_level === "BOUNDED") return "Confidence: Limited";
+  return "Confidence: Unknown";
+}
+
+export const SLD_CUTOFF_NOTE = "Opens configuration at window end; evidence cutoff is not carried.";
 
 function OverviewScreen(p: EvSiteFrameProps) {
   const overview = useEvRead(() => p.client.getOverview(p.siteId, p.window), keyOf(p, "o"));
@@ -505,12 +534,21 @@ function OverviewScreen(p: EvSiteFrameProps) {
   const money = o?.consequence_summary;
   const next = e?.next_evidence[0] ?? null;
   const limit = o?.objective.site_import_limit_kw ?? null;
+  // B2: a selected read opens the SLD at its window end; refused or unselected reads use the requested end.
+  const sldAt = o !== null && o.currentness.state !== "UNKNOWN" ? o.window.to : p.window.to;
   return (
     <>
-      {o === null ? null : (
+      {o === null ? (
+        <StatusBar label="EV Site state">
+          <Chip word={overviewStatusWord(null)} />
+          <Chip word={overviewConfidenceWord(null)} />
+        </StatusBar>
+      ) : (
         <>
           <WindowBar env={o} />
           <StatusBar label="EV Site state" action={<Link to={sel(routes.evidence, o.window)}>Inspect evidence</Link>}>
+            <Chip word={overviewStatusWord(o)} />
+            <Chip word={overviewConfidenceWord(o)} />
             <Chip word={evidenceAggregate(caps)} />
             <Provenance env={o} />
             <StateNote env={o} />
@@ -594,8 +632,17 @@ function OverviewScreen(p: EvSiteFrameProps) {
               </Disclosure>
             </>
           )}
-          <p className="ev-site-link">
-            <UnavailableInline label="Open single line diagram" />
+          <p className="ev-site-link" data-ev-sld-link>
+            {sldAt === null ? (
+              <span className="ev-site-noop">{NO_LINK}</span>
+            ) : (
+              <>
+                <Link to={routes.sld(sldAt)}>Single line diagram →</Link>{" "}
+                <span className="muted" data-ev-sld-cutoff-note>
+                  {SLD_CUTOFF_NOTE}
+                </span>
+              </>
+            )}
           </p>
         </Panel>
         <Panel heading="Needs attention" headingId="ev-site-attention-heading">

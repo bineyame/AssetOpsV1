@@ -590,7 +590,7 @@ describe("W2-07 EV Site routes", () => {
     expectPlantedPanelRejected("ev");
     const day = panelTitled("What happened on the service day");
     expect(day.querySelectorAll(".v69-timeline > li")).toHaveLength(7);
-    expect(day.textContent).toContain(`Session started · Record ${id(101).slice(0, 8)}`);
+    expect(day.textContent).toContain(`Session started · REC ${id(101)}`);
     expect(day.textContent).toContain("End record missing");
     expect(day.textContent).toContain("No accepted event");
     expect(day.textContent).not.toContain(id(450).slice(0, 8));
@@ -600,7 +600,8 @@ describe("W2-07 EV Site routes", () => {
     expect(power.textContent).toContain("Site import");
     expect(power.textContent).toContain("Configured limit");
     expect(power.textContent).toContain("Power is operating context, not proof of charger condition or cause.");
-    expect(power.textContent).toContain("Open single line diagram · Not available yet");
+    // W2-F M8: the built Foundation SLD is a live link (exact proof in `w2f_overview_sld_link_is_real`).
+    expect(within(power).getByRole("link", { name: "Single line diagram →" })).toBeTruthy();
     expect(main().querySelector('[data-ev-card="power"]')?.textContent).toContain("60 kW observed peak3600/3900 s of selected window covered");
     expect(main().textContent).not.toMatch(/Healthy/);
     expect(panelTitled("Needs attention").textContent).toContain("End record missing");
@@ -669,5 +670,97 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
     expect(row.textContent).not.toContain("source REGISTERED_SIMULATION");
     const rule = main().querySelector("[data-claim-rule]") as HTMLElement;
     expect(rule.textContent).toContain("source REGISTERED_SIMULATION");
+  });
+});
+
+/*
+ * W2-F unit 3 (`.agent/W2-F-build-spec.md` ledger M8/M9/M10, closure B2, S9, N1): the Overview SLD link, the status and
+ * confidence chips, and full timeline record IDs.
+ */
+describe("W2-F: EV Overview link, status and record IDs", () => {
+  const SLD = `/sites/${CODE}/foundation/sld`;
+  const CUTOFF_NOTE = "Opens configuration at window end; evidence cutoff is not carried.";
+  const SELECTED_TO = "2026-10-06T09:04:00.000000Z";
+  const withWindowEnd = (o: EvOverviewRead): EvOverviewRead => ({ ...o, window: { ...o.window, to: SELECTED_TO } });
+  const sldLink = () => document.querySelector("[data-ev-sld-link]") as HTMLElement;
+  const chips = () => Array.from(document.querySelectorAll(".status-strip .ev-site-chip")).map((c) => c.textContent);
+
+  it("w2f_overview_sld_link_is_real", async () => {
+    // Selected: the selected window end, the exact Site code and the cutoff-loss label.
+    await renderAt(PATHS.ev, { ...client(), getOverview: vi.fn(() => Promise.resolve(ok(withWindowEnd(overview())))) });
+    const link = within(sldLink()).getByRole("link", { name: "Single line diagram →" });
+    expect(link.getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(SELECTED_TO)}`);
+    expect(sldLink().querySelector("[data-ev-sld-cutoff-note]")?.textContent).toBe(CUTOFF_NOTE);
+    expect(sldLink().textContent).not.toContain("Not available yet");
+    fireEvent.click(link);
+    await settledScreen();
+    expect(screen.getByRole("link", { name: "Single line diagram", current: "page" }).getAttribute("href")).toContain(`${SLD}?at=`);
+    cleanup();
+    // Refused: the requested window end.
+    await renderAt(PATHS.ev, client({}, refused(503, "EV_SITE_UNAVAILABLE")));
+    expect(within(sldLink()).getByRole("link", { name: "Single line diagram →" }).getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(TO)}`);
+    expect(sldLink().textContent).toContain(CUTOFF_NOTE);
+    cleanup();
+    // No selected version: the requested window end, not the read's.
+    const none = withWindowEnd(overview({ empty: true, state: "UNKNOWN", consequence: null }));
+    await renderAt(PATHS.ev, { ...client({ empty: true, state: "UNKNOWN", consequence: null }), getOverview: vi.fn(() => Promise.resolve(ok(none))) });
+    expect(within(sldLink()).getByRole("link", { name: "Single line diagram →" }).getAttribute("href")).toBe(`${SLD}?at=${encodeURIComponent(TO)}`);
+    cleanup();
+    // No requested window end on a refusal: an honest null target, never a current SLD.
+    render(
+      <MemoryRouter initialEntries={[`${PATHS.ev}?from=${encodeURIComponent(FROM)}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} evSite={client({}, refused(422, "INVALID_WINDOW"))} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(sldLink().querySelector("a")).toBeNull();
+    expect(sldLink().textContent).toBe("No linked page for this item");
+  });
+
+  it("w2f_overview_status_confidence", async () => {
+    const vector = async (o: EvOverviewRead, state = "CURRENT") => {
+      cleanup();
+      await renderAt(PATHS.ev, { ...client({ state }), getOverview: vi.fn(() => Promise.resolve(ok(o))) });
+      return chips().slice(0, 2);
+    };
+    const base = overview();
+    // Interrupted, selected BOUNDED with an observed abort -> Needs attention / Limited.
+    const interrupted = { ...base, status: { ...base.status, claim_level: "BOUNDED" }, denominator: { ...base.denominator, observed_abort: 1 } };
+    expect(await vector(interrupted)).toEqual(["Needs attention", "Confidence: Limited"]);
+    // An observed complete abort -> Needs attention / Bounded.
+    expect(await vector({ ...interrupted, status: { ...base.status, claim_level: "OBSERVED" } })).toEqual(["Needs attention", "Confidence: Bounded"]);
+    // A selected Finding alone also needs attention.
+    expect(await vector({ ...base, status: { ...base.status, claim_level: "OBSERVED" }, findings: { ...base.findings, count: 1 } })).toEqual(["Needs attention", "Confidence: Bounded"]);
+    // Complete, nothing aborted -> Sessions observed / Bounded.
+    expect(await vector({ ...base, status: { ...base.status, claim_level: "OBSERVED" } })).toEqual(["Sessions observed", "Confidence: Bounded"]);
+    expect(await vector({ ...base, status: { ...base.status, state: "NO_SESSIONS_OBSERVED", claim_level: "OBSERVED" } })).toEqual(["No sessions observed", "Confidence: Bounded"]);
+    // Contradiction outranks pending and attention.
+    const contradictory = { ...interrupted, status: { ...base.status, state: "CONTRADICTORY", claim_level: "CONTRADICTORY" } };
+    expect(await vector(contradictory)).toEqual(["Records disagree", "Confidence: Unknown"]);
+    // Pending keeps the selected level stored but shows Unknown confidence.
+    const pending = { ...overview({ state: "PENDING_RECOMPUTE" }), status: { ...base.status, claim_level: "OBSERVED" }, denominator: { ...base.denominator, observed_abort: 1 } };
+    expect(await vector(pending, "PENDING_RECOMPUTE")).toEqual(["Evidence pending", "Confidence: Unknown"]);
+    // No selection.
+    expect(await vector({ ...overview({ empty: true, state: "UNKNOWN" }), status: { ...base.status, state: "UNKNOWN", claim_level: "OBSERVED" } }, "UNKNOWN")).toEqual(["Unknown", "Confidence: Unknown"]);
+    // Source-provenance badges are retained beside the chips.
+    expect(strip()).toContain("Generated test data");
+    cleanup();
+    // Refused.
+    await renderAt(PATHS.ev, client({}, refused(503, "EV_SITE_UNAVAILABLE")));
+    expect(chips()).toEqual(["Unknown", "Confidence: Unknown"]);
+  });
+
+  it("w2f_timeline_analysis_ids_distinct", async () => {
+    const a = "00000502-0000-4000-8000-000000000001";
+    const b = "00000502-0000-4000-8000-000000000002";
+    const read = { ...analysis(), items: [item(101, { evidence_id: a }), item(102, { evidence_id: b, value_display: "Session ended", record_kind: "EV_SESSION_END" })], total_count: 2 };
+    await renderAt(PATHS.ev, { ...client(), getAnalysis: vi.fn(() => Promise.resolve(ok(read))) });
+    const day = panelTitled("What happened on the service day");
+    const labels = Array.from(day.querySelectorAll("code.ev-site-id")).map((c) => ({ text: c.textContent, aria: c.getAttribute("aria-label") }));
+    expect(labels).toEqual([
+      { text: `REC ${a}`, aria: `Record ${a}` },
+      { text: `REC ${b}`, aria: `Record ${b}` },
+    ]);
+    expect(new Set(labels.map((l) => l.text)).size).toBe(2);
   });
 });
