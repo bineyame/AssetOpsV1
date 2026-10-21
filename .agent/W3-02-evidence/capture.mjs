@@ -40,6 +40,7 @@ try {
     const tbl = (p) => { const s = p?.querySelector(".data-table__scroll"); return s ? { client: s.clientWidth, scroll: s.scrollWidth, clientH: s.clientHeight, scrollH: s.scrollHeight, rows: s.querySelectorAll("tbody tr").length } : null; };
     return {
       h1: document.querySelector("h1")?.textContent.trim() ?? null,
+      eyebrow: (() => { const e = document.querySelector("header.page-header .page-header__eyebrow"); const h = document.querySelector("h1"); const sub = document.querySelector("header.page-header .page-header__subtitle"); if (!e) return null; const cs = getComputedStyle(e); return { text: e.textContent, shown: e.innerText, box: R(e), h1: R(h), subtitle: R(sub), sameHeader: e.closest("header") === h.closest("header"), fontSize: cs.fontSize, color: cs.color, transform: cs.textTransform }; })(),
       main: document.querySelector("main")?.getAttribute("aria-label") ?? null,
       railCurrent: document.querySelector('nav[aria-label="Operator routes"] [aria-current="page"]')?.textContent ?? null,
       pieces: { cards: R(root.querySelector("[data-estate-cards]")), coverage: R(cov), gaps: R(gaps), notice: R(root.querySelector("[data-estate-notice]")) },
@@ -72,7 +73,7 @@ try {
   writeFileSync(join(OUT, `app-${STATE}.json`), JSON.stringify({ state: STATE, captured_at: new Date().toISOString(), results }, null, 2));
   for (const r of results) {
     const p = Object.entries(r.pieces).map(([k, v]) => `${k}=${v ? v.h : "absent"}`).join(" ");
-    console.log(`${r.width} ready=${r.ready} h1=${r.h1} main=${r.main} rail=${r.railCurrent} doc=${r.docScrollW}/${r.docClientW} ${p} cov=${JSON.stringify(r.coverageTable)} gaps=${JSON.stringify(r.gapsTable)} cardTops=${r.cardTops} over=[${r.over}] refusal=${r.refusal}`);
+    console.log(`${r.width} ready=${r.ready} h1=${r.h1} eyebrow=${JSON.stringify(r.eyebrow)} main=${r.main} rail=${r.railCurrent} doc=${r.docScrollW}/${r.docClientW} ${p} cov=${JSON.stringify(r.coverageTable)} gaps=${JSON.stringify(r.gapsTable)} cardTops=${r.cardTops} over=[${r.over}] refusal=${r.refusal}`);
   }
 } finally {
   try { ws?.close(); } catch {}

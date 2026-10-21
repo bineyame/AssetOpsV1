@@ -1,5 +1,16 @@
 # W3-02 phase handoff
 
+## Commit 2 (Lane A c2b eyebrow) - READY FOR COMMIT-2 REVIEW
+
+Merge of main `44743fb5`; build commit `39afe950`. Branch released.
+
+- Eyebrow (c2b): `frontend/src/ui/PageHeader.tsx` optional `eyebrow?: ReactNode`, rendered as `p.page-header__eyebrow` inside the left text column above `.page-header__title`, omitted when empty; `primitives.css` `.page-header__eyebrow` (10 px, 600, uppercase, `--text-muted`). `EstateEvidence.tsx` passes `eyebrow={EVIDENCE_EYEBROW}` (comment updated); no breadcrumb.
+- Tests: `estateEvidence.test.tsx::test_evidence_eyebrow_above_title_on_estate_root` (eyebrow, then h1, then subtitle in one header; no breadcrumb); `estateRoots.test.tsx::test_five_mock_panels_and_supported_links` asserts no `.page-header__eyebrow` on Findings. Non-vacuous: dropping the prop fails the first; always rendering the node fails the second (both reverted).
+- c2-q5: registry already matches c2b (`I-estate-evidence-root` area `estate-aggregation`, requires `A-estate-index-scope`,`I-capability-read`; in brief `implementation_nodes`; `P-estate-area` governs `estate-aggregation`; `globalevidence:1/:2` requires as ruled, `gap`). No change.
+- Captures (private `w302l_test`, dropped; `capture.mjs` now also records the eyebrow): eyebrow `EVIDENCE` 10 px rgb(107,118,144), same header, above h1 (1440: eyebrow 24/h1 43/subtitle 84; 390: 108/127/162). positive 1440 115/279/183/43, 390 280/421/350/80; partial 1440 108/302/183/43, 390 277/445/350/80 - unchanged from Lane B, all within maxima; doc scroll = client at both widths; table scroll widths 520/330 at 390.
+- Checks at `39afe950`: tsc clean; build ok; `check-all.ps1` 11/11; estate files pass alone (evidence 4/4 reruns). Full frontend 96 files / 2383 tests: 1 failure per run, different each time (`estateEvidence` line 323; then `siteFinancials` S4-08 typed 409, which passes alone 83/83) - load flakes; the Evidence one is c2-q8 (`settled.ts` misses the Evidence loading copy).
+- Open: c2-q6 (Lane B link-follow proof), c2-q7, c2-q8.
+
 ## Commit 2 (Lane B fixes) - c2-q1..q4 and page defects; READY FOR COMMIT-2 REVIEW
 
 Commits `cd98969a`, `ce75d9c4` (after merging main, `d321c76d`). Branch released.

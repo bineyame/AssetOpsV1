@@ -71,3 +71,11 @@ cold start-chain step names to plain words, and the page does not rewrite server
 Question: (a) map on the Evidence wire (estate `current_ceiling` gets a plain sentence, e.g. per-step words, with the
 stored limitation kept in `Record details`), (b) map on the page from a closed step dictionary, or (c) leave the stored
 limitation verbatim and accept it? If (a)/(b), name the step words (the cold chain's steps: which codes and labels).
+
+## c2-q8 - Evidence tests do not settle on the store read (Lane A observation, commit 2 c2b)
+`frontend/src/test/settled.ts` `LOADING` does not list `EstateEvidence.tsx`'s loading copy `Loading evidence across the
+estate.`, so `settledScreen()` returns immediately in `estateEvidence.test.tsx` and the assertions race the fake read.
+Under full-suite load it flaked twice on `39afe950` (`rendersEvidenceEmptyPendingAndRefusals` line 323, panels `[]`;
+once `namesGapSitesFromTheWireNotThePage`), and the file passes alone (4/4 runs). Not changed: `settled.ts` is shared
+test infra outside c2b's assignment. Question: who adds `evidence across the estate` to `LOADING` (Lane A shared test
+helper, or Lane B with its page), and in which commit?

@@ -1,10 +1,10 @@
 {
   "state": "partial",
-  "captured_at": "2026-10-21T01:37:05.965Z",
+  "captured_at": "2026-10-21T02:06:54.607Z",
   "results": [
     {
       "width": 1440,
-      "app_url": "http://localhost:6151/evidence?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "app_url": "http://localhost:5299/evidence?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
       "image": "evidence-partial-1440-app.png",
       "ready": true,
       "maxima": {
@@ -15,34 +15,57 @@
       },
       "over": [],
       "h1": "Portfolio evidence",
+      "eyebrow": {
+        "text": "Evidence",
+        "shown": "EVIDENCE",
+        "box": {
+          "top": 24,
+          "h": 15,
+          "w": 379
+        },
+        "h1": {
+          "top": 43,
+          "h": 34,
+          "w": 220
+        },
+        "subtitle": {
+          "top": 84,
+          "h": 18,
+          "w": 379
+        },
+        "sameHeader": true,
+        "fontSize": "10px",
+        "color": "rgb(107, 118, 144)",
+        "transform": "uppercase"
+      },
       "main": "Evidence",
       "railCurrent": "Evidence",
       "pieces": {
         "cards": {
-          "top": 182,
+          "top": 201,
           "h": 108,
           "w": 1160
         },
         "coverage": {
-          "top": 308,
+          "top": 327,
           "h": 302,
           "w": 1160
         },
         "gaps": {
-          "top": 628,
+          "top": 647,
           "h": 183,
           "w": 1160
         },
         "notice": {
-          "top": 829,
+          "top": 848,
           "h": 43,
           "w": 1160
         }
       },
       "cardTops": [
-        182,
-        182,
-        182
+        201,
+        201,
+        201
       ],
       "cards": [
         "Sites with limited claimsNot assessedSome Site evidence is unavailable",
@@ -53,7 +76,7 @@
         "client": 1105,
         "scroll": 1105,
         "clientH": 176,
-        "scrollH": 815,
+        "scrollH": 802,
         "rows": 15
       },
       "gapsTable": {
@@ -74,7 +97,7 @@
     },
     {
       "width": 390,
-      "app_url": "http://localhost:6151/evidence?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
+      "app_url": "http://localhost:5299/evidence?from=2026-10-05T00:00:00Z&to=2026-10-12T00:00:00Z",
       "image": "evidence-partial-390-app.png",
       "ready": true,
       "maxima": {
@@ -85,34 +108,57 @@
       },
       "over": [],
       "h1": "Portfolio evidence",
+      "eyebrow": {
+        "text": "Evidence",
+        "shown": "EVIDENCE",
+        "box": {
+          "top": 108,
+          "h": 15,
+          "w": 358
+        },
+        "h1": {
+          "top": 127,
+          "h": 29,
+          "w": 186
+        },
+        "subtitle": {
+          "top": 162,
+          "h": 36,
+          "w": 358
+        },
+        "sameHeader": true,
+        "fontSize": "10px",
+        "color": "rgb(107, 118, 144)",
+        "transform": "uppercase"
+      },
       "main": "Evidence",
       "railCurrent": "Evidence",
       "pieces": {
         "cards": {
-          "top": 371,
+          "top": 390,
           "h": 277,
           "w": 358
         },
         "coverage": {
-          "top": 666,
+          "top": 685,
           "h": 445,
           "w": 358
         },
         "gaps": {
-          "top": 1128,
+          "top": 1147,
           "h": 350,
           "w": 358
         },
         "notice": {
-          "top": 1497,
+          "top": 1516,
           "h": 80,
           "w": 358
         }
       },
       "cardTops": [
-        371,
-        371,
-        508
+        390,
+        390,
+        527
       ],
       "cards": [
         "Sites with limited claimsNot assessedSome Site evidence is unavailable",
@@ -140,7 +186,7 @@
       "docScrollW": 390,
       "docClientW": 390,
       "refusal": null,
-      "height": 1619
+      "height": 1638
     }
   ]
 }
