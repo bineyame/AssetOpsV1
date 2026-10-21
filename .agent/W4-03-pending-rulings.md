@@ -64,7 +64,7 @@ envelope). Unit 2b took these provisional readings for scenarios (`mini_decision
 5. Scenario list `currentness` is the W4-02 aggregate over the union of pinned days; with no pinned day it is
    `CURRENT` (or `HISTORICAL` for an explicit past cutoff) with `job_state: NONE`.
 
-## PR-5 (raised in unit 3; does not block; provisional behaviour implemented in `mini_decisions/alternatives.py`)
+## PR-5 (raised in unit 3) - RESOLVED by u3 (build spec "Unit-3 rulings (u3)"); all eight readings confirmed, tests added
 
 Confirm or replace these Alternatives readings:
 1. A command must name the Finding revision that is latest at command DB time; an older revision is 409

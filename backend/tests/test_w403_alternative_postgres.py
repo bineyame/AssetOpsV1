@@ -108,6 +108,18 @@ def evidence(engine, site, rev, *, inside: bool):
                               "cut": rev["created_at"]}).scalar_one())
 
 
+def foreign_evidence(engine, evidence_id) -> str:
+    """A test-only replica copy of an accepted row under another Site (u3 2: a foreign citation)."""
+    copy = uuid4()
+    with engine.begin() as c:
+        c.execute(text("SET LOCAL session_replication_role = replica"))
+        for sql in ("CREATE TEMP TABLE e_copy ON COMMIT DROP AS SELECT * FROM accepted_evidence WHERE id = :e",
+                    "UPDATE e_copy SET id = :n, site_id = gen_random_uuid()",
+                    "INSERT INTO accepted_evidence SELECT * FROM e_copy"):
+            c.execute(text(sql), {"e": evidence_id, "n": copy})
+    return str(copy)
+
+
 def w1_read(runner, finding_id, revision_id):
     reads = FindingReadService(PostgresFindingStore(URL), DispatchReadService(PostgresAssessmentStore(URL)), None)
     return reads.finding(runner.tenant, runner.site, finding_id, revision_id)
@@ -164,6 +176,7 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
                                       cited_accepted_evidence_ids=[inside, outside]))
     assert status == 201
     # Refusal vectors write nothing.
+    foreign = foreign_evidence(engine, inside)
     snapshot = counts(engine)
     for body, expected in (
             (command("w403-alt-x001", r1["id"]), (409, "DECISION_CORRECTION_CONFLICT")),  # a second version 1
@@ -183,7 +196,20 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
             (command("w403-alt-x012", r1["id"], actor=actor(attestation="service=other;job=j;rule=r")),
              (422, "DECISION_ATTESTATION_INVALID")),
             (command("w403-alt-x013", r1["id"], actor=actor(authorization_basis=None)),
-             (422, "DECISION_INPUT_INVALID"))):
+             (422, "DECISION_INPUT_INVALID")),
+            # u3 2: citation admission and the missing-evidence reason bounds.
+            (command("w403-alt-x015", r1["id"], "CAPABILITY", missing_evidence_reason="   "),
+             (422, "DECISION_INPUT_INVALID")),
+            (command("w403-alt-x016", r1["id"], "CAPABILITY", missing_evidence_reason="x" * 501),
+             (422, "DECISION_INPUT_INVALID")),
+            (command("w403-alt-x017", r1["id"], "CAPABILITY", supersedes_revision_id=capability["id"],
+                     cited_accepted_evidence_ids=[inside, foreign]),
+             (422, "DECISION_LINK_SCOPE_INVALID")),
+            # u3 1: a wrong-key predecessor (another key's head) and a wrong-path one (the Finding revision ID).
+            (command("w403-alt-x018", r1["id"], supersedes_revision_id=uncertainty["id"]),
+             (422, "DECISION_LINK_SCOPE_INVALID")),
+            (command("w403-alt-x019", r1["id"], supersedes_revision_id=str(r1["id"])),
+             (422, "DECISION_LINK_SCOPE_INVALID"))):
         assert post(body) == expected, body["idempotency_key"]
     assert counts(engine) == snapshot and snapshot[0] == before[0] + 2
     with pytest.raises(DecisionRefused) as missing:
@@ -200,6 +226,9 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
     clock.at = r2["created_at"] + timedelta(seconds=10)
     stale = command("w403-alt-s001", r1["id"], supersedes_revision_id=policy["id"], reason="Re-evaluated.")
     assert post(stale) == (409, "DECISION_BASIS_CHANGED")  # R1 is no longer the selected Finding revision
+    # u3 1: an exact authorized retry still returns its original body after a later Finding revision exists.
+    assert post(command("w403-alt-p001", r1["id"], cited_accepted_evidence_ids=[inside])) == (200, policy)
+    assert post(command("w403-alt-s002", r2["id"])) == (409, "DECISION_CORRECTION_CONFLICT")  # a second version 1
 
     def read(**q):
         revision = q.pop("revision_id", None)
@@ -244,6 +273,9 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
     assert post(carry) == (200, carried)
     assert post({**carry, "idempotency_key": "w403-alt-p003"}) == (409, "DECISION_CORRECTION_CONFLICT")
     after = read()
+    # u3 3: a fresh service (a new request) reads the same stable row IDs: version 1's ID, displayed head revision.
+    fresh = service_for(engine, clock).list(t, s, fid, None, parse_list(None, None, None, [], None), "basis")
+    assert fresh["rows"] == after["rows"]
     assert [(r["id"], r["revision_id"], r["review_state"]) for r in after["rows"]] == [
         (policy["id"], carried["id"], "CURRENT"), (uncertainty["id"], uncertainty["id"], "NEEDS_REVIEW"),
         (capability["id"], capability["id"], "NEEDS_REVIEW")]
@@ -273,7 +305,9 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
                         ({"known_at": iso(READ_AT + timedelta(microseconds=1))}, "INVALID_KNOWN_AT"),
                         ({"revision_id": "not-a-uuid"}, "DECISION_INPUT_INVALID"),
                         ({"revision_id": str(uuid4())}, "DECISION_NOT_FOUND"),
-                        ({"known_at": iso(r1["created_at"] - timedelta(seconds=1))}, "DECISION_NOT_FOUND")):
+                        ({"known_at": iso(r1["created_at"] - timedelta(seconds=1))}, "DECISION_NOT_FOUND"),
+                        # u3 7: R2 requested at a cutoff before R2 exists.
+                        ({"revision_id": str(r2["id"]), "known_at": iso(k_r1)}, "DECISION_NOT_FOUND")):
         with pytest.raises(DecisionRefused) as refused:
             read(**q)
         assert refused.value.code == expected, q
@@ -318,7 +352,55 @@ def test_non_dispatch_and_wrong_domain_findings_are_refused(runner, engine) -> N
         svc.create(t, s, who, str(copies[0][0]), command("w403-n1-cross", r1["id"],
                                                         missing_evidence_reason="No record."))
     assert crossed.value.code == "DECISION_LINK_SCOPE_INVALID"
+    # u3 1/7: a wrong-path revision (the start_response copy) on the dispatch path Finding: 422 POST, 404 GET.
+    fid, other = str(r1["finding_id"]), copies[1][1]
+    with pytest.raises(DecisionRefused) as wrong_path:
+        svc.create(t, s, who, fid, command("w403-n1-path", other, missing_evidence_reason="No record."))
+    assert wrong_path.value.code == "DECISION_LINK_SCOPE_INVALID"
+    with pytest.raises(DecisionRefused) as wrong_read:
+        svc.list(t, s, fid, str(other), parse_list(None, None, None, [], None), "basis")
+    assert wrong_read.value.code == "DECISION_NOT_FOUND"
     assert counts(engine) == snapshot
+
+
+def test_one_command_instant_governs_basis_citation_and_recorded_at(runner, engine) -> None:  # noqa: F811
+    """u3 8: the command clock, not wall time, selects the latest Finding revision, admits citations by
+    `received_at` and is stored as `recorded_at` (exact six-digit UTC)."""
+    t, s = runner.tenant, runner.site
+    who = DecisionPrincipal("SERVICE", PRINCIPAL_ID, t, s, GRANT_PREFIX + PRINCIPAL_ID)
+    steps(runner, F02["steps"])
+    r1, r2 = finding_revisions(engine, s)
+    with engine.connect() as c:
+        late, received = c.execute(text(
+            "SELECT id::text, received_at FROM accepted_evidence WHERE site_id = :s AND received_at > :a "
+            "AND received_at <= :b ORDER BY received_at, id LIMIT 1"),
+            {"s": s, "a": r1["created_at"], "b": r2["created_at"]}).one()
+    clock = Clock(received - timedelta(microseconds=1))
+    svc = service_for(engine, clock)
+    fid = str(r1["finding_id"])
+
+    def post(body):
+        try:
+            return svc.create(t, s, who, fid, body)
+        except DecisionRefused as refused:
+            return refused.status, refused.code
+
+    cites = {"cited_accepted_evidence_ids": [late], "missing_evidence_reason": None}
+    assert post(command("w403-clk-001", r1["id"], **cites)) == (422, "DECISION_LINK_SCOPE_INVALID")  # not yet received
+    clock.at = received
+    if received < r2["created_at"]:
+        assert post(command("w403-clk-002", r2["id"], **cites)) == (409, "DECISION_BASIS_CHANGED")  # R2 not yet visible
+        clock.at = r2["created_at"] - timedelta(microseconds=1)
+        assert post(command("w403-clk-003", r2["id"], **cites)) == (409, "DECISION_BASIS_CHANGED")
+    clock.at = r2["created_at"]
+    assert post(command("w403-clk-004", r1["id"], **cites)) == (409, "DECISION_BASIS_CHANGED")  # R2 now latest
+    status, body = post(command("w403-clk-005", r2["id"], **cites))
+    assert status == 201 and body["finding_revision_id"] == str(r2["id"])
+    assert body["recorded_at"] == iso(r2["created_at"]) and len(body["recorded_at"].split(".")[1]) == 7
+    with engine.connect() as c:
+        stored = c.execute(text("SELECT created_at FROM mini_alternative_revision WHERE id = :i"),
+                           {"i": body["id"]}).scalar_one()
+    assert stored == r2["created_at"]
 
 
 def test_ruled_out_interval_rule() -> None:
