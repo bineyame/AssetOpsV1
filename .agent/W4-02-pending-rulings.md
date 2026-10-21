@@ -288,3 +288,5 @@ Readings taken by the Group 1 presentation fixer; each is applied and needs only
 4. **M4 reach.** The empty-legacy reason is applied through one basis-aware wrapper of the Performance gate on the
    Overview route and on the Site Finding index route (the Overview's Needs-attention list reads the index refusal
    message); other Performance routes keep the plain gate reason.
+
+5. (Group 2, B-L2, `95d3ed9b`) `install_mg_w402_site` records the `NO_LEGACY_EVIDENCE` basis only when no legacy document declares MG-W402-001. Its command-line `main()` passes `legacy_site_documents()`, so the guard reads the real legacy stores when the installer runs from the command line. Applied; confirm.
