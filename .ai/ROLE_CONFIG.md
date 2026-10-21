@@ -473,6 +473,14 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
 - **Briefs point to files; they do not restate them.** Coordinator replies to
   interim agent notifications stay to one line.
 
+## Build-Spec Readiness Gate For W5 And W6 (owner, 2026-10-21)
+
+Owner decision, recorded in `.agent/owner-W5-W6-spec-readiness-2026-10-21.md`: "yes, apply that to W5 and W6".
+
+- **Readiness gate.** Before any W5 or W6 build starts, a reviewer dry-reads the closed spec against main for every user-visible copy string, label, status/enum value, wire field and shape, ID source, link target and route, fixture producer, capture state and height cap. Every item must name a literal or a source. The Architect closes every open item, and a Sonnet check confirms none remain. Only then is the first build unit dispatched.
+- **Size cap.** A slice with more than 6 build units, or with both a backend pipeline and more than 2 new pages, is split into two slices, each with its own review and merge.
+- **Mid-build stops count against the spec.** Record each mid-build ruling round in the handoff. More than 2 rounds on one slice triggers a fresh readiness pass on the remaining units before continuing.
+
 ## Updating Bindings
 
 Change bindings here when the team wants a different tool to own a role. Record
