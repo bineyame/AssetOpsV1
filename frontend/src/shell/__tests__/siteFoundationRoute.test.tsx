@@ -120,16 +120,16 @@ const T004_OPERATOR_NAVIGATION_LABELS = [
  * under `D-2026-10-02-grammar-ownership-test`. It is the INTELLIGENCE rail root
  * and owns the global Findings index, so it names no site and is not a
  * placeholder for one. W3-01 admits Actions, the estate Actions root, and
- * W3-02 admits Evidence, the estate Evidence root, on the same terms. The baseline the "has not grown" assertion is made
+ * W3-02 admits Evidence and Financials, the estate Evidence and Financials roots, on the same terms. The baseline the "has not grown" assertion is made
  * against is T004's list plus exactly this item; any other addition fails.
  */
-const ADMITTED_SINCE_T004 = ["Findings", "Actions", "Evidence"];
+const ADMITTED_SINCE_T004 = ["Findings", "Actions", "Evidence", "Financials"];
 
 /**
  * Operator navigation after T028, in order. T008 removed both parameterless
  * site items, T011A did not change the list, and T028 added Findings.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings", "Actions", "Evidence"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings", "Actions", "Evidence", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -465,7 +465,7 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
     ).map((link) => link.getAttribute("href") ?? "");
     unmount();
 
-    expect(hrefs).toEqual(["/sites", "/findings", "/actions", "/evidence"]);
+    expect(hrefs).toEqual(["/sites", "/findings", "/actions", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen(view.container);

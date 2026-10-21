@@ -101,7 +101,7 @@ const LIVE_SITE_DETAIL: SiteDetailReadModel = {
  * site because it is the INTELLIGENCE rail root and owns the global Findings
  * index, a surface of its own rather than a placeholder for a site page.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings", "Actions", "Evidence"];
+const OPERATOR_NAVIGATION_LABELS = ["Sites", "Findings", "Actions", "Evidence", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -443,7 +443,7 @@ describe("operator navigation lost an item and gained none", () => {
     );
     unmount();
 
-    expect(hrefs).toEqual(["/sites", "/findings", "/actions", "/evidence"]);
+    expect(hrefs).toEqual(["/sites", "/findings", "/actions", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen();

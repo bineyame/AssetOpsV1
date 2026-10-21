@@ -30,7 +30,6 @@ const UNAVAILABLE_ROOTS = [
   "Incidents",
   "Maintenance",
   "Operational records",
-  "Financials",
   "Settings",
 ];
 
@@ -93,7 +92,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     expect(spacedText(rail())).not.toMatch(/\bOPERATE\b/);
   });
 
-  it("has exactly four links, Sites, Findings, Actions and Evidence, and they are the live roots", async () => {
+  it("has exactly five links, Sites, Findings, Actions, Evidence and Financials, and they are the live roots", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -106,8 +105,9 @@ describe("operator rail inventory (W1-UX-07)", () => {
       ["Findings", "/findings"],
       ["Actions", "/actions"],
       ["Evidence", "/evidence"],
+      ["Financials", "/financials"],
     ]);
-    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(4);
+    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(5);
   });
 
   it.each(UNAVAILABLE_ROOTS)(
@@ -169,7 +169,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
   });
 
-  it("keeps the focusable rail order to the four live links (gate off)", async () => {
+  it("keeps the focusable rail order to the five live links (gate off)", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -177,7 +177,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     const focusable = Array.from(
       side.querySelectorAll<HTMLElement>("a[href], button, input, [tabindex]"),
     ).filter((element) => element.getAttribute("tabindex") !== "-1");
-    expect(focusable.map((element) => element.textContent)).toEqual(["Sites", "Findings", "Actions", "Evidence"]);
+    expect(focusable.map((element) => element.textContent)).toEqual(["Sites", "Findings", "Actions", "Evidence", "Financials"]);
   });
 });
 
@@ -204,7 +204,7 @@ describe("operator rail workspace footer (W1-UX-07)", () => {
     const side = rail().parentElement as HTMLElement;
     expect(
       Array.from(side.querySelectorAll<HTMLElement>("a[href]")).map((a) => a.textContent),
-    ).toEqual(["Sites", "Findings", "Actions", "Evidence", "Open Simulator Lab"]);
+    ).toEqual(["Sites", "Findings", "Actions", "Evidence", "Financials", "Open Simulator Lab"]);
 
     fireEvent.click(within(footer).getByRole("link", { name: "Open Simulator Lab" }));
     expect(screen.getByRole("heading", { level: 1, name: "Simulator Lab" })).toBeInTheDocument();

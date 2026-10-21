@@ -107,11 +107,11 @@ describe("W3-02 estate Evidence root in the operator shell", () => {
     expect(railCurrent()).toBe("Evidence");
     view.unmount();
 
-    // From another root, the rail's Evidence link opens the estate root; Financials stays text.
+    // From another root, the rail's Evidence link opens the estate root; Financials is its own live root (commit 4).
     const fromSites = fake();
     renderAt("/sites", fromSites);
     await settledScreen();
-    expect(within(rail()).getByRole("listitem", { name: "Financials, Not available yet" })).toBeInTheDocument();
+    expect(within(rail()).getByRole("link", { name: "Financials" })).toHaveAttribute("href", "/financials");
     expect(fromSites.calls).toEqual([]);
     fireEvent.click(within(rail()).getByRole("link", { name: "Evidence" }));
     await settledScreen();

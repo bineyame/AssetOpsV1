@@ -69,8 +69,14 @@ function Invoke-NavigationRailFixturesCheck {
                App = (Remove-Line $app 'path=\{EVIDENCE_PATH\}') },
             @{ Name = "W3-02: Evidence demoted back to unavailable"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/evidence", label: "Evidence", end: false' 'kind: "unavailable", label: "Evidence"') },
-            @{ Name = "W3-02: Financials promoted to live"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Financials"' 'kind: "live", to: "/evidence", label: "Financials"') },
+            @{ Name = "W3-02: Financials live root points at a missing route"; Expect = "points at '/financialz'";
+               Rail = (Edit-Lines $rail 'to: "/financials"' 'to: "/financialz"') },
+            @{ Name = "W3-02: Financials route removed (only the catch-all would serve it)"; Expect = "points at '/financials'";
+               App = (Remove-Line $app 'path=\{FINANCIALS_PATH\}') },
+            @{ Name = "W3-02: Financials demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials", end: false' 'kind: "unavailable", label: "Financials"') },
+            @{ Name = "W3-02: Financials live root pointed at the Evidence route"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials"' 'kind: "live", to: "/evidence", label: "Financials"') },
             @{ Name = "W3-01: Incidents promoted to live"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Incidents"' 'kind: "live", to: "/actions", label: "Incidents"') },
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";

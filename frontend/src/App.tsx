@@ -25,6 +25,7 @@ import { WorkspaceShellLayout } from "./shell/WorkspaceShellLayout";
 import {
   ACTIONS_PATH,
   EVIDENCE_PATH,
+  FINANCIALS_PATH,
   FINDINGS_COST_PATH,
   FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
@@ -91,9 +92,16 @@ import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClien
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
 import {
   createEstateEvidenceMoneyClient,
+  createEstateFinancialsClient,
   type EstateEvidenceMoneyClient,
+  type EstateFinancialsClient,
 } from "./estate/estateEvidenceMoneyClient";
-import { EstateActionsFrame, EstateEvidenceFrame, EstateFindingsFrame } from "./shell/EstateRootFrames";
+import {
+  EstateActionsFrame,
+  EstateEvidenceFrame,
+  EstateFinancialsFrame,
+  EstateFindingsFrame,
+} from "./shell/EstateRootFrames";
 import {
   createSiteEvidenceClient,
   type SiteEvidenceClient,
@@ -130,6 +138,7 @@ const defaultMiniDepth = createMiniDepthClient();
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
 const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
+const defaultEstateFinancials = createEstateFinancialsClient();
 const defaultEvSite = createEvSiteClient();
 
 /**
@@ -218,8 +227,10 @@ export interface AppProps {
   evScenarios?: EvScenarioChoiceClient;
   /** W3-01: the read-only estate Finding and Action roots (`/api/estate/*`). */
   estateIndex?: EstateClient;
-  /** W3-02: the read-only estate Evidence (and, at commit 4, Financials) roots. */
+  /** W3-02: the read-only estate Evidence root. */
   estateEvidenceMoney?: EstateEvidenceMoneyClient;
+  /** W3-02 commit 4: the read-only estate Financials root. */
+  estateFinancials?: EstateFinancialsClient;
 }
 
 export function App({
@@ -248,6 +259,7 @@ export function App({
   evScenarios,
   estateIndex = defaultEstateIndex,
   estateEvidenceMoney = defaultEstateEvidenceMoney,
+  estateFinancials = defaultEstateFinancials,
 }: AppProps) {
   // Resolved once from the gate: closed, the site surfaces get no lineage read
   // and show the recorded template alone.
@@ -420,6 +432,8 @@ export function App({
           <Route path={ACTIONS_PATH} element={<EstateActionsFrame client={estateIndex} />} />
           {/* W3-02: the estate Evidence root (`ESTATE_EVIDENCE_PATH`; a shell test pins the equality). */}
           <Route path={EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} />} />
+          {/* W3-02 commit 4: the estate Financials root (`ESTATE_FINANCIALS_PATH`; a shell test pins the equality). */}
+          <Route path={FINANCIALS_PATH} element={<EstateFinancialsFrame client={estateFinancials} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}
