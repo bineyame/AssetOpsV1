@@ -9,6 +9,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { NO_DESCRIPTION, observationSummary, roleWord } from "../estateEvidenceWords";
 import type { EstateCoverageSite } from "../estateClient";
 import {
   COVERAGE_PANEL,
@@ -591,7 +592,7 @@ describe("W3-02 estate Evidence root", () => {
     const labels = (i: number) => Array.from((within(rows[i]).getAllByRole("cell")[1].querySelector("details") as HTMLElement).querySelectorAll("dt")).map((e) => e.textContent);
     expect(labels(0)).toEqual(["Capability", "Site", "Evidence window", "Assessment", "Selected record references", "Evidence record references", "Selected observations", "Reasons", "Earlier selection"]);
     expect(labels(1)).toEqual(["Capability", "Site", "Evidence window", "Assessment", "Selected record references", "Evidence record references"]);
-    expect(text(0)).toContain("Backup response — Limited. No record of power transferring to the generator. Missing: Transfer position.");
+    expect(text(0)).toContain("Power transfer position — Limited. No record of power transferring to the generator. Missing: Transfer position.");
     expect(text(0)).toContain("Transfer position missing.");
     expect(text(0)).toContain("Reason details are not available");
     expect(text(0)).toContain("Limited. No record of a generator start result.");
@@ -623,5 +624,51 @@ describe("W3-02 estate Evidence root", () => {
         expect(t.scroll).toBeGreaterThanOrEqual(t.client); // the table scrolls inside its own container
       }
     }
+  });
+});
+
+describe("W3-02 c2d Evidence words", () => {
+  it("namesEveryEvMissingRoleAndBindingRoleInLiteralWords", () => {
+    const expected: Record<string, string> = {
+      session_event: "Charging session start or end",
+      session_terminal: "Charging session end",
+      connector_meter_delta: "Connector energy reading",
+      connector_status: "Connector availability status",
+      fault_event: "Connector fault report",
+      site_import: "Site import power reading",
+      requested_power: "Requested charging power",
+      allocated_limit: "Allocated charging power limit",
+      ev_gross_tariff_per_kwh: "Published EV gross tariff per kWh",
+      ev_session_event: "Charging session start or end",
+      ev_connector_fault: "Connector fault report",
+      ev_connector_state: "Connector availability status",
+      ev_connector_energy: "Connector energy reading",
+      ev_connector_power: "Connector power reading",
+      ev_site_import: "Site import power reading",
+      ev_requested_power: "Requested charging power",
+      ev_allocated_limit: "Allocated charging power limit",
+    };
+    for (const [role, words] of Object.entries(expected)) expect(roleWord(role)).toBe(words);
+    expect(roleWord("ev_unmapped_role")).toBe(NO_DESCRIPTION);
+    const summary = observationSummary({ claim: "SESSION_OUTCOME", state: "LIMITED", missing_roles: ["session_terminal", "ev_gross_tariff_per_kwh", "ev_unmapped_role"] }, "x");
+    expect(summary).toBe("Session outcomes — Limited. Missing: Charging session end, Published EV gross tariff per kWh, Description not available.");
+    expect(summary).not.toMatch(/session_terminal|ev_gross_tariff_per_kwh|ev_unmapped_role/);
+  });
+
+  it("labelsEachColdClaimDistinctly", () => {
+    const expected: Record<string, string> = {
+      TEMPERATURE_POINT: "Chamber temperature readings",
+      EXCURSION_BOUNDS: "Temperature excursion bounds",
+      BACKUP_START_RESULT: "Backup generator start result",
+      TRANSFER_POSITION: "Power transfer position",
+      COOLING_RESPONSE: "Cooling response",
+      PRODUCT_EXPOSURE: "Potential product exposure",
+    };
+    const labels = Object.entries(expected).map(([claim, label]) => {
+      const out = observationSummary({ claim, state: "FULL" }, "fallback");
+      expect(out).toBe(`${label} — Full.`);
+      return out.split(" — ")[0];
+    });
+    expect(new Set(labels).size).toBe(6);
   });
 });

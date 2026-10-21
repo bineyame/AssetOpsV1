@@ -7,12 +7,13 @@ export const NO_DESCRIPTION = "Description not available";
 export const NO_REASON_DETAILS = "Reason details are not available";
 
 const CLAIM_WORDS: Readonly<Record<string, string>> = {
-  TEMPERATURE_POINT: "Temperature compliance",
-  EXCURSION_BOUNDS: "Temperature compliance",
-  BACKUP_START_RESULT: "Backup response",
-  TRANSFER_POSITION: "Backup response",
-  COOLING_RESPONSE: "Cooling recovery",
-  PRODUCT_EXPOSURE: "Product exposure",
+  // c2d: one distinct label per constituent cold claim (capability row labels are unchanged elsewhere).
+  TEMPERATURE_POINT: "Chamber temperature readings",
+  EXCURSION_BOUNDS: "Temperature excursion bounds",
+  BACKUP_START_RESULT: "Backup generator start result",
+  TRANSFER_POSITION: "Power transfer position",
+  COOLING_RESPONSE: "Cooling response",
+  PRODUCT_EXPOSURE: "Potential product exposure",
   SESSION_OUTCOME: "Session outcomes",
   SERVICE_STATE: "Connector availability",
   DELIVERED_ENERGY: "Delivered energy",
@@ -35,6 +36,25 @@ const ROLE_WORDS: Readonly<Record<string, string>> = {
   backup_bus_state: "Bus voltage",
   compressor_state: "Compressor state",
   door_event: "Door and loading context",
+  // c2d: EV public missing roles (seven selected claims, terminal-session gap, tariff role).
+  session_event: "Charging session start or end",
+  session_terminal: "Charging session end",
+  connector_meter_delta: "Connector energy reading",
+  connector_status: "Connector availability status",
+  fault_event: "Connector fault report",
+  site_import: "Site import power reading",
+  requested_power: "Requested charging power",
+  allocated_limit: "Allocated charging power limit",
+  ev_gross_tariff_per_kwh: "Published EV gross tariff per kWh",
+  // c2d: accepted EV binding-role IDs (describe the recorded input, not completeness).
+  ev_session_event: "Charging session start or end",
+  ev_connector_fault: "Connector fault report",
+  ev_connector_state: "Connector availability status",
+  ev_connector_energy: "Connector energy reading",
+  ev_connector_power: "Connector power reading",
+  ev_site_import: "Site import power reading",
+  ev_requested_power: "Requested charging power",
+  ev_allocated_limit: "Allocated charging power limit",
 };
 
 const STATE_WORDS: Readonly<Record<string, string>> = {
