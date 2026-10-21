@@ -3,7 +3,7 @@
 Spec: `.agent/W3-03-build-spec.md` closure 4 B3/B4 (closure 2 Q9 as amended there, closure 3). One private `*_test`
 database and the one `demo` tenant compose, without the golden `S4_CASES["F03"]` KOBO import:
 
-* the W3-01 golden `mixed_replay` mechanics - cold `normal` and EV `complete` with their second database reset
+* the W3-01 golden `mixed_replay` mechanics - cold `excursion` (drained) and EV `complete` with their second database reset
   suppressed (test-scoped, as `mixed_replay` does);
 * the W3-02 `two_ev_sites` second Site `EV-LAB-002` (`install_second_ev_site`) and its golden tariff and W2-07 money
   worker sequence for both EV Sites;
@@ -15,9 +15,10 @@ After every ingestion, publication and worker decision one read clock is frozen 
 request window with no `known_at`. Portfolio code does not exist yet (run 1a); its card/combined-value assertions
 belong to runs 1a/1b, which build on `build_portfolio_fixture` here. Needs ASSETOPS_TEST_DATABASE_URL.
 
-Not a clean B3 proof yet: the named cold `normal` replay selects no cold Finding and no POTENTIAL_PRODUCT_EXPOSURE
-line on 2026-10-06 (its category group is UNKNOWN_COVERAGE), so the cold product-exposure assertions are held for
-the Architect (`.agent/W3-03-pending-rulings.md` P-0b-1). Every other B3/B4 public-root fact is asserted.
+The cold producer is `excursion` plus the W2-04 consequence drain (r0b P-0b-1): `normal` selects no cold Finding or
+product-exposure line on 2026-10-06. Callers (runs 1a/1b) import `build_portfolio_fixture` and get the replay
+fixtures, which this module imports below; the builder patches `pg_harness.fresh_database`, the snapshot classes and
+`CaseRunner.submit` for the rest of the test.
 """
 
 from __future__ import annotations
@@ -111,19 +112,36 @@ class EvidenceMoney:
         return response.json()
 
 
-def pin_snapshots(monkeypatch, present) -> None:
+def pin_snapshots(monkeypatch, present, targets=None) -> None:
     """TEST-SCOPED: the estate and Evidence/Financials snapshots' `read_at` and the assessment store's
     live-or-historical test are the frozen `present()` (W3-01 `pin_read_at` plus the W3-02 `EvidenceMoneySnapshot`
     pin). Every query, cutoff, selection and rule stays real; only "now" is the fixture's."""
-    for module, name in ((postgres_estate_read, "EstateSnapshot"), (pemr, "EvidenceMoneySnapshot")):
+    for module, name in targets or ((postgres_estate_read, "EstateSnapshot"), (pemr, "EvidenceMoneySnapshot")):
         real = getattr(module, name)
+        real = getattr(real, "_real", real)  # idempotent: a re-pin replaces, never nests, the earlier clock
 
         class Pinned(real):  # type: ignore[valid-type, misc]
             def __init__(self, owner, c, read_at) -> None:
                 super().__init__(owner, c, present())
 
+        Pinned._real = real  # type: ignore[attr-defined]
         monkeypatch.setattr(module, name, Pinned)
     monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: present()))
+
+
+def test_repin_moves_the_snapshot_clock(monkeypatch) -> None:
+    """A second `pin_snapshots` replaces the first clock: a snapshot reads at the latest pinned clock."""
+    import types
+
+    class Snap:
+        def __init__(self, owner, c, read_at) -> None:
+            self.read_at = read_at
+
+    ns = types.SimpleNamespace(Snap=Snap)
+    first, second = datetime(2026, 10, 30, tzinfo=timezone.utc), datetime(2026, 11, 2, tzinfo=timezone.utc)
+    pin_snapshots(monkeypatch, lambda: first, targets=((ns, "Snap"),))
+    pin_snapshots(monkeypatch, lambda: second, targets=((ns, "Snap"),))
+    assert ns.Snap(None, None, DAY).read_at == second != first
 
 
 def _stamped_tables(engine, key: str) -> list[tuple[str, str]]:
@@ -177,7 +195,7 @@ def build_portfolio_fixture(request, monkeypatch, capsys, cold_case: str = "excu
     cold Finding or product-exposure line on 2026-10-06."""
     fresh = pg_harness.fresh_database()  # the only database reset
     monkeypatch.setattr(pg_harness, "fresh_database", lambda: fresh)
-    # Cold `normal` and EV `complete`, settled as in `mixed_replay` (their Chain.open() resets suppressed).
+    # Cold `excursion` (drained) and EV `complete`, settled as in `mixed_replay` (their Chain.open() resets suppressed).
     cold = opened(cold_case, request.getfixturevalue("cold_chain"))
     run(cold)
     if cold_drain:
@@ -262,6 +280,7 @@ def test_one_day_three_domain_fixture_public_roots(portfolio_fixture) -> None:
     code_of = {v: k for k, v in fx.site_ids.items()}
 
     # One scope, one window and one cutoff across every root; the foreign tenant / empty Site are not in it.
+    assert findings["window"]["known_at"] == iso(fx.frozen)  # every snapshot reads at `frozen`, not the first pin
     for name, body in roots.items():
         assert body["status"] == "CURRENT", name
         assert (body["window"]["from"], body["window"]["to"]) == (fx.window["from"], fx.window["to"]), name
@@ -274,6 +293,8 @@ def test_one_day_three_domain_fixture_public_roots(portfolio_fixture) -> None:
 
     # B4: the aligned 10-06 window selects no S6 Action (the reviewed accepted Actions are created 2026-11-01).
     assert actions["rows"] == [] and actions["total_count"] == 0
+    with fx.engine.connect() as c:  # the empty root is not a window-exclusion proof: the DB holds no Action at all
+        assert c.execute(text("SELECT count(*) FROM action")).scalar_one() == 0
 
     # Findings: the W1 head is the PowerSite power-day revision, PRICED from its exact stored consequence.
     rows = _by_site(findings["rows"])
@@ -300,10 +321,22 @@ def test_one_day_three_domain_fixture_public_roots(portfolio_fixture) -> None:
     assert w1_line["amount"]["low"] == stored[2] and w1_line["amount"]["high"] == stored[3]
     # P-0b-1: the selected cold POTENTIAL_PRODUCT_EXPOSURE line is UNPRICED, null amount, pins a selected cold Finding.
     cold_rows = lines.get(fx.site_ids["COLD-LAB-001"], [])
-    (cold_line,) = [r for r in cold_rows if r["category"] == "POTENTIAL_PRODUCT_EXPOSURE"]
+    (cold_line,) = cold_rows  # the ONLY cold line
+    assert cold_line["category"] == "POTENTIAL_PRODUCT_EXPOSURE"
+    assert len({r["category"] for r in financials["rows"]}) == 3
     assert cold_line["eligibility"] == "UNPRICED" and cold_line["amount"] is None, cold_line
     cold_revisions = {r["finding_revision_id"] for r in rows.get(fx.site_ids["COLD-LAB-001"], [])}
     assert cold_line["finding_revision_id"] in cold_revisions, (cold_line["finding_revision_id"], cold_revisions)
+    with fx.engine.connect() as c:  # the cold line is the stored cold_consequence_revision row
+        cold_stored = tuple(c.execute(text(
+            "SELECT CAST(finding_revision_id AS text), kind, state, amount_low, amount_high FROM "
+            "cold_consequence_revision WHERE CAST(id AS text) = :r"), {"r": cold_line["consequence_revision_id"]}).one())
+    assert cold_stored == (cold_line["finding_revision_id"], "PRODUCT_EXPOSURE", "UNPRICED", None, None)
+    cold_row = next(r for r in rows[fx.site_ids["COLD-LAB-001"]] if r["finding_revision_id"] == cold_line["finding_revision_id"])
+    with fx.engine.connect() as c:  # the selected cold Finding revision is the stored head of its Finding
+        head = c.execute(text("SELECT CAST(id AS text) FROM finding_revision WHERE CAST(finding_id AS text) = :f "
+                              "ORDER BY revision_no DESC LIMIT 1"), {"f": str(cold_row["finding_id"])}).scalar_one()
+    assert head == cold_line["finding_revision_id"]
     ev_stored = {b.site_code: _stored(b, fx.tariffs[b.site_code]) for b in fx.evs}
     for built in fx.evs:
         (line,) = lines[str(built.site_id)]
