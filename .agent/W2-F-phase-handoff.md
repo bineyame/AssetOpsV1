@@ -120,3 +120,42 @@ Readings (flag if wrong):
 5. New copy passes the vocabulary guard; nothing added to 1b-q1. EV Evidence `Record {short}` (~:1050) is unit 4.
 
 Next: 4
+
+## 4a: copy ruling q1, commit `83971293`
+
+`cold_site_reads.py::COOLING_LIMITATION` = ruled sentence (`We cannot confirm that the compressor switched on ...`);
+`productVocabulary.json` keeps only the exact `Claim boundary` gloss (ruled `why`); `Ordered compressor...` gloss gone.
+Evidence footer (`coldSiteViews.tsx`, `data-cold-evidence-footer`): `how each limit is set` in refused/loaded/no-link;
+null target is its own `data-cold-evidence-footer-target="none"` span. `LEDGER_CLAIM` exemption for the old footer
+removed. Tests: `w1Vocabulary.test.tsx::w2f_q1`, heading scan in `w2f_temperature_claim_boundary_title`, footer scans in
+`w2f_refused_frames_and_footer`, `Q1_COOLING_LIMITATION` literal in `test_w204_cold_reads.py` (21 passed, `w2fd_test`,
+dropped). 1b-q1 marked RESOLVED.
+
+## 4: EV evidence, money and Finding (M5, M10, M11, M13; S10, S12, N1), commit `fbb197db`
+
+Landed:
+- `EvSiteViews.tsx::FinancialsScreen`: `bridgeRows` model (scenario | interruption | repair); chip `data-ev-line-count`
+  = `bridgeRows.length`; strip adds `Displayed rows include unpriced context`. `missingBasis(cap)` + `NOTHING_REQUIRED`
+  (exported, above `contactDetail`) used by the Evidence table (`data-ev-missing-basis`) and request details
+  (`data-ev-request-basis`). Analysis Record cell `code.ev-site-id` `REC {UUID}`; unused `short` removed.
+- `EvAssessmentViews.tsx`: `SessionId` (`SES {external | UUID}`), Finding strip `F {UUID}`, record line `REC {UUID}`
+  (`code.ev-id`, CSS in `w2-ev-assessment.css`); `EV_FINDING_CONFIDENCE`; strip = lifecycleWord + `Confidence: ...` +
+  separate `Observed interruption` (SUPPORTED only) + pending notice; refused strip `Unknown` / `Confidence: Unknown`.
+Tests: `evSiteMoneyRoutes.test.tsx` `w2f_consequence_chip_equals_bridge_rows`, `w2f_limited_rows_name_missing_basis`,
+`w2f_timeline_analysis_ids_distinct` (+ Analysis); `evAssessmentRoutes.test.tsx` `w2f_finding_record_ids_distinct`,
+`w2f_finding_strip_lifecycle_confidence`; superseded: pending strip, `Finding/Record {8 chars}`, pending `0 lines`->1.
+Checks: EV files 47/47; tsc clean; full frontend 98 files / 2435 passed; check-all 11/11. Non-vacuous: old count and
+removed fault rule fail the two new money tests; reverted via `git checkout`.
+
+NOT built: M12/S11/N4 (EV Scenarios tab + guard + rail fixture) - held for W4-03, pending `4-q1`.
+
+Readings (flag if wrong):
+1. The `none` placeholder row (no consequence) is not counted; a withheld/unpriced scenario row is counted.
+2. EV refused Financials keeps no strip, so no count (not a zero) is shown; no new refused frame added (M3 is cold).
+3. `FAULT_ASSOCIATION` always takes `Charger diagnostics and vehicle request not recorded` after contradiction/roles,
+   since no W2 role carries diagnostics or a vehicle request; non-Full with no limitation shows exact selected coverage;
+   no capability -> `Not assessed`.
+4. Sessions list and excluded-records lines (W2-06 Sessions screen) keep their short IDs; M10 scope lists only EV
+   overview timeline, Analysis and Finding.
+
+Next: 5
