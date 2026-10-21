@@ -231,3 +231,31 @@ def test_authored_work_link_preserves_unlinked_case_count(sites, engine, monkeyp
                               + ",".join(cases.values()))
     assert status == 200 and ctx["contexts"][cases["w403-walk-case-request"]] == []
     assert [c["id"] for c in ctx["contexts"][cases["w403-walk-case-incident"]]] == [oid]
+
+    # u8 unit-9 dependency: same pair under a new key is 409 (u8 1); exact-cutoff order OPPORTUNITY then SCENARIO
+    # (u8 6-7); a case created after the cutoff refuses the whole read (u8 6).
+    incident = cases["w403-walk-case-incident"]
+    status, out = call("POST", "/api/sites/MG-W402-001/work/decision-links",
+                       {**walk.fill(link, case_id=incident, opportunity_id=oid), "idempotency_key": "w403-walk-relink"})
+    assert (status, out) == (409, {"detail": {"code": "DECISION_DUPLICATE_KEY",
+                                              "message": "This key was used for different decision content."}})
+    with engine.connect() as c:
+        k0 = walk.iso(c.execute(text("SELECT clock_timestamp()")).scalar_one())
+    pins = walk.selected_pins(engine, mg, fixture["study_days"])
+    status, scenario = call("POST", "/api/sites/MG-W402-001/financials/scenarios",
+                            walk.fill(fixture["commands"]["scenario_missing_tariff"], pinned_selection=pins))
+    assert status == 201
+    status, out = call("POST", "/api/sites/MG-W402-001/work/decision-links", {
+        **walk.fill(link, case_id=incident, opportunity_id=None), "scenario_id": scenario["id"],
+        "idempotency_key": "w403-walk-scn-link"})
+    assert status == 201 and out["kind"] == "SCENARIO"
+    status, now_ctx = call("GET", f"/api/sites/MG-W402-001/work/decision-contexts?case_ids={incident}")
+    assert status == 200 and [(c["kind"], c["id"]) for c in now_ctx["contexts"][incident]] == [
+        ("OPPORTUNITY", oid), ("SCENARIO", scenario["id"])]
+    assert now_ctx["contexts"][incident][1]["url"] is None
+    status, old_ctx = call("GET", f"/api/sites/MG-W402-001/work/decision-contexts?case_ids={incident}&known_at={k0}")
+    assert status == 200 and [c["kind"] for c in old_ctx["contexts"][incident]] == ["OPPORTUNITY"]
+    later = walk.seed_case(mg, {**fixture["commands"]["cases"][1]["body"], "idempotency_key": "w403-walk-later"})
+    status, out = call("GET", f"/api/sites/MG-W402-001/work/decision-contexts?case_ids={incident},{later}"
+                              f"&known_at={k0}")
+    assert status == 404 and out["detail"]["code"] == "WORK_CASE_NOT_FOUND"

@@ -189,7 +189,7 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
 3. **503 for multiple CTA matches.** Built as the u6b ruling-9 503 copy `Decisions are unavailable right now. Try
    again.` (noninteractive) for more than one exact root and for any list refusal by code. Confirm.
 
-## PR-10 (raised in unit 8; non-blocking, built with the readings below)
+## PR-10 (raised in unit 8) - RESOLVED by u8 (build spec "Unit-8 rulings (u8)"); all three confirmed, no product change; unit-9 vectors in test_w403_replay_postgres.py
 
 1. **Already-linked pair under a new key.** `UNIQUE(case_id,scenario_id)` / `UNIQUE(case_id,opportunity_id)` make a
    second association of the same case and decision impossible. Built: a new idempotency key naming an
