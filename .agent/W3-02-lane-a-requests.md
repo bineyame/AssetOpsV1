@@ -95,3 +95,54 @@ So `main.py` needs **no change**; Lane A only verifies the mount: `create_app()`
 and adds a mount test beside `test_w302_evidence_composition_mount_no_db_503`. No guard change: the new domain
 module `estate/financials.py` imports no driver; the adapter additions stay in `estate/adapters/postgres_evidence_money_read.py`
 (`$pgReaders`). Commit 3 is held at closure 2 N3 (c3-q1) - review only after the ruling.
+
+## Commit 4 - Financials shell route, rail, registry and captures (closure 4 B6 row `4`)
+
+Lane B landed `frontend/src/estate/EstateFinancials.tsx` (`EstateFinancialsPage`, `ESTATE_FINANCIALS_PATH = "/financials"`),
+`estateFinancialsWords.ts`, `estateFinancials.css` (the page also imports `estateEvidence.css` for the shared tones),
+and in `estateEvidenceMoneyClient.ts` a separate `EstateFinancialsClient` / `createEstateFinancialsClient()`
+(`GET /api/estate/financials`). `EstateEvidenceMoneyClient` is unchanged, so the commit-2 fakes need no edit.
+Tests: `src/estate/__tests__/estateFinancials.test.tsx` (6). `src/test/settled.ts` LOADING gained
+`financials across the estate` (the page's `Loading financials across the estate.`).
+
+1. `frontend/src/shell/EstateRootFrames.tsx` - add:
+```tsx
+import { EstateFinancialsPage } from "../estate/EstateFinancials";
+import type { EstateFinancialsClient } from "../estate/estateEvidenceMoneyClient";
+
+/** W3-02 commit 4: the estate Financials root. */
+export function EstateFinancialsFrame({ client }: { client: EstateFinancialsClient }) {
+  return (
+    <main aria-label="Financials">
+      <EstateFinancialsPage client={client} />
+    </main>
+  );
+}
+```
+2. `frontend/src/App.tsx` - a new optional prop beside `estateEvidenceMoney` (App.tsx:222), defaulted like it (App.tsx:250):
+   `const defaultEstateFinancials = createEstateFinancialsClient();` beside `defaultEstateEvidenceMoney` (App.tsx:132);
+   `/** W3-02 commit 4: the read-only estate Financials root. */ estateFinancials?: EstateFinancialsClient;`;
+   route after the Evidence root (App.tsx:422): `<Route path={ESTATE_FINANCIALS_PATH} element={<EstateFinancialsFrame client={estateFinancials} />} />`.
+   Check no existing `/financials` route shadows it (Site financial routes are Site-relative suffixes).
+3. Rail: the `Financials` estate root becomes live (`OperatorShellLayout.tsx`, same shape as the Evidence entry,
+   `to: "/financials"`, `end: false`), plus the navigation-rail fixtures/truthfulness inventory under `tools/checks/navigation-*`.
+4. Registry/checker: `I-estate-money-root`, screen title `Portfolio financials`, reviewed paths
+   `globalfinancials:1` = `Consequence register`, `globalfinancials:2` = `Aggregation rule` (closure 5 S13); delivered
+   only after the commit-4 independent review. Status bar and notice stay inside those paths. Ledger
+   `frontend/docs/architecture/v69-screen-ledger.json` `globalfinancials` `data_owner`, as c2 L3 did for Evidence:
+   `Estate Financials read — GET /api/estate/financials (backend/assetops_backend/estate/financials.py)` (needs Architect
+   confirmation of the literal; Lane B did not edit the ledger).
+5. Captures (closure 1 "Mock copy, navigation and measured layout"; closure 4 maxima 1440/390: status 68/95, register
+   293/448, notice 66/102, Aggregation 123/187) on the mounted `/financials` with a three-Site stocked estate and a
+   partial variant, into `.agent/W3-02-evidence/` like commit 2: status/register/notice/Aggregation rects, register
+   table client/scroll width, document scroll width = client width. Lane B bounds: register scroll region max-height
+   176/300 px, min-width 500 px; grouping results list max-height 56/96 px. The Aggregation 123 px 1440 maximum is tight
+   once result chips render; if a capture exceeds a maximum, return the numbers to Lane B rather than editing page CSS.
+   After the captures land, Lane B adds `meetsMeasuredNarrowLayoutWithoutDocumentOverflow` to
+   `estateFinancials.test.tsx` reading them (as `estateEvidence.test.tsx:610`).
+6. After mounting, run `src/estate/__tests__/estateFinancials.test.tsx`, `estateEvidence.test.tsx`, the W3-01
+   `estateRoots.test.tsx`, the shell route/rail tests, tsc and `tools/check-all.ps1`.
+
+Also open for commit 4 (Lane B backend, not in this run): closure 5 B5's Financials route-read tests (follow generated
+cold/EV `links.bridge`/`links.evidence` through the W2 Site reads, exact window/cutoff, no 422, base-route fallback),
+and the one same-revision full real-Postgres suite.

@@ -2,12 +2,15 @@
  * W3-02 commit 2: the typed client for the estate Evidence root, `GET /api/estate/evidence`
  * (`estate-evidence-1`; `.agent/W3-02-build-spec.md` "Proof and builder handoff" literal wire vectors, closure 4
  * "Wire, token, links, registry and mock"). It is separate from the W3-01 `EstateClient`, which stays unchanged.
- * Commit 4 adds the Financials read to this file. The cursor is opaque and passed back unchanged.
+ * Commit 4 adds the Financials read (`GET /api/estate/financials`, `estate-financials-1`) as its own
+ * `EstateFinancialsClient`. The cursor is opaque and passed back unchanged.
  */
 import { estateQueryString, type EstateCoverageSite, type EstateQuery, type EstateSourceBlock } from "./estateClient";
 
 export const ESTATE_EVIDENCE_API_PATH = "/api/estate/evidence";
 export const EVIDENCE_SCHEMA = "estate-evidence-1";
+export const ESTATE_FINANCIALS_API_PATH = "/api/estate/financials";
+export const FINANCIALS_SCHEMA = "estate-financials-1";
 
 /** Closure 4: the two new roots add `EMPTY_SCOPE` to the status union and `EMPTY` to coverage state. */
 export type EstateRootStatus = "CURRENT" | "PENDING_RECOMPUTE" | "STALE_SOURCE" | "HISTORICAL" | "UNKNOWN" | "EMPTY_SCOPE";
@@ -93,6 +96,105 @@ export interface EstateEvidenceBody extends EvidenceEnvelope {
   gaps: EvidenceGap[];
 }
 
+/** Closure 1 "Money row and comparison contract": the four register categories (cold `RECORDED_REPAIR` stays its own). */
+export type FinancialCategory =
+  | "CANDIDATE_OPERATING_COST_EXPOSURE"
+  | "POTENTIAL_PRODUCT_EXPOSURE"
+  | "GROSS_TARIFF_SCENARIO"
+  | "RECORDED_REPAIR";
+export type FinancialEligibility = "ELIGIBLE" | "UNPRICED" | "UNKNOWN" | "PENDING" | "HISTORICAL" | "WITHHELD" | "CONFLICT";
+export type FinancialGroupState =
+  | "COMPARABLE"
+  | "SINGLE_LINE"
+  | "INELIGIBLE"
+  | "OVERLAPPING_BASIS"
+  | "UNKNOWN_COVERAGE"
+  | "NO_LINES";
+export type FinancialDiagnosticCode = "MIXED_CURRENCY" | "DIFFERENT_PERIOD" | "DIFFERENT_WINDOW" | "DIFFERENT_ASSUMPTION";
+
+/** Stored Decimal values arrive as exact strings; a bound may be absent. */
+export type WireDecimal = string | number | null;
+
+export interface FinancialAmount {
+  low: WireDecimal;
+  high: WireDecimal;
+  currency: string | null;
+}
+
+export interface FinancialRow {
+  line_key: string;
+  domain: EvidenceDomain;
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  category: FinancialCategory;
+  finding_id: string | null;
+  finding_revision_id: string | null;
+  consequence_revision_id: string;
+  window_start: string | null;
+  window_end: string | null;
+  quantity: { low: WireDecimal; high: WireDecimal; unit: string | null };
+  /** Present only on an `ELIGIBLE` line; any other line's pinned value stays in `disclosure.pinned_amount`. */
+  amount: FinancialAmount | null;
+  period_kind: string;
+  assumption_revision_ids: string[];
+  assumption_fingerprint: string | null;
+  basis_evidence_ids: string[];
+  technical_interval_ids: string[];
+  overlap_group: string | null;
+  eligibility: FinancialEligibility;
+  reason_codes: string[];
+  limit: string | null;
+  source_provenance: EstateSourceBlock;
+  /** Server-owned links (closure 4, closure 5 B5); `current_view_label` is set when a link opens the current Site view. */
+  links: { site: string; bridge: string | null; evidence: string | null; current_view_label: string | null };
+  disclosure: { pinned_amount?: FinancialAmount | null; [key: string]: unknown };
+  group_key: string | null;
+}
+
+export interface FinancialGroup {
+  group_key: string | null;
+  category: FinancialCategory;
+  currency: string | null;
+  window_start: string | null;
+  window_end: string | null;
+  period_kind: string | null;
+  assumption_fingerprint: string | null;
+  state: FinancialGroupState;
+  line_keys: string[];
+  /** Numeric only for `COMPARABLE`. */
+  amount: FinancialAmount | null;
+  reason_codes: string[];
+}
+
+export interface FinancialExclusion {
+  line_key: string;
+  group_key: string | null;
+  reason_codes: string[];
+}
+
+export interface FinancialDiagnostic {
+  category: FinancialCategory;
+  code: FinancialDiagnosticCode;
+  line_keys: string[];
+}
+
+export interface EstateFinancialsBody extends EvidenceEnvelope {
+  summary: {
+    eligible_line_count: number | null;
+    unpriced_line_count: number | null;
+    withheld_line_count: number | null;
+    /** Always null: no estate total is promised. */
+    estate_total: null;
+    estate_total_state: "NO_ESTATE_TOTAL";
+    as_of?: string;
+  };
+  rows: FinancialRow[];
+  groups: FinancialGroup[];
+  exclusions: FinancialExclusion[];
+  diagnostics: FinancialDiagnostic[];
+}
+
 /**
  * c2-q2: the exhaustive Evidence refusal copy, keyed by every code the shared parser, scope/read fence and Evidence
  * endpoint can send (plus the older wrapper aliases). Any other code fails closed to the 503 sentence.
@@ -157,6 +259,21 @@ async function read<T>(path: string, schema: string): Promise<EvidenceResult<T>>
   const copy = EVIDENCE_REFUSAL_COPY[code];
   if (copy === undefined) return unavailable();
   return { status: "refused", httpStatus: response.status, code, copy };
+}
+
+/** W3-02 commit 4: the Financials read, a separate interface so the commit-2 Evidence client stays unchanged. */
+export interface EstateFinancialsClient {
+  financials(query: EstateQuery): Promise<EvidenceResult<EstateFinancialsBody>>;
+}
+
+export function createEstateFinancialsClient(financialsPath: string = ESTATE_FINANCIALS_API_PATH): EstateFinancialsClient {
+  return {
+    financials: (query) =>
+      read(
+        `${financialsPath}${estateQueryString({ from: query.from, to: query.to, known_at: query.known_at, limit: query.limit, cursor: query.cursor })}`,
+        FINANCIALS_SCHEMA,
+      ),
+  };
 }
 
 export function createEstateEvidenceMoneyClient(evidencePath: string = ESTATE_EVIDENCE_API_PATH): EstateEvidenceMoneyClient {

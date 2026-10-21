@@ -164,3 +164,26 @@ validated Site/seed in `EvScenarioDefinition`; `(EV-LAB-001, 20517)` unchanged f
    (`reason_codes: ['HISTORICAL']`) and the `CURRENT` assertion fails, so that is not a fix either. Options: (a) compare
    page one's token with page two's (cursor-carried) and groups with the full read, not the token across live reads;
    (b) change the token or cutoff semantics (product change, outside this run). The test carries a `c3b-q2` skip until ruled.
+
+# W3-02 pending rulings (Lane B, commit 4)
+
+## c4-q1 - copy readings taken on the Financials page (confirm or correct)
+Built and tested; not blocking. Each is page copy only (`frontend/src/estate/estateFinancialsWords.ts`, `EstateFinancials.tsx`).
+1. `PENDING` line `Value` word `Pending` (amber); the ledger lists Unpriced/Withheld/Unknown/Historical/Not comparable
+   only. `CONFLICT` = `Not comparable` (red); `HISTORICAL` = `Historical as of {as_of}` (blue).
+2. Group words: COMPARABLE `Comparable`, SINGLE_LINE `Single line`, INELIGIBLE `Not totalled`, OVERLAPPING_BASIS
+   `Overlapping basis`, UNKNOWN_COVERAGE `Coverage incomplete`, NO_LINES `No lines`. Reason words, e.g.
+   `PARTITION_INELIGIBLE` = `grouped with a line that cannot be totalled` (L4), `UNKNOWN_COVERAGE` = `some Sites have
+   no complete selection`, `BASIS_NOT_PROVEN` = `a separate technical basis is not proven`.
+3. L3 diagnostic: `{Category}: more than one currency|period kind|window|assumption value · {n} lines in the
+   differing-value category`, chip `Different values`; line keys are not listed.
+4. L5: the register note `The prior mini-grid amount is unavailable in this selection` shows whenever a
+   `CANDIDATE_OPERATING_COST_EXPOSURE` group is `UNKNOWN_COVERAGE`. The wire's seven-key coverage Site has no domain, so
+   the page cannot tie the note to a specific pending/stale mini-grid Site without inferring one.
+5. Source cell: cold rows link `links.evidence` (`Site evidence →`, the mock's temperature link); mini-grid/EV link
+   `links.bridge` (`Site bridge →`), each falling back to the other link, else `Source detail unavailable`.
+6. `Window / quantity`: null window with a quantity shows only the quantity; null both `Window or quantity not
+   established`; null quantity under a window `Quantity not established`. Null limit `Limit not recorded`. Non-USD
+   currency displays as `{code} {value}`, USD as `$`.
+7. Exclusions render per group in a closed `Excluded: N lines` disclosure (Site · category: reasons; an off-page line
+   shows its line key).

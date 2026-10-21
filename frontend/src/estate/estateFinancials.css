@@ -1,0 +1,55 @@
+/* W3-02 commit 4: the estate Financials root. It reuses the Evidence page's page-local tones and compact table rules
+   (`estateEvidence.css`). The measured 1440/390 maxima (closure 4: status 68/95, register 293/448, notice 66/102,
+   Aggregation 123/187) bound the register list and the grouping results with internal scroll after the mock's
+   three-row baseline; the page never overflows horizontally (mock 390 register scroll width 514). */
+
+.estate-page[data-estate-root="financials"] .estate-financials-table .data-table {
+  min-width: 500px;
+}
+
+.estate-financials-table .data-table__scroll {
+  max-height: 176px;
+}
+
+.estate-financials .estate-financials-prose {
+  margin: 0;
+}
+
+.estate-financials-results {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 56px;
+  margin: 6px 0 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.estate-financials-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+}
+
+.estate-financials-result__reasons {
+  color: var(--text-secondary);
+}
+
+.estate-financials-exclusions {
+  margin: 2px 0;
+  padding-left: 16px;
+}
+
+@media (max-width: 640px) {
+  .estate-financials-table .data-table__scroll {
+    max-height: 300px;
+  }
+
+  .estate-financials-results {
+    max-height: 96px;
+  }
+}

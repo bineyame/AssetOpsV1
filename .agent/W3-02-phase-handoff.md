@@ -1,5 +1,14 @@
 # W3-02 phase handoff
 
+## Commit 4 (Lane B) - Financials page landed; READY FOR LANE A SHELL
+
+Branch released to Lane A. Read: closure 5 commit-4 index sections, money display/copy rulings, commit-3 L3/L5 (and L4 plain words), mock-measurement financials rows.
+- `frontend/src/estate/estateEvidenceMoneyClient.ts`: `estate-financials-1` types (rows/groups/exclusions/diagnostics), separate `EstateFinancialsClient` + `createEstateFinancialsClient` (`GET /api/estate/financials`); `EstateEvidenceMoneyClient` unchanged.
+- `frontend/src/estate/EstateFinancials.tsx`: `EstateFinancialsPage`, `ESTATE_FINANCIALS_PATH="/financials"`; header `Financials`/`Portfolio financials`/subtitle; date bar; `StatusBar` blue chip + subcopy; panel `Consequence register` (subtitle, 6 columns, server links, `Opens current Site view`, value words/tones, `Basis: N revision(s)` disclosure with exact IDs); amber notice; panel `Aggregation rule` (exact mock prose, group/diagnostic result chips, exclusions disclosure, `Comparable total unavailable for this selection`). Notes outside the table: empty scope, no selection, partial, L5 prior mini-grid, conflict, historical. No estate total.
+- `estateFinancialsWords.ts` (category/eligibility/group/reason/diagnostic words; BigInt Decimal rounding: W1 + group outward by minor unit, EV half even), `estateFinancials.css`, `src/test/settled.ts` loading copy.
+- Tests `src/estate/__tests__/estateFinancials.test.tsx` (6): `rendersMockFinancialPanelsAndUnpricedRows`, `rendersComparableAndExcludedReasons` (L3 three-line/two-value, L4), `rendersFinancialEmptyPendingAndRefusals` (L5), `preservesSupportedSiteLinksAndCurrentViewLabel`, `readsTheFinancialsWireAndMapsRefusals`, `roundsStoredMoneyForDisplayWithoutFloats`.
+Not done here: captures and `meetsMeasuredNarrowLayoutWithoutDocumentOverflow` (need the mounted route); B5 Financials route-read backend tests; the full real-Postgres suite; closeout. Next: Lane A, `.agent/W3-02-lane-a-requests.md` "Commit 4". Open: `.agent/W3-02-pending-rulings.md` c4-q1 (copy readings, non-blocking).
+
 ## Commit 3 - READY FOR REVIEW (c3c applied: COMPARABLE two-Site test unskipped and passing; N3 closed)
 
 Merge of main (`.agent` W3-02 handoff/rulings kept ours). Commits `f9ef4034` (c2d), `181f62c6` (c3-q2), `fefa5ab4` (c3-q1). Branch released.
