@@ -11,7 +11,7 @@ DEFAULT 0) to `schedule_site_head`, with the downgrade dropping them? Or should 
 counts without persisted columns? If the answer is columns, unit 4 amends 0030 and its catalog test, which is
 possible because the branch is not merged.
 
-## PR-2 (raised in unit 2b; blocks unit 2b; amends 0030)
+## PR-2 (RESOLVED by u2: narrative column landed in c351eed1; readings 1-3 confirmed)
 
 The scenario command carries a required `narrative` (closure 1 Q1-Q3 literal request shapes; original Scenario
 domain paragraph: "typed quantities/units, narrative, assumption source"). Neither the original
@@ -32,7 +32,7 @@ Confirmations requested in the same ruling (unit 2b would otherwise take these r
    provenance key is added to the closure-1 row shape.
 3. `scenario_state` is `HISTORICAL` for an explicit past `known_at`, else `DEFINED`.
 
-## PR-3 (raised in commit 1 of u1/u2; blocks commit 1's count assertion and unit 2b)
+## PR-3 (RESOLVED by u2b: count is 45, the 48 was an arithmetic error; no DDL change)
 
 u1/u2 DDL is applied exactly as ruled (three `schedule_site_head` counters, `narrative` column and
 `mini_scenario_revision_narrative_check`, downgrade column drop). `pg_catalog` then reports **45** named CHECKs on the

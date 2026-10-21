@@ -244,7 +244,7 @@ class TestMigration0030:
         script = ScriptDirectory.from_config(config)
         assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
         assert head(engine) == HEAD and catalog(engine) == expected_at_head()
-        assert (len(TABLES), len(UNIQUES), len(FKS), len(INDEXES), len(CHECKS)) == (10, 22, 20, 5, 48)
+        assert (len(TABLES), len(UNIQUES), len(FKS), len(INDEXES), len(CHECKS)) == (10, 22, 20, 5, 45)
         # S3/S4: the selection job FK is the one ordinary, unscoped reference to recompute_job(id).
         with engine.connect() as c:
             job_fk = c.execute(text(
