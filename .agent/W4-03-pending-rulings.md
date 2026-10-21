@@ -200,7 +200,7 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
 3. **Scenario without a route.** Built: `{label} (Scenario detail unavailable)` as plain text. Confirm the
    parenthetical form.
 
-## PR-11 (raised in unit 9a; non-blocking, built with the readings below)
+## PR-11 (raised in unit 9a) - RESOLVED by u9 (1-3 confirmed; replay asserts the 409 against DB time, commit "W4-03 u9 PR-11")
 
 1. **KOBO Alternative at wall-clock time.** The only W1 mini dispatch Finding on KOBO-001 comes from the S4
    `CaseRunner` (F02), whose revisions carry fixture time `SETUP_AT = 2026-10-29T12:00Z`, later than today's DB time.

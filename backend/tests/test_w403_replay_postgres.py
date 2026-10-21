@@ -143,10 +143,13 @@ def test_positive_missing_late_replay_and_fresh_reload(sites, engine, monkeypatc
     with engine.connect() as c:
         future = c.execute(text("SELECT min(created_at) > clock_timestamp() FROM finding_revision WHERE id = :r"),
                            {"r": record["finding"][1]}).scalar_one()
-    if future:
+    # u9 PR-11.1: the replay decided the branch at POST time; a revision visible then is still visible now.
+    if not record["alternative_basis_visible"]:
         assert (alt["status"], alt["body"]["detail"]["code"]) == (409, "DECISION_BASIS_CHANGED")
+        assert "id" not in alt["body"]
         assert pos["alternatives"]["status"] != 200 or pos["alternatives"]["body"]["rows"] == []
     else:
+        assert not future
         assert alt["status"] == 201 and [r["revision_id"] for r in pos["alternatives"]["body"]["rows"]] == [
             alt["body"]["revision_id"]]
 
@@ -167,10 +170,18 @@ def test_positive_missing_late_replay_and_fresh_reload(sites, engine, monkeypatc
     # Reading 9a-5: the harness ingestion stamps receipt at the fixed W4-02 RECEIVED time (13 Oct), before the old
     # cutoff, so the late rows are inside it and the old head reads STALE_SOURCE (which precedes HISTORICAL).
     assert old["opportunity"]["revision_id"] == o["revision_id"]
-    assert old["currentness"]["state"] == fixture["expect"]["late"]["old_cutoff_currentness"]
+    assert old["currentness"]["state"] == fixture["expect"]["late"]["old_cutoff_currentness"] == "STALE_SOURCE"
+    assert "SOURCE_STALE" in [x["code"] for x in old["limitations"]]
+    # u9 PR-11.2: this vector never claims PENDING_RECOMPUTE.
+    assert "PENDING_RECOMPUTE" not in (pending["currentness"]["state"], old["currentness"]["state"])
     assert [h["revision_id"] for h in old["history"]] == [o["revision_id"]]
 
     # Missing branch: the 8-12 Oct study holding the missing/conflicting day is never a positive display.
+    # u9 PR-11.3: the second explicit window; the positive 6-10 Oct reconcile is unchanged.
+    assert (fixture["missing_reconcile"]["from"], fixture["missing_reconcile"]["to"]) == (
+        "2026-10-07T21:00:00.000000Z", "2026-10-12T21:00:00.000000Z")
+    assert (fixture["reconcile"]["from"], fixture["reconcile"]["to"]) == (
+        "2026-10-05T21:00:00.000000Z", "2026-10-10T21:00:00.000000Z")
     [missing] = [r for r in record["missing"]["rows"] if r["opportunity"]["first_day"] == "2026-10-08"]
     assert missing["status"] != "SUPPORTED"
 

@@ -234,8 +234,8 @@ def http_replay(http: Http, fixture: dict[str, Any], pins: list[dict[str, Any]],
         status, alt = http("POST", f"/api/sites/{kobo}/findings/{finding[0]}/alternatives",
                            fill(cmd["alternative"], finding_revision_id=finding[1]))
         # The S4 F02 revisions carry fixture times; at a DB read time before them the selected revision is not yet
-        # visible and the write is 409 DECISION_BASIS_CHANGED (reading 9a-4, PR-11). Record the observed exit.
-        assert status == 201 or (status == 409 and alt["detail"]["code"] == "DECISION_BASIS_CHANGED"), (status, alt)
+        # visible and the write is 409 DECISION_BASIS_CHANGED (u9 PR-11.1). `run_replay` asserts the exit against DB
+        # time; here the observed exit is recorded as-is, with no claim that a row was created.
         out["alternative"] = {"status": status, "body": alt}
     out.update(scenario=scenario, corrected=corrected, no_tariff=no_tariff, opportunity_id=oid,
                scenario_link=link, work_link=work)
@@ -414,12 +414,23 @@ def run_replay(engine, installed, fixture: dict[str, Any], scopes: dict[str, tup
     record["pins"] = pins
     record["cases"] = cases
     record["finding"] = list(finding)
+    from sqlalchemy import text
+
+    # u9 PR-11.1: the served app has no test clock. The F02 revision becomes visible only once DB time reaches its
+    # fixture SETUP_AT; until then the exact exit is 409 DECISION_BASIS_CHANGED and no Alternative row exists.
+    with engine.connect() as c:
+        visible = bool(c.execute(text("SELECT min(created_at) <= clock_timestamp() FROM finding_revision "
+                                      "WHERE id = :r"), {"r": finding[1]}).scalar_one())
+    record["alternative_basis_visible"] = visible
     record["writes"] = http_replay(http, fixture, pins, incident, finding)
+    alt = record["writes"]["alternative"]
+    if visible:
+        assert alt["status"] == 201, alt
+    else:
+        assert (alt["status"], alt["body"]["detail"]["code"]) == (409, "DECISION_BASIS_CHANGED"), alt
     oid = record["writes"]["opportunity_id"]
     record["positive"] = reads(http, fixture, oid, list(cases.values()), finding)
     # Late contradictory evidence after the first selection: pending first, then a new head after the rerun.
-    from sqlalchemy import text
-
     with engine.connect() as c:
         record["k_before_late"] = iso(c.execute(text("SELECT clock_timestamp()")).scalar_one())
     record["accepted"]["late"] = ingest_late(engine, installed, fixture)
