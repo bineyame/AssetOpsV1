@@ -8,15 +8,17 @@ the one replaced Site-stage CHECK.
 Catalog delta: ten tables, ten primary keys (`<table>_pkey`), 22 named UNIQUE constraints beyond the PKs, 20 named
 foreign keys (19 tenant/Site-scoped plus the one ordinary, unscoped `mini_opportunity_selection_job_id_fk` to
 `recompute_job(id)`, S3), five explicit indexes, ten `<table>_immutable` append-only triggers on the existing
-`ledger_append_only()`, one shared `mini_decision_public_no_seq`, and the replaced `schedule_site_head_stage_check`
-admitting the tick's `OPPORTUNITY` stage after `MINI` (S1). `mini_opportunity_revision.source_job_id` is a validated
+`ledger_append_only()`, one shared `mini_decision_public_no_seq`, the replaced `schedule_site_head_stage_check`
+admitting the tick's `OPPORTUNITY` stage after `MINI` (S1), three `schedule_site_head` integer counters
+`opportunity_processed|deferred|failed` NOT NULL DEFAULT 0 (u1 PR-1), and the `mini_scenario_revision.narrative` text
+column with `mini_scenario_revision_narrative_check` (u2 PR-2): 48 named CHECKs on the ten new tables. `mini_opportunity_revision.source_job_id` is a validated
 UUID column, not a foreign key. Relationship rules SQL cannot state (finding/revision pair, selected revision Site,
 job tenant/Site/domain/study) are checked by `mini_decisions/store.py` in the writing transaction.
 
 Downgrade takes ACCESS EXCLUSIVE locks on the ten tables in closure 1's child-to-parent order, then EXCLUSIVE on
 `recompute_job` and `schedule_site_head`, and refuses (in this order) any decision row, any `mini_opportunity`
-recompute job of any status, or an active `OPPORTUNITY` Site stage. Otherwise it restores the five-stage CHECK and
-drops triggers, indexes, tables in that order and the sequence last. No cascade, no deletion, no relabelling.
+recompute job of any status, or an active `OPPORTUNITY` Site stage. Otherwise it restores the five-stage CHECK, drops
+the three counter columns, then drops triggers, indexes, tables in that order and the sequence last. No cascade, no deletion, no relabelling.
 """
 
 from alembic import op
@@ -67,7 +69,7 @@ CREATE TABLE mini_scenario (
 CREATE TABLE mini_scenario_revision (
  id uuid NOT NULL, tenant_id uuid NOT NULL, site_id uuid NOT NULL, scenario_id uuid NOT NULL,
  revision_no integer NOT NULL, supersedes_revision_id uuid NULL,
- name text NOT NULL, kind text NOT NULL,
+ name text NOT NULL, kind text NOT NULL, narrative text NOT NULL,
  assumptions jsonb NOT NULL, pinned_mini_revision_ids jsonb NOT NULL DEFAULT '[]'::jsonb,
  pinned_selection_hours jsonb NOT NULL DEFAULT '[]'::jsonb,
  calculation jsonb NOT NULL, correction_reason text NULL,
@@ -78,6 +80,8 @@ CREATE TABLE mini_scenario_revision (
  CONSTRAINT mini_scenario_revision_revision_no_check CHECK (revision_no>0),
  CONSTRAINT mini_scenario_revision_name_check CHECK (length(btrim(name)) BETWEEN 1 AND 160),
  CONSTRAINT mini_scenario_revision_kind_check CHECK (kind IN ('STOP_SOC','PRODUCTIVE_LOAD','TARIFF_ONLY','OTHER')),
+ CONSTRAINT mini_scenario_revision_narrative_check
+   CHECK (length(btrim(narrative)) BETWEEN 1 AND 2000),
  CONSTRAINT mini_scenario_revision_correction_reason_check
    CHECK (correction_reason IS NULL OR length(btrim(correction_reason)) BETWEEN 1 AND 500),
  CONSTRAINT mini_scenario_revision_chain_check
@@ -227,6 +231,10 @@ CREATE INDEX mini_opportunity_scenario_order
 ALTER TABLE schedule_site_head DROP CONSTRAINT schedule_site_head_stage_check;
 ALTER TABLE schedule_site_head ADD CONSTRAINT schedule_site_head_stage_check
   CHECK (stage IN ('IDLE', 'S3', 'MINI', 'OPPORTUNITY', 'S4', 'CONSEQUENCE'));
+ALTER TABLE schedule_site_head
+  ADD COLUMN opportunity_processed integer NOT NULL DEFAULT 0,
+  ADD COLUMN opportunity_deferred integer NOT NULL DEFAULT 0,
+  ADD COLUMN opportunity_failed integer NOT NULL DEFAULT 0;
 """
 
 REFUSE_IF_USED = (
@@ -247,6 +255,10 @@ DROP = (
     "ALTER TABLE schedule_site_head DROP CONSTRAINT schedule_site_head_stage_check;\n"
     "ALTER TABLE schedule_site_head ADD CONSTRAINT schedule_site_head_stage_check\n"
     "  CHECK (stage IN ('IDLE', 'S3', 'MINI', 'S4', 'CONSEQUENCE'));\n"
+    "ALTER TABLE schedule_site_head\n"
+    "  DROP COLUMN opportunity_processed,\n"
+    "  DROP COLUMN opportunity_deferred,\n"
+    "  DROP COLUMN opportunity_failed;\n"
     + "".join(f"DROP TRIGGER {t}_immutable ON {t};\n" for t in TABLES)
     + "".join(f"DROP INDEX {i};\n" for i in INDEXES)
     + "".join(f"DROP TABLE {t};\n" for t in TABLES)

@@ -53,10 +53,10 @@ _INSERT_SCENARIO = (
 )
 _INSERT_SCENARIO_REVISION = (
     "INSERT INTO mini_scenario_revision (id, tenant_id, site_id, scenario_id, revision_no, "
-    "supersedes_revision_id, name, kind, assumptions, pinned_mini_revision_ids, pinned_selection_hours, "
+    "supersedes_revision_id, name, kind, narrative, assumptions, pinned_mini_revision_ids, pinned_selection_hours, "
     "calculation, correction_reason, actor_kind, actor_id, authorization_basis, attestation, idempotency_key, "
     "payload_sha256) VALUES (:id, :tenant_id, :site_id, :scenario_id, :revision_no, :supersedes_revision_id, "
-    ":name, :kind, CAST(:assumptions AS jsonb), CAST(:pinned_mini_revision_ids AS jsonb), "
+    ":name, :kind, :narrative, CAST(:assumptions AS jsonb), CAST(:pinned_mini_revision_ids AS jsonb), "
     "CAST(:pinned_selection_hours AS jsonb), CAST(:calculation AS jsonb), :correction_reason, :actor_kind, "
     ":actor_id, :authorization_basis, :attestation, :idempotency_key, :payload_sha256)"
 )
