@@ -137,3 +137,39 @@ Next: independent review of 0b, then run 1a.
 
 ## Next: r1a2 items, then run 1b
 
+
+## Run 1b (Lane A + Lane B) - PARTIAL, stopped on pending rulings Q-1b-1..3
+- Lane A `06acf1cf`: `estate/coverage.py::_actions` rows add private `_selected_recorded_at` (selected event
+  `recorded_at`); `test_w303_selectors_postgres.py` asserts it equals the stored `action_event.recorded_at`.
+  W3-01 golden (`test_w301_estate_golden_postgres.py`) + selectors: 8 passed, 215 s, bytes unchanged.
+- Lane B `f3f04ef6` (`estate/portfolio.py`): `settled` (r1a2 1: HISTORICAL with selected head settled despite
+  PENDING/FAILED job; `job_state=NONE` = no head = U); `money_pending` + status precedence (r1a2 2); `_action_for`
+  `(-_selected_recorded_at, action_id)`, missing time raises `ActionSelectionError` (fallback removed);
+  `workflow_label` + `rows[].workflow_label` (S7). Tests: `test_w303_portfolio_workflow_labels.py` (seven labels;
+  tie test), `test_w303_portfolio_reduction.py` (historical job states, absent-head/current controls, UNKNOWN
+  freshness, two pending U reductions), `test_w303_portfolio_api.py::test_builder_uses_one_connection_scoped_reader_and_refuses_missing_database` (r1a2 3).
+- NOT built (resume here after rulings): r1a2 item 4 signed Portfolio cursor (Q-1b-1); all 1b projections
+  (`selected_lines`, `money`, `scope_disclosure.sites`, five `value_cards`, `objectives`, `evidence_prompt`,
+  `opportunity`, `progress`, `footer`, remaining `summary` keys) per r1a "Run 1b data source/wire fields"; the tie
+  test's "both matching Actions remain in `progress.rows`" assertion; persisted tests
+  `test_w303_portfolio_comparison_postgres.py` (November `[11-01,11-03)` chain / B4 proof, operating-cost, EV money),
+  `test_w303_portfolio_scope_snapshot_postgres.py::test_page_size_does_not_change_cards_matrix_or_money` and
+  `::test_late_revision_pending_historical_and_mixed_source` (variants incl. r1a2 1/2 persisted assertions).
+
+### Run 1b readings (Architect may overturn)
+1. r1a2 1 "selected head" under HISTORICAL = `job_state != "NONE"` (`coverage._job_state` returns NONE only when no
+   day is selected); match/freshness rules unchanged.
+2. r1a2 2 explicit pending guard = Site window uncovered AND a selected money line with eligibility `PENDING`
+   (cold `withheld` / EV `ERROR_PENDING` reach lines as PENDING via `financials.decide`); no-line case is Q-1b-3.
+3. "Outcome pending" = `_raw._verification_window` (already `in_window and not resolved`) and resolution != RESOLVED.
+4. Q-1b-2: strict table order built; APPLIED + non-VERIFIED terminal reads `Applied` pending ruling.
+5. Builder test uses the real builder against the migrated run-owned DB with an unknown tenant (EMPTY_SCOPE) and
+   asserts the four selectors receive one `EvidenceMoneySnapshot` on one connection.
+
+### Run 1b checks (private `w303h_test`, dropped after)
+- Pure: workflow labels + reduction + portfolio API (incl. builder on DB) + cursor: 72 passed.
+- Postgres: W3-02 money comparability + pinned facades (root bytes unchanged after the 1a composition edit) +
+  W3-03 scope snapshot + selectors: 18 passed, 556 s. W3-01 golden + selectors after Lane A: 8 passed, 218 s.
+- `tools/check-all.ps1`: all 11 guards passed. No frontend touched; no full backend suite (run 3).
+
+## Next: rulings Q-1b-1..3, then resume run 1b (remaining projections/tests above); then run 2 (page)
