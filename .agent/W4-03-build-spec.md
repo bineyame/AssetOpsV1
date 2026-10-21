@@ -533,3 +533,14 @@ Each unit is one builder run and one reviewable commit on a task branch, with fo
 | 9b | Five panel registry entries, panel structure/captures, `check-all`, one full suite, exact collected counts and review packet; leave analytic comparison partial. | Original layout/verification; closure 2 N2; closure 4 N3 and this index; `v69-rendered-panels.json`, `v69PanelTitles.ts`, `v69-dependency-registry-pilot.json`. |
 
 Supersession of delivered work: W4-01 already owns case command gate, actor/idempotency machinery, Site Work list wire, copy and geometry; W4-03 adds only its separate association/overlay. W4-02 already owns noon selection/head, 1–5-day physical read, eligibility/assessed counts, stale-digest/currentness and renewable panel; W4-03 adds the five-day decision producer, scenario, and exact CTA. W3-01 already owns `/findings`, its live-empty Opportunities lens, provenance helpers and `estate-selection/2`; W4-03 adds no estate union. Remove W4-03's earlier instructions to rebuild any of those, to claim a registered KOBO positive publication, to use mock F-109/Medium or numeric physical wire, to install a second timer, to add five Opportunity tabs, or to mark `analysis:3#b` delivered.
+
+## Review closure 5 (2026-10-21)
+
+**B4 closed — Finding tabs and final navigation inventory.** Cold and EV Finding child views do **not** keep an unavailable `Alternatives` slot. Their domain-specific frames (`ColdAssessmentViews.tsx` and `EvAssessmentViews.tsx`) each render only `Overview` and an unavailable `Recommendation`; S12 preserves those rows. The current unavailable `Alternatives` is the mini canonical Finding section declared in `SiteAnalyticsFrames.tsx` and rendered by `FindingSections` in `SiteFindingEvidence.tsx`. Unit **6b** replaces that mini-only slot with the live canonical Alternatives link and adds the unavailable `Analysis` slot to the mini six-tab row. Unit **6a** removes the mini unavailable Scenarios slot while retaining the cold one. Once both units land, the literal final multiset in `tools/checks/navigation-truthfulness.ps1` is:
+
+```powershell
+$expectedTabs = @("Scenarios", "Cooling", "Recommendation", "Recommendation",
+    "Availability", "Energy / site power", "Analysis")
+```
+
+`Alternatives` has zero unavailable occurrences; `Analysis` has one, from the mini canonical Finding row. Unit 6b owns the final guard and positive/negative fixture change from `Alternatives` to `Analysis`; unit 6a owns the preceding Scenarios adjustment. Keep `$expectedChips = @("Cost", "Risks", "Opportunities")`. This resolves the B4 ambiguity in closure 4 and its check without adding tabs to cold or EV Findings.
