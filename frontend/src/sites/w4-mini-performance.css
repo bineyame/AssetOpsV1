@@ -284,3 +284,36 @@
   text-decoration: none;
   cursor: not-allowed;
 }
+
+/*
+ * Final review H4 (ruling 4): each readiness row keeps mock height - `{N} cited records · Inspect IDs` on one line
+ * - so all four rows, `Witnessed outcome / Readiness remains unverified` included, fit the closed 316 px panel at
+ * 1440. Only the opened ID list scrolls, below the line, inside its own bounded box.
+ */
+.mini-readiness-count {
+  white-space: nowrap;
+}
+
+.mini-readiness-count > .mini-more {
+  display: inline;
+}
+
+.mini-readiness-count > .mini-more > summary {
+  display: inline;
+  list-style: none;
+}
+
+.mini-readiness-count > .mini-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mini-readiness-count > .mini-more[open] > .mini-more__list {
+  display: block;
+  max-height: var(--mini-ids-max, 6rem);
+  white-space: normal;
+}
+
+.mini-backup-readiness .data-table td,
+.mini-backup-readiness .data-table th {
+  vertical-align: top;
+}

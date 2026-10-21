@@ -1639,10 +1639,11 @@ function BackupReadinessPanel({ read }: { read: BackupRead }) {
                     {cells.ids.length === 0 ? (
                       NO_ACCEPTED_RECORD
                     ) : (
-                      <>
-                        {`${cells.ids.length} cited record${cells.ids.length === 1 ? "" : "s"}`}
+                      // Final review H4: `{N} cited records · Inspect IDs` on one line; only the opened IDs scroll.
+                      <span className="mini-readiness-count" data-mini-readiness-count={label}>
+                        {`${cells.ids.length} cited record${cells.ids.length === 1 ? "" : "s"} · `}
                         <MoreList summary="Inspect IDs" items={cells.ids} ids data={{ "data-mini-ids": label }} />
-                      </>
+                      </span>
                     )}
                   </td>
                   <td>{cells.claim}</td>

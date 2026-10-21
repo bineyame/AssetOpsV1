@@ -254,6 +254,11 @@ describe("W4-02 unit 6: backup keeps the v69 strip, cards, chains, readiness, op
     expect(ids("Start command and state")).toEqual([id(401), id(402), id(412), id(413)]);
     expect(ids("Power restored to critical service")).toEqual([id(403), id(404), id(405), id(406)]);
     document.querySelectorAll("[data-mini-ids]").forEach((d) => expect(d).not.toHaveAttribute("open"));
+    // Final review H4: the count and its `Inspect IDs` disclosure share one line (one inline wrapper per row).
+    const count = document.querySelector('[data-mini-readiness-count="Supply interruption"]') as HTMLElement;
+    expect(count.querySelector("summary")?.textContent).toBe("Inspect IDs");
+    expect(count.firstChild?.textContent).toBe("2 cited records · ");
+    expect(count.querySelector('[data-mini-ids="Supply interruption"]')).not.toBeNull();
     expect(panelTitled("Operating evidence").querySelector("a")?.getAttribute("href")).toBe(`/sites/${CODE}/performance/dispatch`);
   });
 
