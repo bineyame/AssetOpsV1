@@ -158,7 +158,7 @@ build choice. The page keeps the ruled literal text; check-all therefore fails 2
 Question: (a) register a `G-portfolio-opportunity` gap (two placements) and render both through `<MissingClaim>`
 keeping the literal copy, or (b) another ruled treatment.
 
-## P-3-1 (run 3, OPEN): the four r2 Portfolio panel rows fail the dependency-registry checker
+## P-3-1 — RESOLVED by r3 (two new open nodes `I-estate-portfolio-read`/`-ui`, four r3 panel rows, portfolio ledger `registry_dependencies`; registry checker exit 0, check-all 11/11, no checker change) (run 3): the four r2 Portfolio panel rows fail the dependency-registry checker
 Inserting r2's four `panels` rows verbatim (before `actions:1`) makes
 `node frontend/docs/architecture/check_v69_dependency_registry.cjs` fail in two places:
 1. `portfolio: ledger and registry node IDs diverge` - `v69-screen-ledger.json` `portfolio` has no
