@@ -533,3 +533,67 @@ Each unit is one builder run and one reviewable commit on a task branch, with fo
 | 9b | Five panel registry entries, panel structure/captures, `check-all`, one full suite, exact collected counts and review packet; leave analytic comparison partial. | Original layout/verification; closure 2 N2; closure 4 N3 and this index; `v69-rendered-panels.json`, `v69PanelTitles.ts`, `v69-dependency-registry-pilot.json`. |
 
 Supersession of delivered work: W4-01 already owns case command gate, actor/idempotency machinery, Site Work list wire, copy and geometry; W4-03 adds only its separate association/overlay. W4-02 already owns noon selection/head, 1–5-day physical read, eligibility/assessed counts, stale-digest/currentness and renewable panel; W4-03 adds the five-day decision producer, scenario, and exact CTA. W3-01 already owns `/findings`, its live-empty Opportunities lens, provenance helpers and `estate-selection/2`; W4-03 adds no estate union. Remove W4-03's earlier instructions to rebuild any of those, to claim a registered KOBO positive publication, to use mock F-109/Medium or numeric physical wire, to install a second timer, to add five Opportunity tabs, or to mark `analysis:3#b` delivered.
+
+## Review closure 5 (2026-10-21)
+
+**B4 closed — Finding tabs and final navigation inventory.** Cold and EV Finding child views do **not** keep an unavailable `Alternatives` slot. Their domain-specific frames (`ColdAssessmentViews.tsx` and `EvAssessmentViews.tsx`) each render only `Overview` and an unavailable `Recommendation`; S12 preserves those rows. The current unavailable `Alternatives` is the mini canonical Finding section declared in `SiteAnalyticsFrames.tsx` and rendered by `FindingSections` in `SiteFindingEvidence.tsx`. Unit **6b** replaces that mini-only slot with the live canonical Alternatives link and adds the unavailable `Analysis` slot to the mini six-tab row. Unit **6a** removes the mini unavailable Scenarios slot while retaining the cold one. Once both units land, the literal final multiset in `tools/checks/navigation-truthfulness.ps1` is:
+
+```powershell
+$expectedTabs = @("Scenarios", "Cooling", "Recommendation", "Recommendation",
+    "Availability", "Energy / site power", "Analysis")
+```
+
+`Alternatives` has zero unavailable occurrences; `Analysis` has one, from the mini canonical Finding row. Unit 6b owns the final guard and positive/negative fixture change from `Alternatives` to `Analysis`; unit 6a owns the preceding Scenarios adjustment. Keep `$expectedChips = @("Cost", "Risks", "Opportunities")`. This resolves the B4 ambiguity in closure 4 and its check without adding tabs to cold or EV Findings.
+
+**Post-W4-03 W2-F amendment (2026-10-21).** The literal above is the W4-03 handoff inventory, after units 6a and 6b and before W2-F. Merge W4-03 before W2-F touches `EvSiteViews.tsx` or the navigation guard. W2-F unit 4 then adds one unavailable EV Financials `Scenarios` tab, shared by its Overview and Assumptions screens, and atomically changes the final guard to:
+
+```powershell
+$expectedTabs = @("Scenarios", "Scenarios", "Cooling", "Recommendation", "Recommendation",
+    "Availability", "Energy / site power", "Analysis")
+```
+
+The two unavailable `Scenarios` literals are cold and EV; mini Scenarios remains live. `Alternatives` remains absent from the unavailable inventory, `Analysis` occurs once, and `$expectedChips` stays `@("Cost", "Risks", "Opportunities")`. The earlier Q24 two-Scenarios list is not the W4-03 handoff contract; its Incidents/Maintenance entries are already live from W4-01. W2-F's `Review closure (2026-10-21)` S11 and unit 4 own this later delta and its fixture.
+
+## Unit-1 rulings (u1)
+
+**PR-1 — persist OPPORTUNITY stage counters in `0030` now.** Closure 4 S1's counters follow W4-02 q7's MINI precedent: the durable Site-stage report needs its own three `schedule_site_head` columns. Unit 1 amends the unmerged `0030_w4_mini_decisions` migration and its catalog/downgrade tests before unit-1 review; unit 4 consumes the columns in the tick, schedule store and report. Do not defer the schema amendment to unit 4 or derive these counts from opportunity revisions/jobs. In `SCHEMA`, after replacing `schedule_site_head_stage_check`, add exactly:
+
+```sql
+ALTER TABLE schedule_site_head
+  ADD COLUMN opportunity_processed integer NOT NULL DEFAULT 0,
+  ADD COLUMN opportunity_deferred integer NOT NULL DEFAULT 0,
+  ADD COLUMN opportunity_failed integer NOT NULL DEFAULT 0;
+```
+
+After `REFUSE_IF_USED` has locked the tables, `recompute_job` and `schedule_site_head` and refused decision history, any `mini_opportunity` job and an active OPPORTUNITY stage, `DROP` restores the 0029 stage CHECK and drops these columns in the same Alembic transaction, before dropping the W4-03 tables:
+
+```sql
+ALTER TABLE schedule_site_head
+  DROP COLUMN opportunity_processed,
+  DROP COLUMN opportunity_deferred,
+  DROP COLUMN opportunity_failed;
+```
+
+The `0030` catalog delta is now **10 tables, 10 PKs, 22 non-PK UNIQUE constraints, 20 FKs, five explicit indexes, ten immutable triggers, one sequence, three `schedule_site_head` integer columns and one replaced existing Site-stage CHECK**. The new columns have no new CHECKs; net Site-head CHECK count remains zero. Unit 1 extends `test_w403_migration_postgres.py` to assert the exact three column names, `integer` type, `NOT NULL`, default `0`, zero on a pre-existing Site head after upgrade, absence at 0029 after an empty downgrade, and restoration on re-upgrade. Keep the exact named-constraint/index/trigger arrays and head assertion. The existing job-only and active-stage downgrade-refusal tests must also show that all three columns and values survive a refused downgrade. Unit 4 tests token-scoped, nonnegative, all-three-together `record_opportunity` writes; processed/deferred/failed accounting, failed-stage reporting without invented counts, OPPORTUNITY-only Site selection and interrupted-run resume. Use the MINI q7 `record_mini`/`site_head`/`TickReport` pattern; no new timer.
+
+**Unit-1 handoff readings.** Confirm the builder's W4-01-derived bounds in `c3713564`: trimmed actor ID 1–128, trimmed authorization basis 1–500, trimmed attestation 1–1000, idempotency/create key 8–128, and lowercase 64-hex hashes. These are the merged `0027` work-table limits; closure 1's actor 1–160 / grant 1–256 wording is superseded for authored metadata. The distinct scenario name limit remains 1–160. Confirm the explicit builder CHECK names, including `mini_opportunity_window_check`, `mini_scenario_revision_chain_check`, `mini_alternative_revision_rank_key_check` and `mini_decision_work_link_target_check`, and the `<table>_<column>_check` names for the remaining column checks: they satisfy closure 4 S4's semantic-role naming rule. Keep `mini_opportunity_window_check` in unit 1 for `last_day >= first_day` and a 0–4-day span. Unit 4 validates that the actual five selected Site-local noon days and job window match that study; a row-level SQL CHECK cannot establish the selected W4-02 sequence or its tenant/Site provenance. Test the 0–4-day DB boundary in unit 1 and the exact five-day selection/window match and mismatch in unit 4.
+
+## Unit-2 rulings (u2)
+
+**PR-2 — persist the authored scenario narrative.** Amend the unmerged `0030_w4_mini_decisions` migration in the same edit as u1's three `schedule_site_head` counters. In `CREATE TABLE mini_scenario_revision`, place this column beside `name` and `kind`:
+
+```sql
+narrative text NOT NULL,
+CONSTRAINT mini_scenario_revision_narrative_check
+  CHECK (length(btrim(narrative)) BETWEEN 1 AND 2000),
+```
+
+The command requires a narrative on create and correction; trim it, reject null, whitespace-only, and over-2000-character input with 422 `DECISION_INPUT_INVALID`, include its canonical value in the idempotency payload digest, and insert it on every immutable revision. It is not hash-only. Add `narrative` to the selected scenario row and historical revision read shape so the authored explanation survives reload and correction. Do not infer it from the name, assumptions, or calculation. The scenario row shape in closure 1 is amended by this one key; the read-only frontend may render it as authored explanation.
+
+The combined `0030` catalog delta is **10 tables, 10 PKs, 22 non-PK UNIQUE constraints, 20 FKs, five explicit indexes, ten immutable triggers, one sequence, three `schedule_site_head` integer columns, one `mini_scenario_revision.narrative` text column, one replaced Site-stage CHECK, and 48 named CHECKs on the ten new tables** (47 before this narrative CHECK). No new table, FK, UNIQUE, index, trigger, or sequence is authorized. An empty downgrade already drops `mini_scenario_revision` and its narrative column/CHECK with the table; after `REFUSE_IF_USED` succeeds, drop the u1 counter columns and restore the 0029 stage CHECK in the same Alembic transaction before dropping the W4-03 tables. A refused downgrade preserves both the narrative/history and all three counter columns and values. Do not add a separate narrative `ALTER TABLE` or a second migration.
+
+Extend `test_w403_migration_postgres.py`'s exact CHECK-name array with `mini_scenario_revision_narrative_check`; assert `pg_catalog` reports `text`, `NOT NULL`, and the exact 1–2000 trimmed-length CHECK, plus the combined u1 column/default assertions. Test direct insert rejection of null, blank, and 2001 characters and acceptance of one and 2000 trimmed characters. Assert narrative and the three counters disappear on empty downgrade and return on re-upgrade; the existing history, job-only, and active-stage downgrade-refusal cases must preserve their data and u1 counters. Update the store insert skeleton fixture to supply narrative. Unit 2b tests must prove create/correction persist different narratives, a fresh read and historical cutoff return the corresponding revision's narrative, identical authorized retry returns the original response, and reusing a key with changed narrative returns 409 `DECISION_DUPLICATE_KEY` without a new revision.
+
+**Unit-2b readings — confirmed.** A pin with a `mini_revision_id` outside this tenant/Site's W4-02 renewable revisions is 422 `DECISION_LINK_SCOPE_INVALID`; a scoped tuple that differs from the selected head at command DB time in either selection sequence or revision ID is 409 `DECISION_BASIS_CHANGED`. Pins contain 0–5 distinct consecutive Site-local days; validate their exact selected tuples within the write snapshot. Resolve each scenario row's selected provenance from the union of accepted IDs of *that row's* exact pinned revisions for its calculation gate. The scenario list envelope's selected/pending provenance blocks cover the union across the complete filtered eligible root set before paging, never just the returned page; an unpinned row contributes no invented IDs. Keep provenance out of the scenario row wire. `scenario_state` is `HISTORICAL` for an explicit past `known_at` and `DEFINED` otherwise, independently of `calculation_state`; a stale current pin keeps `DEFINED` and withholds its calculation. Test foreign pin, same-Site non-head pin, 0/5 valid pins and duplicate/nonconsecutive/6 pins; test two rows with different provenance across pages and a mixed/unknown row withholding its own calculation; test historical and stale-current states independently.
+
+**Unit-2a readings 7–10 — confirmed.** (7) Authored decimal values are JSON strings in plain base-10 notation; JSON numbers and exponents are 422 `DECISION_INPUT_INVALID`. Canonical output removes insignificant zeros without binary-float arithmetic. (8) `OTHER` uses signed decimal text in `declared_value.value` and 1–32 trimmed text in `declared_unit.value`; both assumption entries have `unit:null`. (9) Every assumption `source` is trimmed, nonblank, and at most 500 characters. (10) Stored calculation reasons are `NOT_PRODUCTIVE_LOAD` and `NO_PINNED_SELECTION` for `NO_CALCULATION`; `INCOMPLETE_STUDY`, `NO_ELIGIBLE_DAY`, and `HEADROOM_BELOW_LOAD` for `WITHHELD`; and null when energy or gross is computed. Energy and gross are for one eligible hour window, not a five-day sum. The 26 pure scenario-rule tests at `011961ec` cover these rules; unit 2b adds persisted/read-gate vectors without changing their meanings.
