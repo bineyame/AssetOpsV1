@@ -404,7 +404,8 @@ def select_financial_scope(snap: Any, tenant_id: Any, req: EstateRequest, scope:
             covered = cov["state"] in COVERED and windows_covered
         for category in APPLICABLE[domain]:
             applicable[category] = applicable.get(category, True) and covered
-        per_site.append((site, domain, {**cov, "_sessions": sessions}, site_lines))
+        per_site.append((site, domain, {**cov, "_sessions": sessions, "_windows_covered": covered if domain == MINI_GRID
+                                                                                else windows_covered}, site_lines))
         lines += site_lines
     seen: set[str] = set()
     lines = [x for x in lines if not (x["line_key"] in seen or seen.add(x["line_key"]))]  # dedupe selected heads
