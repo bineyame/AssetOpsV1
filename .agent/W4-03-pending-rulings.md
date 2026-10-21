@@ -31,3 +31,19 @@ Confirmations requested in the same ruling (unit 2b would otherwise take these r
    calculation); the list envelope's blocks use the union over all eligible rows' pins, not the page. No per-row
    provenance key is added to the closure-1 row shape.
 3. `scenario_state` is `HISTORICAL` for an explicit past `known_at`, else `DEFINED`.
+
+## PR-3 (raised in commit 1 of u1/u2; blocks commit 1's count assertion and unit 2b)
+
+u1/u2 DDL is applied exactly as ruled (three `schedule_site_head` counters, `narrative` column and
+`mini_scenario_revision_narrative_check`, downgrade column drop). `pg_catalog` then reports **45** named CHECKs on the
+ten new tables (44 at `c3713564` plus the narrative CHECK), and the exact CHECK-name array in
+`test_w403_migration_postgres.py` matches that catalog name-for-name. The u2 ruling says **48** (47 before the
+narrative CHECK). Per table at head: `mini_scenario` 3 (create_key, create_payload_sha256, create_actor_id);
+`mini_scenario_revision` 6 + 6 authored (revision_no, name, kind, narrative, correction_reason, chain);
+`mini_alternative_revision` 8 + 6 authored; `mini_opportunity` 1 (window); `mini_opportunity_revision` 2
+(revision_no, input_sha256); `mini_decision_work_link` 1 (target) + 6 authored; `mini_opportunity_scenario_link` 6
+authored; the other three tables 0. `schedule_site_head` keeps 2 CHECKs at 0029 and at head (net zero, as ruled).
+
+Question: is the count 45 (u2's 47/48 miscounted), or are three named CHECKs missing from 0030 (if so, which tables,
+columns and exact names)? Everything else in commit 1 passes: 11 collected, 10 passed, the only failure is
+`len(CHECKS) == 48` (actual 45). Commit 1 is on the branch with the ruled 48; unit 2b not started.
