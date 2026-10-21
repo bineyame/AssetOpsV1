@@ -317,3 +317,18 @@
 .mini-backup-readiness .data-table th {
   vertical-align: top;
 }
+
+/*
+ * Final review L4: a lone numeric fuel term is an unscaled range marker - a short bracket at the track start with
+ * its value text beside the track - never a full-width proportional bar.
+ */
+.value-bars__marker {
+  display: block;
+  box-sizing: border-box;
+  width: 2.5rem;
+  height: 100%;
+  border: 2px solid var(--series-1);
+  border-top: 0;
+  border-bottom: 0;
+  background: linear-gradient(var(--series-1), var(--series-1)) center / 100% 2px no-repeat;
+}

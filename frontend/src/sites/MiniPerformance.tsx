@@ -149,7 +149,7 @@ const LIMITATION_COPY: Record<string, string> = {
   SITE_ROLE_UNSUPPORTED: "This site type has no mini-grid assessment",
   REQUEST_BASELINE_MISSING: "Requested-service baseline missing",
   DELIVERY_COMPLETENESS_MISSING: "Delivery completeness unconfirmed",
-  CLOSING_READING_MISSING: "Closing tank reading missing",
+  CLOSING_READING_MISSING: "No accepted closing tank reading",
   RECOVERY_TARGET_MISSING: "No pinned critical-service recovery target",
   BACKUP_CHAIN_INCOMPLETE: "No complete outage chain",
 };
@@ -467,6 +467,7 @@ function HeadroomPanel({ read }: { read: RenewableRead }) {
           { key: "margin", label: "Retained margin", value: null, valueText: UNKNOWN },
           { key: "headroom", label: "After retained margin", value: high(cards?.headroom_kw), valueText: boundText(cards?.headroom_kw ?? null, "kW") },
         ]}
+        unknownText={UNKNOWN}
       />
       {/* q12-7: the retained-margin and coverage explanation sit behind one disclosure; its open body scrolls in the panel. */}
       <details className="mini-more" data-mini-basis>
@@ -916,6 +917,7 @@ function PowerPanel({ read }: { read: ServiceRead }) {
             ...read.rows.map((row) => ({ key: row.asset_id, label: feederName(row), value: row.delivered_kw, valueText: kw(row.delivered_kw) })),
             { key: "needed", label: "What was needed", value: null, valueText: UNKNOWN },
           ]}
+          unknownText={UNKNOWN}
         />
       )}
       <MoreList
@@ -1136,11 +1138,22 @@ function basisIds(read: FuelRead, key: string): string[] {
   return Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : [];
 }
 
+/**
+ * Final review L2: the closing-term limitation names what exists. An accepted closing reading that cannot support a
+ * bounded term is `No bounded closing tank reading`; `No accepted closing tank reading` only when none exists.
+ */
+export const FUEL_CLOSING_UNBOUNDED = "No bounded closing tank reading";
+function fuelLimitation(read: FuelRead, code: string): string {
+  if (code !== "CLOSING_READING_MISSING") return plainCode(code);
+  const closing = read.rows.find((row) => row.term === "CLOSING");
+  return closing?.basis === "ACCEPTED_READING" ? FUEL_CLOSING_UNBOUNDED : plainCode(code);
+}
+
 function FuelStatus({ read }: { read: FuelRead }) {
   const limited = read.status === "LIMITED";
   // q11-2: SUPPORTED is only reachable with accepted delivery completeness; never label it Unknown.
   const word = limited ? "Fuel balance: evidence limited" : read.status === "SUPPORTED" ? "Fuel balance: Supported" : "Fuel balance: Unknown";
-  const limits = Array.from(new Set(read.limitations.map((l) => plainCode(l.code))));
+  const limits = Array.from(new Set(read.limitations.map((l) => fuelLimitation(read, l.code))));
   return (
     <StatusBar label="Fuel balance" items data={{ "data-mini-status": read.status }}>
       <span className="status-strip__item">
@@ -1219,18 +1232,19 @@ function FuelGlancePanel({ read }: { read: FuelRead }) {
     value: bound === null || bound.low === null || bound.high === null ? null : bound.high,
     valueText: fuelValue(term, bound),
   });
+  const terms = [
+    bar("opening", "Opening tank", "OPENING", cards?.opening_l ?? null),
+    bar("deliveries", "+ Deliveries", "DELIVERIES", cards?.deliveries_l ?? null),
+    bar("use", "− Modelled generator use", "USE", cards?.expected_use_l ?? null),
+    bar("closing", "− Closing tank", "CLOSING", cards?.closing_l ?? null),
+    bar("residual", "= Unexplained", "RESIDUAL", cards?.residual_l ?? null),
+  ];
+  // Final review L4: a lone numeric term (expected use) is an unscaled labelled range marker, not a full-width bar.
+  const numeric = terms.filter((t) => t.value !== null);
+  const lone = numeric.length === 1 ? numeric[0].key : null;
   return (
     <Panel heading="Fuel balance at a glance" headingId="mini-fuel-glance-heading" description="Opening + deliveries − use − closing">
-      <ValueBars
-        title="Fuel balance terms"
-        items={[
-          bar("opening", "Opening tank", "OPENING", cards?.opening_l ?? null),
-          bar("deliveries", "+ Deliveries", "DELIVERIES", cards?.deliveries_l ?? null),
-          bar("use", "− Modelled generator use", "USE", cards?.expected_use_l ?? null),
-          bar("closing", "− Closing tank", "CLOSING", cards?.closing_l ?? null),
-          bar("residual", "= Unexplained", "RESIDUAL", cards?.residual_l ?? null),
-        ]}
-      />
+      <ValueBars title="Fuel balance terms" items={terms.map((t) => (t.key === lone ? { ...t, marker: true } : t))} unknownText={UNKNOWN} />
       <ChartNote data={{ "data-mini-coverage": "" }}>
         Hatched bars are missing evidence. A residual is shown only when every term has a supported range.
       </ChartNote>

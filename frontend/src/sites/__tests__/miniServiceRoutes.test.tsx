@@ -161,6 +161,9 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
     const power = panelTitled("Where the power went");
     expect(power.textContent).toContain("Delivered and requested power use the same accepted hour");
     expect(power.querySelector('[data-value-bar-key="needed"]')?.getAttribute("data-value-bar")).toBe("not-known");
+    // Final review L1: the hatched What was needed bar says `Unknown`, never "not known".
+    expect(power.querySelector('[data-value-bar-key="needed"] .value-bars__value')?.textContent).toBe("Unknown");
+    expect(power.textContent).not.toContain("not known");
     expect(bodyRows()[0]).toEqual([
       "Clinic feeder delivered power · CRIT-1",
       "Critical service",

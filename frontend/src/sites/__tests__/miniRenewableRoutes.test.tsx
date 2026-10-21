@@ -170,6 +170,8 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
       "Retained margin: Unknown. The retained-margin value is not available in this read; inspect the pinned Foundation basis before using this breakdown.",
     );
     expect(headroom.querySelector('[data-value-bar-key="margin"]')?.getAttribute("data-value-bar")).toBe("not-known");
+    // Final review L1: the hatched Retained margin bar says `Unknown`, never "not known".
+    expect(headroom.querySelector('[data-value-bar-key="margin"] .value-bars__value')?.textContent).toBe("Unknown");
     expect(headroom.textContent).toContain("Maximum sources in one assessed hour: 2");
     expect(headroom.textContent).not.toMatch(/(?<![\d.])3 kW/);
     const productive = panelTitled("Productive-use evaluation");

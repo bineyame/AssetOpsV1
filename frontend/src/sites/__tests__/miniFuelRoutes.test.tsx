@@ -163,7 +163,7 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
     // q12-7: the ordered limitations sit behind the closed strip disclosure (count line visible).
     expect(document.querySelector("[data-mini-limitations]")).not.toHaveAttribute("open");
     expect(document.querySelector("[data-mini-limitations] summary")?.textContent).toMatch(/^(Limited by \d+ conditions?|Outage-chain assessment: evidence limited)$/);
-    expect(Array.from(document.querySelectorAll("[data-mini-limitations] li"), (li) => li.textContent).join("; ")).toContain("Delivery completeness unconfirmed; Closing tank reading missing");
+    expect(Array.from(document.querySelectorAll("[data-mini-limitations] li"), (li) => li.textContent).join("; ")).toContain("Delivery completeness unconfirmed; No accepted closing tank reading");
     expect(cardValues()).toEqual(["Unknown", "Delivery completeness unconfirmed", "0–3.3 L", "Cannot compute"]);
     const cards = document.querySelector("[data-mini-cards]")?.textContent ?? "";
     expect(cards).toContain("Modelled expected use");
@@ -173,6 +173,13 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
     expect(glance.querySelector('[data-value-bar-key="deliveries"]')?.getAttribute("data-value-bar")).toBe("not-known");
     expect(glance.querySelector('[data-value-bar-key="residual"]')?.getAttribute("data-value-bar")).toBe("not-known");
     expect(glance.querySelectorAll("[data-value-bar-key]").length).toBe(5);
+    // Final review L1: missing terms say `Unknown`; L4: the lone numeric term is an unscaled range marker.
+    expect(glance.querySelector('[data-value-bar-key="residual"] .value-bars__value')?.textContent).toBe("Unknown");
+    expect(glance.textContent).not.toContain("not known");
+    const use = glance.querySelector('[data-value-bar-key="use"]') as HTMLElement;
+    expect(use.querySelector('[data-value-bar-mark="range-marker"]')).not.toBeNull();
+    expect(use.querySelector(".value-bars__fill")).toBeNull();
+    expect(use.querySelector(".value-bars__value")?.textContent).toBe("0–3.3 L");
     expect(bodyRows()).toEqual([
       ["Opening inventory · Unknown", "Accepted tank reading · 1 cited record · Evidence", "No bounded tank uncertainty is registered"],
       ["Plus deliveries · Delivery completeness unconfirmed", "No attested delivery record · 0 cited records", "Delivery completeness unconfirmed"],
@@ -188,6 +195,23 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
     expect(interp.querySelector('[data-link-unavailable="dispatch-consequence"]')?.textContent).toBe("No linked dispatch consequence");
     expect(interp.querySelector("a")).toBeNull();
     expect(main().textContent).not.toMatch(/200 L|4\.9|0 L\b|theft detected/i);
+  });
+
+  it("final review L2: an accepted closing reading that cannot bound says No bounded closing tank reading", async () => {
+    const accepted = rows().map((r) =>
+      r.term === "CLOSING" ? term("CLOSING", { basis: "ACCEPTED_READING", coverage: { ...ZERO, source_count: 1 }, evidence_ids: [id(302)] }) : r,
+    );
+    renderFuel([ok(read({ rows: accepted, limitations: [{ code: "DELIVERY_COMPLETENESS_MISSING", evidence_ids: [] }, { code: "CLOSING_READING_MISSING", evidence_ids: [id(302)] }] }))]);
+    await settledScreen();
+    await screen.findByText("Fuel balance: Unknown");
+    const limits = Array.from(document.querySelectorAll("[data-mini-limitations] li"), (li) => li.textContent).join("; ");
+    expect(limits).toContain("No bounded closing tank reading");
+    expect(limits).not.toContain("No accepted closing tank reading");
+    expect(limits).not.toContain("Closing tank reading missing");
+    // The bridge keeps citing the accepted closing record, and the residual stays null.
+    const closing = bodyRows().find((r) => r[0].startsWith("Less closing inventory")) ?? [];
+    expect(closing[1]).toContain("Accepted tank reading · 1 cited record");
+    expect(cardValues()[3]).toBe("Cannot compute");
   });
 
   it("the fuel basis drawer cites the selected SFC revisions and generator power records as Modelled", async () => {
