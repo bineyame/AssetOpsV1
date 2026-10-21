@@ -1,6 +1,6 @@
 # W3-03 pending rulings
 
-## P-0b-1 — B3 clean fixture: cold `normal` makes no POTENTIAL_PRODUCT_EXPOSURE line (run 0b, stopped variant)
+## P-0b-1 — RESOLVED (r0b applied: `excursion` + drain, cold line assertions added) — B3 clean fixture: cold `normal` makes no POTENTIAL_PRODUCT_EXPOSURE line (run 0b, stopped variant)
 
 Spec: closure 4 B3 names cold `normal` (via `mixed_replay` mechanics) and requires "cold `POTENTIAL_PRODUCT_EXPOSURE`
 UNPRICED" in the clean four-Site fixture, plus F/E/M COMPLETE.
@@ -39,3 +39,14 @@ assert (cold_line["category"], cold_line["eligibility"]) == ("POTENTIAL_PRODUCT_
 assert cold_line["amount"] is None and cold_line["finding_revision_id"] in cold_revisions
 assert len({line["category"] for line in financials["rows"]}) == 3
 ```
+
+## Q-1a-1 — OPEN (run 1a): S9 Action tie key has no selected event time in the Action selector rows
+
+Spec: closure 4 S6-S9 "choose for a Finding cell by latest selected Action event `recorded_at`, then `action_id`
+ascending". `coverage.py::_actions` (Lane A file) selects each Action's latest event but its row carries only
+`selected_event_id`, not that event's `recorded_at`; Lane B may not edit it. Built in 1a:
+`estate/portfolio.py::_action_for` joins on the exact `(source_finding_id, source_finding_revision_id)` pair and, when
+several match, takes the max of a private `_raw["_selected_recorded_at"]` if present, else `action_id` ascending (the
+spec's second key). No fixture exercises two Actions on one origin pair (10-06 has none; the S6 chain has one per
+Finding). Question: should Lane A add private `_selected_recorded_at` (the selected event's `recorded_at`) to
+`coverage.py::_actions` rows, with root bytes unchanged, before 1b's workflow-label tests?
