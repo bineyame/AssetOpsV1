@@ -71,7 +71,7 @@ and `_plans/_outcomes/_outcome_id` keys keep root bytes; nonnull `state_filter` 
   Earlier run (before r3b) failed once: `s404SiteFindingIndex.test.tsx` "changing the dates writes a new window"
   (`toHaveValue 2026-10-20`); it passed alone (37/37) and in both reruns above, so it is a flake under full-suite load.
 - `tsc --noEmit` exit 0; `npm run build` ok; `tools/check-all.ps1` 11/11 guards passed.
-- Full real-Postgres backend suite: not run here (coordinator owns it).
+- Full real-Postgres backend suite (coordinator, in-container OPS-03 run 20261022-015213-39681c on 782c3044 code; later commits are .agent-only): 3703 passed, 0 failed, 56:44. An earlier run on 85efbea7 reached 95% with 0 failures before the 100-minute cap under load.
 
 ## Captures (Vite via localhost -> API :9781, private `w303p_test`, dropped; `.agent/W3-03-evidence/`)
 | State | Status | Matrix Sites | Doc height 1440/390 | over / failed |
