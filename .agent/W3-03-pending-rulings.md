@@ -87,3 +87,43 @@ not PENDING. Built: `portfolio.py::money_pending` = window uncovered and any sel
 Question: should Lane A add a private per-Site `_pending_guard: bool` (cold `withheld` or EV `ERROR_PENDING`) to the
 financial selector's Site coverage, root bytes unchanged, or is the line-based rule sufficient for the named
 persisted variant (a)?
+
+## P-1b-1 (run 1b 3b, variant stopped): Q9 (a) "later cold accepted record and unsettled cold job" not produced
+
+Producer step: clean `build_portfolio_fixture` (cold `excursion` + drain), then `fx.cold.advance_late()` (the W2-02
+chain's late publication upload, no worker run), re-pinned read clock `max(db_now, latest cold recorded + 1us)`.
+Actual Portfolio read (one-day 10-06, no `known_at`): `status=UNKNOWN`, F/E/M `PARTIAL/PARTIAL/PARTIAL`, cold
+`coverage.sites` item `state=CURRENT`, `job_state=SETTLED`, `match_state=NOT_APPLICABLE`, selection unchanged
+(`...0173`). Mismatched assertions: `status=PENDING`, cold `PENDING_RECOMPUTE`. No overlapping PENDING cold job
+appears for the excursion case, and the PARTIAL comes from a Site not identified in this run. Not built: variant
+(a) as specified. Built instead and passing: `a_lineless_cold` (fixture with `cold_drain=False`: the r1b Q-1b-3
+line-less guard) -> `status=PENDING`, F/E/M `COMPLETE/COMPLETE/PARTIAL`, cold Site `CURRENT`, no cold line or
+exclusion, W1 card `SITE_OWNED`. Question: which reviewed producer step gives (a) (a `late-reading` cold case in
+the four-Site fixture? a worker-created overlapping job?), or is the line-less variant sufficient for (a)?
+
+## P-1b-2 (run 1b 3b): r1a2 item 1 persisted positive proof - the reviewed mini-grid marker producer is STALE
+
+Producer: S4 `F01` (`CaseRunner`) then W3-01 `LATE` (`runner.step`, decided 2026-10-31), `k = runner.now`, at
+least one PENDING `recompute_job` created by `k`. Portfolio `[2026-10-06,2026-10-07)` at `known_at=k`: status
+`HISTORICAL`, Site `state=HISTORICAL`, `job_state=PENDING`, `match_state=COMPLETE`, **`source_freshness=STALE`**,
+F/E/M `UNKNOWN`. The stale-source rule (not the marker) makes the Site U, so "a selected-as-of head remains
+covered despite its outstanding job marker" is not shown persisted; the test asserts the observed stale control
+and the before-head cutoff (`known_at=2026-10-01`: Site UNKNOWN, F/E/M UNKNOWN). Question: name a non-stale
+historical mini-grid producer, or accept the pure `test_settled_current_and_historical_bases` as the proof.
+
+## P-1b-3 (run 1b 3b, variant stopped): Q9 (d) OVERLAPPING_BASIS has no persisted producer
+
+The two EV Sites' heads cite their own Site's accepted evidence and technical intervals (W3-02 `two_ev_sites`);
+no reviewed producer makes two otherwise eligible EV heads share a persisted technical/cited ID, and W3-02 proves
+OVERLAPPING_BASIS only in the pure `test_w302_money_api.py`. Not built. Question: name the producer, or accept the
+pure W3-02 proof plus the persisted INELIGIBLE/COMPARABLE/UNKNOWN_COVERAGE declines in
+`test_ineligible_overlap_and_unknown_coverage_decline_total`.
+
+## P-1b-4 (run 1b 3b): persisted limits of the operating-cost and EV-pending proofs
+
+(1) The fixture has the one and only W1 Site (`KOBO-001`), so COMPARABLE_GROUP, multiple operating-cost partitions
+and UNPRICED operating cost are not producible persisted; `test_operating_cost_first_match_wins_across_partitions`
+proves rule 3 (SITE_OWNED) against a COMPARABLE EV and an INELIGIBLE cold partition, and c1/c2 prove WITHHELD.
+(2) No reviewed producer gives a persisted EV `ERROR_PENDING` (EV `PENDING_RECOMPUTE` pin with stored money
+history) in the four-Site fixture; only the cold line-less guard is persisted (R3/Q-1b-3 EV half is the pure
+`_GuardSnap` test). Question: accept, or name producers.

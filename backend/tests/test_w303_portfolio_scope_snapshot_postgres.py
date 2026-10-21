@@ -9,6 +9,7 @@ added-empty-Site and changed-grant perturbations. Needs ASSETOPS_TEST_DATABASE_U
 from __future__ import annotations
 
 from collections import Counter
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -24,9 +25,12 @@ if URL:
     from sqlalchemy import text
 
     from test_w301_estate_golden_postgres import cold_chain, ev_chain  # noqa: F401 - the replay factories
-    from test_w301_estate_index_postgres import add_empty_site, iso
+    import pg_harness
+    from test_s1_bindings_postgres import engine, store  # noqa: F401 - the S4 mini-grid fixtures (one variant)
+    from test_w301_estate_index_postgres import add_empty_site, db_now, imported_before, iso
     from test_w302_evidence_scope_snapshot_postgres import evidence_read
-    from test_w303_portfolio_fixture_postgres import CODES, build_portfolio_fixture
+    from test_w303_portfolio_fixture_postgres import (
+        CODES, _stamped_tables, build_portfolio_fixture, pin_snapshots)
 
     from assetops_backend.estate import coverage, evidence_money, financials, index
     from assetops_backend.estate.portfolio import EstatePortfolioService
@@ -301,3 +305,260 @@ def test_page_size_does_not_change_cards_matrix_or_money(portfolio_fixture) -> N
     assert sorted(sites) == sorted(CODES)
     assert w1[0]["consequence_revision_id"] in sites["KOBO-001"]["selected_revision_ids"]
     assert all(s["window"] == {"from": fx.window["from"], "to": fx.window["to"]} for s in sites.values())
+
+
+# --- run 1b: the successful Q9 variants (closure 2 Q9 table as amended by NQ1, r1a2 items 1/2, r1b Q-1b-3) --------
+
+VARIANTS = ("a_lineless_cold", "b_historical", "c1_unbound", "c2_mixed", "mg_historical_marker")
+OPERATING_COST = "CANDIDATE_OPERATING_COST_EXPOSURE"
+CARD_TAIL = ["UNKNOWN", "UNSUPPORTED", "UNSUPPORTED", "NOT_ESTABLISHED"]
+
+
+def _declined(body: dict) -> None:
+    """The closure-1 decline assertions every success body carries (the visible pulse note is run 2's)."""
+    assert body["summary"]["combined_value"] is None and body["summary"]["combined_value_state"] == "NOT_COMPARABLE"
+    assert body["money"]["estate_total"] is None
+
+
+def _fem(body: dict) -> tuple[str, str, str]:
+    c = body["coverage"]
+    return c["finding_state"], c["evidence_state"], c["money_state"]
+
+
+def _same_money(body: dict, financial: dict) -> None:
+    """The exact W3-02 full-scope money: lines, groups, exclusions and diagnostics, never an invented row."""
+    assert body["selected_lines"] == financial["rows"]
+    assert {k: body["money"][k] for k in ("groups", "exclusions", "diagnostics")} == {
+        k: financial[k] for k in ("groups", "exclusions", "diagnostics")}
+
+
+def _site_state(body: dict, site_id: str) -> dict:
+    return next(s for s in body["coverage"]["sites"] if s["site_id"] == site_id)
+
+
+def _w1_withheld(request, monkeypatch, capsys, source: str, reason: str) -> None:
+    """(c1)/(c2): the W1 Finding's selected source is UNKNOWN or MIXED through the reviewed S4-05 publication path;
+    the W1 line is WITHHELD with that reason and no current amount; the card is WITHHELD; coverage stays COMPLETE."""
+    fx = build_portfolio_fixture(request, monkeypatch, capsys, w1_source=source)
+    body = Portfolio(fx.engine, fx.tenant_id).ok(**fx.window, limit=100)
+    financial = fx.money().ok("financials", **fx.window, limit=100)
+    _same_money(body, financial)
+    (w1,) = [x for x in financial["rows"] if x["category"] == OPERATING_COST]
+    print(f"W3-03 1b {source}: W1 line {w1['eligibility']} {w1['reason_codes']} {w1['source_provenance']}")
+    assert w1["eligibility"] == "WITHHELD" and reason in w1["reason_codes"] and w1["amount"] is None
+    assert body["status"] == "CURRENT" and _fem(body) == ("COMPLETE", "COMPLETE", "COMPLETE")
+    assert [c["state"] for c in body["value_cards"]] == ["WITHHELD", *CARD_TAIL]
+    assert body["value_cards"][0]["line_keys"] == [w1["line_key"]] and body["value_cards"][0]["currency"] is None
+    kobo = {x["key"]: x["state"] for x in next(o for o in body["objectives"]
+                                              if o["site_id"] == fx.site_ids["KOBO-001"])["cells"]}
+    assert kobo["COST_CONTROL"] == "UNKNOWN"
+    _declined(body)
+
+
+@pytest.mark.parametrize("variant", VARIANTS)
+def test_late_revision_pending_historical_and_mixed_source(variant, request, monkeypatch, capsys) -> None:
+    if variant == "c1_unbound":
+        return _w1_withheld(request, monkeypatch, capsys, "UNBOUND", "UNKNOWN_SOURCE")
+    if variant == "c2_mixed":
+        return _w1_withheld(request, monkeypatch, capsys, "MIXED", "MIXED_SOURCE")
+    if variant == "mg_historical_marker":
+        return _minigrid_historical_marker(request, monkeypatch)
+
+    fx = build_portfolio_fixture(request, monkeypatch, capsys, cold_drain=variant != "a_lineless_cold")
+    view = Portfolio(fx.engine, fx.tenant_id)
+    cold = fx.site_ids["COLD-LAB-001"]
+    if variant == "b_historical":
+        # NQ1: the explicit cutoff 2026-09-30 precedes every fixture head; the one-day request is kept.
+        k = datetime(2026, 9, 30, tzinfo=timezone.utc)
+        heads = [(t, stamp) for t, stamp in _stamped_tables(fx.engine, "site_id")
+                 if any(w in t for w in ("assessment", "finding", "consequence", "evidence"))]
+        assert len(heads) >= 4, heads
+        with fx.engine.connect() as c:
+            early = {t: c.execute(text(f"SELECT count(*) FROM {t} WHERE site_id = ANY(CAST(:s AS uuid[])) "
+                                       f"AND {stamp} <= :k"), {"s": list(fx.site_ids.values()), "k": k}).scalar_one()
+                     for t, stamp in heads}
+        assert not any(early.values()), early  # every fixture head is recorded after the cutoff
+        body = view.ok(**fx.window, known_at=iso(k), limit=100)
+        assert body["status"] == "HISTORICAL" and _fem(body) == ("UNKNOWN", "UNKNOWN", "UNKNOWN")
+        assert {s["state"] for s in body["coverage"]["sites"]} == {"UNKNOWN"}
+        assert body["rows"] == [] and body["selected_lines"] == []
+        assert [c["state"] for c in body["value_cards"]] == ["WITHHELD", *CARD_TAIL]
+        assert {x["state"] for o in body["objectives"] for x in o["cells"] if x["key"] == "EVIDENCE"} == {"UNKNOWN"}
+        # Finding/Evidence coverage is incomplete, so their counts are withheld; Action coverage is complete as of
+        # the cutoff (mini-grid selected, cold/EV not applicable), so its true zero stands.
+        assert body["summary"]["finding_count"] is None and body["summary"]["evidence_gap_site_count"] is None
+        assert body["summary"]["accepted_action_count"] == 0 and body["progress"]["rows"] == []
+        _declined(body)
+        return
+
+    body = view.ok(**fx.window, limit=100)
+    financial = fx.money().ok("financials", **fx.window, limit=100)
+    site = _site_state(body, cold)
+    print(f"W3-03 1b {variant}: status={body['status']} F/E/M={_fem(body)} cold={site}")
+    _same_money(body, financial)
+    # Pending money wins over UNKNOWN for overall status; the cold category's M unit is U beside covered Sites.
+    assert body["status"] == "PENDING" and body["coverage"]["money_state"] == "PARTIAL"
+    cold_lines = [x for x in body["selected_lines"] if x["domain"] == "cold_chain"]
+    assert all(x["amount"] is None for x in cold_lines)  # no current cold amount
+    # r1b Q-1b-3: a line-less guard; no selected cold line and no invented exclusion row. The cold Site's own
+    # coverage is still CURRENT: the guard, not the Site state, makes the status PENDING (r1a2 item 2).
+    assert site["state"] == "CURRENT" and _fem(body) == ("COMPLETE", "COMPLETE", "PARTIAL")
+    assert cold_lines == []
+    assert not [x for x in body["money"]["exclusions"] if x["line_key"].startswith("cold_chain:")]
+    # W1 operating cost stays covered and Site-owned while an unrelated category is pending.
+    assert [c["state"] for c in body["value_cards"]] == ["SITE_OWNED", *CARD_TAIL]
+    (w1,) = [x for x in body["selected_lines"] if x["category"] == OPERATING_COST]
+    assert w1["eligibility"] == "ELIGIBLE" and body["value_cards"][0]["line_keys"] == [w1["line_key"]]
+    _declined(body)
+
+
+def _minigrid_historical_marker(request, monkeypatch) -> None:
+    """r1a2 item 1 (persisted): a mini-grid selected-as-of head stays covered at an explicit cutoff although a
+    pre-cutoff PENDING recompute job is outstanding; the before-head cutoff stays UNKNOWN. The S4 F01 chain and its
+    late delivery (W3-01 `LATE`) are the reviewed producer."""
+    from test_s4_finding_store_postgres import CaseRunner, run_case
+    from test_s6_action_store_postgres import CASES as S4_CASES
+    from test_w301_estate_index_postgres import LATE, WIDE
+
+    runner = CaseRunner(request.getfixturevalue("store"), request.getfixturevalue("engine"))
+    request.addfinalizer(lambda: pg_harness.dispose(runner.findings))
+    eng = runner.engine
+    run_case(runner, S4_CASES["F01"])
+    imported_before(eng, runner.tenant, runner.site, datetime(2026, 10, 1, tzinfo=timezone.utc))
+    pin_snapshots(monkeypatch, lambda: max(runner.now + timedelta(minutes=1), db_now(eng)))
+    view = Portfolio(eng, runner.tenant)
+    runner.step(LATE)
+    k = runner.now
+    with eng.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM recompute_job WHERE site_id = :s AND status = 'PENDING' "
+                              "AND created_at <= :k"), {"s": runner.site, "k": k}).scalar_one() >= 1
+    body = view.ok(**WIDE, known_at=iso(k), limit=100)
+    (site,) = body["coverage"]["sites"]
+    print(f"W3-03 1b mg marker: status={body['status']} F/E/M={_fem(body)} site={site}")
+    assert body["status"] == "HISTORICAL" and site["state"] == "HISTORICAL" and site["job_state"] == "PENDING"
+    # Observed (pending ruling P-1b-2): this reviewed producer's selected-as-of head is STALE at its own cutoff, so
+    # the stale-source rule (not the job marker) keeps the Site U. The positive "covered despite the marker" proof
+    # needs a non-stale historical producer; it is not claimed here.
+    assert site["source_freshness"] == "STALE" and _fem(body) == ("UNKNOWN", "UNKNOWN", "UNKNOWN")
+    assert body["summary"]["finding_count"] is None
+    _declined(body)
+    # The before-head cutoff: no selected as-of head, so the Site is UNKNOWN (never covered by the marker rule).
+    early = view.ok(**WIDE, known_at=iso(datetime(2026, 10, 1, tzinfo=timezone.utc)), limit=100)
+    (none,) = early["coverage"]["sites"]
+    assert early["status"] == "HISTORICAL" and none["state"] == "UNKNOWN"
+    assert _fem(early) == ("UNKNOWN", "UNKNOWN", "UNKNOWN") and early["rows"] == []
+    _declined(early)
+
+
+# --- run 1b: the Evidence prompt over a fake snapshot (no persisted null-step producer) ----------------------------
+
+def _gap_row(site: dict, capability: str, gaps: list[tuple[str, str | None]], readiness: str = "LIMITED") -> dict:
+    """One fake W3-02 Evidence row whose `_gaps` feed the real `evidence_money._groups` (the Portfolio's gap list)."""
+    sid = str(site["site_id"])
+    return {"site_id": sid, "site_code": site["site_code"], "site_name": site["site_name"],
+            "capability_key": capability, "_key": (site["site_code_key"], sid, capability),
+            "raw_state": readiness, "readiness": readiness, "selected_revision_ids": [f"rev-{sid}"],
+            "_assessments": [f"rev-{sid}"], "_cited": [], "_token_cited": [],
+            "_gaps": [{"key": ("mini_grid", code, "role"), "domain": "mini_grid", "gap_code": code,
+                       "missing_role": "role", "label": f"label {code}", "next_step": step} for code, step in gaps]}
+
+
+def test_evidence_prompt_null_steps_and_coverage_precedence(monkeypatch) -> None:
+    """r1b Matrix and prompt over the fake one-transaction store of `test_w303_portfolio_api` (real `_portfolio`,
+    real gap grouping): null-step gaps are skipped for the prompt but counted in `evidence_gap_site_count`; the first
+    stepped gap names its first Site in the group's `(site_code_key, site_id)` order; incomplete Evidence coverage
+    wins over any gap and withholds the count."""
+    from test_w303_portfolio_api import CO, MG, SITES, WINDOW, World, client, get
+
+    from assetops_backend.estate import portfolio
+
+    mg, co = SITES
+    world = World(monkeypatch)
+    rows: dict[str, list[dict]] = {}
+    states: dict[str, str] = {}
+
+    def select_evidence_scope(snap, t, req, scope):
+        per = []
+        for s in scope["sites"]:
+            sid = str(s["site_id"])
+            domain = "mini_grid" if s["site_type"] == "MINIGRID" else "cold_chain"
+            per.append((s, domain, {**_fake_cov(states.get(sid, "CURRENT"))}, rows.get(sid, [])))
+        return per, [r for s in scope["sites"] for r in rows.get(str(s["site_id"]), [])]
+
+    monkeypatch.setattr(portfolio, "select_evidence_scope", select_evidence_scope)
+    c = client(world)
+
+    # A null-step gap at Kobo and a stepped gap at both Sites: the prompt skips the null step and names Cold-1
+    # (`cold-1` < `kobo 001`); the count covers every typed gap, null-step included.
+    rows.update({MG: [_gap_row(mg, "backup", [("G-A-NULL", None), ("G-B", "Upload a log")])],
+                 CO: [_gap_row(co, "product", [("G-B", "Upload a log")])]})
+    body = get(c, {**WINDOW, "limit": 1}).json()
+    assert body["coverage"]["evidence_state"] == "COMPLETE"
+    assert body["evidence_prompt"] == {
+        "state": "AVAILABLE", "text": "Upload a log at Cold to address the selected evidence gap.", "site_id": CO,
+        "site_code": "COLD-1", "gap_code": "G-B", "destination": "/evidence"}
+    assert body["summary"]["evidence_gap_site_count"] == 2
+    assert get(c, {**WINDOW, "limit": 4}).json()["evidence_prompt"] == body["evidence_prompt"]
+
+    # Only a null-step gap: NO_GAP, while the gap Site still counts.
+    rows.update({MG: [_gap_row(mg, "backup", [("G-A-NULL", None)])], CO: [_gap_row(co, "product", [])]})
+    body = get(c, WINDOW).json()
+    assert body["evidence_prompt"] == {"state": "NO_GAP", "text": "No selected decision-changing evidence step",
+                                       "site_id": None, "site_code": None, "gap_code": None,
+                                       "destination": "/evidence"}
+    assert body["summary"]["evidence_gap_site_count"] == 1
+
+    # Incomplete Evidence coverage (Cold-1 UNKNOWN) wins over a stepped gap and withholds the count.
+    rows.update({MG: [_gap_row(mg, "backup", [("G-B", "Upload a log")])]})
+    states[CO] = "UNKNOWN"
+    body = get(c, WINDOW).json()
+    assert body["coverage"]["evidence_state"] == "PARTIAL"
+    assert body["evidence_prompt"] == {"state": "COVERAGE_INCOMPLETE", "text": "Evidence coverage incomplete",
+                                       "site_id": None, "site_code": None, "gap_code": None,
+                                       "destination": "/evidence"}
+    assert body["summary"]["evidence_gap_site_count"] is None
+
+
+def _fake_cov(state: str) -> dict:
+    from test_w303_portfolio_api import cov
+    return cov(state)
+
+
+# --- run 1b: the EV footer ----------------------------------------------------------------------------------------
+
+def test_ev_footer_first_eligible_and_coverage_warning(portfolio_fixture) -> None:
+    """Closure 1 / R12: the footer is the first eligible EV gross-tariff line with exact quantity and amount and a
+    reviewed EV route, by `(site_code_key, site_id, line_key)`, never a group or a Finding. After an authorized
+    empty EV Site joins, the same line stays the footer while that Site's coverage is UNKNOWN: the page's
+    "other Sites may lack coverage" warning reads `coverage.sites`, not the footer."""
+    fx = portfolio_fixture
+    view = Portfolio(fx.engine, fx.tenant_id)
+    body = view.ok(**fx.window, limit=1)
+    financial = fx.money().ok("financials", **fx.window, limit=100)
+    keys = {fx.site_ids[c]: c.lower() for c in CODES}
+
+    def exact(b) -> bool:
+        return b is not None and b["low"] is not None and b["low"] == b["high"]
+
+    eligible = [x for x in financial["rows"] if x["domain"] == "ev_charging"
+                and x["category"] == "GROSS_TARIFF_SCENARIO" and x["eligibility"] == "ELIGIBLE"
+                and exact(x["quantity"]) and exact(x["amount"]) and x["links"].get("current_view_label") is None]
+    assert len({x["site_id"] for x in eligible}) == 2, "both EV Sites carry an eligible exact line"
+    first = min(eligible, key=lambda x: (keys[x["site_id"]], x["site_id"], x["line_key"]))
+    assert first["site_code"] == "EV-LAB-001" and first["finding_id"] is None
+    assert body["footer"] == {"line_key": first["line_key"], "site_name": first["site_name"],
+                              "quantity_display": None, "amount_display": None,
+                              "source_provenance": first["source_provenance"],
+                              "window_start": first["window_start"], "window_end": first["window_end"],
+                              "destination": first["links"]["evidence"]}
+    assert body["footer"]["destination"]
+    assert all(s["state"] == "CURRENT" for s in body["coverage"]["sites"])
+
+    empty = add_empty_site(fx.engine, fx.site_ids["EV-LAB-001"], "W303-EMPTY-001")
+    later = view.ok(**fx.window, limit=1)
+    assert later["footer"] == body["footer"]
+    assert _site_state(later, empty)["state"] == "UNKNOWN"
+    assert later["coverage"]["money_state"] == "PARTIAL" and later["status"] == "UNKNOWN"
+    (tariff,) = [g for g in later["money"]["groups"] if g["category"] == "GROSS_TARIFF_SCENARIO" and g["line_keys"]]
+    assert tariff["state"] == "UNKNOWN_COVERAGE" and tariff["amount"] is None
+    _declined(later)

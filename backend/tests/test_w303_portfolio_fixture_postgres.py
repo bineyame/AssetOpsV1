@@ -189,7 +189,7 @@ def recorded_times(engine, ids) -> dict[str, datetime]:
 
 
 def build_portfolio_fixture(request, monkeypatch, capsys, cold_case: str = "excursion",
-                            cold_drain: bool = True) -> PortfolioFixture:
+                            cold_drain: bool = True, w1_source: str = "P01") -> PortfolioFixture:
     """Closure 4 B3: the one-day three-domain composition in one private DB and the `demo` tenant. P-0b-1 (resolved): the cold
     producer is `excursion` plus the W2-04 consequence drain before the frozen public reads; `normal` selects no
     cold Finding or product-exposure line on 2026-10-06."""
@@ -231,7 +231,17 @@ def build_portfolio_fixture(request, monkeypatch, capsys, cold_case: str = "excu
     store = PostgresFoundationStore(URL)
     eng = create_engine(URL)
     request.addfinalizer(lambda: pg_harness.dispose(store, eng))
-    monkeypatch.setattr(CaseRunner, "submit", publishing_submit(lambda device, texts: P01))
+    # The W1 source policy (closure 2 Q9 c1/c2): `P01` binds every source (clean); `MIXED` leaves the power
+    # intervals unbound under an authored context (the W3-01 `mixed` gate control); `UNBOUND` keeps the ordinary
+    # unpublished power path (no `publishing_submit`), as W3-01 `power_estate(policy=None)` does.
+    if w1_source == "P01":
+        monkeypatch.setattr(CaseRunner, "submit", publishing_submit(lambda device, texts: P01))
+    elif w1_source == "MIXED":
+        from test_s405_resolver_postgres import is_power
+        monkeypatch.setattr(CaseRunner, "submit", publishing_submit(
+            lambda device, texts: None if is_power(texts) else P01))
+    else:
+        assert w1_source == "UNBOUND", w1_source
     power = PowerSite(store, eng, capsys)
     request.addfinalizer(lambda: pg_harness.dispose(power.runner.findings, power.prices, power.store))
     assert power.tenant == cold.tenant_id
