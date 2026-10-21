@@ -498,3 +498,26 @@ These rulings close `.agent/W3-02-commit1-review.md` at `1e50a8a4`. Lane B fixes
 **L4 — fix continuation counts.** Derive completeness and truth-dependent summary counts from the frozen `page_one_mode` and full coverage/rows, not the continuation response's HISTORICAL presentation status. A live page two with the same selected basis repeats page-one counts; an explicitly historical basis retains the historical count limit. Prove both in `test_w302_evidence_live_cursor_summary_counts`.
 
 **L5 — close proof gaps.** Extend `test_w302_evidence_ev_meter_gap_from_unknown_meter_seconds` to assert the selected session revision IDs in the token input and their session-only 409 fence. The M1 Postgres continuation test above exercises a live cursor whose frozen cutoff is earlier than page-two read time. Add `test_w302_evidence_composition_mount_no_db_503` using `build_estate_evidence_service`/`create_app` to prove the production mount and typed no-DB 503. Run the focused Evidence and W3-01 compatibility suites after these changes; the commit-4 full-suite gate remains unchanged.
+
+## Commit-2 rulings (c2)
+
+These close `c2-q1` through `c2-q4` in `.agent/W3-02-pending-rulings.md` for commit 2 at `1b6a639d`. They govern Lane B's Evidence wire, page and focused proof; Lane A retains the shell and registry integration.
+
+**c2-q1 — gap Site names.** Add `gaps[].site_names` to the Evidence wire in Lane B's `estate/evidence_money.py`. It is a full-group array parallel to `site_ids` and `site_codes`, ordered by the already ruled stored Site-code key and ID, and populated from the authorized stored Site name before row pagination. The `Sites` cell displays the ordered stored names joined by ` · `; each corresponding stored code remains in the gap's `Record details` disclosure. If a stored name is empty or unavailable, display that Site's stored code in its place. Do not derive names from the current page of `rows`, and do not substitute mock Site names. Assert a gap whose Site rows are all on another page still displays their names and codes.
+
+**c2-q2 — exhaustive Evidence refusal copy.** Use these literal page sentences for every code reachable through the shared parser, scope/read fence and Evidence endpoint. The aliases `ESTATE_READ_UNAVAILABLE`, `ESTATE_PARAMETER_UNKNOWN` and `ESTATE_CURSOR_INVALID` retain the same copy if returned by an older compatible wrapper; the current W3-01 parser emits `ESTATE_STORE_UNAVAILABLE` and `INVALID_CURSOR` for those cases. Unknown codes fail closed to the 503 sentence, never to server detail.
+
+| Code | Literal display |
+| --- | --- |
+| `UNAUTHENTICATED` | `Sign in to view estate evidence and financials.` |
+| `ESTATE_SCOPE_FORBIDDEN` | `You do not have access to this estate view.` |
+| `ESTATE_SOURCE_DISCLOSURE_FORBIDDEN` | `Source details for one or more Sites cannot be shown.` |
+| `ESTATE_SITE_NOT_FOUND` | `This Site is no longer in the selected estate.` |
+| `ESTATE_STORE_UNAVAILABLE`, `ESTATE_READ_UNAVAILABLE` | `Estate data is temporarily unavailable. Try again.` |
+| `ESTATE_BASIS_CHANGED`, `ESTATE_SELECTION_INCONSISTENT` | `The selection changed. Refresh to see the latest basis.` |
+| `INVALID_WINDOW` | `Choose a UTC window of up to 31 days with a start before its end.` |
+| `INVALID_KNOWN_AT`, `INVALID_LIMIT`, `INVALID_CURSOR`, `ESTATE_PARAMETER_UNKNOWN`, `ESTATE_CURSOR_INVALID` | `This selection cannot be read. Reset the filters.` |
+
+**c2-q3 — B5 route-read proof.** Yes. Lane B owns `backend/tests/test_w302_evidence_links_postgres.py` in commit 2. Add `test_w302_evidence_cold_link_follows_selected_window_and_cutoff`, `test_w302_evidence_ev_link_follows_selected_window_and_cutoff` and `test_w302_evidence_link_falls_back_without_provable_cutoff`. Each generated selected-row Evidence link must be followed through the matching W2 Site read with the selected row's exact window and row-local cutoff; assert a successful, non-422 read of the selected window. For an unproved cutoff, assert the base Site route and `Opens current Site view`. Existing `test_w302_evidence_cold_scope_windows_and_citations` and `test_w302_evidence_ev_window_rows_links_and_gaps` remain link-shape proof only. Lane A's mounted-route captures do not replace these tests.
+
+**c2-q4 — literal row words.** Keep the readiness chip separate: `FULL` = `Full`, `LIMITED` = `Limited`, `NONE` = `None`, `UNKNOWN` = `Unknown`, `CONTRADICTORY` = `Conflicting records`, and `NOT_APPLICABLE` = `N/A`. Beside it, show a context chip only for these row states: `PENDING_RECOMPUTE` = `New evidence is being assessed` (amber); `STALE_SOURCE` = `May miss newer readings` (amber); `UNASSESSED` or `UNKNOWN` = `Not assessed` (gray); `HISTORICAL` = `Historical as of {estate known_at}` (blue, formatted as a UTC instant). A current selected row needs no second context chip. Keep raw state IDs and the server's historical detail label in `Record details` only. The visible words must not expose `PENDING_RECOMPUTE`, `STALE_SOURCE`, `UNASSESSED` or `CONTRADICTORY` as status vocabulary.
