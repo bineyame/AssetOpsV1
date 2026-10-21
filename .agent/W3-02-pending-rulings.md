@@ -131,3 +131,36 @@ Not done: `test_w302_money_persisted_ev_comparable_same_values` and `::test_w302
 are built with the ruled assertions and skipped under `blocked_c3q3`. Question: authorize an EV scenario document for
 EV-LAB-002 (e.g. a test-only `ev-complete` copy with `site_code: EV-LAB-002`, where it lives and how the Host
 scenario repository finds it), or name another route.
+
+## c3b-q1 - RESOLVED (Lane A parser item landed, commit 3) - c3b Lane A parser item not on the branch
+
+Lane B c3b items landed in `6f065647`: test-only `backend/tests/fixtures/w3/scenarios/ev-complete-lab-002.yaml`
+(shipped `ev-complete` with only `scenario_id`/`site_code`/`seed` changed), `second_scenario_repository` (temp root:
+six shipped EV docs + the fixture, one `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))`), injected into the
+second chain's `RunSetupService` and `StoreEvInputs` via `Chain.open(..., scenarios=, scenario_id=)`, and
+`test_w302_second_ev_scenario_differs_from_shipped_only_in_three_fields` (mutation `seed: 20519`: failed, reverted).
+Blocker: c3b assigns the `ev_parsing.py` change to Lane A; after merging main, `ev_parsing.py:174/181` still pin
+`EV_SITE_CODE`/`EV_SEED`. Failing call: `second_scenario_repository(root).list_scenarios()` ->
+`ScenarioConfigurationInvalid: EV scenario shipped:ev-complete-lab-002.yaml: site_code must be 'EV-LAB-001'`. No
+Draft, upload or money head exists for EV-LAB-002 (no public IDs). Both comparability tests keep `blocked_c3q3`
+(reason updated) with the c3b assertions. Question: dispatch Lane A's parser item; Lane B then removes the skip.
+
+Resolution (Lane A, commit 3): `ev_parsing.py` admits `(EV-LAB-002, 20518)` only for `ev-complete-lab-002` and returns the
+validated Site/seed in `EvScenarioDefinition`; `(EV-LAB-001, 20517)` unchanged for every other ID. Parser test
+`test_w205b_ev_scenarios.py::test_the_second_site_pair_parses_only_for_its_one_scenario_id`. The fixture now parses.
+
+## c3b-q2 - two readings needed to run the two-Site tests; COMPARABLE test still skipped on its traversal assertion (Lane A, commit 3)
+
+1. Applied, please confirm: c3b's `CachedScenarioRepository(ReadOnlyYamlScenarioStore(root))` cannot work - the shipped
+   store has only `list_scenarios`, and the cache calls `get_scenario` (`AttributeError` in `scenario_cache.py:32`).
+   `second_scenario_repository` now wraps `CompositeScenarioRepository(shipped=ReadOnlyYamlScenarioStore(root),
+   user=UserYamlScenarioStore(<empty temp dir>))`, the same composition as `build_scenario_repository()` over the test
+   root. With it `test_w302_money_persisted_ev_different_currency` passes un-skipped (end-to-end two-Site path runs).
+2. Needs a ruling: `test_w302_money_persisted_ev_comparable_same_values` passes every assertion up to the `limit=1`
+   traversal, where page one's `selection_token` differs from the full read's. Page groups equal the full read's
+   groups; only the token differs. Cause: a live read's cutoff (`token_k`) is that read's own wall-clock time
+   (`estate/index.py:85`, `k = read_at`), and `known_at` is in the token, so two separate live reads never share a token.
+   Re-reading both at one explicit `known_at` makes the read HISTORICAL, and the group then goes `INELIGIBLE`
+   (`reason_codes: ['HISTORICAL']`) and the `CURRENT` assertion fails, so that is not a fix either. Options: (a) compare
+   page one's token with page two's (cursor-carried) and groups with the full read, not the token across live reads;
+   (b) change the token or cutoff semantics (product change, outside this run). The test carries a `c3b-q2` skip until ruled.
