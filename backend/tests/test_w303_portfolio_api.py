@@ -19,7 +19,8 @@ from fastapi.testclient import TestClient
 from assetops_backend.estate import portfolio
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import (
-    MESSAGES, EstateSelectionInconsistent, EstateStoreUnavailable, encode_cursor, parse_request, selection_token)
+    MESSAGES, PORTFOLIO_CURSOR_KEY_ENV, EstateSelectionInconsistent, EstateStoreUnavailable, encode_cursor,
+    encode_portfolio_cursor, parse_request, selection_token)
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
 from test_w301_estate_index_postgres import URL as _PG_URL
 
@@ -40,6 +41,18 @@ EMPTY_ARRAYS = {"selected_finding_revision_ids": [], "selected_action_event_ids"
                 "selected_assessment_revision_ids": [], "selected_consequence_revision_ids": [],
                 "selected_assumption_revision_ids": [], "cited_accepted_evidence_ids": []}
 REFUSAL_KEYS = {"code", "message", "rows", "total_count", "value_cards", "objectives", "money"}
+KEY_HEX = "5c" * 32  # test-only (r1b Q-1b-1); never a committed default for any server
+KEY = bytes.fromhex(KEY_HEX)
+
+
+@pytest.fixture(autouse=True)
+def _cursor_key(monkeypatch):
+    monkeypatch.setenv(PORTFOLIO_CURSOR_KEY_ENV, KEY_HEX)
+
+
+def signed(payload):
+    """A validly signed Portfolio cursor over `payload` (its `mac`, if any, dropped and recomputed)."""
+    return encode_portfolio_cursor({k: v for k, v in payload.items() if k != "mac"}, KEY)
 
 
 def cov(state="CURRENT", **arrays):
@@ -226,9 +239,16 @@ def test_cursor_lens_window_cutoff_and_v1_token(world) -> None:
                                                      None, items)
 
     def page_two(**params):
-        return get(c, {**WINDOW, **params, "cursor": encode_cursor(two)})
+        return get(c, {**WINDOW, **params, "cursor": signed(two)})
 
+    assert two["mac"] == _payload(signed(two))["mac"] and len(two["mac"]) == 64
     assert page_two().status_code == 200
+    # r1b Q-1b-1: the unsigned v1 form, a wrong MAC and a MAC over other fields are 422 before any basis check.
+    unsigned = {k: v for k, v in two.items() if k != "mac"}
+    refused(get(c, {**WINDOW, "cursor": encode_cursor(unsigned)}), 422, "INVALID_CURSOR")
+    refused(get(c, {**WINDOW, "cursor": encode_cursor({**two, "mac": "0" * 64})}), 422, "INVALID_CURSOR")
+    refused(get(c, {**WINDOW, "cursor": encode_cursor({**two, "page_one_mode": "historical"})}), 422,
+            "INVALID_CURSOR")
     refused(page_two(lens="cost"), 409, "ESTATE_BASIS_CHANGED")
     refused(page_two(**{"from": "2026-10-12T00:00:00Z"}), 409, "ESTATE_BASIS_CHANGED")
     refused(page_two(known_at="2026-10-19T00:00:00Z"), 409, "ESTATE_BASIS_CHANGED")
@@ -240,12 +260,16 @@ def test_cursor_lens_window_cutoff_and_v1_token(world) -> None:
     world.sites = SITES[:1]
     refused(page_two(), 409, "ESTATE_BASIS_CHANGED")
     world.sites = list(SITES)
+    # A validly signed cursor whose captured grant or selection differs is 409, not 422.
+    refused(get(c, {**WINDOW, "cursor": signed({**two, "selection_token": "estate-selection/2:" + "0" * 64})}),
+            409, "ESTATE_BASIS_CHANGED")
+    refused(get(c, {**WINDOW, "cursor": signed({**two, "authorized_site_ids": [MG]})}), 409, "ESTATE_BASIS_CHANGED")
     # A well-formed nonmember marker passes the fence and is 422.
     stranger = {**two, "after": [two["after"][0], "zzz", MG, FINDING[9], FINDING[29]]}
-    refused(get(c, {**WINDOW, "cursor": encode_cursor(stranger)}), 422, "INVALID_CURSOR")
+    refused(get(c, {**WINDOW, "cursor": signed(stranger)}), 422, "INVALID_CURSOR")
     # Malformed five-part markers are 422 at the parser.
     for bad in ([None, "", MG, FINDING[1], FINDING[21]], [None, "k", "x", FINDING[1], FINDING[21]], [None, "k", MG]):
-        refused(get(c, {**WINDOW, "cursor": encode_cursor({**two, "after": bad})}), 422, "INVALID_CURSOR")
+        refused(get(c, {**WINDOW, "cursor": signed({**two, "after": bad})}), 422, "INVALID_CURSOR")
     # Explicit historical page one stays HISTORICAL on page two through the captured basis mode.
     hist = get(c, {**WINDOW, "known_at": "2026-10-19T00:00:00Z", "limit": 1}).json()
     assert hist["status"] == "HISTORICAL" and _payload(hist["next_cursor"])["page_one_mode"] == "historical"
@@ -253,8 +277,25 @@ def test_cursor_lens_window_cutoff_and_v1_token(world) -> None:
     assert cont["status"] == "HISTORICAL" and cont["window"]["known_at"] == "2026-10-19T00:00:00Z"
     # A live page two keeps CURRENT although its captured cutoff precedes the read time.
     world.read_at = READ_AT + timedelta(hours=1)
-    live = get(c, {**WINDOW, "cursor": encode_cursor(two)}).json()
+    live = get(c, {**WINDOW, "cursor": signed(two)}).json()
     assert live["status"] == "CURRENT" and live["window"]["known_at"] == "2026-10-20T12:00:00Z"
+    # A missing or malformed key is 503 with the exact refusal body on page one, page two and an empty scope.
+    for value in (None, "zz" * 32, KEY_HEX[:-2]):
+        with pytest.MonkeyPatch.context() as mp:
+            if value is None:
+                mp.delenv(PORTFOLIO_CURSOR_KEY_ENV)
+            else:
+                mp.setenv(PORTFOLIO_CURSOR_KEY_ENV, value)
+            for params in (WINDOW, {**WINDOW, "cursor": signed(two)}):
+                response = get(c, params)
+                refused(response, 503, "ESTATE_STORE_UNAVAILABLE")
+                assert response.json() == {"detail": {
+                    "code": "ESTATE_STORE_UNAVAILABLE", "message": "Estate records could not be read.", "rows": None,
+                    "total_count": None, "value_cards": None, "objectives": None, "money": None}}
+                assert KEY_HEX not in response.text
+            world.sites = []
+            refused(get(c, WINDOW), 503, "ESTATE_STORE_UNAVAILABLE")
+            world.sites = list(SITES)
 
 
 def test_builder_uses_one_connection_scoped_reader_and_refuses_missing_database(monkeypatch, request) -> None:

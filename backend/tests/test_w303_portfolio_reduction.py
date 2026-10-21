@@ -108,6 +108,16 @@ def test_money_table() -> None:
         alone = list(money_units(domain, uncovered, guarded).values())
         assert reduce_units(1, alone) == "UNKNOWN"
         assert reduce_units(2, [*alone, *money_units("mini_grid", covered, []).values()]) == "PARTIAL"
+    # r1b Q-1b-3: the private `_pending_guard` alone (a cold withheld / EV ERROR_PENDING window with no selected
+    # line) is pending work; M stays U for that Site (PARTIAL beside a covered Site) and no line is invented.
+    guard_only = {**uncovered, "_pending_guard": True}
+    for domain, category in (("cold_chain", "POTENTIAL_PRODUCT_EXPOSURE"), ("ev_charging", "GROSS_TARIFF_SCENARIO")):
+        assert money_pending(guard_only, []) and money_units(domain, guard_only, []) == {category: U}
+        assert reduce_units(2, [*money_units(domain, guard_only, []).values(),
+                                *money_units("mini_grid", covered, []).values()]) == "PARTIAL"
+    # Uncovered without the guard or a PENDING line is UNKNOWN, not PENDING; a false guard changes nothing.
+    assert not money_pending({**uncovered, "_pending_guard": False}, [])
+    assert not money_pending(uncovered, [{"category": "GROSS_TARIFF_SCENARIO", "eligibility": "UNPRICED"}])
     # A historical cutoff without a selected head is missing: UNKNOWN for that Site's categories.
     assert set(money_units("mini_grid", {**SETTLED, "state": "UNKNOWN", "_windows_covered": False}, []).values()) \
         == {U}

@@ -37,7 +37,16 @@ def test_all_seven_literal_labels_and_precedence() -> None:
     assert workflow_label(action(app="APPLIED", window=False)) == "Applied"
     # A non-VERIFIED terminal outcome or no application state is "No action yet", never "Outcome pending".
     assert workflow_label(action(app="NONE_AT_CUTOFF")) == "No action yet"
-    # (A non-VERIFIED terminal outcome on an APPLIED Action is held: pending ruling Q-1b-2.)
+    # r1b Q-1b-2: a non-VERIFIED terminal outcome does not override a selected application fact (first match).
+    assert workflow_label(action(app="APPLIED", resolution="RESOLVED", outcome="NOT_VERIFIED")) == "Applied"
+    assert workflow_label(action(app="APPLIED", resolution="RESOLVED", outcome="NOT_VERIFIED", window=True)) ==         "Applied"
+    assert workflow_label(action(app="PENDING", resolution="RESOLVED", outcome="NOT_VERIFIED")) == "Pending"
+    # Active plan, null outcome, no application state: Outcome pending. Null outcome without a plan: not pending.
+    assert workflow_label(action(app="NONE_AT_CUTOFF", window=True)) == "Outcome pending"
+    assert workflow_label(action(app="NONE_AT_CUTOFF", window=False)) == "No action yet"
+    # Withdrawal wins over PENDING application and any outcome.
+    assert workflow_label(action(app="PENDING", resolution="RESOLUTION_WITHDRAWN", outcome="VERIFIED")) ==         "Resolution withdrawn"
+    # With no application state, a non-VERIFIED terminal outcome is "No action yet".
     assert workflow_label(action(app="NONE_AT_CUTOFF", resolution="RESOLVED", outcome="NOT_VERIFIED")) == \
         "No action yet"
     assert workflow_label(action(app="FAILED")) == "No action yet"

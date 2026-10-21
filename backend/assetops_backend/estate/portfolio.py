@@ -61,8 +61,11 @@ def settled(cov: dict[str, Any]) -> bool:
 
 
 def money_pending(cov: dict[str, Any], lines: list[dict[str, Any]]) -> bool:
-    """r1a2 item 2: an explicit pending guard (cold `withheld` from overlapping recomputation, EV `ERROR_PENDING`)
-    leaves the window uncovered and its selected line `PENDING`; that is unsettled work for overall status."""
+    """r1b Q-1b-3: W3-02's private `_pending_guard` (a selected cold `withheld` or EV `ERROR_PENDING` window, with or
+    without a line) is authoritative. A selected `PENDING` line on an uncovered window stays sufficient evidence
+    (r1b reading 2) but is not a prerequisite; `_windows_covered=false` alone is UNKNOWN, not PENDING."""
+    if cov.get("_pending_guard"):
+        return True
     return not cov.get("_windows_covered") and any(line.get("eligibility") == "PENDING" for line in lines)
 
 
