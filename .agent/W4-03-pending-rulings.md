@@ -143,7 +143,7 @@ builder would take, for confirm or replace.
    Reading: `/sites/<site-uuid>/work` (W4-01 Site Work route); null until unit 8 lands the command. Confirm the
    literal path.
 
-## PR-8 (raised in unit 6, after 6a; blocks 6b)
+## PR-8 (raised in unit 6, after 6a) - RESOLVED by u6 (build spec "Unit-6 rulings (u6)", rulings 1-6 and the unit-6a readings paragraph); built in unit 6b
 
 Unit 6a landed (Scenarios page). Unit 6b not started: the canonical mini Finding shell needs these values the spec
 leaves open. Each item gives the reading the builder would take, for confirm or replace.
@@ -174,3 +174,17 @@ leaves open. Each item gives the reading the builder would take, for confirm or 
    summary carries the exact Finding revision ID; the summary has `finding_id` only, so today it always renders the
    noninteractive `Alternatives for this Finding unavailable`. Same for `FindingDetail.tsx:236`
    (`tabHref("alternatives")`). Confirm.
+
+## PR-9 (raised in unit 7; non-blocking, built with the readings below)
+
+1. **Opportunity breadcrumb shape.** u5 unit 7 says breadcrumb `Sites › {Site} › Renewable evaluation › {OPP code} ›
+   Overview` "with disabled Findings root"; closure 3, B5 and N9 (and the v69 measurement `Findings›F-109›Overview·
+   site: Kobo Mini-grid`) give the global shape `Findings › {OPP} › Overview · site: {Site}`. Built: one breadcrumb nav
+   `[Global Findings unavailable; this opportunity is reached from Renewable evaluation.] › Sites › {Site} › Renewable
+   evaluation › {OPP code} › Overview`, root noninteractive, no `· site:` suffix (the Site is in the trail). Confirm, or
+   name the single shape.
+2. **Proposed-load note.** Closure 1 says `{scenario name} scenario` when compatible, but the detail read carries no
+   scenario name (u6 dry-read). Built: `Linked scenario; name unavailable in this read` when `scenario_id` is set, else
+   `No scenario linked`; value `{proposed_load_kw} kW` (no `× 1 h`). Confirm.
+3. **503 for multiple CTA matches.** Built as the u6b ruling-9 503 copy `Decisions are unavailable right now. Try
+   again.` (noninteractive) for more than one exact root and for any list refusal by code. Confirm.
