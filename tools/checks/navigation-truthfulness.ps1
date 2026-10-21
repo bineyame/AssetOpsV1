@@ -550,8 +550,8 @@ function Get-OperatorRailFailures {
         "unavailable|Incidents|WORK|",
         "unavailable|Maintenance|WORK|",
         "unavailable|Operational records|WORK|",
-        "unavailable|Evidence|ASSURANCE|",
-        "unavailable|Financials|BUSINESS|",
+        "live|Evidence|ASSURANCE|/evidence",
+        "live|Financials|BUSINESS|/financials",
         "unavailable|Settings|ADMIN|"
     )
     $allowedKeys = @("kind", "to", "label", "end", "group", "icon")

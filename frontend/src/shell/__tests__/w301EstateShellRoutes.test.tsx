@@ -160,6 +160,8 @@ describe("W3-01 estate roots in the operator shell", () => {
       ["Sites", "/sites"],
       ["Findings", "/findings"],
       ["Actions", "/actions"],
+      ["Evidence", "/evidence"],
+      ["Financials", "/financials"],
     ]);
     for (const label of ["Incidents", "Maintenance"]) {
       expect(within(rail()).getByRole("listitem", { name: `${label}, Not available yet` })).toBeInTheDocument();

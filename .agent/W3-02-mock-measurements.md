@@ -28,15 +28,17 @@ Both screens have the same page header above the first element: eyebrow (`Eviden
 
 ## Against the spec caps (build spec "1440/390 panel budget")
 
-| Region | Mock 1440 | Spec cap 1440 | Mock + max(24, 10%) | Mock 390 | Spec cap 390 | Mock + max(24, 10%) |
+| Region | Mock 1440 | Spec cap 1440 | Ceiling max: mock + max(24, 10%), rounded up | Mock 390 | Spec cap 390 | Ceiling max: mock + max(24, 10%), rounded up |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Evidence cards row | 113 | 220 | 137 | 264 | 430 | 290 |
-| Capability coverage panel | 285 | 500 | 313 | 425 | 560 | 467 |
-| Recurring gaps panel | 287 | 390 | 315 | **639** | 460 (below mock) | 702 |
+| Evidence cards row | 113 | 220 | 137 | 264 | 430 | 291 |
+| Capability coverage panel | 285 | 500 | 314 | 425 | 560 | 468 |
+| Recurring gaps panel | 287 | 390 | 316 | **639** | 460 (below mock) | 703 |
 | Financial status bar | 44 | 96 | 68 | 71 | 120 | 95 |
-| Consequence register panel | 266 | 500 | 292 | 407 | 560 | 447 |
+| Consequence register panel | 266 | 500 | 293 | 407 | 560 | 448 |
 | Aggregation rule panel | 99 | 250 | 123 | 163 | 330 | 187 |
 | Evidence notice | 42 | none | 66 | 78 | none | 102 |
 | Financial notice | 42 | none | 66 | 78 | none | 102 |
 
-At 390 the measured Recurring gaps panel (639) is taller than its cap, so the spec's "measured mock plus tolerance governs" gives 702. Every other cap is well above mock + tolerance, so the two rules in the spec disagree; see `.agent/W3-02-spec-review.md` Q38.
+At 390 the measured Recurring gaps panel (639) is taller than its cap, so the spec's "measured mock plus tolerance governs" gives 703. Every other cap is well above mock + tolerance, so the two rules in the spec disagree; see `.agent/W3-02-spec-review.md` Q38.
+
+Correction (W3-02 commit 2, Lane A): the maxima columns above now use build-spec Review closure 4's ceiling values (1440/390: cards 137/291, capability 314/468, gaps 316/703, notices 66/102, status 68/95, register 293/448, Aggregation 123/187). The earlier floor values (290, 313/467, 315/702, 292/447) are superseded. The unrounded mock-side measurements are unchanged; mock heights are integers, so the cards and panels whose 10% term was fractional (264, 285/425, 287/639, 266/407) round up.

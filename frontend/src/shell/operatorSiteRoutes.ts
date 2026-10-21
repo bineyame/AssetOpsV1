@@ -344,6 +344,17 @@ export const FINDINGS_COST_PATH = "/findings/cost";
 export const FINDINGS_RISKS_PATH = "/findings/risks";
 export const FINDINGS_OPPORTUNITIES_PATH = "/findings/opportunities";
 export const ACTIONS_PATH = "/actions";
+/**
+ * W3-02: the estate Evidence root. It mirrors `ESTATE_EVIDENCE_PATH` in `frontend/src/estate/EstateEvidence.tsx`
+ * (a shell test pins the equality) so the navigation-truthfulness guard can resolve the live rail target.
+ */
+export const EVIDENCE_PATH = "/evidence";
+/**
+ * W3-02 commit 4: the estate Financials root. It mirrors `ESTATE_FINANCIALS_PATH` in
+ * `frontend/src/estate/EstateFinancials.tsx` (a shell test pins the equality) so the navigation-truthfulness guard
+ * can resolve the live rail target. Site financial routes are Site-relative suffixes and do not shadow it.
+ */
+export const FINANCIALS_PATH = "/financials";
 export const FINDING_ROUTE_PATH = `${FINDINGS_PATH}/:siteId/:assessmentId`;
 export const FINDING_TAB_ROUTE_PATH = `${FINDING_ROUTE_PATH}/:findingTab`;
 

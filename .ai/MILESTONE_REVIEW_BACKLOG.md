@@ -2332,3 +2332,9 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L3: "No outage in the selected hour" is unreachable from instant supply reports (q3). Its slot keeps honest copy.
 - L4: the old branch `task/W4-02-mini-grid-depth` committed build output and must never be merged. The clean squash branch was merged instead.
 - L5: the test-only `v4_roles4` fixture inserts one accepted `generator_power` row to create mini history for the 0029 refusal test.
+
+## W3-02 Lows
+- L1: Financials captures show 2 register lines, not the mock's 3, because the honest capture data has no mini-grid money line (c4-q3). The limitation sentence is recorded.
+- L2: `layout-evidence.mjs` was not run; a custom CDP capture script was used instead.
+- L3: the test-only scenario `backend/tests/fixtures/w3/scenarios/ev-complete-lab-002.yaml` is guarded by a drift test against `config/scenarios/ev-complete.yaml`.
+- L4: the timing-sensitive scheduler tests (`TestKillableStagesAndServerTimeouts`, `TestTickCost`) flaked under heavy concurrent load. Avoid running full suites alongside 3+ builders.

@@ -1,0 +1,4 @@
+# W3-02 final re-review (ddc925dd) - ACCEPT
+- H1 fixed: 390 table min-width 800 (css), rows 78/head 30, 2 rows, clientH 185 = scrollH 185 (no internal scroll); 3-row baseline 264<=300; worst case 411<=448. Test asserts these non-vacuously from captured maxH/headH/rowHs. Viewed positive-390 and partial-390-open PNGs: no cut-off row.
+- M1 fixed: packet lists all unit reviews/verdicts, readings, limitations (c4-q3 verbatim), captures, layout-evidence.mjs "not run". Open item: the same-revision full real-Postgres JUnit citation is deferred to the coordinator ("to be cited"); coordinator must add it before merge. 3-row state is computed, not captured (stated as residual risk).
+- L1-L4 fixed (rulings marked resolved; summary text exposed + hidden sentence; "Basis details"; PageHeader comment). Not run: any checks (git-object read only).
