@@ -74,7 +74,7 @@ both widths. Mock rectangles for both widths are in the JSON and `.agent/W3-02-m
 ## Checks
 Final fix revision: focused `src/estate src/ui` 101 passed; full frontend 102 files / 2435 passed, tsc clean, build ok,
 check-all 11/11. Full real-Postgres suite: run by the coordinator on review2 at `5fe9d4b2`
-(backend unchanged since; JUnit cases/skipped/failed and wall time to be cited by the coordinator from that run).
+(backend unchanged since). Result: container run 20261021-120653-26bd3c, 3598 passed, 2 failed, 0 skipped, 88m52s under heavy concurrent load. The two failures were timing-sensitive scheduler tests in files W3-02 does not touch (test_s4_schedule_tick_postgres TestKillableStagesAndServerTimeouts; test_s4_schedule_health_postgres TestTickCost). Both passed when rerun alone (2 passed, 143 s).
 
 ## Residual risk
 Mock comparison is by measured rectangles, not pixel diff. A third register note plus three rows is bounded by the test's
