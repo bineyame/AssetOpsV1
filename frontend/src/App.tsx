@@ -29,6 +29,8 @@ import {
   FINANCIALS_PATH,
   PORTFOLIO_ROOT_PATH,
   INCIDENTS_PATH,
+  MAINTENANCE_PATH,
+  MAINTENANCE_PREVENTIVE_PATH,
   FINDINGS_COST_PATH,
   FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
@@ -91,6 +93,7 @@ import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFou
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
 import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
+import { createColdDepthClient, type ColdDepthClient } from "./sites/ColdDepthClient";
 import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
@@ -98,6 +101,8 @@ import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClien
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
 import { createGlobalWorkClient, type GlobalWorkClient } from "./work/globalWorkClient";
 import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
+import { GlobalMaintenanceFrame } from "./work/GlobalMaintenance";
+import { GlobalPreventiveFrame } from "./work/GlobalPreventive";
 import {
   createEstateEvidenceMoneyClient,
   createEstateFinancialsClient,
@@ -144,6 +149,7 @@ const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultMiniDepth = createMiniDepthClient();
+const defaultColdDepth = createColdDepthClient();
 const defaultMiniDecisions = createMiniDecisionsClient();
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
@@ -224,6 +230,8 @@ export interface AppProps {
   evAssessment?: EvAssessmentClient;
   /** W4-02: the MINIGRID mini-depth reads, used for a MINIGRID Site's Service/Fuel/Renewable/Backup routes. */
   miniDepth?: MiniDepthClient;
+  /** W5-01a C2: the selected cold depth reads (Cooling) for a COLDCHAIN Site's Performance route. */
+  coldDepth?: ColdDepthClient;
   /** W4-03 unit 6: the read-only mini decision reads (Scenarios). */
   miniDecisions?: MiniDecisionsClient;
   /** W2-07: the five EV Site reads, used for an EV_CHARGING Site's `/ev` routes. */
@@ -267,6 +275,7 @@ export function App({
   evAssessment = defaultEvAssessment,
   miniDepth = defaultMiniDepth,
   miniDecisions = defaultMiniDecisions,
+  coldDepth = defaultColdDepth,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
   siteTemplateLineage,
@@ -389,6 +398,7 @@ export function App({
                   evAssessment={evAssessment}
                   miniDepth={miniDepth}
                   miniDecisions={miniDecisions}
+                  coldDepth={coldDepth}
                 />
               }
             />
@@ -427,7 +437,7 @@ export function App({
               element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} evAssessment={evAssessment} miniDecisions={miniDecisions} />}
             />
           ))}
-          <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
+          <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} coldDepth={coldDepth} />} />
           <Route path={SITE_ASSETS_ROUTE_PATH} element={<SiteAssetsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_ASSET_ROUTE_PATH} element={<SiteAssetFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_WORK_ROUTE_PATH} element={<SiteWorkFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
@@ -464,6 +474,10 @@ export function App({
           <Route path={PORTFOLIO_ROOT_PATH} element={<EstatePortfolioFrame client={estateIndex} />} />
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}
           <Route path={INCIDENTS_PATH} element={<GlobalIncidentsFrame client={globalWork} />} />
+          {/* W6-01b: the global Maintenance root, Corrective view (`MAINTENANCE_PATH`). */}
+          <Route path={MAINTENANCE_PATH} element={<GlobalMaintenanceFrame client={globalWork} />} />
+          {/* W6-01b B3: the global Maintenance root, Preventive view (`MAINTENANCE_PREVENTIVE_PATH`). */}
+          <Route path={MAINTENANCE_PREVENTIVE_PATH} element={<GlobalPreventiveFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

@@ -2432,6 +2432,65 @@ button:focus-visible {
   margin-bottom: var(--space-1);
 }
 
+/* W5-01a C2 (Codex retrospective Q-C2-3): the cold Cooling selected-observation graphic
+   (`sites/coldDepthGraphics.tsx`). Unconnected marks on categorical lanes; the region owns
+   the drawing's inline overflow (shell-overflow rule 5). */
+.cold-depth-graphic {
+  margin: 0 0 var(--space-3);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cold-depth-graphic__scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  position: relative;
+}
+
+.cold-depth-graphic__scroll svg {
+  display: block;
+  width: 100%;
+  min-width: 480px;
+  height: auto;
+}
+
+.cold-depth-graphic__lane { stroke: var(--border-subtle); stroke-width: 1; stroke-dasharray: 3 4; }
+.cold-depth-graphic__axis-line { stroke: var(--border-subtle); stroke-width: 1; }
+.cold-depth-graphic__lane-label { font-size: 12px; fill: var(--text-secondary); }
+.cold-depth-graphic__axis { font-size: 11px; fill: var(--text-muted); }
+.cold-depth-graphic__mark { fill: #3d6fb0; stroke: #ffffff; stroke-width: 1.5; }
+.cold-depth-graphic__mark-label { font-size: 11px; fill: var(--text-secondary); }
+
+/* W5-01a C2: at phone width the Cooling `Match` badge wraps inside its cell, so the Evidence
+   column keeps its width and the panel stays inside its 500 px cap (Codex retrospective Q-C2-2). */
+@media (max-width: 480px) {
+  .cold-cooling-context .data-table .badge {
+    white-space: normal;
+  }
+}
+
+/* W5-01a C3: the cold Health card link below the note (Q-C3-5), and (Q-C3-6 M1) at phone width the
+   `Condition and evidence` table fits its three columns, showing the selected asset code with the full ID
+   behind a `Full ID` disclosure. */
+.v69-metric__link { font-size: 10px; margin-top: 10px; }
+
+.cold-health-asset__mobile { display: none; }
+@media (max-width: 480px) {
+  .cold-health-condition .data-table { min-width: 0; width: 100%; table-layout: fixed; }
+  .cold-health-condition .data-table th,
+  .cold-health-condition .data-table td { padding: 7px 5px; overflow-wrap: anywhere; word-break: normal; }
+  .cold-health-condition .data-table thead th { white-space: normal; font-size: 9px; }
+  .cold-health-condition .data-table tr > :first-child { width: 27%; position: static; min-width: 0; }
+  .cold-health-condition .data-table tr > :nth-child(2) { width: 36.5%; }
+  .cold-health-condition .data-table tr > :nth-child(3) { width: 36.5%; }
+  .cold-health-asset__desktop { display: none; }
+  .cold-health-asset__mobile { display: block; }
+  .cold-health-asset__mobile [data-health-asset-code] { font-size: 10px; font-weight: 650; }
+  .cold-health-asset__mobile details { margin-top: 4px; font-size: 10px; font-weight: 400; }
+  .cold-health-asset__mobile code { display: block; white-space: normal; overflow-wrap: anywhere; font-size: 10px; }
+}
+
 .graphic-fill--needed { fill: var(--graphic-needed); }
 .graphic-fill--avoidable { fill: var(--graphic-avoidable); }
 .graphic-fill--unknown { fill: var(--graphic-unknown); }

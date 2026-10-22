@@ -1,0 +1,2577 @@
+{
+ "unit": "W6-01b B2",
+ "spec": ".agent/W6-01-build-spec.md section 2, section 3.1 A2Q/X/CL3, B1-B3 pre-flight rulings P-B1-1, P-B2-3..15",
+ "server": "uvicorn assetops_backend.main:app --port 8071 (DATABASE_URL per state, ASSETOPS_WORK_CURSOR_KEY_HEX generated per start, never printed); Vite dev server --port 5271 with ASSETOPS_API_PORT=8071; driver run_state.sh",
+ "clock": "--clock 2026-10-20T12:00:00Z; window from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z (P-B1-1); reads at real DB time",
+ "caps_px_1440_390": {
+  "cards": [
+   180,
+   340
+  ],
+  "corrective_requests_panel": [
+   610,
+   690
+  ],
+  "notice": [
+   90,
+   140
+  ],
+  "tabs_new": [
+   180,
+   300
+  ],
+  "control_bar": [
+   180,
+   300
+  ],
+  "status_line": [
+   70,
+   130
+  ],
+  "state_block": [
+   180,
+   300
+  ],
+  "zero_block": [
+   180,
+   300
+  ],
+  "pager": [
+   70,
+   130
+  ]
+ },
+ "mock_reference": "screenshots/mock-maintenance-1440.png, mock-maintenance-390.png (mock_capture.mjs)",
+ "r8_note": "Record the actual requests and identify the response rendered by this capture; duplicate development reads do not prove a second stored result.",
+ "states": [
+  {
+   "state": "positive",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_b2maint_test --fixture maintenance --clock 2026-10-20T12:00:00Z",
+   "database": "assetops_w601_b2maint_test",
+   "stored": {
+    "clock": "2026-10-20T12:00:00Z",
+    "commands": [
+     {
+      "case_id": "4e1ba0db-e7a3-4097-b983-c484b2b83009",
+      "event": "CANCEL",
+      "event_id": "211a021c-dd01-4dba-a6c7-b70b9ab2ac4a",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "a21adb60-a648-4c3e-93de-dcaf8790219d",
+      "event": "ASSIGN",
+      "event_id": "825bd042-e688-436f-8dfd-4dd6dfdaaf8e",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "58ebd693-a8dd-4e3c-b2fb-b15bca20472c",
+      "event": "ASSIGN",
+      "event_id": "eabd9e92-c984-4c40-98f7-9dc14a1b85fd",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "58ebd693-a8dd-4e3c-b2fb-b15bca20472c",
+      "record_id": "9b3a0a33-d8b3-4f43-af64-aafeb574bbcc",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "58ebd693-a8dd-4e3c-b2fb-b15bca20472c",
+      "event": "COMPLETE",
+      "event_id": "27942370-812b-4984-8368-84f1ce4cbc80",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     }
+    ],
+    "fixture": "maintenance",
+    "sites": [
+     {
+      "site_code": "KOBO-001",
+      "site_id": "361dc9b4-4dd9-4cd6-af8b-677a3d6f60f2",
+      "tenant": "demo",
+      "tenant_id": "4a54e1dc-0a14-418e-ae9d-ab9f4d7da5ad"
+     },
+     {
+      "site_code": "KOBO-002",
+      "site_id": "51b63f0f-b405-4b0b-834b-3d0098eea913",
+      "tenant": "demo",
+      "tenant_id": "4a54e1dc-0a14-418e-ae9d-ab9f4d7da5ad"
+     },
+     {
+      "site_code": "KOBO-001",
+      "site_id": "c7b51436-c22a-4b53-b672-c130bd22d991",
+      "tenant": "w601-other",
+      "tenant_id": "bf43b02a-a3d4-4f9d-9c7f-252bccb977f8"
+     }
+    ],
+    "written": [
+     {
+      "case_id": "436557b8-900c-46c5-8e7e-aef583de3491",
+      "code": "WR-000001",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "cb4b058d-cf6f-4af2-b677-12aaa8450cb8",
+      "code": "WR-000002",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "1e9f040e-35f2-41af-aee3-d9736b744b36",
+      "code": "WR-000003",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "4e1ba0db-e7a3-4097-b983-c484b2b83009",
+      "code": "WR-000004",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "a21adb60-a648-4c3e-93de-dcaf8790219d",
+      "code": "WR-000005",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "58ebd693-a8dd-4e3c-b2fb-b15bca20472c",
+      "code": "WR-000006",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "135bb152-e8b1-427b-a491-506ceb3dc195",
+      "code": "WR-000007",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "76fd72d1-599b-4235-a4b2-7620202c7f5d",
+      "code": "WR-000008",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "w601-other"
+     }
+    ]
+   },
+   "captured_at": "2026-10-22T17:02:02.558Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "positive-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1145
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": {
+       "h": 33,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1145
+      },
+      "cards": {
+       "h": 130,
+       "w": 1145
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 609,
+       "w": 1145
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1145
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1145
+      },
+      "notice": {
+       "h": 42,
+       "w": 1145
+      },
+      "status_strip": null,
+      "table": {
+       "h": 545,
+       "w": 1090
+      },
+      "thead": {
+       "h": 35,
+       "w": 1090
+      },
+      "pager": {
+       "h": 29,
+       "w": 1105
+      },
+      "scroll_hint": {
+       "h": 0,
+       "w": 0
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      102,
+      102,
+      102,
+      102,
+      102
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 1090,
+      "scroll": 1090,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 1425,
+      "client": 1425
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:01 UTC",
+      "cards": [
+       "Open work55 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–5 of 7",
+      "first_row": [
+       "WR-000007 · Inspect inverter relayFull title textInspect inverter relayNo linked",
+       "No asset recorded · Kobo mini-grid",
+       "Not assigned",
+       "Open",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000007",
+       "WR-000006",
+       "WR-000005",
+       "WR-000004",
+       "WR-000003"
+      ],
+      "lineage": [
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action"
+      ],
+      "lineage_links": [
+       [],
+       [],
+       [],
+       [],
+       []
+      ],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "positive-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": {
+       "h": 17,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 211,
+       "w": 358
+      },
+      "cards": {
+       "h": 269,
+       "w": 358
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 690,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": {
+       "h": 545,
+       "w": 1030
+      },
+      "thead": {
+       "h": 35,
+       "w": 1030
+      },
+      "pager": {
+       "h": 29,
+       "w": 318
+      },
+      "scroll_hint": {
+       "h": 17,
+       "w": 318
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      102,
+      102,
+      102,
+      102,
+      102
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 318,
+      "scroll": 1030,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:02 UTC",
+      "cards": [
+       "Open work55 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–5 of 7",
+      "first_row": [
+       "WR-000007 · Inspect inverter relayFull title textInspect inverter relayNo linked",
+       "No asset recorded · Kobo mini-grid",
+       "Not assigned",
+       "Open",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000007",
+       "WR-000006",
+       "WR-000005",
+       "WR-000004",
+       "WR-000003"
+      ],
+      "lineage": [
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action"
+      ],
+      "lineage_links": [
+       [],
+       [],
+       [],
+       [],
+       []
+      ],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    }
+   ]
+  },
+  {
+   "state": "zero",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_b2zero_test --fixture zero --clock 2026-10-20T12:00:00Z",
+   "database": "assetops_w601_b2zero_test",
+   "stored": {
+    "clock": "2026-10-20T12:00:00Z",
+    "commands": [],
+    "fixture": "zero",
+    "sites": [
+     {
+      "site_code": "KOBO-001",
+      "site_id": "7edf15b9-eab5-4ec2-a5da-b8ea38c55b14",
+      "tenant": "demo",
+      "tenant_id": "c00b7dd6-815f-442a-bd16-655f6f6ac0ad"
+     },
+     {
+      "site_code": "KOBO-002",
+      "site_id": "f8d9a6cd-abc2-4afe-b33c-b5cf9f525659",
+      "tenant": "demo",
+      "tenant_id": "c00b7dd6-815f-442a-bd16-655f6f6ac0ad"
+     },
+     {
+      "site_code": "KOBO-001",
+      "site_id": "7e2a479e-52af-4288-aff2-06fd2312e85a",
+      "tenant": "w601-other",
+      "tenant_id": "8a2d0a0d-d2d3-46ec-b872-f9f371279694"
+     }
+    ],
+    "written": []
+   },
+   "captured_at": "2026-10-22T17:03:24.623Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "zero-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1160
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": {
+       "h": 33,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1160
+      },
+      "cards": {
+       "h": 130,
+       "w": 1160
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": {
+       "h": 60,
+       "w": 1120
+      },
+      "table_panel": {
+       "h": 177,
+       "w": 1160
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1160
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1160
+      },
+      "notice": {
+       "h": 42,
+       "w": 1160
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:03 UTC",
+      "cards": [
+       "Open work00 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": "No work requests in this window.Change the UTC window or open a Site record.",
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "zero-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": {
+       "h": 17,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 211,
+       "w": 358
+      },
+      "cards": {
+       "h": 269,
+       "w": 358
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": {
+       "h": 60,
+       "w": 318
+      },
+      "table_panel": {
+       "h": 195,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:03 UTC",
+      "cards": [
+       "Open work00 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": "No work requests in this window.Change the UTC window or open a Site record.",
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    }
+   ]
+  },
+  {
+   "state": "historical",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_b2hist_test --fixture historical --clock 2026-10-20T12:00:00Z",
+   "database": "assetops_w601_b2hist_test",
+   "known_at": "2026-10-20T12:00:00Z",
+   "stored": {
+    "clock": "2026-10-20T12:00:00Z",
+    "commands": [
+     {
+      "case_id": "5ededff9-2b1e-4f36-b9c5-165013e55af4",
+      "event": "ASSIGN",
+      "event_id": "472ef083-0288-412a-a602-3d604c979ff7",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     }
+    ],
+    "fixture": "historical",
+    "sites": [
+     {
+      "site_code": "KOBO-001",
+      "site_id": "afde3aaf-3e17-4c7b-8a0d-744bc9ba9e43",
+      "tenant": "demo",
+      "tenant_id": "96f1cd87-7ec5-419d-bcba-89078dd2cdef"
+     },
+     {
+      "site_code": "KOBO-002",
+      "site_id": "79921614-98f4-49bc-a4f1-c8c5297318bf",
+      "tenant": "demo",
+      "tenant_id": "96f1cd87-7ec5-419d-bcba-89078dd2cdef"
+     },
+     {
+      "site_code": "KOBO-001",
+      "site_id": "f3e5a82d-8eb4-4cca-81ee-24e7279d4e69",
+      "tenant": "w601-other",
+      "tenant_id": "5522b937-fe4a-4675-bd28-49ffbf0f29da"
+     }
+    ],
+    "written": [
+     {
+      "case_id": "5ededff9-2b1e-4f36-b9c5-165013e55af4",
+      "code": "INC-000001",
+      "kind": "INCIDENT",
+      "revision_id": "3235e78e-41aa-4552-85e1-93aea82cff6d",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "bd40a444-9bb1-4700-af69-0db493d4db6b",
+      "code": "INC-000002",
+      "kind": "INCIDENT",
+      "revision_id": "264c027a-e56f-4631-9af0-d86adfd8a28f",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "36024b87-87e4-445a-a3c2-37a650e2695b",
+      "code": "INC-000003",
+      "kind": "INCIDENT",
+      "revision_id": "53a1f58e-c4d1-4fc3-9c37-7c195714cabe",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "1b32d74b-dcd5-4b16-beb4-2c119c7c28cd",
+      "code": "INC-000004",
+      "kind": "INCIDENT",
+      "revision_id": "145a82e8-cf13-4e6f-9b4c-b747e5fb9694",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "bd4d938e-f509-4d55-a3b6-bb114495125b",
+      "code": "INC-000005",
+      "kind": "INCIDENT",
+      "revision_id": "39b265f1-5407-4c54-92ed-4aa3ecc9b767",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "bfaed644-5f45-48f4-b210-f63e94d093a4",
+      "code": "INC-000006",
+      "kind": "INCIDENT",
+      "revision_id": "3e4e4125-13df-4757-b03f-7784b3487ec4",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "9a956724-21a8-4be2-bb2e-2e346c51d2c4",
+      "code": "INC-000007",
+      "kind": "INCIDENT",
+      "revision_id": "067a2d04-2689-4cc5-a6b5-170961bdb76b",
+      "site_code": "KOBO-001",
+      "tenant": "w601-other"
+     },
+     {
+      "case_id": "f7f0a1e8-6403-43cb-bbae-7bf3539ba6c2",
+      "code": "WR-000008",
+      "incident_id": "5ededff9-2b1e-4f36-b9c5-165013e55af4",
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "c3b22892-12ee-427e-bfea-4bd1cf7c23fb",
+      "code": "INC-000009",
+      "kind": "INCIDENT",
+      "revision_id": "71fd78b4-3e59-482c-bcea-4cc8a1992a22",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "code": "PM-000010",
+      "kind": "PLAN",
+      "plan_id": "d76bd3e3-5f90-4689-91f6-32b66ccb605b",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "Inspect filters"
+     },
+     {
+      "code": "PM-000010",
+      "kind": "PLAN",
+      "plan_id": "88a761a5-dae0-45d7-87fe-106c090827a9",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": "d76bd3e3-5f90-4689-91f6-32b66ccb605b",
+      "tenant": "demo",
+      "title": "Inspect filters"
+     }
+    ]
+   },
+   "captured_at": "2026-10-22T17:03:48.388Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=2026-10-20T12:00:00Z",
+     "image": "historical-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1160
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": {
+       "h": 33,
+       "w": 187
+      },
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1160
+      },
+      "cards": {
+       "h": 130,
+       "w": 1160
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 268,
+       "w": 1160
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1160
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1160
+      },
+      "notice": {
+       "h": 42,
+       "w": 1160
+      },
+      "status_strip": null,
+      "table": {
+       "h": 137,
+       "w": 1120
+      },
+      "thead": {
+       "h": 35,
+       "w": 1120
+      },
+      "pager": {
+       "h": 29,
+       "w": 1120
+      },
+      "scroll_hint": {
+       "h": 0,
+       "w": 0
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      102
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 1120,
+      "scroll": 1120,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     },
+     "text": {
+      "status": "Historical as of 20 Oct 2026, 12:00 UTC",
+      "cards": [
+       "Open work11 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–1 of 1",
+      "first_row": [
+       "WR-000008 · Inspect starterFull title textInspect starterNo linked Finding or Ac",
+       "No asset recorded · Kobo mini-grid",
+       "Not assigned",
+       "Open",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000008"
+      ],
+      "lineage": [
+       "No linked Finding or Action"
+      ],
+      "lineage_links": [
+       []
+      ],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=2026-10-20T12:00:00Z",
+     "image": "historical-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": {
+       "h": 17,
+       "w": 187
+      },
+      "date_bar_slot": {
+       "h": 211,
+       "w": 358
+      },
+      "cards": {
+       "h": 269,
+       "w": 358
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 308,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": {
+       "h": 137,
+       "w": 1030
+      },
+      "thead": {
+       "h": 35,
+       "w": 1030
+      },
+      "pager": {
+       "h": 29,
+       "w": 318
+      },
+      "scroll_hint": {
+       "h": 17,
+       "w": 318
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      102
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 318,
+      "scroll": 1030,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": "Historical as of 20 Oct 2026, 12:00 UTC",
+      "cards": [
+       "Open work11 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–1 of 1",
+      "first_row": [
+       "WR-000008 · Inspect starterFull title textInspect starterNo linked Finding or Ac",
+       "No asset recorded · Kobo mini-grid",
+       "Not assigned",
+       "Open",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000008"
+      ],
+      "lineage": [
+       "No linked Finding or Action"
+      ],
+      "lineage_links": [
+       []
+      ],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    }
+   ]
+  },
+  {
+   "state": "refused_503",
+   "fixture_command": null,
+   "database": "assetops_w601_b2absent_test (never created: unavailable store composition)",
+   "stored": null,
+   "captured_at": "2026-10-22T17:04:01.644Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "refused_503-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 503
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 503
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1160
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": null,
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1160
+      },
+      "cards": null,
+      "loading": null,
+      "state_block": {
+       "h": 42,
+       "w": 1160
+      },
+      "zero_block": null,
+      "table_panel": {
+       "h": 103,
+       "w": 1160
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1160
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1160
+      },
+      "notice": {
+       "h": 42,
+       "w": 1160
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": null
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     },
+     "text": {
+      "status": null,
+      "cards": [],
+      "state": "Work records could not be read. Reload.",
+      "zero": null,
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "refused_503-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 503
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 503
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": null,
+      "date_bar_slot": {
+       "h": 177,
+       "w": 358
+      },
+      "cards": null,
+      "loading": null,
+      "state_block": {
+       "h": 42,
+       "w": 358
+      },
+      "zero_block": null,
+      "table_panel": {
+       "h": 121,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": null
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": null,
+      "cards": [],
+      "state": "Work records could not be read. Reload.",
+      "zero": null,
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    }
+   ]
+  },
+  {
+   "state": "refused_window",
+   "fixture_command": null,
+   "database": "none (invalid page query: one bound missing, no fetch)",
+   "stored": null,
+   "captured_at": "2026-10-22T17:04:14.514Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z",
+     "image": "refused_window-1440.png",
+     "ready": true,
+     "api": [],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1160
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": null,
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1160
+      },
+      "cards": null,
+      "loading": null,
+      "state_block": {
+       "h": 42,
+       "w": 1160
+      },
+      "zero_block": null,
+      "table_panel": {
+       "h": 103,
+       "w": 1160
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1160
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1160
+      },
+      "notice": {
+       "h": 42,
+       "w": 1160
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": null
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     },
+     "text": {
+      "status": null,
+      "cards": [],
+      "state": "Choose a valid date range of at most 31 days.",
+      "zero": null,
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z",
+     "image": "refused_window-390.png",
+     "ready": true,
+     "api": [],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": null,
+      "date_bar_slot": {
+       "h": 177,
+       "w": 358
+      },
+      "cards": null,
+      "loading": null,
+      "state_block": {
+       "h": 42,
+       "w": 358
+      },
+      "zero_block": null,
+      "table_panel": {
+       "h": 121,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": null
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": null,
+      "cards": [],
+      "state": "Choose a valid date range of at most 31 days.",
+      "zero": null,
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    }
+   ]
+  },
+  {
+   "state": "cursor_changed",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_b2cursor_test --fixture maintenance --clock 2026-10-20T12:00:00Z",
+   "append_command": "python .agent/W6-01-evidence/B2/append_request.py assetops_w601_b2cursor_test 2026-10-20T12:00:00Z (writes at 12:00:02Z)",
+   "database": "assetops_w601_b2cursor_test",
+   "stored": {
+    "clock": "2026-10-20T12:00:00Z",
+    "commands": [
+     {
+      "case_id": "46e66291-f864-4100-b330-4a7febc88b9a",
+      "event": "CANCEL",
+      "event_id": "77a18c07-c057-4111-8899-4409e49634b3",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "2f7a5df3-c658-4e4f-9184-22e8fb43d6f7",
+      "event": "ASSIGN",
+      "event_id": "ed8d90aa-6a2a-4eee-9835-7e9b8b781267",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "bdf9317a-aea5-415b-9590-50c601908d13",
+      "event": "ASSIGN",
+      "event_id": "1baf5f55-0668-4531-8d6b-cc73ca1f084c",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "bdf9317a-aea5-415b-9590-50c601908d13",
+      "record_id": "ba815702-6f5c-4ec6-894b-1902c17ff309",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "bdf9317a-aea5-415b-9590-50c601908d13",
+      "event": "COMPLETE",
+      "event_id": "6569db8b-d83b-4d19-8a0f-ff962b64ffa8",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     }
+    ],
+    "fixture": "maintenance",
+    "sites": [
+     {
+      "site_code": "KOBO-001",
+      "site_id": "dadd1764-983a-48f5-a82c-1cbbcc484e06",
+      "tenant": "demo",
+      "tenant_id": "28d3f157-03e1-47e2-91cd-fc3ff56f9c1b"
+     },
+     {
+      "site_code": "KOBO-002",
+      "site_id": "92adaaf2-4789-4795-bb74-048062ffd8de",
+      "tenant": "demo",
+      "tenant_id": "28d3f157-03e1-47e2-91cd-fc3ff56f9c1b"
+     },
+     {
+      "site_code": "KOBO-001",
+      "site_id": "6234d057-82d5-4c4b-b0cd-dde64b0967d1",
+      "tenant": "w601-other",
+      "tenant_id": "c39e2099-cca8-4f3f-829e-b507453afc5d"
+     }
+    ],
+    "written": [
+     {
+      "case_id": "6c7ef1eb-5c02-4f6a-8b8c-34ae99b58649",
+      "code": "WR-000001",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "c488ce66-9858-4f6e-9de4-96cad829f5c7",
+      "code": "WR-000002",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "eea13c08-048e-4d37-a493-45cb5809e3cb",
+      "code": "WR-000003",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "46e66291-f864-4100-b330-4a7febc88b9a",
+      "code": "WR-000004",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "2f7a5df3-c658-4e4f-9184-22e8fb43d6f7",
+      "code": "WR-000005",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "bdf9317a-aea5-415b-9590-50c601908d13",
+      "code": "WR-000006",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-002",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "99b67a83-1e86-40d6-8fd5-a5de2fdc1cc6",
+      "code": "WR-000007",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "cb865c5b-9e68-4b34-98b7-fd20883dd4a5",
+      "code": "WR-000008",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "w601-other"
+     }
+    ]
+   },
+   "captured_at": "2026-10-22T17:06:09.860Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "cursor_changed-1440-page-one.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1145
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": {
+       "h": 33,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1145
+      },
+      "cards": {
+       "h": 130,
+       "w": 1145
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 609,
+       "w": 1145
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1145
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1145
+      },
+      "notice": {
+       "h": 42,
+       "w": 1145
+      },
+      "status_strip": null,
+      "table": {
+       "h": 545,
+       "w": 1090
+      },
+      "thead": {
+       "h": 35,
+       "w": 1090
+      },
+      "pager": {
+       "h": 29,
+       "w": 1105
+      },
+      "scroll_hint": {
+       "h": 0,
+       "w": 0
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      102,
+      102,
+      102,
+      102,
+      102
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 1090,
+      "scroll": 1090,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 1425,
+      "client": 1425
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:06 UTC",
+      "cards": [
+       "Open work55 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–5 of 7",
+      "first_row": [
+       "WR-000007 · Inspect inverter relayFull title textInspect inverter relayNo linked",
+       "No asset recorded · Kobo mini-grid",
+       "Not assigned",
+       "Open",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000007",
+       "WR-000006",
+       "WR-000005",
+       "WR-000004",
+       "WR-000003"
+      ],
+      "lineage": [
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action",
+       "No linked Finding or Action"
+      ],
+      "lineage_links": [
+       [],
+       [],
+       [],
+       [],
+       []
+      ],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    },
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "cursor_changed-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDBjNzg3ZDY2MzdmMTBiMjk4ZmY0MWE5ZjJiZjU1YTEzNDllNDY3NTdhYzYxZjg3MWJjYjk4MGIwNjY3OGNmYyIsImFmdGVyIjpbIjIwMjYtMTAtMjBUMTE6NTk6MDIuMDAwMDAwWiIsImtvYm8tMDAxIiwiZGFkZDE3NjQtOTgzYS00OGY1LWE4MmMtMWNiYmNjNDg0ZTA2IiwiZWVhMTNjMDgtMDQ4ZS00ZDM3LWE0OTMtNDVjYjU4MDllM2NiIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiOTJhZGFhZjItNDc4OS00Nzk1LWJiNzQtMDQ4MDYyZmZkOGRlIiwiZGFkZDE3NjQtOTgzYS00OGY1LWE4MmMtMWNiYmNjNDg0ZTA2Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQxNzowNjowMi44NTI3ODVaIiwibWFjIjoiZTJiYjRiNDc4Y2EwZjQxZmU4N2MwMTQ4MTI4NzM1ZWZiNGQ4NTMxN2RhY2NiNWYwMDI1MGY3NDNiZTQ1NGRkZCIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJtYWludGVuYW5jZSIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1YTNlZTYxOTdmNTJlYTE3MTM4NmM4ZTRjNTIzNjkzODdmMWJmMmMxYzUzNmNhZjgxZjljMmRhMDE3NzZmNTBkIiwidGVuYW50X2lkIjoiMjhkM2YxNTctMDNlMS00N2UyLTkxY2QtZmMzZmY1NmY5YzFiIiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&limit=5",
+       "status": 409
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1160
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": null,
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1160
+      },
+      "cards": null,
+      "loading": null,
+      "state_block": {
+       "h": 60,
+       "w": 1160
+      },
+      "zero_block": null,
+      "table_panel": {
+       "h": 103,
+       "w": 1160
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1160
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1160
+      },
+      "notice": {
+       "h": 42,
+       "w": 1160
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": null
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     },
+     "text": {
+      "status": null,
+      "cards": [],
+      "state": "The list changed. Reload the first page.Reload the first page",
+      "zero": null,
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": {
+      "append": true,
+      "written": [
+       {
+        "tenant": "demo",
+        "site_code": "KOBO-001",
+        "case_id": "515e0522-c3dc-4612-8499-9f93b8cb7f02",
+        "code": "WR-000009",
+        "kind": "MAINTENANCE_REQUEST",
+        "incident_id": null
+       }
+      ]
+     },
+     "note": null
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "cursor_changed-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDBjNzg3ZDY2MzdmMTBiMjk4ZmY0MWE5ZjJiZjU1YTEzNDllNDY3NTdhYzYxZjg3MWJjYjk4MGIwNjY3OGNmYyIsImFmdGVyIjpbIjIwMjYtMTAtMjBUMTE6NTk6MDIuMDAwMDAwWiIsImtvYm8tMDAxIiwiZGFkZDE3NjQtOTgzYS00OGY1LWE4MmMtMWNiYmNjNDg0ZTA2IiwiZWVhMTNjMDgtMDQ4ZS00ZDM3LWE0OTMtNDVjYjU4MDllM2NiIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiOTJhZGFhZjItNDc4OS00Nzk1LWJiNzQtMDQ4MDYyZmZkOGRlIiwiZGFkZDE3NjQtOTgzYS00OGY1LWE4MmMtMWNiYmNjNDg0ZTA2Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQxNzowNjowMi44NTI3ODVaIiwibWFjIjoiZTJiYjRiNDc4Y2EwZjQxZmU4N2MwMTQ4MTI4NzM1ZWZiNGQ4NTMxN2RhY2NiNWYwMDI1MGY3NDNiZTQ1NGRkZCIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJtYWludGVuYW5jZSIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1YTNlZTYxOTdmNTJlYTE3MTM4NmM4ZTRjNTIzNjkzODdmMWJmMmMxYzUzNmNhZjgxZjljMmRhMDE3NzZmNTBkIiwidGVuYW50X2lkIjoiMjhkM2YxNTctMDNlMS00N2UyLTkxY2QtZmMzZmY1NmY5YzFiIiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&limit=5",
+       "status": 409
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": null,
+      "date_bar_slot": {
+       "h": 177,
+       "w": 358
+      },
+      "cards": null,
+      "loading": null,
+      "state_block": {
+       "h": 60,
+       "w": 358
+      },
+      "zero_block": null,
+      "table_panel": {
+       "h": 121,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": null,
+      "thead": null,
+      "pager": null,
+      "scroll_hint": null,
+      "card_max": null
+     },
+     "row_heights": [],
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": null,
+      "cards": [],
+      "state": "The list changed. Reload the first page.Reload the first page",
+      "zero": null,
+      "showing": null,
+      "first_row": null,
+      "codes": [],
+      "lineage": [],
+      "lineage_links": [],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": "same refused page, resized"
+    }
+   ]
+  },
+  {
+   "state": "stress",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_b2stress_test --fixture stress --clock 2026-10-20T12:00:00Z",
+   "database": "assetops_w601_b2stress_test",
+   "stored": {
+    "clock": "2026-10-20T12:00:00Z",
+    "commands": [
+     {
+      "case_id": "238ce647-1373-43f8-a5d0-681bbaa1fa4b",
+      "event": "ASSIGN",
+      "event_id": "9ae59686-1fcf-4078-baba-1d9767115735",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "aeca3e16-6a87-4cf2-9426-fc4fd7453b3c",
+      "event": "ASSIGN",
+      "event_id": "2f79c2b8-94dc-442c-8e22-65f35262b7c4",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "aeca3e16-6a87-4cf2-9426-fc4fd7453b3c",
+      "record_id": "72d4c554-9e39-4e47-97d6-19e46c32b39e",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "aeca3e16-6a87-4cf2-9426-fc4fd7453b3c",
+      "reason": "Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corr",
+      "revision_id": "5aeb5eba-e8df-4493-8f07-411513f69a5e",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     }
+    ],
+    "fixture": "stress",
+    "sites": [
+     {
+      "site_code": "KOBO-001",
+      "site_id": "5c2e1e20-7c74-496e-a82d-fa2b229e78e9",
+      "tenant": "demo",
+      "tenant_id": "c091d24e-d5ff-47db-b090-308d0abe1b63"
+     },
+     {
+      "site_code": "KOBO-002",
+      "site_id": "186102ee-52d9-45e8-a505-fc9b0c0c87a2",
+      "tenant": "demo",
+      "tenant_id": "c091d24e-d5ff-47db-b090-308d0abe1b63"
+     },
+     {
+      "site_code": "KOBO-001",
+      "site_id": "9d0f99e2-686f-4c6b-a9c9-0ea4cf01d441",
+      "tenant": "w601-other",
+      "tenant_id": "ef722c0f-f429-44c9-acec-d5b51edb5862"
+     }
+    ],
+    "written": [
+     {
+      "case_id": "238ce647-1373-43f8-a5d0-681bbaa1fa4b",
+      "code": "INC-000001",
+      "kind": "INCIDENT",
+      "revision_id": "cb6c4809-d1a8-45ab-afce-961881a66c8b",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "dc4683ad-7971-48e0-aef4-60ea86c394d5",
+      "code": "INC-000002",
+      "kind": "INCIDENT",
+      "revision_id": "5b43419a-265b-4a27-a285-840d95948d59",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "d09fe61d-591d-4f7c-a2bf-27ff0d23b062",
+      "code": "INC-000003",
+      "kind": "INCIDENT",
+      "revision_id": "91e03720-82e8-4d34-892c-34b9de717f40",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "5c6353e5-753a-4403-a66a-3d093dbc3d82",
+      "code": "INC-000004",
+      "kind": "INCIDENT",
+      "revision_id": "cb7e3d13-1c23-42df-b4d5-9d7c07df3717",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "707ecf57-f694-46db-b0fe-380ae71bf924",
+      "code": "INC-000005",
+      "kind": "INCIDENT",
+      "revision_id": "614b4426-0749-433a-85da-3ffda954e6ab",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "923cc291-11b4-4d71-842b-1c80ad268d3f",
+      "code": "INC-000006",
+      "kind": "INCIDENT",
+      "revision_id": "e49afe2f-5728-4e1c-b05d-26b2cebd1e71",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "aeca3e16-6a87-4cf2-9426-fc4fd7453b3c",
+      "code": "WR-000007",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "code": "PM-000008",
+      "kind": "PLAN",
+      "plan_id": "9ac74960-8021-4183-99d2-6bd0fe9d3a5c",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "QuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterl"
+     }
+    ]
+   },
+   "captured_at": "2026-10-22T17:04:35.356Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "stress-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1160
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": {
+       "h": 33,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1160
+      },
+      "cards": {
+       "h": 130,
+       "w": 1160
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 303,
+       "w": 1160
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1160
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1160
+      },
+      "notice": {
+       "h": 42,
+       "w": 1160
+      },
+      "status_strip": null,
+      "table": {
+       "h": 172,
+       "w": 1120
+      },
+      "thead": {
+       "h": 35,
+       "w": 1120
+      },
+      "pager": {
+       "h": 29,
+       "w": 1120
+      },
+      "scroll_hint": {
+       "h": 0,
+       "w": 0
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      137
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 1120,
+      "scroll": 1120,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:04 UTC",
+      "cards": [
+       "Open work11 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–1 of 1",
+      "first_row": [
+       "WR-000007 · StartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinsp",
+       "No asset recorded · Kobo mini-grid",
+       "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+       "In progress",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000007"
+      ],
+      "lineage": [
+       "No linked Finding or Action"
+      ],
+      "lineage_links": [
+       []
+      ],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "stress-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": {
+       "h": 17,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 211,
+       "w": 358
+      },
+      "cards": {
+       "h": 269,
+       "w": 358
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 344,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": {
+       "h": 172,
+       "w": 1030
+      },
+      "thead": {
+       "h": 35,
+       "w": 1030
+      },
+      "pager": {
+       "h": 29,
+       "w": 318
+      },
+      "scroll_hint": {
+       "h": 17,
+       "w": 318
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      137
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 318,
+      "scroll": 1030,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:04 UTC",
+      "cards": [
+       "Open work11 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–1 of 1",
+      "first_row": [
+       "WR-000007 · StartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinsp",
+       "No asset recorded · Kobo mini-grid",
+       "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupe",
+       "In progress",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000007"
+      ],
+      "lineage": [
+       "No linked Finding or Action"
+      ],
+      "lineage_links": [
+       []
+      ],
+      "tabs": "CorrectivePreventive · scheduled · Not available yet",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     },
+     "appended": null,
+     "note": null
+    }
+   ]
+  },
+  {
+   "state": "maintenance-linked",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_b2linked_test --fixture linked --clock 2026-10-20T12:00:00Z (W6-01b build rulings Q2 item 1: F01 decided 2026-10-19T08:00Z, accept 2026-10-20T00:00Z)",
+   "database": "assetops_w601_b2linked_test",
+   "known_at": "omitted; rendered response cutoff in results[].text.status",
+   "stored": {
+    "action_event_id": "1480db07-7ac7-42f4-aae6-076ae508b5df",
+    "action_id": "3b0da2f9-b059-49bd-9bf9-a824fba0b1f8",
+    "clock": "2026-10-20T12:00:00Z",
+    "commands": [],
+    "finding_id": "6c1093be-b052-4c9e-9287-dde13028f30a",
+    "finding_revision_id": "39a3ced5-d3c7-4923-bacd-b0fc75a24bb2",
+    "fixture": "linked",
+    "hrefs": {
+     "incidents": {
+      "action": {
+       "href": "/sites/KOBO-001/actions/3b0da2f9-b059-49bd-9bf9-a824fba0b1f8?event_id=1480db07-7ac7-42f4-aae6-076ae508b5df",
+       "label": "Action 3b0da2f9"
+      },
+      "code": "INC-000001",
+      "finding": {
+       "href": "/sites/KOBO-001/findings/6c1093be-b052-4c9e-9287-dde13028f30a?revision_id=39a3ced5-d3c7-4923-bacd-b0fc75a24bb2",
+       "label": "Finding 6c1093be"
+      },
+      "known_at": "2026-10-22T17:54:55Z"
+     },
+     "maintenance": {
+      "action": {
+       "href": "/sites/KOBO-001/actions/3b0da2f9-b059-49bd-9bf9-a824fba0b1f8?event_id=1480db07-7ac7-42f4-aae6-076ae508b5df",
+       "label": "Action 3b0da2f9"
+      },
+      "code": "WR-000002",
+      "finding": {
+       "href": "/sites/KOBO-001/findings/6c1093be-b052-4c9e-9287-dde13028f30a?revision_id=39a3ced5-d3c7-4923-bacd-b0fc75a24bb2",
+       "label": "Finding 6c1093be"
+      },
+      "known_at": "2026-10-22T17:54:55Z"
+     }
+    },
+    "site_id": "01e87e68-7c04-4b58-a4ed-989382e7e234",
+    "sites": [
+     {
+      "site_code": "KOBO-001",
+      "site_id": "01e87e68-7c04-4b58-a4ed-989382e7e234",
+      "tenant": "demo",
+      "tenant_id": "d6fb3c44-4554-4372-aa46-b524a7c9943e"
+     }
+    ],
+    "tenant_id": "d6fb3c44-4554-4372-aa46-b524a7c9943e",
+    "written": [
+     {
+      "case_id": "d2ed52fd-d2fa-485f-9269-692e82629e08",
+      "code": "INC-000001",
+      "kind": "INCIDENT",
+      "revision_id": "affa9f23-4d4d-41e8-82a0-0daaf2d7a9b8",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "1b5bad35-2575-45f6-b670-5977b356eeab",
+      "code": "WR-000002",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     },
+     {
+      "case_id": "d1de68d6-b0e6-41a3-b1ea-aa991d996282",
+      "code": "WR-000003",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+     }
+    ]
+   },
+   "captured_at": "2026-10-22T17:55:29.574Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "maintenance-linked-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 59,
+       "w": 1160
+      },
+      "control_bar": {
+       "h": 35,
+       "w": 595
+      },
+      "status_line": {
+       "h": 33,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 47,
+       "w": 1160
+      },
+      "cards": {
+       "h": 130,
+       "w": 1160
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 370,
+       "w": 1160
+      },
+      "tabs": {
+       "h": 43,
+       "w": 1160
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 1160
+      },
+      "notice": {
+       "h": 42,
+       "w": 1160
+      },
+      "status_strip": null,
+      "table": {
+       "h": 239,
+       "w": 1120
+      },
+      "thead": {
+       "h": 35,
+       "w": 1120
+      },
+      "pager": {
+       "h": 29,
+       "w": 1120
+      },
+      "scroll_hint": {
+       "h": 0,
+       "w": 0
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      102,
+      102
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 1120,
+      "scroll": 1120,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:55 UTC",
+      "cards": [
+       "Open work22 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–2 of 2",
+      "first_row": [
+       "WR-000003 · Follow up the accepted ActionFull title textFollow up the accepted A",
+       "No asset recorded · Kobo mini-grid",
+       "Not assigned",
+       "Open",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000003",
+       "WR-000002"
+      ],
+      "lineage": [
+       "Action 3b0da2f9",
+       "Finding 6c1093be · Action 3b0da2f9"
+      ],
+      "lineage_links": [
+       [
+        [
+         "Action 3b0da2f9",
+         "/sites/KOBO-001/actions/3b0da2f9-b059-49bd-9bf9-a824fba0b1f8?event_id=1480db07-7ac7-42f4-aae6-076ae508b5df"
+        ]
+       ],
+       [
+        [
+         "Finding 6c1093be",
+         "/sites/KOBO-001/findings/6c1093be-b052-4c9e-9287-dde13028f30a?revision_id=39a3ced5-d3c7-4923-bacd-b0fc75a24bb2"
+        ],
+        [
+         "Action 3b0da2f9",
+         "/sites/KOBO-001/actions/3b0da2f9-b059-49bd-9bf9-a824fba0b1f8?event_id=1480db07-7ac7-42f4-aae6-076ae508b5df"
+        ]
+       ]
+      ],
+      "tabs": "CorrectivePreventive · scheduled",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+     "image": "maintenance-linked-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      },
+      {
+       "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+       "status": 200
+      }
+     ],
+     "heights": {
+      "page_header": {
+       "h": 54,
+       "w": 358
+      },
+      "control_bar": {
+       "h": 165,
+       "w": 358
+      },
+      "status_line": {
+       "h": 17,
+       "w": 175
+      },
+      "date_bar_slot": {
+       "h": 211,
+       "w": 358
+      },
+      "cards": {
+       "h": 269,
+       "w": 358
+      },
+      "loading": null,
+      "state_block": null,
+      "zero_block": null,
+      "table_panel": {
+       "h": 446,
+       "w": 358
+      },
+      "tabs": {
+       "h": 43,
+       "w": 358
+      },
+      "breadcrumb": {
+       "h": 20,
+       "w": 358
+      },
+      "notice": {
+       "h": 60,
+       "w": 358
+      },
+      "status_strip": null,
+      "table": {
+       "h": 274,
+       "w": 1030
+      },
+      "thead": {
+       "h": 35,
+       "w": 1030
+      },
+      "pager": {
+       "h": 29,
+       "w": 318
+      },
+      "scroll_hint": {
+       "h": 17,
+       "w": 318
+      },
+      "card_max": {
+       "h": 130,
+       "w": 0
+      }
+     },
+     "row_heights": [
+      120,
+      119
+     ],
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "client": 318,
+      "scroll": 1030,
+      "overflowX": "auto"
+     },
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     },
+     "text": {
+      "status": "As known at 22 Oct 2026, 17:55 UTC",
+      "cards": [
+       "Open work22 requests in progress or open",
+       "Verification overdueNot assessedNo work-outcome verification clock",
+       "Preventive due in 30 daysNot assessedSee PreventiveView detail →",
+       "Repeat findingsNot assessedNo repeat-finding assessment"
+      ],
+      "state": null,
+      "zero": null,
+      "showing": "Showing 1–2 of 2",
+      "first_row": [
+       "WR-000003 · Follow up the accepted ActionFull title textFollow up the accepted A",
+       "No asset recorded · Kobo mini-grid",
+       "Not assigned",
+       "Open",
+       "Not established",
+       "Not recorded"
+      ],
+      "codes": [
+       "WR-000003",
+       "WR-000002"
+      ],
+      "lineage": [
+       "Action 3b0da2f9",
+       "Finding 6c1093be · Action 3b0da2f9"
+      ],
+      "lineage_links": [
+       [
+        [
+         "Action 3b0da2f9",
+         "/sites/KOBO-001/actions/3b0da2f9-b059-49bd-9bf9-a824fba0b1f8?event_id=1480db07-7ac7-42f4-aae6-076ae508b5df"
+        ]
+       ],
+       [
+        [
+         "Finding 6c1093be",
+         "/sites/KOBO-001/findings/6c1093be-b052-4c9e-9287-dde13028f30a?revision_id=39a3ced5-d3c7-4923-bacd-b0fc75a24bb2"
+        ],
+        [
+         "Action 3b0da2f9",
+         "/sites/KOBO-001/actions/3b0da2f9-b059-49bd-9bf9-a824fba0b1f8?event_id=1480db07-7ac7-42f4-aae6-076ae508b5df"
+        ]
+       ]
+      ],
+      "tabs": "CorrectivePreventive · scheduled",
+      "notice": "A completed request records activity; an equipment outcome remains unverified."
+     }
+    }
+   ]
+  }
+ ]
+}

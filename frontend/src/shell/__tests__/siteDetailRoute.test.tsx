@@ -101,8 +101,8 @@ const LIVE_SITE_DETAIL: SiteDetailReadModel = {
  * site because it is the INTELLIGENCE rail root and owns the global Findings
  * index, a surface of its own rather than a placeholder for a site page.
  */
-// W6-01a: Incidents rail root is live.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Evidence", "Financials"];
+// W6-01b: Maintenance rail root is live.
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -444,8 +444,8 @@ describe("operator navigation lost an item and gained none", () => {
     );
     unmount();
 
-    // W6-01a: Incidents rail root is live.
-    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/evidence", "/financials"]);
+    // W6-01b: Maintenance rail root is live.
+    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen();

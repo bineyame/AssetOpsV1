@@ -548,7 +548,7 @@ function Get-OperatorRailFailures {
         "live|Findings|INTELLIGENCE|/findings",
         "live|Actions|WORK|/actions",
         "live|Incidents|WORK|/incidents",
-        "unavailable|Maintenance|WORK|",
+        "live|Maintenance|WORK|/maintenance",
         "unavailable|Operational records|WORK|",
         "live|Evidence|ASSURANCE|/evidence",
         "live|Financials|BUSINESS|/financials",
@@ -749,7 +749,10 @@ function Get-InPageUnavailableEntryFailures {
     # no Scenarios slot).
     # W4-03 unit 6b (closure 4 B4, closure 5, u5 6b, u6 ruling 4): canonical mini Alternatives is a live route, so
     # Alternatives has zero unavailable occurrences; the mini Finding row's Analysis slot is the one new entry.
-    $expectedTabs = @("Scenarios", "Scenarios", "Cooling", "Recommendation", "Recommendation", "Availability",
+    # W5-01a C2: cold Performance > Cooling is a live route (`/sites/{site_code}/performance/cooling`), so its
+    # one unavailable occurrence is gone; the live subtab and page branch are held below.
+    # W6-01b B3 (F4): the global Maintenance page's Preventive view is live, so its B2 entry is gone again.
+    $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation", "Availability",
         "Energy / site power", "Analysis")
     # W2-F unit 4b (M12): EV Financials/Assumptions carry the mock's Scenarios slot as one literal in EvSiteViews.tsx.
     $expectedChips = @("Cost", "Risks", "Opportunities")
@@ -827,6 +830,15 @@ function Get-InPageUnavailableEntryFailures {
                 "a reviewed, truthful destination; a new unbuilt entry is a ruling, not a " +
                 "cleanup.")) | Out-Null
         }
+    }
+
+    # W5-01a C2: the live cold Cooling subtab and its page branch stay in the cold Performance frame.
+    $coldFramePath = "frontend/src/sites/ColdAssessmentViews.tsx"
+    $coldFrame = @($Modules | Where-Object { $_.Path -eq $coldFramePath })
+    $coldText = if ($coldFrame.Count -eq 0) { "" } else { $coldFrame[0].Lines -join "`n" }
+    if (-not ($coldText.Contains('data-performance-subtab="cooling"') -and $coldText.Contains('<ColdCooling'))) {
+        $failures.Add(("The live cold Cooling subtab or page branch is missing from ${coldFramePath}: it must " +
+            "carry both data-performance-subtab=""cooling"" and <ColdCooling (W5-01a C2).")) | Out-Null
     }
 
     return $failures
