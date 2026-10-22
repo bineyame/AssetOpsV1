@@ -6,3 +6,5 @@ backend/tests/fixtures/w2/ev-w206-vectors.json text eol=lf
 tools/run-backend-suite-in-container.sh text eol=lf
 # W4-01: byte-pinned work fixture (its test asserts LF, no CR, single final LF)
 backend/tests/fixtures/w4/w401-work.json text eol=lf
+# W4-03: byte-pinned mini-decisions fixture (replay test compares exact bytes)
+backend/tests/fixtures/w4/w403-mini-decisions.json text eol=lf
