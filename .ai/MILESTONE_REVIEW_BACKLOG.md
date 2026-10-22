@@ -2372,3 +2372,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - C2 review L2: every 422 hides the requested-window line, including a future `known_at` with a valid window (existing `refusalText` behaviour).
 - C2b Low 2: the handoff says 478 px, but `evidence.json` records 490 px for Context normalization at 390 (under the 500 cap).
 - 390 refused pages show the tall dark header band (shell; same as W6-01a). Fix in the post-W6 structural audit.
+
+## W6-01b Lows
+- L1: the Owner and correction-reason cells clamp to 3 lines with no full-text disclosure (the 128-character owner is cut with "…"). This copies the A2 Owner cell; the Architect should confirm or add a disclosure.
+- L2: P-B2-7 is ambiguous: `No linked Finding or Action` shows on every row without links.
+- L3: the Evidence `Preventive plan →` link carries `known_at` only when the Evidence URL had one.
