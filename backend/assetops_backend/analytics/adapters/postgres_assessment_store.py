@@ -2501,8 +2501,17 @@ class ColdReadService:
             if kind in self.HEALTH_COMPONENT_TYPES and (code, kind) in assets:
                 components.append({"component_type": kind, "asset_id": assets[(code, kind)], "asset_code": code,
                                    "display_name": comp.get("display_name") or None})
+        # Q13: the one returned probe at the `to_node` of a SIGNAL edge from a COLD_ROOM component, else None.
+        topology = content.get("topology") or {}
+        node_comp = {n.get("node_id"): n.get("component_id") for n in topology.get("nodes") or ()}
+        kinds = {x.get("component_id"): x.get("component_type") for x in content.get("components") or ()}
+        probes = {x["asset_code"]: x["asset_id"] for x in components if x["component_type"] == "TEMPERATURE_PROBE"}
+        chamber = {node_comp.get(e.get("to_node")) for e in topology.get("connections") or ()
+                   if e.get("medium") == "SIGNAL" and kinds.get(node_comp.get(e.get("from_node"))) == "COLD_ROOM"
+                   and node_comp.get(e.get("to_node")) in probes}
         return {"revision_id": str(revision_id).lower(),
-                "components": sorted(components, key=lambda x: (x["component_type"], x["asset_code"]))}
+                "components": sorted(components, key=lambda x: (x["component_type"], x["asset_code"])),
+                "chamber_probe_asset_id": probes[next(iter(chamber))] if len(chamber) == 1 else None}
 
     @staticmethod
     def accepted_on(c: Connection, t: UUID, s: UUID, ids: list[str], after: tuple[datetime, UUID] | None = None,

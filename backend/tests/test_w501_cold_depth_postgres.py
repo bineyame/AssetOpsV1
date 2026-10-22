@@ -375,10 +375,11 @@ def test_health_not_configured(chain) -> None:  # noqa: F811
     gen, plant, sensing = first["health"]["rows"]
     assert [r["condition_state"] for r in first["health"]["rows"]] == ["UNKNOWN", "UNKNOWN", "UNKNOWN"]
     assert [gen["asset_id"]] == assets["GENERATOR"] and [plant["asset_id"]] == assets["COMPRESSOR"]
-    # Open question (handoff): the Foundation declares two probes (chamber and ambient) and no policy is selected,
-    # so the C1 Health table gives a null probe `asset_id`; both probe assets are listed.
+    # Q13: no selection, two probes declared; the topology's SIGNAL edge from the COLD_ROOM names `probe-1`.
     assert [a["asset_id"] for a in sensing["assets"]] == assets["TEMPERATURE_PROBE"]
-    assert len(assets["TEMPERATURE_PROBE"]) == 2 and sensing["asset_id"] is None
+    assert [a["asset_code"] for a in sensing["assets"]] == ["ambient-1", "probe-1"]
+    probe_1 = next(a["asset_id"] for a in sensing["assets"] if a["asset_code"] == "probe-1")
+    assert sensing["asset_id"] == probe_1
     [orig] = rows(built, "SELECT * FROM foundation_revision WHERE site_id = :s AND id = CAST(:f AS uuid)",
                   f=original)
     [top] = rows(built, "SELECT max(version) AS v FROM foundation_revision WHERE site_id = :s")

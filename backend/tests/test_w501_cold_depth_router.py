@@ -384,6 +384,13 @@ def test_health_rows() -> None:
     assert _health(exc_policy={"probe_asset_id": stranger}, foundation=two_probes)[0][
         "TEMPERATURE_SENSING"]["asset_id"] is None
     assert _health(exc_policy={"probe_asset_id": stranger})[0]["TEMPERATURE_SENSING"]["asset_id"] == PROBE_A
+    # Q13: the Foundation's chamber probe is the third candidate; null gives no asset; a selected policy probe wins.
+    chamber = {**two_probes, "chamber_probe_asset_id": probe_b}
+    assert _health(foundation=chamber)[0]["TEMPERATURE_SENSING"]["asset_id"] == probe_b
+    assert _health(foundation={**two_probes, "chamber_probe_asset_id": None})[0][
+        "TEMPERATURE_SENSING"]["asset_id"] is None
+    assert _health(exc_policy={"probe_asset_id": PROBE_A}, foundation=chamber)[0][
+        "TEMPERATURE_SENSING"]["asset_id"] == PROBE_A
 
     # An unresolved Foundation never yields NOT_CONFIGURED: every row stays assessed with no asset.
     _, rows = _health(chains=[failure], exc_links=links, accepted=[req, res, gen, p1], foundation=None)

@@ -49,3 +49,7 @@ Commits `5d10d0e8` (build + tests) and `e7d8afad` (Health test reads the Foundat
 ### Open question for the Architect (Q-H1)
 
 The registered cold Foundation (`backend/tests/fixtures/w2/cold-lab-001.yaml`) declares **two** `TEMPERATURE_PROBE` components, `probe-1` (chamber) and `ambient-1`, each with an asset row. In `test_health_not_configured` the card says the first GET gives `asset_id`s "equal to the scoped asset rows of the Foundation's generator, compressor and probe codes". With no selection there is no policy, so the C1 Health table's rule ("else the only asset when `len(assets) == 1`; else null") gives a **null** Temperature sensing `asset_id`. The test currently asserts the table result (probe `asset_id` null, both probe assets listed in `assets`) and marks it as this open question. Should the table pick the chamber probe (for example by bound `chamber_temperature` role) or does null stand? In the backup-failed replay the excursion policy `probe_asset_id` resolves it to the chamber probe as specified.
+
+## Run — Q13 `chamber_probe_asset_id`, 2026-10-22
+
+`ColdReadService.foundation_on` returns `chamber_probe_asset_id` (single SIGNAL-edge-from-COLD_ROOM probe, else null); `health_rows` passes it as the third `asset_id` candidate; `test_health_not_configured` asserts `probe-1` and codes `['ambient-1','probe-1']`; `test_health_rows` has the three Q13 cases. Card's focused command: **62 passed**, 747 s, private DB `assetops_w501q13_test` (dropped, 0 remain). `tools/check-all.ps1`: all 11 guards passed. No processes left running.

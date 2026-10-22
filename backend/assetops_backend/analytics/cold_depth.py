@@ -172,7 +172,8 @@ def health_rows(snap: dict[str, Any], accepted: list[dict[str, Any]], foundation
     else:
         sensing = ("UNKNOWN", "Multiple probe observations",
                    "Multiple selected probes do not establish room-wide condition", probe_ids)
-    probe_asset = _asset_id(probes, exc_policy.get("probe_asset_id"), start_policy.get("probe_asset_id"))
+    probe_asset = _asset_id(probes, exc_policy.get("probe_asset_id"), start_policy.get("probe_asset_id"),
+                         (foundation or {}).get("chamber_probe_asset_id"))
 
     return [
         _health_row("BACKUP_GENERATOR", "Backup generator", "Witness an automatic-start test", gens, gen_asset,
