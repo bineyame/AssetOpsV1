@@ -1,694 +1,6 @@
 {
-  "revision": "a9769dd9",
+  "revision": "bd8c8284",
   "pairs": [
-    {
-      "state": "cold-health-failed-start",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:03:46.600618Z",
-        "known_at": "2026-10-22T12:03:46.600618Z",
-        "rows": [
-          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
-          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:13"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-failed-start-1440-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 135,
-          "notice": 43,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 251,
-          "Data sources · data quality, not equipment condition": 299,
-          "page": 1050
-        },
-        "ids": [
-          {
-            "text": "00000003-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          }
-        ],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:03:46 UTC\n\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000003-0000-4000-8000-000000000009\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor 00000003-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000003-0000-4000-8000-000000000005\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:05:08 UTC\n\nSOURCE\tSTATUS AT 12:05 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-1440-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 138,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 198,
-          "page": 1001
-        },
-        "ids": [],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cold-health-failed-start",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:03:46.600618Z",
-        "known_at": "2026-10-22T12:03:46.600618Z",
-        "rows": [
-          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
-          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:13"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-failed-start-390-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 347,
-          "notice": 80,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 311,
-          "Data sources · data quality, not equipment condition": 505,
-          "page": 1704
-        },
-        "ids": [
-          {
-            "text": "00000003-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          }
-        ],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:03:46 UTC\n\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator\n00000003-0000-4000-8000-000000000009\n\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor\n00000003-0000-4000-8000-000000000007\n\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe\n00000003-0000-4000-8000-000000000005\n\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:05:15 UTC\n\nSOURCE\tSTATUS AT 12:05 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-390-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 314,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 286,
-          "page": 1277
-        },
-        "ids": [],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cold-health-unknown",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "UNKNOWN",
-        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:03:46.600618Z",
-        "known_at": "2026-10-22T12:03:46.600618Z",
-        "rows": [
-          "BACKUP_GENERATOR=UNKNOWN/No accepted start result/ids:0",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:0",
-          "TEMPERATURE_SENSING=UNKNOWN/No accepted probe/ids:0"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-unknown-1440-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 135,
-          "notice": 43,
-          "refusal": null,
-          "state_notice": 43,
-          "empty_sentence": 21,
-          "Condition and evidence": 285,
-          "Data sources · data quality, not equipment condition": 299,
-          "page": 1145
-        },
-        "ids": [
-          {
-            "text": "00000003-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          }
-        ],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:03:46 UTC\n\nNo selected cold assessment covers this window yet.\nBackup generator\nUnknown\nNo accepted automatic-start result in this window\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nUnknown\nNo accepted probe observation in this window\nView detail →\nCondition and evidence\n\nNo condition observation is available for this window.\n\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000003-0000-4000-8000-000000000009\tNo accepted start result\tWitness an automatic-start test\nRefrigeration compressor 00000003-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000003-0000-4000-8000-000000000005\tNo accepted probe\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:05:27 UTC\n\nSOURCE\tSTATUS AT 12:05 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-1440-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 138,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 198,
-          "page": 1001
-        },
-        "ids": [],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cold-health-unknown",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "UNKNOWN",
-        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:03:46.600618Z",
-        "known_at": "2026-10-22T12:03:46.600618Z",
-        "rows": [
-          "BACKUP_GENERATOR=UNKNOWN/No accepted start result/ids:0",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:0",
-          "TEMPERATURE_SENSING=UNKNOWN/No accepted probe/ids:0"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-unknown-390-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 315,
-          "notice": 80,
-          "refusal": null,
-          "state_notice": 43,
-          "empty_sentence": 21,
-          "Condition and evidence": 345,
-          "Data sources · data quality, not equipment condition": 505,
-          "page": 1767
-        },
-        "ids": [
-          {
-            "text": "00000003-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000003-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          }
-        ],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:03:46 UTC\n\nNo selected cold assessment covers this window yet.\nBackup generator\nUnknown\nNo accepted automatic-start result in this window\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nUnknown\nNo accepted probe observation in this window\nView detail →\nCondition and evidence\n\nNo condition observation is available for this window.\n\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator\n00000003-0000-4000-8000-000000000009\n\tNo accepted start result\tWitness an automatic-start test\nRefrigeration compressor\n00000003-0000-4000-8000-000000000007\n\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe\n00000003-0000-4000-8000-000000000005\n\tNo accepted probe\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:05:34 UTC\n\nSOURCE\tSTATUS AT 12:05 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-390-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 314,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 286,
-          "page": 1277
-        },
-        "ids": [],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cold-health-pending",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "PENDING_RECOMPUTE",
-        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:08:34.644604Z",
-        "known_at": "2026-10-22T12:08:34.644604Z",
-        "rows": [
-          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
-          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-pending-1440-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 135,
-          "notice": 43,
-          "refusal": null,
-          "state_notice": 43,
-          "empty_sentence": null,
-          "Condition and evidence": 251,
-          "Data sources · data quality, not equipment condition": 299,
-          "page": 1111
-        },
-        "ids": [
-          {
-            "text": "00000005-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          }
-        ],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:08:34 UTC\n\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000005-0000-4000-8000-000000000009\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor 00000005-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000005-0000-4000-8000-000000000005\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:08:45 UTC\n\nSOURCE\tSTATUS AT 12:08 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-1440-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 138,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 198,
-          "page": 1001
-        },
-        "ids": [],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cold-health-pending",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "PENDING_RECOMPUTE",
-        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:08:34.644604Z",
-        "known_at": "2026-10-22T12:08:34.644604Z",
-        "rows": [
-          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
-          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-pending-390-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 347,
-          "notice": 80,
-          "refusal": null,
-          "state_notice": 61,
-          "empty_sentence": null,
-          "Condition and evidence": 311,
-          "Data sources · data quality, not equipment condition": 505,
-          "page": 1784
-        },
-        "ids": [
-          {
-            "text": "00000005-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          }
-        ],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:08:34 UTC\n\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator\n00000005-0000-4000-8000-000000000009\n\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor\n00000005-0000-4000-8000-000000000007\n\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe\n00000005-0000-4000-8000-000000000005\n\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:08:51 UTC\n\nSOURCE\tSTATUS AT 12:08 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-390-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 314,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 286,
-          "page": 1277
-        },
-        "ids": [],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cold-health-historical",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T12%3A08%3A07.635852Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "HISTORICAL",
-        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:08:34.644604Z",
-        "known_at": "2026-10-22T12:08:07.635852Z",
-        "rows": [
-          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
-          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-historical-1440-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 135,
-          "notice": 43,
-          "refusal": null,
-          "state_notice": 43,
-          "empty_sentence": null,
-          "Condition and evidence": 251,
-          "Data sources · data quality, not equipment condition": 299,
-          "page": 1111
-        },
-        "ids": [
-          {
-            "text": "00000005-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "static"
-          }
-        ],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:08:07 UTC\n\nRead at an earlier evidence cutoff; newer committed evidence exists.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000005-0000-4000-8000-000000000009\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor 00000005-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000005-0000-4000-8000-000000000005\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:09:05 UTC\n\nSOURCE\tSTATUS AT 12:09 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-1440-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 138,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 198,
-          "page": 1001
-        },
-        "ids": [],
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cold-health-historical",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T12%3A08%3A07.635852Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "HISTORICAL",
-        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
-        "committed_watermark": "2026-10-22T12:08:34.644604Z",
-        "known_at": "2026-10-22T12:08:07.635852Z",
-        "rows": [
-          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
-          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
-          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cold-health-historical-390-app.png",
-      "app": {
-        "panels": [
-          "Condition and evidence",
-          "Data sources · data quality, not equipment condition"
-        ],
-        "blocks": {
-          "cards": 347,
-          "notice": 80,
-          "refusal": null,
-          "state_notice": 61,
-          "empty_sentence": null,
-          "Condition and evidence": 311,
-          "Data sources · data quality, not equipment condition": 505,
-          "page": 1784
-        },
-        "ids": [
-          {
-            "text": "00000005-0000-4000-8000-000000000009",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000007",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          },
-          {
-            "text": "00000005-0000-4000-8000-000000000005",
-            "lines": 1,
-            "inside": true,
-            "clipped": false,
-            "sticky": "sticky"
-          }
-        ],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:08:07 UTC\n\nRead at an earlier evidence cutoff; newer committed evidence exists.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator\n00000005-0000-4000-8000-000000000009\n\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor\n00000005-0000-4000-8000-000000000007\n\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe\n00000005-0000-4000-8000-000000000005\n\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:09:13 UTC\n\nSOURCE\tSTATUS AT 12:09 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
-      },
-      "mock_image": "cold-health-390-mock.png",
-      "mock": {
-        "panels": [
-          "Condition and evidence"
-        ],
-        "blocks": {
-          "cards": 314,
-          "notice": null,
-          "refusal": null,
-          "state_notice": null,
-          "empty_sentence": null,
-          "Condition and evidence": 286,
-          "page": 1277
-        },
-        "ids": [],
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "sources_last": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
     {
       "state": "cold-health-refused",
       "viewport": "1440x1000",
@@ -717,11 +29,13 @@
           "Data sources · data quality, not equipment condition": 299,
           "page": 1000
         },
-        "ids": [],
+        "layout": null,
+        "card_values": [],
+        "mock_values": null,
         "scrollWidth": 1440,
         "clientWidth": 1440,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nCold depth unavailable\n\nCOLD_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:14:30 UTC\n\nSOURCE\tSTATUS AT 12:14 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nCold depth unavailable\n\nCOLD_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:41:39 UTC\n\nSOURCE\tSTATUS AT 12:41 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
       },
       "mock_image": "cold-health-1440-mock.png",
       "mock": {
@@ -737,7 +51,13 @@
           "Condition and evidence": 198,
           "page": 1001
         },
-        "ids": [],
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          27,
+          27
+        ],
         "scrollWidth": 1425,
         "clientWidth": 1425,
         "ellipsized": 0
@@ -775,11 +95,13 @@
           "Data sources · data quality, not equipment condition": 505,
           "page": 1015
         },
-        "ids": [],
+        "layout": null,
+        "card_values": [],
+        "mock_values": null,
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nCold depth unavailable\n\nCOLD_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:14:36 UTC\n\nSOURCE\tSTATUS AT 12:14 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nCold depth unavailable\n\nCOLD_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:41:47 UTC\n\nSOURCE\tSTATUS AT 12:41 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
       },
       "mock_image": "cold-health-390-mock.png",
       "mock": {
@@ -795,12 +117,978 @@
           "Condition and evidence": 286,
           "page": 1277
         },
-        "ids": [],
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          24,
+          24
+        ],
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0
       },
       "titles_equal": null,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-failed-start",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:40:04.350438Z",
+        "known_at": "2026-10-22T12:40:04.350438Z",
+        "rows": [
+          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
+          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:13"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-failed-start-1440-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 140,
+          "notice": 43,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 251,
+          "Data sources · data quality, not equipment condition": 299,
+          "page": 1055
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": true,
+            "px": 17,
+            "border_top": "3px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:40:04 UTC\n\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000003-0000-4000-8000-000000000009\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor 00000003-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000003-0000-4000-8000-000000000005\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:41:58 UTC\n\nSOURCE\tSTATUS AT 12:41 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 138,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 198,
+          "page": 1001
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          27,
+          27
+        ],
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-failed-start",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:40:04.350438Z",
+        "known_at": "2026-10-22T12:40:04.350438Z",
+        "rows": [
+          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
+          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:13"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-failed-start-390-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 348,
+          "notice": 80,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 295,
+          "Data sources · data quality, not equipment condition": 505,
+          "page": 1690
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [
+            "generator-1",
+            "compressor-1",
+            "probe-1"
+          ],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": true,
+            "px": 17,
+            "border_top": "3px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:40:04 UTC\n\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\n\ngenerator-1\nFull ID\n\tAutomatic start failed\tWitness an automatic-start test\n\ncompressor-1\nFull ID\n\tCondition unknown\tRecord matched loading, door and ambient context\n\nprobe-1\nFull ID\n\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:42:07 UTC\n\nSOURCE\tSTATUS AT 12:42 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-390-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 314,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 286,
+          "page": 1277
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          24,
+          24
+        ],
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-unknown",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "UNKNOWN",
+        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:40:04.350438Z",
+        "known_at": "2026-10-22T12:40:04.350438Z",
+        "rows": [
+          "BACKUP_GENERATOR=UNKNOWN/No accepted start result/ids:0",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:0",
+          "TEMPERATURE_SENSING=UNKNOWN/No accepted probe/ids:0"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-unknown-1440-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 140,
+          "notice": 43,
+          "refusal": null,
+          "state_notice": 43,
+          "empty_sentence": 21,
+          "Condition and evidence": 285,
+          "Data sources · data quality, not equipment condition": 299,
+          "page": 1150
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:40:04 UTC\n\nNo selected cold assessment covers this window yet.\nBackup generator\nUnknown\nNo accepted automatic-start result in this window\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nUnknown\nNo accepted probe observation in this window\nView detail →\nCondition and evidence\n\nNo condition observation is available for this window.\n\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000003-0000-4000-8000-000000000009\tNo accepted start result\tWitness an automatic-start test\nRefrigeration compressor 00000003-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000003-0000-4000-8000-000000000005\tNo accepted probe\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:42:20 UTC\n\nSOURCE\tSTATUS AT 12:42 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 138,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 198,
+          "page": 1001
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          27,
+          27
+        ],
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-unknown",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "UNKNOWN",
+        "foundation_revision_id": "00000003-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:40:04.350438Z",
+        "known_at": "2026-10-22T12:40:04.350438Z",
+        "rows": [
+          "BACKUP_GENERATOR=UNKNOWN/No accepted start result/ids:0",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:0",
+          "TEMPERATURE_SENSING=UNKNOWN/No accepted probe/ids:0"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-unknown-390-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 317,
+          "notice": 80,
+          "refusal": null,
+          "state_notice": 43,
+          "empty_sentence": 21,
+          "Condition and evidence": 330,
+          "Data sources · data quality, not equipment condition": 505,
+          "page": 1754
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [
+            "generator-1",
+            "compressor-1",
+            "probe-1"
+          ],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:40:04 UTC\n\nNo selected cold assessment covers this window yet.\nBackup generator\nUnknown\nNo accepted automatic-start result in this window\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nUnknown\nNo accepted probe observation in this window\nView detail →\nCondition and evidence\n\nNo condition observation is available for this window.\n\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\n\ngenerator-1\nFull ID\n\tNo accepted start result\tWitness an automatic-start test\n\ncompressor-1\nFull ID\n\tCondition unknown\tRecord matched loading, door and ambient context\n\nprobe-1\nFull ID\n\tNo accepted probe\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:42:27 UTC\n\nSOURCE\tSTATUS AT 12:42 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-390-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 314,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 286,
+          "page": 1277
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          24,
+          24
+        ],
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-pending",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "PENDING_RECOMPUTE",
+        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:45:55.681999Z",
+        "known_at": "2026-10-22T12:45:55.681999Z",
+        "rows": [
+          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
+          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-pending-1440-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 140,
+          "notice": 43,
+          "refusal": null,
+          "state_notice": 43,
+          "empty_sentence": null,
+          "Condition and evidence": 251,
+          "Data sources · data quality, not equipment condition": 299,
+          "page": 1116
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": true,
+            "px": 17,
+            "border_top": "3px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:45:55 UTC\n\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000005-0000-4000-8000-000000000009\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor 00000005-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000005-0000-4000-8000-000000000005\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:46:06 UTC\n\nSOURCE\tSTATUS AT 12:46 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 138,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 198,
+          "page": 1001
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          27,
+          27
+        ],
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-pending",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "PENDING_RECOMPUTE",
+        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:45:55.681999Z",
+        "known_at": "2026-10-22T12:45:55.681999Z",
+        "rows": [
+          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
+          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-pending-390-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 348,
+          "notice": 80,
+          "refusal": null,
+          "state_notice": 61,
+          "empty_sentence": null,
+          "Condition and evidence": 295,
+          "Data sources · data quality, not equipment condition": 505,
+          "page": 1769
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [
+            "generator-1",
+            "compressor-1",
+            "probe-1"
+          ],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": true,
+            "px": 17,
+            "border_top": "3px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:45:55 UTC\n\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\n\ngenerator-1\nFull ID\n\tAutomatic start failed\tWitness an automatic-start test\n\ncompressor-1\nFull ID\n\tCondition unknown\tRecord matched loading, door and ambient context\n\nprobe-1\nFull ID\n\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:46:13 UTC\n\nSOURCE\tSTATUS AT 12:46 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-390-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 314,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 286,
+          "page": 1277
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          24,
+          24
+        ],
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-historical",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T12%3A45%3A22.700870Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "HISTORICAL",
+        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:45:55.681999Z",
+        "known_at": "2026-10-22T12:45:22.700870Z",
+        "rows": [
+          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
+          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-historical-1440-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 140,
+          "notice": 43,
+          "refusal": null,
+          "state_notice": 43,
+          "empty_sentence": null,
+          "Condition and evidence": 251,
+          "Data sources · data quality, not equipment condition": 299,
+          "page": 1116
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": true,
+            "px": 17,
+            "border_top": "3px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 27,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:45:22 UTC\n\nRead at an earlier evidence cutoff; newer committed evidence exists.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\nBackup generator 00000005-0000-4000-8000-000000000009\tAutomatic start failed\tWitness an automatic-start test\nRefrigeration compressor 00000005-0000-4000-8000-000000000007\tCondition unknown\tRecord matched loading, door and ambient context\nChamber temperature probe 00000005-0000-4000-8000-000000000005\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:46:29 UTC\n\nSOURCE\tSTATUS AT 12:46 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 138,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 198,
+          "page": 1001
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          27,
+          27
+        ],
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "sources_last": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cold-health-historical",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T12%3A45%3A22.700870Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "HISTORICAL",
+        "foundation_revision_id": "00000005-0000-4000-8000-000000000016",
+        "committed_watermark": "2026-10-22T12:45:55.681999Z",
+        "known_at": "2026-10-22T12:45:22.700870Z",
+        "rows": [
+          "BACKUP_GENERATOR=NEEDS_INVESTIGATION/Automatic start failed/ids:3",
+          "COOLING_PLANT=UNKNOWN/Condition unknown/ids:1",
+          "TEMPERATURE_SENSING=LIMITED/Single-point observation/ids:12"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cold-health-historical-390-app.png",
+      "app": {
+        "panels": [
+          "Condition and evidence",
+          "Data sources · data quality, not equipment condition"
+        ],
+        "blocks": {
+          "cards": 348,
+          "notice": 80,
+          "refusal": null,
+          "state_notice": 61,
+          "empty_sentence": null,
+          "Condition and evidence": 295,
+          "Data sources · data quality, not equipment condition": 505,
+          "page": 1769
+        },
+        "layout": {
+          "headers_visible": [
+            true,
+            true,
+            true
+          ],
+          "cells_visible": [
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ],
+            [
+              true,
+              true
+            ]
+          ],
+          "scroller_scrolls": false,
+          "open_details": 0,
+          "codes": [
+            "generator-1",
+            "compressor-1",
+            "probe-1"
+          ],
+          "ok": true
+        },
+        "card_values": [
+          {
+            "kind": "BACKUP_GENERATOR",
+            "assessment": true,
+            "px": 17,
+            "border_top": "3px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "COOLING_PLANT",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          },
+          {
+            "kind": "TEMPERATURE_SENSING",
+            "assessment": false,
+            "px": 24,
+            "border_top": "1px",
+            "color": "rgb(23, 36, 59)"
+          }
+        ],
+        "mock_values": null,
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nHealth\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nHealth · site-level asset-condition summary\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 12:45:22 UTC\n\nRead at an earlier evidence cutoff; newer committed evidence exists.\nBackup generator\nNeeds attention\nFailed automatic start observed; part not diagnosed\nView detail →\nCooling plant\nUnknown\nComparable recovery and condition evidence absent\nView detail →\nTemperature sensing\nLimited\nOne accepted probe does not establish room-wide coverage\nView detail →\nCondition and evidence\nASSET\tSUPPORTED ASSESSMENT\tNEXT EVIDENCE\n\ngenerator-1\nFull ID\n\tAutomatic start failed\tWitness an automatic-start test\n\ncompressor-1\nFull ID\n\tCondition unknown\tRecord matched loading, door and ambient context\n\nprobe-1\nFull ID\n\tSingle-point observation\tAdd calibrated spatial coverage\nThese records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.\nData sources · data quality, not equipment condition\n\nCurrent · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment.\n\nSome gateways are not in contact. 1 enabled gateway: 0 current, 0 stale, 1 unknown · read 2026-10-22 12:46:37 UTC\n\nSOURCE\tSTATUS AT 12:46 UTC\tQUALITY\tAFFECTS\tOPEN\nGateway edge-cold-lab-001\n9 devices\n\tNever received\tNothing received\tNot recorded\tDetails\n\nNo enabled gateway has reported yet, so nothing is known about queues or storage.\n\nTechnical details"
+      },
+      "mock_image": "cold-health-390-mock.png",
+      "mock": {
+        "panels": [
+          "Condition and evidence"
+        ],
+        "blocks": {
+          "cards": 314,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "empty_sentence": null,
+          "Condition and evidence": 286,
+          "page": 1277
+        },
+        "layout": null,
+        "card_values": [],
+        "mock_values": [
+          17,
+          24,
+          24
+        ],
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
       "sources_last": true,
       "no_overflow": true,
       "over_cap": []

@@ -194,3 +194,23 @@ Commit `a9769dd9` (code) plus the evidence commit after it. Files: `ColdHealthDe
   - Other blocks: cards 135 at 1440 and at most 347 at 390 (caps 200/430). Data sources 299/505 (caps 700/800). Page at most 1145/1784 (caps 1900/2350). Refusal 140.
   - Against the v69 `cold-health` mock: same cards in the same order, with an amber top border only on the Backup card, body-colour 17 px values, plain labels and `View detail →`, then `Condition and evidence` with the same three columns. The remaining differences are the labelled ones: the third probe row, the asset ID line, the condition notice, the currentness notice and the Data sources panel.
 - **Cleanup.** The DB was dropped (0 `w501` DBs remain), the seed file was deleted, and the API, Vite and Chrome were stopped (no listeners).
+
+## Run — C3 rulings Q-C3-6 (review H1/M1) and review L1, 2026-10-22 — BUILT
+
+Commit `bd8c8284` (code) plus the evidence commit after it. Files: `ColdHealthDepth.tsx`, `ui/primitives.css`, `coldHealthDepth.test.tsx`, and the evidence `capture.mjs`.
+- **H1.** `assessment={row.condition_state === "NEEDS_INVESTIGATION"}`, the same amber tone, no `word`. Only a NEEDS_INVESTIGATION card is an assessment card.
+- **M1 CSS.** The literal 390 CSS replaces the 840/240 rule; `.cold-health-asset__mobile` is hidden by default.
+- **M1 Asset cell.** A matched asset renders a desktop span (name + full ID) and a mobile span (the selected `asset_code` + `<details><summary>Full ID</summary>` + full ID). A missing match shows the full ID only. The null-ID fallbacks are unchanged.
+- **Tests.** `coldHealthDepth.test.tsx` covers:
+  - H1: Backup has `v69-metric--assessment v69-metric--amber`; Cooling and Sensing have no assessment or tone class; no inline style. The state matrix (UNKNOWN / NOT_CONFIGURED Backup) has no assessment, and the failed-start fixture assesses exactly `BACKUP_GENERATOR`.
+  - M1: the selected code, both full-ID copies, `Full ID` closed then opened with the UUID, the missing-match fallback, and that `primitives.css` no longer has the 840/240 rule.
+  - **L1** (the card allows it, since this file is on the list): the cold page shows `Loading the site's gateway contact.` inside the titled Data sources panel while the source read is pending.
+- **Results.** Focused 19/19. Adjacent (`coldHealthDepth`, `coldDepth`, `coldRoutes`, `coldSiteViews`, `coldFoundation`, `siteHealthBoundary`, `src/shell`): **62 files, 1422 passed**. `tsc -b` is clean. `tools/check-all.ps1`: **all 11 guards passed** on `bd8c8284`.
+- **Browser layout assertion.** It lives in `capture.mjs` (`layout`), because jsdom has no layout. The disclosure stays closed. All three header boxes and each row's assessment and next-evidence boxes must intersect the table scroller's visible box, and the scroller must not scroll horizontally. It also records each card's value font size, and the mock's.
+- **Recaptures** of all five states at 1440/390, same method (private `assetops_w501c3cap_test`, throwaway seed, `lab_app` 9791, Vite 6191, own Chrome on CDP 9801+).
+  - Clocks: `failed-start` CURRENT 12:40:04.350438Z; `unknown` UNKNOWN on the 2026-10-05 window; `pending` PENDING_RECOMPUTE 12:45:55.681999Z (W0 12:45:22.700870Z); `historical` HISTORICAL with `known_at=W0`. `refused` is 422 `COLD_WINDOW_INVALID`; the second shot is used, since the first followed a cold Vite load.
+  - **layoutOk=true** at 1440 and 390 in every state with a table. Every state has no document overflow and 0 ellipsized. Panel titles equal the mock's apart from the labelled Data sources panel, which is last.
+  - Card values for failed-start/pending/historical are 17/27/27 px at 1440 and 17/24/24 px at 390, **equal to the mock's** `cold-health` values (the mock's 760 px rule makes plain values 24). In `unknown` all three cards are plain, because no row is NEEDS_INVESTIGATION.
+  - **Caps:** cards 140/≤348 (200/430); Condition and evidence 251–285 / 295–330 (330/430); Data sources 299/505 (700/800); page ≤1150/≤1769 (1900/2350); refusal 140.
+  - Against the v69 `cold-health` mock: same card treatment (amber-bordered Backup assessment card, large plain Cooling and Sensing values, `View detail →`). At 390, all three columns are visible with compact asset codes, as in the mock. The labelled additions (probe row, `Full ID`, notices, Data sources) remain.
+- **Cleanup.** The DB was dropped (0 `w501` DBs remain), the seed file was deleted, and the API, Vite and Chrome were stopped (no listeners).

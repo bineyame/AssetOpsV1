@@ -74,14 +74,28 @@ const MEASURE = (isMock) => `(async () => {
   for (const p of panels) blocks[p.title] = p.h;
   blocks.page = document.documentElement.scrollHeight;
   const ellipsized = Array.from(root.querySelectorAll("*")).filter((el) => getComputedStyle(el).textOverflow === "ellipsis" && el.scrollWidth > el.clientWidth).length;
-  // Q-C3-5: each full asset ID sits on one line inside its sticky Asset cell, not clipped or overflowing it.
-  const ids = Array.from(root.querySelectorAll("[data-health-asset-id]")).map((el) => {
-    const cell = el.closest("th").getBoundingClientRect(); const r = el.getBoundingClientRect();
-    return { text: el.textContent, lines: Math.round(r.height / parseFloat(getComputedStyle(el).lineHeight || "14")),
-      inside: r.left >= cell.left - 0.5 && r.right <= cell.right + 0.5, clipped: el.scrollWidth > el.clientWidth + 1,
-      sticky: getComputedStyle(el.closest("th")).position };
-  });
-  return { panels: panels.map((p) => p.title).filter(Boolean), blocks, ids, scrollWidth: document.documentElement.scrollWidth,
+  // Q-C3-6 M1 browser layout assertion (disclosure closed): the three header boxes and each row's assessment and
+  // next-evidence boxes intersect the table scroller's visible box, and the scroller does not scroll horizontally.
+  const scroller = root.querySelector(".cold-health-condition .data-table__scroll");
+  let layout = null;
+  if (scroller) {
+    const v = scroller.getBoundingClientRect();
+    const visible = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.right > v.left && r.left < v.right && r.right <= v.right + 0.5; };
+    const heads = Array.from(scroller.querySelectorAll("thead th"));
+    const rows = Array.from(scroller.querySelectorAll("tbody tr"));
+    layout = {
+      headers_visible: heads.map(visible), cells_visible: rows.map((tr) => Array.from(tr.querySelectorAll("td")).map(visible)),
+      scroller_scrolls: scroller.scrollWidth > scroller.clientWidth + 1,
+      open_details: scroller.querySelectorAll("details[open]").length,
+      codes: Array.from(scroller.querySelectorAll("[data-health-asset-code]")).filter((e) => e.offsetParent !== null).map((e) => e.textContent),
+    };
+    layout.ok = layout.headers_visible.length === 3 && layout.headers_visible.every(Boolean) && layout.cells_visible.every((r) => r.length === 2 && r.every(Boolean)) && !layout.scroller_scrolls && layout.open_details === 0;
+  }
+  const card_values = Array.from(root.querySelectorAll("[data-health-card]")).map((c) => ({ kind: c.getAttribute("data-health-card"),
+    assessment: c.classList.contains("v69-metric--assessment"), px: parseFloat(getComputedStyle(c.querySelector(".v69-metric__value")).fontSize),
+    border_top: getComputedStyle(c).borderTopWidth, color: getComputedStyle(c.querySelector(".v69-metric__value")).color }));
+  const mock_values = ${isMock ? 'Array.from(root.querySelectorAll(".cards .metric .metric-value")).map((e) => parseFloat(getComputedStyle(e).fontSize))' : 'null'};
+  return { panels: panels.map((p) => p.title).filter(Boolean), blocks, layout, card_values, mock_values, scrollWidth: document.documentElement.scrollWidth,
     clientWidth: document.documentElement.clientWidth, ellipsized, text: root.innerText.slice(0, 4000) };
 })()`;
 
@@ -123,6 +137,6 @@ for (const [w, hgt] of SIZES) {
 writeFileSync(evidencePath, JSON.stringify({ revision: REV, pairs: [...prior.pairs.filter((p) => p.state !== `cold-health-${STATE}`), ...pairs] }, null, 2));
 for (const p of pairs) {
   console.log(`${p.state} ${p.viewport} read=${p.read.http}/${p.read.code ?? p.read.selection_state} ok=${p.read_ok} wm=${p.read.committed_watermark} ` +
-    `overflow=${!p.no_overflow} titlesEqual=${p.titles_equal} sourcesLast=${p.sources_last} overCap=[${p.over_cap.join("; ")}] ellipsized=${p.app.ellipsized} blocks=${JSON.stringify(p.app.blocks)}`);
+    `layoutOk=${p.app.layout?.ok ?? null} values=${JSON.stringify((p.app.card_values ?? []).map((c) => c.px))} mockValues=${JSON.stringify(p.mock.mock_values)} overflow=${!p.no_overflow} titlesEqual=${p.titles_equal} sourcesLast=${p.sources_last} overCap=[${p.over_cap.join("; ")}] ellipsized=${p.app.ellipsized} blocks=${JSON.stringify(p.app.blocks)}`);
 }
 ws.close(); chrome.kill(); process.exit(0);
