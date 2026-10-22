@@ -30,3 +30,25 @@ Stopped per dispatch rule (unspecified/contradicting code => report, do not choo
 None run (no code).
 
 Next: Architect amendment of A1 card (Q1-Q2 required; Q3-Q9 rulings), then rebuild A1; then A1 per-unit review.
+
+## Run (A1 build after the A1Q amendment, 2026-10-22)
+Commits: `ad1cefc1` (A1 Lane B + Lane A), `801e5ad8` (seed key fix). Files exactly the amended A1 list.
+- Lane B: `work/global_index.py` (`GlobalWorkIndexService`, `parse_global_request`, HMAC cursor with `page_one_mode`),
+  `work/adapters/postgres_global_read.py` (`PostgresGlobalWorkRead`/`GlobalReadTx`, W4 `_ReadTx` reused),
+  `global_work_api.py`, `tools/w601_seed.py`, `backend/tests/test_w601a_global_incidents.py`.
+- Lane A: G1 `$pgReaders` line, G2 composition builders + `main.py` mount, G3 README key block.
+Tests: `test_w601a_global_incidents.py` 15 passed; with adjacent `test_w401_work_api.py` + `test_w301_estate_api.py`
+34 passed (304 s, private `assetops_w601a_test`, dropped). Full backend suite not run (per dispatch).
+`tools/check-all.ps1`: all 11 guards passed. G1 non-vacuous: deleting the reader line fails check-architecture
+(sqlalchemy import in `postgres_global_read.py`), reverted with `git checkout`.
+Seed CLI smoke: `--fixture historical` and `cursor_change --append` on `assetops_w601_a1_test` (dropped). No process left.
+
+Readings to confirm (non-blocking, recorded rather than chosen silently):
+- R1. §4 requires the ordered write clock, which `build_work_service` cannot take; the seed tool builds
+  `WorkService(PostgresWorkStore(..., test_db_clock_override=...))` directly (outside every guard scan root; G6(c)
+  names only `build_work_service`). Confirm.
+- R2. `linked` fixture is not provided by A1 (needs Finding/Action producers); §4 allows a labelled pure snapshot. A2 decides.
+- R3. The global selection token binds per-row case/revision/event/record/link-pair/lineage/cited IDs and request
+  codes, not W4's cold/EV fence states (global status never derives from them, Q4).
+- R4. `empty_scope` seeds the `incidents` rows; the empty scope comes from the read's deny-all access callback.
+Next: independent A1 per-unit review, then A2.
