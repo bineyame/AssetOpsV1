@@ -17,12 +17,14 @@ import {
   type CoolingRecoveryState,
   coolingCardLabels,
 } from "./ColdDepthClient";
+import { CoolingObservationGraphic } from "./coldDepthGraphics";
 import { type ColdSiteRoutes, RequestedWindowBar, SelectedWindowBar, coldUiHref, recordLabel, utcClock } from "./coldSiteViews";
 
 export const COOLING_LOADING = "Loading the site's cooling read.";
 export const COLD_DEPTH_REFUSAL_HEADING = "Cold depth unavailable";
 export const COLD_DEPTH_UNREACHABLE = "The cold depth read could not be reached.";
 export const COLD_DEPTH_MALFORMED = "The cold depth read answered in an unexpected shape.";
+export const COOLING_MATCH_NOT_ESTABLISHED = "Not established";
 export const COOLING_EMPTY = "No accepted recovery sequence in this window.";
 export const COOLING_NOTICE =
   "These records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.";
@@ -163,11 +165,12 @@ function CoolingBody({ read, routes }: { read: ColdCoolingRead; routes: ColdSite
       </MetricCards>
       <div className="panel-pair">
         <Panel heading="Recovery curves" headingId={POINTS_HEADING_ID} description="Selected first observations only; not a recovery curve.">
-          {cooling.selected_points.length === 0 ? (
-            <p className="not-available-yet" data-cooling-empty>
-              {COOLING_EMPTY}
-            </p>
-          ) : (
+          {/* Codex retrospective Q-C2-3: selected marks on lanes, never a curve; the table is the source detail. */}
+          <CoolingObservationGraphic from={read.window.from} to={read.window.to} points={cooling.selected_points} label="Selected first observations by step" />
+          <p className="not-available-yet" data-cooling-empty>
+            {COOLING_EMPTY}
+          </p>
+          {cooling.selected_points.length === 0 ? null : (
             <DataTable labelledBy={POINTS_HEADING_ID}>
               <thead>
                 <tr>
@@ -196,7 +199,7 @@ function CoolingBody({ read, routes }: { read: ColdCoolingRead; routes: ColdSite
               <tr>
                 <th scope="col">Factor</th>
                 <th scope="col">Evidence</th>
-                <th scope="col">Status</th>
+                <th scope="col">Match</th>
               </tr>
             </thead>
             <tbody>
@@ -205,7 +208,8 @@ function CoolingBody({ read, routes }: { read: ColdCoolingRead; routes: ColdSite
                   <th scope="row">{row.label}</th>
                   <td>{contextEvidence(row)}</td>
                   <td>
-                    <Badge tone="neutral">{row.state}</Badge>
+                    {/* Codex retrospective Q-C2-2: no comparator is supported (CONTEXT_MISSING), so no factor is matched. */}
+                    <Badge tone="neutral">{COOLING_MATCH_NOT_ESTABLISHED}</Badge>
                   </td>
                 </tr>
               ))}

@@ -376,16 +376,28 @@ describe("cooling_panels", () => {
     renderCooling(COOLING_PATH, () => Promise.resolve(loaded(coolingBody())));
     await settledCooling();
     expectV69Panels("cooling");
-    expect(main().querySelector("svg")).toBeNull();
-    const context = main().querySelector('[aria-labelledby="cold-cooling-context-heading"] table') as HTMLElement;
-    expect(Array.from(context.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Factor", "Evidence", "Status"]);
-    expect(rowsOf(context)).toEqual([
-      ["Ambient temperature", "Not selected by the cooling assessment", "Unknown"],
-      ["Power availability", "1 accepted grid power record", "Observed"],
-      ["Door-open duration", "Door open for 1 min", "Observed"],
-      ["Loading / batch", "No loading record role", "Unknown"],
-      ["Defrost", "No defrost record role", "Unknown"],
+    // Codex retrospective Q-C2-3: one graphic, its svg inside the registered region, selected marks only.
+    const graphic = main().querySelector('[aria-labelledby="cold-cooling-recovery-heading"] figure[data-cooling-graphic="marks"]') as HTMLElement;
+    expect(main().querySelectorAll("svg")).toHaveLength(1);
+    expect(graphic.querySelector(".cold-depth-graphic__scroll > svg")).not.toBeNull();
+    expect(Array.from(graphic.querySelectorAll("[data-cooling-lane] text")).map((t) => t.textContent)).toEqual(["Compressor running", "Chamber temperature"]);
+    expect(Array.from(graphic.querySelectorAll("[data-cooling-mark]")).map((m) => [m.getAttribute("data-cooling-mark"), m.querySelector("text")?.textContent, m.querySelector("title")?.textContent])).toEqual([
+      ["chamber_temperature", "19:20:00", "Chamber temperature · 19:20:00 UTC"],
     ]);
+    expect(graphic.querySelectorAll("path, polyline, polygon")).toHaveLength(0);
+    expect(graphic.textContent).not.toMatch(/°C|\b(36|42)\s*min|\+17%/);
+    expect(main().querySelector("[data-cooling-empty]")?.textContent).toBe("No accepted recovery sequence in this window.");
+    const context = main().querySelector('[aria-labelledby="cold-cooling-context-heading"] table') as HTMLElement;
+    // Codex retrospective Q-C2-2: the mock's `Match` heading; with CONTEXT_MISSING every cell is `Not established`.
+    expect(Array.from(context.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Factor", "Evidence", "Match"]);
+    expect(rowsOf(context)).toEqual([
+      ["Ambient temperature", "Not selected by the cooling assessment", "Not established"],
+      ["Power availability", "1 accepted grid power record", "Not established"],
+      ["Door-open duration", "Door open for 1 min", "Not established"],
+      ["Loading / batch", "No loading record role", "Not established"],
+      ["Defrost", "No defrost record role", "Not established"],
+    ]);
+    expect(main().textContent).not.toMatch(/\bMatched\b/);
     expect(context.textContent).not.toContain(GRID);
     const points = main().querySelector('[aria-labelledby="cold-cooling-recovery-heading"] table') as HTMLElement;
     expect(Array.from(points.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Step", "Time (UTC)", "Evidence"]);
@@ -408,6 +420,11 @@ describe("cooling_panels", () => {
     expect(evidenceCells()[1]).toBe("2 accepted grid power records");
     expect(evidenceCells()[2]).toBe("Door open for 2 min 5 s");
     expect(main().querySelector("[data-cooling-empty]")?.textContent).toBe("No accepted recovery sequence in this window.");
+    // No selected point: the graphic frame is drawn empty and the evidence table is absent.
+    expect(main().querySelector('figure[data-cooling-graphic="empty"] svg')).not.toBeNull();
+    expect(main().querySelectorAll("[data-cooling-mark]")).toHaveLength(0);
+    expect(main().querySelector('[aria-labelledby="cold-cooling-recovery-heading"] table')).toBeNull();
+    expect(Array.from(main().querySelectorAll("[data-cooling-context] td:last-child")).map((td) => td.textContent)).toEqual(Array(5).fill("Not established"));
     cleanup();
     const unknown = base.map((row) => ({ ...row, state: "Unknown", evidence_ids: [], duration_seconds: null }));
     renderCooling(COOLING_PATH, () => Promise.resolve(loaded(coolingBody({}, { context: unknown }))));
@@ -451,11 +468,11 @@ describe("cooling_nav_and_routes", () => {
     expect(client.getCooling).not.toHaveBeenCalled();
   });
 
-  it("coldUiHref maps the cooling API link with its exact query; health stays unmapped until C3", () => {
+  it("coldUiHref maps the cooling API link with its exact query (and health, which C3 mapped)", () => {
     const routes = coldSiteRoutes(SITE_CODE);
     expect(routes.cooling).toBe(`/sites/${SITE_CODE}/performance/cooling`);
     const query = `${Q}&known_at=2026-10-22T08%3A00%3A00Z`;
     expect(coldUiHref(`/api/sites/${SITE_CODE}/cold/cooling?${query}`, routes)).toBe(`/sites/${SITE_CODE}/performance/cooling?${query}`);
-    expect(coldUiHref(`/api/sites/${SITE_CODE}/cold/health?${Q}`, routes)).toBeNull();
+    expect(coldUiHref(`/api/sites/${SITE_CODE}/cold/health?${Q}`, routes)).toBe(`/sites/${SITE_CODE}/health?${Q}`);
   });
 });

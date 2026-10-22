@@ -2432,6 +2432,36 @@ button:focus-visible {
   margin-bottom: var(--space-1);
 }
 
+/* W5-01a C2 (Codex retrospective Q-C2-3): the cold Cooling selected-observation graphic
+   (`sites/coldDepthGraphics.tsx`). Unconnected marks on categorical lanes; the region owns
+   the drawing's inline overflow (shell-overflow rule 5). */
+.cold-depth-graphic {
+  margin: 0 0 var(--space-3);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cold-depth-graphic__scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  position: relative;
+}
+
+.cold-depth-graphic__scroll svg {
+  display: block;
+  width: 100%;
+  min-width: 480px;
+  height: auto;
+}
+
+.cold-depth-graphic__lane { stroke: var(--border-subtle); stroke-width: 1; stroke-dasharray: 3 4; }
+.cold-depth-graphic__axis-line { stroke: var(--border-subtle); stroke-width: 1; }
+.cold-depth-graphic__lane-label { font-size: 12px; fill: var(--text-secondary); }
+.cold-depth-graphic__axis { font-size: 11px; fill: var(--text-muted); }
+.cold-depth-graphic__mark { fill: #3d6fb0; stroke: #ffffff; stroke-width: 1.5; }
+.cold-depth-graphic__mark-label { font-size: 11px; fill: var(--text-secondary); }
+
 .graphic-fill--needed { fill: var(--graphic-needed); }
 .graphic-fill--avoidable { fill: var(--graphic-avoidable); }
 .graphic-fill--unknown { fill: var(--graphic-unknown); }
