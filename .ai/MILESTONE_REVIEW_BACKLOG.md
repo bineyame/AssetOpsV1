@@ -2350,3 +2350,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - Two Alternatives capture states remain unproved: stocked, and successful-empty at current DB time.
 - The "Alternatives unavailable" label is a recorded mock departure (u9c).
 - Environment: worktrees created before a `.gitattributes` eol=lf rule keep stale CRLF copies, and byte-pinned tests then fail. Re-checkout the files (`git ls-files --eol`), and add every new byte-pinned fixture to `.gitattributes`.
+
+## W2-F Lows
+- The refused cold Finding page has no Unknown strip, although the M13 table calls for one. Route to the Architect in the W5 readiness round (ruling or small fix).
+- `evidence.json` revision label covers all pairs, but 68 of 72 captures predate the W4-03 merge. Re-capture in the post-W6 structural audit.
+- Environment: capture and test runs leaked 214 orphaned `assetops_gateway serve` processes (about 2 GB). Builders must stop every server they start, and the coordinator checks for leftovers after each slice.

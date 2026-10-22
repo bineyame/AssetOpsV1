@@ -1,6 +1,6 @@
 # W2-F — W2 structural corrections
 
-Status: planned. Decision: `D-2026-10-20-w2-f-structural`. Build contract: [W2-F build spec](../.agent/W2-F-build-spec.md). Source audit: `.agent/W2-structural-audit.md` (H1, M2–M14). `USER_REVIEW_REQUIRED: false`; independent slice review and the structural re-audit gate merge and W5 readiness. The owner's complete walkthrough remains after W6.
+Status: done (merged 2026-10-22, 2df2a3da; final review ACCEPT); was planned. Decision: `D-2026-10-20-w2-f-structural`. Build contract: [W2-F build spec](../.agent/W2-F-build-spec.md). Source audit: `.agent/W2-structural-audit.md` (H1, M2–M14). `USER_REVIEW_REQUIRED: false`; independent slice review and the structural re-audit gate merge and W5 readiness. The owner's complete walkthrough remains after W6.
 
 ## Outcome and scope
 
