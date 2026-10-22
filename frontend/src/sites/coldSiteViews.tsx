@@ -69,6 +69,8 @@ export interface ColdSiteRoutes {
   assumptions: string;
   temperature: string;
   backup: string;
+  cooling: string;
+  health: string;
   findings: string;
   finding: (findingId: string) => string;
   foundation: string;
@@ -195,6 +197,8 @@ export function coldUiHref(api: string | null | undefined, routes: ColdSiteRoute
     "financial-assumptions": routes.assumptions,
     temperature: routes.temperature,
     "backup-chain": routes.backup,
+    cooling: routes.cooling,
+    health: routes.health,
     findings: routes.findings,
     foundation: routes.foundation,
   };
@@ -374,7 +378,7 @@ function Subtabs({ view, routes, window }: { view: ColdSiteView; routes: ColdSit
  * immediately below the tabs (no shared date-bar component exists to carry a sub-day window and cutoff).
  * `extra` carries the pending/historical sentence on `cold-assumptions`, which has no status strip.
  */
-function SelectedWindowBar({ read, extra }: { read: { window: ColdWindowQuery } | null; extra?: string | null }) {
+export function SelectedWindowBar({ read, extra }: { read: { window: ColdWindowQuery } | null; extra?: string | null }) {
   if (read === null) return null;
   return (
     <p className="site-date-bar" data-cold-date-bar>
@@ -390,7 +394,7 @@ function SelectedWindowBar({ read, extra }: { read: { window: ColdWindowQuery } 
  * W2-F M3/N7: a refused read keeps the date line from the requested window, unless the window itself is invalid
  * (malformed dates are not echoed). The cutoff is shown only when one was requested.
  */
-function RequestedWindowBar({ window, refusal }: { window: ColdWindowQuery; refusal: Refusal }) {
+export function RequestedWindowBar({ window, refusal }: { window: ColdWindowQuery; refusal: Refusal }) {
   if (refusal.key === "invalid-window" || date(window.from) === null || date(window.to) === null) return null;
   return (
     <p className="site-date-bar" data-cold-date-bar data-cold-date-bar-requested>
@@ -1054,7 +1058,7 @@ const recordValue = (v: string) => (/^[A-Z][A-Z0-9_]*$/.test(v) ? plainCode(v) :
 const RECORDS_SHOWN = 3;
 
 /** Run-8 time copy: `Sent (UTC)` and `Received (UTC)` headers over bare `HH:MM:SS` UTC clock cells. */
-function utcClock(value: string | null | undefined): string {
+export function utcClock(value: string | null | undefined): string {
   const d = date(value);
   return d === null ? NOT_RECORDED : `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
 }
@@ -1065,7 +1069,7 @@ const RECORD_LABEL: Record<string, string> = {
   backup_start_event: "Generator start result",
   compressor_state: "Compressor running",
 };
-const recordLabel = (role: string): string => RECORD_LABEL[role] ?? roleLabel(role);
+export const recordLabel = (role: string): string => RECORD_LABEL[role] ?? roleLabel(role);
 
 const CLAIM_SENTENCES = [
   "Each claim needs accepted readings and enough coverage for the selected window. A missing or conflicting input limits what can be concluded.",

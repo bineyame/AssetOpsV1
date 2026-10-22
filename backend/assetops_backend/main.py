@@ -58,6 +58,7 @@ from assetops_backend.estate_evidence_money_api import build_estate_evidence_mon
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
 from assetops_backend.source_health_api import build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
+from assetops_backend.analytics.cold_depth import ColdDepthReadService
 from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
@@ -68,14 +69,17 @@ from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
 from assetops_backend.ev_replay import EvReplayService
 from assetops_backend.ev_replay_api import build_ev_replay_router
+from assetops_backend.cold_depth_api import build_cold_depth_router
 from assetops_backend.cold_site_api import build_cold_site_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.actions.site_index import ActionIndexService
 from assetops_backend.action_index_api import build_action_index_router
-from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_work_detail_service, build_work_index_service,
+from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_global_work_index_service,
+                                               build_work_detail_service, build_work_index_service,
                                                build_work_service)
 from assetops_backend.work_api import build_work_router
+from assetops_backend.global_work_api import build_global_work_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
 from assetops_backend.consequence_history_api import build_consequence_history_router
@@ -457,6 +461,9 @@ def create_app(
         app.router.on_shutdown.append(cold_consequences.dispose)
     app.include_router(build_cold_site_router(
         registry, None if cold_reads is None else ColdSiteReadService(cold_reads, cold_consequences)))
+    # W5-01 C1: the selected cold Cooling depth read over the same W2-03 read service and the W2-04 gate.
+    app.include_router(build_cold_depth_router(
+        registry, None if cold_reads is None else ColdDepthReadService(cold_reads)))
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))
@@ -533,6 +540,11 @@ def create_app(
         build_work_service(database_url()) if database_url() else None, registry.ledger_scope, (WORK_UNAVAILABLE,),
         details=build_work_detail_service(database_url()) if database_url() else None,
         lists=build_work_index_service(database_url()) if database_url() else None))
+    # W6-01a (Lane A): the read-only global work roots `/api/work/{incidents,...}`; tenant from the server registry
+    # only, per-Site admission through the Finding-route access seam; typed 503 without a database or cursor key.
+    app.include_router(build_global_work_router(
+        build_global_work_index_service(database_url()), registry_tenant(registry),
+        access=development_access, unavailable=(SiteStoreUnavailable,)))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
     # S4-08: the Site consequence history at one recorded cutoff (read-only). Included before the price reads so

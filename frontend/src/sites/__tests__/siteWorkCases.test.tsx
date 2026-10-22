@@ -19,6 +19,7 @@ import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { defaultWorkWindow, type WorkIndexBody, type WorkRow } from "../workClient";
+import { globalWorkManageHref } from "../siteWorkCases";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 
@@ -172,7 +173,9 @@ function expectSlots(screenId: "sitework-incidents" | "sitework-maintenance") {
   expect([strips.length, panels.length, notices.length]).toEqual([1, 1, 1]);
   expect(strips[0].compareDocumentPosition(panels[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(panels[0].compareDocumentPosition(notices[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(text(notices[0])).toBe("Case history is stored with this site. A global work page and create flow are not available yet.");
+  expect(text(notices[0])).toBe(
+    "Case history is stored with this site. Incidents can be managed globally. Global Maintenance and the create flow are not available yet.",
+  );
   expect(text(strips[0])).toContain("These are work records at this site");
   expect(main.textContent).not.toMatch(/INC-203|WR-019|Manage in \w+ →|global create flow with this site filled in/);
 }
@@ -208,8 +211,15 @@ describe("W4-01: Site > Work > Incidents", () => {
     expectSlots("sitework-incidents");
     expectPlantedPanelRejected("sitework-incidents");
     expect(text(strip())).toContain("Scoped to Kobo · 7 incidents");
-    expect(text(strip())).toContain("Manage in Incidents · Not available yet");
-    expect(strip().querySelector("a")).toBeNull();
+    // W6-01a A2: the Incidents strip links to the live global page with the Site window and the loaded cutoff.
+    expect(text(strip())).toContain("Manage in Incidents");
+    expect(text(strip())).not.toContain("Not available yet");
+    expect(Array.from(strip().querySelectorAll("a")).map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+      [
+        "Manage in Incidents",
+        "/incidents?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A00%3A00.000000Z",
+      ],
+    ]);
     // H3: CURRENT adds no status word and no fourth slot; the strip is lead, detail, Manage.
     expect(strip().querySelector(".status-strip__state, [data-work-status]")).toBeNull();
     expect(text(strip())).not.toContain("Read in full");
@@ -447,9 +457,10 @@ describe("W4-01: Site > Work > Maintenance", () => {
     );
     expect(document.querySelectorAll("main nav[aria-label='Work lists']")).toHaveLength(1);
     expect(document.querySelectorAll("main [data-tab-unavailable='Incidents'], main [data-tab-unavailable='Maintenance']")).toHaveLength(0);
-    // The global Manage link is static text; the notice has no link.
+    // The Maintenance global Manage entry is still static text until W6-01b; the notice has no link.
     expect(notice().querySelector("a")).toBeNull();
     expect(text(strip().querySelector("[data-work-manage]"))).toBe("Manage in Maintenance · Not available yet");
+    expect(strip().querySelector("[data-work-manage] a")).toBeNull();
     // The page heading is the mock's (site name and the screen subtitle).
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(HYBRID_MINI_GRID_SITE.display_name);
     expect(document.body.textContent).toContain("Site-scoped work · maintenance");
@@ -751,5 +762,22 @@ describe("W4-03 unit 8: Site Work decision context", () => {
       expect(text(el)).toBe("Decision context unavailable");
     }
     expect(text(strip())).toContain("Scoped to Kobo · 2 maintenance");
+  });
+});
+
+describe("W6-01a A2: Site Work global manage href", () => {
+  const scope = { from: "2026-10-15T00:00:00Z", to: "2026-10-22T00:00:00Z" };
+  it("carries the window and the selected cutoff, never a Site key, cursor or limit", () => {
+    expect(globalWorkManageHref("incidents", scope, "2026-10-22T12:00:00Z")).toBe(
+      "/incidents?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&known_at=2026-10-22T12%3A00%3A00Z",
+    );
+    expect(globalWorkManageHref("maintenance", scope, "2026-10-22T12:00:00Z")).toBe(
+      "/maintenance?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&known_at=2026-10-22T12%3A00%3A00Z",
+    );
+    // An explicit Site cutoff wins over the loaded list's; no cutoff from either source omits `known_at`.
+    expect(globalWorkManageHref("incidents", { ...scope, knownAt: "2026-10-20T08:00:00Z", cursor: "C2" }, "2026-10-22T12:00:00Z")).toBe(
+      "/incidents?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&known_at=2026-10-20T08%3A00%3A00Z",
+    );
+    expect(globalWorkManageHref("incidents", scope, null)).toBe("/incidents?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z");
   });
 });

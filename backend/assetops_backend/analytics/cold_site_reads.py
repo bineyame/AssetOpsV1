@@ -121,6 +121,17 @@ def _joined(sentences) -> str | None:
     return " ".join(out) if out else None
 
 
+def cooling_response_state(start: Any) -> str:
+    """The W2-04 `COOLING_RESPONSE` capability state of a selected START assessment (or None): `CONTRADICTORY`
+    if any chain result or step is CONTRADICTORY, else `LIMITED` when a chain exists, else `UNAVAILABLE`
+    (`.agent/W5-01-build-spec.md` "C1 public W2 helper", Q6)."""
+    chains = (start.result.get("chains") or []) if start else []
+    if any(ch["result"] == "CONTRADICTORY" for ch in chains) or any(
+            x["state"] == "CONTRADICTORY" for ch in chains for x in ch["steps"]):
+        return "CONTRADICTORY"
+    return "LIMITED" if chains else "UNAVAILABLE"
+
+
 def source_contact(diagnostic: dict[str, Any] | None, source_id: UUID,
                    to: datetime) -> tuple[str, str | None, str | None]:
     """Commit-3 Architect ruling and Q-R8: `(RECENT|STALE|NEVER|UNKNOWN, contact_at, limitation)` from only the
@@ -515,10 +526,7 @@ class ColdSiteReadService:
         # W2-F closure B1: the selected START chain stores only its first compressor step and first subsequent probe,
         # so an ordered recovery (RUNNING after the GRID/start anchor, then a later in-band probe) is never proved
         # here. A selected chain is LIMITED unless a chain or step is CONTRADICTORY; no chain is UNAVAILABLE.
-        chain_contradictory = "CONTRADICTORY" in results or any(
-            x["state"] == "CONTRADICTORY" for ch in chains for x in ch["steps"])
-        states["COOLING_RESPONSE"] = ("CONTRADICTORY" if chain_contradictory else
-                                      "LIMITED" if chains else "UNAVAILABLE")
+        states["COOLING_RESPONSE"] = cooling_response_state(st)
         # W2-F closure B1/S4: the W2 assumptions read is always empty, so no product basis is declared and product
         # exposure is UNAVAILABLE (None) unless the selected excursion assessment is CONTRADICTORY.
         states["PRODUCT_EXPOSURE"] = "CONTRADICTORY" if contradictory else "UNAVAILABLE"

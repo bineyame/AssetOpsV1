@@ -30,10 +30,12 @@ export interface MetricCardProps {
   assessment?: boolean;
   /** Extra attributes for tests and evidence, e.g. `{ "data-site-metric": "count" }`. */
   data?: Record<string, string>;
+  /** The mock's separate card link below the note (e.g. `View detail →`); omitted when absent. */
+  link?: ReactNode;
 }
 
 /** The mock's `.metric`: label, one large value, one note. */
-export function MetricCard({ label, value, note, tone, word = false, assessment = false, data }: MetricCardProps) {
+export function MetricCard({ label, value, note, tone, word = false, assessment = false, data, link }: MetricCardProps) {
   const className = [
     "v69-metric",
     word || assessment ? "v69-metric--word" : "",
@@ -47,6 +49,7 @@ export function MetricCard({ label, value, note, tone, word = false, assessment 
       <div className="v69-metric__label">{label}</div>
       <div className="v69-metric__value">{value}</div>
       {note === undefined ? null : <div className="v69-metric__note">{note}</div>}
+      {link === undefined ? null : <div className="v69-metric__link">{link}</div>}
     </li>
   );
 }
@@ -284,6 +287,8 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   // W2-03: the cold Performance screens' mock subtitles (no illustrative values in them).
   temperature: "Performance · temperature policy and bounded exposure",
   coldbackup: "Performance · grid outage to cooling-service recovery",
+  // W5-01a C2: the cold Cooling page (the v6.9 subtitle).
+  cooling: "Performance · recovery under comparable conditions",
   // W2-06: the EV Sessions screen's mock subtitle (no illustrative values in it).
   sessions: "Performance · charging sessions and delivered service",
   // W4-02 Q20: the mini-depth Performance pages.

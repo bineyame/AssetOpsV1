@@ -1,0 +1,74 @@
+{
+  "clock": "2026-10-21T12:00:00Z",
+  "fixture": "stress",
+  "sites": [
+    {
+      "site_code": "KOBO-001",
+      "site_id": "da3c74ea-ce12-4abd-bb5e-11dec819bc8f",
+      "tenant": "demo",
+      "tenant_id": "7e3bc5fb-0dfe-4003-90d8-37e2a517287b"
+    },
+    {
+      "site_code": "KOBO-002",
+      "site_id": "b0ec7e7c-34ee-4df7-a9a9-b813fdb90846",
+      "tenant": "demo",
+      "tenant_id": "7e3bc5fb-0dfe-4003-90d8-37e2a517287b"
+    },
+    {
+      "site_code": "KOBO-001",
+      "site_id": "0058ac40-b7dc-4a7b-8bf6-ed5fd35bfa35",
+      "tenant": "w601-other",
+      "tenant_id": "24d18b0f-5d2f-46d4-8e91-3e155019ccda"
+    }
+  ],
+  "written": [
+    {
+      "case_id": "fc6eb1cc-d640-4fe8-ad4a-a41b14e81bc6",
+      "code": "INC-000001",
+      "kind": "INCIDENT",
+      "revision_id": "63633186-5b67-4621-97b5-113e77aecf28",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "c506c433-18a9-4a29-9c02-85b3d9f7cdde",
+      "code": "INC-000002",
+      "kind": "INCIDENT",
+      "revision_id": "055c5ca1-4474-4e14-ae2c-74266d8d0b2e",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "ad1ed3bd-e0b1-4d38-9a75-d3de5863a65c",
+      "code": "INC-000003",
+      "kind": "INCIDENT",
+      "revision_id": "c4113c8c-e01c-493c-b0fe-cc112072dd78",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "d1ce17be-376c-447f-ae96-6b628d8bd18a",
+      "code": "INC-000004",
+      "kind": "INCIDENT",
+      "revision_id": "f0a4dc69-4f95-4564-957f-be1b83816262",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "f720267d-2f49-4975-bb5a-3e464a352e41",
+      "code": "INC-000005",
+      "kind": "INCIDENT",
+      "revision_id": "10375add-b5f4-41a7-868f-8abaf13fa571",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "a270fb3f-cf9f-452e-ab0c-f9d380801e9c",
+      "code": "INC-000006",
+      "kind": "INCIDENT",
+      "revision_id": "06e15214-28b8-45dc-8509-9070d280f9d8",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    }
+  ]
+}
