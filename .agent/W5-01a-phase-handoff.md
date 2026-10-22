@@ -66,3 +66,28 @@ Not built, held: `ColdCooling.tsx`, the route/subtab/`coldUiHref` wiring, the na
 - **Q-C2-4 (non-current status).** "CURRENT leaves the recovery state label intact; pending/historical/stale show their state notice and suppress a current-positive comparison label." None of `Comparison limited|contradictory|unknown` is positive. Do PENDING_RECOMPUTE/HISTORICAL/STALE_SOURCE (and selection UNKNOWN) keep the matrix badge + `Confidence: …` + subtitle and add the state notice below the status bar, or is the badge replaced (by what text)?
 
 Also noted for the C2 re-run (not questions): the rail-fixture re-anchor needs a new positive assertion in `navigation-truthfulness.ps1` (no existing check fails when a live cold branch is deleted), and the live 403 capture needs a served API whose disclosure check denies (or a foreign-Site request) — the producer for that is to be traced at build time.
+
+## Run — C2 build (readiness pass 3 rulings), 2026-10-22
+
+Commits `06c8c3cc` (page, wiring, guards, tests) and the evidence commit after it. Files are only the C2 list: `ColdDepthClient.ts`, `ColdCooling.tsx`, `coldDepth.test.tsx`, `App.tsx`, `SiteAnalyticsFrames.tsx`, `ColdAssessmentViews.tsx`, `coldSiteViews.tsx` (four `export`s, `cooling` route and `bases` entry), `shell/coldSiteRoutes.tsx`, `ui/V69Layout.tsx` (`cooling` description), and the two nav guard files. `operatorSiteRoutes.ts` needed no change, because `sitePerformanceHref(id, "cooling")` already matches.
+
+- **Built.** `ColdCooling` sits inside `ColdPerformanceFrame` when `view === "cooling"`, which then makes no W2 reads.
+  - Above the page: the selected window bar, then the `Cooling comparison` StatusBar (matrix badge, `Confidence:` badge, subtitle, `Inspect recovery basis →`). For non-CURRENT states an amber notice follows directly.
+  - Body: four cards, a `panel-pair` with `Recovery curves` (DataTable Step/Time (UTC)/Evidence, or the empty sentence) and `Context normalization` (DataTable Factor/Evidence/Status), the bounded notice, and `Next best evidence`.
+  - Refusal: the requested window bar (hidden on 422), then `Cold depth unavailable`, the exact `code message`, and a `Retry` button that re-reads the same URL.
+  - Copy: the loading sentence is the ruled `<p className="prose">`; the unreachable and malformed sentences are as ruled.
+- **Tests.** `coldDepth.test.tsx` passed 25/25 across `cooling_dto_and_labels` (client + page), `cooling_state_copy`, `cooling_panels` and `cooling_nav_and_routes`. `tsc -b` is clean.
+  - The Cooling loading sentence is not in `test/settled.ts` `LOADING` (that file is not on the list), so the page tests settle with `settledScreen()` and then wait for that sentence to go.
+- **Guards.** `tools/check-all.ps1` passed all 11 guards, including the two new rail fixtures.
+  - Real-tree mutation, reverted with `git checkout`: removing `<ColdCooling` and removing `data-performance-subtab="cooling"` each gave exactly 1 failure, `The live cold Cooling subtab or page branch is missing`. The unmutated tree gave 0.
+- **Captures.** In `.agent/W5-01a-C2-evidence/` (`capture.mjs`, `evidence.json`, 10 app PNGs + 2 mock PNGs) at 1440x1000/390x900. Method: the shared capture method on private `assetops_w501cap_test` (`ASSETOPS_TEST_TEMPLATE=0`), seeded by a throwaway seed test (`opened(case, chain)` + `run(built)`), API `lab_app` on 9791, Vite 6191, own headless Chrome on CDP 9792.
+  - `limited`: backup-failed, W, CURRENT, clock `committed_watermark` 09:05:33.920042Z.
+  - `empty`: missing-probe over the 2026-10-05 window, UNKNOWN. At W, missing-probe has two points, so it is not empty; this follows C1 `test_missing_probe_and_empty`.
+  - `pending`: late-reading after `advance_late()`, PENDING_RECOMPUTE, watermark 09:11:10.304666Z.
+  - `historical`: after the worker, `known_at=W0` 09:10:50.508596Z, HISTORICAL.
+  - `refused`: `from` later than `to`, 422 `COLD_WINDOW_INVALID`.
+  - Results: every capture has `scrollWidth <= clientWidth`, no block over the cooling caps, 0 ellipsized elements, and panel titles equal to the mock. The worst blocks are 1440 status 43 / cards 124 / panels 402 / notice 43 / next 191 / page 1263, and 390 status 99 / cards 261 / context 442 / notice 80 / next 208 / page 2025. The refusal block is 140 at both widths.
+  - The 390 refused shot shows a tall dark band above the page (the shell header on a short page). It is outside C2's files; noted for review.
+  - Cleanup: the DB was dropped (0 `w501` DBs remain), the seed file was deleted, and the API, Vite and Chrome were stopped.
+- **One blocker (question, not chosen).** `frontend/src/sites/__tests__/coldRoutes.test.tsx:409-410` (W2-03 q3) still asserts `"Cooling · Not available yet"` in the cold Performance row and no `a[href*="cooling"]`. Those 2 cases now fail (the other 58 files in `src/shell`, `coldRoutes`, `coldSiteViews` and `coldFoundation` pass). The file is not on the C2 list. Proposed edit: drop the two Performance rows from that `it.each` (Cooling is covered by `coldDepth.test.tsx::cooling_nav_and_routes`), and narrow the `a[href*="cooling"]` assertion to `recommendation`. It needs a ruling to add the file.
+- **Interpretation to confirm.** The ledger says heading `Cooling`. The page keeps the frame's v69 `SitePageHeader` (Site name h1, as the mock and the Temperature/Backup siblings do), with `Cooling` as the breadcrumb end and the current subtab.
