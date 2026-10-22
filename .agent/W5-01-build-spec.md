@@ -683,3 +683,28 @@ These rulings amend `D-2026-10-22-w5-01-w5-03-buildspec` and supersede conflicti
    ```
 
    This checks the actual readiness link and existing source heading ID. `coldSiteViews.test.tsx` remains on C3's list for its own route and composition assertions.
+
+## C3 rulings (Q-C3-5, mock differences)
+
+These rulings amend `D-2026-10-22-w5-01-w5-03-buildspec` and supersede conflicting C3 mobile Asset-cell and card wording. Mock check: `frontend/mockups/v69/index.html`, `cold-health`, shows compact `GEN-CR-01` and `CMP-003` Asset cells in `Condition and evidence`, not four-line UUIDs. Its Backup generator card has an amber top border, a body-colour value and a separate `View detail →` link. Mock CSS `.assessment .metric-value` sets the value to 17 px at 1440 and 390.
+
+1. **Q-C3-5 — RESTORE TO MOCK.** Keep the condition-panel cap at **330/430 px (1440/390)**. Add `frontend/src/ui/primitives.css` to C3's Lane A file list. In `frontend/src/sites/ColdHealthDepth.tsx`, set `className="cold-health-condition"` on the `Condition and evidence` `Panel`. Keep `DataTable` and the complete selected Foundation Asset label and source-reference UUID. Put the UUID on its own line without truncation. Add this scoped CSS to `primitives.css`:
+
+   ```css
+   @media (max-width: 480px) {
+     .cold-health-condition .data-table { min-width: 840px; }
+     .cold-health-condition .data-table th:first-child { position: sticky; left: 0; z-index: 1; min-width: 240px; background: var(--surface-raised); }
+     .cold-health-condition .data-table thead th:first-child { z-index: 2; background: var(--surface-sunken); }
+     .cold-health-condition [data-health-asset-id] { display: block; white-space: nowrap; overflow-wrap: normal; word-break: normal; font-size: 10px; }
+   }
+   ```
+
+   The existing `.data-table__scroll` owns horizontal overflow; the Asset column stays visible while the other columns scroll. This replaces the earlier instruction to break Asset UUIDs at character boundaries. Raising the cap to fit four-line UUIDs would retain the mock difference. Recheck all five 390 captures, including the three-row unknown case, against **≤430 px**, with no document overflow or clipped ID; retain the 1440 **≤330 px** cap. Assert the panel class and complete ID in `frontend/src/sites/__tests__/coldHealthDepth.test.tsx`.
+
+2. **Backup border and value — RESTORE TO MOCK.** In `ColdHealthDepth.tsx`, replace the card's `word` prop with `assessment`, keeping `tone={row.condition_state === "NEEDS_INVESTIGATION" ? "amber" : undefined}`. The existing `.v69-metric--assessment.v69-metric--amber` gives the Backup card a 3 px amber top border, and `.v69-metric--assessment .v69-metric__value` keeps its value body-coloured. Apply `assessment` to all three cards so the neutral cards have the mock's neutral assessment border.
+
+3. **Card link — RESTORE TO MOCK.** The `cold-health` mock has a plain card label and a separate `View detail →` link below the note. Add `frontend/src/ui/V69Layout.tsx` and `frontend/src/ui/primitives.css` to C3's Lane A file list. Extend `MetricCardProps` with optional `link?: ReactNode`; render it after the note as `<div className="v69-metric__link">{link}</div>` when provided. Add `.v69-metric__link { font-size: 10px; margin-top: 10px; }` to `primitives.css`. In `ColdHealthDepth.tsx` pass `label={row.label}` and `link={href === null ? undefined : <Link to={href}>View detail →</Link>}`. A null destination has no link. Keep `coldUiHref` query preservation and assert the label is not an anchor while the detail link has the mapped destination.
+
+4. **Value size — RESTORE TO MOCK.** The mock's assessment state word is **17 px**; a 24/27 px value would depart from the actual `.assessment .metric-value` rule. The `assessment` prop above implies the shared 17 px word rule. Remove standalone `word`, do not enlarge the state words, and assert all three cards use `v69-metric--assessment` without a C3 size override.
+
+5. **Registry reasons — literal Architect copy.** In `frontend/docs/architecture/v69-dependency-registry-pilot.json`, the exact `reason` for `(cooling,1) Recovery curves` is `Selected compressor and probe observations are drawn as unconnected marks on categorical lanes; no ordered accepted recovery series exists, so no comparable recovery curve is drawn.` The exact `reason` for `(cooling,2) Context normalization` is `Ambient is not selected by the W2 cooling assessment and loading and defrost roles are absent; with no supported comparator every Match cell reads Not established.` The builder's current strings match these literals; retain them verbatim. Neither reason claims a physical condition or a measured comparison.
