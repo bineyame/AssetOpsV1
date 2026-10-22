@@ -1,7 +1,7 @@
 /*
  * W5-01b C5 (P-C5-9..16, P-C5-22): the cold Scenarios page, scoped to `cold-scenarios-*`. The mock's `.empty` block
- * (`mockups.css`) with its evidence icon, the authored row lines, the basis expansion row and its 390px internal
- * scroller. Exact IDs break at character boundaries; nothing is ellipsized.
+ * (`mockups.css`) with its evidence icon, the authored row lines, the basis expansion row and its 360px internal
+ * scroller (every width). Exact IDs break at character boundaries; nothing is ellipsized.
  */
 .cold-scenarios-through {
   margin: 6px 0 12px;
@@ -66,6 +66,12 @@
   background: #f8fafd;
 }
 
+/* W5-01b Q-C5b-4: the 360px internal disclosure scroller bounds the basis at every width. */
+.cold-scenarios-basis {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
 .cold-scenarios-basis dl {
   display: grid;
   grid-template-columns: max-content minmax(0, 1fr);
@@ -93,12 +99,6 @@
 }
 
 @media (max-width: 640px) {
-  /* The 360px internal disclosure scroller applies at phone width only. */
-  .cold-scenarios-basis {
-    max-height: 360px;
-    overflow-y: auto;
-  }
-
   .cold-scenarios-basis dl {
     grid-template-columns: minmax(0, 1fr);
   }

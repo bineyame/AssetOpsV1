@@ -76,6 +76,8 @@ export interface ColdScenariosRead {
   };
   items: ColdScenarioItem[];
   next_cursor: string | null;
+  /** W5-01b Q-C5b-2: `ceil(count / limit)` over every matching selected revision; `0` for no rows. */
+  total_pages: number;
 }
 
 export interface ColdScenariosClient {
@@ -85,7 +87,7 @@ export interface ColdScenariosClient {
 
 /* ---------- exact validation ---------- */
 
-const TOP_KEYS = ["schema_version", "site_id", "window", "scenario_at", "selection", "items", "next_cursor"] as const;
+const TOP_KEYS = ["schema_version", "site_id", "window", "scenario_at", "selection", "items", "next_cursor", "total_pages"] as const;
 const WINDOW_KEYS = ["from", "to", "known_at", "committed_watermark"] as const;
 const SELECTION_KEYS = ["state", "assessment_revision_ids", "accepted_evidence_ids", "source_provenance"] as const;
 const ITEM_KEYS = [
@@ -224,6 +226,7 @@ export function isColdScenariosRead(value: unknown): value is ColdScenariosRead 
   }
   if (!isUtcInstant(value.scenario_at)) return false;
   if (!(value.next_cursor === null || isString(value.next_cursor))) return false;
+  if (!(Number.isInteger(value.total_pages) && (value.total_pages as number) >= 0)) return false;
   return Array.isArray(value.items) && value.items.every((item) => isItem(item, unavailable));
 }
 

@@ -233,10 +233,17 @@ class ColdScenarioService:
             raise refused("COLD_SCENARIO_CURSOR_BASIS_CHANGED")
 
         rows: list[Mapping[str, Any]] = []
+        count = 0
         if window["from"] is not None and window["known_at"] is not None:
+            w_lo, w_hi, w_known = _instant(window["from"]), _instant(window["to"]), _instant(window["known_at"])
+            # Q-C5b item 5: a candidate whose stored basis lacks from/to/cutoff is malformed history (503), checked
+            # before the cutoff predicate so it never silently vanishes from the list.
+            if self._store.malformed_candidates(c, t, s, w_lo, w_hi, scenario_at):
+                raise _store_unavailable()
             after = None if page is None else (_instant(page["after"][0]), page["after"][1])
-            rows = self._store.heads(c, t, s, _instant(window["from"]), _instant(window["to"]),
-                                     _instant(window["known_at"]), scenario_at, after, size + 1)
+            rows = self._store.heads(c, t, s, w_lo, w_hi, w_known, scenario_at, after, size + 1)
+            # Q-C5b item 2: every selected head in this snapshot, before cursor and limit.
+            count = self._store.count_heads(c, t, s, w_lo, w_hi, w_known, scenario_at)
         historical_evidence = (window["committed_watermark"] is not None and window["known_at"] is not None
                                and _instant(window["known_at"]) < _instant(window["committed_watermark"]))
         items = [self._item(r, historical_evidence) for r in rows[:size]]
@@ -250,7 +257,7 @@ class ColdScenarioService:
                 "after": [work.iso(last["recorded_at"]), str(last["id"]).lower()]})
         return {"schema_version": rules.SCHEMA_LIST, "site_id": str(s), "window": window,
                 "scenario_at": work.iso(scenario_at), "selection": selection, "items": items,
-                "next_cursor": next_cursor}
+                "next_cursor": next_cursor, "total_pages": -(-count // size)}
 
     def _item(self, row: Mapping[str, Any], historical_evidence: bool) -> dict[str, Any]:
         authored = self._stored(row)

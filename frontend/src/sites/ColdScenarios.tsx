@@ -29,7 +29,7 @@ export const SCENARIOS_CLOSING_NOTICE =
 /** C5 closure 2 "Currentness": the amber notice above the panel by `selection.state`; `CURRENT` has none. */
 export const SCENARIOS_STATE_NOTICE: Record<Exclude<ColdScenariosState, "CURRENT">, string> = {
   PENDING_RECOMPUTE: "Underlying evidence is being reassessed; the authored scenario remains separate.",
-  HISTORICAL: "Read at an earlier evidence cutoff; newer committed evidence exists.",
+  HISTORICAL: "Read at an earlier evidence cutoff; newer evidence exists.",
   STALE_SOURCE: "The selected source is stale for this window.",
   UNKNOWN: "No selected cold assessment covers this window yet.",
 };
@@ -124,7 +124,7 @@ function RefList({ values }: { values: string[] }) {
 function Basis({ item }: { item: ColdScenarioItem }) {
   const basis = item.authored_basis;
   return (
-    <div className="cold-scenarios-basis" data-scenario-basis={item.id}>
+    <div className="cold-scenarios-basis" data-scenario-basis={item.id} role="region" aria-label="Authored scenario basis" tabIndex={0}>
       <dl>
         <dt>Kind</dt>
         <dd>{SCENARIO_KIND_WORDS[item.kind]}</dd>
@@ -257,9 +257,23 @@ function EmptyBlock() {
 
 /**
  * P-C5-12/19/20/22 pager. `Next` follows `next_cursor` (disabled without one); `First page` clears the cursor.
- * The `{page} of {total pages}` counter is not rendered: the C4 list carries no total (open question).
+ * W5-01b Q-C5b-2: the `{page} of {total pages}` counter follows `Next`; the total is the C4 `total_pages`.
  */
-function Pager({ hasNext, onFirst, onNext, first }: { hasNext: boolean; onFirst: () => void; onNext: () => void; first: boolean }) {
+function Pager({
+  hasNext,
+  onFirst,
+  onNext,
+  first,
+  page,
+  totalPages,
+}: {
+  hasNext: boolean;
+  onFirst: () => void;
+  onNext: () => void;
+  first: boolean;
+  page: number;
+  totalPages: number;
+}) {
   return (
     <nav aria-label="Scenario pages" className="cold-scenarios-pages" data-scenarios-pages>
       <button type="button" className="link-button" data-scenarios-first disabled={first} onClick={onFirst}>
@@ -268,6 +282,7 @@ function Pager({ hasNext, onFirst, onNext, first }: { hasNext: boolean; onFirst:
       <button type="button" className="link-button" data-scenarios-next disabled={!hasNext} onClick={onNext}>
         Next
       </button>
+      <span data-scenarios-page-count>{page} of {totalPages}</span>
     </nav>
   );
 }
@@ -302,12 +317,19 @@ function ScenariosBody({
             {/* MOCK DEVIATION — authored rows (P-C5-1..5): the mock panel has only an empty block; real C4 definitions
                 replace it with this table, its disclosure and pager inside the same titled and subtitled panel. */}
             <ScenarioRows key={cursors.join("|")} items={read.items} />
-            <Pager hasNext={read.next_cursor !== null} first={cursors.length === 0} onFirst={onFirst} onNext={() => read.next_cursor !== null && onNext(read.next_cursor)} />
+            <Pager
+              hasNext={read.next_cursor !== null}
+              first={cursors.length === 0}
+              onFirst={onFirst}
+              onNext={() => read.next_cursor !== null && onNext(read.next_cursor)}
+              page={cursors.length + 1}
+              totalPages={read.total_pages}
+            />
           </>
         )}
       </Panel>
       <Notice tone="blue" data={{ "data-scenarios-closing-notice": "" }}>
-        {SCENARIOS_CLOSING_NOTICE}
+        <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 10v7 M12 7v1" /></svg><p>{SCENARIOS_CLOSING_NOTICE}</p>
       </Notice>
     </>
   );

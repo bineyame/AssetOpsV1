@@ -77,7 +77,12 @@ const item = (over: Partial<ColdScenarioItem> = {}, n = 1): ColdScenarioItem => 
   ...over,
 });
 
-function body(items: ColdScenarioItem[] = [item()], state: ColdScenariosRead["selection"]["state"] = "CURRENT", next: string | null = null): ColdScenariosRead {
+function body(
+  items: ColdScenarioItem[] = [item()],
+  state: ColdScenariosRead["selection"]["state"] = "CURRENT",
+  next: string | null = null,
+  totalPages = items.length === 0 ? 0 : 1,
+): ColdScenariosRead {
   return {
     schema_version: "cold-scenarios-1",
     site_id: SITE_UUID,
@@ -86,6 +91,7 @@ function body(items: ColdScenarioItem[] = [item()], state: ColdScenariosRead["se
     selection: { state, assessment_revision_ids: [REV_A], accepted_evidence_ids: [EV_1, EV_2], source_provenance: provenance() },
     items,
     next_cursor: next,
+    total_pages: totalPages,
   };
 }
 
@@ -109,6 +115,11 @@ async function renderBody(client: ColdScenariosClient, window: ColdWindowQuery =
   await waitFor(() => expect(view.container.textContent).not.toContain(SCENARIOS_LOADING));
   return view.container;
 }
+
+// The stylesheet as text (estate/mini pattern); Node's fs is untyped here, paths relative to `frontend/`.
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+const FRONTEND_CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+const SCENARIOS_CSS = NODE_FS.readFileSync(`${FRONTEND_CWD}/src/sites/coldScenarios.css`, "utf8");
 
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
@@ -139,6 +150,11 @@ describe("coldScenariosClient: exact cold-scenarios-1 validation", () => {
     ["a non-UTC scenario_at", (b) => (b.scenario_at = "2026-10-22T12:30:00+03:00")],
     ["a numeric cursor", (b) => (b.next_cursor = 2)],
     ["items not an array", (b) => (b.items = {})],
+    ["a missing total_pages", (b) => delete b.total_pages],
+    ["a null total_pages", (b) => (b.total_pages = null)],
+    ["a string total_pages", (b) => (b.total_pages = "2")],
+    ["a fractional total_pages", (b) => (b.total_pages = 1.5)],
+    ["a negative total_pages", (b) => (b.total_pages = -1)],
   ];
   const window: [string, (w: Record<string, unknown>) => void][] = [
     ["an extra window key", (w) => (w.cutoff = KNOWN)],
@@ -360,6 +376,41 @@ describe("cold Scenarios page states", () => {
     expect(root.querySelector("[data-scenario-expansion]")).toBeNull();
     cleanup();
 
+    // Q-C5b-4: a 95-ID basis is one keyboard-reachable region with every full ID in order, bounded at 360px.
+    const many = Array.from({ length: 95 }, (_, n) => `4e5f6071-8293-4eaf-80b1-${String(n).padStart(12, "0")}`);
+    const style = document.createElement("style");
+    style.textContent = SCENARIOS_CSS;
+    document.head.appendChild(style);
+    try {
+      const big = await renderBody(stub(() => loaded(body([item({ authored_basis: { ...item().authored_basis, accepted_evidence_ids: many } })]))).client);
+      fireEvent.click(big.querySelector("[data-scenario-review]") as HTMLButtonElement);
+      const region = big.querySelector(`[data-scenario-basis="${SCENARIO}"]`) as HTMLElement;
+      expect(region.tagName).toBe("DIV");
+      expect(region.className).toBe("cold-scenarios-basis");
+      expect(region.getAttribute("role")).toBe("region");
+      expect(region.getAttribute("aria-label")).toBe("Authored scenario basis");
+      expect(region.tabIndex).toBe(0);
+      const ids = Array.from(region.querySelectorAll('[data-vocabulary-exempt="source-reference"]')).map((n) => n.textContent);
+      expect(ids.filter((value) => value !== null && value.startsWith("4e5f6071-8293-4eaf-80b1-"))).toEqual(many);
+      for (const width of [1440, 390]) {
+        Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: width });
+        window.dispatchEvent(new Event("resize"));
+        const computed = window.getComputedStyle(region);
+        expect(computed.maxHeight).toBe("360px");
+        expect(computed.overflowY).toBe("auto");
+      }
+    } finally {
+      style.remove();
+    }
+    // The rule sits outside the phone media query, which keeps only its grid rules.
+    const flat = SCENARIOS_CSS.replace(/\s+/g, " ");
+    const phone = flat.indexOf("@media (max-width: 640px)");
+    const rule = ".cold-scenarios-basis { max-height: 360px; overflow-y: auto; }";
+    expect(flat.indexOf(rule)).toBeGreaterThan(-1);
+    expect(flat.indexOf(rule)).toBeLessThan(phone);
+    expect(flat.slice(phone)).not.toMatch(/max-height|overflow-y/);
+    cleanup();
+
     // Two records read `2 records`; the Scenarios address keeps the four keys in order and drops unset ones.
     const two = await renderBody(stub(() => loaded(body())).client);
     fireEvent.click(two.querySelector("[data-scenario-review]") as HTMLButtonElement);
@@ -375,7 +426,9 @@ describe("cold Scenarios page states", () => {
     const rows = Array.from({ length: 51 }, (_, n) =>
       item({ id: `a1b2c3d4-e5f6-4a7b-8c9d-${String(n).padStart(12, "0")}`, revision_id: `b2c3d4e5-f6a7-4b8c-9d0e-${String(n).padStart(12, "0")}` }, n + 1),
     );
-    const { client, list } = stub((cursor) => (cursor === null ? loaded(body(rows.slice(0, 50), "CURRENT", "page-2")) : loaded(body(rows.slice(50)))));
+    const { client, list } = stub((cursor) =>
+      cursor === null ? loaded(body(rows.slice(0, 50), "CURRENT", "page-2", 2)) : loaded(body(rows.slice(50), "CURRENT", null, 2)),
+    );
     const root = await renderBody(client);
     expect(root.querySelectorAll("[data-scenario-row]")).toHaveLength(50);
     const nav = root.querySelector('nav[aria-label="Scenario pages"]') as HTMLElement;
@@ -385,12 +438,18 @@ describe("cold Scenarios page states", () => {
     const next = () => root.querySelector("[data-scenarios-next]") as HTMLButtonElement;
     expect(first().textContent).toBe("First page");
     expect(next().textContent).toBe("Next");
+    // Q-C5b-2: the counter follows `Next` inside the pager nav and states the C4 total.
+    const count = () => root.querySelector('nav[aria-label="Scenario pages"] [data-scenarios-page-count]') as HTMLElement;
+    expect(count().tagName).toBe("SPAN");
+    expect(next().nextElementSibling).toBe(count());
+    expect(count().textContent).toBe("1 of 2");
     expect(first().disabled).toBe(true);
     expect(next().disabled).toBe(false);
     fireEvent.click(next());
     await waitFor(() => expect(root.querySelectorAll("[data-scenario-row]")).toHaveLength(1));
     expect(list.mock.calls[1][2]).toBe("page-2");
     expect(root.textContent).toContain("CSCN-000051");
+    expect(count().textContent).toBe("2 of 2");
     expect(next().disabled).toBe(true);
     expect(first().disabled).toBe(false);
     fireEvent.click(first());
@@ -431,7 +490,11 @@ async function renderPage(client: ColdScenariosClient, search = `?from=${encodeU
 describe("authored, pending and historical cold Scenarios", () => {
   it("authored_pending_historical_basis", async () => {
     // Empty: the Site-name heading, mock subtitle, live Scenarios tab, the mock empty block and the blue notice.
-    let main = await renderPage(stub(() => loaded(body([]))).client);
+    // Q-C5b-1: a COLDCHAIN Site owns the live cold Scenarios destination and reads the C4 list.
+    const emptyRead = stub(() => loaded(body([])));
+    let main = await renderPage(emptyRead.client);
+    expect(emptyRead.list).toHaveBeenCalled();
+    expect(main.querySelector("[data-scenarios-site-type-unsupported]")).toBeNull();
     expect(main.querySelector("h1")?.textContent).toContain("Kobo vaccine cold store");
     expect(main.querySelector("h1")?.textContent).not.toBe("Scenarios");
     expect(main.textContent).toContain("Financials · scenarios (placeholder)");
@@ -452,9 +515,19 @@ describe("authored, pending and historical cold Scenarios", () => {
     expect(empty.querySelector("h3")?.textContent).toBe("No scenario defined yet");
     expect(empty.querySelector("p")?.textContent).toBe(SCENARIOS_EMPTY_BODY);
     expect(panel.querySelector("table")).toBeNull();
+    expect(main.querySelector('nav[aria-label="Scenario pages"]')).toBeNull();
     const closing = main.querySelector("[data-scenarios-closing-notice]") as HTMLElement;
     expect(closing.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
     expect(closing.className).toContain("v69-notice--blue");
+    // Q-C5b-6: the mock `info` icon, then the paragraph.
+    expect(Array.from(closing.children).map((n) => n.tagName.toLowerCase())).toEqual(["svg", "p"]);
+    const icon = closing.querySelector("svg") as SVGElement;
+    const closingText = closing.querySelector("p") as HTMLElement;
+    expect(icon.getAttribute("class")).toBe("icon");
+    expect(icon.getAttribute("aria-hidden")).toBe("true");
+    expect(icon.querySelector("path")?.getAttribute("d")).toBe("M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 10v7 M12 7v1");
+    expect(closingText.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
+    expect(icon.compareDocumentPosition(closingText) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(panel.compareDocumentPosition(closing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(main.querySelector("[data-cold-date-bar]")?.textContent).toContain("Selected window");
     expect(main.querySelector("[data-scenarios-through]")?.textContent).toBe("Scenarios created through 2026-10-22 09:30 UTC");
@@ -484,9 +557,13 @@ describe("authored, pending and historical cold Scenarios", () => {
 
     // Historical: a superseded revision reads Historical with the historical selection notice.
     main = await renderPage(stub(() => loaded(body([item({ scenario_state: "HISTORICAL", revision_no: 1 })], "HISTORICAL"))).client);
-    expect(main.querySelector("[data-scenarios-state-notice]")?.textContent).toBe("Read at an earlier evidence cutoff; newer committed evidence exists.");
+    expect(main.querySelector("[data-scenarios-state-notice]")?.textContent).toBe("Read at an earlier evidence cutoff; newer evidence exists.");
     expect(main.querySelector(`[data-scenario-row="${SCENARIO}"]`)?.lastElementChild?.textContent).toBe("Historical");
     expect(main.textContent).not.toMatch(/\bCURRENT\b|\bHISTORICAL\b|STOCK_VALUE_CONTEXT/);
+    fireEvent.click(main.querySelector("[data-scenario-review]") as HTMLButtonElement);
+    const historicalScan = scanProductVocabulary(main, "cold-scenarios", { set: "w1", screen: "cold-scenarios" });
+    expect(historicalScan.scanned).toBeGreaterThan(20);
+    expect(describeViolations(historicalScan.violations)).toBe("");
   });
 
   it("keeps the mini-grid-only panel for a Site that is neither cold nor mini-grid", async () => {

@@ -211,7 +211,7 @@ DOWN = "postgresql+psycopg://nobody:x@127.0.0.1:1/none?connect_timeout=2"
 PRINCIPAL = "service:cold-scenario-seed"
 ATTEST = "service=cold-scenario-seed;job=w501b-c4;rule=AUTHORED_ONLY/1"
 WRITE_KEYS = ["schema_version", "id", "code", "revision_id", "revision_no"]
-LIST_KEYS = ["schema_version", "site_id", "window", "scenario_at", "selection", "items", "next_cursor"]
+LIST_KEYS = ["schema_version", "site_id", "window", "scenario_at", "selection", "items", "next_cursor", "total_pages"]
 ITEM_KEYS = ["id", "code", "revision_id", "revision_no", "name", "kind", "assumptions", "authored_basis",
              "recorded_at", "scenario_state"]
 BASIS_KEYS = ["from", "to", "cutoff", "assessment_revision_ids", "accepted_evidence_ids", "foundation_revision_id",
@@ -506,6 +506,7 @@ def test_pending_historical_list_and_cursor(chain) -> None:  # noqa: F811
     c = scenarios_client(built)
     empty = listed(c)
     assert list(empty) == LIST_KEYS and empty["items"] == [] and empty["next_cursor"] is None
+    assert empty["total_pages"] == 0  # Q-C5b-2: no selected rows
     assert empty["schema_version"] == "cold-scenarios-1" and empty["site_id"] == str(built.site_id)
     assert empty["window"]["committed_watermark"] is not None  # watermarked empty: no authored row in scope
     first = post(c, command_body("late-key-0001"))
@@ -541,11 +542,15 @@ def test_pending_historical_list_and_cursor(chain) -> None:  # noqa: F811
     now = listed(c)
     assert [(i["id"], i["revision_id"], i["scenario_state"]) for i in now["items"]] == [
         (first["id"], fixed["revision_id"], "DEFINED"), (second["id"], second["revision_id"], "DEFINED")]
+    # Q-C5b-2: the count is of selected heads only; the superseded revision 1 is never counted.
+    assert now["total_pages"] == 1 and listed(c, f"{W}&limit=1")["total_pages"] == 2
     # Historical correction view: the saved authored clock shows revision 1 as HISTORICAL; the later rows are absent.
     then = listed(c, f"{W}&scenario_at={saved_at}")
     assert then["scenario_at"] == saved_at
     assert [(i["id"], i["revision_id"], i["scenario_state"]) for i in then["items"]] == [
         (first["id"], first["revision_id"], "HISTORICAL")]
+    # Q-C5b-2: historical revision selection counts revision 1 alone at the saved authored clock.
+    assert listed(c, f"{W}&scenario_at={saved_at}&limit=1")["total_pages"] == 1
     # The earlier evidence cutoff: every row is HISTORICAL; rows with a later cutoff are absent.
     old = listed(c, f"{W}&known_at={w0}")
     assert old["selection"]["state"] == "HISTORICAL" and old["window"]["known_at"] == w0
@@ -580,6 +585,7 @@ def test_list_51_rows_and_cursor_refusals(chain) -> None:  # noqa: F811
     assert stamps == sorted(stamps, reverse=True)
     two = listed(c, f"cursor={one['next_cursor']}")
     assert len(two["items"]) == 1 and two["next_cursor"] is None
+    assert (one["total_pages"], two["total_pages"]) == (2, 2)  # Q-C5b-2: ceil(51 / 50) on both pages
     assert (two["window"], two["selection"], two["scenario_at"]) == (one["window"], one["selection"],
                                                                      one["scenario_at"])
     assert sorted(i["id"] for i in one["items"] + two["items"]) == sorted(made)
@@ -599,7 +605,8 @@ def test_list_51_rows_and_cursor_refusals(chain) -> None:  # noqa: F811
     refusal(foreign.get(f"{ROUTE}?cursor={cursor}"), 422, "COLD_SCENARIO_CURSOR_INVALID")
     for limit in ("0", "101", "x", "-1", "1.5"):
         refused_get(c, f"limit={limit}", 422, "COLD_LIMIT_INVALID")
-    assert len(listed(c, "limit=100")["items"]) == 51
+    hundred = listed(c, "limit=100")
+    assert len(hundred["items"]) == 51 and hundred["total_pages"] == 1
 
 
 @pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set")
@@ -657,4 +664,50 @@ def test_router_statuses_and_store_failures(chain) -> None:  # noqa: F811
         refused_get(c, W, 503, "DECISION_STORE_UNAVAILABLE")
         _replica(built.engine, f"DELETE FROM cold_scenario_revision WHERE id = '{rev}'",
                  f"DELETE FROM cold_scenario WHERE id = '{root}'")
+    assert [i["id"] for i in listed(c)["items"]] == [made["id"]]
+
+
+@pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set")
+def test_list_malformed_stored_basis_is_503(chain) -> None:  # noqa: F811
+    """Q-C5b item 5: a candidate revision whose stored basis lacks from/to/cutoff is 503, never a partial 200."""
+    built = opened("backup-failed", chain)
+    run(built)
+    c = scenarios_client(built)
+    made = post(c, command_body("shape-key-0001"))
+    good = stored(built, made["id"])[0]
+    basis = good["authored_basis"]
+    assert [i["id"] for i in listed(c)["items"]] == [made["id"]]
+    revision = ("INSERT INTO cold_scenario_revision (id, tenant_id, site_id, scenario_id, revision_no, "
+                "supersedes_revision_id, name, kind, assumptions, authored_basis, basis_sha256, formula_version, "
+                "correction_reason, actor_kind, actor_id, authorization_basis, attestation, idempotency_key, "
+                "payload_sha256) VALUES (:id, :t, :s, :r, :n, :p, 'Malformed', 'STOCK_VALUE_CONTEXT', "
+                "CAST(:a AS jsonb), CAST(:b AS jsonb), :h, 'AUTHORED_ONLY/1', :why, 'SERVICE', 'svc', 'basis', "
+                "'attested', :k, :h)")
+    # A new root whose revision 1 fixes the window but lacks its cutoff (the cutoff predicate would drop it).
+    root, rev = uuid4(), uuid4()
+    with built.engine.begin() as conn:
+        conn.execute(text(
+            "INSERT INTO cold_scenario (id, tenant_id, site_id, create_key, create_payload_sha256, "
+            "create_actor_id, actor_kind, actor_id) VALUES (:id, :t, :s, 'shape-0001', :h, 'svc', 'SERVICE', 'svc')"),
+            {"id": root, "t": built.tenant_id, "s": built.site_id, "h": _sha("c")})
+        conn.execute(text(revision), {
+            "id": rev, "t": built.tenant_id, "s": built.site_id, "r": root, "n": 1, "p": None, "why": None,
+            "a": json.dumps(ASSUMPTIONS), "b": json.dumps({k: v for k, v in basis.items() if k != "cutoff"}),
+            "h": _sha("b"), "k": "shape-0001"})
+    for query in (W, f"{W}&limit=1", ""):
+        response = c.get(f"{ROUTE}?{query}" if query else ROUTE)
+        refusal(response, 503, "DECISION_STORE_UNAVAILABLE")
+        assert "items" not in response.json()
+    _replica(built.engine, f"DELETE FROM cold_scenario_revision WHERE id = '{rev}'",
+             f"DELETE FROM cold_scenario WHERE id = '{root}'")
+    assert [i["id"] for i in listed(c)["items"]] == [made["id"]]
+    # A later correction of the well-formed root that lacks 'to' is equally malformed history.
+    rev2 = uuid4()
+    with built.engine.begin() as conn:
+        conn.execute(text(revision), {
+            "id": rev2, "t": built.tenant_id, "s": built.site_id, "r": good["scenario_id"], "n": 2,
+            "p": good["id"], "why": "Corrected stock count", "a": json.dumps(ASSUMPTIONS),
+            "b": json.dumps({k: v for k, v in basis.items() if k != "to"}), "h": _sha("b"), "k": "shape-0002"})
+    refused_get(c, W, 503, "DECISION_STORE_UNAVAILABLE")
+    _replica(built.engine, f"DELETE FROM cold_scenario_revision WHERE id = '{rev2}'")
     assert [i["id"] for i in listed(c)["items"]] == [made["id"]]

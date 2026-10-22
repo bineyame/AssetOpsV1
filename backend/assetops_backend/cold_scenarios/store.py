@@ -62,24 +62,38 @@ _REVISION_COLUMNS = (
     "id, scenario_id, revision_no, supersedes_revision_id, name, kind, assumptions, authored_basis, basis_sha256, "
     "idempotency_key, payload_sha256, recorded_at"
 )
-#: Each root whose revision 1 fixes exactly the requested window, at its latest revision recorded by `scenario_at`
-#: with an evidence cutoff no later than `known_at`; ordered `(recorded_at DESC, id DESC, scenario_id)`, paged
-#: strictly after the `(recorded_at, id)` tuple.
-_HEADS = (
-    "SELECT h.id, h.scenario_id, h.public_no, h.revision_no, h.latest_no, h.name, h.kind, h.assumptions, "
-    "h.authored_basis, h.recorded_at FROM (SELECT DISTINCT ON (r.scenario_id) r.id, r.scenario_id, m.public_no, "
-    "r.revision_no, (SELECT max(x.revision_no) FROM cold_scenario_revision x WHERE x.tenant_id = r.tenant_id "
-    "AND x.site_id = r.site_id AND x.scenario_id = r.scenario_id) AS latest_no, r.name, r.kind, r.assumptions, "
-    "r.authored_basis, r.recorded_at FROM cold_scenario m JOIN cold_scenario_revision f ON f.tenant_id = m.tenant_id "
+#: Candidate revisions: every revision, recorded by `scenario_at`, of a root of this tenant and Site whose revision 1
+#: fixes exactly the requested window. The evidence-cutoff predicate is applied after the shape check (Q-C5b item 5).
+_CANDIDATES = (
+    "FROM cold_scenario m JOIN cold_scenario_revision f ON f.tenant_id = m.tenant_id "
     "AND f.site_id = m.site_id AND f.scenario_id = m.id AND f.revision_no = 1 JOIN cold_scenario_revision r "
     "ON r.tenant_id = m.tenant_id AND r.site_id = m.site_id AND r.scenario_id = m.id "
     "WHERE m.tenant_id = :t AND m.site_id = :s AND CAST(f.authored_basis->>'from' AS timestamptz) = :lo "
     "AND CAST(f.authored_basis->>'to' AS timestamptz) = :hi AND r.recorded_at <= :at "
-    "AND CAST(r.authored_basis->>'cutoff' AS timestamptz) <= :k ORDER BY r.scenario_id, r.revision_no DESC) h "
+)
+#: Whether any candidate revision's stored basis lacks `from`, `to` or `cutoff` (malformed history: 503).
+_MALFORMED = (
+    "SELECT EXISTS (SELECT 1 " + _CANDIDATES + "AND (r.authored_basis->>'from' IS NULL "
+    "OR r.authored_basis->>'to' IS NULL OR r.authored_basis->>'cutoff' IS NULL))"
+)
+#: Each candidate root at its latest revision with an evidence cutoff no later than `known_at`.
+_SELECTED = (
+    "SELECT DISTINCT ON (r.scenario_id) r.id, r.scenario_id, m.public_no, "
+    "r.revision_no, (SELECT max(x.revision_no) FROM cold_scenario_revision x WHERE x.tenant_id = r.tenant_id "
+    "AND x.site_id = r.site_id AND x.scenario_id = r.scenario_id) AS latest_no, r.name, r.kind, r.assumptions, "
+    "r.authored_basis, r.recorded_at " + _CANDIDATES
+    + "AND CAST(r.authored_basis->>'cutoff' AS timestamptz) <= :k ORDER BY r.scenario_id, r.revision_no DESC"
+)
+#: The selected heads ordered `(recorded_at DESC, id DESC, scenario_id)`, paged strictly after `(recorded_at, id)`.
+_HEADS = (
+    "SELECT h.id, h.scenario_id, h.public_no, h.revision_no, h.latest_no, h.name, h.kind, h.assumptions, "
+    "h.authored_basis, h.recorded_at FROM (" + _SELECTED + ") h "
     "WHERE CAST(:after_at AS timestamptz) IS NULL OR h.recorded_at < CAST(:after_at AS timestamptz) "
     "OR (h.recorded_at = CAST(:after_at AS timestamptz) AND h.id < CAST(:after_id AS uuid)) "
     "ORDER BY h.recorded_at DESC, h.id DESC, h.scenario_id LIMIT :n"
 )
+#: Every selected head, before cursor and limit (Q-C5b item 2 `total_pages`).
+_COUNT = "SELECT count(*) FROM (" + _SELECTED + ") h"
 
 
 class PostgresColdScenarioStore:
@@ -178,6 +192,18 @@ class PostgresColdScenarioStore:
             "t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known, "at": scenario_at,
             "after_at": None if after is None else after[0], "after_id": None if after is None else after[1],
             "n": limit}).mappings())
+
+    @staticmethod
+    def malformed_candidates(c: Connection, tenant_id: UUID, site_id: UUID, lo: Any, hi: Any,
+                             scenario_at: Any) -> bool:
+        return bool(c.execute(text(_MALFORMED), {
+            "t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "at": scenario_at}).scalar_one())
+
+    @staticmethod
+    def count_heads(c: Connection, tenant_id: UUID, site_id: UUID, lo: Any, hi: Any, known: Any,
+                    scenario_at: Any) -> int:
+        return int(c.execute(text(_COUNT), {
+            "t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known, "at": scenario_at}).scalar_one())
 
 
 __all__ = ["ColdScenarioReadFailed", "ColdScenarioStoreUnavailable", "ColdScenarioWriteRefused",

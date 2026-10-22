@@ -124,9 +124,9 @@
       {"text": "Loading the site's cold scenarios.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
       {"text": "The cold scenarios read could not be reached.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
       {"text": "The cold scenarios read answered in an unexpected shape.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
-      {"text": "Scenario pages", "why": "W5-01b C5 builder addition, pending Architect confirmation: a C5-ruled literal on this screen (pager label, restored mock subtitle or pending notice) that the P-C5-6/7/8 list does not name; exact text only."},
-      {"text": "Financials · scenarios (placeholder)", "why": "W5-01b C5 builder addition, pending Architect confirmation: a C5-ruled literal on this screen (pager label, restored mock subtitle or pending notice) that the P-C5-6/7/8 list does not name; exact text only."},
-      {"text": "Underlying evidence is being reassessed; the authored scenario remains separate.", "why": "W5-01b C5 builder addition, pending Architect confirmation: a C5-ruled literal on this screen (pager label, restored mock subtitle or pending notice) that the P-C5-6/7/8 list does not name; exact text only."}
+      {"text": "Scenario pages", "why": "W5-01b Q-C5b-3 Architect confirmed, 2026-10-22; exact cold-scenarios text only."},
+      {"text": "Financials · scenarios (placeholder)", "why": "W5-01b Q-C5b-3 Architect confirmed, 2026-10-22; exact cold-scenarios text only."},
+      {"text": "Underlying evidence is being reassessed; the authored scenario remains separate.", "why": "W5-01b Q-C5b-3 Architect confirmed, 2026-10-22; exact cold-scenarios text only."}
     ],
     "cold-financials": [
       {"text": "Scenarios", "why": "W5-01b C5 P-C5-6/7/8: the live Financials Scenarios subtab label on this cold screen; exact text only."}
