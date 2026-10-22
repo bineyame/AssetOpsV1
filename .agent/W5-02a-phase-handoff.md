@@ -1,0 +1,151 @@
+# W5-02a phase handoff (K1a, K1b, K1c, K2a, K2b)
+
+Branch `task/W5-02a-cold-action-root` (from main `84cef493`). Base for 0032: `task/W5-01b-cold-scenarios` (unmerged). No code written; no tests, servers or DBs run.
+
+## Pre-flight
+
+Dry-read of `.agent/W5-02-build-spec.md` (frozen model, wire, closure contract, K1a-K2b cards, closure map), `tasks/W5-02-cold-work.md`, `.agent/W5-02-04-readiness-review.md` (all rechecks) against main, the W5-01b branch, `tools/checks/*`, `tools/writer_guard_probes.py` and v69 `cold-work`/`cold-action` (`frontend/mockups/v69/index.html`, `screen-manifest.json`). Paths relative to the repo; `spec:N` = build-spec line. 114 items: card text, reference, why open.
+
+### General / gates
+
+- **P-G-1 0032 unmerged.** Card: "abort unless that exact parent has merged". `0032_w5_cold_scenarios` (down `0030_w4_mini_decisions`, no 0031) exists only on `task/W5-01b-cold-scenarios`. Open: build K1a on the W5-01b branch or wait for its merge.
+- **P-G-2 W6 B1 unmerged.** K1c: "Merge W6-01 A1 and B1 first". A1 merged (`1d3c13b9`); `task/W6-01b-maintenance` is not an ancestor of main; `test_w601b_global_maintenance.py` exists only there. W6-01c (`task/W6-01c-request-overview`, unmerged) copies the same `global_index` patterns. K1c cannot start.
+- **P-G-3 K2a/K2b blocked transitively.** K2a captures (six-column positive, historical K0..K3) need the K1c producer, and K1c is "Review before K2a", so K2a/K2b wait on B1 too (spec:98-99). Open: allow K2a component/adapter work and placeholder captures before K1c, or keep the chain.
+- **P-G-4 Readiness item 29 still open.** Spec:141/156 defer the producer; K1c needs it. See P-K1c-14..22: the described path does not exist.
+
+### K1a — storage/commands
+
+- **P-K1a-1 Head pins not listed.** "Tests prove migration/downgrade". 18 files pin `0032_w5_cold_scenarios` as head on W5-01b: `mini_depth_probe.py:22` (its stepwise walk at :85 needs a 0033 step), `test_s1_bindings_postgres.py:118`, `test_s2_evidence_ledger_postgres.py:458`, `test_s405_publication_postgres.py:499`, `test_s4_consequence_store_postgres.py:469`, `test_s4_evidence_consequence_work_postgres.py:537,568`, `test_w200_source_events_postgres.py:587,638,693`, `test_w201_cold_foundation_postgres.py:456,464`, `test_w203..w207`, `test_w401/402/403_migration_postgres.py`, `test_w501_cold_scenarios_postgres.py:28`. Several downgrade walks (e.g. `test_s405:496`) cross 0033. Open: add all to K1a's list.
+- **P-K1a-2 Scope columns.** "scoped action_id FK to domain_action". `domain_action` uniques omit `(tenant_id,site_id,id)` (W4 `work_case_scope`, 0027:28); intent/case-link column lists lack `tenant_id,site_id`. Open: columns and target unique.
+- **P-K1a-3 Supersession FK target.** "same-action supersession FK" needs `UNIQUE(action_id,id)` on intent (W4 `work_revision_case_id` 0027:72). Not stated.
+- **P-K1a-4 Case-link columns/uniques.** "selected case revision/event IDs, recorded_at and attestation". No `id`, actor fields, `idempotency_key`, `payload_sha256`, `authorization_basis`; no uniques (one link per action+case? unique `(action_id,idempotency_key)`?).
+- **P-K1a-5 Event-belongs-to-case.** `work_event` has only `work_event_scope UNIQUE(tenant_id,site_id,id)` (0027:113), no `(case_id,id)`. Open: new W4 constraint (W4 migration change) or service check.
+- **P-K1a-6 "Selected" case revision/event undefined.** Head at DB time, any existing, or at a cutoff? Which case kinds (INCIDENT and/or MAINTENANCE_REQUEST)?
+- **P-K1a-7 Action attestation not stored.** Body has `actor.attestation`; `domain_action` has `actor_kind,actor_id` only. W4 stores `attestation`, `authorization_basis` NOT NULL (0027:22-23). Store or drop?
+- **P-K1a-8 CHECK literals.** `actor_kind='SERVICE'` only? id/idempotency lengths (W4 1-128 / 8-128)? title `length(btrim)` 1-160 as DB CHECK or service only? `payload_sha256` grammar?
+- **P-K1a-9 Hash canonicalization.** W4 `command_sha256(path,body)` (`work/model.py:283-290`). Open: path dict (site_id? action_id?), raw vs normalized body (trimmed title, UTC-normalized instants).
+- **P-K1a-10 Refusal type.** `WorkRefused` reads fixed `STATUS`/`MESSAGES` (`work/model.py:39-76`). New codes (`DOMAIN_INTENT_*`, `ACTION_NOT_FOUND`) need a `work/model.py` edit (not listed) or a new exception class in `domain_intent.py`.
+- **P-K1a-11 W4 gate not importable.** `read_scope`/`open_scope` are closures in `build_work_router` (`work_api.py:71-95`); `_gate`/`_actor` are private on `WorkService` (`service.py:99-106`); only `m.actor_shape`/`m.authorize` are public. Open: duplicate or refactor `work_api.py`/`service.py` (not listed).
+- **P-K1a-12 No principal in app.** `main.py:539` mounts the work router with no principal; `create_app` has no work-principal parameter, so in-app domain writes are always 403. Open: how `test_w502_domain_intent_api.py` injects a principal; new `create_app` kwarg?
+- **P-K1a-13 Time-bound refusal code.** W4 `check_occurrence` raises `WORK_OCCURRED_AT_FUTURE`/`TOO_OLD` (`model.py:236`). For `raised_at`/`declared_at`/`due_at` bounds: `DOMAIN_INTENT_INVALID`? Unstated.
+- **P-K1a-14 Origin Finding check.** W4 checks scope and `created_at <= command_now` only (`postgres_work_store.py:140-145`). Must the revision be latest, `domain='cold_chain'` (lowercase, 0022:52, vs `'COLDCHAIN'`), or selected by a W5-01 reader (which)? Maps to `DOMAIN_INTENT_LINK_INVALID`?
+- **P-K1a-15 Finding FK form.** `finding_site_unique(tenant,site,id)` (0009:54) and `finding_revision_finding_scope_unique(tenant,site,finding_id,id)` (0016:42); W1 uses one 4-column FK. One FK or two? Pin domain?
+- **P-K1a-16 `work_record_id` table.** `maintenance_record` or `operational_record`?
+- **P-K1a-17 Basis validation depth.** Must `work_case_id` already be case-linked to this Action (case-link before intent)? Must `accepted_evidence_ids` exist in `accepted_evidence`, be cited by the Finding revision, or be cold-selected? Is `basis.finding_revision_id` required to equal the Action's origin revision?
+- **P-K1a-18 Intent `selection_token` at write time.** Token inputs (case/record, cited evidence, Finding pin) come from the K1b reader. Open: compute at K1a (how), or return a K1a-only hash.
+- **P-K1a-19 Case-link response.** No `schema_version`, shape or 201/200 rule given.
+- **P-K1a-20 Supersession refusals.** Root exists but `supersedes_id:null` (partial unique), superseding a non-head (`UNIQUE(supersedes_id)`): which code? Must criteria be identical on supersession (only four fixed rows are valid)?
+- **P-K1a-21 Cross-table trigger SQL.** Only the constraint name `action_cross_domain_code_conflict` is given. Open: ERRCODE (must be class 23 to surface as `IntegrityError`), `USING CONSTRAINT`/how `diag.constraint_name` is set from a trigger, match on `action_code` vs `(tenant_id,action_code)`, trigger/function names, and a lock against two concurrent direct-SQL inserts (a plain BEFORE INSERT cannot see an uncommitted row).
+- **P-K1a-22 W1 catch point.** `accept` returns `self._run(work)` (`postgres_action_store.py:247-310`); `_run` re-raises non-invalidated `DBAPIError` (:97-106); no `IntegrityError` handling today. Open: wrap point inside or outside `_run`'s retry.
+- **P-K1a-23 Downgrade scope.** "Downgrade refuses nonempty new tables". It must also drop the trigger/function added to W1 `action`. Refusal message literal not given (0032 has `Downgrade of 0032_w5_cold_scenarios refused: …`).
+- **P-K1a-24 Append-only function.** "Reuse W4 append-only triggers": `w4_append_only()` (0027:196, message `W4 work history is append only`) vs `ledger_append_only` (W1, 0030, 0032). Trigger names?
+- **P-K1a-25 S6 tests have no collision expectation.** "Change S6 tests' code-collision expectation". `test_s6_site_action_index{,_postgres}.py` contain nothing about collision (only `"ACT-X"` at :35). Open: what changes; the real candidates are `test_s6_action_store_postgres.py` and the refusal map in `fixtures/s6_action_api_contract.json:21266`, neither listed.
+- **P-K1a-26 Rule-8 block replication.** "Add the three owned tables to INSERT-only corpus". `configuration-persistence.ps1` has per-writer table lists, `*InsertsSeen` hash, owner/foreign checks, `$actionForbidden` and per-table anti-vacuity loops (:794-796, 1061, 1110, 1209, 1349). Open: confirm a full W4-style block set is meant.
+- **P-K1a-27 Probe names vs harness.** `writer_guard_probes.py` probes are `(name, module, appended code, expected failure)` source mutations (:1-3, 604-608), and rule 8 fails closed on a per-table list of six probe names (ps1:1473-1500). `domain_action_insert` etc. do not fit that shape. Open: exact probe tuples/count; are "direct-SQL probes" DB tests in `test_w502_domain_intent_postgres.py` instead?
+- **P-K1a-28 Idempotency mechanism.** `$actionForbidden` refuses `on conflict` and DDL (ps1:887). Select-then-insert under an advisory lock (W4 style)? Unstated.
+- **P-K1a-29 HTTP-scan tokens.** Card lists bare `source_publication`; the scan regex (ps1:1541) does not match it. Extend the regex or not?
+- **P-K1a-30 `composition.py` is existing.** Card lists it among new-or-existing; it exists (`work/composition.py:36-53`). Confirm edit, not create.
+
+### K1b — detail/union read
+
+- **P-K1b-1 Port already exists.** `LinkReadPorts.cold_snapshot=build_cold_read_service(None)._snapshot` (`work/composition.py:36-53`); `envelope_on` is not a port field (`postgres_work_read.py:64-76`). Add a field or a separate domain port?
+- **P-K1b-2 `known_at` argument.** Card: `_snapshot(...,known_at,selection_cutoff=pin_cutoff,...)`. W4 `_cold_ev` (`postgres_work_read.py:223-262`) passes the evidence cutoff (latest `ingestion_disposition.decided_at` ≤ request) as `known_at` and the request as `selection_cutoff`. Reuse `_cold_ev` (private) or follow card literally (changes HISTORICAL/watermark math, `postgres_assessment_store.py:2000-2048`)?
+- **P-K1b-3 Source of `lo/hi/pin_seqs`.** Not stored with a Finding revision. W4 derives `lo/hi` from `analytic_run` via `finding_revision.analytic_run_id` and seqs from `selected_windows_on` (`:1994-1997`). Confirm for the Action detail.
+- **P-K1b-4 `envelope_on` purpose.** No detail field consumes an envelope; `source_provenance` uses `provenance_dto`. It raises `ColdReadUnavailable` (`:1954-1959`). What does it feed; map to 503 `WORK_STORE_UNAVAILABLE`?
+- **P-K1b-5 Analytics-adapter rule.** `ColdReadService` is in `analytics/adapters/postgres_assessment_store.py:1946`. Rule holds only via the lazy import through `analytics.composition` (`work/composition.py:40-44`). Confirm.
+- **P-K1b-6 Domain vocabulary.** `finding_revision.domain='cold_chain'` (`postgres_work_read.py:197`) vs `domain_action.domain='COLDCHAIN'`. Confirm the pin dispatches on `fr.domain`.
+- **P-K1b-7 "Selected lineage".** W4 lineage = pinned revision exists with `created_at<=k` (`:162-166`) then pinned assessment revision equals selected (`:255-256`). For `origin.href`: existence or pin match?
+- **P-K1b-8 Per-row state.** `coverage_of` returns PARTIAL on STALE (`link_coverage.py:118-124`); `linked_coverage` needs a case `revision_id`. How are index row states built?
+- **P-K1b-9 Battery row source state.** W1 index is always `CURRENT` (`actions/site_index.py:244`). What a W1 row contributes to `status`/`coverage` is undefined.
+- **P-K1b-10 HISTORICAL rule.** `historical = known_at < read_at` (`link_coverage.py:105`). Defaulted `known_at` = `read_at`? Empty selection "according to cutoff": explicit, or `<read_at`?
+- **P-K1b-11 Index pin cost.** Pin read per domain row per page? Or lineage only on the index?
+- **P-K1b-12 Refusal literals differ from W4.** W4 `work/model.py:53-58` messages ("The window may span at most 31 days.", "`limit` must be an integer from 1 to 100.", "The cursor is not a work-list cursor.", "The work list changed; request page one without a cursor.") and per-field window messages (`site_index.py:62-66,110-113`). `parse_list_request` cannot be reused; separate map needed. Confirm card literals win only on the domain routes.
+- **P-K1b-13 Page default.** W4 `PAGE_DEFAULT=50` (`site_index.py:41`); card 5. New constant (confirm).
+- **P-K1b-14 `INVALID_KNOWN_AT` position.** W4 order window→limit→known_at→cursor, future check inside the tx (`:108,293`). Card order window→limit→cursor, `INVALID_KNOWN_AT` elsewhere. Where?
+- **P-K1b-15 Cursor codec.** `decode_cursor` requires `v=1`, `_CURSOR_TEXT`, `after=[iso,uuid]` (`:87-103`). Reuse with a new kind or new codec?
+- **P-K1b-16 Token prefix.** W4 `"sha256:"+hex` (`site_index.py:267`, `link_coverage.py:98`); W1 `sai1-`. Prefix for index and detail tokens?
+- **P-K1b-17 W1 row title/owner/due.** W1 rows have none (`actions/site_index.py:41,213-240`); `title` is required. Null, `action_code`, or fixed copy? (`Battery reserve trial` is banned on cold, spec:70.)
+- **P-K1b-18 W1 union read path.** `PostgresActionStore.site_window_on(c,t,s,lo,hi,known_at)` (`postgres_action_store.py:897`) is reusable (W4 wires it as `action_window`), plus `ActionIndexService._row`. Reuse vs direct SQL (needs `$pgReaders`)?
+- **P-K1b-19 W1 row mapping.** `links.action`=`canonical`, `links.history`=`history_at_event`? `origin` label/href for W1 (`origin_finding` exists, no label/href)? `state` W1 object vs `'OPEN'` string in one column (typed union on frontend).
+- **P-K1b-20 W1 fence inputs.** Union fence `(kind,id,time,intent,finding_rev)`: W1 has no intent (null?); W1 API has no `known_at`, only `site_window_on`.
+- **P-K1b-21 `links.work` sourcing.** Filter `kind='MAINTENANCE_REQUEST'` (`model.py:28-30`); `recorded_at` = link's? `request_state` from `reduce_state(REQUEST, events)` (`model.py:127`)? `record_id` = `intent.basis.work_record_id` or newest `maintenance_record` at cutoff? `case_title` from linked or latest revision at cutoff?
+- **P-K1b-22 Off-list files.** `provenance_dto(tx,…)` (`work/service.py:62`) needs `tx.link_rows` (`build_link_rows_reader`); detail SQL listed in the writer `postgres_domain_intent.py` (reader belongs in a reader file for rule 8?); `main.py` not on K1b's list but router needs new service args; `tools/checks/test_estate_guard.py` per-reader guard test needed?
+
+### K1c — W4 union/producer
+
+- **P-K1c-1 `global_index.py` missing from list.** `work/global_index.py:31-32` imports `case_basis`, `_action_link`; :254 sorts on `(action_id, action_event_id)` and :278 `sorted(x["action_event_id"]…)` — TypeError on null; keys selections on `("ACTION",…)` so a domain link gets no selection. Must be edited; not listed.
+- **P-K1c-2 "W3 global case case_basis".** No W3 code calls `case_basis`; callers are W4 `site_index`, `detail`, `service`, W6 `global_index`. Means W6 `global_index`?
+- **P-K1c-3 `case_basis` location/citations.** It is in `service.py:50-59` and stringifies every `action_event_id` ("None"). Citations come only from W1 `action_basis_evidence` (`postgres_work_read.py:122-133`). Domain citations source?
+- **P-K1c-4 `revision_links` shape.** Keyed by `case_revision_id`, no `known_at` (`postgres_work_read.py:107-120`). Does a link bound to one revision carry to later revisions? Filter `recorded_at<=known_at` (new param on every caller)? Merge into `action_links` or new key?
+- **P-K1c-5 Write path re-insert.** `service.py:325-327` defaults a new revision's `action_links` from `tx.revision_links(head)` on `adapters/postgres_work_store.py:95` (not listed); a domain link there would be re-inserted into the battery FK table. Also `service.py:135`.
+- **P-K1c-6 `link_selections` domain SQL.** Current ACTION joins `action_event`/`action` (:166-176). Domain SQL, lineage meaning, `_pin`/`_cold_ev` reuse, `domain` value unstated.
+- **P-K1c-7 `link_fence` token.** `site_index.py:169-180` returns a token only for mini_grid or `_cold_ev_token` (:149-166, None for ACTION without `sai1`). Token version/prefix/basis fields for `DOMAIN_ACTION`?
+- **P-K1c-8 Href conflict.** W1 `_action_link` (:189-196) uses `/sites/{s}/actions/{id}?event_id=…` (`actions/service.py:230-233`); card wants `/actions/{id}/verification`, which today is the W1 battery Verification page and pre-K4 is the placeholder. Confirm.
+- **P-K1c-9 `by_key` selected ID.** `(kind,id,selected_id)`: for domain, root ID or Finding revision ID?
+- **P-K1c-10 `detail.py` change.** :85-86 emits raw `{action_id,action_event_id}`, sorts on `action_event_id`. Card lists `detail.py`/`service.py` without the edit.
+- **P-K1c-11 `linked_coverage`/`_token`.** `link_coverage.py:92-114` works for any kind if `pin`/`domain` set; change only in the adapter? Confirm.
+- **P-K1c-12 Frontend type.** `frontend/src/sites/workClient.ts:43` `action_event_id: string`; `siteWorkCases.tsx:386` uses it in React keys. Nullable change is outside K1c (and K2a) lists.
+- **P-K1c-13 Other byte-equivalence tests.** `test_w401_migration_postgres.py` (FK), `test_s6_action_records_postgres.py` (`sai1`), fixtures `s6_site_action_index_contract.json`, `w4/w403-mini-decisions.json` not listed.
+- **P-K1c-14 Generated scenario cannot be registered.** `UserYamlScenarioStore` fixed root `var/scenarios` (`yaml_user_scenario_store.py:35`) parses no cold documents; only the shipped store does (`yaml_shipped_scenario_store.py:119`); composite refuses duplicate `scenario_id`; `COLD_SCENARIO_LABELS` (`simulator_lab_api.py:235`) is fixed. No "existing scenario registration" path for a private copy.
+- **P-K1c-15 No test cold Site.** `cold_parsing.py:160` hard-requires `site_code == COLD-LAB-001`.
+- **P-K1c-16 Absolute times.** `cold-backup-failed.yaml:10-30` uses absolute `start`, `end`, `forcings[].at`; "preserve relative offsets" means rewriting all.
+- **P-K1c-17 No producer analogue / Foundation shift call.** W5-01b adds no `tools/` producer; analogues `tools/s4_finding_cases.py`, `s602b_test_scoped_cases.py`, `w402_mini_depth_cases.py`, `w601_seed.py`. Which call publishes a shifted Foundation?
+- **P-K1c-18 `K0` source.** Cold evidence cutoff is `max(decided_at)` (`postgres_work_read.py:225-228`); `envelope_on` (`postgres_assessment_store.py:2408`) returns an envelope. Which field is K0?
+- **P-K1c-19 STALE_SOURCE mode.** Cold `STALE_SOURCE` is a stale probe at `to` (`cold_reads.py:55-67`), not a superseded source binding. Producer as written cannot yield it.
+- **P-K1c-20 UNKNOWN mode.** Bindings are append-only with `superseded_at` (`source_bindings_on` :3097); cannot be "removed". UNKNOWN arises from no settled selection/no probe.
+- **P-K1c-21 PENDING mode (feasible).** Worker `run_once`/`run_pending` (:131-166) runs only when invoked; confirm "ingest without running worker".
+- **P-K1c-22 503 mode.** No mechanism given to stop "only this fixture's API database connection".
+- **P-K1c-23 Rebase order with K1b.** Both edit `postgres_work_read.py`; and W6-01c may touch `global_index.py` concurrently. Confirm serialization.
+
+### K2a — Action index and shared scope
+
+- **P-K2a-1 Detail has no `domain`.** "checks its domain/Site match" (spec:72); detail `action` has no domain (spec:11). `schema_version`+`site_code` enough?
+- **P-K2a-2 Battery rows on a cold Site.** Union returns W1 rows on any Site (spec:13); cold mock Site has a battery (index.html:198). COLDCHAIN route always calls `domainActionClient.getDetail` and 404 "never falls back to W1" (spec:72): battery row links dead-end; title cell undefined (`Battery reserve trial` banned, spec:70). Can a cold Site have W1 Actions, and how are they rendered/routed?
+- **P-K2a-3 `Actions` breadcrumb.** Mock (index.html:1121) links to global Actions, which omits cold Actions (M4). Plain text or link? Is `site:` a link?
+- **P-K2a-4 Placeholder states.** Only 200/404 specified. Loading/401/403/422/503 copy? Heading before detail loads? 404 body?
+- **P-K2a-5 K2a vs K4a shell parts.** Spec:72 lists no Site tabs, `OPEN` chip, cold PageHeader subtitle, status line; today `SiteActionFrame` renders `OperatorSiteTabs` (SiteAnalyticsFrames.tsx:1318) and subtitle `{site} · an action raised from a finding` (:1316). Which does the K2a placeholder own?
+- **P-K2a-6 "subtitle" ambiguity.** spec:31/54 = owner/site/Finding line (mock status bar, index.html:743); spec:72 = PageHeader question. Name each element.
+- **P-K2a-7 Redirect cutoff.** `ActionHrefSelector` (operatorSiteRoutes.ts:334-339) has no `known_at`; `/overview` is not a route segment today (resolves to section-not-found, SiteAnalyticsFrames.tsx:1291).
+- **P-K2a-8 EV Sites before V2.** W1 behaviour or domain shell on the Action route?
+- **P-K2a-9 Server vs client hrefs.** Use `links.action`/`origin.href` from wire, or `siteActionHref`/`siteFindingHref` built from `site.site_id`? Null `origin.href` → plain-text label (assumed)?
+- **P-K2a-10 Finding revision pin ignored.** Cold Finding frame reads by window (`coldWindowFromParams`, SiteAnalyticsFrames.tsx:632-641) and ignores `revision_id`; with no from/to the link opens without a window. The `origin.href` does not open the selected revision.
+- **P-K2a-11 `shortName` private.** Local const `siteWorkCases.tsx:189` (K3a file). Export (file not on K2a list), duplicate, or add file? Envelope has no site name; input is `site.display_name`.
+- **P-K2a-12 Scope type home.** `workScopeFromQuery` (SiteAnalyticsFrames.tsx:1458) returns W1 `ActionIndexScope` (no `known_at`); `actionIndexClient.ts` stays W1-only and is not listed. Where does the cold scope/query type live?
+- **P-K2a-13 Subtab signature ripple.** `WORK_SUBTABS` hrefs take only `siteId` (:1527-1531); `WorkSubrow` gets no `known_at`; Incidents/Maintenance frame at :1668 changes too; `siteWorkCases.test.tsx` (exact count paths :453-543) not on K2a list.
+- **P-K2a-14 `useWorkCounts` cutoff.** Passes `knownAt:null` to W4 (:1564); passing the cutoff changes URLs `siteWorkCases.test.tsx` keys on (not listed).
+- **P-K2a-15 Cursor and URL cutoff.** With no `known_at` in URL, does `Next page` write the response `known_at` into the URL?
+- **P-K2a-16 W1 window form on cold (mock departure).** W1 date form in panel header (SiteWorkActions.tsx:140,516); mock has only the topbar range picker (index.html:782). Keep, hide or replace; how does the user change the default window? Unlabelled.
+- **P-K2a-17 Leftover W1 copy (mock departure).** `Showing {n} of {total}. Newest first.` (:419), `Show the first 4` (:423), `This list holds Actions only…`, `Applied or closed is…` (:532-537) are not in the mock and not listed for removal or labelled.
+- **P-K2a-18 Fold N.** W1 uses page rows (:423); spec says full-set count. `Show all {N} Actions` = `rows.length` or `total_count`?
+- **P-K2a-19 Refusal per status.** Generic `Cold work unavailable`+message+Retry: is 409 `WORK_BASIS_CHANGED`/422 `INVALID_CURSOR` still a first-page link (Retry with same cursor loops)? 401/404 rendering? No Retry pattern exists on Work pages.
+- **P-K2a-20 Strip while loading/refused.** W1 `reading`/`no count`, W4 `WORK_COUNT_UNKNOWN` (siteWorkCases.tsx:134), W1 `LISTED_WORDS` (:473-481): which stay on cold?
+- **P-K2a-21 Count plural.** Mock literally `1 actions` (index.html:341). Singular at n=1?
+- **P-K2a-22 `Due dates are not yet set` scope.** Vacuous on zero/refusal; "every selected row" = page or full set (client sees only the page)?
+- **P-K2a-23 Empty markup.** Mock `empty()` has icon + h3 (index.html:190); W4 uses `data-work-empty`. Reuse W4 component?
+- **P-K2a-24 Notice/chip classes.** Mock notice blue with info icon (index.html:180); Open chip `badge('Open','amber')` (index.html:336) → `w1f4-action-badge--amber`? Unnamed.
+- **P-K2a-25 HISTORICAL time format.** `Read as of {known_at UTC}`: reuse `utcText`? exact format?
+- **P-K2a-26 Page header subtitle (mock departure).** `ChangesWorkPageHeader` (SiteFoundationChange.tsx:83) shows mini-grid copy "Site-scoped work · the same managed records as global queues" (V69Layout.tsx:272); cold mock shows the Site subtitle (index.html:198,684). File not on list.
+- **P-K2a-27 CSS file.** Work Actions styles live in `w1f4-changes-work.css` (:78-213), not `w1f4-action.css`. `DataTable` has no sticky/disclosure prop (ui/DataTable.tsx:47-53); sticky is per-page CSS (w4-work-cases.css:136-142). Which CSS file and disclosure component?
+- **P-K2a-28 `limit` from URL.** Fixed 5 or URL? "Invalid page query reads nothing" render on cold?
+- **P-K2a-29 Mixed-row status.** Notice derives from one union `status`; battery rows have no source state (see P-K1b-9).
+- **P-K2a-30 Evidence tool model.** No W4/W5 evidence script; closest `tools/s603-site-work-evidence.mjs` + `s603_site_work_walkthrough.py`, `w601_seed.py`. How to produce the 403 capture is not in Producer.
+- **P-K2a-31 Off-list tests.** `siteAction.test.tsx` (:39,:124), `siteActionVerification.test.tsx`, `w1f4ActionStructure.test.tsx`, `w1f4VerificationStructure.test.tsx` mount `SiteActionFrame`; `siteWorkCases.test.tsx` mounts Work frames. Add to K2a list if non-mini fixtures exist.
+- **P-K2a-32 Mock elements unconfirmed.** Topbar Site switch, range picker, title-row provenance tag (index.html:1138): assumed shell-provided; spec silent.
+
+### K2b — cap and refusal proof
+
+- **P-K2b-1 Worst-case producer.** "five-row table, long title/owner/ID/error" at 390/1440: long literals have no producer (fixture payloads are fixed, spec:84). In-app seed via the K1a POST with 160-char title/owner, or component-only measurement?
+- **P-K2b-2 Pending/stale/unknown.** "component states" — but K1c modes for STALE/UNKNOWN are infeasible as written (P-K1c-19/20); confirm pure component tests suffice and browser captures are marked unavailable.
+- **P-K2b-3 Disclosure trigger.** "full text in a disclosure when two lines would exceed panel cap" needs a measured threshold; jsdom cannot measure. Fixed character threshold or CSS line-clamp + `<details>`?
+
+### Mock departures not labelled `MOCK DEVIATION`
+
+P-K2a-16 (W1 window form), P-K2a-17 (W1 helper copy), P-K2a-26 (page header subtitle), P-K2a-23 (empty markup if W1 empty kept), P-K2a-3 (breadcrumb link). Labelled ones remain M2 and M4 only.
+
+### Confirmations (no question)
+
+`action_code_seq`, W1 table `action`, CHECK `^ACT-[0-9]{6,}$`; `ActionRefused(status,code,message)` mapped generically (`action_api.py:86`); `$pgWriters/$pgWritesSeen/$pgDriverSeen/$pgReaders` exist (ps1:830-886); W4 coverage reasons and status vocabulary match the card; DB read time is `SELECT clock_timestamp()` first in REPEATABLE READ (`postgres_work_read.py:287-298`); `ColdReadService._snapshot`/`envelope_on` exist (`postgres_assessment_store.py:1980,2408`); W1 label `Action {aid[:8]}` (`site_index.py:196`); none of the new UI literals matches `missing-claim-scan.mjs` PATTERNS (:35-47); finding route with `?revision_id=` mounted (App.tsx:429); `check_v69_ledger.py` does not fail on live-rendered deferred `cold-work`; mock headers, empty copy and Work notice match spec:26/29/30.
+
+## Next
+
+Coordinator sends this batch to the Architect as one request. Code starts only after rulings merge and P-G-1/P-G-2 gates clear.
