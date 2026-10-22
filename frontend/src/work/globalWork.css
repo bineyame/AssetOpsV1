@@ -1,0 +1,111 @@
+/*
+ * W6-01a A2: the global work pages (`.agent/W6-01-build-spec.md` section 2 wrap/clamp rules). Every heading, code,
+ * actor, notice and table cell wraps (`min-width: 0; overflow-wrap: anywhere`); each table-cell value sits in a
+ * three-line clamp block (line-clamp on `td` itself does not clamp); the table scrolls inside its panel at narrow
+ * widths, with the visible `Scroll table horizontally` text affordance.
+ */
+.global-work,
+.global-work * {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.global-work .page-header__heading,
+.global-work .panel__heading,
+.global-work .panel__description,
+.global-work .v69-metric__label,
+.global-work .v69-metric__value,
+.global-work .v69-metric__note {
+  overflow-wrap: anywhere;
+}
+
+.global-work-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.global-work-controls__field {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.global-work-status {
+  margin: 0 0 14px;
+  font-size: 11px;
+  color: var(--muted, #6b7a90);
+}
+
+.global-work-loading {
+  margin: 0 0 18px;
+}
+
+.global-work-state {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.global-work .data-table__scroll {
+  overflow-x: auto;
+}
+
+.global-work .data-table {
+  min-width: 720px;
+}
+
+.global-work .data-table td {
+  vertical-align: top;
+}
+
+.global-work-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.global-work-details {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--muted, #6b7a90);
+  overflow-wrap: anywhere;
+}
+
+.global-work-details > summary {
+  cursor: pointer;
+}
+
+.global-work-scroll-hint {
+  display: none;
+  margin: 0 0 6px;
+  font-size: 10px;
+  color: var(--muted, #6b7a90);
+}
+
+.global-work-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding-top: 12px;
+  font-size: 11px;
+}
+
+.global-work-empty p + p {
+  margin-top: 6px;
+}
+
+/* The table fits its panel at desktop width (mock 1121/1121); below that it scrolls inside the panel. */
+@media (max-width: 1100px) {
+  .global-work-scroll-hint {
+    display: block;
+  }
+}

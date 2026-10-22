@@ -1,6 +1,6 @@
 """W6-01a (A1): the W6-01 global work fixture producer (`.agent/W6-01-build-spec.md` section 4).
 
-    python tools/w601_seed.py --db assetops_w601_<unit>_test --fixture {incidents|zero|empty_scope|historical|cursor_change}
+    python tools/w601_seed.py --db assetops_w601_<unit>_test --fixture {incidents|zero|empty_scope|historical|cursor_change|stress}
         --clock 2026-10-22T12:00:00Z [--append]
 
 Creates (drops first) the private `*_test` database, migrates it to head, imports two tenants and their Sites
@@ -11,6 +11,8 @@ for `historical` and the `cursor_change --append` step use `12:00:01Z`, `12:00:0
 `--clock` minus 2 days 3 hours, requests at minus 2 days 2 hours; a correction keeps its root and occurs one day
 before `--clock`. Prints the stored IDs and codes read back from the database as JSON.
 
+`stress` (W6-01a A2, A2Q2) writes six KOBO-001 incidents: incident 1 has a 200-character unbroken title and a
+128-character unbroken assignee; incidents 2-6 are `Stress incident 2` ... `Stress incident 6` (five rows plus Next).
 `empty_scope` seeds the same rows as `incidents`; the empty scope is the read's access callback denying every Site.
 B1 and E1 extend the fixture list (maintenance, preventive, detail, operational). `linked` needs real Finding and
 Action producers and is not provided by A1.
@@ -45,9 +47,12 @@ PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 DB_NAME = re.compile(r"^assetops_w601_[a-z0-9_]{1,40}_test$")
 KOBO_SOURCE = REPO / "backend" / "tests" / "fixtures" / "s1" / "kobo-001.yaml"
-FIXTURES = ("incidents", "zero", "empty_scope", "historical", "cursor_change")
+FIXTURES = ("incidents", "zero", "empty_scope", "historical", "cursor_change", "stress")
 ACTOR = {"kind": "SERVICE", "id": W401_FIXTURE_SERVICE_PRINCIPAL_ID,
          "attestation": "service=w401-fixture;job=w601-seed;rule=w601/1"}
+# A2Q2: 200 and 128 unbroken characters.
+STRESS_TITLE = ("Backupgeneratorautomaticstartfailure" * 6)[:200]
+STRESS_OWNER = ("Fieldmaintenancesupervisorteam" * 5)[:128]
 SITES = (("demo", "KOBO-001"), ("demo", "KOBO-002"), ("w601-other", "KOBO-001"))
 
 
@@ -192,7 +197,13 @@ def seed(url: str, fixture: str, clock: datetime, *, append: bool = False) -> di
         return {"fixture": fixture, "append": True, "written": writer.written, **_ids(sites)}
     writer = Writer(url, WriteClock(base), sites, clock)
     try:
-        if fixture != "zero":
+        if fixture == "stress":
+            # A2Q2: the A2 capture stress rows, all in tenant one at Site KOBO-001.
+            first = writer.incident(A, STRESS_TITLE)
+            for n in range(2, 7):
+                writer.incident(A, f"Stress incident {n}")
+            writer.assign(A, first["id"], STRESS_OWNER)
+        elif fixture != "zero":
             first = writer.incident(A, "Generator stopped")
             second = writer.incident(A, "Inverter fault reported")
             writer.incident(A, "Battery alarm acknowledged")
