@@ -2355,3 +2355,14 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - The refused cold Finding page has no Unknown strip, although the M13 table calls for one. Route to the Architect in the W5 readiness round (ruling or small fix).
 - `evidence.json` revision label covers all pairs, but 68 of 72 captures predate the W4-03 merge. Re-capture in the post-W6 structural audit.
 - Environment: capture and test runs leaked 214 orphaned `assetops_gateway serve` processes (about 2 GB). Builders must stop every server they start, and the coordinator checks for leftovers after each slice.
+
+## W6-01a Lows
+- A1 review L2–L3: one cursor assertion is weak; a malformed cursor with a missing key returns 422 (check the intended code).
+- A2 review L2: R6 places the `Showing` line in the date bar, but A2Q10 puts it above the pager, and the code follows A2Q10. The Architect should reconcile the spec text.
+- A2 review L3: ` / ` is omitted when a row has request codes but no Finding or Action link. Not recorded in the spec.
+- A2 review L5: a page-two URL opened in a new tab shows `Showing 1–1 of 6`.
+- A2 review L6: the date inputs use the browser's locale date format.
+- A2b L9: between 761 and 1100 px the scroll hint shows under the 468 px cap.
+- No five-three-line-row producer, so the table scroll is not exercised in any capture. The CSS cap is guaranteed by reasoning.
+- 390 px refused pages show a tall dark header band (shell layout; also on cold pages). Fix in the post-W6 structural audit.
+- Full suite timing: 3837 tests took 89 min on a quiet machine, against about 57 min previously. Two loaded runs hit the 100-min cap. Re-measure, and consider raising the cap or more `-n` workers.

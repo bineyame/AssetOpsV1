@@ -547,7 +547,7 @@ function Get-OperatorRailFailures {
         "unavailable|Assets|OPERATIONS|",
         "live|Findings|INTELLIGENCE|/findings",
         "live|Actions|WORK|/actions",
-        "unavailable|Incidents|WORK|",
+        "live|Incidents|WORK|/incidents",
         "unavailable|Maintenance|WORK|",
         "unavailable|Operational records|WORK|",
         "live|Evidence|ASSURANCE|/evidence",

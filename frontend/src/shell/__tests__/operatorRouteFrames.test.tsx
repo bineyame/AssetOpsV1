@@ -224,6 +224,7 @@ describe("operator route navigation", () => {
       ["Sites", "/sites"],
       ["Findings", "/findings"],
       ["Actions", "/actions"],
+      ["Incidents", "/incidents"],
       ["Evidence", "/evidence"],
       ["Financials", "/financials"],
     ]);
@@ -240,7 +241,7 @@ describe("operator route navigation", () => {
     // W1-UX-07 (`D-2026-10-17-w1-rail`): the full v6.9 root inventory, in the
     // mock's groups and order. A group is headed even when every root in it is
     // unavailable. Each root reads as its label, plus the visible status for
-    // the six roots with no truthful cross-site destination yet.
+    // the roots with no truthful cross-site destination yet.
     const groups = Array.from(
       operatorNavigation.querySelectorAll(".nav-rail__group"),
     ).map((group) => [
@@ -266,7 +267,7 @@ describe("operator route navigation", () => {
         [["WORK", "WORK"]],
         [
           "Actions | live",
-          `Incidents | ${off}`,
+          "Incidents | live",
           `Maintenance | ${off}`,
           `Operational records | ${off}`,
         ],

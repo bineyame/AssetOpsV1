@@ -132,3 +132,115 @@ These unlabelled departures count as High: items 33(a)-(c) and 35, plus the unma
 
 - `0032_w5_cold_scenarios` (W5-01b) and `0034_w5_ev_scenarios` (W5-03b) are not on main. Both specs correctly abort until their exact parent merges.
 - W6-01 A2/B2 has not merged. Item 23 requires an explicit order between the two slices.
+
+## Recheck (2026-10-22, against `537667b8`)
+
+This recheck reads the closure contracts, the current unit cards (K1a-K5 and V1a-V5) and the closure maps in both specs against main. It was read only, and no checks were run. Where a closure names code, I confirmed it exists: `link_coverage.coverage_of`/`worst`/`_PRECEDENCE`/`_REASON`, `EvReadService.sessions_on`/`findings_on`/`_snapshot`, the existing `cold_snapshot` injection into `postgres_work_read.py`, `case_basis` in `work/service.py`, and the W6-01 unit table.
+
+### Verdict: NOT READY (four Medium items; 29 and 34 deferred)
+
+All 45 original gaps are closed or deferred: 29 and 34 can only be verified after W5-01b and W5-03b merge. The new text introduces four Medium items that a builder would hit, plus some Lows. Each Medium needs a one-line Architect ruling.
+
+### Closure table
+
+| Gap | Status | Note |
+| --- | --- | --- |
+| 1 | Closed | K1a/K1c name the S6 and W4 tests and the assertions that change. |
+| 2 | Closed | `$domainIntentWriter`, `$pgWriters`/`$pgWritesSeen`/`$pgDriverSeen`, `$pgReaders`, the three tables and the four probes are all given. The HTTP-scan token list is partial, but "none of the forbidden tokens" is binding (Low). |
+| 3 | Closed except for one point | The grammar and two-way triggers are fixed. See R-4: the W1 "existing code-collision refusal" does not exist. |
+| 4 | Closed | `DOMAIN_ACTION` link kind, `action_event_id:null`, label, href, fence and token. See R-5 for the W6 seam. |
+| 5 | Closed | The injected `ColdReadService._snapshot`/`envelope_on` port matches the existing W4 `cold_snapshot` injection pattern. It waits on the 0032 names. |
+| 6 | Closed | Enums match `_PRECEDENCE` and `coverage_of`; label, href and summary mapping are given. |
+| 7, 8 | Closed | |
+| 9 | Closed except for one point | The `links.work` key set, selection, results, provenance and status are fixed. The W6 unit is misnamed (R-2). |
+| 10 | Closed | |
+| 11-16 | Closed | Branching by `site.site_type`, the client and presenter split, the W1-only field omission, five rows with a fold at four, the default window, query preservation, the placeholder via `domainActionClient.getDetail`, the canonical `/verification` path and section redirects. |
+| 17 | Closed except for one point | Breadcrumb, subtitle, `Open site`, chip and one tab are fixed. "Global rail selects Actions" has no file owner (R-3). |
+| 18-22 | Closed | Finding label `Finding {id8}` as an honest gap in the cell, missing intent without a table, result labels, UTC due date, no graphics file. |
+| 23, 24 | Closed | Domain-only `WORK_CONTEXT_NOTICE_DOMAIN`/`WORK_STRIP_DETAIL_DOMAIN`; W6 A2 then B2 then K3a; mini-grid untouched. |
+| 25 | Closed except for one point | UTC window, generator label and the Next-evidence gap are fixed. The W6 detail routes named do not match W6-01 (R-2). |
+| 26-28 | Closed | Route constants, `App.tsx` unchanged, test lists, ledger, panel-contract and registry literals. |
+| 29 | **Deferred** | The generated test-only scenario copy and Foundation shift are specified. Whether existing scenario registration accepts a generated path must be traced on merged W5-01b. |
+| 30, 31, 32 | Closed | |
+| 33 | Closed | The mock Actions empty body, `{WR title} {WR code}` and the Finding label gap are restored. |
+| 34 | **Deferred** | The fixed E1 vector is kept, and a separate private shifted replay records both clocks. The selector at the last watermark no later than K2 must be verified on merged W5-03b. |
+| 35-45 | Closed | The EV summary now uses the mock literal and comes from the validated keys. `OPEN`/`Not assigned`, the session port, the named CHECK, `main.py` unchanged, both INC and WR payloads, the refusal split, one Verification tab and the ledger literals are all fixed. |
+
+### Remaining and new items
+
+- **R-1 (Medium; K4a and V4a): the guard will reject new copy.** `Maintenance detail is not available yet.`, the text next to the disabled `Inspect maintenance evidence` button, matches `missing-claim-scan.mjs` pattern `/not available yet/i`. Neither card lists `tools/checks/missing-claim-scan.mjs`, `frontend/src/ui/gapCatalogue.ts` or a registry `mock_gaps` placement. Rule one of these:
+  - a catalogued `<MissingClaim>` placement with a literal gap ID and placement;
+  - a reviewed exemption naming the const and decision;
+  - reworded copy.
+
+  (K3a's "contains no guarded phrase" covers only the Work notice.)
+- **R-2 (Medium; K1b, K3a, K4a, V3a, V4a): wrong W6 unit, and a route that does not exist.** The spec says "after W6 B3 use its mounted request Overview href". In W6-01, B3 is the Preventive page; request Overview is **C2** (`WorkRequestOverview.tsx`). K3a also says to use "W6's Incident detail route for INC". W6-01 has no Incident detail unit (A1/A2 are the global Incidents list only). State C2 as the WR trigger, and either keep INC case cells as plain text with no W6 trigger or name the owner of an Incident detail route.
+- **R-3 (Medium; K4a and V4a): the rail-state rule has no file owner.** "Global rail selects Actions" on `/sites/{site}/actions/{id}/verification` cannot happen with the current `NavRail` `NavLink` path matching, which marks Sites. It needs edits to `frontend/src/ui/NavRail.tsx` or `frontend/src/shell/OperatorShellLayout.tsx`, which W6 Lane A owns, plus their rail tests. Neither file is in K4a or V4a. Name the files, the mechanism and the order with W6, or label the rail state as a deviation.
+- **R-4 (Low-Medium; K1a): the W1 refusal does not exist.** `postgres_action_store.py` "maps conflict to its existing code-collision refusal", but the W1 store has none: its only `IntegrityError` path is `action_event_idempotency_unique`. K1a's two-direction test needs the code, HTTP status and message for a W1 acceptance that collides.
+- **R-5 (Medium; K1c and the W6-01 seam): unsatisfiable order and unlisted W6 tests.** K1c says "W6's global read must consume this W4 union before it merges". W6 A1, A2 and B2 merge before K3a and probably before K1c, and the W6-01 spec has no matching amendment. If W6 A1 or B1 merge first, K1c changes `postgres_work_read.py` underneath `test_w601a_global_incidents.py`/`test_w601b_global_maintenance.py`, which are not in K1c's file list. State the actual order and add those tests to K1c, or amend W6-01.
+- **R-6 (Low): short or full Site name.** The ledger strip says `Scoped to {short site} · …` (the mock shows the first word, as W4 `shortName` does); the shared Site UI section says `Scoped to {site} · {n} actions`. Pick one for Actions.
+- **R-7 (Low; rule 5, consolidated cards): stale ledger rows remain.** The ledger rows still say: Action root `scope chip Open or actual reduced W1 state` and `{selected Finding code}`; Incidents `Site timezone label`; empty intent "current-result cells are absent". The override clause makes the closure text win, but a builder still reads contradictory rows. Edit them in place.
+- **R-8 (Low): where the Next-evidence gap is recorded.** K3a says "a `mock_gaps` entry `No witnessed automatic-start test is recorded as next evidence.`". The Registry section says gaps go in panel-contract reasons, "not an invented ledger key", and the given `claim_limit` literal does not contain that sentence. Pick one.
+- **R-9 (Low): mini-grid default window.** "With no `from/to`, use W4's last seven complete UTC days … on all three tabs" does not say whether mini-grid Actions keeps its choose-window state, as "Mini-grid retains every W1 literal" implies.
+- **R-10 (Low, unlabelled): Window column time zone.** The cold Incident `Window` cell gains an explicit `UTC` label where the mock shows `6 Oct · from 19:11`, implicitly in the page's EAT range. Label it, or note it as presentation only.
+
+### M4/E4 replacement literal and ledger row
+
+These are now right. The strip keeps the mock's three slots: `Scoped to …`, then `Cold-chain Actions recorded at this site` / `EV Actions recorded at this site`, then plain `Global Actions does not include cold-chain Actions yet.` / `… EV Actions yet.` There is no href. The ledger scope-strip rows now defer the Actions cell to M4/E4 and keep the W6 mounted-root rule for Incidents and Maintenance only, so the earlier contradiction is gone. The alternatives are recorded. The "does not include … yet" sentence is not matched by the missing-claim patterns, so it needs no catalogue entry, though it is a soft missing-capability phrase (Low, no change required). M1, M3/E2 and E3 are restored to the mock as I recommended. M2/E1 stays a valid labelled deviation.
+
+## Recheck 2 (2026-10-22, against `749a357e`)
+
+Scope: R-1 to R-10, any new gap the close2 text creates, and the new M5/E5. This was read only; no checks were run.
+
+### Verdict: NOT READY (one Medium: M5/E5 can be avoided; 29 and 34 stay deferred)
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| R-1 | Closed | The new copy `Maintenance detail is unavailable for this record.` matches none of the `PATTERNS` in `missing-claim-scan.mjs`. K4a and V4a list the guard and pin the literal. V4a also asserts that the copy is absent on `ev-action`. |
+| R-2 | Closed | C2 is now the WR trigger. `/maintenance/requests/{case_id}?site_id={site_code}&known_at=…` matches `.agent/W6-01-build-spec.md` line 22. INC codes stay plain text. |
+| R-3 | Closed | K4a owns `NavRail.tsx` and `OperatorShellLayout.tsx`. It names the `activeLabel` mechanism, the pathname regex and its tests, after W6 E2 Lane A. V4a reuses it. |
+| R-4 | Closed | New W1 refusal 409 `ACTION_CODE_CONFLICT` with its message, a named trigger `action_cross_domain_code_conflict`, and tests in both directions. |
+| R-5 | Closed | W6 A1/B1 merge before K1c, and K1c lists `test_w601a_global_incidents.py` and `test_w601b_global_maintenance.py` with parity assertions. |
+| R-6 to R-9 | Closed | `shortName` is used for cold/EV; the ledger rows are fixed in place; the Next-evidence sentence goes in the Maintenance panel-contract `claim_limit`; the seven-day default applies only to cold/EV, and mini-grid keeps its choose-window state. |
+| R-10 | Labelled, but the deviation can be avoided (see below) | |
+
+### M5/E5: challenged, avoidable (Medium)
+
+The ruling says "W4 supplies UTC instants but no selected Site timezone". That is not true on main:
+
+- `site.timezone` is `NOT NULL` in `0001_foundation_identity.py`.
+- `foundation_api.py` and `sites_api.py` return it.
+- The frontend `SiteDetailReadModel` has `timezone: string` (`siteReadModel.ts:49`), validated in `siteDirectoryClient.ts`. The Work frames already hold that `site` object.
+- W4-02 migration `0029` already selects `s.timezone` for local-day rules.
+
+The cold fixtures declare `Africa/Addis_Ababa` (EAT, UTC+3); the EV fixtures declare `Etc/UTC`.
+
+The mock-faithful alternative is to format `occurred_at` in the selected `site.timezone` with `Intl.DateTimeFormat`. That keeps the mock cell `6 Oct · from 19:11` and is correct for every Site. Neither rejected alternative (implying EAT, or hard-coding UTC+3) is this option.
+
+If the Architect adopts it:
+- The cold producer window should be chosen so that local time reproduces the mock's 19:00-20:00 EAT range, which is UTC `[D+16h,D+17h)`. Otherwise the capture will show 22:11.
+- Optionally show a zone label taken from the Site, never a literal.
+
+M5/E5 should be withdrawn, and the K3a/V3a `Window` rule replaced with "format in the selected Site's stored IANA time zone".
+
+### New notes (no further gaps)
+
+- **Sequencing (Low; for the coordinator).** K4a now waits for W6 E2's Lane A rail edit, which is the last W6-01 unit. W5-02c gates W5-03a, so W5-03a now waits for the whole of W6-01. That is consistent but a long chain. An alternative is to land the `activeLabel` override as a small Lane A edit before E2.
+- **M4/E4, M2/E1.** Unchanged and still valid.
+
+## Recheck 3 (2026-10-22, against `74da13a3`)
+
+Scope: the withdrawal of M5/E5, the rail re-sequencing of K4a, and any gap either change creates. This was read only; no checks were run.
+
+### Verdict: READY, except for the deferred 29 and 34
+
+- **M5/E5 withdrawn: closed.**
+  - K3a owns a single `siteWindowText(instant, site.timezone)` formatter in `siteWorkCases.tsx`. The spec gives it literally, using the `Intl.DateTimeFormat('en-GB', {timeZone, day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hourCycle:'h23'})` parts. V3a reuses it, and mini-grid keeps `eatWindowText`.
+  - The test vectors are correct. `16:11Z` gives `6 Oct · from 19:11` at `Africa/Addis_Ababa` and `6 Oct · from 16:11` at `Etc/UTC`. `22:11Z` at Addis Ababa gives `7 Oct · from 01:11`.
+  - The cold producer window is now `[D+16h,D+17h)`, so the mock's 19:11 offset renders as `from 19:11` at the fixture zone. The capture therefore matches the mock without a suffix.
+  - The frame already holds `site.timezone` (`SiteDetailReadModel`), and K3a owns `SiteAnalyticsFrames.tsx` to pass it down.
+  - No mock deviation remains for the Window cell.
+- **The K4a rail sequence: closed.** K4a now merges after K3b and W6 B2, owns `NavRail.tsx` and the pathname override in `OperatorShellLayout.tsx`, and no longer waits for E2. The W6-01 E2 card is amended to keep the K4a override and its rail and route-frame assertions, and E2 does not touch `NavRail.tsx`. W5-02c can release W5-03a without waiting for E2.
+- **New, Low, non-blocking.** W6 B3 and C2 (Lane A) also edit `frontend/src/shell/__tests__/operatorRouteFrames.test.tsx`, which K4a edits. Only E2 carries the "preserve K4a" clause. Lane A serialization handles this as an ordinary merge, but a one-line preserve note on B3/C2 would make it explicit.
+- 29 (cold time-shifted producer) and 34 (EV clock and shifted replay) remain deferred. They need readiness proof against merged W5-01b and W5-03b before K1c and V1a are dispatched.
+- Labelled deviations now: M2/E1 (global create promise) and M4/E4 (global Actions parity). Both are judged unavoidable and correctly worded.

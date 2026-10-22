@@ -152,7 +152,7 @@ describe("W3-01 estate roots in the operator shell", () => {
       view.unmount();
     }
 
-    // The rail's Actions root is a live link to the estate Actions root; Incidents and Maintenance stay text.
+    // The rail's Actions root is a live link to the estate Actions root; Incidents is live (W6-01a); Maintenance stays text.
     const estate = fakeClient(() => loaded(findingsBody("all")));
     renderAt("/sites", { estate });
     await settledScreen();
@@ -161,10 +161,11 @@ describe("W3-01 estate roots in the operator shell", () => {
       ["Sites", "/sites"],
       ["Findings", "/findings"],
       ["Actions", "/actions"],
+      ["Incidents", "/incidents"],
       ["Evidence", "/evidence"],
       ["Financials", "/financials"],
     ]);
-    for (const label of ["Incidents", "Maintenance"]) {
+    for (const label of ["Maintenance"]) {
       expect(within(rail()).getByRole("listitem", { name: `${label}, Not available yet` })).toBeInTheDocument();
     }
     fireEvent.click(within(rail()).getByRole("link", { name: "Actions" }));

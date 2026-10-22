@@ -63,7 +63,7 @@ describe("W3-03 Portfolio shell route", () => {
     const unavailable = Array.from(rail.querySelectorAll("li"))
       .filter((li) => li.querySelector("a") === null && li.querySelector(".nav-rail__label") !== null)
       .map((li) => li.querySelector(".nav-rail__label")?.textContent);
-    expect(unavailable).toEqual(["Assets", "Incidents", "Maintenance", "Operational records", "Settings"]);
+    expect(unavailable).toEqual(["Assets", "Maintenance", "Operational records", "Settings"]);
     view.unmount();
 
     // The risk root stays the estate Findings risk lens; it is not the Portfolio and not `/findings`.

@@ -392,6 +392,7 @@ export const EVIDENCE_PATH = "/evidence";
 export const FINANCIALS_PATH = "/financials";
 /** W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH` in `estate/portfolioWords.ts`; a shell test pins it). */
 export const PORTFOLIO_ROOT_PATH = "/portfolio";
+export const INCIDENTS_PATH = "/incidents";
 export const FINDING_ROUTE_PATH = `${FINDINGS_PATH}/:siteId/:assessmentId`;
 export const FINDING_TAB_ROUTE_PATH = `${FINDING_ROUTE_PATH}/:findingTab`;
 

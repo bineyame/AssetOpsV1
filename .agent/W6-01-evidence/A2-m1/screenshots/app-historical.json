@@ -1,0 +1,234 @@
+{
+  "state": "historical",
+  "captured_at": "2026-10-22T10:00:43.208Z",
+  "results": [
+    {
+      "state": "historical",
+      "width": 1440,
+      "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z",
+      "image": "historical-1440.png",
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "control_bar": {
+          "h": 35,
+          "w": 595
+        },
+        "status_line": {
+          "h": 33,
+          "w": 187
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "cards": {
+          "h": 115,
+          "w": 1160
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "incident_cases_panel": {
+          "h": 489,
+          "w": 1160
+        },
+        "table": {
+          "h": 357,
+          "w": 1120
+        },
+        "thead": {
+          "h": 35,
+          "w": 1120
+        },
+        "pager": {
+          "h": 29,
+          "w": 1120
+        },
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        },
+        "case_boundaries_panel": {
+          "h": 103,
+          "w": 1160
+        }
+      },
+      "scroll_hint_visible": false,
+      "row_heights": [
+        65,
+        65,
+        65,
+        65,
+        64
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "status": "Historical as of 21 Oct 2026, 12:00 UTC",
+        "cards": [
+          "Open incidents6Open or in progress in this window",
+          "High severityNot assessedSeverity is not recorded on work cases",
+          "Awaiting evidenceNot assessedNo case evidence review state",
+          "Closed verifiedNot assessedClosed does not verify an outcome"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–5 of 6",
+        "first_row": [
+          "INC-000003 · Battery alarm acknowledgedFull title textBattery alarm acknowledged",
+          "Kobo mini-grid",
+          "19 Oct 2026, 09:00 UTC",
+          "Not recorded",
+          "Open",
+          "Not assigned",
+          "None linked"
+        ],
+        "codes": [
+          "INC-000003",
+          "INC-000001",
+          "INC-000004",
+          "INC-000002",
+          "INC-000006"
+        ]
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "historical",
+      "width": 390,
+      "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z",
+      "image": "historical-390.png",
+      "heights": {
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "control_bar": {
+          "h": 165,
+          "w": 358
+        },
+        "status_line": {
+          "h": 17,
+          "w": 187
+        },
+        "date_bar_slot": {
+          "h": 211,
+          "w": 358
+        },
+        "cards": {
+          "h": 264,
+          "w": 358
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "incident_cases_panel": {
+          "h": 682,
+          "w": 358
+        },
+        "table": {
+          "h": 510,
+          "w": 720
+        },
+        "thead": {
+          "h": 35,
+          "w": 720
+        },
+        "pager": {
+          "h": 29,
+          "w": 318
+        },
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        },
+        "case_boundaries_panel": {
+          "h": 126,
+          "w": 358
+        }
+      },
+      "scroll_hint_visible": true,
+      "row_heights": [
+        102,
+        85,
+        102,
+        102,
+        84
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 318,
+        "scroll": 720,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1552,
+      "text": {
+        "status": "Historical as of 21 Oct 2026, 12:00 UTC",
+        "cards": [
+          "Open incidents6Open or in progress in this window",
+          "High severityNot assessedSeverity is not recorded on work cases",
+          "Awaiting evidenceNot assessedNo case evidence review state",
+          "Closed verifiedNot assessedClosed does not verify an outcome"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–5 of 6",
+        "first_row": [
+          "INC-000003 · Battery alarm acknowledgedFull title textBattery alarm acknowledged",
+          "Kobo mini-grid",
+          "19 Oct 2026, 09:00 UTC",
+          "Not recorded",
+          "Open",
+          "Not assigned",
+          "None linked"
+        ],
+        "codes": [
+          "INC-000003",
+          "INC-000001",
+          "INC-000004",
+          "INC-000002",
+          "INC-000006"
+        ]
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}
