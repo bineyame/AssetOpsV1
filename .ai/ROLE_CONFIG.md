@@ -476,6 +476,19 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   reviewers flag it Medium (High if user-visible vs the mock), and the Architect
   rules it and amends the spec before merge
   (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
+- **Both Architects (Codex and Claude) check every screen-affecting spec,
+  ruling and design against the v69 mock (owner, 2026-10-22,
+  `.agent/owner-architect-mock-fidelity-2026-10-22.md`).** Each ruling that touches a
+  screen cites the mock element it implements (screen, panel, row/column/chip)
+  and keeps its form: a chart stays a chart, a column heading stays the mock's.
+  A guard, file list or backend gap is never a reason to trim or redesign a mock
+  element. Change the file ownership or guard registration, or show an honest
+  gap inside the mock's own structure, instead. An unavoidable deviation is
+  labelled `MOCK DEVIATION` in the ruling. It states the mock element, why
+  it cannot be kept, and the alternatives considered that would have kept it.
+  The coordinator relays each deviation to the owner in plain words. Every
+  Architect request carries this rule. Reviewers treat an unlabelled deviation
+  as High.
 - **Test databases are owner-authorized (2026-10-18).** Agents may create and
   drop private `*_test` databases in the local `assetopsv1-postgres-1`
   container for tests, captures and fixtures; never non-test databases
