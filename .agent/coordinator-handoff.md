@@ -447,3 +447,4 @@ Owner: "use a fresh claude architect instead of codex until  the codex quota is 
 - W5-01 C1q rulings (merge 3a4929b0): Health source `foundation_on`, Cooling #1-#6, review Lows, C2-C5 sweep.
 - W6-01 A1 Q1-Q9 + W6 sweep (merge 89f26391), incl. the unruled stale `EstateEvidence.tsx` "Not available yet" text for Operational records / Preventive plan after E2/B3.
 - W5 guard-ownership sweep fold, 11 findings (merge 3126b77e).
+- W5-01 C1 Q13 chamber-probe ruling (plan/W5-01-c1q2).
