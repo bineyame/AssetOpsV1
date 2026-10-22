@@ -43,6 +43,14 @@ export ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX="$(python -c 'import secrets; pr
 # PowerShell:
 #   $env:ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX = (& .venv/Scripts/python.exe -c 'import secrets; print(secrets.token_hex(32))')
 
+# Global work cursor key (W6-01a). /api/work/incidents answers 503 WORK_STORE_UNAVAILABLE
+# without one and there is no default. Generate it the same way, in the same shell that runs
+# uvicorn (64 hex characters = 32 bytes); do not print, commit or log the value.
+# POSIX:
+export ASSETOPS_WORK_CURSOR_KEY_HEX="$(python -c 'import secrets; print(secrets.token_hex(32))')"
+# PowerShell:
+#   $env:ASSETOPS_WORK_CURSOR_KEY_HEX = (& .venv/Scripts/python.exe -c 'import secrets; print(secrets.token_hex(32))')
+
 # serve
 .venv/Scripts/python.exe -m uvicorn assetops_backend.main:app --port 8000
 ```

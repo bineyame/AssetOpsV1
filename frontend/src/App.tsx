@@ -28,6 +28,7 @@ import {
   EVIDENCE_PATH,
   FINANCIALS_PATH,
   PORTFOLIO_ROOT_PATH,
+  INCIDENTS_PATH,
   FINDINGS_COST_PATH,
   FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
@@ -95,6 +96,8 @@ import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
+import { createGlobalWorkClient, type GlobalWorkClient } from "./work/globalWorkClient";
+import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
 import {
   createEstateEvidenceMoneyClient,
   createEstateFinancialsClient,
@@ -146,6 +149,7 @@ const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
 const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
 const defaultEstateFinancials = createEstateFinancialsClient();
+const defaultGlobalWork = createGlobalWorkClient();
 const defaultEvSite = createEvSiteClient();
 
 /**
@@ -240,6 +244,8 @@ export interface AppProps {
   estateEvidenceMoney?: EstateEvidenceMoneyClient;
   /** W3-02 commit 4: the read-only estate Financials root. */
   estateFinancials?: EstateFinancialsClient;
+  /** W6-01a: the read-only global work lists (`/api/work/*`). */
+  globalWork?: GlobalWorkClient;
 }
 
 export function App({
@@ -270,6 +276,7 @@ export function App({
   estateIndex = defaultEstateIndex,
   estateEvidenceMoney = defaultEstateEvidenceMoney,
   estateFinancials = defaultEstateFinancials,
+  globalWork = defaultGlobalWork,
 }: AppProps) {
   // Resolved once from the gate: closed, the site surfaces get no lineage read
   // and show the recorded template alone.
@@ -455,6 +462,8 @@ export function App({
           <Route path={FINANCIALS_PATH} element={<EstateFinancialsFrame client={estateFinancials} />} />
           {/* W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH`; a shell test pins the equality). */}
           <Route path={PORTFOLIO_ROOT_PATH} element={<EstatePortfolioFrame client={estateIndex} />} />
+          {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}
+          <Route path={INCIDENTS_PATH} element={<GlobalIncidentsFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}
