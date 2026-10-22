@@ -2714,6 +2714,14 @@
     },
     {
       "id": "cold-scenarios",
+      "registry_dependencies": {
+        "product_node_id": "P-cold-area",
+        "node_ids": [
+          "I-W5-cold-scenario-read",
+          "I-W5-cold-scenario-ui",
+          "D-cold-domain"
+        ]
+      },
       "mock_route": "#/cold-scenarios",
       "product_destination": "Sites > Financials",
       "coverage": "deferred",

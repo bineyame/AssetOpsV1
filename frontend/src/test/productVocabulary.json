@@ -112,6 +112,29 @@
       "why": "D-2026-10-18-w2-05-buildspec (QM): the exact v6.9 mock label, authored on the three EV Foundation screens only; exact phrase, so `mapping` and `load` stay flagged in other prose."
     }
   ],
+  "screenGlosses": {
+    "cold-scenarios": [
+      {"text": "Scenarios", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "Financial scenarios", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "No scenario defined yet", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "A scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "Authored scenario", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "Cold scenarios unavailable", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "Loading the site's cold scenarios.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "The cold scenarios read could not be reached.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "The cold scenarios read answered in an unexpected shape.", "why": "W5-01b C5 P-C5-6/7/8 (Claude Architect, 2026-10-22): the exact v6.9 cold-scenarios mock labels and C5 literals, removed only on the named screen before the T028+W1 scan; every other use of scenario/scenarios stays guarded."},
+      {"text": "Scenario pages", "why": "W5-01b C5 builder addition, pending Architect confirmation: a C5-ruled literal on this screen (pager label, restored mock subtitle or pending notice) that the P-C5-6/7/8 list does not name; exact text only."},
+      {"text": "Financials · scenarios (placeholder)", "why": "W5-01b C5 builder addition, pending Architect confirmation: a C5-ruled literal on this screen (pager label, restored mock subtitle or pending notice) that the P-C5-6/7/8 list does not name; exact text only."},
+      {"text": "Underlying evidence is being reassessed; the authored scenario remains separate.", "why": "W5-01b C5 builder addition, pending Architect confirmation: a C5-ruled literal on this screen (pager label, restored mock subtitle or pending notice) that the P-C5-6/7/8 list does not name; exact text only."}
+    ],
+    "cold-financials": [
+      {"text": "Scenarios", "why": "W5-01b C5 P-C5-6/7/8: the live Financials Scenarios subtab label on this cold screen; exact text only."}
+    ],
+    "cold-assumptions": [
+      {"text": "Scenarios", "why": "W5-01b C5 P-C5-6/7/8: the live Financials Scenarios subtab label on this cold screen; exact text only."}
+    ]
+  },
   "exemptions": {
     "source-reference": "An exact source-owned identifier (record, source, device, signal, delivery or digest) in a labelled reference field. Section 4: such identifiers may remain; they are not product prose and are never rewritten.",
     "user-owned": "A name or note a person entered (site name, equipment name). Section 4 excludes user-owned names and notes.",

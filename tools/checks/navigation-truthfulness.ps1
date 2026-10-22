@@ -840,5 +840,24 @@ function Get-InPageUnavailableEntryFailures {
             "carry both data-performance-subtab=""cooling"" and <ColdCooling (W5-01a C2).")) | Out-Null
     }
 
+    # W5-01b C5 (P-C5-9..16): the cold Financials Scenarios tab is live for COLDCHAIN only. The Scenarios view
+    # renders <ColdScenarios as the direct consequent of the site_type === "COLDCHAIN" branch, the cold Financials
+    # rows pass scenarios="live", and every other non-mini-grid Site keeps the one fallback literal at its own
+    # FinancialsSections branch (so a second occurrence elsewhere cannot stand in for it).
+    $framesPath = "frontend/src/shell/SiteAnalyticsFrames.tsx"
+    $framesModule = @($Modules | Where-Object { $_.Path -eq $framesPath })
+    $framesText = if ($framesModule.Count -eq 0) { "" } else { $framesModule[0].Lines -join "`n" }
+    $coldBranch = [regex]::IsMatch($framesText, 'site_type === "COLDCHAIN" \? \(\s*<ColdScenarios\b')
+    if (-not ($coldBranch -and $framesText.Contains('scenarios="live"'))) {
+        $failures.Add(("${framesPath}: the cold Financials Scenarios destination is live (W5-01b C5): the Scenarios " +
+            "view must render <ColdScenarios directly under site_type === ""COLDCHAIN"" and the cold Financials rows " +
+            "must pass scenarios=""live"".")) | Out-Null
+    }
+    if (-not $framesText.Contains('{scenarios === "live" ? null : <UnavailableTab label="Scenarios" />}')) {
+        $failures.Add(("${framesPath}: the non-cold Scenarios fallback must stay at its FinancialsSections branch " +
+            "({scenarios === ""live"" ? null : <UnavailableTab label=""Scenarios"" />}) for every other non-mini-grid " +
+            "Site (W5-01b C5).")) | Out-Null
+    }
+
     return $failures
 }

@@ -1,0 +1,109 @@
+/*
+ * W5-01b C5 (P-C5-9..16, P-C5-22): the cold Scenarios page, scoped to `cold-scenarios-*`. The mock's `.empty` block
+ * (`mockups.css`) with its evidence icon, the authored row lines, the basis expansion row and its 390px internal
+ * scroller. Exact IDs break at character boundaries; nothing is ellipsized.
+ */
+.cold-scenarios-through {
+  margin: 6px 0 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.cold-scenarios-empty {
+  margin: 15px 0;
+  padding: 45px 20px;
+  border: 1px dashed #cdd7e5;
+  border-radius: 6px;
+  background: #fbfcfe;
+  text-align: center;
+}
+
+.cold-scenarios-empty__icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 14px;
+  color: #8a9bb3;
+}
+
+.cold-scenarios-empty__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.cold-scenarios-empty h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.cold-scenarios-empty p {
+  max-width: 480px;
+  margin: auto;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.cold-scenarios-line {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.cold-scenarios-code {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.cold-scenarios-ref {
+  display: block;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.cold-scenarios-expansion > td {
+  background: #f8fafd;
+}
+
+.cold-scenarios-basis dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 11px;
+}
+
+.cold-scenarios-basis dt {
+  color: var(--text-secondary);
+}
+
+.cold-scenarios-basis dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cold-scenarios-pages {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding-top: 12px;
+  font-size: 11px;
+}
+
+@media (max-width: 640px) {
+  /* The 360px internal disclosure scroller applies at phone width only. */
+  .cold-scenarios-basis {
+    max-height: 360px;
+    overflow-y: auto;
+  }
+
+  .cold-scenarios-basis dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cold-scenarios-basis dd {
+    margin-bottom: 6px;
+  }
+}

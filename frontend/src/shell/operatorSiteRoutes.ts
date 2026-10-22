@@ -176,8 +176,23 @@ export const SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PA
 /** W4-03 unit 6a: mini Financials > Scenarios; the address carries only the read's own `from`/`to`/`known_at`/`cursor`. */
 export const SITE_FINANCIAL_SCENARIOS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PATH}/scenarios`;
 
-export function siteFinancialScenariosHref(siteId: string): string {
-  return `${siteDetailHref(siteId)}/financials/scenarios`;
+/**
+ * W5-01b C5 (P-C5-9..16): a cold Site's Scenarios address also carries the selected `from`, `to`, `known_at` and the
+ * authored `scenario_at`, each only when set, in that order. One-argument (mini) callers are unchanged.
+ */
+export function siteFinancialScenariosHref(
+  siteId: string,
+  query?: { from?: string | null; to?: string | null; known_at?: string | null; scenario_at?: string | null },
+): string {
+  const base = `${siteDetailHref(siteId)}/financials/scenarios`;
+  if (query === undefined) return base;
+  const params = new URLSearchParams();
+  for (const key of ["from", "to", "known_at", "scenario_at"] as const) {
+    const value = query[key];
+    if (value !== undefined && value !== null) params.set(key, value);
+  }
+  const text = params.toString();
+  return text === "" ? base : `${base}?${text}`;
 }
 
 /**
