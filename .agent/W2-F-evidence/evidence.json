@@ -1,6 +1,6 @@
 {
-  "revision": "4d4fa252",
-  "captured_at": "2026-10-21T09:00:47.859Z",
+  "revision": "fe3915ad",
+  "captured_at": "2026-10-22T03:26:12.669Z",
   "pairs": [
     {
       "phase": "cold-excursion",
@@ -4452,214 +4452,6 @@
     },
     {
       "phase": "ev",
-      "screen": "ev-financials",
-      "case": "interrupted",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
-      "mock_hash": "#/ev-financials",
-      "app_image": "ev-financials-interrupted-1440-app.png",
-      "app": {
-        "panels": [
-          {
-            "title": "What happened → what it means in money",
-            "x": 248,
-            "y": 494,
-            "w": 1145,
-            "h": 305
-          },
-          {
-            "title": "Assumptions in use",
-            "x": 248,
-            "y": 817,
-            "w": 725,
-            "h": 269
-          },
-          {
-            "title": "Not included",
-            "x": 991,
-            "y": 817,
-            "w": 403,
-            "h": 269
-          }
-        ],
-        "overflowX": -15,
-        "clipped": 0,
-        "text": "Sites\nEV charging lab\nFinancials\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · what the site's technical behaviour means in money\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\n\n3 consequence lines\n KES · selected window · gross scenario only · Displayed rows include unpriced context Generated test dataRegistered test reports; not physical charger observations.\nPortfolio roll-up · Not available yet\nDelivered energy\n15.000 kWh\nMetered, complete sessions\nGross tariff estimate\nKES 4.17\nGross scenario · not cash collected\nLost revenue\nUnknown\nUnmet demand not established\nCollections\nNot recorded\nNo accepted payment record\nWhat happened → what it means in money\n\nSelect a source to inspect its exact evidence\n\nWHAT HAPPENED\tHOW IT BECOMES MONEY\tCONSEQUENCE\tBASIS\tCONFIDENCE\tSOURCE\n15.000 kWh delivered with complete coverage\t15.000 kWh × 0.27775 KES/kWh\tKES 4.17 gross estimate\tScenario\tMetered with complete coverage\tSessions ↗\nLost demand not established\tUnmet demand × tariff\tNot established\tNot assessed\tNot assessed\tFinding ↗\nNo accepted repair or warranty cost record\tWarranty claim or local repair\tNot recorded\tNot assessed\tNot assessed\tNo linked page for this item\nBasis details\nAssumptions in use\nTariff\n0.27775 KES/kWh · Authored estimate\nBilling / collections\nNo record\nCurrency\nKES\n\nReview assumptions\n\nAssumption details\nNot included\n\nLost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.",
-        "height": 1136
-      },
-      "mock_image": "ev-financials-1440-mock.png",
-      "mock": {
-        "panels": [
-          {
-            "title": "What happened → what it means in money",
-            "x": 234,
-            "y": 547,
-            "w": 1161,
-            "h": 285
-          },
-          {
-            "title": "Assumptions in use",
-            "x": 234,
-            "y": 850,
-            "w": 735,
-            "h": 234
-          },
-          {
-            "title": "Not included",
-            "x": 987,
-            "y": 850,
-            "w": 408,
-            "h": 234
-          }
-        ],
-        "overflowX": -15
-      },
-      "titles_equal": true
-    },
-    {
-      "phase": "ev",
-      "screen": "ev-financials",
-      "case": "interrupted",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
-      "mock_hash": "#/ev-financials",
-      "app_image": "ev-financials-interrupted-390-app.png",
-      "app": {
-        "panels": [
-          {
-            "title": "What happened → what it means in money",
-            "x": 16,
-            "y": 801,
-            "w": 343,
-            "h": 355
-          },
-          {
-            "title": "Assumptions in use",
-            "x": 16,
-            "y": 1174,
-            "w": 343,
-            "h": 285
-          },
-          {
-            "title": "Not included",
-            "x": 16,
-            "y": 1475,
-            "w": 343,
-            "h": 149
-          }
-        ],
-        "overflowX": -15,
-        "clipped": 0,
-        "text": "Sites\nEV charging lab\nFinancials\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · what the site's technical behaviour means in money\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\n\n3 consequence lines\n KES · selected window · gross scenario only · Displayed rows include unpriced context Generated test dataRegistered test reports; not physical charger observations.\nPortfolio roll-up · Not available yet\nDelivered energy\n15.000 kWh\nMetered, complete sessions\nGross tariff estimate\nKES 4.17\nGross scenario · not cash collected\nLost revenue\nUnknown\nUnmet demand not established\nCollections\nNot recorded\nNo accepted payment record\nWhat happened → what it means in money\n\nSelect a source to inspect its exact evidence\n\nWHAT HAPPENED\tHOW IT BECOMES MONEY\tCONSEQUENCE\tBASIS\tCONFIDENCE\tSOURCE\n15.000 kWh delivered with complete coverage\t15.000 kWh × 0.27775 KES/kWh\tKES 4.17 gross estimate\tScenario\tMetered with complete coverage\tSessions ↗\nLost demand not established\tUnmet demand × tariff\tNot established\tNot assessed\tNot assessed\tFinding ↗\nNo accepted repair or warranty cost record\tWarranty claim or local repair\tNot recorded\tNot assessed\tNot assessed\tNo linked page for this item\nBasis details\nAssumptions in use\nTariff\n0.27775 KES/kWh · Authored estimate\nBilling / collections\nNo record\nCurrency\nKES\n\nReview assumptions\n\nAssumption details\nNot included\n\nLost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.",
-        "height": 1664
-      },
-      "mock_image": "ev-financials-390-mock.png",
-      "mock": {
-        "panels": [
-          {
-            "title": "What happened → what it means in money",
-            "x": 15,
-            "y": 1008,
-            "w": 345,
-            "h": 422
-          },
-          {
-            "title": "Assumptions in use",
-            "x": 15,
-            "y": 1447,
-            "w": 345,
-            "h": 234
-          },
-          {
-            "title": "Not included",
-            "x": 15,
-            "y": 1700,
-            "w": 345,
-            "h": 142
-          }
-        ],
-        "overflowX": -15
-      },
-      "titles_equal": true
-    },
-    {
-      "phase": "ev",
-      "screen": "ev-assumptions",
-      "case": "interrupted",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
-      "mock_hash": "#/ev-assumptions",
-      "app_image": "ev-assumptions-interrupted-1440-app.png",
-      "app": {
-        "panels": [
-          {
-            "title": "Financial assumptions",
-            "x": 248,
-            "y": 278,
-            "w": 1160,
-            "h": 314
-          }
-        ],
-        "overflowX": 0,
-        "clipped": 0,
-        "text": "Sites\nEV charging lab\nFinancials\nAssumptions\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · assumptions and their history\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\nGenerated test data\n\nFinancial assumptions\n\nSite-scoped business context · changes keep the earlier version\n\nASSUMPTION\tVALUE\tUSED FOR\nTariff\t0.27775 KES/kWh · Authored estimate\tTranslating metered energy\nBilling / collections\tNo record\tCash collection not assessed\nCurrency\tKES\tScenario display currency\n\nTariff published 2026-10-21 08:58 UTC; applied as a scenario to the selected delivery window. Evidence through 2026-10-06 09:00 UTC.\n\nAssumption details\nChanging the tariff re-translates the same metered energy. It does not change what was measured.",
-        "height": 1000
-      },
-      "mock_image": "ev-assumptions-1440-mock.png",
-      "mock": {
-        "panels": [
-          {
-            "title": "Financial assumptions",
-            "x": 234,
-            "y": 354,
-            "w": 1161,
-            "h": 272
-          }
-        ],
-        "overflowX": -15
-      },
-      "titles_equal": true
-    },
-    {
-      "phase": "ev",
-      "screen": "ev-assumptions",
-      "case": "interrupted",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
-      "mock_hash": "#/ev-assumptions",
-      "app_image": "ev-assumptions-interrupted-390-app.png",
-      "app": {
-        "panels": [
-          {
-            "title": "Financial assumptions",
-            "x": 16,
-            "y": 412,
-            "w": 358,
-            "h": 345
-          }
-        ],
-        "overflowX": 0,
-        "clipped": 0,
-        "text": "Sites\nEV charging lab\nFinancials\nAssumptions\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · assumptions and their history\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\nGenerated test data\n\nFinancial assumptions\n\nSite-scoped business context · changes keep the earlier version\n\nASSUMPTION\tVALUE\tUSED FOR\nTariff\t0.27775 KES/kWh · Authored estimate\tTranslating metered energy\nBilling / collections\tNo record\tCash collection not assessed\nCurrency\tKES\tScenario display currency\n\nTariff published 2026-10-21 08:58 UTC; applied as a scenario to the selected delivery window. Evidence through 2026-10-06 09:00 UTC.\n\nAssumption details\nChanging the tariff re-translates the same metered energy. It does not change what was measured.",
-        "height": 900
-      },
-      "mock_image": "ev-assumptions-390-mock.png",
-      "mock": {
-        "panels": [
-          {
-            "title": "Financial assumptions",
-            "x": 15,
-            "y": 595,
-            "w": 345,
-            "h": 390
-          }
-        ],
-        "overflowX": -15
-      },
-      "titles_equal": true
-    },
-    {
-      "phase": "ev",
       "screen": "ev-finding",
       "case": "interrupted",
       "viewport": "1440x1000",
@@ -4916,6 +4708,214 @@
             "y": 1196,
             "w": 345,
             "h": 193
+          }
+        ],
+        "overflowX": -15
+      },
+      "titles_equal": true
+    },
+    {
+      "phase": "ev",
+      "screen": "ev-financials",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-financials",
+      "app_image": "ev-financials-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 248,
+            "y": 494,
+            "w": 1145,
+            "h": 305
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 248,
+            "y": 817,
+            "w": 725,
+            "h": 269
+          },
+          {
+            "title": "Not included",
+            "x": 991,
+            "y": 817,
+            "w": 403,
+            "h": 269
+          }
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "text": "Sites\nEV charging lab\nFinancials\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · what the site's technical behaviour means in money\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios · Not available yet\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\n\n3 consequence lines\n KES · selected window · gross scenario only · Displayed rows include unpriced context Generated test dataRegistered test reports; not physical charger observations.\nPortfolio roll-up · Not available yet\nDelivered energy\n15.000 kWh\nMetered, complete sessions\nGross tariff estimate\nKES 4.17\nGross scenario · not cash collected\nLost revenue\nUnknown\nUnmet demand not established\nCollections\nNot recorded\nNo accepted payment record\nWhat happened → what it means in money\n\nSelect a source to inspect its exact evidence\n\nWHAT HAPPENED\tHOW IT BECOMES MONEY\tCONSEQUENCE\tBASIS\tCONFIDENCE\tSOURCE\n15.000 kWh delivered with complete coverage\t15.000 kWh × 0.27775 KES/kWh\tKES 4.17 gross estimate\tScenario\tMetered with complete coverage\tSessions ↗\nLost demand not established\tUnmet demand × tariff\tNot established\tNot assessed\tNot assessed\tFinding ↗\nNo accepted repair or warranty cost record\tWarranty claim or local repair\tNot recorded\tNot assessed\tNot assessed\tNo linked page for this item\nBasis details\nAssumptions in use\nTariff\n0.27775 KES/kWh · Authored estimate\nBilling / collections\nNo record\nCurrency\nKES\n\nReview assumptions\n\nAssumption details\nNot included\n\nLost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.",
+        "height": 1136
+      },
+      "mock_image": "ev-financials-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 234,
+            "y": 547,
+            "w": 1161,
+            "h": 285
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 234,
+            "y": 850,
+            "w": 735,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 987,
+            "y": 850,
+            "w": 408,
+            "h": 234
+          }
+        ],
+        "overflowX": -15
+      },
+      "titles_equal": true
+    },
+    {
+      "phase": "ev",
+      "screen": "ev-financials",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financials?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-financials",
+      "app_image": "ev-financials-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 16,
+            "y": 801,
+            "w": 343,
+            "h": 355
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 16,
+            "y": 1174,
+            "w": 343,
+            "h": 285
+          },
+          {
+            "title": "Not included",
+            "x": 16,
+            "y": 1475,
+            "w": 343,
+            "h": 149
+          }
+        ],
+        "overflowX": -15,
+        "clipped": 0,
+        "text": "Sites\nEV charging lab\nFinancials\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · what the site's technical behaviour means in money\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios · Not available yet\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\n\n3 consequence lines\n KES · selected window · gross scenario only · Displayed rows include unpriced context Generated test dataRegistered test reports; not physical charger observations.\nPortfolio roll-up · Not available yet\nDelivered energy\n15.000 kWh\nMetered, complete sessions\nGross tariff estimate\nKES 4.17\nGross scenario · not cash collected\nLost revenue\nUnknown\nUnmet demand not established\nCollections\nNot recorded\nNo accepted payment record\nWhat happened → what it means in money\n\nSelect a source to inspect its exact evidence\n\nWHAT HAPPENED\tHOW IT BECOMES MONEY\tCONSEQUENCE\tBASIS\tCONFIDENCE\tSOURCE\n15.000 kWh delivered with complete coverage\t15.000 kWh × 0.27775 KES/kWh\tKES 4.17 gross estimate\tScenario\tMetered with complete coverage\tSessions ↗\nLost demand not established\tUnmet demand × tariff\tNot established\tNot assessed\tNot assessed\tFinding ↗\nNo accepted repair or warranty cost record\tWarranty claim or local repair\tNot recorded\tNot assessed\tNot assessed\tNo linked page for this item\nBasis details\nAssumptions in use\nTariff\n0.27775 KES/kWh · Authored estimate\nBilling / collections\nNo record\nCurrency\nKES\n\nReview assumptions\n\nAssumption details\nNot included\n\nLost sales, collections, margin, repair and warranty are not included in this gross tariff scenario.",
+        "height": 1664
+      },
+      "mock_image": "ev-financials-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "What happened → what it means in money",
+            "x": 15,
+            "y": 1008,
+            "w": 345,
+            "h": 422
+          },
+          {
+            "title": "Assumptions in use",
+            "x": 15,
+            "y": 1447,
+            "w": 345,
+            "h": 234
+          },
+          {
+            "title": "Not included",
+            "x": 15,
+            "y": 1700,
+            "w": 345,
+            "h": 142
+          }
+        ],
+        "overflowX": -15
+      },
+      "titles_equal": true
+    },
+    {
+      "phase": "ev",
+      "screen": "ev-assumptions",
+      "case": "interrupted",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-assumptions",
+      "app_image": "ev-assumptions-interrupted-1440-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 248,
+            "y": 278,
+            "w": 1160,
+            "h": 314
+          }
+        ],
+        "overflowX": 0,
+        "clipped": 0,
+        "text": "Sites\nEV charging lab\nFinancials\nAssumptions\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · assumptions and their history\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios · Not available yet\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\nGenerated test data\n\nFinancial assumptions\n\nSite-scoped business context · changes keep the earlier version\n\nASSUMPTION\tVALUE\tUSED FOR\nTariff\t0.27775 KES/kWh · Authored estimate\tTranslating metered energy\nBilling / collections\tNo record\tCash collection not assessed\nCurrency\tKES\tScenario display currency\n\nTariff published 2026-10-22 03:25 UTC; applied as a scenario to the selected delivery window. Evidence through 2026-10-06 09:00 UTC.\n\nAssumption details\nChanging the tariff re-translates the same metered energy. It does not change what was measured.",
+        "height": 1000
+      },
+      "mock_image": "ev-assumptions-1440-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 234,
+            "y": 354,
+            "w": 1161,
+            "h": 272
+          }
+        ],
+        "overflowX": -15
+      },
+      "titles_equal": true
+    },
+    {
+      "phase": "ev",
+      "screen": "ev-assumptions",
+      "case": "interrupted",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6181/sites/EV-LAB-001/ev/financial-assumptions?from=2026-10-06T08:00:00.000000Z&to=2026-10-06T09:05:00.000000Z&known_at=2026-10-06T09:00:00.000000Z",
+      "mock_hash": "#/ev-assumptions",
+      "app_image": "ev-assumptions-interrupted-390-app.png",
+      "app": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 16,
+            "y": 412,
+            "w": 358,
+            "h": 345
+          }
+        ],
+        "overflowX": 0,
+        "clipped": 0,
+        "text": "Sites\nEV charging lab\nFinancials\nAssumptions\nEV charging lab\nDemonstration data · EV-LAB-001\n\nFinancials · assumptions and their history\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nOverview\nAssumptions\nScenarios · Not available yet\n\n6 Oct 08:00–6 Oct 09:05 UTC · known at 6 Oct 09:00 UTC\nGenerated test data\n\nFinancial assumptions\n\nSite-scoped business context · changes keep the earlier version\n\nASSUMPTION\tVALUE\tUSED FOR\nTariff\t0.27775 KES/kWh · Authored estimate\tTranslating metered energy\nBilling / collections\tNo record\tCash collection not assessed\nCurrency\tKES\tScenario display currency\n\nTariff published 2026-10-22 03:25 UTC; applied as a scenario to the selected delivery window. Evidence through 2026-10-06 09:00 UTC.\n\nAssumption details\nChanging the tariff re-translates the same metered energy. It does not change what was measured.",
+        "height": 900
+      },
+      "mock_image": "ev-assumptions-390-mock.png",
+      "mock": {
+        "panels": [
+          {
+            "title": "Financial assumptions",
+            "x": 15,
+            "y": 595,
+            "w": 345,
+            "h": 390
           }
         ],
         "overflowX": -15

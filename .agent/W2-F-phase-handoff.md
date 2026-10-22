@@ -172,4 +172,4 @@ unit 4b AFTER W4-03 merges. The EV Financials (and Assumptions) captures are re-
 (`node .agent/W2-F-evidence/capture.mjs <out> <rev> ev finding=<uuid>` after `seed.py ev interrupted`).
 Full backend suite deferred to the final post-4b revision (same-revision rule).
 
-Next: 4b (M12) after W4-03 merges, then final review
+4b DONE (`fe3915ad`): M12 built, EV Financials/Assumptions re-captured (capture.mjs takes `ONLY=screen,...`). Next: final review + one full backend suite on the final revision.

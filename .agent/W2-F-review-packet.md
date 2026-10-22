@@ -4,7 +4,7 @@ Task: `tasks/W2-F-structural-fixes.md`. Contract: `.agent/W2-F-build-spec.md` (l
 + "Copy rulings (q1)"). Branch `task/W2-F-structural-fixes`. Per-unit detail: `.agent/W2-F-phase-handoff.md`.
 `USER_REVIEW_REQUIRED: false` (independent review + structural re-audit gate merge and W5 readiness).
 
-Status: **partial for review** — units 1a-4 and 5 built; **M12 (unit 4b) is open** and lands after W4-03 merges.
+Status: **for review** — units 1a-5 and 4b built; all 14 findings closed.
 
 ## Commits
 
@@ -17,14 +17,14 @@ Status: **partial for review** — units 1a-4 and 5 built; **M12 (unit 4b) is op
 | 4a | `83971293` | Architect copy ruling q1 |
 | 4 | `fbb197db` | EV M5, M10, M11, M13 (S10, S12, N1) |
 | 5 | this commit | captures, re-audit, packet (no feature behavior) |
-| 4b | not built | M12 EV Scenarios tab + guard + rail fixture (S11, N4) — after W4-03 |
+| 4b | `fe3915ad` | M12 EV Scenarios unavailable slot + guard multiset + rail fixture (S11, N4); W4-03 merged first |
 
 ## Acceptance
 
 | Criterion | Status |
 | --- | --- |
 | H1: excursion fixture -> Limited cooling, None product, explicit missing basis; Overview/Backup/Evidence one rule | Met (backend `test_w2f_recovery_and_exposure_truth_across_selected_reads[excursion,normal]`; captures below) |
-| 13 Medium findings close under named tests; every affected state keeps its mock slot | 12/13 met; **M12 open (4b)** |
+| 13 Medium findings close under named tests; every affected state keeps its mock slot | 13/13 met (M12 via 4b) |
 | Selected IDs, cutoff, provenance, cursor, exact links unchanged; nothing invented | Met per unit tests; no manifest/route/migration change |
 | Focused tests, tsc/build, guards, registry checker, one same-revision full backend suite on private `*_test` DB | Focused per unit (handoff); tsc/build/check-all at unit 5 below. **Full backend suite: not run** — it must be on the final revision, which is after 4b |
 | 1440/390 app/mock pairs, stocked/no-selection/refused; 14-finding re-audit | Met (below); EV Financials captures re-taken after 4b |
@@ -44,7 +44,7 @@ Status: **partial for review** — units 1a-4 and 5 built; **M12 (unit 4b) is op
 | M9 | ev overview `Needs attention` + `Confidence: Bounded`; refused `Unknown` / `Confidence: Unknown` | Closed (see reading 5.2) |
 | M10 | `REC {full UUID}` cold Analysis, EV timeline/Analysis; `F {UUID}`, `SES {external id}` EV Finding | Closed |
 | M11 | ev-evidence: Availability `Connector status coverage not assessed`; Cause `Charger diagnostics and vehicle request not recorded` | Closed |
-| M12 | ev-financials subtabs still Overview / Assumptions only | **Open — unit 4b after W4-03** |
+| M12 | EV Financials and Assumptions subtabs: Overview, Assumptions, then `Scenarios · Not available yet` as text (no link, no tab stop), re-captured at 1440 and 390 (`ev-financials-interrupted-*`, `ev-assumptions-interrupted-*`; titlesEqual, no overflow) | **Closed (unit 4b, `fe3915ad`)** |
 | M13 | cold finding `Confidence: Observed · ... · Selected source: Generated test data`; EV `Open` / `Confidence: Observed` / separate `Observed interruption`; EV refused `Unknown` / `Confidence: Unknown` | Closed |
 | M14 | ev-sld parts row `Charger 2 · Not declared` | Closed |
 
@@ -111,3 +111,12 @@ selected BOUNDED level. (3) Full backend suite deferred to the final post-4b rev
 ## Reviewer focus
 
 Readings 3.4, 4.1, 4.3, 5.2; the 8 data-derived title differences; H1 normal vs excursion parity.
+
+## Unit 4b (M12), after W4-03 (`44cc88c2`) merged into the branch (no conflicts; Alembic head single: 0030)
+
+- `EvSiteViews.tsx::Subtabs`: one literal `<UnavailableTab label="Scenarios" />` in the financial branch (both screens);
+  guard `$expectedTabs` now has two Scenarios (cold, EV); rail fixture drops that exact EV literal and must fail;
+  `w2f_ev_scenarios_slot_unavailable`; two superseded assertions updated (+0 unavailable became +1 on financial rows).
+- Checks at `fe3915ad` code: evSiteMoneyRoutes 15/15; frontend 105 files / 2504 passed; tsc 0; build 0; check-all 11/11.
+- Captures re-taken (`ONLY=ev-financials,ev-assumptions`, 1440 and 390): panels equal, clipped 0, no horizontal overflow.
+- Full backend suite: still not run; to be run once on the final revision.

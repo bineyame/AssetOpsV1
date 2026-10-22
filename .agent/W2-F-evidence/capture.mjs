@@ -109,10 +109,13 @@ async function shoot(target, w, h, file, isMock) {
 
 const evidencePath = join(OUT, "evidence.json");
 const prior = existsSync(evidencePath) ? JSON.parse(readFileSync(evidencePath, "utf8")) : { pairs: [] };
-const keep = prior.pairs.filter((p) => p.phase !== PHASE);
+// ONLY=screen,screen re-takes just those screens of the phase (unit 4b: ev-financials, ev-assumptions).
+const ONLY = process.env.ONLY ? process.env.ONLY.split(",") : null;
+const wanted = (s) => !ONLY || ONLY.includes(s);
+const keep = prior.pairs.filter((p) => p.phase !== PHASE || !wanted(p.screen));
 const mocks = {};
 const pairs = [];
-for (const s of PLANS[PHASE]) for (const [w, h] of SIZES) {
+for (const s of PLANS[PHASE].filter((x) => wanted(x.screen))) for (const [w, h] of SIZES) {
   const pair = { phase: PHASE, screen: s.screen, case: s.case, viewport: `${w}x${h}`, app_url: `${BASE}${s.app}`, mock_hash: `#/${s.screen}` };
   const appFile = `${s.screen}-${s.case}-${w}-app.png`;
   pair.app_image = appFile; pair.app = await shoot(`${BASE}${s.app}`, w, h, appFile, false);
