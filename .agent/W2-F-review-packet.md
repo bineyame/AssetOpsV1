@@ -72,7 +72,7 @@ at code revision `4d4fa252`.
 - `tsc --noEmit`: exit 0. `npm.cmd run build`: exit 0 (existing chunk-size warning).
 - `tools/check-all.ps1`: all 11 guards passed (architecture, navigation truthfulness, agent workflow, dependency
   registry, screen ledger, ...).
-- Backend: focused files per unit (handoff); full suite deferred to the final revision after 4b.
+- Backend: focused files per unit (handoff). Full backend suite (coordinator, in-container OPS-03 run 20261022-062736-75fd71 on 626e0171, main merged incl. W4-03): 3821 passed, 0 failed, 1:10:12. Frontend on fe3915ad: 105 files / 2504 passed; check-all 11/11.
 
 ## Builder readings (all units; flag if wrong)
 
