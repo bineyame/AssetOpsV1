@@ -147,3 +147,16 @@ Observations, not findings:
   schema. It would be `test_w601a_*`, `test_w601b_*` and the W4 work modules (`test_w401_*`, plus the Site work index
   tests), with the `src/shell src/estate src/sites src/work src/ui` vitest set already shown green by the builder
   (2537). The handoff cites no full backend suite run for `43a9142c`.
+
+## Re-review (Q2)
+
+Reviewer: fresh Claude reviewer. Scope: commits `3e1b15af`, `35c0d3fe`, `1dd26c3c` against item 1 of "W6-01b build rulings (Q2)". Read only; backend tests not rerun (builder reports 30 passed).
+
+Verdict: ACCEPT.
+
+- Clocks: `tools/w601_seed.py` keeps `LINKED_SETUP_AT` (2026-10-08T12Z), the F01 day, readings and anchors unchanged. `_linked_spec` deep-copies the S4 SPEC and changes only F01's single `decided` step to `2026-10-19T08:00:00Z`, and fails loudly if the step count is not exactly one. The S6 accept clock is `2026-10-20T00:00Z`. The Foundation `valid_from` is not touched. The old 21-day `_shift` is removed.
+- Test: `xfail` is gone (grep finds none). `test_linked_finding_and_action_hrefs` now also asserts F01 source day 2026-10-06 and finding pin < action pin < first work_case write (2026-10-20T11:59Z). Its Site-versus-global href equality assertions are retained.
+- Capture: `maintenance-linked` at 1440 and 390 uses tenant demo, window 2026-10-14..21, omitted `known_at`, and records the persisted IDs, hrefs and rendered cutoff (22 Oct 2026, 17:55 UTC). The first row WR-000003 shows an Action link, and WR-000002 shows Finding and Action links. Panel order matches the v69 `maintenance` mock: tabs, four cards, Corrective table, notice. No horizontal page scroll (document width equals client width at both widths).
+- Caps: cards, notice, control bar, status line, pager and tabs are within or equal to the positive capture. The table panel (370 / 446) is below the 610-690 band only because this fixture has 2 rows, not 5. This is not a defect.
+- Scope: the diff beyond `be8960a9` is the seed, the test (including the stale-comment replacement), B2 evidence, and the handoff Run entry. No other source files.
+- Not verified: backend test run (not rerun, by instruction), frontend suite and layout re-run.
