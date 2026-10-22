@@ -147,7 +147,7 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
       within(operatorRail)
         .getAllByRole("link")
         .map((link) => link.getAttribute("href")),
-    ).toEqual(["/portfolio", SITES_PATH, "/findings", "/actions", "/evidence", "/financials"]);
+    ).toEqual(["/portfolio", SITES_PATH, "/findings", "/actions", "/incidents", "/evidence", "/financials"]);
     expect(
       screen.queryByRole("navigation", { name: "Simulator Lab routes" }),
     ).toBeNull();
@@ -204,7 +204,7 @@ describe("a badge renders only where a record supplies its value", () => {
 
 describe("V-01a round 2: each rail root carries the mock's line icon, decoratively", () => {
   it.each([
-    ["/sites", "Operator routes", [["Portfolio", "grid"], ["Sites", "site"], ["Findings", "finding"], ["Actions", "action"], ["Evidence", "evidence"], ["Financials", "money"]]],
+    ["/sites", "Operator routes", [["Portfolio", "grid"], ["Sites", "site"], ["Findings", "finding"], ["Actions", "action"], ["Incidents", "incident"], ["Evidence", "evidence"], ["Financials", "money"]]],
     [SIMULATOR_LAB_PATH, "Simulator Lab routes", [["Simulator Lab", "lab"], ["Site Templates", "book"], ["Scenarios", "log"], ["Runs", "clock"]]],
   ] as const)("%s: one hidden icon per link, and the link is still named by its label", async (path, railName, expected) => {
     renderAt(path, ENABLED);

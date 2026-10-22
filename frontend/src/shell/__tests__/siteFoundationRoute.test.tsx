@@ -124,13 +124,13 @@ const T004_OPERATOR_NAVIGATION_LABELS = [
  * against is T004's list plus exactly this item; any other addition fails.
  */
 // W3-03 run 2 admits the reviewed estate Portfolio root (closure 1 navigation, closure 4 S17).
-const ADMITTED_SINCE_T004 = ["Findings", "Actions", "Evidence", "Financials", "Portfolio"];
+const ADMITTED_SINCE_T004 = ["Findings", "Actions", "Evidence", "Financials", "Portfolio", "Incidents"];
 
 /**
  * Operator navigation after T028, in order. T008 removed both parameterless
  * site items, T011A did not change the list, and T028 added Findings.
  */
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Evidence", "Financials"];
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Evidence", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -466,7 +466,7 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
     ).map((link) => link.getAttribute("href") ?? "");
     unmount();
 
-    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/actions", "/evidence", "/financials"]);
+    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen(view.container);
