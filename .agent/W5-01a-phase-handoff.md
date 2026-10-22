@@ -37,3 +37,15 @@ The card requires an "effective configured `asset_id`" per Health row from the "
 ## Next
 
 C1 per-unit review of the Cooling part (`703807cf`). The Architect rules on the Health questions above, then a follow-up C1 run adds `/cold/health` and `test_health_not_configured` before C2 starts.
+
+## Run — C1 follow-up (Health + Q2/Q6/Q8–Q12), 2026-10-22
+
+Commits `5d10d0e8` (build + tests) and `e7d8afad` (Health test reads the Foundation's two probe components). Files touched: only the card's list (`cold_depth.py`, `cold_depth_api.py`, `cold_site_reads.py`, `postgres_assessment_store.py`, the two C1 test files). `main.py` needed no change (`/health` is on the already-mounted depth router).
+
+- Built: `ColdReadService.foundation_on` (Q7); pure `cold_depth.health_rows` + `GET /cold/health` with `{health:{foundation_revision_id, rows}}`; Cooling `policy_high_deg_c` (Q2); public `cold_site_reads.cooling_response_state` used by `_capabilities` and `cold_depth._recovery_state` (Q6, `ColdSiteReadService` no longer imported); `door_pairs` keeps the held OPEN over a zero-elapsed CLOSE, with the 3 named cases (Q8); replay `== "CURRENT"` (Q9); `links.health` GET 200 (Q11); vacuous `"36"` assertion removed and six-case Health check added (Q12). New tests: `test_cooling_response_state`, `test_health_rows`, `test_health_failed_start_and_probe`, `test_health_not_configured`.
+- Focused command (card's, incl. `test_w301_provenance_dto_postgres.py`), private DB `assetops_w501c1f_test` on 127.0.0.1:55432: **62 passed, 0 failed, 0 skipped**, 820 s, on `e7d8afad`. DB dropped afterwards (0 remain). No processes left running.
+- `tools/check-all.ps1`: **All 11 guards passed.** Full backend suite not run (per dispatch).
+
+### Open question for the Architect (Q-H1)
+
+The registered cold Foundation (`backend/tests/fixtures/w2/cold-lab-001.yaml`) declares **two** `TEMPERATURE_PROBE` components, `probe-1` (chamber) and `ambient-1`, each with an asset row. In `test_health_not_configured` the card says the first GET gives `asset_id`s "equal to the scoped asset rows of the Foundation's generator, compressor and probe codes". With no selection there is no policy, so the C1 Health table's rule ("else the only asset when `len(assets) == 1`; else null") gives a **null** Temperature sensing `asset_id`. The test currently asserts the table result (probe `asset_id` null, both probe assets listed in `assets`) and marks it as this open question. Should the table pick the chamber probe (for example by bound `chamber_temperature` role) or does null stand? In the backup-failed replay the excursion policy `probe_asset_id` resolves it to the chamber probe as specified.
