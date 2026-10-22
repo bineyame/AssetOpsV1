@@ -57,11 +57,12 @@ def _instant(request: Request, key: str) -> datetime | None:
     return at
 
 
-def build_cold_site_router(registry: ImportedSiteRegistry, reads: Any | None,
-                           access: Access = development_access,
-                           disclosure: Disclosure = allow_disclosure) -> APIRouter:
-    router = APIRouter()
-
+def build_cold_gate(registry: ImportedSiteRegistry, reads: Any | None, access: Access = development_access,
+                    disclosure: Disclosure = allow_disclosure
+                    ) -> Callable[[Request, str, frozenset], tuple[UUID, UUID, dict[str, Any]]]:
+    """W5-01 C1: the W2-04 cold Site gate, extracted unchanged so the cold depth reads share it. Authenticate and
+    Site-scope before any lookup, refuse unknown parameters, parse the strict paired half-open UTC window (at most
+    31 days) and optional `known_at`, resolve the imported cold Site, then check the store and disclosure."""
     def opened(request: Request, site_code: str, keys: frozenset) -> tuple[UUID, UUID, dict[str, Any]]:
         refusal = access(request, site_code)
         if refusal == 401:
@@ -92,16 +93,27 @@ def build_cold_site_router(registry: ImportedSiteRegistry, reads: Any | None,
             raise _Refused(403, "COLD_SOURCE_DISCLOSURE_FORBIDDEN",
                            f"The source provenance of Site {site_code!r} may not be disclosed to this caller.")
         return tenant.id, site.id, {"lo": lo, "hi": hi, "known_at": known}
+    return opened
 
-    def served(work: Callable[[], Any]) -> Any:
-        try:
-            return work()
-        except _Refused as error:
-            return _refusal(error)
-        except ColdCursorRefused as error:
-            return _refusal(_Refused(error.status, error.code, str(error)))
-        except ColdReadUnavailable as error:
-            return _refusal(_Refused(503, "COLD_READ_UNAVAILABLE", str(error)))
+
+def cold_served(work: Callable[[], Any]) -> Any:
+    """Run one gated cold read; a refusal, cursor/known_at refusal or unavailable store is its typed error body."""
+    try:
+        return work()
+    except _Refused as error:
+        return _refusal(error)
+    except ColdCursorRefused as error:
+        return _refusal(_Refused(error.status, error.code, str(error)))
+    except ColdReadUnavailable as error:
+        return _refusal(_Refused(503, "COLD_READ_UNAVAILABLE", str(error)))
+
+
+def build_cold_site_router(registry: ImportedSiteRegistry, reads: Any | None,
+                           access: Access = development_access,
+                           disclosure: Disclosure = allow_disclosure) -> APIRouter:
+    router = APIRouter()
+    opened = build_cold_gate(registry, reads, access, disclosure)
+    served = cold_served
 
     def windowed(name: str):
         def endpoint(request: Request, site_code: str) -> Any:

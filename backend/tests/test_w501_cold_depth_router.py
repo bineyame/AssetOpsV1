@@ -1,0 +1,188 @@
+"""W5-01 C1: the extracted cold Site gate and the cold depth route without a database
+(`.agent/W5-01-build-spec.md` "Shared selected read and guards", "C1").
+
+The gate is `cold_site_api.build_cold_gate`, shared unchanged by the W2-04 Site reads and `/cold/cooling`. The
+pure `ColdDepthReadService` composition is driven by an in-memory snapshot to prove the `cold-depth-1` envelope,
+Site-code API links and that a selected step whose evidence ID is not an accepted record is never shown.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from types import SimpleNamespace
+from uuid import uuid4
+
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+from assetops_backend.analytics import cold
+from assetops_backend.analytics.cold_depth import CONTEXT_ROWS, ColdDepthReadService, door_pairs
+from assetops_backend.analytics.cold_reads import ColdReadUnavailable
+from assetops_backend.cold_depth_api import build_cold_depth_router
+from assetops_backend.cold_site_api import build_cold_gate, build_cold_site_router
+
+CODE = "COLD-READ"
+W = "from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z"
+LO = datetime(2026, 10, 6, 19, tzinfo=timezone.utc)
+HI = datetime(2026, 10, 6, 20, 5, tzinfo=timezone.utc)
+MARK = datetime(2026, 10, 22, 8, 30, 1, 123456, tzinfo=timezone.utc)
+
+
+def _registry(site_type="COLDCHAIN"):
+    site = SimpleNamespace(id=uuid4(), site_type=site_type)
+    return SimpleNamespace(imported=lambda code: site if code == CODE else None,
+                           tenant=lambda: SimpleNamespace(id=uuid4()))
+
+
+class _Echo:
+    def cooling(self, t, s, code, lo, hi, known_at):
+        return {"route": "cooling", "code": code, "args": [str(x) for x in (lo, hi, known_at)]}
+
+
+def depth_client(*, access=None, disclosure=None, site_type="COLDCHAIN", reads=_Echo()) -> TestClient:
+    kw = {k: v for k, v in (("access", access), ("disclosure", disclosure)) if v is not None}
+    app = FastAPI()
+    app.include_router(build_cold_depth_router(_registry(site_type), reads, **kw))
+    return TestClient(app)
+
+
+def error(c: TestClient, path: str, status: int) -> str:
+    response = c.get(f"/api/sites/{CODE}/cold/{path}" if not path.startswith("/") else path)
+    assert response.status_code == status, response.text
+    body = response.json()
+    assert set(body) == {"error"} and set(body["error"]) == {"code", "message"}, body
+    return body["error"]["code"]
+
+
+def test_cold_depth_gate_and_links() -> None:
+    c = depth_client()
+    body = c.get(f"/api/sites/{CODE}/cold/cooling?{W}&known_at=2026-10-06T20:05:00.123456Z").json()
+    assert body == {"route": "cooling", "code": CODE,
+                    "args": [str(LO), str(HI), "2026-10-06 20:05:00.123456+00:00"]}
+    assert c.get(f"/api/sites/{CODE}/cold/cooling").json()["args"] == ["None", "None", "None"]
+    # The copied refusal order and codes: scope before lookup, then parameters, window, Site, store, disclosure.
+    assert error(depth_client(access=lambda r, code: 401), f"cooling?{W}", 401) == "UNAUTHENTICATED"
+    assert error(depth_client(access=lambda r, code: 403), "/api/sites/OTHER/cold/cooling", 403) == \
+        "SITE_SCOPE_FORBIDDEN"
+    assert error(c, f"cooling?{W}&cursor=x", 422) == "COLD_PARAMETER_UNKNOWN"
+    assert error(c, f"cooling?{W}&limit=5", 422) == "COLD_PARAMETER_UNKNOWN"
+    assert error(c, "cooling?from=2026-10-06T19:00:00Z", 422) == "COLD_WINDOW_INVALID"
+    assert error(c, "cooling?from=2026-10-06T20:00:00Z&to=2026-10-06T19:00:00Z", 422) == "COLD_WINDOW_INVALID"
+    assert error(c, "cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T19:00:00Z", 422) == "COLD_WINDOW_INVALID"
+    assert error(c, "cooling?from=2026-09-01T00:00:00Z&to=2026-10-06T00:00:00Z", 422) == "COLD_WINDOW_TOO_LONG"
+    assert error(c, f"cooling?{W}&known_at=2026-10-06T20:05:00", 422) == "COLD_TIME_INVALID"
+    assert error(c, f"cooling?{W}&known_at=2026-10-06T20:05:00.1234567Z", 422) == "COLD_TIME_INVALID"
+    assert error(c, f"cooling?{W}&known_at=2026-10-06T23:05:00%2B03:00", 422) == "COLD_TIME_INVALID"
+    assert error(depth_client(site_type="MINIGRID"), f"cooling?{W}", 404) == "SITE_NOT_FOUND"
+    assert error(c, f"/api/sites/OTHER/cold/cooling?{W}", 404) == "SITE_NOT_FOUND"
+    assert error(depth_client(reads=None), f"cooling?{W}", 503) == "COLD_READ_UNAVAILABLE"
+    assert error(depth_client(disclosure=lambda code, t, s: False), f"cooling?{W}", 403) == \
+        "COLD_SOURCE_DISCLOSURE_FORBIDDEN"
+
+    class _Down:
+        def cooling(self, *a):
+            raise ColdReadUnavailable("store down")
+    assert error(depth_client(reads=_Down()), f"cooling?{W}", 503) == "COLD_READ_UNAVAILABLE"
+    # No cursor, so no 409 route exists: an unknown sub-path is not served.
+    assert c.get(f"/api/sites/{CODE}/cold/cooling/x?{W}").status_code == 404
+
+    # The W2-04 router uses the same importable gate (same refusal for the same request).
+    w2 = FastAPI()
+    w2.include_router(build_cold_site_router(_registry(), None))
+    assert error(TestClient(w2), f"overview?{W}", 503) == "COLD_READ_UNAVAILABLE"
+    assert callable(build_cold_gate(_registry(), None))
+
+    # Pure composition: envelope, Site-code links preserving from/to/known_at, exact selected IDs.
+    body = ColdDepthReadService(_Reads(_snap())).cooling(T, S, "COLD READ/1", LO, HI, None)
+    assert list(body) == ["schema_version", "site_id", "window", "selection", "cooling", "links"]
+    assert body["schema_version"] == "cold-depth-1" and body["site_id"] == str(S)
+    assert body["window"] == {"from": "2026-10-06T19:00:00.000000Z", "to": "2026-10-06T20:05:00.000000Z",
+                              "known_at": cold.plain(MARK), "committed_watermark": cold.plain(MARK)}
+    assert body["selection"]["state"] == "CURRENT"
+    assert body["selection"]["assessment_revision_ids"] == sorted([str(REV_START), str(REV_EXC)])
+    assert body["selection"]["accepted_evidence_ids"] == sorted(str(e) for e in ALL_IDS)
+    assert body["selection"]["source_provenance"] == {"classification": "REGISTERED_SIMULATION"}
+    query = "?from=2026-10-06T19%3A00%3A00.000000Z&to=2026-10-06T20%3A05%3A00.000000Z&known_at=" + \
+        cold.plain(MARK).replace(":", "%3A")
+    assert body["links"] == {"temperature": "/api/sites/COLD%20READ%2F1/cold/temperature" + query,
+                             "backup": "/api/sites/COLD%20READ%2F1/cold/backup-chain" + query,
+                             "evidence": "/api/sites/COLD%20READ%2F1/cold/evidence" + query,
+                             "health": "/api/sites/COLD%20READ%2F1/cold/health" + query}
+    cooling = body["cooling"]
+    # A selected COMPRESSOR step whose evidence ID is not an accepted record (missing selected ID) is not shown.
+    assert cooling["selected_points"] == [
+        {"role": cold.PROBE_ROLE, "source_time": "2026-10-06T19:25:00.000000Z", "evidence_ids": [str(PROBE)]}]
+    assert cooling["recovery_state"] == "LIMITED" and cooling["comparison_state"] == "CONTEXT_MISSING"
+    assert [cooling[k] for k in ("observed_restart_at", "observed_return_to_policy_at", "duration_lower_seconds",
+                                 "duration_upper_seconds")] == [None, None, None, None]
+    assert [r["label"] for r in cooling["context"]] == list(CONTEXT_ROWS)
+    # A lone DOOR_OPEN is no pair: the door row stays Unknown; power is Observed from the selected grid row.
+    states = {r["label"]: (r["state"], r["evidence_ids"], r["duration_seconds"]) for r in cooling["context"]}
+    assert states["Door-open duration"] == ("Unknown", [], None)
+    assert states["Power availability"] == ("Observed", [str(GRID)], None)
+    assert all(states[k] == ("Unknown", [], None) for k in ("Ambient temperature", "Loading / batch", "Defrost"))
+    # No selection: UNKNOWN recovery, empty arrays, null values; the envelope is still served.
+    empty = ColdDepthReadService(_Reads(_snap(selected=False))).cooling(T, S, CODE, LO, HI, None)
+    assert empty["selection"]["assessment_revision_ids"] == [] and empty["selection"]["accepted_evidence_ids"] == []
+    assert empty["cooling"]["recovery_state"] == "UNKNOWN" and empty["cooling"]["selected_points"] == []
+    assert all(r["state"] == "Unknown" for r in empty["cooling"]["context"])
+
+
+def test_door_pairs() -> None:
+    def row(kind, minute, second=0):
+        return {"id": uuid4(), "record_kind": kind,
+                "source_time": datetime(2026, 10, 6, 19, minute, second, tzinfo=timezone.utc)}
+    o, cl = row("DOOR_OPEN", 10), row("DOOR_CLOSE", 11)
+    assert door_pairs([cl, o]) == (sorted([str(o["id"]), str(cl["id"])]), 60)
+    assert door_pairs([o]) == ([], None) and door_pairs([cl]) == ([], None) and door_pairs([]) == ([], None)
+    assert door_pairs([row("DOOR_CLOSE", 10), row("DOOR_OPEN", 11)]) == ([], None)  # close before open
+    same = row("DOOR_CLOSE", 10)
+    assert door_pairs([o, same]) == ([], None)  # zero elapsed is not a positive duration
+
+
+# --- in-memory snapshot --------------------------------------------------------------------------------------
+
+T, S = uuid4(), uuid4()
+REV_EXC, REV_START = uuid4(), uuid4()
+PROBE, COMPRESSOR_MISSING, GRID, DOOR = uuid4(), uuid4(), uuid4(), uuid4()
+ALL_IDS = sorted([PROBE, COMPRESSOR_MISSING, GRID, DOOR], key=str)
+
+
+def _snap(selected=True):
+    steps = [{"step": "GRID", "state": "OBSERVED", "at": "2026-10-06T19:00:00.000000Z", "evidence_ids": [str(GRID)]},
+             {"step": "COMPRESSOR", "state": "OBSERVED", "at": "2026-10-06T19:20:00.000000Z",
+              "evidence_ids": [str(COMPRESSOR_MISSING)]},
+             {"step": "PROBE", "state": "OBSERVED", "at": "2026-10-06T19:25:00.000000Z",
+              "evidence_ids": [str(PROBE)]}]
+    chosen = {}
+    if selected:
+        ids = [str(e) for e in ALL_IDS]
+        chosen = {cold.EXCURSION_ANALYTIC: SimpleNamespace(revision_id=REV_EXC, result={}, evidence_ids=ids),
+                  cold.START_RESPONSE_ANALYTIC: SimpleNamespace(
+                      revision_id=REV_START, evidence_ids=ids,
+                      result={"chains": [{"result": "OBSERVED_FAILURE", "steps": steps}]})}
+    return {"code": None, "t": T, "s": S, "lo": LO, "hi": HI, "known": MARK, "watermark": MARK,
+            "selected": chosen, "state": "CURRENT" if selected else "UNKNOWN"}
+
+
+class _Reads:
+    def __init__(self, snap):
+        self.snap = snap
+
+    def within(self, work):
+        return work("connection")
+
+    def selection_on(self, c, t, s, code, lo, hi, known_at):
+        return {**self.snap, "code": code}
+
+    def envelope_on(self, c, snap, analytics):
+        return {"source_provenance": {"classification": "REGISTERED_SIMULATION"}}
+
+    def accepted_on(self, c, t, s, ids, *a):
+        held = {str(PROBE): cold.PROBE_ROLE, str(GRID): cold.GRID_EVENT_ROLE, str(DOOR): cold.DOOR_ROLE}
+        kinds = {str(DOOR): "DOOR_OPEN"}
+        return [{"id": i, "role": held[i], "record_kind": kinds.get(i),
+                 "source_time": datetime(2026, 10, 6, 19, 10, tzinfo=timezone.utc)} for i in ids if i in held]
+
+    def basis_revisions_on(self, c, t, s, revision_id):
+        return {"created_at": MARK, "foundations": [], "bindings": []}
