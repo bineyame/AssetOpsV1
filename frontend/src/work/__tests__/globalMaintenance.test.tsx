@@ -196,10 +196,9 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(document.body.textContent).toContain("Physical maintenance work and outcome verification");
     const tabs = screen.getByRole("navigation", { name: "Maintenance views" });
     const items = Array.from(tabs.querySelectorAll("li"));
-    expect(items.map(text)).toEqual(["Corrective", "Preventive · scheduled · Not available yet"]);
-    expect(within(tabs).queryAllByRole("link")).toHaveLength(0);
+    // W6-01b B3: the Preventive view is live (CL3-2, P-B3-8); see `preventive_card_and_tab_link_after_b3`.
+    expect(items.map(text)).toEqual(["Corrective", "Preventive · scheduled"]);
     expect(tabs.querySelector('[aria-current="page"]')?.textContent).toBe("Corrective");
-    expect(items[1]).toHaveAttribute("aria-label", "Preventive · scheduled, Not available yet");
     const header = document.querySelector("header.page-header") as HTMLElement;
     const bar = document.querySelector("[data-global-work-bar]") as HTMLElement;
     expect(header.compareDocumentPosition(tabs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -229,8 +228,7 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(text(notes[0])).toBe("5 requests in progress or open");
     expect(text(notes[1])).toBe("No work-outcome verification clock");
     expect(text(notes[2].querySelector("[data-global-work-preventive-note]"))).toBe("See Preventive");
-    expect(text(notes[2].querySelector("[data-global-work-preventive-link]"))).toBe("View detail · Not available yet");
-    expect(notes[2].querySelector("a")).toBeNull();
+    expect(text(notes[2].querySelector("[data-global-work-preventive-link]"))).toBe("View detail →");
     expect(text(notes[3])).toBe("No repeat-finding assessment");
     const overdue = cards()!.querySelector('[data-global-work-card="verification_overdue"]') as HTMLElement;
     expect(overdue.className).toContain("v69-metric--assessment");
@@ -324,6 +322,25 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     fireEvent.click(page2.querySelector("[data-global-work-previous]") as HTMLElement);
     await settled();
     expect(screen.getByTestId("where").textContent).toBe(PAGE);
+  });
+
+  it("preventive_card_and_tab_link_after_b3", async () => {
+    const reads = client({ "page-one": loaded(body([row(1)], { status: "HISTORICAL" })), C2: loaded(body([row(2)])) });
+    mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}&cursor=C2`, reads);
+    await settled();
+    const preventive = `/maintenance/preventive?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+    // The separate card link keeps the mock `See Preventive` note; neither link carries the cursor.
+    const note = cards()!.querySelector('[data-global-work-card="preventive_due"] .v69-metric__note') as HTMLElement;
+    expect(text(note.querySelector("[data-global-work-preventive-note]"))).toBe("See Preventive");
+    const cardLink = within(note).getByRole("link", { name: "View detail →" });
+    expect(cardLink).toHaveAttribute("href", preventive);
+    const tabs = screen.getByRole("navigation", { name: "Maintenance views" });
+    expect(tabs.querySelector("[data-tab-unavailable]")).toBeNull();
+    const tab = within(tabs).getByRole("link", { name: "Preventive · scheduled" });
+    expect(tab).toHaveAttribute("href", preventive);
+    expect(within(tabs).queryByRole("link", { name: "Corrective" })).toBeNull();
+    fireEvent.click(tab);
+    await waitFor(() => expect(screen.getByTestId("where").textContent).toBe(preventive));
   });
 
   it("labels an explicit earlier cutoff as historical and forwards it unchanged", async () => {

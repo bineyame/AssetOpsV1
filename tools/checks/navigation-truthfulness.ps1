@@ -751,9 +751,9 @@ function Get-InPageUnavailableEntryFailures {
     # Alternatives has zero unavailable occurrences; the mini Finding row's Analysis slot is the one new entry.
     # W5-01a C2: cold Performance > Cooling is a live route (`/sites/{site_code}/performance/cooling`), so its
     # one unavailable occurrence is gone; the live subtab and page branch are held below.
-    # W6-01b B2 (F4): the global Maintenance page's Preventive view is unavailable until B3 promotes it.
+    # W6-01b B3 (F4): the global Maintenance page's Preventive view is live, so its B2 entry is gone again.
     $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation", "Availability",
-        "Energy / site power", "Analysis", "Preventive &middot; scheduled")
+        "Energy / site power", "Analysis")
     # W2-F unit 4b (M12): EV Financials/Assumptions carry the mock's Scenarios slot as one literal in EvSiteViews.tsx.
     $expectedChips = @("Cost", "Risks", "Opportunities")
 

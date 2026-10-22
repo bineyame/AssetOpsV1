@@ -7,17 +7,19 @@
  *
  * MOCK DEVIATION (P-B2-3..8): the lifecycle notice copy changes, because W4 has no work-outcome evaluator or
  * automated follow-up; the primary Work request link opens the same-window Site maintenance page until W6-01c mounts
- * the exact request Overview. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
+ * the exact request Overview. W6-01b B3 (CL3-2, P-B2-4, P-B3-8) made the Preventive tab and the third card's separate
+ * `View detail →` link live, both to `/maintenance/preventive` with the effective window and cutoff, never a cursor. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
  */
 import { Link } from "react-router-dom";
 import { stateTone } from "../sites/siteWorkCases";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
-import { UnavailableInline, UnavailableTab } from "../ui/UnavailableEntry";
 import {
   type GlobalMaintenanceBody,
   type GlobalMaintenanceRow,
   type GlobalMaintenanceState,
+  globalWorkHref,
   type GlobalWorkClient,
+  type GlobalWorkQuery,
 } from "./globalWorkClient";
 import {
   CHANGE_WINDOW,
@@ -52,21 +54,46 @@ const STATE_LABEL: Readonly<Record<GlobalMaintenanceState, string>> = {
   CANCELLED: "Cancelled",
 };
 
+const CORRECTIVE_PATH = PAGE_PATH;
+const PREVENTIVE_PATH = "/maintenance/preventive";
+
+/** A view href with the effective `from`/`to`/`known_at` (the seven-day default when the URL has none), no cursor. */
+function viewHref(path: string, query: Pick<GlobalWorkQuery, "from" | "to" | "known_at"> | null): string {
+  return query === null ? path : globalWorkHref(path, query);
+}
+
+const VIEWS = [
+  { view: "corrective", label: "Corrective", path: CORRECTIVE_PATH },
+  { view: "preventive", label: "Preventive · scheduled", path: PREVENTIVE_PATH },
+] as const;
+
 /**
- * The `Maintenance views` tab row between the header and the date bar (P-B2-9, mock `MAINT_GTABS`). Corrective is
- * the current view (plain text, `aria-current`); until W6-01b B3 the Preventive view is one `UnavailableTab` (F4: the
- * label is written with the HTML entity so the navigation guard compares ASCII).
+ * The `Maintenance views` tab row between the header and the date bar (P-B2-9, P-B3-8, mock `MAINT_GTABS`). The
+ * current view is plain text with `aria-current`; the other is a link that keeps the effective window and cutoff.
  */
-export function MaintenanceViews() {
+export function MaintenanceViews({
+  current,
+  query,
+}: {
+  current: "corrective" | "preventive";
+  query: Pick<GlobalWorkQuery, "from" | "to" | "known_at"> | null;
+}) {
   return (
     <nav aria-label="Maintenance views" className="site-tabs global-work-tabs" data-global-work-tabs>
       <ul className="site-tabs__list">
-        <li className="site-tabs__item">
-          <span className="site-tabs__link" aria-current="page" data-global-work-tab="corrective">
-            Corrective
-          </span>
-        </li>
-        <UnavailableTab label="Preventive &middot; scheduled" />
+        {VIEWS.map((tab) => (
+          <li className="site-tabs__item" key={tab.view}>
+            {tab.view === current ? (
+              <span className="site-tabs__link" aria-current="page" data-global-work-tab={tab.view}>
+                {tab.label}
+              </span>
+            ) : (
+              <Link className="site-tabs__link" to={viewHref(tab.path, query)} data-global-work-tab={tab.view}>
+                {tab.label}
+              </Link>
+            )}
+          </li>
+        ))}
       </ul>
     </nav>
   );
@@ -172,19 +199,19 @@ function RequestTable({ body }: { body: GlobalMaintenanceBody }) {
   );
 }
 
-/** P-B2-4: the mock's separate `View detail →` slot on the third card; unavailable until Preventive is live. */
-function PreventiveCardNote() {
+/** P-B2-4: the mock's separate `View detail →` link on the third card, to the Preventive view (B3). */
+function PreventiveCardNote({ query }: { query: GlobalWorkQuery | null }) {
   return (
     <>
       <span data-global-work-preventive-note>See Preventive</span>
       <span className="global-work-card-link" data-global-work-preventive-link>
-        <UnavailableInline label="View detail" />
+        <Link to={viewHref(PREVENTIVE_PATH, query)}>View detail →</Link>
       </span>
     </>
   );
 }
 
-function Cards({ body }: { body: GlobalMaintenanceBody }) {
+function Cards({ body, query }: { body: GlobalMaintenanceBody; query: GlobalWorkQuery | null }) {
   const open = body.state_counts.OPEN + body.state_counts.IN_PROGRESS;
   return (
     <MetricCards label="Maintenance summary" data={{ "data-global-work-cards": "" }}>
@@ -206,7 +233,7 @@ function Cards({ body }: { body: GlobalMaintenanceBody }) {
         label="Preventive due in 30 days"
         value="Not assessed"
         word
-        note={<PreventiveCardNote />}
+        note={<PreventiveCardNote query={query} />}
         data={{ "data-global-work-card": "preventive_due" }}
       />
       <MetricCard
@@ -230,9 +257,9 @@ export function GlobalMaintenancePage({ client }: { client?: GlobalWorkClient })
     <div className="global-work global-work--maintenance" data-global-work-root="maintenance">
       <Breadcrumbs trail={[{ label: "Maintenance" }]} />
       <PageHeader title="Maintenance" headingId={GLOBAL_MAINTENANCE_HEADING_ID} subtitle={GLOBAL_MAINTENANCE_SUBTITLE} />
-      <MaintenanceViews />
+      <MaintenanceViews current="corrective" query={query} />
       <GlobalWorkBar page={page} label="Maintenance window" />
-      <GlobalWorkSlot page={page} loading={GLOBAL_MAINTENANCE_LOADING} cards={(value) => <Cards body={value} />} />
+      <GlobalWorkSlot page={page} loading={GLOBAL_MAINTENANCE_LOADING} cards={(value) => <Cards body={value} query={query} />} />
       <Panel heading="Corrective work requests" headingId={TABLE_HEADING_ID} description={CORRECTIVE_REQUESTS_FOOTER}>
         {shown && body !== null ? (
           body.total_count === 0 ? (

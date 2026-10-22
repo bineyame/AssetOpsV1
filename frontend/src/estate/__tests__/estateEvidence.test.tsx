@@ -305,13 +305,28 @@ describe("W3-02 estate Evidence root", () => {
     const gaps = panelTitled(GAPS_PANEL);
     const examples = gaps.querySelector("[data-estate-examples]") as HTMLElement;
     expect(examples.textContent).toContain("Example destinations");
-    for (const label of ["ACT-049, ACT-061", "Map transfer switch", "Operational records", "Preventive plan"]) {
+    for (const label of ["ACT-049, ACT-061", "Map transfer switch", "Operational records"]) {
       const entry = within(examples).getByLabelText(`${label}, Not available yet`);
       expect(entry.textContent).toBe(`${label} · Not available yet`);
     }
-    // No example is a control, and no gap row carries an invented Action link.
-    expect(gaps.querySelectorAll("a, button, [href]")).toHaveLength(0);
+    // W6-01b B3 (P-B3-2): the Preventive example is one live link to the selected window; nothing else is a control,
+    // and no gap row carries an invented Action link.
+    expect(within(examples).queryByLabelText("Preventive plan, Not available yet")).toBeNull();
+    const live = within(examples).getByRole("link", { name: "Preventive plan →" });
+    expect(live).toHaveAttribute("href", `/maintenance/preventive?${WINDOW}`);
+    expect(gaps.querySelectorAll("a, button, [href]")).toHaveLength(1);
+    expect(gaps.querySelector("table a, table button, table [href]")).toBeNull();
     expect(within(gaps).getAllByRole("row")).toHaveLength(3);
+  });
+
+  it("preventive_example_keeps_selected_window_and_cutoff", async () => {
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}&known_at=${encodeURIComponent(KNOWN)}&cursor=C2`, fake(loaded(body())));
+    await settledScreen();
+    const examples = panelTitled(GAPS_PANEL).querySelector("[data-estate-examples]") as HTMLElement;
+    expect(within(examples).getByRole("link", { name: "Preventive plan →" })).toHaveAttribute(
+      "href",
+      `/maintenance/preventive?${WINDOW}&known_at=${encodeURIComponent(KNOWN)}`,
+    );
   });
 
   it("rendersEvidenceEmptyPendingAndRefusals", async () => {

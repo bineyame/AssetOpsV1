@@ -9,7 +9,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { UnavailableInline, UnavailableLinkEntry } from "../ui/UnavailableEntry";
-import type { EstateEnvelope } from "./estateClient";
+import type { EstateEnvelope, EstateQuery } from "./estateClient";
 import {
   createEstateEvidenceMoneyClient,
   type EstateEvidenceBody,
@@ -348,13 +348,32 @@ function GapsTable({ body }: { body: EstateEvidenceBody }) {
   );
 }
 
-function ExampleDestinations() {
+/** W6-01b B3 (Codex retrospective "RESTORE TO MOCK", P-B3-2): the Preventive plan example is a live destination. */
+export const PREVENTIVE_EXAMPLE_PATH = "/maintenance/preventive";
+
+/**
+ * The mock's `Example destinations`. `Preventive plan →` opens the global Preventive view for the rendered Evidence
+ * window (`[from, to)` from the response, falling back to the validated page query) and its explicit cutoff, never
+ * a cursor; the other examples stay inert until their destinations exist.
+ */
+function ExampleDestinations({ query, body }: { query: EstateQuery; body: EstateEvidenceBody | null }) {
+  const effective = {
+    from: body?.window.from ?? query.from,
+    to: body?.window.to ?? query.to,
+    known_at: query.known_at === null ? null : (body?.window.known_at ?? query.known_at),
+  };
   return (
     <div className="note estate-evidence-examples" data-estate-examples>
       <span className="estate-evidence-examples__label">Example destinations</span>
-      {EXAMPLE_DESTINATIONS.map((label) => (
-        <UnavailableLinkEntry key={label} label={label} />
-      ))}
+      {EXAMPLE_DESTINATIONS.map((label) =>
+        label === "Preventive plan" ? (
+          <Link key={label} to={estateHref(PREVENTIVE_EXAMPLE_PATH, effective)} data-estate-example-live="preventive">
+            Preventive plan →
+          </Link>
+        ) : (
+          <UnavailableLinkEntry key={label} label={label} />
+        ),
+      )}
     </div>
   );
 }
@@ -440,7 +459,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
                 {NO_GAPS}
               </p>
             ) : null}
-            <ExampleDestinations />
+            <ExampleDestinations query={query} body={read.value} />
           </Panel>
           <Notice tone="blue" data={{ "data-estate-notice": "" }}>
             {EVIDENCE_NOTICE}
