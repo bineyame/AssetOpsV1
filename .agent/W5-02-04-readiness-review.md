@@ -187,3 +187,43 @@ All 45 original gaps are closed or deferred: 29 and 34 can only be verified afte
 ### M4/E4 replacement literal and ledger row
 
 These are now right. The strip keeps the mock's three slots: `Scoped to …`, then `Cold-chain Actions recorded at this site` / `EV Actions recorded at this site`, then plain `Global Actions does not include cold-chain Actions yet.` / `… EV Actions yet.` There is no href. The ledger scope-strip rows now defer the Actions cell to M4/E4 and keep the W6 mounted-root rule for Incidents and Maintenance only, so the earlier contradiction is gone. The alternatives are recorded. The "does not include … yet" sentence is not matched by the missing-claim patterns, so it needs no catalogue entry, though it is a soft missing-capability phrase (Low, no change required). M1, M3/E2 and E3 are restored to the mock as I recommended. M2/E1 stays a valid labelled deviation.
+
+## Recheck 2 (2026-10-22, against `749a357e`)
+
+Scope: R-1 to R-10, any new gap the close2 text creates, and the new M5/E5. This was read only; no checks were run.
+
+### Verdict: NOT READY (one Medium: M5/E5 can be avoided; 29 and 34 stay deferred)
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| R-1 | Closed | The new copy `Maintenance detail is unavailable for this record.` matches none of the `PATTERNS` in `missing-claim-scan.mjs`. K4a and V4a list the guard and pin the literal. V4a also asserts that the copy is absent on `ev-action`. |
+| R-2 | Closed | C2 is now the WR trigger. `/maintenance/requests/{case_id}?site_id={site_code}&known_at=…` matches `.agent/W6-01-build-spec.md` line 22. INC codes stay plain text. |
+| R-3 | Closed | K4a owns `NavRail.tsx` and `OperatorShellLayout.tsx`. It names the `activeLabel` mechanism, the pathname regex and its tests, after W6 E2 Lane A. V4a reuses it. |
+| R-4 | Closed | New W1 refusal 409 `ACTION_CODE_CONFLICT` with its message, a named trigger `action_cross_domain_code_conflict`, and tests in both directions. |
+| R-5 | Closed | W6 A1/B1 merge before K1c, and K1c lists `test_w601a_global_incidents.py` and `test_w601b_global_maintenance.py` with parity assertions. |
+| R-6 to R-9 | Closed | `shortName` is used for cold/EV; the ledger rows are fixed in place; the Next-evidence sentence goes in the Maintenance panel-contract `claim_limit`; the seven-day default applies only to cold/EV, and mini-grid keeps its choose-window state. |
+| R-10 | Labelled, but the deviation can be avoided (see below) | |
+
+### M5/E5: challenged, avoidable (Medium)
+
+The ruling says "W4 supplies UTC instants but no selected Site timezone". That is not true on main:
+
+- `site.timezone` is `NOT NULL` in `0001_foundation_identity.py`.
+- `foundation_api.py` and `sites_api.py` return it.
+- The frontend `SiteDetailReadModel` has `timezone: string` (`siteReadModel.ts:49`), validated in `siteDirectoryClient.ts`. The Work frames already hold that `site` object.
+- W4-02 migration `0029` already selects `s.timezone` for local-day rules.
+
+The cold fixtures declare `Africa/Addis_Ababa` (EAT, UTC+3); the EV fixtures declare `Etc/UTC`.
+
+The mock-faithful alternative is to format `occurred_at` in the selected `site.timezone` with `Intl.DateTimeFormat`. That keeps the mock cell `6 Oct · from 19:11` and is correct for every Site. Neither rejected alternative (implying EAT, or hard-coding UTC+3) is this option.
+
+If the Architect adopts it:
+- The cold producer window should be chosen so that local time reproduces the mock's 19:00-20:00 EAT range, which is UTC `[D+16h,D+17h)`. Otherwise the capture will show 22:11.
+- Optionally show a zone label taken from the Site, never a literal.
+
+M5/E5 should be withdrawn, and the K3a/V3a `Window` rule replaced with "format in the selected Site's stored IANA time zone".
+
+### New notes (no further gaps)
+
+- **Sequencing (Low; for the coordinator).** K4a now waits for W6 E2's Lane A rail edit, which is the last W6-01 unit. W5-02c gates W5-03a, so W5-03a now waits for the whole of W6-01. That is consistent but a long chain. An alternative is to land the `activeLabel` override as a small Lane A edit before E2.
+- **M4/E4, M2/E1.** Unchanged and still valid.
