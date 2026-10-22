@@ -284,6 +284,8 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   // W2-03: the cold Performance screens' mock subtitles (no illustrative values in them).
   temperature: "Performance · temperature policy and bounded exposure",
   coldbackup: "Performance · grid outage to cooling-service recovery",
+  // W5-01a C2: the cold Cooling page (the v6.9 subtitle).
+  cooling: "Performance · recovery under comparable conditions",
   // W2-06: the EV Sessions screen's mock subtitle (no illustrative values in it).
   sessions: "Performance · charging sessions and delivered service",
   // W4-02 Q20: the mini-depth Performance pages.

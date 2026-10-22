@@ -26,6 +26,7 @@ export function coldSiteRoutes(siteId: string): ColdSiteRoutes {
     assumptions: siteFinancialAssumptionsHref(siteId),
     temperature: sitePerformanceHref(siteId, "temperature"),
     backup: sitePerformanceHref(siteId, "backup"),
+    cooling: sitePerformanceHref(siteId, "cooling"),
     findings: siteFindingsHref(siteId),
     finding: (findingId) => siteFindingHref(siteId, findingId),
     foundation: siteFoundationHref(siteId),
