@@ -1,0 +1,8 @@
+# Architect request: correct the Q-C3-5 ruling against the mock (C3 review H1, M1)
+
+You are the AssetOps Architect (Codex). Read the C3 review at `.agent/W5-01a-C3-review.md` on branch `task/W5-01a-cold-selected-depth`: run `MSYS_NO_PATHCONV=1 git show task/W5-01a-cold-selected-depth:.agent/W5-01a-C3-review.md`. Also read your "C3 rulings (Q-C3-5, mock differences)" in `.agent/W5-01-build-spec.md`, the mock-fidelity rules in `.ai/ROLE_CONFIG.md`, and v69 `frontend/mockups/v69/index.html` around line 181 (the `cold-health` cards and table).
+
+1. **H1.** The reviewer reports that in the mock only the Backup generator card is an assessment card (top border, 17 px value). Cooling plant and Temperature sensing are plain cards with a 27 px value and no top border. Your ruling made all three assessment cards. Verify this against the mock, and correct the ruling literally: the predicate (the reviewer proposes `assessment={row.condition_state === "NEEDS_INVESTIGATION"}`, but confirm which state drives it), the test change in `condition_matrix`, and the recapture.
+2. **M1.** At 390 the sticky Asset column (min-width 240 px, one-line ID) fills the table, so `Supported assessment` and `Next evidence` are off-screen. The mock shows all three columns at 390. Rule a mock-faithful fix, for example showing the compact asset code as the mock does, with the full ID available on demand, and give the literal CSS, cell content and tests. Otherwise label it `MOCK DEVIATION`.
+
+Append the result as "C3 rulings (Q-C3-6, review H1/M1)" to the C3 card, amending `D-2026-10-22-w5-01-w5-03-buildspec`. Write nothing else. Do not commit.
