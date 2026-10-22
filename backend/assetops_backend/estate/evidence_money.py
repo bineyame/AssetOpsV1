@@ -413,6 +413,30 @@ def _groups(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
+def select_evidence_scope(snap: Any, tenant_id: Any, req: EstateRequest,
+                          scope: dict[str, Any]) -> tuple[list[tuple], list[dict[str, Any]]]:
+    """W3-03 closure 4 B1/B2: every authorized Site's `(site, domain, cov, site_rows)` and the full canonical ordered
+    Evidence rows before paging, on the caller's one snapshot and `scope` (moved verbatim from `_evidence`)."""
+    k = scope["k"]
+    per_site, rows = [], []
+    for site in scope["sites"]:
+        domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
+        if domain is None:
+            per_site.append((site, NOT_APPLICABLE, not_applicable(), []))
+            continue
+        cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k)
+        site_rows = (mini_grid_rows(snap, tenant_id, site, req, k) if domain == MINI_GRID
+                     else windowed_rows(snap, tenant_id, site, domain, req, k, cov["state"]))
+        for row in site_rows:
+            if row["_assessments"]:
+                row["source_provenance"] = snap.cited_provenance(tenant_id, site["site_id"], row["_cited"],
+                                                                 row["selected_revision_ids"])
+        per_site.append((site, domain, cov, site_rows))
+        rows += site_rows
+    rows.sort(key=lambda r: r["_key"])
+    return per_site, rows
+
+
 class EstateEvidenceService(EstateIndexService):
     """The Evidence root over the shared W3-01 authorization, cutoff, fence, cursor and envelope (no fork)."""
 
@@ -428,22 +452,7 @@ class EstateEvidenceService(EstateIndexService):
     def _evidence(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)
         k = scope["k"]
-        per_site, rows = [], []
-        for site in scope["sites"]:
-            domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
-            if domain is None:
-                per_site.append((site, NOT_APPLICABLE, not_applicable(), []))
-                continue
-            cov = site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, k)
-            site_rows = (mini_grid_rows(snap, tenant_id, site, req, k) if domain == MINI_GRID
-                         else windowed_rows(snap, tenant_id, site, domain, req, k, cov["state"]))
-            for row in site_rows:
-                if row["_assessments"]:
-                    row["source_provenance"] = snap.cited_provenance(tenant_id, site["site_id"], row["_cited"],
-                                                                     row["selected_revision_ids"])
-            per_site.append((site, domain, cov, site_rows))
-            rows += site_rows
-        rows.sort(key=lambda r: r["_key"])
+        per_site, rows = select_evidence_scope(snap, tenant_id, req, scope)
         token_sites = []
         for site, domain, cov, site_rows in per_site:
             arrays = {"selected_finding_revision_ids": [], "selected_action_event_ids": [],

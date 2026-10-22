@@ -149,6 +149,8 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
         cited |= set(consequence.pop("_cited", ()))
         rows.append({"finding_id": str(h["finding_id"]), "finding_revision_id": frid,
                      "episode_start": h["episode_start"], "title": h.get("title"), "lifecycle": h.get("lifecycle"),
+                     # W3-03 closure 4 B1/B2: the selected revision's stored end; no stored mechanism field exists.
+                     "episode_end": h.get("episode_end"), "mechanism": None,
                      "consequence": consequence,
                      "source_provenance": snapshot.finding_provenance(t, s, frid, cited_by.get(frid, []))})
     out.update(rows=rows, selected_finding_revision_ids=sorted(r["finding_revision_id"] for r in rows),
@@ -258,6 +260,7 @@ def _windowed(snapshot: Any, t: Any, s: Any, domain: str, from_: datetime, to: d
             consequences.add(row["consequence_revision_id"])
         rows.append({"finding_id": row["finding_id"], "finding_revision_id": row["finding_revision_id"],
                      "episode_start": row["episode_start"], "title": row["title"], "lifecycle": row["lifecycle"],
+                     "episode_end": row["episode_end"], "mechanism": None,  # W3-03 closure 4 B1/B2
                      "consequence": _consequence("UNPRICED", row.get("consequence_revision_id")),
                      "source_provenance": row["source_provenance"]})
     out.update(rows=rows, selected_finding_revision_ids=sorted(r["finding_revision_id"] for r in rows),
@@ -311,6 +314,11 @@ def _actions(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetime, k: da
             "resolution_state": None if resolution is None else resolution["state"],
             "verification_outcome": resolution.get("outcome") if resolved else None,
             "source_provenance": provenance,
+            # W3-03 closure 4 S8 / closure 5 S7: the selected plans (id, recorded_at, bounds) and outcomes at `k`.
+            "_plans": list(v.get("plans") or ()), "_outcomes": dict(v.get("outcomes") or {}),
+            "_outcome_id": None if resolution is None else resolution.get("outcome_id"),
+            # W3-03 r1a Q-1a-1: the selected Action event's own `recorded_at` (Portfolio tie key; never public).
+            "_selected_recorded_at": selected["recorded_at"],
             "_open": reduced["application"] in ("PENDING", "APPLIED") and not resolved,
             "_verification_window": in_window and not resolved,
             "_verified_recent": verified_at is not None and k - VERIFIED_LOOKBACK <= verified_at <= k})

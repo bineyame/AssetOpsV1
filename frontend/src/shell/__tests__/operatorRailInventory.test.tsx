@@ -25,7 +25,6 @@ const gateOff = featureFlagsWith(false);
 const gateOn = featureFlagsWith(true);
 
 const UNAVAILABLE_ROOTS = [
-  "Portfolio",
   "Assets",
   "Incidents",
   "Maintenance",
@@ -101,13 +100,14 @@ describe("operator rail inventory (W1-UX-07)", () => {
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
     ).toEqual([
+      ["Portfolio", "/portfolio"],
       ["Sites", "/sites"],
       ["Findings", "/findings"],
       ["Actions", "/actions"],
       ["Evidence", "/evidence"],
       ["Financials", "/financials"],
     ]);
-    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(5);
+    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(6);
   });
 
   it.each(UNAVAILABLE_ROOTS)(
@@ -169,7 +169,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
   });
 
-  it("keeps the focusable rail order to the five live links (gate off)", async () => {
+  it("keeps the focusable rail order to the six live links (gate off)", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -177,7 +177,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     const focusable = Array.from(
       side.querySelectorAll<HTMLElement>("a[href], button, input, [tabindex]"),
     ).filter((element) => element.getAttribute("tabindex") !== "-1");
-    expect(focusable.map((element) => element.textContent)).toEqual(["Sites", "Findings", "Actions", "Evidence", "Financials"]);
+    expect(focusable.map((element) => element.textContent)).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Evidence", "Financials"]);
   });
 });
 
@@ -204,7 +204,7 @@ describe("operator rail workspace footer (W1-UX-07)", () => {
     const side = rail().parentElement as HTMLElement;
     expect(
       Array.from(side.querySelectorAll<HTMLElement>("a[href]")).map((a) => a.textContent),
-    ).toEqual(["Sites", "Findings", "Actions", "Evidence", "Financials", "Open Simulator Lab"]);
+    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Evidence", "Financials", "Open Simulator Lab"]);
 
     fireEvent.click(within(footer).getByRole("link", { name: "Open Simulator Lab" }));
     expect(screen.getByRole("heading", { level: 1, name: "Simulator Lab" })).toBeInTheDocument();
@@ -233,7 +233,7 @@ describe("operator rail workspace footer (W1-UX-07)", () => {
 describe("NavRail item model (W1-UX-07)", () => {
   it("renders an unavailable item with no destination, whatever the shell passes", () => {
     const items: NavRailItem[] = [
-      { kind: "unavailable", label: "Portfolio", group: "OPERATIONS", icon: "grid" },
+      { kind: "unavailable", label: "Assets", group: "OPERATIONS", icon: "asset" },
       { kind: "live", to: "/sites", label: "Sites", group: "OPERATIONS", icon: "site" },
     ];
     render(
@@ -245,7 +245,7 @@ describe("NavRail item model (W1-UX-07)", () => {
     );
     const nav = screen.getByRole("navigation", { name: "Test rail" });
     expect(within(nav).getAllByRole("link").map((a) => a.textContent)).toEqual(["Sites"]);
-    expect(within(nav).getByRole("listitem", { name: "Portfolio, Not available yet" })).toBeVisible();
+    expect(within(nav).getByRole("listitem", { name: "Assets, Not available yet" })).toBeVisible();
   });
 
   it("rejects a destination on an unavailable item at compile time", () => {

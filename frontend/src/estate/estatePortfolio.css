@@ -1,0 +1,157 @@
+/* W3-03 run 2: the v69 `portfolio` composition (frontend/mockups/v69/portfolio.css), scoped to the page;
+   print rules dropped. Base mock rules first, app additions last. */
+.estate-portfolio .panel{background:#fff;border:1px solid var(--line, #e3e8ef);border-radius:7px;padding:19px;margin-bottom:18px;min-width:0}
+.estate-portfolio .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}
+.estate-portfolio .panel-head h2{font-size:15px;font-weight:650;margin:0}
+.estate-portfolio .panel-head p{font-size:11px;color:var(--muted, #6b7a90);margin:5px 0 0}
+.estate-portfolio .eyebrow{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700;color:var(--muted, #6b7a90)}
+.estate-portfolio .chart-note{font-size:10px;color:var(--muted, #6b7a90);line-height:1.6;margin-top:10px}
+.estate-portfolio .claim-link{border:0;background:transparent;color:var(--blue, #245ac0);font-size:11px;padding:0;cursor:pointer}
+.estate-portfolio table{width:100%;border-collapse:collapse;text-align:left;font-size:11px}
+.estate-portfolio th{font-size:9px;text-transform:uppercase;letter-spacing:.65px;color:#758198;background:#f8fafd;padding:10px 11px;font-weight:650;border-bottom:1px solid var(--line, #e3e8ef);white-space:nowrap}
+.estate-portfolio td{padding:13px 11px;border-bottom:1px solid #edf1f6;vertical-align:top;line-height:1.6}
+.estate-portfolio .portfolio-context{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:0 0 17px;font-size:11px;color:var(--muted)}
+.estate-portfolio .portfolio-context>div{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.estate-portfolio .value-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:15px}
+.estate-portfolio .value-card{display:flex;flex-direction:column;min-width:0;padding:15px 15px 12px;border:1px solid var(--line);border-top:3px solid #92a1b7;border-radius:7px;background:#fff;color:var(--ink);transition:box-shadow .15s,transform .15s}
+.estate-portfolio .value-card:hover{text-decoration:none;box-shadow:0 5px 16px #233c6410;transform:translateY(-1px)}
+.estate-portfolio .value-label{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:650;color:#52637b;min-height:27px}
+.estate-portfolio .value-label .icon{width:14px;height:14px}
+.estate-portfolio .value-label .icon:last-child{margin-left:auto;width:12px;color:#91a0b5}
+.estate-portfolio .value-number{font-size:25px;font-weight:650;letter-spacing:-.6px;line-height:1.2;margin:11px 0 9px;white-space:normal}
+.estate-portfolio .value-number small{font-size:11px;letter-spacing:0;font-weight:500;display:inline}
+.estate-portfolio .value-card p{font-size:10px;line-height:1.6;color:#617087;margin-bottom:11px}
+.estate-portfolio .value-basis{border-top:1px solid #e9edf3;padding-top:9px;font-size:9px;line-height:1.6;color:#718096;margin-top:auto}
+.estate-portfolio .value-card.amber{border-top-color:#c48e32}
+.estate-portfolio .value-card.red{border-top-color:#c66d63}
+.estate-portfolio .value-card.green{border-top-color:#31977f}
+.estate-portfolio .value-card.purple{border-top-color:#8d72b3}
+.estate-portfolio .value-card.amber .value-number{color:#936719}
+.estate-portfolio .value-card.red .value-number{color:#a54a40}
+.estate-portfolio .value-card.green .value-number{color:#227d68}
+.estate-portfolio .value-card.purple .value-number{color:#796194}
+.estate-portfolio .value-card.neutral .value-number{font-size:20px;color:#6b7b91}
+.estate-portfolio .portfolio-pulse{display:flex;align-items:center;flex-wrap:wrap;gap:18px;padding:11px 0 18px;font-size:10px;color:#62728a}
+.estate-portfolio .portfolio-pulse>span{display:flex;align-items:center;gap:6px}
+.estate-portfolio .portfolio-pulse strong{color:#2b3e59;font-size:12px}
+.estate-portfolio .portfolio-pulse .icon{width:14px;height:14px;color:#8493a8}
+.estate-portfolio .portfolio-pulse .pulse-note{margin-left:auto;font-size:9px;color:#8290a3}
+.estate-portfolio .portfolio-main{display:grid;grid-template-columns:minmax(0,2.7fr) minmax(290px,1fr);gap:16px;margin-bottom:17px}
+.estate-portfolio .portfolio-main .panel{margin-bottom:0}
+.estate-portfolio .priority-panel{padding:18px 16px}
+.estate-portfolio .portfolio-side .panel{padding:17px 14px}
+.estate-portfolio .portfolio-lenses{display:flex;align-items:center;gap:6px;margin:0 0 14px}
+.estate-portfolio .portfolio-lenses .chip{font-size:10px;padding:5px 10px}
+.estate-portfolio .portfolio-lenses>span{margin-left:auto;font-size:10px;color:var(--muted)}
+.estate-portfolio .portfolio-findings table{table-layout:fixed;font-size:10px}
+.estate-portfolio .portfolio-findings th{font-size:8px;padding:9px 7px;white-space:normal}
+.estate-portfolio .portfolio-findings td{padding:13px 7px;vertical-align:top;line-height:1.5;overflow-wrap:anywhere}
+.estate-portfolio .portfolio-findings th:nth-child(1){width:12%}
+.estate-portfolio .portfolio-findings th:nth-child(2){width:23%}
+.estate-portfolio .portfolio-findings th:nth-child(3){width:24%}
+.estate-portfolio .portfolio-findings th:nth-child(4){width:9%}
+.estate-portfolio .portfolio-findings th:nth-child(5){width:13%}
+.estate-portfolio .portfolio-findings th:nth-child(6){width:19%}
+.estate-portfolio .portfolio-findings small{font-size:9px;display:block;line-height:1.5;margin-top:5px}
+.estate-portfolio .portfolio-findings .badge{font-size:9px;padding:3px 5px}
+.estate-portfolio .portfolio-findings .impact{font-size:11px;display:block}
+.estate-portfolio .portfolio-findings .impact.red{color:#a65347}
+.estate-portfolio .portfolio-findings .impact.amber{color:#9c741f}
+.estate-portfolio .portfolio-findings .impact.green{color:#237d69}
+.estate-portfolio .workflow-text{display:block;font-size:9px;color:#7e8ba0;margin-top:5px}
+.estate-portfolio .panel-bottom{border-top:1px solid #e8edf4;padding-top:12px;margin-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px}
+.estate-portfolio .panel-bottom>span{font-size:9px;color:#7b899d}
+.estate-portfolio .objective-matrix{font-size:9px}
+.estate-portfolio .matrix-head,.estate-portfolio .matrix-row{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:5px;align-items:center}
+.estate-portfolio .matrix-head{color:#7a889b;font-size:9px;padding-bottom:8px}
+.estate-portfolio .matrix-head a{text-align:center;color:#536c91}
+.estate-portfolio .matrix-row{border-top:1px solid #edf0f5;padding:10px 0}
+.estate-portfolio .matrix-row>span{color:#627187;font-size:9px}
+.estate-portfolio .objective-cell{font-size:8px;text-align:center;padding:6px 2px;border-radius:3px;line-height:1.3;min-width:0;color:#66778d;background:#f0f3f7}
+.estate-portfolio .objective-cell.attention{background:#fbf0da;color:#916220}
+.estate-portfolio .objective-cell.degraded{background:#fbeae7;color:#ac574c}
+.estate-portfolio .objective-cell.limited{background:#f0ebf7;color:#80629b}
+.estate-portfolio .objective-cell.na{background:transparent;color:#9aa6b5}
+.estate-portfolio .portfolio-evidence{margin-top:13px;padding:16px;border:1px solid #dfe5f2;background:#eef3fa;border-radius:6px}
+.estate-portfolio .portfolio-evidence>div{display:flex;align-items:flex-start;gap:8px}
+.estate-portfolio .portfolio-evidence .icon{width:15px;height:15px;color:#6381ae}
+.estate-portfolio .portfolio-evidence h3{font-size:11px;line-height:1.5}
+.estate-portfolio .portfolio-evidence p{font-size:10px;color:#687990;line-height:1.7;margin:9px 0}
+.estate-portfolio .portfolio-evidence a{font-size:10px}
+.estate-portfolio .portfolio-bottom{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.estate-portfolio .portfolio-bottom .panel{padding:17px 18px;margin-bottom:12px}
+.estate-portfolio .portfolio-bottom .eyebrow{font-size:8px;letter-spacing:1.2px;margin-bottom:7px}
+.estate-portfolio .portfolio-bottom h2{font-size:14px}
+.estate-portfolio .opportunity-panel{border-top:2px solid #7cb8a6}
+.estate-portfolio .opportunity-story{display:flex;gap:20px;align-items:center;padding:5px 0 1px}
+.estate-portfolio .opportunity-quantity{font-size:25px;letter-spacing:-.6px;color:#307e6a;font-weight:600}
+.estate-portfolio .opportunity-quantity small{font-size:13px;font-weight:400;letter-spacing:0}
+.estate-portfolio .opportunity-story p{font-size:10px;color:#758397;line-height:1.5;margin-top:6px}
+.estate-portfolio .story-arrow{color:#96b6ac;font-size:22px}
+.estate-portfolio .portfolio-bottom .chart-note{font-size:9px;line-height:1.7;margin-top:14px}
+.estate-portfolio .change-line{display:grid;grid-template-columns:8px 1fr auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #eef1f5;font-size:10px}
+.estate-portfolio .change-line strong{font-weight:550}
+.estate-portfolio .change-line>span:last-child{font-size:9px;color:#7b899b;text-align:right}
+.estate-portfolio .change-dot{width:6px;height:6px;border-radius:50%;background:#aab5c5}
+.estate-portfolio .change-dot.blue{background:#6b93c9}
+.estate-portfolio .change-dot.amber{background:#c5a363}
+.estate-portfolio .outcome-note{font-size:9px;color:#7c8ba1;margin-top:14px;line-height:1.6}
+.estate-portfolio .portfolio-context-footer{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:9px;color:#7b8899;padding:3px 1px 14px;line-height:1.6}
+.estate-portfolio .portfolio-context-footer strong{font-weight:550;color:#687b95}
+.estate-portfolio .portfolio-context-footer>span:last-child{margin-left:auto}
+@media screen and (max-width:1200px){.estate-portfolio .portfolio-main{grid-template-columns:minmax(0,2fr) minmax(270px,1fr)}.estate-portfolio .value-grid{gap:8px}.estate-portfolio .value-card{padding:12px 10px}.estate-portfolio .value-number{font-size:22px}.estate-portfolio .portfolio-pulse{gap:12px}.estate-portfolio .portfolio-pulse .pulse-note{margin-left:0}.estate-portfolio .portfolio-bottom{grid-template-columns:1fr}.estate-portfolio .portfolio-lenses{flex-wrap:wrap}}
+@media screen and (max-width:960px){.estate-portfolio .portfolio-main{grid-template-columns:1fr}.estate-portfolio .portfolio-side{display:grid;grid-template-columns:1fr 1fr;gap:15px}.estate-portfolio .portfolio-evidence{margin-top:0}.estate-portfolio .value-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media screen and (max-width:760px){.estate-portfolio .portfolio-context{align-items:flex-start;flex-direction:column}.estate-portfolio .value-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.estate-portfolio .portfolio-side{grid-template-columns:1fr}.estate-portfolio .portfolio-main .priority-panel{padding:15px 10px}.estate-portfolio .portfolio-findings table{min-width:720px}.estate-portfolio .portfolio-lenses{gap:5px}.estate-portfolio .portfolio-lenses .chip{padding:5px 8px}.estate-portfolio .panel-bottom{align-items:flex-start;flex-wrap:wrap}.estate-portfolio .change-line{grid-template-columns:8px 1fr}.estate-portfolio .change-line>span:last-child{grid-column:2;text-align:left}.estate-portfolio .opportunity-story{gap:12px}.estate-portfolio .opportunity-quantity{font-size:22px}.estate-portfolio .portfolio-context-footer>span:last-child{margin-left:0}}
+/* App additions (run 2): tones the mock lacks, the internally scrolling Findings body and matrix, inert CTAs. */
+.estate-portfolio .value-card.blue{border-top-color:#6b93c9}.estate-portfolio .value-card.blue .value-number{color:#2f5f9e}
+.estate-portfolio .value-card.neutral .value-number{font-size:20px;color:#6b7b91}
+.estate-portfolio .value-card__link{font-size:9px;margin-top:6px}
+.estate-portfolio .portfolio-badge--amber{background:#fbf0da;color:#916220}.estate-portfolio .portfolio-badge--blue{background:#eaf0fd;color:#245ac0}
+.estate-portfolio .portfolio-findings .data-table__scroll{max-height:604px;overflow:auto}
+.estate-portfolio .portfolio-findings thead th{position:sticky;top:0;z-index:1}
+.estate-portfolio .portfolio-matrix-scroll{overflow-x:auto}
+.estate-portfolio .objective-matrix{min-width:max-content}
+.estate-portfolio .matrix-site{display:flex;flex-direction:column;text-align:center;color:#536c91}.estate-portfolio .matrix-site small{font-size:8px;color:#7a889b}
+.estate-portfolio .objective-cell small{display:block;font-size:7px;margin-top:2px}
+.estate-portfolio .portfolio-more{margin:10px 0 0}
+.estate-portfolio .portfolio-inert{font-size:10px;color:#7b899d}
+.estate-portfolio .opportunity-quantity{font-size:16px}
+.estate-portfolio .portfolio-drawer{max-height:320px;overflow:auto;font-size:10px;padding:8px 0}
+.estate-portfolio .portfolio-drawer__notice{background:#eef3fa;padding:8px;border-radius:5px}
+.estate-portfolio .portfolio-loading{list-style:none;padding:0;color:var(--muted, #6b7a90);font-size:11px}
+.estate-portfolio .portfolio-evidence__site{font-size:9px;margin:0 0 6px}
+/* Run 2 capture fixes: wrap Findings cells in the fixed mock columns; fit the matrix and story in their caps. */
+.estate-portfolio .portfolio-findings table{table-layout:fixed;width:100%}
+.estate-portfolio .portfolio-findings td,.estate-portfolio .portfolio-findings th{white-space:normal}
+.estate-portfolio .matrix-row{padding:5px 0}
+.estate-portfolio .objective-cell{padding:3px 2px;line-height:1.2}
+.estate-portfolio .objective-cell small{line-height:1.1;margin-top:1px}
+.estate-portfolio .matrix-head{padding-bottom:4px}
+.estate-portfolio .portfolio-evidence__title{font-size:11px;font-weight:650;line-height:1.5;color:var(--ink, #1f2f46);margin:0}
+.estate-portfolio .opportunity-quantity{color:#6b7b91}
+@media screen and (max-width:760px){
+.estate-portfolio .portfolio-context{gap:6px;margin-bottom:12px;line-height:1.4}
+.estate-portfolio .portfolio-context>div{gap:6px}
+.estate-portfolio .value-card p{margin-bottom:8px}
+.estate-portfolio .opportunity-quantity{font-size:13px}
+.estate-portfolio .opportunity-story p{margin:2px 0 0}
+.estate-portfolio .opportunity-panel .chart-note{margin-top:6px}
+}
+@media screen and (max-width:760px){
+.estate-portfolio .value-card p{margin-bottom:6px}
+.estate-portfolio .opportunity-panel .panel-head{margin-bottom:10px}
+.estate-portfolio .opportunity-story{padding:0}
+}
+/* The W3-01 estate 900px table floor is for the wide index tables; the Portfolio keeps the mock's widths
+   (fit at 1440, 720px scroll at 390 inside the panel). The root attribute outranks that rule. */
+.estate-page[data-estate-root="portfolio"] .data-table{min-width:0}
+@media screen and (max-width:760px){.estate-page[data-estate-root="portfolio"] .portfolio-findings .data-table{min-width:720px}}
+/* Real rows stack more honest-gap lines than the mock examples; tighter line spacing keeps each row within its cap. */
+.estate-portfolio .portfolio-findings small{margin-top:2px;line-height:1.4}
+.estate-portfolio .portfolio-findings .workflow-text{margin-top:2px}
+.estate-portfolio .portfolio-findings td{padding:10px 7px}
+@media screen and (max-width:760px){
+.estate-portfolio .portfolio-context{gap:4px;font-size:10px;line-height:1.3}
+.estate-portfolio .portfolio-context>div{gap:3px 6px}
+.estate-portfolio .portfolio-context .badge{padding:2px 6px}
+}

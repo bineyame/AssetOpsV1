@@ -142,6 +142,226 @@ export interface EstateScopeBody {
   known_at: string;
 }
 
+/**
+ * W3-03 run 2 (Lane A; `.agent/W3-03-build-spec.md` r0a L3, r1a reading 6, r1b2 R5-R12): the Portfolio root.
+ * Its status and F/E/M coverage are typed here without widening `EstateSiteState` or `EstateEnvelope` for the
+ * existing roots. Display slots the API leaves null are built by the page with the W3-02 money words.
+ */
+export const PORTFOLIO_SCHEMA = "estate-portfolio-1";
+
+export type EstatePortfolioStatus = "CURRENT" | "HISTORICAL" | "PENDING" | "UNKNOWN" | "EMPTY_SCOPE";
+export type EstateRootCoverageState = "EMPTY" | "COMPLETE" | "PARTIAL" | "UNKNOWN";
+export type EstateDomain = "MINIGRID" | "COLDCHAIN" | "EV_CHARGING";
+export type EstateApplicationState = "NONE_AT_CUTOFF" | "PENDING" | "APPLIED";
+export type EstateResolutionState = "RESOLVED" | "RESOLUTION_WITHDRAWN";
+export type EstateWireDecimal = string | number | null;
+export interface EstateWireAmount {
+  low: EstateWireDecimal;
+  high: EstateWireDecimal;
+  currency: string | null;
+}
+
+export interface EstatePortfolioCoverage {
+  state: EstateRootCoverageState;
+  finding_state: EstateRootCoverageState;
+  evidence_state: EstateRootCoverageState;
+  money_state: EstateRootCoverageState;
+  /** The exact seven-key W3-01 `site_coverage` item per authorized Site. */
+  sites: EstateCoverageSite[];
+}
+
+export interface EstatePortfolioRow {
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  domain: EstateDomain;
+  finding_id: string;
+  finding_revision_id: string;
+  finding_label: string;
+  title: string;
+  mechanism: string | null;
+  episode_start: string | null;
+  episode_end: string | null;
+  lifecycle: EstateLifecycle;
+  lens_flags: ("COST" | "RISK" | "OPPORTUNITY")[];
+  priority: string | null;
+  confidence: string | null;
+  confidence_reasons: unknown[];
+  consequence: EstateConsequence;
+  action_id: string | null;
+  action_title: string | null;
+  action_state: EstateApplicationState | null;
+  application_state: EstateApplicationState | null;
+  resolution_state: EstateResolutionState | null;
+  verification_outcome: string | null;
+  /** Server-built, one of the seven S7 literals; the page renders it verbatim. */
+  workflow_label: string;
+  next_move: string | null;
+  source_provenance: EstateSourceBlock;
+  links: { site: string | null; finding: string | null; action: string | null };
+}
+
+export type EstateValueCardKey = "OPERATING_COST" | "SERVICE_PRODUCT_RISK" | "PRODUCTIVE_USE" | "ASSET_LIFE" | "VERIFIED_RECOVERY";
+export type EstateValueCardState =
+  | "COMPARABLE_GROUP"
+  | "SITE_OWNED"
+  | "UNPRICED"
+  | "WITHHELD"
+  | "NO_LINE"
+  | "COUNT"
+  | "UNKNOWN"
+  | "UNSUPPORTED"
+  | "NOT_ESTABLISHED";
+
+export interface EstateValueCard {
+  key: EstateValueCardKey;
+  state: EstateValueCardState;
+  display_value: string | null;
+  currency: string | null;
+  line_keys: string[];
+  group_key: string | null;
+  basis: string | null;
+  destination: string | null;
+  detail: string | null;
+  basis_text: string;
+  tone: "amber" | "blue" | "neutral";
+}
+
+export type EstateObjectiveKey = "SERVICE_PRODUCT" | "BACKUP" | "ASSET_CONDITION" | "COST_CONTROL" | "EVIDENCE";
+export type EstateObjectiveState = "FULL" | "LIMITED" | "NONE" | "REVIEW" | "UNASSESSED" | "UNKNOWN" | "NOT_APPLICABLE";
+
+export interface EstateObjective {
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  domain: EstateDomain;
+  cells: { key: EstateObjectiveKey; state: EstateObjectiveState; label: string; reason: string; destination: string | null }[];
+}
+
+export interface EstateEvidencePrompt {
+  state: "AVAILABLE" | "NO_GAP" | "COVERAGE_INCOMPLETE";
+  text: string;
+  site_id: string | null;
+  site_code: string | null;
+  gap_code: string | null;
+  destination: string;
+}
+
+/** r1b2 R10: the ten required progress-row fields. */
+export interface EstateProgressRow {
+  action_id: string;
+  action_code: string;
+  selected_action_event_id: string | null;
+  verification_plan_id: string | null;
+  verification_outcome_id: string | null;
+  application_state: EstateApplicationState | null;
+  resolution_state: EstateResolutionState | null;
+  verification_outcome: string | null;
+  recorded_at: string | null;
+  /** False when this exact origin Finding revision is not among the selected Finding revisions. */
+  origin_revision_selected: boolean;
+}
+
+/** One unpaged W3-02 Financials line DTO (the fields the Portfolio page reads). */
+export interface EstatePortfolioMoneyLine {
+  line_key: string;
+  site_id: string;
+  site_code: string;
+  site_name: string;
+  category: string;
+  window_start: string | null;
+  window_end: string | null;
+  quantity: { low: EstateWireDecimal; high: EstateWireDecimal; unit: string | null };
+  amount: EstateWireAmount | null;
+  eligibility: string;
+  group_key: string | null;
+  [key: string]: unknown;
+}
+
+export interface EstatePortfolioMoneyGroup {
+  group_key: string | null;
+  category: string;
+  currency: string | null;
+  window_start: string | null;
+  window_end: string | null;
+  state: string;
+  line_keys: string[];
+  amount: EstateWireAmount | null;
+  reason_codes: string[];
+  [key: string]: unknown;
+}
+
+export interface EstatePortfolioExclusion {
+  line_key: string;
+  group_key: string | null;
+  reason_codes: string[];
+}
+
+export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "coverage"> {
+  status: EstatePortfolioStatus;
+  coverage: EstatePortfolioCoverage;
+  lens: EstateLens;
+  summary: {
+    finding_count: number | null;
+    priority_site_count: number | null;
+    opportunity_count: number | null;
+    evidence_gap_site_count: number | null;
+    accepted_action_count: number | null;
+    verified_resolution_count: number | null;
+    combined_value: null;
+    combined_value_state: "NOT_COMPARABLE";
+  };
+  value_cards: EstateValueCard[];
+  objectives: EstateObjective[];
+  evidence_prompt: EstateEvidencePrompt;
+  opportunity: { state: "UNSUPPORTED"; finding_id: null; scenario_amount: null; headroom: null; destination: null };
+  progress: {
+    state: "NO_COMPARABLE_BASELINE";
+    completed_activity_count: null;
+    pending_trial_count: number | null;
+    verified_resolution_count: number | null;
+    recovered_value: null;
+    rows: EstateProgressRow[];
+  };
+  footer: {
+    line_key: string;
+    site_name: string;
+    quantity_display: string | null;
+    amount_display: string | null;
+    source_provenance: EstateSourceBlock;
+    window_start: string | null;
+    window_end: string | null;
+    destination: string;
+  } | null;
+  selected_lines: EstatePortfolioMoneyLine[];
+  money: {
+    groups: EstatePortfolioMoneyGroup[];
+    exclusions: EstatePortfolioExclusion[];
+    diagnostics: { category: string; code: string; line_keys: string[] }[];
+    estate_total: null;
+  };
+  scope_disclosure: {
+    sites: {
+      site_id: string;
+      site_code: string;
+      site_name: string;
+      domain: EstateDomain;
+      window: { from: string; to: string };
+      coverage: EstateCoverageSite;
+      selected_revision_ids: string[];
+      source_provenance: EstateSourceBlock | null;
+    }[];
+    exclusions: EstatePortfolioExclusion[];
+  };
+  order: string;
+  rows: EstatePortfolioRow[];
+}
+
+/** The Portfolio query: a lens and no state filter; the opaque cursor is passed back unchanged. */
+export interface EstatePortfolioQuery extends EstateQuery {
+  lens: EstateLens;
+}
+
 /** The refusal table (spec "Refusal table and cursor"): one exact UI sentence per code. */
 export const REFUSAL_COPY: Readonly<Record<string, string>> = {
   UNAUTHENTICATED: "Sign in to see estate records.",
@@ -180,6 +400,8 @@ export interface EstateClient {
   findings(query: EstateFindingsQuery): Promise<EstateResult<EstateFindingsBody>>;
   actions(query: EstateQuery): Promise<EstateResult<EstateActionsBody>>;
   scope(query: Pick<EstateQuery, "from" | "to" | "known_at">): Promise<EstateResult<EstateScopeBody>>;
+  /** W3-03: `/api/estate/portfolio`; never sends `state`, passes the opaque cursor unchanged. */
+  portfolio(query: EstatePortfolioQuery): Promise<EstateResult<EstatePortfolioBody>>;
 }
 
 function unavailable<T>(): EstateResult<T> {
@@ -241,6 +463,18 @@ export function createEstateClient(basePath: string = ESTATE_API_PATH): EstateCl
       readEstate(
         `${basePath}/scope${estateQueryString({ from: query.from, to: query.to, known_at: query.known_at })}`,
         SCOPE_SCHEMA,
+      ),
+    portfolio: (query) =>
+      readEstate(
+        `${basePath}/portfolio${estateQueryString({
+          from: query.from,
+          to: query.to,
+          known_at: query.known_at,
+          lens: query.lens,
+          limit: query.limit,
+          cursor: query.cursor,
+        })}`,
+        PORTFOLIO_SCHEMA,
       ),
   };
 }

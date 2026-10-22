@@ -166,5 +166,6 @@ export function fakeClient(
       return Promise.resolve(actions);
     },
     scope: () => Promise.reject(new Error("the pages do not read scope")),
+    portfolio: () => Promise.reject(new Error("the W3-01 roots do not read the Portfolio")),
   };
 }

@@ -157,6 +157,7 @@ describe("W3-01 estate roots in the operator shell", () => {
     renderAt("/sites", { estate });
     await settledScreen();
     expect(within(rail()).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
+      ["Portfolio", "/portfolio"],
       ["Sites", "/sites"],
       ["Findings", "/findings"],
       ["Actions", "/actions"],
