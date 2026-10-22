@@ -1313,8 +1313,8 @@
       "registry_dependencies": {
         "product_node_id": "P-work-cases",
         "node_ids": [
-          "I-incident-read",
-          "I-incident-ui",
+          "I-w601a-read",
+          "I-w601a-ui",
           "D-work-records"
         ]
       },
@@ -1354,8 +1354,8 @@
       "registry_dependencies": {
         "product_node_id": "P-work-cases",
         "node_ids": [
-          "I-maintenance-read",
-          "I-maintenance-ui",
+          "I-w601b-read",
+          "I-w601b-corrective-ui",
           "D-work-records"
         ]
       },
@@ -3497,6 +3497,7 @@
     },
     {
       "id": "maintenance-preventive",
+      "registry_dependencies": {"product_node_id":"P-work-cases","node_ids":["I-w601b-read","I-w601b-preventive-ui","D-work-records"]},
       "mock_route": "#/maintenance-preventive",
       "product_destination": "Maintenance > Preventive Ã‚Â· scheduled",
       "coverage": "deferred",
@@ -3529,6 +3530,7 @@
     },
     {
       "id": "wr-overview",
+      "registry_dependencies": {"product_node_id":"P-work-cases","node_ids":["I-w601c-detail","I-w601c-overview-ui","D-work-records"]},
       "mock_route": "#/wr-overview",
       "product_destination": "Maintenance > Overview",
       "coverage": "deferred",
@@ -3562,6 +3564,7 @@
     },
     {
       "id": "wr-record",
+      "registry_dependencies": {"product_node_id":"P-work-cases","node_ids":["I-w601c-detail","I-w601c-record-ui","D-work-records"]},
       "mock_route": "#/wr-record",
       "product_destination": "Maintenance > Maintenance record",
       "coverage": "deferred",
@@ -3594,6 +3597,7 @@
     },
     {
       "id": "wr-history",
+      "registry_dependencies": {"product_node_id":"P-work-cases","node_ids":["I-w601c-detail","I-w601d-history-ui","D-work-records"]},
       "mock_route": "#/wr-history",
       "product_destination": "Maintenance > History",
       "coverage": "deferred",
@@ -3626,6 +3630,7 @@
     },
     {
       "id": "oprecords",
+      "registry_dependencies": {"product_node_id":"P-work-area","node_ids":["I-w601e-read","I-w601e-ui","D-work-records"]},
       "mock_route": "#/oprecords",
       "product_destination": "Operational records",
       "coverage": "deferred",

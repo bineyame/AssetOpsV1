@@ -1,6 +1,6 @@
 # W6-01 Global work cases
 
-Status: **specified, readiness review required before build**. Lane B. Architect/Planner decision `D-2026-10-22-w6-01-buildspec`. The sole implementation contract is [the build spec](../.agent/W6-01-build-spec.md). No W4-01 model change is authorized.
+Status: **specified, readiness closure pending browser measurements and independent review before build**. Lane B. Architect/Planner decision `D-2026-10-22-w6-01-buildspec`. The sole implementation contract is [the build spec](../.agent/W6-01-build-spec.md). No W4-01 model change is authorized.
 
 ## Outcome and order
 
@@ -10,7 +10,7 @@ Status: **specified, readiness review required before build**. Lane B. Architect
 | 2 | W6-01b global Maintenance: `maintenance`, `maintenance-preventive` | Corrective and DRAFT preventive lists with truthful verification/due limits | B1 read, B2 corrective page, B3 preventive page |
 | 3 | W6-01c request overview and record: `wr-overview`, `wr-record` | Reloadable exact request and performed records | C1 read, C2 overview, C3 record |
 | 4 | W6-01d request history: `wr-history` | Ordered authored events and correction history on the reviewed C1 read | C4 history |
-| 5 | W6-01e Operational records: `oprecords` | Scoped authored-record list, correction lineage and safe site command entry | E1 read, E2 page |
+| 5 | W6-01e Operational records: `oprecords` | Scoped authored-record list, correction lineage and read-only manual-entry gap | E1 read, E2 page |
 
 Each row is an independently reviewable task branch (`task/W6-01a-global-incidents` through `task/W6-01e-operational-records`). Each subsequent row consumes reviewed and merged predecessors. A read/backend unit plus at most two new pages stays within the W5/W6 size cap. The seven manifest screens retain their mock hierarchy with honest missing states; Site W4 lists and W1 Actions remain separately owned.
 
