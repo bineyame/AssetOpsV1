@@ -47,6 +47,7 @@ const OPERATOR_ROUTES = ["/", "/sites"];
  * INTELLIGENCE rail root owning the global Findings index. It is an operator
  * capability, so it is listed in both gate states like Sites.
  */
+// W6-01a: Incidents rail root is live.
 const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Evidence", "Financials"];
 
 /** Injected and empty: placement assertions must not depend on a store. */

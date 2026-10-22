@@ -137,3 +137,9 @@ Commit `428d4117`: only the six A2Q11 test files, with the ruled literals (label
 `npx vitest run src/shell src/estate src/sites src/work src/ui`: 103 files, 2464 passed, 0 failed.
 `tools/check-all.ps1`: all 11 guards passed. No process was started; no DB was created.
 Next: A2 per-unit independent review.
+
+### Run update (A2 review fix round: M1, L1)
+- M1: `frontend/src/work/globalWork.css` now caps `.global-work .data-table__scroll` (`max-height` 469px, 519px at <=760px, `overflow:auto`) with sticky `thead th`. Values are the §2 panel caps (600/690) minus the measured non-table panel parts (131/171 px), not new design numbers. Recaptured positive and historical at 1440 and 390 (same producers, clock and method): panel 489/629 and 489/682, all within 600/690; document width equals viewport. Manifest `m1_recapture`; images in `.agent/W6-01-evidence/A2-m1/`.
+- Open question (not decided): the spec gives no producer for "five three-line rows" (`stress` rows are one-line, and the review's suggestion to lengthen titles 2-6 needs an Architect ruling on A2Q2). No such capture was made, so the new vertical scroll is not exercised in a browser measurement.
+- L1: `// W6-01a: Incidents rail root is live.` added above each edited literal in the six A2Q11 files. L2-L6 untouched.
+- Checks: 7 files (globalIncidents + six A2Q11) 156 passed. DBs dropped; Vite, uvicorn and capture Chrome stopped.

@@ -177,9 +177,9 @@
             ],
             "state": null,
             "zero": null,
-            "showing": "Showing 1–5 of 6",
+            "showing": "Showing 1\u20135 of 6",
             "first_row": [
-              "INC-000004 · Stress incident 4Full title textStress incident 4Source unverifiedT",
+              "INC-000004 \u00b7 Stress incident 4Full title textStress incident 4Source unverifiedT",
               "Kobo mini-grid",
               "19 Oct 2026, 09:00 UTC",
               "Not recorded",
@@ -253,9 +253,9 @@
             ],
             "state": null,
             "zero": null,
-            "showing": "Showing 1–5 of 6",
+            "showing": "Showing 1\u20135 of 6",
             "first_row": [
-              "INC-000004 · Stress incident 4Full title textStress incident 4Source unverifiedT",
+              "INC-000004 \u00b7 Stress incident 4Full title textStress incident 4Source unverifiedT",
               "Kobo mini-grid",
               "19 Oct 2026, 09:00 UTC",
               "Not recorded",
@@ -562,9 +562,9 @@
             ],
             "state": null,
             "zero": null,
-            "showing": "Showing 1–5 of 6",
+            "showing": "Showing 1\u20135 of 6",
             "first_row": [
-              "INC-000003 · Battery alarm acknowledgedFull title textBattery alarm acknowledged",
+              "INC-000003 \u00b7 Battery alarm acknowledgedFull title textBattery alarm acknowledged",
               "Kobo mini-grid",
               "19 Oct 2026, 09:00 UTC",
               "Not recorded",
@@ -638,9 +638,9 @@
             ],
             "state": null,
             "zero": null,
-            "showing": "Showing 1–5 of 6",
+            "showing": "Showing 1\u20135 of 6",
             "first_row": [
-              "INC-000003 · Battery alarm acknowledgedFull title textBattery alarm acknowledged",
+              "INC-000003 \u00b7 Battery alarm acknowledgedFull title textBattery alarm acknowledged",
               "Kobo mini-grid",
               "19 Oct 2026, 09:00 UTC",
               "Not recorded",
@@ -978,9 +978,9 @@
             ],
             "state": null,
             "zero": null,
-            "showing": "Showing 1–5 of 6",
+            "showing": "Showing 1\u20135 of 6",
             "first_row": [
-              "INC-000002 · Inverter fault confirmedFull title textInverter fault confirmedSour",
+              "INC-000002 \u00b7 Inverter fault confirmedFull title textInverter fault confirmedSour",
               "Kobo mini-grid",
               "19 Oct 2026, 09:00 UTC",
               "Not recorded",
@@ -1109,5 +1109,51 @@
         }
       ]
     }
-  ]
+  ],
+  "m1_recapture": {
+    "note": "Fix round M1: .global-work .data-table__scroll max-height 469 (1440) / 519 (<=760) = panel cap minus measured non-table parts (131/171 px), overflow:auto, sticky thead. Recaptured with same capture.mjs, seed commands (DBs assetops_w601_m1stress_test / m1hist_test, dropped), clock 2026-10-21T12:00:00Z, same routes. Evidence in .agent/W6-01-evidence/A2-m1/screenshots.",
+    "positive": {
+      "1440": {
+        "incident_cases_panel": 489,
+        "cap": 600,
+        "rows": [
+          65,
+          65,
+          65,
+          65,
+          64
+        ]
+      },
+      "390": {
+        "incident_cases_panel": 629,
+        "cap": 690,
+        "rows": [
+          85,
+          85,
+          85,
+          85,
+          84
+        ]
+      }
+    },
+    "historical": {
+      "1440": {
+        "incident_cases_panel": 489,
+        "cap": 600
+      },
+      "390": {
+        "incident_cases_panel": 682,
+        "cap": 690,
+        "rows": [
+          102,
+          85,
+          102,
+          102,
+          84
+        ]
+      }
+    },
+    "document_width": "equals viewport in all four captures",
+    "open": "No spec producer for five three-line rows; none created. The over-cap path is therefore not measured (all captured tables are under the max-height, so no vertical scroll is exercised)."
+  }
 }
