@@ -140,3 +140,39 @@ Commits `b84b9373` (delta) and `f6350739` (390 cap fix), plus the evidence commi
   - At 390 the graphic's 480 px minimum scrolls inside its region.
   - Against the v69 `cooling` mock: same panel slot and order, graphic at the panel top, then the source table. The mock's two °C curves and its legend are deliberately absent.
   - Cleanup: the DB was dropped (0 `w501` DBs remain), the seed file was removed, and the API, Vite and Chrome were stopped.
+
+## Run — C3 completion (rulings Q-C3-1..4), 2026-10-22 — BUILT; one cap question (Q-C3-5)
+
+Commit `56231727` (code) plus the evidence commit after it. Files are only the C3 list as amended by the rulings.
+- **Q-C3-1.** `SiteHealth.tsx` exports `SiteHealthSources({siteId, client, selectedGateway})`. It uses the same `health:${siteId}` read, heading ID, description, `SourcesBody` and `HealthGap`, and shows `Loading the site's gateway contact.` inside the panel. A private `SourcesPanel` is shared with `SiteHealth`, so non-cold rendering is unchanged.
+- **Cold frame.** `SiteHealthFrames.tsx` routes COLDCHAIN only to `ColdHealthDepth` followed by `SiteHealthSources`, inside `HealthLinksContext`. `SiteHealth` is not mounted there. `App.tsx` passes `coldDepth`.
+- **Q-C3-2.** No change: the Site-name h1 stays.
+- **Q-C3-3.** `coldDepth.test.tsx`: the test is renamed to the literal, and the assertion already matched. This also closes C2b review Low 1.
+- **Q-C3-4.** `coldFoundation.test.tsx`: the literal test was added inside the "cold Foundation routes" suite.
+- **Registry.** The `cooling:1` and `cooling:2` reasons now describe the selected unconnected marks with no comparable curve, and the `Not established` Match cells (C2b review residual). These are my words; the review gave no literal.
+- **New and updated tests.**
+  - `coldHealthDepth.test.tsx` adds the composed App-route test. It checks the Site-name h1, the Health tab, and the order cards → `Condition and evidence` → condition notice → Data sources. It also checks there is no battery read, no `Physical asset condition`, no blue notice and no `[data-health-site]`.
+  - `siteHealthBoundary.test.tsx`: a mini-grid Site keeps the S7 strip, battery panel, sources panel and blue notice, and never calls cold depth.
+  - `coldSiteViews.test.tsx`: `routes.health` and the `/cold/health` mapping.
+- **Results.** Focused plus adjacent (`coldHealthDepth`, `coldDepth`, `coldRoutes`, `coldSiteViews`, `coldFoundation`, `siteHealthBoundary`, `src/shell`): **62 files, 1419 tests passed**. `tsc -b` is clean. The check-all result is at the end of this entry.
+- **Captures.** In `.agent/W5-01a-C3-evidence/` (`capture.mjs`, `evidence.json`, 10 app PNGs + 2 mock PNGs, 1440x1000/390x900).
+  - Method: private `assetops_w501c3cap_test` (`ASSETOPS_TEST_TEMPLATE=0`), a throwaway seed test (`opened(case, chain)` + `run(built)`), `lab_app` on 9791, Vite 6191, own headless Chrome (CDP 9801+). Each clock is the returned `committed_watermark`.
+  - `failed-start`: backup-failed, CURRENT, 11:41:01.762054Z. Rows are NEEDS_INVESTIGATION / UNKNOWN / LIMITED.
+  - `unknown`: backup-failed on the 2026-10-05 window, UNKNOWN; all rows UNKNOWN with 0 IDs, and the empty sentence is shown.
+  - `pending`: late-reading after `advance_late()`, PENDING_RECOMPUTE, 11:36:22.429718Z (W0 11:36:02.149606Z).
+  - `historical`: a second late-reading sequence, `known_at=W0` 11:42:50.572554Z, HISTORICAL. Pending and historical came from two separate seeds; each followed the ordered sequence with its own W0.
+  - `refused`: `from>to`, 422 `COLD_WINDOW_INVALID`, refusal 140.
+  - Every capture: no horizontal overflow, 0 ellipsized. Panel titles equal the mock's once the labelled Data sources deviation is excluded, and Data sources is the last panel. Page height is at most 1084/1975 (caps 1900/2350); cards 108/293; Data sources 299/505 (caps 700/800); condition notice 43/80.
+  - Against the v69 `cold-health` mock: same cards in the same order, then `Condition and evidence` with the same columns. Differences:
+    - The mock's Backup card has an amber top border with a body-colour value and `View detail →`. The app colours the value amber and links the card label (the coldSiteViews precedent).
+    - The mock's Unknown/Limited values are large; the app uses the `word` size.
+  - **Over cap:** `Condition and evidence` at 390 is **556** (failed-start, pending, historical) and **591** (unknown), against the 430 cap. 1440 is 251/285 (cap 330).
+- **Cleanup.** The DB was dropped (0 `w501` DBs remain), the seed file was deleted, and the API, Vite and Chrome were stopped (no listeners on 9791/6191/98xx).
+
+### Q-C3-5 (cap breach, not chosen)
+
+At 390 the `Asset` cell (C3 Asset cell rule: name + full asset UUID) is the narrow first column of a three-column `DataTable`. Each UUID wraps at its hyphens into 4 lines, so each row is about 130 px (see `cold-health-unknown-390-app.png`). The spec's 390 table rule ("scrolls within its panel with sticky first column; UUIDs break at character boundaries") needs CSS. `primitives.css` is not on C3's list, and no existing class gives a sticky first column or no-wrap cells. Rule:
+- (a) add `frontend/src/ui/primitives.css` to C3's list for a scoped rule on a `cold-health-condition` panel class: at most 480 px, no-wrap Asset cell and sticky first column, so the table scrolls horizontally (expected about 300 px); or
+- (b) raise the 390 condition cap to the measured 591 (+ margin); or
+- (c) something else, such as the record ID on its own line in a smaller monospace style.
+- **check-all** (on `56231727`): **All 11 guards passed.**
