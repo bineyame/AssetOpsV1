@@ -23,7 +23,10 @@ const SIZES = [[1440, 1000], [390, 900]];
 const EXPECT = { empty: "CURRENT", authored: "CURRENT", historical: "CURRENT", pending: "PENDING_RECOMPUTE" };
 // Spec caps (inclusive) 1440/390: closed one-row/empty panel 430/560, expanded one-row 650/560, disclosure scroller 360 at
 // both widths (ruling Q-C5b-4), notice 90/135, page 1250/1500. Pager counter `[data-scenarios-page-count]` (Q-C5b-2).
-const CAPS = { 1440: { panel: 430, panel_expanded: 650, disclosure: 360, notice: 90, page: 1250 }, 390: { panel: 560, panel_expanded: 560, disclosure: 360, notice: 135, page: 1500 } };
+// Q-C5c-2: at <=640px the basis max-height is 220px (360px at 1440) and the 390 expanded producer gets a layout assertion
+// (panel <=560, no document overflow, Basis cell >=190 wide, basis max-height 220px + overflow-y auto, DataTable scroller
+// scrolls sideways with the last column reachable). Q-C5c-1: blue notice = exactly one svg[data-rail-icon="info"] then <p>.
+const CAPS = { 1440: { panel: 430, panel_expanded: 650, disclosure: 360, basis_max: "360px", notice: 90, page: 1250 }, 390: { panel: 560, panel_expanded: 560, disclosure: 220, basis_max: "220px", notice: 135, page: 1500 } };
 mkdirSync(OUT, { recursive: true });
 
 let query = W;
@@ -102,8 +105,39 @@ const MEASURE = (isMock) => `(async () => {
       Array.from(root.querySelectorAll("*")).filter((e) => (fs.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING) && (e.compareDocumentPosition(rf) & Node.DOCUMENT_POSITION_FOLLOWING) && !fs.contains(e) && !e.contains(rf) && e.offsetParent !== null && e.textContent.trim()).length === 0 : null,
     page_count: t(root.querySelector("[data-scenarios-page-count]")),
     notice_icons: Array.from(root.querySelectorAll("[data-scenarios-closing-notice] svg")).length,
+    notice_icon: (() => { const n = parts.closing_notice; if (!n) return null; const icons = n.querySelectorAll('svg[data-rail-icon="info"]');
+      const p = n.querySelector("p"); const kids = Array.from(n.querySelectorAll(":scope > *")).map((e) => e.tagName.toLowerCase());
+      return { info_icons: icons.length, has_p: !!p, icon_before_p: icons.length === 1 && !!p && (icons[0].compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
+        children: kids, display: getComputedStyle(n).display, ok: icons.length === 1 && !!p && (icons[0].compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 }; })(),
     rows: root.querySelectorAll("[data-scenario-row]").length, expansions: root.querySelectorAll("[data-scenario-expansion]").length,
     scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth };
+})()`;
+
+// Expanded-row layout (after the screenshot, since it scrolls the table): Basis cell = 3rd cell of the scenario row;
+// table scroller = nearest ancestor of the table with overflow-x auto/scroll (the DataTable scroll wrapper).
+const LAYOUT = `(() => {
+  const root = document.querySelector("main") ?? document.body;
+  const panel = root.querySelector("section.panel.cold-scenarios-panel"); const table = panel?.querySelector("table");
+  const row = root.querySelector("[data-scenario-row]"); const cells = row ? Array.from(row.children) : [];
+  const basisCell = cells[2] ?? null; const last = cells[cells.length - 1] ?? null;
+  let sc = table?.parentElement; while (sc && sc !== panel && !/auto|scroll/.test(getComputedStyle(sc).overflowX)) sc = sc.parentElement;
+  if (sc === panel && !/auto|scroll/.test(getComputedStyle(sc).overflowX)) sc = null;
+  const basis = root.querySelector(".cold-scenarios-basis"); const cs = basis ? getComputedStyle(basis) : null;
+  const out = { panel_h: panel ? Math.round(panel.getBoundingClientRect().height) : null,
+    doc_scrollWidth: document.documentElement.scrollWidth, doc_clientWidth: document.documentElement.clientWidth,
+    basis_cell_w: basisCell ? Math.round(basisCell.getBoundingClientRect().width) : null, basis_cell_header: (() => {
+      const th = table?.querySelectorAll("thead th")[2]; return th ? th.textContent.trim() : null; })(),
+    table_w: table ? Math.round(table.getBoundingClientRect().width) : null,
+    basis_max_height: cs?.maxHeight ?? null, basis_overflow_y: cs?.overflowY ?? null, basis_h: basis ? Math.round(basis.getBoundingClientRect().height) : null,
+    scroller: sc ? (sc.className || sc.tagName) : null, scroller_scrollWidth: sc?.scrollWidth ?? null, scroller_clientWidth: sc?.clientWidth ?? null };
+  if (sc && last) {
+    sc.scrollLeft = sc.scrollWidth; const a = sc.getBoundingClientRect(), b = last.getBoundingClientRect();
+    out.scroller_scrollLeft = Math.round(sc.scrollLeft); out.last_col_left = Math.round(b.left); out.last_col_right = Math.round(b.right);
+    out.scroller_left = Math.round(a.left); out.scroller_right = Math.round(a.right);
+    out.last_col_reachable = b.right > a.left && b.left < a.right && b.width > 0;
+    sc.scrollLeft = 0;
+  }
+  return out;
 })()`;
 
 async function shoot(target, w, hgt, file, isMock, expand = false) {
@@ -124,6 +158,7 @@ async function shoot(target, w, hgt, file, isMock, expand = false) {
   const m = await evalv(MEASURE(isMock));
   const shot = await send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: w, height: Math.min(m.blocks.page, 8000), scale: 1 } });
   writeFileSync(join(OUT, file), Buffer.from(shot.data, "base64"));
+  if (expand) m.layout = await evalv(LAYOUT);
   return m;
 }
 
@@ -155,7 +190,15 @@ for (const [w, hgt] of SIZES) {
       disclosure = { measured: m.basis.length, non_empty: m.basis.length > 0, max: Math.max(...m.basis.map((b) => b.h)),
         ok: m.basis.length > 0 && m.basis.every((b) => b.h <= c.disclosure) };
       if (!disclosure.ok) over.push(`disclosure ${disclosure.max} > ${c.disclosure} or empty set`);
+      const L = m.layout;
+      const checks = { panel: L.panel_h != null && L.panel_h <= c.panel_expanded, basis_max_height: L.basis_max_height === c.basis_max };
+      if (w === 390) Object.assign(checks, { doc_no_overflow: L.doc_scrollWidth <= L.doc_clientWidth, basis_cell_ge_190: L.basis_cell_w >= 190,
+        basis_max_220: L.basis_max_height === "220px", basis_overflow_auto: L.basis_overflow_y === "auto",
+        table_scrolls_sideways: L.scroller_scrollWidth > L.scroller_clientWidth, last_col_reachable: L.last_col_reachable === true });
+      disclosure.layout = { ...L, checks, ok: Object.values(checks).every(Boolean) };
+      for (const [k, v] of Object.entries(checks)) if (!v) over.push(`layout ${k} failed`);
     }
+    if (!m.notice_icon?.ok) over.push(`notice icon ${JSON.stringify(m.notice_icon)}`);
     if (m.rows > 0 && m.page_count !== "1 of 1") over.push(`page counter ${JSON.stringify(m.page_count)} != "1 of 1"`);
     caps.push({ name, viewport: `${w}x${hgt}`, app_url: app, image, read, read_ok: readOk,
       clock: read?.committed_watermark ?? null, scenario_at_param: STATE === "historical" ? SCENARIO_AT : null,
@@ -167,6 +210,6 @@ writeFileSync(evidencePath, JSON.stringify({ ...prior, revision: REV, captures: 
 for (const p of caps) {
   console.log(`${p.name} ${p.viewport} read=${p.read ? `${p.read.http}/${p.read.code ?? p.read.selection_state}` : "-"} ok=${p.read_ok ?? "-"} clock=${p.clock ?? "-"} ` +
     `overflow=${!p.no_overflow} ellipsized=${p.measured.ellipsized} order=${p.measured.order.join(">")} inOrder=${p.measured.in_order} rows=${p.measured.rows} exp=${p.measured.expansions} ` +
-    `pageCount=${p.measured.page_count} overCap=[${(p.over_cap ?? []).join("; ")}] disclosure=${JSON.stringify(p.disclosure ?? null)} blocks=${JSON.stringify(p.measured.blocks)}`);
+    `pageCount=${p.measured.page_count} icon=${JSON.stringify(p.measured.notice_icon)} overCap=[${(p.over_cap ?? []).join("; ")}] disclosure=${JSON.stringify(p.disclosure ?? null)} blocks=${JSON.stringify(p.measured.blocks)}`);
 }
 ws.close(); chrome.kill(); process.exit(0);

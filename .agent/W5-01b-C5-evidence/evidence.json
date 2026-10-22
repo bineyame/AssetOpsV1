@@ -1,124 +1,6 @@
 {
   "captures": [
     {
-      "name": "cold-scenarios-empty",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "image": "cold-scenarios-empty-1440-app.png",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T17:52:06.889259Z",
-        "known_at": "2026-10-22T17:52:06.889259Z",
-        "scenario_at": "2026-10-22T17:52:58.239471Z",
-        "items": []
-      },
-      "read_ok": true,
-      "clock": "2026-10-22T17:52:06.889259Z",
-      "scenario_at_param": null,
-      "measured": {
-        "text": {
-          "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
-          "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
-          "empty": "No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
-          "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
-          "state_notice": null,
-          "refusal": null,
-          "finding_strip": null
-        },
-        "order": [
-          "h1",
-          "description",
-          "panel",
-          "empty",
-          "closing_notice"
-        ],
-        "in_order": true,
-        "blocks": {
-          "panel": 305,
-          "state_notice": null,
-          "closing_notice": 43,
-          "empty": 203,
-          "refusal": null,
-          "finding_strip": null,
-          "page": 1000
-        },
-        "basis": [],
-        "ellipsized": 0,
-        "finding_strip_directly_above_refusal": null,
-        "rows": 0,
-        "expansions": 0,
-        "scrollWidth": 1440,
-        "clientWidth": 1440
-      },
-      "no_overflow": true,
-      "panel_cap": 430,
-      "over_cap": [],
-      "disclosure": null
-    },
-    {
-      "name": "cold-scenarios-empty",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "image": "cold-scenarios-empty-390-app.png",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T17:52:06.889259Z",
-        "known_at": "2026-10-22T17:52:06.889259Z",
-        "scenario_at": "2026-10-22T17:52:58.239471Z",
-        "items": []
-      },
-      "read_ok": true,
-      "clock": "2026-10-22T17:52:06.889259Z",
-      "scenario_at_param": null,
-      "measured": {
-        "text": {
-          "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
-          "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
-          "empty": "No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
-          "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
-          "state_notice": null,
-          "refusal": null,
-          "finding_strip": null
-        },
-        "order": [
-          "h1",
-          "description",
-          "panel",
-          "empty",
-          "closing_notice"
-        ],
-        "in_order": true,
-        "blocks": {
-          "panel": 345,
-          "state_notice": null,
-          "closing_notice": 80,
-          "empty": 242,
-          "refusal": null,
-          "finding_strip": null,
-          "page": 940
-        },
-        "basis": [],
-        "ellipsized": 0,
-        "finding_strip_directly_above_refusal": null,
-        "rows": 0,
-        "expansions": 0,
-        "scrollWidth": 375,
-        "clientWidth": 375
-      },
-      "no_overflow": true,
-      "panel_cap": 560,
-      "over_cap": [],
-      "disclosure": null
-    },
-    {
       "name": "cold-scenarios-refused",
       "viewport": "1440x1000",
       "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
@@ -138,7 +20,7 @@
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": null,
           "panel_subtitle": null,
           "empty": null,
@@ -194,7 +76,7 @@
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": null,
           "panel_subtitle": null,
           "empty": null,
@@ -248,7 +130,7 @@
       "measured": {
         "text": {
           "h1": "Finding",
-          "description": "Cold replay lab · cold-chain finding",
+          "description": "Cold replay lab \u00b7 cold-chain finding",
           "panel_title": null,
           "panel_subtitle": null,
           "empty": null,
@@ -302,7 +184,7 @@
       "measured": {
         "text": {
           "h1": "Finding",
-          "description": "Cold replay lab · cold-chain finding",
+          "description": "Cold replay lab \u00b7 cold-chain finding",
           "panel_title": null,
           "panel_subtitle": null,
           "empty": null,
@@ -345,9 +227,9 @@
       "measured": {
         "text": {
           "h1": "GreenHarvest Cold Room",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": "No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -388,9 +270,9 @@
       "measured": {
         "text": {
           "h1": "GreenHarvest Cold Room",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": "No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -425,6 +307,152 @@
       "no_overflow": true
     },
     {
+      "name": "cold-scenarios-empty",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "image": "cold-scenarios-empty-1440-app.png",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:08:26.381255Z",
+        "total_pages": 0,
+        "items": []
+      },
+      "read_ok": true,
+      "clock": "2026-10-22T20:07:37.450181Z",
+      "scenario_at_param": null,
+      "measured": {
+        "text": {
+          "h1": "Cold replay lab",
+          "description": "Financials \u00b7 scenarios (placeholder)",
+          "panel_title": "Financial scenarios",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
+          "empty": "No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+          "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
+          "state_notice": null,
+          "refusal": null,
+          "finding_strip": null
+        },
+        "order": [
+          "h1",
+          "description",
+          "panel",
+          "empty",
+          "closing_notice"
+        ],
+        "in_order": true,
+        "blocks": {
+          "panel": 305,
+          "state_notice": null,
+          "closing_notice": 42,
+          "empty": 203,
+          "refusal": null,
+          "finding_strip": null,
+          "page": 1000
+        },
+        "basis": [],
+        "ellipsized": 0,
+        "finding_strip_directly_above_refusal": null,
+        "page_count": null,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
+        "rows": 0,
+        "expansions": 0,
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      },
+      "no_overflow": true,
+      "panel_cap": 430,
+      "over_cap": [],
+      "disclosure": null
+    },
+    {
+      "name": "cold-scenarios-empty",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "image": "cold-scenarios-empty-390-app.png",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:08:26.381255Z",
+        "total_pages": 0,
+        "items": []
+      },
+      "read_ok": true,
+      "clock": "2026-10-22T20:07:37.450181Z",
+      "scenario_at_param": null,
+      "measured": {
+        "text": {
+          "h1": "Cold replay lab",
+          "description": "Financials \u00b7 scenarios (placeholder)",
+          "panel_title": "Financial scenarios",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
+          "empty": "No scenario defined yetA scenario compares a declared what-if with the measured case, for example a different stop setting, stock value or tariff. None has been defined for this site.",
+          "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
+          "state_notice": null,
+          "refusal": null,
+          "finding_strip": null
+        },
+        "order": [
+          "h1",
+          "description",
+          "panel",
+          "empty",
+          "closing_notice"
+        ],
+        "in_order": true,
+        "blocks": {
+          "panel": 345,
+          "state_notice": null,
+          "closing_notice": 78,
+          "empty": 242,
+          "refusal": null,
+          "finding_strip": null,
+          "page": 939
+        },
+        "basis": [],
+        "ellipsized": 0,
+        "finding_strip_directly_above_refusal": null,
+        "page_count": null,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
+        "rows": 0,
+        "expansions": 0,
+        "scrollWidth": 375,
+        "clientWidth": 375
+      },
+      "no_overflow": true,
+      "panel_cap": 560,
+      "over_cap": [],
+      "disclosure": null
+    },
+    {
       "name": "cold-scenarios-authored",
       "viewport": "1440x1000",
       "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
@@ -433,23 +461,23 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:15.012825Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:11.195216Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -467,7 +495,7 @@
         "blocks": {
           "panel": 228,
           "state_notice": null,
-          "closing_notice": 43,
+          "closing_notice": 42,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
@@ -477,7 +505,18 @@
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 1440,
@@ -497,23 +536,23 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:15.012825Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:11.195216Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -531,11 +570,11 @@
         "blocks": {
           "panel": 615,
           "state_notice": null,
-          "closing_notice": 43,
+          "closing_notice": 42,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1034
+          "page": 1033
         },
         "basis": [
           {
@@ -549,11 +588,42 @@
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 1425,
-        "clientWidth": 1425
+        "clientWidth": 1425,
+        "layout": {
+          "panel_h": 615,
+          "doc_scrollWidth": 1440,
+          "doc_clientWidth": 1440,
+          "basis_cell_w": 383,
+          "basis_cell_header": "Basis",
+          "table_w": 1120,
+          "basis_max_height": "360px",
+          "basis_overflow_y": "auto",
+          "basis_h": 360,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 1120,
+          "scroller_clientWidth": 1120,
+          "scroller_scrollLeft": 0,
+          "last_col_left": 1270,
+          "last_col_right": 1388,
+          "scroller_left": 268,
+          "scroller_right": 1388,
+          "last_col_reachable": true
+        }
       },
       "no_overflow": true,
       "panel_cap": 650,
@@ -562,7 +632,32 @@
         "measured": 1,
         "non_empty": true,
         "max": 360,
-        "ok": true
+        "ok": true,
+        "layout": {
+          "panel_h": 615,
+          "doc_scrollWidth": 1440,
+          "doc_clientWidth": 1440,
+          "basis_cell_w": 383,
+          "basis_cell_header": "Basis",
+          "table_w": 1120,
+          "basis_max_height": "360px",
+          "basis_overflow_y": "auto",
+          "basis_h": 360,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 1120,
+          "scroller_clientWidth": 1120,
+          "scroller_scrollLeft": 0,
+          "last_col_left": 1270,
+          "last_col_right": 1388,
+          "scroller_left": 268,
+          "scroller_right": 1388,
+          "last_col_reachable": true,
+          "checks": {
+            "panel": true,
+            "basis_max_height": true
+          },
+          "ok": true
+        }
       }
     },
     {
@@ -574,23 +669,23 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:15.012825Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:11.195216Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -606,23 +701,34 @@
         ],
         "in_order": true,
         "blocks": {
-          "panel": 489,
+          "panel": 243,
           "state_notice": null,
-          "closing_notice": 80,
+          "closing_notice": 78,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1084
+          "page": 900
         },
         "basis": [],
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 0,
-        "scrollWidth": 375,
-        "clientWidth": 375
+        "scrollWidth": 390,
+        "clientWidth": 390
       },
       "no_overflow": true,
       "panel_cap": 560,
@@ -638,23 +744,23 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:15.012825Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:11.195216Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -670,18 +776,18 @@
         ],
         "in_order": true,
         "blocks": {
-          "panel": 876,
+          "panel": 490,
           "state_notice": null,
-          "closing_notice": 80,
+          "closing_notice": 78,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1471
+          "page": 1083
         },
         "basis": [
           {
-            "h": 360,
-            "maxHeight": "360px",
+            "h": 220,
+            "maxHeight": "220px",
             "overflowY": "auto",
             "scrollHeight": 2214,
             "scrolls": true
@@ -690,50 +796,110 @@
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 375,
-        "clientWidth": 375
+        "clientWidth": 375,
+        "layout": {
+          "panel_h": 475,
+          "doc_scrollWidth": 390,
+          "doc_clientWidth": 390,
+          "basis_cell_w": 280,
+          "basis_cell_header": "Basis",
+          "table_w": 820,
+          "basis_max_height": "220px",
+          "basis_overflow_y": "auto",
+          "basis_h": 220,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 820,
+          "scroller_clientWidth": 318,
+          "scroller_scrollLeft": 502,
+          "last_col_left": 267,
+          "last_col_right": 354,
+          "scroller_left": 36,
+          "scroller_right": 354,
+          "last_col_reachable": true
+        }
       },
       "no_overflow": true,
       "panel_cap": 560,
-      "over_cap": [
-        "panel 876 > 560"
-      ],
+      "over_cap": [],
       "disclosure": {
         "measured": 1,
         "non_empty": true,
-        "max": 360,
-        "ok": true
+        "max": 220,
+        "ok": true,
+        "layout": {
+          "panel_h": 475,
+          "doc_scrollWidth": 390,
+          "doc_clientWidth": 390,
+          "basis_cell_w": 280,
+          "basis_cell_header": "Basis",
+          "table_w": 820,
+          "basis_max_height": "220px",
+          "basis_overflow_y": "auto",
+          "basis_h": 220,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 820,
+          "scroller_clientWidth": 318,
+          "scroller_scrollLeft": 502,
+          "last_col_left": 267,
+          "last_col_right": 354,
+          "scroller_left": 36,
+          "scroller_right": 354,
+          "last_col_reachable": true,
+          "checks": {
+            "panel": true,
+            "basis_max_height": true,
+            "doc_no_overflow": true,
+            "basis_cell_ge_190": true,
+            "basis_max_220": true,
+            "basis_overflow_auto": true,
+            "table_scrolls_sideways": true,
+            "last_col_reachable": true
+          },
+          "ok": true
+        }
       }
     },
     {
       "name": "cold-scenarios-historical",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T18%3A21%3A05.785295Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
       "image": "cold-scenarios-historical-1440-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:05.785295Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:07.092256Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
-      "scenario_at_param": "2026-10-22T18:21:05.785295Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
+      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -751,7 +917,7 @@
         "blocks": {
           "panel": 228,
           "state_notice": null,
-          "closing_notice": 43,
+          "closing_notice": 42,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
@@ -761,7 +927,18 @@
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 1440,
@@ -775,29 +952,29 @@
     {
       "name": "cold-scenarios-historical-expanded",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T18%3A21%3A05.785295Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
       "image": "cold-scenarios-historical-expanded-1440-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:05.785295Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:07.092256Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
-      "scenario_at_param": "2026-10-22T18:21:05.785295Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
+      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -815,11 +992,11 @@
         "blocks": {
           "panel": 615,
           "state_notice": null,
-          "closing_notice": 43,
+          "closing_notice": 42,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1034
+          "page": 1033
         },
         "basis": [
           {
@@ -833,11 +1010,42 @@
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 1425,
-        "clientWidth": 1425
+        "clientWidth": 1425,
+        "layout": {
+          "panel_h": 615,
+          "doc_scrollWidth": 1440,
+          "doc_clientWidth": 1440,
+          "basis_cell_w": 379,
+          "basis_cell_header": "Basis",
+          "table_w": 1120,
+          "basis_max_height": "360px",
+          "basis_overflow_y": "auto",
+          "basis_h": 360,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 1120,
+          "scroller_clientWidth": 1120,
+          "scroller_scrollLeft": 0,
+          "last_col_left": 1259,
+          "last_col_right": 1388,
+          "scroller_left": 268,
+          "scroller_right": 1388,
+          "last_col_reachable": true
+        }
       },
       "no_overflow": true,
       "panel_cap": 650,
@@ -846,35 +1054,60 @@
         "measured": 1,
         "non_empty": true,
         "max": 360,
-        "ok": true
+        "ok": true,
+        "layout": {
+          "panel_h": 615,
+          "doc_scrollWidth": 1440,
+          "doc_clientWidth": 1440,
+          "basis_cell_w": 379,
+          "basis_cell_header": "Basis",
+          "table_w": 1120,
+          "basis_max_height": "360px",
+          "basis_overflow_y": "auto",
+          "basis_h": 360,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 1120,
+          "scroller_clientWidth": 1120,
+          "scroller_scrollLeft": 0,
+          "last_col_left": 1259,
+          "last_col_right": 1388,
+          "scroller_left": 268,
+          "scroller_right": 1388,
+          "last_col_reachable": true,
+          "checks": {
+            "panel": true,
+            "basis_max_height": true
+          },
+          "ok": true
+        }
       }
     },
     {
       "name": "cold-scenarios-historical",
       "viewport": "390x900",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T18%3A21%3A05.785295Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
       "image": "cold-scenarios-historical-390-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:05.785295Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:07.092256Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
-      "scenario_at_param": "2026-10-22T18:21:05.785295Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
+      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -890,23 +1123,34 @@
         ],
         "in_order": true,
         "blocks": {
-          "panel": 489,
+          "panel": 243,
           "state_notice": null,
-          "closing_notice": 80,
+          "closing_notice": 78,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1084
+          "page": 900
         },
         "basis": [],
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 0,
-        "scrollWidth": 375,
-        "clientWidth": 375
+        "scrollWidth": 390,
+        "clientWidth": 390
       },
       "no_overflow": true,
       "panel_cap": 560,
@@ -916,29 +1160,29 @@
     {
       "name": "cold-scenarios-historical-expanded",
       "viewport": "390x900",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T18%3A21%3A05.785295Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
       "image": "cold-scenarios-historical-expanded-390-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T18:21:05.094946Z",
-        "known_at": "2026-10-22T18:21:05.094946Z",
-        "scenario_at": "2026-10-22T18:21:05.785295Z",
+        "committed_watermark": "2026-10-22T20:07:37.450181Z",
+        "known_at": "2026-10-22T20:07:37.450181Z",
+        "scenario_at": "2026-10-22T20:09:07.092256Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T18:21:05.094946Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:21:05.094946Z",
-      "scenario_at_param": "2026-10-22T18:21:05.785295Z",
+      "clock": "2026-10-22T20:07:37.450181Z",
+      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": null,
@@ -954,18 +1198,18 @@
         ],
         "in_order": true,
         "blocks": {
-          "panel": 876,
+          "panel": 490,
           "state_notice": null,
-          "closing_notice": 80,
+          "closing_notice": 78,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1471
+          "page": 1083
         },
         "basis": [
           {
-            "h": 360,
-            "maxHeight": "360px",
+            "h": 220,
+            "maxHeight": "220px",
             "overflowY": "auto",
             "scrollHeight": 2214,
             "scrolls": true
@@ -974,22 +1218,82 @@
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 375,
-        "clientWidth": 375
+        "clientWidth": 375,
+        "layout": {
+          "panel_h": 475,
+          "doc_scrollWidth": 390,
+          "doc_clientWidth": 390,
+          "basis_cell_w": 278,
+          "basis_cell_header": "Basis",
+          "table_w": 820,
+          "basis_max_height": "220px",
+          "basis_overflow_y": "auto",
+          "basis_h": 220,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 820,
+          "scroller_clientWidth": 318,
+          "scroller_scrollLeft": 502,
+          "last_col_left": 260,
+          "last_col_right": 354,
+          "scroller_left": 36,
+          "scroller_right": 354,
+          "last_col_reachable": true
+        }
       },
       "no_overflow": true,
       "panel_cap": 560,
-      "over_cap": [
-        "panel 876 > 560"
-      ],
+      "over_cap": [],
       "disclosure": {
         "measured": 1,
         "non_empty": true,
-        "max": 360,
-        "ok": true
+        "max": 220,
+        "ok": true,
+        "layout": {
+          "panel_h": 475,
+          "doc_scrollWidth": 390,
+          "doc_clientWidth": 390,
+          "basis_cell_w": 278,
+          "basis_cell_header": "Basis",
+          "table_w": 820,
+          "basis_max_height": "220px",
+          "basis_overflow_y": "auto",
+          "basis_h": 220,
+          "scroller": "data-table__scroll",
+          "scroller_scrollWidth": 820,
+          "scroller_clientWidth": 318,
+          "scroller_scrollLeft": 502,
+          "last_col_left": 260,
+          "last_col_right": 354,
+          "scroller_left": 36,
+          "scroller_right": 354,
+          "last_col_reachable": true,
+          "checks": {
+            "panel": true,
+            "basis_max_height": true,
+            "doc_no_overflow": true,
+            "basis_cell_ge_190": true,
+            "basis_max_220": true,
+            "basis_overflow_auto": true,
+            "table_scrolls_sideways": true,
+            "last_col_reachable": true
+          },
+          "ok": true
+        }
       }
     },
     {
@@ -1001,23 +1305,23 @@
         "http": 200,
         "code": null,
         "selection_state": "PENDING_RECOMPUTE",
-        "committed_watermark": "2026-10-22T18:22:29.302799Z",
-        "known_at": "2026-10-22T18:22:29.302799Z",
-        "scenario_at": "2026-10-22T18:22:34.047803Z",
+        "committed_watermark": "2026-10-22T20:10:49.856401Z",
+        "known_at": "2026-10-22T20:10:49.856401Z",
+        "scenario_at": "2026-10-22T20:11:05.025952Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T18:22:28.373333Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:10:48.653666Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:22:29.302799Z",
+      "clock": "2026-10-22T20:10:49.856401Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": "Underlying evidence is being reassessed; the authored scenario remains separate.",
@@ -1036,7 +1340,7 @@
         "blocks": {
           "panel": 228,
           "state_notice": 43,
-          "closing_notice": 43,
+          "closing_notice": 42,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
@@ -1046,7 +1350,18 @@
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 1440,
@@ -1066,23 +1381,23 @@
         "http": 200,
         "code": null,
         "selection_state": "PENDING_RECOMPUTE",
-        "committed_watermark": "2026-10-22T18:22:29.302799Z",
-        "known_at": "2026-10-22T18:22:29.302799Z",
-        "scenario_at": "2026-10-22T18:22:34.047803Z",
+        "committed_watermark": "2026-10-22T20:10:49.856401Z",
+        "known_at": "2026-10-22T20:10:49.856401Z",
+        "scenario_at": "2026-10-22T20:11:05.025952Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T18:22:28.373333Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:10:48.653666Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T18:22:29.302799Z",
+      "clock": "2026-10-22T20:10:49.856401Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
           "h1": "Cold replay lab",
-          "description": "Financials · scenarios (placeholder)",
+          "description": "Financials \u00b7 scenarios (placeholder)",
           "panel_title": "Financial scenarios",
-          "panel_subtitle": "Placeholder · to be designed with the owner",
+          "panel_subtitle": "Placeholder \u00b7 to be designed with the owner",
           "empty": null,
           "closing_notice": "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.",
           "state_notice": "Underlying evidence is being reassessed; the authored scenario remains separate.",
@@ -1099,23 +1414,34 @@
         ],
         "in_order": true,
         "blocks": {
-          "panel": 489,
+          "panel": 243,
           "state_notice": 61,
-          "closing_notice": 80,
+          "closing_notice": 78,
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1164
+          "page": 900
         },
         "basis": [],
         "ellipsized": 0,
         "finding_strip_directly_above_refusal": null,
         "page_count": "1 of 1",
-        "notice_icons": 0,
+        "notice_icons": 1,
+        "notice_icon": {
+          "info_icons": 1,
+          "has_p": true,
+          "icon_before_p": true,
+          "children": [
+            "svg",
+            "p"
+          ],
+          "display": "flex",
+          "ok": true
+        },
         "rows": 1,
         "expansions": 0,
-        "scrollWidth": 375,
-        "clientWidth": 375
+        "scrollWidth": 390,
+        "clientWidth": 390
       },
       "no_overflow": true,
       "panel_cap": 560,
@@ -1123,14 +1449,17 @@
       "disclosure": null
     }
   ],
-  "revision": "ffc444c5",
+  "revision": "7a74c61b",
   "producers": {
     "seed": "throwaway backend/tests/_w501b_seed_capture_test.py (deleted): C4 in-process scenarios_client (injected DecisionPrincipal, GRANT_PREFIX) on assetops_w501bcap_test, ASSETOPS_TEST_TEMPLATE=0; served lab_app 9891 read-only, Vite 6291, CDP 9892",
     "A": "opened(backup-failed)+run -> empty capture -> POST seed-create-0001 (CSCN-000001) -> list GET saved scenario_at 2026-10-22T17:53:36.387491Z -> authored captures -> correction seed-fix-0001 -> historical captures (scenario_at=saved) + refused + finding-refused-unknown",
     "B": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T17:55:15.618968Z -> advance_late() without worker -> pending capture (watermark 2026-10-22T17:55:17.608737Z)",
     "recapture_ffc444c5": "Recaptured authored, authored-expanded, historical, historical-expanded, pending at ffc444c5 (C4 total_pages, pager {page} of {total}, basis scroller 360 at both widths, info icon held). Same producers: private assetops_w501bcap_test, ASSETOPS_TEST_TEMPLATE=0, throwaway backend/tests/_w501b_seed_capture_test.py (deleted), lab_app 9891 read-only, Vite 6291, CDP 9892. Other captures (empty, refused, finding-refused-unknown, mock) kept from e8147420.",
     "A_recapture": "opened(backup-failed)+run -> POST seed-create-0001 (CSCN-000001) -> list GET watermark 2026-10-22T18:21:05.094946Z, saved scenario_at 2026-10-22T18:21:05.785295Z, total_pages 1 -> authored captures -> correction seed-fix-0001 -> historical captures (scenario_at=saved; row HISTORICAL)",
-    "B_recapture": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T18:22:28.373333Z -> advance_late() without worker -> pending capture (PENDING_RECOMPUTE, watermark 2026-10-22T18:22:29.302799Z)"
+    "B_recapture": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T18:22:28.373333Z -> advance_late() without worker -> pending capture (PENDING_RECOMPUTE, watermark 2026-10-22T18:22:29.302799Z)",
+    "recapture_7a74c61b": "Recaptured empty, authored, authored-expanded, historical, historical-expanded, pending at 7a74c61b (Q-C5c: info RailIcon in blue notice; 390 table min-width 820 / Basis min-width 190 / basis max-height 220). Same producers: private assetops_w501bcap_test, ASSETOPS_TEST_TEMPLATE=0, throwaway backend/tests/_w501b_seed_capture_test.py (deleted), lab_app 9891 read-only, Vite 6291, CDP 9892; all stopped, DB dropped. Kept from earlier: refused, finding-refused-unknown, mock. capture.mjs adds the ruled expanded layout assertion (measured.layout + disclosure.layout.checks) and the notice-icon check (measured.notice_icon).",
+    "A_recapture_7a74c61b": "opened(backup-failed)+run -> empty captures (watermark 2026-10-22T20:07:37.450181Z) -> POST seed-create-0001 (CSCN-000001) -> list GET watermark 20:07:37.450181Z, saved scenario_at 2026-10-22T20:09:07.092256Z, total_pages 1 -> authored captures -> correction seed-fix-0001 (revision 2, stock_quantity 1100) -> historical captures (scenario_at=saved; row HISTORICAL)",
+    "B_recapture_7a74c61b": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T20:10:48.653666Z -> advance_late() without worker -> pending capture (PENDING_RECOMPUTE, watermark 2026-10-22T20:10:49.856401Z)"
   },
   "comparison": {
     "labelled_mock_deviations": [
@@ -1139,22 +1468,24 @@
     ],
     "unlabelled_differences": [
       "App adds a selected-window line (Selected window ... / Selected evidence through ...) and a Scenarios created through ... line above the panel; the mock has neither (window sits in the mock topbar). Ruled P-C5-15; not one of the two labelled deviations",
-      "OPEN QUESTION (Q-C5b-6): blue closing notice has no info icon (0 svg measured in every capture); the mock has one. Held because shell-overflow rule 5 refuses a page-module svg; unlabelled, not ruled",
       "Breadcrumb: the app ends Sites / site / Financials / Scenarios; the mock ends at Financials (ruled card)",
-      "OVER CAP at 390: authored-expanded and historical-expanded one-row panel 876 (cap 560), although the basis scroller is 360 and the page 1471 is within 1500. Cause: the 5-column table scrolls horizontally inside the panel and the narrow Basis cell wraps text almost per character (Selec/ted/evide/nce ... Review/assu/mpti/ons), making the row ~300px, plus the 360 scroller and pager. 1440 expanded is now 615 (cap 650), page 1034",
-      "Expanded basis Window line still shows raw ISO values (2026-10-06T19:00:00.000000Z – 2026-10-06T20:05:00.000000Z), not formatted {from} – {to} (spec item, not a mock item)"
+      "Expanded basis Window line still shows raw ISO values (2026-10-06T19:00:00.000000Z - 2026-10-06T20:05:00.000000Z), not formatted {from} - {to} (spec item, not a mock item)"
     ],
     "data_or_chrome_only": [
       "Site name (Cold replay lab vs GreenHarvest Cold Room) and provenance tag text are data",
       "Mock review bar, topbar, footer line are mock chrome"
     ],
     "equal": [
-      "h1 site name > description Financials · scenarios (placeholder) > panel Financial scenarios / Placeholder · to be designed with the owner > empty block (same title and body text) > blue closing notice (same text): order and text equal in the empty capture"
+      "h1 site name > description Financials \u00b7 scenarios (placeholder) > panel Financial scenarios / Placeholder \u00b7 to be designed with the owner > empty block (same title and body text) > blue closing notice (same text): order and text equal in the empty capture"
     ],
-    "revision": "ffc444c5",
+    "revision": "7a74c61b",
     "resolved_since_e8147420": [
       "Pager counter present: [data-scenarios-page-count] reads 1 of 1 in every row capture (C4 total_pages=1; Q-C5b-2)",
       "1440 expanded disclosure now scrolls: basis scroller 360 (1 measured per width), panel 2203 -> 615, page 2622 -> 1034 (Q-C5b-4)"
+    ],
+    "resolved_since_ffc444c5": [
+      "Q-C5c-1: blue closing notice now starts with exactly one svg[data-rail-icon=\"info\"] followed by its <p> (flex) in every capture at both widths, matching the mock's info icon",
+      "Q-C5c-2: 390 expanded one-row panel 876 -> 490 (cap 560); table min-width 820 inside data-table__scroll (scrollWidth 820 > clientWidth 318, last column reachable after scrolling to the end), Basis cell 280 wide (>=190), basis max-height 220px overflow-y auto (95-ID region scrolls); page 1083 (cap 1500), no document overflow. 1440 expanded panel 615 (cap 650), basis 360px"
     ]
   }
 }
