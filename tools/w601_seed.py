@@ -26,7 +26,7 @@ import sys
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 for extra in (REPO, REPO / "backend", REPO / "contracts"):
@@ -117,16 +117,16 @@ def import_sites(url: str, clock: datetime) -> dict[tuple[str, str], dict[str, A
 class Writer:
     """W4 `WorkService` commands with the injected fixture principal and the ordered write clock."""
 
-    def __init__(self, url: str, clock: Callable[[], datetime], sites: dict[tuple[str, str], dict[str, Any]],
+    def __init__(self, url: str, clock: WriteClock, sites: dict[tuple[str, str], dict[str, Any]],
                  fixture_clock: datetime) -> None:
         self.svc = WorkService(PostgresWorkStore(url, link_rows=build_link_rows_reader(),
                                                  test_db_clock_override=clock))
-        self.sites, self.clock, self.n = sites, fixture_clock, 0
+        self.sites, self.clock, self.write_clock = sites, fixture_clock, clock
         self.written: list[dict[str, Any]] = []
 
     def _key(self) -> str:
-        self.n += 1
-        return f"w601-{self.n:04d}"
+        """Unique per command: each command takes exactly one write-clock instant, the next one."""
+        return f"w601-{self.write_clock.now:%Y%m%dT%H%M%S%f}"
 
     def incident(self, site: tuple[str, str], title: str) -> dict[str, Any]:
         s = self.sites[site]

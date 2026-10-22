@@ -260,8 +260,8 @@ def test_linked_request_codes_order(store, key) -> None:  # noqa: F811
     """A1Q Q7: scoped request codes whose `incident_id` is this case, ordered `(created_at, id)`, at the cutoff."""
     info = seed("incidents")
     sites = seedmod._existing_sites(URL)
-    [first] = [w for w in info["written"] if w["code"] == "INC-000001" and w["site_code"] == "KOBO-001"
-               and w["tenant"] == "demo"]
+    first = info["written"][0]  # "Generator stopped", the first write (demo KOBO-001)
+    assert (first["tenant"], first["site_code"], first["kind"]) == ("demo", "KOBO-001", "INCIDENT")
     writer = seedmod.Writer(URL, seedmod.WriteClock(CLOCK - timedelta(seconds=10)), sites, CLOCK)
     try:
         second = writer.request(seedmod.A, first["case_id"], "Replace starter")
