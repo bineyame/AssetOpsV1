@@ -91,3 +91,6 @@ Readings needing a ruling (proposed precedent in brackets):
   `Showing x-y of N` line wanted (not in §2)?
 
 Next: Architect amendment of the A2 card (A2Q1-Q3 required; Q4-Q10 rulings), then rebuild A2.
+
+## Run (A1 reopen, A2Q1 state_counts)
+`work/global_index.py` adds `state_counts` (`sum(1 for r in rows if r["wire"]["state"] == S)` over the full selection before paging; incidents only; EMPTY_SCOPE all 0). Added `test_state_counts_cover_full_selection` (closes "Pump stopped" via the seed Writer: 4/1/1 on both pages, zeros on EMPTY_SCOPE); `ENVELOPE` test set gained `state_counts`. `test_w601a_global_incidents.py` 16 passed; `tools/check-all.ps1` 11/11 guards passed. Test DB dropped; no processes left. A2 not built.

@@ -30,7 +30,7 @@ KEY = "a1" * 32
 ROW_KEYS = {"site_code", "site_name", "site_id", "site_code_key", "case_id", "code", "kind", "revision_id", "title",
             "narrative", "occurred_at", "created_at", "recorded_at", "state", "owner", "asset_id", "asset_label",
             "incident_id", "linked_request_codes", "finding_links", "action_links", "source_provenance", "links"}
-ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "rows",
+ENVELOPE = {"schema_version", "scope", "window", "known_at", "status", "coverage", "total_count", "state_counts", "rows",
             "next_cursor", "selection_token"}
 
 if URL:
@@ -386,6 +386,34 @@ def test_continuation_status_follows_page_one(store, key) -> None:  # noqa: F811
     assert h2["known_at"] == "2026-10-22T12:00:00Z"
     assert cursor_payload(current["next_cursor"])["page_one_mode"] == "current"
     assert cursor_payload(historical["next_cursor"])["page_one_mode"] == "historical"
+
+
+def test_state_counts_cover_full_selection(store, key) -> None:  # noqa: F811
+    info = seed("incidents")
+    [pump] = [w for w in info["written"] if w["kind"] == "INCIDENT" and w["site_code"] == "KOBO-002"
+              and w["tenant"] == "demo"][:1]
+    sites = seedmod._existing_sites(URL)
+    writer = seedmod.Writer(URL, seedmod.WriteClock(CLOCK - timedelta(seconds=30)), sites, CLOCK)
+    try:
+        s = sites[seedmod.B]
+        writer.svc.post_event(s["tenant"], s["site"], pump["case_id"], {
+            "kind": "CLOSE", "occurred_at": seedmod.z(CLOCK - timedelta(days=1)), "payload": {"reason": "Resolved"},
+            "actor": dict(seedmod.ACTOR), "idempotency_key": writer._key()}, seedmod.W401_FIXTURE_SERVICE_PRINCIPAL_ID)
+    finally:
+        writer.close()
+    demo = info["tenants"]["demo"]
+    api, nobody = Api(demo), Api(demo, deny=("KOBO-001", "KOBO-002"))
+    expected = {"OPEN": 4, "IN_PROGRESS": 1, "CLOSED": 1}
+    try:
+        one = api.ok(limit="5")
+        two = api.ok(limit="5", cursor=one["next_cursor"])
+        empty = nobody.ok()
+    finally:
+        api.close()
+        nobody.close()
+    assert one["total_count"] == 6 and len(one["rows"]) == 5 and len(two["rows"]) == 1
+    assert one["state_counts"] == expected and two["state_counts"] == expected
+    assert empty["state_counts"] == {"OPEN": 0, "IN_PROGRESS": 0, "CLOSED": 0}
 
 
 def test_page_two_known_at_wire_second(store, key) -> None:  # noqa: F811

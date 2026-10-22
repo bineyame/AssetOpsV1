@@ -354,6 +354,8 @@ class GlobalWorkIndexService:
                     "known_at": token_time(k), "page_one_mode": mode, "selection_token": token,
                     "after": page[-1]["marker"]}, key)
             empty = not sites
+            state_counts = {name: sum(1 for r in rows if r["wire"]["state"] == name)
+                            for name in ("OPEN", "IN_PROGRESS", "CLOSED")}  # A2Q1: full selection, before paging
             return {
                 "schema_version": SCHEMA,
                 "scope": {"tenant_id": None if tenant_id is None else str(tenant_id),
@@ -365,7 +367,7 @@ class GlobalWorkIndexService:
                              "reason": "NO_ACCESSIBLE_SITES" if empty else None,
                              "sites": [{"site_code": s["site_code"], "site_id": str(s["site_id"]), "state": "COVERED"}
                                        for s in sites]},
-                "total_count": len(rows), "rows": [r["wire"] for r in page], "next_cursor": next_cursor,
+                "total_count": len(rows), "state_counts": state_counts, "rows": [r["wire"] for r in page], "next_cursor": next_cursor,
                 "selection_token": token,
             }
 
