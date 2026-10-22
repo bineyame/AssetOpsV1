@@ -16,7 +16,7 @@ Readiness review ran `tools/check-all.ps1`: all 11 guards passed, including the 
 
 New `GET /api/sites/{site_code}/ev/availability`, `/ev/energy`, `/ev/health` reuse `ev_assessment_api.ev_gate`: authentication before Site lookup; repeated/unknown query keys 422 `EV_PARAMETER_UNKNOWN`; paired UTC `from,to` (at most 31 days), optional `known_at`; existing refusal wrapper `{error:{code,message}}`, disclosure and single read-only REPEATABLE READ snapshot. Response `schema_version:"ev-depth-1"`, `site_id`, `window:{from,to,known_at,committed_watermark}`, `selection:{state,assessment_revision_id,session_revision_ids,accepted_evidence_ids,source_provenance}`, page payload and `links`. Use unchanged `analytics/ev_reads.STATES`: `CURRENT`, `PENDING_RECOMPUTE`, `STALE_SOURCE`, `HISTORICAL`, `UNKNOWN`; EV `currentness_state` puts `HISTORICAL` before pending, unlike cold. If selection absent all denominators/numerators are null (not zero). Pending, stale and historical never present a current positive. Exact accepted-ID set comes from the selected session/evidence rows and relevant status/import/meter intervals in the same snapshot, deduplicated before `evidence/public_provenance.py`; empty/broken/foreign is `UNKNOWN`, crossed classes/bases `MIXED`.
 
-Availability calculation version `ev-availability/1`: resolve each selected enabled connector's effective Foundation service schedule over the requested half-open UTC window, clipping to both. If no unambiguous time-valid schedule, `scheduled_seconds=null` and all rates null. For each scheduled connector-second, accepted trustworthy `ev_connector_state` transitions from the bound connector determine `AVAILABLE` for `AVAILABLE` or `UNPLUGGED`, `UNAVAILABLE` for `FAULTED` or `DISABLED`, and `UNKNOWN` for `PLUGGED`, `AUTHORIZING`, `CHARGING`, gaps, conflicting/stale/unattested state, and intervals after last valid state without proven hold duration. A **charging** state alone does not prove that the connector was available for a new session. A transition can classify only its own accepted observation interval, clipped to `[event_time, min(next accepted transition time, event_time + effective Foundation `ev-status-cadence`, window.to))`. There is no declared state-validity end. Missing cadence, conflicting same-time states, a gap or stale observation yields Unknown; never carry a state indefinitely to `to`; a zero-length or conflict is Unknown. Adjacent intervals union before counting; `known_available_seconds + known_unavailable_seconds + unknown_seconds = scheduled_seconds`. `known_time_ratio = available/(available+unavailable)` only if known seconds >0; `full_lower=available/scheduled`, `full_upper=(available+unknown)/scheduled` only if scheduled >0. Fractions are decimals, UI percentages round once to one decimal; the exact rational counts remain in DTO. Connector-level and Site-level rows share the same classified spans, never sum overlapping pages. A status observation outside the selected assessment's accepted set cannot classify any second. This is a bounded observed-state proxy, explicitly labelled `Observed connector state`, not physical availability certification.
+Availability calculation version `ev-availability/1`: resolve each selected enabled connector's effective Foundation service schedule over the requested half-open UTC window, clipping to both. If no schedule is selected or time validity is ambiguous, `scheduled_seconds=null` and all rates null. A selected time-valid `weekly: []` declares zero service seconds: `scheduled_seconds=0`, all three second counts are 0, and all ratios and bounds are null, never 0% availability. For each scheduled connector-second, accepted trustworthy `ev_connector_state` transitions from the bound connector determine `AVAILABLE` for `AVAILABLE` or `UNPLUGGED`, `UNAVAILABLE` for `FAULTED` or `DISABLED`, and `UNKNOWN` for `PLUGGED`, `AUTHORIZING`, `CHARGING`, gaps, conflicting/stale/unattested state, and intervals after last valid state without proven hold duration. A **charging** state alone does not prove that the connector was available for a new session. A transition can classify only its own accepted observation interval, clipped to `[event_time, min(next accepted transition time, event_time + effective Foundation `ev-status-cadence`, window.to))`. There is no declared state-validity end. Missing cadence, conflicting same-time states, a gap or stale observation yields Unknown; never carry a state indefinitely to `to`; a zero-length or conflict is Unknown. Adjacent intervals union before counting; `known_available_seconds + known_unavailable_seconds + unknown_seconds = scheduled_seconds`. `known_time_ratio = available/(available+unavailable)` only if known seconds >0; `full_lower=available/scheduled`, `full_upper=(available+unknown)/scheduled` only if scheduled >0. Fractions are decimals, UI percentages round once to one decimal; the exact rational counts remain in DTO. Connector-level and Site-level rows share the same classified spans, never sum overlapping pages. A status observation outside the selected assessment's accepted set cannot classify any second. This is a bounded observed-state proxy, explicitly labelled `Observed connector state`, not physical availability certification.
 
 Energy reuses W2-06 `supported_kwh`, `energy_complete`, W2-07 `overview.energy.complete_kwh/partial_kwh/unknown_seconds`, the selected import intervals and `financials` consequence basis; it does not resummarize session pages. `metered_complete_kwh` excludes incomplete session meter gaps, `partial_kwh` is separate, `observed_peak_import_kw` is max of accepted `ev_site_import` samples in the window (labelled sample peak), and `configured_import_limit_kw` comes from the effective Foundation revision. There is no `limit_caused_interruption` true from a sub-limit peak; `power_constraint_state` remains `UNKNOWN` unless independent requested and allocated limit accepted observations support a typed comparison. Existing gross tariff amount is shown only through W2-07 eligible consequence revision with exact source and currency; it is never cash collected or lost sales. `health` returns connector assets from effective Foundation, selected observed fault events and condition `NEEDS_INVESTIGATION` or `UNKNOWN`; `stationary_battery` is always `UNKNOWN` in W5-03 because merged EV Foundation has no battery component or explicit absence declaration. The UI says `Unknown` / `Battery configuration is not established by this Foundation.`; no `Not applicable` or `Not configured` literal is emitted. No charger state is `HEALTHY`.
 
@@ -29,7 +29,7 @@ Site title is the shell's imported name (`Depot Charging Hub` only in fixture). 
 | Surface | Exact visible literals and route |
 | --- | --- |
 | Availability | Heading `Availability`; breadcrumb `Sites › {Site} › Performance › Availability`; status `Evidence limited`; subtitle `Scheduled hours and accepted connector-state coverage`; four cards `Known available`, `Known unavailable`, `Unknown`, `Known-time availability`. Values derive solely from `ev-availability/1`; null is `Unknown` and no percentage. Card notes respectively `Observed available state`, `Observed faulted or disabled state`, `Uncovered or indeterminate scheduled time`, `Available / known scheduled time`. |
-| Availability panels | `Connector states over the service schedule`, legend `Available`, `Unavailable`, `Unknown`, per connector bars; no bars if schedule absent, with `Service schedule not established for this window.`; `Full-schedule availability bound` with lower/upper only if denominator exists, else `Unknown`; `Most useful next evidence`: `Recover connector status history for unknown scheduled time. A telemetry gap does not prove physical unavailability.` Link `Inspect connector-state lineage →` to selected EV Evidence Analysis, preserving query. |
+| Availability panels | `Connector states over the service schedule`, legend `Available`, `Unavailable`, `Unknown`, per connector bars; no bars if schedule absent, with `Service schedule not established for this window.` when absent; for selected `weekly: []`, no bars and `No service hours are declared in this window.`; `Full-schedule availability bound` with lower/upper only if denominator exists, else `Unknown`; `Most useful next evidence`: `Recover connector status history for unknown scheduled time. A telemetry gap does not prove physical unavailability.` Link `Inspect connector-state lineage →` to selected EV Evidence Analysis, preserving query. |
 | Energy | Heading `Energy / site power`; status `Energy basis: measured` only when selected complete meter evidence; otherwise `Energy basis: limited`; subtitle `Complete metered delivery and selected site-power context`; cards `Metered session energy`, `Observed peak import`, `Declared site limit`, `Gross tariff estimate`. Notes `Complete metered sessions only`, `Peak of accepted samples`, `Time-valid configuration`, `Scenario tariff, not cash collected`; null values `Unknown`, consequence withheld `Unpriced`. Evidence action `Inspect meter basis →` to EV Evidence Analysis. |
 | Energy panels | `Import power and configured limit` from accepted samples plus time-valid constant; empty `No accepted site-import samples in this window.`; `What can be concluded` rows `Observed peak below limit` (`Yes`, `No`, `Unknown` from samples/limit), `Site limit caused interruption` = `Not established` unless independent requested/allocated proof, `Requested vehicle power` = `Incomplete evidence` until supported, `Stationary battery` = `Unknown` until a battery declaration exists, `Billing settlement` = `Not connected`; `Technical-to-financial bridge` columns `Quantity`, `Assumption`, `Result`, `Limit`, showing exact W2-07 consequence basis or `No eligible gross tariff scenario.` No invented lost revenue. |
 | EV Health | Heading `Health`; cards `Connector 1`, `Connector 2`, `Stationary battery` from configured assets (not fixed names). Values `Unknown`, `Needs investigation` only for selected observed fault stop, and `Unknown` for battery configuration not expressible in the merged Foundation. Notes `No charger condition assessment`, `Fault-stopped session observed; cause not diagnosed`, `Battery configuration is not established by this Foundation.`. Panel `Condition and evidence`; columns `Asset`, `Supported assessment`, `Next evidence`; observed fault row `Session interruption observed` / `Retrieve diagnostic log and witness a complete session`; other connector `Condition unknown` / `Record diagnostic and covered operation`; site meter `Sampled import only` / `Record continuous import and request/limit evidence`. The fault row links to the existing Sessions list at `/sites/{site_code}/performance/sessions` with the selected `from,to,known_at`; include the selected session ID as visible source-reference text, since no Session-detail UI route exists. Absent ID remains plain text. |
@@ -51,9 +51,9 @@ At 390, cards wrap two columns; charts fit 360px and retain axis labels. Tables 
 Worst-content mock pass: the measurement script was rerun at both widths after replacing the first metric note, first panel prose and first notice with a 166-character missing-evidence sentence including a 36-character UUID. Result (1440/390 page height, 390 cards): availability 1103/1816, 344; energy 1278/2131, 328; ev-health 1001/1307, 380; ev-scenarios 1001/1127, no cards. All four retained zero document overflow (1425/1425 and 390/390). The mock has no refusal overlay; that cap must be checked on the app capture.
 ## Unit E1a — observed availability calculation, W5-03a; per-unit review
 
-One builder run, one to three commits and independent review before E1b. Producer command: `pytest backend/tests/test_w205b_ev_replay_postgres.py backend/tests/test_w503_ev_availability_postgres.py -q` on a private `*_test` DB. Selected window `[2026-10-06T08:00:00Z,2026-10-06T09:00:00Z)`; `EvReplayBuilder.decision_clock` is `2026-10-06T09:00:00Z` before `advance_late()` and `09:05:00Z` after. Current reads omit `known_at`; historical passes saved first watermark `2026-10-06T09:00:00.000000Z`. Status-gap, no-schedule and UNPLUGGED accepted-row variants are new E1a persisted producers.
+One builder run, one to three commits and independent review before E1b. Producer command: `pytest backend/tests/test_w205b_ev_replay_postgres.py backend/tests/test_w503_ev_availability_postgres.py -q` on a private `*_test` DB. Selected window `[2026-10-06T08:00:00Z,2026-10-06T09:00:00Z)`; `EvReplayBuilder.decision_clock` is `2026-10-06T09:00:00Z` before `advance_late()` and `09:05:00Z` after. Current reads omit `known_at`; historical passes saved first watermark `2026-10-06T09:00:00.000000Z`. Status-gap, declared-empty-schedule and UNPLUGGED accepted-row variants are new E1a persisted producers.
 
-**E1a file list and tests.** E1a owns `backend/assetops_backend/analytics/ev_availability.py`, `backend/tests/test_w503_ev_availability_postgres.py`, and the new persisted fixture `backend/tests/ev_depth_cases.py`; read only the selected EV state/window methods of `ev_site_reads.py`, `analytics/ev.py`, and `ev_foundation.py`. It computes connector schedule clipping, finite cadence-bounded state spans, conflict/unknown conservation and `ev-availability/1` DTO, with `test_w503_ev_availability_postgres.py::test_status_gap_and_empty_schedule`. The status-gap fixture starts from `EvReplayBuilder`'s selected EV Site and injects two accepted, bound `ev_connector_state` events around a gap longer than `ev-status-cadence`; it asserts stored evidence IDs, selected revision, nonzero Unknown seconds and no invented hold. The no-schedule fixture publishes a test-scoped time-valid Foundation with the connector's `weekly:[]` schedule entry (valid under `ev_foundation._validate_schedules`), selects the same `[08:00,09:00)` window and asserts `scheduled_seconds=0` and no ratio. It is a persisted fixture, not `objective_windows`' pure dict test. A positive UNPLUGGED interval fixture provides nonzero known available seconds; FAULTED provides unavailable. E1a uses the existing EV 09:00 decision clock, reviews before E1b, and makes the Availability page possible.
+**E1a file list and tests.** E1a owns `backend/assetops_backend/analytics/ev_availability.py`, `backend/tests/test_w503_ev_availability_postgres.py`, and the new persisted fixture `backend/tests/ev_depth_cases.py`; read only the selected EV state/window methods of `ev_site_reads.py`, `analytics/ev.py`, and `ev_foundation.py`. It computes connector schedule clipping, finite cadence-bounded state spans, conflict/unknown conservation and `ev-availability/1` DTO, with `test_w503_ev_availability_postgres.py::test_status_gap_and_empty_schedule`. The status-gap fixture starts from `EvReplayBuilder`'s selected EV Site and injects two accepted, bound `ev_connector_state` events around a gap longer than `ev-status-cadence`; it asserts stored evidence IDs, selected revision, nonzero Unknown seconds and no invented hold. The declared-empty-schedule fixture publishes a test-scoped time-valid Foundation with the connector's `weekly: []` schedule entry (valid under `ev_foundation._validate_schedules`), selects the same `[08:00,09:00)` window and asserts `scheduled_seconds=0` and no ratio. It is a persisted fixture, not `objective_windows`' pure dict test. A positive UNPLUGGED interval fixture provides nonzero known available seconds; FAULTED provides unavailable. E1a uses the existing EV 09:00 decision clock, reviews before E1b, and makes the Availability page possible.
 
 ## Unit E1b — selected Energy and Health depth API, W5-03a; per-unit review
 
@@ -63,11 +63,11 @@ One builder run, one to three commits and independent review before E2. Three de
 
 ## Unit E2 — Availability page, W5-03a; per-unit review
 
-Read: E2, literal ledger, measurements, E1 DTO. Files: new `frontend/src/sites/EvAvailability.tsx`, `frontend/src/sites/evDepthClient.ts`, `frontend/src/sites/__tests__/evDepth.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/shell/SiteAnalyticsFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/src/sites/EvAssessmentViews.tsx`, `frontend/src/sites/EvSiteViews.tsx`, `tools/checks/navigation-truthfulness.ps1`, `tools/checks/navigation-rail-fixtures.ps1`. Replace only the EV unavailable `Availability` occurrence when route `/sites/{site_code}/performance/availability` renders. Tests prove schedule only never shows a ratio, session-only never proves availability, accepted transition coverage conserves the three denominators, exact link/cutoff, pending/historical/unknown/refusal, and no dead link. Captures at 1440/390: `availability-observed` from E1a's persisted accepted UNPLUGGED/FAULTED state fixture, `availability-status-gap` from E1a's persisted accepted-state fixture with an intentional cadence-sized status gap, `availability-no-schedule` from E1a's persisted Foundation schedule fixture with an empty weekly list, `availability-pending`, `availability-historical`, `availability-refused`. All use the E1 producer window `[08:00,09:00)` and returned 09:00/09:05 watermarks; historical passes the saved 09:00 cutoff. E1a asserts the accepted status rows, ID set and nonzero classified spans before this capture. No fabricated screenshot snapshot. Run navigation guard fixtures; independent review before E3.
+Read: E2, literal ledger, measurements, E1 DTO. Files: new `frontend/src/sites/EvAvailability.tsx`, `frontend/src/sites/evDepthClient.ts`, `frontend/src/sites/__tests__/evDepth.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/shell/SiteAnalyticsFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/src/sites/EvAssessmentViews.tsx`, `frontend/src/sites/EvSiteViews.tsx`, `tools/checks/navigation-truthfulness.ps1`, `tools/checks/navigation-rail-fixtures.ps1`. Replace only the EV unavailable `Availability` occurrence when route `/sites/{site_code}/performance/availability` renders. E2 creates `evDepthClient.ts` with validated Availability, Energy and Health reads and all three DTO types; E3/E4 may edit it for wiring while preserving all validators. Tests prove schedule only never shows a ratio, session-only never proves availability, accepted transition coverage conserves the three denominators, exact link/cutoff, pending/historical/unknown/refusal, and no dead link. Captures at 1440/390: `availability-observed` from E1a's persisted accepted UNPLUGGED/FAULTED state fixture, `availability-status-gap` from E1a's persisted accepted-state fixture with an intentional cadence-sized status gap, `availability-declared-empty-schedule` from E1a's persisted Foundation schedule fixture with an empty weekly list, `availability-pending`, `availability-historical`, `availability-refused`. All use the E1 producer window `[08:00,09:00)` and returned 09:00/09:05 watermarks; historical passes the saved 09:00 cutoff. E1a asserts the accepted status rows, ID set and nonzero classified spans before this capture. No fabricated screenshot snapshot. Run navigation guard fixtures; independent review before E3.
 
 ## Unit E3 — Energy page and W5-03a close; per-unit review
 
-Read: E3, literal ledger, measurements, E1 DTO. Files: new `frontend/src/sites/EvEnergy.tsx`, `frontend/src/sites/__tests__/evEnergy.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/shell/SiteAnalyticsFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/src/sites/EvAssessmentViews.tsx`, `frontend/docs/architecture/v69-dependency-registry-pilot.json`, `tools/checks/navigation-truthfulness.ps1`, `tools/checks/navigation-rail-fixtures.ps1`. Replace only `Energy / site power` unavailable occurrence. Titled registry panels `(availability,1) Connector states over the service schedule`, `(availability,2) Full-schedule availability bound`, `(availability,3) Most useful next evidence`, `(energy,1) Import power and configured limit`, `(energy,2) What can be concluded`, `(energy,3) Technical-to-financial bridge`; map reviewed E1 and W2-07 fields, leave unsupported physical-limit and billing nodes unresolved. Tests assert complete versus partial energy, separate money consequence, sample peak wording, no below-limit exoneration and no unpriced-as-zero. Captures: `energy-complete`, `energy-missing-meter`, `energy-pending`, `energy-historical`, `energy-refused`, at 1440/390; producers are E1's existing complete/missing-meter/late vector builders and ev_gate refusal. Clock and historical cutoff as E1; route `/sites/{site_code}/performance/energy`. Run `tools/check-all.ps1`, one same-revision real-Postgres full suite, independent W5-03a review and merge.
+Read: E3, literal ledger, measurements, E1 DTO. Files: new `frontend/src/sites/EvEnergy.tsx`, `frontend/src/sites/__tests__/evEnergy.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/shell/SiteAnalyticsFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/src/sites/EvAssessmentViews.tsx`, `frontend/docs/architecture/v69-dependency-registry-pilot.json`, `frontend/docs/architecture/v69-screen-ledger.json`, `frontend/src/sites/evDepthClient.ts`, `tools/checks/navigation-truthfulness.ps1`, `tools/checks/navigation-rail-fixtures.ps1`. Replace only `Energy / site power` unavailable occurrence. Titled registry panels `(availability,1) Connector states over the service schedule`, `(availability,2) Full-schedule availability bound`, `(availability,3) Most useful next evidence`, `(energy,1) Import power and configured limit`, `(energy,2) What can be concluded`, `(energy,3) Technical-to-financial bridge`; map reviewed E1 and W2-07 fields, leave unsupported physical-limit and billing nodes unresolved. Tests assert complete versus partial energy, separate money consequence, sample peak wording, no below-limit exoneration and no unpriced-as-zero. Captures: `energy-complete`, `energy-missing-meter`, `energy-pending`, `energy-historical`, `energy-refused`, at 1440/390; producers are E1's existing complete/missing-meter/late vector builders and ev_gate refusal. Clock and historical cutoff as E1; route `/sites/{site_code}/performance/energy`. Run `tools/check-all.ps1`, one same-revision real-Postgres full suite, independent W5-03a review and merge.
 
 **E3 exact route and energy rows.** Mount `/sites/{site_code}/performance/energy` in `App.tsx`/`operatorSiteRoutes.ts` and replace the `Energy / site power` unavailable entry in `EvAssessmentViews.tsx`; update `$expectedTabs` and the positive/negative `navigation-rail-fixtures.ps1` anchors. `test_w503_ev_depth_postgres.py::test_energy_baseline_rows` asserts this mapping before E3 captures:
 
@@ -80,7 +80,7 @@ Read: E3, literal ledger, measurements, E1 DTO. Files: new `frontend/src/sites/E
 | `Declared site limit` | effective Foundation `ev-site-import-limit` | no selected property → `Unknown` |
 | `Gross tariff estimate` | eligible selected `ev_consequence_revision` with exact tariff/currency basis | `UNPRICED`/`WITHHELD` → `Unpriced`, never zero or cash |
 
-No below-limit sample proves no power constraint. E3 registry rows are the literal rows below; add new `I-W5-ev-depth-read` and `I-W5-ev-depth-ui` implementation nodes (`area:ev`, `status:open`, task W5-03a) with the rows in the same registry change. Status stays `gap` until reviewed:
+No below-limit sample proves no power constraint. The following E3 table is a summary; executable JSON and ledger values below are authoritative. E3 registry rows are summarized below; add new `I-W5-ev-depth-read` and `I-W5-ev-depth-ui` implementation nodes (`area:ev`, `status:open`, task W5-03a) with the rows in the same registry change. Status stays `gap` until reviewed:
 
 | screen_id, panel_index, title | area | requires | status | reason |
 | --- | --- | --- | --- | --- |
@@ -93,9 +93,9 @@ No below-limit sample proves no power constraint. E3 registry rows are the liter
 
 ## Unit E4 — EV Health page, W5-03b; per-unit review
 
-Read: E4, literal ledger, measurements, E1 DTO. Files: new `frontend/src/sites/EvHealthDepth.tsx`, `frontend/src/sites/__tests__/evHealthDepth.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/shell/SiteHealthFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/docs/architecture/v69-dependency-registry-pilot.json`; run `frontend/docs/architecture/check_v69_dependency_registry.cjs`. Render the v69 EV Health composition: EV condition cards then `Condition and evidence`; omit the gateway `Data sources · data quality, not equipment condition` panel on EV Health. Its S7 data remains available on existing Evidence routes; SiteHealthFrames selects EV depth for EV Sites. `(ev-health,1) Condition and evidence` maps only observed selected fault and exact configuration; physical charger condition remains open. Captures: `ev-health-fault`, `ev-health-unknown`, `ev-health-pending`, `ev-health-historical`, `ev-health-refused`, 1440/390. Producer: E1's verified W2 fault/complete/late builders and ev_gate refusal; E1 window `[08:00,09:00)` and returned 09:00/09:05 watermark; historical passes saved 09:00 cutoff. Assert no healthy charger from completed sessions, battery `Unknown` with the exact Foundation limitation. Independent review before E5.
+Read: E4, literal ledger, measurements, E1 DTO. Files: new `frontend/src/sites/EvHealthDepth.tsx`, `frontend/src/sites/__tests__/evHealthDepth.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/shell/SiteHealthFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/docs/architecture/v69-dependency-registry-pilot.json`, `frontend/docs/architecture/v69-screen-ledger.json`, `frontend/src/sites/evDepthClient.ts`, `frontend/src/sites/EvFoundationViews.tsx`, `frontend/src/sites/__tests__/siteHealthBoundary.test.tsx`, `frontend/src/sites/__tests__/evFoundation.test.tsx`; run `frontend/docs/architecture/check_v69_dependency_registry.cjs`. Render the v69 EV Health composition: EV condition cards then `Condition and evidence`; retain the S7 gateway `Data sources · data quality, not equipment condition` panel below `Condition and evidence` on EV Health; SiteHealthFrames selects EV depth for EV Sites. `(ev-health,1) Condition and evidence` maps only observed selected fault and exact configuration; physical charger condition remains open. Captures: `ev-health-fault`, `ev-health-unknown`, `ev-health-pending`, `ev-health-historical`, `ev-health-refused`, 1440/390. Producer: E1's verified W2 fault/complete/late builders and ev_gate refusal; E1 window `[08:00,09:00)` and returned 09:00/09:05 watermark; historical passes saved 09:00 cutoff. Assert no healthy charger from completed sessions, battery `Unknown` with the exact Foundation limitation. Independent review before E5.
 
-**E4 Health composition and registry.** `SiteHealthFrames.tsx` renders v69 EV condition cards then `Condition and evidence` and its notice; omit the shared gateway `Data sources · data quality, not equipment condition` panel on EV Health. Evidence retains gateway contact. The table deliberately uses v69 `Supported assessment`; its third site-meter row is a bounded W5 addition. For each connector: selected fault-stop → `Needs investigation` / `Fault-stopped session observed; cause not diagnosed`; otherwise `Unknown` / `No charger condition assessment`. Battery always `Unknown` / `Battery configuration is not established by this Foundation.` The 390 cap uses three rows and a 36-character ID with the full note; selected fault Session ID is source-reference text beside a Sessions-list link, never a nonexistent detail route. Add `I-W5-ev-health-ui` (`kind:implementation`, `area:ev`, `status:open`, task W5-03b) and literal panel row `screen_id:ev-health`, `panel_index:1`, `title:Condition and evidence`, `area:ev`, `requires:[I-W5-ev-depth-read,I-W5-ev-health-ui]`, `status:gap`, `reason:Selected faults warrant investigation but do not diagnose charger condition.` Test `evHealthDepth.test.tsx::health_copy_and_sessions_destination`.
+**E4 Health composition and registry.** `SiteHealthFrames.tsx` renders v69 EV condition cards then `Condition and evidence` and its notice; retain the shared S7 gateway `Data sources · data quality, not equipment condition` panel below `Condition and evidence` on EV Health, with its separate server-receipt clock. EV Evidence source analysis is a different read. E4 makes `Health › Data sources` in `EvFoundationViews.tsx:631,688` live links to this panel, adding a stable fragment and asserting them in `siteHealthBoundary.test.tsx` and `evFoundation.test.tsx`. Preserve S7 acceptance. The 1200/1550px mock page cap measured the condition-only composition. E4 keeps the S7 panel and checks a composed app page cap of 1900/2350px at 1440/390, a gateway panel cap of 700/800px, and no horizontal document overflow in each Health capture; record actual measurements before review. The table deliberately uses v69 `Supported assessment`; its third site-meter row is a bounded W5 addition. For each connector: selected fault-stop → `Needs investigation` / `Fault-stopped session observed; cause not diagnosed`; otherwise `Unknown` / `No charger condition assessment`. Battery always `Unknown` / `Battery configuration is not established by this Foundation.` The 390 cap uses three rows and a 36-character ID with the full note; selected fault Session ID is source-reference text beside a Sessions-list link, never a nonexistent detail route. Add `I-W5-ev-health-ui` (`kind:implementation`, `area:ev`, `status:open`, task W5-03b) and summary panel row `screen_id:ev-health`, `panel_index:1`, `title:Condition and evidence`, `area:ev`, `requires:[I-W5-ev-depth-read,I-W5-ev-health-ui]`, `status:gap`, `reason:Selected faults warrant investigation but do not diagnose charger condition.` Test `evHealthDepth.test.tsx::health_copy_and_sessions_destination`.
 
 ## Unit E5 — authored EV scenario store, W5-03b; per-unit review
 
@@ -118,29 +118,266 @@ POST root and correction take gate query `from,to,known_at`; `from,to` are requi
 | `consequence_revision_id`, `tariff_revision_id` | selected W2-07 `ev_consequence_revision` and its cited tariff revision if eligible | nullable; no priced consequence is invented |
 | `cutoff` | selected EV evidence watermark `09:00` or `09:05` in the merged replay | later than current watermark → 422 `EV_TIME_INVALID` |
 
-POST root closed body `{schema_version:"ev-scenario-command-1",idempotency_key:string,actor:{kind:"SERVICE",id:string,attestation:string},name:string,kind:"GROSS_TARIFF_CONTEXT",assumptions:{tariff_per_kwh:string,currency:string}}`; correction adds `supersedes_revision_id` UUID and `correction_reason` 1..2000. Server resolves exact complete `ev_session_revision` rows and selected IDs within the write snapshot. No client pin/basis field. Missing/non-SERVICE principal or wrong scope/grant → 403 `DECISION_WRITE_FORBIDDEN`; USER actor → 403 `DECISION_USER_AUTH_REQUIRED`; bad attestation → 403 `DECISION_ATTESTATION_INVALID`; missing exact complete sessions or invalid assumptions/basis → 422 `EV_SCENARIO_INVALID`; same key/different body → 409 `EV_SCENARIO_IDEMPOTENCY_CONFLICT`; stale prior → 409 `EV_SCENARIO_REVISION_CONFLICT`; store unavailable → 503 `DECISION_STORE_UNAVAILABLE` or `EV_READ_UNAVAILABLE`; read gate retains `UNAUTHENTICATED`, `SITE_SCOPE_FORBIDDEN`, `SITE_NOT_FOUND`, `EV_SOURCE_DISCLOSURE_FORBIDDEN`. New write returns 201 `{schema_version:"ev-scenario-write-1",id,code:"ESCN-000001",revision_id,revision_no}`; exact replay returns 200 same body. Public number uses global `ev_scenario_public_no_seq`, `ESCN-` plus six minimum zero-padded decimal digits.
+POST root closed body `{schema_version:"ev-scenario-command-1",idempotency_key:string,actor:{kind:"SERVICE",id:string,attestation:string},name:string,kind:"GROSS_TARIFF_CONTEXT",assumptions:{tariff_per_kwh:string,currency:string}}`; correction adds `supersedes_revision_id` UUID and `correction_reason` 1..2000. Server resolves exact complete `ev_session_revision` rows and selected IDs within the write snapshot. No client pin/basis field. Missing/non-SERVICE principal or wrong scope/grant → 403 `DECISION_WRITE_FORBIDDEN`; USER actor → 403 `DECISION_USER_AUTH_REQUIRED`; bad attestation → 422 `DECISION_ATTESTATION_INVALID` (merged `mini_decisions/model.py:34`); missing exact complete sessions or invalid assumptions/basis → 422 `EV_SCENARIO_INVALID`; same key/different body → 409 `EV_SCENARIO_IDEMPOTENCY_CONFLICT`; stale prior → 409 `EV_SCENARIO_REVISION_CONFLICT`; store unavailable → 503 `DECISION_STORE_UNAVAILABLE` or `EV_READ_UNAVAILABLE`; read gate retains `UNAUTHENTICATED`, `SITE_SCOPE_FORBIDDEN`, `SITE_NOT_FOUND`, `EV_SOURCE_DISCLOSURE_FORBIDDEN`. New write returns 201 `{schema_version:"ev-scenario-write-1",id,code:"ESCN-000001",revision_id,revision_no}`; exact replay returns 200 same body. Public number uses global `ev_scenario_public_no_seq`, `ESCN-` plus six minimum zero-padded decimal digits.
 
 | E5 refusal | HTTP | Trigger |
 | --- | ---: | --- |
 | `UNAUTHENTICATED` | 401 | Missing authenticated request |
 | `SITE_SCOPE_FORBIDDEN`, `EV_SOURCE_DISCLOSURE_FORBIDDEN` | 403 | Site or source disclosure denied |
-| `DECISION_WRITE_FORBIDDEN`, `DECISION_USER_AUTH_REQUIRED`, `DECISION_ATTESTATION_INVALID` | 403 | Service principal, actor or attestation rejected |
+| `DECISION_WRITE_FORBIDDEN`, `DECISION_USER_AUTH_REQUIRED` | 403 | Service principal or actor rejected |
+| `DECISION_ATTESTATION_INVALID` | 422 | Malformed service attestation |
 | `SITE_NOT_FOUND` | 404 | No authorized EV Site |
 | `EV_PARAMETER_UNKNOWN`, `EV_TIME_INVALID`, `EV_WINDOW_INVALID`, `EV_WINDOW_TOO_LONG`, `EV_SCENARIO_INVALID`, `EV_SCENARIO_CURSOR_INVALID` | 422 | Query, time, body, basis or cursor invalid |
 | `EV_SCENARIO_CURSOR_BASIS_CHANGED`, `EV_SCENARIO_IDEMPOTENCY_CONFLICT`, `EV_SCENARIO_REVISION_CONFLICT` | 409 | Changed selection, replay body or predecessor |
 | `EV_READ_UNAVAILABLE`, `DECISION_STORE_UNAVAILABLE` | 503 | Selected read or authored store unavailable |
 
-GET list `ev-scenarios-1` is `{schema_version,site_id,window:{from,to,known_at,committed_watermark},scenario_at,selection:{state,assessment_revision_id,session_revision_ids,accepted_evidence_ids,source_provenance},items:[{id,code,revision_id,revision_no,name,kind,assumptions,authored_basis,recorded_at,scenario_state}],next_cursor}`. Pending comes from the selected W2 EV assessment `selection.state`; historical follows the EV precedence of `ev_reads.currentness_state`. Include only roots whose stored `[from,to)` equals requested period; choose latest revision where `recorded_at <= scenario_at` and `authored_basis.cutoff <= window.known_at`. `scenario_state=HISTORICAL` iff superseded at current authored DB time or caller `scenario_at` precedes the latest stored revision or `known_at` precedes the current evidence watermark; else `DEFINED`. If `scenario_at` is omitted, resolve DB `clock_timestamp()` in the read snapshot; explicit UTC `scenario_at` after DB now refuses 422 `EV_TIME_INVALID`. The 09:00/09:05 evidence clock is independent of DB authored time; current authored rows remain visible even when the selected evidence watermark is 09:00. Cursor binds Site/window/evidence cutoff/scenario_at/watermark/last row and returns 422 invalid or 409 changed basis. Tests `test_w503_ev_scenarios_postgres.py::test_command_refusals_and_replay`, `::test_pending_historical_list_and_cursor`, `::test_schema_constraints`.
+GET list `ev-scenarios-1` is `{schema_version,site_id,window:{from,to,known_at,committed_watermark},scenario_at,selection:{state,assessment_revision_id,session_revision_ids,accepted_evidence_ids,source_provenance},items:[{id,code,revision_id,revision_no,name,kind,assumptions,authored_basis,recorded_at,scenario_state}],next_cursor}`. Pending comes from the selected W2 EV assessment `selection.state`; historical follows the EV precedence of `ev_reads.currentness_state`. Revision 1 `authored_basis.from,to` fixes each root window. A correction resolves its query `from,to` and must equal revision 1 exactly; mismatch returns 422 `EV_SCENARIO_INVALID` before append. Test same-window correction and cross-window refusal. Include only roots whose revision 1 `authored_basis.from,to` equals requested period; choose latest revision where `recorded_at <= scenario_at` and `authored_basis.cutoff <= window.known_at`. `scenario_state=HISTORICAL` iff superseded at current authored DB time or caller `scenario_at` precedes the latest stored revision or `known_at` precedes the current evidence watermark; else `DEFINED`. If `scenario_at` is omitted, resolve DB `clock_timestamp()` in the read snapshot; explicit UTC `scenario_at` after DB now refuses 422 `EV_TIME_INVALID`. The 09:00/09:05 evidence clock is independent of DB authored time; current authored rows remain visible even when the selected evidence watermark is 09:00. Cursor binds Site/window/evidence cutoff/scenario_at/watermark/last row and returns 422 invalid or 409 changed basis. Tests `test_w503_ev_scenarios_postgres.py::test_command_refusals_and_replay`, `::test_pending_historical_list_and_cursor`, `::test_schema_constraints`.
 
 ## Unit E6 — EV Scenarios page and W5-03b close; per-unit review
 
-Read: E6, measurement table, E5 DTO and literal page copy below. Files: new `frontend/src/sites/EvScenarios.tsx`, `frontend/src/sites/evScenariosClient.ts`, `frontend/src/sites/__tests__/evScenarios.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/sites/EvSiteViews.tsx`, `frontend/src/shell/SiteAnalyticsFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/docs/architecture/v69-dependency-registry-pilot.json`, `tools/checks/navigation-truthfulness.ps1`, `tools/checks/navigation-rail-fixtures.ps1`. Replace the EV `<UnavailableTab label="Scenarios" />` in `EvSiteViews.tsx` after `/sites/{site_code}/ev/financials/scenarios` is live; leave the shared non-EV fallback in `SiteAnalyticsFrames.tsx`. Preserve `from,to,known_at,scenario_at` in the EV subtab route. Registry `(ev-scenarios,1) Financial scenarios` maps E5 authored list/empty and leaves observed-outcome technical node unresolved. Captures are in E6, the page-owning unit.
+Read: E6, measurement table, E5 DTO and literal page copy below. Files: new `frontend/src/sites/EvScenarios.tsx`, `frontend/src/sites/evScenariosClient.ts`, `frontend/src/sites/__tests__/evScenarios.test.tsx`; shared **Lane A only** `frontend/src/App.tsx`, `frontend/src/sites/EvSiteViews.tsx`, `frontend/src/shell/SiteAnalyticsFrames.tsx`, `frontend/src/shell/operatorSiteRoutes.ts`, `frontend/docs/architecture/v69-dependency-registry-pilot.json`, `frontend/docs/architecture/v69-screen-ledger.json`, `frontend/src/sites/evDepthClient.ts`, `tools/checks/navigation-truthfulness.ps1`, `tools/checks/navigation-rail-fixtures.ps1`. Replace the EV `<UnavailableTab label="Scenarios" />` in `EvSiteViews.tsx` after `/sites/{site_code}/ev/financials/scenarios` is live; leave the shared non-EV fallback in `SiteAnalyticsFrames.tsx`. Preserve `from,to,known_at,scenario_at` in the EV subtab route. Registry `(ev-scenarios,1) Financial scenarios` maps E5 authored list/empty and leaves observed-outcome technical node unresolved. Captures are in E6, the page-owning unit.
 
 Page literals: heading `Scenarios`; panel `Financial scenarios`; empty title `No scenario defined yet`; body `A scenario needs declared assumptions and an authored basis. None has been defined for this site and window.`; notice `Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.` One row labels `Authored scenario`, `Assumptions`, `Basis`, `Defined at`; `Defined` or `Historical`; `Review assumptions →` expands the exact stored basis. Pending notice `Underlying evidence is being reassessed; the authored scenario remains separate.` Refusal heading `EV scenarios unavailable`, exact server error and `Retry`. No create control for ordinary viewer.
 
-E6 adds registry node `I-W5-ev-scenario-read` and `I-W5-ev-scenario-ui` (`kind:implementation`, `area:ev`, `status:open`, task W5-03b) and literal row `screen_id:ev-scenarios`, `panel_index:1`, `title:Financial scenarios`, `area:ev`, `requires:[I-W5-ev-scenario-read,I-W5-ev-scenario-ui]`, `status:gap`, `reason:Authored tariff context is listed separately from selected metered energy and any observed outcome.` Exact basis disclosure is internally scrolled at 390; the one-row panel cap does not cap unlimited expanded text. Test `evScenarios.test.tsx::basis_disclosure_and_pending_historical`.
+E6 adds registry node `I-W5-ev-scenario-read` and `I-W5-ev-scenario-ui` (`kind:implementation`, `area:ev`, `status:open`, task W5-03b) and summary row `screen_id:ev-scenarios`, `panel_index:1`, `title:Financial scenarios`, `area:ev`, `requires:[I-W5-ev-scenario-read,I-W5-ev-scenario-ui]`, `status:gap`, `reason:Authored tariff context is listed separately from selected metered energy and any observed outcome.` Exact basis disclosure is internally scrolled at 390; the one-row panel cap does not cap unlimited expanded text. Test `evScenarios.test.tsx::basis_disclosure_and_pending_historical`.
 
 Captures: `ev-scenarios-empty` (GET before POST), `ev-scenarios-authored` (new POST), `ev-scenarios-historical` (correction and saved pre-correction `scenario_at`), `ev-scenarios-pending` (late-record builder with authored row), `ev-scenarios-refused` (gate), at 1440/390. Positive producer is the new persisted command path proved by `test_w503_ev_scenarios_postgres.py`; its seed uses E1's exact selected EV IDs. Use the E1 09:00/09:05 evidence watermark and the saved pre-correction `scenario_at`; no 16:05 pin. Expanded basis has a 360px internal scroller, exact full IDs with character breaks, and its own 390 capture. Run the W1 vocabulary scan, exempt raw IDs using `data-vocabulary-exempt="source-reference"`; do not apply T028 vocabulary to a page whose title is `Scenarios`. UI tests assert empty, authored, historical, pending and refused copy, exact basis disclosure, no invented outcome and no dead links. Run focused tests, `tools/check-all.ps1`, one W5-03b full real-Postgres suite, 1440/390 caps, independent review/merge before W5-04.
+
+
+### Executable registry and ledger amendment
+
+Apply these exact JSON objects to the registry in the named unit only. Insert each node once; append each panel once. For the four EV screens, set `registry_dependencies.product_node_id` to `P-ev-area` and `registry_dependencies.node_ids` to the ordered unique concatenation of that screen’s panel `requires` arrays. E3 owns availability and energy ledger edits; E4 owns ev-health; E6 owns ev-scenarios. Status remains `gap` and nodes remain `open` until independent review.
+
+**E3 — registry nodes**
+
+```json
+[
+  {
+    "id": "I-W5-ev-depth-read",
+    "kind": "implementation",
+    "layer": "projection",
+    "area": "ev",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-ev-site-projections"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W5-03a",
+    "acceptance_target": "Reviewed selected read with exact evidence lineage and bounded unknown states."
+  },
+  {
+    "id": "I-W5-ev-depth-ui",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "ev",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-ev-site-projections",
+      "I-W5-ev-depth-read"
+    ],
+    "effort": "S",
+    "evidence": null,
+    "task": "W5-03a",
+    "acceptance_target": "Reviewed v6.9 route with selected read, honest gaps, 1440/390 captures and preserved gateway panel where applicable."
+  }
+]
+```
+
+**E3 — panel rows**
+
+```json
+[
+  {
+    "screen_id": "availability",
+    "panel_index": 1,
+    "title": "Connector states over the service schedule",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-depth-read",
+      "I-W5-ev-depth-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "Selected connector states cover only cadence-bounded scheduled spans; gaps remain Unknown."
+  },
+  {
+    "screen_id": "availability",
+    "panel_index": 2,
+    "title": "Full-schedule availability bound",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-depth-read",
+      "I-W5-ev-depth-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "Bounds require a selected schedule and accepted state coverage; missing status remains Unknown."
+  },
+  {
+    "screen_id": "availability",
+    "panel_index": 3,
+    "title": "Most useful next evidence",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-depth-read",
+      "I-W5-ev-depth-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "The selected status gap identifies needed source history, not physical availability."
+  },
+  {
+    "screen_id": "energy",
+    "panel_index": 1,
+    "title": "Import power and configured limit",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-depth-read",
+      "I-W5-ev-depth-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "Accepted import samples and configuration do not establish a causal site-power limit."
+  },
+  {
+    "screen_id": "energy",
+    "panel_index": 2,
+    "title": "What can be concluded",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-depth-read",
+      "I-W5-ev-depth-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "Requested and allocated power evidence is absent; limit causation remains Unknown."
+  },
+  {
+    "screen_id": "energy",
+    "panel_index": 3,
+    "title": "Technical-to-financial bridge",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-depth-read",
+      "I-W5-ev-depth-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "Gross tariff consequence is bounded; billing settlement and lost sales are unsupported."
+  }
+]
+```
+
+E3 ledger `availability`: `registry_dependencies` = {"product_node_id": "P-ev-area", "node_ids": ["I-W5-ev-depth-read", "I-W5-ev-depth-ui", "D-ev-domain"]}.
+
+E3 ledger `energy`: `registry_dependencies` = {"product_node_id": "P-ev-area", "node_ids": ["I-W5-ev-depth-read", "I-W5-ev-depth-ui", "D-ev-domain"]}.
+
+**E4 — registry nodes**
+
+```json
+[
+  {
+    "id": "I-W5-ev-health-ui",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "ev",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-ev-site-projections"
+    ],
+    "effort": "S",
+    "evidence": null,
+    "task": "W5-03b",
+    "acceptance_target": "Reviewed v6.9 route with selected read, honest gaps, 1440/390 captures and preserved gateway panel where applicable."
+  }
+]
+```
+
+**E4 — panel rows**
+
+```json
+[
+  {
+    "screen_id": "ev-health",
+    "panel_index": 1,
+    "title": "Condition and evidence",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-depth-read",
+      "I-W5-ev-health-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "Selected faults warrant investigation but do not diagnose charger condition."
+  }
+]
+```
+
+E4 ledger `ev-health`: `registry_dependencies` = {"product_node_id": "P-ev-area", "node_ids": ["I-W5-ev-depth-read", "I-W5-ev-health-ui", "D-ev-domain"]}.
+
+**E6 — registry nodes**
+
+```json
+[
+  {
+    "id": "I-W5-ev-scenario-read",
+    "kind": "implementation",
+    "layer": "projection",
+    "area": "ev",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-ev-site-projections"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W5-03b",
+    "acceptance_target": "Reviewed selected read with exact evidence lineage and bounded unknown states."
+  },
+  {
+    "id": "I-W5-ev-scenario-ui",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "ev",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-ev-site-projections",
+      "I-W5-ev-scenario-read"
+    ],
+    "effort": "S",
+    "evidence": null,
+    "task": "W5-03b",
+    "acceptance_target": "Reviewed v6.9 route with selected read, honest gaps, 1440/390 captures and preserved gateway panel where applicable."
+  }
+]
+```
+
+**E6 — panel rows**
+
+```json
+[
+  {
+    "screen_id": "ev-scenarios",
+    "panel_index": 1,
+    "title": "Financial scenarios",
+    "area": "ev",
+    "requires": [
+      "I-W5-ev-scenario-read",
+      "I-W5-ev-scenario-ui",
+      "D-ev-domain"
+    ],
+    "status": "gap",
+    "reason": "Authored tariff context is listed separately from selected metered energy and any observed outcome."
+  }
+]
+```
+
+E6 ledger `ev-scenarios`: `registry_dependencies` = {"product_node_id": "P-ev-area", "node_ids": ["I-W5-ev-scenario-read", "I-W5-ev-scenario-ui", "D-ev-domain"]}.
 
 ## Readiness closure
 
@@ -165,3 +402,9 @@ Captures: `ev-scenarios-empty` (GET before POST), `ev-scenarios-authored` (new P
 | 44 | E6 page and disclosure |
 | 45 | Gate and E1a/E1b sizing |
 | 46 | Gate and guards |
+| V1 (review 31) | E3/E4/E6 executable node, panel and ledger JSON below; applied together to a scratch registry and the dependency checker passed on 2026-10-22. |
+| V2 | E4 retains S7 gateway panel, makes EV Foundation links live, names tests and composed page caps. |
+| V3 | E5 POST and refusal table use merged 422. |
+| V4 | E5 revision-1 window rule and cross-window correction refusal. |
+| V5 | Availability calculation and E2 literal distinguish absent schedule from declared empty `weekly: []`. |
+| V6 | E2/E3/E4 client ownership and validator scope. |
