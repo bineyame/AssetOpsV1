@@ -159,3 +159,14 @@
 .global-work-tabs {
   margin-bottom: 12px;
 }
+
+/* W6-01b B3 (P-X-2): Preventive plan panel cap 600 at 1440 and 690 at 390, the same non-table parts as Incidents. */
+.global-work--preventive .data-table__scroll {
+  max-height: 468px;
+}
+
+@media screen and (max-width: 760px) {
+  .global-work--preventive .data-table__scroll {
+    max-height: 518px;
+  }
+}
