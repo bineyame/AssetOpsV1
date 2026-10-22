@@ -148,3 +148,70 @@ At minimum, flag it for the owner walkthrough.
 
 - The validator accepts any string `label`, and it does not check that `link` is null for `NOT_CONFIGURED`. The spec does not require either check; the server owns both.
 - If `asset_id` has no match in `assets`, the Asset cell shows the ID alone. C1 guarantees a match, so this should not happen.
+
+## Re-review (Q-C3-6; fixes `bd8c8284`, evidence `876c100e`)
+
+### Verdict: ACCEPT
+
+H1, M1 and L1 are closed. I found nothing new.
+
+### H1 (closed)
+
+**Code.** `ColdHealthDepth.tsx` now passes `assessment={row.condition_state === "NEEDS_INVESTIGATION"}`. It keeps the amber tone and passes no `word`. This is exactly Q-C3-6 ruling 1.
+
+**Tests.**
+- The Backup card is `v69-metric--assessment v69-metric--amber`.
+- Cooling plant and Temperature sensing have neither `assessment` nor a tone class.
+- Across the state matrix, no `UNKNOWN` or `NOT_CONFIGURED` row gets `assessment`.
+
+**Rendered evidence** (`evidence.json`, revision `bd8c8284`):
+
+| Card (failed-start, pending, historical) | Value at 1440 | Value at 390 | Top border |
+| --- | --- | --- | --- |
+| Backup generator | 17 px | 17 px | 3 px |
+| Cooling plant | 27 px | 24 px | 1 px |
+| Temperature sensing | 27 px | 24 px | 1 px |
+
+In `unknown`, no row is `NEEDS_INVESTIGATION`, so all three cards are plain. The 24 px values at 390 match the mock: its `@media(max-width:760px)` rule sets `.metric-value{font-size:24px}`. Side by side with `cold-health-1440-mock.png` and `cold-health-390-mock.png`, the card treatment now matches.
+
+### M1 (closed)
+
+**CSS.** The `primitives.css` mobile block equals the Q-C3-6 literal, and the 840 px / 240 px sticky rule is gone.
+
+**Asset cell.** `AssetCell` has a desktop span with the name and full ID. Its mobile span shows the selected `asset_code` and a `Full ID` disclosure holding the full ID. When `asset_id` has no match in `assets`, the cell shows the ID alone. When `asset_id` is null, it falls back to the asset names or the row label as before. All three cases are tested, including opening the disclosure.
+
+**Layout at 390.** The browser layout check in `capture.mjs` has `ok=true` in every state with a table:
+- all three headers are visible;
+- every row's assessment and next-evidence cells are visible;
+- the table does not scroll sideways;
+- the disclosures are closed.
+
+`cold-health-failed-start-390-app.png` shows all three columns with compact codes (`generator-1`, `compressor-1`, `probe-1`), as the mock does.
+
+### L1 (closed)
+
+A new composed test checks that `Loading the site's gateway contact.` appears inside the titled Data sources panel while the source read is pending.
+
+### Caps (`evidence.json`)
+
+| Block | Measured (1440 / 390) | Cap (1440 / 390) |
+| --- | --- | --- |
+| Cards | 140 / ≤348 | 200 / 430 |
+| Condition and evidence | 251–285 / 295–330 | 330 / 430 |
+| Data sources | 299 / 505 | 700 / 800 |
+| Page | ≤1150 / ≤1769 | 1900 / 2350 |
+
+There is no document overflow and nothing is ellipsized in any state.
+
+### Checks I ran (at `876c100e`)
+
+| Check | Result |
+| --- | --- |
+| `npx.cmd tsc --noEmit` | exit 0 |
+| Focused vitest on `coldHealthDepth`, `siteHealthBoundary`, `coldDepth`, `coldFoundation`, `coldSiteViews` | 5 files, **154 passed**, 0 failed |
+
+### Not verified
+
+- Backend tests, as instructed.
+- `check-all`.
+- The captures were not regenerated; I judged them from the PNGs and `evidence.json`.
