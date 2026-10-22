@@ -312,8 +312,7 @@ def test_stress_request_revision_and_lengths(store, key) -> None:  # noqa: F811
     demo = info["tenants"]["demo"]
     [row] = [r for r in read(demo, "maintenance")["rows"]]
     assert len(row["title"]) == 200 and row["title"] == seedmod.STRESS_REQUEST_TITLE
-    # The ruled expressions store 4,000 and 500 characters (the ruling's "3,999"/"499" counts do not match them;
-    # recorded in the B1 packet's known deviations): the assertions pin the stored expression values.
+    # W6-01b build rulings (Q2) item 4: the expressions store 4,000 and 500 characters; that is the contract.
     assert len(row["owner"]) == 128 and row["narrative"] == seedmod.STRESS_NARRATIVE and len(row["narrative"]) == 4000
     assert row["activity"] == seedmod.STRESS_ACTIVITY and len(row["activity"]) == 4000
     assert row["outcome_note"] == "Authored note"
@@ -496,16 +495,27 @@ def test_complete_zero(store, key) -> None:  # noqa: F811
     assert p_body["total_count"] == 0 and p_body["rows"] == [] and p_body["state_counts"] is None
 
 
-# --- linked (A1Q2 R2 as replaced by P-B1-2/3) -------------------------------------------------------------------
+# --- linked (A1Q2 R2 as replaced by the W6-01b build rulings (Q2) item 1) -----------------------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "W6-01b B1 blocker: the ruled 21-day SPEC shift puts the F01 setup (2026-09-12) and readings (2026-09-15) "
-    "before the KOBO-001 Foundation period (valid_from 2026-09-29), so no Finding is produced; awaiting a ruling "
-    "(.agent/W6-01b-phase-handoff.md, Run B1)."))
 def test_linked_finding_and_action_hrefs(store, key) -> None:  # noqa: F811
-    """P-B1-2/3: the real S4 Finding and S6 Action pinned through W4; lineage-true hrefs equal the W4 Site rows."""
+    """Q2 item 1: the real S4 Finding (F01, source day 2026-10-06, decided 2026-10-19) and S6 Action (accepted
+    2026-10-20) pinned through W4; at each root's returned `known_at` the global hrefs equal the W4 Site rows."""
     out = seedmod.seed(URL, "linked", datetime(2026, 10, 20, 12, tzinfo=timezone.utc))
     tenant, site = out["tenant_id"], out["site_id"]
+    engine_ = create_engine(URL)
+    try:
+        with engine_.connect() as c:
+            finding_day, finding_at = c.execute(text(
+                "SELECT f.anchor_start, r.created_at FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
+                "WHERE r.id = :r"), {"r": out["finding_revision_id"]}).one()
+            action_at = c.execute(text("SELECT recorded_at FROM action_event WHERE id = :e"),
+                                  {"e": out["action_event_id"]}).scalar_one()
+            work_first = c.execute(text("SELECT min(created_at) FROM work_case WHERE tenant_id = :t"),
+                                   {"t": tenant}).scalar_one()
+    finally:
+        engine_.dispose()
+    assert finding_day.astimezone(timezone.utc).date().isoformat() == "2026-10-06"
+    assert finding_at < action_at < work_first == datetime(2026, 10, 20, 11, 59, tzinfo=timezone.utc)
     window = ("2026-10-14T00:00:00Z", "2026-10-21T00:00:00Z")
     api = Api(tenant, None)
     try:

@@ -19,7 +19,7 @@ W6-01b (B1, `.agent/W6-01-build-spec.md` "B1-B3 pre-flight rulings" P-B1-1..9) a
 requests over KOBO-001/KOBO-002 in every reachable state plus one other-tenant request), `preventive` (five `demo` DRAFT
 plans, two RUN_HOURS, plus one other-tenant plan), `detail` (the C2-C4 request with CREATED, ASSIGN, COMMENT, a
 record, COMPLETE, REOPEN and a case revision, and a second CANCELLED request), `linked` (a real S4 Finding and S6
-Action, created by the merged test producers on the shifted fixture clock, pinned to one incident and two requests),
+Action, created by the merged test producers with an earlier F01 decision and accept clock (Q2), pinned to one incident and two requests),
 the `stress` request/record/revision/plan and the `historical` plan root plus correction. B1 captures use
 `--clock 2026-10-20T12:00:00Z` and the window `[2026-10-14, 2026-10-21)`. E1 adds `operational`.
 """
@@ -68,12 +68,12 @@ STRESS_NARRATIVE = ("Inspection narrative " * 200)[:4000].rstrip()
 STRESS_ACTIVITY = ("Replaced starter relay and tested " * 120)[:4000]
 STRESS_REASON = ("Corrected the inspection scope " * 20)[:500].rstrip()
 STRESS_PLAN_TITLE = ("Quarterlyfilterandbeltinspection" * 7)[:200]
-# P-B1-2/3: the linked fixture's shifted S4/S6 producer clocks.
-LINKED_SHIFT = timedelta(days=21)
+# W6-01b build rulings (Q2) item 1: the linked fixture keeps the S4 setup, F01 day, readings and anchors (all inside
+# the KOBO-001 Foundation period from 2026-09-29) and moves only F01's `deliver.decided` and the S6 accept clock earlier.
 LINKED_SETUP_AT = datetime(2026, 10, 8, 12, tzinfo=timezone.utc)
-LINKED_ACCEPT_AT = datetime(2026, 10, 11, tzinfo=timezone.utc)
-LINKED_FINDING_WINDOW = ("2026-09-15T00:00:00Z", "2026-09-16T00:00:00Z")
-_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})(T.*)?$")
+LINKED_DECIDED = "2026-10-19T08:00:00Z"  # original 2026-10-30T08:00:00Z
+LINKED_ACCEPT_AT = datetime(2026, 10, 20, tzinfo=timezone.utc)
+LINKED_FINDING_WINDOW = ("2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z")
 
 
 def db_url(db: str) -> str:
@@ -372,22 +372,19 @@ def seed_detail(writer: Writer) -> None:
     writer.event(A, second["id"], "CANCEL", {"reason": "Duplicate request; first inspection covers the relay"})
 
 
-def _shift(value: Any) -> Any:
-    """P-B1-2: every date or instant string in the copied S4 SPEC, moved back `LINKED_SHIFT` (whole days)."""
-    if isinstance(value, dict):
-        return {k: _shift(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_shift(v) for v in value]
-    if isinstance(value, str):
-        match = _DATE.match(value)
-        if match:
-            day = datetime.strptime(match.group(1), "%Y-%m-%d") - LINKED_SHIFT
-            return day.strftime("%Y-%m-%d") + (match.group(2) or "")
-    return value
+def _linked_spec(spec: dict[str, Any]) -> dict[str, Any]:
+    """Q2 item 1: a private copy of the S4 SPEC whose only change is F01's `deliver.decided`."""
+    out = copy.deepcopy(spec)
+    [f01] = [c for c in out["cases"] if c["case_id"] == "F01"]
+    delivers = [step for step in f01["steps"] if "decided" in step]
+    if len(delivers) != 1:
+        raise SystemExit("linked: the S4 F01 case no longer has exactly one decided step")
+    delivers[0]["decided"] = LINKED_DECIDED
+    return out
 
 
 def seed_linked(url: str, clock: datetime) -> dict[str, Any]:
-    """P-B1-2/3: a real S4 Finding and S6 Action through the merged test producers on the shifted clocks, then one
+    """Q2 item 1: a real S4 Finding and S6 Action through the merged test producers on the ruled clocks, then one
     incident and two requests through `WorkService` pinned to them, read back through the global roots."""
     os.environ["ASSETOPS_TEST_DATABASE_URL"] = url  # before the producer modules read their module-level URL
     tests = REPO / "backend" / "tests"
@@ -400,7 +397,7 @@ def seed_linked(url: str, clock: datetime) -> dict[str, Any]:
     import test_w401_work_service_postgres as w401
     from test_s4_finding_index_postgres import client_for, ok
 
-    spec = _shift(copy.deepcopy(s4.SPEC))
+    spec = _linked_spec(s4.SPEC)
     f01 = {c["case_id"]: c for c in spec["cases"]}["F01"]
     saved = (s4.SPEC, s4.SETUP_AT, s6.T_ACCEPT)
     engine = create_engine(url)
