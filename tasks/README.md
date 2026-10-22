@@ -109,6 +109,17 @@ These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev
 | A / W4-02 Mini-grid depth | [W4-02](W4-02-mini-grid-depth.md) | `0029` persisted selected windows for `renewable`, `service`, `fuel`, `backup`; exact accepted evidence, coverage and honest missing claims; after W4-01 and `0028` disposition | Done 2026-10-21 (merged ce098e5c from the clean squash branch; final review REVISE, fixes, re-review ACCEPT; container full suite) |
 | A / W4-03 Mini-grid decisions and work | [W4-03](W4-03-mini-decisions-work.md) | `0030` authored Site scenarios, exact Finding alternatives, typed renewable opportunity and explicit Incident/Maintenance context; after reviewed/merged W4-01, W3-01 and W4-02 | Done 2026-10-22 (merged 44cc88c2; per-unit reviews ACCEPT, final review fixes ACCEPT; container full suite 3818 passed) |
 
+## Post-W2 step 3 depth planning packets
+
+The W2-F structural re-audit closed all 14 findings. W5-01 and W5-03 are split into ordered sub-slices under `D-2026-10-22-w5-01-w5-03-buildspec`; their exact unit cards are in the linked build specs.
+
+| Lane and sub-slice | Packet | Exit and predecessor | Status |
+| --- | --- | --- | --- |
+| A / W5-01a Cold selected depth | [W5-01](W5-01-cold-depth.md) · [build spec](../.agent/W5-01-build-spec.md) | `cooling`, `cold-health` from exact W2 selected accepted evidence; no migration; W2-F structural gate closed | Planned; spec published, independent readiness dry-read and owner wave-start gate precede build |
+| A / W5-01b Cold scenarios | [W5-01](W5-01-cold-depth.md) · [build spec](../.agent/W5-01-build-spec.md) | `cold-scenarios`, immutable authored basis, refused cold Finding Unknown strip; `0032_w5_cold_scenarios` after unused `0031` and reviewed W5-01a | Planned; merges before W5-02 `0033` |
+| A / W5-03a EV selected depth | [W5-03](W5-03-ev-depth.md) · [build spec](../.agent/W5-03-build-spec.md) | `availability`, `energy`; observed status denominator separate from configured schedule and W2 sessions; no migration | Planned; after W5-02 merged `0033`, independent readiness dry-read and owner wave-start gate |
+| A / W5-03b EV health and scenarios | [W5-03](W5-03-ev-depth.md) · [build spec](../.agent/W5-03-build-spec.md) | `ev-health`, `ev-scenarios`, immutable authored basis; `0034_w5_ev_scenarios` depends on `0033_w5_cold_work` | Planned; after reviewed W5-03a and merged W5-02 `0033`; before W5-04 `0035` |
+
 Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects uncertain credential rotation before non-demo/unattended use or a real pilot. It does not gate S3 dispatch. [S3-01u](S3-01u-dispatch-usability.md) owns assessed-day discovery and complete paged Evidence access without gating S4-01. [PRE-S3-03](PRE-S3-03-delivery-checker-report.md) implements the delivery checker/report and normal guard path. [PRE-S3-04](PRE-S3-04-readiness-truthfulness.md) corrects stale Foundation Readiness copy before loop activation, outside competitive ranking. No ranking is authoritative before reviewed paths and startup guards pass.
 
 | Tooling lane | Task | Activation | Status |
