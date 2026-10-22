@@ -77,8 +77,12 @@ function Invoke-NavigationRailFixturesCheck {
                Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials", end: false' 'kind: "unavailable", label: "Financials"') },
             @{ Name = "W3-02: Financials live root pointed at the Evidence route"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials"' 'kind: "live", to: "/evidence", label: "Financials"') },
-            @{ Name = "W3-01: Incidents promoted to live"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Incidents"' 'kind: "live", to: "/actions", label: "Incidents"') },
+            @{ Name = "W6-01a: Incidents live root points at a missing route"; Expect = "points at '/incidentz'";
+               Rail = (Edit-Lines $rail 'to: "/incidents"' 'to: "/incidentz"') },
+            @{ Name = "W6-01a: Incidents route removed (only the catch-all would serve it)"; Expect = "points at '/incidents'";
+               App = (Remove-Line $app 'path=\{INCIDENTS_PATH\}') },
+            @{ Name = "W6-01a: Incidents demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/incidents", label: "Incidents", end: false' 'kind: "unavailable", label: "Incidents"') },
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";
                Rail = (Insert-After $rail 'label: "Settings", group: "ADMIN"' '  { kind: "unavailable", label: "Reports", group: "ADMIN", icon: "log" },') },
             @{ Name = "label typo"; Expect = "the W1 rail is exactly";
@@ -166,8 +170,11 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", href: "/x"') },
             @{ Name = "W4-03: Alternatives comes back as an unavailable Finding section"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", unavailable: true }, { id: "x", label: "Alternatives", unavailable: true') },
-            @{ Name = "the cold Cooling entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Cooling" />' '') },
+            # W5-01a C2: Cooling is live; dropping its subtab or its page branch fails.
+            @{ Name = "the live cold Cooling subtab is dropped"; Expect = "The live cold Cooling subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $cold 'data-performance-subtab="cooling"' '') },
+            @{ Name = "the live cold Cooling page branch is dropped"; Expect = "The live cold Cooling subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $cold '<ColdCooling' '<Missing') },
             @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Recommendation" />' '') },
             # W2-06 r7 P8: the EV entries are part of the closed multiset.

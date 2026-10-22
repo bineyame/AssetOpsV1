@@ -337,6 +337,31 @@ describe("Site Health: gateway contact (health:2#a)", () => {
   });
 });
 
+describe("W5-01a C3: the cold Health composition stays off non-cold Sites", () => {
+  it("a mini-grid Site keeps the S7 strip, battery panel, Data sources panel and blue notice, and never reads cold depth", async () => {
+    serve(recorded());
+    const getHealth = vi.fn();
+    render(
+      <MemoryRouter initialEntries={["/sites/KOBO-001/health"]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/health"
+            element={<SiteHealthFrame detail={detail} sitesPath="/sites" coldDepth={{ getCooling: vi.fn(), getHealth }} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(getHealth).not.toHaveBeenCalled();
+    expect(q("[data-health-site]")).not.toBeNull();
+    expect(q("#site-health-condition-heading")?.textContent).toBe("Physical asset condition");
+    expect(q("#site-health-sources-heading")?.textContent).toBe("Data sources · data quality, not equipment condition");
+    expect(q(".v69-notice--blue")).not.toBeNull();
+    expect(q("[data-health-card]")).toBeNull();
+    expect(q("[data-health-condition-notice]")).toBeNull();
+  });
+});
+
 describe("Battery boundary (asset:3#a)", () => {
   it("shows the configured battery as Unknown with its named missing inputs and pinned IDs", async () => {
     serve(recorded());

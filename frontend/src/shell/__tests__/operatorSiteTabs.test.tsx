@@ -384,6 +384,7 @@ describe("the landing route", () => {
       within(screen.getByRole("navigation", { name: "Operator routes" }))
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Evidence", "Financials"]);
+    // W6-01a: Incidents rail root is live.
+    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Evidence", "Financials"]);
   });
 });

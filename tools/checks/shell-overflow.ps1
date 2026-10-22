@@ -70,6 +70,13 @@ function Invoke-ShellOverflowCheck {
     $graphicsScrollClass = ".assessment-graphic"
     $graphicsModule = "frontend/src/sites/assessmentGraphics.tsx"
 
+    # W5-01a C2 (Codex retrospective Q-C2-3): the cold Cooling selected-observation
+    # graphic is the seventh. It scales to its column through a viewBox and is held
+    # to the same three rules: its region declares the inline overflow, its module
+    # renders that region, and its module is the only other place an svg may be drawn.
+    $coldDepthScrollClass = ".cold-depth-graphic__scroll"
+    $coldDepthModule = "frontend/src/sites/coldDepthGraphics.tsx"
+
     # V-01a round 2: fixed-size icons are the sixth, and the only svg allowed
     # without a region. A rail or component-type icon is drawn at a fixed
     # pixel size (18px rail icons; component icons at an explicit width no
@@ -307,6 +314,22 @@ function Invoke-ShellOverflowCheck {
             "delete it.")) | Out-Null
     }
 
+    # 1f. The cold depth graphic region contains the inline axis as well.
+    $coldDepthContainsInlineAxis = $false
+    foreach ($block in $blocks) {
+        if ($block.Selector -ne $coldDepthScrollClass) { continue }
+        if ($block.Declarations -match '(?m)^\s*overflow(-x)?\s*:\s*(auto|scroll)\s*;') {
+            $coldDepthContainsInlineAxis = $true
+        }
+    }
+
+    if (-not $coldDepthContainsInlineAxis) {
+        $failures.Add(("$coldDepthScrollClass in $primitivesCss does not declare " +
+            "'overflow-x: auto' or 'overflow-x: scroll'. Without the region " +
+            "that owns it, the cold depth graphic has nothing between it and " +
+            "the document.")) | Out-Null
+    }
+
     # --- One diagram pattern ---------------------------------------------------
 
     # 5. Every svg goes through the diagram module, and the diagram module
@@ -322,6 +345,8 @@ function Invoke-ShellOverflowCheck {
     $timelineSvgSeen = $false
     $graphicsRegionSeen = $false
     $graphicsSvgSeen = $false
+    $coldDepthRegionSeen = $false
+    $coldDepthSvgSeen = $false
 
     foreach ($module in (Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))) {
         $lineNumber = 0
@@ -339,6 +364,9 @@ function Invoke-ShellOverflowCheck {
             }
             if ($line -match ('["`]' + [regex]::Escape($graphicsScrollClass.TrimStart(".")) + '[ "`]')) {
                 if ($module.Path -eq $graphicsModule) { $graphicsRegionSeen = $true }
+            }
+            if ($line -match ('["`]' + [regex]::Escape($coldDepthScrollClass.TrimStart(".")) + '[ "`]')) {
+                if ($module.Path -eq $coldDepthModule) { $coldDepthRegionSeen = $true }
             }
 
             # A comment naming the element is not an element. AppHeader's own
@@ -369,6 +397,10 @@ function Invoke-ShellOverflowCheck {
                 $graphicsSvgSeen = $true
                 continue
             }
+            if ($module.Path -eq $coldDepthModule) {
+                $coldDepthSvgSeen = $true
+                continue
+            }
             if ($iconModules.ContainsKey($module.Path)) {
                 $iconSvgSeen[$module.Path] = $true
                 if (($module.Lines -join "`n") -notmatch [regex]::Escape($iconModules[$module.Path])) {
@@ -383,8 +415,8 @@ function Invoke-ShellOverflowCheck {
                 "$($module.Path):${lineNumber}: $($line.Trim()). The " +
                 "configured diagram renders through $diagramModule, the Lab's " +
                 "history charts through $chartModule and the Overview timeline " +
-                "through $timelineModule and the assessment graphics through " +
-                "$graphicsModule, each of which " +
+                "through $timelineModule, the assessment graphics through " +
+                "$graphicsModule and the cold depth graphic through $coldDepthModule, each of which " +
                 "supplies the region that owns its overflow. A drawing " +
                 "anywhere else has nothing between it and the document.")) | Out-Null
         }
@@ -440,6 +472,17 @@ function Invoke-ShellOverflowCheck {
     if (-not $graphicsRegionSeen) {
         $failures.Add(("$graphicsModule does not render $graphicsScrollClass, " +
             "so the graphics it draws have no region that owns their overflow.")) | Out-Null
+    }
+
+    if (-not $coldDepthSvgSeen) {
+        $failures.Add(("$coldDepthModule renders no svg element, so its " +
+            "exemption from the one-diagram-pattern check is vacuous. Update " +
+            "the check, do not delete it.")) | Out-Null
+    }
+
+    if (-not $coldDepthRegionSeen) {
+        $failures.Add(("$coldDepthModule does not render $coldDepthScrollClass, " +
+            "so the graphic it draws has no region that owns its overflow.")) | Out-Null
     }
 
     return $failures

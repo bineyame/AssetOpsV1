@@ -53,6 +53,9 @@ import {
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, degreeMinutes, hm, num, range, windowText } from "./coldFormat";
 import { UnavailableTab } from "../ui/UnavailableEntry";
+import { ColdCooling } from "./ColdCooling";
+import type { ColdDepthClient } from "./ColdDepthClient";
+import type { ColdSiteRoutes } from "./coldSiteViews";
 import "./w2-cold-assessment.css";
 
 /*
@@ -76,7 +79,7 @@ export const COLD_FINDING_HEADING_ID = "cold-finding-heading";
 export const NO_RECORDED_NEXT_STEP = "No recorded next step";
 export { NOT_ASSESSED, NOT_RECORDED } from "./coldFormat";
 
-export type ColdPerformanceView = "temperature" | "backup";
+export type ColdPerformanceView = "temperature" | "backup" | "cooling";
 
 export interface ColdLinks {
   temperature: string;
@@ -748,27 +751,32 @@ export interface ColdPerformanceFrameProps {
   links: ColdLinks;
   tabs: ReactNode;
   parentTrail: Crumb[];
-  subtabHref: (id: "temperature" | "backup") => string;
+  subtabHref: (id: ColdPerformanceView) => string;
+  /** W5-01a C2: the selected depth reads and the cold UI route bases behind the Cooling page. */
+  depth: ColdDepthClient;
+  routes: ColdSiteRoutes;
 }
 
 export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
   const { view, siteId, window, client, links } = props;
   const key = `${siteId}|${windowKey(window)}`;
-  const temperature = useRead(() => client.getTemperature(siteId, window), `t|${key}`);
-  const backup = useRead(() => client.getBackupChain(siteId, window), `b|${key}`);
-  const findings = useRead(() => client.listFindings(siteId, window), `f|${key}`);
+  // W5-01a C2: the Cooling page reads only its own depth read.
+  const w2 = view === "cooling" ? null : true;
+  const temperature = useRead(w2 && (() => client.getTemperature(siteId, window)), `t|${key}`);
+  const backup = useRead(w2 && (() => client.getBackupChain(siteId, window)), `b|${key}`);
+  const findings = useRead(w2 && (() => client.listFindings(siteId, window)), `f|${key}`);
   const primary = view === "temperature" ? temperature : backup;
   const ready = temperature !== null && backup !== null && findings !== null;
   const gap =
     primary !== null && primary.status !== "loaded" ? refusalText(primary).body : null;
   return (
-    <main aria-labelledby={COLD_PERFORMANCE_HEADING_ID} data-cold-view={view === "temperature" ? "temperature" : "coldbackup"}>
-      <Breadcrumbs trail={[...props.parentTrail, { label: "Performance" }]} />
+    <main aria-labelledby={COLD_PERFORMANCE_HEADING_ID} data-cold-view={view === "backup" ? "coldbackup" : view}>
+      <Breadcrumbs trail={[...props.parentTrail, { label: "Performance" }, ...(view === "cooling" ? [{ label: "Cooling" }] : [])]} />
       <SitePageHeader
         siteName={props.siteName}
         siteId={siteId}
         mode={props.mode}
-        description={SITE_SCREEN_DESCRIPTIONS[view === "temperature" ? "temperature" : "coldbackup"]}
+        description={SITE_SCREEN_DESCRIPTIONS[view === "backup" ? "coldbackup" : view]}
         headingId={COLD_PERFORMANCE_HEADING_ID}
       />
       {props.tabs}
@@ -779,7 +787,7 @@ export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
               Temperature
             </Link>
           </li>
-          <UnavailableTab label="Cooling" />
+          <li className="site-tabs__item"><Link className="site-tabs__link" to={props.subtabHref("cooling")} data-performance-subtab="cooling" aria-current={view === "cooling" ? "page" : undefined}>Cooling</Link></li>
           <li className="site-tabs__item">
             <Link className="site-tabs__link" to={props.subtabHref("backup")} data-performance-subtab="backup" aria-current={view === "backup" ? "page" : undefined}>
               Backup
@@ -787,7 +795,9 @@ export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
           </li>
         </ol>
       </nav>
-      {!ready ? (
+      {view === "cooling" ? (
+        <ColdCooling siteCode={siteId} window={window} client={props.depth} routes={props.routes} />
+      ) : !ready ? (
         <p>{COLD_ASSESSMENT_LOADING}</p>
       ) : view === "temperature" ? (
         <>
