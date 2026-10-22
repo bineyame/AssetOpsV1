@@ -274,20 +274,20 @@ def test_no_w2_case_has_numeric_comparison(chain, case) -> None:  # noqa: F811
 
 # --- /cold/health (C1 Health read) -----------------------------------------------------------------------------
 
-def foundation_assets(built, revision_id: str) -> dict[str, str]:
-    """component_type -> the scoped asset row ID of the Foundation revision's one component of that type."""
+def foundation_assets(built, revision_id: str) -> dict[str, list[str]]:
+    """component_type -> the scoped asset row IDs of the Foundation revision's components of that type, in
+    `asset_code` order."""
     [rev] = rows(built, "SELECT content FROM foundation_revision WHERE site_id = :s AND id = CAST(:f AS uuid)",
                  f=revision_id)
     assets = {(r["asset_code"], r["asset_type"]): str(r["id"]).lower()
               for r in rows(built, "SELECT id, asset_code, asset_type FROM asset WHERE site_id = :s")}
-    out: dict[str, str] = {}
+    out: dict[str, list[tuple[str, str]]] = {}
     for comp in rev["content"]["components"]:
         kind = comp["component_type"]
         if kind in ("GENERATOR", "COMPRESSOR", "TEMPERATURE_PROBE"):
-            assert kind not in out, kind
-            out[kind] = assets[(comp["component_id"], kind)]
+            out.setdefault(kind, []).append((comp["component_id"], assets[(comp["component_id"], kind)]))
     assert set(out) == {"GENERATOR", "COMPRESSOR", "TEMPERATURE_PROBE"}
-    return out
+    return {kind: [a for _, a in sorted(pairs)] for kind, pairs in out.items()}
 
 
 def assert_health_head(body: dict) -> None:
@@ -326,12 +326,12 @@ def test_health_failed_start_and_probe(chain) -> None:  # noqa: F811
     assert (gen["condition_state"], gen["observation"], gen["limitation"]) == (
         "NEEDS_INVESTIGATION", "Automatic start failed", "Failed automatic start observed; part not diagnosed")
     assert gen["evidence_ids"] == expected
-    assert gen["asset_id"] == str(start["result"]["policy"]["generator_asset_id"]).lower() == assets["GENERATOR"]
+    assert [gen["asset_id"]] == [str(start["result"]["policy"]["generator_asset_id"]).lower()] == \
+        assets["GENERATOR"]
     assert gen["next_evidence"] == "Witness an automatic-start test"
     # Cooling plant: condition unknown on the single compressor asset.
     assert (plant["condition_state"], plant["observation"]) == ("UNKNOWN", "Condition unknown")
-    assert plant["asset_id"] == assets["COMPRESSOR"] and [a["asset_id"] for a in plant["assets"]] == \
-        [assets["COMPRESSOR"]]
+    assert [plant["asset_id"]] == [a["asset_id"] for a in plant["assets"]] == assets["COMPRESSOR"]
     assert set(plant["evidence_ids"]) <= set(present)
     # Temperature sensing: one distinct accepted probe source is LIMITED.
     assert (sensing["condition_state"], sensing["observation"], sensing["limitation"]) == (
@@ -339,7 +339,11 @@ def test_health_failed_start_and_probe(chain) -> None:  # noqa: F811
     assert sensing["evidence_ids"] and set(sensing["evidence_ids"]) <= set(present)
     assert {present[i]["role"] for i in sensing["evidence_ids"]} == {cold.PROBE_ROLE}
     assert len({present[i]["source_id"] for i in sensing["evidence_ids"]}) == 1
-    assert sensing["asset_id"] == assets["TEMPERATURE_PROBE"]
+    # The Foundation declares two probes (chamber and ambient); the selected excursion policy names the asset.
+    [exc] = [r for r in selected_revisions(built, body) if r["analytic_id"] == cold.EXCURSION_ANALYTIC]
+    assert [a["asset_id"] for a in sensing["assets"]] == assets["TEMPERATURE_PROBE"]
+    assert sensing["asset_id"] == str(exc["result"]["policy"]["probe_asset_id"]).lower()
+    assert sensing["asset_id"] in assets["TEMPERATURE_PROBE"]
     # Site-code links preserving from/to/known_at.
     for row, suffix in ((gen, "backup-chain"), (plant, "cooling"), (sensing, "evidence")):
         href = row["link"].replace("%3A", ":")
@@ -368,9 +372,13 @@ def test_health_not_configured(chain) -> None:  # noqa: F811
     original = str(built.run.registered_basis.foundation_revision_id).lower()
     assert first["health"]["foundation_revision_id"] == original
     assets = foundation_assets(built, original)
-    assert [(r["condition_state"], r["asset_id"]) for r in first["health"]["rows"]] == [
-        ("UNKNOWN", assets["GENERATOR"]), ("UNKNOWN", assets["COMPRESSOR"]),
-        ("UNKNOWN", assets["TEMPERATURE_PROBE"])]
+    gen, plant, sensing = first["health"]["rows"]
+    assert [r["condition_state"] for r in first["health"]["rows"]] == ["UNKNOWN", "UNKNOWN", "UNKNOWN"]
+    assert [gen["asset_id"]] == assets["GENERATOR"] and [plant["asset_id"]] == assets["COMPRESSOR"]
+    # Open question (handoff): the Foundation declares two probes (chamber and ambient) and no policy is selected,
+    # so the C1 Health table gives a null probe `asset_id`; both probe assets are listed.
+    assert [a["asset_id"] for a in sensing["assets"]] == assets["TEMPERATURE_PROBE"]
+    assert len(assets["TEMPERATURE_PROBE"]) == 2 and sensing["asset_id"] is None
     [orig] = rows(built, "SELECT * FROM foundation_revision WHERE site_id = :s AND id = CAST(:f AS uuid)",
                   f=original)
     [top] = rows(built, "SELECT max(version) AS v FROM foundation_revision WHERE site_id = :s")
