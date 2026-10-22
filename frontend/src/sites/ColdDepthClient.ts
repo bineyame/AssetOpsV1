@@ -8,7 +8,8 @@
  * Each takes the optional strict-UTC window `from`, `to` (both or neither) and `known_at`. A 200 answer is
  * accepted only when its key sets are exactly the C1 key sets (order-insensitive) and every value is in its C1
  * value set; anything else is malformed and is returned as `unavailable`, never as an empty read. Refusals are
- * `{error:{code,message}}` and are returned as `refused`. C3 adds the `health` payload validation.
+ * `{error:{code,message}}` and are returned as `refused`. W5-01a C3 validates the `health` payload against the C1
+ * Health literal table (`HEALTH_ROW_LITERALS`).
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { isObject } from "./evidenceRead";
@@ -208,9 +209,81 @@ export function isColdCoolingRead(value: unknown): value is ColdCoolingRead {
   return isHead(value, TOP_COOLING) && isColdCooling(value.cooling);
 }
 
-/** C2 checks the Health envelope only; C3 adds the exact `health` payload validation. */
+/** The C1 "Health read" literal table: per kind, its `next_evidence` and the allowed condition tuples. */
+export const HEALTH_ROW_LITERALS: Record<
+  ColdHealthKind,
+  { next_evidence: string; tuples: { condition_state: ColdHealthCondition; observation: string; limitation: string }[] }
+> = {
+  BACKUP_GENERATOR: {
+    next_evidence: "Witness an automatic-start test",
+    tuples: [
+      { condition_state: "NOT_CONFIGURED", observation: "Not configured", limitation: "No backup generator is declared in the selected Foundation" },
+      { condition_state: "UNKNOWN", observation: "Start results conflict", limitation: "Selected start results conflict; no condition is assessed" },
+      { condition_state: "NEEDS_INVESTIGATION", observation: "Automatic start failed", limitation: "Failed automatic start observed; part not diagnosed" },
+      { condition_state: "UNKNOWN", observation: "Automatic start succeeded", limitation: "A successful start does not establish generator condition" },
+      { condition_state: "UNKNOWN", observation: "No accepted start result", limitation: "No accepted automatic-start result in this window" },
+    ],
+  },
+  COOLING_PLANT: {
+    next_evidence: "Record matched loading, door and ambient context",
+    tuples: [
+      { condition_state: "NOT_CONFIGURED", observation: "Not configured", limitation: "No cooling plant is declared in the selected Foundation" },
+      { condition_state: "UNKNOWN", observation: "Condition unknown", limitation: "Comparable recovery and condition evidence absent" },
+    ],
+  },
+  TEMPERATURE_SENSING: {
+    next_evidence: "Add calibrated spatial coverage",
+    tuples: [
+      { condition_state: "NOT_CONFIGURED", observation: "Not configured", limitation: "No temperature probe is declared in the selected Foundation" },
+      { condition_state: "LIMITED", observation: "Single-point observation", limitation: "One accepted probe does not establish room-wide coverage" },
+      { condition_state: "UNKNOWN", observation: "No accepted probe", limitation: "No accepted probe observation in this window" },
+      { condition_state: "UNKNOWN", observation: "Multiple probe observations", limitation: "Multiple selected probes do not establish room-wide condition" },
+    ],
+  },
+};
+export const HEALTH_KINDS: readonly ColdHealthKind[] = ["BACKUP_GENERATOR", "COOLING_PLANT", "TEMPERATURE_SENSING"];
+const HEALTH_KEYS = ["foundation_revision_id", "rows"] as const;
+const HEALTH_ROW_KEYS = [
+  "kind",
+  "label",
+  "asset_id",
+  "assets",
+  "observation",
+  "condition_state",
+  "limitation",
+  "next_evidence",
+  "evidence_ids",
+  "link",
+] as const;
+const ASSET_KEYS = ["asset_id", "asset_code", "display_name"] as const;
+
+function isHealthRow(row: unknown, kind: ColdHealthKind): boolean {
+  if (!keysExactly(row, HEALTH_ROW_KEYS) || row.kind !== kind || !isString(row.label)) return false;
+  if (!isNullableString(row.asset_id) || !isStringArray(row.evidence_ids) || !isNullableString(row.link)) return false;
+  if (
+    !Array.isArray(row.assets) ||
+    !row.assets.every((a) => keysExactly(a, ASSET_KEYS) && isString(a.asset_id) && isString(a.asset_code) && isNullableString(a.display_name))
+  ) {
+    return false;
+  }
+  const literals = HEALTH_ROW_LITERALS[kind];
+  return (
+    row.next_evidence === literals.next_evidence &&
+    literals.tuples.some(
+      (t) => t.condition_state === row.condition_state && t.observation === row.observation && t.limitation === row.limitation,
+    )
+  );
+}
+
+/** C3: exact `health` key sets, the three rows in kind order, and each row's C1 literal tuple. */
+export function isColdHealth(value: unknown): value is ColdHealthRead["health"] {
+  if (!keysExactly(value, HEALTH_KEYS) || !isNullableString(value.foundation_revision_id)) return false;
+  const rows = value.rows;
+  return Array.isArray(rows) && rows.length === HEALTH_KINDS.length && HEALTH_KINDS.every((kind, index) => isHealthRow(rows[index], kind));
+}
+
 export function isColdHealthRead(value: unknown): value is ColdHealthRead {
-  return isHead(value, TOP_HEALTH) && isObject(value.health);
+  return isHead(value, TOP_HEALTH) && isColdHealth(value.health);
 }
 
 /* ---------- reads ---------- */

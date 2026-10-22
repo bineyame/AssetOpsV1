@@ -14,6 +14,7 @@ import {
   siteFindingHref,
   siteFindingsHref,
   siteFoundationHref,
+  siteHealthHref,
   sitePerformanceHref,
 } from "./operatorSiteRoutes";
 
@@ -27,6 +28,7 @@ export function coldSiteRoutes(siteId: string): ColdSiteRoutes {
     temperature: sitePerformanceHref(siteId, "temperature"),
     backup: sitePerformanceHref(siteId, "backup"),
     cooling: sitePerformanceHref(siteId, "cooling"),
+    health: siteHealthHref(siteId),
     findings: siteFindingsHref(siteId),
     finding: (findingId) => siteFindingHref(siteId, findingId),
     foundation: siteFoundationHref(siteId),

@@ -70,6 +70,7 @@ export interface ColdSiteRoutes {
   temperature: string;
   backup: string;
   cooling: string;
+  health: string;
   findings: string;
   finding: (findingId: string) => string;
   foundation: string;
@@ -197,6 +198,7 @@ export function coldUiHref(api: string | null | undefined, routes: ColdSiteRoute
     temperature: routes.temperature,
     "backup-chain": routes.backup,
     cooling: routes.cooling,
+    health: routes.health,
     findings: routes.findings,
     foundation: routes.foundation,
   };
