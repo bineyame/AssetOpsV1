@@ -94,3 +94,39 @@ Next: Architect amendment of the A2 card (A2Q1-Q3 required; Q4-Q10 rulings), the
 
 ## Run (A1 reopen, A2Q1 state_counts)
 `work/global_index.py` adds `state_counts` (`sum(1 for r in rows if r["wire"]["state"] == S)` over the full selection before paging; incidents only; EMPTY_SCOPE all 0). Added `test_state_counts_cover_full_selection` (closes "Pump stopped" via the seed Writer: 4/1/1 on both pages, zeros on EMPTY_SCOPE); `ENVELOPE` test set gained `state_counts`. `test_w601a_global_incidents.py` 16 passed; `tools/check-all.ps1` 11/11 guards passed. Test DB dropped; no processes left. A2 not built.
+
+## Run (A2 rebuild after A2Q/CL3, 2026-10-22) - built and captured; BLOCKED on off-card test files
+Commits: `db8b3847` (Lane B: `frontend/src/work/*`, seed `stress`), `63d62caa` (Lane A: route, rail, guards, Site Work
+link/notice, ledger, registry), `ccbb0b43` (inline collapsed disclosures for the 600 px cap; captures + manifest).
+Edits are confined to the amended A2 card files plus `.agent/W6-01-evidence/A2/`.
+
+Checks:
+- Focused: `globalIncidents.test.tsx` 21 passed. The card's Lane A tests (siteWorkCases, operatorRailInventory,
+  operatorRouteFrames, w301EstateShellRoutes, estatePortfolioRoutes) pass with the work tests: 68 passed. `tsc --noEmit` is clean.
+- `tools/check-all.ps1`: all 11 guards passed, both after Lane A and after the CSS change. The ledger checker and the
+  registry checker (262 nodes, 51 linked panels) pass. The new F2 rail fixtures run inside check-architecture.
+- Captures (`.agent/W6-01-evidence/A2/manifest.json`, 1440/390). States: positive (stress: 5 rows plus Next), zero,
+  historical (`Historical as of 21 Oct 2026, 12:00 UTC`), refused_503 (absent DB), refused_window (no fetch) and
+  cursor_changed (409 after `--append`). Every element is within its section 2 cap: panel 524/664 (positive),
+  682/690 (historical at 390), cards 115/264. The document never overflows (1440/1440 and 390/390). The table
+  scrolls in its panel at 390 (720/318) with `Scroll table horizontally` visible.
+- Processes: Vite, uvicorn and Chrome are all stopped. DBs `assetops_w601_a2*_test` are dropped. The full backend suite was not run.
+
+Blocking:
+- A2Q11. Six frontend test files that are NOT on the A2 card pin the operator rail's live-link set without
+  Incidents. They now fail (13 tests; `src/shell src/estate src/sites src/work src/ui`: 2451 passed, 13 failed):
+  `shell/__tests__/{operatorSiteTabs:387, simulatorLabWorkspaceEntryPoint:93, siteDetailRoute:395/446,
+  siteFoundationRoute:427/455/469, sitesIndexRoute:299/381}.test.tsx` and `ui/__tests__/sharedVisualVocabulary.test.tsx`.
+  Each expects the list without `Incidents` or `/incidents`. `siteFoundationRoute:455` "has not gained a navigation item
+  at any point since T004" checks a historical allow-list, so it needs a ruling on its literal. Amend the A2 card (and
+  B2/E2, which repeat this) to own these files with the one-entry edits? CL3-7 named only `operatorRouteFrames`.
+
+Readings (not chosen silently; confirm):
+- R5. `Show records` keeps a URL `known_at` (section 1 "sends them unchanged") and clears the cursor and trail.
+  `Reload` re-reads page one of the same query.
+- R6. The control bar and status line sit in a `.site-date-bar` slot. The refusal and empty-scope blocks carry
+  `data-page-refusal`, which keeps `expectV69Panels("incidents")` passing without editing `test/panelStructure.ts`.
+- R7. `test/settled.ts` LOADING does not match `Loading the incidents across the estate.` (the file is off-card), so
+  the test also waits for `[data-global-work-loading]` to disappear.
+- R8. In the Vite dev server (StrictMode) each page read is fetched twice (`api=[200,200]`); a built app fetches once.
+Next: rule A2Q11; then one small fix round edits the six test files; then the A2 per-unit review.
