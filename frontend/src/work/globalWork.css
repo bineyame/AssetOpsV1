@@ -72,11 +72,18 @@
   min-width: 0;
 }
 
+/* The two collapsed disclosures share one line under the clamped value; an open one takes the full cell width. */
 .global-work-details {
-  margin-top: 4px;
+  display: inline-block;
+  vertical-align: top;
+  margin: 4px 12px 0 0;
   font-size: 10px;
   color: var(--muted, #6b7a90);
   overflow-wrap: anywhere;
+}
+
+.global-work-details[open] {
+  display: block;
 }
 
 .global-work-details > summary {

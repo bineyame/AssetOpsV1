@@ -1,0 +1,1113 @@
+{
+  "unit": "W6-01a A2",
+  "spec": ".agent/W6-01-build-spec.md section 2, section 3.1 A2Q1-A2Q10, section 4",
+  "server": "uvicorn assetops_backend.main:app --port 8061 (DATABASE_URL per state, ASSETOPS_WORK_CURSOR_KEY_HEX generated per start, never printed); Vite dev server --port 5261 with ASSETOPS_API_PORT=8061",
+  "clock": "--clock 2026-10-21T12:00:00Z; window from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z (A2Q3); reads at real DB time",
+  "caps_px_1440_390": {
+    "cards": [
+      150,
+      310
+    ],
+    "incident_cases_panel": [
+      600,
+      690
+    ],
+    "case_boundaries_panel": [
+      140,
+      180
+    ],
+    "control_bar": [
+      180,
+      300
+    ],
+    "status_line": [
+      70,
+      130
+    ],
+    "state_block": [
+      180,
+      300
+    ],
+    "zero_block": [
+      180,
+      300
+    ],
+    "pager": [
+      70,
+      130
+    ],
+    "scroll_hint": [
+      180,
+      300
+    ]
+  },
+  "states": [
+    {
+      "state": "positive",
+      "fixture_command": "python tools/w601_seed.py --db assetops_w601_a2stress_test --fixture stress --clock 2026-10-21T12:00:00Z",
+      "database": "assetops_w601_a2stress_test",
+      "append_command": null,
+      "stored": {
+        "written": [
+          {
+            "case_id": "cdbba4a9-73fd-4d6e-94e3-46e3b960bae9",
+            "code": "INC-000001",
+            "kind": "INCIDENT",
+            "revision_id": "24f84454-4a56-4bdd-9c8e-b6ed5695974a",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "4971c2bc-09d0-4d89-8f00-8625c4b50d1f",
+            "code": "INC-000002",
+            "kind": "INCIDENT",
+            "revision_id": "ce4737ed-657c-4ac2-bf23-77c054c338d0",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "6f7bb9ef-5beb-4be5-beee-6eedde3de247",
+            "code": "INC-000003",
+            "kind": "INCIDENT",
+            "revision_id": "22154dcf-b41a-4142-9025-b4f0bc7b6cd5",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "1cd12428-1147-4e3c-9858-3429e9dcc11c",
+            "code": "INC-000004",
+            "kind": "INCIDENT",
+            "revision_id": "3d2f068d-14ae-491a-b491-6bc58595c966",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "71422d1b-2aaf-409d-9197-48c538cdf222",
+            "code": "INC-000005",
+            "kind": "INCIDENT",
+            "revision_id": "e9b2ced1-2035-4f55-aeeb-481d5e35d417",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "f2cc5ade-38a8-4ee6-89dc-326f35ebf9c1",
+            "code": "INC-000006",
+            "kind": "INCIDENT",
+            "revision_id": "e85a2b4c-4927-42ec-bd32-f46decb23379",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          }
+        ],
+        "sites": [
+          {
+            "site_code": "KOBO-001",
+            "site_id": "1492304d-2cad-4d25-a364-be82beeea26f",
+            "tenant": "demo",
+            "tenant_id": "6e55f00a-3d07-4e01-adb8-4f7468ed7322"
+          },
+          {
+            "site_code": "KOBO-002",
+            "site_id": "5a2b945b-41db-4b93-9775-ebb253b98aaf",
+            "tenant": "demo",
+            "tenant_id": "6e55f00a-3d07-4e01-adb8-4f7468ed7322"
+          },
+          {
+            "site_code": "KOBO-001",
+            "site_id": "87570d22-3c0d-40da-844b-edc3113cf25a",
+            "tenant": "w601-other",
+            "tenant_id": "b43b24b1-8ad5-4156-855b-bc87c0f86d56"
+          }
+        ]
+      },
+      "captures": [
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 1440,
+          "image": "screenshots/positive-1440.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "known_at_label": "As known at 22 Oct 2026, 09:03 UTC",
+          "heights_px": {
+            "page_header": 59,
+            "control_bar": 35,
+            "status_line": 33,
+            "date_bar_slot": 47,
+            "cards": 115,
+            "incident_cases_panel": 524,
+            "table": 393,
+            "thead": 35,
+            "pager": 29,
+            "scroll_hint": 0,
+            "case_boundaries_panel": 103
+          },
+          "row_heights_px": [
+            65,
+            65,
+            65,
+            65,
+            99
+          ],
+          "collapsed_details_max_h": 16,
+          "table_scroll": {
+            "client": 1120,
+            "scroll": 1120,
+            "overflowX": "auto"
+          },
+          "document_width": {
+            "scroll": 1440,
+            "client": 1440
+          },
+          "scroll_hint_visible": false,
+          "over_cap": [],
+          "text": {
+            "status": "As known at 22 Oct 2026, 09:03 UTC",
+            "cards": [
+              "Open incidents6Open or in progress in this window",
+              "High severityNot assessedSeverity is not recorded on work cases",
+              "Awaiting evidenceNot assessedNo case evidence review state",
+              "Closed verifiedNot assessedClosed does not verify an outcome"
+            ],
+            "state": null,
+            "zero": null,
+            "showing": "Showing 1–5 of 6",
+            "first_row": [
+              "INC-000004 · Stress incident 4Full title textStress incident 4Source unverifiedT",
+              "Kobo mini-grid",
+              "19 Oct 2026, 09:00 UTC",
+              "Not recorded",
+              "Open",
+              "Not assigned",
+              "None linked"
+            ],
+            "codes": [
+              "INC-000004",
+              "INC-000002",
+              "INC-000003",
+              "INC-000005",
+              "INC-000001"
+            ]
+          }
+        },
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 390,
+          "image": "screenshots/positive-390.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "known_at_label": "As known at 22 Oct 2026, 09:03 UTC",
+          "heights_px": {
+            "page_header": 54,
+            "control_bar": 165,
+            "status_line": 17,
+            "date_bar_slot": 211,
+            "cards": 264,
+            "incident_cases_panel": 664,
+            "table": 493,
+            "thead": 35,
+            "pager": 29,
+            "scroll_hint": 17,
+            "case_boundaries_panel": 126
+          },
+          "row_heights_px": [
+            85,
+            85,
+            85,
+            85,
+            119
+          ],
+          "collapsed_details_max_h": 16,
+          "table_scroll": {
+            "client": 318,
+            "scroll": 720,
+            "overflowX": "auto"
+          },
+          "document_width": {
+            "scroll": 390,
+            "client": 390
+          },
+          "scroll_hint_visible": true,
+          "over_cap": [],
+          "text": {
+            "status": "As known at 22 Oct 2026, 09:03 UTC",
+            "cards": [
+              "Open incidents6Open or in progress in this window",
+              "High severityNot assessedSeverity is not recorded on work cases",
+              "Awaiting evidenceNot assessedNo case evidence review state",
+              "Closed verifiedNot assessedClosed does not verify an outcome"
+            ],
+            "state": null,
+            "zero": null,
+            "showing": "Showing 1–5 of 6",
+            "first_row": [
+              "INC-000004 · Stress incident 4Full title textStress incident 4Source unverifiedT",
+              "Kobo mini-grid",
+              "19 Oct 2026, 09:00 UTC",
+              "Not recorded",
+              "Open",
+              "Not assigned",
+              "None linked"
+            ],
+            "codes": [
+              "INC-000004",
+              "INC-000002",
+              "INC-000003",
+              "INC-000005",
+              "INC-000001"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "state": "zero",
+      "fixture_command": "python tools/w601_seed.py --db assetops_w601_a2zero_test --fixture zero --clock 2026-10-21T12:00:00Z",
+      "database": "assetops_w601_a2zero_test",
+      "append_command": null,
+      "stored": {
+        "written": [],
+        "sites": [
+          {
+            "site_code": "KOBO-001",
+            "site_id": "643a971b-f9e5-4df3-9bda-3c144495c8db",
+            "tenant": "demo",
+            "tenant_id": "b9094d49-4a90-4148-b1cc-9d7c45ec91eb"
+          },
+          {
+            "site_code": "KOBO-002",
+            "site_id": "d7a63f5f-4b45-426f-b3b8-04469e025e77",
+            "tenant": "demo",
+            "tenant_id": "b9094d49-4a90-4148-b1cc-9d7c45ec91eb"
+          },
+          {
+            "site_code": "KOBO-001",
+            "site_id": "e4ff0249-d8a0-4bc7-82c9-c2c3cf71fba0",
+            "tenant": "w601-other",
+            "tenant_id": "12ff5a71-2a6a-4f66-af14-2f06ef1c39ff"
+          }
+        ]
+      },
+      "captures": [
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 1440,
+          "image": "screenshots/zero-1440.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "known_at_label": "As known at 22 Oct 2026, 09:03 UTC",
+          "heights_px": {
+            "page_header": 59,
+            "control_bar": 35,
+            "status_line": 33,
+            "date_bar_slot": 47,
+            "cards": 115,
+            "zero_block": 60,
+            "incident_cases_panel": 177,
+            "case_boundaries_panel": 103
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 1440,
+            "client": 1440
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": "As known at 22 Oct 2026, 09:03 UTC",
+            "cards": [
+              "Open incidents0Open or in progress in this window",
+              "High severityNot assessedSeverity is not recorded on work cases",
+              "Awaiting evidenceNot assessedNo case evidence review state",
+              "Closed verifiedNot assessedClosed does not verify an outcome"
+            ],
+            "state": null,
+            "zero": "No incident cases in this window.Change the UTC window or open a Site record.",
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          }
+        },
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 390,
+          "image": "screenshots/zero-390.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "known_at_label": "As known at 22 Oct 2026, 09:03 UTC",
+          "heights_px": {
+            "page_header": 54,
+            "control_bar": 165,
+            "status_line": 17,
+            "date_bar_slot": 211,
+            "cards": 264,
+            "zero_block": 60,
+            "incident_cases_panel": 195,
+            "case_boundaries_panel": 126
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 390,
+            "client": 390
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": "As known at 22 Oct 2026, 09:03 UTC",
+            "cards": [
+              "Open incidents0Open or in progress in this window",
+              "High severityNot assessedSeverity is not recorded on work cases",
+              "Awaiting evidenceNot assessedNo case evidence review state",
+              "Closed verifiedNot assessedClosed does not verify an outcome"
+            ],
+            "state": null,
+            "zero": "No incident cases in this window.Change the UTC window or open a Site record.",
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          }
+        }
+      ]
+    },
+    {
+      "state": "historical",
+      "fixture_command": "python tools/w601_seed.py --db assetops_w601_a2historical_test --fixture historical --clock 2026-10-21T12:00:00Z",
+      "database": "assetops_w601_a2historical_test",
+      "append_command": null,
+      "stored": {
+        "written": [
+          {
+            "case_id": "78dc5561-cc8e-458e-baf4-31da87e1272f",
+            "code": "INC-000001",
+            "kind": "INCIDENT",
+            "revision_id": "e96d84ff-fe94-438a-a7e3-707e6c402a0c",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "3b075ded-8c8d-4498-a860-94fec57cf664",
+            "code": "INC-000002",
+            "kind": "INCIDENT",
+            "revision_id": "b9ef917c-15d6-42a6-b24a-aa4b4fb755ae",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "34100ca7-f7dc-45bf-a335-52815560588d",
+            "code": "INC-000003",
+            "kind": "INCIDENT",
+            "revision_id": "fd1cf7f2-c582-4a60-82dc-4ba54c15a6b7",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "ea5e5aca-a96f-4aac-9fa0-3ad83bff70e8",
+            "code": "INC-000004",
+            "kind": "INCIDENT",
+            "revision_id": "24ca539d-6b02-49e1-abb9-9f4de2ac60e6",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "67f969ad-cd6c-4e33-a18a-b4a4ed61b365",
+            "code": "INC-000005",
+            "kind": "INCIDENT",
+            "revision_id": "0fa63e91-b5a1-4f94-97dd-ada2a3fdb32e",
+            "site_code": "KOBO-002",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "0c343dcb-18bd-4c84-a063-6ce026ed1b41",
+            "code": "INC-000006",
+            "kind": "INCIDENT",
+            "revision_id": "5d51117c-d702-45ea-ab0d-7239c052655a",
+            "site_code": "KOBO-002",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "66aa100c-d7ad-47a4-b729-4e97b9df1747",
+            "code": "INC-000007",
+            "kind": "INCIDENT",
+            "revision_id": "009f4c1a-9baa-4473-b594-c7a83c7f3db0",
+            "site_code": "KOBO-001",
+            "tenant": "w601-other"
+          },
+          {
+            "case_id": "2f5c21f7-079d-4fc1-b500-d627598840da",
+            "code": "WR-000008",
+            "incident_id": "78dc5561-cc8e-458e-baf4-31da87e1272f",
+            "kind": "MAINTENANCE_REQUEST",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "b73b0305-adcb-442c-8af1-1f50392fba74",
+            "code": "INC-000009",
+            "kind": "INCIDENT",
+            "revision_id": "ff079e96-9167-4df1-b2a5-fdbc5a072c89",
+            "site_code": "KOBO-002",
+            "tenant": "demo"
+          }
+        ],
+        "sites": [
+          {
+            "site_code": "KOBO-001",
+            "site_id": "f81078e8-02ee-477a-bf6e-997e8f971ff3",
+            "tenant": "demo",
+            "tenant_id": "638e25f0-3f44-4bf2-a337-042ff87ddac6"
+          },
+          {
+            "site_code": "KOBO-002",
+            "site_id": "c9492a3b-2859-440f-bbce-efe8089dfa85",
+            "tenant": "demo",
+            "tenant_id": "638e25f0-3f44-4bf2-a337-042ff87ddac6"
+          },
+          {
+            "site_code": "KOBO-001",
+            "site_id": "42096e86-ee20-4827-b9e7-65030a05fd07",
+            "tenant": "w601-other",
+            "tenant_id": "f182a368-cb64-44a7-879c-8c8bd435cc37"
+          }
+        ]
+      },
+      "captures": [
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z",
+          "width": 1440,
+          "image": "screenshots/historical-1440.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "known_at_label": "Historical as of 21 Oct 2026, 12:00 UTC",
+          "heights_px": {
+            "page_header": 59,
+            "control_bar": 35,
+            "status_line": 33,
+            "date_bar_slot": 47,
+            "cards": 115,
+            "incident_cases_panel": 489,
+            "table": 357,
+            "thead": 35,
+            "pager": 29,
+            "scroll_hint": 0,
+            "case_boundaries_panel": 103
+          },
+          "row_heights_px": [
+            65,
+            65,
+            65,
+            65,
+            64
+          ],
+          "collapsed_details_max_h": 16,
+          "table_scroll": {
+            "client": 1120,
+            "scroll": 1120,
+            "overflowX": "auto"
+          },
+          "document_width": {
+            "scroll": 1440,
+            "client": 1440
+          },
+          "scroll_hint_visible": false,
+          "over_cap": [],
+          "text": {
+            "status": "Historical as of 21 Oct 2026, 12:00 UTC",
+            "cards": [
+              "Open incidents6Open or in progress in this window",
+              "High severityNot assessedSeverity is not recorded on work cases",
+              "Awaiting evidenceNot assessedNo case evidence review state",
+              "Closed verifiedNot assessedClosed does not verify an outcome"
+            ],
+            "state": null,
+            "zero": null,
+            "showing": "Showing 1–5 of 6",
+            "first_row": [
+              "INC-000003 · Battery alarm acknowledgedFull title textBattery alarm acknowledged",
+              "Kobo mini-grid",
+              "19 Oct 2026, 09:00 UTC",
+              "Not recorded",
+              "Open",
+              "Not assigned",
+              "None linked"
+            ],
+            "codes": [
+              "INC-000003",
+              "INC-000002",
+              "INC-000001",
+              "INC-000004",
+              "INC-000006"
+            ]
+          }
+        },
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z",
+          "width": 390,
+          "image": "screenshots/historical-390.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "known_at_label": "Historical as of 21 Oct 2026, 12:00 UTC",
+          "heights_px": {
+            "page_header": 54,
+            "control_bar": 165,
+            "status_line": 17,
+            "date_bar_slot": 211,
+            "cards": 264,
+            "incident_cases_panel": 682,
+            "table": 510,
+            "thead": 35,
+            "pager": 29,
+            "scroll_hint": 17,
+            "case_boundaries_panel": 126
+          },
+          "row_heights_px": [
+            102,
+            102,
+            85,
+            102,
+            84
+          ],
+          "collapsed_details_max_h": 16,
+          "table_scroll": {
+            "client": 318,
+            "scroll": 720,
+            "overflowX": "auto"
+          },
+          "document_width": {
+            "scroll": 390,
+            "client": 390
+          },
+          "scroll_hint_visible": true,
+          "over_cap": [],
+          "text": {
+            "status": "Historical as of 21 Oct 2026, 12:00 UTC",
+            "cards": [
+              "Open incidents6Open or in progress in this window",
+              "High severityNot assessedSeverity is not recorded on work cases",
+              "Awaiting evidenceNot assessedNo case evidence review state",
+              "Closed verifiedNot assessedClosed does not verify an outcome"
+            ],
+            "state": null,
+            "zero": null,
+            "showing": "Showing 1–5 of 6",
+            "first_row": [
+              "INC-000003 · Battery alarm acknowledgedFull title textBattery alarm acknowledged",
+              "Kobo mini-grid",
+              "19 Oct 2026, 09:00 UTC",
+              "Not recorded",
+              "Open",
+              "Not assigned",
+              "None linked"
+            ],
+            "codes": [
+              "INC-000003",
+              "INC-000002",
+              "INC-000001",
+              "INC-000004",
+              "INC-000006"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "state": "refused_503",
+      "fixture_command": null,
+      "database": "assetops_w601_a2absent_test (never created: unavailable store composition)",
+      "append_command": null,
+      "stored": null,
+      "captures": [
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 1440,
+          "image": "screenshots/refused_503-1440.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            }
+          ],
+          "known_at_label": null,
+          "heights_px": {
+            "page_header": 59,
+            "control_bar": 35,
+            "date_bar_slot": 47,
+            "state_block": 42,
+            "incident_cases_panel": 103,
+            "case_boundaries_panel": 103
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 1440,
+            "client": 1440
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": null,
+            "cards": [],
+            "state": "Work records could not be read. Reload.",
+            "zero": null,
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          }
+        },
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 390,
+          "image": "screenshots/refused_503-390.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            }
+          ],
+          "known_at_label": null,
+          "heights_px": {
+            "page_header": 54,
+            "control_bar": 165,
+            "date_bar_slot": 177,
+            "state_block": 42,
+            "incident_cases_panel": 121,
+            "case_boundaries_panel": 126
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 390,
+            "client": 390
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": null,
+            "cards": [],
+            "state": "Work records could not be read. Reload.",
+            "zero": null,
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          }
+        }
+      ]
+    },
+    {
+      "state": "refused_window",
+      "fixture_command": null,
+      "database": "none (invalid page query, no fetch)",
+      "append_command": null,
+      "stored": null,
+      "captures": [
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z",
+          "width": 1440,
+          "image": "screenshots/refused_window-1440.png",
+          "api": [],
+          "known_at_label": null,
+          "heights_px": {
+            "page_header": 59,
+            "control_bar": 35,
+            "date_bar_slot": 47,
+            "state_block": 42,
+            "incident_cases_panel": 103,
+            "case_boundaries_panel": 103
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 1440,
+            "client": 1440
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": null,
+            "cards": [],
+            "state": "Choose a valid date range of at most 31 days.",
+            "zero": null,
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          }
+        },
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z",
+          "width": 390,
+          "image": "screenshots/refused_window-390.png",
+          "api": [],
+          "known_at_label": null,
+          "heights_px": {
+            "page_header": 54,
+            "control_bar": 165,
+            "date_bar_slot": 177,
+            "state_block": 42,
+            "incident_cases_panel": 121,
+            "case_boundaries_panel": 126
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 390,
+            "client": 390
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": null,
+            "cards": [],
+            "state": "Choose a valid date range of at most 31 days.",
+            "zero": null,
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          }
+        }
+      ]
+    },
+    {
+      "state": "cursor_changed",
+      "fixture_command": "python tools/w601_seed.py --db assetops_w601_a2cursorchange_test --fixture cursor_change --clock 2026-10-21T12:00:00Z",
+      "database": "assetops_w601_a2cursorchange_test",
+      "append_command": "python tools/w601_seed.py --db assetops_w601_a2cursorchange_test --fixture cursor_change --clock 2026-10-21T12:00:00Z --append",
+      "stored": {
+        "written": [
+          {
+            "case_id": "ed42da72-abfb-4b2a-8ece-2c7c499dfb9b",
+            "code": "INC-000001",
+            "kind": "INCIDENT",
+            "revision_id": "16f286f7-847f-46f1-99af-488a75b835b5",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "3ca6ece8-34d7-4853-b2d8-5a66e8b4fe73",
+            "code": "INC-000002",
+            "kind": "INCIDENT",
+            "revision_id": "88706890-eacc-404c-9480-7edf664b939e",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "6b43152d-7406-440f-91ec-004fc3f93875",
+            "code": "INC-000003",
+            "kind": "INCIDENT",
+            "revision_id": "bdd9b9cf-70e4-4357-b484-b508bd8b85c1",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "ecdb9d2a-4283-452d-aa39-e0a5aec7286e",
+            "code": "INC-000004",
+            "kind": "INCIDENT",
+            "revision_id": "c052be1f-1d59-4c9d-8f34-1ef5f1649321",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "20ce5d5a-2362-4fc6-895e-5172127de9df",
+            "code": "INC-000005",
+            "kind": "INCIDENT",
+            "revision_id": "ba136875-cc62-4b07-844d-c5dbba9a1738",
+            "site_code": "KOBO-002",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "cda96654-2c3c-428e-8e9a-9c0274b3eafb",
+            "code": "INC-000006",
+            "kind": "INCIDENT",
+            "revision_id": "4e39ad4f-da8c-4951-89f3-4698767b4790",
+            "site_code": "KOBO-002",
+            "tenant": "demo"
+          },
+          {
+            "case_id": "b2dc43e6-b68a-4d9a-84f3-25c3aa3fd369",
+            "code": "INC-000007",
+            "kind": "INCIDENT",
+            "revision_id": "a670a2fd-adff-400f-9c01-59242a094fd8",
+            "site_code": "KOBO-001",
+            "tenant": "w601-other"
+          },
+          {
+            "case_id": "bcf3c145-399e-44bd-a3ec-9e6d76b392c4",
+            "code": "WR-000008",
+            "incident_id": "ed42da72-abfb-4b2a-8ece-2c7c499dfb9b",
+            "kind": "MAINTENANCE_REQUEST",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          }
+        ],
+        "sites": [
+          {
+            "site_code": "KOBO-001",
+            "site_id": "d0bc3d51-87c1-437e-9631-0bc4958ab298",
+            "tenant": "demo",
+            "tenant_id": "914e485e-f646-4884-b782-c17fa09721f2"
+          },
+          {
+            "site_code": "KOBO-002",
+            "site_id": "dc64d034-339c-4c88-adb6-23e007a361e5",
+            "tenant": "demo",
+            "tenant_id": "914e485e-f646-4884-b782-c17fa09721f2"
+          },
+          {
+            "site_code": "KOBO-001",
+            "site_id": "d2c766c0-a708-401f-94be-6e96a3dc641d",
+            "tenant": "w601-other",
+            "tenant_id": "1f06b00c-fc35-479f-8a41-02f86cf4c910"
+          }
+        ]
+      },
+      "captures": [
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": "1440 (page one before append)",
+          "image": "screenshots/cursor_changed-1440-page-one.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "known_at_label": "As known at 22 Oct 2026, 09:04 UTC",
+          "heights_px": {
+            "page_header": 59,
+            "control_bar": 35,
+            "status_line": 33,
+            "date_bar_slot": 47,
+            "cards": 115,
+            "incident_cases_panel": 489,
+            "table": 357,
+            "thead": 35,
+            "pager": 29,
+            "scroll_hint": 0,
+            "case_boundaries_panel": 103
+          },
+          "row_heights_px": [
+            65,
+            65,
+            65,
+            65,
+            64
+          ],
+          "collapsed_details_max_h": 16,
+          "table_scroll": {
+            "client": 1120,
+            "scroll": 1120,
+            "overflowX": "auto"
+          },
+          "document_width": {
+            "scroll": 1440,
+            "client": 1440
+          },
+          "scroll_hint_visible": false,
+          "over_cap": [],
+          "text": {
+            "status": "As known at 22 Oct 2026, 09:04 UTC",
+            "cards": [
+              "Open incidents6Open or in progress in this window",
+              "High severityNot assessedSeverity is not recorded on work cases",
+              "Awaiting evidenceNot assessedNo case evidence review state",
+              "Closed verifiedNot assessedClosed does not verify an outcome"
+            ],
+            "state": null,
+            "zero": null,
+            "showing": "Showing 1–5 of 6",
+            "first_row": [
+              "INC-000002 · Inverter fault confirmedFull title textInverter fault confirmedSour",
+              "Kobo mini-grid",
+              "19 Oct 2026, 09:00 UTC",
+              "Not recorded",
+              "Open",
+              "Not assigned",
+              "None linked"
+            ],
+            "codes": [
+              "INC-000002",
+              "INC-000003",
+              "INC-000004",
+              "INC-000001",
+              "INC-000005"
+            ]
+          }
+        },
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 1440,
+          "image": "screenshots/cursor_changed-1440.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDM3MjA0M2Y0Mzc5ZGUwZTFhZTBmNTdkMGQ1M2VmZDcxZjUxMGI5MDA1NzJhOGUwZTcxN2VjYzMxY2QwNDE2MSIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1IiwiMjBjZTVkNWEtMjM2Mi00ZmM2LTg5NWUtNTE3MjEyN2RlOWRmIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiZDBiYzNkNTEtODdjMS00MzdlLTk2MzEtMGJjNDk1OGFiMjk4IiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQwOTowNDo0MS40MjUzMTFaIiwibWFjIjoiNDRhM2Y2N2Q1ZWEyMDFhZGEzZThlMzU1MDAzZTUyY2Q0ZGE3NGMzMTEyMWIxNjE0ZThiYTEzZDVhMWMwYTUzMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6ZjZkNzc1YTQ0ZDI4N2Q4NWYxOTZkZTlhMDQyNDYwMTVhY2YwMDExMjUyYmUzNDhiZmUwMDk4NWZiNWZhZjM3YSIsInRlbmFudF9pZCI6IjkxNGU0ODVlLWY2NDYtNDg4NC1iNzgyLWMxN2ZhMDk3MjFmMiIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0&limit=5",
+              "status": 409
+            }
+          ],
+          "known_at_label": null,
+          "heights_px": {
+            "page_header": 59,
+            "control_bar": 35,
+            "date_bar_slot": 47,
+            "state_block": 60,
+            "incident_cases_panel": 103,
+            "case_boundaries_panel": 103
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 1440,
+            "client": 1440
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": null,
+            "cards": [],
+            "state": "The list changed. Reload the first page.Reload the first page",
+            "zero": null,
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          },
+          "appended": {
+            "append": true,
+            "fixture": "cursor_change",
+            "sites": [
+              {
+                "site_code": "KOBO-001",
+                "site_id": "d0bc3d51-87c1-437e-9631-0bc4958ab298",
+                "tenant": "demo",
+                "tenant_id": "914e485e-f646-4884-b782-c17fa09721f2"
+              },
+              {
+                "site_code": "KOBO-002",
+                "site_id": "dc64d034-339c-4c88-adb6-23e007a361e5",
+                "tenant": "demo",
+                "tenant_id": "914e485e-f646-4884-b782-c17fa09721f2"
+              },
+              {
+                "site_code": "KOBO-001",
+                "site_id": "d2c766c0-a708-401f-94be-6e96a3dc641d",
+                "tenant": "w601-other",
+                "tenant_id": "1f06b00c-fc35-479f-8a41-02f86cf4c910"
+              }
+            ],
+            "written": [
+              {
+                "case_id": "f99ef036-8c82-4bf5-b001-7b7a935acba0",
+                "code": "INC-000009",
+                "kind": "INCIDENT",
+                "revision_id": "1e1d2d6c-009d-4ae3-9021-ed89da558185",
+                "site_code": "KOBO-001",
+                "tenant": "demo"
+              }
+            ]
+          }
+        },
+        {
+          "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "width": 390,
+          "image": "screenshots/cursor_changed-390.png",
+          "api": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDM3MjA0M2Y0Mzc5ZGUwZTFhZTBmNTdkMGQ1M2VmZDcxZjUxMGI5MDA1NzJhOGUwZTcxN2VjYzMxY2QwNDE2MSIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1IiwiMjBjZTVkNWEtMjM2Mi00ZmM2LTg5NWUtNTE3MjEyN2RlOWRmIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiZDBiYzNkNTEtODdjMS00MzdlLTk2MzEtMGJjNDk1OGFiMjk4IiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQwOTowNDo0MS40MjUzMTFaIiwibWFjIjoiNDRhM2Y2N2Q1ZWEyMDFhZGEzZThlMzU1MDAzZTUyY2Q0ZGE3NGMzMTEyMWIxNjE0ZThiYTEzZDVhMWMwYTUzMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6ZjZkNzc1YTQ0ZDI4N2Q4NWYxOTZkZTlhMDQyNDYwMTVhY2YwMDExMjUyYmUzNDhiZmUwMDk4NWZiNWZhZjM3YSIsInRlbmFudF9pZCI6IjkxNGU0ODVlLWY2NDYtNDg4NC1iNzgyLWMxN2ZhMDk3MjFmMiIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0&limit=5",
+              "status": 409
+            }
+          ],
+          "known_at_label": null,
+          "heights_px": {
+            "page_header": 54,
+            "control_bar": 165,
+            "date_bar_slot": 177,
+            "state_block": 60,
+            "incident_cases_panel": 121,
+            "case_boundaries_panel": 126
+          },
+          "row_heights_px": [],
+          "collapsed_details_max_h": null,
+          "table_scroll": null,
+          "document_width": {
+            "scroll": 390,
+            "client": 390
+          },
+          "scroll_hint_visible": null,
+          "over_cap": [],
+          "text": {
+            "status": null,
+            "cards": [],
+            "state": "The list changed. Reload the first page.Reload the first page",
+            "zero": null,
+            "showing": null,
+            "first_row": null,
+            "codes": []
+          }
+        }
+      ]
+    }
+  ]
+}

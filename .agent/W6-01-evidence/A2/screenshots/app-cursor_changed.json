@@ -1,0 +1,287 @@
+{
+  "state": "cursor_changed",
+  "captured_at": "2026-10-22T09:04:47.583Z",
+  "results": [
+    {
+      "state": "cursor_changed",
+      "width": 1440,
+      "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "image": "cursor_changed-1440-page-one.png",
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "control_bar": {
+          "h": 35,
+          "w": 595
+        },
+        "status_line": {
+          "h": 33,
+          "w": 175
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "cards": {
+          "h": 115,
+          "w": 1160
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "incident_cases_panel": {
+          "h": 489,
+          "w": 1160
+        },
+        "table": {
+          "h": 357,
+          "w": 1120
+        },
+        "thead": {
+          "h": 35,
+          "w": 1120
+        },
+        "pager": {
+          "h": 29,
+          "w": 1120
+        },
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        },
+        "case_boundaries_panel": {
+          "h": 103,
+          "w": 1160
+        }
+      },
+      "scroll_hint_visible": false,
+      "row_heights": [
+        65,
+        65,
+        65,
+        65,
+        64
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "status": "As known at 22 Oct 2026, 09:04 UTC",
+        "cards": [
+          "Open incidents6Open or in progress in this window",
+          "High severityNot assessedSeverity is not recorded on work cases",
+          "Awaiting evidenceNot assessedNo case evidence review state",
+          "Closed verifiedNot assessedClosed does not verify an outcome"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–5 of 6",
+        "first_row": [
+          "INC-000002 · Inverter fault confirmedFull title textInverter fault confirmedSour",
+          "Kobo mini-grid",
+          "19 Oct 2026, 09:00 UTC",
+          "Not recorded",
+          "Open",
+          "Not assigned",
+          "None linked"
+        ],
+        "codes": [
+          "INC-000002",
+          "INC-000003",
+          "INC-000004",
+          "INC-000001",
+          "INC-000005"
+        ]
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "cursor_changed",
+      "width": 1440,
+      "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "image": "cursor_changed-1440.png",
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "control_bar": {
+          "h": 35,
+          "w": 595
+        },
+        "status_line": null,
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "cards": null,
+        "loading": null,
+        "state_block": {
+          "h": 60,
+          "w": 1160
+        },
+        "zero_block": null,
+        "incident_cases_panel": {
+          "h": 103,
+          "w": 1160
+        },
+        "table": null,
+        "thead": null,
+        "pager": null,
+        "scroll_hint": null,
+        "case_boundaries_panel": {
+          "h": 103,
+          "w": 1160
+        }
+      },
+      "scroll_hint_visible": null,
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "status": null,
+        "cards": [],
+        "state": "The list changed. Reload the first page.Reload the first page",
+        "zero": null,
+        "showing": null,
+        "first_row": null,
+        "codes": []
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDM3MjA0M2Y0Mzc5ZGUwZTFhZTBmNTdkMGQ1M2VmZDcxZjUxMGI5MDA1NzJhOGUwZTcxN2VjYzMxY2QwNDE2MSIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1IiwiMjBjZTVkNWEtMjM2Mi00ZmM2LTg5NWUtNTE3MjEyN2RlOWRmIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiZDBiYzNkNTEtODdjMS00MzdlLTk2MzEtMGJjNDk1OGFiMjk4IiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQwOTowNDo0MS40MjUzMTFaIiwibWFjIjoiNDRhM2Y2N2Q1ZWEyMDFhZGEzZThlMzU1MDAzZTUyY2Q0ZGE3NGMzMTEyMWIxNjE0ZThiYTEzZDVhMWMwYTUzMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6ZjZkNzc1YTQ0ZDI4N2Q4NWYxOTZkZTlhMDQyNDYwMTVhY2YwMDExMjUyYmUzNDhiZmUwMDk4NWZiNWZhZjM3YSIsInRlbmFudF9pZCI6IjkxNGU0ODVlLWY2NDYtNDg4NC1iNzgyLWMxN2ZhMDk3MjFmMiIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0&limit=5",
+          "status": 409
+        }
+      ],
+      "appended": {
+        "append": true,
+        "fixture": "cursor_change",
+        "sites": [
+          {
+            "site_code": "KOBO-001",
+            "site_id": "d0bc3d51-87c1-437e-9631-0bc4958ab298",
+            "tenant": "demo",
+            "tenant_id": "914e485e-f646-4884-b782-c17fa09721f2"
+          },
+          {
+            "site_code": "KOBO-002",
+            "site_id": "dc64d034-339c-4c88-adb6-23e007a361e5",
+            "tenant": "demo",
+            "tenant_id": "914e485e-f646-4884-b782-c17fa09721f2"
+          },
+          {
+            "site_code": "KOBO-001",
+            "site_id": "d2c766c0-a708-401f-94be-6e96a3dc641d",
+            "tenant": "w601-other",
+            "tenant_id": "1f06b00c-fc35-479f-8a41-02f86cf4c910"
+          }
+        ],
+        "written": [
+          {
+            "case_id": "f99ef036-8c82-4bf5-b001-7b7a935acba0",
+            "code": "INC-000009",
+            "kind": "INCIDENT",
+            "revision_id": "1e1d2d6c-009d-4ae3-9021-ed89da558185",
+            "site_code": "KOBO-001",
+            "tenant": "demo"
+          }
+        ]
+      }
+    },
+    {
+      "state": "cursor_changed",
+      "width": 390,
+      "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "image": "cursor_changed-390.png",
+      "heights": {
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "control_bar": {
+          "h": 165,
+          "w": 358
+        },
+        "status_line": null,
+        "date_bar_slot": {
+          "h": 177,
+          "w": 358
+        },
+        "cards": null,
+        "loading": null,
+        "state_block": {
+          "h": 60,
+          "w": 358
+        },
+        "zero_block": null,
+        "incident_cases_panel": {
+          "h": 121,
+          "w": 358
+        },
+        "table": null,
+        "thead": null,
+        "pager": null,
+        "scroll_hint": null,
+        "case_boundaries_panel": {
+          "h": 126,
+          "w": 358
+        }
+      },
+      "scroll_hint_visible": null,
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 900,
+      "text": {
+        "status": null,
+        "cards": [],
+        "state": "The list changed. Reload the first page.Reload the first page",
+        "zero": null,
+        "showing": null,
+        "first_row": null,
+        "codes": []
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDM3MjA0M2Y0Mzc5ZGUwZTFhZTBmNTdkMGQ1M2VmZDcxZjUxMGI5MDA1NzJhOGUwZTcxN2VjYzMxY2QwNDE2MSIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1IiwiMjBjZTVkNWEtMjM2Mi00ZmM2LTg5NWUtNTE3MjEyN2RlOWRmIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiZDBiYzNkNTEtODdjMS00MzdlLTk2MzEtMGJjNDk1OGFiMjk4IiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQwOTowNDo0MS40MjUzMTFaIiwibWFjIjoiNDRhM2Y2N2Q1ZWEyMDFhZGEzZThlMzU1MDAzZTUyY2Q0ZGE3NGMzMTEyMWIxNjE0ZThiYTEzZDVhMWMwYTUzMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6ZjZkNzc1YTQ0ZDI4N2Q4NWYxOTZkZTlhMDQyNDYwMTVhY2YwMDExMjUyYmUzNDhiZmUwMDk4NWZiNWZhZjM3YSIsInRlbmFudF9pZCI6IjkxNGU0ODVlLWY2NDYtNDg4NC1iNzgyLWMxN2ZhMDk3MjFmMiIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0&limit=5",
+          "status": 409
+        }
+      ],
+      "note": "same refused page, resized"
+    }
+  ]
+}
