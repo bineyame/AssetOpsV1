@@ -2343,3 +2343,10 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L3 (left as ruled in rF): portfolio scope and progress drawers show raw coverage states, reason codes, keys, UUIDs and `VERIFIED`; route to the batched client-facing copy pass.
 - L5 (left as ruled in rF): v69 value-card label icon/arrow and pulse icons are not reproduced; presentation-pass item.
 - Full suite on a loaded machine hit the 100-minute cap at 95% (0 failures); the rerun with one builder passed in 57 min. Keep suites to light load.
+
+## W4-03 Lows
+- L8 plain labels ("Stop at battery charge", "Proposed load", "Duration", "Tariff") are implementer wording within uF's plain-language rule; ratify in the plain-language pass.
+- At 1440 the Opportunity breadcrumb shows "Global Findings unavailable; ..." in the crumb (consistent with rulings); revisit in the copy pass.
+- Two Alternatives capture states remain unproved: stocked, and successful-empty at current DB time.
+- The "Alternatives unavailable" label is a recorded mock departure (u9c).
+- Environment: worktrees created before a `.gitattributes` eol=lf rule keep stale CRLF copies, and byte-pinned tests then fail. Re-checkout the files (`git ls-files --eol`), and add every new byte-pinned fixture to `.gitattributes`.
