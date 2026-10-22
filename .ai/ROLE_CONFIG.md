@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Codex (Claude exception ended 2026-10-22 12:39; see below); scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | **Claude (`assetops-architect`, fresh instance) until Codex actually accepts requests again (see below)**; scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
@@ -60,9 +60,9 @@ Owner text verbatim: `.agent/owner-v69-site-mockup-comparison-2026-10-06.md`.
 - Revert this row to plain Codex when the owner accepts the enhanced mock-ups
   or says so.
 
-## Architect Was Claude Until The Codex Reset At 2026-10-22 12:39
+## Architect Is Claude Until The Codex Quota Is Actually Reset (2026-10-22)
 
-Ended 12:39; the row is Codex again, and the retrospective is queued in `.agent/coordinator-handoff.md`.
+Codex still refused for its usage limit at 12:39-13:00 despite the quoted reset time, so the owner's condition ("until  the codex quota is reset") still holds. The coordinator retries Codex periodically, and the row reverts on the first accepted request.
 
 Owner (verbatim, `.agent/owner-claude-architect-2026-10-22.md`): "use a fresh
 claude architect instead of codex until  the codex quota is reset". Codex hit
