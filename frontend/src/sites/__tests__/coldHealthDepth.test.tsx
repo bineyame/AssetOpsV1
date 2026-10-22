@@ -216,7 +216,8 @@ describe("health_dto_rendering", () => {
     );
     const gen = row(container, "BACKUP_GENERATOR").querySelector("th") as HTMLElement;
     expect(gen.textContent).toBe(`Backup generator GEN-CR-01 ${GEN}`);
-    expect(gen.querySelector('code[data-vocabulary-exempt="source-reference"]')?.textContent).toBe(GEN);
+    expect(gen.querySelector('code[data-vocabulary-exempt="source-reference"][data-health-asset-id]')?.textContent).toBe(GEN);
+    expect(gen.closest(".panel")?.classList.contains("cold-health-condition")).toBe(true);
     expect(cells(row(container, "COOLING_PLANT"))[0]).toBe("cmp-1, Second compressor");
     expect(cells(row(container, "TEMPERATURE_SENSING"))[0]).toBe("Temperature sensing");
     cleanup();
@@ -225,11 +226,18 @@ describe("health_dto_rendering", () => {
     expect(cells(row(second.container, "TEMPERATURE_SENSING"))[0]).toBe(`Chamber probe ${PROBE}`);
   });
 
-  it("links each card label through coldUiHref with the exact query; a null link renders text", async () => {
+  it("each card has a plain label and a separate View detail → link through coldUiHref; a null link renders none", async () => {
     const routes = coldSiteRoutes(SITE_CODE);
     expect(coldUiHref(`/api/sites/${SITE_CODE}/cold/health?${Q}`, routes)).toBe(`/sites/${SITE_CODE}/health?${Q}`);
     const { container } = await renderHealth(loaded([generator(), plant(), sensing({ ...NOT_CONFIGURED.TEMPERATURE_SENSING })]));
-    const href = (kind: string) => card(container, kind).querySelector("a")?.getAttribute("href") ?? null;
+    const detail = (kind: string) => card(container, kind).querySelector(".v69-metric__link a");
+    const href = (kind: string) => detail(kind)?.getAttribute("href") ?? null;
+    for (const kind of ["BACKUP_GENERATOR", "COOLING_PLANT", "TEMPERATURE_SENSING"]) {
+      expect(card(container, kind).querySelector(".v69-metric__label a")).toBeNull();
+    }
+    expect(detail("BACKUP_GENERATOR")?.textContent).toBe("View detail →");
+    expect(card(container, "TEMPERATURE_SENSING").querySelector(".v69-metric__link")).toBeNull();
+    expect(card(container, "TEMPERATURE_SENSING").querySelector("a")).toBeNull();
     expect(href("BACKUP_GENERATOR")).toBe(`/sites/${SITE_CODE}/performance/backup?${Q}`);
     expect(href("COOLING_PLANT")).toBe(`/sites/${SITE_CODE}/performance/cooling?${Q}`);
     expect(href("TEMPERATURE_SENSING")).toBeNull();
@@ -247,6 +255,12 @@ describe("condition_matrix", () => {
     expect(value(container, "COOLING_PLANT")).toBe("Unknown");
     expect(value(container, "TEMPERATURE_SENSING")).toBe("Limited");
     expect(card(container, "COOLING_PLANT").className).not.toMatch(/v69-metric--(green|amber|red)/);
+    // Q-C3-5 rulings 2 and 4: all three cards are mock assessment metrics (3 px border, 17 px body-colour word).
+    for (const kind of ["BACKUP_GENERATOR", "COOLING_PLANT", "TEMPERATURE_SENSING"]) {
+      expect(card(container, kind).classList.contains("v69-metric--assessment")).toBe(true);
+      expect(card(container, kind).getAttribute("style")).toBeNull();
+    }
+    expect(card(container, "BACKUP_GENERATOR").className).toContain("v69-metric--assessment v69-metric--amber");
     const notice = container.querySelector("[data-health-condition-notice]") as HTMLElement;
     expect(notice.textContent).toBe(HEALTH_CONDITION_NOTICE);
     expect(HEALTH_CONDITION_NOTICE).toBe(

@@ -107,8 +107,9 @@ function HealthBody({ read, routes }: { read: ColdHealthRead; routes: ColdSiteRo
           return (
             <MetricCard
               key={row.kind}
-              word
-              label={href === null ? row.label : <Link to={href}>{row.label}</Link>}
+              assessment
+              label={row.label}
+              link={href === null ? undefined : <Link to={href}>View detail →</Link>}
               value={HEALTH_CARD_VALUE[row.condition_state]}
               note={row.limitation}
               tone={row.condition_state === "NEEDS_INVESTIGATION" ? "amber" : undefined}
@@ -117,7 +118,7 @@ function HealthBody({ read, routes }: { read: ColdHealthRead; routes: ColdSiteRo
           );
         })}
       </MetricCards>
-      <Panel heading="Condition and evidence" headingId={HEALTH_TABLE_HEADING_ID}>
+      <Panel heading="Condition and evidence" headingId={HEALTH_TABLE_HEADING_ID} className="cold-health-condition">
         {healthEmpty(rows) ? (
           <p className="not-available-yet" data-health-empty>
             {HEALTH_EMPTY}

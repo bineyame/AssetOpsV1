@@ -30,10 +30,12 @@ export interface MetricCardProps {
   assessment?: boolean;
   /** Extra attributes for tests and evidence, e.g. `{ "data-site-metric": "count" }`. */
   data?: Record<string, string>;
+  /** The mock's separate card link below the note (e.g. `View detail →`); omitted when absent. */
+  link?: ReactNode;
 }
 
 /** The mock's `.metric`: label, one large value, one note. */
-export function MetricCard({ label, value, note, tone, word = false, assessment = false, data }: MetricCardProps) {
+export function MetricCard({ label, value, note, tone, word = false, assessment = false, data, link }: MetricCardProps) {
   const className = [
     "v69-metric",
     word || assessment ? "v69-metric--word" : "",
@@ -47,6 +49,7 @@ export function MetricCard({ label, value, note, tone, word = false, assessment 
       <div className="v69-metric__label">{label}</div>
       <div className="v69-metric__value">{value}</div>
       {note === undefined ? null : <div className="v69-metric__note">{note}</div>}
+      {link === undefined ? null : <div className="v69-metric__link">{link}</div>}
     </li>
   );
 }
