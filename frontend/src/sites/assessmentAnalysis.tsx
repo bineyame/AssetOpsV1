@@ -76,6 +76,11 @@ export interface AssessmentAnalysisProps {
     | { kind: "record"; href: (link: EvidenceLink) => string };
   /** The other-possible-explanations destination, when there is one. */
   alternativesHref: string | null;
+  /**
+   * W4-03 unit 6b (u6 ruling 6): with no `alternativesHref`, show the noninteractive
+   * `Alternatives for this Finding unavailable` instead of nothing (no exact Finding revision resolved).
+   */
+  alternativesUnavailable?: boolean;
   /** This period's record coverage beside the site's records (Site Evidence > Analysis). */
   coverageHref?: string;
   /** Extra links shown at the end (Finding, Dispatch, Site Evidence). */
@@ -88,6 +93,7 @@ export function AssessmentAnalysis({
   revisionHistory,
   records,
   alternativesHref,
+  alternativesUnavailable = false,
   coverageHref,
   links,
 }: AssessmentAnalysisProps) {
@@ -273,11 +279,13 @@ export function AssessmentAnalysis({
               <Link to={records.href}>Supporting records for each part (Evidence)</Link>
             </li>
           ) : null}
-          {alternativesHref === null ? null : (
+          {alternativesHref !== null ? (
             <li>
               <Link to={alternativesHref}>Other possible explanations (Alternatives)</Link>
             </li>
-          )}
+          ) : alternativesUnavailable ? (
+            <li data-alternatives-unavailable>Alternatives for this Finding unavailable</li>
+          ) : null}
           {links}
         </ul>
       </Section>

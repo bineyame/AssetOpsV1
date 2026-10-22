@@ -1,0 +1,288 @@
+{
+  "alternative_site_code": "KOBO-001",
+  "commands": {
+    "alternative": {
+      "actor": {
+        "attestation": "service=w403-fixture;job=walkthrough;rule=w403/1",
+        "id": "service:w403-fixture",
+        "kind": "SERVICE"
+      },
+      "alternative_key": "POLICY",
+      "cited_accepted_evidence_ids": [],
+      "disposition": "PLAUSIBLE",
+      "evidence_summary": "No selected record documents the configured policy.",
+      "explanation": "A configured reserve policy may explain the generator run.",
+      "finding_revision_id": "<selected KOBO W1 Finding revision>",
+      "idempotency_key": "w403-walk-alt-policy",
+      "missing_evidence_reason": "No record states the counterfactual service outcome.",
+      "reason": "This record does not establish the counterfactual service outcome.",
+      "schema_version": "mini-alternative-command-1",
+      "supersedes_revision_id": null
+    },
+    "cases": [
+      {
+        "body": {
+          "action_links": [],
+          "actor": {
+            "attestation": "service=w401-fixture;job=w403-walkthrough;rule=w401/1",
+            "id": "service:w401-fixture",
+            "kind": "SERVICE"
+          },
+          "asset_id": null,
+          "cited_accepted_evidence_ids": [],
+          "finding_links": [],
+          "idempotency_key": "w403-walk-case-incident",
+          "kind": "INCIDENT",
+          "narrative": "Operator logged a supply complaint during the mill trial window; cause not established.",
+          "occurred_at": "<one hour before replay>",
+          "title": "Mill trial supply complaint"
+        },
+        "linked": true,
+        "site_code": "MG-W402-001"
+      },
+      {
+        "body": {
+          "action_links": [],
+          "actor": {
+            "attestation": "service=w401-fixture;job=w403-walkthrough;rule=w401/1",
+            "id": "service:w401-fixture",
+            "kind": "SERVICE"
+          },
+          "asset_id": null,
+          "cited_accepted_evidence_ids": [],
+          "finding_links": [],
+          "idempotency_key": "w403-walk-case-request",
+          "kind": "MAINTENANCE_REQUEST",
+          "narrative": "Inspection requested; no decision is associated with this request.",
+          "occurred_at": "<one hour before replay>",
+          "title": "Inspect mill feeder breaker"
+        },
+        "linked": false,
+        "site_code": "MG-W402-001"
+      }
+    ],
+    "opportunity_scenario_link": {
+      "actor": {
+        "attestation": "service=w403-fixture;job=walkthrough;rule=w403/1",
+        "id": "service:w403-fixture",
+        "kind": "SERVICE"
+      },
+      "idempotency_key": "w403-walk-opp-scn",
+      "opportunity_id": "<selected MG opportunity>",
+      "scenario_id": "<positive scenario>",
+      "schema_version": "mini-opportunity-scenario-command-1"
+    },
+    "scenario_correction": {
+      "actor": {
+        "attestation": "service=w403-fixture;job=walkthrough;rule=w403/1",
+        "id": "service:w403-fixture",
+        "kind": "SERVICE"
+      },
+      "assumptions": [
+        {
+          "key": "proposed_kw",
+          "source": "Authored W4-03 walkthrough trial (test scenario only)",
+          "unit": "kW",
+          "value": "10"
+        },
+        {
+          "key": "duration_hours",
+          "source": "Authored W4-03 walkthrough trial (test scenario only)",
+          "unit": "h",
+          "value": "1"
+        },
+        {
+          "key": "tariff_per_kwh",
+          "source": "Authored W4-03 walkthrough tariff (test scenario only)",
+          "unit": "USD/kWh",
+          "value": "0.25"
+        }
+      ],
+      "correction_reason": "Narrative clarified.",
+      "idempotency_key": "w403-walk-scn-positive-r2",
+      "kind": "PRODUCTIVE_LOAD",
+      "name": "Grain mill one-hour trial (corrected narrative)",
+      "narrative": "Labelled test scenario: a 10 kW grain mill for one hour; narrative corrected.",
+      "pinned_selection": "<five selected noon tuples>",
+      "schema_version": "mini-scenario-command-1",
+      "supersedes_revision_id": "<positive scenario revision>"
+    },
+    "scenario_missing_tariff": {
+      "actor": {
+        "attestation": "service=w403-fixture;job=walkthrough;rule=w403/1",
+        "id": "service:w403-fixture",
+        "kind": "SERVICE"
+      },
+      "assumptions": [
+        {
+          "key": "proposed_kw",
+          "source": "Authored W4-03 walkthrough trial (test scenario only)",
+          "unit": "kW",
+          "value": "10"
+        },
+        {
+          "key": "duration_hours",
+          "source": "Authored W4-03 walkthrough trial (test scenario only)",
+          "unit": "h",
+          "value": "1"
+        }
+      ],
+      "idempotency_key": "w403-walk-scn-no-tariff",
+      "kind": "PRODUCTIVE_LOAD",
+      "name": "Grain mill trial without tariff",
+      "narrative": "Labelled test scenario with no declared tariff.",
+      "pinned_selection": "<five selected noon tuples>",
+      "schema_version": "mini-scenario-command-1"
+    },
+    "scenario_positive": {
+      "actor": {
+        "attestation": "service=w403-fixture;job=walkthrough;rule=w403/1",
+        "id": "service:w403-fixture",
+        "kind": "SERVICE"
+      },
+      "assumptions": [
+        {
+          "key": "proposed_kw",
+          "source": "Authored W4-03 walkthrough trial (test scenario only)",
+          "unit": "kW",
+          "value": "10"
+        },
+        {
+          "key": "duration_hours",
+          "source": "Authored W4-03 walkthrough trial (test scenario only)",
+          "unit": "h",
+          "value": "1"
+        },
+        {
+          "key": "tariff_per_kwh",
+          "source": "Authored W4-03 walkthrough tariff (test scenario only)",
+          "unit": "USD/kWh",
+          "value": "0.25"
+        }
+      ],
+      "idempotency_key": "w403-walk-scn-positive",
+      "kind": "PRODUCTIVE_LOAD",
+      "name": "Grain mill one-hour trial",
+      "narrative": "Labelled test scenario: a 10 kW grain mill for one hour at an authored tariff.",
+      "pinned_selection": "<five selected noon tuples>",
+      "schema_version": "mini-scenario-command-1"
+    },
+    "work_link": {
+      "actor": {
+        "attestation": "service=w403-fixture;job=walkthrough;rule=w403/1",
+        "id": "service:w403-fixture",
+        "kind": "SERVICE"
+      },
+      "case_id": "<MG incident>",
+      "idempotency_key": "w403-walk-work-link",
+      "opportunity_id": "<selected MG opportunity>",
+      "scenario_id": null,
+      "schema_version": "mini-decision-link-command-1"
+    }
+  },
+  "expect": {
+    "late": {
+      "before_rerun": "STALE_SOURCE",
+      "new_revision": true,
+      "old_cutoff_currentness": "STALE_SOURCE",
+      "old_cutoff_history_head": "first revision"
+    },
+    "missing_study": {
+      "positive_display": false,
+      "status_not": "SUPPORTED"
+    },
+    "missing_tariff": {
+      "energy_kwh": "as positive",
+      "gross_sales": null
+    },
+    "not_claimed": [
+      "registered KOBO positive publication",
+      "W4-01 HTTP case creation (cases are seeded in process through WorkService)",
+      "mock F-104/F-109, tariff or 18-20 kW defaults"
+    ],
+    "positive": {
+      "assessed_days": 5,
+      "eligible_days": "derived from the selected day rows",
+      "excluded_day": "2026-10-06",
+      "per_eligible_window": {
+        "energy_kwh": "10",
+        "gross_sales": {
+          "amount": "2.50",
+          "currency": "USD"
+        },
+        "when": "every eligible selected lower bound >= 10 kWh; otherwise calculation WITHHELD with reason HEADROOM_BELOW_LOAD"
+      },
+      "status": "SUPPORTED"
+    },
+    "refusals": {
+      "cross_site_case": 404,
+      "missing_grant": 403,
+      "no_credential": 403,
+      "wrong_site": 403
+    },
+    "work": {
+      "case_count_unchanged": true,
+      "linked_case_context_kind": "OPPORTUNITY",
+      "unlinked_case_contexts": []
+    }
+  },
+  "foreign_site_code": "KOBO-001",
+  "label": "W4-03 private two-Site walkthrough: authored commands and semantic outcomes only (no resolved UUIDs)",
+  "late_variant": {
+    "conflicting_means_kw": [
+      {
+        "device": "pv-inverter-controller",
+        "from_minute": 30,
+        "kw": "25",
+        "signal": "ac-power",
+        "to_minute": 31
+      }
+    ],
+    "hours": [
+      {
+        "day": "2026-10-08",
+        "from": "2026-10-08T09:00:00Z",
+        "to": "2026-10-08T10:00:00Z"
+      }
+    ],
+    "label": "late contradictory PV mean for the selected 2026-10-08 noon hour, accepted after the first opportunity selection; not published under the W4-02 authored source",
+    "means_kw": [],
+    "points": [],
+    "sequence_epoch": "w403-late",
+    "variant": "w403-late-contradictory"
+  },
+  "missing_reconcile": {
+    "from": "2026-10-07T21:00:00.000000Z",
+    "site": "MG-W402-001",
+    "to": "2026-10-12T21:00:00.000000Z"
+  },
+  "missing_study_days": [
+    "2026-10-08",
+    "2026-10-09",
+    "2026-10-10",
+    "2026-10-11",
+    "2026-10-12"
+  ],
+  "opportunity_site_code": "MG-W402-001",
+  "reconcile": {
+    "from": "2026-10-05T21:00:00.000000Z",
+    "site": "MG-W402-001",
+    "to": "2026-10-10T21:00:00.000000Z"
+  },
+  "schema_version": "w403-mini-decisions/1",
+  "source": {
+    "conversion": "backend/conversions/w4-mini-depth-cases-v1.json",
+    "fixture_id": "assetops.w4-mini-depth-cases",
+    "fixture_version": 1,
+    "missing_variant": "missing-conflicting",
+    "positive_variant": "positive"
+  },
+  "study_days": [
+    "2026-10-06",
+    "2026-10-07",
+    "2026-10-08",
+    "2026-10-09",
+    "2026-10-10"
+  ],
+  "work_link_site_code": "MG-W402-001"
+}

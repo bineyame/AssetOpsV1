@@ -185,6 +185,26 @@ def test_a_nonconforming_document_refuses(change, message) -> None:
     assert message in refused(mutated(change))
 
 
+def second_site(**fields) -> dict:
+    return mutated(lambda d: d.update({"scenario_id": "ev-complete-lab-002", "site_code": "EV-LAB-002",
+                                       "seed": 20518, **fields}))
+
+
+def test_the_second_site_pair_parses_only_for_its_one_scenario_id() -> None:
+    """W3-02 c3b: (EV-LAB-002, 20518) is admitted for `ev-complete-lab-002` and no other scenario ID."""
+    definition = parse_ev_scenario_document(second_site())
+    assert (definition.scenario_id, definition.site_code, definition.seed) == (
+        "ev-complete-lab-002", "EV-LAB-002", 20518)
+    assert definition.window == WINDOW and definition.forcing == ev("complete").forcing
+    for other_id in ("ev-complete", "ev-interrupted", "ev-complete-lab-003", "ev-lab-002"):
+        assert "site_code" in refused(second_site(scenario_id=other_id))
+    assert "seed" in refused(second_site(scenario_id="ev-complete", site_code=EV_SITE))
+    assert "site_code" in refused(mutated(lambda d: d.update(site_code="EV-LAB-002")))
+    assert "seed" in refused(mutated(lambda d: d.update(seed=20518)))
+    assert "seed" in refused(second_site(seed=20517))
+    assert "site_code" in refused(second_site(site_code=EV_SITE))
+
+
 def test_same_minute_order_is_plug_before_authorize_and_c1_before_c2() -> None:
     swapped = mutated(lambda d: d["forcing"].__setitem__(slice(0, 2), d["forcing"][1::-1]))
     assert "order" in refused(swapped)

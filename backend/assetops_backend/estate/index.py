@@ -15,7 +15,8 @@ from assetops_backend.estate.coverage import (
     not_applicable, site_coverage)
 from assetops_backend.estate.scope import (
     EstateRefusal, EstateRequest, EstateSelectionInconsistent, access_basis, cursor_after, cursor_known_at,
-    decode_cursor, encode_cursor, selection_token, token_time, wire_time)
+    cursor_marker, decode_cursor, decode_portfolio_cursor, encode_cursor, encode_portfolio_cursor,
+    portfolio_cursor_key, selection_token, token_time, wire_time)
 
 FINDINGS_SCHEMA, ACTIONS_SCHEMA, SCOPE_SCHEMA = "estate-finding-index-2", "estate-action-index-1", "estate-scope-1"
 FINDINGS_ORDER, ACTIONS_ORDER = "episode_start desc, finding_id asc", "created_at desc, action_id asc"
@@ -58,6 +59,64 @@ def _page(rows: list[dict[str, Any]], key: Callable[[dict[str, Any]], tuple], af
     return page, (page[-1] if len(remaining) > limit else None)
 
 
+def select_finding_scope(snap: Any, tenant_id: Any, req: EstateRequest,
+                         scope: dict[str, Any]) -> tuple[list[tuple[dict[str, Any], str, dict[str, Any]]],
+                                                          list[dict[str, Any]]]:
+    """W3-03 closure 4 B1/B2: every authorized Site's `(site, domain, cov)` and every selected Finding row (all
+    lifecycle heads) before lens/state filtering, sorting and paging, on the caller's one snapshot and `scope`.
+    Private keys carry the Portfolio row facts (`_domain` stored Site type, `_episode_end`, `_mechanism`); the
+    Findings root strips them with every other private key."""
+    per_site = []
+    for site in scope["sites"]:
+        domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
+        cov = (not_applicable() if domain is None
+               else site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"]))
+        per_site.append((site, domain or NOT_APPLICABLE, cov))
+    rows: list[dict[str, Any]] = []
+    for site, _, cov in per_site:
+        code = site["site_code"]
+        for r in cov["rows"]:
+            flags = ["COST"] if r["consequence"]["state"] == "PRICED" else []
+            fid, frid = r["finding_id"], r["finding_revision_id"]
+            rows.append({
+                "finding_id": fid, "finding_revision_id": frid, "site_id": str(site["site_id"]),
+                "site_code": code, "site_name": site["site_name"], "finding_label": f"Finding {fid[:8]}",
+                "title": r["title"], "priority": None, "confidence": None, "confidence_reasons": [],
+                "lifecycle": r["lifecycle"], "lens_flags": flags, "consequence": r["consequence"],
+                "source_provenance": r["source_provenance"], "episode_start": wire_time(r["episode_start"]),
+                "status": cov["state"],
+                "links": {"finding": f"/sites/{code}/findings/{fid}?revision_id={frid}", "site": f"/sites/{code}"},
+                "_at": r["episode_start"], "_site": site, "_domain": site["site_type"],
+                "_episode_end": r.get("episode_end"), "_mechanism": r.get("mechanism")})
+    return per_site, rows
+
+
+def select_action_scope(snap: Any, tenant_id: Any, req: EstateRequest,
+                        scope: dict[str, Any]) -> tuple[list[tuple[dict[str, Any], dict[str, Any]]],
+                                                         list[dict[str, Any]]]:
+    """W3-03 closure 4 B1/B2: every authorized Site's `(site, cov)` and every selected Action created in the
+    requested window, before sorting and paging, on the caller's one snapshot and `scope`."""
+    per_site = []
+    for site in scope["sites"]:
+        applicable = DOMAIN_OF_SITE_TYPE.get(site["site_type"]) == MINI_GRID
+        cov = (site_coverage(snap, tenant_id, site["site_id"], ACTIONS, req.from_, req.to, scope["k"])
+               if applicable else not_applicable())
+        per_site.append((site, cov))
+    rows = []
+    for site, cov in per_site:
+        code = site["site_code"]
+        for r in cov["rows"]:
+            rows.append({**{k: v for k, v in r.items() if not k.startswith("_")},
+                         "site_id": str(site["site_id"]), "site_code": code, "site_name": site["site_name"],
+                         "created_at": wire_time(r["created_at"]),
+                         "links": {"action": f"/sites/{code}/actions/{r['action_id']}?event_id="
+                                             f"{r['selected_event_id']}",
+                                   "source": f"/sites/{code}/findings/{r['source_finding_id']}?revision_id="
+                                             f"{r['source_finding_revision_id']}"},
+                         "_at": r["created_at"], "_raw": r})
+    return per_site, rows
+
+
 class EstateIndexService:
     def __init__(self, store: Any) -> None:
         self.store = store
@@ -76,8 +135,14 @@ class EstateIndexService:
     def _scope(snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         """Read time, cutoff and the authorized imported Site set. The tenant is the server's; a denied candidate
         never enters a row, count or digest."""
+        if req.kind == "portfolio":
+            # W3-03 r1b Q-1b-1: the key is checked on every Portfolio request (page one and an empty scope too)
+            # before any selection read; the MAC verifies before any cursor field is trusted.
+            key = portfolio_cursor_key()
+            cursor = None if req.cursor is None else decode_portfolio_cursor(req.cursor, key)
+        else:
+            cursor = None if req.cursor is None else decode_cursor(req.kind, req.cursor)
         read_at: datetime = snap.read_at
-        cursor = None if req.cursor is None else decode_cursor(req.kind, req.cursor)
         known = req.known_at
         if known is not None and known > read_at:
             raise EstateRefusal("INVALID_KNOWN_AT")
@@ -113,26 +178,29 @@ class EstateIndexService:
                     "authorized_site_ids": sorted(x.lower() for x in scope["ids"]),
                     "access_basis": scope["access_basis"], "from": token_time(req.from_), "to": token_time(req.to),
                     "selection_token": token}
-        if req.kind == "findings":
+        if req.kind in ("findings", "portfolio"):  # W3-03 B1/B2: Portfolio fences its lens and null state filter
             expected.update(lens=req.lens, state_filter=req.state_filter)
         if any(cursor.get(key) != value for key, value in expected.items()):
             raise EstateRefusal("ESTATE_BASIS_CHANGED")
-        at, row_id = cursor_after(cursor)
-        return at, row_id
+        return cursor_after(cursor)
 
     @staticmethod
-    def _cursor(tenant_id: Any, req: EstateRequest, scope: dict[str, Any], token: str, at: datetime,
-                row_id: str) -> str:
+    def _cursor(tenant_id: Any, req: EstateRequest, scope: dict[str, Any], token: str, *after: Any) -> str:
+        """Findings/Actions pass `(at, row_id)` (bytes unchanged); Evidence, Financials and Portfolio pass their ordered
+        marker. Portfolio carries `kind` and its lens with a null state filter (W3-03 closure 4 B1/B2)."""
         payload: dict[str, Any] = {
             "v": 1, "tenant_id": None if tenant_id is None else str(tenant_id).lower(),
             "authorized_site_ids": sorted(x.lower() for x in scope["ids"]), "access_basis": scope["access_basis"],
             "from": token_time(req.from_), "to": token_time(req.to), "known_at": token_time(scope["token_k"]),
-            "selection_token": token, "after": [token_time(at), row_id],
+            "selection_token": token, "after": cursor_marker(req.kind, after),
             "page_one_mode": scope["page_one_mode"]}
         if req.kind == "findings":
             payload.update(lens=req.lens, state_filter=req.state_filter)
         else:
-            payload["kind"] = "actions"
+            payload["kind"] = req.kind
+            if req.kind == "portfolio":  # W3-03 r1b Q-1b-1: only Portfolio is authenticated
+                payload.update(lens=req.lens, state_filter=None)
+                return encode_portfolio_cursor(payload, portfolio_cursor_key())
         return encode_cursor(payload)
 
     @staticmethod
@@ -150,37 +218,16 @@ class EstateIndexService:
 
     def _finding_coverage(self, snap: Any, tenant_id: Any, req: EstateRequest,
                           scope: dict[str, Any]) -> list[tuple[dict[str, Any], str, dict[str, Any]]]:
-        out = []
-        for site in scope["sites"]:
-            domain = DOMAIN_OF_SITE_TYPE.get(site["site_type"])
-            cov = (not_applicable() if domain is None
-                   else site_coverage(snap, tenant_id, site["site_id"], domain, req.from_, req.to, scope["k"]))
-            out.append((site, domain or NOT_APPLICABLE, cov))
-        return out
+        return select_finding_scope(snap, tenant_id, req, scope)[0]
 
     def findings(self, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         return self._read(lambda snap: self._findings(snap, tenant_id, req, admit))
 
     def _findings(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)
-        per_site = self._finding_coverage(snap, tenant_id, req, scope)
+        per_site, rows = select_finding_scope(snap, tenant_id, req, scope)
         states = [cov["state"] for _, _, cov in per_site]
         complete = _coverage_state(states) == "COMPLETE"
-        rows: list[dict[str, Any]] = []
-        for site, _, cov in per_site:
-            code = site["site_code"]
-            for r in cov["rows"]:
-                flags = ["COST"] if r["consequence"]["state"] == "PRICED" else []
-                fid, frid = r["finding_id"], r["finding_revision_id"]
-                rows.append({
-                    "finding_id": fid, "finding_revision_id": frid, "site_id": str(site["site_id"]),
-                    "site_code": code, "site_name": site["site_name"], "finding_label": f"Finding {fid[:8]}",
-                    "title": r["title"], "priority": None, "confidence": None, "confidence_reasons": [],
-                    "lifecycle": r["lifecycle"], "lens_flags": flags, "consequence": r["consequence"],
-                    "source_provenance": r["source_provenance"], "episode_start": wire_time(r["episode_start"]),
-                    "status": cov["state"],
-                    "links": {"finding": f"/sites/{code}/findings/{fid}?revision_id={frid}", "site": f"/sites/{code}"},
-                    "_at": r["episode_start"], "_site": site})
         basis = rows if req.lens == "all" else [r for r in rows if LENS_FLAG[req.lens] in r["lens_flags"]]
         wanted = {"all": None, "supported": "SUPPORTED", "unconfirmed": "UNCONFIRMED",
                   "no_longer_supported": "NO_LONGER_SUPPORTED", "merged": "MERGED"}[req.state_filter]
@@ -222,26 +269,9 @@ class EstateIndexService:
 
     def _actions(self, snap: Any, tenant_id: Any, req: EstateRequest, admit: Admit) -> dict[str, Any]:
         scope = self._scope(snap, tenant_id, req, admit)
-        per_site = []
-        for site in scope["sites"]:
-            applicable = DOMAIN_OF_SITE_TYPE.get(site["site_type"]) == MINI_GRID
-            cov = (site_coverage(snap, tenant_id, site["site_id"], ACTIONS, req.from_, req.to, scope["k"])
-                   if applicable else not_applicable())
-            per_site.append((site, cov))
+        per_site, rows = select_action_scope(snap, tenant_id, req, scope)
         states = [cov["state"] for _, cov in per_site]
         complete = _coverage_state(states) == "COMPLETE"
-        rows = []
-        for site, cov in per_site:
-            code = site["site_code"]
-            for r in cov["rows"]:
-                rows.append({**{k: v for k, v in r.items() if not k.startswith("_")},
-                             "site_id": str(site["site_id"]), "site_code": code, "site_name": site["site_name"],
-                             "created_at": wire_time(r["created_at"]),
-                             "links": {"action": f"/sites/{code}/actions/{r['action_id']}?event_id="
-                                                 f"{r['selected_event_id']}",
-                                       "source": f"/sites/{code}/findings/{r['source_finding_id']}?revision_id="
-                                                 f"{r['source_finding_revision_id']}"},
-                             "_at": r["created_at"], "_raw": r})
         rows.sort(key=lambda r: (-r["_at"].timestamp(), r["action_id"]))
         token = selection_token(tenant_id, scope["ids"], req.from_, req.to, scope["token_k"], None, None,
                                 [_token_site(site, ACTIONS, cov) for site, cov in per_site])

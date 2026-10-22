@@ -2332,3 +2332,21 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L3: "No outage in the selected hour" is unreachable from instant supply reports (q3). Its slot keeps honest copy.
 - L4: the old branch `task/W4-02-mini-grid-depth` committed build output and must never be merged. The clean squash branch was merged instead.
 - L5: the test-only `v4_roles4` fixture inserts one accepted `generator_power` row to create mini history for the 0029 refusal test.
+
+## W3-02 Lows
+- L1: Financials captures show 2 register lines, not the mock's 3, because the honest capture data has no mini-grid money line (c4-q3). The limitation sentence is recorded.
+- L2: `layout-evidence.mjs` was not run; a custom CDP capture script was used instead.
+- L3: the test-only scenario `backend/tests/fixtures/w3/scenarios/ev-complete-lab-002.yaml` is guarded by a drift test against `config/scenarios/ev-complete.yaml`.
+- L4: the timing-sensitive scheduler tests (`TestKillableStagesAndServerTimeouts`, `TestTickCost`) flaked under heavy concurrent load. Avoid running full suites alongside 3+ builders.
+
+## W3-03 Lows
+- L3 (left as ruled in rF): portfolio scope and progress drawers show raw coverage states, reason codes, keys, UUIDs and `VERIFIED`; route to the batched client-facing copy pass.
+- L5 (left as ruled in rF): v69 value-card label icon/arrow and pulse icons are not reproduced; presentation-pass item.
+- Full suite on a loaded machine hit the 100-minute cap at 95% (0 failures); the rerun with one builder passed in 57 min. Keep suites to light load.
+
+## W4-03 Lows
+- L8 plain labels ("Stop at battery charge", "Proposed load", "Duration", "Tariff") are implementer wording within uF's plain-language rule; ratify in the plain-language pass.
+- At 1440 the Opportunity breadcrumb shows "Global Findings unavailable; ..." in the crumb (consistent with rulings); revisit in the copy pass.
+- Two Alternatives capture states remain unproved: stocked, and successful-empty at current DB time.
+- The "Alternatives unavailable" label is a recorded mock departure (u9c).
+- Environment: worktrees created before a `.gitattributes` eol=lf rule keep stale CRLF copies, and byte-pinned tests then fail. Re-checkout the files (`git ls-files --eol`), and add every new byte-pinned fixture to `.gitattributes`.

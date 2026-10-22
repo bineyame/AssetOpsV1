@@ -24,6 +24,11 @@ EV_SCENARIO_SCHEMA = "ev-scenario/1"
 EV_SCENARIO_VERSION = 1
 EV_SITE_CODE = "EV-LAB-001"
 EV_SEED = 20517
+#: W3-02 c3b: the one admitted second (Site, seed) pairing, bound to exactly one scenario ID. Every other
+#: valid EV scenario ID keeps the (EV_SITE_CODE, EV_SEED) pin.
+EV_SECOND_SITE_SCENARIO_ID = "ev-complete-lab-002"
+EV_SECOND_SITE_CODE = "EV-LAB-002"
+EV_SECOND_SEED = 20518
 EV_WINDOW = {"start": "2026-10-06T08:00:00Z", "end": "2026-10-06T09:00:00Z", "end_exclusive": True}
 EV_MODEL_PROFILE = "ev-charger/1"
 EV_PUBLICATION_PROFILE = "ev-publication/1"
@@ -171,14 +176,18 @@ def parse_ev_scenario_document(document: Any, *, source: str = "<in-memory>",
     scenario_id = text(document["scenario_id"], "scenario_id")
     if not _SCENARIO_ID.fullmatch(scenario_id):
         raise fail("scenario_id must be ev-<case>")
-    exact(document["site_code"], EV_SITE_CODE, "site_code")
+    if scenario_id == EV_SECOND_SITE_SCENARIO_ID:
+        site_code, seed = EV_SECOND_SITE_CODE, EV_SECOND_SEED
+    else:
+        site_code, seed = EV_SITE_CODE, EV_SEED
+    exact(document["site_code"], site_code, "site_code")
     keys(document["window"], WINDOW_KEYS, "window")
     start = instant(document["window"]["start"], "window.start")
     end = instant(document["window"]["end"], "window.end")
     exact(document["window"]["end_exclusive"], True, "window.end_exclusive")
     exact(start, EV_WINDOW["start"], "window.start")
     exact(end, EV_WINDOW["end"], "window.end")
-    exact(document["seed"], EV_SEED, "seed")
+    exact(document["seed"], seed, "seed")
     model = profile(document["model_profile"], EV_MODEL_PROFILE, "model_profile")
     publication = profile(document["publication_profile"], EV_PUBLICATION_PROFILE, "publication_profile")
     observation = profile(document["observation_profile"], EV_OBSERVATION_PROFILE, "observation_profile")
@@ -264,7 +273,7 @@ def parse_ev_scenario_document(document: Any, *, source: str = "<in-memory>",
 
     rows = tuple(observations)
     return EvScenarioDefinition(
-        scenario_id=scenario_id, site_code=EV_SITE_CODE, start=start, end=end, seed=EV_SEED,
+        scenario_id=scenario_id, site_code=site_code, start=start, end=end, seed=seed,
         model_profile=model, publication_profile=publication, observation_profile=observation,
         forcing=tuple(forcing), observations=rows, scenario_sha256=_sha256(document),
         observation_sha256=ev_observation_sha256(rows), source=source, origin=origin,

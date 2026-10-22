@@ -49,8 +49,8 @@ function Invoke-NavigationRailFixturesCheck {
 
         $cases = @(
             @{ Name = "baseline: the real tree passes"; Expect = $null },
-            @{ Name = "unavailable root gains a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Portfolio' carries 'to'";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Portfolio"' 'kind: "unavailable", to: "/portfolio", label: "Portfolio"') },
+            @{ Name = "unavailable root gains a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Assets' carries 'to'";
+               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Assets"' 'kind: "unavailable", to: "/assets", label: "Assets"') },
             @{ Name = "unavailable root gains a click handler"; Expect = "carries 'onClick'";
                Rail = (Edit-Lines $rail 'label: "Settings", group: "ADMIN"' 'label: "Settings", onClick: openSettings, group: "ADMIN"') },
             @{ Name = "live root points at a missing route"; Expect = "points at '/findingz'";
@@ -63,6 +63,20 @@ function Invoke-NavigationRailFixturesCheck {
                App = (Remove-Line $app 'path=\{ACTIONS_PATH\}') },
             @{ Name = "W3-01: Actions demoted back to unavailable"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/actions", label: "Actions", end: false' 'kind: "unavailable", label: "Actions"') },
+            @{ Name = "W3-02: Evidence live root points at a missing route"; Expect = "points at '/evidencz'";
+               Rail = (Edit-Lines $rail 'to: "/evidence"' 'to: "/evidencz"') },
+            @{ Name = "W3-02: Evidence route removed (only the catch-all would serve it)"; Expect = "points at '/evidence'";
+               App = (Remove-Line $app 'path=\{EVIDENCE_PATH\}') },
+            @{ Name = "W3-02: Evidence demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/evidence", label: "Evidence", end: false' 'kind: "unavailable", label: "Evidence"') },
+            @{ Name = "W3-02: Financials live root points at a missing route"; Expect = "points at '/financialz'";
+               Rail = (Edit-Lines $rail 'to: "/financials"' 'to: "/financialz"') },
+            @{ Name = "W3-02: Financials route removed (only the catch-all would serve it)"; Expect = "points at '/financials'";
+               App = (Remove-Line $app 'path=\{FINANCIALS_PATH\}') },
+            @{ Name = "W3-02: Financials demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials", end: false' 'kind: "unavailable", label: "Financials"') },
+            @{ Name = "W3-02: Financials live root pointed at the Evidence route"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials"' 'kind: "live", to: "/evidence", label: "Financials"') },
             @{ Name = "W3-01: Incidents promoted to live"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Incidents"' 'kind: "live", to: "/actions", label: "Incidents"') },
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";
@@ -146,8 +160,11 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '<UnavailableTab label="Scenarios" /><UnavailableTab label="Maintenance" />') },
             @{ Name = "a declared unbuilt tab is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames '<UnavailableTab label="Scenarios" />' '') },
-            @{ Name = "Alternatives loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $frames 'label: "Alternatives", unavailable: true' 'label: "Alternatives", href: "/x"') },
+            # W4-03 unit 6b: the mini Finding row's Analysis slot is the declared entry; Alternatives is live.
+            @{ Name = "W4-03: Analysis loses its declared unavailable entry"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", href: "/x"') },
+            @{ Name = "W4-03: Alternatives comes back as an unavailable Finding section"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", unavailable: true }, { id: "x", label: "Alternatives", unavailable: true') },
             @{ Name = "the cold Cooling entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Cooling" />' '') },
             @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";

@@ -1,6 +1,6 @@
 # W4-03 — Mini-grid decisions and work connection
 
-Status: planned; spec-review closure recorded, owner wave-start gate pending. Lane A, step 2; size L in reviewable units. Branch `task/W4-03-mini-decisions-work` after independently reviewed and merged W4-01, W3-01 and W4-02. Migration `0030` follows `0029_w4_mini_depth`; `0028` remains unused. USER_REVIEW_REQUIRED: true at the W4 owner checkpoint. This packet and [Architect build spec](../.agent/W4-03-build-spec.md) are planning contracts, not implementation authorization. The owner wave-start scope/core-panel gate precedes build.
+Status: done (merged 2026-10-22, 44cc88c2; final re-review ACCEPT); was planned; spec-review closure recorded, owner wave-start gate pending. Lane A, step 2; size L in reviewable units. Branch `task/W4-03-mini-decisions-work` after independently reviewed and merged W4-01, W3-01 and W4-02. Migration `0030` follows `0029_w4_mini_depth`; `0028` remains unused. USER_REVIEW_REQUIRED: true at the W4 owner checkpoint. This packet and [Architect build spec](../.agent/W4-03-build-spec.md) are planning contracts, not implementation authorization. The owner wave-start scope/core-panel gate precedes build.
 
 ## Boundary and dependencies
 

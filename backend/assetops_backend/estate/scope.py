@@ -10,10 +10,13 @@ from __future__ import annotations
 import base64
 import binascii
 import hashlib
+import hmac
 import json
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Iterable
+from uuid import UUID
 
 MAX_DAYS = 31
 DEFAULT_LIMIT, MAX_LIMIT = 50, 100
@@ -36,13 +39,25 @@ MESSAGES = {
 STATUS = {"UNAUTHENTICATED": 401, "ESTATE_BASIS_CHANGED": 409, "ESTATE_SELECTION_INCONSISTENT": 409,
           "ESTATE_STORE_UNAVAILABLE": 503}
 
-# The exact key sets of the three roots (Run 5 ruling 4): any other key, or a repeated one, is INVALID_CURSOR.
+# The exact key sets of the estate roots (Run 5 ruling 4; W3-02 closure 4 B1 adds evidence and financials): any
+# other key, or a repeated one, is INVALID_CURSOR; an unsupported root kind is INVALID_CURSOR too, never a 500.
 KEYS = {"scope": ("from", "to", "known_at"),
         "findings": ("from", "to", "known_at", "lens", "state", "limit", "cursor"),
-        "actions": ("from", "to", "known_at", "limit", "cursor")}
+        "actions": ("from", "to", "known_at", "limit", "cursor"),
+        "evidence": ("from", "to", "known_at", "limit", "cursor"),
+        "financials": ("from", "to", "known_at", "limit", "cursor"),
+        # W3-03 closure 4 B1/B2: Portfolio validates its lens as Findings does and forbids `state`.
+        "portfolio": ("from", "to", "known_at", "lens", "limit", "cursor")}
 _FINDING_CURSOR_KEYS = {"v", "tenant_id", "authorized_site_ids", "access_basis", "from", "to", "known_at", "lens",
                         "state_filter", "selection_token", "after", "page_one_mode"}
 _ACTION_CURSOR_KEYS = (_FINDING_CURSOR_KEYS - {"lens", "state_filter"}) | {"kind"}
+# W3-02 closure 4 B1: the Evidence and Financials cursors carry the Action key set (with `kind` equal to the root)
+# and a kind-specific ordered marker: Evidence [site_code_key, site_id, capability_key]; Financials
+# [window_start_or_null, site_code_key, site_id, category, line_key]. Finding/Action markers stay two-part.
+# W3-03 closure 4 B1/B2: the Portfolio cursor is the Finding key set plus `kind`, with `state_filter` null, and the
+# five-part marker [episode_start_or_null, site_code_key, site_id, finding_id, finding_revision_id].
+_PORTFOLIO_CURSOR_KEYS = _FINDING_CURSOR_KEYS | {"kind"}
+_MARKER_KINDS = {"evidence": 3, "financials": 5, "portfolio": 5}
 
 
 class EstateRefusal(Exception):
@@ -90,6 +105,8 @@ def _instant(value: str, code: str) -> datetime:
 def parse_request(kind: str, items: Iterable[tuple[str, str]]) -> EstateRequest:
     """The strict shared parser. Window keys missing or repeated: INVALID_WINDOW; any other repeated or unknown
     key: INVALID_CURSOR. Validation order: window, known_at, lens/state, limit, cursor shape."""
+    if kind not in KEYS:
+        raise EstateRefusal("INVALID_CURSOR")
     seen: dict[str, list[str]] = {}
     for key, value in items:
         seen.setdefault(key, []).append(value)
@@ -104,6 +121,10 @@ def parse_request(kind: str, items: Iterable[tuple[str, str]]) -> EstateRequest:
         raise EstateRefusal("INVALID_WINDOW")
     known_at = None if "known_at" not in one else _instant(one["known_at"], "INVALID_KNOWN_AT")
     lens = state_filter = None
+    if kind == "portfolio":
+        lens = one.get("lens", "all")
+        if lens not in LENSES:
+            raise EstateRefusal("INVALID_LENS")
     if kind == "findings":
         lens = one.get("lens", "all")
         state_filter = one.get("state", "all")
@@ -118,7 +139,9 @@ def parse_request(kind: str, items: Iterable[tuple[str, str]]) -> EstateRequest:
             raise EstateRefusal("INVALID_LIMIT")
         limit = int(raw)
     cursor = one.get("cursor")
-    if cursor is not None:
+    if cursor is not None and kind == "portfolio":
+        _portfolio_envelope(cursor)  # envelope only; the MAC and shape are verified inside the snapshot (r1b)
+    elif cursor is not None:
         decode_cursor(kind, cursor)  # shape only; the fence is compared inside the snapshot
     return EstateRequest(kind, from_, to, known_at, lens, state_filter, limit, cursor)
 
@@ -182,37 +205,172 @@ def encode_cursor(payload: dict[str, Any]) -> str:
     return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
 
 
-def decode_cursor(kind: str, value: str) -> dict[str, Any]:
-    """A structurally valid estate cursor of this root, else 422 INVALID_CURSOR."""
+def _canonical_instant(value: Any) -> bool:
+    """A canonical six-digit UTC token instant (the `token_time` form) and nothing else."""
+    if not isinstance(value, str):
+        return False
+    try:
+        return token_time(_instant(value, "INVALID_CURSOR")) == value
+    except EstateRefusal:
+        return False
+
+
+def _uuid(value: Any) -> bool:
+    if not isinstance(value, str) or not value:
+        return False
+    try:
+        UUID(value)
+    except ValueError:
+        return False
+    return True
+
+
+def _nonempty(value: Any) -> bool:
+    return isinstance(value, str) and bool(value)
+
+
+def _marker_ok(kind: str, after: Any) -> bool:
+    if not isinstance(after, list):
+        return False
+    if kind in _MARKER_KINDS:
+        if len(after) != _MARKER_KINDS[kind]:
+            return False
+        if kind == "evidence":
+            return all(_nonempty(x) for x in after) and _uuid(after[1])
+        if kind == "portfolio":
+            return ((after[0] is None or _canonical_instant(after[0])) and _nonempty(after[1])
+                    and all(_uuid(x) for x in after[2:]))
+        return ((after[0] is None or _canonical_instant(after[0])) and all(_nonempty(x) for x in after[1:])
+                and _uuid(after[2]))
+    if len(after) != 2 or not all(isinstance(x, str) for x in after):
+        return False
+    try:
+        _instant(after[0], "INVALID_CURSOR")
+    except EstateRefusal:
+        return False
+    return True
+
+
+def _json_cursor(value: Any) -> Any:
+    if not isinstance(value, str):
+        raise EstateRefusal("INVALID_CURSOR")
     try:
         raw = base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
-        payload = json.loads(raw.decode("utf-8"))
+        return json.loads(raw.decode("utf-8"))
     except (binascii.Error, ValueError, UnicodeDecodeError) as error:
         raise EstateRefusal("INVALID_CURSOR") from error
-    keys = _ACTION_CURSOR_KEYS if kind == "actions" else _FINDING_CURSOR_KEYS
+
+
+def decode_cursor(kind: str, value: str) -> dict[str, Any]:
+    """A structurally valid estate cursor of this root, else 422 INVALID_CURSOR (unsigned; no tamper claim).
+    Portfolio has no unsigned path (W3-03 r1b Q-1b-1): use `decode_portfolio_cursor`."""
+    if kind not in KEYS or kind in ("scope", "portfolio"):
+        raise EstateRefusal("INVALID_CURSOR")
+    return _shaped(kind, _json_cursor(value))
+
+
+def _shaped(kind: str, payload: Any) -> dict[str, Any]:
+    """The existing v1 shape checks of one root's decoded cursor payload, else 422 INVALID_CURSOR."""
+    keys = {"findings": _FINDING_CURSOR_KEYS, "portfolio": _PORTFOLIO_CURSOR_KEYS}.get(kind, _ACTION_CURSOR_KEYS)
     ok = (isinstance(payload, dict) and set(payload) == keys and payload.get("v") == 1
-          and (kind != "actions" or payload.get("kind") == "actions")
+          and (kind == "findings" or payload.get("kind") == kind)
           and payload.get("page_one_mode") in ("live", "historical")
           and all(isinstance(payload.get(k), str) for k in ("access_basis", "from", "to", "known_at",
                                                              "selection_token"))
           and (payload.get("tenant_id") is None or isinstance(payload["tenant_id"], str))
           and isinstance(payload.get("authorized_site_ids"), list)
           and all(isinstance(x, str) for x in payload["authorized_site_ids"])
-          and isinstance(payload.get("after"), list) and len(payload["after"]) == 2
-          and all(isinstance(x, str) for x in payload["after"]))
+          and (kind != "portfolio" or (payload.get("state_filter") is None and payload.get("lens") in LENSES))
+          and _marker_ok(kind, payload.get("after")))
     if ok:
         try:
             _instant(payload["known_at"], "INVALID_CURSOR")
-            _instant(payload["after"][0], "INVALID_CURSOR")
         except EstateRefusal:
             ok = False
-    if not ok or kind == "scope":
+    if ok and kind in _MARKER_KINDS:
+        ok = all(_canonical_instant(payload[k]) for k in ("from", "to", "known_at"))
+    if not ok:
         raise EstateRefusal("INVALID_CURSOR")
     return payload
 
 
-def cursor_after(payload: dict[str, Any]) -> tuple[datetime, str]:
-    return _instant(payload["after"][0], "INVALID_CURSOR"), payload["after"][1]
+# --- authenticated Portfolio cursor (W3-03 r1b Q-1b-1) ------------------------------------------------------
+
+PORTFOLIO_CURSOR_KEY_ENV = "ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX"
+_HEX = frozenset("0123456789abcdefABCDEF")
+_MAC_HEX = frozenset("0123456789abcdef")
+
+
+def portfolio_cursor_key() -> bytes:
+    """The deployment's Portfolio cursor key: exactly 64 ASCII hex characters (32 bytes) from the host
+    environment, with no default; missing or malformed configuration is 503 ESTATE_STORE_UNAVAILABLE. The key is
+    never echoed, carried in a cursor or response, or logged."""
+    raw = os.environ.get(PORTFOLIO_CURSOR_KEY_ENV)
+    if not isinstance(raw, str) or len(raw) != 64 or not set(raw) <= _HEX:
+        raise EstateRefusal("ESTATE_STORE_UNAVAILABLE")
+    return bytes.fromhex(raw)
+
+
+def _portfolio_mac(payload: dict[str, Any], key: bytes) -> str:
+    body = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return hmac.new(key, body, hashlib.sha256).hexdigest()
+
+
+def encode_portfolio_cursor(payload: dict[str, Any], key: bytes) -> str:
+    """The v1 Portfolio payload plus `mac`, HMAC-SHA-256 over its canonical JSON, in the URL-safe base64 form."""
+    return encode_cursor({**payload, "mac": _portfolio_mac(payload, key)})
+
+
+def _portfolio_envelope(value: Any) -> dict[str, Any]:
+    """Base64/JSON object with exactly the Portfolio key set plus a lowercase 64-hex `mac`; nothing else is
+    trusted before the MAC verifies."""
+    payload = _json_cursor(value)
+    if (not isinstance(payload, dict) or set(payload) != _PORTFOLIO_CURSOR_KEYS | {"mac"}
+            or not isinstance(payload["mac"], str) or len(payload["mac"]) != 64
+            or not set(payload["mac"]) <= _MAC_HEX):
+        raise EstateRefusal("INVALID_CURSOR")
+    return payload
+
+
+def decode_portfolio_cursor(value: Any, key: bytes) -> dict[str, Any]:
+    """Verify the MAC with `hmac.compare_digest` before any payload field is used, then the existing shape checks.
+    Missing, malformed or wrong MAC: 422 INVALID_CURSOR. Returns the payload without `mac`."""
+    payload = _portfolio_envelope(value)
+    body = {k: v for k, v in payload.items() if k != "mac"}
+    if not hmac.compare_digest(payload["mac"], _portfolio_mac(body, key)):
+        raise EstateRefusal("INVALID_CURSOR")
+    return _shaped("portfolio", body)
+
+
+def cursor_after(payload: dict[str, Any]) -> tuple:
+    """The ordered resume marker: `(at, row_id)` for Findings/Actions (unchanged); the stored string tuple for
+    Evidence; `(window_start_or_None, site_code_key, site_id, category, line_key)` for Financials;
+    `(episode_start_or_None, site_code_key, site_id, finding_id, finding_revision_id)` for Portfolio."""
+    kind = payload.get("kind")
+    after = payload["after"]
+    if kind == "evidence":
+        return tuple(after)
+    if kind in ("financials", "portfolio"):
+        return (None if after[0] is None else _instant(after[0], "INVALID_CURSOR"), *after[1:])
+    return _instant(after[0], "INVALID_CURSOR"), after[1]
+
+
+def cursor_marker(kind: str, after: tuple) -> list[Any]:
+    """The wire form of a resume marker (inverse of `cursor_after`)."""
+    if kind == "evidence":
+        return [str(x) for x in after]
+    if kind in ("financials", "portfolio"):
+        return [token_time(after[0]), *(str(x) for x in after[1:])]
+    return [token_time(after[0]), after[1]]
+
+
+def resume_after(markers: Iterable[tuple], after: tuple) -> int:
+    """Closure 4 B1: only after the fence passes, the marker must exist in the full ordered row set; returns the
+    index of the first row after it. An absent marker is 422 INVALID_CURSOR."""
+    for i, marker in enumerate(markers):
+        if tuple(marker) == tuple(after):
+            return i + 1
+    raise EstateRefusal("INVALID_CURSOR")
 
 
 def cursor_known_at(payload: dict[str, Any]) -> datetime:

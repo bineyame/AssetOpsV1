@@ -1,6 +1,6 @@
 # W3-02 — Estate evidence and money basis
 
-Status: planned; build spec pending. Lane B, step 1 after W3-01; size L, four reviewable commits. Branch `task/W3-02-estate-evidence-money-basis` from reviewed merged W3-01 and W4-01. USER_REVIEW_REQUIRED: true, after independent slice review at the W3 owner checkpoint.
+Status: done (merged 2026-10-21, 43c444b9; final re-review ACCEPT); was planned; build spec pending. Lane B, step 1 after W3-01; size L, four reviewable commits. Branch `task/W3-02-estate-evidence-money-basis` from reviewed merged W3-01 and W4-01. USER_REVIEW_REQUIRED: true, after independent slice review at the W3 owner checkpoint.
 
 ## Binding, dependencies and ownership
 

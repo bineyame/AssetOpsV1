@@ -1,0 +1,180 @@
+[
+ {
+  "screen": "globalfinancials",
+  "width": 1440,
+  "h1": "Portfolio financials",
+  "pageH": 1001,
+  "docScrollW": 1425,
+  "clientW": 1425,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Site-owned consequencesValues grouped by basis and period; no financial assessme",
+    "top": 244,
+    "h": 44,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Consequence register",
+    "top": 306,
+    "h": 266,
+    "w": 1161,
+    "tableClient": 1121,
+    "tableScroll": 1121,
+    "rows": [
+     45,
+     45,
+     44
+    ],
+    "thead": 33,
+    "cols": [
+     "Site:124",
+     "Category:265",
+     "Window / quantity:227",
+     "Value:101",
+     "Basis / limit:268",
+     "Source:138"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "These values are not an additive profit or savings total. Categories, time perio",
+    "top": 589,
+    "h": 42,
+    "w": 1161
+   },
+   {
+    "kind": "panel",
+    "title": "Aggregation rule",
+    "top": 650,
+    "h": 99,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 68,
+    "h": 16,
+    "w": 197
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 59,
+    "h": 34,
+    "w": 549
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Financials",
+    "top": 133,
+    "h": 15,
+    "w": 1161
+   },
+   {
+    "kind": "block",
+    "title": "div: Portfolio financials",
+    "top": 165,
+    "h": 61,
+    "w": 405
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 766,
+    "h": 18,
+    "w": 1161
+   }
+  ]
+ },
+ {
+  "screen": "globalfinancials",
+  "width": 390,
+  "h1": "Portfolio financials",
+  "pageH": 1282,
+  "docScrollW": 390,
+  "clientW": 390,
+  "items": [
+   {
+    "kind": "statusbar",
+    "title": "Site-owned consequencesValues grouped by basis and period; no financial assessme",
+    "top": 414,
+    "h": 71,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Consequence register",
+    "top": 503,
+    "h": 407,
+    "w": 360,
+    "tableClient": 320,
+    "tableScroll": 514,
+    "rows": [
+     97,
+     97,
+     79
+    ],
+    "thead": 33,
+    "cols": [
+     "Site:90",
+     "Category:74",
+     "Window / quantity:129",
+     "Value:66",
+     "Basis / limit:89",
+     "Source:66"
+    ]
+   },
+   {
+    "kind": "notice",
+    "title": "These values are not an additive profit or savings total. Categories, time perio",
+    "top": 928,
+    "h": 78,
+    "w": 360
+   },
+   {
+    "kind": "panel",
+    "title": "Aggregation rule",
+    "top": 1024,
+    "h": 163,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "portfolio-name: Bineyame Operations / Demo estate",
+    "top": 170,
+    "h": 15,
+    "w": 181
+   },
+   {
+    "kind": "block",
+    "title": "right: Find a screenWindow: Event window6 Oct 2026 · each site’s ev",
+    "top": 205,
+    "h": 30,
+    "w": 221
+   },
+   {
+    "kind": "block",
+    "title": "breadcrumbs: Financials",
+    "top": 266,
+    "h": 15,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "div: Portfolio financials",
+    "top": 298,
+    "h": 75,
+    "w": 360
+   },
+   {
+    "kind": "block",
+    "title": "screen-foot: Illustrative mockup data · proposal for implementation · not",
+    "top": 1206,
+    "h": 58,
+    "w": 360
+   }
+  ]
+ }
+]

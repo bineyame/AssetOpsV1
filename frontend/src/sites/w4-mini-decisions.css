@@ -1,0 +1,234 @@
+/*
+ * W4-03 unit 6: the v69 `scenarios` slots (closure 1 geometry). Desktop columns 20/24/20/22/14 percent; at 390 px
+ * the panel keeps its width, the inner grid is at least 720 px with a sticky 144 px Scenario column. PR-12.1: at every
+ * width the inner vertical scroll is capped to the header plus three rows under a sticky header, and the exact pinned
+ * revision IDs sit in one bounded disclosure below the table. The page itself never scrolls sideways.
+ */
+
+.mini-scenarios-table .data-table {
+  table-layout: fixed;
+}
+
+/* W4-03 u9c: populated Scenarios table scrolls inside the 348/391 px panel caps. */
+.mini-scenarios-table .data-table__scroll { max-height: 144px; overflow: auto; }
+
+.mini-scenarios-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface, #fff);
+}
+
+.mini-scenarios-pinned {
+  max-height: 96px;
+  overflow-y: auto;
+  margin-top: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--line, #e3e8ef);
+  border-radius: 5px;
+}
+
+.mini-scenarios-pinned[hidden] {
+  display: none;
+}
+
+.mini-scenarios-inspect {
+  font-size: 12px;
+}
+
+.mini-scenarios-table th[scope="row"] {
+  font-weight: 600;
+  text-align: left;
+}
+
+.mini-scenarios-pins {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mini-scenarios-pins code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.mini-scenarios-gap {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mini-scenarios-through {
+  margin: 6px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* The mock's `.empty` block (`mockups.css`), no fake row. */
+.mini-scenarios-empty {
+  margin: 15px 0;
+  padding: 20px 20px;
+  border: 1px dashed #cdd7e5;
+  border-radius: 6px;
+  background: #fbfcfe;
+  text-align: center;
+}
+
+.mini-scenarios-empty__icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 14px;
+  color: #8a9bb3;
+}
+
+.mini-scenarios-empty__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.mini-scenarios-empty h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.mini-scenarios-empty p {
+  max-width: 480px;
+  margin: 4px auto 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mini-scenarios-pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 14px;
+  align-items: baseline;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .mini-scenarios-table .data-table__scroll { max-height: 188px; overflow: auto; }
+
+  .mini-scenarios-table .data-table {
+    min-width: 720px;
+  }
+
+  .mini-scenarios-table col:first-child {
+    width: 144px !important;
+  }
+
+  .mini-scenarios-table th:first-child,
+  .mini-scenarios-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--surface, #fff);
+  }
+
+}
+
+/*
+ * W4-03 unit 6b: the v69 `alternatives` slots. The full Explanation/Evidence/Disposition columns are kept; the inner
+ * table scrolls, the page does not.
+ */
+.mini-alternatives-table .data-table {
+  table-layout: fixed;
+}
+
+.mini-alternatives-cited {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mini-alternatives-cited code {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.mini-alternatives-note,
+.finding-sections__helper {
+  display: block;
+  margin: 6px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/*
+ * M7 (final review): the crumb trail and its Site suffix are one inline run, as the v69 `.breadcrumbs` line keeps
+ * them. Items carry no whitespace between them, so each separator stays glued to the crumb it introduces and a
+ * wrapped line never starts with `/` or `·`; long text wraps only at its own spaces.
+ */
+nav.mini-finding-crumbs {
+  display: block;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+nav.mini-finding-crumbs .breadcrumbs__list,
+nav.mini-finding-crumbs .breadcrumbs__item {
+  display: inline;
+}
+
+nav.mini-finding-crumbs .breadcrumbs__item::before {
+  margin: 0 8px;
+}
+
+.mini-finding-crumbs__lead {
+  white-space: nowrap;
+}
+
+.mini-finding-crumbs__site {
+  margin-left: 8px;
+  color: var(--text-secondary);
+}
+
+/*
+ * H1 (final review): each tone is the compound `.badge.mini-opportunity-tone--*` so it outranks `.badge--neutral`,
+ * which loads later in `primitives.css` at equal single-class specificity.
+ * W4-03 unit 7: the typed Opportunity detail (v69 `opportunity-finding`). Chip tones follow closure 1: green only the
+ * positive gate, amber limited/pending, blue historical, grey unknown. Pieces keep the shared v69 primitives; the
+ * evidence drawer scrolls inside the Bounded opportunity panel so the panel stays within its measured cap.
+ */
+.badge.mini-opportunity-tone--green {
+  color: #166b50;
+  background: #e6f4ee;
+  border-color: #e6f4ee;
+}
+
+.badge.mini-opportunity-tone--amber {
+  color: #8e580c;
+  background: #fdf3e2;
+  border-color: #fdf3e2;
+}
+
+.badge.mini-opportunity-tone--blue {
+  color: #245ac0;
+  background: #eaf0fd;
+  border-color: #eaf0fd;
+}
+
+.badge.mini-opportunity-tone--gray {
+  color: var(--text-secondary);
+  background: #f1f2f4;
+  border-color: #f1f2f4;
+}
+
+/* PR-12.2: this Opportunity card row only; the shared four-column desktop / two-column narrow grid is unchanged. */
+.v69-cards[data-opportunity-cards] .v69-metric { padding: 10px 12px; }
+
+.v69-cards[data-opportunity-cards] .v69-metric__value,
+.v69-cards[data-opportunity-cards] .v69-metric--word .v69-metric__value { margin: 5px 0 4px; }
+
+.mini-opportunity-drawer {
+  max-height: 96px;
+  overflow-y: auto;
+}
+
+.mini-opportunity-crumbs__root {
+  color: var(--text-secondary);
+}
+

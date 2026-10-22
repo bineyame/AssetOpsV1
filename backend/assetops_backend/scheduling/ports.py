@@ -43,6 +43,9 @@ class ScheduleStore(Protocol):
     def record_mini(self, tenant_id: UUID, site_id: UUID, token: UUID, processed: int, deferred: int,
                     failed: int) -> bool: ...
 
+    def record_opportunity(self, tenant_id: UUID, site_id: UUID, token: UUID, processed: int, deferred: int,
+                           failed: int) -> bool: ...
+
     def record_s4(self, tenant_id: UUID, site_id: UUID, token: UUID, outcome: str,
                   fence: dict[str, Any] | None = None, version: str | None = None) -> bool: ...
 

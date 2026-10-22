@@ -811,7 +811,7 @@ class PostgresEvidenceLedger:
                 "SELECT status, count(*) AS jobs, min(created_at) AS oldest_created_at, "
                 "min(window_start) AS window_start, max(window_end) AS window_end FROM recompute_job "
                 "WHERE tenant_id = :t AND site_id = :site AND status IN ('PENDING','LEASED','FAILED') "
-                "AND domain NOT IN ('mini_renewable','mini_service','mini_fuel','mini_backup') "
+                "AND domain NOT IN ('mini_renewable','mini_service','mini_fuel','mini_backup','mini_opportunity') "
                 "AND (CAST(:end AS timestamptz) IS NULL OR window_start < CAST(:end AS timestamptz)) "
                 "AND (CAST(:start AS timestamptz) IS NULL OR window_end > CAST(:start AS timestamptz)) "
                 "GROUP BY status ORDER BY status"
@@ -1139,20 +1139,41 @@ def link_rows_on(c: Connection, tenant_id: UUID, site_id: UUID, evidence_ids: li
     """S4-05 link rows read on the caller's connection (W2-03: the cold assessment selects its source gate in the
     same transaction as its evidence)."""
     rows = c.execute(_LINKS, {"t": tenant_id, "s": site_id, "ids": [str(i) for i in evidence_ids]}).all()
-    return [LinkRow(
+    return [_link_row(r) for r in rows]
+
+
+def link_rows_many_on(c: Connection, tenant_id: UUID,
+                      requests: list[tuple[UUID | str, list[str]]]) -> dict[tuple[str, str], list[LinkRow]]:
+    """W3-03 r1b2 R11: the `link_rows_on` rows of several Sites in **one** query on the caller's connection, keyed
+    by `(site_id, requested_id)` (lowercase text; a requested ID may have several link rows, kept in query order).
+    Each pair is evaluated exactly as `link_rows_on(c, tenant_id, site_id, ids)` evaluates it (same joins, same
+    tenant/Site scoping)."""
+    sites = [str(site_id) for site_id, ids in requests for _ in ids]
+    ids = [str(i) for _, ids in requests for i in ids]
+    if not ids:
+        return {}
+    out: dict[tuple[str, str], list[LinkRow]] = {}
+    for r in c.execute(_LINKS_MANY, {"t": tenant_id, "sites": sites, "ids": ids}).all():
+        out.setdefault((r.requested_site, r.requested_id), []).append(_link_row(r))
+    return out
+
+
+def _link_row(r) -> LinkRow:
+    return LinkRow(
         requested_id=r.requested_id, in_scope=r.in_scope, in_tenant_elsewhere=r.in_tenant_elsewhere,
         batch_id=r.batch_id,
         evidence_gateway_source=None if r.e_gateway is None else (r.e_gateway, r.e_source),
         batch=_commitment(r, "b"), link_publication_id=r.l_pub, link=_commitment(r, "l"),
         publication=_commitment(r, "p"), source_class=r.source_class, fixture_id=r.fixture_id,
         fixture_version=r.fixture_version, run_id=r.run_id, run_identity_sha256=r.run_identity_sha256)
-        for r in rows]
 
 
-_LINKS = text(
-    "SELECT CAST(q.id AS text) AS requested_id, e.id IS NOT NULL AS in_scope, "
+def _links_sql(site: str, source: str, extra: str = "") -> str:
+    """The S4-05 link-row select; `site` is the Site expression (`:s`, or the batched `q.site_id`)."""
+    return (
+    f"SELECT {extra}CAST(q.id AS text) AS requested_id, e.id IS NOT NULL AS in_scope, "
     "EXISTS (SELECT 1 FROM accepted_evidence o WHERE o.id = q.id AND o.tenant_id = :t "
-    "AND o.site_id <> :s) AS in_tenant_elsewhere, "
+    f"AND o.site_id <> {site}) AS in_tenant_elsewhere, "
     "CAST(e.batch_id AS text) AS batch_id, CAST(e.gateway_id AS text) AS e_gateway, "
     "CAST(e.source_id AS text) AS e_source, "
     "CAST(b.id AS text) AS b_id, CAST(b.tenant_id AS text) AS b_tenant, CAST(b.site_id AS text) AS b_site, "
@@ -1166,11 +1187,16 @@ _LINKS = text(
     "CAST(p.gateway_id AS text) AS p_gateway, CAST(p.source_id AS text) AS p_source, "
     "p.external_batch_id AS p_ext, p.payload_sha256 AS p_sha, p.source_class, p.fixture_id, "
     "p.fixture_version, p.run_id, p.run_identity_sha256 "
-    "FROM unnest(CAST(:ids AS uuid[])) AS q(id) "
-    "LEFT JOIN accepted_evidence e ON e.tenant_id = :t AND e.site_id = :s AND e.id = q.id "
+    f"FROM {source} "
+    f"LEFT JOIN accepted_evidence e ON e.tenant_id = :t AND e.site_id = {site} AND e.id = q.id "
     "LEFT JOIN ingestion_batch b ON b.tenant_id = e.tenant_id AND b.site_id = e.site_id AND b.id = e.batch_id "
     "LEFT JOIN batch_publication_link l ON l.batch_id = e.batch_id "
     "LEFT JOIN evidence_publication p ON p.id = l.publication_id")
+
+
+_LINKS = text(_links_sql(":s", "unnest(CAST(:ids AS uuid[])) AS q(id)"))
+_LINKS_MANY = text(_links_sql("q.site_id", "unnest(CAST(:sites AS uuid[]), CAST(:ids AS uuid[])) AS q(site_id, id)",
+                              "CAST(q.site_id AS text) AS requested_site, "))
 
 
 def _commitment(r, prefix: str) -> tuple[str, ...] | None:

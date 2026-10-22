@@ -37,7 +37,7 @@
       "models_owned": ["FinancialAssumption", "FinancialAssumptionSet", "FinancialConsequence", "FinancialConsequenceRevision", "FinancialScenario"],
       "primary_screens": ["financials", "assumptions", "globalfinancials", "scenarios"],
       "decision_nodes": ["A-S4-financial", "A-money-comparability"],
-      "projection_nodes": ["A-money-projections"], "implementation_nodes": ["I-money-followon-store"], "fixture_nodes": ["D-money-comparison"],
+      "projection_nodes": ["A-money-projections"], "implementation_nodes": ["I-money-followon-store", "I-estate-money-root"], "fixture_nodes": ["D-money-comparison"],
       "projection_contracts": ["FinancialAssumptionSet", "FinancialConsequence", "PortfolioConsequenceRollup"],
       "fixture_gate": "One versioned price change for S4; later aligned currency/period/coverage fixtures and explicit scenario basis for global money.",
       "owner_choice": "S4 bounded consequence is queued; global rollup and what-if scenarios need separate tier decisions."
@@ -87,7 +87,7 @@
       "models_owned": ["ActionSummary", "PortfolioConsequenceRollup", "PortfolioEvidenceMatrix", "PortfolioSummary", "SiteAssessmentSummary", "SiteDirectorySummary", "SiteOverview"],
       "primary_screens": ["portfolio", "sites", "globalevidence"],
       "decision_nodes": ["A-estate-index-scope", "A-estate-comparability"],
-      "projection_nodes": ["A-estate-projections", "A-estate-action-summary"], "implementation_nodes": ["I-estate-finding-root", "I-estate-action-root"], "fixture_nodes": ["D-estate-comparable-sites"],
+      "projection_nodes": ["A-estate-projections", "A-estate-action-summary"], "implementation_nodes": ["I-estate-finding-root", "I-estate-action-root", "I-estate-evidence-root"], "fixture_nodes": ["D-estate-comparable-sites"],
       "projection_contracts": ["PortfolioSummary", "PortfolioEvidenceMatrix", "PortfolioConsequenceRollup", "SiteAssessmentSummary", "ActionSummary"],
       "fixture_gate": "Multiple Sites with aligned windows, coverage, currency/price basis and consequence overlap groups, reloaded through normal ingestion.",
       "owner_choice": "Decide core ranked Findings and value cards before building Portfolio; unlike bases remain separate."

@@ -542,7 +542,7 @@ function Get-OperatorRailFailures {
     if ($failures.Count -gt 0) { return $failures }
 
     $expected = @(
-        "unavailable|Portfolio|OPERATIONS|",
+        "live|Portfolio|OPERATIONS|/portfolio",
         "live|Sites|OPERATIONS|/sites",
         "unavailable|Assets|OPERATIONS|",
         "live|Findings|INTELLIGENCE|/findings",
@@ -550,8 +550,8 @@ function Get-OperatorRailFailures {
         "unavailable|Incidents|WORK|",
         "unavailable|Maintenance|WORK|",
         "unavailable|Operational records|WORK|",
-        "unavailable|Evidence|ASSURANCE|",
-        "unavailable|Financials|BUSINESS|",
+        "live|Evidence|ASSURANCE|/evidence",
+        "live|Financials|BUSINESS|/financials",
         "unavailable|Settings|ADMIN|"
     )
     $allowedKeys = @("kind", "to", "label", "end", "group", "icon")
@@ -744,8 +744,13 @@ function Get-InPageUnavailableEntryFailures {
     # frames), every other entry once. W4-01 (build spec "Per-panel copy and layout
     # dry-read") removes Work > Incidents and Maintenance: both subtabs are live
     # routes now. The rail's unavailable Incidents and Maintenance roots stay (W6).
-    $expectedTabs = @("Alternatives", "Scenarios", "Cooling",
-        "Recommendation", "Recommendation", "Availability", "Energy / site power")
+    # W4-03 unit 6a (closure 4 S13): the Financials subrow is split by Site type; mini
+    # Scenarios is a live route, so the one remaining Scenarios entry is cold's (EV has
+    # no Scenarios slot).
+    # W4-03 unit 6b (closure 4 B4, closure 5, u5 6b, u6 ruling 4): canonical mini Alternatives is a live route, so
+    # Alternatives has zero unavailable occurrences; the mini Finding row's Analysis slot is the one new entry.
+    $expectedTabs = @("Scenarios", "Cooling", "Recommendation", "Recommendation", "Availability",
+        "Energy / site power", "Analysis")
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
     if ($null -eq $Modules) {

@@ -1,0 +1,162 @@
+/* W3-02 commit 2: the estate Evidence root. Page-local readiness tones (closure 1: no shared `BadgeTone`), and the
+   measured 1440/390 budget (closure 1 "Mock copy, navigation and measured layout"): each table scrolls inside its
+   panel (mock 390 scroll widths 531 coverage / 337 gaps) and keeps a bounded internal list after the three-row
+   baseline; the page never overflows horizontally. The 390 cards keep the shared 2+1 grid. */
+
+.estate-tone--green {
+  color: #166b50;
+  background: #e6f4ee;
+}
+
+.estate-tone--amber {
+  color: #8e580c;
+  background: #fdf3e2;
+}
+
+.estate-tone--red {
+  color: #a3261f;
+  background: #fcebea;
+}
+
+.estate-tone--gray {
+  color: var(--text-secondary);
+  background: #f1f2f4;
+}
+
+.estate-tone--blue {
+  color: #245ac0;
+  background: #eaf0fd;
+}
+
+.estate-evidence .estate-cell__primary,
+.estate-evidence .estate-cell__secondary {
+  display: block;
+}
+
+.estate-evidence .estate-cell__secondary {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.estate-evidence-table .data-table__scroll {
+  overflow: auto;
+}
+
+/* The W3-01 estate rule (`.estate-page:not(actions) .data-table { min-width: 900px }`) is for the wide index
+   tables; the Evidence tables keep the mock's 390 scroll widths (531 coverage / 337 gaps), so these selectors
+   carry the root attribute to outrank it. */
+.estate-page[data-estate-root="evidence"] .estate-evidence-table--coverage .data-table {
+  min-width: 520px;
+}
+
+.estate-page[data-estate-root="evidence"] .estate-evidence-table--gaps .data-table {
+  min-width: 330px;
+}
+
+/* Compact rows so the bounded coverage list shows the mock's three rows (mock rows 51 px, thead 33 px). */
+.estate-evidence-table .data-table {
+  line-height: 1.45;
+}
+
+.estate-evidence-table .data-table td {
+  padding: 6px 11px;
+}
+
+.estate-evidence-table .data-table thead th {
+  padding: 8px 11px;
+}
+
+.estate-evidence-table .estate-chip {
+  margin-bottom: 1px;
+  line-height: 1.35;
+}
+
+.estate-evidence-meta {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.estate-evidence-label {
+  margin-right: 8px;
+}
+
+.estate-evidence-table .disclosure--inline > .disclosure__summary {
+  font-size: 12px;
+}
+
+.estate-evidence-table--coverage .data-table__scroll {
+  max-height: 176px;
+}
+
+.estate-evidence-table--gaps .data-table__scroll {
+  max-height: 180px;
+}
+
+.estate-evidence-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface, #fff);
+}
+
+.estate-evidence-note {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.estate-evidence-examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.estate-evidence-examples__label {
+  color: var(--text-secondary);
+}
+
+.estate-evidence-examples .v69-unavailable-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.estate-evidence-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 8px;
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.estate-evidence-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+
+@media (max-width: 640px) {
+  /* Let headers and the window wrap at phone width so the tables stay near the mock's 531 / 337 px. */
+  .estate-evidence-table .data-table thead th,
+  .estate-evidence-meta {
+    white-space: normal;
+  }
+
+  .estate-evidence-table--coverage .data-table__scroll {
+    max-height: 300px;
+  }
+
+  .estate-evidence-table--gaps .data-table__scroll {
+    max-height: 420px;
+  }
+}
+
+.estate-evidence-line {
+  display: block;
+}

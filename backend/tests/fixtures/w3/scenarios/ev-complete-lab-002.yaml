@@ -1,0 +1,37 @@
+# W2-05b registered EV Lab scenario `complete` (D-2026-10-18-w2-05-buildspec, Run 1 rulings Q1-Q7; EV design section 3).
+# Complete session: c1 charges at 60 kW from 08:01 to 08:31 (30.000 kWh); c2 stays unplugged.
+schema: ev-scenario/1
+scenario_id: ev-complete-lab-002
+site_code: EV-LAB-002
+window:
+  start: '2026-10-06T08:00:00Z'
+  end: '2026-10-06T09:00:00Z'
+  end_exclusive: true
+seed: 20518
+model_profile:
+  profile_id: ev-charger
+  profile_version: 1
+publication_profile:
+  profile_id: ev-publication
+  profile_version: 1
+observation_profile:
+  profile_id: ev-observation
+  profile_version: 1
+forcing:
+- time: '2026-10-06T08:00:00Z'
+  kind: PLUG
+  connector: c1
+  value: 'session-1'
+- time: '2026-10-06T08:00:00Z'
+  kind: AUTHORIZE
+  connector: c1
+  value: 'ACCEPT'
+- time: '2026-10-06T08:01:00Z'
+  kind: REQUEST_KW
+  connector: c1
+  value: '60'
+- time: '2026-10-06T08:31:00Z'
+  kind: UNPLUG
+  connector: c1
+  value: 'END'
+observations: []

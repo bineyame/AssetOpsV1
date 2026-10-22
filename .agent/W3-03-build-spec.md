@@ -333,3 +333,691 @@ A named test belongs to the listed commit even if its suite reruns later. The sh
 ## Review closure 3 (2026-10-20)
 
 Q9/NQ1 — Choose the literal cutoff `known_at=2026-09-30T00:00:00Z` for variant (b), with the existing request window `[2026-09-30T00:00:00Z,2026-10-07T00:00:00Z)`. In the private clean fixture, record every W1, cold and EV selected assessment/Finding/consequence/evidence head strictly after this cutoff; the as-of selection therefore has no such heads. Variant (b) expects `status=HISTORICAL`, `coverage.finding_state/evidence_state/money_state=UNKNOWN/UNKNOWN/UNKNOWN`, and, in mock order, card states `WITHHELD / UNKNOWN / UNSUPPORTED / UNSUPPORTED / NOT_ESTABLISHED`. Each affected `coverage.sites[].state` is `UNKNOWN` because no selection exists at the cutoff; the explicit cutoff makes the overall status `HISTORICAL`, but does not manufacture a historical Site selection. No current amount appears. This replaces closure 2's variant (b) PARTIAL/PARTIAL/PARTIAL expectation, its cutoff-or-placeholder choice, and its instruction to assert HISTORICAL for the affected Site coverage items.
+
+## Review closure 4 (2026-10-21)
+
+This closes all 33 items in `.agent/W3-03-seam-recheck.md` against `main` `82d6dc49` (the branch merge base), the v69 `portfolio` screen and `.agent/W3-03-mock-measurements.md`. It supersedes conflicting earlier W3-03 prose. This is an Architect contract, not a claim that the six runs or their tests have executed. W3-03 consumes merged W3-01/02 and owns no W4 output or new migration. Mock slots remain in their measured hierarchy even when their claims are unsupported.
+
+### B1/B2 — shared selection and sole editor
+
+Lane A is the sole editor of the **existing** `backend/assetops_backend/estate/scope.py`, `index.py`, `coverage.py`, `evidence_money.py`, `financials.py` and `estate/adapters/postgres_estate_read.py` for seam run 0a. Lane B owns **new** Portfolio modules and tests. This narrows the earlier shorthand that Lane B owns all `estate/` paths. Lane A also owns the existing shared router mount, rail, UI primitive, registry and checks per `.agent/post-W2-sequence.md`. Sequence: Lane B releases its W3-03 branch after the fixture contract is written; Lane A takes **that same branch** for 0a, commits and releases it; independent 0a review checks unchanged W3-01/02 golden response bytes; Lane B retakes that branch for 0b, 1a, 1b and page work; Lane A mounts the API after reviewed 1b and updates navigation after page run 2; Lane B then closes run 3. Each handoff starts from the released commit; no concurrent edits to these files.
+
+Extract these **public, connection-scoped, full-scope selectors** without calling a paged root body or opening a second transaction:
+
+- `index.py::select_finding_scope(snap, tenant_id, req, scope) -> (per_site, rows)` returns every authorized Site's `(site, domain, cov)` and every Finding row, including lifecycle heads, before lens/state filtering, sorting and paging. `_findings` consumes it. `select_action_scope(snap, tenant_id, req, scope) -> (per_site, rows)` returns `(site, cov)` and all selected Actions created in the requested window before sorting/paging; `_actions` consumes it. `scope` is the result of `EstateIndexService._scope` made once by the caller. Move the current row construction verbatim. Existing root bytes, including links and cursor bytes, must remain identical.
+- `evidence_money.py::select_evidence_scope(snap, tenant_id, req, scope) -> (per_site, rows)` returns `(site, domain, cov, site_rows)` and full canonical ordered rows; `_evidence` consumes it. `financials.py::select_financial_scope(snap, tenant_id, req, scope) -> (per_site, lines, applicable, groups, exclusions, diagnostics)` returns all selected lines and W3-02 comparison outputs before paging; `financials_body` consumes it. Existing W3-02 category/overlap and line order are authoritative. Portfolio uses these selectors once in its one `PostgresEvidenceMoneyRead.read(work)` snapshot, then assembles a single token from unions of their **full** per-Site arrays. It does not combine four independently returned root tokens. `postgres_portfolio_read.py` is unnecessary: add the verification ID columns to the existing `EstateSnapshot.verification()` query in `postgres_estate_read.py`; `PostgresEvidenceMoneyRead` already inherits the one-connection reader. Lane A updates `$pgReaders` only if a new production reader actually becomes necessary.
+
+`scope.py` gains `portfolio` in `KEYS` with `from,to,known_at,lens,limit,cursor`, validates its lens as Findings does, and forbids `state`. Its exact cursor keys are Finding keys **plus** `kind`, with `state_filter:null` and required `page_one_mode:"live"|"historical"`; existing Finding/Action/Evidence/Financials key sets and encoded bytes stay unchanged. The Portfolio marker is `[episode_start_or_null,site_code_key,site_id,finding_id,finding_revision_id]`: exactly five members; first is null or canonical six-digit UTC, `site_id/finding_id/finding_revision_id` are UUIDs, `site_code_key` is a nonempty string. Extend `_marker_ok`, `cursor_after`, `cursor_marker`, `decode_cursor`, `index.py::_fence` (lens plus null state filter), and `index.py::_cursor` (kind **and** lens/null state filter). Its page-one mode, token, access and request fences run before `resume_after`; a structurally valid nonmember marker is 422. Re-sort the lifecycle-filtered full Finding set by nonnull episode descending, null last, then `(site_code_key,site_id,finding_id,finding_revision_id)` ascending. The full unfiltered set remains in the token. Page-two Portfolio `status` uses `snap.basis_historical`, not `snap.historical`; a captured live cutoff remains CURRENT if coverage is current. Preserve the existing roots' page-two labels.
+
+`coverage.py` preserves `episode_end` from `finding_revision.episode_end` for W1 and the selected cold/EV window heads into each Finding row. W1's episode start is the selected **revision** `episode_start`; cold/EV starts are selected episode/session anchors. Add `domain` from stored `site.site_type` via `DOMAIN_OF_SITE_TYPE` to Portfolio row assembly; do not change the existing seven-key `coverage.sites`. `mechanism` has **no stored field** in these selected heads; emit null and show `Mechanism not recorded` in the mock's mechanism slot. Do not derive mechanism from a title or limitation. Null starts/ends remain defensive presentation states, not a promised fixture. The Portfolio token item's `domain` remains the lowercase physical key `mini_grid|cold_chain|ev_charging`; the row DTO's `domain` remains the stored uppercase `MINIGRID|COLDCHAIN|EV_CHARGING`.
+
+### B3 — one-day three-domain persisted proof
+
+Use `[2026-10-06T00:00:00Z,2026-10-07T00:00:00Z)`, not the prior seven-day fixture. Every CURRENT request **omits** `known_at`; `2026-09-30T00:00:00Z` is supplied only for variant (b). Keep the user-facing last-seven-complete-days default; that default is not the positive fixture. In one private `*_test` database and `demo` tenant, compose the mechanics of `test_w301_estate_golden_postgres.py::mixed_replay` **without** its `S4_CASES["F03"]` KOBO import: run cold `normal` and EV `complete` without their second database reset; install/run `EV-LAB-002` with `test_w302_money_comparability_postgres.py::install_second_ev_site` and the `two_ev_sites` tariff/money-worker sequence; use `test_w301_estate_index_postgres.py::power_estate`'s **P01-bound** `PowerSite`/`Rig` producer for the one and only `KOBO-001`. Its test's `POWER_DAY` is 10-06 and the chosen `site.on(POWER_DAY)` and consequence drain must yield a CURRENT, PRICED, `ELIGIBLE` W1 head. Compose rather than directly invoking `power_estate` as an independent fixture, because its `store` fixture/database reset would erase cold/EV and its extra KOBO import would collide. Use the same `publishing_submit(P01)` source policy, `PowerSite.on`, consequence worker, selected public heads and accepted IDs. Import all four Sites before 10-06 with `imported_before`; make `W303-EMPTY-001` and a foreign-tenant Site separate perturbations. Never insert analytic heads or rewrite timestamps by SQL.
+
+After **all** ingestion, publication and worker decisions, set one test clock `frozen = max(power.runner.now + 1 minute, db_now(engine), cold/EV selected recorded times + 1 microsecond)` and `pin_read_at(monkeypatch, lambda: frozen)` for the estate snapshot. Assert every selected head is `<= frozen`, and every one-day mini-grid dispatch selection is present. This is a read clock, not a fictitious 10-07 wall clock; the common **request** window is 10-06. Read `/findings`, `/evidence`, `/financials` and `/portfolio` through their public services at that one clock and compare the exact selected IDs and stored category lines. The clean four-Site fixture excludes the empty Site and foreign tenant and must prove `CURRENT`, F/E/M `COMPLETE/COMPLETE/COMPLETE`, W1 `CANDIDATE_OPERATING_COST_EXPOSURE` eligible priced Site-owned, cold `POTENTIAL_PRODUCT_EXPOSURE` UNPRICED, and two EV `GROSS_TARIFF_SCENARIO` eligible same-currency/same-rate nonoverlapping COMPARABLE lines. Assert both EV lines have distinct cited/technical IDs and exact group key; a cold Finding is not priced from its product exposure and an EV Finding never inherits Site-window money. Assert identical response `window.from/to/known_at` across roots, while source line periods may differ. Assert `summary.combined_value is None`, `combined_value_state == "NOT_COMPARABLE"`, `money.estate_total is None`, and the visible note `Distinct consequence categories · no combined savings total` in clean and every successful decline variant.
+
+Variant (b) keeps this one-day request and supplies `known_at=2026-09-30T00:00:00Z`; prove every fixture assessment/Finding/consequence/evidence head is later than that cutoff, then expect HISTORICAL overall, UNKNOWN/UNKNOWN/UNKNOWN F/E/M, each unselected Site UNKNOWN and the first card WITHHELD. Add the authorized empty Site only after the clean proof; it remains in scope/token/matrix and makes affected coverage partial/unknown rather than a clean COMPLETE. The foreign tenant never enters any access basis, token or row. For pending, source UNKNOWN/MIXED and overlap variants, use the reviewed stored producers and compare exact public IDs. If P01, the combined fixture, or a perturbation cannot make these asserted facts at the frozen read, stop **that variant** and return the producer step, selected Site/head/accepted IDs, actual public read and mismatched assertion to Architect; do not replace it with a mock DTO or report a clean proof. Variant (e) is a changed-grant 409 with previous UI data cleared, so it has no success-response assertions.
+
+### B4 — truthful Action and verification limit
+
+Keep Action selection by `created_at in [from,to)` and the **exact** `(origin_finding_id, origin_finding_revision_id)` join. The aligned 10-06 proof contains no S6 Action: the reviewed S6 accepted Actions are created on 2026-11-01. Therefore its table cells say `No accepted Action` / `Recommendation not accepted`; the mock's `Verified` and `Resolution withdrawn` words remain supported display slots, not positive claims in this fixture. Do **not** widen Action selection or join an applied Action to a later Finding revision merely by Finding ID. A selected Action whose origin revision is no longer selected stays in the Action root and progress disclosure with `Origin Finding revision is not the selected revision`; it does not attach to the current Finding row.
+
+Prove the workflow words in a **separate** persisted Action-window test, `[2026-11-01,2026-11-03)`, using the S6 chain in `test_w301_estate_index_postgres.py::test_action_event_and_verification_counts_full_basis`: after `evaluate(...)=VERIFIED`, inspect `progress.rows` and the Action root. For withdrawal, follow `test_s6_verification_evaluator_postgres.py::test_verified_resolves_then_late_evidence_withdraws_and_overlap_blocks` (also exercised by `test_s6_site_action_index_postgres.py`): introduce later accepted evidence, run the evaluator again, and assert its **system-job-authored** `RESOLUTION_WITHDRAWN` event, changed outcome and selected event ID at the later cutoff. Never append a resolution event directly. `Verified`/`Resolution withdrawn` may appear in a Finding row **only** if a fixture also selects its exact origin revision in the same requested window and cutoff; the shipped applied chain does not, so no positive Finding-row assertion for those two words is required. The main 10-06 Portfolio progress table must disclose `No selected Actions in this window` and unknown or zero counts according to its actual coverage, never import November counts. The existing `Outcome pending` branch is proved on the separate Action window while a selected frozen plan is active and unresolved; it is likewise an honest Action/progress state, not an asserted 10-06 Finding cell.
+
+### S1–S19 — precise projections and integration
+
+S1/S2/S3. The cursor includes `page_one_mode`; the Portfolio status uses the basis mode. Map Site `PENDING_RECOMPUTE` to Portfolio `PENDING`, `STALE_SOURCE` and `UNKNOWN` to `UNKNOWN`, explicit historical to `HISTORICAL`, no authorized Sites to `EMPTY_SCOPE`, else `CURRENT`. Finding/Evidence/Financial root states feed that status; Action coverage affects workflow/progress only and cannot turn a three-domain selection into an Action-history claim. Add the Portfolio status union to `frontend/src/estate/estateClient.ts` without altering existing root types.
+
+S4/S5. Compute F from the selected Finding `site_coverage`; E from full Evidence per-Site selected capabilities and their unresolved/contradictory readiness; M from W3-02 per-category applicability/coverage, including `windows_covered`, exclusions and group diagnostics. A category with no selected head on complete applicable coverage is empty but known; an unproved applicable Site/category or conflicting selected basis makes M UNKNOWN. F/E/M may coincide in the clean fixture but are independent reductions. `coverage.sites` carries Finding-domain `site_coverage` fields (`selection_id`, watermark, match, job, freshness), never Action coverage. Token Site items use that same Finding-domain base plus unions of **all** selected root arrays; token domain is lowercase as above.
+
+S6/S7/S8/S9. `episode_end` and the null `mechanism` rule are above. Carry `_verification_window` from the selected W3-01 Action into a server-built nullable `workflow_label` (or `plan_active` boolean) so `Outcome pending` is not inferred from null outcomes. Lane A extends `EstateSnapshot.verification()` to return plan `id` and `recorded_at` and outcome `id`, `recorded_at`, preserving the old `plans` and `outcomes` consumers; the Portfolio progress row cites those exact IDs, no second SQL connection. Several Actions can share an origin pair: choose for a Finding cell by latest selected Action event `recorded_at`, then `action_id` ascending; disclose all matching Actions in progress rows. This tie rule is deterministic and never merges their outcomes.
+
+S10/S11. Server returns raw Decimal strings, units, currency, categories, bounds and line IDs. `display_value`, `detail`, `quantity_display` and `amount_display` are constructed in the Portfolio frontend with W3-02 `moneyText`, `CATEGORY_LABEL`, outward bound rounding, half-even two-place EV amount and `NOT_DISPLAYABLE`; the API may leave those display slots null. Cost-card first-match rule (1) tests **line** `eligibility` for INELIGIBLE/WITHHELD and category coverage; a lone UNPRICED line is allowed to reach rule (4) even if W3-02 calls its one-line group INELIGIBLE. Never use group INELIGIBLE alone to suppress the UNPRICED card.
+
+S12/S13/S14/S15. Construct every Site code link once with `quote(code, safe='')`; W1 mini-grid's exact Finding route may link, while cold/EV Finding titles and `Review Finding` stay inert `Finding detail unavailable` until those exact routes are reviewed. The null-step evidence-prompt branch is tested with a fake in-memory snapshot/API vector (no persisted producer exists). Reuse `PostgresEvidenceMoneyRead` as above. Reuse `EstateDateBar` unchanged: `Window {from} to {last included} (UTC days)` plus `Evidence cutoff`; the older exclusive-end header copy is not the UI text.
+
+S16. Lane A adds these four **panel rows** at run 3, each `status:"gap"` until its listed prerequisites and independent UI proof are accepted: `portfolio` index 1 `Where management should act first`, requires `A-estate-projections,I-estate-finding-root,D-estate-comparable-sites`; index 2 `Objectives across the estate`, requires `A-estate-projections,A-evidence-shared-projections,I-estate-evidence-root`; index 3 `An opportunity beyond reducing cost`, requires `A-estate-comparability` (reason `No reviewed opportunity or headroom producer; unsupported slots retained`); index 4 `What changed in this review`, requires `A-estate-projections,I-estate-action-root`. Other gap reasons state `W3-03 implementation and independent panel review pending; upstream open nodes remain gates`. The conditions in the old L159 cannot mark them real while predecessors remain open. Run registry checker after insertion; closing a node needs its own evidence, not this declaration.
+
+S17/S18/S19. Lane A updates `operatorRailInventory.test.tsx`, `operatorRouteFrames.test.tsx`, `navigation-truthfulness.ps1`, and `navigation-rail-fixtures.ps1` together when `/portfolio` becomes real; replace Portfolio as the unavailable dead-link mutation subject with Assets and preserve a negative case. A custom committed capture script using the W3-02 capture pattern is the reviewed equivalent of `tools/layout-evidence.mjs`; it records every Q24 rectangle at 1440/390, stocked/partial/pending/historical/empty/refusal, including the Evidence aside inside `portfolio-side`. Cold/EV `COST_CONTROL` is `NOT_APPLICABLE` from `financials.py::APPLICABLE` (only mini-grid has the operating-cost category); an unknown mini-grid configuration remains UNKNOWN.
+
+### N1–N10 — corrections and defensive states
+
+N1. The demo publication path, if cited for source variants, is `backend/conversions/demo-diesel-price-publications.json`; it is not the positive W1 producer. N2. The measurements file **does** contain block rectangles; use its 1440/390 table and closure-2 Q24 caps, including `portfolio-side` 709/512 as the Evidence aside outer block. N3. Null `episode_start` and `Episode window not recorded` are defensive only; no selected producer needs to emit null. N4. No reviewed RISK/OPPORTUNITY Finding producer exists: assert empty Risks/Opportunities lenses and UNKNOWN risk card, never a nonzero COUNT fixture. N5. For evidence prompt Site choice use `(site_code_key,site_id)` order from the selected gap group, not lexical Site UUID. N6. `CONTRADICTORY` Evidence readiness maps to matrix UNKNOWN with reason `Evidence selection is missing, historical or unsettled`. N7. Preserve W3-01 consequence `amount_low`, `amount_high` and compatibility `amount` in all copied row DTOs. N8. Action counts cover only Actions **created** in the selected window; a previously created Action verified within 30 days is excluded. Say so in change disclosure. N9. Do not alter the closed unavailable-tab multiset or the EV Site `UnavailableInline` Portfolio Evidence/roll-up members; a real global Portfolio route does not activate those Site tabs. N10. `dependency-direction.ps1` has no estate API rule, so no top-level allowance edit is needed absent an actual failure; Lane A's one-head proof expects the existing 0027→0029 chain (0028 unused), and W3-03 creates no 0031 migration.
+
+### Six builder runs, reading index, and delivered-item supersession
+
+| Run / editor | Deliverable and gate | Read only these W3-03 sections plus the named seam above | Existing code/reference to open |
+| --- | --- | --- | --- |
+| **0a / Lane A** | Four full-scope selectors; Portfolio parser/cursor; row end/domain/null mechanism; verification IDs; unchanged W3-01/02 golden bytes and pure cursor tests | Closure 1 shared wire/cursor and Finding rows; closure 2 Q6/N3; closure 4 B1/B2, S1/S2/S6/S8 | `scope.py`, `index.py`, `coverage.py`, `evidence_money.py`, `financials.py`, `postgres_estate_read.py:274-320` |
+| **0b / Lane B** | Single persisted 10-06 fixture and exact public root assertions before Portfolio code; independent review of fixture composition | Closure 2 Q9 table as **amended here**, closure 3, closure 4 B3/B4 | W3-01 golden `mixed_replay`, W3-01 `power_estate`, W3-02 `two_ev_sites`, S6 Action chain |
+| **1a / Lane B** | Portfolio scope/coverage/lifecycle selection, full token, five-part cursor, refusal router unmounted | Closure 1 shared wire/cursor/table filter; closure 2 N6 1a; closure 4 S1–S9 | `estate_evidence_money_api.py`, `test_w302_estate_cursor.py`; reviewed 0a selectors |
+| **1b / Lane B** | Cards, matrix, prompt, progress, selected lines and footer; all persisted decline assertions; Lane A mounts after review | Closure 1 projections/matrix; closure 2 Q9/N2/N5/N6 1b; closure 4 B3/B4, S4/S7/S9–S11/S13/S19 | `financials.py`, `evidence_money.py:380-486`, fixture from 0b |
+| **2 / Lane B, Lane A integration** | Main page, controls and destination/refusal behavior; Lane A route/rail and guard updates after page proof | Main spec mock ledger/refusals; closure 1 Finding table; closure 2 Q24/N6 2; closure 4 S12/S15/S17 | `estateShared.tsx`, `findingIndex.tsx`, `EstateFinancials.tsx`, v69 `portfolio` and measurements |
+| **3 / Lane B, Lane A registry** | Lower panels, disclosures, browser rectangles, same-revision full suite; Lane A panel rows/checker | Closure 1 disclosures/progress; closure 2 Q24/N6 3; closure 4 S16/S18/N1–N10 | `ui/Disclosure.tsx`, W3-02 capture scripts, dependency registry |
+
+Supersession index for the re-check's 17 delivered items: **strike as new W3-03 work** items 1 (parser/refusals), 2 (access/token), 3 (existing cursor), 4 (snapshot), 5 (authorized Sites), 6 (coverage vocabulary), 7 (Finding rows), 8 (Action rows), 9 (Evidence rows), 10 (Financials), 11 (group key), 12 (server links), 13 (refusal pattern), 14 (frontend shared pieces), 15 (persisted fixture *components*), 16 (guard format), and 17 (mock measurements). These are **inputs** only. Runs 0a/0b add the specifically absent Portfolio cursor/selectors/fields and the combined fixture proof; runs 1a–3 compose and present them. No delivered item is reimplemented under a new name.
+
+## Review closure 5 (2026-10-21)
+
+This closes S4 and S7 in `.agent/W3-03-closure4-check.md`. The following tables supersede closure 4 S4/S7 wherever its prose leaves a boundary or field choice open. They specify additions to the W3-03 Portfolio wire only; the W3-01/02 root responses remain unchanged.
+
+### S4 — exact Evidence and Financials reductions
+
+Reduce the **full authorized scope**, before paging, separately for E (`coverage.evidence_state`) and M (`coverage.money_state`). The page-one basis mode governs the reduction: an explicitly selected as-of head with `site_coverage.state=HISTORICAL` is a settled selection; an absent head at an earlier cutoff is unresolved. A continuation's captured `known_at` does not change that mode. For each root, classify every applicable unit as `G` (settled and known) or `U` (unresolved). Proven non-applicability is `N` and is excluded from both counts. An unknown physical configuration is `U`, never `N`. The Site's seven-key `coverage.sites[]` item remains the Finding selection DTO; E/M are computed from their own full-scope inputs, not that item's `state` alone.
+
+| E input for one authorized Site | Unit class | Reason |
+| --- | --- | --- |
+| Configuration proves that no Evidence capability applies | `N` | Proven non-applicability only. |
+| Configuration or capability applicability is unproved | `U` | Do not infer non-applicability from absent rows. |
+| Any applicable capability has missing selection, `PENDING_RECOMPUTE`, `STALE_SOURCE`, `UNKNOWN`, unsettled/failed job, stale freshness, or unresolved match; or its selected readiness is `UNKNOWN` or `CONTRADICTORY` | `U` | This row wins even if another capability on that Site is selected. A historical row without a selected as-of head is missing. |
+| Every applicable capability has a settled `CURRENT` or valid selected-as-of `HISTORICAL` basis and readiness in `FULL|LIMITED|NONE` | `G` | `LIMITED` and `NONE` are known claim limits, not missing coverage. |
+
+| M input for one authorized Site and one category | Unit class | Reason |
+| --- | --- | --- |
+| Reviewed W3-02 applicability proves the category does not apply | `N` | No category line is required. |
+| Site configuration/category applicability is unproved | `U` | Do not infer `N` from no line. |
+| Applicable selection is missing, `PENDING_RECOMPUTE`, `STALE_SOURCE`, `UNKNOWN`, unsettled/failed, stale or unmatched; cold/EV `windows_covered` is false; or W3-02 emits `UNKNOWN_COVERAGE` for this category | `U` | This row wins even when another category or Site has an eligible line. A historical cutoff with no selected as-of head is missing. |
+| Applicable selection is settled `CURRENT` or valid selected-as-of `HISTORICAL`, its category window is covered, and no `UNKNOWN_COVERAGE` applies; zero selected heads | `G` | W3-02 `NO_LINES` is an empty known category, not an invented amount. |
+| Same settled, covered category with one or more selected heads, regardless of line eligibility, exclusions or comparison diagnostics other than `UNKNOWN_COVERAGE` | `G` | `UNPRICED`, `WITHHELD`, source `UNKNOWN|MIXED`, `INELIGIBLE`, `SINGLE_LINE`, `COMPARABLE`, `OVERLAPPING_BASIS`, mixed currency/period/window/assumption and their exclusions still disclose value limits; they do not erase a known selection. A conflicting **selection** or unproved category/window is `U` under the preceding row. |
+
+For M, form units from every Site/category pair whose applicability W3-02 proves, plus any selected category outside the mock's `APPLICABLE` set (for example `RECORDED_REPAIR`); classify unproved possible pairs `U`. Read `windows_covered`, `groups`, `exclusions` and `diagnostics` from `select_financial_scope`, without treating a comparison-only exclusion as absent selection. The following table is the **complete** estate reduction for either E or M after unit classification. `G` and `U` mean counts of applicable units; any number of `N` units has no effect.
+
+| Authorized Sites | `G` count | `U` count | E or M output |
+| --- | --- | --- | --- |
+| 0 | 0 | 0 | `EMPTY` |
+| >0 | any | 0 | `COMPLETE` (including all-`N` scope, because non-applicability is proved) |
+| >0 | >0 | >0 | `PARTIAL` |
+| >0 | 0 | >0 | `UNKNOWN` |
+
+The four rows are disjoint and exhaustive; no money amount, line count or paged row count participates. Apply the E and M classifications independently. In particular, the persisted cold pending and unselected EV Site variants are `PARTIAL` alongside known Sites; the before-head cutoff is `UNKNOWN`; the source `UNKNOWN|MIXED` and EV `OVERLAPPING_BASIS` variants remain `COMPLETE` for M while their value/comparison claims are withheld. **Run 1a / Lane B** implements both reductions and their exhaustive class/count unit tests; **run 1b / Lane B** asserts all named persisted variants against the full selected Financials/Evidence outputs and their exclusions/diagnostics.
+
+### S7 — one workflow wire and its literal labels
+
+Use `rows[].workflow_label: string` in the Portfolio response. It is required and never null. This replaces closure 4's `workflow_label`/`plan_active` choice and nullable wording; do not add `plan_active`. The server derives it from the exact selected Action joined by `(origin_finding_id,origin_finding_revision_id)`, its selected event and the selected frozen verification plan/outcome at the same cutoff. `_verification_window` is a private input, never a wire field. The frontend renders this supplied string verbatim and does not infer an active plan from a null outcome. The existing `application_state`, `resolution_state` and `verification_outcome` fields remain exact selected facts, not alternative label sources in the client.
+
+| First matching selected fact | `workflow_label` literal |
+| --- | --- |
+| No joined Action | `Recommendation not accepted` |
+| Latest surviving resolution is `RESOLVED` with `verification_outcome=VERIFIED` | `Verified` |
+| Latest resolution is `RESOLUTION_WITHDRAWN` | `Resolution withdrawn` |
+| Selected frozen plan is active at cutoff, no surviving terminal outcome and `_verification_window=true` | `Outcome pending` |
+| `application_state=PENDING` | `Pending` |
+| `application_state=APPLIED` | `Applied` |
+| Joined Action with none of the above, including `NONE_AT_CUTOFF` or a non-VERIFIED terminal outcome | `No action yet` |
+
+The table order is precedence; it covers every joined/no-join input combination. It does not attach an Action to a different Finding revision, and progress still discloses all selected Actions. **Run 0a / Lane A** preserves `_verification_window` and adds exact verification IDs/times to the shared snapshot; **run 1b / Lane B** creates `workflow_label` in the Portfolio row DTO. Add `test_w303_portfolio_workflow_labels.py::test_all_seven_literal_labels_and_precedence` for the table, including an active plan with a null outcome and a null outcome without an active plan. Add `test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal` using the separate `[2026-11-01,2026-11-03)` S6 producer/evaluator chain: assert `Outcome pending` before resolution, `Verified` after the evaluator, `Resolution withdrawn` after later accepted evidence and evaluator withdrawal, with exact selected Action/plan/outcome IDs. The clean 10-06 Finding rows assert `Recommendation not accepted`; the November chain only asserts a Finding-row label when that exact origin revision is also selected in its request window.
+
+## Run-0a rulings (r0a)
+
+- **L2 — confirm 422.** An invalid request `lens` is a shape refusal, distinct from a valid cursor whose lens fence changed. At run-0a `scope.py::parse_request`, the `portfolio` branch checks `lens not in LENSES` and raises `EstateRefusal("INVALID_LENS")`; `STATUS` has no override for that code, so status is 422. The exact API detail is `{"code":"INVALID_LENS","message":"Use all, cost, risks or opportunities.","rows":null,"total_count":null}` (the eventual Portfolio router adds its specified null fields inside `detail`). Test: `backend/tests/test_w303_estate_cursor.py::test_portfolio_parser_validates_lens_and_forbids_state` asserts `lens=money` gives `INVALID_LENS`; the full pure cursor file ran here at the run-0a worktree revision: **26 passed**. A valid cursor with changed requested lens remains 409 under `test_changed_grant_lens_window_cutoff_or_token_is_409_before_marker_lookup`.
+- **L3 — assign S1 to run 2 / Lane A integration.** Add `export type EstatePortfolioStatus = "CURRENT" | "HISTORICAL" | "PENDING" | "UNKNOWN" | "EMPTY_SCOPE";` in `frontend/src/estate/estateClient.ts`; type the Portfolio response envelope as `Omit<EstateEnvelope, "status"> & { status: EstatePortfolioStatus }`, without widening `EstateSiteState` or `EstateEnvelope.status` for the existing roots. This is the shared frontend file owned by Lane A, and run 2 is the first frontend run. Test: run 2's `estatePortfolio.test.tsx::rendersEmptyPendingHistoricalAndSourceConflict` must type its fixture response with `EstatePortfolioStatus`, assert all five status values, and pass `tsc`/frontend build; existing root type tests must still compile.
+- **L4 — harmless bounded repetition for this slice.** The run-0a artifacts `index.py::select_finding_scope`, `evidence_money.py::select_evidence_scope`, and `financials.py::select_financial_scope` each call `site_coverage(snap, tenant_id, site_id, domain, req.from_, req.to, scope["k"])` once per applicable Site. Composition invokes all three on the *same* read-only repeatable-read snapshot and `scope`, so at most three calls per Site/domain produce the same basis; no per-row call or independent transaction is introduced. Keep the selectors' separate results and reduce F/E/M independently; do not merge coverage by overwriting one root's Site result with another. Test in run 1a: instrument `site_coverage` on the four-Site persisted fixture, assert no more than 12 calls for the three selectors, one snapshot/cutoff, and unchanged exact selected IDs and Portfolio token versus the public roots. Record the count before considering caching.
+- **M1 — confirm the private per-Site fix, owned by run 0a / Lane A.** In `financials.py::select_financial_scope`, carry `{**cov, "_sessions": sessions, "_windows_covered": windows_covered}` for cold/EV and use `cov["state"] in COVERED` as the mini-grid `_windows_covered` value. Keep the existing `applicable[category]` AND and returned tuple shape. Closure 5 S4 reads this boolean from each Site/category unit; the current run-0a tuple `{**cov, "_sessions": sessions}` loses it, so the aggregate `applicable` cannot distinguish a covered EV Site beside an uncovered EV Site. `_coverage_site` and selection-token serialization use named fields, and root rows project away underscore keys, so `_windows_covered` never reaches the wire. Test before release: add a focused `select_financial_scope` assertion with one covered and one uncovered EV Site proving their respective private booleans and `PARTIAL` input classes; rerun `test_w302_money_comparability_postgres.py` and `test_w302_financials_links_postgres.py` to prove unchanged root bytes. Run 1a then asserts the unselected EV Site variant reduces M to `PARTIAL`.
+
+## Run-0b rulings (r0b)
+
+- **P-0b-1 — use the probed cold producer.** In `backend/tests/test_w303_portfolio_fixture_postgres.py::build_portfolio_fixture`, use `cold_case="excursion", cold_drain=True`: run the W2-03 cold assessment and then the W2-04 consequence drain before the frozen public reads. The `normal` case has no selected cold Finding or product-exposure line on 2026-10-06 and cannot prove closure 4 B3. Assert the selected cold `POTENTIAL_PRODUCT_EXPOSURE` line is `UNPRICED`, has a null amount, and pins a selected cold Finding revision; retain the three-category and unchanged-root assertions. The probed `excursion` plus drain yields that line and all three roots `CURRENT/COMPLETE`.
+- **W3-02 coverage — correct as implemented.** Financials root `coverage.state=COMPLETE` reports settled Site selection; the `POTENTIAL_PRODUCT_EXPOSURE` group's `UNKNOWN_COVERAGE` reports unproved coverage of that particular category/window. Those states can coexist and do not call for a W3-02 fix. W3-03 closure 5 S4 separately classifies that cold Site/category as `U`; with other known applicable units, Portfolio M is `PARTIAL`. With the ruled cold producer, the selected unpriced line makes the cold category known and allows the clean Portfolio M `COMPLETE` proof. Preserve the W3-02 root response and group semantics.
+- **L3 — seam run 2 / Lane A integration.** The `estateClient.ts` Portfolio status union and typed response envelope specified in r0a belong to the table's run **2**, the page/frontend run after 1b. “Run 2” here is the seam label, not the second chronological run (0b). Run 0b makes no frontend change. Lane A owns the shared file; run 2 supplies the stated type, five-status UI fixture assertion, `tsc`/build proof and existing-root type compatibility.
+
+## Run-1a rulings (r1a)
+
+These rulings read the eleven run-1a handoff readings against `450f5f9f`; they assign the remaining work to the already named runs. They do not declare the 1b/page tests passed. Closure 5 and the later review closures above prevail over earlier illustrative JSON and mock text.
+
+### Q-1a-1 — selected Action event time
+
+**Fix the tie key; do not ratify the `action_id`-only fallback.** Lane A owns the existing `backend/assetops_backend/estate/coverage.py`; in seam run **1b, before Lane B's workflow/progress tests**, add private `"_selected_recorded_at": selected["recorded_at"]` to each `_actions` row, where `selected = lifecycle.ordered(events_by[aid])[-1]`. `index.py::select_action_scope` already carries that row in `_raw`; no public Action field, root response byte, token array or second read changes. Lane B, in run 1b, makes `portfolio.py::_action_for` require that time for every matching Action and select by `(-selected_recorded_at, action_id ascending)`; absence is an internal selection error, never a silent fallback. The timestamp is the selected **Action event**, not `created_at`, a plan time or outcome time. Test `backend/tests/test_w303_portfolio_workflow_labels.py::test_two_actions_one_exact_origin_latest_event_then_id_tie`: two Actions with the same exact Finding/revision, newer selected event wins even when its ID sorts later; equal times choose smaller ID; a different revision does not join; both matching Actions remain in `progress.rows`. Add an assertion in `test_w303_selectors_postgres.py` that the private time equals the selected stored event's `recorded_at`, and rerun the W3-01 Action golden response comparison unchanged. Q-1a-1 is closed by this assigned fix, not by the 1a interim behavior.
+
+### Eleven handoff readings
+
+| # | Ruling, literal artifact and required test |
+| --- | --- |
+| 1 | **Confirm.** The six-run table calls the first run **0a / Lane A**. `index.py`/`scope.py` selectors and cursor are its artifacts; S7's seven labels are **1b / Lane B**. Keep `test_w303_estate_cursor.py::test_portfolio_parser_validates_lens_and_forbids_state` at 0a and `test_w303_portfolio_workflow_labels.py::test_all_seven_literal_labels_and_precedence` at 1b. |
+| 2 | **Replace the key wording.** `coverage.py` supplies `_episode_end` and `_mechanism=None` in Finding rows; `index.py::select_finding_scope` supplies `_site`, whose stored `site_type` is projected as `_domain`. The Portfolio wire is uppercase `domain`, nullable `episode_end`, nullable `mechanism`; the token domain stays lowercase. `test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids` must assert all three stored domain values, exact selected end times and null mechanism while the W3-01 Findings golden bytes stay unchanged. |
+| 3 | **Confirm with ID precision.** `coverage.py::_actions` keeps `_plans` (`id`, `recorded_at`, bounds), `_outcomes` (`outcome_id` to `recorded_at`), `_outcome_id`, and `_verification_window` in `_raw`. In 1b project `progress.rows[].selected_action_event_id`, `verification_plan_id`, `verification_outcome_id`, `recorded_at` from these selected facts; absent IDs are null. `test_w303_portfolio_comparison_postgres.py::test_selected_action_window_workflow_and_withdrawal` compares those IDs/times to the Action root and selected stored records at each cutoff. Do not infer an outcome ID from an outcome label. |
+| 4 | **Confirm.** `scope.py::parse_request` rejects `lens=money` with 422 `INVALID_LENS`, while a valid changed lens against an existing cursor fences with 409 `ESTATE_BASIS_CHANGED`. Keep `test_w303_estate_cursor.py::test_portfolio_parser_validates_lens_and_forbids_state` and `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` as the literal assertions. |
+| 5 | **Confirm.** `backend/tests/test_w303_estate_cursor.py` is the 0a pure cursor artifact; keep its five-member marker, null state filter and page-one-mode checks. The 1a router test `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` is the cross-layer check. |
+| 6 | **Replace the ambiguous `1a/2` phrasing.** `frontend/src/estate/estateClient.ts` is Lane A's shared file at run **2**, after 1b. Add `EstatePortfolioStatus = "CURRENT" | "HISTORICAL" | "PENDING" | "UNKNOWN" | "EMPTY_SCOPE"` and a Portfolio envelope with `Omit<EstateEnvelope, "status" | "coverage">` plus its exact five-state `status` and Portfolio F/E/M `coverage`; do not widen the existing root envelope or `EstateSiteState`. `estatePortfolio.test.tsx::rendersEmptyPendingHistoricalAndSourceConflict` uses a typed Portfolio fixture for all five statuses; `tsc`, build and existing estate root type tests pass. This refines r0a L3 because 1a's `coverage.state` can also be `EMPTY`, which the existing root envelope does not type. |
+| 7 | **Confirm.** `portfolio.py::_portfolio` emits `total_count=len(shown)` for the selected lens even when F/E/M is incomplete; it never labels this an estate-wide complete count. Run 2 renders `{total_count} selected Findings · coverage incomplete` when needed. Assert this in `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` and `estatePortfolio.test.tsx::rendersEveryFindingColumnAndFourLensStates`. |
+| 8 | **Confirm with S7 completion.** `portfolio.py::portfolio_row` carries legacy `action_state=application_state`, `next_move=null`, encoded Site and Action links, and W1-only exact Finding links. Run 1b adds required `workflow_label`; `test_w303_portfolio_workflow_labels.py::test_all_seven_literal_labels_and_precedence` checks the seven strings, and `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` checks quoted code and cold inert Finding link. |
+| 9 | **Replace the token comparison phrase.** A Portfolio token has no equal public-root token: it unions four roots and binds the lens. Compare exact constituent selected IDs, Finding `coverage.sites`, one cutoff, a stable `estate-selection/2` digest, and inequality to each individual root token. Artifacts are `portfolio.py::token_site` and `scope.py::selection_token`; tests are `test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids` and `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token`'s independent canonical-token calculation. |
+| 10 | **Confirm.** The foreign-tenant Site/import perturbation is test-scoped SQL, not a producer or product writer. It cannot appear in this tenant's access basis, token or rows or fence its existing cursor. Artifact and test: `test_w303_portfolio_scope_snapshot_postgres.py::_add_foreign_site` and `::test_foreign_tenant_missing_site_and_grant_fence`. |
+| 11 | **Replace.** Q-1a-1 is resolved by Lane A's `_selected_recorded_at` field and Lane B's required comparator in the section above. The test is `test_w303_portfolio_workflow_labels.py::test_two_actions_one_exact_origin_latest_event_then_id_tie`; the 1a `action_id` fallback must be removed in 1b. |
+
+For the reduction behind readings 7–9, retain the exact S4 boundary already in `portfolio.py`: `settled` accepts CURRENT or selected-as-of HISTORICAL, rejects pending/failed/absent jobs, STALE freshness and MISSING/PENDING match; UNKNOWN freshness alone does not reject an otherwise selected cold basis. F uses Finding `site_coverage`, and unknown configuration is U for F/E/M. A historical Evidence row is G only with selected IDs and no contradiction; its current objective display remains UNKNOWN. Per-Site `_windows_covered` governs M, while a category-wide comparison diagnostic is disclosed separately. `test_w303_portfolio_reduction.py::test_settled_current_and_historical_bases`, `::test_evidence_table`, `::test_money_table`, and `test_w303_selectors_postgres.py` are the literal tests; add the UNKNOWN-freshness case to the first. The overall `coverage.state` reduces all F/E/M units; `covered_site_count` requires non-U F, E and every M unit. `test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids` proves CURRENT/COMPLETE/4, `::test_foreign_tenant_missing_site_and_grant_fence` proves EMPTY/0 and added Site UNKNOWN/PARTIAL/4-of-5, and `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` proves historical and live page-two status.
+
+### L4 measurement and runs 1b/2 dry-read
+
+**Accept the measured repetition for this slice.** `test_w303_portfolio_scope_snapshot_postgres.py::test_three_domains_same_window_cutoff_and_full_selection_ids` measured one read snapshot and `site_coverage` calls `{mini_grid:3, cold_chain:3, ev_charging:6, actions:1}` on four authorized Sites. Twelve calls are the three independent F/E/M selectors, plus one applicable Action Site. Each uses the same `snap`, `scope` and cutoff; no cache or selector rewrite is assigned. Keep the exact-count assertion and selected-ID/token assertions; a later count increase or separate snapshot reopens L4.
+
+**Run 1b data source.** Keep `a_sites/a_rows`, `e_sites/e_rows`, and `m_sites/m_lines/applicable/groups/exclusions/diagnostics` from the four selectors in `_portfolio` before constructing or slicing the Finding page. In `450f5f9f`, Evidence and Financials tuple slots are discarded and only `summary.finding_count` is emitted; 1b must project `selected_lines` (unpaged W3-02 rows), `money={groups,exclusions,diagnostics,estate_total:null}`, `scope_disclosure.sites`, five `value_cards`, five-cell-per-Site `objectives`, `evidence_prompt`, `opportunity`, `progress`, `footer` and the remaining summary keys from those full-scope inputs. No `progress` count or card can be derived from paged `rows`. Add `test_w303_portfolio_scope_snapshot_postgres.py::test_page_size_does_not_change_cards_matrix_or_money` with limits 1 and 100 and equal full-scope projections. Use closure 2 Q9/N2/N5, closure 4 B3/B4 and closure 5 S4/S7 for the exact state tables; variant (b) is `HISTORICAL` with `UNKNOWN/UNKNOWN/UNKNOWN` at `2026-09-30T00:00:00Z`, as closure 3 corrected. The clean 10-06 Action selection is empty: progress disclosure says `No selected Actions in this window`; row workflow says `Recommendation not accepted`; there is no November outcome in that fixture. The separate November Action-window test supplies pending/verified/withdrawn progress IDs only.
+
+**Run 1b wire fields and mock slots.** `rows[].workflow_label` is required, nonnull, and one of the seven S7 literal labels; no `plan_active` wire field. Preserve row `consequence.amount_low`, `amount_high`, `amount`, `currency`, `source_revision_id`; `priority` and `confidence` remain null until reviewed producers exist. `summary` adds `priority_site_count:null`, `opportunity_count` only on complete Finding coverage, `evidence_gap_site_count` only on complete Evidence coverage, `accepted_action_count` and `verified_resolution_count` only on complete applicable Action/verification coverage, `combined_value:null`, `combined_value_state:"NOT_COMPARABLE"`. `progress.rows[]` uses the nine exact fields in closure 2 Q21, including nullable plan/outcome IDs; `completed_activity_count:null`, `recovered_value:null`, `state:"NO_COMPARABLE_BASELINE"`. `opportunity.state:"UNSUPPORTED"`, scenario amount/headroom null. Productive use and asset life stay `UNSUPPORTED`; verified recovery stays `NOT_ESTABLISHED`. The five card order and literal detail/basis/tone strings are the closure 2 card table; the clean fixture states are `SITE_OWNED/UNKNOWN/UNSUPPORTED/UNSUPPORTED/NOT_ESTABLISHED`. Tests: `test_w303_portfolio_comparison_postgres.py::test_operating_cost_first_match_wins_across_partitions`, `::test_ev_window_money_has_no_finding_attribution`, `test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source`, and the 2 page test `rendersContextFiveCardsPulseAndSelectedRows`.
+
+**Run 2 copy and destinations.** Use the later literal copy, not the earlier mock ledger's exclusive-end header, `All priorities` chip, or `Needs attention` badge. The shared `EstateDateBar` reads `Window {from} to {last included} (UTC days)` and `Evidence cutoff`; chips are `All findings`, `Cost`, `Risks`, `Opportunities`; count is `{total_count} selected Findings` plus ` · coverage incomplete` when needed. Context badge/status sentence and domain count are the closure 2 Q19 strings. Keep all five cards, four named panels, five matrix rows, Evidence aside, two unsupported opportunity quantities and both inert CTAs, three change lines, both disclosures and the business footer in their measured slots. `No reviewed scenario`, `No eligible headroom or demand basis`, `Review opportunity Finding · Not available yet`, `Inspect physical headroom · Not available yet` are plain text without href/button. No mock amount, ACT number, fake priority/confidence, completed work, recovered value or extra Site column. `Mechanism not recorded`, `Next move not recorded`, `No accepted Action`, `Recommendation not accepted`, `No selected decision-changing evidence step` and `Evidence coverage incomplete` are the literal missing-state strings. `test_w303_portfolio_workflow_labels.py::test_all_seven_literal_labels_and_precedence`, `estatePortfolio.test.tsx::rendersContextFiveCardsPulseAndSelectedRows`, `::rendersEveryFindingColumnAndFourLensStates`, `::rendersFiveObjectiveRowsForEveryAuthorizedSite`, `::keepsUnsupportedOpportunitySlotsInert`, `::rendersChangeDisclosureWithoutRecoveredMoney` and `::rendersMeasuredPanelHierarchyAndScrollContainers` cover the slots; browser rectangles at 1440/390 remain run 3 proof.
+
+**Links and client type.** `portfolio.py::portfolio_row` already encodes stored Site code once and emits `/sites/{code}`, W1-only `/sites/{code}/findings/{finding_id}?revision_id={finding_revision_id}`, and selected `/sites/{code}/actions/{action_id}?event_id={selected_event_id}`; cold/EV Finding link remains null and reads `Finding detail unavailable`. In 2, global Findings `/findings`, risk `/findings/risks`, Evidence `/evidence`, Financials `/financials` preserve accepted selection parameters and clear cursor; risk is not `/findings`. Site/detail routes open current views unless their reviewed router accepts the full `from,to,known_at` tuple; show `Opens current Site view` at such a link. EV footer's `Inspect energy basis →` links only to its reviewed EV Site Evidence route, with the stored code encoded once; without a supported target show plain `Energy basis unavailable`. The remaining Site-detail/unavailable targets stay inert. `estatePortfolio.test.tsx::rendersTypedEvidencePromptAndExactDestinations`, `::preservesWindowAndCutoffAcrossGlobalRoots`, `::rendersEvFooterAndMissingEnergyBasis`, and `estatePortfolioRoutes.test.tsx::test_w303_global_route_precedence_and_unavailable_multiset` must assert these literal targets. In Lane A's run-2 `estateClient.ts`, add `PORTFOLIO_SCHEMA="estate-portfolio-1"`, `EstatePortfolioBody`, `EstatePortfolioQuery` (lens, no state filter), and `EstateClient.portfolio()` using `/api/estate/portfolio`; omit `state` from its query serialization, pass the opaque cursor unchanged, and retain existing Findings/Actions/Evidence/Financials types. Type the Portfolio `coverage.state` as `"EMPTY" | "COMPLETE" | "PARTIAL" | "UNKNOWN"`, with F/E/M states and seven-key Site items; the existing `EstateEnvelope.coverage` is not sufficient. The typed status test and frontend build are the gate.
+
+## Run-1a review rulings (r1a2)
+
+These rulings supersede conflicting wording in r1a and the earlier unsigned Portfolio cursor description. They assign fixes and proof; they do not claim the tests have run.
+
+1. **Reading 1 — historical settledness: replace.** In `portfolio.py::settled`, a valid selected-as-of `HISTORICAL` Site basis is settled even if its W3-01 `job_state` still says `PENDING` or `FAILED`; that marker does not override the selected historical basis. Require a selected head, settled match, and non-stale source at the cutoff; an absent as-of head, missing/pending match, or stale source remains U. For `CURRENT`, `PENDING`/`FAILED` job state remains U. The historical rule applies to F, E and M independently; E still requires selected capability IDs/readiness, and M still requires its category window covered with no `UNKNOWN_COVERAGE`. It does not make historical money current or change W3-01/02 root bytes. Lane B changes `settled` in run 1b and extends `test_w303_portfolio_reduction.py::test_settled_current_and_historical_bases` with both historical job states and absent-head/current-job controls. `test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source` asserts a persisted mini-grid selected-as-of head remains covered despite its outstanding job marker, while the before-head cutoff stays UNKNOWN.
+
+2. **Reading 6 — pending versus unknown: replace the status inference, confirm M is U.** A cold `withheld` result from overlapping recomputation or an EV `ERROR_PENDING` guard makes that Site/category's `_windows_covered=False`, hence M unit U; M reduces to PARTIAL when another applicable unit is G, otherwise UNKNOWN. An explicit pending guard is unsettled work for overall status even if the Site coverage DTO has not yet become `PENDING_RECOMPUTE`: after EMPTY_SCOPE and explicit HISTORICAL, `PENDING` wins over UNKNOWN. A non-pending unknown window has status UNKNOWN. Lane B uses the full selected Financials inputs, including the guard/withheld reason, for this precedence in run 1b. Extend `test_w303_portfolio_reduction.py::test_money_table` for the two U reductions and `test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source` as the named 1b persisted variant (a) assertion: cold pending and EV pending each give `status=PENDING`, M `PARTIAL` beside known Sites, no current card amount, and exact pending exclusion/diagnostic; assert the Site state separately rather than assuming it alone caused PENDING.
+
+3. **L1 — composition lane: confirm Lane B.** `estate/composition.py` is the stated home of the connection-taking Portfolio builder and is outside Lane A's exclusive existing-file list. Lane B owns the additive `build_estate_portfolio_service` edit in run 1b; Lane A still owns `main.py` router mounting after 1b review. Add `backend/tests/test_w303_portfolio_api.py::test_builder_uses_one_connection_scoped_reader_and_refuses_missing_database` to exercise the actual builder and 503/no-database path. Rerun the W3-01/02 root golden responses to show the additive edit leaves their builders and bytes unchanged.
+
+4. **Unsigned `page_one_mode`: sign the Portfolio cursor.** This is a tamper risk: `page_one_mode` affects historical/current presentation and is absent from the canonical `estate-selection/2` token, so that token cannot validate it. For `kind=portfolio` only, issue an authenticated cursor containing the exact existing fence fields and a keyed HMAC-SHA-256 over their canonical sorted-key compact UTF-8 JSON; verify the MAC before trusting any field, including `page_one_mode`, or doing the selection read. Use a server-held cursor signing key; refuse issuance if it is unavailable. A missing/invalid MAC is 422 `INVALID_CURSOR`; a valid MAC with changed grant, lens, window or selection remains 409 `ESTATE_BASIS_CHANGED`. Keep the full-scope selection token, W3-01/02 cursor formats and their golden bytes unchanged. Lane A owns the shared `scope.py` encode/decode seam and configuration in a pre-1b handoff; Lane B uses it for Portfolio in 1b. Extend `backend/tests/test_w303_estate_cursor.py` with a Portfolio round trip, missing/altered MAC and a base64-decoded `live`↔`historical` flip that all reject at 422, plus the unchanged W3-01/02 cursor-byte assertions. `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` proves live and historical page two preserve their signed page-one mode and still fence changed selection.
+
+## Run-1b rulings (r1b)
+
+These rulings read Lane A `06acf1cf`, Lane B `f3f04ef6`, the five 1b handoff readings and the v69 `portfolio` mock. They assign remaining work; they do not claim the unfinished 1b or page tests passed. This section prevails over a conflicting earlier illustrative wire or mock sentence.
+
+### Q-1b-1 — authenticated Portfolio cursor
+
+**Confirm r1a2 item 4 with this literal seam.** Lane A, in a **pre-1b seam run on the released W3-03 branch**, owns `backend/assetops_backend/estate/scope.py` and the shared `_cursor` call in `estate/index.py`; Lane B resumes run 1b only after that handoff and its independent cursor review. `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` is the sole key source: exactly 64 ASCII hexadecimal characters decoding to 32 bytes, supplied by the host environment. There is no committed, development or test default. Tests set a fixed test-only value with `monkeypatch`; a local server must be given a separately generated key. Never echo the key or include it in a cursor, response or log.
+
+Add `scope.py::portfolio_cursor_key()` (validates and returns bytes or raises `EstateRefusal("ESTATE_STORE_UNAVAILABLE")`), `encode_portfolio_cursor(payload, key)` and `decode_portfolio_cursor(value, key)`. The latter two reuse the existing v1 Portfolio payload shape, adding only `mac`: lowercase 64-character HMAC-SHA-256 hex of `json.dumps(payload_without_mac, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")`; encode the resulting object with the existing URL-safe base64 convention. Decode base64/JSON, require the exact Portfolio key set plus `mac`, verify the MAC with `hmac.compare_digest` **before** trusting or using `page_one_mode`, `known_at`, IDs, marker or other payload fields, then perform the existing shape checks. A missing, malformed or wrong MAC is 422 `INVALID_CURSOR`; a valid MAC whose grant, lens, window or selection differs is 409 `ESTATE_BASIS_CHANGED`. The key is checked for every Portfolio request before its selection read, including page one and an empty scope; missing/malformed configuration is 503 `ESTATE_STORE_UNAVAILABLE`, body `{"detail":{"code":"ESTATE_STORE_UNAVAILABLE","message":"Estate records could not be read.","rows":null,"total_count":null,"value_cards":null,"objectives":null,"money":null}}`. Authentication and authorized-scope admission still precede value parsing and this key check. The key is a deployment setting, not a database migration or a new response field.
+
+`index.py::_scope` uses authenticated Portfolio decode before the selection read; `index.py::_cursor` uses authenticated Portfolio encode only when `req.kind == "portfolio"`. Findings, Actions, Evidence and Financials continue through the old `encode_cursor`/`decode_cursor`, with unchanged bytes. A MAC alone does not replace `_fence` or `resume_after`. Lane A adds `backend/tests/test_w303_estate_cursor.py::test_portfolio_signed_round_trip_and_tamper`, `::test_portfolio_signing_key_missing_or_malformed`, and unchanged W3-01/02 cursor-byte assertions; Lane B extends `test_w303_portfolio_api.py::test_cursor_lens_window_cutoff_and_v1_token` to cover signed live/historical page two, a valid-MAC changed grant/selection 409, and a missing-key 503 with the exact body. This closes the `page_one_mode` flip without changing `estate-selection/2`.
+
+### Q-1b-2 — complete workflow-label precedence
+
+**Confirm strict first-match precedence and `Applied` for APPLIED with a non-VERIFIED terminal outcome.** The final S7 row means an Action with no earlier match **and** no PENDING/APPLIED application state; it does not override a selected application fact. The full table is:
+
+| Selected exact-origin Action/verification fact, first match wins | `workflow_label` |
+| --- | --- |
+| No joined Action | `Recommendation not accepted` |
+| Surviving `resolution_state=RESOLVED` and `verification_outcome=VERIFIED`, regardless of application state | `Verified` |
+| `resolution_state=RESOLUTION_WITHDRAWN`, regardless of application state/outcome | `Resolution withdrawn` |
+| Selected frozen plan active at cutoff, `_verification_window=true`, and no surviving terminal outcome | `Outcome pending` |
+| `application_state=PENDING`, including a non-VERIFIED terminal outcome not matched above | `Pending` |
+| `application_state=APPLIED`, including `RESOLVED` with non-VERIFIED terminal outcome | `Applied` |
+| Joined Action with `NONE_AT_CUTOFF` or another state matching none of the above | `No action yet` |
+
+`f3f04ef6`'s `portfolio.py::workflow_label` implements that ordering. Lane B extends `backend/tests/test_w303_portfolio_workflow_labels.py::test_all_seven_literal_labels_and_precedence` with APPLIED/RESOLVED/non-VERIFIED = `Applied`, PENDING/non-VERIFIED = `Pending`, and an active-plan/null-outcome case; the exact-origin tie test still must assert **both** Actions in unpaged `progress.rows`. The page renders the server string verbatim. An application label reports application only; it does not count as a verified resolution or recovered value.
+
+### Q-1b-3 — line-less pending money guard
+
+**Add the private guard fact; the line-only rule is insufficient.** Lane A owns `backend/assetops_backend/estate/financials.py` in the same pre-1b seam run. `windowed_lines` returns a fourth value `pending_guard: bool`, true if any selected cold pinned window has `cold_money(...)["withheld"]` or any selected EV pinned window has `guard == ERROR_PENDING`, whether or not that window emits a consequence line. It is false for an EV `STALE_BASIS` guard, a missing pin, a merely uncovered window or an ordinary UNPRICED head. `select_financial_scope` puts private `_pending_guard` on each per-Site coverage dict, false for mini-grid and non-applicable Sites; the public Financials DTO, group/exclusion bytes and selection token are unchanged. Lane B changes `portfolio.py::money_pending` to use `_pending_guard` (and keep selected PENDING-line evidence as a consistency assertion, not a prerequisite). The flag affects overall status after EMPTY_SCOPE/HISTORICAL, while `_windows_covered=false` still makes that Site's M unit U. It does not create a line or amount.
+
+Lane A adds `backend/tests/test_w303_selectors_postgres.py::test_financial_scope_pending_guard_without_line` for cold withheld/zero consequences and EV `ERROR_PENDING`/no history, with stale and no-pin controls and unchanged W3-02 public golden bytes. Lane B extends `backend/tests/test_w303_portfolio_reduction.py::test_money_table` and `backend/tests/test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source`: a line-less guard beside covered Sites yields `status=PENDING`, M `PARTIAL`, null current amount for the affected category, and no invented exclusion row. The page uses `Updating selected Sites`; it may disclose `Pending money reassessment; no selected consequence line` from the private guard, never a fabricated W3-02 line reason.
+
+### Five 1b readings and remaining dry-read
+
+1. **Confirm reading 1.** `job_state != NONE` is the existing selector's selected-head witness for `HISTORICAL`, provided match is settled and source is not STALE. `PENDING|FAILED` job markers do not unset that selected-as-of basis. Keep `test_settled_current_and_historical_bases` and its persisted before-head control; historical money remains withheld from current display.
+2. **Replace reading 2.** A selected `PENDING` line is sufficient evidence of a pending guard but is not necessary. `_pending_guard` above is authoritative for selected cold/EV windows with zero lines. `_windows_covered=false` alone is UNKNOWN, not PENDING. Use the named line-less tests.
+3. **Confirm reading 3 with its terminal guard.** `_verification_window=true` means a selected active frozen plan without a surviving terminal outcome; only that fact reaches `Outcome pending`. A null outcome alone never does. Keep the active-plan/null-outcome and null-outcome/no-plan controls in `test_all_seven_literal_labels_and_precedence`.
+4. **Confirm reading 4.** APPLIED plus a non-VERIFIED terminal outcome is `Applied` by first match; PENDING plus such an outcome is `Pending`. The full table and test above close the apparent overlap.
+5. **Confirm reading 5.** `test_builder_uses_one_connection_scoped_reader_and_refuses_missing_database` exercises the actual `composition.py` builder against a migrated run-owned DB with an unknown tenant, observes one `EvidenceMoneySnapshot` passed to all four selectors, and checks 503/no database. It does not substitute for the persisted four-Site projection tests.
+
+**Cards and IDs (run 1b).** Keep all six full-scope selector returns before Finding membership and paging: `a_sites/a_rows`, `e_sites/e_rows`, and `m_sites/m_lines/applicable/groups/exclusions/diagnostics`. `selected_lines` is the exact unpaged W3-02 public line DTO order. `money` is `{groups,exclusions,diagnostics,estate_total:null}`; a zero-head `NO_LINES|UNKNOWN_COVERAGE` sentinel is a group, not a selected line. `scope_disclosure.sites` and `selected_revision_ids` use the already specified token-array union; null provenance says `No selected source basis`. The five cards stay in the closure-2 order and states, with operating cost drawn **only** from `CANDIDATE_OPERATING_COST_EXPOSURE`. The clean fixture gives `SITE_OWNED/UNKNOWN/UNSUPPORTED/UNSUPPORTED/NOT_ESTABLISHED`; a covered Site-owned W1 line is still displayable when an unrelated cold/EV category is pending, while a pending/incomplete operating-cost category is `WITHHELD`. Risk remains `Not assessed` until a reviewed RISK producer exists. The unsupported cards never inherit mock kW, battery counts or dollars. Test `test_operating_cost_first_match_wins_across_partitions`, `test_ineligible_overlap_and_unknown_coverage_decline_total`, `test_ev_window_money_has_no_finding_attribution`, and `test_page_size_does_not_change_cards_matrix_or_money` at limits 1 and 100; compare exact line keys, group keys, IDs and full-scope projections, not displayed page-row sums.
+
+**Matrix and prompt (run 1b).** Emit one `objectives` item per authorized Site, including the unselected EV Site, with fixed rows `SERVICE_PRODUCT`, `BACKUP`, `ASSET_CONDITION`, `COST_CONTROL`, `EVIDENCE`. The first three are `UNKNOWN` absent an exact reviewed objective assessment; no domain implies `N/A`. `COST_CONTROL=NOT_APPLICABLE` for configured cold/EV domains under `financials.py::APPLICABLE`, `REVIEW` for an eligible mini-grid operating-cost line, `UNASSESSED` for complete mini-grid money coverage and no line, else `UNKNOWN`. Evidence takes the per-Site W3-02 readiness reduction; a historical current-objective display is `UNKNOWN`. The prompt selects the first canonical typed gap with a nonnull `next_step` and the lexically first eligible Site ID in that gap; null-step gaps are skipped. Its three literal texts remain `{next_step} at {site_name} to address the selected evidence gap.`, `No selected decision-changing evidence step`, `Evidence coverage incomplete`. CTA `/evidence`; no guessed Site route. Add assertions to `test_evidence_prompt_null_steps_and_coverage_precedence` and `test_page_size_does_not_change_cards_matrix_or_money` for IDs, all five cells and null-step/incomplete precedence.
+
+**Progress and B4 (run 1b).** `progress.rows` contains every full-scope selected Action, including a second Action on the same exact origin and an Action whose origin revision is no longer the selected Finding revision; only the row cell uses the deterministic latest-event tie. The nine closure-2 fields take `selected_action_event_id` from W3-01, plan/outcome IDs from `_raw._plans/_outcome_id`, and `recorded_at` from `_selected_recorded_at`; absent IDs are null. `accepted_action_count`, `pending_trial_count` and `verified_resolution_count` follow the complete applicable Action/verification coverage rule; `completed_activity_count` and `recovered_value` remain null. In `test_selected_action_window_workflow_and_withdrawal`, use **one** selected `[2026-11-01,2026-11-03)` request and successive cutoffs: producer-created Action and frozen plan -> `Outcome pending`, evaluator-created VERIFIED resolution -> `Verified`, later accepted evidence plus evaluator-created `RESOLUTION_WITHDRAWN` -> `Resolution withdrawn`. At each cutoff compare selected Action/event/plan/outcome IDs and times with the Action root and stored selected records. Never hand-append a resolution. The 10-06 aligned fixture has no selected Action and says `No selected Actions in this window` / `Recommendation not accepted`; the November test makes no Finding-row label assertion unless that exact origin Finding **revision** is selected in its request window. This is the B4 proof boundary.
+
+**Run 2 page literals and links.** Lane A adds `PORTFOLIO_SCHEMA="estate-portfolio-1"`, a typed `EstatePortfolioBody`/`EstatePortfolioQuery` and `EstateClient.portfolio()` to shared `estateClient.ts` after reviewed 1b; no `state` query key or widened root union. Lane B's page fetches 50, appends only Findings on `Load more Findings`, and clears previous privileged content on 401, 409 and 503. The shared date bar says `Window {from} to {last included} (UTC days)` / `Evidence cutoff`; context uses closure-2 Q19, never `Needs attention` or `simulated`; chips are `All findings`, `Cost`, `Risks`, `Opportunities`, with `{total_count} selected Findings` and ` · coverage incomplete` when applicable. Finding cells use `Mechanism not recorded`, `Basis not recorded`, `Episode window not recorded`, `Not assessed`, `No reviewed confidence measure`, `Next move not recorded`, `No accepted Action`, and the server `workflow_label` as specified; a cold/EV Finding link is inert `Finding detail unavailable`. Matrix shows the five labels and `Site detail unavailable` for a null target. Evidence aside uses the three prompt texts above. Opportunity slots say `No reviewed scenario` and `No eligible headroom or demand basis`; both CTAs are inert `Not available yet`. Change lines say `Completed activity · Not established`, `Policy trial awaiting outcome · {count or Unknown}`, `Verified resolutions · {count or Unknown}`; disclosure says `No previous comparable Portfolio snapshot is selected; change deltas and recovered-value trends are withheld.` Footer uses the first eligible EV `GROSS_TARIFF_SCENARIO` line or `Cross-Site energy and tariff totals are not established.` with `Energy basis unavailable`; no EV line attaches to a Finding. Root links preserve accepted `from,to,known_at` and clear cursor; a Site/detail route lacking the full tuple is labelled `Opens current Site view`. Use the run-2 typed/status, destination, lens, refusal and page-size tests already named in closure 2 and r1a; run-3 captures prove the 1440/390 rectangles. No example IDs or mock amounts enter the page.
+
+## Run-1b reading rulings (r1b2)
+
+These rulings inspect `f5407e95`, `3a0d96bc`, and `6c4e0449`. Named existing tests are evidence for the stated narrow behavior; named additions below are required proof, not claims of a passing run. This section supersedes conflicting run-1b readings above.
+
+| Reading | Ruling, literal, and test |
+| --- | --- |
+| R1 | **Replace the placement claim.** `portfolio_cursor_key()` is first in `index.py::_scope`, before `snap.read_at` and `snap.imported_sites`, but `PostgresEstateRead.read` has already executed `SET TRANSACTION READ ONLY` and `SELECT now()` to make the snapshot. Thus it is **not** before every DB read. Move the Portfolio key check to the authenticated, parsed API boundary before `store.read`; keep the snapshot check or pass the validated key into it. Missing/malformed key on a well-formed request remains 503 `ESTATE_STORE_UNAVAILABLE` with the frozen null-field body. Extend `test_cursor_lens_window_cutoff_and_v1_token` with an instrumented store/connection asserting zero DB reads for missing/malformed key on page one, page two and empty scope. The existing test proves 503/body only, not zero reads. |
+| R2 | **Confirm with a precise boundary.** `parse_request` calls `_portfolio_envelope(cursor)` before the API can check the key or open the snapshot. Invalid base64/JSON, missing or extra keys, and malformed `mac` therefore return 422 `INVALID_CURSOR` even when the key is absent. A structurally valid envelope with a bad MAC needs the key and returns 503 when the key is absent; with a valid key it returns 422. Keep envelope parsing before the new R1 key check, then MAC/shape verification in the snapshot. Add an API test combining an absent key with a malformed envelope (422, zero reads) and with a well-shaped wrong-MAC envelope (503, zero reads); retain `test_portfolio_signed_round_trip_and_tamper` for valid-key 422. |
+| R3 | **Confirm the proof limit.** `test_financial_scope_pending_guard_without_line` uses `_GuardSnap`, a fake snapshot, to drive the real `windowed_lines` and `select_financial_scope`; it is not a persisted producer test. It asserts cold `withheld` and EV `ERROR_PENDING` with `lines == []` set `_pending_guard=True`, and stale/no-pin controls set it false. Keep the planned persisted `test_late_revision_pending_historical_and_mixed_source` line-less cold/EV variant: `status=PENDING`, affected M unit U (M `PARTIAL` beside a covered Site), no invented selected line/exclusion, and no current affected-category amount. |
+| R4 | **Confirm.** `money_pending` returns true for `_pending_guard` **or** an uncovered selected line whose `eligibility == "PENDING"`; the line remains sufficient when the guard is false. `test_money_table` already asserts `money_pending(uncovered, guarded)` and guard-only `money_pending(guard_only, [])`. Add the false-guard plus PENDING-line case to the persisted late-revision test, alongside the line-less case; the page status is `Updating selected Sites` in either case. |
+| R5 | **Confirm the nullable display slots.** `operating_cost_card` returns `COMPARABLE_GROUP` or `SITE_OWNED` with `display_value:null` and `basis:null`; run 2 formats bounded money from the exact selected group/line using W3-02 formatting. `UNPRICED` may carry the literal `{site_name} · consequence recorded without a price`; `VERIFIED_RECOVERY.destination` is `/financials`. `test_page_size_does_not_change_cards_matrix_or_money` checks the SITE_OWNED null slot and line/group keys; `test_operating_cost_first_match_wins_across_partitions` must check both priced states, and `rendersContextFiveCardsPulseAndSelectedRows` must check the formatted value and UNPRICED copy. |
+| R6 | **Confirm.** `value_cards` emits `SERVICE_PRODUCT_RISK` as `UNKNOWN` / `Not assessed` on every W3-03 selection because no reviewed RISK producer exists; no COUNT path is authorized. `test_full_scope_projections_ignore_page_size_and_empty_scope` checks `UNKNOWN`; run-2 `rendersContextFiveCardsPulseAndSelectedRows` must check `Not assessed`, including an empty Risks lens. |
+| R7 | **Confirm with a route limit.** `objective` returns one item per authorized Site with `site_name`, stored `site_type` in `domain`, fixed five-cell order and null Site-cell destinations while no reviewed Site route accepts this selection. Unknown configuration remains `UNKNOWN`, never N/A. `test_page_size_does_not_change_cards_matrix_or_money` checks the persisted item/cell count and domain states; extend it for exact null destinations and unknown configuration, and cover `Site detail unavailable` in `rendersFiveObjectiveRowsForEveryAuthorizedSite`. |
+| R8 | **Confirm.** `evidence_cell_state` returns `UNKNOWN` for a historical display or `evidence_unit == U` (including no rows and `CONTRADICTORY`), else `FULL` if all rows FULL, `NONE` if any NONE, otherwise `LIMITED`. `test_full_scope_projections_ignore_page_size_and_empty_scope` covers FULL and historical UNKNOWN; extend `test_evidence_prompt_null_steps_and_coverage_precedence` with FULL/NONE/LIMITED/CONTRADICTORY and no-row vectors, then assert the selected Site labels in `rendersFiveObjectiveRowsForEveryAuthorizedSite`. |
+| R9 | **Confirm the extra `site_code` wire field.** `evidence_prompt` emits `site_code:string|null` beside `site_id`; its available text is exactly `{next_step} at {site_name} to address the selected evidence gap.` The incomplete and no-gap texts remain the r1b literals. `test_evidence_prompt_null_steps_and_coverage_precedence_pure` covers null-step skipping, chosen ID/code and incomplete precedence; `rendersTypedEvidencePromptAndExactDestinations` must type and render the code without inventing a Site link. |
+| R10 | **Replace the nine-field progress wire.** The page cannot infer an Action's origin revision from the nine `progress.rows[]` fields, and paged/lens-filtered Finding rows cannot prove absence. Add required `progress.rows[].origin_revision_selected: boolean`, computed on the server from the full selected Finding `(finding_id,finding_revision_id)` set before lifecycle/lens/page filtering; `false` means that exact origin pair is absent from the selected Finding revisions at this request window/cutoff. This is a disclosure fact, not an Action eligibility or verification state. Keep `verification_plan_id` as active-at-cutoff plan else latest selected recorded plan, and `verification_outcome_id` from `_raw._outcome_id`; counts still use complete applicable Action coverage and `_verification_window`/`_verified_recent`. Extend `test_two_actions_one_exact_origin_latest_event_then_id_tie` and persisted `test_selected_action_window_workflow_and_withdrawal` for both boolean values and exact IDs/times; run-2 `rendersChangeDisclosureWithoutRecoveredMoney` must show `Origin Finding revision not selected` only when false, including page size 1 and a nonmatching lens. Update the run-2 client type to ten required progress-row fields. |
+| R11 | **Replace the per-Site query.** `scope_disclosure` currently calls `snap.cited_provenance(...)` once per Site with selected IDs. Sharing the connection prevents inconsistent snapshots but still creates an additional N+1 query; this is not acceptable for an estate-wide root. Add a connection-taking batched provenance read for all represented Sites, keyed by `(tenant_id,site_id)` and each Site's exact sorted selected/cited IDs; produce the same six-key W3-01 DTO per Site and null with `No selected source basis` when a Site has no selected ID. Preserve mixed-source classification and digest semantics. Extend `test_page_size_does_not_change_cards_matrix_or_money` to compare each Site DTO with the existing single-Site truth, and instrument a multi-Site read to prove the additional provenance query count is constant at limits 1 and 100 (no one-query-per-Site loop). |
+| R12 | **Confirm the exact-value rule; tighten the route guard.** Footer eligibility requires `quantity.low == high`, `amount.low == high`, `eligibility == "ELIGIBLE"`, EV gross tariff category, and a non-current-view **nonnull reviewed** `links.evidence` target. `footer` currently checks `current_view_label is None` but not that `links.evidence` exists; require both before selecting the first `(site_code_key,site_id,line_key)`. The page derives `Other Sites may lack comparable full-window coverage.` only from another applicable EV Site with UNKNOWN/PENDING/STALE coverage; otherwise `Categories and windows remain separate.` `test_ev_footer_first_eligible_and_coverage_warning` must include a null-route eligible line and another EV Site with incomplete coverage; `rendersEvFooterAndMissingEnergyBasis` checks the fallback and the exact two warning sentences. |
+| R13 | **Confirm.** `evidence_gap_site_count` is the count of distinct `site_ids` across **all** typed `evidence_gap_groups`, including groups with `next_step:null`; only the prompt skips null-step groups. It is null when Evidence coverage is incomplete. Extend `test_full_scope_projections_ignore_page_size_and_empty_scope` with a null-step-only Site and assert the summary count remains 1 while the prompt is `NO_GAP`; verify the incomplete case yields a null count in `test_late_revision_pending_historical_and_mixed_source`. |
+
+**Build impact.** R3, R4, R5–R9 and R13 retain the run-1b contract but add the named proof. R10, R11 and R12 change run 3b: add the progress boolean, batch scope provenance and require a real footer destination before its persisted comparison tests close. R1 and R2 require the Lane A cursor seam fix and refusal-order tests before run-1b review. Run 2 must type/render R10, use the R12 footer warning predicate, and preserve the R2 refusal order; it must not work out origin selection from the paged Finding table. No other root wire or migration changes are authorized.
+
+## Run-1b variant rulings (r1b3)
+
+These rulings supersede the persisted-proof demands for the six combinations below. They do not turn a pure or fake-snapshot result into a persisted producer claim. Keep the actual persisted controls and their observed states in the run-1b handoff; do not seed fabricated product rows or force an impossible state through a DTO patch.
+
+| Pending item | One ruling and sufficient proof |
+| --- | --- |
+| P-1b-1, late cold | **Pure-test ruling.** `backend/tests/test_w303_portfolio_reduction.py::test_money_table` proves that an uncovered cold money unit with a selected `PENDING` line reduces to U and makes `money_pending` true; it also proves that `_pending_guard` alone makes a line-less cold unit pending. This is sufficient for Portfolio's reduction and status rule. The persisted `test_late_revision_pending_historical_and_mixed_source[a_lineless_cold]` separately proves the real cold line-less pending path. `fx.cold.advance_late()` after the drained excursion selects a settled cold head, so do not call it a persisted later-record/unsettled-job proof or require the unproduced `PENDING_RECOMPUTE` Site state. |
+| P-1b-2, non-stale mini-grid historical marker | **Pure-test ruling.** `backend/tests/test_w303_portfolio_reduction.py::test_settled_current_and_historical_bases` supplies an as-of `HISTORICAL` head with `source_freshness=RECENT`, a settled match and a `PENDING` or `FAILED` job marker, and checks that it stays covered; its stale, missing-head and current-state controls reject coverage. This is sufficient to isolate the selected-as-of marker rule. The persisted `mg_historical_marker` control remains STALE and UNKNOWN; do not describe it as a positive covered marker. |
+| P-1b-3, overlapping basis | **Pure-test ruling.** `backend/tests/test_w302_money_api.py::test_w302_money_overlap_by_group_ids_and_citations` drives the real W3-02 comparator with shared group, technical and cited IDs, asserts `OVERLAPPING_BASIS`, null group amount and exclusions, and checks disjoint and unproven controls. Portfolio reuses those full-scope groups unchanged, so this is sufficient for the overlap decline. `test_ineligible_overlap_and_unknown_coverage_decline_total` remains persisted proof of the INELIGIBLE, COMPARABLE and UNKNOWN_COVERAGE states only; it must not claim a persisted overlap. |
+| P-1b-4, persisted EV pending | **Fake-snapshot ruling.** `backend/tests/test_w303_selectors_postgres.py::test_financial_scope_pending_guard_without_line` drives the real `windowed_lines` and `select_financial_scope` functions through `_GuardSnap`: an EV `ERROR_PENDING` pin with no stored history yields `_pending_guard=true`, no invented line, and an uncovered money window; stale/no-pin controls keep the guard false. `backend/tests/test_w303_portfolio_reduction.py::test_money_table` proves that this guard makes the unit U and raises the pending signal beside covered units. These tests are sufficient for the EV guard-to-Portfolio rule without claiming an EV persisted pending head. |
+| P-1b-5, false guard plus pending line | **Pure-test ruling.** `backend/tests/test_w303_portfolio_reduction.py::test_money_table` passes an uncovered Site and a selected `eligibility=PENDING` line to `money_pending`, which is true even with `_pending_guard` absent (the same false value under `.get`); the covered-window and nonpending-line controls are false. This is sufficient to prove R4's independent line branch. No reviewed cold/EV producer emits a PENDING line while its corresponding guard is false, so remove the r1b2 demand for that persisted combination. |
+| P-1b-6, selected Action origin revision true | **Pure-test ruling.** `backend/tests/test_w303_portfolio_workflow_labels.py::test_two_actions_one_exact_origin_latest_event_then_id_tie` passes the full selected Finding pair set to `progress` and asserts both `origin_revision_selected=true` for exact pairs and false for a different revision or empty set, independent of page order. This is sufficient for the server's equality/disclosure rule. `test_selected_action_window_workflow_and_withdrawal` retains its persisted false result and exact selected-ID checks; the B4 chain does not select its November Action and October origin revision in one assessed request window. |
+
+R1/R2 in Lane A's cursor area being applied in Lane B commit `271577c6` is acceptable: one builder applied the changes sequentially before run-1b review. Review the combined diff and the R1/R2 refusal-order tests against the specified API boundary; the lane label does not require reverting or splitting that commit.
+
+## Run-1b review rulings (r1b4)
+
+**L1 — ratified file edits.** Ratify Lane B's sequential `271577c6` R11 edits to `backend/assetops_backend/estate/adapters/postgres_estate_read.py`, `backend/assetops_backend/estate/composition.py` (including `build_estate_read` and `build_estate_evidence_service`), `backend/assetops_backend/evidence/adapters/postgres_evidence_ledger.py`, `backend/assetops_backend/evidence/composition.py`, and the matching fixture wiring in `backend/tests/test_w302_evidence_scope_snapshot_postgres.py`. They supply the connection-taking, batched provenance seam required by R11 and preserve the existing W3-01/02 public DTOs. This is a specific ownership exception for those reviewed hunks in run 1b, not a transfer of Lane A's integration ownership or a general license to edit shared files. No file move, reversion, commit split, or Lane A re-sign is required. Lane A still owns its run-2/3 integration and reviews the combined seam when mounting Portfolio.
+
+**L3 — single prompt-Site rule.** Supersede the lexical Site UUID wording in closure 1 Q16 and the run-1b “Matrix and prompt” paragraph. Literal rule: if Evidence coverage is incomplete, emit `COVERAGE_INCOMPLETE` with null Site/code. Otherwise scan W3-02 typed gap groups in their canonical order, skip every group with `next_step:null`, and take the first remaining group with an authorized Site whose stored code is available. Within that group, choose the first such Site in `(site_code_key,site_id)` order; emit that Site's exact `site_id` and `site_code`, the group's `gap_code`, and `{next_step} at {site_name} to address the selected evidence gap.` If none qualifies, emit `NO_GAP` with null Site/code. The destination remains `/evidence`. Test `test_evidence_prompt_null_steps_and_coverage_precedence_pure` with two eligible Sites whose code order is opposite their UUID order, a null-step earlier group, and incomplete/no-gap controls; assert the chosen ID, code, gap and literal text. In the run-2 `rendersTypedEvidencePromptAndExactDestinations`, assert that the page renders the server-selected Site/code and destination without re-sorting or choosing from paged Findings. The current run-1b code follows this rule; L3 requires no 1b code change and only constrains run 2's page rendering.
+
+## Run-2 rulings (r2)
+
+Authority for this appendix is the run-2 handoff at `04474b3c` on `task/W3-03-portfolio-composition`, P-2-1, and the unchanged missing-claim guard. This is a run-3 instruction, not a claim that run 3 or final review has passed. The run-2 capture DB was private `w303m_test` and was dropped.
+
+### P-2-1 — register the opportunity gap; keep the guard
+
+Use **one** open gap for the two unavailable destinations. Add this exact object to `frontend/docs/architecture/v69-dependency-registry-pilot.json` `mock_gaps.gaps` (and keep `portfolio` out of `gap_enrolled_screens`, which would impose unrelated whole-screen enrollment). The two element IDs name distinct slots in the existing third Portfolio panel; neither claims a real Finding or physical headroom. Add `"G-portfolio-opportunity"` to the `portfolio` screen ledger's `gap_ids` if that ledger supplies `gap_ids`, as the registry validator requires exact membership.
+
+```json
+{"id":"G-portfolio-opportunity","screen_ids":["portfolio"],"panel_portion_ids":[],"element_ids":["portfolio:3.review-opportunity-finding","portfolio:3.inspect-physical-headroom"],"claim":"A supported opportunity Finding destination and a reviewed physical-headroom destination for the selected Portfolio opportunity.","boundary":{"window":"The selected Portfolio window and evidence cutoff.","subject":"An opportunity on an authorized Site, with its exact Finding revision and physical-headroom basis.","source":"Absent in W3-03: no reviewed OPPORTUNITY Finding producer or eligible physical-headroom/demand assessment is selected; W4 opportunity and mini-depth reads are outside this composition.","cannot_mean":"Not zero opportunity, zero headroom, an accepted scenario, or an available Finding or headroom route."},"missing_kind":"contract","status":"open","target_wave":"unplanned","allocation":"pending owner review","requires":["A-estate-comparability","I-mini-depth-read"],"source_status":"absent","ui_placements":["portfolio.opportunity.review-finding","portfolio.opportunity.inspect-headroom"],"unplaced_reason":null,"owner_or_role":"Owner (allocation); Architect (opportunity Finding and physical-headroom contract)","evidence":{"source":null,"ui":"frontend/src/estate/EstatePortfolio.tsx OpportunityPanel","visual":null,"reviewed_by":null},"review_trigger":"Reviewed opportunity Finding and physical-headroom reads supply exact selected destinations; replace each inert slot only when its own route and basis are supported."}
+```
+
+Mirror exactly in `frontend/src/ui/gapCatalogue.ts` as `"G-portfolio-opportunity": { status: "open", placements: ["portfolio.opportunity.review-finding", "portfolio.opportunity.inspect-headroom"] }`. Import `MissingClaim` from `../ui` in `EstatePortfolio.tsx`. Keep the two `span` elements' class, `aria-label`, text and lack of `href`/button; make `MissingClaim` the outer element, with literal pairs so the scan can trace both visible copy and the accessible name:
+
+```tsx
+<MissingClaim as="span" className="portfolio-inert" gapId="G-portfolio-opportunity" placement="portfolio.opportunity.review-finding">
+  <span aria-label="Review opportunity Finding, Not available yet">Review opportunity Finding · Not available yet</span>
+</MissingClaim>
+<MissingClaim as="span" className="portfolio-inert" gapId="G-portfolio-opportunity" placement="portfolio.opportunity.inspect-headroom">
+  <span aria-label="Inspect physical headroom, Not available yet">Inspect physical headroom · Not available yet</span>
+</MissingClaim>
+```
+
+The nested spans are required by the current `MissingClaimProps`, which has no `aria-label` prop. The scanner's ancestor rule covers both their literal text and accessible-name attributes. Verify the registry/mirror/usage bijection and copy with `node tools/checks/missing-claim-scan.mjs`, `node --test tools/checks/test_missing_claim_scan.mjs`, the mock-gap catalogue fixtures, then `tools/check-all.ps1`; all eleven guards must pass. Do not add an orphan-scan exception, suppress a fixture, or turn either span into navigation. This supersedes closure 1's statement that these two pieces of ordinary labelled text need no gap registration; it does not change their visible wording or `UnavailableEntry` multiset.
+
+### Eleven run-2 readings
+
+| # | Ruling |
+| --- | --- |
+| 1 | **Confirm.** Lane A's API/client mount may precede the page and shell route may follow it in the sequential run-2 commits. Review the combined result at `04474b3c`. |
+| 2 | **Confirm.** Matrix headers are plain selected Site name/code. Null cell targets render `Site detail unavailable`; reason remains available through `aria-description` and `title`. Do not synthesize a Site link. |
+| 3 | **Confirm.** `links.site` opens a current Site view with `Opens current Site view`; cold/EV Finding detail stays inert `Finding detail unavailable`; only W1's exact supported Finding route gets `Review Finding`. |
+| 4 | **Confirm.** The first Value line uses the selected W3-01 consequence: priced outward bounds, `Unpriced`, `Source unverified`, or `No consequence recorded`; pending/historical Site prefixes suppress current price. The second line is `Basis not recorded` because the row wire has no basis field. |
+| 5 | **Confirm.** Site-owned non-EV money uses outward rounding; EV gross-tariff context uses half-even two decimals. `quantityText` and the selected currency stay with the EV amount. No client sum is allowed. |
+| 6 | **Confirm.** The Evidence aside is `div.note` with a heading role, outside the four named `section.panel` nodes. It shows server-provided `Site {site_code}` as text. |
+| 7 | **Confirm.** The footer warning is driven only by a *different* applicable EV Site whose selected coverage is `UNKNOWN`, `PENDING_RECOMPUTE`, or `STALE_SOURCE`; it cannot be a generic warning for every Portfolio. |
+| 8 | **Confirm.** A load-more 401/409/503 replaces the entire prior success state with the refusal; no privileged Site names, cards, rows or cached cutoff remain visible. |
+| 9 | **Confirm.** Mock `screen-foot` and topbar Portfolio-name/search chrome are shared mock shell, not Portfolio-owned measured blocks. Measure the app header, date bar, body, four panels, cards and document caps. |
+| 10 | **Confirm.** Unsupported opportunity quantities are neutral grey, 16px at 1440 and 13px at 390; they remain words rather than a fabricated kW or amount. |
+| 11 | **Confirm.** Tighter Finding-cell spacing is permitted because the actual rows include honest missing-basis lines. Keep the measured row and column caps; do not drop those lines to imitate the mock. |
+
+Run-2 evidence already records 1440/390 positive, partial and historical captures in `.agent/W3-03-evidence/app-portfolio-{positive,partial,historical}.json` at `04474b3c`: every measured block has `over=[]`, document width has no overflow, and the four panels satisfy their caps. Positive is `CURRENT` with three selected Finding rows; partial adds `W303-EMPTY-001` and is `UNKNOWN`; the explicit `2026-09-30T00:00:00Z` cutoff is `HISTORICAL` with an empty Finding row. The 390 positive document is 2947px against 3512px, and the 1440 positive document is 1362px against 1714px. Run-2 frontend suite was 104 files/2449 tests passed, `tsc` and build passed; backend focused API was 4 passed/1 skipped. Its 9/11 guard result is **not** closure evidence until P-2-1 makes both failing checks pass.
+
+### Run-3 captures: fixture, request and acceptance
+
+Use the real page at Vite `:5781` proxied to the capture API `:9781`, the existing `.agent/W3-03-evidence/test_serve_portfolio.py` and `capture-portfolio.mjs`, and private `*_test` DBs. The browser script must write both widths and one JSON per state. Keep existing positive/partial/historical files as baseline, then recapture after the MissingClaim markup because panel geometry may change. Use the exact one-day request `[2026-10-06T00:00:00Z,2026-10-07T00:00:00Z)` and the harness's frozen `fx.frozen`; omit `known_at` except the explicit historical case. A capture control must select the following **real API fixtures**, not replace the HTTP response with handcrafted JSON:
+
+| Capture name | Fixture and request/control | Required visible/API result |
+| --- | --- | --- |
+| `positive` | `build_portfolio_fixture(..., cold_case="excursion", cold_drain=True)`; normal `/portfolio?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`. | `CURRENT`; four authorized Sites; W1 priced, cold unpriced, two EV gross-tariff lines; three selected Findings; five card states `SITE_OWNED/UNKNOWN/UNSUPPORTED/UNSUPPORTED/NOT_ESTABLISHED`. |
+| `partial` | Same clean fixture, then existing `POST /__capture/empty-site` adds authorized unselected `W303-EMPTY-001`; reload the same URL. | `UNKNOWN`, F/E/M `PARTIAL/PARTIAL/PARTIAL`; five matrix Site columns, no invented fifth-Site Finding or amount. |
+| `historical` | After `partial`, reload with `known_at=2026-09-30T00%3A00%3A00Z`. | `HISTORICAL`, F/E/M `UNKNOWN/UNKNOWN/UNKNOWN`, no selected Findings or current amount; first card `WITHHELD`. |
+| `pending` | In a fresh private DB use the same fixture builder with `cold_drain=False`, exactly the persisted `a_lineless_cold` variant in `backend/tests/test_w303_portfolio_scope_snapshot_postgres.py::test_late_revision_pending_historical_and_mixed_source`. Serve the real API at its frozen cutoff; same one-day URL. | `PENDING`, F/E/M `COMPLETE/COMPLETE/PARTIAL`; `Updating selected Sites`; no invented cold line/exclusion; W1 `SITE_OWNED` remains visible because its category is covered. This is the line-less guard path, not an unproved cold `PENDING_RECOMPUTE` claim. |
+| `empty` | In a fresh clean fixture authenticate as a principal in a separate tenant with **zero** authorized imported Sites, following `test_foreign_tenant_missing_site_and_grant_fence`; same request URL. | 200 `EMPTY_SCOPE`, F/E/M `EMPTY/EMPTY/EMPTY`; `No accessible Sites`, zero selected Finding rows, zero matrix Sites, no borrowed Site name or ID. This is not the authorized empty Site used in `partial`. |
+| `refusal-401` | Request the Portfolio URL without valid Bearer authentication (the API's `test_auth_before_parse_and_all_refusals` path). | 401 `UNAUTHENTICATED`; refusal copy, no panels/cards/rows/Site names. |
+| `refusal-409` | On the real clean fixture obtain a signed page-one cursor with `limit=1`, then add `W303-EMPTY-001` via `POST /__capture/empty-site` and request page two with the old cursor, as in `test_foreign_tenant_missing_site_and_grant_fence`. Exercise the browser load-more clearing path with that cursor. | 409 `ESTATE_BASIS_CHANGED`; old Site names/cards/rows cleared, one refusal. Do not use a malformed cursor (that would be 422). |
+| `refusal-503` | On a fresh serving process leave `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` unset or malformed before the authenticated request, following `test_cursor_lens_window_cutoff_and_v1_token`; do not disturb the positive fixture. | 503 `ESTATE_STORE_UNAVAILABLE` frozen null-field body and refusal; no Site names/cards/rows. |
+
+Extend the capture harness with a capture-only cold-drain selector and separate-tenant authentication as needed; keep production routes unchanged. For 409, browser capture must start from a success page and trigger `Load more Findings`, then record the cleared refusal, not merely navigate to a refusal URL. The current `capture-portfolio.mjs` assumes all block selectors exist; for refusals write `refusal` and document dimensions, require all privileged block selectors absent, and apply no positive panel/card cap to null rectangles. For successful captures require the exact status, four named panels, five cards, full-scope matrix count, `over=[]`, `docScrollW <= docClientW`, table/matrix internal scrolling at 390, and Q24 document and individual caps. Name files `portfolio-<state>-1440-app.png`, `portfolio-<state>-390-app.png`, `app-portfolio-<state>.json`; put them under `.agent/W3-03-evidence/`. A fixture production failure is a failed run, not a license to paste example response values.
+
+### Registry rows and closeout packet
+
+Lane A adds exactly four `panels` rows in `frontend/docs/architecture/v69-dependency-registry-pilot.json`, matching the v69 `portfolio` rendered-panel order. Use `status:"gap"` until independent review accepts the implemented paths; `portfolio:3` remains a gap for its scenario even after a review of the honest unavailable display. Do not close `A-estate-comparability` or `D-estate-comparable-sites` from this page's layout alone. Initial rows:
+
+```json
+[{"screen_id":"portfolio","panel_index":1,"title":"Where management should act first","area":"estate-aggregation","requires":["A-estate-index-scope","I-estate-finding-root","A-estate-action-summary"],"status":"gap","reason":"W3-03 selected Finding/Action composition awaits independent whole-slice review; priority and confidence remain unassessed."},{"screen_id":"portfolio","panel_index":2,"title":"Objectives across the estate","area":"estate-aggregation","requires":["A-evidence-shared-projections","I-estate-evidence-root","D-estate-comparable-sites"],"status":"gap","reason":"W3-03 selected capability matrix awaits independent whole-slice review; unknown cells are not health conclusions."},{"screen_id":"portfolio","panel_index":3,"title":"An opportunity beyond reducing cost","area":"estate-aggregation","requires":["A-estate-comparability","I-mini-depth-read"],"status":"gap","reason":"The W3-03 panel is an honest unavailable scenario; no reviewed opportunity Finding, physical-headroom or demand basis supports its quantities or destinations."},{"screen_id":"portfolio","panel_index":4,"title":"What changed in this review","area":"estate-aggregation","requires":["A-estate-projections","I-estate-action-root"],"status":"gap","reason":"W3-03 exact selected Action/verification disclosure awaits independent whole-slice review; recovered value and completed activity remain unestablished."}]
+```
+
+The packet is `.agent/W3-03-review-packet.md`. It must give: task/spec revision and `04474b3c` baseline; exact commit range and file list split by Lane A/B; one-head Alembic proof and `0031 unused`; four-panel registry path/status and the P-2-1 gap/mirror/usage proof; one-snapshot/auth/cursor/selection and unchanged W3-01/02 root checks; B3 one-day three-domain selected IDs and W1/cold/EV money boundaries; all pure-versus-persisted variant limits from r1b3; full-scope cards/matrix/progress/EV footer and refusal-clearing results; the eight capture states above with 1440/390 JSON/PNG paths and measured caps; same-revision full backend suite, frontend suite, `tsc`, build and 11/11 `check-all` results; known deviations and the exact independent-review command `git diff <reviewed W3-02 merge base>..HEAD -- ':!.agent'`. Record failed or skipped commands literally. The independent reviewer checks that diff plus the packet and captures before any owner W3 walkthrough; the packet cannot declare acceptance on the reviewer's behalf. No owner W3 wave-exit acceptance is inferred from a passing test or registry row.
+
+
+## Run-3 registry rulings (r3)
+
+P-3-1 is resolved for run 3. Insert the following two new nodes in `v69-dependency-registry-pilot.json` `nodes`; keep both `open` until independent review supplies evidence. These are the literal complete objects:
+
+```json
+[
+  {
+    "id": "I-estate-portfolio-read",
+    "kind": "implementation",
+    "layer": "projection",
+    "area": "estate-aggregation",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-projections",
+      "I-estate-finding-root",
+      "I-estate-action-root",
+      "I-estate-evidence-root",
+      "I-estate-money-root",
+      "D-estate-comparable-sites"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-03",
+    "acceptance_target": "One authorized, selected Portfolio snapshot composes full-scope Finding, Action, Evidence and Financials reads with exact coverage, provenance and no combined value."
+  },
+  {
+    "id": "I-estate-portfolio-ui",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "estate-aggregation",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "I-estate-portfolio-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-03",
+    "acceptance_target": "Four Portfolio panels render the selected snapshot, honest missing states and refusal clearing at desktop and narrow widths."
+  }
+]
+```
+
+The following complete node objects are reused unchanged. Architecture and data nodes have no `layer` field; their kind is their gate type. Do not insert duplicate copies:
+
+```json
+[
+  {
+    "id": "A-estate-index-scope",
+    "kind": "architecture",
+    "area": "platform",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-claim-work-routes"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "decision": "Tenant, Site, window, coverage and freshness for global Findings and Actions lists.",
+    "task": "W3-01"
+  },
+  {
+    "id": "I-estate-finding-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "claims",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-finding-index"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-01"
+  },
+  {
+    "id": "A-estate-action-summary",
+    "kind": "architecture",
+    "area": "estate-aggregation",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "A-action-index"
+    ],
+    "effort": "S",
+    "evidence": null,
+    "decision": "Optional ActionSummary cross-Site scope and freshness; not a prerequisite of ranked Findings or value cards.",
+    "task": "W3-01"
+  },
+  {
+    "id": "D-estate-comparable-sites",
+    "kind": "data",
+    "area": "estate-aggregation",
+    "owner": "Planner specifies; Implementer builds",
+    "status": "open",
+    "requires": [
+      "A-estate-comparability",
+      "I-finding-store",
+      "I-S2-02",
+      "I-S4-02"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "fixture": "Multiple Sites with aligned windows, coverage, currency, price basis and overlap groups through normal ingestion."
+  },
+  {
+    "id": "A-evidence-shared-projections",
+    "kind": "architecture",
+    "area": "evidence",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-S2-evidence",
+      "A-evidence-readiness-health"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "decision": "CapabilityReadiness, SourceHealth, AcceptedEvidenceIndex and SiteEvidenceMatrix contracts for all known mini-grid, cold-chain, EV and estate consumers.",
+    "task": "W2-04"
+  },
+  {
+    "id": "I-estate-evidence-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "estate-aggregation",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-capability-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-02"
+  },
+  {
+    "id": "A-estate-comparability",
+    "kind": "architecture",
+    "area": "estate-aggregation",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "A-money-comparability"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "decision": "Cross-Site aligned windows, coverage, currency/price basis, consequence overlap and non-double-counting rules."
+  },
+  {
+    "id": "I-mini-depth-read",
+    "kind": "implementation",
+    "layer": "projection",
+    "area": "mini-grid-analytics",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-mini-breadth-projections",
+      "I-mini-breadth-store"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W4-02"
+  },
+  {
+    "id": "D-mini-breadth-windows",
+    "kind": "data",
+    "area": "mini-grid-analytics",
+    "owner": "Planner specifies; Implementer builds",
+    "status": "open",
+    "requires": [
+      "A-mini-breadth-rules",
+      "I-mini-breadth-store"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "fixture": "Distinct service, renewable, fuel and backup windows with accepted evidence and attested deliveries/requests."
+  },
+  {
+    "id": "A-estate-projections",
+    "kind": "architecture",
+    "area": "estate-aggregation",
+    "owner": "Architect",
+    "status": "open",
+    "requires": [
+      "A-estate-comparability",
+      "A-evidence-shared-projections",
+      "A-finding-index"
+    ],
+    "effort": "L",
+    "evidence": null,
+    "decision": "PortfolioSummary, PortfolioEvidenceMatrix, consequence rollup and SiteAssessmentSummary source/sort/freshness/drill-down contracts."
+  },
+  {
+    "id": "I-estate-action-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "work-verification",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-action-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-01"
+  },
+  {
+    "id": "I-estate-money-root",
+    "kind": "implementation",
+    "layer": "ui",
+    "area": "money",
+    "owner": "Implementer / Reviewer",
+    "status": "open",
+    "requires": [
+      "A-estate-index-scope",
+      "I-financial-read"
+    ],
+    "effort": "M",
+    "evidence": null,
+    "task": "W3-02"
+  }
+]
+```
+
+Replace the r2 initial Portfolio rows with these four literal `panels` rows, in this order:
+
+```json
+[
+  {
+    "screen_id": "portfolio",
+    "panel_index": 1,
+    "title": "Where management should act first",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-estate-index-scope",
+      "I-estate-finding-root",
+      "A-estate-action-summary",
+      "I-estate-portfolio-read",
+      "I-estate-portfolio-ui",
+      "D-estate-comparable-sites"
+    ],
+    "status": "gap",
+    "reason": "W3-03 selected Finding/Action composition awaits independent whole-slice review; priority and confidence remain unassessed."
+  },
+  {
+    "screen_id": "portfolio",
+    "panel_index": 2,
+    "title": "Objectives across the estate",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-evidence-shared-projections",
+      "I-estate-evidence-root",
+      "D-estate-comparable-sites",
+      "I-estate-portfolio-read",
+      "I-estate-portfolio-ui"
+    ],
+    "status": "gap",
+    "reason": "W3-03 selected capability matrix awaits independent whole-slice review; unknown cells are not health conclusions."
+  },
+  {
+    "screen_id": "portfolio",
+    "panel_index": 3,
+    "title": "An opportunity beyond reducing cost",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-estate-comparability",
+      "I-mini-depth-read",
+      "I-estate-portfolio-ui",
+      "D-mini-breadth-windows"
+    ],
+    "status": "gap",
+    "reason": "The W3-03 panel is an honest unavailable scenario; no reviewed opportunity Finding, physical-headroom or demand basis supports its quantities or destinations."
+  },
+  {
+    "screen_id": "portfolio",
+    "panel_index": 4,
+    "title": "What changed in this review",
+    "area": "estate-aggregation",
+    "requires": [
+      "A-estate-projections",
+      "I-estate-action-root",
+      "I-estate-portfolio-read",
+      "I-estate-portfolio-ui",
+      "D-estate-comparable-sites"
+    ],
+    "status": "gap",
+    "reason": "W3-03 exact selected Action/verification disclosure awaits independent whole-slice review; recovered value and completed activity remain unestablished."
+  }
+]
+```
+
+Add this literal `registry_dependencies` object to the existing `portfolio` screen-ledger row, preserving that row's other fields:
+
+```json
+{
+  "product_node_id": "P-estate-area",
+  "node_ids": [
+    "A-estate-index-scope",
+    "I-estate-finding-root",
+    "A-estate-action-summary",
+    "I-estate-portfolio-read",
+    "I-estate-portfolio-ui",
+    "D-estate-comparable-sites",
+    "A-evidence-shared-projections",
+    "I-estate-evidence-root",
+    "A-estate-comparability",
+    "I-mini-depth-read",
+    "D-mini-breadth-windows",
+    "A-estate-projections",
+    "I-estate-action-root"
+  ]
+}
+```
+
+Checker reasoning: `P-estate-area` governs the `estate-aggregation` screen; the ledger `node_ids` above are exactly the first-occurrence union of the four `requires` arrays in panel order. Each panel directly names a `layer:"ui"` and a `layer:"projection"` implementation node and a data node, so the UI/projection and non-structural claim gates pass. Both new nodes have allowed implementation layers, `open` status, effort, known non-product prerequisites and an architecture ancestor; the read depends on the reviewed W3 roots and the UI depends on the read, with no cycle. The opportunity row retains the open W4 depth and data gates as honest missing-state dependencies; it does not declare a headroom claim real. All four rows remain `gap`, so the checker cannot treat any open prerequisite as a real-panel closure. No checker change or node closure is authorized by these declarations.
+
+## Run-3 empty-state ruling (r3b)
+
+**P-3-2 card height: choose shorter wording (option c).** For `OPERATING_COST:NO_LINE`, the value line is exactly `No supported value`, replacing `No supported value for this window` in both the API `display_value` and the page's `CARD_VALUE.NO_LINE` fallback. Keep the existing detail `No selected operating-cost consequence` and basis `No value line`; the selected window is already stated in the shared date bar. This wording means no supported value in the selected scope and window, including `EMPTY_SCOPE`, without implying a zero amount. Keep the mock's 22 px value type at 390 and the five-card two-column grid. The mock measures each first-row card at 183 px, so the existing 207 px maximum remains binding; do not raise it. The 218 px empty capture is a failed geometry result, not an accepted exception. Card 1 must be remeasured because it shares card 0's grid row.
+
+Test the exact literal in the backend `NO_LINE` card response and the frontend value-card rendering/fallback. Recapture all eight run-3 states at 1440 and 390 after the copy change. The real `EMPTY_SCOPE` 390 capture must show `card0.h <= 207` and `card1.h <= 207`, with `over=[]`; retain every other Q24 cap and document-width gate. If the shortened literal still exceeds either card cap, return to Architect with the measured rectangle rather than silently changing type size or cap.
+
+**P-3-2 matrix scroll:** require horizontal overflow at 390 when `body.objectives.length >= 4`, as the existing matrix contract specifies for four or more authorized Sites. The exact gate is `viewportWidth === 390 && body.objectives.length >= 4 => matrix.scrollWidth > matrix.clientWidth`; with zero to three Site columns, assert the exact rendered column count and retain the scroll container, but do not demand overflow. In particular, zero Sites gives `scrollWidth === clientWidth` legitimately. The Findings table's internal-scroll check and `document.scrollWidth <= document.clientWidth` still apply to the empty capture. This condition does not waive full-scope matrix columns or the scroll proof for the four- and five-Site stocked and partial fixtures.
+
+## Final review rulings (rF)
+
+These rulings answer `.agent/W3-03-final-review.md` at `85efbea7`. They amend the implementation contract; they do not claim the fixes or the remaining full backend suite have passed. Keep the r1b signed-cursor rule and the closure-1 footer eligibility rule.
+
+**M1 — add the footer disclosure.** In `EstatePortfolio.tsx::ContextFooter`, when `footer` and its exact eligible quantity and amount render the `Business context: … gross tariff scenario.` sentence, put `<Disclosure summary="Energy basis ↗" name="portfolio-energy-basis" variant="inline">` immediately after that sentence and before `Inspect energy basis →`, inside the same `.portfolio-context-footer`. Its content starts `Selected window: {moneyWindowText(footer.window_start, footer.window_end) ?? "Window not recorded"}.` Then render `Source basis` with the six public fields from `footer.source_provenance` in this order: `classification`, `state`, `source_ids`, `evidence_ids`, `basis_sha256`, `reasons`. Preserve the exact IDs and reason codes in this disclosure; render empty arrays as `None selected` and a null/empty source block as `No selected source basis`. Use the existing selected footer fields, never infer the window from the date bar or the linked Site's current view. When `footer` is null, keep only `Cross-Site energy and tariff totals are not established.` and `Energy basis unavailable`; there is no `Energy basis ↗` control. `estatePortfolio.test.tsx::rendersEvFooterAndMissingEnergyBasis` must open the disclosure and assert the exact selected window and all six source fields for a qualifying EV line, and assert its absence for the fallback. Keep the Q24 footer height cap; recapture only if the measured footer exceeds it.
+
+**M2 — docs-only launch requirement; no default key.** Keep `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` as the sole source of a 32-byte key encoded as exactly 64 ASCII hex characters. Add a `Portfolio cursor key` paragraph immediately before `# serve` in `backend/README-db.md`'s `Local development values` block. Its POSIX instructions are `export ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX="$(python -c 'import secrets; print(secrets.token_hex(32))')"`; its PowerShell instructions are `$env:ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX = (& .venv/Scripts/python.exe -c 'import secrets; print(secrets.token_hex(32))')`. Generate once per local server start, in the same shell that runs `uvicorn`; do not print, commit, or log the resulting value. The existing `.venv/Scripts/python.exe -m uvicorn assetops_backend.main:app --port 8000` command inherits it; `docker-compose.yml` starts PostgreSQL only and does not set a backend key. Add to `.agent/W3-03-review-packet.md` under owner walkthrough preconditions: `Set ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX in the backend server environment before starting the API; follow backend/README-db.md. Confirm an authenticated GET /api/estate/portfolio returns 200 before opening /portfolio.` The existing `.agent/W3-03-evidence/test_serve_portfolio.py` is the capture-only run script: it already calls `secrets.token_hex(32)` before `create_app()` and intentionally unsets the key only for `W303_NO_CURSOR_KEY=1`; no change to that script. No other dev/run script supplies the key. A server without a valid key still returns 503 `ESTATE_STORE_UNAVAILABLE`; add or retain the exact missing/malformed-key 503 assertion in `test_w303_portfolio_api.py`, and verify the documented local launch yields 200 with a generated key. Do not introduce a committed, development, test, or production fallback.
+
+**L1 — fix the empty-scope suffix.** In `PriorityPanel`, append ` · coverage incomplete` to `{total_count} selected Findings` only when `coverage.finding_state` is `PARTIAL` or `UNKNOWN`; `EMPTY` and `COMPLETE` have no suffix. `estatePortfolio.test.tsx::rendersEmptyPendingHistoricalAndSourceConflict` must assert `0 selected Findings` and no `coverage incomplete` for `EMPTY_SCOPE`, while a partial/unknown fixture keeps the suffix.
+
+**L2 — distinguish Finding rows.** Replace the visible `Finding {finding_id.slice(0, 8)}` fallback with `Finding {site_code} · {finding_id}` wherever the Portfolio row has no reviewed human-readable Finding code. Use the full selected UUID; do not generate a row number or infer a code from a UUID prefix. Keep the stored title and exact Finding link. In `estatePortfolio.test.tsx::rendersMeasuredPanelHierarchyAndScrollContainers` (or the existing positive-row test), include two Findings at one Site whose first eight UUID characters match and assert distinct visible labels and links. This is presentation only; the API Finding identity and cursor order do not change.
+
+**L3 — acceptable as-is for this slice.** The scope and progress drawers are the explicit inspect-basis path, and closure 1 requires exact selected IDs and reason codes there. Keep raw `coverage.state`, line/group keys, reason codes, Action/plan/outcome UUIDs and `VERIFIED` in those drawers; do not replace them with guessed business conclusions or remove them from the disclosure. The omitted `Selected Sites` caption and nested grouping are a client-copy improvement, not an rF merge gate. Retain tests that show exact selected IDs and codes only after opening the drawers, while the collapsed Portfolio page uses the reviewed plain-language labels.
+
+**L4 — remove the false matrix instruction.** In `portfolioWords.ts`, set `OBJECTIVES_FOOTNOTE` to exactly `Site-owned assessments · Unknown is not healthy. N/A means the objective is not configured. Site detail is unavailable for these cells.` while all r1b2 R7 cell destinations are null. If a later reviewed destination becomes nonnull, that later slice may introduce a conditional linked-cell instruction. Assert this literal and the absence of `Select a linked cell for context.` in `estatePortfolio.test.tsx` for both the stocked and partial matrices.
+
+**L5 — acceptable as-is for this slice.** The v69 value-card label/arrow icons and pulse icons are decorative. Their absence does not change the panel order, meaning, destinations, accessible labels, or measured geometry. Do not add icon-only targets or invent icons in rF; carry icon parity to the W1 presentation pass. Keep the existing value-card link and pulse-text assertions as the functional gate.

@@ -230,6 +230,8 @@ class PostgresAssessmentStore:
         # W2-03: the S4-05 link reader on a caller's connection, injected by the composition root (the cold
         # selection reads its source gate in the same transaction). Absent, cold selection refuses.
         self._link_rows = link_rows
+        # W4-03 closure 4 S6: a test-only clock for the opportunity enqueue seam; None in production.
+        self.test_clock_override: Callable[[], datetime] | None = None
 
     def _connect_engine(self) -> Engine:
         if not self._database_url:
@@ -333,6 +335,8 @@ class PostgresAssessmentStore:
         the lease are scoped the same way."""
         if domain in MINI_JOB_DOMAINS:
             raise ValueError("Mini-depth jobs are leased only by lease_mini_job (W4-02 closure 4 S2).")
+        if domain == "mini_opportunity":
+            raise ValueError("Opportunity jobs are leased only by lease_opportunity_job (W4-03 closure 4 S2).")
         if (tenant_id is None) != (site_id is None):
             raise ValueError("A Site-scoped lease names both the tenant and the Site.")
         scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
@@ -431,6 +435,130 @@ class PostgresAssessmentStore:
             return self._run(work, write=True)
         except LeaseLost:
             return "LEASE_LOST"
+
+    # --- opportunity jobs (W4-03 closure 4 S2, closure 2 Q4) ---------------------------------------------------
+    # The opportunity worker issues no recompute_job SQL: it enqueues, leases, settles and fails through these
+    # methods. Every statement keeps the literal `domain = 'mini_opportunity'`, so no other domain's job is touched.
+
+    def enqueue_opportunity_job(self, tenant_id: UUID, site_id: UUID, first_day: date, last_day: date,
+                                window: Window) -> tuple[str, UUID]:
+        """Queue one five-day study in one transaction (closure 2 Q4): take the study-key advisory lock, lock a
+        matching PENDING job and advance its `available_at` with `greatest(available_at, :at)`, or insert a new
+        PENDING job with `cause_evidence_id = NULL`. LEASED/DONE/FAILED jobs are never made PENDING. `:at` is one
+        DB `clock_timestamp()` unless a test sets `test_clock_override`. Returns `(COALESCED|INSERTED, job id)`."""
+        if not (first_day <= last_day and window.start < window.end):
+            raise ValueError("An opportunity study needs first_day <= last_day and a nonempty window.")
+        key = {"tenant_id": tenant_id, "site_id": site_id, "first_day": first_day, "last_day": last_day}
+
+        def work(c: Connection) -> tuple[str, UUID]:
+            override = self.test_clock_override
+            at = override() if override is not None else c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            c.execute(text(
+                "SELECT pg_advisory_xact_lock(hashtextextended(CAST(:tenant_id AS text) || ':' || "
+                "CAST(:site_id AS text) || ':mini_opportunity:' || CAST(:first_day AS text) || ':' || "
+                "CAST(:last_day AS text), 0))"), key)
+            pending = c.execute(text(
+                "SELECT id FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = 'mini_opportunity' "
+                "AND window_start = :lo AND window_end = :hi AND status = 'PENDING' ORDER BY id LIMIT 1 FOR UPDATE"),
+                {"t": tenant_id, "s": site_id, "lo": window.start, "hi": window.end}).scalar()
+            if pending is not None:
+                c.execute(text(
+                    "UPDATE recompute_job SET available_at = greatest(available_at, :at) WHERE id = :pending_id "
+                    "AND domain = 'mini_opportunity' AND status = 'PENDING'"), {"at": at, "pending_id": pending})
+                return "COALESCED", pending
+            job_id = uuid4()
+            c.execute(text(
+                "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, "
+                "cause_evidence_id, status, available_at, created_at) VALUES (:id, :t, :s, 'mini_opportunity', "
+                ":lo, :hi, NULL, 'PENDING', :at, :at)"),
+                {"id": job_id, "t": tenant_id, "s": site_id, "lo": window.start, "hi": window.end, "at": at})
+            return "INSERTED", job_id
+
+        return self._run(work, write=True)
+
+    def lease_opportunity_job(self, lease: timedelta, *, max_attempts: int = 3, tenant_id: UUID | None = None,
+                              site_id: UUID | None = None, now: datetime | None = None) -> JobLease | None:
+        """Lease the oldest due `mini_opportunity` job, optionally of one Site, by the `lease_mini_job` rules (an
+        expired last attempt goes FAILED first). The instant is DB time unless a test passes `now`."""
+        if (tenant_id is None) != (site_id is None):
+            raise ValueError("A Site-scoped lease names both the tenant and the Site.")
+        scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
+        scoped = {} if site_id is None else {"t": tenant_id, "s": site_id}
+
+        def work(c: Connection) -> JobLease | None:
+            at = now if now is not None else c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            c.execute(text(
+                "UPDATE recompute_job SET status = 'FAILED', lease_until = NULL, last_error = "
+                "'lease expired on attempt ' || attempts || ' of ' || CAST(:max AS integer) || "
+                "' without completing' WHERE domain = 'mini_opportunity' AND status = 'LEASED' "
+                "AND lease_until < :now AND attempts >= :max" + scope), {"now": at, "max": max_attempts, **scoped})
+            row = c.execute(text(
+                "UPDATE recompute_job SET status = 'LEASED', lease_until = :until, attempts = attempts + 1 "
+                "WHERE domain = 'mini_opportunity' AND id = (SELECT id FROM recompute_job WHERE "
+                "domain = 'mini_opportunity' AND ((status = 'PENDING' AND available_at <= :now) OR "
+                "(status = 'LEASED' AND lease_until < :now))" + scope + " ORDER BY available_at, created_at "
+                "LIMIT 1 FOR UPDATE SKIP LOCKED) "
+                "RETURNING id, tenant_id, site_id, domain, window_start, window_end, attempts"),
+                {"now": at, "until": at + lease, **scoped}).first()
+            if row is None:
+                return None
+            return JobLease(row[0], row[1], row[2], row[3], Window(row[4], row[5]), row[6], at)
+
+        return self._run(work, write=True)
+
+    @staticmethod
+    def _opportunity_still_mine(c: Connection, lease: JobLease) -> None:
+        row = c.execute(text(
+            "SELECT status, attempts FROM recompute_job WHERE id = :id AND tenant_id = :t AND site_id = :s AND "
+            "domain = 'mini_opportunity' FOR UPDATE"),
+            {"id": lease.job_id, "t": lease.tenant_id, "s": lease.site_id}).first()
+        if row is None or row[0] != "LEASED" or row[1] != lease.attempts:
+            raise LeaseLost(f"opportunity job {lease.job_id} is {row[0] if row else 'missing'} (attempt "
+                            f"{row[1] if row else '-'}), not our attempt {lease.attempts}")
+
+    def settle_opportunity_job(self, connection: Connection, lease: JobLease) -> None:
+        """Mark a still-held opportunity job DONE on the worker's own connection, so the projection and DONE commit
+        together; it neither begins nor commits. Raises `LeaseLost` (the caller rolls back) otherwise."""
+        self._opportunity_still_mine(connection, lease)
+        connection.execute(text(
+            "UPDATE recompute_job SET status = 'DONE', lease_until = NULL, last_error = NULL "
+            "WHERE id = :id AND tenant_id = :t AND site_id = :s AND domain = 'mini_opportunity' "
+            "AND status = 'LEASED' AND attempts = :a"),
+            {"id": lease.job_id, "t": lease.tenant_id, "s": lease.site_id, "a": lease.attempts})
+
+    def fail_opportunity_job(self, lease: JobLease, error: str, *, max_attempts: int, backoff: timedelta,
+                             now: datetime | None = None) -> str:
+        """In its own transaction: back to PENDING after `backoff x attempts`, or FAILED on the last allowed
+        attempt. Returns RETRY, FAILED or LEASE_LOST."""
+        def work(c: Connection) -> str:
+            self._opportunity_still_mine(c, lease)
+            at = now if now is not None else c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            final = lease.attempts >= max_attempts
+            c.execute(text(
+                "UPDATE recompute_job SET status = :st, lease_until = NULL, available_at = :at, last_error = :e "
+                "WHERE id = :id AND tenant_id = :t AND site_id = :s AND domain = 'mini_opportunity' "
+                "AND status = 'LEASED' AND attempts = :a"),
+                {"st": "FAILED" if final else "PENDING", "at": at if final else at + backoff * lease.attempts,
+                 "e": error, "id": lease.job_id, "t": lease.tenant_id, "s": lease.site_id, "a": lease.attempts})
+            return "FAILED" if final else "RETRY"
+
+        try:
+            return self._run(work, write=True)
+        except LeaseLost:
+            return "LEASE_LOST"
+
+    def live_opportunity_jobs(self, tenant_id: UUID | None = None,
+                              site_id: UUID | None = None) -> list[dict[str, Any]]:
+        """PENDING or LEASED `mini_opportunity` jobs of every Site, or of one Site; FAILED stays diagnostic (u3
+        unit-4 dry-read)."""
+        if (tenant_id is None) != (site_id is None):
+            raise ValueError("A Site-scoped read names both the tenant and the Site.")
+        scope = "" if site_id is None else " AND tenant_id = :t AND site_id = :s"
+        return self._run(lambda c: [dict(r._mapping) for r in c.execute(text(
+            "SELECT id, tenant_id, site_id, domain, status, window_start, window_end, attempts, available_at, "
+            "lease_until, last_error, created_at FROM recompute_job WHERE domain = 'mini_opportunity' "
+            "AND status IN ('PENDING', 'LEASED')" + scope + " ORDER BY tenant_id, site_id, available_at, created_at"),
+            {"t": tenant_id, "s": site_id})])
 
     def _still_mine(self, c: Connection, lease: JobLease) -> None:
         row = c.execute(text("SELECT status, attempts FROM recompute_job WHERE id = :id FOR UPDATE"),
@@ -916,6 +1044,18 @@ class PostgresAssessmentStore:
         revision["run"] = self._run_detail(c, tenant_id, site_id, revision["analytic_run_id"])
         revision["evidence"] = _evidence(c, tenant_id, site_id, revision["evidence_ids"])
         return revision
+
+    def claim_limit_snapshot_on(self, c: Connection, tenant_id: UUID, site_id: UUID, day: date,
+                                revision_id: UUID | None,
+                                known_at: datetime) -> tuple[dict[str, Any], dict[str, Any] | None]:
+        """W3-02 0b: one UTC day's dispatch selection at `known_at` (`select_dispatch_days_on`) and one exact
+        revision's detail (`_revision_detail`), both on the caller's connection `c`, with no transaction of its
+        own. The detail is not cut off here: the claim-limit read validates its records against `known_at`."""
+        window = day_window(day)
+        selected = {**self.select_dispatch_days_on(c, tenant_id, site_id, window.start, window.end, known_at)[0],
+                    "transaction_time": self._transaction_time(c)}
+        detail = None if revision_id is None else self._revision_detail(c, tenant_id, site_id, revision_id)
+        return selected, detail
 
     def lineage_breaks(self, tenant_id: UUID, site_id: UUID, analytic_id: str,
                        model_version: str) -> dict[str, int]:

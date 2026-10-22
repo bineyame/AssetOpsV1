@@ -1,0 +1,250 @@
+# W3-02 c3-q1 (test-only): EV-LAB-002, the second imported EV Site for the persisted two-Site Financials
+# comparability proof. Derived from the reviewed tests/fixtures/w2/ev-lab-001.yaml; device IDs stay the
+# ev-publication/1 profile channels, under this Site's own gateway (edge-ev-lab-002).
+site_id: EV-LAB-002
+display_name: EV charging lab 2
+site_type: EV_CHARGING
+location:
+  country: Ethiopia
+  locality: Addis Ababa
+timezone: Etc/UTC
+lifecycle_status: PLANNED
+origin: USER
+source:
+  mode: SIMULATED
+foundation:
+  version: 1
+  valid_from: '2026-10-01T00:00:00Z'
+  summary: 'Second registered EV charging lab (W3-02 estate comparability fixture): one site feed through an import
+    meter to one charger with two connectors, each enabled on Tuesdays 08:00-16:00 UTC. Configuration only: nothing
+    here says any charging session, energy or connector state has been observed.'
+  components:
+  - component_id: feed-1
+    component_type: AC_BUS
+    display_name: Site feed
+    properties:
+    - property_key: ev-site-import-limit
+      value: 80.0
+      unit: kW
+      source: SITE
+      source_version: 1
+  - component_id: site-meter-1
+    component_type: METER
+    display_name: Site import meter
+  - component_id: charger-1
+    component_type: EV_CHARGER
+    display_name: Charger 1
+    properties:
+    - property_key: ev-charger-max-power
+      value: 60.0
+      unit: kW
+      source: SITE
+      source_version: 1
+  - component_id: c1
+    component_type: EV_CONNECTOR
+    display_name: Connector c1
+    properties:
+    - property_key: ev-connector-max-power
+      value: 60.0
+      unit: kW
+      source: SITE
+      source_version: 1
+    - property_key: ev-connector-enabled
+      value: ENABLED
+      unit: state
+      source: SITE
+      source_version: 1
+    - property_key: ev-meter-resolution
+      value: 0.001
+      unit: kWh
+      source: SITE
+      source_version: 1
+    - property_key: ev-meter-error-bound
+      value: 0.001
+      unit: kWh
+      source: SITE
+      source_version: 1
+    - property_key: ev-status-cadence
+      value: 1.0
+      unit: min
+      source: SITE
+      source_version: 1
+    - property_key: ev-meter-cadence
+      value: 5.0
+      unit: min
+      source: SITE
+      source_version: 1
+    - property_key: ev-clock-error-bound
+      value: 30.0
+      unit: s
+      source: SITE
+      source_version: 1
+  - component_id: c2
+    component_type: EV_CONNECTOR
+    display_name: Connector c2
+    properties:
+    - property_key: ev-connector-max-power
+      value: 60.0
+      unit: kW
+      source: SITE
+      source_version: 1
+    - property_key: ev-connector-enabled
+      value: ENABLED
+      unit: state
+      source: SITE
+      source_version: 1
+    - property_key: ev-meter-resolution
+      value: 0.001
+      unit: kWh
+      source: SITE
+      source_version: 1
+    - property_key: ev-meter-error-bound
+      value: 0.001
+      unit: kWh
+      source: SITE
+      source_version: 1
+    - property_key: ev-status-cadence
+      value: 1.0
+      unit: min
+      source: SITE
+      source_version: 1
+    - property_key: ev-meter-cadence
+      value: 5.0
+      unit: min
+      source: SITE
+      source_version: 1
+    - property_key: ev-clock-error-bound
+      value: 30.0
+      unit: s
+      source: SITE
+      source_version: 1
+  topology:
+    nodes:
+    - node_id: n-feed
+      component_id: feed-1
+      node_role: BUS
+    - node_id: n-meter
+      component_id: site-meter-1
+      node_role: METERING
+    - node_id: n-charger
+      component_id: charger-1
+      node_role: CHARGER
+    - node_id: n-c1
+      component_id: c1
+      node_role: CONNECTOR
+    - node_id: n-c2
+      component_id: c2
+      node_role: CONNECTOR
+    connections:
+    - connection_id: e1
+      from_node: n-feed
+      to_node: n-meter
+      medium: AC
+    - connection_id: e2
+      from_node: n-meter
+      to_node: n-charger
+      medium: AC
+    - connection_id: e3
+      from_node: n-charger
+      to_node: n-c1
+      medium: SIGNAL
+    - connection_id: e4
+      from_node: n-charger
+      to_node: n-c2
+      medium: SIGNAL
+  connector_enable_schedules:
+  - connector_asset_id: c1
+    time_zone: Etc/UTC
+    weekly:
+    - weekday: TUESDAY
+      local_start: 08:00
+      local_end: '16:00'
+      utc_offset_minutes: 0
+  - connector_asset_id: c2
+    time_zone: Etc/UTC
+    weekly:
+    - weekday: TUESDAY
+      local_start: 08:00
+      local_end: '16:00'
+      utc_offset_minutes: 0
+  devices:
+  - device_id: c1-charger-controller
+    device_type: CONTROLLER
+    display_name: Connector 1 session controller
+    component_id: c1
+    signals:
+    - signal_id: session-event
+      display_name: Connector 1 charging sessions
+      unit: event
+  - device_id: c1-connector-controller
+    device_type: CONTROLLER
+    display_name: Connector 1 controller
+    component_id: c1
+    signals:
+    - signal_id: fault-event
+      display_name: Connector 1 faults
+      unit: event
+    - signal_id: state
+      display_name: Connector 1 state
+      unit: state
+    - signal_id: requested-power
+      display_name: Connector 1 requested power
+      unit: kW
+    - signal_id: allocated-limit
+      display_name: Connector 1 allocated limit
+      unit: kW
+  - device_id: c1-connector-meter
+    device_type: METER
+    display_name: Connector 1 meter
+    component_id: c1
+    signals:
+    - signal_id: energy
+      display_name: Connector 1 energy
+      unit: kWh
+    - signal_id: power
+      display_name: Connector 1 power
+      unit: kW
+  - device_id: c2-charger-controller
+    device_type: CONTROLLER
+    display_name: Connector 2 session controller
+    component_id: c2
+    signals:
+    - signal_id: session-event
+      display_name: Connector 2 charging sessions
+      unit: event
+  - device_id: c2-connector-controller
+    device_type: CONTROLLER
+    display_name: Connector 2 controller
+    component_id: c2
+    signals:
+    - signal_id: fault-event
+      display_name: Connector 2 faults
+      unit: event
+    - signal_id: state
+      display_name: Connector 2 state
+      unit: state
+    - signal_id: requested-power
+      display_name: Connector 2 requested power
+      unit: kW
+    - signal_id: allocated-limit
+      display_name: Connector 2 allocated limit
+      unit: kW
+  - device_id: c2-connector-meter
+    device_type: METER
+    display_name: Connector 2 meter
+    component_id: c2
+    signals:
+    - signal_id: energy
+      display_name: Connector 2 energy
+      unit: kWh
+    - signal_id: power
+      display_name: Connector 2 power
+      unit: kW
+  - device_id: site-meter
+    device_type: METER
+    display_name: Site import meter
+    component_id: site-meter-1
+    signals:
+    - signal_id: import
+      display_name: Site import power
+      unit: kW

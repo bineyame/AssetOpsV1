@@ -5,6 +5,24 @@
   "screens": [
     {
       "id": "portfolio",
+      "registry_dependencies": {
+        "product_node_id": "P-estate-area",
+        "node_ids": [
+          "A-estate-index-scope",
+          "I-estate-finding-root",
+          "A-estate-action-summary",
+          "I-estate-portfolio-read",
+          "I-estate-portfolio-ui",
+          "D-estate-comparable-sites",
+          "A-evidence-shared-projections",
+          "I-estate-evidence-root",
+          "A-estate-comparability",
+          "I-mini-depth-read",
+          "D-mini-breadth-windows",
+          "A-estate-projections",
+          "I-estate-action-root"
+        ]
+      },
       "mock_route": "#/portfolio",
       "product_destination": "Portfolio",
       "coverage": "deferred",
@@ -1375,67 +1393,68 @@
     },
     {
       "id": "globalevidence",
+      "registry_dependencies": {
+        "product_node_id": "P-estate-area",
+        "node_ids": [
+          "I-capability-read",
+          "I-estate-evidence-root",
+          "D-estate-comparable-sites"
+        ]
+      },
       "mock_route": "#/globalevidence",
       "product_destination": "Evidence",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 estate roots",
-      "data_owner": "Unassigned Evidence read model",
-      "supported_claim": "No S1-S7 product claim. PortfolioEvidenceMatrix needs a reviewed data and claim contract.",
-      "interaction": "Open Evidence and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until PortfolioEvidenceMatrix is backed by accepted records; no mock value is product evidence.",
+      "coverage": "bounded",
+      "task": "W3-02",
+      "follow_on": null,
+      "data_owner": "Estate Evidence read — GET /api/estate/evidence (backend/assetops_backend/estate/evidence_money.py)",
+      "supported_claim": "Estate capability readiness across the authorized Sites for a whole-UTC-day window at one cutoff, read from each Site's own selected readiness with per-Site coverage; rows link to Site-owned readiness and the page does not independently score claims.",
+      "interaction": "Open Evidence, choose a window and an optional cutoff, and page through the rows; a Site name opens the Site and a readiness link opens that Site's Evidence for the row's selected window when a row-local cutoff is provable, otherwise the current Site view.",
+      "unknown_or_empty": "A Site without available selected evidence reads Unknown and never counts as zero; priority and unsupported-claim cards read Not assessed; unsupported gap destinations say Not available yet; a refused read names its reason; no mock row or count is product evidence.",
       "visual_reference": "index.html#/globalevidence",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "PortfolioEvidenceMatrix",
-            "CapabilityReadiness"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Capability coverage across sites",
             "Recurring evidence gaps"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-02 commit-2 review accepting the exact slice and its 1440/390 captures, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
     },
     {
       "id": "globalfinancials",
+      "registry_dependencies": {
+        "product_node_id": "P-money-area",
+        "node_ids": [
+          "I-financial-read",
+          "I-estate-money-root",
+          "D-money-comparison"
+        ]
+      },
       "mock_route": "#/globalfinancials",
       "product_destination": "Financials",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 policy/finance/asset design",
-      "data_owner": "Unassigned Financials read model",
-      "supported_claim": "No S1-S7 product claim. PortfolioConsequenceRollup needs a reviewed data and claim contract.",
-      "interaction": "Open Financials and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until PortfolioConsequenceRollup is backed by accepted records; no mock value is product evidence.",
+      "coverage": "bounded",
+      "task": "W3-02",
+      "follow_on": null,
+      "data_owner": "Estate Financials read — GET /api/estate/financials (backend/assetops_backend/estate/financials.py)",
+      "supported_claim": "Site-owned consequence lines across the authorized Sites for a whole-UTC-day window at one cutoff, grouped by category, basis and period with per-Site coverage; no estate total, no independent repricing and no technical re-derivation.",
+      "interaction": "Open Financials, choose a window and an optional cutoff, and page through the lines; a Site name opens the Site and a bridge link opens that Site's Financials for the line's selected window when a row-local cutoff is provable, otherwise the current Site view.",
+      "unknown_or_empty": "A Site without available selected consequences reads Unknown and never counts as zero; unpriced, withheld and excluded lines name their reason; a comparable total is shown only for a proved comparable group; a refused read names its reason; no mock row or value is product evidence.",
       "visual_reference": "index.html#/globalfinancials",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [],
-          "projection_contracts": [
-            "PortfolioConsequenceRollup"
-          ],
-          "fixture_or_record_gate": "Comparable multi-Site windows with coverage, currency/price basis and consequence overlap groups.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Consequence register",
             "Aggregation rule"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W3-02 commit-4 review accepting the exact slice and its 1440/390 captures, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
@@ -2308,6 +2327,14 @@
     },
     {
       "id": "alternatives",
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-mini-decision-read",
+          "I-mini-decision-ui",
+          "D-mini-decisions"
+        ]
+      },
       "mock_route": "#/alternatives",
       "product_destination": "Findings > Alternatives",
       "coverage": "deferred",
@@ -2526,6 +2553,15 @@
     },
     {
       "id": "opportunity-finding",
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-mini-decision-read",
+          "I-mini-decision-ui",
+          "D-mini-decisions",
+          "I-mini-depth-read"
+        ]
+      },
       "mock_route": "#/opportunity-finding",
       "product_destination": "Findings > Overview",
       "coverage": "deferred",
@@ -2629,6 +2665,14 @@
     },
     {
       "id": "scenarios",
+      "registry_dependencies": {
+        "product_node_id": "P-money-area",
+        "node_ids": [
+          "I-mini-decision-read",
+          "I-mini-decision-ui",
+          "D-mini-decisions"
+        ]
+      },
       "mock_route": "#/scenarios",
       "product_destination": "Sites > Financials",
       "coverage": "deferred",

@@ -27,6 +27,26 @@ from assetops_backend.evidence.public_provenance import (
     PublicProvenance, consequence_row_selection, estate_projection, finding_row_selection)
 
 
+class _Prefetched:
+    """`ProvenanceReads` serving one Site's link rows from a batched read; an ID the batch did not return (never
+    expected: the read is a LEFT JOIN from the requested IDs) falls back to the per-Site read."""
+
+    def __init__(self, rows: dict, site: str, fallback: Any) -> None:
+        self._rows, self._site, self._fallback = rows, site, fallback
+
+    def link_rows(self, tenant_id: UUID, site_id: UUID, evidence_ids: list[str]) -> list[Any]:
+        keys = [(self._site, str(i).lower()) for i in evidence_ids]
+        if str(site_id).lower() != self._site or any(k not in self._rows for k in keys):
+            return list(self._fallback.link_rows(tenant_id, site_id, evidence_ids))
+        return [row for k in keys for row in self._rows[k]]
+
+    def finding_revision_evidence(self, tenant_id: UUID, site_id: UUID, finding_revision_id: UUID) -> Any:
+        return self._fallback.finding_revision_evidence(tenant_id, site_id, finding_revision_id)
+
+    def consequence_inputs(self, tenant_id: UUID, site_id: UUID, consequence_revision_id: UUID) -> Any:
+        return self._fallback.consequence_inputs(tenant_id, site_id, consequence_revision_id)
+
+
 def _uuids(values: Any) -> list[str]:
     return sorted({str(v).lower() for v in values or () if v is not None})
 
@@ -38,11 +58,19 @@ class PostgresEstateRead:
                  consequences: Any, eligibility: Any, cold: Any, ev: Any,
                  provenance_reads: Callable[[Connection], Any],
                  inconsistent: tuple[type[BaseException], ...] = (),
-                 unavailable: tuple[type[BaseException], ...] = (), engine: Any = None) -> None:
+                 unavailable: tuple[type[BaseException], ...] = (), engine: Any = None,
+                 cold_site: Any = None, ev_site: Any = None, ev_money: Any = None,
+                 link_rows_many: Callable[..., dict] | None = None) -> None:
         self._url, self._engine = database_url, engine
         self.findings, self.assessments, self.actions = findings, assessments, actions
         self.consequences, self.eligibility, self.cold, self.ev = consequences, eligibility, cold, ev
         self.provenance_reads, self.inconsistent, self.unavailable = provenance_reads, inconsistent, unavailable
+        # W3-02 0c: the pinned cold/EV Site facades (`capabilities_on`/`money_on`) and the SELECT-only EV money
+        # reads, all used on the one estate connection; None leaves the W3-01 reads unchanged.
+        self.cold_site, self.ev_site, self.ev_money = cold_site, ev_site, ev_money
+        # W3-03 r1b2 R11: the batched link-row read `(c, tenant, [(site, ids)]) -> {(site, id): [rows]}`; None
+        # keeps the per-Site `cited_provenance` path (same DTOs, one query per Site).
+        self.link_rows_many = link_rows_many
 
     def _connect(self):
         if self._engine is None:
@@ -83,12 +111,13 @@ class EstateSnapshot:
 
     def imported_sites(self, t: UUID, to: datetime) -> list[dict[str, Any]]:
         """All Sites of the tenant with a committed `site_import` before `to`, inactive ones included, ordered by
-        `(site_code_key, id)`."""
+        `(site_code_key, id)`; each item also carries that stored `site_code_key` (W3-02 0c)."""
         rows = self._c.execute(text(
-            "SELECT s.id, s.site_code, s.name, s.site_type FROM site s WHERE s.tenant_id = :t AND EXISTS ("
+            "SELECT s.id, s.site_code, s.name, s.site_type, s.site_code_key FROM site s WHERE s.tenant_id = :t AND EXISTS ("
             "SELECT 1 FROM site_import i WHERE i.tenant_id = s.tenant_id AND i.site_id = s.id AND i.imported_at < :to) "
             "ORDER BY s.site_code_key, s.id"), {"t": t, "to": to}).all()
-        return [{"site_id": r[0], "site_code": r[1], "site_name": r[2], "site_type": r[3]} for r in rows]
+        return [{"site_id": r[0], "site_code": r[1], "site_name": r[2], "site_type": r[3], "site_code_key": r[4]}
+                for r in rows]
 
     def evidence_cutoff(self, t: UUID, s: UUID, k: datetime) -> datetime | None:
         """Run 7 q7-1: the Site's latest disposition decided by the requested cutoff (its evidence watermark)."""
@@ -106,6 +135,20 @@ class EstateSnapshot:
 
     def cited_provenance(self, t: UUID, s: UUID, cited: list[str], selected: list[str]) -> dict[str, Any]:
         return estate_projection(self._public().cited_set(t, s, cited, selected, detail=False))
+
+    def cited_provenance_many(self, t: UUID, items: list[tuple[Any, list[str], list[str]]]) -> list[dict[str, Any]]:
+        """W3-03 r1b2 R11: `cited_provenance` for several Sites `(site_id, cited, selected)` with one batched
+        link-row query on this connection; each DTO equals that Site's `cited_provenance` (same resolver,
+        classification and digest). Without a batched reader it is the per-Site call."""
+        if self._o.link_rows_many is None:
+            return [self.cited_provenance(t, s, cited, selected) for s, cited, selected in items]
+        prefetched = self._o.link_rows_many(self._c, t, [(s, sorted({str(i) for i in cited}))
+                                                         for s, cited, _ in items])
+        out = []
+        for s, cited, selected in items:
+            reads = _Prefetched(prefetched, str(s).lower(), self._o.provenance_reads(self._c))
+            out.append(estate_projection(PublicProvenance(reads).cited_set(t, s, cited, selected, detail=False)))
+        return out
 
     # --- mini-grid Findings and money -------------------------------------------------------------------------
 
@@ -303,13 +346,16 @@ class EstateSnapshot:
         """Frozen verification plans and outcome decision times recorded by `k`, per Action."""
         p = {"t": t, "s": s, "k": k, "ids": [str(x) for x in action_ids]}
         out: dict[str, dict[str, Any]] = {}
-        for aid, start, end in self._c.execute(text(
-                "SELECT action_id, later_start, later_end FROM verification_plan WHERE tenant_id = :t "
-                "AND site_id = :s AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k"), p):
+        # W3-03 closure 4 S8: each plan also carries its `id` and `recorded_at` (outcomes map id -> recorded_at);
+        # the existing `later_start`/`later_end` and outcome-map consumers are unchanged. Ordered for determinism.
+        for aid, pid, recorded, start, end in self._c.execute(text(
+                "SELECT action_id, id, recorded_at, later_start, later_end FROM verification_plan WHERE tenant_id = :t "
+                "AND site_id = :s AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k "
+                "ORDER BY recorded_at, id"), p):
             out.setdefault(str(aid), {"plans": [], "outcomes": {}})["plans"].append(
-                {"later_start": start, "later_end": end})
+                {"id": str(pid), "recorded_at": recorded, "later_start": start, "later_end": end})
         for aid, oid, at in self._c.execute(text(
                 "SELECT action_id, id, recorded_at FROM verification_outcome WHERE tenant_id = :t AND site_id = :s "
-                "AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k"), p):
+                "AND action_id = ANY(CAST(:ids AS uuid[])) AND recorded_at <= :k ORDER BY recorded_at, id"), p):
             out.setdefault(str(aid), {"plans": [], "outcomes": {}})["outcomes"][str(oid)] = at
         return out

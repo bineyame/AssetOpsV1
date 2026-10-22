@@ -94,6 +94,8 @@ describe("W3-01 estate roots", () => {
       await settledScreen();
       expectV69Panels(SCREEN[lens]);
       expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Findings");
+      // W3-02 c2b: a root without an eyebrow prop draws no empty eyebrow node.
+      expect(screen.getByRole("heading", { level: 1 }).closest("header")?.querySelector(".page-header__eyebrow")).toBeNull();
       // Four live lens tabs keep window and state, drop the cursor; the active one is the page.
       const tabs = within(screen.getByRole("navigation", { name: "Finding lenses" })).getAllByRole("link");
       expect(tabs.map((t) => t.textContent)).toEqual(["All findings", "Cost", "Risks", "Opportunities"]);
