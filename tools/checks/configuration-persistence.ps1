@@ -832,6 +832,8 @@ function Invoke-ConfigurationPersistenceCheck {
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
+        # W6-01a A1Q G1: the read-only global work reader; the SQL-write refusal still applies to it.
+        "$backendRoot/work/adapters/postgres_global_read.py",
         # W4-02 unit 5 (closure 1 Q25): the read-only mini-depth reader; the SQL-write refusal still applies to it.
         "$backendRoot/mini_depth/read.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
