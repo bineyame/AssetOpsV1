@@ -1,6 +1,7 @@
 /**
- * W6-01a A2: the read-only global work list client, `GET /api/work/incidents` (`global-work-index-1`,
- * `.agent/W6-01-build-spec.md` section 1, section 2 and section 3.1 A2Q1-A2Q10).
+ * W6-01a A2 / W6-01b B2-B3: the read-only global work list client, `GET /api/work/incidents`, `/maintenance` and
+ * `/preventive` (`global-work-index-1`, `.agent/W6-01-build-spec.md` section 1, section 2, section 3.1 A2Q1-A2Q10
+ * and the B1-B3 pre-flight rulings P-B2-1/2 and P-B3-1).
  *
  * The client asks for five rows, forwards only `from`, `to`, `known_at` and `cursor` exactly as given, and maps
  * every refusal, network failure or malformed answer to a typed refusal. A refusal never reads as zero: it carries
@@ -54,6 +55,61 @@ export interface GlobalIncidentRow {
   links: { site: GlobalWorkLink; site_incidents: GlobalWorkLink };
 }
 
+export type GlobalMaintenanceState = "OPEN" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+export interface GlobalMaintenanceRow {
+  site_code: string;
+  site_name: string;
+  site_id: string;
+  site_code_key: string;
+  case_id: string;
+  code: string;
+  kind: "MAINTENANCE_REQUEST";
+  revision_id: string;
+  title: string;
+  narrative: string;
+  occurred_at: string;
+  created_at: string;
+  recorded_at: string;
+  state: GlobalMaintenanceState;
+  owner: string | null;
+  asset_id: string | null;
+  asset_label: string | null;
+  incident_id: string | null;
+  record_id: string | null;
+  activity: string | null;
+  outcome_note: string | null;
+  finding_links: GlobalWorkLink[];
+  action_links: GlobalWorkLink[];
+  source_provenance: GlobalWorkProvenance;
+  links: { site: GlobalWorkLink; site_maintenance: GlobalWorkLink; detail: GlobalWorkLink | null };
+}
+
+export interface GlobalPreventiveRow {
+  site_code: string;
+  site_name: string;
+  site_id: string;
+  site_code_key: string;
+  canonical_plan_id: string;
+  root_id: string;
+  head_id: string;
+  code: string;
+  title: string;
+  trigger_kind: "CALENDAR" | "RUN_HOURS";
+  next_due_at: string | null;
+  next_due_hours: string | null;
+  state: "DRAFT";
+  asset_id: string | null;
+  asset_label: string | null;
+  root_occurred_at: string;
+  occurred_at: string;
+  recorded_at: string;
+  supersedes_plan_id: string | null;
+  correction_reason: string | null;
+  source_provenance: GlobalWorkProvenance;
+  links: { site: GlobalWorkLink };
+}
+
 export type GlobalWorkStatus = "CURRENT" | "HISTORICAL" | "EMPTY_SCOPE" | "PARTIAL";
 
 export interface GlobalWorkEnvelope<Row, Counts> {
@@ -75,6 +131,11 @@ export interface GlobalWorkEnvelope<Row, Counts> {
 }
 
 export type GlobalIncidentsBody = GlobalWorkEnvelope<GlobalIncidentRow, Record<GlobalIncidentState, number>>;
+export type GlobalMaintenanceBody = GlobalWorkEnvelope<GlobalMaintenanceRow, Record<GlobalMaintenanceState, number>>;
+export type GlobalPreventiveBody = GlobalWorkEnvelope<GlobalPreventiveRow, null>;
+
+/** The list root a read asks for; it decides the `state_counts` shape the answer must carry (P-B2-2). */
+export type GlobalWorkRoot = "incidents" | "maintenance" | "preventive" | "operational-records";
 
 /** The page query (A2Q10): window, optional cutoff and optional opaque cursor. Nothing else is forwarded. */
 export interface GlobalWorkQuery {
@@ -114,14 +175,23 @@ export const GLOBAL_WORK_FIRST_PAGE_CODES: ReadonlySet<GlobalWorkRefusalCode> = 
 
 const KNOWN_CODES = new Set<string>(Object.keys(GLOBAL_WORK_REFUSAL_COPY));
 
+/**
+ * `maintenance` and `preventive` are optional (P-B2-2), so a one-method incidents client still type-checks; a page
+ * whose method is absent reads `WORK_STORE_UNAVAILABLE`. `createGlobalWorkClient()` supplies every method.
+ */
 export interface GlobalWorkClient {
   incidents(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalIncidentsBody>>;
+  maintenance?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalMaintenanceBody>>;
+  preventive?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalPreventiveBody>>;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-function isEnvelope(value: unknown): boolean {
+/** Incidents and maintenance carry an object `state_counts`; preventive and operational records carry null only. */
+const NULL_COUNTS: ReadonlySet<GlobalWorkRoot> = new Set(["preventive", "operational-records"]);
+
+function isEnvelope(value: unknown, root: GlobalWorkRoot): boolean {
   return (
     isObject(value) &&
     value.schema_version === GLOBAL_WORK_SCHEMA &&
@@ -129,7 +199,7 @@ function isEnvelope(value: unknown): boolean {
     typeof value.total_count === "number" &&
     typeof value.known_at === "string" &&
     typeof value.status === "string" &&
-    isObject(value.state_counts) &&
+    (NULL_COUNTS.has(root) ? value.state_counts === null : isObject(value.state_counts)) &&
     isObject(value.window) &&
     (value.next_cursor === null || typeof value.next_cursor === "string")
   );
@@ -144,7 +214,7 @@ export function globalWorkApiQuery(query: GlobalWorkQuery): string {
   return params.toString();
 }
 
-export async function readGlobalWork<T>(path: string): Promise<GlobalWorkResult<T>> {
+export async function readGlobalWork<T>(path: string, root: GlobalWorkRoot): Promise<GlobalWorkResult<T>> {
   let response: Response;
   try {
     response = await fetch(path);
@@ -158,7 +228,7 @@ export async function readGlobalWork<T>(path: string): Promise<GlobalWorkResult<
     body = null;
   }
   if (response.ok) {
-    return isEnvelope(body) ? { status: "loaded", value: body as T } : { status: "refused", code: "WORK_STORE_UNAVAILABLE" };
+    return isEnvelope(body, root) ? { status: "loaded", value: body as T } : { status: "refused", code: "WORK_STORE_UNAVAILABLE" };
   }
   const detail = isObject(body) ? body.detail : null;
   const code = isObject(detail) && typeof detail.code === "string" ? detail.code : null;
@@ -168,7 +238,13 @@ export async function readGlobalWork<T>(path: string): Promise<GlobalWorkResult<
 export function createGlobalWorkClient(basePath: string = GLOBAL_WORK_API_PATH): GlobalWorkClient {
   return {
     incidents(query) {
-      return readGlobalWork<GlobalIncidentsBody>(`${basePath}/incidents?${globalWorkApiQuery(query)}`);
+      return readGlobalWork<GlobalIncidentsBody>(`${basePath}/incidents?${globalWorkApiQuery(query)}`, "incidents");
+    },
+    maintenance(query) {
+      return readGlobalWork<GlobalMaintenanceBody>(`${basePath}/maintenance?${globalWorkApiQuery(query)}`, "maintenance");
+    },
+    preventive(query) {
+      return readGlobalWork<GlobalPreventiveBody>(`${basePath}/preventive?${globalWorkApiQuery(query)}`, "preventive");
     },
   };
 }
