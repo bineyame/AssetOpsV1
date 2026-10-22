@@ -118,3 +118,25 @@ Questions (the spec does not decide; I did not choose):
 - **Q-C3-3 (C2 test vs C3 card).** `frontend/src/sites/__tests__/coldDepth.test.tsx:454-459` (C2 `cooling_nav_and_routes`) asserts `coldUiHref(.../cold/health?…)` is null "until C3". C3's `health: routes.health` makes it `/sites/COLD-001/health?…`, so it now fails. The file is not on C3's list. Proposed edit: change line 459 to expect `` `/sites/${SITE_CODE}/health?${Q}` `` and drop "health stays unmapped until C3" from the test name. Needs a ruling to add the file.
 - **Q-C3-4 (link test location).** The `Health › Data sources →` link lives in the cold Foundation readiness view, whose fixtures and App render are in `coldFoundation.test.tsx` (not on C3's list). `coldSiteViews.test.tsx` (on the list) renders none of the Foundation. Rule: add `coldFoundation.test.tsx` to the list for one href assertion (`/sites/{code}/health#site-health-sources-heading`), or build that render in `coldSiteViews.test.tsx`.
 - **check-all** (on `a374e2d8`): **All 11 guards passed.**
+
+### Run — C2 rebuild delta (Codex retrospective Q-C2-2/Q-C2-3), 2026-10-22
+
+Commits `b84b9373` (delta) and `f6350739` (390 cap fix), plus the evidence commit after them. Files touched are only the C2 files the delta names: `ColdCooling.tsx`, new `coldDepthGraphics.tsx`, `ui/primitives.css`, `tools/checks/shell-overflow.ps1` and `coldDepth.test.tsx`. No C3 file was touched.
+- **Q-C2-2.** The `Context normalization` third heading is `Match`. Every cell is a neutral `Not established` badge (`CONTEXT_MISSING`), and the Evidence column is unchanged. No `Matched` is rendered.
+- **Q-C2-3.** `Recovery curves` renders `CoolingObservationGraphic` (`coldDepthGraphics.tsx`).
+  - Lanes are `Compressor running` and `Chamber temperature`, across the selected window with 15-min UTC ticks. Each selected point is an unconnected mark labelled `HH:MM:SS` with a `<title>`. There is no °C axis, no path and no curve. With no points the frame is drawn empty.
+  - Below the graphic are `No accepted recovery sequence in this window.` and then the selected-point `DataTable` (only when points exist).
+  - Rule 5 registers the module as the svg owner. It must render `.cold-depth-graphic__scroll`, and that selector must declare `overflow-x: auto` in `primitives.css` (check 1f). The existing checks are kept.
+  - Non-vacuity, each mutation reverted: dropping `overflow-x`, renaming the region class, or adding an `<svg>` in `ColdCooling.tsx` each gave exactly 1 failure; the clean tree gave 0.
+- **390 cap fix.** At 390 the Match badge (`white-space: nowrap`) squeezed the Evidence column, and Context normalization measured 513 > 500 in empty/pending/historical. A scoped `@media (max-width: 480px) .cold-cooling-context .data-table .badge { white-space: normal; }` fixed it, using the panel `className="cold-cooling-context"`.
+- **Stale assertion updated.** `coldDepth.test.tsx::cooling_nav_and_routes` expected `/cold/health` to be unmapped, but C3 (on this branch) now maps it to `/sites/{code}/health`. I updated that assertion.
+- **Tests.**
+  - `coldDepth.test.tsx`: 25/25 passed. `cooling_panels` asserts the single svg inside its region, the two lane labels, the mark label and title, no path/polyline/polygon, no °C/36/42/+17%, the `Match` heading, five `Not established` cells, no `Matched`, and the empty-frame case.
+  - Adjacent tests (`coldRoutes`, `coldDepth`, `coldSiteViews`, `coldFoundation`, `coldHealthDepth`, `siteHealthBoundary`, `src/shell`): **62 files, 1416 tests passed**.
+  - `tsc -b` is clean. `tools/check-all.ps1` passed **all 11 guards** on the final code.
+- **Recaptures** at `f6350739`, same method (private `assetops_w501cap_test`, throwaway seed, `lab_app` 9791, Vite 6191, CDP 9792): `cooling-limited` (CURRENT, watermark 10:35:02.861732Z), `cooling-empty` (UNKNOWN, 2026-10-05 window), `cooling-pending` (PENDING_RECOMPUTE, 10:38:58.734216Z) and `cooling-historical` (`known_at=W0` 10:38:48.674434Z) at 1440/390. `cooling-refused` is unaffected and kept.
+  - Every capture: no horizontal overflow, panel titles equal to the mock, 0 ellipsized, no block over the caps.
+  - Recovery curves is 417 at 1440 and 464 at 390. Context normalization is at most 478 at 390 (cap 500). Page height is at most 1278 at 1440 and 2222 at 390.
+  - At 390 the graphic's 480 px minimum scrolls inside its region.
+  - Against the v69 `cooling` mock: same panel slot and order, graphic at the panel top, then the source table. The mock's two °C curves and its legend are deliberately absent.
+  - Cleanup: the DB was dropped (0 `w501` DBs remain), the seed file was removed, and the API, Vite and Chrome were stopped.

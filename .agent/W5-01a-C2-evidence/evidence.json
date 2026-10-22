@@ -1,146 +1,6 @@
 {
-  "revision": "06c8c3cc",
+  "revision": "f6350739",
   "pairs": [
-    {
-      "state": "cooling-limited",
-      "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "recovery_state": "LIMITED",
-        "committed_watermark": "2026-10-22T09:05:33.920042Z",
-        "known_at": "2026-10-22T09:05:33.920042Z",
-        "points": 2,
-        "context": [
-          "Ambient temperature=Unknown",
-          "Power availability=Observed",
-          "Door-open duration=Observed:60s",
-          "Loading / batch=Unknown",
-          "Defrost=Unknown"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cooling-limited-1440-app.png",
-      "app": {
-        "panels": [
-          "Recovery curves",
-          "Context normalization",
-          "Next best evidence"
-        ],
-        "blocks": {
-          "status": 43,
-          "cards": 124,
-          "notice": 43,
-          "refusal": null,
-          "state_notice": null,
-          "Recovery curves": 402,
-          "Context normalization": 402,
-          "Next best evidence": 191,
-          "page": 1202
-        },
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:05:33 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000003-0000-4000-8000-0000000000c6\nCompressor running\t19:05:00\t00000003-0000-4000-8000-0000000000cf\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\t1 accepted grid power record\tObserved\nDoor-open duration\tDoor open for 1 min\tObserved\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
-      },
-      "mock_image": "cooling-1440-mock.png",
-      "mock": {
-        "panels": [
-          "Recovery curves",
-          "Context normalization",
-          "Next best evidence"
-        ],
-        "blocks": {
-          "status": 45,
-          "cards": 113,
-          "notice": 42,
-          "refusal": null,
-          "state_notice": null,
-          "Recovery curves": 386,
-          "Context normalization": 386,
-          "Next best evidence": 234,
-          "page": 1312
-        },
-        "scrollWidth": 1425,
-        "clientWidth": 1425,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
-    {
-      "state": "cooling-limited",
-      "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
-      "read": {
-        "http": 200,
-        "code": null,
-        "selection_state": "CURRENT",
-        "recovery_state": "LIMITED",
-        "committed_watermark": "2026-10-22T09:05:33.920042Z",
-        "known_at": "2026-10-22T09:05:33.920042Z",
-        "points": 2,
-        "context": [
-          "Ambient temperature=Unknown",
-          "Power availability=Observed",
-          "Door-open duration=Observed:60s",
-          "Loading / batch=Unknown",
-          "Defrost=Unknown"
-        ]
-      },
-      "read_ok": true,
-      "app_image": "cooling-limited-390-app.png",
-      "app": {
-        "panels": [
-          "Recovery curves",
-          "Context normalization",
-          "Next best evidence"
-        ],
-        "blocks": {
-          "status": 99,
-          "cards": 261,
-          "notice": 80,
-          "refusal": null,
-          "state_notice": null,
-          "Recovery curves": 303,
-          "Context normalization": 442,
-          "Next best evidence": 208,
-          "page": 1946
-        },
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:05:33 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000003-0000-4000-8000-0000000000c6\nCompressor running\t19:05:00\t00000003-0000-4000-8000-0000000000cf\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\t1 accepted grid power record\tObserved\nDoor-open duration\tDoor open for 1 min\tObserved\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
-      },
-      "mock_image": "cooling-390-mock.png",
-      "mock": {
-        "panels": [
-          "Recovery curves",
-          "Context normalization",
-          "Next best evidence"
-        ],
-        "blocks": {
-          "status": 99,
-          "cards": 264,
-          "notice": 97,
-          "refusal": null,
-          "state_notice": null,
-          "Recovery curves": 231,
-          "Context normalization": 409,
-          "Next best evidence": 268,
-          "page": 2146
-        },
-        "scrollWidth": 375,
-        "clientWidth": 375,
-        "ellipsized": 0
-      },
-      "titles_equal": true,
-      "no_overflow": true,
-      "over_cap": []
-    },
     {
       "state": "cooling-refused",
       "viewport": "1440x1000",
@@ -256,6 +116,146 @@
       "over_cap": []
     },
     {
+      "state": "cooling-limited",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "recovery_state": "LIMITED",
+        "committed_watermark": "2026-10-22T10:35:02.861732Z",
+        "known_at": "2026-10-22T10:35:02.861732Z",
+        "points": 2,
+        "context": [
+          "Ambient temperature=Unknown",
+          "Power availability=Observed",
+          "Door-open duration=Observed:60s",
+          "Loading / batch=Unknown",
+          "Defrost=Unknown"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cooling-limited-1440-app.png",
+      "app": {
+        "panels": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 124,
+          "notice": 43,
+          "refusal": null,
+          "state_notice": null,
+          "Recovery curves": 417,
+          "Context normalization": 417,
+          "Next best evidence": 191,
+          "page": 1217
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:35:02 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n19:05:00\n19:05:00\n\nNo accepted recovery sequence in this window.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000003-0000-4000-8000-0000000000c6\nCompressor running\t19:05:00\t00000003-0000-4000-8000-0000000000cf\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\t1 accepted grid power record\tNot established\nDoor-open duration\tDoor open for 1 min\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+      },
+      "mock_image": "cooling-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "blocks": {
+          "status": 45,
+          "cards": 113,
+          "notice": 42,
+          "refusal": null,
+          "state_notice": null,
+          "Recovery curves": 386,
+          "Context normalization": 386,
+          "Next best evidence": 234,
+          "page": 1312
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "cooling-limited",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "recovery_state": "LIMITED",
+        "committed_watermark": "2026-10-22T10:35:02.861732Z",
+        "known_at": "2026-10-22T10:35:02.861732Z",
+        "points": 2,
+        "context": [
+          "Ambient temperature=Unknown",
+          "Power availability=Observed",
+          "Door-open duration=Observed:60s",
+          "Loading / batch=Unknown",
+          "Defrost=Unknown"
+        ]
+      },
+      "read_ok": true,
+      "app_image": "cooling-limited-390-app.png",
+      "app": {
+        "panels": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "blocks": {
+          "status": 99,
+          "cards": 261,
+          "notice": 80,
+          "refusal": null,
+          "state_notice": null,
+          "Recovery curves": 464,
+          "Context normalization": 466,
+          "Next best evidence": 208,
+          "page": 2131
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:35:02 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n19:05:00\n19:05:00\n\nNo accepted recovery sequence in this window.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000003-0000-4000-8000-0000000000c6\nCompressor running\t19:05:00\t00000003-0000-4000-8000-0000000000cf\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\t1 accepted grid power record\tNot established\nDoor-open duration\tDoor open for 1 min\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+      },
+      "mock_image": "cooling-390-mock.png",
+      "mock": {
+        "panels": [
+          "Recovery curves",
+          "Context normalization",
+          "Next best evidence"
+        ],
+        "blocks": {
+          "status": 99,
+          "cards": 264,
+          "notice": 97,
+          "refusal": null,
+          "state_notice": null,
+          "Recovery curves": 231,
+          "Context normalization": 409,
+          "Next best evidence": 268,
+          "page": 2146
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
       "state": "cooling-empty",
       "viewport": "1440x1000",
       "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
@@ -264,8 +264,8 @@
         "code": null,
         "selection_state": "UNKNOWN",
         "recovery_state": "UNKNOWN",
-        "committed_watermark": "2026-10-22T09:08:36.328078Z",
-        "known_at": "2026-10-22T09:08:36.328078Z",
+        "committed_watermark": "2026-10-22T10:36:54.916082Z",
+        "known_at": "2026-10-22T10:36:54.916082Z",
         "points": 0,
         "context": [
           "Ambient temperature=Unknown",
@@ -297,7 +297,7 @@
         "scrollWidth": 1425,
         "clientWidth": 1425,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:08:36 UTC\n\nComparison unknown Confidence: Unknown No selected cooling assessment establishes a recovery comparison for this window.\nInspect recovery basis →\nNo selected cold assessment covers this window yet.\nUsual time back to policy\nUnknown\nNo matched earlier window\nThis time back to policy\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nNo selected comparison basis\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nNo accepted recovery sequence in this window.\n\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\tNo accepted grid power record\tUnknown\nDoor-open duration\tNo matched door open/close pair\tUnknown\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:36:54 UTC\n\nComparison unknown Confidence: Unknown No selected cooling assessment establishes a recovery comparison for this window.\nInspect recovery basis →\nNo selected cold assessment covers this window yet.\nUsual time back to policy\nUnknown\nNo matched earlier window\nThis time back to policy\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nNo selected comparison basis\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n\nNo accepted recovery sequence in this window.\n\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\tNo accepted grid power record\tNot established\nDoor-open duration\tNo matched door open/close pair\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
       },
       "mock_image": "cooling-1440-mock.png",
       "mock": {
@@ -334,8 +334,8 @@
         "code": null,
         "selection_state": "UNKNOWN",
         "recovery_state": "UNKNOWN",
-        "committed_watermark": "2026-10-22T09:08:36.328078Z",
-        "known_at": "2026-10-22T09:08:36.328078Z",
+        "committed_watermark": "2026-10-22T10:36:54.916082Z",
+        "known_at": "2026-10-22T10:36:54.916082Z",
         "points": 0,
         "context": [
           "Ambient temperature=Unknown",
@@ -359,15 +359,15 @@
           "notice": 80,
           "refusal": null,
           "state_notice": 43,
-          "Recovery curves": 124,
-          "Context normalization": 442,
+          "Recovery curves": 251,
+          "Context normalization": 490,
           "Next best evidence": 208,
-          "page": 1828
+          "page": 2002
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:08:36 UTC\n\nComparison unknown Confidence: Unknown No selected cooling assessment establishes a recovery comparison for this window.\nInspect recovery basis →\nNo selected cold assessment covers this window yet.\nUsual time back to policy\nUnknown\nNo matched earlier window\nThis time back to policy\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nNo selected comparison basis\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nNo accepted recovery sequence in this window.\n\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\tNo accepted grid power record\tUnknown\nDoor-open duration\tNo matched door open/close pair\tUnknown\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 5 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:36:54 UTC\n\nComparison unknown Confidence: Unknown No selected cooling assessment establishes a recovery comparison for this window.\nInspect recovery basis →\nNo selected cold assessment covers this window yet.\nUsual time back to policy\nUnknown\nNo matched earlier window\nThis time back to policy\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nNo selected comparison basis\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n\nNo accepted recovery sequence in this window.\n\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\tNo accepted grid power record\tNot established\nDoor-open duration\tNo matched door open/close pair\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
       },
       "mock_image": "cooling-390-mock.png",
       "mock": {
@@ -404,8 +404,8 @@
         "code": null,
         "selection_state": "PENDING_RECOMPUTE",
         "recovery_state": "LIMITED",
-        "committed_watermark": "2026-10-22T09:11:10.304666Z",
-        "known_at": "2026-10-22T09:11:10.304666Z",
+        "committed_watermark": "2026-10-22T10:38:58.734216Z",
+        "known_at": "2026-10-22T10:38:58.734216Z",
         "points": 2,
         "context": [
           "Ambient temperature=Unknown",
@@ -429,15 +429,15 @@
           "notice": 43,
           "refusal": null,
           "state_notice": 43,
-          "Recovery curves": 402,
-          "Context normalization": 402,
+          "Recovery curves": 417,
+          "Context normalization": 417,
           "Next best evidence": 191,
-          "page": 1263
+          "page": 1278
         },
         "scrollWidth": 1425,
         "clientWidth": 1425,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:11:10 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\t1 accepted grid power record\tObserved\nDoor-open duration\tNo matched door open/close pair\tUnknown\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:38:58 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n19:05:00\n19:05:00\n\nNo accepted recovery sequence in this window.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\t1 accepted grid power record\tNot established\nDoor-open duration\tNo matched door open/close pair\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
       },
       "mock_image": "cooling-1440-mock.png",
       "mock": {
@@ -474,8 +474,8 @@
         "code": null,
         "selection_state": "PENDING_RECOMPUTE",
         "recovery_state": "LIMITED",
-        "committed_watermark": "2026-10-22T09:11:10.304666Z",
-        "known_at": "2026-10-22T09:11:10.304666Z",
+        "committed_watermark": "2026-10-22T10:38:58.734216Z",
+        "known_at": "2026-10-22T10:38:58.734216Z",
         "points": 2,
         "context": [
           "Ambient temperature=Unknown",
@@ -499,15 +499,15 @@
           "notice": 80,
           "refusal": null,
           "state_notice": 61,
-          "Recovery curves": 303,
-          "Context normalization": 442,
+          "Recovery curves": 464,
+          "Context normalization": 478,
           "Next best evidence": 208,
-          "page": 2025
+          "page": 2222
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:11:10 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\t1 accepted grid power record\tObserved\nDoor-open duration\tNo matched door open/close pair\tUnknown\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:38:58 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nNew evidence is waiting to be assessed. Earlier selected observations are shown, not a current conclusion.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n19:05:00\n19:05:00\n\nNo accepted recovery sequence in this window.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\t1 accepted grid power record\tNot established\nDoor-open duration\tNo matched door open/close pair\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
       },
       "mock_image": "cooling-390-mock.png",
       "mock": {
@@ -538,14 +538,14 @@
     {
       "state": "cooling-historical",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T09%3A10%3A50.508596Z",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T10%3A38%3A48.674434Z",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "HISTORICAL",
         "recovery_state": "LIMITED",
-        "committed_watermark": "2026-10-22T09:11:10.304666Z",
-        "known_at": "2026-10-22T09:10:50.508596Z",
+        "committed_watermark": "2026-10-22T10:38:58.734216Z",
+        "known_at": "2026-10-22T10:38:48.674434Z",
         "points": 2,
         "context": [
           "Ambient temperature=Unknown",
@@ -569,15 +569,15 @@
           "notice": 43,
           "refusal": null,
           "state_notice": 43,
-          "Recovery curves": 402,
-          "Context normalization": 402,
+          "Recovery curves": 417,
+          "Context normalization": 417,
           "Next best evidence": 191,
-          "page": 1263
+          "page": 1278
         },
         "scrollWidth": 1425,
         "clientWidth": 1425,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:10:50 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nRead at an earlier evidence cutoff; newer committed evidence exists.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\t1 accepted grid power record\tObserved\nDoor-open duration\tNo matched door open/close pair\tUnknown\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:38:48 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nRead at an earlier evidence cutoff; newer committed evidence exists.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n19:05:00\n19:05:00\n\nNo accepted recovery sequence in this window.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\t1 accepted grid power record\tNot established\nDoor-open duration\tNo matched door open/close pair\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
       },
       "mock_image": "cooling-1440-mock.png",
       "mock": {
@@ -608,14 +608,14 @@
     {
       "state": "cooling-historical",
       "viewport": "390x900",
-      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T09%3A10%3A50.508596Z",
+      "app_url": "http://localhost:6191/sites/COLD-LAB-001/performance/cooling?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&known_at=2026-10-22T10%3A38%3A48.674434Z",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "HISTORICAL",
         "recovery_state": "LIMITED",
-        "committed_watermark": "2026-10-22T09:11:10.304666Z",
-        "known_at": "2026-10-22T09:10:50.508596Z",
+        "committed_watermark": "2026-10-22T10:38:58.734216Z",
+        "known_at": "2026-10-22T10:38:48.674434Z",
         "points": 2,
         "context": [
           "Ambient temperature=Unknown",
@@ -639,15 +639,15 @@
           "notice": 80,
           "refusal": null,
           "state_notice": 61,
-          "Recovery curves": 303,
-          "Context normalization": 442,
+          "Recovery curves": 464,
+          "Context normalization": 478,
           "Next best evidence": 208,
-          "page": 2025
+          "page": 2222
         },
         "scrollWidth": 375,
         "clientWidth": 375,
         "ellipsized": 0,
-        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 09:10:50 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nRead at an earlier evidence cutoff; newer committed evidence exists.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tSTATUS\nAmbient temperature\tNot selected by the cooling assessment\tUnknown\nPower availability\t1 accepted grid power record\tObserved\nDoor-open duration\tNo matched door open/close pair\tUnknown\nLoading / batch\tNo loading record role\tUnknown\nDefrost\tNo defrost record role\tUnknown\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
+        "text": "Sites\nCold replay lab\nPerformance\nCooling\nCold replay lab\nDemonstration data · COLD-LAB-001\n\nPerformance · recovery under comparable conditions\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nTemperature\nCooling\nBackup\n\nSelected window 6 Oct 2026 19:00–20:05 UTC\nSelected evidence through 22 Oct 10:38:48 UTC\n\nComparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.\nInspect recovery basis →\nRead at an earlier evidence cutoff; newer committed evidence exists.\nUsual time back to 4°C\nUnknown\nNo matched earlier window\nThis time back to 4°C\nNot established\nNo ordered compressor-to-policy recovery assessment\nDifference\nUnknown\nA comparison is not supported\nComparable?\nNot yet\nAmbient, loading and defrost records missing\nRecovery curves\n\nSelected first observations only; not a recovery curve.\n\nCompressor running\nChamber temperature\n19:00 UTC\n19:15 UTC\n19:30 UTC\n19:45 UTC\n20:00 UTC\n19:05:00\n19:05:00\n\nNo accepted recovery sequence in this window.\n\nSTEP\tTIME (UTC)\tEVIDENCE\nChamber temperature\t19:05:00\t00000005-0000-4000-8000-0000000000c3\nCompressor running\t19:05:00\t00000005-0000-4000-8000-0000000000cc\nContext normalization\nFACTOR\tEVIDENCE\tMATCH\nAmbient temperature\tNot selected by the cooling assessment\tNot established\nPower availability\t1 accepted grid power record\tNot established\nDoor-open duration\tNo matched door open/close pair\tNot established\nLoading / batch\tNo loading record role\tNot established\nDefrost\tNo defrost record role\tNot established\nThese records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a later recovery under similar conditions.\nNext best evidence\n1\nRecord a comparable recovery\n\nKeep load, door, ambient, defrost and cooling-energy records.\n\n2\nInspect the backup sequence\n\nOpen Backup →"
       },
       "mock_image": "cooling-390-mock.png",
       "mock": {
