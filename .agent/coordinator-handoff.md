@@ -454,3 +454,5 @@ Owner: "use a fresh claude architect instead of codex until  the codex quota is 
 - W5 C2 Q1-Q4 + W5 UI readiness (plan/W5-c2q); note C2 table drops mock "Match" heading. E1 key tables closed by Claude in plan/W5-close2.
 - W5 close2: C3/E4 notices (new copy), C5/E6 scenario rows, E2/E3/E4 literals, E1 key tables; E1b also edits ev_site_reads.py (_energy extract).
 - W5 C2 Q5-Q7 (plan/W5-c2q2).
+- W6-01 A2Q11 + R5-R8 (plan/W6-01-a2q11).
+- MOCK-FIDELITY CHECK (owner asked 2026-10-22): Codex retrospective must check every Claude ruling against v69 mock, explicitly: C2 table heading Match->Status; C2 Recovery curves chart->table (guard rule 5; alternative = chart in an allowed graphics module); C3/E4 new notice sentences not in mock; E2 bars as plain divs; E3 no-svg. Rule keep or restore-to-mock for each before C3/E2/E3 build.
