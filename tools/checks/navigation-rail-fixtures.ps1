@@ -77,8 +77,12 @@ function Invoke-NavigationRailFixturesCheck {
                Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials", end: false' 'kind: "unavailable", label: "Financials"') },
             @{ Name = "W3-02: Financials live root pointed at the Evidence route"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/financials", label: "Financials"' 'kind: "live", to: "/evidence", label: "Financials"') },
-            @{ Name = "W3-01: Incidents promoted to live"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Incidents"' 'kind: "live", to: "/actions", label: "Incidents"') },
+            @{ Name = "W6-01a: Incidents live root points at a missing route"; Expect = "points at '/incidentz'";
+               Rail = (Edit-Lines $rail 'to: "/incidents"' 'to: "/incidentz"') },
+            @{ Name = "W6-01a: Incidents route removed (only the catch-all would serve it)"; Expect = "points at '/incidents'";
+               App = (Remove-Line $app 'path=\{INCIDENTS_PATH\}') },
+            @{ Name = "W6-01a: Incidents demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/incidents", label: "Incidents", end: false' 'kind: "unavailable", label: "Incidents"') },
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";
                Rail = (Insert-After $rail 'label: "Settings", group: "ADMIN"' '  { kind: "unavailable", label: "Reports", group: "ADMIN", icon: "log" },') },
             @{ Name = "label typo"; Expect = "the W1 rail is exactly";

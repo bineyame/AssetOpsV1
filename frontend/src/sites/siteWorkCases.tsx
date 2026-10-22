@@ -116,8 +116,21 @@ export const WORK_KIND_COPY: Record<WorkKind, KindCopy> = {
 };
 
 export const WORK_CONTEXT_NOTICE =
-  "Case history is stored with this site. A global work page and create flow are not available yet.";
+  "Case history is stored with this site. Incidents can be managed globally. Global Maintenance and the create flow are not available yet.";
 const WORK_MANAGE_UNAVAILABLE_STATUS = "Not available yet";
+
+/**
+ * W6-01a A2 (spec section 1 "Site Work strip manage links"): the global page for this strip's kind, carrying the
+ * Site window and the cutoff (an explicit `scope.knownAt` wins over the loaded list's `known_at`). Never the Site
+ * cursor, limit or a Site key: the global page lists every authorized Site. The literal paths stay here because
+ * the Site substrate imports nothing from `shell/`.
+ */
+export function globalWorkManageHref(kind: WorkKind, scope: WorkScope, selectedKnownAt?: string | null): string {
+  const path = kind === "incidents" ? "/incidents" : "/maintenance";
+  const cutoff = scope.knownAt ?? selectedKnownAt ?? null;
+  const known = cutoff ? `&known_at=${encodeURIComponent(cutoff)}` : "";
+  return `${path}?from=${encodeURIComponent(scope.from)}&to=${encodeURIComponent(scope.to)}${known}`;
+}
 export const WORK_COUNT_UNKNOWN = "Count unknown · work source unavailable";
 export const WORK_STRIP_DETAIL = "These are work records at this site";
 export const WORK_LINK_MISSING = "No selected source for linked evidence";
@@ -229,7 +242,7 @@ function statusWords(body: WorkIndexBody): { label: string; tone: "neutral" | "a
   }
 }
 
-function WorkStrip({ copy, result }: { copy: KindCopy; result: WorkIndexResult | null }) {
+function WorkStrip({ copy, result, scope }: { copy: KindCopy; result: WorkIndexResult | null; scope: WorkScope }) {
   const loaded = result !== null && result.status === "loaded" ? result.value : null;
   const words = loaded ? statusWords(loaded) : null;
   return (
@@ -257,7 +270,13 @@ function WorkStrip({ copy, result }: { copy: KindCopy; result: WorkIndexResult |
         )}
       </span>
       <span className="muted status-strip__item" data-work-manage>
-        {`Manage in ${copy.global} · ${WORK_MANAGE_UNAVAILABLE_STATUS}`}
+        {copy.kind === "incidents" ? (
+          <Link to={globalWorkManageHref(copy.kind, scope, loaded ? loaded.known_at : null)} data-work-manage-link>
+            {`Manage in ${copy.global}`}
+          </Link>
+        ) : (
+          `Manage in ${copy.global} · ${WORK_MANAGE_UNAVAILABLE_STATUS}`
+        )}
       </span>
     </div>
   );
@@ -725,7 +744,7 @@ export function SiteWorkCases({
   }, [client, siteId, kind, from, to, knownAt, cursor]);
   return (
     <Body copy={copy}>
-      <WorkStrip copy={copy} result={result} />
+      <WorkStrip copy={copy} result={result} scope={scope} />
       <Panel
         heading={copy.title}
         headingId={`site-work-${kind}-heading`}
