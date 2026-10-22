@@ -406,8 +406,6 @@ describe("W2-03 q3: unavailable entries, wording and provenance", () => {
   const entries = (nav: HTMLElement) => Array.from(nav.querySelectorAll("li")).map((li) => li.textContent?.trim());
 
   it.each([
-    ["Performance sections", ROUTES[0][1], ["Temperature", "Cooling · Not available yet", "Backup"], "Cooling"],
-    ["Performance sections", ROUTES[1][1], ["Temperature", "Cooling · Not available yet", "Backup"], "Cooling"],
     ["Finding sections", ROUTES[2][1], ["Overview", "Recommendation · Not available yet"], "Recommendation"],
     ["Finding sections", ROUTES[3][1], ["Overview", "Recommendation · Not available yet"], "Recommendation"],
   ] as const)("%s on %s keep order and render the unbuilt entry as text only", async (aria, path, order, unbuilt) => {
@@ -419,9 +417,9 @@ describe("W2-03 q3: unavailable entries, wording and provenance", () => {
     expect(li.getAttribute("aria-label")).toBe(`${unbuilt}, Not available yet`);
     expect(li.querySelector("a, button, [tabindex], [role], [disabled], [aria-disabled]")).toBeNull();
     expect(li.getAttribute("tabindex")).toBeNull();
-    expect(nav.querySelectorAll("a")).toHaveLength(aria === "Performance sections" ? 2 : 0);
+    expect(nav.querySelectorAll("a")).toHaveLength(0);
     expect(nav.querySelector('[aria-current="page"]')).not.toBeNull();
-    expect(main().querySelector('a[href*="cooling"], a[href*="recommendation"]')).toBeNull();
+    expect(main().querySelector('a[href*="recommendation"]')).toBeNull();
   });
 
   // W2-F N0/M4: the v69 title, in the third slot, on loaded, no-selection and refused reads; the plain variant is gone.

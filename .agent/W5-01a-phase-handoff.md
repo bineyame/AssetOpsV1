@@ -91,3 +91,10 @@ Commits `06c8c3cc` (page, wiring, guards, tests) and the evidence commit after i
   - Cleanup: the DB was dropped (0 `w501` DBs remain), the seed file was deleted, and the API, Vite and Chrome were stopped.
 - **One blocker (question, not chosen).** `frontend/src/sites/__tests__/coldRoutes.test.tsx:409-410` (W2-03 q3) still asserts `"Cooling · Not available yet"` in the cold Performance row and no `a[href*="cooling"]`. Those 2 cases now fail (the other 58 files in `src/shell`, `coldRoutes`, `coldSiteViews` and `coldFoundation` pass). The file is not on the C2 list. Proposed edit: drop the two Performance rows from that `it.each` (Cooling is covered by `coldDepth.test.tsx::cooling_nav_and_routes`), and narrow the `a[href*="cooling"]` assertion to `recommendation`. It needs a ruling to add the file.
 - **Interpretation to confirm.** The ledger says heading `Cooling`. The page keeps the frame's v69 `SitePageHeader` (Site name h1, as the mock and the Temperature/Backup siblings do), with `Cooling` as the breadcrumb end and the current subtab.
+
+### Run — C2 Q-C2-5 edit, 2026-10-22
+
+Applied Q-C2-5 exactly in `frontend/src/sites/__tests__/coldRoutes.test.tsx`: removed the two Performance rows, made the link count `toHaveLength(0)` and narrowed the selector to `'a[href*="recommendation"]'`. Q-C2-6 and Q-C2-7 were confirmed, so nothing changed for them. The blocker above is closed.
+- `coldRoutes`, `coldDepth`, `coldSiteViews`, `coldFoundation` and `src/shell` (60 files): **60 passed, 1372 tests**.
+- `tsc -b` is clean, and `tools/check-all.ps1` passed **all 11 guards**.
+- No process or DB was started in this run.
