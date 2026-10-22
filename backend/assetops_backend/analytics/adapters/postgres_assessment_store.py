@@ -2464,6 +2464,46 @@ class ColdReadService:
         return {"created_at": row[0], "foundations": [tuple(f) for f in foundations],
                 "bindings": [tuple(b) for b in bindings]}
 
+    #: W5-01 C1 Health: the Foundation component types a Health row reads (`.agent/W5-01-build-spec.md` Q7).
+    HEALTH_COMPONENT_TYPES = ("GENERATOR", "COMPRESSOR", "TEMPERATURE_PROBE")
+
+    def foundation_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any] | None:
+        """W5-01 C1 Q7: the selected Foundation revision and its Health components on the caller connection.
+        With a selection, the one distinct Foundation revision of every selected analytic's run; without one, the
+        one revision known at the cutoff that overlaps the window (the `cold_inputs` predicate). Anything else is
+        None. Components are `GENERATOR`/`COMPRESSOR`/`TEMPERATURE_PROBE` entries that have a same-code,
+        same-type Site asset row, sorted `(component_type, asset_code)`. SELECT-only."""
+        t, s = snap["t"], snap["s"]
+        if snap["selected"]:
+            ids = {str(f[0]).lower() for sel in snap["selected"].values()
+                   for f in self.basis_revisions_on(c, t, s, sel.revision_id)["foundations"]}
+            if len(ids) != 1:
+                return None
+            found = c.execute(text("SELECT id, content FROM foundation_revision WHERE tenant_id = :t "
+                                   "AND site_id = :s AND id = :f"), {"t": t, "s": s, "f": UUID(ids.pop())}).all()
+        else:
+            if snap["known"] is None or snap["lo"] is None or snap["hi"] is None:
+                return None
+            found = c.execute(text(
+                f"SELECT id, content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+                f"AND {_KNOWN} AND {_OVERLAPS}"),
+                {"t": t, "s": s, "k": snap["known"], "lo": snap["lo"], "hi": snap["hi"]}).all()
+        if len(found) != 1:
+            return None
+        revision_id, content = found[0]
+        content = content if isinstance(content, dict) else json.loads(content)
+        assets = {(r[1], r[2]): str(r[0]).lower() for r in c.execute(text(
+            "SELECT id, asset_code, asset_type FROM asset WHERE tenant_id = :t AND site_id = :s"),
+            {"t": t, "s": s}).all()}
+        components = []
+        for comp in content.get("components") or ():
+            kind, code = comp.get("component_type"), comp.get("component_id")
+            if kind in self.HEALTH_COMPONENT_TYPES and (code, kind) in assets:
+                components.append({"component_type": kind, "asset_id": assets[(code, kind)], "asset_code": code,
+                                   "display_name": comp.get("display_name") or None})
+        return {"revision_id": str(revision_id).lower(),
+                "components": sorted(components, key=lambda x: (x["component_type"], x["asset_code"]))}
+
     @staticmethod
     def accepted_on(c: Connection, t: UUID, s: UUID, ids: list[str], after: tuple[datetime, UUID] | None = None,
                     limit: int | None = None) -> list[dict[str, Any]]:

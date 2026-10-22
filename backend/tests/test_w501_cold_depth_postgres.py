@@ -9,6 +9,7 @@ watermark (wall-clock `decided_at`); the historical read passes the exact `known
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from datetime import datetime
@@ -24,13 +25,12 @@ if URL:
     from fastapi import FastAPI
     from fastapi.testclient import TestClient
     from sqlalchemy import text
-    from test_w202_cold_replay_postgres import CASES, chain  # noqa: F401 - the W2-02 replay fixture
+    from test_w202_cold_replay_postgres import CASES, canonical_json, chain  # noqa: F401 - the W2-02 replay fixture
     from test_w203_cold_replay_postgres import opened, rows, run
 
     from assetops_backend.analytics import cold
     from assetops_backend.analytics.adapters.postgres_assessment_store import ColdReadService
-    from assetops_backend.analytics.cold_depth import CONTEXT_ROWS, ColdDepthReadService
-    from assetops_backend.analytics.cold_reads import STATES
+    from assetops_backend.analytics.cold_depth import CONTEXT_ROWS, HEALTH_ROW_KEYS, ColdDepthReadService
     from assetops_backend.cold_depth_api import build_cold_depth_router
     from assetops_backend.evidence.composition import build_link_rows_reader
 
@@ -60,14 +60,14 @@ def client(built, *, url=None, tenant=None, disclosure=None) -> TestClient:
     return TestClient(app)
 
 
-def get(c: TestClient, query: str, status: int = 200) -> dict:
-    response = c.get(f"/api/sites/{CODE}/cold/cooling?{query}")
+def get(c: TestClient, query: str, status: int = 200, route: str = "cooling") -> dict:
+    response = c.get(f"/api/sites/{CODE}/cold/{route}?{query}")
     assert response.status_code == status, response.text
     return response.json()
 
 
-def error(c: TestClient, query: str, status: int) -> str:
-    body = get(c, query, status)
+def error(c: TestClient, query: str, status: int, route: str = "cooling") -> str:
+    body = get(c, query, status, route)
     assert set(body) == {"error"} and set(body["error"]) == {"code", "message"}, body
     return body["error"]["code"]
 
@@ -130,10 +130,12 @@ def test_cooling_first_steps_and_context(chain) -> None:  # noqa: F811
     mark = watermark(built)
     assert body["window"] == {"from": "2026-10-06T19:00:00.000000Z", "to": "2026-10-06T20:05:00.000000Z",
                               "known_at": mark, "committed_watermark": mark}
-    assert body["selection"]["state"] in STATES
+    assert body["selection"]["state"] == "CURRENT"
     assert_exact_selection(built, body)
     cooling = body["cooling"]
     assert cooling["recovery_state"] == "LIMITED"
+    [exc] = [r for r in selected_revisions(built, body) if r["analytic_id"] == cold.EXCURSION_ANALYTIC]
+    assert cooling["policy_high_deg_c"] == exc["result"]["policy"]["policy_high"] is not None
     assert_no_comparison(body)
     # selected_points: exactly the selected start chain's observed COMPRESSOR/PROBE first steps.
     [start] = [r for r in selected_revisions(built, body) if r["analytic_id"] == cold.START_RESPONSE_ANALYTIC]
@@ -165,6 +167,10 @@ def test_cooling_first_steps_and_context(chain) -> None:  # noqa: F811
         href = body["links"][key].replace("%3A", ":")
         assert href.startswith(f"/api/sites/{CODE}/cold/{suffix}?from=2026-10-06T19:00:00.000000Z")
         assert f"known_at={mark}" in href and str(built.site_id) not in href
+    # Q11: the health link resolves.
+    health = c.get(body["links"]["health"])
+    assert health.status_code == 200, health.text
+    assert health.json()["schema_version"] == "cold-depth-1"
     # Wrong Site, foreign tenant, disclosure and a down store.
     assert c.get(f"/api/sites/OTHER/cold/cooling?{W}").status_code == 404
     foreign = get(client(built, tenant=uuid4()), W)
@@ -260,5 +266,139 @@ def test_no_w2_case_has_numeric_comparison(chain, case) -> None:  # noqa: F811
     body = get(client(built), W)
     assert body["cooling"]["recovery_state"] in ("LIMITED", "CONTRADICTORY", "UNKNOWN")
     assert_no_comparison(body)
-    blob = json.dumps(body["cooling"])
-    assert "36" not in json.dumps([body["cooling"][k] for k in NULLS]) and "+17" not in blob
+    assert "+17" not in json.dumps(body["cooling"])
+    health = get(client(built), W, route="health")["health"]
+    assert all(r["condition_state"] != "NOT_CONFIGURED" for r in health["rows"])
+    assert health["foundation_revision_id"] == str(built.run.registered_basis.foundation_revision_id).lower()
+
+
+# --- /cold/health (C1 Health read) -----------------------------------------------------------------------------
+
+def foundation_assets(built, revision_id: str) -> dict[str, str]:
+    """component_type -> the scoped asset row ID of the Foundation revision's one component of that type."""
+    [rev] = rows(built, "SELECT content FROM foundation_revision WHERE site_id = :s AND id = CAST(:f AS uuid)",
+                 f=revision_id)
+    assets = {(r["asset_code"], r["asset_type"]): str(r["id"]).lower()
+              for r in rows(built, "SELECT id, asset_code, asset_type FROM asset WHERE site_id = :s")}
+    out: dict[str, str] = {}
+    for comp in rev["content"]["components"]:
+        kind = comp["component_type"]
+        if kind in ("GENERATOR", "COMPRESSOR", "TEMPERATURE_PROBE"):
+            assert kind not in out, kind
+            out[kind] = assets[(comp["component_id"], kind)]
+    assert set(out) == {"GENERATOR", "COMPRESSOR", "TEMPERATURE_PROBE"}
+    return out
+
+
+def assert_health_head(body: dict) -> None:
+    assert list(body) == ["schema_version", "site_id", "window", "selection", "health", "links"]
+    assert list(body["health"]) == ["foundation_revision_id", "rows"]
+    assert [r["kind"] for r in body["health"]["rows"]] == ["BACKUP_GENERATOR", "COOLING_PLANT",
+                                                            "TEMPERATURE_SENSING"]
+    assert all(tuple(r) == HEALTH_ROW_KEYS for r in body["health"]["rows"])
+
+
+@needs_db
+def test_health_failed_start_and_probe(chain) -> None:  # noqa: F811
+    built = opened("backup-failed", chain)
+    run(built)
+    c = client(built)
+    body = get(c, W, route="health")
+    assert_health_head(body)
+    assert body["schema_version"] == "cold-depth-1" and body["site_id"] == str(built.site_id)
+    mark = watermark(built)
+    assert body["window"]["known_at"] == body["window"]["committed_watermark"] == mark
+    assert_exact_selection(built, body)
+    foundation = str(built.run.registered_basis.foundation_revision_id).lower()
+    assert body["health"]["foundation_revision_id"] == foundation
+    assets = foundation_assets(built, foundation)
+    gen, plant, sensing = body["health"]["rows"]
+    # Generator: the stored START result's failed-chain OBSERVED request/result/generator IDs, ledger-present.
+    [start] = [r for r in selected_revisions(built, body) if r["analytic_id"] == cold.START_RESPONSE_ANALYTIC]
+    cited = [e for ch in start["result"]["chains"] if ch["result"] == "OBSERVED_FAILURE" for x in ch["steps"]
+             if x["step"] in ("START_REQUEST", "START_RESULT", "GENERATOR") and x["state"] == "OBSERVED"
+             for e in x["evidence_ids"]]
+    ledger = rows(built, "SELECT id, role, source_id FROM accepted_evidence WHERE site_id = :s "
+                         "AND id = ANY(CAST(:ids AS uuid[]))", ids=body["selection"]["accepted_evidence_ids"])
+    present = {str(r["id"]).lower(): r for r in ledger}
+    expected = _plain_ids(e for e in cited if str(e).lower() in present)
+    assert expected
+    assert (gen["condition_state"], gen["observation"], gen["limitation"]) == (
+        "NEEDS_INVESTIGATION", "Automatic start failed", "Failed automatic start observed; part not diagnosed")
+    assert gen["evidence_ids"] == expected
+    assert gen["asset_id"] == str(start["result"]["policy"]["generator_asset_id"]).lower() == assets["GENERATOR"]
+    assert gen["next_evidence"] == "Witness an automatic-start test"
+    # Cooling plant: condition unknown on the single compressor asset.
+    assert (plant["condition_state"], plant["observation"]) == ("UNKNOWN", "Condition unknown")
+    assert plant["asset_id"] == assets["COMPRESSOR"] and [a["asset_id"] for a in plant["assets"]] == \
+        [assets["COMPRESSOR"]]
+    assert set(plant["evidence_ids"]) <= set(present)
+    # Temperature sensing: one distinct accepted probe source is LIMITED.
+    assert (sensing["condition_state"], sensing["observation"], sensing["limitation"]) == (
+        "LIMITED", "Single-point observation", "One accepted probe does not establish room-wide coverage")
+    assert sensing["evidence_ids"] and set(sensing["evidence_ids"]) <= set(present)
+    assert {present[i]["role"] for i in sensing["evidence_ids"]} == {cold.PROBE_ROLE}
+    assert len({present[i]["source_id"] for i in sensing["evidence_ids"]}) == 1
+    assert sensing["asset_id"] == assets["TEMPERATURE_PROBE"]
+    # Site-code links preserving from/to/known_at.
+    for row, suffix in ((gen, "backup-chain"), (plant, "cooling"), (sensing, "evidence")):
+        href = row["link"].replace("%3A", ":")
+        assert href.startswith(f"/api/sites/{CODE}/cold/{suffix}?from=2026-10-06T19:00:00.000000Z")
+        assert f"known_at={mark}" in href and str(built.site_id) not in href
+    assert body["links"]["backup"] == gen["link"] and body["links"]["evidence"] == sensing["link"]
+    # Wrong Site, foreign tenant, disclosure, down store, future known_at.
+    assert c.get(f"/api/sites/OTHER/cold/health?{W}").status_code == 404
+    foreign = get(client(built, tenant=uuid4()), W, route="health")
+    assert foreign["health"]["foundation_revision_id"] is None
+    assert all((r["condition_state"], r["asset_id"], r["evidence_ids"]) == ("UNKNOWN", None, [])
+               for r in foreign["health"]["rows"])
+    assert error(client(built, disclosure=lambda code, t, s: False), W, 403, "health") == \
+        "COLD_SOURCE_DISCLOSURE_FORBIDDEN"
+    assert error(client(built, url=DOWN), W, 503, "health") == "COLD_READ_UNAVAILABLE"
+    assert error(c, f"{W}&known_at=2999-01-01T00:00:00Z", 422, "health") == "COLD_TIME_INVALID"
+
+
+@needs_db
+def test_health_not_configured(chain) -> None:  # noqa: F811
+    built = opened("normal", chain)  # no run: no selection
+    c = client(built)
+    first = get(c, W, route="health")
+    assert_health_head(first)
+    assert first["selection"]["assessment_revision_ids"] == []
+    original = str(built.run.registered_basis.foundation_revision_id).lower()
+    assert first["health"]["foundation_revision_id"] == original
+    assets = foundation_assets(built, original)
+    assert [(r["condition_state"], r["asset_id"]) for r in first["health"]["rows"]] == [
+        ("UNKNOWN", assets["GENERATOR"]), ("UNKNOWN", assets["COMPRESSOR"]),
+        ("UNKNOWN", assets["TEMPERATURE_PROBE"])]
+    [orig] = rows(built, "SELECT * FROM foundation_revision WHERE site_id = :s AND id = CAST(:f AS uuid)",
+                  f=original)
+    [top] = rows(built, "SELECT max(version) AS v FROM foundation_revision WHERE site_id = :s")
+    content = {k: v for k, v in orig["content"].items() if k != "topology"}
+    content["components"] = [x for x in content["components"]
+                             if x["component_type"] not in ("GENERATOR", "COMPRESSOR", "TEMPERATURE_PROBE")]
+    new_id = uuid4()
+    with built.engine.begin() as conn:
+        at = conn.execute(text("SELECT CAST(:r AS timestamptz) + interval '1 microsecond'"),
+                          {"r": orig["recorded_at"]}).scalar_one()
+        assert at <= _instant(first["window"]["committed_watermark"])
+        conn.execute(text("UPDATE foundation_revision SET superseded_at = :at WHERE id = :orig"),
+                     {"at": at, "orig": orig["id"]})
+        conn.execute(text(
+            "INSERT INTO foundation_revision (id, tenant_id, site_id, version, valid_from, valid_to, recorded_at, "
+            "superseded_at, schema_version, content, content_sha256, origin, derived_from_revision_id, change_note) "
+            "VALUES (:id, :t, :s, :v, :vf, :vt, :at, NULL, :sv, CAST(:content AS jsonb), :sha, 'PUBLISH', :orig, "
+            ":note)"),
+            {"id": new_id, "t": orig["tenant_id"], "s": orig["site_id"], "v": top["v"] + 1,
+             "vf": orig["valid_from"], "vt": orig["valid_to"], "at": at, "sv": orig["schema_version"],
+             "content": json.dumps(content), "sha": hashlib.sha256(canonical_json(content).encode()).hexdigest(),
+             "orig": orig["id"], "note": "W5-01 C1 test-scoped Foundation without health assets"})
+    second = get(c, W, route="health")
+    assert_health_head(second)
+    assert second["health"]["foundation_revision_id"] == str(new_id)
+    literals = [("Not configured", "No backup generator is declared in the selected Foundation"),
+                ("Not configured", "No cooling plant is declared in the selected Foundation"),
+                ("Not configured", "No temperature probe is declared in the selected Foundation")]
+    assert [(r["observation"], r["limitation"]) for r in second["health"]["rows"]] == literals
+    assert all((r["condition_state"], r["asset_id"], r["assets"], r["evidence_ids"], r["link"]) ==
+               ("NOT_CONFIGURED", None, [], [], None) for r in second["health"]["rows"])
