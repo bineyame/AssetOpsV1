@@ -109,6 +109,8 @@ const MEASURE = (isMock) => `(async () => {
       const p = n.querySelector("p"); const kids = Array.from(n.querySelectorAll(":scope > *")).map((e) => e.tagName.toLowerCase());
       return { info_icons: icons.length, has_p: !!p, icon_before_p: icons.length === 1 && !!p && (icons[0].compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0,
         children: kids, display: getComputedStyle(n).display, ok: icons.length === 1 && !!p && (icons[0].compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 }; })(),
+    scenarios_through: root.querySelectorAll("[data-scenarios-through]").length, through_text: /Scenarios created through/.test(root.innerText),
+    row_text: t(root.querySelector("[data-scenario-row]")), expansion_text: t(root.querySelector("[data-scenario-expansion]"))?.slice(0, 700) ?? null,
     rows: root.querySelectorAll("[data-scenario-row]").length, expansions: root.querySelectorAll("[data-scenario-expansion]").length,
     scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth };
 })()`;
@@ -198,6 +200,8 @@ for (const [w, hgt] of SIZES) {
       disclosure.layout = { ...L, checks, ok: Object.values(checks).every(Boolean) };
       for (const [k, v] of Object.entries(checks)) if (!v) over.push(`layout ${k} failed`);
     }
+    // W5-01b build rulings (review H1): the standalone `Scenarios created through` line is removed.
+    if (m.scenarios_through !== 0 || m.through_text) over.push(`scenarios-through line present (${m.scenarios_through})`);
     if (!m.notice_icon?.ok) over.push(`notice icon ${JSON.stringify(m.notice_icon)}`);
     if (m.rows > 0 && m.page_count !== "1 of 1") over.push(`page counter ${JSON.stringify(m.page_count)} != "1 of 1"`);
     caps.push({ name, viewport: `${w}x${hgt}`, app_url: app, image, read, read_ok: readOk,

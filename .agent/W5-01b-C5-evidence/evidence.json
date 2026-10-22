@@ -315,14 +315,14 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:08:26.381255Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:18.138155Z",
         "total_pages": 0,
         "items": []
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -369,6 +369,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": null,
+        "expansion_text": null,
         "rows": 0,
         "expansions": 0,
         "scrollWidth": 1440,
@@ -388,14 +392,14 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:08:26.381255Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:18.138155Z",
         "total_pages": 0,
         "items": []
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -424,7 +428,7 @@
           "empty": 242,
           "refusal": null,
           "finding_strip": null,
-          "page": 939
+          "page": 900
         },
         "basis": [],
         "ellipsized": 0,
@@ -442,10 +446,14 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": null,
+        "expansion_text": null,
         "rows": 0,
         "expansions": 0,
-        "scrollWidth": 375,
-        "clientWidth": 375
+        "scrollWidth": 390,
+        "clientWidth": 390
       },
       "no_overflow": true,
       "panel_cap": 560,
@@ -461,16 +469,16 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:11.195216Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:31.948008Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -517,6 +525,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCDefined",
+        "expansion_text": null,
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 1440,
@@ -536,16 +548,16 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:11.195216Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:31.948008Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -574,7 +586,7 @@
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1033
+          "page": 1003
         },
         "basis": [
           {
@@ -600,6 +612,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCDefined",
+        "expansion_text": "KindStock value contextAssumptionsStock quantity: 1200Stock unit: kgUnit value: 3.25Currency: USDWindow6 Oct 2026 19:00\u201320:05 UTCEvidence cutoff22 Oct 20:54:52 UTCAssessment revisions00000003-0000-4000-8000-00000000017300000003-0000-4000-8000-000000000179Accepted evidence95 records00000003-0000-4000-8000-0000000000b800000003-0000-4000-8000-0000000000ba00000003-0000-4000-8000-0000000000bc00000003-0000-4000-8000-0000000000bd00000003-0000-4000-8000-0000000000bf00000003-0000-4000-8000-0000000000c000000003-0000-4000-8000-0000000000c200000003-0000-4000-8000-0000000000c400000003-0000-4000-8000-0000000000c600000003-0000-4000-8000-0000000000c800000003-0000-4000-8000-0000000000ca00000003-0000-4000-800",
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 1425,
@@ -608,7 +624,7 @@
           "panel_h": 615,
           "doc_scrollWidth": 1440,
           "doc_clientWidth": 1440,
-          "basis_cell_w": 383,
+          "basis_cell_w": 378,
           "basis_cell_header": "Basis",
           "table_w": 1120,
           "basis_max_height": "360px",
@@ -618,7 +634,7 @@
           "scroller_scrollWidth": 1120,
           "scroller_clientWidth": 1120,
           "scroller_scrollLeft": 0,
-          "last_col_left": 1270,
+          "last_col_left": 1267,
           "last_col_right": 1388,
           "scroller_left": 268,
           "scroller_right": 1388,
@@ -637,7 +653,7 @@
           "panel_h": 615,
           "doc_scrollWidth": 1440,
           "doc_clientWidth": 1440,
-          "basis_cell_w": 383,
+          "basis_cell_w": 378,
           "basis_cell_header": "Basis",
           "table_w": 1120,
           "basis_max_height": "360px",
@@ -647,7 +663,7 @@
           "scroller_scrollWidth": 1120,
           "scroller_clientWidth": 1120,
           "scroller_scrollLeft": 0,
-          "last_col_left": 1270,
+          "last_col_left": 1267,
           "last_col_right": 1388,
           "scroller_left": 268,
           "scroller_right": 1388,
@@ -669,16 +685,16 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:11.195216Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:31.948008Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -725,6 +741,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCDefined",
+        "expansion_text": null,
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 390,
@@ -744,16 +764,16 @@
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:11.195216Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:31.948008Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -782,7 +802,7 @@
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1083
+          "page": 1053
         },
         "basis": [
           {
@@ -808,6 +828,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCDefined",
+        "expansion_text": "KindStock value contextAssumptionsStock quantity: 1200Stock unit: kgUnit value: 3.25Currency: USDWindow6 Oct 2026 19:00\u201320:05 UTCEvidence cutoff22 Oct 20:54:52 UTCAssessment revisions00000003-0000-4000-8000-00000000017300000003-0000-4000-8000-000000000179Accepted evidence95 records00000003-0000-4000-8000-0000000000b800000003-0000-4000-8000-0000000000ba00000003-0000-4000-8000-0000000000bc00000003-0000-4000-8000-0000000000bd00000003-0000-4000-8000-0000000000bf00000003-0000-4000-8000-0000000000c000000003-0000-4000-8000-0000000000c200000003-0000-4000-8000-0000000000c400000003-0000-4000-8000-0000000000c600000003-0000-4000-8000-0000000000c800000003-0000-4000-8000-0000000000ca00000003-0000-4000-800",
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 375,
@@ -816,7 +840,7 @@
           "panel_h": 475,
           "doc_scrollWidth": 390,
           "doc_clientWidth": 390,
-          "basis_cell_w": 280,
+          "basis_cell_w": 277,
           "basis_cell_header": "Basis",
           "table_w": 820,
           "basis_max_height": "220px",
@@ -826,7 +850,7 @@
           "scroller_scrollWidth": 820,
           "scroller_clientWidth": 318,
           "scroller_scrollLeft": 502,
-          "last_col_left": 267,
+          "last_col_left": 265,
           "last_col_right": 354,
           "scroller_left": 36,
           "scroller_right": 354,
@@ -845,7 +869,7 @@
           "panel_h": 475,
           "doc_scrollWidth": 390,
           "doc_clientWidth": 390,
-          "basis_cell_w": 280,
+          "basis_cell_w": 277,
           "basis_cell_header": "Basis",
           "table_w": 820,
           "basis_max_height": "220px",
@@ -855,7 +879,7 @@
           "scroller_scrollWidth": 820,
           "scroller_clientWidth": 318,
           "scroller_scrollLeft": 502,
-          "last_col_left": 267,
+          "last_col_left": 265,
           "last_col_right": 354,
           "scroller_left": 36,
           "scroller_right": 354,
@@ -877,23 +901,23 @@
     {
       "name": "cold-scenarios-historical",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A55%3A30.892668Z",
       "image": "cold-scenarios-historical-1440-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:07.092256Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:30.892668Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
-      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
+      "scenario_at_param": "2026-10-22T20:55:30.892668Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
@@ -939,6 +963,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCHistorical",
+        "expansion_text": null,
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 1440,
@@ -952,23 +980,23 @@
     {
       "name": "cold-scenarios-historical-expanded",
       "viewport": "1440x1000",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A55%3A30.892668Z",
       "image": "cold-scenarios-historical-expanded-1440-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:07.092256Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:30.892668Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
-      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
+      "scenario_at_param": "2026-10-22T20:55:30.892668Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
@@ -996,7 +1024,7 @@
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1033
+          "page": 1003
         },
         "basis": [
           {
@@ -1022,6 +1050,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCHistorical",
+        "expansion_text": "KindStock value contextAssumptionsStock quantity: 1200Stock unit: kgUnit value: 3.25Currency: USDWindow6 Oct 2026 19:00\u201320:05 UTCEvidence cutoff22 Oct 20:54:52 UTCAssessment revisions00000003-0000-4000-8000-00000000017300000003-0000-4000-8000-000000000179Accepted evidence95 records00000003-0000-4000-8000-0000000000b800000003-0000-4000-8000-0000000000ba00000003-0000-4000-8000-0000000000bc00000003-0000-4000-8000-0000000000bd00000003-0000-4000-8000-0000000000bf00000003-0000-4000-8000-0000000000c000000003-0000-4000-8000-0000000000c200000003-0000-4000-8000-0000000000c400000003-0000-4000-8000-0000000000c600000003-0000-4000-8000-0000000000c800000003-0000-4000-8000-0000000000ca00000003-0000-4000-800",
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 1425,
@@ -1030,7 +1062,7 @@
           "panel_h": 615,
           "doc_scrollWidth": 1440,
           "doc_clientWidth": 1440,
-          "basis_cell_w": 379,
+          "basis_cell_w": 374,
           "basis_cell_header": "Basis",
           "table_w": 1120,
           "basis_max_height": "360px",
@@ -1040,7 +1072,7 @@
           "scroller_scrollWidth": 1120,
           "scroller_clientWidth": 1120,
           "scroller_scrollLeft": 0,
-          "last_col_left": 1259,
+          "last_col_left": 1256,
           "last_col_right": 1388,
           "scroller_left": 268,
           "scroller_right": 1388,
@@ -1059,7 +1091,7 @@
           "panel_h": 615,
           "doc_scrollWidth": 1440,
           "doc_clientWidth": 1440,
-          "basis_cell_w": 379,
+          "basis_cell_w": 374,
           "basis_cell_header": "Basis",
           "table_w": 1120,
           "basis_max_height": "360px",
@@ -1069,7 +1101,7 @@
           "scroller_scrollWidth": 1120,
           "scroller_clientWidth": 1120,
           "scroller_scrollLeft": 0,
-          "last_col_left": 1259,
+          "last_col_left": 1256,
           "last_col_right": 1388,
           "scroller_left": 268,
           "scroller_right": 1388,
@@ -1085,23 +1117,23 @@
     {
       "name": "cold-scenarios-historical",
       "viewport": "390x900",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A55%3A30.892668Z",
       "image": "cold-scenarios-historical-390-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:07.092256Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:30.892668Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
-      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
+      "scenario_at_param": "2026-10-22T20:55:30.892668Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
@@ -1147,6 +1179,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCHistorical",
+        "expansion_text": null,
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 390,
@@ -1160,23 +1196,23 @@
     {
       "name": "cold-scenarios-historical-expanded",
       "viewport": "390x900",
-      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A09%3A07.092256Z",
+      "app_url": "http://localhost:6291/sites/COLD-LAB-001/financials/scenarios?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&scenario_at=2026-10-22T20%3A55%3A30.892668Z",
       "image": "cold-scenarios-historical-expanded-390-app.png",
       "read": {
         "http": 200,
         "code": null,
         "selection_state": "CURRENT",
-        "committed_watermark": "2026-10-22T20:07:37.450181Z",
-        "known_at": "2026-10-22T20:07:37.450181Z",
-        "scenario_at": "2026-10-22T20:09:07.092256Z",
+        "committed_watermark": "2026-10-22T20:54:52.458601Z",
+        "known_at": "2026-10-22T20:54:52.458601Z",
+        "scenario_at": "2026-10-22T20:55:30.892668Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:07:37.450181Z"
+          "CSCN-000001 r1 HISTORICAL cutoff=2026-10-22T20:54:52.458601Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:07:37.450181Z",
-      "scenario_at_param": "2026-10-22T20:09:07.092256Z",
+      "clock": "2026-10-22T20:54:52.458601Z",
+      "scenario_at_param": "2026-10-22T20:55:30.892668Z",
       "measured": {
         "text": {
           "h1": "Cold replay lab",
@@ -1204,7 +1240,7 @@
           "empty": null,
           "refusal": null,
           "finding_strip": null,
-          "page": 1083
+          "page": 1053
         },
         "basis": [
           {
@@ -1230,6 +1266,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:54:52 UTCReview assumptions \u219222 Oct 20:55:30 UTCHistorical",
+        "expansion_text": "KindStock value contextAssumptionsStock quantity: 1200Stock unit: kgUnit value: 3.25Currency: USDWindow6 Oct 2026 19:00\u201320:05 UTCEvidence cutoff22 Oct 20:54:52 UTCAssessment revisions00000003-0000-4000-8000-00000000017300000003-0000-4000-8000-000000000179Accepted evidence95 records00000003-0000-4000-8000-0000000000b800000003-0000-4000-8000-0000000000ba00000003-0000-4000-8000-0000000000bc00000003-0000-4000-8000-0000000000bd00000003-0000-4000-8000-0000000000bf00000003-0000-4000-8000-0000000000c000000003-0000-4000-8000-0000000000c200000003-0000-4000-8000-0000000000c400000003-0000-4000-8000-0000000000c600000003-0000-4000-8000-0000000000c800000003-0000-4000-8000-0000000000ca00000003-0000-4000-800",
         "rows": 1,
         "expansions": 1,
         "scrollWidth": 375,
@@ -1238,7 +1278,7 @@
           "panel_h": 475,
           "doc_scrollWidth": 390,
           "doc_clientWidth": 390,
-          "basis_cell_w": 278,
+          "basis_cell_w": 274,
           "basis_cell_header": "Basis",
           "table_w": 820,
           "basis_max_height": "220px",
@@ -1248,7 +1288,7 @@
           "scroller_scrollWidth": 820,
           "scroller_clientWidth": 318,
           "scroller_scrollLeft": 502,
-          "last_col_left": 260,
+          "last_col_left": 257,
           "last_col_right": 354,
           "scroller_left": 36,
           "scroller_right": 354,
@@ -1267,7 +1307,7 @@
           "panel_h": 475,
           "doc_scrollWidth": 390,
           "doc_clientWidth": 390,
-          "basis_cell_w": 278,
+          "basis_cell_w": 274,
           "basis_cell_header": "Basis",
           "table_w": 820,
           "basis_max_height": "220px",
@@ -1277,7 +1317,7 @@
           "scroller_scrollWidth": 820,
           "scroller_clientWidth": 318,
           "scroller_scrollLeft": 502,
-          "last_col_left": 260,
+          "last_col_left": 257,
           "last_col_right": 354,
           "scroller_left": 36,
           "scroller_right": 354,
@@ -1305,16 +1345,16 @@
         "http": 200,
         "code": null,
         "selection_state": "PENDING_RECOMPUTE",
-        "committed_watermark": "2026-10-22T20:10:49.856401Z",
-        "known_at": "2026-10-22T20:10:49.856401Z",
-        "scenario_at": "2026-10-22T20:11:05.025952Z",
+        "committed_watermark": "2026-10-22T20:56:30.363367Z",
+        "known_at": "2026-10-22T20:56:30.363367Z",
+        "scenario_at": "2026-10-22T20:56:36.051729Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:10:48.653666Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:56:29.387405Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:10:49.856401Z",
+      "clock": "2026-10-22T20:56:30.363367Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -1362,6 +1402,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:56:29 UTCReview assumptions \u219222 Oct 20:56:30 UTCDefined",
+        "expansion_text": null,
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 1440,
@@ -1381,16 +1425,16 @@
         "http": 200,
         "code": null,
         "selection_state": "PENDING_RECOMPUTE",
-        "committed_watermark": "2026-10-22T20:10:49.856401Z",
-        "known_at": "2026-10-22T20:10:49.856401Z",
-        "scenario_at": "2026-10-22T20:11:05.025952Z",
+        "committed_watermark": "2026-10-22T20:56:30.363367Z",
+        "known_at": "2026-10-22T20:56:30.363367Z",
+        "scenario_at": "2026-10-22T20:56:36.051729Z",
         "total_pages": 1,
         "items": [
-          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:10:48.653666Z"
+          "CSCN-000001 r1 DEFINED cutoff=2026-10-22T20:56:29.387405Z"
         ]
       },
       "read_ok": true,
-      "clock": "2026-10-22T20:10:49.856401Z",
+      "clock": "2026-10-22T20:56:30.363367Z",
       "scenario_at_param": null,
       "measured": {
         "text": {
@@ -1438,6 +1482,10 @@
           "display": "flex",
           "ok": true
         },
+        "scenarios_through": 0,
+        "through_text": false,
+        "row_text": "Stock value at riskCSCN-000001 revision 11200 kg at 3.25 USD per kgSelected evidence through 22 Oct 20:56:29 UTCReview assumptions \u219222 Oct 20:56:30 UTCDefined",
+        "expansion_text": null,
         "rows": 1,
         "expansions": 0,
         "scrollWidth": 390,
@@ -1449,7 +1497,7 @@
       "disclosure": null
     }
   ],
-  "revision": "7a74c61b",
+  "revision": "1a83723a",
   "producers": {
     "seed": "throwaway backend/tests/_w501b_seed_capture_test.py (deleted): C4 in-process scenarios_client (injected DecisionPrincipal, GRANT_PREFIX) on assetops_w501bcap_test, ASSETOPS_TEST_TEMPLATE=0; served lab_app 9891 read-only, Vite 6291, CDP 9892",
     "A": "opened(backup-failed)+run -> empty capture -> POST seed-create-0001 (CSCN-000001) -> list GET saved scenario_at 2026-10-22T17:53:36.387491Z -> authored captures -> correction seed-fix-0001 -> historical captures (scenario_at=saved) + refused + finding-refused-unknown",
@@ -1459,7 +1507,10 @@
     "B_recapture": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T18:22:28.373333Z -> advance_late() without worker -> pending capture (PENDING_RECOMPUTE, watermark 2026-10-22T18:22:29.302799Z)",
     "recapture_7a74c61b": "Recaptured empty, authored, authored-expanded, historical, historical-expanded, pending at 7a74c61b (Q-C5c: info RailIcon in blue notice; 390 table min-width 820 / Basis min-width 190 / basis max-height 220). Same producers: private assetops_w501bcap_test, ASSETOPS_TEST_TEMPLATE=0, throwaway backend/tests/_w501b_seed_capture_test.py (deleted), lab_app 9891 read-only, Vite 6291, CDP 9892; all stopped, DB dropped. Kept from earlier: refused, finding-refused-unknown, mock. capture.mjs adds the ruled expanded layout assertion (measured.layout + disclosure.layout.checks) and the notice-icon check (measured.notice_icon).",
     "A_recapture_7a74c61b": "opened(backup-failed)+run -> empty captures (watermark 2026-10-22T20:07:37.450181Z) -> POST seed-create-0001 (CSCN-000001) -> list GET watermark 20:07:37.450181Z, saved scenario_at 2026-10-22T20:09:07.092256Z, total_pages 1 -> authored captures -> correction seed-fix-0001 (revision 2, stock_quantity 1100) -> historical captures (scenario_at=saved; row HISTORICAL)",
-    "B_recapture_7a74c61b": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T20:10:48.653666Z -> advance_late() without worker -> pending capture (PENDING_RECOMPUTE, watermark 2026-10-22T20:10:49.856401Z)"
+    "B_recapture_7a74c61b": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T20:10:48.653666Z -> advance_late() without worker -> pending capture (PENDING_RECOMPUTE, watermark 2026-10-22T20:10:49.856401Z)",
+    "recapture_1a83723a": "Recaptured empty, authored, authored-expanded, historical, historical-expanded, pending at 1a83723a (review H1: standalone 'Scenarios created through' line removed; shared cold date style on rows and expansion). Same producers: private assetops_w501bcap_test, ASSETOPS_TEST_TEMPLATE=0, throwaway backend/tests/_w501b_seed_capture_test.py (deleted; stage/go-file handshake), lab_app 9891 read-only, Vite 6291, CDP 9892; all stopped, DB dropped. capture.mjs adds measured.scenarios_through/through_text (asserted 0/false), row_text, expansion_text. Kept from earlier: refused, finding-refused-unknown, mock.",
+    "A_recapture_1a83723a": "opened(backup-failed)+run -> empty captures (watermark 2026-10-22T20:54:52.458601Z) -> POST seed-create-0001 (CSCN-000001) -> list GET watermark 20:54:52.458601Z, saved scenario_at 2026-10-22T20:55:30.892668Z, total_pages 1 -> authored captures -> correction seed-fix-0001 via /{id}/revisions (revision 2, stock_quantity 1100) -> historical captures (scenario_at=saved; row HISTORICAL)",
+    "B_recapture_1a83723a": "opened(late-reading)+run -> POST late-key-0001 -> W0 2026-10-22T20:56:29.387405Z -> advance_late() without worker -> pending capture (PENDING_RECOMPUTE, watermark 2026-10-22T20:56:30.363367Z)"
   },
   "comparison": {
     "labelled_mock_deviations": [
@@ -1467,9 +1518,8 @@
       "MOCK DEVIATION currentness notice: pending shows the amber notice (Underlying evidence is being reassessed; the authored scenario remains separate.) directly above the panel; absent for CURRENT selections, incl. historical (selection CURRENT, row HISTORICAL)"
     ],
     "unlabelled_differences": [
-      "App adds a selected-window line (Selected window ... / Selected evidence through ...) and a Scenarios created through ... line above the panel; the mock has neither (window sits in the mock topbar). Ruled P-C5-15; not one of the two labelled deviations",
-      "Breadcrumb: the app ends Sites / site / Financials / Scenarios; the mock ends at Financials (ruled card)",
-      "Expanded basis Window line still shows raw ISO values (2026-10-06T19:00:00.000000Z - 2026-10-06T20:05:00.000000Z), not formatted {from} - {to} (spec item, not a mock item)"
+      "App adds a selected-window line (Selected window 6 Oct 2026 19:00-20:05 UTC / Selected evidence through ...) above the panel; the mock has none (window sits in the mock topbar). Ruled P-C5-15; not one of the two labelled deviations",
+      "Breadcrumb: the app ends Sites / site / Financials / Scenarios; the mock ends at Financials (ruled card)"
     ],
     "data_or_chrome_only": [
       "Site name (Cold replay lab vs GreenHarvest Cold Room) and provenance tag text are data",
@@ -1478,7 +1528,7 @@
     "equal": [
       "h1 site name > description Financials \u00b7 scenarios (placeholder) > panel Financial scenarios / Placeholder \u00b7 to be designed with the owner > empty block (same title and body text) > blue closing notice (same text): order and text equal in the empty capture"
     ],
-    "revision": "7a74c61b",
+    "revision": "1a83723a",
     "resolved_since_e8147420": [
       "Pager counter present: [data-scenarios-page-count] reads 1 of 1 in every row capture (C4 total_pages=1; Q-C5b-2)",
       "1440 expanded disclosure now scrolls: basis scroller 360 (1 measured per width), panel 2203 -> 615, page 2622 -> 1034 (Q-C5b-4)"
@@ -1486,6 +1536,10 @@
     "resolved_since_ffc444c5": [
       "Q-C5c-1: blue closing notice now starts with exactly one svg[data-rail-icon=\"info\"] followed by its <p> (flex) in every capture at both widths, matching the mock's info icon",
       "Q-C5c-2: 390 expanded one-row panel 876 -> 490 (cap 560); table min-width 820 inside data-table__scroll (scrollWidth 820 > clientWidth 318, last column reachable after scrolling to the end), Basis cell 280 wide (>=190), basis max-height 220px overflow-y auto (95-ID region scrolls); page 1083 (cap 1500), no document overflow. 1440 expanded panel 615 (cap 650), basis 360px"
+    ],
+    "resolved_since_7a74c61b": [
+      "Review H1: the standalone 'Scenarios created through ...' line is gone ([data-scenarios-through] count 0 and no such text in main, every capture at both widths)",
+      "Shared cold date style: row Defined at '22 Oct 20:55:30 UTC', Basis 'Selected evidence through 22 Oct 20:54:52 UTC', expansion Window '6 Oct 2026 19:00-20:05 UTC' and Evidence cutoff '22 Oct 20:54:52 UTC' (raw ISO Window line resolved)"
     ]
   }
 }
