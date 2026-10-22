@@ -72,7 +72,7 @@ def parse_command(body: Any) -> dict[str, Any]:
         "evidence_summary": _shape(work.text_value, b["evidence_summary"], 1, 2000),
         "cited_accepted_evidence_ids": sorted({_shape(work.uuid_text, i).lower() for i in cited}),
         "missing_evidence_reason": None if missing is None else _shape(work.text_value, missing, 1, 500),
-        "disposition": b["disposition"], "reason": _shape(work.text_value, b["reason"], 1, 500)}
+        "disposition": b["disposition"], "reason": _shape(work.text_value, b["reason"], 1, 2000)}
     # The original domain paragraph: an alternative cites accepted IDs or states an explicit missing-evidence reason.
     if not canon["cited_accepted_evidence_ids"] and canon["missing_evidence_reason"] is None:
         raise invalid()
@@ -118,11 +118,13 @@ class AlternativeService:
         sha = work.command_sha256({"site_id": str(site_id), "route": ROUTE, "root_id": root}, cmd)
 
         def write(c: Any) -> tuple[int, dict[str, Any]]:
-            now = (self.test_db_clock_override() if self.test_db_clock_override is not None
-                   else self._store.db_now(c))
             finding = self._store.finding_root(c, tenant_id, site_id, root, lock=True)
             if finding is None:
                 raise DecisionRefused("DECISION_NOT_FOUND")
+            # Final review L2: the command instant is read after the Finding lock, so two interleaved same-Finding
+            # commands cannot invert `created_at` order.
+            now = (self.test_db_clock_override() if self.test_db_clock_override is not None
+                   else self._store.db_now(c))
             history = self._store.alternative_revisions(c, tenant_id, site_id, root)
             prior = next((r for r in history if r["idempotency_key"] == cmd["idempotency_key"]), None)
             if prior is not None:
@@ -176,12 +178,19 @@ class AlternativeService:
         try:
             return self._write(write)
         except MiniDecisionWriteRefused:
-            return self._write(write)  # a concurrent same-key or same-version write committed first: re-decide
+            return self._write(write, final=True)  # a concurrent same-key or same-version write committed first: re-decide
 
-    def _write(self, work_: Callable[[Any], tuple[int, dict[str, Any]]]) -> tuple[int, dict[str, Any]]:
+    def _write(self, work_: Callable[[Any], tuple[int, dict[str, Any]]],
+               final: bool = False) -> tuple[int, dict[str, Any]]:
+        """One write transaction. `final` (the single retry, or a write with none): a further race or store
+        refusal is 503 `DECISION_STORE_UNAVAILABLE`, never an uncaught 500 (final review L3, uF 5)."""
         try:
             with self._store.transaction() as c:
                 return work_(c)
+        except MiniDecisionWriteRefused as error:
+            if final:
+                raise DecisionRefused("DECISION_STORE_UNAVAILABLE") from error
+            raise
         except (MiniDecisionStoreUnavailable, MiniReadUnavailable) as error:
             raise DecisionRefused("DECISION_STORE_UNAVAILABLE") from error
 
@@ -236,7 +245,17 @@ class AlternativeService:
         historical = explicit is not None and known < read_time
 
         finding = self._store.finding_root(c, t, s, root)
-        revisions = [r for r in self._store.finding_revisions(c, t, s, root) if r["created_at"] <= known]
+        every = [] if finding is None else self._store.finding_revisions(c, t, s, root)
+        if revision_id is not None and finding is not None:
+            # uF 1 (final review M1): an exact revision of this scoped mini dispatch Finding that is later than the
+            # read cutoff is the basis refusal 409, not 404 (supersedes u3 PR-5 reading 7 for this narrow case). An
+            # unknown, foreign-Site, wrong-Finding or non-mini/non-dispatch ID stays 404 below.
+            pinned = next((r for r in every if str(r["id"]).lower() == revision_id), None)
+            if (pinned is not None and finding["domain"] == FINDING_DOMAIN
+                    and pinned["analytic_id"] == FINDING_ANALYTIC
+                    and (pinned["created_at"] > known or finding["created_at"] > known)):
+                raise DecisionRefused("DECISION_BASIS_CHANGED")
+        revisions = [r for r in every if r["created_at"] <= known]
         if finding is None or finding["created_at"] > known or not revisions:
             raise DecisionRefused("DECISION_NOT_FOUND")
         latest = revisions[-1]

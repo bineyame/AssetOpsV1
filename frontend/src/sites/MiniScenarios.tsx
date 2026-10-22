@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { DataTable, Panel, RailIcon } from "../ui";
 import { Notice } from "../ui/V69Layout";
 import {
+  decisionRefusalCopy,
   microsecondBefore,
   type DecisionRead,
   type MiniDecisionsClient,
@@ -67,9 +68,25 @@ export function scenarioMoney(amount: string, currency: string): string {
   return currency === "USD" ? `${signed}$${text}` : `${signed}${currency} ${text}`;
 }
 
-/** One typed assumption as authored: key, decimal (or declared text) and unit. */
+/** uF 8 (final review L8): plain-language names for the closed authored keys; the API field stays the key. */
+const ASSUMPTION_LABELS: Record<string, string> = {
+  stop_soc: "Stop at battery charge",
+  proposed_kw: "Proposed load",
+  duration_hours: "Duration",
+  tariff_per_kwh: "Tariff",
+};
+
+/** One typed assumption as authored: its plain name, decimal (or declared text) and unit. */
 function declared(a: ScenarioAssumption): string {
-  return `${a.key} ${a.value ?? ""}${a.unit ? ` ${a.unit}` : ""}`.trim();
+  return `${ASSUMPTION_LABELS[a.key] ?? a.key} ${a.value ?? ""}${a.unit ? ` ${a.unit}` : ""}`.trim();
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** uF 8 (L8): the exact six-digit UTC token read as a plain UTC date and second; never local time. */
+export function plainUtc(token: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}:\d{2}:\d{2})(?:\.\d+)?Z$/.exec(token);
+  return m === null ? token : `${Number(m[3])} ${MONTHS[Number(m[2]) - 1]} ${m[1]}, ${m[4]} UTC`;
 }
 
 function illustrative(row: ScenarioRow): string {
@@ -187,7 +204,7 @@ function Loaded({
     <div data-scenarios-loaded>
       {through === null ? null : (
         <p className="mini-scenarios-through" data-scenarios-through>
-          Scenarios created through {through}
+          Scenarios created through <time dateTime={through}>{plainUtc(through)}</time>
         </p>
       )}
       {body.rows.length === 0 ? (
@@ -276,9 +293,11 @@ export function MiniScenarios({
           <Loaded body={result.value} scope={scope} onScope={(next) => onScope(next, false)} />
         ) : (
           <p className="mini-scenarios-refused" data-scenarios-refused={result.status === "refused" ? result.code : "unavailable"}>
-            {result.status === "refused" && result.message !== null
+            {/* Final review L7: a store or transport failure is the shared decision copy, never a raw server
+                message; a 4xx refusal keeps its ruled message. */}
+            {result.status === "refused" && result.httpStatus < 500 && result.message !== null
               ? result.message
-              : "The scenario read is unavailable; no scenario is shown."}
+              : decisionRefusalCopy(result)}
           </p>
         )}
         <p className="mini-scenarios-gap" data-scenario-creation-unavailable>

@@ -40,6 +40,7 @@ if URL:
     from assetops_backend.mini_decisions.store import PostgresMiniDecisionStore
     from assetops_backend.mini_decisions_api import build_mini_decisions_router
     from assetops_backend.mini_depth.read import MiniDepthRead
+    from assetops_backend.sites.ports import SiteStoreUnavailable
 
 PRINCIPAL_ID = "service:w403-fixture"
 ATTESTATION = "service=w403-fixture;job=positive-decisions;rule=w403/1"
@@ -191,7 +192,7 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
             (command("w403-alt-x007", r1["id"], alternative_key="OTHER"), (422, "DECISION_INPUT_INVALID")),
             (command("w403-alt-x008", r1["id"], disposition="LIKELY"), (422, "DECISION_INPUT_INVALID")),
             (command("w403-alt-x009", r1["id"], explanation=" "), (422, "DECISION_INPUT_INVALID")),
-            (command("w403-alt-x010", r1["id"], reason="x" * 501), (422, "DECISION_INPUT_INVALID")),
+            (command("w403-alt-x010", r1["id"], reason="x" * 2001), (422, "DECISION_INPUT_INVALID")),  # uF 4
             (command("w403-alt-x011", r1["id"], actor=actor(kind="USER")), (403, "DECISION_USER_AUTH_REQUIRED")),
             (command("w403-alt-x012", r1["id"], actor=actor(attestation="service=other;job=j;rule=r")),
              (422, "DECISION_ATTESTATION_INVALID")),
@@ -306,8 +307,11 @@ def test_alternative_r1_r2_carry_forward_reads_and_w1_regression(runner, engine)
                         ({"revision_id": "not-a-uuid"}, "DECISION_INPUT_INVALID"),
                         ({"revision_id": str(uuid4())}, "DECISION_NOT_FOUND"),
                         ({"known_at": iso(r1["created_at"] - timedelta(seconds=1))}, "DECISION_NOT_FOUND"),
-                        # u3 7: R2 requested at a cutoff before R2 exists.
-                        ({"revision_id": str(r2["id"]), "known_at": iso(k_r1)}, "DECISION_NOT_FOUND")):
+                        # uF 1 (final review M1, superseding u3 7's 404): a same-Finding revision later than the
+                        # cutoff, or one whose Finding root is itself later, is the 409 basis refusal.
+                        ({"revision_id": str(r2["id"]), "known_at": iso(k_r1)}, "DECISION_BASIS_CHANGED"),
+                        ({"revision_id": str(r1["id"]), "known_at": iso(r1["created_at"] - timedelta(seconds=1))},
+                         "DECISION_BASIS_CHANGED")):
         with pytest.raises(DecisionRefused) as refused:
             read(**q)
         assert refused.value.code == expected, q
@@ -403,6 +407,38 @@ def test_one_command_instant_governs_basis_citation_and_recorded_at(runner, engi
     assert stored == r2["created_at"]
 
 
+def test_final_review_m3_alternative_reason_bounds_2000(runner, engine) -> None:  # noqa: F811
+    """uF 4 (final review M3): Alternative `reason` is 1-2000 authored text (closure 1); `missing_evidence_reason`
+    keeps u3's separate 1-500 bound."""
+    t, s = runner.tenant, runner.site
+    who = DecisionPrincipal("SERVICE", PRINCIPAL_ID, t, s, GRANT_PREFIX + PRINCIPAL_ID)
+    steps(runner, F02["steps"][:3])
+    (r1,) = finding_revisions(engine, s)
+    fid = str(r1["finding_id"])
+    clock = Clock(r1["created_at"] + timedelta(seconds=10))
+    svc = service_for(engine, clock)
+
+    def post(body):
+        try:
+            return svc.create(t, s, who, fid, body)
+        except DecisionRefused as refused:
+            return refused.status, refused.code
+
+    before = counts(engine)
+    assert post(command("w403-m3-over", r1["id"], reason="x" * 2001)) == (422, "DECISION_INPUT_INVALID")
+    assert post(command("w403-m3-miss", r1["id"], missing_evidence_reason="m" * 501)) == (
+        422, "DECISION_INPUT_INVALID")
+    assert counts(engine) == before
+    for key, length in (("POLICY", 500), ("UNCERTAINTY", 501), ("CAPABILITY", 2000)):
+        clock.tick()
+        status, body = post(command(f"w403-m3-{key.lower()}", r1["id"], key, reason="x" * length))
+        assert status == 201, (key, length, body)
+        with engine.connect() as c:
+            stored = c.execute(text("SELECT reason FROM mini_alternative_revision WHERE id = :i"),
+                               {"i": body["id"]}).scalar_one()
+        assert stored == "x" * length
+
+
 def test_ruled_out_interval_rule() -> None:
     """N2: strict half-open overlap; a boundary touch never qualifies; a point inside does; an empty episode never."""
     start = datetime(2026, 10, 8, 23, 20, tzinfo=timezone.utc)
@@ -451,7 +487,52 @@ def test_alternative_routes_refusal_order(monkeypatch) -> None:
     refused = who.post(path, content=b"not json")
     assert refused.status_code == 403 and refused.json()["detail"]["code"] == "DECISION_WRITE_FORBIDDEN"
     cold = api(_Registry("COLD_ROOM"), stub, command_access=lambda r, c: None)
-    assert cold.post(path, json=body).json()["detail"]["code"] == "DECISION_LINK_SCOPE_INVALID"
+    # L1 (final review): the closure-1 literal messages.
+    assert cold.post(path, json=body).json()["detail"] == {
+        "code": "DECISION_LINK_SCOPE_INVALID", "message": "A cited or linked ID is outside this Site or basis."}
+    # uF 8 (final review M2): a current read without `revision_id` takes the Performance gate after scope and the
+    # store check: closed is 409 with W1's reason, a gate failure 503; the service is never reached. A pinned
+    # `revision_id` keeps W1's audit exception and reaches the service.
+    class _Reached(Exception):
+        pass
+
+    class _Spy:
+        def list(self, *args):
+            raise _Reached()
+
+    def gated(gate, **kw):
+        return api(alternatives=_Spy(), gate=gate, **kw)
+
+    shut = gated(lambda code, t, s: (False, "Performance cutover is closed for this Site."))
+    closed_read = shut.get(path)
+    assert closed_read.status_code == 409 and closed_read.json()["detail"] == {
+        "code": "PERFORMANCE_CUTOVER_CLOSED", "message": "Performance cutover is closed for this Site.", "rows": None,
+        "total_count": None}
+    assert shut.get(path, params={"limit": "0"}).json()["detail"]["code"] == "PERFORMANCE_CUTOVER_CLOSED"
+    assert gated(lambda code, t, s: (False, "x"), access=lambda r, c: 403).get(path).status_code == 403
+    assert api(gate=lambda code, t, s: (False, "x")).get(path).status_code == 503  # store check precedes the gate
+
+    def broken(code, t, s):
+        raise SiteStoreUnavailable("gate down")
+
+    failed = gated(broken).get(path)
+    assert failed.status_code == 503 and failed.json()["detail"]["code"] == "DECISION_STORE_UNAVAILABLE"
+    with pytest.raises(_Reached):
+        shut.get(path, params={"revision_id": str(uuid4())})
+    with pytest.raises(_Reached):
+        gated(lambda code, t, s: (True, "")).get(path)
+    # uF 1 (final review M1): the service's future-basis refusal is the list-shaped 409 with the closure-1 message.
+    class _Future:
+        def list(self, *args):
+            raise DecisionRefused("DECISION_BASIS_CHANGED")
+
+    future = api(alternatives=_Future()).get(path, params={"revision_id": str(uuid4())})
+    assert future.status_code == 409 and future.json()["detail"] == {
+        "code": "DECISION_BASIS_CHANGED", "message": "The selected basis changed; reload the first page.",
+        "rows": None, "total_count": None}
+    paged = gated(lambda code, t, s: (True, "")).get(path, params={"limit": "0"})
+    assert paged.status_code == 422 and paged.json()["detail"] == {
+        "code": "INVALID_LIMIT", "message": "Choose 1 to 100 rows.", "rows": None, "total_count": None}
     # The production composition mounts the route (W1 Finding routes do not shadow it).
     from assetops_backend import main
 

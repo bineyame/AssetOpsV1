@@ -152,7 +152,11 @@ def test_late_evidence_changes_the_head_and_missing_day(store, engine) -> None: 
     assert r1.result["day_rows"][0] == {"local_day": "2026-10-06", "decision": None, "opportunity_kwh": None,
                                         "constraints": [], "evidence_ids": []}
     assert r1.result["limitations"][0] == {"code": "RENEWABLE_DAY_MISSING", "evidence_ids": []}
-    assert r1.selected_hours[0]["selection_seq"] is None and r1.selected_hours[0]["mini_revision_id"] is None
+    # u4b item 2 (final review L9): the complete reloaded missing entry, an explicit five-position gap.
+    gap = local_noon(DAYS[0], ZONE)
+    assert r1.selected_hours[0] == {"local_day": DAYS[0].isoformat(), "window_from": projection.iso(gap.start),
+                                    "window_to": projection.iso(gap.end), "selection_seq": None,
+                                    "selection_at": None, "mini_revision_id": None, "evidence_ids": []}
     assert r1.result["headroom_kw"] is None
     # Late evidence and a new W4-02 selection change the physical identity: a new job, revision 2 and selection.
     _ingest(engine, installed)

@@ -2338,3 +2338,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - L2: `layout-evidence.mjs` was not run; a custom CDP capture script was used instead.
 - L3: the test-only scenario `backend/tests/fixtures/w3/scenarios/ev-complete-lab-002.yaml` is guarded by a drift test against `config/scenarios/ev-complete.yaml`.
 - L4: the timing-sensitive scheduler tests (`TestKillableStagesAndServerTimeouts`, `TestTickCost`) flaked under heavy concurrent load. Avoid running full suites alongside 3+ builders.
+
+## W3-03 Lows
+- L3 (left as ruled in rF): portfolio scope and progress drawers show raw coverage states, reason codes, keys, UUIDs and `VERIFIED`; route to the batched client-facing copy pass.
+- L5 (left as ruled in rF): v69 value-card label icon/arrow and pulse icons are not reproduced; presentation-pass item.
+- Full suite on a loaded machine hit the 100-minute cap at 95% (0 failures); the rerun with one builder passed in 57 min. Keep suites to light load.

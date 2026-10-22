@@ -168,7 +168,8 @@ def test_positive_missing_late_replay_and_fresh_reload(sites, engine, monkeypatc
     # The explicit association reaches the MG Incident only; the unlinked request keeps an empty context.
     contexts = pos["contexts"]["contexts"]
     incident, request = record["cases"]["w403-walk-case-incident"], record["cases"]["w403-walk-case-request"]
-    assert [c["kind"] for c in contexts[incident]] == ["OPPORTUNITY"] and contexts[request] == []
+    # uF M5: the replay also links the scenario to the Incident, so the exact-cutoff order is OPPORTUNITY then SCENARIO.
+    assert [c["kind"] for c in contexts[incident]] == ["OPPORTUNITY", "SCENARIO"] and contexts[request] == []
     assert contexts[incident][0]["label"] == o["code"]
     # The KOBO Alternative on the selected W1 Finding revision (its own Site, never the MG opportunity).
     # Reading 9a-4 (PR-11): the S4 F02 revision carries fixture time SETUP_AT; before it, the write is refused.

@@ -52,9 +52,10 @@ from assetops_backend.analytics.assessment_inputs import BRACKET as ASSESSMENT_B
 from assetops_backend.finding_api import ACCESS_BASIS, Access, build_finding_router, development_access
 from assetops_backend.finding_index_api import build_finding_index_router
 from assetops_backend.estate.composition import (build_estate_evidence_service, build_estate_index_service,
-                                                 registry_tenant)
+                                                 build_estate_portfolio_service, registry_tenant)
 from assetops_backend.estate_api import build_estate_router
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
+from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
 from assetops_backend.source_health_api import build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
@@ -520,6 +521,11 @@ def create_app(
     # W3-02 commit 1: the read-only estate Evidence root `/api/estate/evidence` (same tenant/access seams).
     app.include_router(build_estate_evidence_money_router(
         build_estate_evidence_service(database_url()), registry_tenant(registry),
+        access=development_access, unavailable=(SiteStoreUnavailable,)))
+    # W3-03 run 2 (Lane A, after reviewed 1b): the read-only estate Portfolio root `/api/estate/portfolio`; same
+    # tenant/access seams. Its cursor key comes only from ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX (r1b Q-1b-1).
+    app.include_router(build_estate_portfolio_router(
+        build_estate_portfolio_service(database_url()), registry_tenant(registry),
         access=development_access, unavailable=(SiteStoreUnavailable,)))
     # W4-01 commit 3 (Lane A): Site work commands and the case detail read. No server SERVICE principal is
     # injected here, so a write is 403; the detail read is available under Site read access.

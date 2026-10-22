@@ -199,6 +199,10 @@ def build_mini_decisions_router(scenarios: ScenarioService | None, registry: Imp
             if alternatives is None:
                 raise _Refusal(503, "DECISION_STORE_UNAVAILABLE", MESSAGES["DECISION_STORE_UNAVAILABLE"])
             q = request.query_params
+            if site.site_type == MINIGRID and q.get("revision_id") is None:
+                # S10, uF 8 (final review M2): a current read (no `revision_id`) takes the Performance gate, as the
+                # underlying W1 Finding read does; a pinned exact revision keeps W1's reviewed audit exception.
+                physical(site_code, tenant, site)
             try:
                 parsed = parse_list(None, None, q.get("limit"), q.getlist("known_at"), q.get("cursor"))
                 return alternatives.list(tenant.id, site.id, finding_id, q.get("revision_id"), parsed, access_basis)

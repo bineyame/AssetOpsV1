@@ -156,34 +156,65 @@
   color: var(--text-secondary);
 }
 
+/*
+ * M7 (final review): the crumb trail and its Site suffix are one inline run, as the v69 `.breadcrumbs` line keeps
+ * them. Items carry no whitespace between them, so each separator stays glued to the crumb it introduces and a
+ * wrapped line never starts with `/` or `·`; long text wraps only at its own spaces.
+ */
+nav.mini-finding-crumbs {
+  display: block;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+nav.mini-finding-crumbs .breadcrumbs__list,
+nav.mini-finding-crumbs .breadcrumbs__item {
+  display: inline;
+}
+
+nav.mini-finding-crumbs .breadcrumbs__item::before {
+  margin: 0 8px;
+}
+
+.mini-finding-crumbs__lead {
+  white-space: nowrap;
+}
+
 .mini-finding-crumbs__site {
-  margin-left: 6px;
+  margin-left: 8px;
   color: var(--text-secondary);
 }
 
 /*
+ * H1 (final review): each tone is the compound `.badge.mini-opportunity-tone--*` so it outranks `.badge--neutral`,
+ * which loads later in `primitives.css` at equal single-class specificity.
  * W4-03 unit 7: the typed Opportunity detail (v69 `opportunity-finding`). Chip tones follow closure 1: green only the
  * positive gate, amber limited/pending, blue historical, grey unknown. Pieces keep the shared v69 primitives; the
  * evidence drawer scrolls inside the Bounded opportunity panel so the panel stays within its measured cap.
  */
-.mini-opportunity-tone--green {
+.badge.mini-opportunity-tone--green {
   color: #166b50;
   background: #e6f4ee;
+  border-color: #e6f4ee;
 }
 
-.mini-opportunity-tone--amber {
+.badge.mini-opportunity-tone--amber {
   color: #8e580c;
   background: #fdf3e2;
+  border-color: #fdf3e2;
 }
 
-.mini-opportunity-tone--blue {
+.badge.mini-opportunity-tone--blue {
   color: #245ac0;
   background: #eaf0fd;
+  border-color: #eaf0fd;
 }
 
-.mini-opportunity-tone--gray {
+.badge.mini-opportunity-tone--gray {
   color: var(--text-secondary);
   background: #f1f2f4;
+  border-color: #f1f2f4;
 }
 
 /* PR-12.2: this Opportunity card row only; the shared four-column desktop / two-column narrow grid is unchanged. */
@@ -200,3 +231,4 @@
 .mini-opportunity-crumbs__root {
   color: var(--text-secondary);
 }
+

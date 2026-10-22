@@ -114,17 +114,30 @@ class MiniOpportunityWorker:
         override = getattr(self.jobs, "test_clock_override", None)
         return override() if override is not None else self.store.db_now(c)
 
-    def _changed(self, c: Any, study: Study) -> str | None:
-        """The study's current S5 hash when it differs from its latest projected revision (or none exists)."""
+    def _changed(self, c: Any, study: Study, retain_failed: bool = False) -> str | None:
+        """The study's current S5 hash when it differs from its latest projected revision (or none exists).
+
+        uF 6 (final review L10): on a routine scan (`retain_failed`), a terminal FAILED job of this exact study
+        whose failure is no earlier than every selected hour's selection is diagnostic and retained: the unchanged
+        selected input does not queue an identical job again. A newer selection queues one new job."""
         heads = projection.day_heads(self.store, c, study.tenant_id, study.site_id, study.tz_name,
                                      projection.study_days(study.last_day))
         sha = projection.input_sha256(study.tenant_id, study.site_id, study.first_day, study.last_day, heads)
         latest = self.store.latest_opportunity_sha(c, study.tenant_id, study.site_id, study.first_day,
                                                    study.last_day)
-        return None if latest == sha else sha
+        if latest == sha:
+            return None
+        if retain_failed:
+            window = projection.study_window(study.first_day, study.last_day, study.tz_name)
+            failed_at = self.store.failed_opportunity_job_at(c, study.tenant_id, study.site_id, window.start,
+                                                             window.end)
+            newest = max((h.selection_at for h in heads if h.selection_at is not None), default=None)
+            if failed_at is not None and (newest is None or newest <= failed_at):
+                return None
+        return sha
 
-    def _queue(self, c: Any, studies: list[Study]) -> list[Queued]:
-        changed = [(s, sha) for s in studies if (sha := self._changed(c, s)) is not None]
+    def _queue(self, c: Any, studies: list[Study], retain_failed: bool = False) -> list[Queued]:
+        changed = [(s, sha) for s in studies if (sha := self._changed(c, s, retain_failed)) is not None]
         out = []
         for study, sha in changed:
             window = projection.study_window(study.first_day, study.last_day, study.tz_name)
@@ -146,7 +159,7 @@ class MiniOpportunityWorker:
                 last = r.window_start.astimezone(zone(r.timezone)).date()
                 studies.append(Study(r.tenant_id, r.site_id, r.timezone, last - timedelta(days=4), last))
             studies = sorted(set(studies), key=lambda s: (str(s.tenant_id), str(s.site_id), s.last_day))
-            return self._queue(c, studies)
+            return self._queue(c, studies, retain_failed=True)
 
     def reconcile(self, site_code: str, start: datetime, end: datetime) -> list[Queued]:
         """Explicit historical backfill: every complete five-day study whose job window lies inside `[start, end)`,

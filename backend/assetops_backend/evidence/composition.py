@@ -92,6 +92,12 @@ def build_link_rows_reader():
     return link_rows_on
 
 
+def build_link_rows_many_reader():
+    """W3-03 r1b2 R11: the batched link-row reader on a caller's connection (several Sites, one query)."""
+    from assetops_backend.evidence.adapters.postgres_evidence_ledger import link_rows_many_on
+    return link_rows_many_on
+
+
 def build_gateway_access(database_url: str | None) -> PostgresGatewayAccess:
     """Gateway credentials, provisioning steps and central diagnostics (S2-02 phase 2).
     Lazy: no connection until first use."""

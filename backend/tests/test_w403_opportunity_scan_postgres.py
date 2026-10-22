@@ -17,7 +17,7 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 if URL:
     from sqlalchemy import text
     from test_s1_bindings_postgres import engine, store  # noqa: F401
-    from test_w402_reads_postgres import CODE, DAYS, ZONE, _midnight
+    from test_w402_reads_postgres import CODE, DAYS, ZONE, _ingest, _midnight, _reconcile, _setup
     from test_w403_scenarios_postgres import mg
 
     from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
@@ -100,6 +100,28 @@ def test_routine_scan_retention_edge_and_missing_day(store, engine) -> None:  # 
                                    "decision": None, "evidence_ids": []}
     assert all(h.mini_revision_id for h in heads[1:])
     assert len(jobs(engine)) == 2
+
+
+def test_uf6_failed_job_is_retained_until_the_selected_input_changes(store, engine) -> None:  # noqa: F811
+    """uF 6 (final review L10): repeated routine scans over an unchanged study with a terminal FAILED job queue
+    nothing; a new W4-02 selection (late evidence) queues exactly one new job."""
+    installed, t, s = _setup(store, engine)
+    _reconcile(engine, DAYS[1:])  # selected before evidence: the 6-10 Oct study has a missing 6 Oct
+    w = worker(engine)
+    w.jobs.test_clock_override = lambda: local_noon(DAYS[-1], ZONE).start + timedelta(days=5)
+    assert [(q.study.last_day, q.action) for q in w.enqueue_from_selections(t, s)] == [(DAYS[-1], "INSERTED")]
+    with engine.begin() as c:  # the job's last attempt failed (as `fail_opportunity_job` leaves it)
+        c.execute(text("UPDATE recompute_job SET status = 'FAILED', attempts = 3, available_at = clock_timestamp(), "
+                       "last_error = 'w403 uF6 vector' WHERE domain = 'mini_opportunity'"))
+    before = jobs(engine)
+    for _ in range(3):
+        assert w.enqueue_from_selections(t, s) == []
+    assert jobs(engine) == before and {j.status for j in before} == {"FAILED"}
+    _ingest(engine, installed)
+    _reconcile(engine, DAYS)
+    assert [(q.study.last_day, q.action) for q in w.enqueue_from_selections(t, s)] == [(DAYS[-1], "INSERTED")]
+    assert [(q.study.last_day, q.action) for q in w.enqueue_from_selections(t, s)] == [(DAYS[-1], "COALESCED")]
+    assert sorted(j.status for j in jobs(engine)) == ["FAILED", "PENDING"]  # exactly one new job
 
 
 def test_concurrent_enqueue_coalesces_to_one_pending_job(store, engine) -> None:  # noqa: F811

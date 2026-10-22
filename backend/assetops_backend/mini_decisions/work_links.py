@@ -106,12 +106,19 @@ class WorkLinkService:
         try:
             return self._write(write)
         except MiniDecisionWriteRefused:
-            return self._write(write)  # a concurrent write committed first: the lookups answer
+            return self._write(write, final=True)  # a concurrent write committed first: the lookups answer
 
-    def _write(self, work_: Callable[[Any], tuple[int, dict[str, Any]]]) -> tuple[int, dict[str, Any]]:
+    def _write(self, work_: Callable[[Any], tuple[int, dict[str, Any]]],
+               final: bool = False) -> tuple[int, dict[str, Any]]:
+        """One write transaction. `final` (the single retry, or a write with none): a further race or store
+        refusal is 503 `DECISION_STORE_UNAVAILABLE`, never an uncaught 500 (final review L3, uF 5)."""
         try:
             with self._store.transaction() as c:
                 return work_(c)
+        except MiniDecisionWriteRefused as error:
+            if final:
+                raise DecisionRefused("DECISION_STORE_UNAVAILABLE") from error
+            raise
         except MiniDecisionStoreUnavailable as error:
             raise DecisionRefused("DECISION_STORE_UNAVAILABLE") from error
 

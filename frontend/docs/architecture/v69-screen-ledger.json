@@ -5,6 +5,24 @@
   "screens": [
     {
       "id": "portfolio",
+      "registry_dependencies": {
+        "product_node_id": "P-estate-area",
+        "node_ids": [
+          "A-estate-index-scope",
+          "I-estate-finding-root",
+          "A-estate-action-summary",
+          "I-estate-portfolio-read",
+          "I-estate-portfolio-ui",
+          "D-estate-comparable-sites",
+          "A-evidence-shared-projections",
+          "I-estate-evidence-root",
+          "A-estate-comparability",
+          "I-mini-depth-read",
+          "D-mini-breadth-windows",
+          "A-estate-projections",
+          "I-estate-action-root"
+        ]
+      },
       "mock_route": "#/portfolio",
       "product_destination": "Portfolio",
       "coverage": "deferred",

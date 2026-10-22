@@ -149,3 +149,17 @@ def test_withheld_and_no_calculation_states():
         "state": "NO_CALCULATION", "energy_kwh": None, "gross_sales": None, "reason": "NOT_PRODUCTIVE_LOAD"}
     stop = r.assumptions("STOP_SOC", [a("stop_soc", "40", "%")])
     assert r.calculate("STOP_SOC", stop, [day(6)])["state"] == "NO_CALCULATION"
+
+
+def test_final_review_l4_inexact_product_is_refused_not_rounded():
+    """Final review L4: authored decimal strings are unbounded, so a product that would round in the 28-digit
+    context is 422 `DECISION_INPUT_INVALID`, never a silently rounded amount; an exact product is unchanged."""
+    items = r.assumptions("PRODUCTIVE_LOAD", [a("proposed_kw", "1.000000000000001", "kW"),
+                                              a("duration_hours", "0.999999999999999", "h")])
+    with pytest.raises(DecisionRefused) as caught:
+        r.calculate("PRODUCTIVE_LOAD", items, [day(6, low=4)])
+    assert (caught.value.code, caught.value.status) == ("DECISION_INPUT_INVALID", 422)
+    gross = r.assumptions("PRODUCTIVE_LOAD", [a("proposed_kw", "3", "kW"), a("duration_hours", "1", "h"),
+                                              a("tariff_per_kwh", "0.12345678901234567890123456789", "USD/kWh")])
+    with pytest.raises(DecisionRefused):
+        r.calculate("PRODUCTIVE_LOAD", gross, [day(6, low=4)])

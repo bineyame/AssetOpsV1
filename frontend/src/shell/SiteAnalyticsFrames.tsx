@@ -825,7 +825,7 @@ function CanonicalMiniFinding({
           )}
         </ol>
         <span className="mini-finding-crumbs__site" data-mini-finding-site>
-          {"· site: "}
+          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
           <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
         </span>
       </nav>
@@ -833,8 +833,19 @@ function CanonicalMiniFinding({
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
         subtitle={`${site.display_name} · generator support finding`}
+        // H3 (final review; build-spec ledger l.186): Alternatives carries the v69 `Open site` header action, which
+        // resolves the authorized Site Overview, as the Opportunity frame does.
+        actions={
+          view === "alternatives" ? (
+            <Link to={siteDetailHref(site.site_id)} data-alternatives-open-site>
+              Open site
+            </Link>
+          ) : undefined
+        }
       />
-      <OperatorSiteTabs siteId={routeSiteId} current="Findings" />
+      {/* uF 3 (final review M6): the v69 Alternatives screen is a Findings surface with no Site tab row; every other
+          W1 Finding view keeps it. */}
+      {view === "alternatives" ? null : <OperatorSiteTabs siteId={routeSiteId} current="Findings" />}
       {view === null ? (
         <Panel heading="No such Finding section" headingId="site-finding-section-missing-heading">
           <p data-finding-read="not_found">
@@ -1056,7 +1067,7 @@ function OpportunityScreen({
           </li>
         </ol>
         <span className="mini-finding-crumbs__site" data-opportunity-crumb-site>
-          {"· site: "}
+          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
           <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
         </span>
       </nav>

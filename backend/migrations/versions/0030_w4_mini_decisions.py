@@ -11,7 +11,7 @@ foreign keys (19 tenant/Site-scoped plus the one ordinary, unscoped `mini_opport
 `ledger_append_only()`, one shared `mini_decision_public_no_seq`, the replaced `schedule_site_head_stage_check`
 admitting the tick's `OPPORTUNITY` stage after `MINI` (S1), three `schedule_site_head` integer counters
 `opportunity_processed|deferred|failed` NOT NULL DEFAULT 0 (u1 PR-1), and the `mini_scenario_revision.narrative` text
-column with `mini_scenario_revision_narrative_check` (u2 PR-2): 48 named CHECKs on the ten new tables. `mini_opportunity_revision.source_job_id` is a validated
+column with `mini_scenario_revision_narrative_check` (u2 PR-2): 45 named CHECKs (u2b) on the ten new tables. `mini_opportunity_revision.source_job_id` is a validated
 UUID column, not a foreign key. Relationship rules SQL cannot state (finding/revision pair, selected revision Site,
 job tenant/Site/domain/study) are checked by `mini_decisions/store.py` in the writing transaction.
 
@@ -83,7 +83,7 @@ CREATE TABLE mini_scenario_revision (
  CONSTRAINT mini_scenario_revision_narrative_check
    CHECK (length(btrim(narrative)) BETWEEN 1 AND 2000),
  CONSTRAINT mini_scenario_revision_correction_reason_check
-   CHECK (correction_reason IS NULL OR length(btrim(correction_reason)) BETWEEN 1 AND 500),
+   CHECK (correction_reason IS NULL OR length(btrim(correction_reason)) BETWEEN 1 AND 2000),
  CONSTRAINT mini_scenario_revision_chain_check
    CHECK ((revision_no=1 AND supersedes_revision_id IS NULL AND correction_reason IS NULL)
        OR (revision_no>1 AND supersedes_revision_id IS NOT NULL AND length(btrim(correction_reason))>0)),{_authored("mini_scenario_revision")}
@@ -119,7 +119,7 @@ CREATE TABLE mini_alternative_revision (
    CHECK (length(btrim(evidence_summary)) BETWEEN 1 AND 2000),
  CONSTRAINT mini_alternative_revision_missing_evidence_reason_check
    CHECK (missing_evidence_reason IS NULL OR length(btrim(missing_evidence_reason)) BETWEEN 1 AND 500),
- CONSTRAINT mini_alternative_revision_reason_check CHECK (length(btrim(reason)) BETWEEN 1 AND 500),{_authored("mini_alternative_revision")}
+ CONSTRAINT mini_alternative_revision_reason_check CHECK (length(btrim(reason)) BETWEEN 1 AND 2000),{_authored("mini_alternative_revision")}
  CONSTRAINT mini_alternative_revision_finding_fk FOREIGN KEY (tenant_id,site_id,finding_id)
    REFERENCES finding(tenant_id,site_id,id),
  CONSTRAINT mini_alternative_revision_finding_revision_fk FOREIGN KEY (tenant_id,site_id,finding_revision_id)

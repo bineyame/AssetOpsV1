@@ -30,9 +30,10 @@ Checkpoint (u9b "Remaining units"): unit 10 packet = this file; 11 final indepen
 ## Acceptance criteria (task "Observable exit")
 1. Scenarios honest empty + persisted authored what-if after reload, labelled scenario, no consequence writes - MET
    (API/store tests; replay fresh-reload equality; captures scenarios-empty/populated/refused 1440/390).
-2. Alternatives exact explanations with basis and bounded disposition, no absence-as-proof - MET for read, empty and 503
-   states (captures alternatives-db-time and alternatives-read-503 with asserted intercept hit). A stocked Alternative is
-   proved by API/component tests only (u9b PR-12.4: not manufactured by shifting W1 times).
+2. Alternatives exact explanations with basis and bounded disposition, no absence-as-proof - exact-basis refusal proved;
+   successful empty at current DB time unproved (uF 1). Captures alternatives-db-time (409 `DECISION_BASIS_CHANGED`,
+   `The evidence changed. Reload this page.`, after Site/Finding 200) and alternatives-read-503 (scoped intercept), both
+   1440/390. Stocked Alternatives are API/component proof only.
 3. Opportunity detail backed by five selected days, headroom, denominator, IDs, optional linked scenario, explicit gaps;
    Renewable CTA links to it; no opportunity rows on Finding lenses; late evidence creates a new revision - MET
    (worker/read/replay tests; captures supported-current (positive phase), k_before_late, current-late-settled, missing).
@@ -72,6 +73,34 @@ Checkpoint (u9b "Remaining units"): unit 10 packet = this file; 11 final indepen
 - Unit 9b (l.593): 1-8 (I-mini-depth-read in requires; capture-owned stock; 7-day window; Scenarios bounds; two-phase
   Opportunity states; jsdom vs browser geometry; `mobile:false`; Alternatives 503) - confirmed or replaced by u9b.
 - u9b (l.638): 1-4 - confirmed by u9c.
+- Omitted earlier, now listed (L12): unit 4 cited-ID subset and deferred count; unit 5 reading 9; u5b `EMPTY_CITATION_SET`
+  (ruled uF 5: the empty UNKNOWN six-key DTO, asserted exactly); 6b readings 10-14; u6b domain-unavailable copy and First
+  page; unit 7 readings 9-12; the PR-2, PR-4 and PR-5 readings.
+- Overturned: 6b readings 3, 6, 9 and unit 7 readings 1, 10 (controlling: u6b/u7 rulings and uF 3/M7 for the crumb and
+  Site-tab treatment); unit 1 reading 1 for `reason`/`correction_reason` (uF 4: 1-2000); u3 PR-5 reading 7 for a
+  same-Finding future revision (uF 1: 409).
+
+## Final review (`.agent/W4-03-final-review.md`) disposition
+| Finding | Fix / ruling | Commit | Proof |
+|---|---|---|---|
+| H1 chip tone | compound `.badge.mini-opportunity-tone--*` | 056ae517 | CSS test; computed backgrounds green/amber/blue in captures (blue = new `opportunity-supported-historical`) |
+| H2 big claim | `BigClaim` | 056ae517 | capture: `.v69-big-claim` 19px (= v69 `.big-claim`) > prose 14px, cap held |
+| H3 Open site | header action | 056ae517 | test + capture `[["Open site","/sites/KOBO-001"]]` |
+| M1 DB-time 404 | uF 1: same-Finding future revision/root -> 409 basis refusal | 38552dbf | `test_alternative_r1_r2_...` (two 409 vectors, unknown 404 kept); route shape test; capture 409 + copy 1440/390 |
+| M2 gate | Performance gate on unpinned GET | 4880cb37 | `test_alternative_routes_refusal_order` |
+| M3 reasons | 1-2000 in `0030` + parser | 4880cb37 | `test_final_review_m3_alternative_reason_bounds_2000` |
+| M4 stage test | mixed PENDING/LEASED/FAILED + foreign Site | 4880cb37 | stage Postgres test, `deferred=2` |
+| M5 scenario context | SCENARIO link via POST, contexts at W4-01 `known_at` | 38552dbf, f545fbec | replay asserts `label:"SCN-000002 · ..."`, `url:null`; capture literal, no link/focus, `OPPORTUNITY,SCENARIO`, 5 rows, 1440/390 |
+| M6 Site tabs | uF 3: removed on canonical mini Alternatives only | 38552dbf | component test (absent there, present on History); capture both widths |
+| M7 crumb | inline run, no leading separator | 056ae517, 38552dbf | test + capture line-start checks |
+| L1-L7, L9 | literal fixes | 4880cb37, e482f7c2 | focused vectors (`test_w403_final_review_writes.py` et al.) |
+| L8 | plain key labels + plain UTC cutoff (`<time datetime>` keeps the token) | 38552dbf | `miniDecisions.test.tsx` |
+| L10 | uF 6: FAILED retained for unchanged input; delayed PENDING stays pending | 38552dbf | `test_uf6_failed_job_is_retained...`, `test_uf6_delayed_pending_job...` |
+| L11 | uF 5 rulings: monkeypatch acceptable (unit vector, not live mixed fixture); `EMPTY_CITATION_SET` DTO; predecessor 422/409; retry-once | 38552dbf, e482f7c2 | `test_u_f5_*`, scenarios correction test |
+| L12 | packet/ledger corrections (this section, criterion 2, PR-1 heading) | this commit | - |
+
+Scoped W1 shell departure (uF 3): the canonical mini Finding Alternatives page has no Site tab row; every other W1
+Finding view and Site page keeps it.
 
 ## Accepted limitations
 - **`Alternatives unavailable` departs from the v69 mock**: a bold panel label shown only for an Alternatives GET 503 or
@@ -82,10 +111,15 @@ Checkpoint (u9b "Remaining units"): unit 10 packet = this file; 11 final indepen
   positive phase before late ingestion. `k_before_late` is historical, not current.
 - Scenarios populated table scrolls at 144 px (1440) / 188 px (390): at 1440 the second authored row is partly below the
   fold of the inner box and is reached by scrolling (u9c supersedes the header-plus-three-rows viewport).
-- Refused overlay: one panel-level Incidents line; Maintenance keeps row-level copy (u9c reading 2).
-- Duplicate/invalid `known_at` in the address is sent unchanged so the server refusal shows (u9c reading 3).
+- Refused overlay: one panel-level Incidents line; Maintenance keeps row-level copy (u9b reading 2).
+- Duplicate/invalid `known_at` in the address is sent unchanged so the server refusal shows (u9b reading 3).
 
 ## Test evidence (this revision unless noted)
+- uF round (code 38552dbf, harness f545fbec): frontend 103 files / 2465 tests passed; `tsc -b --noEmit` 0; `npm run
+  build` 0; `tools/check-all.ps1` all 11 guards passed. Backend focused (`w403s_test`, dropped): alternative + final-review
+  writes + opportunity read + scan 25 passed (1730 s); job isolation (M4 stage) + worker + links + stage + work links +
+  scenarios 32 passed (2568 s). Old-code failures: M1 vectors expected 404 before, L10 scan/read vectors, M6/L8
+  component assertions.
 - Frontend at `de919d91`: 103 files / 2464 tests passed; `tsc -b --noEmit` 0; `npm run build` 0; `tools/check-all.ps1`
   all 11 guards passed (includes architecture seams and agent workflow).
 - u9c focused: `miniDecisions.test.tsx` + `siteWorkCases.test.tsx` 35 passed. Non-vacuity: with the parent CSS restored,
@@ -96,23 +130,22 @@ Checkpoint (u9b "Remaining units"): unit 10 packet = this file; 11 final indepen
 - **Full real-Postgres backend suite: not run here - left for the coordinator** (one same-revision run with JUnit
   zero-skip check per `backend/TESTING.md`). Record: command, revision, wall time, JUnit counts.
 
-## Captures (`var/w403r/capture/`, gitignored; code `87595bdd`, harness `de919d91`, DB `w403r_test` dropped)
-- `evidence.json` **359/359 passed** (`evidence-positive.json` 44/44 merged). Panel set and order match v69 on every state.
-- Scenarios populated: 1160x328 <= 348 (1440), 343x372 <= 391 (390); inner box 144/188 px with vertical scroll
-  (scrollH 197 > 144; 288 > 173). Empty 325/325; refused 160/160. Notice unchanged.
-- Incidents linked 425 (1440) / 430 (390); refused overlay 445 / 456 <= 460, five rows, one `Decision context
-  unavailable` line, inner vertical scroll.
-- Opportunity supported-current (positive phase) cards 95 (1440) / 227 (390) within 137/273.
-- Viewed: `scenarios-populated-1440-app.png`, `scenarios-populated-390-app.png`, `incidents-refused-overlay-390-app.png`
-  (earlier rounds: opportunity-supported-current 1440/390, alternatives-read-503 1440, incidents-linked-stocked 390).
-- Prior runs for history: `var/w403p` 240/265 (pre-PR-12), `var/w403q` 356/359 (pre-u9c).
+## Captures (`var/w403s/capture/`, gitignored; code 38552dbf + harness f545fbec, DB `w403s_test` dropped)
+- `evidence.json` **459/459 passed** (`evidence-positive.json` 98/98 merged); unproved: `alternatives-stocked`,
+  `alternatives-empty-current` (uF 1). Commands: walkthrough `prepare`, `serve`, `replay-positive` (exit 0), `capture
+  --phase positive` (exit 0), `replay-late` (exit 0), `capture` (exit 0); vite 6147 -> API 9761.
+- M1: pinned Alternatives GET 409 after Site 200 and Finding 200; panel 99 <= 268 (1440) / 99 <= 365 (390), notice
+  43 <= 66 / 61 <= 84; no Site tab row; Finding row of six incl. `Analysis · Not available yet`.
+- M5: contexts GET at `known_at` 2026-10-21T21:52:18.523211Z -> OPPORTUNITY then SCENARIO `SCN-000002 · Grain mill
+  one-hour trial (corrected narrative)`, `url:null`; images `incidents-linked-stocked-{1440,390}-app.png`.
+- Viewed: `opportunity-supported-current-1440/390-app.png`, `alternatives-db-time-1440-app.png`.
 
 ## Known deviations
 - None against the rulings. The capture harness check for the Scenarios scroll box was updated in place from the retired
   252 px value to the u9c 144/188 px limits plus `scrollH > clientH` (total stays 359).
 
 ## Residual risk
-- Full backend suite not yet run on the final revision.
+- Full backend suite (coordinator, in-container OPS-03 run 20261022-042009-71c07f on cfd1510a, main merged): 3818 passed, 0 failed, 1:10:55. An earlier run on 60a69552 had 10 failures: 8 stale CRLF working copies (environment), plus the missing w403 fixture eol rule and a stale replay assertion, both fixed in cfd1510a. Frontend on cfd1510a: 2480/2480 (one earlier run had 1 load-timing failure that passed on rerun).
 - Capture geometry depends on the walkthrough fixture (two authored scenarios, five incidents); other row counts are
   covered only by jsdom structure/stylesheet tests.
 

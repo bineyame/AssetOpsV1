@@ -54,7 +54,10 @@ const CHROME_SELECTOR = "nav, header.page-header, .site-date-bar";
  * Finding's `[data-analysis-helper]`: one noninteractive line directly after the section row, a ruled addition.
  */
 const LEADING_SELECTOR =
-  ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective, [data-analysis-helper]";
+  ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective, [data-analysis-helper], " +
+
+  // W3-03 run 2: the v69 `portfolio` screen's own three leading rows (context line, five value cards, pulse).
+  ".portfolio-v2 > .portfolio-context, .portfolio-v2 > .value-grid, .portfolio-v2 > .portfolio-pulse";
 /** Section-like elements that must not render outside a panel or leading pattern. */
 const STRAY_SELECTOR = "h3, h4, h5, h6, section, article, [role=region], .card, .callout";
 

@@ -49,6 +49,11 @@ const CAPS = {
   "sitework-maintenance": { 1440: { status: 48, panel: 384, notice: 54 }, 390: { status: 118, panel: 410, notice: 101 } },
 };
 const MAX_W = { 1440: 1161, 390: 360 };
+// H1 (uF 8): closure-1 chip tones as computed backgrounds (w4-mini-decisions.css).
+const TONE_BG = { green: "rgb(230, 244, 238)", amber: "rgb(253, 243, 226)", blue: "rgb(234, 240, 253)", gray: "rgb(241, 242, 244)" };
+const toneSeen = new Set();
+// uF 2 (M5): the replay's SCENARIO context label at the W4-01 list cutoff.
+const SCENARIO_LABEL = replay.scenario_context?.label ?? null;
 // Pieces: [name, app selector, mock selector]; a name that is a title means the section.panel whose own h2 is it.
 const PIECES = {
   scenarios: [["Financial scenarios"], ["notice", "[data-scenarios-notice]", ".notice"]],
@@ -61,8 +66,13 @@ const PIECES = {
 
 const S = `/sites/${MG}`;
 const K = replay.k_before_late ?? null;
+const HIST_K = new Date(Date.now() - 1000).toISOString().replace(/\.(\d{3})Z$/, (_, ms) => `.${ms}000Z`);
 const POSITIVE_CASES = [
   { screen: "opportunity-finding", state: "opportunity-supported-current", app: `${S}/opportunities/${OPP}`, positive: true },
+  // H1 (uF 8): the same selected revision at an explicit past cutoff after it (no newer evidence yet) is HISTORICAL,
+  // the blue chip; the cutoff is the capture start, a six-digit UTC token.
+  { screen: "opportunity-finding", state: "opportunity-supported-historical",
+    app: `${S}/opportunities/${OPP}?${new URLSearchParams({ known_at: HIST_K })}`, historical: HIST_K },
 ];
 const LATE_CASES = [
   { screen: "scenarios", state: "scenarios-populated", app: `${S}/financials/scenarios` },
@@ -86,7 +96,8 @@ const positiveRun = PHASE === "late" ? (() => { try { return JSON.parse(readFile
 const UNPROVED = PHASE === "positive" ? [] : [
   ...(positiveRun ? [] : [{ state: "opportunity-supported-current", reason: "No evidence-positive.json: capture --phase positive did not run before replay-late (PR-12.5)." }]),
   ...(MISSING ? [] : [{ state: "opportunity-missing-day-limited", reason: "replay.json has no 8 October study row." }]),
-  { state: "alternatives-stocked", reason: "Not an exit gate while the resolved F02 revision is future dated (u9, PR-12.4); positive rows are component/API tests." },
+  { state: "alternatives-stocked", reason: "Not an exit gate while the resolved F02 revision is future dated (u9, PR-12.4); stocked rows are API/component proof only (uF 1)." },
+  { state: "alternatives-empty-current", reason: "Successful empty at current DB time unproved: no current selected Finding basis exists while F02 is future dated (uF 1)." },
 ];
 
 // ---- CDP ----
@@ -172,6 +183,43 @@ const MEASURE = (screen, side) => `(async () => {
   if (sc) { const cs = getComputedStyle(sc); extra.scrollBox = { maxHeight: cs.maxHeight, overflowY: cs.overflowY }; }
   extra.workRows = main.querySelectorAll("[data-work-row]").length;
   extra.chip = main.querySelector("[data-opportunity-chip]")?.textContent.trim() ?? null;
+  // Final review H1/H2/H3/M5/M6/M7: computed style and structure, not data attributes.
+  const chipBadge = main.querySelector("[data-opportunity-chip] .badge");
+  extra.chipBg = chipBadge ? getComputedStyle(chipBadge).backgroundColor : null;
+  const claimEl = main.querySelector("[data-opportunity-claim]");
+  const proseEl = main.querySelector(".mini-opportunity-panel .prose");
+  extra.claim = claimEl ? { big: claimEl.classList.contains("v69-big-claim"), font: parseFloat(getComputedStyle(claimEl).fontSize),
+    prose: proseEl ? parseFloat(getComputedStyle(proseEl).fontSize) : null } : null;
+  extra.openSite = Array.from(document.querySelectorAll(".page-header__actions a")).map((a) => [a.textContent.trim(), a.getAttribute("href")]);
+  extra.siteTabs = !!document.querySelector('nav[aria-label="Site sections"]');
+  extra.findingRow = Array.from(document.querySelectorAll("[data-finding-section], [data-tab-unavailable]")).map((e) => e.textContent.trim());
+  const crumbNav = document.querySelector("nav.mini-finding-crumbs");
+  if (crumbNav) {
+    const left = crumbNav.getBoundingClientRect().left;
+    const lineStarts = [];
+    const walker = document.createTreeWalker(crumbNav, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+      for (let i = 0; i < t.textContent.length; i++) {
+        range.setStart(t, i); range.setEnd(t, i + 1);
+        const r = range.getClientRects()[0];
+        if (r && Math.abs(r.left - left) < 1.5 && t.textContent[i].trim()) lineStarts.push(t.textContent[i]);
+      }
+    }
+    const items = Array.from(crumbNav.querySelectorAll(".breadcrumbs__item")).slice(1);
+    const beforeAtStart = items.filter((li) => { const r = li.getClientRects()[0]; return r && Math.abs(r.left - left) < 1.5; })
+      .map((li) => getComputedStyle(li, "::before").content);
+    const lead = crumbNav.querySelector(".mini-finding-crumbs__lead"), first = crumbNav.querySelector(".breadcrumbs__item");
+    const lastItem = crumbNav.querySelector(".breadcrumbs__item:last-child");
+    extra.crumbs = { lineStarts, beforeAtStart, h: Math.round(crumbNav.getBoundingClientRect().height),
+      leadSameLine: !!(lead && lastItem) && Math.abs(lead.getClientRects()[0].top - Array.from(lastItem.getClientRects()).pop().top) < 2,
+      firstTop: first ? Math.round(first.getClientRects()[0].top) : null };
+  }
+  const scnCtx = Array.from(main.querySelectorAll('[data-work-decision="SCENARIO"]'));
+  extra.scenarioContexts = scnCtx.map((e) => ({ text: e.textContent.replace(/^ · /, "").trim(), links: e.querySelectorAll("a, [tabindex]").length }));
+  extra.contextKinds = Array.from(main.querySelectorAll('[data-work-decision-context="loaded"]')).map((e) =>
+    Array.from(e.querySelectorAll("[data-work-decision]")).map((d) => d.getAttribute("data-work-decision")).join(","));
+  extra.caseHrefs = Array.from(main.querySelectorAll("[data-work-row] a")).map((a) => a.getAttribute("href")).filter((h) => !/opportunities|findings/.test(h ?? ""));
   return { pieces: out, extra,
     panelOrder: panels.map((p) => own(p)?.textContent.trim() ?? "(untitled)"),
     text: main.textContent.replace(/\\s+/g, " ").trim().slice(0, 600),
@@ -259,6 +307,12 @@ for (const c of CASES) for (const [w, h] of SIZES) {
       check(b && JSON.stringify(b.days) === JSON.stringify(pins), `selected five-day rows = pins (${b?.days.length})`);
       check(detailGets.length > 0 && detailGets.every((e) => !new URL(e.path, "http://x").searchParams.has("known_at")), `current detail GET without cutoff (${JSON.stringify(detailGets)})`);
     }
+    if (c.historical) {
+      const b = m.extra.wire?.body;
+      check(b && b.status === "SUPPORTED" && b.currentness === "HISTORICAL" && m.extra.chipTone === "blue",
+        `explicit past cutoff: SUPPORTED, HISTORICAL, blue chip (${JSON.stringify(b && [b.status, b.currentness])}; ${m.extra.chipTone})`);
+      check(detailGets.length > 0 && detailGets.every((e) => new URL(e.path, "http://x").searchParams.getAll("known_at").join() === c.historical), `intercepted detail GET carries the cutoff (${JSON.stringify(detailGets)})`);
+    }
     if (c.cutoff) {
       const b = m.extra.wire?.body;
       check(new URLSearchParams(m.extra.location.split("?")[1] ?? "").get("known_at") === c.cutoff, `browser URL carries the cutoff (${m.extra.location})`);
@@ -267,6 +321,25 @@ for (const c of CASES) for (const [w, h] of SIZES) {
       check(b && OLD_HEAD && b.revision_id === OLD_HEAD, `selected revision is the old head (${b?.revision_id} = ${OLD_HEAD})`);
       check(m.extra.chipTone !== "green" && !(b && b.status === "SUPPORTED" && b.currentness === "CURRENT"), `historical cutoff is not current/supported (${m.extra.chipTone}; ${JSON.stringify(b && [b.status, b.currentness])})`);
     }
+  }
+  // H1 (uF 8): the chip's computed background is its closure-1 tone, never the neutral badge grey.
+  if (c.screen === "opportunity-finding" && m.extra.chipTone) {
+    check(m.extra.chipBg === TONE_BG[m.extra.chipTone], `chip ${m.extra.chipTone} computed background ${m.extra.chipBg} = ${TONE_BG[m.extra.chipTone]}`);
+    toneSeen.add(m.extra.chipTone);
+  }
+  // H2: the Bounded claim is the v69 big claim (v69 `.big-claim` 19px), larger than the panel prose.
+  if (c.screen === "opportunity-finding" && m.extra.claim) check(m.extra.claim.big && m.extra.claim.font >= 19 && m.extra.claim.font > (m.extra.claim.prose ?? 0),
+    `Bounded claim is the big claim (${JSON.stringify(m.extra.claim)})`);
+  // H3 / M6 / M7 on the Finding-surface screens.
+  if (c.screen === "alternatives") {
+    check(JSON.stringify(m.extra.openSite) === JSON.stringify([["Open site", `/sites/${KOBO}`]]), `Open site header action (${JSON.stringify(m.extra.openSite)})`);
+    check(!m.extra.siteTabs && m.extra.findingRow.length === 6, `no Site tab row; Finding row present (${m.extra.siteTabs}; ${JSON.stringify(m.extra.findingRow)})`);
+  }
+  if (["alternatives", "opportunity-finding"].includes(c.screen) && m.extra.crumbs) {
+    const cr = m.extra.crumbs;
+    check(!cr.lineStarts.some((ch) => ch === "/" || ch === "·") && cr.beforeAtStart.every((x) => x === "none"),
+      `no crumb line starts with a separator (${JSON.stringify(cr.lineStarts)}; ${JSON.stringify(cr.beforeAtStart)})`);
+    if (w === 1440) check(cr.leadSameLine && cr.lineStarts.length === 1, `Site suffix inline with the crumbs at 1440 (${JSON.stringify(cr)})`);
   }
   if (c.screen === "scenarios") check(m.extra.scenarioNotice === "Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate from evidence.", "Scenarios notice unchanged");
   if (c.state === "scenarios-populated") {
@@ -293,6 +366,17 @@ for (const c of CASES) for (const [w, h] of SIZES) {
         `scoped 503 hit the exact Alternatives GET after the Site and Finding reads (${JSON.stringify(alt)})`);
       check(/Alternatives unavailable/.test(m.text), "Alternatives unavailable shown");
     }
+    if (c.state === "alternatives-db-time") {
+      // uF 1 (final review M1): the future-dated same-Finding revision is the exact-basis 409, after both reads.
+      const alt = got((u) => u.pathname === `/api/sites/${KOBO}/findings/${FINDING}/alternatives`);
+      check(alt.length > 0 && alt.every((e) => e.status === 409 && new URL(e.path, "http://x").searchParams.get("revision_id") === FREV)
+        && alt[0].at > Math.max(...site.map((e) => e.at), ...finding.map((e) => e.at)),
+        `exact-basis refusal: pinned Alternatives GET is 409 after the Site and Finding reads (${JSON.stringify(alt)})`);
+      const d = replay.positive?.alternatives;
+      check(d && d.status === 409 && JSON.stringify(d.body?.detail) === JSON.stringify({ code: "DECISION_BASIS_CHANGED",
+        message: "The selected basis changed; reload the first page.", rows: null, total_count: null }), `replayed GET body is the 409 basis refusal (${JSON.stringify(d)})`);
+      check(/The evidence changed\. Reload this page\./.test(m.text) && !/not found/i.test(m.text), "exact refusal copy, no not-found copy");
+    }
   }
   if (c.screen.startsWith("sitework")) {
     const want = c.screen === "sitework-incidents" ? 1 + Object.keys(stock.incidents).length : 1 + Object.keys(stock.requests).length;
@@ -305,6 +389,13 @@ for (const c of CASES) for (const [w, h] of SIZES) {
     }
   }
   if (c.state === "incidents-linked-stocked") check(m.extra.contexts.some((t) => t.startsWith("Decision context: OPP-")), `linked Opportunity context shown (${JSON.stringify(m.extra.contexts)})`);
+  if (c.state === "incidents-linked-stocked") {
+    // uF 2 (M5): the same Incident's SCENARIO association after its Opportunity, as plain noninteractive text.
+    const want = `${SCENARIO_LABEL} (Scenario detail unavailable)`;
+    check(SCENARIO_LABEL && m.extra.scenarioContexts.length === 1 && m.extra.scenarioContexts[0].text === want && m.extra.scenarioContexts[0].links === 0,
+      `scenario context literal, no link or focus target (${JSON.stringify(m.extra.scenarioContexts)} = ${want})`);
+    check(m.extra.contextKinds.includes("OPPORTUNITY,SCENARIO"), `Opportunity then Scenario on one Incident (${JSON.stringify(m.extra.contextKinds)})`);
+  }
   if (c.state === "incidents-refused-overlay") {
     check(m.extra.rowContexts === 0 && JSON.stringify(m.extra.panelContexts) === JSON.stringify(["Decision context unavailable"]),
       `refused overlay: exactly one panel-level literal, no row-level copy (${JSON.stringify(m.extra.contexts)})`);
@@ -315,6 +406,14 @@ for (const c of CASES) for (const [w, h] of SIZES) {
   }
   if (c.state === "maintenance-unlinked-stocked") check(m.extra.contexts.length === 0, `no context on unlinked requests (${JSON.stringify(m.extra.contexts)})`);
 }
+// H1 non-vacuity (uF 8): the positive, stale and historical chips were all measured across both phases.
+if (PHASE === "late") {
+  const tones = new Set([...toneSeen, ...((positiveRun?.tones_seen) ?? [])]);
+  const ok = ["green", "amber", "blue"].every((t) => tones.has(t));
+  results.checks.push({ case: "chip tones", what: `computed chip tones measured for green, amber and blue (${[...tones].join(",")})`, ok });
+  if (!ok) fail.push(`chip tones: green, amber and blue not all measured (${[...tones].join(",")})`);
+}
+results.tones_seen = [...toneSeen];
 results.width_checks = widthClaims;
 if (PHASE === "late" && positiveRun) {
   results.positive_phase = { file: POSITIVE_FILE, captured_at: positiveRun.captured_at, ids: positiveRun.ids };

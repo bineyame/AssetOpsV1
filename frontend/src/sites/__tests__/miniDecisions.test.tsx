@@ -233,13 +233,13 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     expect(widths).toEqual(["20%", "24%", "20%", "22%", "14%"]);
     const [first, second] = cells();
     expect(first[0]).toBe("Grain mill one-hour trial · Productive load · SCN-000004Scenario detail unavailable");
-    expect(first[1]).toBe("proposed_kw 10 kW; duration_hours 1 h; tariff_per_kwh 0.25 USD/kWh");
+    expect(first[1]).toBe("Proposed load 10 kW; Duration 1 h; Tariff 0.25 USD/kWh");
     expect(first[2]).toBe("2 pinned renewable revisions Inspect pinned revisions");
     expect(first[3]).toBe("$2.50 gross sales scenario per eligible window, before costs");
     expect(first[4]).toBe("Defined · Gross scenario");
     expect(second[0]).toContain("SCN-1234567"); // never truncated above 999999
     expect(second.slice(1)).toEqual([
-      "tariff_per_kwh 30 KES/kWh",
+      "Tariff 30 KES/kWh",
       "No measured basis pinned",
       "Cannot calculate from the selected evidence",
       "Defined · No calculation",
@@ -252,7 +252,9 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       { status: "refused", httpStatus: 503, code: "DECISION_STORE_UNAVAILABLE", message: "The decision store is unavailable." },
     ]);
     await settledScreen();
-    await screen.findByText("The decision store is unavailable.");
+    // Final review L7: the shared decision copy, as Alternatives and Opportunity use; never the raw server message.
+    await screen.findByText("Decisions are unavailable right now. Try again.");
+    expect(main().textContent).not.toContain("The decision store is unavailable.");
     expect(document.querySelector("[data-scenarios-refused]")).toHaveAttribute("data-scenarios-refused", "DECISION_STORE_UNAVAILABLE");
     expect(main().textContent).not.toContain("No scenario defined yet");
     expect(document.querySelector("[data-scenarios-notice]")?.textContent).toBe(NOTICE);
@@ -278,8 +280,10 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     // The first GET omits both bounds and the cutoff; the page states the effective creation-time end.
     expect(client.getScenarios).toHaveBeenNthCalledWith(1, CODE, { from: null, to: null, known_at: null, cursor: null });
     expect(document.querySelector("[data-scenarios-through]")?.textContent).toBe(
-      "Scenarios created through 2026-10-21T07:59:59.999999Z",
+      "Scenarios created through 21 Oct 2026, 07:59:59 UTC",
     );
+    // uF 8 (final review L8): plain UTC text; the exact instant stays machine-readable.
+    expect(document.querySelector("[data-scenarios-through] time")).toHaveAttribute("datetime", "2026-10-21T07:59:59.999999Z");
     expect(microsecondBefore("2026-10-21T08:00:00.000000Z")).toBe("2026-10-21T07:59:59.999999Z");
     expect(microsecondBefore("2026-10-21T08:00:00.000123Z")).toBe("2026-10-21T08:00:00.000122Z");
     // The returned bounds and cutoff go into the address (reload reads the same set) without a second read.
@@ -700,9 +704,20 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     expect(crumbs().textContent).toBe("FindingsFinding code unavailableAlternatives· site: MINIGRID site");
     expect(crumbs().querySelector('a[href="/findings"]')).toHaveTextContent("Findings");
     expect(crumbs().querySelector("[data-mini-finding-site] a")).toHaveAttribute("href", `/sites/${CODE}`);
+    // M7: no whitespace node between crumbs or before the Site suffix, so no line can begin with a separator.
+    expect(crumbs().querySelector(".mini-finding-crumbs__lead")?.textContent).toBe("· site:");
+    expect([crumbs(), ...Array.from(crumbs().querySelectorAll("ol"))].flatMap((e) => Array.from(e.childNodes))
+      .filter((n) => n.nodeType === Node.TEXT_NODE)).toEqual([]);
     noControl(crumbs().querySelector("[data-finding-code-gap]"));
     expect(crumbs().textContent).not.toMatch(/F-104|mini:dispatch:key/);
     expect(crumbs().textContent).not.toContain(F);
+    // H3 (final review; ledger l.186): the v69 `Open site` header action resolves the authorized Site Overview.
+    const openSite = document.querySelector(".page-header__actions [data-alternatives-open-site]");
+    expect(openSite).toHaveTextContent(/^Open site$/);
+    expect(openSite).toHaveAttribute("href", `/sites/${CODE}`);
+    // uF 3 (final review M6): no Site tab row on Alternatives; the Finding child row stays.
+    expect(document.querySelector('nav[aria-label="Site sections"]')).toBeNull();
+    expect(document.querySelector('[data-finding-section="alternatives"]')).not.toBeNull();
     cleanup();
 
     // Another mini child: the section helper; the sibling tabs are pinned to the W1 read's resolved revision.
@@ -722,6 +737,9 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       /^Analysis unavailable for this Finding section; use the Finding overview and evidence\.$/,
     );
     expect(crumbs().textContent).toBe("FindingsFinding code unavailableHistory· site: MINIGRID site");
+    // H3 is the Alternatives action only; the W1 sibling sections keep their header unchanged.
+    expect(document.querySelector('nav[aria-label="Site sections"]')).not.toBeNull(); // M6 scope
+    expect(document.querySelector("[data-alternatives-open-site]")).toBeNull();
     expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(1);
     cleanup();
 
@@ -743,6 +761,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
     };
     expect(await probe(findingsClient(() => w1(CODE, REV)))).toBe(`/sites/${CODE}/findings/${F}/alternatives?revision_id=${REV}`);
     expect(await probe(findingsClient(() => w1("MG-OTHER", REV)))).toBe("none");
+    expect(await probe(findingsClient(() => w1(CODE, "")))).toBe("none"); // final review L6
     expect(await probe(findingsClient(() => w1(CODE, REV, id(99))))).toBe("none");
     expect(await probe(findingsClient(() => ({ status: "unavailable", message: null })))).toBe("none");
     expect(await probe(undefined)).toBe("none");
@@ -1215,6 +1234,8 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     // PR-12.2: numeric and monetary values keep the large numeric value; no card is a word value here.
     expect(words()).toEqual([false, false, false, false]);
     expect(claim()).toBe("Renewable capacity appears available for a one-hour productive load in 2 adequately observed windows.");
+    // H2 (final review): the claim is the shared v69 big-claim headline, not an unstyled paragraph.
+    expect(document.querySelector("[data-opportunity-claim]")).toHaveClass("v69-big-claim");
     expect(main().textContent).toContain(
       "Electrical feasibility does not establish customer demand, collections or a realised financial benefit.",
     );
@@ -1561,6 +1582,23 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     expect(location()).toBe(`/sites/${CODE}/opportunities/${OPP}`);
     noDeadCta(document.querySelector("[data-opportunity-page]") as HTMLElement);
     expect(document.querySelector('a[href*="/findings/opportunities"]')).toBeNull();
+  });
+
+  it("final_review_chip_tone_and_crumb_row_css", async () => {
+    // Read from disk: vitest serves imported CSS as empty text (the estateRoots pattern). jsdom has no cascade, so the
+    // rendered colour is asserted by the capture; this pins the selector shape that makes it win.
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/sites/w4-mini-decisions.css`, "utf8");
+    // H1: `.badge--neutral` loads later at equal specificity, so each tone must be the compound `.badge.` selector.
+    for (const tone of ["green", "amber", "blue", "gray"]) {
+      expect(css).toMatch(new RegExp(`(^|\\n)\\.badge\\.mini-opportunity-tone--${tone} \\{[^}]*background:`));
+      expect(css).not.toMatch(new RegExp(`(^|\\n)\\.mini-opportunity-tone--${tone} \\{`));
+    }
+    // M7: crumbs and Site suffix are one inline run (no flex row whose items wrap with a leading separator); the
+    // `· site:` lead never breaks from its separator.
+    expect(css).toMatch(/nav\.mini-finding-crumbs \.breadcrumbs__list,\s*nav\.mini-finding-crumbs \.breadcrumbs__item \{\s*display: inline;/s);
+    expect(css).toMatch(/\.mini-finding-crumbs__lead \{\s*white-space: nowrap;/s);
   });
 
   it("opportunity_chip_and_estate_lens_stay_unavailable", async () => {

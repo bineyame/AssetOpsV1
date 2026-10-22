@@ -10,7 +10,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Badge, KeyValues, MetricCard, MetricCards, Panel, StatusBar } from "../ui";
+import { Badge, BigClaim, KeyValues, MetricCard, MetricCards, Panel, StatusBar } from "../ui";
 import { localDateOf, addDays, localMidnightUtc } from "./miniDepthClient";
 import { decisionRefusalCopy } from "./miniDecisionsClient";
 import type {
@@ -200,9 +200,7 @@ function BoundedOpportunity({ body, recordHref }: { body: OpportunityDetailBody;
       : `Measured renewable headroom is available in ${o.eligible_days} of ${o.assessed_days} assessed windows; no added load has been validated.`;
   return (
     <Panel heading="Bounded opportunity" headingId="mini-opportunity-bounded-heading" className="mini-opportunity-panel">
-      <p className="big-claim" data-opportunity-claim>
-        {claim}
-      </p>
+      <BigClaim data={{ "data-opportunity-claim": "" }}>{claim}</BigClaim>
       <p className="prose">{FEASIBILITY_LIMIT}</p>
       <p>
         <button

@@ -242,6 +242,12 @@ def http_replay(http: Http, fixture: dict[str, Any], pins: list[dict[str, Any]],
     status, work = http("POST", f"{base}/work/decision-links", fill(cmd["work_link"], case_id=incident,
                                                                     opportunity_id=oid))
     assert status == 201, (status, work)
+    # uF 2 (final review M5): the same Incident also carries an explicit SCENARIO association (OPPORTUNITY then
+    # SCENARIO), through the authenticated W4-03 route with its own idempotency key.
+    status, work_scenario = http("POST", f"{base}/work/decision-links", fill(
+        cmd["work_link"], case_id=incident, idempotency_key=cmd["work_link"]["idempotency_key"] + "-scenario",
+        opportunity_id=None, scenario_id=scenario["id"]))
+    assert status == 201 and work_scenario["kind"] == "SCENARIO", (status, work_scenario)
     if finding is not None:
         kobo = fixture["alternative_site_code"]
         status, alt = http("POST", f"/api/sites/{kobo}/findings/{finding[0]}/alternatives",
@@ -251,8 +257,31 @@ def http_replay(http: Http, fixture: dict[str, Any], pins: list[dict[str, Any]],
         # time; here the observed exit is recorded as-is, with no claim that a row was created.
         out["alternative"] = {"status": status, "body": alt}
     out.update(scenario=scenario, corrected=corrected, no_tariff=no_tariff, opportunity_id=oid,
-               scenario_link=link, work_link=work)
+               scenario_link=link, work_link=work, work_link_scenario=work_scenario)
     return out
+
+
+def scenario_context(http: Http, fixture: dict[str, Any], incident: str, writes: dict[str, Any]) -> dict[str, Any]:
+    """uF 2 (M5): `decision-contexts` for the linked Incident at the W4-01 Incident list's exact `known_at`: the
+    OPPORTUNITY context, then the SCENARIO one labelled `SCN-* · {name at cutoff}` with `url:null`."""
+    base = f"/api/sites/{fixture['opportunity_site_code']}"
+    # The capture harness's W4-01 window (`WORK_WINDOW`: UTC midnight seven days back to tomorrow).
+    from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+
+    midnight = _dt.now(_tz.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    frm, to = ((midnight + _td(days=d)).strftime("%Y-%m-%dT%H:%M:%SZ") for d in (-7, 1))
+    status, listing = http("GET", f"{base}/work/incidents?from={frm}&to={to}&limit=5")
+    assert status == 200, (status, listing)
+    known = (listing.get("window") or {}).get("known_at") or listing.get("known_at")
+    assert known, listing
+    status, body = http("GET", f"{base}/work/decision-contexts?case_ids={incident}&known_at={known}")
+    assert status == 200, (status, body)
+    found = body["contexts"][incident]
+    assert [c["kind"] for c in found] == ["OPPORTUNITY", "SCENARIO"], found
+    # The scenario's visible revision at the cutoff is the correction, so the label carries its name.
+    label = f"{writes['scenario']['code']} · {fixture['commands']['scenario_correction']['name']}"
+    assert found[1] == {"kind": "SCENARIO", "id": writes["scenario"]["id"], "label": label, "url": None}, found
+    return {"known_at": known, "status": status, "contexts": found, "label": label}
 
 
 def reads(http: Http, fixture: dict[str, Any], oid: str, cases: list[str], finding: tuple[str, str] | None,
@@ -573,6 +602,7 @@ def run_replay_positive(engine, installed, fixture: dict[str, Any], scopes: dict
     else:
         assert (alt["status"], alt["body"]["detail"]["code"]) == (409, "DECISION_BASIS_CHANGED"), alt
     oid = record["writes"]["opportunity_id"]
+    record["scenario_context"] = scenario_context(http, fixture, incident, record["writes"])
     record["positive"] = reads(http, fixture, oid, list(cases.values()), finding)
     if performance:
         record["kobo_reads"] = kobo_reads(http, fixture, finding)
