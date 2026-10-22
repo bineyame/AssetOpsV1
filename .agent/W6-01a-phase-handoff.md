@@ -143,3 +143,6 @@ Next: A2 per-unit independent review.
 - Open question (not decided): the spec gives no producer for "five three-line rows" (`stress` rows are one-line, and the review's suggestion to lengthen titles 2-6 needs an Architect ruling on A2Q2). No such capture was made, so the new vertical scroll is not exercised in a browser measurement.
 - L1: `// W6-01a: Incidents rail root is live.` added above each edited literal in the six A2Q11 files. L2-L6 untouched.
 - Checks: 7 files (globalIncidents + six A2Q11) 156 passed. DBs dropped; Vite, uvicorn and capture Chrome stopped.
+
+### Run update (A2b fix: L7, L8)
+- L8: globalWork.css caps 469/519 -> 468/518. L7: A2 manifest gets r8_note plus per-capture requests/rendered_response (rendered_response "not recorded" where unlogged; the spec has no separate Codex R8 sentence, so the review L7 text was used). globalIncidents 21 passed; check-all 11/11. No recapture.

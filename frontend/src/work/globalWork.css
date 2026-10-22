@@ -53,7 +53,7 @@
 .global-work .data-table__scroll {
   /* §2: the Incident cases panel cap (600 at 1440, 690 at 390) minus the non-table panel parts measured in
      .agent/W6-01-evidence/A2/manifest.json (131 / 171 px); the body scrolls vertically, the header stays. */
-  max-height: 469px;
+  max-height: 468px;
   overflow: auto;
 }
 
@@ -65,7 +65,7 @@
 
 @media screen and (max-width: 760px) {
   .global-work .data-table__scroll {
-    max-height: 519px;
+    max-height: 518px;
   }
 }
 

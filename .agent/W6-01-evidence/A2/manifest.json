@@ -194,7 +194,18 @@
               "INC-000005",
               "INC-000001"
             ]
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "rendered_response": "not recorded"
         },
         {
           "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
@@ -270,7 +281,18 @@
               "INC-000005",
               "INC-000001"
             ]
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "rendered_response": "not recorded"
         }
       ]
     },
@@ -350,7 +372,18 @@
             "showing": null,
             "first_row": null,
             "codes": []
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "rendered_response": "not recorded"
         },
         {
           "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
@@ -399,7 +432,18 @@
             "showing": null,
             "first_row": null,
             "codes": []
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "rendered_response": "not recorded"
         }
       ]
     },
@@ -579,7 +623,18 @@
               "INC-000004",
               "INC-000006"
             ]
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "rendered_response": "not recorded"
         },
         {
           "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z",
@@ -655,7 +710,18 @@
               "INC-000004",
               "INC-000006"
             ]
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "rendered_response": "not recorded"
         }
       ]
     },
@@ -706,7 +772,18 @@
             "showing": null,
             "first_row": null,
             "codes": []
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            }
+          ],
+          "rendered_response": "not recorded"
         },
         {
           "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
@@ -748,7 +825,18 @@
             "showing": null,
             "first_row": null,
             "codes": []
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 503
+            }
+          ],
+          "rendered_response": "not recorded"
         }
       ]
     },
@@ -790,7 +878,9 @@
             "showing": null,
             "first_row": null,
             "codes": []
-          }
+          },
+          "requests": [],
+          "rendered_response": "none (no fetch made)"
         },
         {
           "route": "/incidents?from=2026-10-14T00%3A00%3A00Z",
@@ -823,7 +913,9 @@
             "showing": null,
             "first_row": null,
             "codes": []
-          }
+          },
+          "requests": [],
+          "rendered_response": "none (no fetch made)"
         }
       ]
     },
@@ -995,7 +1087,18 @@
               "INC-000001",
               "INC-000005"
             ]
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            },
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+              "status": 200
+            }
+          ],
+          "rendered_response": "not recorded"
         },
         {
           "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
@@ -1067,7 +1170,14 @@
                 "tenant": "demo"
               }
             ]
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDM3MjA0M2Y0Mzc5ZGUwZTFhZTBmNTdkMGQ1M2VmZDcxZjUxMGI5MDA1NzJhOGUwZTcxN2VjYzMxY2QwNDE2MSIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1IiwiMjBjZTVkNWEtMjM2Mi00ZmM2LTg5NWUtNTE3MjEyN2RlOWRmIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiZDBiYzNkNTEtODdjMS00MzdlLTk2MzEtMGJjNDk1OGFiMjk4IiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQwOTowNDo0MS40MjUzMTFaIiwibWFjIjoiNDRhM2Y2N2Q1ZWEyMDFhZGEzZThlMzU1MDAzZTUyY2Q0ZGE3NGMzMTEyMWIxNjE0ZThiYTEzZDVhMWMwYTUzMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6ZjZkNzc1YTQ0ZDI4N2Q4NWYxOTZkZTlhMDQyNDYwMTVhY2YwMDExMjUyYmUzNDhiZmUwMDk4NWZiNWZhZjM3YSIsInRlbmFudF9pZCI6IjkxNGU0ODVlLWY2NDYtNDg4NC1iNzgyLWMxN2ZhMDk3MjFmMiIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0&limit=5",
+              "status": 409
+            }
+          ],
+          "rendered_response": "not recorded"
         },
         {
           "route": "/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
@@ -1105,7 +1215,14 @@
             "showing": null,
             "first_row": null,
             "codes": []
-          }
+          },
+          "requests": [
+            {
+              "url": "/api/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6ZDM3MjA0M2Y0Mzc5ZGUwZTFhZTBmNTdkMGQ1M2VmZDcxZjUxMGI5MDA1NzJhOGUwZTcxN2VjYzMxY2QwNDE2MSIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1IiwiMjBjZTVkNWEtMjM2Mi00ZmM2LTg5NWUtNTE3MjEyN2RlOWRmIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiZDBiYzNkNTEtODdjMS00MzdlLTk2MzEtMGJjNDk1OGFiMjk4IiwiZGM2NGQwMzQtMzM5Yy00Yzg4LWFkYjYtMjNlMDA3YTM2MWU1Il0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yMlQwOTowNDo0MS40MjUzMTFaIiwibWFjIjoiNDRhM2Y2N2Q1ZWEyMDFhZGEzZThlMzU1MDAzZTUyY2Q0ZGE3NGMzMTEyMWIxNjE0ZThiYTEzZDVhMWMwYTUzMiIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6ZjZkNzc1YTQ0ZDI4N2Q4NWYxOTZkZTlhMDQyNDYwMTVhY2YwMDExMjUyYmUzNDhiZmUwMDk4NWZiNWZhZjM3YSIsInRlbmFudF9pZCI6IjkxNGU0ODVlLWY2NDYtNDg4NC1iNzgyLWMxN2ZhMDk3MjFmMiIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0&limit=5",
+              "status": 409
+            }
+          ],
+          "rendered_response": "not recorded"
         }
       ]
     }
@@ -1122,7 +1239,9 @@
           65,
           65,
           64
-        ]
+        ],
+        "requests": "not recorded",
+        "rendered_response": "not recorded"
       },
       "390": {
         "incident_cases_panel": 629,
@@ -1133,13 +1252,17 @@
           85,
           85,
           84
-        ]
+        ],
+        "requests": "not recorded",
+        "rendered_response": "not recorded"
       }
     },
     "historical": {
       "1440": {
         "incident_cases_panel": 489,
-        "cap": 600
+        "cap": 600,
+        "requests": "not recorded",
+        "rendered_response": "not recorded"
       },
       "390": {
         "incident_cases_panel": 682,
@@ -1150,10 +1273,13 @@
           102,
           102,
           84
-        ]
+        ],
+        "requests": "not recorded",
+        "rendered_response": "not recorded"
       }
     },
     "document_width": "equals viewport in all four captures",
     "open": "No spec producer for five three-line rows; none created. The over-cap path is therefore not measured (all captured tables are under the max-height, so no vertical scroll is exercised)."
-  }
+  },
+  "r8_note": "dev server StrictMode issues each read twice; the built app issues one"
 }
