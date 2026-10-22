@@ -453,3 +453,4 @@ Owner: "use a fresh claude architect instead of codex until  the codex quota is 
 - W6-01 CL3 7 readiness gaps (plan/W6-01-close3).
 - W5 C2 Q1-Q4 + W5 UI readiness (plan/W5-c2q); note C2 table drops mock "Match" heading. E1 key tables closed by Claude in plan/W5-close2.
 - W5 close2: C3/E4 notices (new copy), C5/E6 scenario rows, E2/E3/E4 literals, E1 key tables; E1b also edits ev_site_reads.py (_energy extract).
+- W5 C2 Q5-Q7 (plan/W5-c2q2).
