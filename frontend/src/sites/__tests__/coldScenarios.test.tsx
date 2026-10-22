@@ -519,15 +519,8 @@ describe("authored, pending and historical cold Scenarios", () => {
     const closing = main.querySelector("[data-scenarios-closing-notice]") as HTMLElement;
     expect(closing.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
     expect(closing.className).toContain("v69-notice--blue");
-    // Q-C5b-6: the mock `info` icon, then the paragraph.
-    expect(Array.from(closing.children).map((n) => n.tagName.toLowerCase())).toEqual(["svg", "p"]);
-    const icon = closing.querySelector("svg") as SVGElement;
-    const closingText = closing.querySelector("p") as HTMLElement;
-    expect(icon.getAttribute("class")).toBe("icon");
-    expect(icon.getAttribute("aria-hidden")).toBe("true");
-    expect(icon.querySelector("path")?.getAttribute("d")).toBe("M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 10v7 M12 7v1");
-    expect(closingText.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
-    expect(icon.compareDocumentPosition(closingText) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Q-C5b-6 info icon held pending Q-C5c-1 (shell-overflow rule 5).
+    expect(closing.querySelector("svg")).toBeNull();
     expect(panel.compareDocumentPosition(closing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(main.querySelector("[data-cold-date-bar]")?.textContent).toContain("Selected window");
     expect(main.querySelector("[data-scenarios-through]")?.textContent).toBe("Scenarios created through 2026-10-22 09:30 UTC");
