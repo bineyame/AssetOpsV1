@@ -21,9 +21,9 @@ const W = "from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z";
 const BAD = "from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z";
 const SIZES = [[1440, 1000], [390, 900]];
 const EXPECT = { empty: "CURRENT", authored: "CURRENT", historical: "CURRENT", pending: "PENDING_RECOMPUTE" };
-// Spec caps (inclusive) 1440/390: closed one-row/empty panel 430/560, expanded 1440 one-row 650, disclosure 360 at 390
-// only, notice 90/135, page 1250/1500.
-const CAPS = { 1440: { panel: 430, panel_expanded: 650, notice: 90, page: 1250 }, 390: { panel: 560, disclosure: 360, notice: 135, page: 1500 } };
+// Spec caps (inclusive) 1440/390: closed one-row/empty panel 430/560, expanded one-row 650/560, disclosure scroller 360 at
+// both widths (ruling Q-C5b-4), notice 90/135, page 1250/1500. Pager counter `[data-scenarios-page-count]` (Q-C5b-2).
+const CAPS = { 1440: { panel: 430, panel_expanded: 650, disclosure: 360, notice: 90, page: 1250 }, 390: { panel: 560, panel_expanded: 560, disclosure: 360, notice: 135, page: 1500 } };
 mkdirSync(OUT, { recursive: true });
 
 let query = W;
@@ -47,7 +47,7 @@ if (STATE === "finding-refused-unknown") {
   read = {
     http: api.status, code: body?.error?.code ?? null, selection_state: body?.selection?.state ?? null,
     committed_watermark: body?.window?.committed_watermark ?? null, known_at: body?.window?.known_at ?? null,
-    scenario_at: body?.scenario_at ?? null,
+    scenario_at: body?.scenario_at ?? null, total_pages: body?.total_pages ?? null,
     items: body?.items?.map((i) => `${i.code} r${i.revision_no} ${i.scenario_state} cutoff=${i.authored_basis?.cutoff}`) ?? null,
   };
   readOk = STATE === "refused" ? read.http === 422 && read.code === "COLD_WINDOW_INVALID"
@@ -100,6 +100,8 @@ const MEASURE = (isMock) => `(async () => {
     order, in_order: inOrder, blocks, basis, ellipsized,
     finding_strip_directly_above_refusal: fs && rf ? (fs.compareDocumentPosition(rf) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0 &&
       Array.from(root.querySelectorAll("*")).filter((e) => (fs.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING) && (e.compareDocumentPosition(rf) & Node.DOCUMENT_POSITION_FOLLOWING) && !fs.contains(e) && !e.contains(rf) && e.offsetParent !== null && e.textContent.trim()).length === 0 : null,
+    page_count: t(root.querySelector("[data-scenarios-page-count]")),
+    notice_icons: Array.from(root.querySelectorAll("[data-scenarios-closing-notice] svg")).length,
     rows: root.querySelectorAll("[data-scenario-row]").length, expansions: root.querySelectorAll("[data-scenario-expansion]").length,
     scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth };
 })()`;
@@ -149,11 +151,12 @@ for (const [w, hgt] of SIZES) {
     for (const k of ["state_notice", "closing_notice"]) if (m.blocks[k] != null && m.blocks[k] > c.notice) over.push(`${k} ${m.blocks[k]} > ${c.notice}`);
     if (m.blocks.page > c.page) over.push(`page ${m.blocks.page} > ${c.page}`);
     let disclosure = null;
-    if (expand && w === 390) {
+    if (expand) {
       disclosure = { measured: m.basis.length, non_empty: m.basis.length > 0, max: Math.max(...m.basis.map((b) => b.h)),
         ok: m.basis.length > 0 && m.basis.every((b) => b.h <= c.disclosure) };
       if (!disclosure.ok) over.push(`disclosure ${disclosure.max} > ${c.disclosure} or empty set`);
     }
+    if (m.rows > 0 && m.page_count !== "1 of 1") over.push(`page counter ${JSON.stringify(m.page_count)} != "1 of 1"`);
     caps.push({ name, viewport: `${w}x${hgt}`, app_url: app, image, read, read_ok: readOk,
       clock: read?.committed_watermark ?? null, scenario_at_param: STATE === "historical" ? SCENARIO_AT : null,
       measured: m, no_overflow: m.scrollWidth <= m.clientWidth, panel_cap: panelCap ?? null, over_cap: over, disclosure });
@@ -164,6 +167,6 @@ writeFileSync(evidencePath, JSON.stringify({ ...prior, revision: REV, captures: 
 for (const p of caps) {
   console.log(`${p.name} ${p.viewport} read=${p.read ? `${p.read.http}/${p.read.code ?? p.read.selection_state}` : "-"} ok=${p.read_ok ?? "-"} clock=${p.clock ?? "-"} ` +
     `overflow=${!p.no_overflow} ellipsized=${p.measured.ellipsized} order=${p.measured.order.join(">")} inOrder=${p.measured.in_order} rows=${p.measured.rows} exp=${p.measured.expansions} ` +
-    `overCap=[${(p.over_cap ?? []).join("; ")}] disclosure=${JSON.stringify(p.disclosure ?? null)} blocks=${JSON.stringify(p.measured.blocks)}`);
+    `pageCount=${p.measured.page_count} overCap=[${(p.over_cap ?? []).join("; ")}] disclosure=${JSON.stringify(p.disclosure ?? null)} blocks=${JSON.stringify(p.measured.blocks)}`);
 }
 ws.close(); chrome.kill(); process.exit(0);
