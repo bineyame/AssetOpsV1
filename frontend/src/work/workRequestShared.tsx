@@ -228,7 +228,7 @@ function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkReques
     <nav aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
       <ol className="site-tabs__list">
         <LiveTab page={page} tab="overview" current={tab} />
-        <UnavailableTab label="Maintenance record" />
+        <LiveTab page={page} tab="record" current={tab} />
         <UnavailableTab label="Verification" />
         <UnavailableTab label="History" />
       </ol>

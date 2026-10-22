@@ -27,6 +27,7 @@ const ROUTE = WORK_REQUEST_ROUTE_PATH;
 const PAGE = `/maintenance/requests/${CASE}?site_id=KOBO-001`;
 const KNOWN = "2026-10-20T12:00:01Z";
 const OVERVIEW = `/maintenance/requests/${CASE}?site_id=KOBO-001`;
+const RECORD = `/maintenance/requests/${CASE}/record?site_id=KOBO-001`;
 const TITLE200 = "Startermotorandcontrolpanelinspection".repeat(6).slice(0, 200);
 const NARRATIVE = "Inspection narrative ".repeat(200).slice(0, 4000);
 
@@ -113,7 +114,7 @@ function detail(over: Partial<GlobalWorkDetailBody> = {}, state = "IN_PROGRESS")
     links: {
       site: { label: "Kobo", href: "/sites/KOBO-001" },
       overview: { label: "Overview", href: OVERVIEW },
-      record: { label: "Maintenance record", href: `/maintenance/requests/${CASE}/record?site_id=KOBO-001` },
+      record: { label: "Maintenance record", href: RECORD },
       history: { label: "History", href: `/maintenance/requests/${CASE}/history?site_id=KOBO-001` },
       source_incident: null,
       findings: [],
@@ -192,16 +193,20 @@ describe("W6-01c C2: work request Overview", () => {
     // P-C2-3: Open site heading action.
     expect(screen.getByRole("link", { name: "Open site" })).toHaveAttribute("href", "/sites/KOBO-001");
 
-    // P-C2-5: Context tabs in mock order; Overview live, the other three unavailable.
+    // P-C2-5: Context tabs in mock order; Overview live and current. W6-01c C3 (P-C3-5): Maintenance record is a
+    // live `/record` link with the same Site; Verification and History stay unavailable.
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(tabs.querySelector(".site-tabs__list")).not.toBeNull();
     const overview = within(tabs).getByRole("link", { name: "Overview" });
     expect(overview).toHaveAttribute("href", OVERVIEW);
     expect(overview).toHaveAttribute("aria-current", "page");
-    expect(within(tabs).getAllByRole("link")).toHaveLength(1);
+    const record = within(tabs).getByRole("link", { name: "Maintenance record" });
+    expect(record).toHaveAttribute("href", RECORD);
+    expect(record).not.toHaveAttribute("aria-current");
+    expect(within(tabs).getAllByRole("link")).toHaveLength(2);
     expect(Array.from(tabs.querySelectorAll("li")).map((li) => text(li))).toEqual([
       "Overview",
-      "Maintenance record · Not available yet",
+      "Maintenance record",
       "Verification · Not available yet",
       "History · Not available yet",
     ]);
@@ -373,7 +378,11 @@ describe("W6-01c C2: work request Overview", () => {
       loaded(
         detail({
           selected: { ...detail().selected, known_at: "2026-10-20T12:00:01.000000Z" },
-          links: { ...detail().links, overview: { label: "Overview", href } },
+          links: {
+            ...detail().links,
+            overview: { label: "Overview", href },
+            record: { label: "Maintenance record", href: `${RECORD}&known_at=${encodeURIComponent(KNOWN)}` },
+          },
         }),
       ),
     );
@@ -384,6 +393,11 @@ describe("W6-01c C2: work request Overview", () => {
     expect(within(screen.getByRole("navigation", { name: "Context tabs" })).getByRole("link", { name: "Overview" })).toHaveAttribute(
       "href",
       href,
+    );
+    // W6-01c C3: the explicit cutoff stays on the live Maintenance record tab.
+    expect(within(screen.getByRole("navigation", { name: "Context tabs" })).getByRole("link", { name: "Maintenance record" })).toHaveAttribute(
+      "href",
+      `${RECORD}&known_at=${encodeURIComponent(KNOWN)}`,
     );
   });
 
