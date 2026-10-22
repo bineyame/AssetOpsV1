@@ -451,4 +451,5 @@ Owner: "use a fresh claude architect instead of codex until  the codex quota is 
 - W6-01 A1Q2 R1-R4 confirmations (plan/W6-01-a1q2).
 - W6-01 A2Q1-Q10 + readiness X1-X9 (plan/W6-01-a2q).
 - W6-01 CL3 7 readiness gaps (plan/W6-01-close3).
-- W5 C2 Q1-Q4 + W5 UI readiness (plan/W5-c2q); note C2 table drops mock "Match" heading. OPEN: W5-03 E1a/E1b payload key tables (/ev/availability, /ev/energy, /ev/health) - give to Codex Architect after reset.
+- W5 C2 Q1-Q4 + W5 UI readiness (plan/W5-c2q); note C2 table drops mock "Match" heading. E1 key tables closed by Claude in plan/W5-close2.
+- W5 close2: C3/E4 notices (new copy), C5/E6 scenario rows, E2/E3/E4 literals, E1 key tables; E1b also edits ev_site_reads.py (_energy extract).
