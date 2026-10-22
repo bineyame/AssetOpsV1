@@ -478,6 +478,19 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   reviewers flag it Medium (High if user-visible vs the mock), and the Architect
   rules it and amends the spec before merge
   (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
+- **Builder pre-flight and quiet-machine suites (owner, 2026-10-22,
+  `.agent/owner-speed-preflight-quiet-suite-2026-10-22.md`).**
+  - **Pre-flight.** Before writing any code for a sub-slice, the builder dry-reads
+    every unit card in it against main and the v69 mock. It lists every point the
+    card leaves open: files, literals, producers, guards, broken tests and mock
+    differences. It commits that list as one batch to the handoff and stops. The
+    coordinator sends the batch to the Architect as one request, and the builder
+    starts code only after those rulings merge. A mid-build stop afterwards counts
+    as a missed pre-flight item, and a missed item is recorded in the readiness lessons.
+  - **Quiet-machine suites.** A full backend suite runs only while no builder,
+    capture, browser or vitest run is active on the machine. While it runs, only
+    light work (spec and Architect requests, reading reviews) proceeds. Builders
+    and captures wait for it. One suite at a time.
 - **Both Architects (Codex and Claude) check every screen-affecting spec,
   ruling and design against the v69 mock (owner, 2026-10-22,
   `.agent/owner-architect-mock-fidelity-2026-10-22.md`).** Each ruling that touches a
