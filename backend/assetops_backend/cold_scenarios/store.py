@@ -76,6 +76,14 @@ _MALFORMED = (
     "SELECT EXISTS (SELECT 1 " + _CANDIDATES + "AND (r.authored_basis->>'from' IS NULL "
     "OR r.authored_basis->>'to' IS NULL OR r.authored_basis->>'cutoff' IS NULL))"
 )
+#: Whether any root of this tenant and Site recorded by `scenario_at` has a revision 1 lacking `from` or `to`: such a
+#: root has no trustworthy window to associate with any list, so the whole Site list is a 503 (Q-C5c item 3).
+_MALFORMED_ROOT = (
+    "SELECT EXISTS (SELECT 1 FROM cold_scenario m JOIN cold_scenario_revision f ON f.tenant_id = m.tenant_id "
+    "AND f.site_id = m.site_id AND f.scenario_id = m.id AND f.revision_no = 1 "
+    "WHERE m.tenant_id = :t AND m.site_id = :s AND f.recorded_at <= :at "
+    "AND (f.authored_basis->>'from' IS NULL OR f.authored_basis->>'to' IS NULL))"
+)
 #: Each candidate root at its latest revision with an evidence cutoff no later than `known_at`.
 _SELECTED = (
     "SELECT DISTINCT ON (r.scenario_id) r.id, r.scenario_id, m.public_no, "
@@ -198,6 +206,10 @@ class PostgresColdScenarioStore:
                              scenario_at: Any) -> bool:
         return bool(c.execute(text(_MALFORMED), {
             "t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "at": scenario_at}).scalar_one())
+
+    @staticmethod
+    def malformed_roots(c: Connection, tenant_id: UUID, site_id: UUID, scenario_at: Any) -> bool:
+        return bool(c.execute(text(_MALFORMED_ROOT), {"t": tenant_id, "s": site_id, "at": scenario_at}).scalar_one())
 
     @staticmethod
     def count_heads(c: Connection, tenant_id: UUID, site_id: UUID, lo: Any, hi: Any, known: Any,

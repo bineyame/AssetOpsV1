@@ -107,3 +107,10 @@
     margin-bottom: 6px;
   }
 }
+
+/* W5-01b Q-C5c-1: the mock blue notice composition (info icon, then the paragraph). */
+.v69-notice[data-scenarios-closing-notice] { display: flex; gap: 10px; align-items: flex-start; }
+.v69-notice[data-scenarios-closing-notice] p { margin: 0; }
+
+/* W5-01b Q-C5c-2: readable Basis width inside the DataTable scroller; shorter phone disclosure. */
+@media (max-width: 640px) { .cold-scenarios-panel .data-table { min-width: 820px; } .cold-scenarios-panel .data-table tr > :nth-child(3) { min-width: 190px; } .cold-scenarios-basis { max-height: 220px; } }

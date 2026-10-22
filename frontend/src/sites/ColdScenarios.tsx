@@ -329,8 +329,7 @@ function ScenariosBody({
         )}
       </Panel>
       <Notice tone="blue" data={{ "data-scenarios-closing-notice": "" }}>
-        {/* Q-C5b-6 info icon held: tools/checks/shell-overflow.ps1 rule 5 refuses an svg element in this page module (open question Q-C5c-1). */}
-        {SCENARIOS_CLOSING_NOTICE}
+        <RailIcon name="info" /><p>{SCENARIOS_CLOSING_NOTICE}</p>
       </Notice>
     </>
   );

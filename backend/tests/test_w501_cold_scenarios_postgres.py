@@ -711,3 +711,65 @@ def test_list_malformed_stored_basis_is_503(chain) -> None:  # noqa: F811
     refused_get(c, W, 503, "DECISION_STORE_UNAVAILABLE")
     _replica(built.engine, f"DELETE FROM cold_scenario_revision WHERE id = '{rev2}'")
     assert [i["id"] for i in listed(c)["items"]] == [made["id"]]
+
+
+def test_list_malformed_root_window_is_503(chain) -> None:  # noqa: F811
+    """Q-C5c item 3: a Site root whose revision 1 lacks `from` or `to` has no trustworthy window, so it makes every
+    list of that tenant and Site a 503 (never a partial 200); another Site's malformed root does not poison it, and
+    an authored clock before the malformed revision still lists the valid root."""
+    built = opened("backup-failed", chain)
+    run(built)
+    c = scenarios_client(built)
+    made = post(c, command_body("root-key-0001"))
+    basis = stored(built, made["id"])[0]["authored_basis"]
+    before = listed(c)
+    assert [i["id"] for i in before["items"]] == [made["id"]]
+    saved_at = before["scenario_at"]
+    # A second Site of the same tenant (test-only row copied from the fixture Site).
+    other_site = uuid4()
+    code = f"W501-OTHER-{other_site.hex[:8]}"
+    with built.engine.connect() as conn:
+        cols = [r[0] for r in conn.execute(text(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'site' ORDER BY ordinal_position"))]
+    pick = {"id": f"'{other_site}'", "site_code": f"'{code}'", "site_code_key": f"'{code.lower()}'"}
+    _replica(built.engine, f"INSERT INTO site ({', '.join(cols)}) SELECT {', '.join(pick.get(x, x) for x in cols)} "
+                           f"FROM site WHERE id = '{built.site_id}'")
+    revision = ("INSERT INTO cold_scenario_revision (id, tenant_id, site_id, scenario_id, revision_no, "
+                "supersedes_revision_id, name, kind, assumptions, authored_basis, basis_sha256, formula_version, "
+                "correction_reason, actor_kind, actor_id, authorization_basis, attestation, idempotency_key, "
+                "payload_sha256) VALUES (:id, :t, :s, :r, 1, NULL, 'Malformed', 'STOCK_VALUE_CONTEXT', "
+                "CAST(:a AS jsonb), CAST(:b AS jsonb), :h, 'AUTHORED_ONLY/1', NULL, 'SERVICE', 'svc', 'basis', "
+                "'attested', :k, :h)")
+
+    def malformed_root(site_id, key: str, missing: str):
+        root, rev = uuid4(), uuid4()
+        with built.engine.begin() as conn:
+            conn.execute(text(
+                "INSERT INTO cold_scenario (id, tenant_id, site_id, create_key, create_payload_sha256, "
+                "create_actor_id, actor_kind, actor_id) VALUES (:id, :t, :s, :k, :h, 'svc', 'SERVICE', 'svc')"),
+                {"id": root, "t": built.tenant_id, "s": site_id, "k": key, "h": _sha("c")})
+            conn.execute(text(revision), {
+                "id": rev, "t": built.tenant_id, "s": site_id, "r": root, "a": json.dumps(ASSUMPTIONS),
+                "b": json.dumps({k: v for k, v in basis.items() if k != missing}), "h": _sha("b"), "k": key})
+        return root, rev
+
+    def remove(root, rev) -> None:
+        _replica(built.engine, f"DELETE FROM cold_scenario_revision WHERE id = '{rev}'",
+                 f"DELETE FROM cold_scenario WHERE id = '{root}'")
+
+    # Another Site's malformed root (missing 'from') does not poison this Site's list.
+    foreign = malformed_root(other_site, "root-0000", "from")
+    assert [i["id"] for i in listed(c)["items"]] == [made["id"]]
+    assert [i["id"] for i in listed(c, f"{W}&limit=1")["items"]] == [made["id"]]
+    for key, missing in (("root-0001", "from"), ("root-0002", "to")):
+        root, rev = malformed_root(built.site_id, key, missing)
+        for query in (W, f"{W}&limit=1"):
+            response = c.get(f"{ROUTE}?{query}")
+            refusal(response, 503, "DECISION_STORE_UNAVAILABLE")
+            assert "items" not in response.json()
+        # The authored clock before the malformed revision still lists the valid root.
+        assert [i["id"] for i in listed(c, f"{W}&scenario_at={saved_at}")["items"]] == [made["id"]]
+        remove(root, rev)
+        assert [i["id"] for i in listed(c)["items"]] == [made["id"]]
+    remove(*foreign)
+    _replica(built.engine, f"DELETE FROM site WHERE id = '{other_site}'")

@@ -232,6 +232,9 @@ class ColdScenarioService:
         if page is not None and (page["selection_token"] != token or page["known_at"] != window["known_at"]):
             raise refused("COLD_SCENARIO_CURSOR_BASIS_CHANGED")
 
+        # Q-C5c item 3: a Site root whose revision 1 lacks from/to has no trustworthy window, so it poisons every list.
+        if self._store.malformed_roots(c, t, s, scenario_at):
+            raise _store_unavailable()
         rows: list[Mapping[str, Any]] = []
         count = 0
         if window["from"] is not None and window["known_at"] is not None:

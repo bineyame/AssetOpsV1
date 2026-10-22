@@ -392,23 +392,22 @@ describe("cold Scenarios page states", () => {
       expect(region.tabIndex).toBe(0);
       const ids = Array.from(region.querySelectorAll('[data-vocabulary-exempt="source-reference"]')).map((n) => n.textContent);
       expect(ids.filter((value) => value !== null && value.startsWith("4e5f6071-8293-4eaf-80b1-"))).toEqual(many);
-      for (const width of [1440, 390]) {
-        Object.defineProperty(window, "innerWidth", { configurable: true, writable: true, value: width });
-        window.dispatchEvent(new Event("resize"));
-        const computed = window.getComputedStyle(region);
-        expect(computed.maxHeight).toBe("360px");
-        expect(computed.overflowY).toBe("auto");
-      }
+      // jsdom applies no media queries, so it computes the desktop rule; the 390 computed 220px is the browser
+      // layout assertion in `.agent/W5-01b-C5-evidence/capture.mjs` (Q-C5c-2).
+      const computed = window.getComputedStyle(region);
+      expect(computed.maxHeight).toBe("360px");
+      expect(computed.overflowY).toBe("auto");
     } finally {
       style.remove();
     }
-    // The rule sits outside the phone media query, which keeps only its grid rules.
+    // The 360px rule sits outside the phone media query; the Q-C5c-2 phone rule shortens it to 220px and gives the
+    // Basis column a readable width inside the DataTable scroller.
     const flat = SCENARIOS_CSS.replace(/\s+/g, " ");
-    const phone = flat.indexOf("@media (max-width: 640px)");
     const rule = ".cold-scenarios-basis { max-height: 360px; overflow-y: auto; }";
+    const phoneRule = "@media (max-width: 640px) { .cold-scenarios-panel .data-table { min-width: 820px; } " +
+      ".cold-scenarios-panel .data-table tr > :nth-child(3) { min-width: 190px; } .cold-scenarios-basis { max-height: 220px; } }";
     expect(flat.indexOf(rule)).toBeGreaterThan(-1);
-    expect(flat.indexOf(rule)).toBeLessThan(phone);
-    expect(flat.slice(phone)).not.toMatch(/max-height|overflow-y/);
+    expect(flat.indexOf(phoneRule)).toBeGreaterThan(flat.indexOf(rule));
     cleanup();
 
     // Two records read `2 records`; the Scenarios address keeps the four keys in order and drops unset ones.
@@ -519,8 +518,12 @@ describe("authored, pending and historical cold Scenarios", () => {
     const closing = main.querySelector("[data-scenarios-closing-notice]") as HTMLElement;
     expect(closing.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
     expect(closing.className).toContain("v69-notice--blue");
-    // Q-C5b-6 info icon held pending Q-C5c-1 (shell-overflow rule 5).
-    expect(closing.querySelector("svg")).toBeNull();
+    // Q-C5c-1: the mock `info` icon through RailIcon, then the closing paragraph.
+    const icon = closing.firstElementChild as Element;
+    expect(icon.matches('svg[data-rail-icon="info"]')).toBe(true);
+    expect(icon.querySelector("path")?.getAttribute("d")).toBe("M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 10v7 M12 7v1");
+    expect(icon.nextElementSibling?.tagName).toBe("P");
+    expect(icon.nextElementSibling?.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
     expect(panel.compareDocumentPosition(closing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(main.querySelector("[data-cold-date-bar]")?.textContent).toContain("Selected window");
     expect(main.querySelector("[data-scenarios-through]")?.textContent).toBe("Scenarios created through 2026-10-22 09:30 UTC");
