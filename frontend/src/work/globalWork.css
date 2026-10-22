@@ -190,6 +190,17 @@
   margin-bottom: 12px;
 }
 
+/* The mock tab row scrolls inside itself and never wraps; `.global-work *`'s min-width: 0 must not shrink a tab. */
+.work-request-tabs .site-tabs__item {
+  flex: none;
+  min-width: max-content;
+}
+
+.work-request-tabs .site-tabs__item * {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 .work-request-bar {
   align-items: center;
 }
@@ -209,7 +220,13 @@
 
 .work-request-prose {
   font-size: 12px;
-  line-height: 1.8;
+  line-height: 1.6;
+}
+
+/* Section 2 caps Work done at 430 / 510 and Lifecycle at 350 / 300 px (1440 / 390); each panel keeps its own
+   height, so a long narrative never stretches Lifecycle past its cap. */
+.work-request .panel-pair {
+  align-items: start;
 }
 
 .work-request-latest {
@@ -222,7 +239,7 @@
 }
 
 .work-request .v69-key-values {
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .work-request .lifecycle {

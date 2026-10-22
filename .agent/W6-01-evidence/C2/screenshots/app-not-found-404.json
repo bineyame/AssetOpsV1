@@ -1,0 +1,210 @@
+{
+  "state": "not-found-404",
+  "captured_at": "2026-10-22T20:47:10.927Z",
+  "results": [
+    {
+      "state": "not-found-404",
+      "width": 1440,
+      "route": "/maintenance/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001",
+      "image": "not-found-404-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001",
+          "status": 404
+        },
+        {
+          "url": "/api/work/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001",
+          "status": 404
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": null,
+        "state_block": {
+          "h": 42,
+          "w": 1160
+        },
+        "work_done": {
+          "h": 80,
+          "w": 734
+        },
+        "lifecycle": {
+          "h": 96,
+          "w": 408
+        },
+        "request_header_with_tabs": {
+          "h": 120,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Work request",
+        "subtitle": "Request details could not be shown.",
+        "breadcrumb": "MaintenanceWork requestOverview",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ]
+        ],
+        "open_site": [
+          "SPAN",
+          null
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record · Not available yet",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "Work request unavailable.Reload",
+        "refusal": "No work case with this ID at this site.",
+        "mheader": [],
+        "source_links": [],
+        "narrative": "",
+        "latest": null,
+        "activity": "",
+        "key_values": [],
+        "lifecycle_done": [],
+        "chart_notes": [
+          "Completed is not Verified. No work-case outcome evaluator is available."
+        ],
+        "panel_titles": [
+          "Work done",
+          "Lifecycle"
+        ]
+      }
+    },
+    {
+      "state": "not-found-404",
+      "width": 390,
+      "route": "/maintenance/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001",
+      "image": "not-found-404-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001",
+          "status": 404
+        },
+        {
+          "url": "/api/work/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001",
+          "status": 404
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": null,
+        "state_block": {
+          "h": 42,
+          "w": 358
+        },
+        "work_done": {
+          "h": 80,
+          "w": 358
+        },
+        "lifecycle": {
+          "h": 96,
+          "w": 358
+        },
+        "request_header_with_tabs": {
+          "h": 115,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 900,
+      "text": {
+        "h1": "Work request",
+        "subtitle": "Request details could not be shown.",
+        "breadcrumb": "MaintenanceWork requestOverview",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ]
+        ],
+        "open_site": [
+          "SPAN",
+          null
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record · Not available yet",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "Work request unavailable.Reload",
+        "refusal": "No work case with this ID at this site.",
+        "mheader": [],
+        "source_links": [],
+        "narrative": "",
+        "latest": null,
+        "activity": "",
+        "key_values": [],
+        "lifecycle_done": [],
+        "chart_notes": [
+          "Completed is not Verified. No work-case outcome evaluator is available."
+        ],
+        "panel_titles": [
+          "Work done",
+          "Lifecycle"
+        ]
+      }
+    }
+  ]
+}
