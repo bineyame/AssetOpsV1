@@ -72,16 +72,37 @@ function HealthRefusal({ read, onRetry }: { read: Exclude<ColdRead<ColdHealthRea
 
 const assetName = (asset: ColdHealthRow["assets"][number]) => asset.display_name ?? asset.asset_code;
 
-/** C3 Asset cell rule, in order of precedence. */
+/**
+ * C3 Asset cell rule, in order of precedence. Q-C3-6 M1: at phone width a matching asset shows its selected
+ * `asset_code` with the full ID behind a `Full ID` disclosure; the desktop copy keeps name and full ID inline.
+ */
 function AssetCell({ row }: { row: ColdHealthRow }) {
   if (row.asset_id !== null) {
     const match = row.assets.find((asset) => asset.asset_id === row.asset_id);
-    return (
-      <>
-        {match === undefined ? null : <>{assetName(match)} </>}
+    if (match === undefined) {
+      return (
         <code data-vocabulary-exempt="source-reference" data-health-asset-id>
           {row.asset_id}
         </code>
+      );
+    }
+    return (
+      <>
+        <span className="cold-health-asset__desktop">
+          {assetName(match)}{" "}
+          <code data-vocabulary-exempt="source-reference" data-health-asset-id>
+            {row.asset_id}
+          </code>
+        </span>
+        <span className="cold-health-asset__mobile">
+          <span data-health-asset-code>{match.asset_code}</span>
+          <details>
+            <summary>Full ID</summary>
+            <code data-vocabulary-exempt="source-reference" data-health-asset-id>
+              {row.asset_id}
+            </code>
+          </details>
+        </span>
       </>
     );
   }
@@ -107,7 +128,7 @@ function HealthBody({ read, routes }: { read: ColdHealthRead; routes: ColdSiteRo
           return (
             <MetricCard
               key={row.kind}
-              assessment
+              assessment={row.condition_state === "NEEDS_INVESTIGATION"}
               label={row.label}
               link={href === null ? undefined : <Link to={href}>View detail →</Link>}
               value={HEALTH_CARD_VALUE[row.condition_state]}

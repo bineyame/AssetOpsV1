@@ -206,7 +206,7 @@ describe("health_dto_rendering", () => {
     expect(headers).toEqual(["Asset", "Supported assessment", "Next evidence"]);
   });
 
-  it("Asset cell: matching asset name then its ID; else every asset name; else the row label", async () => {
+  it("Asset cell: matching asset name and ID (mobile: selected code + Full ID); missing match: the ID; else every asset name; else the row label", async () => {
     const { container } = await renderHealth(
       loaded([
         generator(),
@@ -215,15 +215,45 @@ describe("health_dto_rendering", () => {
       ]),
     );
     const gen = row(container, "BACKUP_GENERATOR").querySelector("th") as HTMLElement;
-    expect(gen.textContent).toBe(`Backup generator GEN-CR-01 ${GEN}`);
-    expect(gen.querySelector('code[data-vocabulary-exempt="source-reference"][data-health-asset-id]')?.textContent).toBe(GEN);
+    expect(gen.querySelector(".cold-health-asset__desktop")?.textContent).toBe(`Backup generator GEN-CR-01 ${GEN}`);
+    const mobile = gen.querySelector(".cold-health-asset__mobile") as HTMLElement;
+    expect(mobile.querySelector("[data-health-asset-code]")?.textContent).toBe("gen-1");
+    // Both full-ID copies are the complete source-reference UUID.
+    const ids = Array.from(gen.querySelectorAll('code[data-vocabulary-exempt="source-reference"][data-health-asset-id]'));
+    expect(ids.map((c) => c.textContent)).toEqual([GEN, GEN]);
+    const details = mobile.querySelector("details") as HTMLDetailsElement;
+    expect(details.open).toBe(false);
+    expect(details.querySelector("summary")?.textContent).toBe("Full ID");
+    fireEvent.click(details.querySelector("summary") as HTMLElement);
+    expect(details.open).toBe(true);
+    expect(details.querySelector("code")?.textContent).toBe(GEN);
     expect(gen.closest(".panel")?.classList.contains("cold-health-condition")).toBe(true);
     expect(cells(row(container, "COOLING_PLANT"))[0]).toBe("cmp-1, Second compressor");
     expect(cells(row(container, "TEMPERATURE_SENSING"))[0]).toBe("Temperature sensing");
     cleanup();
     const second = await renderHealth(loaded([generator(), plant(), sensing()]));
-    expect(cells(row(second.container, "COOLING_PLANT"))[0]).toBe(`cmp-1 ${CMP}`);
-    expect(cells(row(second.container, "TEMPERATURE_SENSING"))[0]).toBe(`Chamber probe ${PROBE}`);
+    expect(row(second.container, "COOLING_PLANT").querySelector(".cold-health-asset__desktop")?.textContent).toBe(`cmp-1 ${CMP}`);
+    expect(row(second.container, "COOLING_PLANT").querySelector("[data-health-asset-code]")?.textContent).toBe("cmp-1");
+    expect(row(second.container, "TEMPERATURE_SENSING").querySelector(".cold-health-asset__desktop")?.textContent).toBe(`Chamber probe ${PROBE}`);
+    expect(row(second.container, "TEMPERATURE_SENSING").querySelector("[data-health-asset-code]")?.textContent).toBe("probe-1");
+    cleanup();
+    // Missing match: the full ID is the primary text (no inferred code, no disclosure).
+    const third = await renderHealth(loaded([generator({ asset_id: AMBIENT }), plant(), sensing()]));
+    const missing = row(third.container, "BACKUP_GENERATOR").querySelector("th") as HTMLElement;
+    expect(missing.textContent).toBe(AMBIENT);
+    expect(missing.querySelector("[data-health-asset-code]")).toBeNull();
+    expect(missing.querySelector("details")).toBeNull();
+  });
+
+  it("the 390 rule fits the table: no 840/240 px sticky rule remains in primitives.css", async () => {
+    const fs = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+    const cwd = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+    const css = fs.readFileSync(`${cwd}/src/ui/primitives.css`, "utf8");
+    const block = css.slice(css.indexOf(".cold-health-asset__mobile { display: none; }"));
+    expect(block.length).toBeGreaterThan(0);
+    expect(css).not.toMatch(/\.cold-health-condition[^{]*\{[^}]*min-width:\s*840px/);
+    expect(css).not.toMatch(/\.cold-health-condition[^{]*\{[^}]*min-width:\s*240px/);
+    expect(css).toContain(".cold-health-condition .data-table { min-width: 0; width: 100%; table-layout: fixed; }");
   });
 
   it("each card has a plain label and a separate View detail → link through coldUiHref; a null link renders none", async () => {
@@ -255,12 +285,17 @@ describe("condition_matrix", () => {
     expect(value(container, "COOLING_PLANT")).toBe("Unknown");
     expect(value(container, "TEMPERATURE_SENSING")).toBe("Limited");
     expect(card(container, "COOLING_PLANT").className).not.toMatch(/v69-metric--(green|amber|red)/);
-    // Q-C3-5 rulings 2 and 4: all three cards are mock assessment metrics (3 px border, 17 px body-colour word).
+    // Q-C3-6 H1: only the NEEDS_INVESTIGATION card is a mock assessment metric (3 px amber border, 17 px word);
+    // the plain cards keep the 27 px value with no border or tone.
     for (const kind of ["BACKUP_GENERATOR", "COOLING_PLANT", "TEMPERATURE_SENSING"]) {
-      expect(card(container, kind).classList.contains("v69-metric--assessment")).toBe(true);
       expect(card(container, kind).getAttribute("style")).toBeNull();
+      expect(card(container, kind).classList.contains("v69-metric--word")).toBe(kind === "BACKUP_GENERATOR");
     }
     expect(card(container, "BACKUP_GENERATOR").className).toContain("v69-metric--assessment v69-metric--amber");
+    for (const kind of ["COOLING_PLANT", "TEMPERATURE_SENSING"]) {
+      expect(card(container, kind).classList.contains("v69-metric--assessment")).toBe(false);
+      expect(card(container, kind).className).not.toMatch(/v69-metric--(green|amber|red|muted)/);
+    }
     const notice = container.querySelector("[data-health-condition-notice]") as HTMLElement;
     expect(notice.textContent).toBe(HEALTH_CONDITION_NOTICE);
     expect(HEALTH_CONDITION_NOTICE).toBe(
@@ -285,6 +320,8 @@ describe("condition_matrix", () => {
     for (const [rows, words] of cases) {
       const { container } = await renderHealth(loaded(rows));
       expect(["BACKUP_GENERATOR", "COOLING_PLANT", "TEMPERATURE_SENSING"].map((k) => value(container, k))).toEqual(words);
+      // Assessment styling follows the state: no row here is NEEDS_INVESTIGATION.
+      expect(container.querySelector(".v69-metric--assessment")).toBeNull();
       expect(container.textContent).not.toMatch(/\b(Healthy|Good|Normal|OK|Operating normally)\b/);
       expect(container.querySelector(".v69-metric--green")).toBeNull();
       cleanup();
@@ -315,6 +352,13 @@ describe("condition_matrix", () => {
 });
 
 describe("health_states_and_loading", () => {
+  it("styling follows the state: a NEEDS_INVESTIGATION row is an assessment card whichever card it is", async () => {
+    const { container } = await renderHealth(loaded());
+    const assessed = Array.from(container.querySelectorAll(".v69-metric--assessment")).map((c) => c.getAttribute("data-health-card"));
+    expect(assessed).toEqual(["BACKUP_GENERATOR"]);
+  });
+
+
   it("shows the loading sentence while the read is pending", async () => {
     const { client } = stub(() => new Promise(() => undefined));
     const view = render(
@@ -393,6 +437,25 @@ const SITE = {
 } as unknown as SiteDetailReadModel;
 
 describe("condition_matrix: the composed cold Health page", () => {
+  it("shows the Data sources loading line inside its titled panel while the source read is pending (review L1)", async () => {
+    vi.stubGlobal("fetch", () => new Promise(() => undefined));
+    const { client } = stub(loaded());
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: SITE }) };
+    const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [SITE] }) };
+    render(
+      <MemoryRouter initialEntries={[`/sites/${SITE_CODE}/health?${Q}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldDepth={client} />
+      </MemoryRouter>,
+    );
+    // `settledScreen` treats this loading line as unsettled by design; the cold read itself is awaited positively.
+    await waitFor(() => expect(document.querySelector("[data-health-condition-notice]")).not.toBeNull());
+    const heading = document.querySelector("#site-health-sources-heading") as HTMLElement;
+    expect(heading.textContent).toBe("Data sources · data quality, not equipment condition");
+    const panel = heading.closest(".panel") as HTMLElement;
+    expect(Array.from(panel.querySelectorAll("p")).map((p) => p.textContent)).toContain("Loading the site's gateway contact.");
+  });
+
+
   it("renders the Site-name h1, then cards, Condition and evidence, the condition notice and the S7 Data sources panel alone", async () => {
     const requests: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {

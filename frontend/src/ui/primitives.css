@@ -2470,16 +2470,25 @@ button:focus-visible {
   }
 }
 
-/* W5-01a C3 (Q-C3-5, mock differences): the cold Health card link below the note, and at phone width the
-   `Condition and evidence` Asset column stays visible with each full asset ID on one line while the other
-   columns scroll inside `.data-table__scroll`. */
+/* W5-01a C3: the cold Health card link below the note (Q-C3-5), and (Q-C3-6 M1) at phone width the
+   `Condition and evidence` table fits its three columns, showing the selected asset code with the full ID
+   behind a `Full ID` disclosure. */
 .v69-metric__link { font-size: 10px; margin-top: 10px; }
 
+.cold-health-asset__mobile { display: none; }
 @media (max-width: 480px) {
-  .cold-health-condition .data-table { min-width: 840px; }
-  .cold-health-condition .data-table th:first-child { position: sticky; left: 0; z-index: 1; min-width: 240px; background: var(--surface-raised); }
-  .cold-health-condition .data-table thead th:first-child { z-index: 2; background: var(--surface-sunken); }
-  .cold-health-condition [data-health-asset-id] { display: block; white-space: nowrap; overflow-wrap: normal; word-break: normal; font-size: 10px; }
+  .cold-health-condition .data-table { min-width: 0; width: 100%; table-layout: fixed; }
+  .cold-health-condition .data-table th,
+  .cold-health-condition .data-table td { padding: 7px 5px; overflow-wrap: anywhere; word-break: normal; }
+  .cold-health-condition .data-table thead th { white-space: normal; font-size: 9px; }
+  .cold-health-condition .data-table tr > :first-child { width: 27%; position: static; min-width: 0; }
+  .cold-health-condition .data-table tr > :nth-child(2) { width: 36.5%; }
+  .cold-health-condition .data-table tr > :nth-child(3) { width: 36.5%; }
+  .cold-health-asset__desktop { display: none; }
+  .cold-health-asset__mobile { display: block; }
+  .cold-health-asset__mobile [data-health-asset-code] { font-size: 10px; font-weight: 650; }
+  .cold-health-asset__mobile details { margin-top: 4px; font-size: 10px; font-weight: 400; }
+  .cold-health-asset__mobile code { display: block; white-space: normal; overflow-wrap: anywhere; font-size: 10px; }
 }
 
 .graphic-fill--needed { fill: var(--graphic-needed); }
