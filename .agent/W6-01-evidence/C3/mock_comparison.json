@@ -1,0 +1,16 @@
+{
+  "panels_order": "match: breadcrumb (Maintenance > WR > Maintenance record · site), h1 + subtitle with Open site, tab row Overview | Maintenance record (current) | Verification | History, mheader (Owner, Due / SLA, State, Source, Success criterion), the single panel 'Maintenance record · activity' with the four-column Item/Detail/Status/Basis table and the six item rows in mock order, then the blue Operational records notice under the panel",
+  "prominence": "match: the record panel is the dominant block at both widths (1440: 542 px app vs ~437 px mock; 390: table scrolls inside the panel as in the mock); the notice is a one-line strip under the panel",
+  "mismatches": [
+    "Added date-bar slot (As known at / Historical as of + Reload) between tabs and mheader (R6, P-C2-4); not in the mock",
+    "Added group heading row 'Record {n} · {occurred_at UTC}' above the six rows (P-C3-1); the mock has one unlabelled record",
+    "Technician notes Detail cell carries a three-line clamp, a 'Full activity text' disclosure and the 'Outcome note:' line with 'Unverified · Authored note' (section 2, P-C3-1); the mock shows one sentence",
+    "Status values are 'Recorded' (neutral badge) and 'Not established' (amber badge) instead of the mock's green 'Captured' / amber 'Partial' / 'Missing'; Basis values are 'Authored maintenance record', 'Authored time', 'No stored field' instead of 'Operator record' / 'Measured' / 'Controller record' / dash (P-C3-1)",
+    "Parts, Return-to-service reading, Configuration readback and Witnessed automatic start show 'Not recorded' (no stored field) instead of mock values; Time on site shows the stored occurred_at instant only, not a duration (P-C3-1)",
+    "Panel sub-line is the A2Q7 footer 'What was recorded on site; no outcome verification follows from this entry.' instead of 'What was done · per v6.9 8.34 work evidence'",
+    "MOCK DEVIATION (P-C3-4): the notice names the exact REC code and kind label as plain text and adds 'The Operational records page is being prepared.'; the mock links 'Operational records' immediately; no notice icon",
+    "Unavailable tabs show the ' · Not available yet' suffix; breadcrumb separator is '/' (shared CSS), mock '›'",
+    "mheader values are stored facts or stated gaps (C2 rulings), e.g. Source 'Not recorded', Due / SLA 'Not set'",
+    "At 390 the app shows the 'Scroll table horizontally' text affordance above the table (section 2); the mock has none"
+  ]
+}

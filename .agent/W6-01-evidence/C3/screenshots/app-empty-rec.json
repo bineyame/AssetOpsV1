@@ -1,0 +1,268 @@
+{
+  "state": "empty-rec",
+  "captured_at": "2026-10-22T21:11:24.630Z",
+  "results": [
+    {
+      "state": "empty-rec",
+      "width": 1440,
+      "route": "/maintenance/requests/854e238e-1851-4143-8fc2-ef943e204799/record?site_id=KOBO-001",
+      "image": "empty-rec-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/854e238e-1851-4143-8fc2-ef943e204799?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/854e238e-1851-4143-8fc2-ef943e204799?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": {
+          "h": 75,
+          "w": 1160
+        },
+        "state_block": null,
+        "record_panel": {
+          "h": 140,
+          "w": 1160
+        },
+        "record_table_scroll": null,
+        "record_notice": {
+          "h": 42,
+          "w": 1160
+        },
+        "request_header_with_tabs": {
+          "h": 265,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 15,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Check spare relay",
+        "subtitle": "WR-000002 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000002Maintenance record· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/854e238e-1851-4143-8fc2-ef943e204799?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/854e238e-1851-4143-8fc2-ef943e204799/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 22 Oct 2026, 21:11 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Not assigned"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "Cancelled · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "table_columns": [],
+        "groups": [],
+        "activity_clamp_h": null,
+        "empty": "No maintenance activity recorded",
+        "notice": "No linked Operational record.",
+        "notice_links": [],
+        "oprecords_anchors": 0,
+        "table_width": null,
+        "scroll_hint_visible": null,
+        "panel_titles": [
+          "Maintenance record · activity"
+        ]
+      }
+    },
+    {
+      "state": "empty-rec",
+      "width": 390,
+      "route": "/maintenance/requests/854e238e-1851-4143-8fc2-ef943e204799/record?site_id=KOBO-001",
+      "image": "empty-rec-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/854e238e-1851-4143-8fc2-ef943e204799?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/854e238e-1851-4143-8fc2-ef943e204799?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 43,
+          "w": 358
+        },
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": {
+          "h": 205,
+          "w": 358
+        },
+        "state_block": null,
+        "record_panel": {
+          "h": 158,
+          "w": 358
+        },
+        "record_table_scroll": null,
+        "record_notice": {
+          "h": 42,
+          "w": 358
+        },
+        "request_header_with_tabs": {
+          "h": 390,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 15,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 900,
+      "text": {
+        "h1": "Check spare relay",
+        "subtitle": "WR-000002 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000002Maintenance record· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/854e238e-1851-4143-8fc2-ef943e204799?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/854e238e-1851-4143-8fc2-ef943e204799/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 22 Oct 2026, 21:11 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Not assigned"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "Cancelled · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "table_columns": [],
+        "groups": [],
+        "activity_clamp_h": null,
+        "empty": "No maintenance activity recorded",
+        "notice": "No linked Operational record.",
+        "notice_links": [],
+        "oprecords_anchors": 0,
+        "table_width": null,
+        "scroll_hint_visible": null,
+        "panel_titles": [
+          "Maintenance record · activity"
+        ]
+      }
+    }
+  ]
+}
