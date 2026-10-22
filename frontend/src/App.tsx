@@ -29,6 +29,8 @@ import {
   FINANCIALS_PATH,
   PORTFOLIO_ROOT_PATH,
   INCIDENTS_PATH,
+  MAINTENANCE_PATH,
+  MAINTENANCE_PREVENTIVE_PATH,
   FINDINGS_COST_PATH,
   FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
@@ -100,6 +102,8 @@ import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClien
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
 import { createGlobalWorkClient, type GlobalWorkClient } from "./work/globalWorkClient";
 import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
+import { GlobalMaintenanceFrame } from "./work/GlobalMaintenance";
+import { GlobalPreventiveFrame } from "./work/GlobalPreventive";
 import {
   createEstateEvidenceMoneyClient,
   createEstateFinancialsClient,
@@ -475,6 +479,10 @@ export function App({
           <Route path={PORTFOLIO_ROOT_PATH} element={<EstatePortfolioFrame client={estateIndex} />} />
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}
           <Route path={INCIDENTS_PATH} element={<GlobalIncidentsFrame client={globalWork} />} />
+          {/* W6-01b: the global Maintenance root, Corrective view (`MAINTENANCE_PATH`). */}
+          <Route path={MAINTENANCE_PATH} element={<GlobalMaintenanceFrame client={globalWork} />} />
+          {/* W6-01b B3: the global Maintenance root, Preventive view (`MAINTENANCE_PREVENTIVE_PATH`). */}
+          <Route path={MAINTENANCE_PREVENTIVE_PATH} element={<GlobalPreventiveFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

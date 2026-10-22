@@ -225,6 +225,7 @@ describe("operator route navigation", () => {
       ["Findings", "/findings"],
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
+      ["Maintenance", "/maintenance"],
       ["Evidence", "/evidence"],
       ["Financials", "/financials"],
     ]);
@@ -268,7 +269,7 @@ describe("operator route navigation", () => {
         [
           "Actions | live",
           "Incidents | live",
-          `Maintenance | ${off}`,
+          "Maintenance | live",
           `Operational records | ${off}`,
         ],
       ],

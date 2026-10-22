@@ -1186,7 +1186,7 @@
           "unresolved_panels": [
             "Maintenance at this site"
           ],
-          "remaining_work": "Independent W4-01 review accepting the exact slice, the owner fidelity tier decision, the missing global Work page and create flow and the post-W6 owner walkthrough.",
+          "remaining_work": "Independent W4-01 review accepting the exact slice, the owner fidelity tier decision, the missing create flow and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
@@ -1362,32 +1362,23 @@
       },
       "mock_route": "#/maintenance",
       "product_destination": "Maintenance",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 work-domain design",
-      "data_owner": "Unassigned Maintenance read model",
-      "supported_claim": "No S1-S7 product claim. MaintenanceIndex needs a reviewed data and claim contract.",
-      "interaction": "Open Maintenance and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until MaintenanceIndex is backed by accepted records; no mock value is product evidence.",
+      "coverage": "bounded",
+      "task": "W6-01b",
+      "follow_on": null,
+      "data_owner": "W6-01 global work read (GlobalWorkIndexService / GlobalWorkDetailService)",
+      "supported_claim": "Corrective work requests across every authorized imported Site for the selected UTC window, with the selected revision, latest assignee, latest authored maintenance activity and a source label; verification is Not established and warranty Not recorded.",
+      "interaction": "Open Maintenance, choose a UTC window and page through the list; a row opens its Site maintenance window, or the exact request once W6-01c is live.",
+      "unknown_or_empty": "No work request in the window is an exact zero; no accessible Sites, a refused or unreadable read and a changed list are stated and never shown as zero; completion is activity only; no mock request is product evidence.",
       "visual_reference": "index.html#/maintenance",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "MaintenanceIndex"
-          ],
-          "projection_contracts": [
-            "VerificationSummary"
-          ],
-          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Corrective work requests"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W6-01b review accepting the exact slice, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
@@ -3517,30 +3508,23 @@
       "registry_dependencies": {"product_node_id":"P-work-cases","node_ids":["I-w601b-read","I-w601b-preventive-ui","D-work-records"]},
       "mock_route": "#/maintenance-preventive",
       "product_destination": "Maintenance > Preventive Ã‚Â· scheduled",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 work-domain design",
-      "data_owner": "Unassigned Maintenance read model",
-      "supported_claim": "No S1-S7 product claim. MaintenancePlan needs a reviewed data and claim contract.",
-      "interaction": "Open Maintenance > Preventive Ã‚Â· scheduled and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until MaintenancePlan is backed by accepted records; no mock value is product evidence.",
+      "coverage": "bounded",
+      "task": "W6-01b",
+      "follow_on": null,
+      "data_owner": "W6-01 global work read (GlobalWorkIndexService / GlobalWorkDetailService)",
+      "supported_claim": "Draft preventive plans across every authorized imported Site whose root occurred in the selected UTC window, each at its selected correction head with authored trigger and due facts; no plan is an active schedule.",
+      "interaction": "Open Maintenance > Preventive, choose a UTC window and page through the plans; a row opens its Site.",
+      "unknown_or_empty": "No draft plan in the window is an exact zero; Overdue and Due in 14 days are Not assessed because no due evaluator exists; refused or unreadable reads are stated and never shown as zero.",
       "visual_reference": "index.html#/maintenance-preventive",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "MaintenancePlan"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Preventive plan"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W6-01b review accepting the exact slice, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }

@@ -1,0 +1,266 @@
+{
+  "state": "historical_root",
+  "captured_at": "2026-10-22T17:24:34.897Z",
+  "results": [
+    {
+      "state": "historical_root",
+      "width": 1440,
+      "route": "/maintenance/preventive?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=2026-10-20T12:00:03Z",
+      "image": "historical_root-1440.png",
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "control_bar": {
+          "h": 35,
+          "w": 595
+        },
+        "status_line": {
+          "h": 33,
+          "w": 187
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "cards": {
+          "h": 115,
+          "w": 1160
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "table_panel": {
+          "h": 230,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "notice": {
+          "h": 42,
+          "w": 1160
+        },
+        "status_strip": {
+          "h": 42,
+          "w": 1160
+        },
+        "table": {
+          "h": 99,
+          "w": 1120
+        },
+        "thead": {
+          "h": 35,
+          "w": 1120
+        },
+        "pager": {
+          "h": 29,
+          "w": 1120
+        },
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        },
+        "card_max": {
+          "h": 115,
+          "w": 0
+        }
+      },
+      "scroll_hint_visible": false,
+      "row_heights": [
+        64
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "status": "Historical as of 20 Oct 2026, 12:00 UTC",
+        "cards": [
+          "Scheduled items1Across 2 sites",
+          "OverdueNot assessedNo due evaluator",
+          "Due in 14 daysNot assessedNo due evaluator",
+          "Feeds evidenceNot establishedNo accepted-evidence link"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–1 of 1",
+        "first_row": [
+          "PM-000010 · Inspect filtersFull title textInspect filtersSource unverifiedThe or",
+          "No asset recorded · Kobo mini-grid",
+          "Calendar",
+          "Not linked",
+          "27 Oct 2026",
+          "Draft",
+          "Nothing verified by this plan"
+        ],
+        "codes": [
+          "PM-000010"
+        ],
+        "lineage": [
+          null
+        ],
+        "lineage_links": [
+          []
+        ],
+        "tabs": "CorrectivePreventive · scheduled",
+        "notice": "No incident link or cause is established by these draft plans."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A03Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A03Z&limit=5",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "historical_root",
+      "width": 390,
+      "route": "/maintenance/preventive?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=2026-10-20T12:00:03Z",
+      "image": "historical_root-390.png",
+      "heights": {
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "control_bar": {
+          "h": 165,
+          "w": 358
+        },
+        "status_line": {
+          "h": 17,
+          "w": 187
+        },
+        "date_bar_slot": {
+          "h": 211,
+          "w": 358
+        },
+        "cards": {
+          "h": 232,
+          "w": 358
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "table_panel": {
+          "h": 291,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "notice": {
+          "h": 42,
+          "w": 358
+        },
+        "status_strip": {
+          "h": 87,
+          "w": 358
+        },
+        "table": {
+          "h": 119,
+          "w": 720
+        },
+        "thead": {
+          "h": 35,
+          "w": 720
+        },
+        "pager": {
+          "h": 29,
+          "w": 318
+        },
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        },
+        "card_max": {
+          "h": 111,
+          "w": 0
+        }
+      },
+      "scroll_hint_visible": true,
+      "row_heights": [
+        84
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 318,
+        "scroll": 720,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1237,
+      "text": {
+        "status": "Historical as of 20 Oct 2026, 12:00 UTC",
+        "cards": [
+          "Scheduled items1Across 2 sites",
+          "OverdueNot assessedNo due evaluator",
+          "Due in 14 daysNot assessedNo due evaluator",
+          "Feeds evidenceNot establishedNo accepted-evidence link"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–1 of 1",
+        "first_row": [
+          "PM-000010 · Inspect filtersFull title textInspect filtersSource unverifiedThe or",
+          "No asset recorded · Kobo mini-grid",
+          "Calendar",
+          "Not linked",
+          "27 Oct 2026",
+          "Draft",
+          "Nothing verified by this plan"
+        ],
+        "codes": [
+          "PM-000010"
+        ],
+        "lineage": [
+          null
+        ],
+        "lineage_links": [
+          []
+        ],
+        "tabs": "CorrectivePreventive · scheduled",
+        "notice": "No incident link or cause is established by these draft plans."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A03Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A03Z&limit=5",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}
