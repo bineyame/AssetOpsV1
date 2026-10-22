@@ -78,3 +78,33 @@ Nothing was run: no tests, servers or DBs.
 Count: 39 items (B1 13, B2 15, B3 11), plus 2 cross-cutting, 41 in total. **High: P-B1-1, P-B1-2, P-B1-4, P-B2-1, P-B2-2, P-B3-1, P-B3-2.**
 
 Next: the coordinator sends this batch to the Architect as one request; the build starts after the rulings merge.
+
+## Run B1 (2026-10-22, builder)
+
+Base: `task/W6-01b-maintenance` at `d4fd1f04` (main with merged W6-01a, incl. A1 `ad1cefc1`..`0ad4462f`, A2 `db8b3847`). Commit `2f19542d`.
+
+- Built: `/api/work/maintenance` and `/api/work/preventive` on A1's router/service/reader (no guard, composition or `main.py` edit). Maintenance rows: root `created_at` membership, full-selection `state_counts` (`sum == total_count`, unreducible chain or unknown state 503), W4 record parity, `Site maintenance` fallback with response `known_at`, `detail:null`. Preventive: root `occurred_at` in window, root and head recorded by K, last head by `(recorded_at,id)`, `state_counts:null`, non-DRAFT 503, basis per P-B1-10. Seed: `maintenance`, `preventive`, `detail`, `linked` fixtures; `stress` and `historical` additions (`global_index.py`, `postgres_global_read.py` `_PLANS`/`plans`, `global_work_api.py`, `tools/w601_seed.py`).
+- Tests: `test_w601b_global_maintenance.py` 13 passed + 1 strict xfail; with `test_w601a_global_incidents.py`: 29 passed, 1 xfailed (219 s, private `assetops_w6b1_test`, dropped).
+- check-all: 10/11 at this commit; the one failure (navigation in-page multiset) was the uncommitted B2 page in the tree, fixed in B2. At B2 and B3 all 11 pass (below).
+- **BLOCKER, needs a ruling (P-B1-2/3 `linked`):** the producer is built exactly as ruled and fails in `CaseRunner` setup: `FOUNDATION_INTERVAL_INVALID: No currently recorded Foundation period of KOBO-001 contains 2026-09-12`. The KOBO-001 import's Foundation `valid_from` is `2026-09-29T11:57:49Z` (`backend/tests/fixtures/s1/kobo-001.yaml:17`); the 21-day shift moves `setup` to 09-12 and F01 readings to 09-15, both before it. A probe that left `setup` unshifted got past setup but `run_case` produced no F01 revision (readings before the Foundation/binding period). No uniform shift works: Finding creation must precede the 10-20 work writes (shift >= 11 days from `decided` 10-30) while setup must stay >= 09-29 (shift <= 4 days). Options for the Architect: shift only the `decided` instants (and expect values that follow them), or override the imported record's Foundation `valid_from` in the fixture, or defer the `maintenance-linked` capture. `test_linked_finding_and_action_hrefs` is a strict xfail naming this; no typed substitute was captured.
+- Builder choices to confirm (spec silent): seventh request `Inspect inverter relay` at KOBO-001; stress plan is CALENDAR with no due date; linked case titles (`Generator stopped after the Finding`, `Inspect starter for the Finding`, `Follow up the accepted Action`). Spec count mismatch: the ruled stress expressions store 4,000 (narrative) and 500 (reason) characters, not 3,999/499; tests pin the expressions.
+
+## Run B2 (2026-10-22, builder)
+
+Commits `ef2578b4` (Lane B), `f41fc849` (Lane A).
+
+- Lane B: `globalWorkParts.tsx` (A2 parts extracted; A2 DOM/tests unchanged, plus a `useGlobalWorkPage` hook, `GlobalWorkBar`, `GlobalWorkSlot`); `globalWorkClient.ts` maintenance/preventive types, optional methods, route-aware `state_counts` validation (`readGlobalWork(path, root)`); `GlobalMaintenance.tsx` per P-B2-3..11; CSS modifier `.global-work--maintenance` (scroll 478/518, table min 1030 px).
+- Lane A: route + constant, rail line and guard entry, three rail fixtures, `$expectedTabs` + `Preventive &middot; scheduled`, Site Work strips both linked (`WORK_MANAGE_UNAVAILABLE_STATUS` and its exemption removed, notice + exemption updated), A2Q11 six files + rail tests, ledger `maintenance` row and `sitework-maintenance` substring, registry `maintenance:1`.
+- Note: the third card's separate `View detail` slot sits inside the note ReactNode as ruled (MetricCard's existing `link` prop was not used). `Open work` note is the ruled literal `{N} requests in progress or open` (reads `1 requests ...` at N=1).
+- Checks: vitest `src/shell src/estate src/sites src/work src/ui` 2523 passed after the rail fix; tsc clean; check-all 11/11 PASS at `f41fc849`.
+- Captures `.agent/W6-01-evidence/B2/` (manifest.json): positive (7 rows/Next), zero, historical, refused_503, refused_window, cursor_changed (409), stress; 1440/390; caps met (panel 609/690 vs 610/690, cards 130/269, notice 42/60); no document overflow. Mock side-by-side: `screenshots/mock-maintenance-*.png`. `maintenance-linked` NOT captured (B1 blocker).
+
+## Run B3 (2026-10-22, builder)
+
+Commits `15aea5a8` (Lane B), `193f3632` (Lane A).
+
+- Lane B: `GlobalPreventive.tsx` per P-B3-3..9 (strip via `StatusBar` with `UnavailableInline label="Assets"`, the six labelled MOCK DEVIATIONs in the file header), `.global-work--preventive` modifier, `globalPreventive.test.tsx` (12).
+- Lane A: route + constant, Preventive tab and card `View detail →` live with effective `from/to/known_at` and no cursor (`preventive_card_and_tab_link_after_b3`), `$expectedTabs` entry removed, ledger `maintenance-preventive` targeted edit (`product_destination` bytes unchanged; old mojibake `interaction` replaced), registry `maintenance-preventive:1`, `EstateEvidence.tsx` `Preventive plan →` live (window from the rendered response; `known_at` only when the page carries an explicit cutoff) with tests. `operatorRouteFrames.test.tsx` not touched (K4a override preserved).
+- Builder choices to confirm: Preventive breadcrumb `Maintenance` crumb links to the Corrective view with the effective query; correction disclosure summary `Earlier plan version`; date-only format `1 Nov 2026` (mock form, numeric day).
+- Captures `.agent/W6-01-evidence/B3/`: positive (5 DRAFT incl. two RUN_HOURS), historical_root (`known_at=12:00:03Z`) and historical_current (correction head), zero, refused_503, stress; Evidence root 1440/390 and click-through to the five DRAFT rows. Caps met (panel 489/690, cards 115/232, strip 42/87).
+- Checks: vitest `src/shell src/estate src/sites src/work src/ui` 2537 passed (before the date-format tweak; globalPreventive 12 passed after it); tsc clean; check-all 11/11 PASS at `193f3632`; ledger and registry checkers pass. Servers, Vite and headless Chrome stopped; all private `*_test` DBs dropped. An empty stray folder tree `C:\c\Users\...\B2\screenshots` (from an MSYS path slip; its files were moved back) could not be removed by the tool safety check; the owner may delete `C:\c`.
