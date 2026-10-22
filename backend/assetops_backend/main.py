@@ -58,6 +58,7 @@ from assetops_backend.estate_evidence_money_api import build_estate_evidence_mon
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
 from assetops_backend.source_health_api import build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
+from assetops_backend.analytics.cold_depth import ColdDepthReadService
 from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
@@ -68,6 +69,7 @@ from assetops_backend.cold_replay import ColdReplayService
 from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_principal
 from assetops_backend.ev_replay import EvReplayService
 from assetops_backend.ev_replay_api import build_ev_replay_router
+from assetops_backend.cold_depth_api import build_cold_depth_router
 from assetops_backend.cold_site_api import build_cold_site_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
@@ -459,6 +461,9 @@ def create_app(
         app.router.on_shutdown.append(cold_consequences.dispose)
     app.include_router(build_cold_site_router(
         registry, None if cold_reads is None else ColdSiteReadService(cold_reads, cold_consequences)))
+    # W5-01 C1: the selected cold Cooling depth read over the same W2-03 read service and the W2-04 gate.
+    app.include_router(build_cold_depth_router(
+        registry, None if cold_reads is None else ColdDepthReadService(cold_reads)))
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))

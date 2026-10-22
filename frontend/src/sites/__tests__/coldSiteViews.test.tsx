@@ -827,6 +827,9 @@ describe("W2-04: link mapping and retro correction 17", () => {
     expect(coldUiHref(`${API}/evidence/analysis${Q}`, routes)).toBe(`/sites/COLD-001/evidence${Q}&view=analysis`);
     expect(coldUiHref(`${API}/financial-assumptions${Q}`, routes)).toBe(`/sites/COLD-001/financials/assumptions${Q}`);
     expect(coldUiHref(`${API}/foundation?at=x`, routes)).toBe("/sites/COLD-001/foundation?at=x");
+    // W5-01a C3: the live cold Health route.
+    expect(routes.health).toBe("/sites/COLD-001/health");
+    expect(coldUiHref(`${API}/health${Q}`, routes)).toBe(`/sites/COLD-001/health${Q}`);
     expect(coldUiHref(`${API}/unknown`, routes)).toBeNull();
     expect(coldUiHref(null, routes)).toBeNull();
   });

@@ -642,6 +642,14 @@
     },
     {
       "id": "cooling",
+      "registry_dependencies": {
+        "product_node_id": "P-cold-area",
+        "node_ids": [
+          "I-W5-cold-depth-read",
+          "I-W5-cold-depth-ui",
+          "D-cold-domain"
+        ]
+      },
       "mock_route": "#/cooling",
       "product_destination": "Sites > Performance",
       "coverage": "deferred",
@@ -1489,6 +1497,14 @@
     },
     {
       "id": "cold-health",
+      "registry_dependencies": {
+        "product_node_id": "P-cold-area",
+        "node_ids": [
+          "I-W5-cold-depth-read",
+          "I-W5-cold-depth-ui",
+          "D-cold-domain"
+        ]
+      },
       "mock_route": "#/cold-health",
       "product_destination": "Sites > Health",
       "coverage": "deferred",

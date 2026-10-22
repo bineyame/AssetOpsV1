@@ -58,7 +58,8 @@ import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { EvFindingFrame, EvSessionsFrame, evFindingHref } from "../sites/EvAssessmentViews";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
-import { coldSiteScreen } from "./coldSiteRoutes";
+import { coldSiteRoutes, coldSiteScreen } from "./coldSiteRoutes";
+import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
@@ -166,7 +167,9 @@ function coldLinks(siteId: string, window: ColdWindowQuery): ColdLinks {
   };
 }
 
-const COLD_PERFORMANCE_VIEWS: Record<string, "temperature" | "backup"> = { temperature: "temperature", backup: "backup" };
+const COLD_PERFORMANCE_VIEWS: Record<string, "temperature" | "backup" | "cooling"> = { temperature: "temperature", backup: "backup", cooling: "cooling" };
+
+const DEFAULT_COLD_DEPTH = createColdDepthClient();
 
 const DEFAULT_MINI_DEPTH = createMiniDepthClient();
 
@@ -178,6 +181,7 @@ export function SitePerformanceFrame({
   evAssessment,
   miniDepth = DEFAULT_MINI_DEPTH,
   miniDecisions,
+  coldDepth = DEFAULT_COLD_DEPTH,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
@@ -190,6 +194,8 @@ export function SitePerformanceFrame({
   miniDepth?: MiniDepthClient;
   /** W4-03 unit 7: the scoped opportunity list behind the renewable page's exact five-day CTA (S14). */
   miniDecisions?: MiniDecisionsClient;
+  /** W5-01a C2: the selected cold depth reads; a COLDCHAIN Site renders `cooling` from them. */
+  coldDepth?: ColdDepthClient;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
   const [params] = useSearchParams();
@@ -241,6 +247,8 @@ export function SitePerformanceFrame({
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
               ]}
               subtabHref={(id) => `${sitePerformanceHref(site.site_id, id)}${coldWindowSearch(window)}`}
+              depth={coldDepth}
+              routes={coldSiteRoutes(site.site_id)}
             />
           );
         }

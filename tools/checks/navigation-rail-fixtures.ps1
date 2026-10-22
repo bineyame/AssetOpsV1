@@ -170,8 +170,11 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", href: "/x"') },
             @{ Name = "W4-03: Alternatives comes back as an unavailable Finding section"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $frames 'label: "Analysis", unavailable: true' 'label: "Analysis", unavailable: true }, { id: "x", label: "Alternatives", unavailable: true') },
-            @{ Name = "the cold Cooling entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Cooling" />' '') },
+            # W5-01a C2: Cooling is live; dropping its subtab or its page branch fails.
+            @{ Name = "the live cold Cooling subtab is dropped"; Expect = "The live cold Cooling subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $cold 'data-performance-subtab="cooling"' '') },
+            @{ Name = "the live cold Cooling page branch is dropped"; Expect = "The live cold Cooling subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $cold '<ColdCooling' '<Missing') },
             @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Recommendation" />' '') },
             # W2-06 r7 P8: the EV entries are part of the closed multiset.

@@ -325,23 +325,59 @@ export function SiteHealth({
       >
         <ConditionBody siteId={siteId} read={battery} />
       </Panel>
-      <Panel
-        heading={SOURCES_HEADING}
-        headingId="site-health-sources-heading"
-        description="Current · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment."
-      >
-        {health.status === "refused" ? (
-          <HealthGap refusal={health} subject="Gateway contact" name="site-health-refused-code" texts={HEALTH_TEXTS} />
-        ) : (
-          <SourcesBody siteId={siteId} doc={health.value} selectedGateway={selectedGateway} />
-        )}
-      </Panel>
+      <SourcesPanel siteId={siteId} read={health} selectedGateway={selectedGateway} />
       <V69Notice tone="blue">
         A gateway being heard from does not make equipment healthy. Gateway contact, what gateways report about
         themselves, and battery condition are separate, and none of them is a statement about equipment condition.
       </V69Notice>
     </div>
   );
+}
+
+const SOURCES_LOADING = "Loading the site's gateway contact.";
+
+/** The S7 `Data sources` panel over one source-health read; `null` is the in-panel loading line. */
+function SourcesPanel({
+  siteId,
+  read,
+  selectedGateway,
+}: {
+  siteId: string;
+  read: HealthRead<SourceHealthDocument> | null;
+  selectedGateway: string | null;
+}) {
+  return (
+    <Panel
+      heading={SOURCES_HEADING}
+      headingId="site-health-sources-heading"
+      description="Current · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment."
+    >
+      {read === null ? (
+        <p>{SOURCES_LOADING}</p>
+      ) : read.status === "refused" ? (
+        <HealthGap refusal={read} subject="Gateway contact" name="site-health-refused-code" texts={HEALTH_TEXTS} />
+      ) : (
+        <SourcesBody siteId={siteId} doc={read.value} selectedGateway={selectedGateway} />
+      )}
+    </Panel>
+  );
+}
+
+/**
+ * W5-01a C3 (Q-C3-1): the S7 Data sources panel alone, for the cold Health page. Same source read and key,
+ * heading ID, description, body and refusal as `SiteHealth`; no battery strip, battery panel or blue notice.
+ */
+export function SiteHealthSources({
+  siteId,
+  client,
+  selectedGateway,
+}: {
+  siteId: string;
+  client: HealthClient;
+  selectedGateway: string | null;
+}) {
+  const health = useRead(() => client.getSourceHealth(siteId), `health:${siteId}`);
+  return <SourcesPanel siteId={siteId} read={health} selectedGateway={selectedGateway} />;
 }
 
 /** The mock's status line: physical asset condition only, said once. */

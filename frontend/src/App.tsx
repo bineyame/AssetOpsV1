@@ -91,6 +91,7 @@ import { createEvFoundationClient, type EvFoundationClient } from "./sites/evFou
 import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/coldAssessmentClient";
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
 import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
+import { createColdDepthClient, type ColdDepthClient } from "./sites/ColdDepthClient";
 import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
@@ -144,6 +145,7 @@ const defaultEvFoundation = createEvFoundationClient();
 const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultMiniDepth = createMiniDepthClient();
+const defaultColdDepth = createColdDepthClient();
 const defaultMiniDecisions = createMiniDecisionsClient();
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
@@ -224,6 +226,8 @@ export interface AppProps {
   evAssessment?: EvAssessmentClient;
   /** W4-02: the MINIGRID mini-depth reads, used for a MINIGRID Site's Service/Fuel/Renewable/Backup routes. */
   miniDepth?: MiniDepthClient;
+  /** W5-01a C2: the selected cold depth reads (Cooling) for a COLDCHAIN Site's Performance route. */
+  coldDepth?: ColdDepthClient;
   /** W4-03 unit 6: the read-only mini decision reads (Scenarios). */
   miniDecisions?: MiniDecisionsClient;
   /** W2-07: the five EV Site reads, used for an EV_CHARGING Site's `/ev` routes. */
@@ -267,6 +271,7 @@ export function App({
   evAssessment = defaultEvAssessment,
   miniDepth = defaultMiniDepth,
   miniDecisions = defaultMiniDecisions,
+  coldDepth = defaultColdDepth,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
   siteTemplateLineage,
@@ -389,6 +394,7 @@ export function App({
                   evAssessment={evAssessment}
                   miniDepth={miniDepth}
                   miniDecisions={miniDecisions}
+                  coldDepth={coldDepth}
                 />
               }
             />
@@ -427,7 +433,7 @@ export function App({
               element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} evAssessment={evAssessment} miniDecisions={miniDecisions} />}
             />
           ))}
-          <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
+          <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} coldDepth={coldDepth} />} />
           <Route path={SITE_ASSETS_ROUTE_PATH} element={<SiteAssetsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_ASSET_ROUTE_PATH} element={<SiteAssetFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_WORK_ROUTE_PATH} element={<SiteWorkFrame detail={siteDetail} sitesPath={SITES_PATH} />} />

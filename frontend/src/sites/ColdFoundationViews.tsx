@@ -643,7 +643,7 @@ function ReadinessView(props: ViewProps) {
         heading={`Gateway status · ${gateway}`}
         headingId="cold-gateway-heading"
         description="How site data reaches AssetOps: gateway contact only, not equipment condition"
-        actions={<Link to={props.healthHref}>Health › Data sources →</Link>}
+        actions={<Link to={`${props.healthHref}#site-health-sources-heading`}>Health › Data sources →</Link>}
       >
         {health === null ? <p>{COLD_GATEWAY_LOADING}</p> : null}
         <MetricCards label="Gateway contact" data={{ "data-cold-gateway-metrics": "" }}>

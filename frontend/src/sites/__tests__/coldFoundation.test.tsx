@@ -270,6 +270,14 @@ describe("W2-01: cold Foundation routes keep the v69 panel structure", () => {
     expect(gaps()).toHaveLength(slots);
     for (const gap of gaps()) expect(gap.textContent).toContain("could not be read");
   });
+
+  it("links the cold gateway panel to Health Data sources", async () => {
+    renderCold(`${BASE}/readiness`, loaded(STOCKED));
+    await settledScreen();
+    const link = Array.from(panelTitled("Gateway status · edge-cold-001").querySelectorAll("a"))
+      .find((a) => a.textContent === "Health › Data sources →");
+    expect(link?.getAttribute("href")).toBe("/sites/COLD-001/health#site-health-sources-heading");
+  });
 });
 
 describe("W2-01: in-panel honest gaps and configuration labels", () => {
