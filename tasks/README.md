@@ -116,7 +116,7 @@ The W2-F structural re-audit closed all 14 findings. W5-01 and W5-03 are split i
 
 | Lane and sub-slice | Packet | Exit and predecessor | Status |
 | --- | --- | --- | --- |
-| A / W5-01a Cold selected depth | [W5-01](W5-01-cold-depth.md) · [build spec](../.agent/W5-01-build-spec.md) | `cooling`, `cold-health` from exact W2 selected accepted evidence; no migration; W2-F structural gate closed | Planned; readiness closure amended, independent closure recheck and owner wave-start gate precede build |
+| A / W5-01a Cold selected depth | [W5-01](W5-01-cold-depth.md) · [build spec](../.agent/W5-01-build-spec.md) | `cooling`, `cold-health` from exact W2 selected accepted evidence; no migration; W2-F structural gate closed | **Done** 2026-10-22 (C1–C3; mock restores via Codex retrospective) |
 | A / W5-01b Cold scenarios | [W5-01](W5-01-cold-depth.md) · [build spec](../.agent/W5-01-build-spec.md) | `cold-scenarios`, immutable authored basis, refused cold Finding Unknown strip; `0032_w5_cold_scenarios` after unused `0031` and reviewed W5-01a | Planned; merges before W5-02 `0033` |
 | A / W5-02a Cold Action Work | [W5-02](W5-02-cold-work.md) · [build spec](../.agent/W5-02-build-spec.md) | K1–K2: domain Action root, immutable intent and `cold-work` Action tab; `0033_w5_cold_work` follows merged `0032` | Planned; independent readiness/review gates |
 | A / W5-02b Cold case Work | [W5-02](W5-02-cold-work.md) · [build spec](../.agent/W5-02-build-spec.md) | K3: `cold-work-incidents` and `cold-work-maintenance` over W4 identities; no migration | Planned; after reviewed W5-02a |

@@ -2366,3 +2366,9 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - No five-three-line-row producer, so the table scroll is not exercised in any capture. The CSS cap is guaranteed by reasoning.
 - 390 px refused pages show a tall dark header band (shell layout; also on cold pages). Fix in the post-W6 structural audit.
 - Full suite timing: 3837 tests took 89 min on a quiet machine, against about 57 min previously. Two loaded runs hit the 100-min cap. Re-measure, and consider raising the cap or more `-n` workers.
+
+## W5-01a Lows
+- C1 review: the missing-ID case has no Postgres test, because both tables are append-only. It is covered by the in-memory test and the merged provenance test.
+- C2 review L2: every 422 hides the requested-window line, including a future `known_at` with a valid window (existing `refusalText` behaviour).
+- C2b Low 2: the handoff says 478 px, but `evidence.json` records 490 px for Context normalization at 390 (under the 500 cap).
+- 390 refused pages show the tall dark header band (shell; same as W6-01a). Fix in the post-W6 structural audit.
