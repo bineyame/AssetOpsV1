@@ -38,6 +38,7 @@ import type {
   EvSiteClient,
   EvSource,
 } from "./evSiteClient";
+import { UnavailableTab } from "../ui/UnavailableEntry";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 
@@ -352,7 +353,7 @@ const CRUMB: Record<EvSiteView, Crumb[]> = {
   assumptions: [{ label: "Financials" }, { label: "Assumptions" }],
 };
 
-/** Route-local tabs, all live: Evidence `Overview | Analysis`, Financials `Overview | Assumptions` (q5; +0 unavailable). */
+/** Route-local tabs, all live: Evidence `Overview | Analysis`, Financials `Overview | Assumptions` live plus the mock's unavailable `Scenarios` slot (W2-F M12). */
 function Subtabs({ view, routes, window }: { view: EvSiteView; routes: EvSiteRoutes; window: EvWindowQuery }) {
   const evidence = view === "evidence" || view === "analysis";
   const financial = view === "financials" || view === "assumptions";
@@ -376,6 +377,7 @@ function Subtabs({ view, routes, window }: { view: EvSiteView; routes: EvSiteRou
             </Link>
           </li>
         ))}
+        {financial ? <UnavailableTab label="Scenarios" /> : null}
       </ol>
     </nav>
   );

@@ -463,6 +463,7 @@ describe("W2-07 EV Site routes", () => {
     expect(subtabs("Financials sections")).toEqual([
       { text: "Overview", href: `${PATHS["ev-financials"]}${Q}`, current: "page" },
       { text: "Assumptions", href: `${PATHS["ev-assumptions"]}${Q}`, current: null },
+      { text: "Scenarios · Not available yet", href: null, current: null },
     ]);
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("KES");
@@ -520,7 +521,7 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-assumptions"], client());
     expectV69Panels("ev-assumptions");
-    expect(subtabs("Financials sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Assumptions", "page"]]);
+    expect(subtabs("Financials sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Assumptions", "page"], ["Scenarios · Not available yet", null]]);
     const table = panelTitled("Financial assumptions");
     expect(Array.from(table.querySelectorAll("tbody tr")).map((r) => Array.from(r.children).map((c) => c.textContent))).toEqual([
       ["Tariff", "0.2777 KES/kWh · Authored estimate", "Translating metered energy"],
@@ -557,8 +558,9 @@ describe("W2-07 EV Site routes", () => {
         } catch (error) {
           throw new Error(`${screenId} ${label}: ${String(error)}`);
         }
-        // +0 unavailable tabs: the route-local rows hold only live links.
-        expect(main().querySelectorAll("nav.site-subtabs [data-tab-unavailable]")).toHaveLength(0);
+        // Only the financial rows carry an unavailable tab: the one Scenarios slot (W2-F M12); Evidence rows stay +0.
+        const financialRoute = screenId === "ev-financials" || screenId === "ev-assumptions";
+        expect(main().querySelectorAll("nav.site-subtabs [data-tab-unavailable]")).toHaveLength(financialRoute ? 1 : 0);
         cleanup();
       }
     }
@@ -796,6 +798,21 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     await renderAt(PATHS["ev-financials"], client({}, refused(503, "EV_SITE_UNAVAILABLE")));
     expect(chip()).toBeNull();
     expect(main().textContent).not.toMatch(/\d+ consequence lines?/);
+  });
+
+  // W2-F M12: the mock's Scenarios slot on both financial screens is unavailable text, never a control.
+  it("w2f_ev_scenarios_slot_unavailable", async () => {
+    for (const key of ["ev-financials", "ev-assumptions"] as const) {
+      await renderAt(PATHS[key], client());
+      const nav = document.querySelector('nav[aria-label="Financials sections"]') as HTMLElement;
+      expect(Array.from(nav.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Overview", "Assumptions", "Scenarios · Not available yet"]);
+      const slot = nav.querySelector('[data-tab-unavailable="Scenarios"]') as HTMLElement;
+      expect(slot.querySelector("a, button, [href], [tabindex], [onclick]")).toBeNull();
+      expect(slot.getAttribute("aria-label")).toBe("Scenarios, Not available yet");
+      expect(nav.querySelectorAll("a")).toHaveLength(2);
+      expect(nav.querySelector('[aria-current="page"]')?.textContent).toBe(key === "ev-financials" ? "Overview" : "Assumptions");
+      cleanup();
+    }
   });
 
   // W2-F S10/M11: one missing-basis renderer for the Evidence table and its request details.
