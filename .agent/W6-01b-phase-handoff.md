@@ -108,3 +108,12 @@ Commits `15aea5a8` (Lane B), `193f3632` (Lane A).
 - Builder choices to confirm: Preventive breadcrumb `Maintenance` crumb links to the Corrective view with the effective query; correction disclosure summary `Earlier plan version`; date-only format `1 Nov 2026` (mock form, numeric day).
 - Captures `.agent/W6-01-evidence/B3/`: positive (5 DRAFT incl. two RUN_HOURS), historical_root (`known_at=12:00:03Z`) and historical_current (correction head), zero, refused_503, stress; Evidence root 1440/390 and click-through to the five DRAFT rows. Caps met (panel 489/690, cards 115/232, strip 42/87).
 - Checks: vitest `src/shell src/estate src/sites src/work src/ui` 2537 passed (before the date-format tweak; globalPreventive 12 passed after it); tsc clean; check-all 11/11 PASS at `193f3632`; ledger and registry checkers pass. Servers, Vite and headless Chrome stopped; all private `*_test` DBs dropped. An empty stray folder tree `C:\c\Users\...\B2\screenshots` (from an MSYS path slip; its files were moved back) could not be removed by the tool safety check; the owner may delete `C:\c`.
+
+## Run Q2 item 1 (2026-10-22, builder)
+
+Base `be8960a9`. Commits `3e1b15af` (producer + test), `35c0d3fe` (capture).
+
+- `tools/w601_seed.py` `linked`: private deep copy of `s4.SPEC` with only F01 `deliver.decided` -> `2026-10-19T08:00:00Z`; setup, F01 day, readings and anchors unchanged; `s4.SETUP_AT` 2026-10-08T12:00Z and `s6.T_ACCEPT` 2026-10-20T00:00Z, restored in `finally`; Finding window `[2026-10-06,2026-10-07)`; Work clock, occurrences, pins and global window unchanged. The 21-day shift helper is gone.
+- `test_linked_finding_and_action_hrefs` is a normal passing test: F01 source day 2026-10-06, Finding revision `created_at` < Action event `recorded_at` < first Work write 2026-10-20T11:59Z, W4 Site-vs-global href equality at each root's returned `known_at`, non-null lineage-true Finding and Action hrefs. Stress comment replaced per Q2 item 4.
+- Capture `.agent/W6-01-evidence/B2/` `maintenance-linked` 1440/390 (manifest updated, `not_captured` removed): tenant `demo`, window 10-14..10-21, no `known_at`; WR-000002 shows `Finding 6c1093be · Action 3b0da2f9` (both linked), WR-000003 `Action 3b0da2f9`.
+- Checks: `test_w601b_global_maintenance.py` + `test_w601a_global_incidents.py` 30 passed (236 s); vitest `src/work`, `siteWorkCases`, `estateEvidence` 75 passed; check-all 11/11 PASS. Servers/Vite/Chrome stopped; private DBs dropped. Full suite not run (coordinator).
