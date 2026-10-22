@@ -169,6 +169,8 @@ Read C3, literal ledger, mock caps, C1 DTO. Files: new `frontend/src/sites/ColdH
 **C3 Health DTO rendering (Claude Architect, 2026-10-22 Codex-reset exception; Codex to review retrospectively; test `coldHealthDepth.test.tsx::health_dto_rendering`).** The server owns every condition string. The UI chooses none of them and renders the C1 `health.rows` verbatim.
 
 **C3 readiness pass 3 (Claude Architect, 2026-10-22 Codex-reset exception; Codex to review retrospectively; test `coldHealthDepth.test.tsx::health_states_and_loading`).**
+
+**C3 condition notice (closure 2; Claude Architect, 2026-10-22 Codex-reset exception; Codex to review retrospectively).** Directly below `Condition and evidence` (above the S7 Data sources panel), render one amber `Notice` with exactly: `These records show what was observed at the selected assets. They do not establish physical equipment condition or diagnose a failed part.` The v6.9 mock has no Health notice; this is a bounded W5 literal. Test: `coldHealthDepth.test.tsx::condition_matrix` asserts the sentence.
 - **Routes.** `shell/coldSiteRoutes.tsx` is on C3's list: add `health: siteHealthHref(siteId),` and `health: string` to `ColdSiteRoutes`.
 - **Currentness.** **Currentness (no other placement).** The status line keeps the state matrix badge, `Confidence:` badge and subtitle for every `selection.state`; no label in these pages is a current positive, so nothing is replaced. When `selection.state` is not `CURRENT`, an amber `Notice` (`ui/V69Layout.tsx`) directly below the status line (or, on a page without a status line, directly above the first cards/panel) renders exactly the shared-ledger sentence for that state; `CURRENT` renders no notice. The cold Health page has no status line, so the notice sits directly above the condition cards, under `SelectedWindowBar`.
 - **Copy.** Loading, unavailable and refusal copy follow the shared capture-method section.
@@ -363,6 +365,31 @@ Read C5, mock caps, C4 DTO, literal ledger. Files: new `frontend/src/sites/ColdS
 Fix W2-F L1 in refused cold Finding branch: `StatusBar label="Finding state"` with `Unknown` / `Confidence: Unknown` directly above `PageRefusal`; assert in `coldRoutes.test.tsx::w2f_finding_strip_confidence`. Captures at 1440/390, owned here: `cold-scenarios-empty` (C4 GET before POST), `cold-scenarios-authored` (C4 POST), `cold-scenarios-historical` (C4 correction fixture and saved pre-correction `scenario_at`), `cold-scenarios-pending` (C1 late-reading fixture plus authored row), `cold-scenarios-refused` (C4 GET with `from` later than `to`: 422 `COLD_WINDOW_INVALID`, shared capture method), `cold-finding-refused-unknown` (merged W2-F refusal test). Clocks are C4's returned watermarks; historical uses the saved pre-correction `scenario_at` and/or before-late evidence `known_at`. Expand basis in a capped 390px internal scroller (max 560px panel for one row, separate disclosure cap 360px); long UUIDs break at character boundaries and exact full values remain available. Run the W1 vocabulary scan; wrap raw source IDs with `data-vocabulary-exempt="source-reference"`. Do not run T028 vocabulary over this intentionally named `Scenarios` page. Run `tools/check-all.ps1`, focused tests, mock/app cap pairs, one W5-01b real-Postgres suite, final independent review and merge before W5-02.
 
 **C5 readiness pass 3 (Claude Architect, 2026-10-22 Codex-reset exception; Codex to review retrospectively; test `coldScenarios.test.tsx::states_loading_and_refusal`).**
+
+**C5 scenario row, page and client (closure 2; Claude Architect, 2026-10-22 Codex-reset exception; Codex to review retrospectively; test `coldScenarios.test.tsx::row_disclosure_and_client`).**
+- **Page frame.** Breadcrumb `Sites › {Site name} › Financials › Scenarios`; heading `Scenarios`. The description is the existing `SITE_SCREEN_DESCRIPTIONS.scenarios` (`Financials · scenarios`), so `V69Layout.tsx` is not edited.
+- **Item table.** Items render in one `DataTable` inside `Financial scenarios`, with columns `Authored scenario`, `Assumptions`, `Basis`, `Defined at`, `State` and one row per `items[]` entry in DTO order.
+  - `Authored scenario`: `name`, then on a second line `code` and `revision {revision_no}`, the code inside `data-vocabulary-exempt="source-reference"`.
+  - `Assumptions`: `{stock_quantity} {stock_unit} at {unit_value} {currency} per {stock_unit}`. Decimal strings are printed verbatim.
+  - `Basis`: `Selected evidence through {cutoff}`, with `cutoff` formatted `YYYY-MM-DD HH:MM UTC`, then a `<button type="button" aria-expanded>` labelled `Review assumptions →`.
+  - `Defined at`: `recorded_at` as `YYYY-MM-DD HH:MM UTC`.
+  - `State`: a neutral `Badge` whose text comes from `scenario_state`: `DEFINED` → `Defined`, `HISTORICAL` → `Historical`.
+- **`Review assumptions →` expansion.** A full-width row directly below its item, scrolled internally at 390 (360px cap). It is a `<dl>` with these terms in order, every ID in a `data-vocabulary-exempt="source-reference"` span with character breaks and one ID per line:
+  - `Kind` → `STOCK_VALUE_CONTEXT`
+  - `Assumptions` → each key and value, one per line: stock_quantity,stock_unit,unit_value,currency
+  - `Window` → `authored_basis.from` – `authored_basis.to` (ISO, verbatim)
+  - `Evidence cutoff` → `authored_basis.cutoff`
+  - `Assessment revisions` → `authored_basis.assessment_revision_ids`
+  - `Accepted evidence` → `{n} records`, then each `authored_basis.accepted_evidence_ids` entry
+  - `Foundation revision` → `authored_basis.foundation_revision_id`
+  - `Source classification` → `authored_basis.source_provenance.classification`
+  - `Revision` → `revision_id`
+  A null ID prints `None`.
+- **Client.** `frontend/src/sites/coldScenariosClient.ts` validation; any violation is the unavailable state.
+  - Top level: exact keys `schema_version` (`"cold-scenarios-1"`), `site_id`, `window` (exact `from,to,known_at,committed_watermark`), `scenario_at`, `selection` (exact `state,assessment_revision_ids,accepted_evidence_ids,source_provenance`), `items`, `next_cursor` (string or null).
+  - Item: exact keys `id`, `code` (matches `^CSCN-\d{6,}$`), `revision_id`, `revision_no` (integer ≥ 1), `name` (string of 1–160 characters), `kind` (`"STOCK_VALUE_CONTEXT"`), `assumptions` (exact keys `stock_quantity,stock_unit,unit_value,currency`, all strings, `currency` matching `^[A-Z]{3}$`), `authored_basis` (exact keys `from,to,cutoff,assessment_revision_ids,accepted_evidence_ids,foundation_revision_id,source_provenance`), `recorded_at` (string), `scenario_state` (`DEFINED` or `HISTORICAL`).
+  - `selection.state` is one of the five STATES.
+- **Refusal heading.** `Cold scenarios unavailable`.
 - **Currentness.** `selection.state` from the C4 list drives an amber `Notice` above the `Financial scenarios` panel:
   - `PENDING_RECOMPUTE` → `Underlying evidence is being reassessed; the authored scenario remains separate.`
   - `HISTORICAL` → `Read at an earlier evidence cutoff; newer committed evidence exists.`
@@ -601,3 +628,5 @@ C5 ledger `cold-scenarios`: `registry_dependencies` = {"product_node_id": "P-col
 | RP3-C3 (4) | C3 readiness pass 3: `coldSiteRoutes.tsx` `health`, currentness notice, unknown/refused capture producers, loading/unavailable copy. |
 | RP3-C5 (3) | C5 readiness pass 3: currentness notices for all five states, refused/pending capture producers, loading/unavailable copy. |
 | RP3-shared | "Capture producer method, loading and unavailable copy" section before C1. |
+| CL2-1 (C3) | C3 condition notice literal. *Claude Architect, 2026-10-22 Codex-reset exception; Codex to review retrospectively.* |
+| CL2-2/3 (C5) | C5 scenario row, page and client: DataTable columns and cells, pill source, expansion content, `coldScenariosClient` validator, breadcrumb and existing `SITE_SCREEN_DESCRIPTIONS.scenarios`. |
