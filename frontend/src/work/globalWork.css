@@ -170,3 +170,79 @@
     max-height: 518px;
   }
 }
+
+/* W6-01c C2: the work request pages (`wr-overview`). The breadcrumb's `· site:` sits beside the trail (mock
+   `.crumb-site`); Owner and Source in the mheader show a two-line preview (section 2) with a full-text disclosure. */
+.work-request .breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-bottom: 12px;
+}
+
+.work-request-crumb-site {
+  font-size: var(--text-sm, 12px);
+  color: var(--text-secondary, #5c7190);
+}
+
+.work-request-tabs {
+  margin-bottom: 12px;
+}
+
+.work-request-bar {
+  align-items: center;
+}
+
+.work-request-bar p {
+  margin: 0;
+}
+
+.work-request-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.work-request-prose {
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.work-request-latest {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+.work-request-latest__label {
+  font-weight: 600;
+}
+
+.work-request .v69-key-values {
+  margin-top: 10px;
+}
+
+.work-request .lifecycle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.work-request .lifecycle li {
+  font-size: 11px;
+  padding: 6px 9px;
+  border-radius: 4px;
+  background: #eef1f6;
+  color: #5c6c86;
+}
+
+.work-request .lifecycle li.done {
+  background: #e3f4ed;
+  color: #166b50;
+}
