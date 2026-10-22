@@ -98,14 +98,32 @@ type Served = { status: number; body: unknown };
 
 /** The subtab-count reads (`limit=1`), kept apart from the page's own list reads. */
 let countRequests: string[] = [];
+/** W4-03 unit 8: the decision-context overlay reads, kept apart from the W4-01 list reads. */
+let contextRequests: string[] = [];
+
+/** The default overlay answer: every requested case unlinked (`[]`), at the requested cutoff. */
+function unlinkedContexts(path: string): Served {
+  const query = new URLSearchParams(path.split("?")[1] ?? "");
+  const ids = (query.get("case_ids") ?? "").split(",");
+  return {
+    status: 200,
+    body: {
+      schema_version: "mini-work-contexts-1",
+      known_at: query.get("known_at"),
+      contexts: Object.fromEntries(ids.map((id) => [id, []])),
+    },
+  };
+}
 
 function serve(gets: Record<string, Served>) {
   const requests: string[] = [];
   countRequests = [];
+  contextRequests = [];
   vi.stubGlobal("fetch", async (url: string) => {
     const path = decodeURIComponent(String(url));
-    (/[?&]limit=1(&|$)/.test(path) ? countRequests : requests).push(path);
-    const hit = gets[path];
+    const overlay = path.includes("/work/decision-contexts?");
+    (overlay ? contextRequests : /[?&]limit=1(&|$)/.test(path) ? countRequests : requests).push(path);
+    const hit = gets[path] ?? (overlay ? unlinkedContexts(path) : undefined);
     if (!hit) return new Response(JSON.stringify({ detail: { code: "TEST_UNMATCHED", message: path } }), { status: 599 });
     return new Response(JSON.stringify(hit.body), { status: hit.status });
   });
@@ -163,6 +181,10 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
+
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+const FRONTEND_CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+const WORK_CSS = NODE_FS.readFileSync(`${FRONTEND_CWD}/src/sites/w4-work-cases.css`, "utf8").replace(/\s+/g, " ");
 
 describe("W4-01: Site > Work > Incidents", () => {
   it("incident_stocked_empty_and_refused", async () => {
@@ -550,5 +572,184 @@ describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
     mount(`${page("incidents", DAY)}&known_at=${K}&cursor=SHARED`);
     await settledScreen();
     expect(text(panelTitled("Incidents at this site").querySelector("[data-work-showing]"))).toBe("Showing 2 of 7");
+  });
+});
+
+const OPP = "70000000-0000-4000-8000-000000000701";
+const OPP_BARE = "70000000-0000-4000-8000-000000000702";
+const SCN = "80000000-0000-4000-8000-000000000801";
+const contextsPath = (ids: string[]) =>
+  `/api/sites/KOBO-001/work/decision-contexts?case_ids=${ids.join(",")}&known_at=${K}`;
+const contextsBody = (contexts: Record<string, unknown[]>) => ({
+  status: 200,
+  body: { schema_version: "mini-work-contexts-1", known_at: K, contexts },
+});
+
+describe("W4-03 unit 8: Site Work decision context", () => {
+  it("decision_context_and_unlinked_case", async () => {
+    const finding = { finding_id: FINDING, finding_revision_id: FINDING_REV, label: "x", href: "/x" };
+    const rows = [incidentRow(1, { finding_links: [finding] }), incidentRow(2), incidentRow(3)];
+    const ids = rows.map((r) => r.case_id);
+    const requests = serve({
+      [api("incidents", DAY)]: { status: 200, body: body(rows, { total_count: 3 }) },
+      [contextsPath(ids)]: contextsBody({
+        [ids[0]]: [
+          { kind: "OPPORTUNITY", id: OPP, label: "OPP-000001", url: `/sites/KOBO-001/opportunities/${OPP}` },
+          { kind: "SCENARIO", id: SCN, label: "SCN-000002 · Grain mill one-hour trial", url: null },
+        ],
+        [ids[1]]: [],
+        [ids[2]]: [{ kind: "OPPORTUNITY", id: OPP_BARE, label: "Decision context unavailable", url: null }],
+      }),
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    expectSlots("sitework-incidents");
+    const panel = panelTitled("Incidents at this site");
+    await vi.waitFor(() => expect(panel.querySelector("[data-work-decision-context]")).not.toBeNull());
+    // One overlay read: this page's case IDs at the list's exact cutoff, outside the W4-01 list reads.
+    expect(contextRequests).toEqual([contextsPath(ids)]);
+    expect(requests).toEqual([api("incidents", DAY)]);
+    const row = (id: string) => panel.querySelector(`[data-work-row="${id}"]`) as HTMLElement;
+    const linkedCell = row(ids[0]).querySelectorAll("td")[3] as HTMLElement;
+    // After the Finding link, in the same `Linked findings` cell: Opportunity first, then Scenario.
+    expect(text(linkedCell)).toBe(
+      `Finding ${FINDING.slice(0, 8)}Decision context: OPP-000001 · SCN-000002 · Grain mill one-hour trial (Scenario detail unavailable)`,
+    );
+    const findingEl = linkedCell.querySelector("[data-work-finding]") as HTMLElement;
+    const context = linkedCell.querySelector("[data-work-decision-context='loaded']") as HTMLElement;
+    expect(findingEl.compareDocumentPosition(context) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(within(linkedCell).getByRole("link", { name: "OPP-000001" }).getAttribute("href")).toBe(
+      `/sites/KOBO-001/opportunities/${OPP}`,
+    );
+    expect(within(linkedCell).queryByRole("link", { name: /SCN-000002/ })).toBeNull();
+    // The unlinked case shows no context; the unselected root is noninteractive.
+    expect(row(ids[1]).querySelector("[data-work-decision-context]")).toBeNull();
+    expect(text(row(ids[1]).querySelectorAll("td")[3])).toBe("No linked finding");
+    const bare = row(ids[2]).querySelector("[data-work-decision-context]") as HTMLElement;
+    expect(text(bare)).toBe("Decision context: Decision context unavailable");
+    expect(bare.querySelector("a")).toBeNull();
+    // No W4-01 count, column, state or case URL changes.
+    expect(Array.from(panel.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
+      "Case",
+      "Window",
+      "What happened",
+      "Linked findings",
+      "State",
+    ]);
+    expect(text(strip())).toContain("Scoped to Kobo · 3 incidents");
+    expect(panel.querySelectorAll("[data-work-row]")).toHaveLength(3);
+    for (const id of ids) expect(row(id).querySelector("[data-work-case-title] a")).toBeNull();
+  });
+
+  it("u9b_incident_linked_and_refused_overlay_panels", async () => {
+    const finding = { finding_id: FINDING, finding_revision_id: FINDING_REV, label: "x", href: "/x" };
+    const rows = [incidentRow(1, { finding_links: [finding] }), incidentRow(2)];
+    const ids = rows.map((r) => r.case_id);
+    serve({
+      [api("incidents", DAY)]: { status: 200, body: body(rows, { total_count: 2 }) },
+      [contextsPath(ids)]: contextsBody({
+        [ids[0]]: [{ kind: "SCENARIO", id: SCN, label: "SCN-000002 · Grain mill one-hour trial", url: null }],
+        [ids[1]]: [],
+      }),
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    const linked = panelTitled("Incidents at this site");
+    await vi.waitFor(() => expect(linked.querySelector("[data-work-decision-context]")).not.toBeNull());
+    // The overlay adds no panel: the W4-01 panel structure holds with the linked context rendered.
+    expectV69Panels("sitework-incidents");
+    expectPlantedPanelRejected("sitework-incidents");
+    const line = linked.querySelector("[data-work-decision-context='loaded']") as HTMLElement;
+    expect(text(line)).toBe("Decision context: SCN-000002 · Grain mill one-hour trial (Scenario detail unavailable)");
+    expect(line.querySelector("a")).toBeNull();
+    cleanup();
+
+    // A scoped 503 on the overlay leaves the W4-01 list intact: same rows, same count, literal copy, no prefix.
+    // u9c: the refused state is the captured five-row stocked list.
+    const five = [rows[0], ...[2, 3, 4, 5].map((n) => incidentRow(n))];
+    const fiveIds = five.map((r) => r.case_id);
+    serve({
+      [api("incidents", DAY)]: { status: 200, body: body(five, { total_count: 5 }) },
+      [contextsPath(fiveIds)]: { status: 503, body: { detail: { code: "SERVICE_UNAVAILABLE", message: "x" } } },
+    });
+    mount(page("incidents", DAY));
+    await settledScreen();
+    const refused = panelTitled("Incidents at this site");
+    await vi.waitFor(() =>
+      expect(refused.querySelectorAll("[data-work-decision-context='unavailable']")).toHaveLength(1),
+    );
+    expectV69Panels("sitework-incidents");
+    expectPlantedPanelRejected("sitework-incidents");
+    // PR-12.3: exactly one panel-level literal, beside (not inside) the table, scoped to the displayed rows.
+    const panelLine = refused.querySelector("[data-work-decision-context='unavailable']") as HTMLElement;
+    expect(text(panelLine)).toBe("Decision context unavailable");
+    expect(panelLine.closest("table")).toBeNull();
+    expect(panelLine.getAttribute("data-work-decision-context-scope")).toBe(fiveIds.join(" "));
+    expect(refused.querySelectorAll("table [data-work-decision-context]")).toHaveLength(0); // no row-level copy
+    expect(refused.textContent).not.toContain("Decision context:"); // no positive context
+    expect(refused.textContent?.split("Decision context unavailable")).toHaveLength(2);
+    // The canonical Finding link in the linked row is intact.
+    expect(refused.querySelector(`[data-work-row="${ids[0]}"] [data-work-finding-link]`)).not.toBeNull();
+    expect(refused.querySelectorAll("[data-work-row]")).toHaveLength(5);
+    expect(refused.querySelectorAll("[data-work-finding-link]").length).toBeGreaterThan(0);
+    // u9c: at <=760 px the Incident table scrolls vertically at exactly 224 px inside the 460 px panel cap.
+    const narrow = WORK_CSS.indexOf("@media (max-width: 760px)");
+    const rule = '.work-cases [data-work-table="incidents"] .data-table__scroll { max-height: 224px; overflow: auto; }';
+    expect(WORK_CSS).toContain(rule);
+    expect(WORK_CSS.indexOf(rule)).toBeGreaterThan(narrow);
+    expect(WORK_CSS).not.toContain("max-height: 240px");
+    expect(text(strip())).toContain("Scoped to Kobo · 5 incidents");
+  });
+
+  it("unverified_maintenance_and_unavailable_destinations", async () => {
+    const rows = [
+      requestRow(4, { request_state: "COMPLETED", state: "COMPLETED", activity: "Starter connection inspected" }),
+      requestRow(5),
+    ];
+    const ids = rows.map((r) => r.case_id);
+    serve({
+      [api("maintenance", DAY)]: { status: 200, body: body(rows) },
+      [contextsPath(ids)]: contextsBody({
+        [ids[0]]: [{ kind: "OPPORTUNITY", id: OPP, label: "OPP-000001", url: `/sites/KOBO-001/opportunities/${OPP}` }],
+        [ids[1]]: [],
+      }),
+    });
+    mount(page("maintenance", DAY));
+    await settledScreen();
+    expectSlots("sitework-maintenance");
+    const panel = panelTitled("Maintenance at this site");
+    await vi.waitFor(() => expect(panel.querySelector("[data-work-decision-context]")).not.toBeNull());
+    const row = (id: string) => panel.querySelector(`[data-work-row="${id}"]`) as HTMLElement;
+    // A secondary line under Activity, never a new column; the outcome stays unverified.
+    const activity = row(ids[0]).querySelectorAll("td")[2] as HTMLElement;
+    const line = activity.querySelector("[data-work-decision-context='loaded']") as HTMLElement;
+    expect(text(line)).toBe("Decision context: OPP-000001");
+    const activityText = activity.querySelector("[data-work-activity]") as HTMLElement;
+    expect(activityText.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(panel.querySelectorAll("thead th")).toHaveLength(5);
+    for (const id of ids) {
+      expect(row(id).querySelector("[data-work-outcome]")?.getAttribute("data-work-outcome")).toBe("UNVERIFIED");
+      expect(row(id).querySelector("[data-work-case-title] a")).toBeNull();
+    }
+    expect(row(ids[1]).querySelector("[data-work-decision-context]")).toBeNull();
+    expect(text(strip())).toContain("Scoped to Kobo · 2 maintenance");
+    cleanup();
+
+    // A refused overlay says so on every row without hiding them or implying they are unlinked.
+    serve({
+      [api("maintenance", DAY)]: { status: 200, body: body(rows) },
+      [contextsPath(ids)]: { status: 404, body: { detail: { code: "WORK_CASE_NOT_FOUND", message: "x" } } },
+    });
+    mount(page("maintenance", DAY));
+    await settledScreen();
+    const refusedPanel = panelTitled("Maintenance at this site");
+    await vi.waitFor(() =>
+      expect(refusedPanel.querySelectorAll("[data-work-decision-context='unavailable']")).toHaveLength(2),
+    );
+    expect(refusedPanel.querySelectorAll("[data-work-row]")).toHaveLength(2);
+    for (const el of Array.from(refusedPanel.querySelectorAll("[data-work-decision-context]"))) {
+      expect(text(el)).toBe("Decision context unavailable");
+    }
+    expect(text(strip())).toContain("Scoped to Kobo · 2 maintenance");
   });
 });

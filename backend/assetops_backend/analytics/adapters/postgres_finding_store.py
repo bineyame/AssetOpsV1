@@ -112,7 +112,7 @@ class PostgresFindingStore:
         count, marker = c.execute(text(
             "SELECT count(*), coalesce(max(created_at)::text, '') || '/' || "
             "coalesce(string_agg(status, ',' ORDER BY id), '') FROM recompute_job WHERE tenant_id = :t "
-            "AND site_id = :s AND domain NOT IN ('mini_renewable','mini_service','mini_fuel','mini_backup')"), {"t": tenant_id, "s": site_id}).one()
+            "AND site_id = :s AND domain NOT IN ('mini_renewable','mini_service','mini_fuel','mini_backup','mini_opportunity')"), {"t": tenant_id, "s": site_id}).one()
         # Finding state is part of the fence: a pass planned before another pass committed (whose episodes
         # are stale) must re-plan instead of opening a second Finding for the same episode. Revisions are
         # append-only, so their count only grows.

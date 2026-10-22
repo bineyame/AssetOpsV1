@@ -16,11 +16,17 @@
  *   never a statement about the case itself or equipment health.
  * - `url: null` rows, absent Assets and absent Finding links are plain text:
  *   no dead link, handler or tab stop.
+ * - W4-03 unit 8 (u5, u6): on a mini-grid Site the separate decision-context
+ *   overlay reads the current page's case IDs at the list's exact `known_at`
+ *   and adds `Decision context:` after the Incident Finding links and as a
+ *   secondary Maintenance Activity line. It changes no count, cursor, state,
+ *   outcome or case URL; an answer for another page or cutoff is discarded.
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { DataTable, Disclosure, Fact, FactList, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
+import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
 import { SOURCE_WORDS, SourceProvenanceRecord, sourceState } from "./sourceProvenance";
 import {
   WORK_PAGE_LIMIT,
@@ -51,7 +57,15 @@ export interface SiteWorkCasesProps {
   links: SiteWorkCasesLinks;
   /** Go to another window or page (a navigation, so reload and back keep it). */
   onScope: (scope: WorkScope, trail: WorkTrail) => void;
+  /** W4-03 unit 8: the decision-context overlay; given only for a mini-grid Site. */
+  decisions?: MiniDecisionsClient;
 }
+
+/** One case's overlay state: `null` while unread (nothing shown), a list, or `"refused"`. */
+type CaseContexts = WorkDecisionContext[] | "refused" | null;
+
+export const DECISION_CONTEXT_UNAVAILABLE = "Decision context unavailable";
+export const SCENARIO_DETAIL_UNAVAILABLE = "Scenario detail unavailable";
 
 interface KindCopy {
   kind: WorkKind;
@@ -363,6 +377,40 @@ function RowDetail({ row }: { row: WorkRow }) {
   );
 }
 
+/**
+ * u5 unit 8 / u6: `Decision context:` and each association (Opportunity first); a typed Opportunity URL links, a
+ * Scenario has no detail route, and a refused overlay says so without hiding the row or implying no link.
+ */
+function DecisionContext({ contexts }: { contexts: CaseContexts }) {
+  if (contexts === null || (Array.isArray(contexts) && contexts.length === 0)) return null;
+  if (contexts === "refused") {
+    return (
+      <span className="work-cases-context muted" data-work-decision-context="unavailable">
+        {DECISION_CONTEXT_UNAVAILABLE}
+      </span>
+    );
+  }
+  return (
+    <span className="work-cases-context" data-work-decision-context="loaded">
+      Decision context:{" "}
+      {contexts.map((c, i) => (
+        <span key={`${c.kind}:${c.id}`} data-work-decision={c.kind}>
+          {i > 0 ? " · " : null}
+          {c.url ? (
+            <Link to={c.url}>{c.label}</Link>
+          ) : c.kind === "SCENARIO" && c.label !== DECISION_CONTEXT_UNAVAILABLE ? (
+            <>
+              {c.label} <span className="muted">({SCENARIO_DETAIL_UNAVAILABLE})</span>
+            </>
+          ) : (
+            c.label
+          )}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function FindingLinks({ row, links }: { row: WorkRow; links: SiteWorkCasesLinks }) {
   if (row.finding_links.length === 0) return <span className="muted">No linked finding</span>;
   return (
@@ -393,7 +441,7 @@ function CaseTitle({ row }: { row: WorkRow }) {
   );
 }
 
-function IncidentCells({ row, links }: { row: WorkRow; links: SiteWorkCasesLinks }) {
+function IncidentCells({ row, links, contexts }: { row: WorkRow; links: SiteWorkCasesLinks; contexts: CaseContexts }) {
   return (
     <>
       <td className="work-cases-first">
@@ -410,6 +458,7 @@ function IncidentCells({ row, links }: { row: WorkRow; links: SiteWorkCasesLinks
       </td>
       <td>
         <FindingLinks row={row} links={links} />
+        <DecisionContext contexts={contexts} />
       </td>
       <td>
         <StateChip kind="incidents" state={row.state} />
@@ -418,7 +467,7 @@ function IncidentCells({ row, links }: { row: WorkRow; links: SiteWorkCasesLinks
   );
 }
 
-function MaintenanceCells({ row }: { row: WorkRow }) {
+function MaintenanceCells({ row, contexts }: { row: WorkRow; contexts: CaseContexts }) {
   return (
     <>
       <td className="work-cases-first">
@@ -433,6 +482,7 @@ function MaintenanceCells({ row }: { row: WorkRow }) {
           <StateChip kind="maintenance" state={row.request_state ?? row.state} />{" "}
           <span data-work-activity>{row.activity ?? "No activity recorded"}</span>
         </span>
+        <DecisionContext contexts={contexts} />
       </td>
       <td>
         <span className="work-cases-clamp">
@@ -449,9 +499,37 @@ function MaintenanceCells({ row }: { row: WorkRow }) {
   );
 }
 
-function Rows({ copy, body, links }: { copy: KindCopy; body: WorkIndexBody; links: SiteWorkCasesLinks }) {
+function Rows({
+  copy,
+  body,
+  links,
+  overlay,
+}: {
+  copy: KindCopy;
+  body: WorkIndexBody;
+  links: SiteWorkCasesLinks;
+  overlay: DecisionRead<WorkContextsBody> | null;
+}) {
+  // PR-12.3: a refused Incident overlay is one line beside the table for the displayed rows, not one per row; the
+  // rows keep their canonical Finding links and show no context. Maintenance keeps its row-level copy.
+  const panelRefused = copy.kind === "incidents" && overlay !== null && overlay.status !== "loaded";
+  const contextsOf = (caseId: string): CaseContexts =>
+    overlay === null || panelRefused
+      ? null
+      : overlay.status === "loaded"
+        ? (overlay.value.contexts[caseId] ?? "refused")
+        : "refused";
   return (
     <div className="work-cases-table" data-work-table={copy.kind}>
+      {panelRefused ? (
+        <p
+          className="work-cases-context work-cases-context--panel muted"
+          data-work-decision-context="unavailable"
+          data-work-decision-context-scope={body.rows.map((r) => r.case_id).join(" ")}
+        >
+          {DECISION_CONTEXT_UNAVAILABLE}
+        </p>
+      ) : null}
       <DataTable labelledBy={`site-work-${copy.kind}-heading`}>
         <colgroup>
           {copy.widths.map((width, i) => (
@@ -471,9 +549,9 @@ function Rows({ copy, body, links }: { copy: KindCopy; body: WorkIndexBody; link
           {body.rows.map((row) => (
             <tr key={row.case_id} data-work-row={row.case_id} data-work-revision={row.revision_id}>
               {copy.kind === "incidents" ? (
-                <IncidentCells row={row} links={links} />
+                <IncidentCells row={row} links={links} contexts={contextsOf(row.case_id)} />
               ) : (
-                <MaintenanceCells row={row} />
+                <MaintenanceCells row={row} contexts={contextsOf(row.case_id)} />
               )}
             </tr>
           ))}
@@ -544,6 +622,32 @@ function CoverageLine({ body }: { body: WorkIndexBody }) {
   );
 }
 
+/**
+ * The overlay for exactly this page: its case IDs at its `known_at`. An answer keyed to another page, cutoff or
+ * selection token is never shown (closure 1 work overlay: discard responses from a prior list token).
+ */
+function useDecisionOverlay(
+  decisions: MiniDecisionsClient | undefined,
+  siteId: string,
+  body: WorkIndexBody,
+): DecisionRead<WorkContextsBody> | null {
+  const caseIds = body.rows.map((r) => r.case_id);
+  const key = [siteId, body.known_at, body.selection_token, ...caseIds].join("|");
+  const [state, setState] = useState<{ key: string; read: DecisionRead<WorkContextsBody> } | null>(null);
+  useEffect(() => {
+    if (decisions === undefined || caseIds.length === 0) return undefined;
+    let active = true;
+    void decisions.getWorkContexts(siteId, caseIds, body.known_at).then((read) => {
+      if (active) setState({ key, read });
+    });
+    return () => {
+      active = false;
+    };
+    // `key` carries the Site, cutoff, token and the page's case IDs.
+  }, [decisions, key]);
+  return state !== null && state.key === key ? state.read : null;
+}
+
 function Loaded({
   copy,
   body,
@@ -551,6 +655,8 @@ function Loaded({
   trail,
   links,
   onScope,
+  siteId,
+  decisions,
 }: {
   copy: KindCopy;
   body: WorkIndexBody;
@@ -558,7 +664,10 @@ function Loaded({
   trail: WorkTrail;
   links: SiteWorkCasesLinks;
   onScope: SiteWorkCasesProps["onScope"];
+  siteId: string;
+  decisions?: MiniDecisionsClient;
 }) {
+  const overlay = useDecisionOverlay(decisions, siteId, body);
   if (body.total_count === 0) {
     return (
       <>
@@ -578,7 +687,7 @@ function Loaded({
   return (
     <div data-work-loaded>
       <CoverageLine body={body} />
-      <Rows copy={copy} body={body} links={links} />
+      <Rows copy={copy} body={body} links={links} overlay={overlay} />
       <div className="w1f4-work-foot">
         <Pages body={body} scope={scope} trail={trail} onScope={onScope} />
         <Basis body={body} />
@@ -591,7 +700,16 @@ function Body({ copy, children }: { copy: KindCopy; children: ReactNode }) {
   return <div className="w1f4-changes-work work-cases" data-site-work={copy.kind}>{children}</div>;
 }
 
-export function SiteWorkCases({ kind, siteId, client, scope, trail, links, onScope }: SiteWorkCasesProps & { kind: WorkKind }) {
+export function SiteWorkCases({
+  kind,
+  siteId,
+  client,
+  scope,
+  trail,
+  links,
+  onScope,
+  decisions,
+}: SiteWorkCasesProps & { kind: WorkKind }) {
   const copy = WORK_KIND_COPY[kind];
   const [result, setResult] = useState<WorkIndexResult | null>(null);
   const { from, to, knownAt, cursor } = scope;
@@ -617,7 +735,16 @@ export function SiteWorkCases({ kind, siteId, client, scope, trail, links, onSco
         {result === null ? (
           <p data-work-loading>Loading the site&apos;s work records.</p>
         ) : result.status === "loaded" ? (
-          <Loaded copy={copy} body={result.value} scope={scope} trail={trail} links={links} onScope={onScope} />
+          <Loaded
+            copy={copy}
+            body={result.value}
+            scope={scope}
+            trail={trail}
+            links={links}
+            onScope={onScope}
+            siteId={siteId}
+            decisions={decisions}
+          />
         ) : (
           <Refused copy={copy} result={result} scope={scope} onScope={onScope} />
         )}

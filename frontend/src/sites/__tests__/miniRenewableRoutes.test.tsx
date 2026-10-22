@@ -177,8 +177,9 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     const productive = panelTitled("Productive-use evaluation");
     expect(productive.textContent).toContain("No productive-use scenario has been assessed.");
     expect(productive.textContent).toContain("Electrical capacity does not establish customer demand.");
-    expect(productive.querySelector('[data-link-unavailable="Opportunity decision"]')?.textContent).toBe(
-      "Opportunity decision · Not available yet",
+    // W4-03 unit 7 (S14): a one-day selection makes no opportunity lookup and states the shorter-study copy.
+    expect(productive.querySelector('[data-opportunity-decision="short"]')?.textContent).toBe(
+      "Opportunity decision unavailable for fewer than five assessed days.",
     );
     const cells = Array.from(document.querySelectorAll("tbody tr")[0].querySelectorAll("td")).map((td) => td.textContent);
     expect(cells[0]).toBe("2026-10-06 · 12:00–13:00");

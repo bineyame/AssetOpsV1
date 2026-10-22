@@ -26,7 +26,7 @@ if URL:
     from test_w203_cold_migration_postgres import (
         T0, _replica, _sha, constraint, head, minigrid_rows, scalar, table_exists)
 
-HEAD = "0029_w4_mini_depth"  # W4-02: 0029 sits above 0027 (W4-01 above 0026)
+HEAD = "0030_w4_mini_decisions"  # W4-03: 0030 sits above 0029 (W4-02 above 0027)
 PREVIOUS = "0024_w2_ev_config"
 REFUSED = "Downgrade of 0025_w2_ev_session refused"
 EV = ("ev_session", "ev_session_revision", "ev_session_evidence", "ev_meter_interval")

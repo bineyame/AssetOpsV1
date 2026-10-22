@@ -2327,6 +2327,14 @@
     },
     {
       "id": "alternatives",
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-mini-decision-read",
+          "I-mini-decision-ui",
+          "D-mini-decisions"
+        ]
+      },
       "mock_route": "#/alternatives",
       "product_destination": "Findings > Alternatives",
       "coverage": "deferred",
@@ -2545,6 +2553,15 @@
     },
     {
       "id": "opportunity-finding",
+      "registry_dependencies": {
+        "product_node_id": "P-claims-area",
+        "node_ids": [
+          "I-mini-decision-read",
+          "I-mini-decision-ui",
+          "D-mini-decisions",
+          "I-mini-depth-read"
+        ]
+      },
       "mock_route": "#/opportunity-finding",
       "product_destination": "Findings > Overview",
       "coverage": "deferred",
@@ -2648,6 +2665,14 @@
     },
     {
       "id": "scenarios",
+      "registry_dependencies": {
+        "product_node_id": "P-money-area",
+        "node_ids": [
+          "I-mini-decision-read",
+          "I-mini-decision-ui",
+          "D-mini-decisions"
+        ]
+      },
       "mock_route": "#/scenarios",
       "product_destination": "Sites > Financials",
       "coverage": "deferred",

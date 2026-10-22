@@ -50,10 +50,12 @@ const PANEL_SELECTOR = "section.panel, .panel, [data-headline-card]";
 const CHROME_SELECTOR = "nav, header.page-header, .site-date-bar";
 /**
  * The only v69 patterns permitted between the chrome and panel 1. W1-F2 added
- * `.v69-objective`, the mock's `.objective` line between status and cards.
+ * `.v69-objective`, the mock's `.objective` line between status and cards. W4-03 u6b ruling 3 adds the canonical mini
+ * Finding's `[data-analysis-helper]`: one noninteractive line directly after the section row, a ruled addition.
  */
 const LEADING_SELECTOR =
-  ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective, " +
+  ".status-strip, [data-page-refusal], .v69-mheader, .v69-cards, .v69-chips, [data-selected-part-missing], [data-selected-part-chip], .v69-objective, [data-analysis-helper], " +
+
   // W3-03 run 2: the v69 `portfolio` screen's own three leading rows (context line, five value cards, pulse).
   ".portfolio-v2 > .portfolio-context, .portfolio-v2 > .value-grid, .portfolio-v2 > .portfolio-pulse";
 /** Section-like elements that must not render outside a panel or leading pattern. */

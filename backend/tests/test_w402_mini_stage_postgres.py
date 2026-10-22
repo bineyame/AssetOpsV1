@@ -143,7 +143,8 @@ def test_tick_runs_the_mini_stage_between_s3_and_s4(store, engine) -> None:  # n
     report = tick.tick()
     assert report.outcome == "COMPLETED", report.failure
     [site_result] = [s for s in report.selected if s.site_id == site_id]
-    assert [c for c, s in runner.calls if s in (None, str(site_id))] == ["discover", "s3", "mini", "s4", "consequence"]
+    assert [c for c, s in runner.calls if s in (None, str(site_id))] == ["discover", "s3", "mini", "opportunity", "s4",
+                                                                           "consequence"]
     mini = site_result.stages["mini"]
     assert mini["code"] == "OK" and mini["processed"] == 10 and mini["failed"] == 0, mini
     assert mini["deferred"] == live_before - 10

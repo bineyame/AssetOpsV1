@@ -1,6 +1,6 @@
 # W4-03 pending rulings
 
-## PR-1 (raised in unit 1; does not block unit 1; needed before unit 4)
+## PR-1 (raised in unit 1) - RESOLVED by u1: `0030` carries the three `schedule_site_head` opportunity counters, the OPPORTUNITY stage CHECK and its downgrade; u3/unit 4 consume them (uF 7)
 
 S1 asks the OPPORTUNITY stage to carry "counters", but the S4/closure-1 catalog delta for 0030 lists only the
 altered stage CHECK and no `schedule_site_head` columns. W4-02 added `mini_processed/mini_deferred/mini_failed`
@@ -253,7 +253,7 @@ state (Scenarios, Opportunity, both Work screens); no missing or extra panel was
    after the late rerun). Options: split `replay` so `capture` can run between the positive and late branches, or
    accept stale/limited states as the Opportunity evidence. And is the harness `known_at` rewrite acceptable?
 
-## PR-13 (raised applying u9b) - OPEN: two inclusive caps still breached after every ruled PR-12 fix
+## PR-13 (raised applying u9b) - RESOLVED by u9c (Scenarios 144/188 px, Incidents 224 px; `var/w403r/capture/evidence.json` 359/359: Scenarios populated 328 <= 348 at 1440 and 372 <= 391 at 390, Incidents refused 456 and linked 430 <= 460 at 390, 445/425 at 1440)
 
 Capture `var/w403q/capture/evidence.json` (code `6f2bea4b` + stock fix, DB `w403q_test`): 359 checks, 356 passed. The
 check total rose from 265 because u9b added checks (positive phase 44, disclosure, wire/cutoff, 503 order, overlay).

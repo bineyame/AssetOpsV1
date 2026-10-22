@@ -214,6 +214,12 @@ describe("Performance renders Dispatch as its only subtab (AC21)", () => {
       "Assessment method versiondispatch-2",
     );
     expect(analysis).toHaveTextContent("An assessed period without a Finding");
+    // W4-03 u6b ruling 14: a period with no Finding (`finding_id: null`) shows the noninteractive Alternatives gap,
+    // never a live CTA.
+    const gap = analysis.querySelector("[data-alternatives-unavailable]");
+    expect(gap).toHaveTextContent("Alternatives for this Finding unavailable");
+    expect(gap?.querySelector("a")).toBeNull();
+    expect(analysis.querySelector('a[href*="/alternatives"]')).toBeNull();
     // Record links open the Site Evidence inspector, not the Lab.
     expect(analysis.querySelector("[data-analysis-record]")).toHaveAttribute(
       "href",

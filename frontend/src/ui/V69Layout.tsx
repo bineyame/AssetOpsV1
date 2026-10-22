@@ -296,6 +296,10 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   sitefindings: "Findings · conclusions about this site and the limits of their evidence",
   financials: "Financials · what the site's technical behaviour means in money",
   assumptions: "Financials · assumptions and their history",
+  // W4-03 unit 6a: the mini Scenarios subtitle, without the mock's "(placeholder)" once the read is live.
+  scenarios: "Financials · scenarios",
+  // W4-03 unit 7: the typed five-day Opportunity detail (closure 1 Q17-Q30).
+  opportunity: "Five-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.",
 } as const;
 
 export interface SitePageHeaderProps {

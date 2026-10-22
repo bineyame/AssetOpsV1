@@ -71,8 +71,13 @@ const PanelControls = createContext<ReactNode>(null);
  * have no authoritative classification or Site/window filter yet, so they are "Not available yet" text and
  * cannot change or discard the window selection.
  */
-function LensChips() {
+/** W4-03 closure 4 S11: the mini Site's noninteractive helper below the lens row (no href, handler or focus). */
+export const OPPORTUNITY_INDEX_HELPER =
+  "Opportunity index unavailable; open the renewable evaluation for this site's five-day study.";
+
+function LensChips({ opportunityHelper = false }: { opportunityHelper?: boolean }) {
   return (
+    <>
     <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>
       <li className="v69-chip" aria-current="true" data-lens="all">
         All
@@ -81,6 +86,12 @@ function LensChips() {
       <UnavailableChip label="Risks" />
       <UnavailableChip label="Opportunities" />
     </ul>
+    {opportunityHelper ? (
+      <p className="finding-sections__helper" data-opportunity-index-helper>
+        {OPPORTUNITY_INDEX_HELPER}
+      </p>
+    ) : null}
+    </>
   );
 }
 
@@ -100,6 +111,8 @@ export interface SiteFindingIndexProps {
   onScope: (scope: FindingIndexScope) => void;
   /** Rendered for a Site with no imported record (the older summary). */
   fallback: ReactNode;
+  /** W4-03 S11: a MINIGRID Site states where its typed five-day opportunity is reached. */
+  opportunityHelper?: boolean;
 }
 
 const HEADING_ID = "site-finding-index-heading";
@@ -810,7 +823,7 @@ function Refused({ result, scope, links }: { result: FindingIndexResult; scope: 
   }
 }
 
-export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallback }: SiteFindingIndexProps) {
+export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallback, opportunityHelper = false }: SiteFindingIndexProps) {
   const [result, setResult] = useState<FindingIndexResult | null>(null);
   const { domain, from, to, limit, cursor } = scope;
   useEffect(() => {
@@ -834,7 +847,7 @@ export function SiteFindingIndex({ siteId, client, scope, links, onScope, fallba
       <PanelControls.Provider
         value={
           <div className="site-findings-controls" data-site-findings-controls>
-            <LensChips />
+            <LensChips opportunityHelper={opportunityHelper} />
             <WindowForm scope={scope} onScope={onScope} />
           </div>
         }

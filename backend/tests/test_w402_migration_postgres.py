@@ -37,7 +37,8 @@ if URL:
     )
     from assetops_backend.sites.binding_roles import MINIGRID_ROLES_4
 
-HEAD = "0029_w4_mini_depth"
+HEAD = "0030_w4_mini_decisions"  # W4-03: the current head sits above 0029
+MIGRATION = "0029_w4_mini_depth"
 PREVIOUS = "0027_w4_work_cases"
 REFUSED = "Downgrade of 0029_w4_mini_depth refused: mini-depth history exists"
 REFUSED_BASIS = "Downgrade of 0029_w4_mini_depth refused: cutover basis history exists"
@@ -79,7 +80,8 @@ def catalog(engine) -> tuple[int, int, int, int]:  # noqa: F811
 
 
 SITE_STAGES_BEFORE = "'IDLE'::text, 'S3'::text, 'S4'::text, 'CONSEQUENCE'::text"
-SITE_STAGES_AFTER = "'IDLE'::text, 'S3'::text, 'MINI'::text, 'S4'::text, 'CONSEQUENCE'::text"
+# W4-03 closure 4 S1: at the current head 0030 also admits OPPORTUNITY after MINI.
+SITE_STAGES_AFTER = "'IDLE'::text, 'S3'::text, 'MINI'::text, 'OPPORTUNITY'::text, 'S4'::text, 'CONSEQUENCE'::text"
 MINI_COUNTERS = [(n, "integer", "0", "NO") for n in ("mini_deferred", "mini_failed", "mini_processed")]
 
 
@@ -190,7 +192,7 @@ class TestMigration0029:
 
         config = _alembic()
         assert ScriptDirectory.from_config(config).get_heads() == [HEAD]
-        assert ScriptDirectory.from_config(config).get_revision(HEAD).down_revision == PREVIOUS
+        assert ScriptDirectory.from_config(config).get_revision(MIGRATION).down_revision == PREVIOUS
         assert head(engine) == HEAD and catalog(engine) == (4, 3, 4, 1)
         assert_site_head(engine, upgraded=True)
         assert scalar(engine, "SELECT count(*) FROM pg_indexes WHERE indexname IN ('mini_depth_selection_head', "

@@ -173,6 +173,31 @@ export function siteFindingHref(siteId: string, findingId: string, revisionId?: 
  */
 export const SITE_FINANCIALS_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/financials`;
 export const SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PATH}/assumptions`;
+/** W4-03 unit 6a: mini Financials > Scenarios; the address carries only the read's own `from`/`to`/`known_at`/`cursor`. */
+export const SITE_FINANCIAL_SCENARIOS_ROUTE_PATH = `${SITE_FINANCIALS_ROUTE_PATH}/scenarios`;
+
+export function siteFinancialScenariosHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/financials/scenarios`;
+}
+
+/**
+ * W4-03 unit 7: the typed five-day Opportunity detail, reached only from the exact W4-02 renewable CTA (S14). The
+ * Site token is the public Site code, never the database UUID (u6 dry-read).
+ */
+export const SITE_OPPORTUNITY_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/opportunities/:opportunityId`;
+
+/**
+ * PR-12.6: `?known_at=<six-digit UTC>` is the explicit historical cutoff of the detail read; no query keeps current
+ * time. Every value given is kept in order, so a duplicate stays visible to the server's refusal.
+ */
+export function siteOpportunityHref(siteId: string, opportunityId: string, knownAt?: string | readonly string[] | null): string {
+  const base = `${siteDetailHref(siteId)}/opportunities/${encodeURIComponent(opportunityId)}`;
+  const values = knownAt === null || knownAt === undefined ? [] : typeof knownAt === "string" ? [knownAt] : knownAt;
+  if (values.length === 0) return base;
+  const params = new URLSearchParams();
+  for (const v of values) params.append("known_at", v);
+  return `${base}?${params.toString()}`;
+}
 
 export function siteFinancialsHref(
   siteId: string,
@@ -231,8 +256,10 @@ export function siteEvHref(siteId: string, view: keyof typeof SITE_EV_SUFFIX = "
  * each view from this list (Evidence: phase 2, History: phase 3).
  * S6-01b adds Recommendation (`recommendation:1`), which keeps the same
  * `?revision_id=` so the recommendation is always for an exact version.
+ * W4-03 unit 6b adds `alternatives`: the authored alternatives of the exact
+ * selected revision, on MINIGRID Sites only (u6 ruling 3).
  */
-export const FINDING_CHILD_VIEWS = ["evidence", "history", "recommendation"] as const;
+export const FINDING_CHILD_VIEWS = ["evidence", "history", "recommendation", "alternatives"] as const;
 export type FindingChildView = (typeof FINDING_CHILD_VIEWS)[number];
 export const SITE_FINDING_VIEW_ROUTE_PATH = `${SITE_FINDING_ROUTE_PATH}/:findingView`;
 
@@ -244,6 +271,14 @@ export function siteFindingViewHref(
 ): string {
   const base = `${siteFindingsHref(siteId)}/${encodeURIComponent(findingId)}/${view}`;
   return revisionId ? `${base}?revision_id=${encodeURIComponent(revisionId)}` : base;
+}
+
+/**
+ * W4-03 unit 6b (u6 rulings 5 and 6): the canonical mini Alternatives address. It takes the revision a same-Site W1
+ * Finding read resolved (`selection.revision_id`), never an absent one: there is no unpinned Alternatives href.
+ */
+export function siteFindingAlternativesHref(siteId: string, findingId: string, resolvedRevisionId: string): string {
+  return siteFindingViewHref(siteId, findingId, "alternatives", resolvedRevisionId);
 }
 
 /**

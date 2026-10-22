@@ -73,6 +73,22 @@
   overflow: hidden;
 }
 
+/* W4-03 unit 8: the decision-context line stays inside the row's bounded space (N4). */
+.work-cases-context {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/* PR-12.3: the single refused-overlay line beside the Incident table. */
+.work-cases-context--panel {
+  display: block;
+  margin: 0 0 6px;
+}
+
 .work-cases td .w1f4-action-badge {
   padding: 2px 6px;
 }
@@ -113,6 +129,9 @@
   .work-cases .work-cases-table .data-table__scroll {
     overflow-x: auto;
   }
+
+  /* W4-03 PR-12.3/u9c: the stocked Incident table scrolls vertically inside the 460 px panel cap. */
+  .work-cases [data-work-table="incidents"] .data-table__scroll { max-height: 224px; overflow: auto; }
 
   .work-cases .work-cases-table .work-cases-first,
   .work-cases .work-cases-table th:first-child {

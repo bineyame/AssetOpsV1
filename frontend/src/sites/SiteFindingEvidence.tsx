@@ -54,8 +54,13 @@ export const FINDING_EVIDENCE_QUESTION = "Which accepted records support this Fi
  * "Not available yet" text, never a link.
  */
 export type FindingSectionLink =
-  | { id: string; label: string; href: string; unavailable?: never }
-  | { id: string; label: string; unavailable: true; href?: never };
+  | { id: string; label: string; href: string; unavailable?: never; gap?: never }
+  | { id: string; label: string; unavailable: true; href?: never; gap?: never }
+  /**
+   * W4-03 unit 6b (u6 ruling 5): a built section whose exact address is not resolved yet, or whose resolving read
+   * refused. Plain noninteractive page text (no href, handler or focus target), not an unbuilt tab.
+   */
+  | { id: string; label?: never; gap: string; href?: never; unavailable?: never };
 
 /**
  * The Finding root's sections (the Finding itself and its named child views).
@@ -65,19 +70,29 @@ export function FindingSections({
   sections,
   current,
   aside,
+  helper,
 }: {
   sections: FindingSectionLink[];
   current: string;
   /** W1-F3: a related-screen link at the end of the section row (chrome, not a content block). */
   aside?: ReactNode;
+  /** W4-03 unit 6b (u6 ruling 4): plain helper text beside the row; no href, handler or focus target. */
+  helper?: string;
 }) {
   const rowRef = useCurrentTabInView<HTMLElement>();
   return (
+    <>
     <nav className="site-tabs site-subtabs finding-sections" aria-label={FINDING_SECTIONS_LABEL} ref={rowRef}>
       <ol className="site-tabs__list">
         {sections.map((section) =>
           section.unavailable ? (
             <UnavailableTab key={section.id} label={section.label} />
+          ) : section.gap !== undefined ? (
+            <li className="site-tabs__item" key={section.id}>
+              <span className="site-tabs__gap" data-finding-section-gap={section.id}>
+                {section.gap}
+              </span>
+            </li>
           ) : (
           <li className="site-tabs__item" key={section.id}>
             <Link
@@ -94,6 +109,13 @@ export function FindingSections({
       </ol>
       {aside === undefined ? null : <span className="finding-sections__aside">{aside}</span>}
     </nav>
+    {/* u6b ruling 3: the helper is the row's noninteractive sibling, outside the tab and navigation semantics. */}
+    {helper === undefined ? null : (
+      <p className="finding-sections__helper" data-analysis-helper>
+        {helper}
+      </p>
+    )}
+    </>
   );
 }
 

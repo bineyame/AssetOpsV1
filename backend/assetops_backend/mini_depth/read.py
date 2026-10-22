@@ -133,6 +133,7 @@ class _Hour:
     job_state: str
     state: str
     pending_ids: tuple[str, ...] | None
+    job_ids: tuple[str, ...] = ()
 
 
 _HEAD = text(
@@ -147,7 +148,7 @@ _HEAD = text(
     "ORDER BY s.selected_at DESC, s.seq DESC LIMIT 1")
 # A live job overlapping the hour that no later selection of that job's hour (visible at the cutoff) has cleared.
 _JOBS = text(
-    "SELECT j.status FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s AND j.domain = :jd "
+    "SELECT j.id, j.status FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s AND j.domain = :jd "
     "AND j.window_start < :hi AND j.window_end > :lo AND j.status IN ('PENDING', 'LEASED', 'FAILED') "
     "AND j.available_at <= :k AND NOT EXISTS (SELECT 1 FROM mini_depth_selection x WHERE x.tenant_id = j.tenant_id "
     "AND x.site_id = j.site_id AND x.domain = :d AND x.window_start = j.window_start "
@@ -414,7 +415,8 @@ class MiniDepthRead:
             check_lineage(domain, window, row)
             result = row[4]
             head = _Head(int(row[0]), row[1], row[2], row[3], result, tuple(row[8]))
-        statuses = set(c.execute(_JOBS, p).scalars())
+        jobs = c.execute(_JOBS, p).all()
+        statuses = {str(j[1]) for j in jobs}
         job_state = next((x for x in ("FAILED", "LEASED", "PENDING") if x in statuses),
                          "SETTLED" if head else "NONE")
         pending_ids = tuple(_hour_ids(c, t, s, window, known)) if statuses else None
@@ -426,9 +428,82 @@ class MiniDepthRead:
             state = "STALE_SOURCE"
         else:
             state = "HISTORICAL" if historical else "CURRENT"
-        return _Hour(day, window, head, job_state, state, pending_ids)
+        return _Hour(day, window, head, job_state, state, pending_ids, tuple(sorted(str(j[0]) for j in jobs)))
+
+    # --- W4-03 closure 4 S9: the one selected-renewable basis reader -------------------------------------------
+
+    def read_selected_renewable_basis(self, c: Connection, *, tenant_id: UUID, site_id: UUID, days: Sequence[date],
+                                      known: datetime, historical: bool) -> dict[str, Any]:
+        """The selected renewable noon-hour basis of `days` on the caller's connection and cutoff (W4-03 S9).
+
+        Uses this reader's own head, overlapping-job, cutoff-digest and provenance logic (`_hour`, `mini_blocks`),
+        never a reimplementation. Per day: the selected `(selection_seq, mini_revision_id)`, the stored decision and
+        one-hour `opportunity_kwh` bound, the revision's input digest and accepted IDs, the hour currentness and live
+        job IDs. The three provenance blocks cover the complete day set. A nonexistent local noon is
+        `INVALID_WINDOW`. Nothing is written."""
+        tz_name = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
+                            {"t": tenant_id, "s": site_id}).scalar_one_or_none()
+        hours: list[_Hour] = []
+        for day in days:
+            try:
+                window = local_noon(day, tz_name or "")
+            except MiniInputsRefused as error:
+                raise MiniReadRefused("INVALID_WINDOW") from error
+            hours.append(self._hour(c, tenant_id, site_id, "renewable", day, window, known, historical))
+        live = [h for h in hours if h.pending_ids is not None]
+        blocks = mini_blocks(
+            c, self._link_rows, tenant_id, site_id, selected_revision_ids=[h.head.revision_id for h in hours if h.head],
+            selected_evidence_ids=[i for h in hours if h.head for i in h.head.evidence_ids],
+            pending_evidence_ids=None if not live else [i for h in live for i in (h.pending_ids or ())])
+        rows = []
+        for h in hours:
+            hour = h.head.result.get("hour") or {} if h.head else {}
+            # The one stored row of a renewable noon hour carries its one-hour `opportunity_kwh` bound.
+            stored_rows = (h.head.result.get("rows") or []) if h.head else []
+            rows.append({
+                "local_day": h.day.isoformat(), "window_start": h.window.start, "window_end": h.window.end,
+                "selection_seq": h.head.seq if h.head else None,
+                "mini_revision_id": str(h.head.revision_id).lower() if h.head else None,
+                "decision": hour.get("decision"),
+                "opportunity_kwh": stored_rows[0].get("opportunity_kwh") if len(stored_rows) == 1 else None,
+                "input_sha256": h.head.input_sha256 if h.head else None,
+                "evidence_ids": list(h.head.evidence_ids) if h.head else [],
+                "state": h.state, "job_state": h.job_state, "pending_job_ids": list(h.job_ids)})
+        return {"timezone": tz_name, "days": rows,
+                "currentness": {"state": aggregate_state(h.state for h in hours) if hours else
+                                ("HISTORICAL" if historical else "CURRENT"),
+                                "job_state": aggregate_job(h.job_state for h in hours) if hours else "NONE"},
+                "pending_job_ids": sorted({j for h in hours for j in h.job_ids}),
+                "pending_evidence_ids": None if not live else sorted({i for h in live for i in (h.pending_ids or ())}),
+                **blocks}
+
+    def provenance_blocks(self, c: Connection, *, tenant_id: UUID, site_id: UUID,
+                          selected_revision_ids: Iterable[UUID | str], selected_evidence_ids: Iterable[UUID | str],
+                          pending_evidence_ids: Iterable[UUID | str] | None) -> dict[str, Any]:
+        """`mini_blocks` with this reader's link-row resolver, for a caller's own exact pinned revision set."""
+        return mini_blocks(c, self._link_rows, tenant_id, site_id, selected_revision_ids=selected_revision_ids,
+                           selected_evidence_ids=selected_evidence_ids, pending_evidence_ids=pending_evidence_ids)
+
+
+_RENEWABLE_REVISIONS = text(
+    "SELECT r.id::text, r.window_start, r.knowledge_cutoff, COALESCE((SELECT array_agg(v.evidence_id::text "
+    "ORDER BY v.evidence_id::text) FROM mini_depth_revision_evidence v WHERE v.tenant_id = r.tenant_id "
+    "AND v.site_id = r.site_id AND v.revision_id = r.id), '{}') FROM mini_depth_revision r "
+    "WHERE r.tenant_id = :t AND r.site_id = :s AND r.domain = 'renewable' AND r.id = ANY(CAST(:ids AS uuid[]))")
+
+
+def renewable_revisions(c: Connection, tenant_id: UUID, site_id: UUID,
+                        revision_ids: Iterable[UUID | str]) -> dict[str, dict[str, Any]]:
+    """W4-03: the named revisions that are renewable revisions of this tenant/Site, keyed by lowercase ID, with their
+    hour start, knowledge cutoff and exact accepted-ID set. A foreign, other-domain or unknown ID is absent."""
+    ids = sorted({str(i).lower() for i in revision_ids})
+    if not ids:
+        return {}
+    rows = c.execute(_RENEWABLE_REVISIONS, {"t": tenant_id, "s": site_id, "ids": ids}).all()
+    return {str(r[0]).lower(): {"window_start": r[1], "knowledge_cutoff": r[2],
+                                "evidence_ids": [str(i).lower() for i in r[3]]} for r in rows}
 
 
 __all__ = ["MESSAGES", "MiniDepthRead", "MiniReadRefused", "MiniReadUnavailable", "aggregate_job", "aggregate_state",
            "check_lineage", "compose_renewable", "hour_windows", "iso", "limit_claim", "links", "renewable_envelope",
-           "site_path"]
+           "renewable_revisions", "site_path"]
