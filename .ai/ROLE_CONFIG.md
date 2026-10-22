@@ -500,6 +500,7 @@ The owner asked to "adopt best practices and learning for waves 5 and 6 for qual
 10. **Rulings in parallel.** Builder readings go to the Architect while the next unit builds. The builder applies the rulings at its next commit boundary.
 11. **One full suite at a time, never alongside 3+ heavy builders.** (W3-02 had 2 load-timing failures.)
 12. **Captures are part of the unit that builds the page,** not a separate late unit, so cap and state failures surface while the code is fresh.
+13. **Builders stop every process they start** (gateway/dev servers, capture browsers) and drop their `*_test` DBs before reporting; worktrees are created after `.gitattributes` changes or re-checked out (`git ls-files --eol`), and every new byte-pinned fixture gets an `eol=lf` entry. The coordinator checks for orphaned `assetops_gateway serve` processes after each slice (2026-10-22: 214 orphans held about 2 GB).
 
 ## Updating Bindings
 
