@@ -322,8 +322,8 @@ describe("cold Scenarios page states", () => {
     expect(cells[0].textContent).toBe("Vaccine stock at risk" + "CSCN-000001 revision 1");
     expect(cells[0].querySelector('[data-vocabulary-exempt="source-reference"]')?.textContent).toBe("CSCN-000001");
     expect(cells[1].textContent).toBe("1200 dose at 2.75 USD per dose");
-    expect(cells[2].textContent).toBe("Selected evidence through 2026-10-22 08:00 UTC" + "Review assumptions →");
-    expect(cells[3].textContent).toBe("2026-10-22 09:12 UTC");
+    expect(cells[2].textContent).toBe("Selected evidence through 22 Oct 08:00 UTC" + "Review assumptions →");
+    expect(cells[3].textContent).toBe("22 Oct 09:12 UTC");
     expect(cells[4].textContent).toBe("Defined");
     // No observed outcome and no create control.
     expect(root.textContent).not.toMatch(/loss|observed outcome|spoiled/i);
@@ -360,8 +360,8 @@ describe("cold Scenarios page states", () => {
       "Unit value: 2.75",
       "Currency: USD",
     ]);
-    expect(values[2].textContent).toBe(`${FROM} – ${TO}`);
-    expect(values[3].textContent).toBe(KNOWN);
+    expect(values[2].textContent).toBe("6 Oct 2026 19:00–20:05 UTC");
+    expect(values[3].textContent).toBe("22 Oct 08:00 UTC");
     expect(values[4].textContent).toBe(REV_A);
     expect(values[5].querySelector("[data-scenario-evidence-count]")?.textContent).toBe("1 record");
     expect(values[5].textContent).toBe(`1 record${EV_1}`);
@@ -374,6 +374,16 @@ describe("cold Scenarios page states", () => {
     expect(expansion.querySelector(".cold-scenarios-basis")).not.toBeNull();
     fireEvent.click(review);
     expect(root.querySelector("[data-scenario-expansion]")).toBeNull();
+    cleanup();
+
+    // W5-01b review L2: the row and the shared selected-window bar use one date style, seconds only when present.
+    const SEC = "2026-10-22T08:00:37Z";
+    const secBody = body([item({ authored_basis: { ...item().authored_basis, cutoff: SEC } })]);
+    secBody.window = { ...secBody.window, known_at: SEC, committed_watermark: SEC };
+    const secRoot = await renderBody(stub(() => loaded(secBody)).client);
+    const secCells = Array.from((secRoot.querySelector(`[data-scenario-row="${SCENARIO}"]`) as HTMLElement).children) as HTMLElement[];
+    expect(secCells[2].textContent).toBe("Selected evidence through 22 Oct 08:00:37 UTC" + "Review assumptions →");
+    expect(secRoot.querySelector("[data-cold-date-bar]")?.textContent).toContain("22 Oct 08:00:37 UTC");
     cleanup();
 
     // Q-C5b-4: a 95-ID basis is one keyboard-reachable region with every full ID in order, bounded at 360px.
@@ -455,6 +465,34 @@ describe("cold Scenarios page states", () => {
     await waitFor(() => expect(root.querySelectorAll("[data-scenario-row]")).toHaveLength(50));
     expect(list.mock.calls[list.mock.calls.length - 1][2]).toBeNull();
   });
+
+  it("restarts at page 1 when Retry follows a changed-basis page cursor", async () => {
+    const rows = Array.from({ length: 51 }, (_, n) =>
+      item({ id: `a1b2c3d4-e5f6-4a7b-8c9d-${String(n).padStart(12, "0")}`, revision_id: `b2c3d4e5-f6a7-4b8c-9d0e-${String(n).padStart(12, "0")}` }, n + 1),
+    );
+    const { client, list } = stub((cursor) =>
+      cursor === null
+        ? loaded(body(rows.slice(0, 50), "CURRENT", "page-2", 2))
+        : {
+            status: "refused",
+            httpStatus: 409,
+            code: "COLD_SCENARIO_CURSOR_BASIS_CHANGED",
+            message: "The selected cold scenario basis changed. Start at the first page.",
+          },
+    );
+    const root = await renderBody(client);
+    fireEvent.click(root.querySelector("[data-scenarios-next]") as HTMLButtonElement);
+    await waitFor(() => expect(root.querySelector("button[data-cold-retry]")).not.toBeNull());
+    const retry = root.querySelector("button[data-cold-retry]") as HTMLButtonElement;
+    expect(root.textContent).toContain("The selected cold scenario basis changed. Start at the first page.");
+    fireEvent.click(retry);
+    await waitFor(() => expect(root.querySelectorAll("[data-scenario-row]")).toHaveLength(50));
+    expect(list.mock.calls.map((call) => call[2])).toEqual([null, "page-2", null]);
+    expect(list.mock.calls[2][0]).toBe(list.mock.calls[0][0]);
+    expect(list.mock.calls[2][1]).toEqual(list.mock.calls[0][1]);
+    expect(root.querySelector("[data-scenarios-page-count]")?.textContent).toBe("1 of 2");
+    expect((root.querySelector("[data-scenarios-first]") as HTMLButtonElement).disabled).toBe(true);
+  });
 });
 
 /* ---------- the composed page, through the real App route ---------- */
@@ -526,7 +564,8 @@ describe("authored, pending and historical cold Scenarios", () => {
     expect(icon.nextElementSibling?.textContent).toBe(SCENARIOS_CLOSING_NOTICE);
     expect(panel.compareDocumentPosition(closing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(main.querySelector("[data-cold-date-bar]")?.textContent).toContain("Selected window");
-    expect(main.querySelector("[data-scenarios-through]")?.textContent).toBe("Scenarios created through 2026-10-22 09:30 UTC");
+    // W5-01b review H1: no standalone authored-clock line; the mock empty block and closing notice keep their copy.
+    expect(main.querySelector("[data-scenarios-through]")).toBeNull();
     cleanup();
 
     // Authored, current: the full page passes the W1 scan with the open disclosure and the pager.
@@ -534,6 +573,7 @@ describe("authored, pending and historical cold Scenarios", () => {
     fireEvent.click(main.querySelector("[data-scenario-review]") as HTMLButtonElement);
     expect(main.querySelector("[data-scenarios-state-notice]")).toBeNull();
     expect(main.querySelector("[data-scenarios-empty]")).toBeNull();
+    expect(main.querySelector("[data-scenarios-through]")).toBeNull();
     const scan = scanProductVocabulary(main, "cold-scenarios", { set: "w1", screen: "cold-scenarios" });
     expect(scan.scanned).toBeGreaterThan(20);
     expect(describeViolations(scan.violations)).toBe("");

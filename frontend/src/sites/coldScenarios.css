@@ -3,12 +3,6 @@
  * (`mockups.css`) with its evidence icon, the authored row lines, the basis expansion row and its 360px internal
  * scroller (every width). Exact IDs break at character boundaries; nothing is ellipsized.
  */
-.cold-scenarios-through {
-  margin: 6px 0 12px;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
 .cold-scenarios-empty {
   margin: 15px 0;
   padding: 45px 20px;

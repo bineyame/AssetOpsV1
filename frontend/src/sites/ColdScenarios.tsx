@@ -12,6 +12,7 @@ import { Notice } from "../ui/V69Layout";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import { classificationWord } from "./coldAssessmentWords";
 import type { ColdScenarioItem, ColdScenarioQuery, ColdScenariosClient, ColdScenariosRead, ColdScenariosState } from "./coldScenariosClient";
+import { dayHm, windowText } from "./coldFormat";
 import { RequestedWindowBar, SelectedWindowBar } from "./coldSiteViews";
 import "./coldScenarios.css";
 
@@ -46,14 +47,8 @@ const ASSUMPTION_WORDS: [keyof ColdScenarioItem["assumptions"], string][] = [
 ];
 const PANEL_HEADING_ID = "cold-scenarios-heading";
 
-const pad = (n: number) => String(n).padStart(2, "0");
-/** `YYYY-MM-DD HH:MM UTC`; a null clock is never formatted as a date. */
-export function utcMinute(value: string | null): string {
-  if (value === null) return "None";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
-}
+/** W5-01b review L2: the shared cold Site date style; a null clock is never formatted as a date. */
+const utcDayHm = (value: string | null): string => (value === null ? "None" : `${dayHm(value)} UTC`);
 
 export const assumptionsLine = (a: ColdScenarioItem["assumptions"]) =>
   `${a.stock_quantity} ${a.stock_unit} at ${a.unit_value} ${a.currency} per ${a.stock_unit}`;
@@ -139,12 +134,12 @@ function Basis({ item }: { item: ColdScenarioItem }) {
         <dt>Window</dt>
         <dd>
           <span className="cold-scenarios-line">
-            {basis.from} – {basis.to}
+            {windowText(basis.from, basis.to)}
           </span>
         </dd>
         <dt>Evidence cutoff</dt>
         <dd>
-          <span className="cold-scenarios-line">{basis.cutoff ?? "None"}</span>
+          <span className="cold-scenarios-line">{utcDayHm(basis.cutoff)}</span>
         </dd>
         <dt>Assessment revisions</dt>
         <dd>
@@ -209,7 +204,7 @@ function ScenarioRows({ items }: { items: ColdScenarioItem[] }) {
               </th>
               <td>{assumptionsLine(item.assumptions)}</td>
               <td>
-                <span className="cold-scenarios-line">Selected evidence through {utcMinute(item.authored_basis.cutoff)}</span>
+                <span className="cold-scenarios-line">Selected evidence through {utcDayHm(item.authored_basis.cutoff)}</span>
                 <button
                   type="button"
                   className="link-button"
@@ -220,7 +215,7 @@ function ScenarioRows({ items }: { items: ColdScenarioItem[] }) {
                   Review assumptions →
                 </button>
               </td>
-              <td>{utcMinute(item.recorded_at)}</td>
+              <td>{utcDayHm(item.recorded_at)}</td>
               <td>
                 <Badge tone="neutral">{SCENARIO_STATE_PILL[item.scenario_state]}</Badge>
               </td>
@@ -303,9 +298,6 @@ function ScenariosBody({
   return (
     <>
       <SelectedWindowBar read={read} />
-      <p className="cold-scenarios-through" data-scenarios-through>
-        Scenarios created through <time dateTime={read.scenario_at}>{utcMinute(read.scenario_at)}</time>
-      </p>
       {/* MOCK DEVIATION — currentness notice (P-C5-1..5): the mock has only its blue closing notice; a pending, stale,
           historical or unknown selection adds this amber notice above the panel so an old basis stays visible. */}
       {state === "CURRENT" ? null : <Notice data={{ "data-scenarios-state-notice": state }}>{SCENARIOS_STATE_NOTICE[state]}</Notice>}
@@ -360,7 +352,16 @@ export function ColdScenarios({ siteCode, window, scenarioAt, client }: ColdScen
           window={window}
           refusal={{ sentence: SCENARIOS_REFUSAL_HEADING, retry: true, key: read.status === "refused" && read.httpStatus === 422 ? "invalid-window" : "unavailable" }}
         />
-        <ScenariosRefusal read={read} onRetry={() => setAttempt((n) => n + 1)} />
+        <ScenariosRefusal
+          read={read}
+          onRetry={() => {
+            // W5-01b review L1: a changed basis invalidates every followed cursor, so Retry starts at page 1.
+            if (read.status === "refused" && read.httpStatus === 409 && read.code === "COLD_SCENARIO_CURSOR_BASIS_CHANGED" && cursors.length > 0) {
+              setCursors([]);
+            }
+            setAttempt((n) => n + 1);
+          }}
+        />
       </>
     );
   }
