@@ -1,12 +1,14 @@
 /**
- * W6-01c C2: the work request page parts shared by Overview (C2), Maintenance record (C3) and History (C4), from the
+ * W6-01c C2/C3: the work request page parts shared by Overview (C2), Maintenance record (C3) and History (C4), from the
  * v6.9 `wr-overview` mock (`index.html:966-968`: `wrHeader`, `WR_TABS`, `breadcrumbs`, shell heading action) and
  * `.agent/W6-01-build-spec.md` "C1-C3 pre-flight rulings" P-C2-1..14 and P-X-1..3, which supersede section 2,
  * CL3-5 and A2Q7 for these pages.
  *
  * The page reads `GET /api/work/requests/{case_id}?site_id={site_code}[&known_at=]` once per route/query. Headings
  * stay visible while loading and on refusal with ruled literals; an invalid page query never fetches. The tab row
- * owns the three `UnavailableTab` literals once, so `navigation-truthfulness.ps1` `$expectedTabs` counts each once.
+ * owns the remaining `UnavailableTab` literals once, so `navigation-truthfulness.ps1` `$expectedTabs` counts each
+ * once. C3 promoted Maintenance record (`${WORK_REQUEST_PATH_PREFIX}/{id}/record`); Verification and History stay
+ * unavailable until their pages mount.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
@@ -132,7 +134,7 @@ export function useWorkRequest(client: GlobalWorkClient | undefined): WorkReques
  * with no invented window; the WR code and `Overview` are text; the Site links to `links.site.href` after load.
  * Before data it reads `Maintenance › Work request › Overview` with no Site.
  */
-function WorkRequestBreadcrumbs({ body }: { body: GlobalWorkDetailBody | null }) {
+function WorkRequestBreadcrumbs({ body, tab }: { body: GlobalWorkDetailBody | null; tab: WorkRequestTab }) {
   return (
     <nav className="breadcrumbs" aria-label="Breadcrumb" data-work-request-breadcrumb>
       <ol className="breadcrumbs__list">
@@ -144,7 +146,7 @@ function WorkRequestBreadcrumbs({ body }: { body: GlobalWorkDetailBody | null })
         </li>
         <li className="breadcrumbs__item">
           <span className="breadcrumbs__current" aria-current="page">
-            Overview
+            {TAB_LABEL[tab]}
           </span>
         </li>
       </ol>
@@ -179,36 +181,53 @@ function subtitleOf(page: WorkRequestRead): string {
   return WORK_REQUEST_LOADING;
 }
 
-export type WorkRequestTab = "overview";
+export type WorkRequestTab = "overview" | "record";
+
+/** The mock `WR_TABS` labels of the mounted tabs; the breadcrumb's last item names the current one (`s.section`). */
+const TAB_LABEL: Readonly<Record<WorkRequestTab, string>> = { overview: "Overview", record: "Maintenance record" };
+/** The route suffix of each mounted tab under `${WORK_REQUEST_PATH_PREFIX}/{case_id}`. */
+const TAB_SUFFIX: Readonly<Record<WorkRequestTab, string>> = { overview: "", record: "/record" };
+
+/** One mounted tab: the API link after load, else the validated inputs; text when neither exists. */
+function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: WorkRequestTab; current: WorkRequestTab }) {
+  const { target, body } = page;
+  const apiHref = body === null ? null : (tab === "overview" ? body.links.overview : body.links.record).href;
+  const href =
+    apiHref ??
+    (target === null
+      ? null
+      : globalWorkRequestHref(`${WORK_REQUEST_PATH_PREFIX}/${encodeURIComponent(target.caseId)}${TAB_SUFFIX[tab]}`, {
+          site_id: target.siteId,
+          known_at: target.knownAt,
+        }));
+  const currentProps = tab === current ? ({ "aria-current": "page" } as const) : {};
+  return (
+    <li className="site-tabs__item">
+      {href ? (
+        <Link className="site-tabs__link" to={href} {...currentProps} data-work-request-tab={tab}>
+          {TAB_LABEL[tab]}
+        </Link>
+      ) : (
+        <span className="site-tabs__link" {...currentProps} data-work-request-tab={tab}>
+          {TAB_LABEL[tab]}
+        </span>
+      )}
+    </li>
+  );
+}
 
 /**
- * P-C2-5 / F4: `Context tabs` in mock `WR_TABS` order. Overview is live (validated inputs before the response, API
- * `links.overview` after); Maintenance record, Verification and History are unavailable until their pages mount
- * (C3/C4 promote theirs). With no valid case/Site the Overview label is text. The `UnavailableTab` element renders
- * an `li`, so the list element is the `ol` every other tab row uses.
+ * P-C2-5 / F4: `Context tabs` in mock `WR_TABS` order. Overview (C2) and Maintenance record (C3) are live (validated
+ * inputs before the response, API `links.overview` / `links.record` after; an explicit cutoff stays on both);
+ * Verification and History are unavailable until their pages mount (C4 promotes History). With no valid case/Site
+ * the live labels are text. The `UnavailableTab` element renders an `li`, so the list element is the `ol` every
+ * other tab row uses.
  */
-function WorkRequestTabs({ page }: { page: WorkRequestRead }) {
-  const { target, body } = page;
-  const overview =
-    body?.links.overview.href ??
-    (target === null ? null : globalWorkRequestHref(`${WORK_REQUEST_PATH_PREFIX}/${encodeURIComponent(target.caseId)}`, {
-      site_id: target.siteId,
-      known_at: target.knownAt,
-    }));
+function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkRequestTab }) {
   return (
     <nav aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
       <ol className="site-tabs__list">
-        <li className="site-tabs__item">
-          {overview ? (
-            <Link className="site-tabs__link" to={overview} aria-current="page" data-work-request-tab="overview">
-              Overview
-            </Link>
-          ) : (
-            <span className="site-tabs__link" aria-current="page" data-work-request-tab="overview">
-              Overview
-            </span>
-          )}
-        </li>
+        <LiveTab page={page} tab="overview" current={tab} />
         <UnavailableTab label="Maintenance record" />
         <UnavailableTab label="Verification" />
         <UnavailableTab label="History" />
@@ -345,10 +364,13 @@ function WorkRequestMHeader({ body }: { body: GlobalWorkDetailBody }) {
 export function WorkRequestFrame({
   client,
   rootClass,
+  tab = "overview",
   children,
 }: {
   client?: GlobalWorkClient;
   rootClass: string;
+  /** The current mounted tab; Overview when omitted (C2's page passes none). */
+  tab?: WorkRequestTab;
   children: (body: GlobalWorkDetailBody | null) => ReactNode;
 }) {
   const page = useWorkRequest(client);
@@ -356,14 +378,14 @@ export function WorkRequestFrame({
   return (
     <main aria-labelledby={WORK_REQUEST_HEADING_ID}>
       <div className={`global-work work-request ${rootClass}`} data-work-request-root>
-        <WorkRequestBreadcrumbs body={body} />
+        <WorkRequestBreadcrumbs body={body} tab={tab} />
         <PageHeader
           title={body?.work_detail.selected_revision.title ?? WORK_REQUEST_TITLE}
           headingId={WORK_REQUEST_HEADING_ID}
           subtitle={subtitleOf(page)}
           actions={<OpenSite body={body} />}
         />
-        <WorkRequestTabs page={page} />
+        <WorkRequestTabs page={page} tab={tab} />
         <WorkRequestBar page={page} />
         {failure !== null ? <RequestRefusal failure={failure} /> : null}
         {body !== null ? <WorkRequestMHeader body={body} /> : null}

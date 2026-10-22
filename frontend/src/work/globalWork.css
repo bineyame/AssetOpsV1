@@ -263,3 +263,83 @@
   background: #e3f4ed;
   color: #166b50;
 }
+
+/* W6-01c C3: the Maintenance record panel (`wr-record`). Cap 650 at 1440 and 780 at 390 minus the same non-table
+   panel parts as Incidents (131 / 171); its four columns keep minimum widths (960 px), so the table scrolls inside
+   its panel below that. Each record head is a `tbody` group under a `Record {n} · {occurred_at}` row heading. */
+.work-request--record .data-table__scroll {
+  max-height: 500px;
+}
+
+@media screen and (max-width: 760px) {
+  .work-request--record .data-table__scroll {
+    max-height: 600px;
+  }
+}
+
+.work-request--record .data-table {
+  min-width: 960px;
+}
+
+.work-request--record .data-table th,
+.work-request--record .data-table td {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.work-record-group th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: none;
+  letter-spacing: 0;
+  background: #f3f6fb;
+  color: #33475f;
+}
+
+.work-record-item {
+  text-align: left;
+  font-weight: 550;
+}
+
+.work-record-badge {
+  display: inline-flex;
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #eef1f6;
+  color: #607087;
+}
+
+.work-record-badge--amber {
+  background: #fff1d9;
+  color: #8e580c;
+}
+
+.work-record-outcome {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.work-record-outcome__basis {
+  display: block;
+  font-size: 10px;
+  color: var(--muted, #6b7a90);
+}
+
+.work-record-earlier__list {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.work-record-earlier__when {
+  display: block;
+  font-weight: 600;
+}
+
+.work-record-earlier__text {
+  overflow-wrap: anywhere;
+}
