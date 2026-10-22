@@ -176,3 +176,21 @@ At 390 the `Asset` cell (C3 Asset cell rule: name + full asset UUID) is the narr
 - (b) raise the 390 condition cap to the measured 591 (+ margin); or
 - (c) something else, such as the record ID on its own line in a smaller monospace style.
 - **check-all** (on `56231727`): **All 11 guards passed.**
+
+## Run — C3 rulings Q-C3-5 and mock differences, 2026-10-22 — BUILT
+
+Commit `a9769dd9` (code) plus the evidence commit after it. Files: `ColdHealthDepth.tsx`, `ui/V69Layout.tsx`, `ui/primitives.css` and `coldHealthDepth.test.tsx`, all as the ruling names.
+- **Q-C3-5.** The `Condition and evidence` Panel has `className="cold-health-condition"`. The ruling's scoped CSS was added verbatim to `primitives.css`: at ≤480 px, `min-width: 840px`, a sticky Asset column of at least 240 px, and the full ID kept on one line at 10px.
+- **Cards.** All three cards use `assessment`, with amber tone only for `NEEDS_INVESTIGATION`, and there is no `word` prop. Labels are plain. `MetricCard` has a new optional `link` prop, rendered as `.v69-metric__link` (10px, top margin 10px); the card passes `View detail →` from `coldUiHref`, and a null destination gives no link.
+- **Registry.** The `cooling:1` and `cooling:2` reasons already equal the Architect literals, so they are unchanged.
+- **Tests.**
+  - `coldHealthDepth.test.tsx` now also asserts: the panel class; the full ID in `[data-health-asset-id]`; the label is not a link; the detail link and its mapped href; no link for a null destination; `v69-metric--assessment` on all three cards with no size override.
+  - Results: 16/16 focused. Adjacent (`coldHealthDepth`, `coldDepth`, `coldRoutes`, `coldSiteViews`, `coldFoundation`, `siteHealthBoundary`, `src/shell`): **62 files, 1419 passed**. `tsc -b` is clean.
+  - `tools/check-all.ps1`: **all 11 guards passed** on `a9769dd9`.
+- **Recaptures** of all five states at 1440/390, same method (private `assetops_w501c3cap_test`, throwaway seed, `lab_app` 9791, Vite 6191, own Chrome on CDP 9801+). `capture.mjs` now also measures every asset ID: its line count, whether it sits inside its cell, whether it is clipped, and the cell position.
+  - Clocks: `failed-start` CURRENT, watermark 12:03:46.600618Z; `unknown` UNKNOWN, on the 2026-10-05 window; `pending` PENDING_RECOMPUTE, 12:08:34.644604Z; `historical` HISTORICAL with `known_at=W0` 12:08:07.635852Z. `refused` is 422 `COLD_WINDOW_INVALID`; it was re-shot after a cold Vite first load gave an unready frame.
+  - Every capture has no document overflow and 0 ellipsized. Panel titles equal the mock's apart from the labelled Data sources deviation, which is the last panel.
+  - **Condition and evidence:** 251/285 at 1440 (cap 330) and **311/345 at 390** (cap 430). Every ID is on 1 line, inside its cell and not clipped; at 390 the Asset cell is `sticky`.
+  - Other blocks: cards 135 at 1440 and at most 347 at 390 (caps 200/430). Data sources 299/505 (caps 700/800). Page at most 1145/1784 (caps 1900/2350). Refusal 140.
+  - Against the v69 `cold-health` mock: same cards in the same order, with an amber top border only on the Backup card, body-colour 17 px values, plain labels and `View detail →`, then `Condition and evidence` with the same three columns. The remaining differences are the labelled ones: the third probe row, the asset ID line, the condition notice, the currentness notice and the Data sources panel.
+- **Cleanup.** The DB was dropped (0 `w501` DBs remain), the seed file was deleted, and the API, Vite and Chrome were stopped (no listeners).

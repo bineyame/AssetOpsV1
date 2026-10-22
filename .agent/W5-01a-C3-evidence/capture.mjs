@@ -74,7 +74,14 @@ const MEASURE = (isMock) => `(async () => {
   for (const p of panels) blocks[p.title] = p.h;
   blocks.page = document.documentElement.scrollHeight;
   const ellipsized = Array.from(root.querySelectorAll("*")).filter((el) => getComputedStyle(el).textOverflow === "ellipsis" && el.scrollWidth > el.clientWidth).length;
-  return { panels: panels.map((p) => p.title).filter(Boolean), blocks, scrollWidth: document.documentElement.scrollWidth,
+  // Q-C3-5: each full asset ID sits on one line inside its sticky Asset cell, not clipped or overflowing it.
+  const ids = Array.from(root.querySelectorAll("[data-health-asset-id]")).map((el) => {
+    const cell = el.closest("th").getBoundingClientRect(); const r = el.getBoundingClientRect();
+    return { text: el.textContent, lines: Math.round(r.height / parseFloat(getComputedStyle(el).lineHeight || "14")),
+      inside: r.left >= cell.left - 0.5 && r.right <= cell.right + 0.5, clipped: el.scrollWidth > el.clientWidth + 1,
+      sticky: getComputedStyle(el.closest("th")).position };
+  });
+  return { panels: panels.map((p) => p.title).filter(Boolean), blocks, ids, scrollWidth: document.documentElement.scrollWidth,
     clientWidth: document.documentElement.clientWidth, ellipsized, text: root.innerText.slice(0, 4000) };
 })()`;
 
