@@ -227,3 +227,20 @@ M5/E5 should be withdrawn, and the K3a/V3a `Window` rule replaced with "format i
 
 - **Sequencing (Low; for the coordinator).** K4a now waits for W6 E2's Lane A rail edit, which is the last W6-01 unit. W5-02c gates W5-03a, so W5-03a now waits for the whole of W6-01. That is consistent but a long chain. An alternative is to land the `activeLabel` override as a small Lane A edit before E2.
 - **M4/E4, M2/E1.** Unchanged and still valid.
+
+## Recheck 3 (2026-10-22, against `74da13a3`)
+
+Scope: the withdrawal of M5/E5, the rail re-sequencing of K4a, and any gap either change creates. This was read only; no checks were run.
+
+### Verdict: READY, except for the deferred 29 and 34
+
+- **M5/E5 withdrawn: closed.**
+  - K3a owns a single `siteWindowText(instant, site.timezone)` formatter in `siteWorkCases.tsx`. The spec gives it literally, using the `Intl.DateTimeFormat('en-GB', {timeZone, day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hourCycle:'h23'})` parts. V3a reuses it, and mini-grid keeps `eatWindowText`.
+  - The test vectors are correct. `16:11Z` gives `6 Oct · from 19:11` at `Africa/Addis_Ababa` and `6 Oct · from 16:11` at `Etc/UTC`. `22:11Z` at Addis Ababa gives `7 Oct · from 01:11`.
+  - The cold producer window is now `[D+16h,D+17h)`, so the mock's 19:11 offset renders as `from 19:11` at the fixture zone. The capture therefore matches the mock without a suffix.
+  - The frame already holds `site.timezone` (`SiteDetailReadModel`), and K3a owns `SiteAnalyticsFrames.tsx` to pass it down.
+  - No mock deviation remains for the Window cell.
+- **The K4a rail sequence: closed.** K4a now merges after K3b and W6 B2, owns `NavRail.tsx` and the pathname override in `OperatorShellLayout.tsx`, and no longer waits for E2. The W6-01 E2 card is amended to keep the K4a override and its rail and route-frame assertions, and E2 does not touch `NavRail.tsx`. W5-02c can release W5-03a without waiting for E2.
+- **New, Low, non-blocking.** W6 B3 and C2 (Lane A) also edit `frontend/src/shell/__tests__/operatorRouteFrames.test.tsx`, which K4a edits. Only E2 carries the "preserve K4a" clause. Lane A serialization handles this as an ordinary merge, but a one-line preserve note on B3/C2 would make it explicit.
+- 29 (cold time-shifted producer) and 34 (EV clock and shifted replay) remain deferred. They need readiness proof against merged W5-01b and W5-03b before K1c and V1a are dispatched.
+- Labelled deviations now: M2/E1 (global create promise) and M4/E4 (global Actions parity). Both are judged unavoidable and correctly worded.
