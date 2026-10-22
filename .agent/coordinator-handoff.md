@@ -456,3 +456,4 @@ Owner: "use a fresh claude architect instead of codex until  the codex quota is 
 - W5 C2 Q5-Q7 (plan/W5-c2q2).
 - W6-01 A2Q11 + R5-R8 (plan/W6-01-a2q11).
 - MOCK-FIDELITY CHECK (owner asked 2026-10-22): Codex retrospective must check every Claude ruling against v69 mock, explicitly: C2 table heading Match->Status; C2 Recovery curves chart->table (guard rule 5; alternative = chart in an allowed graphics module); C3/E4 new notice sentences not in mock; E2 bars as plain divs; E3 no-svg. Rule keep or restore-to-mock for each before C3/E2/E3 build.
+- NEXT W6 Codex request: add "preserve K4a rail override" note to W6 B3 and C2 cards (operatorRouteFrames.test.tsx) - W5-02/04 readiness Recheck 3 Low.
