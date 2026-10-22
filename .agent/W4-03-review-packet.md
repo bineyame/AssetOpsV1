@@ -145,7 +145,7 @@ Finding view and Site page keeps it.
   252 px value to the u9c 144/188 px limits plus `scrollH > clientH` (total stays 359).
 
 ## Residual risk
-- Full backend suite not yet run on the final revision.
+- Full backend suite (coordinator, in-container OPS-03 run 20261022-042009-71c07f on cfd1510a, main merged): 3818 passed, 0 failed, 1:10:55. An earlier run on 60a69552 had 10 failures: 8 stale CRLF working copies (environment), plus the missing w403 fixture eol rule and a stale replay assertion, both fixed in cfd1510a. Frontend on cfd1510a: 2480/2480 (one earlier run had 1 load-timing failure that passed on rerun).
 - Capture geometry depends on the walkthrough fixture (two authored scenarios, five incidents); other row counts are
   covered only by jsdom structure/stylesheet tests.
 
