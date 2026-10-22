@@ -2462,6 +2462,14 @@ button:focus-visible {
 .cold-depth-graphic__mark { fill: #3d6fb0; stroke: #ffffff; stroke-width: 1.5; }
 .cold-depth-graphic__mark-label { font-size: 11px; fill: var(--text-secondary); }
 
+/* W5-01a C2: at phone width the Cooling `Match` badge wraps inside its cell, so the Evidence
+   column keeps its width and the panel stays inside its 500 px cap (Codex retrospective Q-C2-2). */
+@media (max-width: 480px) {
+  .cold-cooling-context .data-table .badge {
+    white-space: normal;
+  }
+}
+
 .graphic-fill--needed { fill: var(--graphic-needed); }
 .graphic-fill--avoidable { fill: var(--graphic-avoidable); }
 .graphic-fill--unknown { fill: var(--graphic-unknown); }

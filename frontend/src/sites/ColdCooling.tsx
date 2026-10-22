@@ -193,7 +193,7 @@ function CoolingBody({ read, routes }: { read: ColdCoolingRead; routes: ColdSite
             </DataTable>
           )}
         </Panel>
-        <Panel heading="Context normalization" headingId={CONTEXT_HEADING_ID}>
+        <Panel heading="Context normalization" headingId={CONTEXT_HEADING_ID} className="cold-cooling-context">
           <DataTable labelledBy={CONTEXT_HEADING_ID}>
             <thead>
               <tr>
