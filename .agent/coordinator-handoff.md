@@ -448,3 +448,7 @@ Owner: "use a fresh claude architect instead of codex until  the codex quota is 
 - W6-01 A1 Q1-Q9 + W6 sweep (merge 89f26391), incl. the unruled stale `EstateEvidence.tsx` "Not available yet" text for Operational records / Preventive plan after E2/B3.
 - W5 guard-ownership sweep fold, 11 findings (merge 3126b77e).
 - W5-01 C1 Q13 chamber-probe ruling (plan/W5-01-c1q2).
+- W6-01 A1Q2 R1-R4 confirmations (plan/W6-01-a1q2).
+- W6-01 A2Q1-Q10 + readiness X1-X9 (plan/W6-01-a2q).
+- W6-01 CL3 7 readiness gaps (plan/W6-01-close3).
+- W5 C2 Q1-Q4 + W5 UI readiness (plan/W5-c2q); note C2 table drops mock "Match" heading. OPEN: W5-03 E1a/E1b payload key tables (/ev/availability, /ev/energy, /ev/health) - give to Codex Architect after reset.
