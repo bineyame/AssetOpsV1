@@ -56,8 +56,8 @@ const SITE: SiteSummary = {
  * rail root, which owns the global Findings index and names no site. Neither
  * the site row nor the gated create action is a navigation item.
  */
-// W6-01a: Incidents rail root is live.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Evidence", "Financials"];
+// W6-01b: Maintenance rail root is live.
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence", "Financials"];
 
 const SITE_DETAIL: SiteDetailReadModel = {
   ...SITE,

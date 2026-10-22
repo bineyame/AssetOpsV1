@@ -1,0 +1,92 @@
+{
+  "captured_at": "2026-10-22T17:28:13.175Z",
+  "results": [
+    {
+      "name": "evidence_root",
+      "width": 1440,
+      "image": "evidence_root-1440.png",
+      "page_height": 1000,
+      "doc": [
+        1440,
+        1440
+      ],
+      "example": [
+        "Preventive plan →",
+        "/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+      ],
+      "examples": "Example destinationsACT-049, ACT-061 · Not available yetMap transfer switch · Not available yetOperational records · Not available yetPreventive plan →",
+      "location": "/evidence?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "preventive_rows": [],
+      "status": null,
+      "api": [
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        },
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "evidence_root",
+      "width": 390,
+      "image": "evidence_root-390.png",
+      "page_height": 1504,
+      "doc": [
+        390,
+        390
+      ],
+      "example": [
+        "Preventive plan →",
+        "/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+      ],
+      "examples": "Example destinationsACT-049, ACT-061 · Not available yetMap transfer switch · Not available yetOperational records · Not available yetPreventive plan →",
+      "location": "/evidence?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "preventive_rows": [],
+      "status": null,
+      "api": [
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        },
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "name": "evidence_to_preventive",
+      "width": 1440,
+      "image": "evidence_to_preventive-1440.png",
+      "page_height": 1037,
+      "doc": [
+        1425,
+        1425
+      ],
+      "example": null,
+      "examples": null,
+      "location": "/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "preventive_rows": [
+        "PM-000005 · Review switchgear",
+        "PM-000004 · Inspect pump seals",
+        "PM-000003 · Check battery cabinet",
+        "PM-000002 · Generator 500-hour service",
+        "PM-000001 · Inspect filters"
+      ],
+      "status": "As known at 22 Oct 2026, 17:28 UTC",
+      "api": [
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

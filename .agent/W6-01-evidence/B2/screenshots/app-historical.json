@@ -1,0 +1,258 @@
+{
+  "state": "historical",
+  "captured_at": "2026-10-22T17:03:48.388Z",
+  "results": [
+    {
+      "state": "historical",
+      "width": 1440,
+      "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=2026-10-20T12:00:00Z",
+      "image": "historical-1440.png",
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "control_bar": {
+          "h": 35,
+          "w": 595
+        },
+        "status_line": {
+          "h": 33,
+          "w": 187
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "cards": {
+          "h": 130,
+          "w": 1160
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "table_panel": {
+          "h": 268,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "notice": {
+          "h": 42,
+          "w": 1160
+        },
+        "status_strip": null,
+        "table": {
+          "h": 137,
+          "w": 1120
+        },
+        "thead": {
+          "h": 35,
+          "w": 1120
+        },
+        "pager": {
+          "h": 29,
+          "w": 1120
+        },
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        },
+        "card_max": {
+          "h": 130,
+          "w": 0
+        }
+      },
+      "scroll_hint_visible": false,
+      "row_heights": [
+        102
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1120,
+        "scroll": 1120,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "status": "Historical as of 20 Oct 2026, 12:00 UTC",
+        "cards": [
+          "Open work11 requests in progress or open",
+          "Verification overdueNot assessedNo work-outcome verification clock",
+          "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+          "Repeat findingsNot assessedNo repeat-finding assessment"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–1 of 1",
+        "first_row": [
+          "WR-000008 · Inspect starterFull title textInspect starterNo linked Finding or Ac",
+          "No asset recorded · Kobo mini-grid",
+          "Not assigned",
+          "Open",
+          "Not established",
+          "Not recorded"
+        ],
+        "codes": [
+          "WR-000008"
+        ],
+        "lineage": [
+          "No linked Finding or Action"
+        ],
+        "lineage_links": [
+          []
+        ],
+        "tabs": "CorrectivePreventive · scheduled · Not available yet",
+        "notice": "A completed request records activity; an equipment outcome remains unverified."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "historical",
+      "width": 390,
+      "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z&known_at=2026-10-20T12:00:00Z",
+      "image": "historical-390.png",
+      "heights": {
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "control_bar": {
+          "h": 165,
+          "w": 358
+        },
+        "status_line": {
+          "h": 17,
+          "w": 187
+        },
+        "date_bar_slot": {
+          "h": 211,
+          "w": 358
+        },
+        "cards": {
+          "h": 269,
+          "w": 358
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "table_panel": {
+          "h": 308,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "notice": {
+          "h": 60,
+          "w": 358
+        },
+        "status_strip": null,
+        "table": {
+          "h": 137,
+          "w": 1030
+        },
+        "thead": {
+          "h": 35,
+          "w": 1030
+        },
+        "pager": {
+          "h": 29,
+          "w": 318
+        },
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        },
+        "card_max": {
+          "h": 130,
+          "w": 0
+        }
+      },
+      "scroll_hint_visible": true,
+      "row_heights": [
+        102
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 318,
+        "scroll": 1030,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1204,
+      "text": {
+        "status": "Historical as of 20 Oct 2026, 12:00 UTC",
+        "cards": [
+          "Open work11 requests in progress or open",
+          "Verification overdueNot assessedNo work-outcome verification clock",
+          "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+          "Repeat findingsNot assessedNo repeat-finding assessment"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–1 of 1",
+        "first_row": [
+          "WR-000008 · Inspect starterFull title textInspect starterNo linked Finding or Ac",
+          "No asset recorded · Kobo mini-grid",
+          "Not assigned",
+          "Open",
+          "Not established",
+          "Not recorded"
+        ],
+        "codes": [
+          "WR-000008"
+        ],
+        "lineage": [
+          "No linked Finding or Action"
+        ],
+        "lineage_links": [
+          []
+        ],
+        "tabs": "CorrectivePreventive · scheduled · Not available yet",
+        "notice": "A completed request records activity; an equipment outcome remains unverified."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-20T12%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

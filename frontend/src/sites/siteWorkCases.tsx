@@ -116,8 +116,7 @@ export const WORK_KIND_COPY: Record<WorkKind, KindCopy> = {
 };
 
 export const WORK_CONTEXT_NOTICE =
-  "Case history is stored with this site. Incidents can be managed globally. Global Maintenance and the create flow are not available yet.";
-const WORK_MANAGE_UNAVAILABLE_STATUS = "Not available yet";
+  "Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet.";
 
 /**
  * W6-01a A2 (spec section 1 "Site Work strip manage links"): the global page for this strip's kind, carrying the
@@ -270,13 +269,10 @@ function WorkStrip({ copy, result, scope }: { copy: KindCopy; result: WorkIndexR
         )}
       </span>
       <span className="muted status-strip__item" data-work-manage>
-        {copy.kind === "incidents" ? (
-          <Link to={globalWorkManageHref(copy.kind, scope, loaded ? loaded.known_at : null)} data-work-manage-link>
-            {`Manage in ${copy.global}`}
-          </Link>
-        ) : (
-          `Manage in ${copy.global} · ${WORK_MANAGE_UNAVAILABLE_STATUS}`
-        )}
+        {/* W6-01b B2: both strips link to their live global root (Incidents since W6-01a, Maintenance since B2). */}
+        <Link to={globalWorkManageHref(copy.kind, scope, loaded ? loaded.known_at : null)} data-work-manage-link>
+          {`Manage in ${copy.global}`}
+        </Link>
       </span>
     </div>
   );

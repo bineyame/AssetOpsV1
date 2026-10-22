@@ -1,0 +1,180 @@
+{
+  "state": "refused_503",
+  "captured_at": "2026-10-22T17:25:39.403Z",
+  "results": [
+    {
+      "state": "refused_503",
+      "width": 1440,
+      "route": "/maintenance/preventive?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "image": "refused_503-1440.png",
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "control_bar": {
+          "h": 35,
+          "w": 595
+        },
+        "status_line": null,
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "cards": null,
+        "loading": null,
+        "state_block": {
+          "h": 42,
+          "w": 1160
+        },
+        "zero_block": null,
+        "table_panel": {
+          "h": 103,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "notice": {
+          "h": 42,
+          "w": 1160
+        },
+        "status_strip": {
+          "h": 42,
+          "w": 1160
+        },
+        "table": null,
+        "thead": null,
+        "pager": null,
+        "scroll_hint": null,
+        "card_max": null
+      },
+      "scroll_hint_visible": null,
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "status": null,
+        "cards": [],
+        "state": "Work records could not be read. Reload.",
+        "zero": null,
+        "showing": null,
+        "first_row": null,
+        "codes": [],
+        "lineage": [],
+        "lineage_links": [],
+        "tabs": "CorrectivePreventive · scheduled",
+        "notice": "No incident link or cause is established by these draft plans."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 503
+        },
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 503
+        }
+      ]
+    },
+    {
+      "state": "refused_503",
+      "width": 390,
+      "route": "/maintenance/preventive?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "image": "refused_503-390.png",
+      "heights": {
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "control_bar": {
+          "h": 165,
+          "w": 358
+        },
+        "status_line": null,
+        "date_bar_slot": {
+          "h": 177,
+          "w": 358
+        },
+        "cards": null,
+        "loading": null,
+        "state_block": {
+          "h": 42,
+          "w": 358
+        },
+        "zero_block": null,
+        "table_panel": {
+          "h": 121,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "notice": {
+          "h": 42,
+          "w": 358
+        },
+        "status_strip": {
+          "h": 87,
+          "w": 358
+        },
+        "table": null,
+        "thead": null,
+        "pager": null,
+        "scroll_hint": null,
+        "card_max": null
+      },
+      "scroll_hint_visible": null,
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 900,
+      "text": {
+        "status": null,
+        "cards": [],
+        "state": "Work records could not be read. Reload.",
+        "zero": null,
+        "showing": null,
+        "first_row": null,
+        "codes": [],
+        "lineage": [],
+        "lineage_links": [],
+        "tabs": "CorrectivePreventive · scheduled",
+        "notice": "No incident link or cause is established by these draft plans."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 503
+        },
+        {
+          "url": "/api/work/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 503
+        }
+      ]
+    }
+  ]
+}
