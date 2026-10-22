@@ -491,6 +491,21 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
     capture, browser or vitest run is active on the machine. While it runs, only
     light work (spec and Architect requests, reading reviews) proceeds. Builders
     and captures wait for it. One suite at a time.
+- **Tiered testing (owner, 2026-10-22, `.agent/owner-tiered-testing-2026-10-22.md`;
+  refines the 2026-10-20 suite policy).**
+  - **Each unit:** its focused tests.
+  - **Each slice merge, scoped regression:** every backend test file for the changed
+    packages; every test file importing a changed shared module (found by grep on
+    the module name); the full frontend vitest suite; and check-all. The packet
+    records the selected files and how they were chosen.
+  - **Full backend suite before merge** only when the slice adds or changes a
+    migration or schema, or touches shared plumbing: `main.py`, `*/composition.py`,
+    `tools/checks/*`, `tools/writer_guard_probes.py`, seed tools, or
+    `conftest.py`/fixtures.
+  - **Safety net:** a full backend suite on main after every 2–3 merges, run
+    while builders work, so it stays off the critical path but on a quiet
+    machine where possible. A failure is traced to that merge range and fixed
+    before the next merge.
 - **Both Architects (Codex and Claude) check every screen-affecting spec,
   ruling and design against the v69 mock (owner, 2026-10-22,
   `.agent/owner-architect-mock-fidelity-2026-10-22.md`).** Each ruling that touches a
