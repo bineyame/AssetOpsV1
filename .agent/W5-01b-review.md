@@ -113,3 +113,53 @@ outcome/revenue field, an ordinary-viewer create control, or a missing `total_pa
 - W5-02 `0033` must name `0032_w5_cold_scenarios` as parent (spec states it).
 - `main.py` creates a second SQLAlchemy engine/pool for the cold scenario store when cold reads are configured
   (spec literal); acceptable, noted for connection budgeting.
+
+## Re-review (2026-10-23) — ACCEPT
+
+Same reviewer. Head `1d9f225b`: code `1a83723a`, recaptures and Run entry in `1d9f225b`. Judged against the spec
+section "W5-01b build rulings (review H1)", the v69 `cold-scenarios` mock and the recaptures in `.agent/W5-01b-C5-evidence/`
+(`evidence.json` revision `1a83723a`). The fix changed three files: `ColdScenarios.tsx`, `coldScenarios.css` and
+`coldScenarios.test.tsx`. No backend change, as ruled.
+
+- **H1 — closed.**
+  - The `<p data-scenarios-through>` paragraph is gone, and nothing replaces it in the empty block, the panel
+    subtitle or the blue notice. The unused `.cold-scenarios-through` CSS rule is also gone.
+  - The tests assert `[data-scenarios-through]` is null in both the empty and populated states. They keep the
+    date-bar assertion and the exact mock empty and closing copy.
+  - `scenario_at` is unchanged in the DTO, the URL, the cursor and the client. The only `data-scenarios-through`
+    left is the mini page's own line in `MiniScenarios.tsx`, which is out of scope.
+  - Recaptures at 1440/390 match the mock: h1, then subtitle, then panel and subtitle, then the empty block or the
+    labelled authored rows, then the blue notice with its icon.
+  - The ruling names the selected-window bar as part of the frame. The two remaining differences in
+    `evidence.json` (that bar and the breadcrumb end) are therefore ruled, not unlabelled departures.
+- **L1 — closed.**
+  - Retry clears `cursors` only for a refused 409 `COLD_SCENARIO_CURSOR_BASIS_CHANGED` once a cursor has been
+    followed. It then bumps `attempt` in the same handler. While the read settles, the changed key shows the
+    loading copy.
+  - Every other refusal keeps the same-URL Retry.
+  - The new test asserts cursor calls `[null,"page-2",null]`, the same site and query, `1 of 2` and a disabled
+    `First page`.
+  - The empty block and panel gained no control.
+- **L2 — closed.**
+  - The local `pad`/`utcMinute` formatter is removed.
+  - The row cutoff, `Defined at` and the expansion `Evidence cutoff` all use `dayHm(value) + " UTC"`, or `None`
+    when null. The expansion `Window` uses `windowText`.
+  - Tests cover `22 Oct 08:00 UTC`, `22 Oct 09:12 UTC` and `6 Oct 2026 19:00–20:05 UTC`, plus the seconds case
+    `22 Oct 08:00:37 UTC`, which matches the shared date bar.
+  - The recaptures show one date style across the date bar, the row and the expansion. The DTO and address keep
+    raw ISO values.
+- **Recapture caps:**
+  - At 1440 the expanded panel is 615 (cap 650) and the page 1003 (cap 1250).
+  - At 390 the expanded panel is 490 (cap 560) and the page 1053 (cap 1500). All 390 layout checks are true:
+    basis at 220px with auto overflow, Basis cell at least 190px wide, and the table scrolls sideways with the last
+    column reachable.
+  - Closed panels are 228–345, with no document overflow anywhere.
+- **Checks run on `1d9f225b`:**
+  - `npx.cmd tsc --noEmit`: clean.
+  - `npx.cmd vitest run --minWorkers=1 --maxWorkers=2` on coldScenarios, coldSiteViews, coldRoutes and
+    miniDecisions: 4 files, 182 passed (181 plus the new L1 test).
+  - No browser was run.
+
+**Residual risk:** the merge precondition from the first review still stands. A full backend suite, the full
+frontend vitest suite and `npm run build` must run on the final head. This fix round touched only frontend
+page-local files, so it adds no backend exposure.
