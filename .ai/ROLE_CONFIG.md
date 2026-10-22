@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | Codex; scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | **Claude (`assetops-architect`, fresh instance) until the Codex reset at 2026-10-22 12:39 (see below)**, then Codex; scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
@@ -59,6 +59,16 @@ Owner text verbatim: `.agent/owner-v69-site-mockup-comparison-2026-10-06.md`.
 - Outputs state they were produced by Claude under this exception.
 - Revert this row to plain Codex when the owner accepts the enhanced mock-ups
   or says so.
+
+## Architect Is Claude Until The Codex Reset At 2026-10-22 12:39
+
+Owner (verbatim, `.agent/owner-claude-architect-2026-10-22.md`): "use a fresh
+claude architect instead of codex until  the codex quota is reset". Codex hit
+its usage limit at 08:52 on 2026-10-22 with the W5-01 C1 and W6-01 A1 ruling
+requests ready. Until the reset, a fresh `assetops-architect` subagent does the
+Architect work directly. Every ruling it writes states that Claude produced it under
+this exception. After the reset the row reverts to Codex, and Codex reviews
+those rulings retrospectively; the queue is in `.agent/coordinator-handoff.md`.
 
 ## Architect, Reviewer And Planner Were Claude Until 2026-10-03 21:23
 
