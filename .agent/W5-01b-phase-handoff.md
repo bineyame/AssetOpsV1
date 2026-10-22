@@ -69,3 +69,11 @@ Labelled deviations relied on (no question): the authored-row table, row copy an
 ## Next
 
 Coordinator sends this batch to the Architect as one request. Code starts only after the rulings merge into the spec.
+
+## Run — C4 (commit `8fbaf1ed`)
+
+Built per C4 card and pre-flight rulings: migration `0032_w5_cold_scenarios` (down 0030; append-only triggers; revision-table `cold_scenario_site_order`; nonempty-refusing downgrade), `cold_scenarios/{rules,store,service}.py`, `cold_scenarios_api.py`, `main.py` mount, `ColdDepthReadService.basis_on`, rule-8 writer policy (probe block split as ruled), 16 head-pin test edits, `test_w501_cold_scenarios_postgres.py` (5 tests).
+- Focused, committed revision: `test_w501_cold_scenarios_postgres.py` + `test_w403_migration_postgres.py` 16 passed (162 s). Pre-commit: the 15 head-pin modules 196 passed; C1 cold depth + mini-decision adjacent 30 passed.
+- `tools/check-all.ps1 -Python <plan2 venv>`: 11/11 passed. `writer_guard_probes.py --seam` (clean tree): 11 `cold-scenario` CAUGHT, 2 controls ALLOWED, tree restored.
+- DBs `assetops_w501b_{mig,api,c4f}_test` dropped. Full backend suite not run (per dispatch).
+- Builder choices where the spec is implicit (for review): JSON-object checks named `cold_scenario_revision_{assumptions,authored_basis}_check`; correction hash = body + root ID + window/cutoff (no site_id); cursor also binds limit (explicit different limit → 409 basis changed); actor checked before body; `basis_on` DB error → `COLD_READ_UNAVAILABLE`; ISO 4217 hard-coded current list; repeated keys → `COLD_PARAMETER_UNKNOWN`. Deviation (Low): a persisted revision missing `from`/`to`/`cutoff` keys is excluded by the SQL filter instead of answering 503; malformed values on selected rows do answer 503.
