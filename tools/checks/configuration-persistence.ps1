@@ -821,6 +821,13 @@ function Invoke-ConfigurationPersistenceCheck {
         'mini_opportunity_selection', 'mini_decision_work_link', 'mini_opportunity_scenario_link')
     $decisionInsertsSeen = @{}
     foreach ($table in $decisionTables) { $decisionInsertsSeen[$table] = 0 }
+    # W5-01b C4 (migration 0032): the authored cold scenario store is the sole runtime writer of the two 0032 tables,
+    # INSERT-only (no UPDATE, DELETE, upsert, TRUNCATE, MERGE, COPY or DDL), and it writes no other table. Each table
+    # keeps at least one owner INSERT in the store (anti-vacuity below).
+    $coldScenarioWriter = "$backendRoot/cold_scenarios/store.py"
+    $coldScenarioTables = @('cold_scenario', 'cold_scenario_revision')
+    $coldScenarioInsertsSeen = @{}
+    foreach ($table in $coldScenarioTables) { $coldScenarioInsertsSeen[$table] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -828,7 +835,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSql = '(?i)\bSELECT\s+mini_enqueue_configuration\s*\('
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
-        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter)
+        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -880,10 +887,10 @@ function Invoke-ConfigurationPersistenceCheck {
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
-        $miniWriter = 0; $decisionWriter = 0 }
+        $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
-        $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false }
+        $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -939,6 +946,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $decisionWriter -and $line -match $actionForbidden) {
                 $failures.Add("The mini-decision store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $coldScenarioWriter -and $line -match $actionForbidden) {
+                $failures.Add("The cold scenario store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1093,6 +1104,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $decisionInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $coldScenarioWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $coldScenarioTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The cold scenario store only inserts into $($coldScenarioTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $coldScenarioTables -contains $target) {
+                    if ($module.Path -ne $coldScenarioWriter) {
+                        $failures.Add(("Only $coldScenarioWriter writes cold scenario table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Cold scenario table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $coldScenarioInsertsSeen[$target]++
                     }
                 }
                 if ($null -ne $target -and $target -eq $cutoverTable) {
@@ -1320,6 +1347,12 @@ function Invoke-ConfigurationPersistenceCheck {
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
+    foreach ($table in $coldScenarioTables) {
+        if ($extractorRan -and $coldScenarioInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $coldScenarioWriter, so the cold scenario insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
     if ($evPublishEnqueueSeen -lt 1) {
         $failures.Add(("Rule 8 found no ev_enqueue_configuration call in $pgWriter (W2-06 q3 P7 publication " +
             "enqueue), so its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
@@ -1491,6 +1524,13 @@ function Invoke-ConfigurationPersistenceCheck {
             "decision $table owner insert unseen")
     }
     $workProbeNames += @('decision truncate')
+    # W5-01b C4: the cold scenario writer policy fails closed the same way.
+    foreach ($table in $coldScenarioTables) {
+        $workProbeNames += @("controls cold-scenario $table insert", "cold-scenario $table foreign insert",
+            "cold-scenario $table update", "cold-scenario $table delete", "cold-scenario $table upsert",
+            "cold-scenario $table owner insert unseen")
+    }
+    $workProbeNames += @('cold-scenario truncate')
     # W4-02 B-L1: the q12-6 cutover basis writer policy fails closed the same way.
     $workProbeNames += @("controls cutover $cutoverTable insert", "cutover $cutoverTable foreign insert",
         "cutover $cutoverTable update", "cutover $cutoverTable delete", "cutover $cutoverTable upsert",

@@ -37,7 +37,7 @@ if URL:
     )
     from assetops_backend.sites.binding_roles import MINIGRID_ROLES_4
 
-HEAD = "0030_w4_mini_decisions"  # W4-03: the current head sits above 0029
+HEAD = "0032_w5_cold_scenarios"  # W5-01b: the current head sits above 0030
 MIGRATION = "0029_w4_mini_depth"
 PREVIOUS = "0027_w4_work_cases"
 REFUSED = "Downgrade of 0029_w4_mini_depth refused: mini-depth history exists"

@@ -19,7 +19,9 @@ from unittest.mock import patch
 
 from sqlalchemy import text
 
-MINI_HEAD = "0030_w4_mini_decisions"  # W4-03: current head above 0029
+MINI_HEAD = "0032_w5_cold_scenarios"  # W5-01b: current head above 0030 (W4-03 above 0029)
+COLD_SCENARIO_PREDECESSOR = "0030_w4_mini_decisions"  # 0032 is crossed empty before 0029
+COLD_SCENARIO_TABLES = ("cold_scenario_revision", "cold_scenario")
 PREDECESSOR = "0027_w4_work_cases"
 MINI_TABLES = ("mini_depth_revision", "mini_depth_revision_evidence", "mini_depth_selection")
 MINI_JOB_DOMAINS = ("mini_renewable", "mini_service", "mini_fuel", "mini_backup")
@@ -43,6 +45,13 @@ def assert_no_cutover_basis(engine) -> None:
     """At head only: the q12-6 `site_cutover_basis` table, which also blocks the 0029 downgrade, is empty."""
     with engine.connect() as connection:
         assert connection.execute(text("SELECT count(*) FROM site_cutover_basis")).scalar_one() == 0
+
+
+def assert_no_cold_scenarios(engine) -> None:
+    """At head only: the 0032 cold scenario tables, which block the 0032 downgrade, are empty."""
+    with engine.connect() as connection:
+        assert [connection.execute(text(f"SELECT count(*) FROM {t}")).scalar_one()
+                for t in COLD_SCENARIO_TABLES] == [0, 0]
 
 
 def has_mini_jobs(engine) -> bool:
@@ -71,7 +80,10 @@ def seeded_before_0029(config, engine, *holders):
     assert _head(engine) == MINI_HEAD
     assert_no_mini_history(engine)
     assert_no_cutover_basis(engine)
+    assert_no_cold_scenarios(engine)
     release()
+    command.downgrade(config, COLD_SCENARIO_PREDECESSOR)  # traverse the empty 0032 first
+    assert _head(engine) == COLD_SCENARIO_PREDECESSOR
     command.downgrade(config, PREDECESSOR)
     assert _head(engine) == PREDECESSOR
     try:
@@ -84,3 +96,4 @@ def seeded_before_0029(config, engine, *holders):
     assert _head(engine) == MINI_HEAD
     assert_no_mini_history(engine)
     assert_no_cutover_basis(engine)
+    assert_no_cold_scenarios(engine)
