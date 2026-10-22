@@ -20,3 +20,7 @@ Architect output is a feature map and causal sequencing analysis, not code and
 not a task list unless the user explicitly asks for task breakdown after feature
 review.
 
+
+## Mock fidelity (owner, 2026-10-22)
+
+Every spec, ruling and design that touches a screen is checked against `frontend/mockups/v69/index.html`. Cite the mock element and keep its form. Never trim or redesign a mock element to fit a guard, file list or backend gap; change ownership or registration instead, or show an honest gap inside the mock's structure. Label any unavoidable deviation `MOCK DEVIATION`, with the mock element, the reason and the alternatives considered. See `.ai/ROLE_CONFIG.md`.

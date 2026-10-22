@@ -6,7 +6,7 @@ Roles are project responsibilities. Agent bindings are configurable defaults.
 
 | Role | Default agent | Purpose |
 | --- | --- | --- |
-| Architect | **Claude (`assetops-architect`, fresh instance) until the Codex reset at 2026-10-22 12:39 (see below)**, then Codex; scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
+| Architect | Codex (Claude exception 2026-10-22 08:52-13:00 ended; see below); scoped Claude exception for the v6.9 site mock-up work on `arch/canonical-v69-pivot` (2026-10-06; see below) | Creates feature maps, causal sequencing, protected seams, and feature-to-task guidance. |
 | Planner | Codex (Claude exception ended at the 2026-10-03 21:23 reset; see below) | Converts reviewed feature guidance into small UI-verifiable task definitions. |
 | Implementer | Claude | Builds the active task, runs checks, and prepares the review packet. |
 | Reviewer | Configurable independent agent; Codex by default (see below) | Reviews work independently from the author. |
@@ -60,7 +60,9 @@ Owner text verbatim: `.agent/owner-v69-site-mockup-comparison-2026-10-06.md`.
 - Revert this row to plain Codex when the owner accepts the enhanced mock-ups
   or says so.
 
-## Architect Is Claude Until The Codex Reset At 2026-10-22 12:39
+## Architect Was Claude Until The Codex Quota Reset (2026-10-22)
+
+Ended about 13:00, when Codex accepted the retrospective request. The row is Codex again, and Codex has reviewed the Claude rulings (merge of `plan/retro-claude-arch`).
 
 Owner (verbatim, `.agent/owner-claude-architect-2026-10-22.md`): "use a fresh
 claude architect instead of codex until  the codex quota is reset". Codex hit
@@ -476,6 +478,19 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   reviewers flag it Medium (High if user-visible vs the mock), and the Architect
   rules it and amends the spec before merge
   (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
+- **Both Architects (Codex and Claude) check every screen-affecting spec,
+  ruling and design against the v69 mock (owner, 2026-10-22,
+  `.agent/owner-architect-mock-fidelity-2026-10-22.md`).** Each ruling that touches a
+  screen cites the mock element it implements (screen, panel, row/column/chip)
+  and keeps its form: a chart stays a chart, a column heading stays the mock's.
+  A guard, file list or backend gap is never a reason to trim or redesign a mock
+  element. Change the file ownership or guard registration, or show an honest
+  gap inside the mock's own structure, instead. An unavoidable deviation is
+  labelled `MOCK DEVIATION` in the ruling. It states the mock element, why
+  it cannot be kept, and the alternatives considered that would have kept it.
+  The coordinator relays each deviation to the owner in plain words. Every
+  Architect request carries this rule. Reviewers treat an unlabelled deviation
+  as High.
 - **Test databases are owner-authorized (2026-10-18).** Agents may create and
   drop private `*_test` databases in the local `assetopsv1-postgres-1`
   container for tests, captures and fixtures; never non-test databases
