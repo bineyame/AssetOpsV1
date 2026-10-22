@@ -52,3 +52,42 @@ Readings to confirm (non-blocking, recorded rather than chosen silently):
   codes, not W4's cold/EV fence states (global status never derives from them, Q4).
 - R4. `empty_scope` seeds the `incidents` rows; the empty scope comes from the read's deny-all access callback.
 Next: independent A1 per-unit review, then A2.
+
+## Run (A2 build, 2026-10-22) - BLOCKED before code
+Read: this handoff, spec A2 card, §1, §2, §3.1 (F1-F6, G6, A1Q2), §4, both mock-measure files, mock `screens.js:514-517`,
+and the code the card touches. No code written, no DB created, no process started. Stopped per dispatch (unclear => ask).
+
+Blocking:
+- A2Q1. `Open incidents` = OPEN+IN_PROGRESS (§2 incidents cards), but the §1 envelope has no per-state count and the UI
+  reads `limit=5` pages, so the full-set count is not derivable once `total_count > 5` (the `incidents` fixture has
+  6 in-tenant rows = 2 pages). (a) A1 adds an envelope count bound into the token (A1 files), (b) exact only when the
+  whole set is on one page, else a stated gap (literal?), or (c) other? Also unspecified: the card's note (mock `INC-203`)
+  and whether cards render on `EMPTY_SCOPE` / complete zero.
+- A2Q2. Capture stress `5 rows, title200/actor128/UUID/reason`: `tools/w601_seed.py` (A1-owned, not in A2's list) writes
+  only short titles and assignee `Field team A`; the incident row (§1) has no actor or reason field and shows no UUID.
+  Which producer writes the stress rows (seed extension by whom, or capture-time DOM injection as mock-measure-2), and
+  which cells carry actor128 (Owner = assignee?), UUID and reason?
+- A2Q3. Pinned clock vs real read time: `--clock 2026-10-22T12:00:00Z` stores `recorded_at` 11:59:00Z+ on 2026-10-22, the
+  server reads at `clock_timestamp()` (A1Q Q6; override is pytest-only) and §4 says captures use real DB time. Now is
+  08:25Z, so a current read selects no row until after ~12:00:03Z. Wait, or use another `--clock` (e.g.
+  2026-10-21T12:00:00Z, window 2026-10-14..2026-10-21, which §4 permits)?
+
+Readings needing a ruling (proposed precedent in brackets):
+- A2Q4. Source label: ledger claim says rows carry "a source label" and §2 gives the four work provenance literals, but
+  the seven columns have no Source slot. Where does `source_provenance` render (secondary line, row disclosure)?
+- A2Q5. Cutoff control: §2 controls are From/To/Show records/Reload/Previous/Next (no cutoff input); ledger `interaction`
+  says "choose a UTC window or cutoff". URL `known_at` only, or an input (label?)?
+- A2Q6. Refusal UI copy for 401 and 422 INVALID_WINDOW/INVALID_KNOWN_AT (incl. invalid page query, no fetch)/INVALID_LIMIT/
+  INVALID_CURSOR is not in §2 [estate `REFUSAL_COPY`, `estateClient.ts:366-377`; INVALID_CURSOR -> cursor-change copy].
+- A2Q7. "Footer slot replaces mock states footer": the mock's `States: ...` is the panel sub-line under the heading
+  (`screens.js:36` `panel(title,body,sub)`), not below the table. Render in Panel `description` (mock slot) or below the table?
+- A2Q8. Cell literals not in §2 [State `Open/In progress/Closed`, tones `siteWorkCases.tsx:146-160`; Start = §2 date
+  format of root `occurred_at`; Incident = `{code} · {title}` -> `links.site_incidents`, clamp + `Full title text`;
+  Site -> `links.site`; Findings / work = finding · action links / request codes as plain text (mock `F · F / WR · ACT`);
+  empty cell text?].
+- A2Q9. Registry JSON is in A2's list but §4 keeps rows `gap` and gives no A2 literal. Any edit (e.g. `incidents:1,2`
+  reason "awaits build and independent review" -> built/awaits review, W4-01 precedent registry line 426), or none?
+- A2Q10. Previous needs earlier cursors [Site W4 history-state trail, `SiteAnalyticsFrames.tsx:1601-1622`]; and is a
+  `Showing x-y of N` line wanted (not in §2)?
+
+Next: Architect amendment of the A2 card (A2Q1-Q3 required; Q4-Q10 rulings), then rebuild A2.
