@@ -6,6 +6,11 @@
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { App } from "../../App";
+import { featureFlagsWith } from "../../config/featureFlags";
+import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
+import type { SiteDetailReadModel } from "../siteReadModel";
+import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { coldSiteRoutes } from "../../shell/coldSiteRoutes";
 import { settledScreen } from "../../test/settled";
 import { type ColdRead, NO_WINDOW, type ColdWindowQuery } from "../coldAssessmentClient";
@@ -355,5 +360,65 @@ describe("health_states_and_loading", () => {
   it("no window still reads (the server resolves the default)", async () => {
     const { getHealth } = await renderHealth(loaded(), NO_WINDOW);
     expect(getHealth).toHaveBeenCalledWith(SITE_CODE, NO_WINDOW);
+  });
+});
+
+/* ---------- the composed page, through the real App route (Q-C3-1, Q-C3-2) ---------- */
+
+const SITE = {
+  site_id: SITE_CODE,
+  display_name: "Kobo vaccine cold store",
+  site_type: "COLDCHAIN",
+  location: { country: "Ethiopia", locality: "Kobo" },
+  timezone: "Africa/Addis_Ababa",
+  lifecycle_status: "PLANNED",
+  origin: "USER",
+  source: { mode: "SIMULATED" },
+  template: null,
+  configuration_store: "POSTGRES",
+} as unknown as SiteDetailReadModel;
+
+describe("condition_matrix: the composed cold Health page", () => {
+  it("renders the Site-name h1, then cards, Condition and evidence, the condition notice and the S7 Data sources panel alone", async () => {
+    const requests: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => {
+      requests.push(url);
+      return new Response(JSON.stringify({ detail: { code: "SOURCE_HEALTH_UNAVAILABLE", message: "down" } }), { status: 503 });
+    });
+    const { client, getHealth } = stub(loaded());
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: SITE }) };
+    const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [SITE] }) };
+    render(
+      <MemoryRouter initialEntries={[`/sites/${SITE_CODE}/health?${Q}`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldDepth={client} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    await waitFor(() => {
+      if ((document.body.textContent ?? "").includes(HEALTH_LOADING)) throw new Error("the Health read has not settled");
+      if ((document.body.textContent ?? "").includes("Loading the site's gateway contact.")) throw new Error("the source read has not settled");
+    });
+    const main = document.querySelector("main") as HTMLElement;
+    expect(getHealth).toHaveBeenCalledWith(SITE_CODE, WINDOW);
+    expect(main.querySelector("h1")?.textContent).toContain("Kobo vaccine cold store");
+    expect(main.querySelector('nav[aria-label] a[aria-current="page"]')?.textContent).toBe("Health");
+    const order = [
+      main.querySelector("ul.v69-cards"),
+      main.querySelector(`#${"cold-health-condition-heading"}`),
+      main.querySelector("[data-health-condition-notice]"),
+      main.querySelector("#site-health-sources-heading"),
+    ] as HTMLElement[];
+    order.forEach((node) => expect(node).not.toBeNull());
+    for (let i = 1; i < order.length; i += 1) {
+      expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    expect(order[3].textContent).toBe("Data sources · data quality, not equipment condition");
+    expect(requests.some((url) => url.endsWith(`/${SITE_CODE}/source-health`))).toBe(true);
+    // No S7 battery strip, battery panel or blue notice on the cold page.
+    expect(requests.some((url) => url.endsWith("/battery"))).toBe(false);
+    expect(main.textContent).not.toContain("Physical asset condition");
+    expect(main.querySelector("#site-health-condition-heading")).toBeNull();
+    expect(main.querySelector(".v69-notice--blue")).toBeNull();
+    expect(main.querySelector("[data-health-site]")).toBeNull();
   });
 });

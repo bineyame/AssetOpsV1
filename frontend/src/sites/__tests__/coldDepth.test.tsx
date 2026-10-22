@@ -468,7 +468,7 @@ describe("cooling_nav_and_routes", () => {
     expect(client.getCooling).not.toHaveBeenCalled();
   });
 
-  it("coldUiHref maps the cooling API link with its exact query (and health, which C3 mapped)", () => {
+  it("coldUiHref maps the cooling and Health API links with their exact queries", () => {
     const routes = coldSiteRoutes(SITE_CODE);
     expect(routes.cooling).toBe(`/sites/${SITE_CODE}/performance/cooling`);
     const query = `${Q}&known_at=2026-10-22T08%3A00%3A00Z`;
