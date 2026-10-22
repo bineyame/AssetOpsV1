@@ -450,3 +450,4 @@ Owner: "use a fresh claude architect instead of codex until  the codex quota is 
 - W5-01 C1 Q13 chamber-probe ruling (plan/W5-01-c1q2).
 - W6-01 A1Q2 R1-R4 confirmations (plan/W6-01-a1q2).
 - W6-01 A2Q1-Q10 + readiness X1-X9 (plan/W6-01-a2q).
+- W6-01 CL3 7 readiness gaps (plan/W6-01-close3).
