@@ -132,3 +132,58 @@ These unlabelled departures count as High: items 33(a)-(c) and 35, plus the unma
 
 - `0032_w5_cold_scenarios` (W5-01b) and `0034_w5_ev_scenarios` (W5-03b) are not on main. Both specs correctly abort until their exact parent merges.
 - W6-01 A2/B2 has not merged. Item 23 requires an explicit order between the two slices.
+
+## Recheck (2026-10-22, against `537667b8`)
+
+This recheck reads the closure contracts, the current unit cards (K1a-K5 and V1a-V5) and the closure maps in both specs against main. It was read only, and no checks were run. Where a closure names code, I confirmed it exists: `link_coverage.coverage_of`/`worst`/`_PRECEDENCE`/`_REASON`, `EvReadService.sessions_on`/`findings_on`/`_snapshot`, the existing `cold_snapshot` injection into `postgres_work_read.py`, `case_basis` in `work/service.py`, and the W6-01 unit table.
+
+### Verdict: NOT READY (four Medium items; 29 and 34 deferred)
+
+All 45 original gaps are closed or deferred: 29 and 34 can only be verified after W5-01b and W5-03b merge. The new text introduces four Medium items that a builder would hit, plus some Lows. Each Medium needs a one-line Architect ruling.
+
+### Closure table
+
+| Gap | Status | Note |
+| --- | --- | --- |
+| 1 | Closed | K1a/K1c name the S6 and W4 tests and the assertions that change. |
+| 2 | Closed | `$domainIntentWriter`, `$pgWriters`/`$pgWritesSeen`/`$pgDriverSeen`, `$pgReaders`, the three tables and the four probes are all given. The HTTP-scan token list is partial, but "none of the forbidden tokens" is binding (Low). |
+| 3 | Closed except for one point | The grammar and two-way triggers are fixed. See R-4: the W1 "existing code-collision refusal" does not exist. |
+| 4 | Closed | `DOMAIN_ACTION` link kind, `action_event_id:null`, label, href, fence and token. See R-5 for the W6 seam. |
+| 5 | Closed | The injected `ColdReadService._snapshot`/`envelope_on` port matches the existing W4 `cold_snapshot` injection pattern. It waits on the 0032 names. |
+| 6 | Closed | Enums match `_PRECEDENCE` and `coverage_of`; label, href and summary mapping are given. |
+| 7, 8 | Closed | |
+| 9 | Closed except for one point | The `links.work` key set, selection, results, provenance and status are fixed. The W6 unit is misnamed (R-2). |
+| 10 | Closed | |
+| 11-16 | Closed | Branching by `site.site_type`, the client and presenter split, the W1-only field omission, five rows with a fold at four, the default window, query preservation, the placeholder via `domainActionClient.getDetail`, the canonical `/verification` path and section redirects. |
+| 17 | Closed except for one point | Breadcrumb, subtitle, `Open site`, chip and one tab are fixed. "Global rail selects Actions" has no file owner (R-3). |
+| 18-22 | Closed | Finding label `Finding {id8}` as an honest gap in the cell, missing intent without a table, result labels, UTC due date, no graphics file. |
+| 23, 24 | Closed | Domain-only `WORK_CONTEXT_NOTICE_DOMAIN`/`WORK_STRIP_DETAIL_DOMAIN`; W6 A2 then B2 then K3a; mini-grid untouched. |
+| 25 | Closed except for one point | UTC window, generator label and the Next-evidence gap are fixed. The W6 detail routes named do not match W6-01 (R-2). |
+| 26-28 | Closed | Route constants, `App.tsx` unchanged, test lists, ledger, panel-contract and registry literals. |
+| 29 | **Deferred** | The generated test-only scenario copy and Foundation shift are specified. Whether existing scenario registration accepts a generated path must be traced on merged W5-01b. |
+| 30, 31, 32 | Closed | |
+| 33 | Closed | The mock Actions empty body, `{WR title} {WR code}` and the Finding label gap are restored. |
+| 34 | **Deferred** | The fixed E1 vector is kept, and a separate private shifted replay records both clocks. The selector at the last watermark no later than K2 must be verified on merged W5-03b. |
+| 35-45 | Closed | The EV summary now uses the mock literal and comes from the validated keys. `OPEN`/`Not assigned`, the session port, the named CHECK, `main.py` unchanged, both INC and WR payloads, the refusal split, one Verification tab and the ledger literals are all fixed. |
+
+### Remaining and new items
+
+- **R-1 (Medium; K4a and V4a): the guard will reject new copy.** `Maintenance detail is not available yet.`, the text next to the disabled `Inspect maintenance evidence` button, matches `missing-claim-scan.mjs` pattern `/not available yet/i`. Neither card lists `tools/checks/missing-claim-scan.mjs`, `frontend/src/ui/gapCatalogue.ts` or a registry `mock_gaps` placement. Rule one of these:
+  - a catalogued `<MissingClaim>` placement with a literal gap ID and placement;
+  - a reviewed exemption naming the const and decision;
+  - reworded copy.
+
+  (K3a's "contains no guarded phrase" covers only the Work notice.)
+- **R-2 (Medium; K1b, K3a, K4a, V3a, V4a): wrong W6 unit, and a route that does not exist.** The spec says "after W6 B3 use its mounted request Overview href". In W6-01, B3 is the Preventive page; request Overview is **C2** (`WorkRequestOverview.tsx`). K3a also says to use "W6's Incident detail route for INC". W6-01 has no Incident detail unit (A1/A2 are the global Incidents list only). State C2 as the WR trigger, and either keep INC case cells as plain text with no W6 trigger or name the owner of an Incident detail route.
+- **R-3 (Medium; K4a and V4a): the rail-state rule has no file owner.** "Global rail selects Actions" on `/sites/{site}/actions/{id}/verification` cannot happen with the current `NavRail` `NavLink` path matching, which marks Sites. It needs edits to `frontend/src/ui/NavRail.tsx` or `frontend/src/shell/OperatorShellLayout.tsx`, which W6 Lane A owns, plus their rail tests. Neither file is in K4a or V4a. Name the files, the mechanism and the order with W6, or label the rail state as a deviation.
+- **R-4 (Low-Medium; K1a): the W1 refusal does not exist.** `postgres_action_store.py` "maps conflict to its existing code-collision refusal", but the W1 store has none: its only `IntegrityError` path is `action_event_idempotency_unique`. K1a's two-direction test needs the code, HTTP status and message for a W1 acceptance that collides.
+- **R-5 (Medium; K1c and the W6-01 seam): unsatisfiable order and unlisted W6 tests.** K1c says "W6's global read must consume this W4 union before it merges". W6 A1, A2 and B2 merge before K3a and probably before K1c, and the W6-01 spec has no matching amendment. If W6 A1 or B1 merge first, K1c changes `postgres_work_read.py` underneath `test_w601a_global_incidents.py`/`test_w601b_global_maintenance.py`, which are not in K1c's file list. State the actual order and add those tests to K1c, or amend W6-01.
+- **R-6 (Low): short or full Site name.** The ledger strip says `Scoped to {short site} · …` (the mock shows the first word, as W4 `shortName` does); the shared Site UI section says `Scoped to {site} · {n} actions`. Pick one for Actions.
+- **R-7 (Low; rule 5, consolidated cards): stale ledger rows remain.** The ledger rows still say: Action root `scope chip Open or actual reduced W1 state` and `{selected Finding code}`; Incidents `Site timezone label`; empty intent "current-result cells are absent". The override clause makes the closure text win, but a builder still reads contradictory rows. Edit them in place.
+- **R-8 (Low): where the Next-evidence gap is recorded.** K3a says "a `mock_gaps` entry `No witnessed automatic-start test is recorded as next evidence.`". The Registry section says gaps go in panel-contract reasons, "not an invented ledger key", and the given `claim_limit` literal does not contain that sentence. Pick one.
+- **R-9 (Low): mini-grid default window.** "With no `from/to`, use W4's last seven complete UTC days … on all three tabs" does not say whether mini-grid Actions keeps its choose-window state, as "Mini-grid retains every W1 literal" implies.
+- **R-10 (Low, unlabelled): Window column time zone.** The cold Incident `Window` cell gains an explicit `UTC` label where the mock shows `6 Oct · from 19:11`, implicitly in the page's EAT range. Label it, or note it as presentation only.
+
+### M4/E4 replacement literal and ledger row
+
+These are now right. The strip keeps the mock's three slots: `Scoped to …`, then `Cold-chain Actions recorded at this site` / `EV Actions recorded at this site`, then plain `Global Actions does not include cold-chain Actions yet.` / `… EV Actions yet.` There is no href. The ledger scope-strip rows now defer the Actions cell to M4/E4 and keep the W6 mounted-root rule for Incidents and Maintenance only, so the earlier contradiction is gone. The alternatives are recorded. The "does not include … yet" sentence is not matched by the missing-claim patterns, so it needs no catalogue entry, though it is a soft missing-capability phrase (Low, no change required). M1, M3/E2 and E3 are restored to the mock as I recommended. M2/E1 stays a valid labelled deviation.
