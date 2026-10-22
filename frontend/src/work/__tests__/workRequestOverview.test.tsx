@@ -7,6 +7,9 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { App } from "../../App";
+import { featureFlagsWith } from "../../config/featureFlags";
+import { WORK_REQUEST_ROUTE_PATH } from "../../shell/operatorSiteRoutes";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import {
@@ -20,7 +23,7 @@ import {
 import { WorkRequestOverviewFrame } from "../WorkRequestOverview";
 
 const CASE = "6f1c2d3e-4a5b-4c6d-8e7f-001122334455";
-const ROUTE = "/maintenance/requests/:caseId";
+const ROUTE = WORK_REQUEST_ROUTE_PATH;
 const PAGE = `/maintenance/requests/${CASE}?site_id=KOBO-001`;
 const KNOWN = "2026-10-20T12:00:01Z";
 const OVERVIEW = `/maintenance/requests/${CASE}?site_id=KOBO-001`;
@@ -517,5 +520,23 @@ describe("W6-01c C2: the detail client", () => {
       status: "refused",
       code: "WORK_STORE_UNAVAILABLE",
     });
+  });
+});
+
+describe("W6-01c C2: the request route in the app shell", () => {
+  it("mounts the Overview under the operator shell with the rail's Maintenance root current", async () => {
+    expect(WORK_REQUEST_ROUTE_PATH).toBe("/maintenance/requests/:caseId");
+    const reads = client(loaded(detail()));
+    render(
+      <MemoryRouter initialEntries={[PAGE]}>
+        <App flags={featureFlagsWith(false)} globalWork={reads} />
+      </MemoryRouter>,
+    );
+    await settled();
+    expect(screen.getByRole("main", { name: "Inspect starter and control circuit again" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
+    const rail = screen.getByRole("navigation", { name: "Operator routes" });
+    expect(within(rail).getByRole("link", { name: "Maintenance" })).toHaveAttribute("aria-current", "page");
+    expect(reads.calls).toHaveLength(1);
   });
 });

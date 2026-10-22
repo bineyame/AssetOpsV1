@@ -234,21 +234,22 @@ def _owner(events: list[dict[str, Any]]) -> str | None:
 
 
 def select_incidents(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
-                     known_at: datetime) -> list[dict[str, Any]]:
+                     known_at: datetime, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     """Every eligible Incident of every authorized Site at K, before paging: `{wire, key, basis}` sorted by the
     section 1 tuple. Provenance and links follow the Site row exactly (A1Q Q3, Q7)."""
     return _select_cases(gx, tenant_id, sites, lo, hi, known_at, m.INCIDENT)
 
 
 def select_maintenance(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
-                       known_at: datetime) -> list[dict[str, Any]]:
+                       known_at: datetime, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     """B1: every eligible maintenance request at K (membership by root `created_at`, P-B1-1), before paging. The
-    record fields are the W4 Site row's: the last selected record by `(recorded_at, id)` (P-B1-12)."""
-    return _select_cases(gx, tenant_id, sites, lo, hi, known_at, m.REQUEST)
+    record fields are the W4 Site row's: the last selected record by `(recorded_at, id)` (P-B1-12). W6-01c C2:
+    `cutoff` is K when the list request named an explicit `known_at`, else None; it decides `links.detail`'s cutoff."""
+    return _select_cases(gx, tenant_id, sites, lo, hi, known_at, m.REQUEST, cutoff)
 
 
 def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
-                  known_at: datetime, case_kind: str) -> list[dict[str, Any]]:
+                  known_at: datetime, case_kind: str, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     out = []
     query = _window_query(lo, hi, known_at)
     states = STATE_COUNTS["incidents" if case_kind == m.INCIDENT else "maintenance"]
@@ -316,11 +317,14 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
                 wire["links"] = {"site": site_link,
                                  "site_incidents": {"label": "Site incidents",
                                                     "href": f"{_site_href(code)}/work/incidents?{query}"}}
-            else:  # P-B1-13: exact label and the same-window Site fallback; the detail href arrives with C2
+            else:  # P-B1-13 label and Site fallback; W6-01c C2 (P-C2-12): the exact request Overview
+                detail = f"/maintenance/requests/{quote(cid, safe='')}?site_id={quote(code, safe='')}"
+                if cutoff is not None:  # P-C1-5: only an explicit cutoff is carried, at its exact instant
+                    detail += f"&known_at={quote(m.iso(cutoff), safe='')}"
                 wire["links"] = {"site": site_link,
                                  "site_maintenance": {"label": "Site maintenance",
                                                       "href": f"{_site_href(code)}/work/maintenance?{query}"},
-                                 "detail": None}
+                                 "detail": {"label": wire["code"], "href": detail}}
             key = (-_micros(case[member]), site["site_code_key"], sid, cid)
             marker = [token_time(case[member]), site["site_code_key"], sid, cid]
             out.append({"wire": wire, "key": key, "marker": marker, "basis": basis, "id": cid})
@@ -329,7 +333,7 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
 
 
 def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
-                      known_at: datetime) -> list[dict[str, Any]]:
+                      known_at: datetime, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     """B1 (P-B1-10): DRAFT plan roots whose root `occurred_at` is in `[from, to)` and recorded by K, each at its
     last head recorded by K (`(recorded_at, id)`); sorted by the selected head `(recorded_at desc, site_code_key,
     site_id, canonical_plan_id)`. Provenance is `provenance_dto` over `[head_id]` with no cited IDs."""
@@ -420,7 +424,8 @@ class GlobalWorkIndexService:
                 status = _MODES[cursor["page_one_mode"]]
             else:
                 status = HISTORICAL if known is not None and known < read_at else CURRENT
-            rows = SELECT[kind](gx, tenant_id, sites, request.from_, request.to, k) if sites else []
+            cutoff = k if request.known_at is not None else None  # W6-01c C2: the explicit cutoff only
+            rows = SELECT[kind](gx, tenant_id, sites, request.from_, request.to, k, cutoff) if sites else []
             token = _digest({"version": SELECTION_VERSION, "route": kind, "filter": None, "tenant_id": tenant,
                              "authorized_site_ids": ids, "access_basis": basis, "from": token_time(request.from_),
                              "to": token_time(request.to), "known_at": token_time(k),

@@ -6,8 +6,8 @@
  * A2Q4-A2Q7, A2Q10, X1-X8, CL3-1) and the "B1-B3 pre-flight rulings" P-B2-3..11, which supersede them.
  *
  * MOCK DEVIATION (P-B2-3..8): the lifecycle notice copy changes, because W4 has no work-outcome evaluator or
- * automated follow-up; the primary Work request link opens the same-window Site maintenance page until W6-01c mounts
- * the exact request Overview. W6-01b B3 (CL3-2, P-B2-4, P-B3-8) made the Preventive tab and the third card's separate
+ * automated follow-up. W6-01c C2 (P-C2-12) mounted the exact request Overview: the primary Work request link is
+ * the API `links.detail` (Site code and explicit cutoff kept), with the Site maintenance window only as a fallback. W6-01b B3 (CL3-2, P-B2-4, P-B3-8) made the Preventive tab and the third card's separate
  * `View detail →` link live, both to `/maintenance/preventive` with the effective window and cutoff, never a cursor. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
  */
 import { Link } from "react-router-dom";
@@ -109,7 +109,7 @@ function Badge({ tone, children, data }: { tone: "red" | "amber" | "blue" | "neu
 
 function WorkRequestCell({ row }: { row: GlobalMaintenanceRow }) {
   const text = `${row.code} · ${row.title}`;
-  // Until W6-01c mounts the exact request, the primary link opens the same-window Site maintenance page (X8).
+  // W6-01c C2: the primary link is the exact request Overview (`links.detail`); Site maintenance is the fallback.
   const href = row.links.detail?.href ?? row.links.site_maintenance.href;
   const links = [...row.finding_links, ...row.action_links];
   return (
