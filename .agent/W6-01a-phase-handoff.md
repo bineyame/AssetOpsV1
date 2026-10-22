@@ -130,3 +130,10 @@ Readings (not chosen silently; confirm):
   the test also waits for `[data-global-work-loading]` to disappear.
 - R8. In the Vite dev server (StrictMode) each page read is fetched twice (`api=[200,200]`); a built app fetches once.
 Next: rule A2Q11; then one small fix round edits the six test files; then the A2 per-unit review.
+
+### Run update (A2Q11 applied, 2026-10-22)
+Commit `428d4117`: only the six A2Q11 test files, with the ruled literals (labels and links with Incidents, icon
+`["Incidents","incident"]`, `"Incidents"` added to `ADMITTED_SINCE_T004`). R5-R8 are confirmed; no code change.
+`npx vitest run src/shell src/estate src/sites src/work src/ui`: 103 files, 2464 passed, 0 failed.
+`tools/check-all.ps1`: all 11 guards passed. No process was started; no DB was created.
+Next: A2 per-unit independent review.
