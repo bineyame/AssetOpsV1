@@ -52,7 +52,6 @@ STEP_ROLES = {"GRID": cold.GRID_EVENT_ROLE, "START_REQUEST": cold.START_ROLE, "S
 ROLE_ORDER = {role.role: n for n, role in enumerate(COLD_ROLES_1)}
 MISSING_KEYS = ("cold_stock_quantity", "cold_stock_unit_value", "cold_exposure_rule")
 NOT_INCLUDED = ("STOCK_VALUE_UNDECLARED", "EXPOSURE_RULE_UNAPPROVED", "SPOILAGE_UNPROVED", "REPAIR_COST_ABSENT")
-PROVED_LEVELS = ("OBSERVED", "BOUNDED")
 STARTED = ("OBSERVED_SUCCESS", "OBSERVED_FAILURE")
 
 # Spec "Exact in-panel copy": the pending statement; a failed attempt uses the ruled `COLD_RECOMPUTE_FAILED` copy.
@@ -75,13 +74,18 @@ ATTENTION = {
     "COLD_TRANSFER_UNKNOWN": "Transfer-switch position was not observed",
     "COLD_POLICY_MISSING": "Chamber temperature policy is not declared for this window",
 }
-# Q-R2: cooling card text by COOLING_RESPONSE state; maintenance is never recorded in W2-04.
+# Q-R2: cooling card text by COOLING_RESPONSE state; maintenance is never recorded in W2-04. W2-F closure S2: the
+# selected W2-03 start chain stores only first steps, so cooling recovery is never SUPPORTED in W2 and has no text.
 COOLING_TEXT = {
-    "SUPPORTED": "Cooling response is supported by compressor and chamber readings",
-    "LIMITED": "Cooling response has incomplete compressor or chamber readings",
+    "LIMITED": "Cooling recovery is not established by the selected start chain.",
     "UNAVAILABLE": "Cooling response was not assessed",
     "CONTRADICTORY": "Cooling response has contradictory records",
 }
+# W2-F closure S1: claim-specific limitations, carried within the same selected snapshot.
+# W2-F q1 ruling: plain copy for the missing ordered-recovery proof.
+COOLING_LIMITATION = ("We cannot confirm that the compressor switched on after the interruption and that a later "
+                      "chamber reading returned to the allowed temperature range.")
+PRODUCT_LIMITATION = "Product identity, stock value and a reviewed response rule are not declared."
 MAINTENANCE_TEXT = "No maintenance work record is available for this window"
 MAINTENANCE_LIMITATION = "No accepted maintenance work record is in the W2-04 read contract."
 # Q-R3: the objective line.
@@ -460,9 +464,13 @@ class ColdSiteReadService:
                          f"/api/sites/{quote(snap['code'], safe='')}/cold/foundation?"
                          + urlencode([("at", _plain(snap["hi"]))]))}
             if not snap["selected"]:
-                return {**body, "capabilities": [], "sources": [], "links": links}
+                return {**body, "capabilities": [], "sources": [], "selected_excursion_present": False,
+                        "links": links}
+            exc = snap["selected"].get(EXC)
+            # W2-F closure S5: a basis-presence flag from the selected excursion result, never a product outcome.
+            present = bool(exc.result.get("excursions")) if exc else False
             return {**body, "capabilities": self._capabilities(c, snap), "sources": self._sources(c, snap),
-                    "links": links}
+                    "selected_excursion_present": present, "links": links}
         return self._reads.within(work)
 
     def _observed_roles(self, c, snap) -> set[str]:
@@ -504,16 +512,17 @@ class ColdSiteReadService:
         transfer = steps("TRANSFER")
         states["TRANSFER_POSITION"] = ("CONTRADICTORY" if "CONTRADICTORY" in transfer else
                                        "SUPPORTED" if "OBSERVED" in transfer else "UNAVAILABLE")
-        compressor = cold.COMPRESSOR_ROLE in observed
-        states["COOLING_RESPONSE"] = (
-            "CONTRADICTORY" if "CONTRADICTORY" in steps("COMPRESSOR") else
-            "SUPPORTED" if compressor and known_points >= 2 else
-            "LIMITED" if compressor or known_points >= 1 else "UNAVAILABLE")
-        excursions = er.get("excursions") or []
-        eligible = any(x.get("exposure_finding") and x.get("claim_level") in PROVED_LEVELS for x in excursions)
-        states["PRODUCT_EXPOSURE"] = ("CONTRADICTORY" if contradictory else
-                                      "SUPPORTED" if eligible and bounds_ok else
-                                      "LIMITED" if excursions else "UNAVAILABLE")
+        # W2-F closure B1: the selected START chain stores only its first compressor step and first subsequent probe,
+        # so an ordered recovery (RUNNING after the GRID/start anchor, then a later in-band probe) is never proved
+        # here. A selected chain is LIMITED unless a chain or step is CONTRADICTORY; no chain is UNAVAILABLE.
+        chain_contradictory = "CONTRADICTORY" in results or any(
+            x["state"] == "CONTRADICTORY" for ch in chains for x in ch["steps"])
+        states["COOLING_RESPONSE"] = ("CONTRADICTORY" if chain_contradictory else
+                                      "LIMITED" if chains else "UNAVAILABLE")
+        # W2-F closure B1/S4: the W2 assumptions read is always empty, so no product basis is declared and product
+        # exposure is UNAVAILABLE (None) unless the selected excursion assessment is CONTRADICTORY.
+        states["PRODUCT_EXPOSURE"] = "CONTRADICTORY" if contradictory else "UNAVAILABLE"
+        claim_limits = {"COOLING_RESPONSE": COOLING_LIMITATION, "PRODUCT_EXPOSURE": PRODUCT_LIMITATION}
         probe_coverage = {"known_points": er.get("known_points"), "expected_points": er.get("expected_points"),
                           "ratio": ratio}
         event_coverage = {"known_points": None, "expected_points": None, "ratio": None}
@@ -527,7 +536,8 @@ class ColdSiteReadService:
                         "coverage": event_coverage if claim in ("BACKUP_START_RESULT", "TRANSFER_POSITION")
                         else probe_coverage,
                         "as_of": self._as_of(c, snap, analytic),
-                        "limitation": None if state == "SUPPORTED" else self._limits(snap, analytic)})
+                        "limitation": claim_limits[claim] if claim in claim_limits and state != "CONTRADICTORY"
+                        else None if state == "SUPPORTED" else self._limits(snap, analytic)})
         return out
 
     def _sources(self, c, snap) -> list[dict[str, Any]]:

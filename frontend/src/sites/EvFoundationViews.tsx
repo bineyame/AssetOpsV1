@@ -24,6 +24,7 @@ import type { GatewayHealth, GatewayHealthClient } from "./gatewayHealthClient";
 import type { FoundationVersionsReadModel } from "./siteFoundationClient";
 import { EvSingleLineDiagram } from "./SiteSingleLineDiagram";
 import { connectorName, LIMIT_NOT_DECLARED, NO_CONNECTOR_DECLARED, NOT_DECLARED } from "./evWords";
+import { COMMISSIONING_RECORD, NOTHING_FURTHER_RECORDED } from "./ColdFoundationViews";
 import "./w2-cold-foundation.css";
 import "./w2-ev-foundation.css";
 
@@ -517,14 +518,19 @@ function EvReadinessView(props: ViewProps) {
   const ratings = ratingsText(read);
   const unconfirmed = read.commissioning.evidence_ids.length === 0;
   const confirmed = <Badge tone="neutral">{unconfirmed ? "Unconfirmed" : `${read.commissioning.evidence_ids.length} records`}</Badge>;
-  const needed = (items: string[]) =>
-    items.length === 0 ? "—" : (
+  // W2-F M2/N3: the selected readiness messages first (deduped), then `Commissioning record` while no commissioning
+  // evidence is stored; `Nothing further recorded` only for a configured row with nothing left to record.
+  const needed = (items: string[], configured: boolean) => {
+    const list = Array.from(new Set([...items, ...(unconfirmed ? [COMMISSIONING_RECORD] : [])]));
+    if (list.length === 0) return configured ? NOTHING_FURTHER_RECORDED : "—";
+    return (
       <ul className="plain-list">
-        {items.map((text) => (
+        {list.map((text) => (
           <li key={text}>{text}</li>
         ))}
       </ul>
     );
+  };
   const connectorNeeds = messages.filter((m) => CONNECTOR_AREA_CODES.has(m.code)).map((m) => needText(m, names));
   const statusNeeds = messages.filter((m) => !CONNECTOR_AREA_CODES.has(m.code) && !NOTICE_CODES.has(m.code)).map((m) => needText(m, names));
   const statusMapped = fullyBound(read, "ev_connector_state");
@@ -565,7 +571,7 @@ function EvReadinessView(props: ViewProps) {
                 {read.feed.limit_kw === null ? LIMIT_NOT_DECLARED : `${read.feed.limit_kw} kW`}
               </td>
               <td>{confirmed}</td>
-              <td>{needed(connectorNeeds)}</td>
+              <td>{needed(connectorNeeds, ratings !== null && read.feed.limit_kw !== null)}</td>
               <td>
                 <Link to={props.viewHref("model")}>Site model →</Link>
               </td>
@@ -574,7 +580,7 @@ function EvReadinessView(props: ViewProps) {
               <th scope="row">Connector status points</th>
               <td>{statusMapped ? <Badge tone="configured">Mapped</Badge> : <Badge tone="config-gap">{NEEDS_A_SOURCE}</Badge>}</td>
               <td>{confirmed}</td>
-              <td>{needed(statusNeeds)}</td>
+              <td>{needed(statusNeeds, statusMapped)}</td>
               <td>
                 <Link to={props.evidenceHref}>Evidence →</Link>
               </td>
@@ -823,7 +829,7 @@ function ChargerRow({ slot, chargers, names, roleCount, mapped, clockBound }: { 
   if (chargers.length === 0) {
     return (
       <tr data-ev-part="charger">
-        <th scope="row">{NOT_DECLARED}</th>
+        <th scope="row">{`${label(undefined, 0)} · ${NOT_DECLARED}`}</th>
         <td>{NOT_DECLARED}</td>
         <td>{NOT_DECLARED}</td>
       </tr>

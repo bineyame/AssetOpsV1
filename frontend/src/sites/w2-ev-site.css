@@ -185,3 +185,10 @@
 [data-ev-site-view] .badge.ev-tone--green { background: #e3f4ed; color: #166b50; border-color: #b5dfcd; }
 [data-ev-site-view] .badge.ev-tone--amber { background: #fff1d9; color: #8e580c; border-color: #c9a24a; }
 [data-ev-site-view] .badge.ev-tone--red { background: #fcebea; color: #a13838; border-color: #d26565; }
+
+/* W2-F M10: full record IDs wrap instead of clipping. */
+.ev-site-id {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  white-space: normal;
+}

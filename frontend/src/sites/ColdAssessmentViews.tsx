@@ -51,7 +51,7 @@ import {
   transitionWord,
 } from "./coldAssessmentWords";
 import { ColdTemperatureChart } from "./assessmentGraphics";
-import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, hm, num, range, windowText } from "./coldFormat";
+import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, degreeMinutes, hm, num, range, windowText } from "./coldFormat";
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import "./w2-cold-assessment.css";
 
@@ -59,7 +59,7 @@ import "./w2-cold-assessment.css";
  * W2-03 commit 5: the four cold assessment screens of a COLDCHAIN Site in their exact v69 panel slots
  * (`.agent/W2-03-build-spec.md` "Commit 5 - exact v69 slots"; `D-2026-10-17-mockup-layout-spec`):
  *
- *   temperature             1 Temperature with operating context, 2 Excursion context, 3 How each limit is set (mock: Claim boundary)
+ *   temperature             1 Temperature with operating context, 2 Excursion context, 3 Claim boundary
  *   coldbackup              1 What the chain shows, 2 Reconstructed event chain, 3 Backup event chains,
  *                           4 Evidence by causal step
  *   cold-finding            1 Bounded conclusion, 2 Operational context, 3 Recommended next step
@@ -285,8 +285,8 @@ function TemperatureCards({ read }: { read: ColdTemperatureRead }) {
       />
       <MetricCard
         label="Exposure size"
-        value={x === undefined ? none : range(x.degree_minute_bounds.low, x.degree_minute_bounds.high, "°C·min")}
-        note="Area beyond the limit, bounded by the readings"
+        value={x === undefined ? none : degreeMinutes(x.degree_minute_bounds.low, x.degree_minute_bounds.high)}
+        note="Observed excursion estimate · area beyond the limit, bounded by the readings"
         word={x === undefined}
         data={{ "data-cold-card": "exposure" }}
       />
@@ -419,7 +419,7 @@ function TemperaturePanels({
         Durations are bounded by the reading spacing. Exposure size is bounded the same way (lowest and highest reading in each step); it does not
         describe what happened to the product.
       </Notice>
-      <Panel heading="How each limit is set" headingId="cold-claim-boundary-heading">
+      <Panel heading="Claim boundary" headingId="cold-claim-boundary-heading">
         {read === null ? (
           <Gap id="cold-claim-boundary-heading">{gap}</Gap>
         ) : (
@@ -836,7 +836,13 @@ function FindingStatus({ finding, siteName }: { finding: ColdFindingDetailRead; 
   return (
     <StatusBar label="Finding state">
       <Badge tone="lifecycle">{lifecycleWord(finding.lifecycle)}</Badge>{" "}
-      {[siteName, `evidence ${claimWord(finding.claim_level).toLowerCase()}`, windowText(finding.window.from, finding.window.to), currentnessWord(finding.currentness.state)].join(" · ")}
+      {[
+        siteName,
+        `Confidence: ${claimWord(finding.claim_level)}`,
+        windowText(finding.window.from, finding.window.to),
+        currentnessWord(finding.currentness.state),
+        `Selected source: ${classificationWord(selectedSourceBlock(finding)?.classification)}`,
+      ].join(" · ")}
     </StatusBar>
   );
 }
@@ -991,7 +997,7 @@ function ExcursionFindingPanels({
                   label="Temperature"
                   rows={[
                     ["Peak observed", deg(peak), "peak"],
-                    ["Exposure size", range(dm.low, dm.high, "°C·min"), "exposure"],
+                    ["Exposure size", `Observed excursion estimate: ${degreeMinutes(dm.low, dm.high)}`, "exposure"],
                   ]}
                 />
                 <EvidenceLine finding={finding} links={links} />

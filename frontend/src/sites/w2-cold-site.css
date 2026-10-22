@@ -63,14 +63,11 @@
   color: var(--text-muted, #5f6b7a);
 }
 
-/* Run-7 density ruling: one primary line per cell in the closed cold tables. */
-.cold-site-clip {
-  display: inline-block;
-  max-width: 12ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
+/* W2-F M10/N1: a record ID is shown in full and wraps inside its cell; the table keeps its own horizontal scroll at 390. */
+.cold-site-id {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  white-space: normal;
 }
 
 .cold-site-group + .cold-site-group {

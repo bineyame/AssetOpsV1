@@ -88,3 +88,10 @@
 [data-ev-view] .ev-lines {
   line-height: 1.5;
 }
+
+/* W2-F M10/N1: full stored identifiers wrap instead of clipping. */
+.ev-id {
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  white-space: normal;
+}

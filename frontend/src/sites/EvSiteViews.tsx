@@ -38,6 +38,7 @@ import type {
   EvSiteClient,
   EvSource,
 } from "./evSiteClient";
+import { UnavailableTab } from "../ui/UnavailableEntry";
 import { EvPowerChart } from "./assessmentGraphics";
 import "./w2-ev-site.css";
 
@@ -72,6 +73,8 @@ export interface EvSiteRoutes {
   assumptions: string;
   sessions: string;
   finding: (findingId: string) => string;
+  /** W2-F B2/M8: the Foundation single line diagram at one instant (`at` only; no `from` or `known_at`). */
+  sld: (at: string) => string;
 }
 
 /* ---------- words ---------- */
@@ -129,6 +132,8 @@ const TONE: Record<string, "green" | "amber" | "red"> = {
   Mixed: "amber",
   "Not declared": "amber",
   "Evidence limited": "amber",
+  "Needs attention": "amber",
+  "Records disagree": "red",
   Unpriced: "amber",
   Withheld: "amber",
   Contradictory: "red",
@@ -144,7 +149,6 @@ function Chip({ word }: { word: string }) {
   );
 }
 
-const short = (id: string | null | undefined) => (id ? id.slice(0, 8) : "Unknown");
 const pad = (n: number) => String(n).padStart(2, "0");
 function hms(value: string | null | undefined): string {
   const d = date(value);
@@ -349,7 +353,7 @@ const CRUMB: Record<EvSiteView, Crumb[]> = {
   assumptions: [{ label: "Financials" }, { label: "Assumptions" }],
 };
 
-/** Route-local tabs, all live: Evidence `Overview | Analysis`, Financials `Overview | Assumptions` (q5; +0 unavailable). */
+/** Route-local tabs, all live: Evidence `Overview | Analysis`, Financials `Overview | Assumptions` live plus the mock's unavailable `Scenarios` slot (W2-F M12). */
 function Subtabs({ view, routes, window }: { view: EvSiteView; routes: EvSiteRoutes; window: EvWindowQuery }) {
   const evidence = view === "evidence" || view === "analysis";
   const financial = view === "financials" || view === "assumptions";
@@ -373,6 +377,7 @@ function Subtabs({ view, routes, window }: { view: EvSiteView; routes: EvSiteRou
             </Link>
           </li>
         ))}
+        {financial ? <UnavailableTab label="Scenarios" /> : null}
       </ol>
     </nav>
   );
@@ -477,7 +482,8 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
     title: (
       <>
         {`${i.value_display ?? "Accepted event"} · `}
-        <span aria-label={`Record ${i.evidence_id}`}>{`Record ${short(i.evidence_id)}`}</span>
+        {/* W2-F M10/N1: the full stored record ID, never a shortened prefix. */}
+        <code className="ev-site-id" aria-label={`Record ${i.evidence_id}`} data-vocabulary-exempt="source-reference">{`REC ${i.evidence_id}`}</code>
       </>
     ),
     tone: i.record_kind === "EV_CONNECTOR_FAULT" || i.record_kind === "EV_SESSION_ABORT" ? "danger" : undefined,
@@ -486,6 +492,30 @@ function chronology(items: EvAnalysisItem[], incomplete: boolean): { events: Tim
   while (events.length < CHRONOLOGY_SLOTS) events.push({ key: `empty-${events.length}`, time: "—", title: "No accepted event", tone: "gap" });
   return { events, extra: accepted };
 }
+
+/**
+ * W2-F S9/M9: the Overview strip status. Refused or no selection -> Unknown; then a selected contradiction, pending
+ * work, a selected observed abort or Finding, and otherwise the selected session state.
+ */
+export function overviewStatusWord(o: EvOverviewRead | null): string {
+  if (o === null || o.currentness.state === "UNKNOWN") return "Unknown";
+  if (o.status.state === "CONTRADICTORY") return "Records disagree";
+  if (o.currentness.state === "PENDING_RECOMPUTE") return "Evidence pending";
+  if ((o.denominator.observed_abort ?? 0) > 0 || o.findings.count > 0) return "Needs attention";
+  if (o.status.state === "OBSERVED_SESSIONS") return "Sessions observed";
+  if (o.status.state === "NO_SESSIONS_OBSERVED") return "No sessions observed";
+  return "Unknown";
+}
+
+/** W2-F S9/M9: a cautious presentation of the selected `status.claim_level`, never a rewrite of it. */
+export function overviewConfidenceWord(o: EvOverviewRead | null): string {
+  if (o === null || o.currentness.state === "UNKNOWN" || o.currentness.state === "PENDING_RECOMPUTE") return "Confidence: Unknown";
+  if (o.status.claim_level === "OBSERVED") return "Confidence: Bounded";
+  if (o.status.claim_level === "BOUNDED") return "Confidence: Limited";
+  return "Confidence: Unknown";
+}
+
+export const SLD_CUTOFF_NOTE = "Opens configuration at window end; evidence cutoff is not carried.";
 
 function OverviewScreen(p: EvSiteFrameProps) {
   const overview = useEvRead(() => p.client.getOverview(p.siteId, p.window), keyOf(p, "o"));
@@ -505,12 +535,21 @@ function OverviewScreen(p: EvSiteFrameProps) {
   const money = o?.consequence_summary;
   const next = e?.next_evidence[0] ?? null;
   const limit = o?.objective.site_import_limit_kw ?? null;
+  // B2: a selected read opens the SLD at its window end; refused or unselected reads use the requested end.
+  const sldAt = o !== null && o.currentness.state !== "UNKNOWN" ? o.window.to : p.window.to;
   return (
     <>
-      {o === null ? null : (
+      {o === null ? (
+        <StatusBar label="EV Site state">
+          <Chip word={overviewStatusWord(null)} />
+          <Chip word={overviewConfidenceWord(null)} />
+        </StatusBar>
+      ) : (
         <>
           <WindowBar env={o} />
           <StatusBar label="EV Site state" action={<Link to={sel(routes.evidence, o.window)}>Inspect evidence</Link>}>
+            <Chip word={overviewStatusWord(o)} />
+            <Chip word={overviewConfidenceWord(o)} />
             <Chip word={evidenceAggregate(caps)} />
             <Provenance env={o} />
             <StateNote env={o} />
@@ -594,8 +633,17 @@ function OverviewScreen(p: EvSiteFrameProps) {
               </Disclosure>
             </>
           )}
-          <p className="ev-site-link">
-            <UnavailableInline label="Open single line diagram" />
+          <p className="ev-site-link" data-ev-sld-link>
+            {sldAt === null ? (
+              <span className="ev-site-noop">{NO_LINK}</span>
+            ) : (
+              <>
+                <Link to={routes.sld(sldAt)}>Single line diagram →</Link>{" "}
+                <span className="muted" data-ev-sld-cutoff-note>
+                  {SLD_CUTOFF_NOTE}
+                </span>
+              </>
+            )}
           </p>
         </Panel>
         <Panel heading="Needs attention" headingId="ev-site-attention-heading">
@@ -723,6 +771,24 @@ function canSay(row: string, cap: EvCapability | null, o: EvOverviewRead | null)
   return (o?.findings.count ?? 0) > 0 && cap !== null && cap.state !== "UNAVAILABLE" ? "Interruption observed; cause not established" : "Cause not established";
 }
 
+/**
+ * W2-F S10/M11: the one EV missing-basis renderer, shared by the Evidence table and `Evidence request details`.
+ * Precedence: contradictory; missing roles; availability without a connector-status coverage ratio; interruption
+ * cause without accepted charger diagnostics and vehicle request (no W2 role carries either); the selected
+ * limitation; Full with no limitation (else the exact selected coverage). Never states `No required role missing` as completeness.
+ */
+export const NOTHING_REQUIRED = "Nothing required for this claim";
+export function missingBasis(cap: EvCapability | null): string {
+  if (cap === null) return "Not assessed";
+  if (cap.state === "CONTRADICTORY") return "Accepted records disagree";
+  if (cap.missing_roles.length > 0) return cap.missing_roles.map(roleLabel).join(", ");
+  if (cap.claim === "SERVICE_STATE" && cap.coverage.ratio === null) return "Connector status coverage not assessed";
+  if (cap.claim === "FAULT_ASSOCIATION") return "Charger diagnostics and vehicle request not recorded";
+  if (cap.limitation !== null && cap.limitation.trim() !== "") return cap.limitation;
+  // Full with no limitation is complete; any other state names its exact selected coverage gap.
+  return cap.state === "SUPPORTED" ? NOTHING_REQUIRED : coverageText(cap.coverage, null);
+}
+
 function contactDetail(state: string): string {
   return state === "MIXED" ? "Source contacts differ" : state === "UNKNOWN" ? "No source-specific record" : CONTACT[state] ?? "Unknown";
 }
@@ -772,7 +838,6 @@ function EvidenceScreen(p: EvSiteFrameProps) {
               <tbody>
                 {CAP_ROWS.map((row) => {
                   const cap = capOf(caps, row.claim);
-                  const missing = cap?.missing_roles ?? [];
                   const nextHref = row.key === "sessions" ? sessionsHref : row.key === "energy" ? financialsHref : null;
                   return (
                     <tr key={row.key} data-capability-row={row.key}>
@@ -781,7 +846,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
                         <Chip word={chipOf(cap)} />
                       </td>
                       <td>{canSay(row.key, cap, o)}</td>
-                      <td>{missing.length === 0 ? "No required role missing" : missing.map(roleLabel).join(", ")}</td>
+                      <td data-ev-missing-basis={row.key}>{missingBasis(cap)}</td>
                       <td>
                         {nextHref === null ? (
                           <UnavailableInline label={row.key === "availability" ? "Availability" : "Work"} />
@@ -886,14 +951,14 @@ function EvidenceScreen(p: EvSiteFrameProps) {
                 })}
               />
               <Disclosure summary="Evidence request details" name="ev-site-request-details" variant="tech">
-                {caps.every((c) => c.missing_roles.length === 0) ? (
-                  <p>No required role missing</p>
+                {caps.every((c) => missingBasis(c) === NOTHING_REQUIRED) ? (
+                  <p>{NOTHING_REQUIRED}</p>
                 ) : (
                   <ul className="ev-site-list">
                     {caps
-                      .filter((c) => c.missing_roles.length > 0)
+                      .filter((c) => missingBasis(c) !== NOTHING_REQUIRED)
                       .map((c) => (
-                        <li key={c.claim}>{`${c.missing_roles.map(roleLabel).join(", ")} · limits ${CLAIM_LABEL[c.claim] ?? "a claim"} to ${chipOf(c)}`}</li>
+                        <li key={c.claim} data-ev-request-basis={c.claim}>{`${missingBasis(c)} · limits ${CLAIM_LABEL[c.claim] ?? "a claim"} to ${chipOf(c)}`}</li>
                       ))}
                   </ul>
                 )}
@@ -1005,7 +1070,8 @@ function AnalysisScreen(p: EvSiteFrameProps) {
                     <td className="ev-site-nowrap">{hms(i.sent_at)}</td>
                     <td className="ev-site-nowrap">{hms(i.received_at)}</td>
                     <td>
-                      <span aria-label={`Record ${i.evidence_id}`}>{`Record ${short(i.evidence_id)}`}</span>
+                      {/* W2-F M10/N1: the full stored record UUID, visibly and as the accessible name. */}
+                      <code className="ev-site-id" aria-label={`Record ${i.evidence_id}`} data-vocabulary-exempt="source-reference">{`REC ${i.evidence_id}`}</code>
                       {i.record_target_state === "UNAVAILABLE" ? " · No analysis link" : null}
                     </td>
                   </tr>
@@ -1108,7 +1174,6 @@ function FinancialsScreen(p: EvSiteFrameProps) {
   const gross = capOf(loaded(evidence)?.capabilities ?? [], "GROSS_TARIFF_SCENARIO");
   const c = f?.consequence ?? null;
   const routes = p.routes;
-  const lines = c !== null && c.revision_id !== null ? 1 : 0;
   const currency = c?.currency ?? s?.tariff?.currency ?? null;
   const proved = gross !== null && gross.coverage.ratio === "1";
   const confidence = proved ? "Metered with complete coverage" : (gross?.limitation ?? "Coverage limited");
@@ -1118,13 +1183,19 @@ function FinancialsScreen(p: EvSiteFrameProps) {
   const interrupted = (o?.findings.count ?? 0) > 0;
   const estimated = c !== null && c.state === "ESTIMATED";
   const energyKwh = o?.energy.complete_kwh ?? null;
+  // W2-F M5: one bridge row model from the selected consequence plus its displayed unpriced context rows; the chip
+  // counts exactly these rows (the uncounted `none` placeholder states that no consequence row exists).
+  const bridgeRows: ("scenario" | "interruption" | "repair")[] = [...(c !== null ? (["scenario"] as const) : []), ...(interrupted ? (["interruption", "repair"] as const) : [])];
+  const lines = bridgeRows.length;
   return (
     <>
       <WindowBar env={f} />
       {f === null ? null : (
         <StatusBar label="Financials state" action={<UnavailableInline label="Portfolio roll-up" />}>
-          <Badge tone="neutral" className="ev-site-chip">{`${lines} consequence ${lines === 1 ? "line" : "lines"}`}</Badge>
-          {` ${currency ?? "Currency not declared"} · selected window · gross scenario only`}
+          <Badge tone="neutral" className="ev-site-chip">
+            <span data-ev-line-count={lines}>{`${lines} consequence ${lines === 1 ? "line" : "lines"}`}</span>
+          </Badge>
+          {` ${currency ?? "Currency not declared"} · selected window · gross scenario only · Displayed rows include unpriced context`}
           <Provenance env={f} />
           <StateNote env={f} />
         </StatusBar>
@@ -1157,7 +1228,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                 </tr>
               </thead>
               <tbody>
-                {c === null ? (
+                {!bridgeRows.includes("scenario") ? (
                   <tr data-bridge-row="none">
                     <th scope="row">No eligible delivered-energy consequence</th>
                     <td>Tariff not declared</td>
@@ -1170,7 +1241,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                       <span className="ev-site-noop">{NO_LINK}</span>
                     </td>
                   </tr>
-                ) : (
+                ) : c === null ? null : (
                   <tr data-bridge-row="scenario">
                     <th scope="row">{c.quantity_kwh === null ? "Delivered energy not established" : `${c.quantity_kwh} kWh delivered with complete coverage`}</th>
                     <td>{c.quantity_kwh !== null && c.tariff_value !== null && c.currency !== null ? `${c.quantity_kwh} kWh × ${c.tariff_value} ${c.currency}/kWh` : "Tariff not declared"}</td>
@@ -1182,7 +1253,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                     </td>
                   </tr>
                 )}
-                {interrupted ? (
+                {bridgeRows.includes("interruption") ? (
                   <tr data-bridge-row="interruption">
                     <th scope="row">Lost demand not established</th>
                     <td>Unmet demand × tariff</td>
@@ -1194,7 +1265,7 @@ function FinancialsScreen(p: EvSiteFrameProps) {
                     </td>
                   </tr>
                 ) : null}
-                {interrupted ? (
+                {bridgeRows.includes("repair") ? (
                   <tr data-bridge-row="repair">
                     <th scope="row">No accepted repair or warranty cost record</th>
                     <td>Warranty claim or local repair</td>

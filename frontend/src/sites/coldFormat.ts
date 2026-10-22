@@ -62,6 +62,19 @@ export function range(low: string | null, high: string | null, unit: string): st
   return `${lo}–${hi} ${unit}`;
 }
 
+/**
+ * W2-F M6/S8: a stored degree-minute bound pair. Null bounds are `Not assessed`; an open upper bound is stated as not
+ * established, never implied. Callers name the basis (`Observed excursion estimate` or `Consequence basis`).
+ */
+export function degreeMinutes(low: string | null, high: string | null): string {
+  const lo = decimal(low);
+  const hi = decimal(high);
+  if (lo === null && hi === null) return NOT_ASSESSED;
+  if (hi === null) return `at least ${lo} °C·min; upper bound not established`;
+  if (lo === null || lo === hi) return `${hi} °C·min`;
+  return `${lo}–${hi} °C·min`;
+}
+
 export function between(earliest: string | null, latest: string | null): string {
   if (earliest === null && latest === null) return NOT_RECORDED;
   if (earliest === null) return `by ${hm(latest)}`;

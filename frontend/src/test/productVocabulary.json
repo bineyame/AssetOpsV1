@@ -80,6 +80,10 @@
       "why": "D-2026-10-17-f5-subtabs-and-contact: the same unbuilt Financials subtab's accessible name."
     },
     {
+      "text": "Claim boundary",
+      "why": "W2-F q1: exact v6.9 cold Temperature panel 3 heading (frontend/mockups/v69/screens.js); only this heading is allowed, while other uses of claim remain guarded."
+    },
+    {
       "text": "solar power (PV)",
       "why": "Section 4: Analysis may add the abbreviation after its plain meaning."
     },

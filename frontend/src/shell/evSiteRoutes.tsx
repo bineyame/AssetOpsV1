@@ -6,7 +6,7 @@ import { EV_SITE_HEADING_ID, EvSiteFrame, type EvSiteRoutes, type EvSiteView } f
 import type { EvSiteClient } from "../sites/evSiteClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { deriveSiteView } from "../sites/siteViewModel";
-import { siteDetailHref, siteEvHref, siteFindingHref, sitePerformanceHref } from "./operatorSiteRoutes";
+import { siteDetailHref, siteEvHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
@@ -20,6 +20,8 @@ export function evSiteRoutes(siteId: string): EvSiteRoutes {
     assumptions: siteEvHref(siteId, "assumptions"),
     sessions: sitePerformanceHref(siteId, "sessions"),
     finding: (findingId) => siteFindingHref(siteId, findingId),
+    // W2-F B2/M8: the Foundation SLD takes only `at`; the Overview passes the window end (cutoff is not carried).
+    sld: (at) => siteFoundationViewHref(siteId, "sld", at),
   };
 }
 

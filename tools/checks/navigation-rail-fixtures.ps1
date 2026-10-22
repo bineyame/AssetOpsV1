@@ -142,6 +142,7 @@ function Invoke-NavigationRailFixturesCheck {
     $index = "frontend/src/sites/SiteFindingIndex.tsx"
     $cold = "frontend/src/sites/ColdAssessmentViews.tsx"
     $ev = "frontend/src/sites/EvAssessmentViews.tsx"
+    $evSite = "frontend/src/sites/EvSiteViews.tsx"
     try {
         $inPageCases = @(
             @{ Name = "baseline: the real tree passes"; Expect = $null; Modules = $modules },
@@ -176,6 +177,9 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Availability" />' '') },
             @{ Name = "the EV Energy / site power entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Energy / site power" />' '') },
+            # W2-F M12: the EV Financials Scenarios slot is part of the closed multiset.
+            @{ Name = "the EV Financials Scenarios entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $evSite '<UnavailableTab label="Scenarios" />' 'null') },
             @{ Name = "an EV entry is duplicated"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Availability" />' '<UnavailableTab label="Availability" /><UnavailableTab label="Availability" />') },
             @{ Name = "an arbitrary new EV tab is appended"; Expect = "the W1-plus-W2 inventory is exactly";
