@@ -377,7 +377,11 @@
   white-space: pre-line;
 }
 
-.work-history-time {
+.work-history-time,
+.work-history-by {
   display: block;
+}
+
+.work-history-time {
   white-space: nowrap;
 }

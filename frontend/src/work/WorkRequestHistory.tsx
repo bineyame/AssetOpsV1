@@ -195,7 +195,9 @@ function AuthoredRow({ row }: { row: HistoryRow }) {
         <EventCell row={row} />
       </td>
       <td>
-        <span data-history-by>{NAME_NOT_RECORDED}</span>
+        <span className="work-history-by" data-history-by>
+          {NAME_NOT_RECORDED}
+        </span>
         <details className="global-work-details" data-history-actor>
           <summary>Stored actor</summary>
           {`${row.actor_kind} · ${row.actor_id}`}
