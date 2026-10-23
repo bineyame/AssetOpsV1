@@ -224,7 +224,8 @@
 
 /* K3 ruling 20 (M2), narrowed by W5-02c ruling 12: an opened body whose direct child is the code (`Finding version`)
    keeps its 36-character UUID on one line and scrolls horizontally inside its own cell; `contain: inline-size` keeps
-   the unbroken code from widening the column. Every other disclosure body (`UTC and IDs` facts) wraps in its cell. */
+   the unbroken code from widening the column. Every other disclosure body (`UTC and IDs` facts) wraps in its cell;
+   its UUID fact values scroll on their own (ruling 14, below). */
 .work-cases[data-cold-cases] td .disclosure .disclosure__body:has(> code) {
   contain: inline-size;
   overflow-x: auto;
@@ -236,8 +237,17 @@
   word-break: normal;
 }
 
-.work-cases[data-cold-cases] td .disclosure .disclosure__body:not(:has(> code)) code {
-  overflow-wrap: anywhere;
+/* W5-02c ruling 14 (Q1 option b): inside the wrapping `UTC and IDs` body, each fact value whose direct child is the
+   UUID code is its own one-line horizontal scroller, so K3 ruling 20's one-line UUIDs hold in both disclosures. */
+.work-cases[data-cold-cases] td .fact-list__value:has(> code) {
+  contain: inline-size;
+  overflow-x: auto;
+}
+
+.work-cases[data-cold-cases] td .fact-list__value > code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .work-cases[data-cold-cases] td [data-work-state],

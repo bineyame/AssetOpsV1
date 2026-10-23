@@ -100,3 +100,28 @@ All counts are at `b9db3711`.
   - The keep-awake process, stopped by PID.
   - `assetops_w502ck4_test`, dropped.
   - Ports 5471-5477, 8971-8977 and CDP 9481 are free.
+
+## Build rulings 14-22 (main `31657e52`, merged at `e3b1e675`)
+
+- **Ruling 14 (Q1, option b).** In cold case cells, `.fact-list__value:has(> code)` is a contained one-line scroller,
+  and the earlier `:not(:has(> code)) code { overflow-wrap:anywhere }` rule is removed.
+  - The `UTC and IDs` body still wraps its non-code facts.
+  - In the capture tool, the relaxation applies only to a code inside its own scroller (a direct-code body or a code
+    fact value), and only while that scroller stays inside its cell.
+  - The K3 one-line claim now also checks the full 36-character text, reachability by scrolling that exact scroller,
+    the scroller sitting inside the cell, and the cell fitting.
+  - Recapture of `incidents`/`maintenance` `worstcase-every-disclosure` at 1440 and 390 is **held** until the E4/E6
+    batch, as the coordinator directed. Until it passes, the K3 Lows stay open (ruling 21).
+- **Ruling 19 (R102).** A linked OPEN or IN_PROGRESS request now reads `{title} {code} is open|in progress. A witnessed
+  outcome test remains required.`, with Inspect live.
+  - COMPLETED without its performed record keeps the not-linked sentence, with Inspect live.
+  - Component tests cover all five states.
+- **Ruling 20.** `COLD_ACTION_PREPARING` is deleted from `coldWorkPresentation.ts`. A search finds no remaining
+  references.
+- **Rulings 15-18 and 22** confirm judgment calls 1-4 and 8. No code change.
+- **Checks:**
+  - `tsc` is clean.
+  - Targeted vitest, 9 files: 211 passed.
+  - `check-all`: 11/11.
+  - The full batch (vitest, build, producer, captures and the P-K5-2 full backend suite) runs once after the E4/E6
+    merge.

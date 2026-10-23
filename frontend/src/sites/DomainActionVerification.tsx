@@ -38,15 +38,33 @@ export function coldRelatedCompleted(title: string, code: string): string {
   return `${title} ${code} is complete. A witnessed outcome test remains required.`;
 }
 
+/**
+ * Ruling 19, MOCK DEVIATION (D2) R102: a selected linked request that is still OPEN or IN_PROGRESS is named with its
+ * actual state; the mock's completed wording would claim a completion the record does not hold.
+ */
+export function coldRelatedOngoing(title: string, code: string, state: "OPEN" | "IN_PROGRESS"): string {
+  return `${title} ${code} is ${state === "OPEN" ? "open" : "in progress"}. A witnessed outcome test remains required.`;
+}
+
 const CRITERIA_HEADING_ID = "domain-action-criteria-heading";
 const RELATED_HEADING_ID = "domain-action-related-heading";
 const INSPECT_NOTE_ID = "domain-action-inspect-unavailable";
 
-/** A selected request is a completed inspection only when it is COMPLETED and its performed record exists. */
-function completedInspection(work: DomainActionDetail["links"]["work"]): { title: string; code: string } | null {
-  if (work.case_id === null || work.request_state !== "COMPLETED" || work.record_id === null) return null;
-  if (work.case_title === null || work.case_code === null) return null;
-  return { title: work.case_title, code: work.case_code };
+/**
+ * Rulings 5 and 19: the Related activity sentence for the selected request. COMPLETED with its performed record is a
+ * completed inspection; a linked OPEN or IN_PROGRESS request is named with its state; anything else (no case, or
+ * COMPLETED without its performed record) is the no-completed-inspection sentence.
+ */
+function relatedSentence(work: DomainActionDetail["links"]["work"]): { kind: string; text: string } {
+  if (work.case_id !== null && work.case_title !== null && work.case_code !== null) {
+    if (work.request_state === "COMPLETED" && work.record_id !== null) {
+      return { kind: "completed", text: coldRelatedCompleted(work.case_title, work.case_code) };
+    }
+    if (work.request_state === "OPEN" || work.request_state === "IN_PROGRESS") {
+      return { kind: work.request_state === "OPEN" ? "open" : "in-progress", text: coldRelatedOngoing(work.case_title, work.case_code, work.request_state) };
+    }
+  }
+  return { kind: "not-linked", text: COLD_RELATED_NOT_LINKED };
 }
 
 export function DomainActionVerification({
@@ -62,7 +80,7 @@ export function DomainActionVerification({
 }) {
   const navigate = useNavigate();
   const work = detail.links.work;
-  const completed = completedInspection(work);
+  const related = relatedSentence(work);
   // Ruling 8, MOCK DEVIATION (D1) R68: Inspect opens the selected W6 request Overview (the mock's `workverification`
   // target is unavailable) whenever a case ID is selected.
   const inspectHref = work.case_id === null ? null : coldRequestHref(work.case_id, siteCode, knownAt);
@@ -101,9 +119,9 @@ export function DomainActionVerification({
         )}
       </Panel>
       <Panel heading={COLD_RELATED_TITLE} headingId={RELATED_HEADING_ID}>
-        <div className="domain-action-related" data-domain-action-related={completed === null ? "not-linked" : "completed"}>
+        <div className="domain-action-related" data-domain-action-related={related.kind}>
           <p className="prose" data-domain-action-related-sentence>
-            {completed === null ? COLD_RELATED_NOT_LINKED : coldRelatedCompleted(completed.title, completed.code)}
+            {related.text}
           </p>
           <p className="domain-action-related__controls">
             {inspectHref === null ? (

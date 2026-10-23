@@ -178,17 +178,26 @@ describe("cold-action Related activity (ruling 5, R100) and controls (ruling 8, 
     expect(inspect.nextElementSibling).toBe(note);
   });
 
-  it.each(["OPEN", "IN_PROGRESS"])("a selected linked %s request is not a completed inspection; Inspect still opens it", async (state) => {
+  it.each([
+    ["OPEN", "open", "is open"],
+    ["IN_PROGRESS", "in-progress", "is in progress"],
+  ])("names a selected linked %s request with its actual state (ruling 19, R102); Inspect still opens it", async (state, kind, phrase) => {
     const { main } = await mount(() => loaded(positive({ links: { finding: detailBody().links.finding, work: linkedWork(state, null) } })));
-    expect(text(main.querySelector("[data-domain-action-related-sentence]"))).toBe("No completed inspection is linked to this Action.");
+    expect(main.querySelector("[data-domain-action-related]")?.getAttribute("data-domain-action-related")).toBe(kind);
+    expect(text(main.querySelector("[data-domain-action-related-sentence]"))).toBe(
+      `Starter/control inspection WR-000019 ${phrase}. A witnessed outcome test remains required.`,
+    );
     const inspect = main.querySelector("[data-domain-action-inspect]") as HTMLButtonElement;
     expect(inspect.disabled).toBe(false);
     expect(inspect.getAttribute("data-domain-action-inspect-target")).toBe(`/maintenance/requests/${CASE_ID}?site_id=${SITE}`);
   });
 
-  it("a COMPLETED request without a performed record is not a completed inspection", async () => {
+  it("a COMPLETED request without its performed record is not a completed inspection; Inspect stays live (ruling 19)", async () => {
     const { main } = await mount(() => loaded(positive({ links: { finding: detailBody().links.finding, work: linkedWork("COMPLETED", null) } })));
     expect(text(main.querySelector("[data-domain-action-related-sentence]"))).toBe("No completed inspection is linked to this Action.");
+    const inspect = main.querySelector("[data-domain-action-inspect]") as HTMLButtonElement;
+    expect(inspect.disabled).toBe(false);
+    expect(inspect.getAttribute("data-domain-action-inspect-target")).toBe(`/maintenance/requests/${CASE_ID}?site_id=${SITE}`);
   });
 
   it("shows `Open source Finding →` as muted noninteractive text followed by its sentence, after Inspect", async () => {

@@ -374,14 +374,25 @@ const MEASURE_CASE = `(() => {
     otherOpen: [...(body?.querySelectorAll('tbody details[open]') ?? [])].map((d) => d.querySelector(':scope > summary')?.textContent.trim()).filter((x) => x !== 'Read full text' && x !== 'Activity recorded' && x !== 'Outcome note'),
     // K3 ruling 20: each UUID in an opened 'UTC and IDs' / 'Finding version' body is one line and fully reachable by
     // scrolling that body (overflow-x auto), without widening the cell.
-    openCodes: [...(body?.querySelectorAll('tbody details[open] .disclosure__body code') ?? [])].map((c) => { const b = c.closest('.disclosure__body'); const rg = document.createRange(); rg.selectNodeContents(c);
+    // W5-02c ruling 14: each opened UUID's own scroller is its direct parent, a direct-code disclosure body
+    // (\`Finding version\`) or a \`.fact-list__value:has(> code)\` (\`UTC and IDs\`); scrolling that exact container
+    // reaches the full code, and the scroller stays inside its cell.
+    openCodes: [...(body?.querySelectorAll('tbody details[open] .disclosure__body code') ?? [])].map((c) => {
+      const sc = c.parentElement; const own = sc.matches('.disclosure__body, .fact-list__value') && getComputedStyle(sc).overflowX === 'auto';
+      const rg = document.createRange(); rg.selectNodeContents(c);
       const tops = new Set([...rg.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size; const td = c.closest('td');
-      return { chars: c.textContent.length, lines: tops, reachable: b.scrollWidth >= c.scrollWidth && (getComputedStyle(b).overflowX === 'auto' || b.scrollWidth <= b.clientWidth + 1), cellFits: td.scrollWidth <= td.clientWidth + 1 }; }),
+      const tb = td.getBoundingClientRect(), sb = sc.getBoundingClientRect();
+      const before = sc.scrollLeft; sc.scrollLeft = sc.scrollWidth; const end = c.getBoundingClientRect().right <= sc.getBoundingClientRect().right + 1; sc.scrollLeft = 0;
+      const start = c.getBoundingClientRect().left >= sc.getBoundingClientRect().left - 1; sc.scrollLeft = before;
+      return { chars: c.textContent.length, full: /^[0-9a-f-]{36}$/.test(c.textContent), lines: tops, scroller: sc.className, ownScroller: own,
+        reachable: (own || sc.scrollWidth <= sc.clientWidth + 1) && start && end, scrollerInCell: sb.left >= tb.left - 1 && sb.right <= tb.right + 1, cellFits: td.scrollWidth <= td.clientWidth + 1 }; }),
     cells: rows.flatMap((r) => [...r.querySelectorAll('td')]).map((td) => {
       const box = td.getBoundingClientRect();
-      // W5-02c ruling 12: the scroll relaxation applies only inside a disclosure body whose direct child is the code.
-      const codeScroller = (x) => x != null && x.querySelector(':scope > code') !== null && getComputedStyle(x).overflowX === 'auto';
-      const inside = (e) => { const b = e.getBoundingClientRect(); const sc = e.parentElement?.closest('.disclosure__body'); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1) || codeScroller(sc); };
+      // W5-02c rulings 12/14: the scroll relaxation applies only to a code inside its own scroller (a direct-code
+      // disclosure body or \`.fact-list__value:has(> code)\`), and only when that scroller itself stays in the cell.
+      const codeScroller = (x) => x != null && x.matches('.disclosure__body, .fact-list__value') && x.querySelector(':scope > code') !== null && getComputedStyle(x).overflowX === 'auto';
+      const inBox = (r) => r.left >= box.left - 1 && r.right <= box.right + 1;
+      const inside = (e) => { const b = e.getBoundingClientRect(); if (b.width === 0 || inBox(b)) return true; const sc = e.parentElement; return e.tagName === 'CODE' && codeScroller(sc) && inBox(sc.getBoundingClientRect()); };
       const previews = [...td.querySelectorAll('[data-cold-work-preview]')];
       const bodies = [...td.querySelectorAll('details[open] .disclosure__body')];
       return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: [...td.querySelectorAll('*')].every(inside),
@@ -418,7 +429,7 @@ function caseRowClaims(W, label, m, expectRows) {
   // K3 ruling 21: both cold case tabs grow with their rows; no vertical case box hides a row.
   claim(`${W} ${label}: every row visible inside the table scroller (no vertical case box)`, m.rowsInsideScroller === true && m.scrollerMaxHeight === "none", { inside: m.rowsInsideScroller, maxHeight: m.scrollerMaxHeight, overflowY: m.scrollerOverflowY });
   if (m.windowLines.length > 0) claim(`${W} ${label}: Window value on one line (ruling 20)`, m.windowLines.every((n) => n === 1), m.windowLines);
-  if (m.openCodes.length > 0) claim(`${W} ${label}: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)`, m.openCodes.every((c) => c.lines === 1 && c.reachable && c.cellFits), m.openCodes.filter((c) => !(c.lines === 1 && c.reachable && c.cellFits)));
+  if (m.openCodes.length > 0) claim(`${W} ${label}: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)`, m.openCodes.every((c) => c.lines === 1 && c.full && c.reachable && c.scrollerInCell && c.cellFits), m.openCodes.filter((c) => !(c.lines === 1 && c.full && c.reachable && c.scrollerInCell && c.cellFits)));
 }
 function caseContentClaims(W, label, m, kind, mode) {
   const want = kind === "incidents" ? ["Case", "Window", "What happened", "Linked findings", "State"] : ["Work request", "Asset", "Activity", "Outcome", "Next evidence"];
