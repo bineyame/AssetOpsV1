@@ -242,6 +242,8 @@ def _names() -> tuple[str, str]:
 def _create(name: str, template: str | None = None) -> None:
     from sqlalchemy import text
 
+    assert name.endswith("_test"), name
+
     clause = f" TEMPLATE {_quote(template)}" if template else ""
     strategy = os.environ.get(STRATEGY_ENV, "").upper()
     if strategy:
