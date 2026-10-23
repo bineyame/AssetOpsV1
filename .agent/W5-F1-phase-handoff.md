@@ -47,3 +47,4 @@ No open decision found; built as written. One choice the spec left to fixture us
   `run1/` removed (same assertions, unguarded widths).
 - Cleanup: API, Vite, Chrome stopped by PID; `assetops_w5f1_test` dropped (0 `w5f1` DBs).
 - Register R22/R37/R38 set to `built: W5-F1 <commit>`. Next: independent review, then owner walkthrough before merge.
+- Final `check-all.ps1` at `200f97ca`: 11/11 PASS.
