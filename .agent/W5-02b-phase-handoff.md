@@ -188,3 +188,43 @@ None: no main.py, composition, tools/checks, conftest, migrations or existing se
 
 ### Next
 Independent review of K2a+K2b, with Architect rulings on Q1-Q17 and F1 first. No MOCK DEVIATION beyond R01, R02, R65, R66, R67, R69 is labelled.
+
+## Review fixes and Architect rulings (2026-10-23)
+
+Review `.agent/W5-02b-K2-review.md` returned REVISE (`922eaa00`). Direct fixes: H1 cold cell wrap specificity plus the containment claim, in `9ddf0bb8`; H2 mock header colour, inline notice icon and `Open site` button, plus L1 `stickyFirstColumn` and L2 `links.work` keys, in `d201e8af`. Main (rulings `3bdc7d02`) was merged in `ea1a72e5`.
+
+| Ruling | Change | Commit |
+|---|---|---|
+| 1 | Cold `Window` control (R88) after the Work subtabs, on cold Actions, Incidents and Maintenance; capture states window-apply and window-invalid | `25eb52ca`, `b6d14905` |
+| 2 | Caps: panel 650/850, page 1600/2000; doc +1 tolerance; two-line preview; open-disclosure clip check; state worstcase-expanded-open | `b6d14905` |
+| 3 | 503 from the domain-work router only (Site read healthy); state cold-work-503 | `5cd8f7f5`, `b6d14905` |
+| 4 | INC at D+16h11m linking both Findings; WR at D+16h20m, record at D+16h40m | `5cd8f7f5` |
+| 5 | Asset `generator-1` (R89) | `5cd8f7f5` |
+| 6 | No change; the backlog entry landed with the rulings | none |
+| 7 | Refusal-shape tests | `25eb52ca` |
+| 8 | Route-form tests; code already matched | `25eb52ca` |
+| 9 | Subtitle always the fallback (R90), with a test | `25eb52ca` |
+| 10, 11 | Tests only; code already matched | `25eb52ca` |
+| 12 | Already matched (`Finding version`) | none |
+| 13 | Opened disclosure body wraps; only `.work-cases-clamp` hides overflow | `25eb52ca` |
+| 14 | Vocabulary exclusion narrowed to the exact text literal | `25eb52ca` |
+| 15 | `panelStructure.ts` admits `[data-cold-work-currentness]` between the strip and panel 1 | `25eb52ca` |
+| 16 | Tone tests; R91 labels | `25eb52ca` |
+| 17 | Producer asserts `K0 < raised_at <= db_now` and the order of the long Actions | `5cd8f7f5` |
+| 18, 19 | Already in `d201e8af`; ruling 18 gains a button test | `25eb52ca` (test only) |
+
+Builder readings, not conflicts: ruling 1's form combines the global-work labels with an `Apply` button and the `INVALID_WINDOW` wording. The W4 in-panel window form remains on cold Incidents and Maintenance next to the new control; removing it is K3a's call.
+
+### Batch at `a5833a17` (frontend code as of `b6d14905`)
+- tsc clean; vite build green.
+- **Full vitest:** 119 files, 2804 passed, 1 failed. The failure was `evEnergy.test.tsx` `energy_states_table_loading`, "the store read has not settled", during a run alongside check-all. That file is untouched; it passed 10/10 twice alone. Recorded as a load flake.
+- **check-all:** 11/11 passed.
+- **Focused Postgres** `test_w502_*.py -n 4` at `b6d14905`: 34 passed, 0 failed, 0 skipped, 203 s.
+- **Recapture `0ef273c4`:** 18 states x 1440/390, 436 claims, 434 pass, 2 fail. Both failures are F1 below. F5 is resolved by cold-work-503. Cell containment holds in every state with rows.
+- **Cleanup:** every API, Vite and Chrome PID stopped by PID; all `w502b` DBs dropped; ports free.
+
+### Open, back to the Architect (`.agent/W5-02b-questions.md`)
+- **Q18 / F1:** with every disclosure open, the panel is 907 px at 1440 (cap 650) and 1259 px at 390 (cap 850). Cells are readable and contained; every other state is within the caps. Per ruling 2, merge waits for the Architect.
+- **Q19 / F7:** the `unknown` mode has no COLD_EXCURSION Finding, so its INC carries one link and the mode is marked `blocked` against ruling 4.
+
+Shared plumbing: none. The producer, the capture tool and `frontend/src/test/panelStructure.ts` changed.

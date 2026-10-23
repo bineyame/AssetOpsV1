@@ -108,3 +108,16 @@ Provisional reading noted for each; nothing here invents a product state.
     (`coldWorkActions.test.tsx`). Options: (a) accept the Site-level 503 capture plus the component test; (b) let the
     tool-local `serve_entry.py` give only the domain-work router the invalid DB URL while the Site read stays
     healthy. Not decided; the browser capture of the cold 503 panel is recorded as unproven.
+
+## After the K2 rulings (recapture `0ef273c4`)
+
+18. **Ruling 2, F1: the panel cap fails with every disclosure open (measured evidence, as the ruling requires).** With all five
+    160-code-point title and owner disclosures open, the Actions panel is 907 px at 1440 (cap 650) and 1259 px at 390
+    (cap 850). Page main stays within 1600/2000 (1291/1805). Every cell is contained, previews are at most two lines and
+    nothing overflows the document. Every other worst-case state is within the cap: folded 457/457, expanded 535/535, one
+    disclosure open 513/548. Most of the extra height comes from each opened disclosure repeating the full text under the
+    preview, which stays visible. No layout change was made. The merge waits for the Architect's call.
+19. **Ruling 4 cannot be met in the `unknown` mode.** The no-probe replay yields no COLD_EXCURSION Finding, so the
+    Incident there links only COLD_START_FAILURE, and the manifest marks that mode `blocked`. The read is still
+    UNKNOWN/1, attest passes and the captures pass. Should `unknown` keep a single link, or should the producer seed a
+    COLD_EXCURSION revision as well?
