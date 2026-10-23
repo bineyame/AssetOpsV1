@@ -121,3 +121,10 @@ Provisional reading noted for each; nothing here invents a product state.
     Incident there links only COLD_START_FAILURE, and the manifest marks that mode `blocked`. The read is still
     UNKNOWN/1, attest passes and the captures pass. Should `unknown` keep a single link, or should the producer seed a
     COLD_EXCURSION revision as well?
+
+20. **Ruling 20: the all-open state still exceeds the caps after replacement (recapture `83c3e1c3`).** With every
+    disclosure open, each value is shown once and the preview is hidden. The Actions panel is 819 px at 1440 (cap 650)
+    and 1083 px at 390 (cap 850). Page main is 1203/1629, inside the 1600/2000 caps. At 1440 each row is 137 px: a
+    160-character title wraps to three lines in the 340 px Action column, and the owner to four or five lines in the
+    240 px Owner column. Cells are contained and there is no document overflow. No clipping or exemption has been
+    applied. Ruling 20 asks for a further ruling at this point.
