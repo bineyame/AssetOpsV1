@@ -70,6 +70,9 @@ from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_
 from assetops_backend.ev_replay import EvReplayService
 from assetops_backend.ev_replay_api import build_ev_replay_router
 from assetops_backend.cold_depth_api import build_cold_depth_router
+from assetops_backend.cold_scenarios.service import ColdScenarioService
+from assetops_backend.cold_scenarios.store import PostgresColdScenarioStore
+from assetops_backend.cold_scenarios_api import build_cold_scenarios_router
 from assetops_backend.cold_site_api import build_cold_site_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
@@ -464,6 +467,13 @@ def create_app(
     # W5-01 C1: the selected cold Cooling depth read over the same W2-03 read service and the W2-04 gate.
     app.include_router(build_cold_depth_router(
         registry, None if cold_reads is None else ColdDepthReadService(cold_reads)))
+    # W5-01b C4: authored cold scenarios. Writes need the two explicit decision injections; reads use the cold gate.
+    cold_scenario_store = PostgresColdScenarioStore.from_url(database_url()) if cold_reads is not None else None
+    if cold_scenario_store is not None:
+        app.router.on_shutdown.append(cold_scenario_store.dispose)
+    app.include_router(build_cold_scenarios_router(
+        registry, None if cold_scenario_store is None else ColdScenarioService(cold_scenario_store, cold_reads),
+        command_access=mini_decision_command_access, principal=mini_decision_principal))
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))

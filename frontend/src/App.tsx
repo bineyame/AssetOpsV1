@@ -95,6 +95,7 @@ import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAss
 import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
 import { createColdDepthClient, type ColdDepthClient } from "./sites/ColdDepthClient";
 import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
+import { HttpColdScenariosClient, type ColdScenariosClient } from "./sites/coldScenariosClient";
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
@@ -151,6 +152,7 @@ const defaultEvAssessment = createEvAssessmentClient();
 const defaultMiniDepth = createMiniDepthClient();
 const defaultColdDepth = createColdDepthClient();
 const defaultMiniDecisions = createMiniDecisionsClient();
+const defaultColdScenarioList: ColdScenariosClient = new HttpColdScenariosClient();
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
 const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
@@ -234,6 +236,8 @@ export interface AppProps {
   coldDepth?: ColdDepthClient;
   /** W4-03 unit 6: the read-only mini decision reads (Scenarios). */
   miniDecisions?: MiniDecisionsClient;
+  /** W5-01b C5: the authored cold scenario list read, for a COLDCHAIN Site's Financials > Scenarios route. */
+  coldScenarioList?: ColdScenariosClient;
   /** W2-07: the five EV Site reads, used for an EV_CHARGING Site's `/ev` routes. */
   evSite?: EvSiteClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
@@ -276,6 +280,7 @@ export function App({
   miniDepth = defaultMiniDepth,
   miniDecisions = defaultMiniDecisions,
   coldDepth = defaultColdDepth,
+  coldScenarioList = defaultColdScenarioList,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
   siteTemplateLineage,
@@ -424,7 +429,7 @@ export function App({
           />
           <Route
             path={SITE_FINANCIAL_SCENARIOS_ROUTE_PATH}
-            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="scenarios" miniDecisions={miniDecisions} />}
+            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="scenarios" miniDecisions={miniDecisions} coldScenarioList={coldScenarioList} />}
           />
           <Route
             path={SITE_OPPORTUNITY_ROUTE_PATH}

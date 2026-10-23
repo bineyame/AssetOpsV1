@@ -31,6 +31,8 @@ import { SiteRecommendation } from "../sites/SiteRecommendation";
 import { createFinancialsClient, type FinancialsClient } from "../sites/financialsClient";
 import { SiteAssumptions, SiteFinancialsOverview, type FinancialsLinks } from "../sites/SiteFinancials";
 import { MiniScenarios } from "../sites/MiniScenarios";
+import { ColdScenarios } from "../sites/ColdScenarios";
+import { HttpColdScenariosClient, type ColdScenariosClient } from "../sites/coldScenariosClient";
 import {
   MiniOpportunityPage,
   OPPORTUNITY_LOADING,
@@ -970,24 +972,27 @@ const FINANCIALS_SECTIONS_LABEL = "Financials sections";
  * The Financials subtab row (Overview, Assumptions, Scenarios). W2-04: a cold Site's Financials screens reuse it with
  * the selected window (`search`) carried in both links. W4-03 unit 6a (closure 4 S13): split by Site type - a MINIGRID
  * Site's Scenarios is a live route; every other Site keeps the mock's Scenarios as "Not available yet" text (one
- * occurrence, cold's). EV Financials has its own Overview/Assumptions pair in `EvSiteViews.tsx` and no Scenarios slot.
+ * occurrence; W5-01b C5: a cold Site passes a live tab with its window). EV Financials has its own Overview/Assumptions pair in `EvSiteViews.tsx` and no Scenarios slot.
  */
 export function FinancialsSections({
   siteId,
   view,
   search = "",
   scenarios = "unavailable",
+  scenariosQuery,
 }: {
   siteId: string;
   view: "overview" | "assumptions" | "scenarios";
   search?: string;
   scenarios?: "live" | "unavailable";
+  /** W5-01b C5: a cold Site's live Scenarios link carries the selected window (and, on Scenarios, `scenario_at`). */
+  scenariosQuery?: { from: string | null; to: string | null; known_at: string | null; scenario_at?: string | null };
 }) {
   const links: [string, string, string][] = [
     ["overview", "Overview", `${siteFinancialsHref(siteId)}${search}`],
     ["assumptions", "Assumptions", `${siteFinancialAssumptionsHref(siteId)}${search}`],
   ];
-  if (scenarios === "live") links.push(["scenarios", "Scenarios", siteFinancialScenariosHref(siteId)]);
+  if (scenarios === "live") links.push(["scenarios", "Scenarios", siteFinancialScenariosHref(siteId, scenariosQuery)]);
   return (
     <nav className="site-tabs site-subtabs" aria-label={FINANCIALS_SECTIONS_LABEL}>
       <ol className="site-tabs__list">
@@ -1005,6 +1010,7 @@ export function FinancialsSections({
 }
 
 const DEFAULT_MINI_DECISIONS = createMiniDecisionsClient();
+const DEFAULT_COLD_SCENARIOS: ColdScenariosClient = new HttpColdScenariosClient();
 
 
 export const SITE_OPPORTUNITY_HEADING_ID = "site-opportunity-heading";
@@ -1136,6 +1142,7 @@ export function SiteFinancialsFrame({
   coldSite,
   coldAssessment,
   miniDecisions = DEFAULT_MINI_DECISIONS,
+  coldScenarioList = DEFAULT_COLD_SCENARIOS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
@@ -1146,6 +1153,8 @@ export function SiteFinancialsFrame({
   coldAssessment?: ColdAssessmentClient;
   /** W4-03 unit 6a: the mini scenario list read. */
   miniDecisions?: MiniDecisionsClient;
+  /** W5-01b C5: the authored cold scenario list read (`cold-scenarios-1`). */
+  coldScenarioList?: ColdScenariosClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -1165,13 +1174,21 @@ export function SiteFinancialsFrame({
     <SiteScoped siteId={siteId} detail={detail} title={title} headingId={SITE_FINANCIALS_HEADING_ID}>
       {(site) => {
         if (view === "scenarios") {
+          // W5-01b C5: a COLDCHAIN Site's Scenarios is live; its back-links carry `from,to,known_at` and drop the
+          // authored-only `scenario_at`, which its own Scenarios link keeps.
+          const coldWindow = coldWindowFromParams(params);
+          const coldSearch = coldWindowSearch(coldWindow);
+          const scenarioAt = params.get("scenario_at");
           return (
             <main aria-labelledby={SITE_FINANCIALS_HEADING_ID}>
               <Breadcrumbs
                 trail={[
                   { label: "Sites", to: sitesPath },
                   { label: site.display_name, to: siteDetailHref(site.site_id) },
-                  { label: "Financials", to: siteFinancialsHref(site.site_id) },
+                  {
+                    label: "Financials",
+                    to: site.site_type === "COLDCHAIN" ? `${siteFinancialsHref(site.site_id)}${coldSearch}` : siteFinancialsHref(site.site_id),
+                  },
                   { label: "Scenarios" },
                 ]}
               />
@@ -1179,16 +1196,28 @@ export function SiteFinancialsFrame({
                 siteName={site.display_name}
                 siteId={site.site_id}
                 mode={siteSourceModeLabel(site)}
-                description={SITE_SCREEN_DESCRIPTIONS.scenarios}
+                description={site.site_type === "COLDCHAIN" ? SITE_SCREEN_DESCRIPTIONS.coldScenarios : SITE_SCREEN_DESCRIPTIONS.scenarios}
                 headingId={SITE_FINANCIALS_HEADING_ID}
               />
               <OperatorSiteTabs siteId={siteId} current="Financials" />
-              <FinancialsSections
-                siteId={site.site_id}
-                view="scenarios"
-                scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
-              />
-              {site.site_type === "MINIGRID" ? (
+              {site.site_type === "COLDCHAIN" ? (
+                <FinancialsSections
+                  siteId={site.site_id}
+                  view="scenarios"
+                  search={coldSearch}
+                  scenarios="live"
+                  scenariosQuery={{ ...coldWindow, scenario_at: scenarioAt }}
+                />
+              ) : (
+                <FinancialsSections
+                  siteId={site.site_id}
+                  view="scenarios"
+                  scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
+                />
+              )}
+              {site.site_type === "COLDCHAIN" ? (
+                <ColdScenarios siteCode={site.site_id} window={coldWindow} scenarioAt={scenarioAt} client={coldScenarioList} />
+              ) : site.site_type === "MINIGRID" ? (
                 <MiniScenarios siteCode={site.site_id} client={miniDecisions} scope={scope} onScope={onScope} />
               ) : (
                 <Panel heading="Financial scenarios" headingId="site-scenarios-unsupported-heading">
@@ -1203,7 +1232,15 @@ export function SiteFinancialsFrame({
             view: view === "assumptions" ? "assumptions" : "financials",
             site,
             params,
-            sections: <FinancialsSections siteId={site.site_id} view={view} search={coldWindowSearch(coldWindowFromParams(params))} />,
+            sections: (
+              <FinancialsSections
+                siteId={site.site_id}
+                view={view}
+                search={coldWindowSearch(coldWindowFromParams(params))}
+                scenarios="live"
+                scenariosQuery={coldWindowFromParams(params)}
+              />
+            ),
             coldSite,
             coldAssessment,
             tabs: <OperatorSiteTabs siteId={siteId} current="Financials" />,

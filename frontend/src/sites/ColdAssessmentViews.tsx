@@ -55,7 +55,7 @@ import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, degreeM
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { ColdCooling } from "./ColdCooling";
 import type { ColdDepthClient } from "./ColdDepthClient";
-import type { ColdSiteRoutes } from "./coldSiteViews";
+import { RequestedWindowBar, type ColdSiteRoutes } from "./coldSiteViews";
 import "./w2-cold-assessment.css";
 
 /*
@@ -1090,6 +1090,10 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
         <p>{finding === null ? COLD_FINDING_LOADING : COLD_ASSESSMENT_LOADING}</p>
       ) : finding.status !== "loaded" ? (
         <>
+          {/* W5-01b C5 (W2-F L1, P-C5-17/18/21): the requested-window line (none for an invalid period), then the
+              Finding state strip with Unknown state and confidence, directly above the refusal. */}
+          <RequestedWindowBar window={window} refusal={{ sentence: refusalText(finding).title, retry: false, key: refusalText(finding).key }} />
+          <StatusBar label="Finding state"><Badge tone="neutral">Unknown</Badge>{" "}<span>Confidence: Unknown</span>{" "}<span>{props.siteName}</span></StatusBar>
           <PageRefusal read={finding} window={window} />
           <FindingSkeleton gap={refusalText(finding).body} />
         </>
