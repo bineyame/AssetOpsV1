@@ -7,8 +7,8 @@ a private `*_test` database; nothing here imports private simulator truth into a
 - `settled(chain, case)`: `complete` (observed, historical), `missing-meter` (partial energy), `fault` /
   `interrupted` (faulted status), `late-record` (first cutoff of the pending case).
 - `pending(chain)`: `late-record` settled at 09:00, then `advance_late()` with its recompute job left unrun.
-- `status_gap(chain)`: `complete` with the five Connector c1 state source events in `[08:20, 08:25)` omitted before
-  publication (a gap five times the one-minute cadence), then assessed at the returned decision clock.
+- `status_gap(chain)`: `complete` with the five Connector c1 state reports in `[08:20, 08:25)` omitted from the
+  registered series before publication (a gap five times the one-minute cadence), then assessed at the returned decision clock.
 - `declared_empty(built)`: a test-scoped time-valid Foundation revision with `weekly: []` for every connector,
   selected by a new assessment of the same window.
 """
@@ -41,6 +41,7 @@ def settled(chain, case: str = "complete") -> Chain:  # noqa: F811
     built = chain(case)
     built.start_release_upload()
     run_worker(built)
+    select_exact(built, LO, HI)  # the exact selected `[08:00, 09:00)` window at the committed cutoff
     return built
 
 
@@ -51,33 +52,33 @@ def pending(chain) -> Chain:  # noqa: F811
     return built
 
 
-class _OmittingStages:
-    """A stage store that drops the gap's state envelopes before they are staged, so they are never published."""
-
-    def __init__(self, inner) -> None:
-        self._inner = inner
-        self.omitted: list[str] = []
-
-    def admit(self, *, envelopes, **kw):
-        kept = []
-        for e in envelopes:
-            if e.device_id == GAP_DEVICE and e.signal_id == GAP_SIGNAL and GAP_FROM <= e.source_time < GAP_TO:
-                self.omitted.append(e.message_id)
-            else:
-                kept.append(e)
-        return self._inner.admit(envelopes=kept, **kw)
-
-    def __getattr__(self, name):
-        return getattr(self._inner, name)
-
-
 def status_gap(chain) -> Chain:  # noqa: F811
+    """`complete` with Connector c1's state reports in `[08:20, 08:25)` dropped from the registered public series
+    before it is sealed and published (`lab_execution.ev_reports`), so they never reach the gateway."""
+    import lab_execution
+
+    original = lab_execution.ev_reports
+    omitted: list[str] = []
+
+    def omitting(*args, **kwargs):
+        kept = []
+        for report in original(*args, **kwargs):
+            if (report.device_id == GAP_DEVICE and report.signal_id == GAP_SIGNAL
+                    and GAP_FROM <= report.source_time < GAP_TO):
+                omitted.append(report.source_time)
+            else:
+                kept.append(report)
+        return tuple(kept)
+
     built = chain("complete")
-    omitting = _OmittingStages(built.host._stages)
-    built.host._stages = omitting
-    built.start_release_upload()
+    lab_execution.ev_reports = omitting
+    try:
+        built.start_release_upload()
+    finally:
+        lab_execution.ev_reports = original
     run_worker(built)
-    assert len(omitting.omitted) == 5, omitting.omitted
+    select_exact(built, LO, HI)
+    assert sorted(omitted) == [f"2026-10-06T08:2{m}:00Z" for m in range(5)], omitted
     return built
 
 
