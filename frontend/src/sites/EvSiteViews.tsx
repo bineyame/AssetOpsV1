@@ -72,6 +72,8 @@ export interface EvSiteRoutes {
   financials: string;
   assumptions: string;
   sessions: string;
+  /** W5-03a E2: the selected EV Availability depth page (Performance subtab). */
+  availability: string;
   finding: (findingId: string) => string;
   /** W2-F B2/M8: the Foundation single line diagram at one instant (`at` only; no `from` or `known_at`). */
   sld: (at: string) => string;
@@ -448,7 +450,7 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
   return (
     <MetricCards columns={5} label="EV charging conditions">
       <MetricCard label={<Link to={sel(routes.sessions, window)}>Session service</Link>} value={sessionWord(o)} note={sessionNote} tone="muted" assessment data={{ "data-ev-card": "sessions" }} />
-      <MetricCard label="Availability" value="Not assessed" note="Connector availability is not assessed" tone="muted" assessment data={{ "data-ev-card": "availability" }} />
+      <MetricCard label={<Link to={sel(routes.availability, window)}>Availability</Link>} value="Not assessed" note="Connector availability is not assessed" tone="muted" assessment data={{ "data-ev-card": "availability" }} />
       <MetricCard label="Site power" value={peak} note={powerNote} tone="muted" assessment data={{ "data-ev-card": "power" }} />
       <MetricCard label="Charger condition" value="Not assessed" note="Source reporting is not equipment condition" tone="muted" assessment data={{ "data-ev-card": "charger" }} />
       <MetricCard
@@ -805,6 +807,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
   const analysisHref = e === null ? null : evSiteUiHref(e.links.analysis, routes);
   const financialsHref = e === null ? null : evSiteUiHref(e.links.financials, routes);
   const sessionsHref = e === null ? null : sel(routes.sessions, e.window);
+  const availabilityHref = e === null ? null : sel(routes.availability, e.window);
   const word = evidenceAggregate(caps);
   const rowChips = CAP_ROWS.map((r) => chipOf(capOf(caps, r.claim)));
   const count = (w: string) => rowChips.filter((c) => c === w).length;
@@ -838,7 +841,8 @@ function EvidenceScreen(p: EvSiteFrameProps) {
               <tbody>
                 {CAP_ROWS.map((row) => {
                   const cap = capOf(caps, row.claim);
-                  const nextHref = row.key === "sessions" ? sessionsHref : row.key === "energy" ? financialsHref : null;
+                  const nextHref =
+                    row.key === "sessions" ? sessionsHref : row.key === "energy" ? financialsHref : row.key === "availability" ? availabilityHref : null;
                   return (
                     <tr key={row.key} data-capability-row={row.key}>
                       <th scope="row">{row.label}</th>
@@ -851,7 +855,7 @@ function EvidenceScreen(p: EvSiteFrameProps) {
                         {nextHref === null ? (
                           <UnavailableInline label={row.key === "availability" ? "Availability" : "Work"} />
                         ) : (
-                          <Link to={nextHref}>{row.key === "sessions" ? "Review sessions" : "Review financials"}</Link>
+                          <Link to={nextHref}>{row.key === "sessions" ? "Review sessions" : row.key === "availability" ? "Review availability" : "Review financials"}</Link>
                         )}
                       </td>
                     </tr>

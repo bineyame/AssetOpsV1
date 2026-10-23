@@ -282,10 +282,14 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     const cause = panelTitled("Cause remains bounded").textContent ?? "";
     expect(cause).toContain("Cause not established from accepted records.");
     expect(cause).toContain("Requested power, allocated limit, site import and charger diagnostics are needed to test competing explanations.");
-    expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(2);
-    // r7 P8: exact tab order, live Sessions then the two unbuilt EV entries, noninteractive.
-    expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", true], ["Energy / site power", true]]);
-    expectInert("Availability");
+    expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(1);
+    // r7 P8 / W5-03a E2: exact tab order, live Sessions and Availability, then the one unbuilt EV entry.
+    expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", false], ["Energy / site power", true]]);
+    expect(document.querySelector('[data-tab-unavailable="Availability"]')).toBeNull();
+    const availabilityTab = document.querySelector('[data-performance-subtab="availability"]') as HTMLAnchorElement;
+    expect(availabilityTab.getAttribute("href")).toBe(`/sites/${CODE}/performance/availability`);
+    expect(availabilityTab.hasAttribute("aria-current")).toBe(false);
+    expect((document.querySelector('[data-performance-subtab="sessions"]') as HTMLElement).getAttribute("aria-current")).toBe("page");
     expectInert("Energy / site power");
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
       expect(panel.querySelectorAll("details").length).toBeLessThanOrEqual(1);

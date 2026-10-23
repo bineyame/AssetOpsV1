@@ -5400,3 +5400,55 @@ input.v69-chip-control[type="datetime-local"] {
 /* Review Low 7a: "Show all" and "Next page" at note size. */
 .evidence-records__paging button,
 .evidence-records__paging a { font-size: inherit; }
+
+/* W5-03a E2: opt-in sticky first column for a DataTable that scrolls inside its panel (`stickyFirstColumn`). */
+.data-table__scroll--sticky .data-table th:first-child,
+.data-table__scroll--sticky .data-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface-raised);
+}
+.data-table__scroll--sticky .data-table thead th:first-child {
+  z-index: 2;
+}
+
+/* W5-03a E2: EV Availability connector-state bars (v6.9 `availability` `bar-row`/`track`, ordered div spans). */
+.ev-depth-legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 9px 0; }
+.ev-depth-legend .badge.ev-depth-badge--outline { background: transparent; border: 1px solid #d8dfea; }
+.ev-depth-bars__row {
+  display: grid;
+  grid-template-columns: minmax(0, 100px) minmax(0, 1fr) minmax(0, 90px);
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  margin: 16px 0;
+}
+.ev-depth-bars__label { overflow-wrap: anywhere; }
+.ev-depth-bars__period { text-align: right; }
+.ev-depth-bars__track {
+  display: flex;
+  height: 29px;
+  border: 1px solid #e3e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: transparent;
+}
+.ev-depth-bars__segment { height: 100%; flex: none; }
+.ev-depth-bars__segment--available { background: #8bc5b3; }
+.ev-depth-bars__segment--unavailable { background: #df9b94; }
+.ev-depth-bars__segment--unknown { background: #cdd5e1; }
+.ev-depth-bars__segment--outside { background: transparent; }
+.ev-depth-bars__times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-left: calc(min(100px, 25%) + 12px);
+  margin-right: calc(min(90px, 22%) + 12px);
+}
+.ev-depth-claim { margin-top: 15px; font-size: 11px; }
+@media (max-width: 600px) {
+  .ev-depth-bars__row { grid-template-columns: minmax(0, 72px) minmax(0, 1fr) minmax(0, 72px); gap: 8px; }
+  .ev-depth-bars__times { margin-left: calc(72px + 8px); margin-right: calc(72px + 8px); }
+}

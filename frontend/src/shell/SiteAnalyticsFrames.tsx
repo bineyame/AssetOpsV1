@@ -58,7 +58,10 @@ import {
 import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
-import { EvFindingFrame, EvSessionsFrame, evFindingHref } from "../sites/EvAssessmentViews";
+import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref } from "../sites/EvAssessmentViews";
+import { EvAvailability } from "../sites/EvAvailability";
+import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
+import { evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
 import { coldSiteRoutes, coldSiteScreen } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
@@ -175,6 +178,11 @@ const DEFAULT_COLD_DEPTH = createColdDepthClient();
 
 const DEFAULT_MINI_DEPTH = createMiniDepthClient();
 
+/** W5-03a: the EV Performance subtabs with a live page. */
+const EV_PERFORMANCE_VIEWS: Record<string, EvPerformanceView> = { sessions: "sessions", availability: "availability" };
+
+const DEFAULT_EV_DEPTH = createEvDepthClient();
+
 export function SitePerformanceFrame({
   detail,
   analytics,
@@ -184,6 +192,7 @@ export function SitePerformanceFrame({
   miniDepth = DEFAULT_MINI_DEPTH,
   miniDecisions,
   coldDepth = DEFAULT_COLD_DEPTH,
+  evDepth = DEFAULT_EV_DEPTH,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
@@ -198,6 +207,8 @@ export function SitePerformanceFrame({
   miniDecisions?: MiniDecisionsClient;
   /** W5-01a C2: the selected cold depth reads; a COLDCHAIN Site renders `cooling` from them. */
   coldDepth?: ColdDepthClient;
+  /** W5-03a E2: the selected EV depth reads; an EV_CHARGING Site renders `availability` from them. */
+  evDepth?: EvDepthClient;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
   const [params] = useSearchParams();
@@ -213,10 +224,20 @@ export function SitePerformanceFrame({
     >
       {(site) => {
         const coldView = capabilityId === undefined ? "temperature" : COLD_PERFORMANCE_VIEWS[capabilityId];
-        if (site.site_type === "EV_CHARGING" && evAssessment !== undefined && (capabilityId === undefined || capabilityId === "sessions")) {
+        const evView = capabilityId === undefined ? "sessions" : EV_PERFORMANCE_VIEWS[capabilityId];
+        if (site.site_type === "EV_CHARGING" && evAssessment !== undefined && evView !== undefined) {
           const window = coldWindowFromParams(params);
+          const evRoutes = evSiteRoutes(site.site_id);
           return (
             <EvSessionsFrame
+              view={evView}
+              subtabHref={(id) => `${sitePerformanceHref(site.site_id, id)}${coldWindowSearch(window)}`}
+              performanceHref={sitePerformanceHref(site.site_id)}
+              depth={
+                evView === "availability" ? (
+                  <EvAvailability siteCode={site.site_id} window={window} client={evDepth} routes={{ analysis: evRoutes.analysis, sessions: evRoutes.sessions }} />
+                ) : undefined
+              }
               siteId={site.site_id}
               siteName={site.display_name}
               mode={deriveSiteView(site).sourceMode}

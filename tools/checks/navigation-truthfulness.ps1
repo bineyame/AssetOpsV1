@@ -756,7 +756,9 @@ function Get-InPageUnavailableEntryFailures {
     # unavailable, once each in `workRequestShared.tsx`; C3 removes Maintenance record and C4 removes History.
     # W6-01c C3 (F4): the Maintenance record tab is live (`WORK_REQUEST_RECORD_ROUTE_PATH`), so its entry is gone.
     # W6-01d C4 (F4, 2026-10-23): the History tab is live (`WORK_REQUEST_HISTORY_ROUTE_PATH`), so its entry is gone.
-    $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation", "Availability",
+    # W5-03a E2: EV Performance > Availability is a live route (`/sites/{site_code}/performance/availability`), so
+    # its one unavailable occurrence is gone; the live subtab and page branch are held below.
+    $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation",
         "Energy / site power", "Analysis", "Verification")
     # W2-F unit 4b (M12): EV Financials/Assumptions carry the mock's Scenarios slot as one literal in EvSiteViews.tsx.
     $expectedChips = @("Cost", "Risks", "Opportunities")
@@ -843,6 +845,19 @@ function Get-InPageUnavailableEntryFailures {
     if (-not ($coldText.Contains('data-performance-subtab="cooling"') -and $coldText.Contains('<ColdCooling'))) {
         $failures.Add(("The live cold Cooling subtab or page branch is missing from ${coldFramePath}: it must " +
             "carry both data-performance-subtab=""cooling"" and <ColdCooling (W5-01a C2).")) | Out-Null
+    }
+
+    # W5-03a E2: the live EV Availability subtab stays in the EV Performance frame and its page branch in the
+    # Site Performance frame.
+    $evFramePath = "frontend/src/sites/EvAssessmentViews.tsx"
+    $evPagePath = "frontend/src/shell/SiteAnalyticsFrames.tsx"
+    $evFrame = @($Modules | Where-Object { $_.Path -eq $evFramePath })
+    $evPage = @($Modules | Where-Object { $_.Path -eq $evPagePath })
+    $evFrameText = if ($evFrame.Count -eq 0) { "" } else { $evFrame[0].Lines -join "`n" }
+    $evPageText = if ($evPage.Count -eq 0) { "" } else { $evPage[0].Lines -join "`n" }
+    if (-not ($evFrameText.Contains('data-performance-subtab="availability"') -and $evPageText.Contains('<EvAvailability'))) {
+        $failures.Add(("The live EV Availability subtab or page branch is missing: ${evFramePath} must carry " +
+            "data-performance-subtab=""availability"" and ${evPagePath} must render <EvAvailability (W5-03a E2).")) | Out-Null
     }
 
     # W5-01b C5 (P-C5-9..16): the cold Financials Scenarios tab is live for COLDCHAIN only. The Scenarios view
