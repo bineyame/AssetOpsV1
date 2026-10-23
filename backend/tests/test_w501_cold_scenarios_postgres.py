@@ -25,7 +25,7 @@ if URL:
     from test_w402_migration_postgres import downgrade_config
 
 
-LATEST_HEAD = "0033_w5_cold_work"  # W5-02a: 0033 sits above the 0032 migration under test
+LATEST_HEAD = "0034_w5_ev_scenarios"  # W5-03b: 0034 and 0033 sit above the 0032 migration under test
 COLD_HEAD = "0032_w5_cold_scenarios"
 COLD_PREVIOUS = "0030_w4_mini_decisions"
 COLD_REFUSED = "Downgrade of 0032_w5_cold_scenarios refused: cold scenario history exists"
@@ -134,7 +134,7 @@ def test_migration_constraints(site, engine) -> None:  # noqa: F811
 
     script = ScriptDirectory.from_config(_alembic())
     assert script.get_heads() == [LATEST_HEAD]
-    assert script.get_revision(LATEST_HEAD).down_revision == COLD_HEAD
+    assert script.get_revision("0033_w5_cold_work").down_revision == COLD_HEAD
     assert script.get_revision(COLD_HEAD).down_revision == COLD_PREVIOUS
     assert head(engine) == LATEST_HEAD and cold_catalog(engine) == expected_cold_catalog()
 

@@ -74,6 +74,9 @@ from assetops_backend.cold_depth_api import build_cold_depth_router
 from assetops_backend.cold_scenarios.service import ColdScenarioService
 from assetops_backend.cold_scenarios.store import PostgresColdScenarioStore
 from assetops_backend.cold_scenarios_api import build_cold_scenarios_router
+from assetops_backend.ev_scenarios.service import EvScenarioService
+from assetops_backend.ev_scenarios.store import PostgresEvScenarioStore
+from assetops_backend.ev_scenarios_api import build_ev_scenarios_router
 from assetops_backend.cold_site_api import build_cold_site_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
@@ -467,6 +470,13 @@ def create_app(
     if ev_depth_reads is not None:
         app.router.on_shutdown.append(ev_depth_reads.dispose)
     app.include_router(build_ev_depth_router(registry, ev_depth_reads))
+    # W5-03b E5: authored EV scenarios. Writes need the two explicit decision injections; reads use the EV gate.
+    ev_scenario_store = PostgresEvScenarioStore.from_url(database_url()) if ev_reads is not None else None
+    if ev_scenario_store is not None:
+        app.router.on_shutdown.append(ev_scenario_store.dispose)
+    app.include_router(build_ev_scenarios_router(
+        registry, None if ev_scenario_store is None else EvScenarioService(ev_scenario_store, ev_reads, ev_site_reads),
+        command_access=mini_decision_command_access, principal=mini_decision_principal))
     # W2-04: the five cold Site reads over the same W2-03 read service and the cold consequence store's
     # caller-connection heads; one REPEATABLE READ snapshot per request, typed 503 without a database.
     cold_consequences = build_cold_consequence_store(database_url()) if cold_reads is not None else None

@@ -2414,3 +2414,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - Producer attest can print ATTEST OK with a mode whose prepare failed (w502_cold_work_walkthrough.py:604); add failures.append before continue.
 - Shared DataTable stickyFirstColumn paints the sticky header cell white for every other user (primitives.css:5406), e.g. W5-03a EV screens; check in the post-W6 structural audit.
 - At 390 the R88 Window control adds ~140 px above the scope strip; owner walkthrough note.
+
+## W5-03b E5 Lows (fix with E4/E6, which own the test file next)
+- test_w503_ev_scenarios_postgres.py has copy-paste duplicates: duplicated "accepted" key :411-412 and duplicated blocks :448-455, :573-592, :645-648.
+- Foundation cases (c)/(d) at :777-782 do not assert the fallback finds a Foundation, so they could pass via the absent-Foundation path.
+- The refused correction at :821 asserts only the code, not the ruled message.
