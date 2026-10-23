@@ -37,13 +37,13 @@ v6.9 measurement source `.agent/W5-02-04-mock-measurements.md` at 1440/390: Work
 
 Fixture and state production are specified in **V1 selection, clock and schema** and **EV producer, UI and registry** below; those sections are the single current producer contract.
 
-`MOCK DEVIATION E1`: mock scope notice promises a global create flow. W6 global roots are read-only and W4's SERVICE command is not an operator create flow. Same alternatives and resolution as W5-02 M2: retain notice form/first sentence; omit promise.
+`MOCK DEVIATION (D1) E1`: mock scope notice promises a global create flow. W6 global roots are read-only and W4's SERVICE command is not an operator create flow. Same alternatives and resolution as W5-02 M2: retain notice form/first sentence; omit promise.
 
 E2 ruling — RESTORE TO MOCK: the EV domain Action uses one `Verification` tab, mock Actions breadcrumb, mock question subtitle, `Open site` button and Actions rail state. W1 battery sections and Site breadcrumb apply only to W1 Action IDs. A domain ID has no battery section reads to preserve.
 
 E3 sourcing note (not a mock deviation): `Pending` exactly matches the mock and is sourced from the immutable declaration with no reviewed post-work evaluator. Earlier fault and later completion are not post-work criterion results.
 
-`MOCK DEVIATION E4`: on `ev-work` Actions only, replace `Same records and states as the global Actions list` with `EV Actions recorded at this site`; replace `Manage in Actions →` with plain `Global Actions does not include EV Actions yet.` W3 `/actions` is mounted but excludes EV domain roots. Alternatives considered: extend W3 with a reviewed cross-estate union and cursor now, or link to a global list omitting this row. The first is separately owned; the second misleads. This overrides the Actions cell of the scope-strip ledger above; W6 Incident/Maintenance mounted-root rules remain.
+`MOCK DEVIATION (D1) E4`: on `ev-work` Actions only, replace `Same records and states as the global Actions list` with `EV Actions recorded at this site`; replace `Manage in Actions →` with plain `Global Actions does not include EV Actions yet.` W3 `/actions` is mounted but excludes EV domain roots. Alternatives considered: extend W3 with a reviewed cross-estate union and cursor now, or link to a global list omitting this row. The first is separately owned; the second misleads. This overrides the Actions cell of the scope-strip ledger above; W6 Incident/Maintenance mounted-root rules remain.
 
 E5 withdrawn — RESTORE TO MOCK: `ev-work-incidents` uses W5-02's `siteWindowText(occurred_at, site.timezone)` and the stored EV Site's IANA zone, `Etc/UTC` in the fixture. No literal UTC suffix or fixed EAT offset is added. Apply that selected-Site rule to any other W5-04 Work occurrence time; explicit UTC `known_at`, due-date and membership rules stay explicit. V3a tests `2026-10-06T16:11:00Z` → `6 Oct · from 16:11` at `Etc/UTC`, the same instant → `6 Oct · from 19:11` at `Africa/Addis_Ababa`, and `2026-10-06T22:11:00Z` → `7 Oct · from 01:11` at `Africa/Addis_Ababa`; K3a owns the shared formatter in `siteWorkCases.tsx` and V3a reuses it.
 
