@@ -172,6 +172,7 @@ const MEASURE_WORK = `(() => {
     }),
     badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
     badgeCount: badges.length,
+    badgeLines: badges.map((x) => lines(x)),
     showAll: document.querySelector('[data-cold-work-show-all]')?.textContent?.trim() ?? null,
     next: document.querySelector('[data-cold-work-next]')?.getAttribute('href') ?? null,
     first: Boolean(document.querySelector('[data-cold-work-first]')),
@@ -224,6 +225,7 @@ function rowClaims(W, label, m, expectRows) {
   if (summaries.length > 0) claim(`${W} ${label}: every 'Read full text' summary is on one line`, summaries.every((n) => n === 1), summaries);
   claim(`${W} ${label}: first column is position:sticky`, m.stickyFirstColumn === true, m.stickyFirstColumn);
   claim(`${W} ${label}: no clipped State badge`, m.badgeCount > 0 && m.badgesClipped === 0, { badges: m.badgeCount, clipped: m.badgesClipped });
+  claim(`${W} ${label}: every State badge is on one line`, m.badgeLines.length > 0 && m.badgeLines.every((n) => n === 1), m.badgeLines);
   if (W === "narrow") claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
 }
 
