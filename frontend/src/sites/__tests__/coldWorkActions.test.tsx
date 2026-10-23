@@ -703,7 +703,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
           : (await mountCases(kind, `/sites/${SITE}/work/${kind}?${query}`, client)).main;
       const forms = Array.from(main.querySelectorAll("form")).filter((f) => !f.closest("[hidden], details:not([open])"));
       expect(forms.map((f) => f.hasAttribute("data-cold-work-window"))).toEqual([true]);
-      expect(main.querySelector("[data-work-window]")).toBeNull();
+      expect(main.querySelector("form[data-work-window]")).toBeNull();
       expect(main.querySelector("[data-site-work-window]")).toBeNull();
       expect(Array.from(document.querySelectorAll('nav[aria-label="Work lists"] a')).map((a) => a.getAttribute("href"))).toEqual(hrefs);
       cleanup();

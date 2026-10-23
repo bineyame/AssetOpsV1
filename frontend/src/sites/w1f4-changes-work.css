@@ -258,6 +258,13 @@
   margin-left: 6px;
 }
 
+/* K2 ruling 20 recapture: with every title/owner disclosure open the auto table gives Source less width; the inline
+   `Finding version` summary stays one line (the cell widens instead of splitting the link). */
+.w1f4-changes-work.cold-work-actions .panel .data-table td .disclosure--inline > .disclosure__summary {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 .cold-work-actions td .disclosure:not(.disclosure--inline) {
   margin-top: 2px;
 }
