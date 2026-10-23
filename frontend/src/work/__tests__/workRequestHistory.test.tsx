@@ -440,6 +440,29 @@ describe("W6-01d C4: work request History page", () => {
   });
 });
 
+describe("W6-01d review M1: the current History tab stays in view", () => {
+  it("scrolls the overflowing Context tabs row so the current History tab is visible", async () => {
+    // jsdom has no layout: a 330 px row holding 600 px of tabs, the current (History) tab at 480-560 px.
+    vi.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains("site-tabs__list") ? 600 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(function (this: HTMLElement) {
+      return this.classList.contains("site-tabs__list") ? 330 : 0;
+    });
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      const [left, right] = this.classList.contains("site-tabs__list") ? [0, 330] : this.getAttribute("aria-current") === "page" ? [480, 560] : [0, 0];
+      return { left, right, top: 0, bottom: 0, width: right - left, height: 0, x: left, y: 0, toJSON: () => ({}) } as DOMRect;
+    });
+    mount(PAGE, client(loaded(detail())));
+    await settled();
+    const list = screen.getByRole("navigation", { name: "Context tabs" }).querySelector(".site-tabs__list") as HTMLElement;
+    expect(within(list).getByRole("link", { name: "History" })).toHaveAttribute("aria-current", "page");
+    // at least the right overflow 560 - 330 plus the 16 px margin (the hook runs after each render; jsdom rects are fixed)
+    expect(list.scrollLeft).toBeGreaterThanOrEqual(246);
+    vi.restoreAllMocks();
+  });
+});
+
 describe("W6-01d C4: the History route in the app shell", () => {
   it("mounts History under the operator shell with the rail's Maintenance root current", async () => {
     expect(WORK_REQUEST_HISTORY_ROUTE_PATH).toBe("/maintenance/requests/:caseId/history");

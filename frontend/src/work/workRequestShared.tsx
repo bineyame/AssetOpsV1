@@ -14,6 +14,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { MetricHeader, PageHeader } from "../ui";
 import { UnavailableTab } from "../ui/UnavailableEntry";
+import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 import {
   GLOBAL_WORK_DETAIL_REFUSAL_COPY,
   createGlobalWorkClient,
@@ -228,8 +229,10 @@ export function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: Wo
  * other tab row uses.
  */
 export function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkRequestTab }) {
+  // W6-01d review M1: at 390 the row scrolls inside itself; keep the current tab (History is fourth) in view.
+  const rowRef = useCurrentTabInView<HTMLElement>();
   return (
-    <nav aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
+    <nav ref={rowRef} aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
       <ol className="site-tabs__list">
         <LiveTab page={page} tab="overview" current={tab} />
         <LiveTab page={page} tab="record" current={tab} />
