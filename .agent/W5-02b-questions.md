@@ -98,3 +98,13 @@ Provisional reading noted for each; nothing here invents a product state.
 16. **Currentness notice tone and fold expander after opening.** Not ruled. Provisional: blue info notice for
     HISTORICAL/UNKNOWN and amber for PENDING_RECOMPUTE/STALE_SOURCE (the W4 strip tones); after `Show all N Actions`
     is clicked the expander is removed (the W1 `Show the first 4` toggle is a removed helper string). Confirm.
+
+## Capture (K2b browser evidence)
+
+17. **503 capture mechanism shows Site unavailable, not the cold refusal.** P-G-5 says "503 from a separate API
+    process with an invalid private DB URL". On the merged base that process also fails the Site read, so the page
+    renders `Site unavailable` and the cold `Cold work unavailable` + `WORK_STORE_UNAVAILABLE` + Retry panel never
+    mounts (evidence F5, `.agent/W5-02b-evidence/README.md`). The cold 503 panel is proven only in jsdom
+    (`coldWorkActions.test.tsx`). Options: (a) accept the Site-level 503 capture plus the component test; (b) let the
+    tool-local `serve_entry.py` give only the domain-work router the invalid DB URL while the Site read stays
+    healthy. Not decided; the browser capture of the cold 503 panel is recorded as unproven.
