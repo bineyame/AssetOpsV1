@@ -21,10 +21,23 @@ Branch `task/W5-02b-K3-cold-cases` from main `f164c49d`, with main merged at `e0
 - `npx tsc --noEmit`: clean.
 - Focused vitest: `coldWorkCases.test.tsx` 24/24. Adjacent tests: `siteWorkCases`, `coldWorkActions`, `w1f4ChangesWorkStructure`, `operatorSiteTabs`, `operatorRouteFrames`, `siteDetailRoute`, 6 files, 152/152, all green after the last code change. That covers 52/52 across `w1f4ChangesWorkStructure` and `coldWorkActions`, and 36/36 across `coldWorkCases` and `siteWorkCases`.
 - Guard non-vacuity: removing the `cold-work-incidents` `SCREEN_LEADING` entry fails 5 tests. Reverted with `git checkout`.
-- `tools/check-all.ps1`: 11/11 on `12a5d77b`. Re-run on the final head: see the report.
+- `tools/check-all.ps1`: 11/11 on `12a5d77b` and again after the capture-driven CSS fix.
 - Ledger checker and dependency-registry checker pass on `2d007369`.
 - `python -c ast` parse check of the tool and its three templates: OK. `node --check` on the evidence tool: OK.
-- **Not run (held for the coordinator's batch signal):** Postgres tests, full vitest, build, `prepare/serve/attest` and captures. Evidence dir `.agent/W5-02b-K3-evidence/` is not yet produced.
+- **Batch (on signal, after the full backend suite):**
+  - Focused Postgres run: `test_w502_cold_scenario_producer`, `test_w502_domain_intent_postgres`, `test_w502_domain_work_links_postgres` and `test_w401_site_indexes_postgres`, with `-n 4` on the private base `assetops_w502bk3_test` and PYTHONPATH set to the worktree. Result: 23 tests, 0 failures, 0 errors, 0 skipped (JUnit), 276 s wall.
+  - Full vitest (`--minWorkers=1 --maxWorkers=2`): 120 files, 2832 passed. `npm run build` is green.
+  - Producer `prepare` (291 s): all five modes are unblocked. `serve` brought up seven APIs, all healthy, and `attest` returned ATTEST OK, including the case reads and the W4 case 403/503.
+  - Captures: `.agent/W5-02b-K3-evidence/` holds the README, `w502b-k3-measurements.json` and 44 PNGs. There were 738 claims: 731 PASS and 7 FAIL. All 7 failures are cap measurements, listed in the README for the Architect.
+  - Cleanup by PID:
+    - stopped the 7 Vite dev servers with `taskkill /PID /T` and the 7 API processes with the tool's `drop`;
+    - dropped the five `w502b_*_k3_test` databases and `assetops_w502bk3_test`;
+    - ports 5471-5477 and 8971-8977 are free.
+- **Capture-driven fixes:** in `w1f4-action.css`, the facts inside a cold case cell now stack (they had been wrapping one character per line), and `Read full text` is compact. In the capture tool:
+  - header text is read with textContent;
+  - the sticky-column claim applies at 390 only, as the spec says;
+  - the focus probe now runs after the screenshot;
+  - the Activity chip is asserted as the real W4 state.
 
 ## Capture states (K3b, run in the batch)
 
@@ -49,11 +62,20 @@ Claims cover no document overflow, the caps, per-cell containment, a preview of 
 5. **Long-text component.** `CaseLongText` in `siteWorkCases.tsx` duplicates K2's private `LongText`, with the same data attributes and behaviour. `SiteWorkActions.tsx` is outside K3's file lists and already imports `siteWorkCases.tsx`, so reusing it would mean editing that file and creating a circular import.
 6. **Untouched ledger fields.** `follow_on`, `interaction` and `unknown_or_empty` are left as they were, following the W5-03a precedent. The spec names only the fields that were changed.
 
-## Open (needs a ruling before the refusal captures can pass)
+## Rulings 9-16 (main `ee99f940`, merged)
 
-1. **Ruling 8 vs code.** Ruling 8 says to "Preserve the W4 panel refusal titles `No access` and `Work records unavailable`, server message and Retry". The W4 `Refused` (`siteWorkCases.tsx` `Refused`, `REFUSAL` table) actually renders the title plus a fixed W4 sentence. It shows the server message only for a non-cursor `invalid`, and it has **no Retry button** (only `Reload the first page` for basis_changed and cursor errors). Spec :76 also says the case pages preserve W4 refusal titles and messages. I built nothing here. The evidence tool asserts the title, refusal kind and code only. Please choose:
-   - (a) keep W4 exactly as it is, and drop "server message and Retry" from ruling 8; or
-   - (b) on COLDCHAIN only, add the server message and a Retry button to the W4 refusal, naming the copy and slot and any register row.
+- Ruling 9 resolves the open refusal item with option (a): W4 `Refused` stays unchanged. The tests and capture tool assert the title, its fixed sentence, the refusal kind and code, and that neither the server message nor Retry appears.
+- Rulings 10-15 confirm judgment calls 1-6 with no code change. For ruling 12, the test and the capture tool also assert that nested summaries are native, focusable and unclipped.
+- Ruling 16: the capture tool exempts only the five-row all-open state from the case panel cap. It logs that panel height as INFO, and every other gate still applies.
+
+## Open (for the Architect)
+
+1. **Case panel and page caps.** Seven measured cap failures are listed in the evidence README:
+   - the closed and one-open five-row panels at 1440 measure 486 and 539 against a 440 cap;
+   - the all-open page main measures 2203 and 3140 at 1440 and 3214 at 390, against 1400 and 1800 caps.
+
+   Ruling 16 keeps these caps, so I report them and have not clipped anything.
+2. **WR state.** Producer WRs stay `OPEN` after their performed record, so the mock's `Completed` chip never appears. Should the producer complete the request through W4? This is not a product change.
 
 ## Shared plumbing
 
