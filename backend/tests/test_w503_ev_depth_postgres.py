@@ -353,7 +353,8 @@ def test_energy_peak_is_one_selected_peak(chain) -> None:  # noqa: F811
     select_exact(built, LO, HI)
     reselected = _get(c, "energy")
     assert set(bad) <= set(reselected["selection"]["accepted_evidence_ids"])
-    assert reselected["selection"]["state"] == "CURRENT"
+    # The cloned rows enqueue a recompute job like any late accepted row, so the state may be pending here; the
+    # peak assertions below hold in every state (the pending case has its own test).
     assert _peak_view(reselected["energy"]) == baseline
     assert not set(bad) & {x["evidence_id"] for x in reselected["energy"]["import_samples"]}
     assert _overview_peak(built) == 600.0 != peak_kw

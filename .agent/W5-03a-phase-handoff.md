@@ -140,3 +140,9 @@ Checks run in the code part (DB-free): `tsc --noEmit` clean; vitest `evDepth.tes
 
 ### Fix-round rulings applied (2026-10-23)
 Main 44a1739e merged. Ruling 1 (telemetry-only next evidence) confirmed and now tested. Ruling 2: Availability chart notes (`{H} h`), bound prose (`Lower bound: {a} / {s} hours. Upper bound: ({a} + {u} unknown) / {s}.`) and next-evidence (`missing {H} hour` for exactly 1, else `hours`) use `hoursText` from exact seconds; `evDepth.test.tsx` updated plus singular and telemetry-only assertions. Ruling 3 confirmed; ruling 4 verified in the batch. Batch still held.
+
+### Batch results (code head before this commit: 77d5b22a + one test edit)
+- Focused Postgres, `-n 4`, shared test DB: `test_w503_ev_availability_postgres`, `test_w503_ev_depth_postgres`, `test_w207_ev_site_reads_postgres`, `test_w206_ev_reads_postgres`, `test_w207_ev_money_postgres`: 84 passed, 1 failed in 1010 s. The failure was my new `test_energy_peak_is_one_selected_peak` asserting state CURRENT after the cloned rows (they enqueue a recompute job, so the state is PENDING_RECOMPUTE; the clone insert itself worked and the ids were selected). Removed that state assertion; peak tests rerun: 3 passed (55.9 s). Ruling 4: triggers admit the clones.
+- Full vitest `--minWorkers=1 --maxWorkers=2`: 118 files, 2748 passed. `vite build` ok. `tsc` clean. `check-all.ps1`: all 11 guards passed.
+- Recaptures at 1440 and 390 for all 11 states (22 pairs) in `.agent/W5-03a-evidence/` (`evidence.json`, revision 77d5b22a): read_ok, no overflow, panel titles equal to the mock, 0 ellipsized, no cap exceeded on any pair.
+- Cleanup: `assetops_w503cap_test` dropped; my API, Vite and Chrome processes stopped; throwaway seed test and logs deleted. Run-owned test DBs are dropped by the suite.
