@@ -2102,6 +2102,8 @@ export function SiteWorkCasesFrame({
             decisions={site.site_type === "MINIGRID" ? miniDecisions : undefined}
             // K2 ruling 23: a cold Site shows only the page-local Window control above; MINIGRID keeps the W4 form.
             windowForm={site.site_type !== "COLDCHAIN"}
+            // W5-02 K3a (P-K3a-2): the Site type, stored IANA timezone and stored code for the cold case presentation.
+            site={{ siteType: site.site_type, timezone: site.timezone, code: site.site_id }}
             onScope={(next, nextTrail) =>
               navigate(hrefFor(site.site_id, workPageQuery(next)), { state: { workTrail: nextTrail } })
             }

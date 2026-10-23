@@ -22,10 +22,13 @@
  *   secondary Maintenance Activity line. It changes no count, cursor, state,
  *   outcome or case URL; an answer for another page or cutoff is discarded.
  */
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { DataTable, Disclosure, Fact, FactList, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
+import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
+import { globalWorkRequestHref } from "../work/globalWorkClient";
+import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
+import type { DomainStatus } from "./domainActionClient";
 import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
 import { SOURCE_WORDS, SourceProvenanceRecord, sourceState } from "./sourceProvenance";
 import {
@@ -64,6 +67,25 @@ export interface SiteWorkCasesProps {
    * `false` because its page-local `Window` control after the Work subtabs is the one date form.
    */
   windowForm?: boolean;
+  /**
+   * W5-02 K3a (P-K3a-2): the selected Site's type, IANA timezone and stored code. A COLDCHAIN Site gets the cold case
+   * presentation (strip, currentness notice, Site-time Window, plain Findings, WR Overview link); every other type
+   * keeps the W4 presentation unchanged.
+   */
+  site?: SiteWorkCasesSite;
+}
+
+export interface SiteWorkCasesSite {
+  siteType: string;
+  timezone: string;
+  /** The stored Site code (`site_id` on the Site read). */
+  code: string;
+}
+
+/** The COLDCHAIN case-cell context: the selected Site and the page's explicit cutoff. */
+interface ColdCells {
+  site: SiteWorkCasesSite;
+  knownAt: string | null;
 }
 
 /** One case's overlay state: `null` while unread (nothing shown), a list, or `"refused"`. */
@@ -142,6 +164,14 @@ export function globalWorkManageHref(kind: WorkKind, scope: WorkScope, selectedK
 }
 export const WORK_COUNT_UNKNOWN = "Count unknown · work source unavailable";
 export const WORK_STRIP_DETAIL = "These are work records at this site";
+/**
+ * W5-02 K3a (K3 pre-flight ruling 6): the COLDCHAIN case strip detail, the v69 `siteWorkScreen` sentence
+ * (`index.html:341`), with its `Manage in {kind} →` link to the mounted W6 root. MINIGRID keeps `WORK_STRIP_DETAIL`.
+ */
+export const WORK_STRIP_DETAIL_DOMAIN: Record<WorkKind, string> = {
+  incidents: "Same records and states as the global Incidents list",
+  maintenance: "Same records and states as the global Maintenance list",
+};
 export const WORK_LINK_MISSING = "No selected source for linked evidence";
 export const WORK_LINK_PENDING = "Linked evidence is being reassessed";
 
@@ -163,6 +193,47 @@ export function eatWindowText(instant: string): string {
   const hh = String(eat.getUTCHours()).padStart(2, "0");
   const mm = String(eat.getUTCMinutes()).padStart(2, "0");
   return `${eat.getUTCDate()} ${MONTHS[eat.getUTCMonth()]} · from ${hh}:${mm}`;
+}
+
+/**
+ * W5-02 K3a (M5 withdrawn, RESTORE TO MOCK): `6 Oct · from 19:11` in the selected Site's stored IANA timezone. The
+ * month is the mock's `Jan`…`Dec` table (`Sep`, never Intl's `Sept`); the UTC instant itself is unchanged.
+ */
+export function siteWindowText(instant: string, timezone: string): string {
+  const date = new Date(instant);
+  if (Number.isNaN(date.getTime())) return instant;
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: timezone,
+      day: "numeric",
+      month: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(date)
+      .map((p) => [p.type, p.value]),
+  );
+  // A numeric month makes en-GB pad the day; the mock shows `6 Oct`, so the day is read as a number.
+  return `${Number(parts.day)} ${MONTHS[Number(parts.month) - 1]} · from ${parts.hour}:${parts.minute}`;
+}
+
+/**
+ * W5-02 K3a (P-K3a-3, R89 D4): the wire has only the composite `asset_label` (`generator-1 · GENERATOR`). Only a
+ * final exact `GENERATOR` token reads as `backup generator`; any other label is shown unchanged.
+ */
+export function coldAssetLabel(label: string): string {
+  const suffix = " · GENERATOR";
+  return label.endsWith(suffix) ? `${label.slice(0, -suffix.length)} · backup generator` : label;
+}
+
+/**
+ * W5-02 K3a (P-G-4, MOCK DEVIATION (D1) R68): a cold WR code opens the mounted W6 C2 request Overview for the
+ * selected case ID and stored Site code, plus the explicit cutoff when present (the mock's `workverification`
+ * destination is not mounted).
+ */
+export function coldRequestHref(caseId: string, siteCode: string, knownAt: string | null | undefined): string {
+  return globalWorkRequestHref(`/maintenance/requests/${encodeURIComponent(caseId)}`, { site_id: siteCode, known_at: knownAt ?? null });
 }
 
 const STATE_LABEL: Record<string, string> = {
@@ -251,9 +322,20 @@ function statusWords(body: WorkIndexBody): { label: string; tone: "neutral" | "a
   }
 }
 
-function WorkStrip({ copy, result, scope }: { copy: KindCopy; result: WorkIndexResult | null; scope: WorkScope }) {
+function WorkStrip({
+  copy,
+  result,
+  scope,
+  cold,
+}: {
+  copy: KindCopy;
+  result: WorkIndexResult | null;
+  scope: WorkScope;
+  cold: boolean;
+}) {
   const loaded = result !== null && result.status === "loaded" ? result.value : null;
-  const words = loaded ? statusWords(loaded) : null;
+  // K3a (P-K3a-7): on COLDCHAIN the currentness notice below the strip carries the status; no duplicate strip label.
+  const words = loaded && !cold ? statusWords(loaded) : null;
   return (
     <div className="status-strip status-strip--line" aria-label={`${copy.title}, scope`}>
       <span className="status-strip__lead" data-work-scope>
@@ -267,8 +349,8 @@ function WorkStrip({ copy, result, scope }: { copy: KindCopy; result: WorkIndexR
           <>{WORK_COUNT_UNKNOWN}</>
         )}
       </span>
-      <span className="muted status-strip__item">
-        {WORK_STRIP_DETAIL}
+      <span className="muted status-strip__item" data-work-strip-detail>
+        {cold ? WORK_STRIP_DETAIL_DOMAIN[copy.kind] : WORK_STRIP_DETAIL}
         {words === null ? null : (
           <>
             {" · "}
@@ -281,7 +363,7 @@ function WorkStrip({ copy, result, scope }: { copy: KindCopy; result: WorkIndexR
       <span className="muted status-strip__item" data-work-manage>
         {/* W6-01b B2: both strips link to their live global root (Incidents since W6-01a, Maintenance since B2). */}
         <Link to={globalWorkManageHref(copy.kind, scope, loaded ? loaded.known_at : null)} data-work-manage-link>
-          {`Manage in ${copy.global}`}
+          {cold ? `Manage in ${copy.global} →` : `Manage in ${copy.global}`}
         </Link>
       </span>
     </div>
@@ -364,7 +446,7 @@ function Basis({ body }: { body: WorkIndexBody }) {
 }
 
 /** The exact identities and UTC times behind one row: never truncated, closed by default. */
-function RowDetail({ row }: { row: WorkRow }) {
+function RowDetail({ row, assetId = false }: { row: WorkRow; assetId?: boolean }) {
   return (
     <Disclosure name={`work-row-${row.case_id}`} summary="UTC and IDs" variant="inline">
       <FactList>
@@ -376,6 +458,14 @@ function RowDetail({ row }: { row: WorkRow }) {
         <Fact term="Version ID">
           <code data-vocabulary-exempt="source-reference">{row.revision_id}</code>
         </Fact>
+        {/* K3a (K3 pre-flight ruling 2, R89): the selected asset ID, cold Maintenance only; no second disclosure. */}
+        {assetId && row.asset_id ? (
+          <Fact term="Asset ID">
+            <code data-vocabulary-exempt="source-reference" data-work-asset-id>
+              {row.asset_id}
+            </code>
+          </Fact>
+        ) : null}
         {row.record_id ? (
           <Fact term="Activity record ID">
             <code data-vocabulary-exempt="source-reference">{row.record_id}</code>
@@ -524,16 +614,169 @@ function MaintenanceCells({ row, contexts }: { row: WorkRow; contexts: CaseConte
   );
 }
 
+/**
+ * W5-02 K3b (K3 pre-flight ruling 7, MOCK DEVIATION (D2) R94): on COLDCHAIN case cells a long selected value previews
+ * at two lines with the full value in a `Read full text` disclosure; while it is open the preview is removed and the
+ * body shows the value once, and closing restores it (the K2 ruling 20 behaviour of the cold Actions list).
+ */
+function CaseLongText({ text, name, children }: { text: string; name: string; children?: ReactNode }) {
+  const long = isLongText(text);
+  const [open, setOpen] = useState(false);
+  const wrapper = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = wrapper.current;
+    if (!long || el === null) return undefined;
+    const onToggle = (event: Event) => {
+      const details = event.target;
+      if (details instanceof HTMLDetailsElement && details.parentElement === el) setOpen(details.open);
+    };
+    el.addEventListener("toggle", onToggle, true);
+    return () => el.removeEventListener("toggle", onToggle, true);
+  }, [long]);
+  if (!long) return <span>{children ?? text}</span>;
+  return (
+    <div className="cold-work-longtext" ref={wrapper} data-cold-work-longtext={open ? "open" : "closed"}>
+      {open ? null : (
+        <span className="work-cases-clamp" data-cold-work-preview={name}>
+          {children ?? text}
+        </span>
+      )}
+      <Disclosure name={name} summary={READ_FULL_TEXT}>
+        {open ? (children ?? text) : text}
+      </Disclosure>
+    </div>
+  );
+}
+
+/**
+ * K3a: a cold case title. MOCK DEVIATION (D1) R73: the INC code stays plain (no Incident detail route is mounted).
+ * MOCK DEVIATION (D1) R68: the WR code opens the mounted W6 C2 request Overview for the selected case ID (P-G-4).
+ */
+function ColdCaseTitle({ kind, row, cold }: { kind: WorkKind; row: WorkRow; cold: ColdCells }) {
+  const label = `${row.code} · ${row.title}`;
+  const href = kind === "maintenance" && row.case_id ? coldRequestHref(row.case_id, cold.site.code, cold.knownAt) : null;
+  return (
+    <span data-work-case-title>
+      <CaseLongText text={label} name={`work-case-title-${row.case_id}`}>
+        {href ? (
+          <Link to={href} data-work-request-link>
+            {label}
+          </Link>
+        ) : (
+          label
+        )}
+      </CaseLongText>
+    </span>
+  );
+}
+
+/**
+ * K3a (K2 ruling 4, K3 pre-flight ruling 2). MOCK DEVIATION (D1) R65: the mock's F-118/F-119 slots show
+ * `Finding {id8}`. MOCK DEVIATION (D1) R66: plain text, never an anchor, because the cold Finding frame does not read
+ * `revision_id`; each selected revision is in its own `Finding version` disclosure.
+ */
+function ColdFindingLinks({ row }: { row: WorkRow }) {
+  if (row.finding_links.length === 0) return <span className="muted">No linked finding</span>;
+  return (
+    <>
+      {row.finding_links.map((f, i) => (
+        <span key={`${f.finding_id}:${f.finding_revision_id}`} data-work-finding={f.finding_id}>
+          {i > 0 ? " · " : null}
+          <span className="cold-work-code" data-work-finding-unlinked>{`Finding ${f.finding_id.slice(0, 8)}`}</span>
+          <Disclosure name={`work-finding-${row.case_id}-${f.finding_revision_id}`} summary="Finding version" variant="inline">
+            <code data-vocabulary-exempt="source-reference" data-work-finding-revision>
+              {f.finding_revision_id}
+            </code>
+          </Disclosure>
+        </span>
+      ))}
+    </>
+  );
+}
+
+function ColdIncidentCells({ row, cold }: { row: WorkRow; cold: ColdCells }) {
+  return (
+    <>
+      <td className="work-cases-first">
+        <ColdCaseTitle kind="incidents" row={row} cold={cold} />
+      </td>
+      <td>
+        <span data-work-window>{siteWindowText(row.occurred_at, cold.site.timezone)}</span>
+        <RowDetail row={row} />
+      </td>
+      <td data-work-narrative>
+        <CaseLongText text={row.narrative} name={`work-narrative-${row.case_id}`} />
+      </td>
+      <td>
+        <ColdFindingLinks row={row} />
+      </td>
+      <td>
+        <StateChip kind="incidents" state={row.state} />
+      </td>
+    </>
+  );
+}
+
+function ColdMaintenanceCells({ row, cold }: { row: WorkRow; cold: ColdCells }) {
+  return (
+    <>
+      <td className="work-cases-first">
+        <ColdCaseTitle kind="maintenance" row={row} cold={cold} />
+      </td>
+      <td>
+        {/* MOCK DEVIATION (D4) R89: the selected composite label, `generator-1 · backup generator`. */}
+        {row.asset_label ? (
+          <span data-work-asset>{coldAssetLabel(row.asset_label)}</span>
+        ) : (
+          <span className="muted">No asset linked</span>
+        )}
+        <RowDetail row={row} assetId />
+      </td>
+      <td data-work-activity-cell>
+        {/* K3 pre-flight ruling 3: the selected request-state chip (`Completed` only for COMPLETED).
+            MOCK DEVIATION (D2) R70: the stored activity in a same-cell `Activity recorded` disclosure. */}
+        <StateChip kind="maintenance" state={row.request_state ?? row.state} />
+        {row.activity ? (
+          <Disclosure name={`work-activity-${row.case_id}`} summary="Activity recorded" variant="inline">
+            <span data-work-activity>
+              <CaseLongText text={row.activity} name={`work-activity-text-${row.case_id}`} />
+            </span>
+          </Disclosure>
+        ) : null}
+      </td>
+      <td data-work-outcome-cell>
+        {/* MOCK DEVIATION (D2) R71: the `Unverified` badge, then the selected outcome note in its own disclosure. */}
+        <span className="w1f4-action-badge w1f4-action-badge--amber" data-work-outcome={row.outcome_state ?? "UNVERIFIED"}>
+          Unverified
+        </span>
+        {row.outcome_note ? (
+          <Disclosure name={`work-outcome-${row.case_id}`} summary="Outcome note" variant="inline">
+            <span data-work-outcome-note>
+              <CaseLongText text={row.outcome_note} name={`work-outcome-text-${row.case_id}`} />
+            </span>
+          </Disclosure>
+        ) : null}
+      </td>
+      <td data-work-next-evidence>
+        {/* MOCK DEVIATION (D1) R72: the selected next-evidence copy, or the honest gap; never a witnessed test. */}
+        <span className="work-cases-clamp">{row.next_evidence_copy ?? "No next evidence recorded"}</span>
+      </td>
+    </>
+  );
+}
+
 function Rows({
   copy,
   body,
   links,
   overlay,
+  cold,
 }: {
   copy: KindCopy;
   body: WorkIndexBody;
   links: SiteWorkCasesLinks;
   overlay: DecisionRead<WorkContextsBody> | null;
+  cold: ColdCells | null;
 }) {
   // PR-12.3: a refused Incident overlay is one line beside the table for the displayed rows, not one per row; the
   // rows keep their canonical Finding links and show no context. Maintenance keeps its row-level copy.
@@ -573,7 +816,13 @@ function Rows({
         <tbody>
           {body.rows.map((row) => (
             <tr key={row.case_id} data-work-row={row.case_id} data-work-revision={row.revision_id}>
-              {copy.kind === "incidents" ? (
+              {cold !== null ? (
+                copy.kind === "incidents" ? (
+                  <ColdIncidentCells row={row} cold={cold} />
+                ) : (
+                  <ColdMaintenanceCells row={row} cold={cold} />
+                )
+              ) : copy.kind === "incidents" ? (
                 <IncidentCells row={row} links={links} contexts={contextsOf(row.case_id)} />
               ) : (
                 <MaintenanceCells row={row} contexts={contextsOf(row.case_id)} />
@@ -682,6 +931,7 @@ function Loaded({
   onScope,
   siteId,
   decisions,
+  cold,
 }: {
   copy: KindCopy;
   body: WorkIndexBody;
@@ -691,6 +941,7 @@ function Loaded({
   onScope: SiteWorkCasesProps["onScope"];
   siteId: string;
   decisions?: MiniDecisionsClient;
+  cold: ColdCells | null;
 }) {
   const overlay = useDecisionOverlay(decisions, siteId, body);
   if (body.total_count === 0) {
@@ -711,8 +962,11 @@ function Loaded({
   }
   return (
     <div data-work-loaded>
-      <CoverageLine body={body} />
-      <Rows copy={copy} body={body} links={links} overlay={overlay} />
+      {/* K3 pre-flight ruling 4: COLDCHAIN hides the coverage line; its currentness notice sits above the panel. */}
+      {cold === null ? <CoverageLine body={body} /> : null}
+      <Rows copy={copy} body={body} links={links} overlay={overlay} cold={cold} />
+      {/* Cold: MOCK DEVIATION (D2) R93, the W4 Pages block below the table; MOCK DEVIATION (D2) R92, the selected
+          `What this list is based on` disclosure at the panel foot (also after the complete-zero empty card). */}
       <div className="w1f4-work-foot">
         <Pages body={body} scope={scope} trail={trail} onScope={onScope} />
         <Basis body={body} />
@@ -735,10 +989,16 @@ export function SiteWorkCases({
   onScope,
   decisions,
   windowForm = true,
+  site,
 }: SiteWorkCasesProps & { kind: WorkKind }) {
   const copy = WORK_KIND_COPY[kind];
   const [result, setResult] = useState<WorkIndexResult | null>(null);
   const { from, to, knownAt, cursor } = scope;
+  const cold: ColdCells | null = site !== undefined && site.siteType === "COLDCHAIN" ? { site, knownAt: knownAt ?? null } : null;
+  const loadedBody = result !== null && result.status === "loaded" ? result.value : null;
+  // K3a (P-K3a-7, K3 pre-flight ruling 5): the cold notice comes from the W4 envelope `status`, never `coverage`.
+  const currentness =
+    cold !== null && loadedBody !== null ? coldCurrentnessNotice(loadedBody.status as DomainStatus, loadedBody.known_at) : null;
   useEffect(() => {
     let active = true;
     setResult(null);
@@ -751,7 +1011,15 @@ export function SiteWorkCases({
   }, [client, siteId, kind, from, to, knownAt, cursor]);
   return (
     <Body copy={copy}>
-      <WorkStrip copy={copy} result={result} scope={scope} />
+      <WorkStrip copy={copy} result={result} scope={scope} cold={cold !== null} />
+      {/* MOCK DEVIATION (D2) R91 (K3 pre-flight ruling 5): the cold selected-state notice between strip and panel,
+          blue for Historical/Unknown and amber for Pending recompute/Stale source; absent on CURRENT. */}
+      {loadedBody !== null && currentness !== null ? (
+        <Notice tone={coldCurrentnessTone(loadedBody.status as DomainStatus)} data={{ "data-cold-work-currentness": loadedBody.status }}>
+          <RailIcon name="info" />
+          <p>{currentness}</p>
+        </Notice>
+      ) : null}
       <Panel
         heading={copy.title}
         headingId={`site-work-${kind}-heading`}
@@ -770,14 +1038,23 @@ export function SiteWorkCases({
             onScope={onScope}
             siteId={siteId}
             decisions={decisions}
+            cold={cold}
           />
         ) : (
           <Refused copy={copy} result={result} scope={scope} onScope={onScope} />
         )}
       </Panel>
-      <p className="notice notice--info" data-work-notice>
-        {WORK_CONTEXT_NOTICE}
-      </p>
+      {cold !== null ? (
+        // MOCK DEVIATION (D1) R01: the mock notice's create-flow sentence is omitted (no create flow exists).
+        <Notice tone="blue" data={{ "data-work-notice": "", "data-cold-work-notice": "" }}>
+          <RailIcon name="info" />
+          <p>{WORK_CONTEXT_NOTICE_DOMAIN}</p>
+        </Notice>
+      ) : (
+        <p className="notice notice--info" data-work-notice>
+          {WORK_CONTEXT_NOTICE}
+        </p>
+      )}
     </Body>
   );
 }
