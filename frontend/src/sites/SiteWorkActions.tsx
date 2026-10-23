@@ -34,6 +34,8 @@ import { ChartNote, DataTable, Disclosure, Fact, FactList, Notice, Panel, RailIc
 import type { ActionIndexBody, ActionIndexClient, ActionIndexResult, ActionIndexRow, ActionIndexScope } from "./actionIndexClient";
 import {
   COLD_DOMAIN,
+  invalidScope,
+  isUtcInstant,
   type DomainActionClient,
   type DomainIndexBody,
   type DomainIndexResult,
@@ -598,6 +600,69 @@ export interface ColdSiteWorkActionsProps {
 
 export const COLD_WORK_HEADING_ID = "cold-work-actions-heading";
 
+/** The `[from,to)` window and explicit cutoff the cold Work URL carries (no cursor). */
+export interface ColdWorkWindowScope {
+  from: string;
+  to: string;
+  knownAt: string | null;
+}
+
+const utcDay = (instant: string) => (isUtcInstant(instant) ? new Date(instant).toISOString().slice(0, 10) : "");
+
+/**
+ * W5-02 K2 ruling 1 (P-K2a-39): the compact page-local `Window` control on COLDCHAIN Site Work (Actions, Incidents and
+ * Maintenance), immediately after the Work subtabs and before the scope strip. It displays the selected `from` and
+ * `to` UTC dates (the frame's seven-UTC-day default when the URL has no pair) and, on Apply, writes a nonempty strict
+ * UTC half-open `[from,to)` of at most 31 days with `from < to`; the frame keeps an explicit `known_at`, drops the
+ * cursor and reads page one. Invalid input stays on the page with the existing window error and makes no new read.
+ *
+ * MOCK DEVIATION (D1) R88: the v69 `cold-work` topbar range picker (`index.html:782,1138`) cannot live in the absent
+ * app topbar; this page-local control keeps the mock's ability to select a range.
+ */
+export function ColdWorkWindow({ scope, onApply }: { scope: ColdWorkWindowScope; onApply: (next: ColdWorkWindowScope) => void }) {
+  const [first, setFirst] = useState(utcDay(scope.from));
+  const [last, setLast] = useState(utcDay(scope.to));
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    setFirst(utcDay(scope.from));
+    setLast(utcDay(scope.to));
+    setError(null);
+  }, [scope.from, scope.to]);
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const next = { from: first ? `${first}T00:00:00Z` : "", to: last ? `${last}T00:00:00Z` : "", knownAt: scope.knownAt };
+    // The client's own window check (the server's INVALID_WINDOW literal); nothing is navigated or read when it fails.
+    const invalid = invalidScope({ from: next.from, to: next.to, knownAt: null, cursor: null });
+    if (invalid !== null) {
+      setError(invalid.message);
+      return;
+    }
+    setError(null);
+    onApply(next);
+  };
+  return (
+    <form className="site-date-bar cold-work-window" onSubmit={submit} aria-label="Window" data-cold-work-window>
+      <span className="cold-work-window__lead">Window</span>
+      <label className="cold-work-window__field">
+        {"From (UTC) "}
+        <input className="v69-chip-control" type="date" value={first} onChange={(event) => setFirst(event.target.value)} data-cold-work-window-from />
+      </label>
+      <label className="cold-work-window__field">
+        {"To (UTC, exclusive) "}
+        <input className="v69-chip-control" type="date" value={last} onChange={(event) => setLast(event.target.value)} data-cold-work-window-to />
+      </label>
+      <button className="button" type="submit" data-cold-work-window-apply>
+        Apply
+      </button>
+      {error === null ? null : (
+        <span className="cold-work-window__error" role="alert" data-cold-work-window-error>
+          {error}
+        </span>
+      )}
+    </form>
+  );
+}
+
 /** U4: a long value previews at two lines; the full text sits in a "Read full text" disclosure. */
 function LongText({ text, name, children }: { text: string; name: string; children?: ReactNode }) {
   const long = isLongText(text);
@@ -756,7 +821,7 @@ export function ColdSiteWorkActions({ siteId, siteName, client, scope, links, on
     <div className="w1f4-changes-work cold-work-actions" data-site-work="actions" data-cold-work="actions">
       <div className="status-strip status-strip--line" aria-label="Actions at this site, scope" data-cold-work-strip>
         <span className="status-strip__lead" data-site-work-scope>
-          {/* Loading and refusal show an unknown count, never the mock's zero. */}
+          {/* K2 ruling 11: loading and refusal show exactly `— actions`, never the mock's zero. */}
           <strong>Scoped to {shortName(siteName)}</strong> · {body === null ? "— actions" : coldActionCount(body.total_count)}
         </span>
         <span className="muted status-strip__item">{COLD_WORK_STRIP_DETAIL}</span>
@@ -764,6 +829,8 @@ export function ColdSiteWorkActions({ siteId, siteName, client, scope, links, on
           {COLD_WORK_GLOBAL_GAP}
         </span>
       </div>
+      {/* MOCK DEVIATION (D2) R91 (K2 rulings 15, 16): the selected-state notice sits between the strip and the panel,
+          blue for Historical/Unknown and amber for Pending recompute/Stale source; absent on CURRENT. */}
       {body !== null && notice !== null ? (
         <Notice tone={coldCurrentnessTone(body.status)} data={{ "data-cold-work-currentness": body.status }}>
           <RailIcon name="info" />

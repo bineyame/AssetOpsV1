@@ -320,6 +320,13 @@
   padding: 4px 0 0;
 }
 
+/* K2 ruling 13: only the `.work-cases-clamp` preview hides overflow (its intentional two lines); the scroller, cells,
+   disclosure body and ancestors wrap, so an opened `Read full text` shows all 160 code points inside its cell. */
+.w1f4-changes-work.cold-work-actions .panel .data-table td .disclosure[open] > .disclosure__body {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 /* The refusal wraps its message and keeps Retry visible. */
 .cold-work-actions [data-cold-work-refusal-message] {
   overflow-wrap: anywhere;
@@ -327,4 +334,64 @@
 
 .cold-work-actions .status-strip {
   flex-wrap: wrap;
+}
+
+/* W5-02 K2 ruling 1, MOCK DEVIATION (D1) R88: the page-local cold Work `Window` control after the Work subtabs and
+   before the scope strip; right-aligned at 1440, full width at 390. */
+.site-date-bar.cold-work-window {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  margin: 0 0 12px;
+  font-size: 11px;
+  color: #5c6c86;
+}
+
+.cold-work-window__lead {
+  font-weight: 650;
+  color: #405578;
+}
+
+.cold-work-window__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cold-work-window .button {
+  padding: 6px 12px;
+  font-size: 11px;
+  min-height: 0;
+}
+
+.cold-work-window__error {
+  flex: 1 1 100%;
+  text-align: right;
+  color: #a13838;
+}
+
+@media (max-width: 760px) {
+  .site-date-bar.cold-work-window {
+    justify-content: stretch;
+  }
+
+  .cold-work-window__field {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .cold-work-window__field .v69-chip-control {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .cold-work-window .button {
+    flex: 1 1 100%;
+  }
+
+  .cold-work-window__error {
+    text-align: left;
+  }
 }

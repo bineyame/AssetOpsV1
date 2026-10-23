@@ -12,7 +12,7 @@ import {
   type ActionIndexClient,
   type ActionIndexScope,
 } from "../sites/actionIndexClient";
-import { ColdSiteWorkActions, SiteWorkActions } from "../sites/SiteWorkActions";
+import { ColdSiteWorkActions, ColdWorkWindow, SiteWorkActions } from "../sites/SiteWorkActions";
 import {
   createDomainActionClient,
   type DomainActionClient,
@@ -1893,6 +1893,8 @@ function ColdWorkActionsPage({
         workClient={workClient}
         domainActions={domainActions}
       />
+      {/* K2 ruling 1: MOCK DEVIATION (D1) R88, the page-local Window control (Apply keeps known_at, drops the cursor). */}
+      <ColdWorkWindow scope={scope} onApply={(next) => navigate(page({ ...next, cursor: null }))} />
       <ColdSiteWorkActions
         siteId={site.site_id}
         siteName={site.display_name}
@@ -2081,6 +2083,16 @@ export function SiteWorkCasesFrame({
             workClient={workClient}
             domainActions={domainActions}
           />
+          {site.site_type === "COLDCHAIN" ? (
+            // K2 ruling 1: MOCK DEVIATION (D1) R88, the same page-local Window control on cold Incidents and
+            // Maintenance; Apply keeps an explicit known_at, drops the cursor and the earlier pages, reads page one.
+            <ColdWorkWindow
+              scope={{ from: scope.from, to: scope.to, knownAt: scope.knownAt ?? null }}
+              onApply={(next) =>
+                navigate(hrefFor(site.site_id, coldWorkQuery({ ...next, cursor: null })), { state: { workTrail: [] } })
+              }
+            />
+          ) : null}
           <Body
             siteId={site.site_id}
             client={workClient}

@@ -6,7 +6,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { SiteActionFrame, SiteWorkFrame } from "../../shell/SiteAnalyticsFrames";
+import { SiteActionFrame, SiteWorkCasesFrame, SiteWorkFrame } from "../../shell/SiteAnalyticsFrames";
 import { OPERATOR_SITE_TABS_LABEL } from "../../shell/operatorSiteTabs";
 import { expectV69Panels } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
@@ -127,6 +127,29 @@ async function mountAction(path: string, domain: DomainActionClient, site: SiteD
   return document.querySelector("main") as HTMLElement;
 }
 
+async function mountCases(kind: "incidents" | "maintenance", path: string, domain: DomainActionClient, site: SiteDetailReadModel = COLD_SITE) {
+  const work = workClient();
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route
+          path={`/sites/:siteId/work/${kind}`}
+          element={
+            <>
+              <SiteWorkCasesFrame detail={siteDetail(site)} sitesPath="/sites" kind={kind} workClient={work.client} actionIndex={neverActionIndex} domainActions={domain} />
+              <Where />
+            </>
+          }
+        />
+      </Routes>
+    </MemoryRouter>,
+  );
+  await settledScreen();
+  return { main: document.querySelector("main") as HTMLElement, work };
+}
+
+const setDate = (input: Element | null, value: string) => fireEvent.change(input as HTMLInputElement, { target: { value } });
+
 const workPath = (query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`) => `/sites/${SITE}/work?${query}`;
 const text = (el: Element | null | undefined) => (el?.textContent ?? "").replace(/\s+/g, " ").trim();
 
@@ -173,6 +196,16 @@ describe("domainActionClient wire validation (P-K2a-48)", () => {
       const result = await createDomainActionClient().getIndex(SITE, scope);
       expect(result).toEqual({ status: "refused", http: 200, code: null, message: COLD_WORK_UNEXPECTED });
     }
+  });
+
+  it("reads the current refusal wire `{detail:{code,message,intent:null,results:null}}` on the index (ruling 7)", async () => {
+    stubFetch(() => json(503, { detail: { code: "WORK_STORE_UNAVAILABLE", message: "Work store unavailable.", intent: null, results: null } }));
+    expect(await createDomainActionClient().getIndex(SITE, scope)).toEqual({
+      status: "refused",
+      http: 503,
+      code: "WORK_STORE_UNAVAILABLE",
+      message: "Work store unavailable.",
+    });
   });
 
   it("names refusals, the changed basis and an unreachable server; never an empty success", async () => {
@@ -224,7 +257,7 @@ describe("domainActionClient wire validation (P-K2a-48)", () => {
       stubFetch(() => json(200, body));
       expect(await createDomainActionClient().getDetail(SITE, DOMAIN_ID, null)).toEqual({ status: "refused", http: 200, code: null, message: COLD_WORK_UNEXPECTED });
     }
-    // The merged API nests the null pair in `detail`; the ruled shape puts it beside `detail`. Both are refusals.
+    // K2 ruling 7: the current wire is `{detail:{code,message,intent:null,results:null}}`.
     stubFetch(() => json(404, { detail: { code: "ACTION_NOT_FOUND", message: "Action was not found at this site.", intent: null, results: null } }));
     expect(await createDomainActionClient().getDetail(SITE, DOMAIN_ID, null)).toEqual({
       status: "not_found",
@@ -232,6 +265,19 @@ describe("domainActionClient wire validation (P-K2a-48)", () => {
       code: "ACTION_NOT_FOUND",
       message: "Action was not found at this site.",
     });
+    stubFetch(() => json(503, { detail: { code: "WORK_STORE_UNAVAILABLE", message: "Work store unavailable.", intent: null, results: null } }));
+    expect(await createDomainActionClient().getDetail(SITE, DOMAIN_ID, null)).toEqual({
+      status: "refused",
+      http: 503,
+      code: "WORK_STORE_UNAVAILABLE",
+      message: "Work store unavailable.",
+    });
+    // A non-null pair inside `detail` is never a refusal and never loaded state.
+    for (const pair of [{ intent: { id: "i" }, results: null }, { intent: null, results: [] }]) {
+      stubFetch(() => json(503, { detail: { code: "WORK_STORE_UNAVAILABLE", message: "x", ...pair } }));
+      expect(await createDomainActionClient().getDetail(SITE, DOMAIN_ID, null)).toEqual({ status: "refused", http: 503, code: null, message: COLD_WORK_UNEXPECTED });
+    }
+    // Compatibility only: the older top-level null pair is still read as a refusal (it is not the current wire).
     stubFetch(() => json(503, { detail: { code: "WORK_STORE_UNAVAILABLE", message: "Work store unavailable." }, intent: null, results: null }));
     expect(await createDomainActionClient().getDetail(SITE, DOMAIN_ID, null)).toMatchObject({ status: "refused", http: 503, code: "WORK_STORE_UNAVAILABLE" });
     stubFetch(() => json(503, { detail: { code: "WORK_STORE_UNAVAILABLE", message: "x" }, intent: { id: "i" }, results: null }));
@@ -284,7 +330,8 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     // The server's ruled criterion summary contains "runs" (a T028 term); no cold-work screen gloss is registered for
     // it yet (question filed in .agent/W5-02b-questions.md), so only that exact literal is set aside here.
     const { violations } = scanProductVocabulary(main, "cold-work");
-    const others = violations.filter((v) => !JSON.stringify(v).includes("Start requested → generator runs → power → cooling"));
+    // K2 ruling 14: exactly that one text-node literal is set aside, never a subtree.
+    const others = violations.filter((v) => !(v.where === "text" && v.text === "Start requested → generator runs → power → cooling"));
     expect(others, describeViolations(others)).toEqual([]);
   });
 
@@ -305,7 +352,8 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
       expect(main.textContent).not.toContain(gone);
     }
     expect(main.querySelector("[data-site-work-window]")).toBeNull();
-    expect(main.querySelector("form")).toBeNull();
+    // K2 ruling 1: the only form is the page-local cold `Window` control (R88).
+    expect(Array.from(main.querySelectorAll("form")).map((f) => f.hasAttribute("data-cold-work-window"))).toEqual([true]);
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · 1 actions");
   });
 
@@ -423,6 +471,8 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     ({ main } = await mountWork(workPath(), refused.client));
     expect(main.querySelector("[data-cold-work-empty]")).toBeNull();
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · — actions");
+    // K2 ruling 11: the subtab count is unknown too; zero is only a loaded COMPLETE empty selection.
+    expect(text(document.querySelector('nav[aria-label="Work lists"] a'))).toBe("Actions (—)");
     expect(main.textContent).not.toContain("0 actions");
     expect(text(main.querySelector("[data-cold-work-refusal]"))).toContain("Cold work unavailable");
     expect(text(main.querySelector("[data-cold-work-refusal-message]"))).toBe("Work records are unavailable right now.");
@@ -443,23 +493,34 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     await screen.findByText("Loading the site's Actions.");
     main = document.querySelector("main") as HTMLElement;
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to GreenHarvest · — actions");
+    expect(text(document.querySelector('nav[aria-label="Work lists"] a'))).toBe("Actions (—)");
     expect(main.querySelector("[data-cold-work-empty]")).toBeNull();
   });
 
   it("puts the currentness notice below the strip for every non-current status (component states)", async () => {
-    const cases: [DomainIndexBody["status"], string][] = [
-      ["HISTORICAL", "Read as of 2026-10-22 09:30 UTC. Later work may differ."],
-      ["PENDING_RECOMPUTE", "Linked evidence is being reassessed. The work record remains recorded."],
-      ["STALE_SOURCE", "Linked evidence source is out of date. The work record remains recorded."],
-      ["UNKNOWN", "No selected source for linked evidence. The work record remains recorded."],
+    const cases: [DomainIndexBody["status"], string, "blue" | "amber"][] = [
+      ["HISTORICAL", "Read as of 2026-10-22 09:30 UTC. Later work may differ.", "blue"],
+      ["PENDING_RECOMPUTE", "Linked evidence is being reassessed. The work record remains recorded.", "amber"],
+      ["STALE_SOURCE", "Linked evidence source is out of date. The work record remains recorded.", "amber"],
+      ["UNKNOWN", "No selected source for linked evidence. The work record remains recorded.", "blue"],
     ];
-    for (const [status, words] of cases) {
+    for (const [status, words, tone] of cases) {
       const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()], { status }) }));
       const { main } = await mountWork(workPath(), client);
       const notice = main.querySelector("[data-cold-work-currentness]") as HTMLElement;
       expect(notice.getAttribute("data-cold-work-currentness")).toBe(status);
       expect(text(notice)).toBe(words);
       expect(notice.previousElementSibling?.hasAttribute("data-cold-work-strip")).toBe(true);
+      expect(notice.nextElementSibling?.matches("section.panel")).toBe(true);
+      // K2 ruling 16: blue info for Historical/Unknown, amber for Pending recompute/Stale source.
+      expect(notice.classList.contains("v69-notice--blue")).toBe(tone === "blue");
+      // K2 ruling 15 (R91): the panel guard admits the notice only between the strip and panel 1.
+      expectV69Panels("cold-work");
+      const strip = main.querySelector("[data-cold-work-strip]") as HTMLElement;
+      strip.before(notice);
+      expect(() => expectV69Panels("cold-work")).toThrow();
+      strip.after(notice);
+      expectV69Panels("cold-work");
       // No currentness changes the lifecycle chip.
       expect(main.querySelector("[data-cold-work-state]")?.textContent).toBe("Open");
       cleanup();
@@ -467,6 +528,12 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
     const { main } = await mountWork(workPath(), client);
     expect(main.querySelector("[data-cold-work-currentness]")).toBeNull();
+    expectV69Panels("cold-work");
+    cleanup();
+    const zero = domainClient(() => ({ status: "loaded", value: indexBody([]) }));
+    const zeroMain = (await mountWork(workPath(), zero.client)).main;
+    expect(zeroMain.querySelector("[data-cold-work-currentness]")).toBeNull();
+    expectV69Panels("cold-work");
   });
 
   it("previews long text at two lines with the full text in `Read full text`", async () => {
@@ -491,6 +558,112 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(shortMain.querySelector("[data-cold-work-owner] .work-cases-clamp")).toBeNull();
   });
 
+  it("puts the page-local Window control after the Work subtabs and before the scope strip, showing the default dates (ruling 1, R88)", async () => {
+    const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+    const { main } = await mountWork(`/sites/${SITE}/work`, client);
+    const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
+    expect(form.getAttribute("aria-label")).toBe("Window");
+    expect(form.previousElementSibling?.matches('nav[aria-label="Work lists"]')).toBe(true);
+    expect(form.nextElementSibling?.firstElementChild?.hasAttribute("data-cold-work-strip")).toBe(true);
+    const expected = defaultWorkWindow();
+    expect((form.querySelector("[data-cold-work-window-from]") as HTMLInputElement).value).toBe(expected.from.slice(0, 10));
+    expect((form.querySelector("[data-cold-work-window-to]") as HTMLInputElement).value).toBe(expected.to.slice(0, 10));
+    expect(text(form.querySelector("[data-cold-work-window-apply]"))).toBe("Apply");
+    expect(form.querySelector("[data-cold-work-window-error]")).toBeNull();
+    expectV69Panels("cold-work");
+  });
+
+  it("Apply writes from,to into the URL, keeps an explicit known_at, drops the cursor and reads page one (ruling 1)", async () => {
+    const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+    const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}&cursor=abc`;
+    const { main } = await mountWork(workPath(query), client);
+    const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
+    expect((form.querySelector("[data-cold-work-window-from]") as HTMLInputElement).value).toBe("2026-10-15");
+    expect((form.querySelector("[data-cold-work-window-to]") as HTMLInputElement).value).toBe("2026-10-22");
+    setDate(form.querySelector("[data-cold-work-window-from]"), "2026-10-01");
+    setDate(form.querySelector("[data-cold-work-window-to]"), "2026-10-20");
+    fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
+    const want = `/sites/${SITE}/work?from=${encodeURIComponent("2026-10-01T00:00:00Z")}&to=${encodeURIComponent("2026-10-20T00:00:00Z")}&known_at=${encodeURIComponent(KNOWN)}`;
+    await waitFor(() => expect(where()).toBe(want));
+    await settledScreen();
+    expect(indexCalls.at(-1)?.scope).toEqual({ from: "2026-10-01T00:00:00Z", to: "2026-10-20T00:00:00Z", knownAt: KNOWN, cursor: null });
+    cleanup();
+    // No explicit known_at in the URL: none is invented.
+    const plain = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+    const plainMain = (await mountWork(`/sites/${SITE}/work`, plain.client)).main;
+    setDate(plainMain.querySelector("[data-cold-work-window-from]"), "2026-10-01");
+    setDate(plainMain.querySelector("[data-cold-work-window-to]"), "2026-11-01");
+    fireEvent.click(plainMain.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
+    await waitFor(() => expect(where()).toBe(`/sites/${SITE}/work?from=${encodeURIComponent("2026-10-01T00:00:00Z")}&to=${encodeURIComponent("2026-11-01T00:00:00Z")}`));
+    await settledScreen();
+  });
+
+  it("invalid Window input stays on the page with the window error and makes no new read (ruling 1)", async () => {
+    const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+    const { main } = await mountWork(workPath(), client);
+    const before = where();
+    const reads = indexCalls.length;
+    const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
+    for (const [from, to] of [
+      ["2026-10-20", "2026-10-20"],
+      ["2026-10-20", "2026-10-10"],
+      ["2026-09-01", "2026-10-03"],
+      ["", "2026-10-03"],
+      ["2026-10-01", ""],
+    ]) {
+      setDate(form.querySelector("[data-cold-work-window-from]"), from);
+      setDate(form.querySelector("[data-cold-work-window-to]"), to);
+      fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
+      expect(text(form.querySelector("[data-cold-work-window-error]"))).toBe("The window may span at most 31 days.");
+      expect(where()).toBe(before);
+    }
+    await settledScreen();
+    expect(indexCalls.length).toBe(reads);
+    // Exactly 31 days is a valid window.
+    setDate(form.querySelector("[data-cold-work-window-from]"), "2026-09-01");
+    setDate(form.querySelector("[data-cold-work-window-to]"), "2026-10-02");
+    fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
+    await waitFor(() => expect(where()).toContain(`from=${encodeURIComponent("2026-09-01T00:00:00Z")}`));
+    await settledScreen();
+    expect(main.querySelector("[data-cold-work-window-error]")).toBeNull();
+  });
+
+  it("keeps the Window control on cold Incidents and Maintenance; Apply preserves known_at and drops the cursor (ruling 1)", async () => {
+    for (const kind of ["incidents", "maintenance"] as const) {
+      const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+      const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}&cursor=abc`;
+      const { main, work } = await mountCases(kind, `/sites/${SITE}/work/${kind}?${query}`, client);
+      const form = main.querySelector("[data-cold-work-window]") as HTMLFormElement;
+      expect(form.previousElementSibling?.matches('nav[aria-label="Work lists"]')).toBe(true);
+      const keep = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+      expect(Array.from(document.querySelectorAll('nav[aria-label="Work lists"] a')).map((a) => a.getAttribute("href"))).toEqual([
+        `/sites/${SITE}/work?${keep}`,
+        `/sites/${SITE}/work/incidents?${keep}`,
+        `/sites/${SITE}/work/maintenance?${keep}`,
+      ]);
+      setDate(form.querySelector("[data-cold-work-window-from]"), "2026-10-02");
+      setDate(form.querySelector("[data-cold-work-window-to]"), "2026-10-09");
+      fireEvent.click(form.querySelector("[data-cold-work-window-apply]") as HTMLButtonElement);
+      const want = `/sites/${SITE}/work/${kind}?from=${encodeURIComponent("2026-10-02T00:00:00Z")}&to=${encodeURIComponent("2026-10-09T00:00:00Z")}&known_at=${encodeURIComponent(KNOWN)}`;
+      await waitFor(() => expect(where()).toBe(want));
+      await settledScreen();
+      const last = work.calls.filter((c) => c.kind === kind).at(-1);
+      expect(last?.scope).toMatchObject({ from: "2026-10-02T00:00:00Z", to: "2026-10-09T00:00:00Z", knownAt: KNOWN, cursor: null });
+      cleanup();
+    }
+  });
+
+  it("never takes the cold Work subtitle from Foundation summary (ruling 9, R90)", async () => {
+    const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+    const site = {
+      ...COLD_SITE,
+      foundation: { version: 1, valid_from: FROM, summary: "Foundation configuration summary text", components: [], topology: null, devices: null, signal_mappings: null, control_assumptions: null },
+    } as unknown as SiteDetailReadModel;
+    const { main } = await mountWork(workPath(), client, site);
+    expect(main.textContent).toContain("Cold-room operations at this site.");
+    expect(main.textContent).not.toContain("Foundation configuration summary text");
+  });
+
   it("keeps a mini-grid Site on the W1 list (no domain read, W1 window form kept)", async () => {
     const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([]) }));
     const mini = { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel;
@@ -504,6 +677,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     await settledScreen();
     expect(indexCalls).toEqual([]);
     expect(document.querySelector("[data-site-work-window]")).not.toBeNull();
+    expect(document.querySelector("[data-cold-work-window]")).toBeNull();
     expect(document.querySelector("[data-cold-work-strip]")).toBeNull();
     expect(Array.from(document.querySelectorAll('nav[aria-label="Work lists"] a')).map((a) => a.getAttribute("href"))).toEqual([
       `/sites/${SITE}/work`,
@@ -530,7 +704,15 @@ describe("cold domain Action route and placeholder shell (U1, U2)", () => {
     expect(crumbs.querySelector("[data-domain-action-crumb-site] a")?.getAttribute("href")).toBe(`/sites/${SITE}`);
     expect(text(main.querySelector("h1"))).toBe("ACT-000051 · Witness automatic-start test");
     expect(main.textContent).toContain("Has backup service been restored after the inspection?");
-    expect(main.querySelector("[data-domain-action-open-site]")?.getAttribute("href")).toBe(`/sites/${SITE}`);
+    const openSite = main.querySelector("[data-domain-action-open-site]") as HTMLElement;
+    expect(openSite.getAttribute("href")).toBe(`/sites/${SITE}`);
+    // K2 ruling 18: the mock `btn(...)` secondary button class, not a bare link.
+    expect(openSite.classList.contains("button")).toBe(true);
+    expect(openSite.classList.contains("primary")).toBe(false);
+    // K2 ruling 1 (R88): no topbar, Site switch or provenance tag on `cold-action`.
+    for (const absent of [".topbar", ".site-switch", 'select[aria-label="Switch site"]', ".prov-tag", "[data-cold-work-window]"]) {
+      expect(document.querySelector(absent)).toBeNull();
+    }
     expect(document.querySelector(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"]`)).toBeNull();
     const tabs = Array.from(main.querySelectorAll('nav[aria-label="Action sections"] a'));
     expect(tabs.map(text)).toEqual(["Verification"]);
@@ -545,6 +727,15 @@ describe("cold domain Action route and placeholder shell (U1, U2)", () => {
     expect(text(main.querySelector("[data-domain-action-panel]"))).toBe("Action details are being prepared.");
     expect(text(main.querySelector("[data-domain-action-notice]"))).toBe("Completed inspection does not establish successful service restoration.");
     expect(main.querySelector("[data-domain-action-currentness]")).toBeNull();
+    // K2 ruling 10 / U2 order: one untitled panel right after the status strip, then the blue notice, last.
+    const panelBox = main.querySelector("[data-domain-action-panel]")?.closest("section.panel") as HTMLElement;
+    expect(main.querySelectorAll("section.panel")).toHaveLength(1);
+    expect(panelBox.querySelector("h2")).toBeNull();
+    expect(panelBox.previousElementSibling).toBe(strip);
+    const notice = main.querySelector("[data-domain-action-notice]") as HTMLElement;
+    expect(panelBox.nextElementSibling).toBe(notice);
+    expect(notice.classList.contains("v69-notice--blue")).toBe(true);
+    expect(notice.nextElementSibling).toBeNull();
     // No battery read on a domain Action.
     expect(fetchRecord).toEqual([]);
     const { violations } = scanProductVocabulary(main, "cold-action");
@@ -639,6 +830,36 @@ describe("cold domain Action route and placeholder shell (U1, U2)", () => {
     cleanup();
     await mountAction(`/sites/${SITE}/actions/${DOMAIN_ID}`, client);
     await waitFor(() => expect(where()).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`));
+  });
+
+  it("a refused (503) domain probe on a bare or legacy address keeps the W1 presenter at its original address (ruling 8)", async () => {
+    stubFetch(() => json(404, { detail: { code: "ACTION_NOT_FOUND", message: "No such Action." } }));
+    for (const path of [`/sites/${SITE}/actions/${W1_ID}`, `/sites/${SITE}/actions/${W1_ID}/history`, `/sites/${SITE}/actions/${DOMAIN_ID}`]) {
+      const { client, detailCalls } = domainClient(
+        () => ({ status: "loaded", value: indexBody([]) }),
+        () => ({ status: "refused", http: 503, code: "WORK_STORE_UNAVAILABLE", message: "Work records are unavailable right now." }),
+      );
+      await mountAction(path, client);
+      expect(detailCalls).toHaveLength(1);
+      expect(where()).toBe(path);
+      expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
+      expect(document.querySelector("[data-domain-action-probe]")).toBeNull();
+      expect(document.body.textContent).not.toContain("Cold work unavailable");
+      cleanup();
+    }
+  });
+
+  it("a W1 ID on the domain /verification address is not found, never the W1 presenter (ruling 8)", async () => {
+    stubFetch(() => json(200, {}));
+    const { client } = domainClient(
+      () => ({ status: "loaded", value: indexBody([]) }),
+      () => ({ status: "not_found", http: 404, code: "ACTION_NOT_FOUND", message: "Action was not found at this site." }),
+    );
+    const main = await mountAction(`/sites/${SITE}/actions/${W1_ID}/verification`, client);
+    expect(where()).toBe(`/sites/${SITE}/actions/${W1_ID}/verification`);
+    expect(text(main.querySelector('[data-domain-action-panel="not-found"]'))).toBe("Action was not found at this site.");
+    expect(fetchRecord).toEqual([]);
+    expect(document.querySelector(`nav[aria-label="${OPERATOR_SITE_TABS_LABEL}"]`)).toBeNull();
   });
 
   it("a mini-grid Site never reads the domain Action", async () => {

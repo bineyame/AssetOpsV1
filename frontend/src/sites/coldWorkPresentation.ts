@@ -30,7 +30,10 @@ export const COLD_DUE_MISSING = "Not set";
 export const COLD_CRITERION_MISSING = "No success criterion declared";
 export const COLD_STATE_OPEN = "Open";
 
-/** P-K2a-40: the cold Work page subtitle when the Site has no stored subtitle. */
+/**
+ * P-K2a-40 / K2 ruling 9: the cold Work page subtitle, always (no Site subtitle field exists; never Foundation
+ * `summary`). MOCK DEVIATION (D4) R90: the mock's site-specific subtitle is illustrative configuration copy.
+ */
 export const COLD_WORK_SUBTITLE_FALLBACK = "Cold-room operations at this site.";
 
 /** U2: the domain Action page (v69 `cold-action`) PageHeader subtitle and placeholder copy. */
@@ -83,7 +86,10 @@ export function coldCurrentnessNotice(status: DomainStatus, knownAt: string): st
   }
 }
 
-/** The notice tone, following the W4 strip status tones (`siteWorkCases.tsx` `statusWords`). */
+/**
+ * K2 ruling 16: Historical and Unknown use the blue info tone; Pending recompute and Stale source use amber.
+ * MOCK DEVIATION (D2) R91: the selected-state notice between strip and panel is a ruled live-selection improvement.
+ */
 export function coldCurrentnessTone(status: DomainStatus): "blue" | "amber" {
   return status === "PENDING_RECOMPUTE" || status === "STALE_SOURCE" ? "amber" : "blue";
 }

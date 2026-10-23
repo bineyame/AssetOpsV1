@@ -298,7 +298,11 @@ function isDetail(value: unknown, siteCode: string, actionId: string): value is 
   );
 }
 
-/** The refusal body `{detail:{code,message}}` (the detail read also carries `intent:null,results:null`). */
+/**
+ * K2 ruling 7: the merged refusal envelope is exactly `{detail:{code,message,intent:null,results:null}}`; the null pair
+ * sits inside `detail` and is never read as loaded state. The older top-level null pair is accepted only for
+ * compatibility; it is not the current wire.
+ */
 function refusalOf(http: number, body: unknown): { code: string; message: string } | null {
   if (!isObject(body) || !isObject(body.detail)) return null;
   const detail = body.detail;
