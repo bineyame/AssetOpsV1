@@ -8,6 +8,7 @@ MAIN = "uvicorn assetops_backend.main:app"
 D, L, S = "assetops_w601_c4_test", "assetops_w601_c4linked_test", "assetops_w601_c4stress_test"
 STATES = {
     "page1": (D, "detail", MAIN, "WR-000001 current: six authored rows (revision 1 omitted), page 1 of 2"),
+    "page1-m1": ("assetops_w601_c4m1_test", "detail-m1", MAIN, "review M1 recapture after useCurrentTabInView: WR-000001 page 1; at 390 the current History tab is scrolled into view (fresh detail seed, its own stored IDs)"),
     "page2": (D, "detail", MAIN, "WR-000001 current after Next: row 6 (Correction) then the two in-table gaps"),
     "occurred-expanded": (D, "detail", MAIN, "WR-000001 page 1 with the first row's Occurrence time disclosure opened"),
     "cancel": (D, "detail", MAIN, "WR-000002: persisted CANCEL"),
@@ -24,7 +25,7 @@ STATES = {
 
 
 def main() -> None:
-    seeds = {fx: json.loads((HERE / f"seed-{fx}.json").read_text(encoding="utf-8-sig")) for fx in ("detail", "detail-linked", "stress")}
+    seeds = {fx: json.loads((HERE / f"seed-{fx}.json").read_text(encoding="utf-8-sig")) for fx in ("detail", "detail-m1", "detail-linked", "stress")}
     states = []
     for state, (db, fx, server, note) in STATES.items():
         cap = json.loads((HERE / "screenshots" / f"app-{state}.json").read_text(encoding="utf-8"))
@@ -41,7 +42,7 @@ def main() -> None:
                 "collapsed_details_max_h": r["collapsed_details_max_h"], "table_scroll": r["table_scroll"],
                 "column_widths": r["column_widths"], "document_width": r["document_width"],
             })
-        states.append({"state": state, "note": note, "fixture_command": SEED.format(db=db, fx=fx), "server": server,
+        states.append({"state": state, "note": note, "fixture_command": SEED.format(db=db, fx=fx.removesuffix("-m1")), "server": server,
                        "stored_ids": ids, "captured_at": cap["captured_at"], "results": results})
     manifest = {
         "unit": "W6-01d C4",
