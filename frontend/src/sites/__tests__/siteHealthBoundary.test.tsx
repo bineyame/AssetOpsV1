@@ -417,13 +417,13 @@ describe("W5-01a C3: the cold Health composition stays off non-cold Sites", () =
     const FROM = "2026-10-06T08:00:00.000000Z";
     const TO = "2026-10-06T09:00:00.000000Z";
     const url = new URL(
-      evSourcesHref("EV-LAB-001", new URLSearchParams({ from: FROM, to: TO, known_at: TO, gateway: "GW-EV-01" })),
+      evSourcesHref("/sites/EV-LAB-001/ev/evidence", new URLSearchParams({ from: FROM, to: TO, known_at: TO, gateway: "GW-EV-01" })),
       "http://x",
     );
     expect(url.pathname).toBe("/sites/EV-LAB-001/ev/evidence");
     expect(url.search).toBe(`?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(TO)}`);
     expect(url.hash).toBe("#ev-site-sources-heading");
-    expect(evSourcesHref("EV-LAB-001", new URLSearchParams({ to: TO, gateway: "GW-EV-01" }))).toBe("/sites/EV-LAB-001/ev/evidence#ev-site-sources-heading");
+    expect(evSourcesHref("/sites/EV-LAB-001/ev/evidence", new URLSearchParams({ to: TO, gateway: "GW-EV-01" }))).toBe("/sites/EV-LAB-001/ev/evidence#ev-site-sources-heading");
   });
 });
 

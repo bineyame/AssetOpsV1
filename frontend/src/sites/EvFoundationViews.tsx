@@ -25,7 +25,6 @@ import type { FoundationVersionsReadModel } from "./siteFoundationClient";
 import { EvSingleLineDiagram } from "./SiteSingleLineDiagram";
 import { connectorName, LIMIT_NOT_DECLARED, NO_CONNECTOR_DECLARED, NOT_DECLARED } from "./evWords";
 import { COMMISSIONING_RECORD, NOTHING_FURTHER_RECORDED } from "./ColdFoundationViews";
-import { siteEvHref } from "../shell/operatorSiteRoutes";
 import { isUtcInstant } from "./domainActionClient";
 import "./w2-cold-foundation.css";
 import "./w2-ev-foundation.css";
@@ -61,10 +60,11 @@ export const SOURCES_LINK = "Evidence › Data sources →";
 export const EV_SITE_SOURCES_FRAGMENT = "#ev-site-sources-heading";
 
 /**
- * The EV Evidence source-panel destination: `siteEvHref(code, "evidence")`, the address's `from,to` only when both
- * are valid UTC instants in order, `known_at` only when valid, then the source-panel fragment. `gateway` is dropped.
+ * The EV Evidence source-panel destination: the shell's `siteEvHref(code, "evidence")` path, the address's `from,to`
+ * only when both are valid UTC instants in order, `known_at` only when valid, then the source-panel fragment.
+ * `gateway` is dropped. (The Site substrate may not import shell routes, so the shell passes the path.)
  */
-export function evSourcesHref(siteCode: string, params: URLSearchParams): string {
+export function evSourcesHref(evidencePath: string, params: URLSearchParams): string {
   const query = new URLSearchParams();
   const from = params.get("from");
   const to = params.get("to");
@@ -75,7 +75,7 @@ export function evSourcesHref(siteCode: string, params: URLSearchParams): string
     if (known !== null && isUtcInstant(known)) query.set("known_at", known);
   }
   const text = query.toString();
-  return `${siteEvHref(siteCode, "evidence")}${text === "" ? "" : `?${text}`}${EV_SITE_SOURCES_FRAGMENT}`;
+  return `${evidencePath}${text === "" ? "" : `?${text}`}${EV_SITE_SOURCES_FRAGMENT}`;
 }
 export const EV_TIMELINE_NO_HISTORY = "No history to draw";
 
@@ -116,6 +116,8 @@ export interface EvFoundationFrameProps {
   versions: FoundationVersionsReadModel | null;
   viewHref: (target: FoundationView) => string;
   evidenceHref: string;
+  /** W5-03b E4 (ruling 3): the EV Evidence page path (`siteEvHref(code, "evidence")`, no query), given by the shell. */
+  evEvidenceHref: string;
   healthHref: string;
   financialsHref: string;
   assumptionsHref: string;
@@ -537,7 +539,7 @@ const NOTICE_CODES = new Set(["SOURCE_NOT_CONTACTED", "COMMISSIONING_UNCONFIRMED
 function EvReadinessView(props: ViewProps) {
   const { read, health } = props;
   const [params] = useSearchParams();
-  const sources = evSourcesHref(props.siteId, params);
+  const sources = evSourcesHref(props.evEvidenceHref, params);
   const names = partNames(read);
   const messages = read.readiness.messages;
   const ready = read.readiness.state === "READY_TO_REPORT";

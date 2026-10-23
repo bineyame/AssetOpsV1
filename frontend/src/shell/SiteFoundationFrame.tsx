@@ -21,6 +21,7 @@ import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import {
   FOUNDATION_COMPONENT_PARAM,
   siteDetailHref,
+  siteEvHref,
   siteEvidenceHref,
   siteFinancialAssumptionsHref,
   siteFinancialsHref,
@@ -168,6 +169,7 @@ export function SiteFoundationFrame({
         versions={state.versions?.status === "loaded" ? state.versions.value : null}
         viewHref={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)}
         evidenceHref={siteEvidenceHref(siteId)}
+        evEvidenceHref={siteEvHref(siteId, "evidence")}
         healthHref={siteHealthHref(siteId)}
         financialsHref={siteFinancialsHref(siteId)}
         assumptionsHref={siteFinancialAssumptionsHref(siteId)}
