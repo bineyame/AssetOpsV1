@@ -137,3 +137,6 @@ Code part done; the Postgres/vitest/build/recapture batch is held (see "Batch st
 | Ruling 7 builder interpretations | 4e22e59f | new pure tests `test_null_connector_id_binds_by_scoped_asset`, `test_unusable_transition_ends_the_previous_observation`; connector-level meter test already existed |
 
 Checks run in the code part (DB-free): `tsc --noEmit` clean; vitest `evDepth.test.tsx` + `evEnergy.test.tsx` 21 passed; backend pure tests of the two W5-03a files 18 passed / 11 DB tests skipped; `check_v69_ledger.py` valid; `check_v69_dependency_registry.cjs` exit 0. Open points: `.agent/W5-03a-fix-questions.md`.
+
+### Fix-round rulings applied (2026-10-23)
+Main 44a1739e merged. Ruling 1 (telemetry-only next evidence) confirmed and now tested. Ruling 2: Availability chart notes (`{H} h`), bound prose (`Lower bound: {a} / {s} hours. Upper bound: ({a} + {u} unknown) / {s}.`) and next-evidence (`missing {H} hour` for exactly 1, else `hours`) use `hoursText` from exact seconds; `evDepth.test.tsx` updated plus singular and telemetry-only assertions. Ruling 3 confirmed; ruling 4 verified in the batch. Batch still held.

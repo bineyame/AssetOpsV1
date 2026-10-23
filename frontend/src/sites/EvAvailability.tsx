@@ -71,6 +71,10 @@ export function boundText(lower: string | null, upper: string | null): string {
   return lower === null || upper === null ? "Unknown" : `${pct2(lower)}–${pct2(upper)}%`;
 }
 
+/** Decimal hours for prose (ruling 2): at most two places, no trailing zeroes, from exact seconds; null is `Unknown`. */
+const hrs = (seconds: number | null) => (seconds === null ? "Unknown" : hoursText(seconds));
+const missingHours = (seconds: number) => `${hoursText(seconds)} ${hoursText(seconds) === "1" ? "hour" : "hours"}`;
+
 const dur = (seconds: number | null) => (seconds === null ? "Unknown" : durationText(seconds));
 
 /** A connector's scheduled occurrences inside the window: its spans unioned (spans cover exactly the schedule). */
@@ -258,7 +262,7 @@ function StatePanel({ read }: { read: EvAvailabilityRead }) {
           ) : (
             a.connectors.map((row) => (
               <p key={row.asset_id} className="v69-chart-note" data-ev-chart-note={row.asset_id}>
-                {`${connectorName(row.label)}: ${dur(row.known_available_seconds)} available, ${dur(row.known_unavailable_seconds)} observed unavailable and ${dur(row.unknown_seconds)} unknown. Spans use accepted transition timestamps.`}
+                {`${connectorName(row.label)}: ${hrs(row.known_available_seconds)} h available, ${hrs(row.known_unavailable_seconds)} h observed unavailable and ${hrs(row.unknown_seconds)} h unknown. Spans use accepted transition timestamps.`}
               </p>
             ))
           )}
@@ -280,7 +284,7 @@ function AvailabilityBody({ read, routes }: { read: EvAvailabilityRead; routes: 
       : a.schedule_state === "DECLARED_EMPTY"
         ? `Declare service hours before assessing connector availability. ${TELEMETRY_SENTENCE}`
         : a.unknown_seconds !== null && a.unknown_seconds > 0
-          ? `Recover the connector status/heartbeat history for the missing ${durationText(a.unknown_seconds)}. ${TELEMETRY_SENTENCE}`
+          ? `Recover the connector status/heartbeat history for the missing ${missingHours(a.unknown_seconds)}. ${TELEMETRY_SENTENCE}`
           : TELEMETRY_SENTENCE;
   return (
     <>
@@ -307,7 +311,7 @@ function AvailabilityBody({ read, routes }: { read: EvAvailabilityRead; routes: 
           </div>
           <p className="prose" data-ev-bound-prose="">
             {bounded
-              ? `Lower bound: ${dur(a.known_available_seconds)} / ${dur(a.scheduled_seconds)}. Upper bound: (${dur(a.known_available_seconds)} + ${dur(a.unknown_seconds)} unknown) / ${dur(a.scheduled_seconds)}. Unknown time is not silently included as available.`
+              ? `Lower bound: ${hrs(a.known_available_seconds)} / ${hrs(a.scheduled_seconds)} hours. Upper bound: (${hrs(a.known_available_seconds)} + ${hrs(a.unknown_seconds)} unknown) / ${hrs(a.scheduled_seconds)}. Unknown time is not silently included as available.`
               : "Lower bound: Unknown. Upper bound: Unknown. Unknown time is not silently included as available."}
           </p>
         </Panel>

@@ -212,15 +212,15 @@ describe("W5-03a E2: EV Availability", () => {
     expect(Array.from(document.querySelectorAll(".ev-depth-legend .badge")).map((b) => b.textContent)).toEqual(["Available", "Unavailable", "Unknown"]);
     expect(text(`[data-ev-span-summary="${id(7)}"]`)).toContain("08:20–08:25 UTC Unknown");
     expect(text(`[data-ev-chart-note="${id(7)}"]`)).toBe(
-      "Connector c1: 40 min available, 15 min observed unavailable and 5 min unknown. Spans use accepted transition timestamps.",
+      "Connector c1: 0.67 h available, 0.25 h observed unavailable and 0.08 h unknown. Spans use accepted transition timestamps.",
     );
     // Bound: two decimals; prose uses selected durations.
     expect(text("[data-ev-bound]")).toBe("77.78–83.33%");
     expect(text("[data-ev-bound-prose]")).toBe(
-      "Lower bound: 1 h 10 min / 1 h 30 min. Upper bound: (1 h 10 min + 5 min unknown) / 1 h 30 min. Unknown time is not silently included as available.",
+      "Lower bound: 1.17 / 1.5 hours. Upper bound: (1.17 + 0.08 unknown) / 1.5. Unknown time is not silently included as available.",
     );
     expect(text("[data-ev-next-evidence]")).toBe(
-      "Recover the connector status/heartbeat history for the missing 5 min. A telemetry outage does not prove the charging connector was physically unavailable.",
+      "Recover the connector status/heartbeat history for the missing 0.08 hours. A telemetry outage does not prove the charging connector was physically unavailable.",
     );
     // Lineage link: the EV Evidence Analysis UI path with the read window; no dead link anywhere.
     expect(document.querySelector("[data-ev-lineage]")?.getAttribute("href")).toBe(
@@ -237,6 +237,16 @@ describe("W5-03a E2: EV Availability", () => {
     expect(cards().map((c) => c[1])).toEqual(["0 min", "0 min", "1 h 0 min", "Unknown"]);
     expect(text("[data-ev-availability-empty]")).toBe("No trustworthy connector-state spans in the selected schedule.");
     expect(text("[data-ev-bound]")).toBe("0.00–100.00%");
+    // Ruling 2: exactly one hour is singular, and the prose bounds are hour numbers.
+    expect(text("[data-ev-next-evidence]")).toContain("for the missing 1 hour. A telemetry");
+    expect(text("[data-ev-bound-prose]")).toBe("Lower bound: 0 / 1 hours. Upper bound: (0 + 1 unknown) / 1. Unknown time is not silently included as available.");
+    cleanup();
+    // Ruling 1: a scheduled window with no unknown time shows only the telemetry sentence.
+    const known = connector("Connector c1", 7, [{ from: t(8, 0), to: t(9, 0), state: "AVAILABLE", evidence_ids: [id(101)] }]);
+    renderAvailability(loaded(read({}, "CURRENT", [known])));
+    await settledScreen();
+    expect(text("[data-ev-next-evidence]")).toBe("A telemetry outage does not prove the charging connector was physically unavailable.");
+    expect(main().textContent).not.toContain("Recover the connector");
     expect(text("[data-ev-connector-hours]")).toBe("1 connectors × 1 scheduled hours = 1 connector-hours");
   });
 
