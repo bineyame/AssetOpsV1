@@ -835,6 +835,8 @@ const MEASURE_ACTION_K4 = `(() => {
   const codeBody = (e) => { const b = e.closest('.disclosure__body'); return b !== null && b.querySelector(':scope > code') !== null && getComputedStyle(b).overflowX === 'auto' ? b : null; };
   const outside = (root) => root === null ? [] : [...root.querySelectorAll('*')].filter((e) => {
     const r = e.getBoundingClientRect(); if (r.width === 0 && r.height === 0) return false;
+    // A closed disclosure's body is not rendered (Chrome keeps layout boxes behind ::details-content).
+    const shut = e.closest('details:not([open])'); if (shut && !e.closest('summary')) return false;
     if (e.closest('.data-table__scroll') && e.closest('.data-table__scroll') !== e) return false;
     const box = (e.tagName === 'CODE' && codeBody(e) ? codeBody(e) : root).getBoundingClientRect();
     return r.left < box.left - 1 || r.right > box.right + 1;
@@ -968,6 +970,9 @@ async function actionMain() {
   const notLinkedAt = D["action-not-linked"]?.query?.known_at;
   const cut = P.cutoffs;
   const modeCut = (k) => manifest.modes[k].reads?.[k]?.query?.known_at;
+  // Warm each dev server once (first-load module compile) so the first measured state is not a cold-start timeout.
+  for (const k of Object.keys(portOf)) await go(url(B(k), manifest.modes[k].actions[0].id, null), ACTION_K4_READY);
+  for (const p of [forbidden, unavailable]) await go(url(procBase(p), aid, null), ACTION_K4_READY);
   for (const [wi, [W, width, height]] of WIDTHS.entries()) {
     await size(width, height);
     let m;

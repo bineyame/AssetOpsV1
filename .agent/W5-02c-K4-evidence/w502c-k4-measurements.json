@@ -1,0 +1,4333 @@
+{
+  "manifest_revision": "5db28f19",
+  "caps": {
+    "action": {
+      "main": [
+        1500,
+        1900
+      ],
+      "strip": [
+        140,
+        200
+      ],
+      "criteria": [
+        500,
+        760
+      ],
+      "related": [
+        360,
+        500
+      ],
+      "notice": [
+        110,
+        160
+      ]
+    }
+  },
+  "api422": {
+    "status": 422,
+    "body": {
+      "detail": {
+        "code": "INVALID_KNOWN_AT",
+        "message": "'known_at' must be one UTC instant no later than the read time.",
+        "intent": null,
+        "results": null
+      }
+    }
+  },
+  "captures": [
+    {
+      "state": "action-positive",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-positive.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 755,
+        "strip": 42,
+        "criteria": 292,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": null,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-positive-version-open",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-positive-version-open.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": true,
+        "revisionText": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "revisionOneLine": true,
+        "revisionBodyInsideStrip": true,
+        "revisionReadable": true,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 799,
+        "strip": 86,
+        "criteria": 292,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": null,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-not-linked",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-not-linked.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "No outcome criteria have been declared for this Action.",
+        "related": "not-linked",
+        "relatedSentence": "No completed inspection is linked to this Action.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "inspectNote": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        },
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "HISTORICAL",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 626,
+        "strip": 42,
+        "criteria": 103,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": 42,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-historical",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-historical.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "HISTORICAL",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 815,
+        "strip": 42,
+        "criteria": 292,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": 42,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-pending",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-pending.png",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 88d089bb",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "PENDING_RECOMPUTE",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 815,
+        "strip": 42,
+        "criteria": 292,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": 42,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-stale",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-stale.png",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 27283914",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "STALE_SOURCE",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 815,
+        "strip": 42,
+        "criteria": 292,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": 42,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-unknown",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-unknown.png",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 8e9c77ab",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "UNKNOWN",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 815,
+        "strip": 42,
+        "criteria": 292,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": 42,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-worstcase",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-worstcase.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · Cold · Finding 270f923e",
+        "owner": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "No outcome criteria have been declared for this Action.",
+        "related": "not-linked",
+        "relatedSentence": "No completed inspection is linked to this Action.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "inspectNote": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        },
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 684,
+        "strip": 42,
+        "criteria": 103,
+        "relatedPanel": 168,
+        "notice": 42,
+        "currentnessNotice": null,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-not-found",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-not-found.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+        "shell": "not_found",
+        "panelState": "not-found",
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 220,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 63,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-403",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-403.png",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "refused",
+        "panelState": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalText": "Cold work unavailableNo access to Site 'COLD-LAB-001'.Retry",
+        "refusalMessage": "No access to Site 'COLD-LAB-001'.",
+        "retryVisible": true,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 315,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 158,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-503",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-503.png",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "refused",
+        "panelState": "refused",
+        "refusal": "WORK_STORE_UNAVAILABLE",
+        "refusalText": "Cold work unavailableWork records could not be read or saved.Retry",
+        "refusalMessage": "Work records could not be read or saved.",
+        "retryVisible": true,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 315,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 158,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-422-client",
+      "width": 1440,
+      "file": "w502c-k4-desktop-action-422-client.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+        "shell": "refused",
+        "panelState": "refused",
+        "refusal": "INVALID_KNOWN_AT",
+        "refusalText": "Cold work unavailable'known_at' must be one UTC instant no later than the read time.Retry",
+        "refusalMessage": "'known_at' must be one UTC instant no later than the read time.",
+        "retryVisible": true,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "main": 315,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 158,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-positive",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-positive.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 1115,
+        "strip": 65,
+        "criteria": 433,
+        "relatedPanel": 272,
+        "notice": 60,
+        "currentnessNotice": null,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-positive-version-open",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-positive-version-open.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": true,
+        "revisionText": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "revisionOneLine": true,
+        "revisionBodyInsideStrip": true,
+        "revisionReadable": true,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 1137,
+        "strip": 86,
+        "criteria": 433,
+        "relatedPanel": 272,
+        "notice": 60,
+        "currentnessNotice": null,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-not-linked",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-not-linked.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "No outcome criteria have been declared for this Action.",
+        "related": "not-linked",
+        "relatedSentence": "No completed inspection is linked to this Action.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "inspectNote": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        },
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "HISTORICAL",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 852,
+        "strip": 42,
+        "criteria": 126,
+        "relatedPanel": 278,
+        "notice": 60,
+        "currentnessNotice": 42,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-historical",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-historical.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "HISTORICAL",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 1175,
+        "strip": 65,
+        "criteria": 433,
+        "relatedPanel": 272,
+        "notice": 60,
+        "currentnessNotice": 42,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-pending",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-pending.png",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 88d089bb",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "PENDING_RECOMPUTE",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 1193,
+        "strip": 65,
+        "criteria": 433,
+        "relatedPanel": 272,
+        "notice": 60,
+        "currentnessNotice": 60,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-stale",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-stale.png",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 27283914",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "STALE_SOURCE",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 1193,
+        "strip": 65,
+        "criteria": 433,
+        "relatedPanel": 272,
+        "notice": 60,
+        "currentnessNotice": 60,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-unknown",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-unknown.png",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead · Cold · Finding 8e9c77ab",
+        "owner": "Maintenance lead",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ],
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "intentMissing": "",
+        "related": "completed",
+        "relatedSentence": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": false,
+          "text": "Inspect maintenance evidence",
+          "describedBy": null,
+          "target": "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+        },
+        "inspectNote": null,
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": "UNKNOWN",
+        "currentnessAfterStrip": true,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 1193,
+        "strip": 65,
+        "criteria": 433,
+        "relatedPanel": 272,
+        "notice": 60,
+        "currentnessNotice": 60,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": true
+      }
+    },
+    {
+      "state": "action-worstcase",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-worstcase.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+        "shell": "loaded",
+        "panelState": null,
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "headingFits": true,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ],
+        "panelCount": 2,
+        "statusLine": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · Cold · Finding 270f923e",
+        "owner": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+        "ownerWrap": "anywhere",
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "No outcome criteria have been declared for this Action.",
+        "related": "not-linked",
+        "relatedSentence": "No completed inspection is linked to this Action.",
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "inspectNote": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        },
+        "finding": {
+          "tag": "SPAN",
+          "text": "Open source Finding →",
+          "interactive": false,
+          "note": "The selected Finding revision cannot be opened here yet."
+        },
+        "relatedLinks": 0,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "Completed inspection does not establish successful service restoration.",
+        "noticeLast": true,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 978,
+        "strip": 114,
+        "criteria": 126,
+        "relatedPanel": 278,
+        "notice": 60,
+        "currentnessNotice": null,
+        "statePanel": null,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-not-found",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-not-found.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+        "shell": "not_found",
+        "panelState": "not-found",
+        "refusal": null,
+        "refusalText": "",
+        "refusalMessage": "",
+        "retryVisible": false,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 266,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 63,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-403",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-403.png",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "refused",
+        "panelState": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalText": "Cold work unavailableNo access to Site 'COLD-LAB-001'.Retry",
+        "refusalMessage": "No access to Site 'COLD-LAB-001'.",
+        "retryVisible": true,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 361,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 158,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-503",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-503.png",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "shell": "refused",
+        "panelState": "refused",
+        "refusal": "WORK_STORE_UNAVAILABLE",
+        "refusalText": "Cold work unavailableWork records could not be read or saved.Retry",
+        "refusalMessage": "Work records could not be read or saved.",
+        "retryVisible": true,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 361,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 158,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    },
+    {
+      "state": "action-422-client",
+      "width": 390,
+      "file": "w502c-k4-narrow-action-422-client.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+        "shell": "refused",
+        "panelState": "refused",
+        "refusal": "INVALID_KNOWN_AT",
+        "refusalText": "Cold work unavailable'known_at' must be one UTC instant no later than the read time.Retry",
+        "refusalMessage": "'known_at' must be one UTC instant no later than the read time.",
+        "retryVisible": true,
+        "heading": "Action",
+        "headingFits": true,
+        "headings": [
+          ""
+        ],
+        "panelCount": 1,
+        "statusLine": "",
+        "owner": "",
+        "ownerWrap": null,
+        "headingWrap": "anywhere",
+        "revisionOpen": false,
+        "revisionText": "",
+        "revisionOneLine": null,
+        "revisionBodyInsideStrip": null,
+        "revisionReadable": null,
+        "rows": [],
+        "columns": [],
+        "intentMissing": "",
+        "related": null,
+        "relatedSentence": "",
+        "inspect": null,
+        "inspectNote": null,
+        "finding": null,
+        "relatedLinks": null,
+        "currentness": null,
+        "currentnessAfterStrip": null,
+        "noticeText": "",
+        "noticeLast": null,
+        "railCurrent": [
+          "Actions"
+        ],
+        "railActive": [
+          "Actions"
+        ],
+        "railLinks": 9,
+        "hasDue": false,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "main": 384,
+        "strip": null,
+        "criteria": null,
+        "relatedPanel": null,
+        "notice": null,
+        "currentnessNotice": null,
+        "statePanel": 181,
+        "stripOutside": [],
+        "critOutside": [],
+        "relOutside": [],
+        "tableScrollsInPanel": false
+      }
+    }
+  ],
+  "claims": [
+    {
+      "name": "manifest: positive detail reads (CURRENT completed WR; K1 cutoff with no work) and worstcase Action 1 read present",
+      "ok": true,
+      "detail": {
+        "current": {
+          "case_id": "0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c",
+          "case_code": "WR-000002",
+          "case_title": "Starter/control inspection",
+          "request_state": "COMPLETED",
+          "record_id": "a13da30b-805a-4c7d-8008-017ca14bdff4",
+          "label": "Maintenance request WR-000002",
+          "href": null
+        },
+        "notLinked": {
+          "known_at": "2026-10-23T22:43:56.292341Z"
+        },
+        "worst": {
+          "action_id": "c4f9fd53-3b87-4260-8e6b-849ecf80fecd",
+          "query": {},
+          "status": "CURRENT",
+          "known_at": "2026-10-23T22:44:39.245786Z",
+          "intent": false,
+          "results": [],
+          "work": {
+            "case_id": null,
+            "case_code": null,
+            "case_title": null,
+            "request_state": null,
+            "record_id": null,
+            "label": null,
+            "href": null
+          },
+          "title_code_points": 160,
+          "owner_code_points": 160,
+          "expected": {
+            "intent": false,
+            "work": null
+          }
+        }
+      }
+    },
+    {
+      "name": "API 422: invalid known_at answers 422 INVALID_KNOWN_AT (captured beside the client refusal, P-K4b-1)",
+      "ok": true,
+      "detail": {
+        "status": 422,
+        "body": {
+          "detail": {
+            "code": "INVALID_KNOWN_AT",
+            "message": "'known_at' must be one UTC instant no later than the read time.",
+            "intent": null,
+            "results": null
+          }
+        }
+      }
+    },
+    {
+      "name": "desktop action-positive: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-positive: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "desktop action-positive: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "desktop action-positive: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "desktop action-positive: currentness absent",
+      "ok": true,
+      "detail": {
+        "currentness": null,
+        "placed": null
+      }
+    },
+    {
+      "name": "desktop action-positive: four declared criteria with the stored initial results in the mock columns",
+      "ok": true,
+      "detail": {
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "desktop action-positive: criteria table scroller inside its panel",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-positive: completed selected WR sentence",
+      "ok": true,
+      "detail": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required."
+    },
+    {
+      "name": "desktop action-positive: Inspect is a live secondary button to the selected WR Overview",
+      "ok": true,
+      "detail": {
+        "tag": "BUTTON",
+        "type": "button",
+        "cls": "button",
+        "disabled": false,
+        "text": "Inspect maintenance evidence",
+        "describedBy": null,
+        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+      }
+    },
+    {
+      "name": "desktop action-positive: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "desktop action-positive: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "desktop action-positive: status line owner · short Site · Finding id8",
+      "ok": true,
+      "detail": "Maintenance lead · Cold · Finding 6c9a371d"
+    },
+    {
+      "name": "desktop action-positive: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-positive: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-positive: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-positive: page main <= 1500",
+      "ok": true,
+      "detail": 755
+    },
+    {
+      "name": "desktop action-positive: strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-positive: criteria panel <= 500",
+      "ok": true,
+      "detail": 292
+    },
+    {
+      "name": "desktop action-positive: Related activity panel <= 360",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-positive: concluding notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-positive-version-open: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-positive-version-open: full revision UUID readable on one line inside the strip",
+      "ok": true,
+      "detail": {
+        "open": true,
+        "text": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "oneLine": true,
+        "inside": true,
+        "readable": true
+      }
+    },
+    {
+      "name": "desktop action-positive-version-open: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-positive-version-open: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-positive-version-open: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-positive-version-open: INFO page main 799 px (user-expanded; height cap 1500 exempt, ruling 7)",
+      "ok": true,
+      "detail": 799
+    },
+    {
+      "name": "desktop action-positive-version-open: INFO strip 86 px (user-expanded; height cap 140 exempt, ruling 7)",
+      "ok": true,
+      "detail": 86
+    },
+    {
+      "name": "desktop action-positive-version-open: INFO criteria panel 292 px (user-expanded; height cap 500 exempt, ruling 7)",
+      "ok": true,
+      "detail": 292
+    },
+    {
+      "name": "desktop action-positive-version-open: INFO Related activity panel 168 px (user-expanded; height cap 360 exempt, ruling 7)",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-positive-version-open: INFO concluding notice 42 px (user-expanded; height cap 110 exempt, ruling 7)",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-not-linked: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-not-linked: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "desktop action-not-linked: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "desktop action-not-linked: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "desktop action-not-linked: currentness HISTORICAL right after the strip, before criteria",
+      "ok": true,
+      "detail": {
+        "currentness": "HISTORICAL",
+        "placed": true
+      }
+    },
+    {
+      "name": "desktop action-not-linked: criteria heading kept, exact missing sentence, no table",
+      "ok": true,
+      "detail": {
+        "missing": "No outcome criteria have been declared for this Action.",
+        "rows": 0
+      }
+    },
+    {
+      "name": "desktop action-not-linked: no completed inspection sentence",
+      "ok": true,
+      "detail": "No completed inspection is linked to this Action."
+    },
+    {
+      "name": "desktop action-not-linked: Inspect disabled, described by the visible adjacent sentence",
+      "ok": true,
+      "detail": {
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "note": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        }
+      }
+    },
+    {
+      "name": "desktop action-not-linked: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "desktop action-not-linked: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "desktop action-not-linked: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-not-linked: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-not-linked: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-not-linked: page main <= 1500",
+      "ok": true,
+      "detail": 626
+    },
+    {
+      "name": "desktop action-not-linked: strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-not-linked: criteria panel <= 500",
+      "ok": true,
+      "detail": 103
+    },
+    {
+      "name": "desktop action-not-linked: Related activity panel <= 360",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-not-linked: concluding notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-not-linked: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-historical: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-historical: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "desktop action-historical: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "desktop action-historical: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "desktop action-historical: currentness HISTORICAL right after the strip, before criteria",
+      "ok": true,
+      "detail": {
+        "currentness": "HISTORICAL",
+        "placed": true
+      }
+    },
+    {
+      "name": "desktop action-historical: four declared criteria with the stored initial results in the mock columns",
+      "ok": true,
+      "detail": {
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "desktop action-historical: criteria table scroller inside its panel",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-historical: completed selected WR sentence",
+      "ok": true,
+      "detail": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required."
+    },
+    {
+      "name": "desktop action-historical: Inspect is a live secondary button to the selected WR Overview",
+      "ok": true,
+      "detail": {
+        "tag": "BUTTON",
+        "type": "button",
+        "cls": "button",
+        "disabled": false,
+        "text": "Inspect maintenance evidence",
+        "describedBy": null,
+        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+      }
+    },
+    {
+      "name": "desktop action-historical: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "desktop action-historical: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "desktop action-historical: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-historical: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-historical: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-historical: page main <= 1500",
+      "ok": true,
+      "detail": 815
+    },
+    {
+      "name": "desktop action-historical: strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-historical: criteria panel <= 500",
+      "ok": true,
+      "detail": 292
+    },
+    {
+      "name": "desktop action-historical: Related activity panel <= 360",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-historical: concluding notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-historical: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-pending: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-pending: PENDING_RECOMPUTE notice right after the strip, two panels",
+      "ok": true,
+      "detail": {
+        "currentness": "PENDING_RECOMPUTE",
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "desktop action-pending: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-pending: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-pending: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-pending: page main <= 1500",
+      "ok": true,
+      "detail": 815
+    },
+    {
+      "name": "desktop action-pending: strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-pending: criteria panel <= 500",
+      "ok": true,
+      "detail": 292
+    },
+    {
+      "name": "desktop action-pending: Related activity panel <= 360",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-pending: concluding notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-pending: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-stale: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-stale: STALE_SOURCE notice right after the strip, two panels",
+      "ok": true,
+      "detail": {
+        "currentness": "STALE_SOURCE",
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "desktop action-stale: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-stale: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-stale: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-stale: page main <= 1500",
+      "ok": true,
+      "detail": 815
+    },
+    {
+      "name": "desktop action-stale: strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-stale: criteria panel <= 500",
+      "ok": true,
+      "detail": 292
+    },
+    {
+      "name": "desktop action-stale: Related activity panel <= 360",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-stale: concluding notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-stale: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-unknown: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-unknown: UNKNOWN notice right after the strip, two panels",
+      "ok": true,
+      "detail": {
+        "currentness": "UNKNOWN",
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "desktop action-unknown: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-unknown: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-unknown: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-unknown: page main <= 1500",
+      "ok": true,
+      "detail": 815
+    },
+    {
+      "name": "desktop action-unknown: strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-unknown: criteria panel <= 500",
+      "ok": true,
+      "detail": 292
+    },
+    {
+      "name": "desktop action-unknown: Related activity panel <= 360",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-unknown: concluding notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-unknown: currentness notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-worstcase: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "desktop action-worstcase: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "desktop action-worstcase: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "desktop action-worstcase: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "desktop action-worstcase: currentness absent",
+      "ok": true,
+      "detail": {
+        "currentness": null,
+        "placed": null
+      }
+    },
+    {
+      "name": "desktop action-worstcase: criteria heading kept, exact missing sentence, no table",
+      "ok": true,
+      "detail": {
+        "missing": "No outcome criteria have been declared for this Action.",
+        "rows": 0
+      }
+    },
+    {
+      "name": "desktop action-worstcase: no completed inspection sentence",
+      "ok": true,
+      "detail": "No completed inspection is linked to this Action."
+    },
+    {
+      "name": "desktop action-worstcase: Inspect disabled, described by the visible adjacent sentence",
+      "ok": true,
+      "detail": {
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "note": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        }
+      }
+    },
+    {
+      "name": "desktop action-worstcase: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "desktop action-worstcase: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "desktop action-worstcase: full 160-code-point title and owner shown whole",
+      "ok": true,
+      "detail": {
+        "heading": 173,
+        "owner": 160
+      }
+    },
+    {
+      "name": "desktop action-worstcase: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-worstcase: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-worstcase: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-worstcase: page main <= 1500",
+      "ok": true,
+      "detail": 684
+    },
+    {
+      "name": "desktop action-worstcase: strip <= 140",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-worstcase: criteria panel <= 500",
+      "ok": true,
+      "detail": 103
+    },
+    {
+      "name": "desktop action-worstcase: Related activity panel <= 360",
+      "ok": true,
+      "detail": 168
+    },
+    {
+      "name": "desktop action-worstcase: concluding notice <= 110",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-not-found: settled",
+      "ok": true,
+      "detail": "not_found"
+    },
+    {
+      "name": "desktop action-not-found: one untitled not-found panel",
+      "ok": true,
+      "detail": {
+        "shell": "not_found",
+        "panel": "not-found",
+        "headings": [
+          ""
+        ]
+      }
+    },
+    {
+      "name": "desktop action-not-found: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-not-found: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-not-found: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-not-found: page main <= 1500",
+      "ok": true,
+      "detail": 220
+    },
+    {
+      "name": "desktop action-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "desktop action-403: one untitled refusal panel, 'Cold work unavailable', server message and Retry (403 SITE_SCOPE_FORBIDDEN)",
+      "ok": true,
+      "detail": {
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "text": "Cold work unavailableNo access to Site 'COLD-LAB-001'.Retry",
+        "message": "No access to Site 'COLD-LAB-001'.",
+        "retry": true
+      }
+    },
+    {
+      "name": "desktop action-403: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-403: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-403: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-403: page main <= 1500",
+      "ok": true,
+      "detail": 315
+    },
+    {
+      "name": "desktop action-503: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "desktop action-503: one untitled refusal panel, 'Cold work unavailable', server message and Retry (503 WORK_STORE_UNAVAILABLE)",
+      "ok": true,
+      "detail": {
+        "refusal": "WORK_STORE_UNAVAILABLE",
+        "text": "Cold work unavailableWork records could not be read or saved.Retry",
+        "message": "Work records could not be read or saved.",
+        "retry": true
+      }
+    },
+    {
+      "name": "desktop action-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-503: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-503: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-503: page main <= 1500",
+      "ok": true,
+      "detail": 315
+    },
+    {
+      "name": "desktop action-422-client: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "desktop action-422-client: the client refuses the invalid known_at before fetching (INVALID_KNOWN_AT), one untitled panel",
+      "ok": true,
+      "detail": {
+        "refusal": "INVALID_KNOWN_AT",
+        "message": "'known_at' must be one UTC instant no later than the read time."
+      }
+    },
+    {
+      "name": "desktop action-422-client: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-422-client: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop action-422-client: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "desktop action-422-client: page main <= 1500",
+      "ok": true,
+      "detail": 315
+    },
+    {
+      "name": "narrow action-positive: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-positive: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "narrow action-positive: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "narrow action-positive: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "narrow action-positive: currentness absent",
+      "ok": true,
+      "detail": {
+        "currentness": null,
+        "placed": null
+      }
+    },
+    {
+      "name": "narrow action-positive: four declared criteria with the stored initial results in the mock columns",
+      "ok": true,
+      "detail": {
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "narrow action-positive: criteria table scroller inside its panel",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-positive: completed selected WR sentence",
+      "ok": true,
+      "detail": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required."
+    },
+    {
+      "name": "narrow action-positive: Inspect is a live secondary button to the selected WR Overview",
+      "ok": true,
+      "detail": {
+        "tag": "BUTTON",
+        "type": "button",
+        "cls": "button",
+        "disabled": false,
+        "text": "Inspect maintenance evidence",
+        "describedBy": null,
+        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+      }
+    },
+    {
+      "name": "narrow action-positive: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "narrow action-positive: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "narrow action-positive: status line owner · short Site · Finding id8",
+      "ok": true,
+      "detail": "Maintenance lead · Cold · Finding 6c9a371d"
+    },
+    {
+      "name": "narrow action-positive: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-positive: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-positive: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-positive: page main <= 1900",
+      "ok": true,
+      "detail": 1115
+    },
+    {
+      "name": "narrow action-positive: strip <= 200",
+      "ok": true,
+      "detail": 65
+    },
+    {
+      "name": "narrow action-positive: criteria panel <= 760",
+      "ok": true,
+      "detail": 433
+    },
+    {
+      "name": "narrow action-positive: Related activity panel <= 500",
+      "ok": true,
+      "detail": 272
+    },
+    {
+      "name": "narrow action-positive: concluding notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-positive-version-open: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-positive-version-open: full revision UUID readable on one line inside the strip",
+      "ok": true,
+      "detail": {
+        "open": true,
+        "text": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "oneLine": true,
+        "inside": true,
+        "readable": true
+      }
+    },
+    {
+      "name": "narrow action-positive-version-open: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-positive-version-open: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-positive-version-open: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-positive-version-open: INFO page main 1137 px (user-expanded; height cap 1900 exempt, ruling 7)",
+      "ok": true,
+      "detail": 1137
+    },
+    {
+      "name": "narrow action-positive-version-open: INFO strip 86 px (user-expanded; height cap 200 exempt, ruling 7)",
+      "ok": true,
+      "detail": 86
+    },
+    {
+      "name": "narrow action-positive-version-open: INFO criteria panel 433 px (user-expanded; height cap 760 exempt, ruling 7)",
+      "ok": true,
+      "detail": 433
+    },
+    {
+      "name": "narrow action-positive-version-open: INFO Related activity panel 272 px (user-expanded; height cap 500 exempt, ruling 7)",
+      "ok": true,
+      "detail": 272
+    },
+    {
+      "name": "narrow action-positive-version-open: INFO concluding notice 60 px (user-expanded; height cap 160 exempt, ruling 7)",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-not-linked: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-not-linked: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "narrow action-not-linked: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "narrow action-not-linked: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "narrow action-not-linked: currentness HISTORICAL right after the strip, before criteria",
+      "ok": true,
+      "detail": {
+        "currentness": "HISTORICAL",
+        "placed": true
+      }
+    },
+    {
+      "name": "narrow action-not-linked: criteria heading kept, exact missing sentence, no table",
+      "ok": true,
+      "detail": {
+        "missing": "No outcome criteria have been declared for this Action.",
+        "rows": 0
+      }
+    },
+    {
+      "name": "narrow action-not-linked: no completed inspection sentence",
+      "ok": true,
+      "detail": "No completed inspection is linked to this Action."
+    },
+    {
+      "name": "narrow action-not-linked: Inspect disabled, described by the visible adjacent sentence",
+      "ok": true,
+      "detail": {
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "note": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        }
+      }
+    },
+    {
+      "name": "narrow action-not-linked: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "narrow action-not-linked: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "narrow action-not-linked: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-not-linked: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-not-linked: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-not-linked: page main <= 1900",
+      "ok": true,
+      "detail": 852
+    },
+    {
+      "name": "narrow action-not-linked: strip <= 200",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow action-not-linked: criteria panel <= 760",
+      "ok": true,
+      "detail": 126
+    },
+    {
+      "name": "narrow action-not-linked: Related activity panel <= 500",
+      "ok": true,
+      "detail": 278
+    },
+    {
+      "name": "narrow action-not-linked: concluding notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-not-linked: currentness notice <= 160",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow action-historical: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-historical: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "narrow action-historical: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "narrow action-historical: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "narrow action-historical: currentness HISTORICAL right after the strip, before criteria",
+      "ok": true,
+      "detail": {
+        "currentness": "HISTORICAL",
+        "placed": true
+      }
+    },
+    {
+      "name": "narrow action-historical: four declared criteria with the stored initial results in the mock columns",
+      "ok": true,
+      "detail": {
+        "columns": [
+          "Criterion",
+          "Required evidence",
+          "Current result"
+        ],
+        "rows": [
+          [
+            "Automatic start",
+            "Accepted command followed by successful running status",
+            "Not tested"
+          ],
+          [
+            "Power delivery",
+            "Generator supply reaches the cooling system",
+            "Not tested"
+          ],
+          [
+            "Cooling recovery",
+            "Temperature recovery within declared test conditions",
+            "Not established"
+          ],
+          [
+            "Recurrence",
+            "Covered observation window without a qualifying repeat",
+            "Pending"
+          ]
+        ]
+      }
+    },
+    {
+      "name": "narrow action-historical: criteria table scroller inside its panel",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-historical: completed selected WR sentence",
+      "ok": true,
+      "detail": "Starter/control inspection WR-000002 is complete. A witnessed outcome test remains required."
+    },
+    {
+      "name": "narrow action-historical: Inspect is a live secondary button to the selected WR Overview",
+      "ok": true,
+      "detail": {
+        "tag": "BUTTON",
+        "type": "button",
+        "cls": "button",
+        "disabled": false,
+        "text": "Inspect maintenance evidence",
+        "describedBy": null,
+        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+      }
+    },
+    {
+      "name": "narrow action-historical: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "narrow action-historical: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "narrow action-historical: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-historical: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-historical: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-historical: page main <= 1900",
+      "ok": true,
+      "detail": 1175
+    },
+    {
+      "name": "narrow action-historical: strip <= 200",
+      "ok": true,
+      "detail": 65
+    },
+    {
+      "name": "narrow action-historical: criteria panel <= 760",
+      "ok": true,
+      "detail": 433
+    },
+    {
+      "name": "narrow action-historical: Related activity panel <= 500",
+      "ok": true,
+      "detail": 272
+    },
+    {
+      "name": "narrow action-historical: concluding notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-historical: currentness notice <= 160",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "narrow action-pending: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-pending: PENDING_RECOMPUTE notice right after the strip, two panels",
+      "ok": true,
+      "detail": {
+        "currentness": "PENDING_RECOMPUTE",
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "narrow action-pending: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-pending: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-pending: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-pending: page main <= 1900",
+      "ok": true,
+      "detail": 1193
+    },
+    {
+      "name": "narrow action-pending: strip <= 200",
+      "ok": true,
+      "detail": 65
+    },
+    {
+      "name": "narrow action-pending: criteria panel <= 760",
+      "ok": true,
+      "detail": 433
+    },
+    {
+      "name": "narrow action-pending: Related activity panel <= 500",
+      "ok": true,
+      "detail": 272
+    },
+    {
+      "name": "narrow action-pending: concluding notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-pending: currentness notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-stale: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-stale: STALE_SOURCE notice right after the strip, two panels",
+      "ok": true,
+      "detail": {
+        "currentness": "STALE_SOURCE",
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "narrow action-stale: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-stale: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-stale: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-stale: page main <= 1900",
+      "ok": true,
+      "detail": 1193
+    },
+    {
+      "name": "narrow action-stale: strip <= 200",
+      "ok": true,
+      "detail": 65
+    },
+    {
+      "name": "narrow action-stale: criteria panel <= 760",
+      "ok": true,
+      "detail": 433
+    },
+    {
+      "name": "narrow action-stale: Related activity panel <= 500",
+      "ok": true,
+      "detail": 272
+    },
+    {
+      "name": "narrow action-stale: concluding notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-stale: currentness notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-unknown: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-unknown: UNKNOWN notice right after the strip, two panels",
+      "ok": true,
+      "detail": {
+        "currentness": "UNKNOWN",
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "narrow action-unknown: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-unknown: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-unknown: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-unknown: page main <= 1900",
+      "ok": true,
+      "detail": 1193
+    },
+    {
+      "name": "narrow action-unknown: strip <= 200",
+      "ok": true,
+      "detail": 65
+    },
+    {
+      "name": "narrow action-unknown: criteria panel <= 760",
+      "ok": true,
+      "detail": 433
+    },
+    {
+      "name": "narrow action-unknown: Related activity panel <= 500",
+      "ok": true,
+      "detail": 272
+    },
+    {
+      "name": "narrow action-unknown: concluding notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-unknown: currentness notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-worstcase: settled",
+      "ok": true,
+      "detail": "loaded"
+    },
+    {
+      "name": "narrow action-worstcase: loaded, two mock panels in order, no state panel",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": null,
+        "headings": [
+          "Declared outcome criteria",
+          "Related activity"
+        ]
+      }
+    },
+    {
+      "name": "narrow action-worstcase: Actions alone selected in the rail (nine links)",
+      "ok": true,
+      "detail": {
+        "current": [
+          "Actions"
+        ],
+        "active": [
+          "Actions"
+        ],
+        "links": 9
+      }
+    },
+    {
+      "name": "narrow action-worstcase: concluding notice last with the mock text",
+      "ok": true,
+      "detail": {
+        "last": true,
+        "text": "Completed inspection does not establish successful service restoration."
+      }
+    },
+    {
+      "name": "narrow action-worstcase: currentness absent",
+      "ok": true,
+      "detail": {
+        "currentness": null,
+        "placed": null
+      }
+    },
+    {
+      "name": "narrow action-worstcase: criteria heading kept, exact missing sentence, no table",
+      "ok": true,
+      "detail": {
+        "missing": "No outcome criteria have been declared for this Action.",
+        "rows": 0
+      }
+    },
+    {
+      "name": "narrow action-worstcase: no completed inspection sentence",
+      "ok": true,
+      "detail": "No completed inspection is linked to this Action."
+    },
+    {
+      "name": "narrow action-worstcase: Inspect disabled, described by the visible adjacent sentence",
+      "ok": true,
+      "detail": {
+        "inspect": {
+          "tag": "BUTTON",
+          "type": "button",
+          "cls": "button",
+          "disabled": true,
+          "text": "Inspect maintenance evidence",
+          "describedBy": "domain-action-inspect-unavailable",
+          "target": null
+        },
+        "note": {
+          "text": "Maintenance detail is unavailable for this record.",
+          "visible": true
+        }
+      }
+    },
+    {
+      "name": "narrow action-worstcase: Open source Finding is muted noninteractive text with its sentence; no link in Related activity",
+      "ok": true,
+      "detail": {
+        "tag": "SPAN",
+        "text": "Open source Finding →",
+        "interactive": false,
+        "note": "The selected Finding revision cannot be opened here yet."
+      }
+    },
+    {
+      "name": "narrow action-worstcase: owner and heading wrap anywhere; no Due date",
+      "ok": true,
+      "detail": {
+        "owner": "anywhere",
+        "heading": "anywhere",
+        "due": false
+      }
+    },
+    {
+      "name": "narrow action-worstcase: full 160-code-point title and owner shown whole",
+      "ok": true,
+      "detail": {
+        "heading": 173,
+        "owner": 160
+      }
+    },
+    {
+      "name": "narrow action-worstcase: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-worstcase: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-worstcase: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-worstcase: page main <= 1900",
+      "ok": true,
+      "detail": 978
+    },
+    {
+      "name": "narrow action-worstcase: strip <= 200",
+      "ok": true,
+      "detail": 114
+    },
+    {
+      "name": "narrow action-worstcase: criteria panel <= 760",
+      "ok": true,
+      "detail": 126
+    },
+    {
+      "name": "narrow action-worstcase: Related activity panel <= 500",
+      "ok": true,
+      "detail": 278
+    },
+    {
+      "name": "narrow action-worstcase: concluding notice <= 160",
+      "ok": true,
+      "detail": 60
+    },
+    {
+      "name": "narrow action-not-found: settled",
+      "ok": true,
+      "detail": "not_found"
+    },
+    {
+      "name": "narrow action-not-found: one untitled not-found panel",
+      "ok": true,
+      "detail": {
+        "shell": "not_found",
+        "panel": "not-found",
+        "headings": [
+          ""
+        ]
+      }
+    },
+    {
+      "name": "narrow action-not-found: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-not-found: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-not-found: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-not-found: page main <= 1900",
+      "ok": true,
+      "detail": 266
+    },
+    {
+      "name": "narrow action-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "narrow action-403: one untitled refusal panel, 'Cold work unavailable', server message and Retry (403 SITE_SCOPE_FORBIDDEN)",
+      "ok": true,
+      "detail": {
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "text": "Cold work unavailableNo access to Site 'COLD-LAB-001'.Retry",
+        "message": "No access to Site 'COLD-LAB-001'.",
+        "retry": true
+      }
+    },
+    {
+      "name": "narrow action-403: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-403: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-403: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-403: page main <= 1900",
+      "ok": true,
+      "detail": 361
+    },
+    {
+      "name": "narrow action-503: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "narrow action-503: one untitled refusal panel, 'Cold work unavailable', server message and Retry (503 WORK_STORE_UNAVAILABLE)",
+      "ok": true,
+      "detail": {
+        "refusal": "WORK_STORE_UNAVAILABLE",
+        "text": "Cold work unavailableWork records could not be read or saved.Retry",
+        "message": "Work records could not be read or saved.",
+        "retry": true
+      }
+    },
+    {
+      "name": "narrow action-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-503: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-503: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-503: page main <= 1900",
+      "ok": true,
+      "detail": 361
+    },
+    {
+      "name": "narrow action-422-client: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "narrow action-422-client: the client refuses the invalid known_at before fetching (INVALID_KNOWN_AT), one untitled panel",
+      "ok": true,
+      "detail": {
+        "refusal": "INVALID_KNOWN_AT",
+        "message": "'known_at' must be one UTC instant no later than the read time."
+      }
+    },
+    {
+      "name": "narrow action-422-client: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-422-client: heading text fits its box",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow action-422-client: strip and panel content inside their boxes",
+      "ok": true,
+      "detail": {
+        "strip": [],
+        "criteria": [],
+        "related": []
+      }
+    },
+    {
+      "name": "narrow action-422-client: page main <= 1900",
+      "ok": true,
+      "detail": 384
+    }
+  ],
+  "failed": 0
+}
