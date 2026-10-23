@@ -26,7 +26,7 @@ if URL:
     from assetops_backend.domain_work_api import build_domain_work_router
     from assetops_backend.main import create_app
     from assetops_backend.work import domain_action as d
-    from assetops_backend.work.composition import build_domain_intent_service
+    from assetops_backend.work.composition import build_domain_action_read_service, build_domain_intent_service
     from assetops_backend.work.model import MESSAGES
     from assetops_backend.work_api import W401_FIXTURE_SERVICE_PRINCIPAL_ID, WorkGate
 
@@ -34,8 +34,9 @@ BASE = "/api/sites/{code}/domain-work/actions"
 
 
 class Api:
-    def __init__(self, t, s, *, access=None, command_access=None, principal=True, service=True) -> None:
+    def __init__(self, t, s, *, access=None, command_access=None, principal=True, service=True, reads=True) -> None:
         self.svc = build_domain_intent_service(URL) if service else None
+        self.reads = build_domain_action_read_service(URL) if reads else None
         scope = {COLD: (COLD, t, s), COLD.lower(): (COLD, t, s)}.get
         kwargs = {"principal": (lambda r, c: W401_FIXTURE_SERVICE_PRINCIPAL_ID) if principal else (lambda r, c: None)}
         if access is not None:
@@ -43,7 +44,7 @@ class Api:
         if command_access is not None:
             kwargs["command_access"] = command_access
         app = FastAPI()
-        app.include_router(build_domain_work_router(self.svc, WorkGate(scope, **kwargs)))
+        app.include_router(build_domain_work_router(self.svc, WorkGate(scope, **kwargs), reads=self.reads))
         self.client = TestClient(app)
 
     def post(self, suffix: str, body, code: str = COLD):
@@ -52,9 +53,14 @@ class Api:
             return self.client.post(url, content=b"not json", headers={"content-type": "application/json"})
         return self.client.post(url, json=body)
 
+    def get(self, path: str, code: str = COLD, **params):
+        return self.client.get(f"/api/sites/{code}/domain-work{path}", params=params)
+
     def close(self) -> None:
         if self.svc is not None:
             self.svc._store.dispose()
+        if self.reads is not None:
+            self.reads._reads.dispose()
 
 
 def refused(response, status: int, code: str, message: str) -> None:
@@ -155,5 +161,49 @@ def test_wire_201_200_and_refusals(cold) -> None:
         retry = api.post(f"/{aid}/intents", ib)
         assert retry.status_code == 200 and retry.json() == r.json()
         assert counts(cold.engine) == [1, 1, 1]
+    finally:
+        api.close()
+
+
+# ---- K1b: GET /actions/{action_id} (domain-action-intent-read-1) ---------------------------------------------------
+
+def read_refused(response, status: int, code: str, message: str) -> None:
+    """A refused detail read: the typed refusal with `intent:null,results:null` and no count."""
+    assert response.status_code == status, response.text
+    assert response.json() == {"detail": {"code": code, "message": message, "intent": None, "results": None}},         response.text
+
+
+def test_detail_read_gate_refusals_and_wire(cold) -> None:
+    path = f"/actions/{uuid4()}"
+    for status, code, message in ((401, "UNAUTHENTICATED", "Sign in to read work."),
+                                  (403, "SITE_SCOPE_FORBIDDEN", f"No access to Site '{COLD}'.")):
+        api = Api(cold.t, cold.s, access=lambda r, c, v=status: v)
+        try:
+            read_refused(api.get(path, known_at="not-an-instant"), status, code, message)
+        finally:
+            api.close()
+    api = Api(cold.t, cold.s, reads=False)
+    try:
+        read_refused(api.get(path, code="NOPE-001"), 404, "SITE_NOT_FOUND", "No imported Site 'NOPE-001' in this tenant.")
+        read_refused(api.get(path, known_at="bad"), 503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
+    finally:
+        api.close()
+    api = Api(cold.t, cold.s)
+    try:
+        read_refused(api.get(path, known_at="2026-01-01T00:00:00"), 422, "INVALID_KNOWN_AT",
+                     MESSAGES["INVALID_KNOWN_AT"])
+        read_refused(api.get(path, known_at="2999-01-01T00:00:00Z"), 422, "INVALID_KNOWN_AT",
+                     MESSAGES["INVALID_KNOWN_AT"])  # a future cutoff refuses before the Action lookup
+        read_refused(api.get(path), 404, "ACTION_NOT_FOUND", d.MESSAGES["ACTION_NOT_FOUND"])
+        read_refused(api.get("/actions/not-a-uuid"), 404, "ACTION_NOT_FOUND", d.MESSAGES["ACTION_NOT_FOUND"])
+        created = api.post("", action_body(cold, "w502-api-read-01")).json()
+        r = api.get(f"/actions/{created['id']}")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert set(body) == {"schema_version", "site_code", "action", "known_at", "status", "intent", "results",
+                             "links", "source_provenance", "selection_token"}
+        assert body["schema_version"] == "domain-action-intent-read-1" and body["action"]["domain"] == "COLDCHAIN"
+        assert (body["intent"], body["results"]) == (None, None) and body["action"]["id"] == created["id"]
+        assert body["action"]["action_code"] == created["action_code"] and body["selection_token"].startswith("sha256:")
     finally:
         api.close()
