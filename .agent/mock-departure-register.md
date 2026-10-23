@@ -4,13 +4,13 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 15 |
-| D2 improvement | 9 |
+| D1 data or feature unavailable | 16 |
+| D2 improvement | 11 |
 | D3 structural oversight | 5 |
-| D4 illustrative placeholder | 9 |
+| D4 illustrative placeholder | 19 |
 | D5 build order | 4 |
 | D6 technical constraint | 0 |
-| **Total** | **42** |
+| **Total** | **55** |
 
 ## D1 — data or feature unavailable
 
@@ -31,6 +31,7 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R35 | W4-01 B1; W2-04 | `cold-work`, `ev-work`, `cold-financials` | Global Work create flow and mock repair/stock money | Unavailable create destination and unpriced exposure gap | D1 | No operator create flow or declared stock-value/repair source supports those claims. | Future Work command and cold valuation units | built |
 | R36 | W2-05a QM–QP | `ev-sld`, `ev-readiness` | Load manager, breakers, feeder meters, investigation Action | Unknown equipment slots and unavailable Action entry | D1 | These components and Action are undeclared/unbuilt. | Future EV Foundation and Action units | built |
 | R41 | W6-01 C4 | `wr-history` | `Site visit started` (row 3) and `Verification pending` (row 5) in the authored chronology | Two in-table gaps, `Site visit start not recorded` and `Verification pending · no outcome assessment recorded`, with `—` in Time/By after the last authored row on the last page only | D1 | W4 has no selected site-visit event or work-outcome assessment; inserting undated gaps at the mock positions would imply an unsupported sequence among authored events. | Future site-visit event and work-outcome evaluator | planned |
+| R51 | W5-03 E3 | `energy` | `Stationary battery: Not configured` conclusion value | `Unknown` and the Foundation limitation | D1 | The merged EV Foundation cannot declare battery presence or absence. | Future EV battery configuration; W5-03 E3 gap | planned |
 
 ## D2 — improvement on the mock; flag at walkthrough
 
@@ -45,6 +46,8 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R19 | W6-01 C4 | `wr-history` | Short minute-only Time | UTC year and seconds; occurrence disclosure | D2 | One-second real events otherwise look tied. | W6-01 C4, owner walkthrough | planned |
 | R20 | W1/W2 decision | `temperature`, `cold-finding` | Claim boundary / Power-to-load wording | Plain-language limit and compressor-response headings | D2 | Terms identify the actual cold-chain meaning more clearly. | W2-03; owner W2 walkthrough | built |
 | R21 | W1 decision | Site/Finding/Work/Financials subtab screens | Mock live entries for unbuilt destinations | Visible noninteractive Not available yet entries | D2 | Preserves menu placement and prevents false navigation. | W1 F5; owner W1 walkthrough | built |
+| R46 | W5-03 E3 | `energy` | Import chart only | Chart followed by a collapsed `Measure`/`Value` detail disclosure | D2 | Exact sample facts remain keyboard and screen-reader accessible within the measured panel cap; an always-open table exceeded the cap. | W5-03 E3; owner walkthrough | planned |
+| R49 | W5-03 E3 | `energy` | No separate partial/unknown coverage disclosures under the cards | Selected partial-kWh and unknown-duration disclosure lines | D2 | Keeps incomplete meter evidence visible beside the summary without replacing any mock panel. | W5-03 E3; owner walkthrough | planned |
 
 ## D3 — structural oversight; correct before merge
 
@@ -69,6 +72,16 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R31 | W6-01 E2 | `oprecords` | Prose says requested records support conclusions | Two bounded paragraphs on authored records and missing requests | D4 | Requested-record ledger and accepted-evidence link are absent. | W6-01 E2 | planned |
 | R39 | W6-01 A2 and C4 | `incidents`, `wr-history` | Example incident rows and named people | Selected stored rows; stored actor disclosure or Name not recorded | D4 | Example people and statuses cannot be attributed to selected records. | W6-01 A2/C4 | planned |
 | R42 | W6-01 C4 | `wr-history` | `Marked completed · witness test outstanding` | `Completed · outcome not established · maintenance record {id}`; witness-test text only when authored | D4 | The mock witness-test phrase is illustrative; COMPLETE supplies a maintenance-record ID but no witness-test fact or verified outcome. | W6-01 C4 | planned |
+| R43 | W5-03 E2 | `availability` | `2 connectors × 8 scheduled hours = 16 connector-hours` status text | Same form with selected count/hours, or a truthful varying-schedule/unknown sentence | D4 | Fixed mock count and hours are examples. | W5-03 E1a/E2 | planned |
+| R44 | W5-03 E2 | `availability` | Four fixed card notes and 93.75% example | Mock note forms with selected numerator/denominator and honest unknown values | D4 | Fixed amounts and coverage cannot represent another Site. | W5-03 E2 | planned |
+| R45 | W5-03 E2 | `availability` | Fixed connector-2 chart note, bound prose and missing-hour next-evidence text | Same forms with selected connector, durations and accepted transition timestamps | D4 | The example connector/hour and aggregation claim are not selected facts. | W5-03 E2 | planned |
+| R47 | W5-03 E3 | `energy` | `Complete session meter records · incomplete session energy excluded` for the example | Same sentence only when supported; limited-basis sentence otherwise | D4 | A missing/partial selection cannot assert complete records. | W5-03 E3 | planned |
+| R48 | W5-03 E3 | `energy` | Four fixed card notes, including aborted-session kWh and scenario tariff | Mock note forms with selected aborted kWh/window/tariff or honest fallback | D4 | Fixed amounts are illustrative. | W5-03 E3 | planned |
+| R50 | W5-03 E3 | `energy` | `Energy basis: measured` badge | `Energy basis: limited` when complete selected basis is unsupported | D4 | The mock measured badge assumes its example data. | W5-03 E3 | planned |
+| R52 | W5-03 E3 | `energy` | Conclusion note asserts a revenue estimate | Selected estimate note only when eligible; otherwise no eligible estimate/payment evidence sentence | D4 | A withheld/unpriced selection has no estimate. | W5-03 E3 | planned |
+| R53 | W5-03 E3 | `energy` | Bridge row 1 fixed 120 kWh, tariff and $36 | Selected quantity/tariff/amount or an unpriced gap | D4 | Mock money is illustrative, not selected consequence. | W5-03 E3 | planned |
+| R54 | W5-03 E3 | `energy` | Bridge row 2 `Incomplete session` / `Unavailable` | Same gap when no partial amount; selected partial kWh / `Not priced` when present | D4 | The selected partial amount should remain visible without pricing it. | W5-03 E3 | planned |
+| R55 | W5-03 E3 | `energy` | Fixed import chart axis and 76/80 kW example | Selected sample marks, derived axes and selected declared limit | D4 | Mock values are examples; no continuous sample coverage is proved. | W5-03 E1b/E3 | planned |
 
 ## D5 — temporary build order
 
