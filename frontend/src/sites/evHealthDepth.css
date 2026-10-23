@@ -1,0 +1,26 @@
+/*
+ * W5-03b E4: EV Health `Condition and evidence` source references (ruling 8: 36-character IDs and the full
+ * `Session {uuid}` reference stay inside their cell at 390px). Each exact ID is its own small monospace line that
+ * breaks at character boundaries; nothing is ellipsized or clipped.
+ */
+.ev-health-ref {
+  display: block;
+  margin-top: 2px;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* At phone width the three columns keep readable widths; the table scrolls inside its panel with a sticky Asset
+   column (spec "Mock measurement and rendering limits") instead of squeezing each ID into a 70px column. */
+@media (max-width: 640px) {
+  .ev-health-condition .data-table th[scope="row"] {
+    min-width: 150px;
+  }
+  .ev-health-condition .data-table td {
+    min-width: 170px;
+  }
+}

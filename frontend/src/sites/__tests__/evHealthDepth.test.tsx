@@ -137,9 +137,9 @@ describe("W5-03b E4: EV Health", () => {
     ]);
     // Ruling 7: fault connector, then Site meter (R59), then the non-fault connector (R58).
     expect(tableRows()).toEqual([
-      [`Connector c2 ${id(8)}`, `Session interruption; hardware fault not established Session ${id(70)} Open Sessions →`, "Diagnostic event + witnessed session"],
-      [`Site meter ${id(9)}`, "Power limit not assessed from selected samples", "Continuous coverage for interval-wide claims"],
-      [`Connector c1 ${id(7)}`, "No connector condition assessment", "Diagnostic event + witnessed session"],
+      [`Connector c2${id(8)}`, `Session interruption; hardware fault not establishedSession ${id(70)} Open Sessions →`, "Diagnostic event + witnessed session"],
+      [`Site meter${id(9)}`, "Power limit not assessed from selected samples", "Continuous coverage for interval-wide claims"],
+      [`Connector c1${id(7)}`, "No connector condition assessment", "Diagnostic event + witnessed session"],
     ]);
     const open = document.querySelector("[data-ev-health-open-sessions]")!;
     expect(open.getAttribute("href")).toBe(SESSIONS);
@@ -218,7 +218,7 @@ describe("W5-03b E4: EV Health", () => {
     // R97: an UNKNOWN-kind meter has no card and no row; it is never relabelled a Site meter.
     renderHealth(loaded(read("CURRENT", [C1, ROGUE])));
     await settledScreen();
-    expect(tableRows().map((r) => r[0])).toEqual([`Connector c1 ${id(7)}`]);
+    expect(tableRows().map((r) => r[0])).toEqual([`Connector c1${id(7)}`]);
     expect(text(main())).not.toContain("Feeder meter");
     cleanup();
 

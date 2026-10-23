@@ -22,7 +22,7 @@ import { DataTable, MetricCard, MetricCards, Notice, Panel } from "../ui";
 import { type ColdRead, type ColdWindowQuery, coldWindowSearch } from "./coldAssessmentClient";
 import { EvDepthRefusal } from "./EvAvailability";
 import { type EvDepthClient, type EvDepthWindow, type EvHealthRead, type EvHealthRow, depthStateNotice } from "./evDepthClient";
-import "./w2-ev-site.css";
+import "./evHealthDepth.css";
 
 export const HEALTH_LOADING = "Loading the site's charger condition read.";
 export const HEALTH_EMPTY = "No charger condition observation is available for this window.";
@@ -77,8 +77,8 @@ function useHealthRead(client: EvDepthClient, siteCode: string, window: ColdWind
 function AssetCell({ row }: { row: EvHealthRow }) {
   return (
     <>
-      {row.label}{" "}
-      <span className="ev-site-id" data-vocabulary-exempt="source-reference" data-ev-health-asset-id="">
+      {row.label}
+      <span className="ev-health-ref" data-vocabulary-exempt="source-reference" data-ev-health-asset-id="">
         {row.asset_id}
       </span>
     </>
@@ -92,8 +92,7 @@ function AssessmentCell({ row, sessions }: { row: EvHealthRow; sessions: string 
       {words}
       {row.session_id === null ? null : (
         <>
-          {" "}
-          <span className="ev-site-id" data-vocabulary-exempt="source-reference" data-ev-health-session="">
+          <span className="ev-health-ref" data-vocabulary-exempt="source-reference" data-ev-health-session="">
             {`Session ${row.session_id}`}
           </span>
           {sessions === null ? null : (
@@ -132,8 +131,8 @@ function HealthBody({ read, sessionsPath }: { read: EvHealthRead; sessionsPath: 
             data={{ "data-ev-health-card": row.asset_id }}
           />
         ))}
+        {/* The mock battery card is a plain (non-assessment) metric with a large value; only its words change (R56). */}
         <MetricCard
-          word
           label={BATTERY_LABEL}
           value="Unknown"
           note={read.health.battery.limitation}
@@ -148,7 +147,7 @@ function HealthBody({ read, sessionsPath }: { read: EvHealthRead; sessionsPath: 
           </p>
         ) : null}
         {table.length === 0 ? null : (
-          <DataTable labelledBy={HEALTH_TABLE_HEADING_ID}>
+          <DataTable labelledBy={HEALTH_TABLE_HEADING_ID} stickyFirstColumn>
             <thead>
               <tr>
                 <th scope="col">Asset</th>
