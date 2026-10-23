@@ -99,6 +99,7 @@ function useEnergyRead(client: EvDepthClient, siteCode: string, window: ColdWind
   return state !== null && state.key === key ? state.value : null;
 }
 
+/** MOCK DEVIATION (D4) R87: the mock's example `Yes` is green; the selected below-limit result sets the tone (red `No`). */
 function answerTone(word: string): string | undefined {
   return word === "Yes" ? "ev-tone--green" : word === "No" ? "ev-tone--red" : word === "Not established" ? "ev-tone--amber" : undefined;
 }

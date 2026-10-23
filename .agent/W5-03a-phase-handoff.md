@@ -146,3 +146,9 @@ Main 44a1739e merged. Ruling 1 (telemetry-only next evidence) confirmed and now 
 - Full vitest `--minWorkers=1 --maxWorkers=2`: 118 files, 2748 passed. `vite build` ok. `tsc` clean. `check-all.ps1`: all 11 guards passed.
 - Recaptures at 1440 and 390 for all 11 states (22 pairs) in `.agent/W5-03a-evidence/` (`evidence.json`, revision 77d5b22a): read_ok, no overflow, panel titles equal to the mock, 0 ellipsized, no cap exceeded on any pair.
 - Cleanup: `assetops_w503cap_test` dropped; my API, Vite and Chrome processes stopped; throwaway seed test and logs deleted. Run-owned test DBs are dropped by the suite.
+
+### Re-review fix (RR-M1, RR-M2, Low)
+- RR-M1: `.v69-metric__value small { font-size: 12px; font-weight: 400; letter-spacing: 0; }` in `primitives.css`; Energy complete, missing-meter, pending and historical recaptured at 1440 and 390 (all read_ok, no overflow, titles equal, no cap exceeded).
+- RR-M2: `test_energy_peak_is_one_selected_peak` calls `run_worker(built)` before `select_exact` and asserts CURRENT again; `add_import` docstring says each call queues a recompute job.
+- Low: `MOCK DEVIATION (D4) R87` comment at `answerTone`.
+- Checks: focused Postgres (5 files, `-n 4`) 85 passed, JUnit 0 skipped/0 failures, 684 s; vitest (estateEvidence, coldHealthDepth, evEnergy, evDepth) 57 passed; tsc clean; vite build ok; check-all 11/11. Cleanup: private capture DB dropped; my API stopped by recorded PID and Vite by listener PID.

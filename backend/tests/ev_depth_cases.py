@@ -119,7 +119,9 @@ def add_import(built: Chain, value: str, *, quality: str | None = None, unit: st
     """W5-03a fix (ruling 2): a persisted accepted `ev_site_import` row cloned from the first replayed import row with
     a new identity, the given stored value and optionally a different quality or normalized unit, plus its ACCEPTED
     disposition at the original clock. Inserted after `select_exact` it is accepted but outside the selected evidence
-    set; inserted before a fresh `select_exact` it is selected. Returns the new evidence ID (lowercase)."""
+    set; inserted before a fresh `select_exact` it is selected. Each call queues a PENDING recompute job over the
+    window (the enqueue trigger), so reads stay PENDING_RECOMPUTE until `run_worker(built)` settles it. Returns the new
+    evidence ID (lowercase)."""
     new_id = uuid4()
     with built.engine.begin() as c:
         old = c.execute(text("SELECT id, batch_id FROM accepted_evidence WHERE site_id = :s AND role = 'ev_site_import' "

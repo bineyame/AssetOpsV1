@@ -4440,6 +4440,7 @@ ul.evidence-notes li { font-size: inherit; }
 }
 
 /* A word value (state, assessment, gap) is set smaller, as the mock's `.assessment`. */
+.v69-metric__value small { font-size: 12px; font-weight: 400; letter-spacing: 0; }
 .v69-metric--word .v69-metric__value {
   font-size: 17px;
   margin: 11px 0;

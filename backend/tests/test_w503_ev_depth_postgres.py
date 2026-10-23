@@ -346,15 +346,15 @@ def test_energy_peak_is_one_selected_peak(chain) -> None:  # noqa: F811
     baseline = _peak_view(base["energy"])
     assert baseline[0] is not None and baseline[2] == "YES" and baseline[3] == len(baseline[4]) > 0
     peak_kw = float(baseline[0])
-    from test_w206_ev_store_postgres import select_exact
+    from test_w206_ev_store_postgres import run_worker, select_exact
 
     # A selected row that fails the sample predicate (SUSPECT quality; a non-kW unit) is not a sample.
     bad = [add_import(built, "500", quality="SUSPECT"), add_import(built, "600", unit="W")]
+    run_worker(built)  # each clone queued a recompute job; settle it as `settled` does, then select the window
     select_exact(built, LO, HI)
     reselected = _get(c, "energy")
     assert set(bad) <= set(reselected["selection"]["accepted_evidence_ids"])
-    # The cloned rows enqueue a recompute job like any late accepted row, so the state may be pending here; the
-    # peak assertions below hold in every state (the pending case has its own test).
+    assert reselected["selection"]["state"] == "CURRENT"  # jobs settled: a current read with selected failing rows
     assert _peak_view(reselected["energy"]) == baseline
     assert not set(bad) & {x["evidence_id"] for x in reselected["energy"]["import_samples"]}
     assert _overview_peak(built) == 600.0 != peak_kw
