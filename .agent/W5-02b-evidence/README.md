@@ -1,86 +1,98 @@
 # W5-02b K2b evidence: cold Site Work > Actions and domain Action shell
 
-Final capture, taken on 75abbaf3, which narrows the Action cell max-width from 360 px to 340 px. It follows
-63d35dd9 (State cell nowrap, disclosure margin 0, summary line-height 1.2) and df04dc59 (the F1-F4 wrap fix).
-Produced by `node tools/w502-cold-work-evidence.mjs var/w502b_cold_work/manifest.json .agent/W5-02b-evidence`
-against the manifest's seven APIs (:8971-:8977), each behind a Vite dev server at API port - 3500, headless
-Chrome at 1440x1000 and 390x900 (full-page PNG). Queries are the manifest's `modes.<mode>.reads.<name>.query`.
-Every measurement and claim is in `w502b-measurements.json` (315 claims, 312 PASS, 3 FAIL).
+Recapture after the Architect K2 rulings 1-3 (`.agent/W5-02b-K2-rulings.md`), on b6d14905 (producer and capture
+tool at that revision; frontend unchanged). Producer: `tools/w502_cold_work_walkthrough.py prepare` (all five DB
+modes), `serve`, `attest` (ATTEST OK). Capture: `node tools/w502-cold-work-evidence.mjs
+var/w502b_cold_work/manifest.json .agent/W5-02b-evidence` against the manifest's seven APIs (:8971-:8977), each
+behind a Vite dev server at API port - 3500, headless Chrome at 1440x1000 and 390x900 (full-page PNG). Every
+measurement and claim is in `w502b-measurements.json`: **436 claims, 434 PASS, 2 FAIL**.
 
-Caps (`.agent/W5-02-build-spec.md`, "Measurement, capture and deviations"), as 1440/390:
-Work page main <= 1400/1800; strip <= 100/150; panel <= 440/650; notice <= 110/160.
-Action page main <= 1350/1750; strip <= 100/120; notice <= 100/140.
-Heights are rounded `getBoundingClientRect().height` px; `doc` = documentElement scrollWidth/clientWidth;
-`table` = `.cold-work-actions .data-table__scroll` scrollWidth/clientWidth; `sticky` = computed `position` of the
-first visible row's first cell; "on one line" counts text lines (Range client rects) of each `.cold-work-code`
-in a visible row (Action code, Source `Finding {id8}`, Due cell), each `Read full text` summary and each State badge.
+Ruled caps (K2 ruling 2), as 1440/390: Work page main <= 1600/2000; Actions panel <= 650/850; strip <= 100/150;
+notice <= 110/160; `document.scrollWidth <= clientWidth + 1`; per-cell containment; preview at most two lines; no
+horizontal clip of an opened `Read full text`. Action page main <= 1350/1750; strip <= 100/120; notice <= 100/140.
 
-| State | Width | File | Key measurements | Result vs caps |
+Columns: heights are rounded `getBoundingClientRect().height` px; `notice` is context notice, or currentness/context
+notice when a currentness notice shows; `doc` = documentElement scrollWidth/clientWidth (1425 at 1440 means a
+vertical scrollbar); `table` = table scroller scrollWidth/clientWidth (at 390 the table scrolls inside its panel,
+first column sticky); `contain` = every cell fits, children inside, clamp fits, and every open disclosure body is
+inside and fits; `preview<=` = maximum preview line count; Result = that state's claims.
+
+Producer manifest (revision b6d14905): positive CURRENT/1, zero CURRENT/0, historical HISTORICAL/1, worstcase
+CURRENT/6 (5 rows + next cursor), pending PENDING_RECOMPUTE/1 (PARTIAL LINK_WORK_PENDING), stale STALE_SOURCE/1
+(PARTIAL LINK_SOURCE_STALE), unknown UNKNOWN/1 (UNKNOWN LINK_SELECTION_MISSING); forbidden :8976 HTTP 403
+SITE_SCOPE_FORBIDDEN; unavailable :8977 Site read HTTP 200, domain-work HTTP 503 WORK_STORE_UNAVAILABLE.
+`fixture.incident.occurred_at` = 2026-10-22T16:11:00Z (D+16h11m) in every mode; both finding_links
+(COLD_START_FAILURE + COLD_EXCURSION) in positive, worstcase, pending and stale; see F7 for unknown.
+
+| State | Width | File | Measurements | Result vs ruled caps |
 |---|---|---|---|---|
-| positive | 1440 | w502b-desktop-positive.png | rows; main 547; strip 39; panel 184; notice 66; doc 1440/1440; table 1120/1120; sticky true; rows 1 | PASS |
-| zero | 1440 | w502b-desktop-zero.png | empty; main 625; strip 39; panel 262; notice 66; doc 1440/1440; table -/-; sticky -; rows 0 | PASS |
-| historical | 1440 | w502b-desktop-historical.png | rows HISTORICAL; main 631; strip 39; panel 184; notice 66/66; doc 1440/1440; table 1120/1120; sticky true; rows 1 | PASS |
-| worstcase-folded | 1440 | w502b-desktop-worstcase-folded.png | rows; main 749; strip 39; panel 386; notice 66; doc 1440/1440; table 1120/1120; sticky true; rows 4 | PASS |
-| worstcase-expanded | 1440 | w502b-desktop-worstcase-expanded.png | rows; main 810; strip 39; panel 447; notice 66; doc 1440/1440; table 1120/1120; sticky true; rows 5 | FAIL: panel <= 440 (447) |
-| worstcase-disclosure | 1440 | w502b-desktop-worstcase-disclosure.png | rows; main 771; strip 39; panel 408; notice 66; doc 1440/1440; table 1120/1120; sticky true; rows 4 | PASS |
-| worstcase-next | 1440 | w502b-desktop-worstcase-next.png | rows HISTORICAL; main 630; strip 39; panel 183; notice 66/66; doc 1440/1440; table 1120/1120; sticky true; rows 1 | PASS |
-| pending | 1440 | w502b-desktop-pending.png | rows PENDING_RECOMPUTE; main 631; strip 39; panel 184; notice 66/66; doc 1440/1440; table 1120/1120; sticky true; rows 1 | PASS |
-| stale | 1440 | w502b-desktop-stale.png | rows STALE_SOURCE; main 631; strip 39; panel 184; notice 66/66; doc 1440/1440; table 1120/1120; sticky true; rows 1 | PASS |
-| unknown | 1440 | w502b-desktop-unknown.png | rows UNKNOWN; main 631; strip 39; panel 184; notice 66/66; doc 1440/1440; table 1120/1120; sticky true; rows 1 | PASS |
-| forbidden-403 | 1440 | w502b-desktop-forbidden-403.png | refused; main 561; strip 39; panel 198; notice 66; doc 1440/1440; table -/-; sticky -; rows 0 | PASS |
-| unavailable-503 | 1440 | w502b-desktop-unavailable-503.png | Site frame refusal "Site unavailable"; main 154; doc 1440/1440 | FAIL: refused panel WORK_STORE_UNAVAILABLE ({"panel":null,"refusal":null,"message":null}) |
-| action-positive | 1440 | w502b-desktop-action-positive.png | shell loaded/preparing; main 364; strip 42; notice 66; doc 1440/1440 | PASS |
-| action-not-found | 1440 | w502b-desktop-action-not-found.png | shell not_found/not-found; main 220; strip -; notice -; doc 1440/1440 | PASS |
-| positive | 390 | w502b-narrow-positive.png | rows; main 620; strip 84; panel 199; notice 84; doc 390/390; table 821/318; sticky true; rows 1 | PASS |
-| zero | 390 | w502b-narrow-zero.png | empty; main 703; strip 84; panel 282; notice 84; doc 390/390; table -/-; sticky -; rows 0 | PASS |
-| historical | 390 | w502b-narrow-historical.png | rows HISTORICAL; main 704; strip 84; panel 199; notice 66/84; doc 390/390; table 821/318; sticky true; rows 1 | PASS |
-| worstcase-folded | 390 | w502b-narrow-worstcase-folded.png | rows; main 878; strip 84; panel 457; notice 84; doc 390/390; table 821/318; sticky true; rows 4 | PASS |
-| worstcase-expanded | 390 | w502b-narrow-worstcase-expanded.png | rows; main 957; strip 84; panel 535; notice 84; doc 390/390; table 821/318; sticky true; rows 5 | PASS |
-| worstcase-disclosure | 390 | w502b-narrow-worstcase-disclosure.png | rows; main 970; strip 84; panel 548; notice 84; doc 390/390; table 821/318; sticky true; rows 4 | PASS |
-| worstcase-next | 390 | w502b-narrow-worstcase-next.png | rows HISTORICAL; main 704; strip 84; panel 199; notice 66/84; doc 390/390; table 821/318; sticky true; rows 1 | PASS |
-| pending | 390 | w502b-narrow-pending.png | rows PENDING_RECOMPUTE; main 722; strip 84; panel 199; notice 84/84; doc 390/390; table 819/318; sticky true; rows 1 | PASS |
-| stale | 390 | w502b-narrow-stale.png | rows STALE_SOURCE; main 722; strip 84; panel 199; notice 84/84; doc 390/390; table 820/318; sticky true; rows 1 | PASS |
-| unknown | 390 | w502b-narrow-unknown.png | rows UNKNOWN; main 722; strip 84; panel 199; notice 84/84; doc 390/390; table 815/318; sticky true; rows 1 | PASS |
-| forbidden-403 | 390 | w502b-narrow-forbidden-403.png | refused; main 619; strip 84; panel 198; notice 84; doc 390/390; table -/-; sticky -; rows 0 | PASS |
-| unavailable-503 | 390 | w502b-narrow-unavailable-503.png | Site frame refusal "Site unavailable"; main 172; doc 390/390 | FAIL: refused panel WORK_STORE_UNAVAILABLE ({"panel":null,"refusal":null,"message":null}) |
-| action-positive | 390 | w502b-narrow-action-positive.png | shell loaded/preparing; main 465; strip 65; notice 84; doc 390/390 | PASS |
-| action-not-found | 390 | w502b-narrow-action-not-found.png | shell not_found/not-found; main 252; strip -; notice -; doc 390/390 | PASS |
+| positive | 1440 | w502b-desktop-positive.png | rows; main 568; strip 39; panel 184; notice 42; doc 1440/1440; table 1120/1120; contain yes; preview<= 0; rows 1 | PASS (17) |
+| zero | 1440 | w502b-desktop-zero.png | empty; main 646; strip 39; panel 262; notice 42; doc 1440/1440; table -/-; contain -; preview<= -; rows 0 | PASS (7) |
+| historical | 1440 | w502b-desktop-historical.png | rows HISTORICAL; main 628; strip 39; panel 184; notice 42/42; doc 1440/1440; table 1120/1120; contain yes; preview<= 0; rows 1 | PASS (15) |
+| worstcase-folded | 1440 | w502b-desktop-worstcase-folded.png | rows; main 840; strip 39; panel 457; notice 42; doc 1440/1440; table 1120/1120; contain yes; preview<= 2; rows 4 | PASS (16) |
+| worstcase-expanded | 1440 | w502b-desktop-worstcase-expanded.png | rows; main 919; strip 39; panel 535; notice 42; doc 1440/1440; table 1120/1120; contain yes; preview<= 2; rows 5 | PASS (14) |
+| worstcase-expanded-open | 1440 | w502b-desktop-worstcase-expanded-open.png | rows; main 1291; strip 39; panel 907; notice 42; doc 1425/1425; table 1105/1105; contain yes; preview<= 2; rows 5 | FAIL: panel <= 650 ({"panel":907,"tableScrollWidth":1105,"tableClientWidth":1105}) |
+| worstcase-disclosure | 1440 | w502b-desktop-worstcase-disclosure.png | rows; main 897; strip 39; panel 513; notice 42; doc 1440/1440; table 1120/1120; contain yes; preview<= 2; rows 4 | PASS (16) |
+| worstcase-next | 1440 | w502b-desktop-worstcase-next.png | rows HISTORICAL; main 627; strip 39; panel 183; notice 42/42; doc 1440/1440; table 1120/1120; contain yes; preview<= 0; rows 1 | PASS (15) |
+| window-apply | 1440 | w502b-desktop-window-apply.png | rows HISTORICAL; main 901; strip 39; panel 457; notice 42/42; doc 1440/1440; table 1120/1120; contain yes; preview<= 2; rows 4 | PASS (12) |
+| window-invalid | 1440 | w502b-desktop-window-invalid.png | rows; main 592; strip 39; panel 184; notice 42; doc 1440/1440; table 1120/1120; contain yes; preview<= 0; rows 1 | PASS (9) |
+| pending | 1440 | w502b-desktop-pending.png | rows PENDING_RECOMPUTE; main 628; strip 39; panel 184; notice 42/42; doc 1440/1440; table 1120/1120; contain yes; preview<= 0; rows 1 | PASS (15) |
+| stale | 1440 | w502b-desktop-stale.png | rows STALE_SOURCE; main 628; strip 39; panel 184; notice 42/42; doc 1440/1440; table 1120/1120; contain yes; preview<= 0; rows 1 | PASS (15) |
+| unknown | 1440 | w502b-desktop-unknown.png | rows UNKNOWN; main 628; strip 39; panel 184; notice 42/42; doc 1440/1440; table 1120/1120; contain yes; preview<= 0; rows 1 | PASS (15) |
+| forbidden-403 | 1440 | w502b-desktop-forbidden-403.png | refused; main 582; strip 39; panel 198; notice 42; doc 1440/1440; table -/-; contain -; preview<= -; rows 0 | PASS (9) |
+| cold-work-503 | 1440 | w502b-desktop-cold-work-503.png | refused; main 582; strip 39; panel 198; notice 42; doc 1440/1440; table -/-; contain -; preview<= -; rows 0 | PASS (11) |
+| action-positive | 1440 | w502b-desktop-action-positive.png | preparing; main 340; strip 42; panel 23; notice 42; doc 1440/1440; table -/-; contain -; preview<= -; rows - | PASS (6) |
+| action-not-found | 1440 | w502b-desktop-action-not-found.png | not-found; main 220; strip -; panel 23; notice -; doc 1440/1440; table -/-; contain -; preview<= -; rows - | PASS (4) |
+| positive | 390 | w502b-narrow-positive.png | rows; main 745; strip 84; panel 199; notice 60; doc 390/390; table 820/318; contain yes; preview<= 0; rows 1 | PASS (18) |
+| zero | 390 | w502b-narrow-zero.png | empty; main 828; strip 84; panel 282; notice 60; doc 390/390; table -/-; contain -; preview<= -; rows 0 | PASS (7) |
+| historical | 390 | w502b-narrow-historical.png | rows HISTORICAL; main 805; strip 84; panel 199; notice 42/60; doc 390/390; table 820/318; contain yes; preview<= 0; rows 1 | PASS (16) |
+| worstcase-folded | 390 | w502b-narrow-worstcase-folded.png | rows; main 1002; strip 84; panel 457; notice 60; doc 390/390; table 819/318; contain yes; preview<= 2; rows 4 | PASS (17) |
+| worstcase-expanded | 390 | w502b-narrow-worstcase-expanded.png | rows; main 1081; strip 84; panel 535; notice 60; doc 390/390; table 819/318; contain yes; preview<= 2; rows 5 | PASS (15) |
+| worstcase-expanded-open | 390 | w502b-narrow-worstcase-expanded-open.png | rows; main 1805; strip 84; panel 1259; notice 60; doc 390/390; table 819/318; contain yes; preview<= 2; rows 5 | FAIL: panel <= 850 ({"panel":1259,"tableScrollWidth":819,"tableClientWidth":318}) |
+| worstcase-disclosure | 390 | w502b-narrow-worstcase-disclosure.png | rows; main 1094; strip 84; panel 548; notice 60; doc 390/390; table 819/318; contain yes; preview<= 2; rows 4 | PASS (17) |
+| worstcase-next | 390 | w502b-narrow-worstcase-next.png | rows HISTORICAL; main 804; strip 84; panel 199; notice 42/60; doc 390/390; table 819/318; contain yes; preview<= 0; rows 1 | PASS (16) |
+| window-apply | 390 | w502b-narrow-window-apply.png | rows HISTORICAL; main 1062; strip 84; panel 457; notice 42/60; doc 390/390; table 819/318; contain yes; preview<= 2; rows 4 | PASS (12) |
+| window-invalid | 390 | w502b-narrow-window-invalid.png | rows; main 769; strip 84; panel 199; notice 60; doc 390/390; table 820/318; contain yes; preview<= 0; rows 1 | PASS (9) |
+| pending | 390 | w502b-narrow-pending.png | rows PENDING_RECOMPUTE; main 823; strip 84; panel 199; notice 60/60; doc 390/390; table 822/318; contain yes; preview<= 0; rows 1 | PASS (16) |
+| stale | 390 | w502b-narrow-stale.png | rows STALE_SOURCE; main 823; strip 84; panel 199; notice 60/60; doc 390/390; table 822/318; contain yes; preview<= 0; rows 1 | PASS (16) |
+| unknown | 390 | w502b-narrow-unknown.png | rows UNKNOWN; main 823; strip 84; panel 199; notice 60/60; doc 390/390; table 821/318; contain yes; preview<= 0; rows 1 | PASS (16) |
+| forbidden-403 | 390 | w502b-narrow-forbidden-403.png | refused; main 743; strip 84; panel 198; notice 60; doc 390/390; table -/-; contain -; preview<= -; rows 0 | PASS (9) |
+| cold-work-503 | 390 | w502b-narrow-cold-work-503.png | refused; main 743; strip 84; panel 198; notice 60; doc 390/390; table -/-; contain -; preview<= -; rows 0 | PASS (11) |
+| action-positive | 390 | w502b-narrow-action-positive.png | preparing; main 455; strip 65; panel 23; notice 60; doc 390/390; table -/-; contain -; preview<= -; rows - | PASS (6) |
+| action-not-found | 390 | w502b-narrow-action-not-found.png | not-found; main 266; strip -; panel 23; notice -; doc 390/390; table -/-; contain -; preview<= -; rows - | PASS (4) |
+| unavailable-503 (legacy, separate Site refusal) | 1440 | w502b-desktop-unavailable-503.png | Not recaptured: kept from the 75abbaf3 capture. Site frame refusal `Site unavailable` (API with no database); main 154; doc 1440/1440 | Not cold-work proof (K2 ruling 3); superseded by `cold-work-503` |
+| unavailable-503 (legacy, separate Site refusal) | 390 | w502b-narrow-unavailable-503.png | Not recaptured: kept from the 75abbaf3 capture. Site frame refusal `Site unavailable`; main 172; doc 390/390 | Not cold-work proof (K2 ruling 3); superseded by `cold-work-503` |
 
-`worstcase-next` reads HISTORICAL because the Next link pins the page-one response `known_at` in the URL (U3);
-that is the specified behaviour, not a finding.
+Two further claims (`worstcase: Next page link present`, 1440 and 390) PASS. `worstcase-next` and `window-apply`
+read HISTORICAL because the page-one `known_at` is pinned in the URL (U3, ruling 1); that is specified behaviour.
 
 ## Findings (frontend untouched by this capture)
 
-1. **F1 - worst-case Actions panel over cap: STILL FAILING at 1440 expanded only, 447 px (cap 440, 7 px over).**
-   The numbers are below; the previous capture's are in brackets.
+1. **F1 - worst-case Actions panel against the ruled caps (650/850): FAILS only with every disclosure open.**
 
-   | Width | Folded | Expanded | One disclosure open | Page main (folded / expanded / disclosure) |
-   |---|---|---|---|---|
-   | 1440 | 386 [401] | **447** [462] | 408 [423] | 749 / 810 / 771 |
-   | 390 | 457 | 535 | 548 | 878 / 957 / 970 |
+   | Width | Folded | Expanded | One disclosure open | Expanded, all open | Page main (folded / expanded / one open / all open) |
+   |---|---|---|---|---|---|
+   | 1440 | 457 | 535 | 513 | **907** (cap 650, 257 over) | 840 / 919 / 897 / 1291 (cap 1600, PASS) |
+   | 390 | 457 | 535 | 548 | **1259** (cap 850, 409 over) | 1002 / 1081 / 1094 / 1805 (cap 2000, PASS) |
 
-   The 1440 in-panel scrollbar is gone. The 390 panels are unchanged and pass the 650 cap. Page main is within cap
-   everywhere. What remains is the height of five two-line rows (about 62 px each) plus the panel heading and
-   pager.
-2. **F2 - 1440 table scrolled sideways: RESOLVED.** The scroller is 1120/1120 in every 1440 state, including the
-   worst case (it was 1125/1120 in the previous capture and 2236/1120 in the first). There is no document overflow
-   anywhere. At 390 the table scrolls inside its panel (815-821 px in 318) with the first column sticky.
-3. **F3 - Due cell wrapped at 390: RESOLVED.** Code, Source and Due are one line in every row at both widths.
-4. **F4 - `Read full text` summary wrapped per character at 390: RESOLVED.** Every summary is one line.
-5. **F5 - 503 cold-work refusal panel not reachable with this producer: STILL OPEN, question Q17 in
-   `.agent/W5-02b-questions.md`.** The :8977 API has no database, so the Site read fails first and the page
-   renders `Site unavailable / The site store could not be read, so nothing is known about whether the site is
-   configured.` (main 154/172 px, no overflow, no rows, no mock zero). The cold `WORK_STORE_UNAVAILABLE` panel
-   with Retry never mounts, so the browser capture of the cold 503 panel is unproven. 403 is proven:
-   `SITE_SCOPE_FORBIDDEN`, Retry visible, panel 198 px.
-   **K2 ruling 3 label:** `w502b-desktop-unavailable-503.png` and `w502b-narrow-unavailable-503.png` are a separate
-   Site-level refusal (`Site unavailable`), never proof of the cold-work panel. The cold-work 503 proof is the
-   `cold-work-503` state (healthy Site read, domain-work router alone on an unreachable private DB URL), captured by
-   the updated `tools/w502-cold-work-evidence.mjs` in the next run.
-6. **F6 - State badge `Open` split over two lines: RESOLVED.** The badge is one line in every row state at both
-   widths.
+   Every other worst-case state is inside the panel cap, and page main is inside its cap in every state, including
+   all-open. With all ten title/owner disclosures open each row is 154 px (1440) / 225 px (390); the opened body
+   repeats the full text below the still-visible two-line preview (see the all-open PNGs), which is most of the
+   extra height. Containment holds (no horizontal clip, doc 1425/1425 and 390/390, previews at most two lines).
+2. **F2 - 1440 table scrolled sideways: RESOLVED** (scroller 1120/1120, all-open 1105/1105; no document overflow).
+3. **F3 - Due cell wrapped at 390: RESOLVED** (code, Source and Due one line in every row).
+4. **F4 - `Read full text` summary wrapped per character at 390: RESOLVED** (every summary one line).
+5. **F5 - 503 cold-work refusal panel: RESOLVED by `cold-work-503`.** Healthy Site read (no Site refusal, cold Work
+   page mounted), panel `refused` WORK_STORE_UNAVAILABLE, text `Cold work unavailable / Work records could not be
+   read or saved.` with Retry, no rows, no mock zero (scope `Scoped to Cold · — actions`), panel 198, main 582/743. The legacy
+   `unavailable-503` PNGs remain a separate Site-level refusal only.
+6. **F6 - State badge `Open` split over two lines: RESOLVED** (one line everywhere).
+7. **F7 - producer `unknown` mode carries a non-null `blocked` note:** ` INC: no selected COLD_EXCURSION Finding
+   revision to link (ruling 4)`. The no-probe replay has no COLD_EXCURSION Finding, so its Incident links only the
+   COLD_START_FAILURE Finding (one finding_link, not both). The mode still built, the read is UNKNOWN/1 as expected,
+   attest passed and the `unknown` captures pass; ruling 4's "both links" is not met in this mode only.
 
-All other claims pass: strips 39/84 and notices 66/84 are within caps; positive, historical, pending, stale,
-unknown and next pages each show 1 row with the expected notice; zero shows the empty panel; `Show all 5 Actions`
-expands to 5 rows; the domain Action shell is `loaded/preparing` for ACT-000001 (main 364/465, strip 42/65,
-notice 66/84) and `not_found` for an unknown ID (main 220/252).
+Window control (ruling 1): placement and alignment claims pass at both widths; `window-apply` keeps `known_at`,
+drops the cursor and reads page one (5 rows, `Show all 5 Actions`); `window-invalid` shows `The window may span at
+most 31 days.` and does not navigate. Domain Action shell: `loaded/preparing` for the positive Action (909f6215) (main 340/455, strip
+42/65, notice 42/60) and `not_found` for an unknown ID (main 220/266).
