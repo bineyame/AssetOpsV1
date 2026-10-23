@@ -176,3 +176,9 @@ Built per spec line 58 collision paragraph, rule-8 paragraph line 66, rulings A4
 - Builder choices: W1 collision tests use the real S4 Finding for the domain row's FKs (no replica role), except the propagate test's setup W1 row (replica role skips FKs only for that setup). Probe foreign writer is the Finding store (`_work_foreign`), update probe is `split("domain_action", ...)`.
 - Deviations: none. Open questions: none.
 - Anchors for K1b: `$pgReaders` already lists `work/adapters/postgres_domain_action_index.py`; its SQL-write refusal applies.
+
+## Run — K1b verification (commits `828e284c`, `3279887c`, merge `cf2a51d5`) — VERIFIED; check-all 11/11
+
+Verified on `cf2a51d5` (main with W6-01c merged in). No K1b defect found; no code change.
+- Focused + K1a + W6 (`-n 4`, DB `assetops_w502a_k1v_test`): `test_w502_domain_action_index_{postgres,api}.py`, `test_w502_domain_intent_{api,postgres,model}.py`, `test_s6_action_store_postgres.py`, `test_w601a_global_incidents.py`, `test_w601b_global_maintenance.py`, `test_w601c_request_detail.py` — **78 passed**, 0 failed, 249 s.
+- `tools/check-all.ps1`: **All 11 guards passed** (started on `cf2a51d5`; run-4 edits began in the working tree while it ran, so the run-4 commit reruns it).
