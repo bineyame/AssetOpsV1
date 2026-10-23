@@ -61,9 +61,14 @@ const LEADING_SELECTOR =
 /**
  * Screen-scoped optional leading elements, admitted only at one exact place: immediately after the status strip and
  * immediately before panel 1. W5-02 K2 ruling 15 admits the cold Actions selected-state notice on `cold-work`
- * (MOCK DEVIATION (D2) R91); anywhere else, or on another screen, it is an intruder.
+ * (MOCK DEVIATION (D2) R91); W5-02 K3 pre-flight ruling 5 admits the same notice on `cold-work-incidents` and
+ * `cold-work-maintenance`. Anywhere else, or on another screen, it is an intruder.
  */
-const SCREEN_LEADING: Record<string, string> = { "cold-work": "[data-cold-work-currentness]" };
+const SCREEN_LEADING: Record<string, string> = {
+  "cold-work": "[data-cold-work-currentness]",
+  "cold-work-incidents": "[data-cold-work-currentness]",
+  "cold-work-maintenance": "[data-cold-work-currentness]",
+};
 
 /** Section-like elements that must not render outside a panel or leading pattern. */
 const STRAY_SELECTOR = "h3, h4, h5, h6, section, article, [role=region], .card, .callout";
