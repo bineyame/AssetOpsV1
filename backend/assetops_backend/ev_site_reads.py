@@ -595,31 +595,7 @@ class EvSiteReads:
             foundation = self._reads.foundation_on(c, snap)
             limit_kw, feed_as_of = self._import_limit(foundation)
             common, windows, declared = objective_windows(foundation, self._assets(c, ctx), snap["lo"], snap["hi"])
-            # energy (W2-06 selected session heads; contradictory support is null, no report is null)
-            if not sessions:
-                energy = {"supported_kwh": None, "complete_kwh": None, "partial_kwh": None, "unknown_seconds": None,
-                          "as_of": as_of, "limitation": no_assessment or "No supported session energy."}
-            else:
-                contradictory = any(x["state"] == "CONTRADICTORY" for x in sessions)
-                complete = [_dec(x["supported_kwh"]) for x in sessions if x["energy_complete"] is True]
-                partial = [_dec(x["supported_kwh"]) or Decimal("0.000") for x in sessions
-                           if x["energy_complete"] is False]
-                supported = [_dec(x["supported_kwh"]) for x in sessions if x["supported_kwh"] is not None]
-                energy = {
-                    "supported_kwh": None if contradictory or not supported else plain(sum(supported, Decimal(0))),
-                    "complete_kwh": plain(sum(complete, Decimal(0))) if complete else None,
-                    "partial_kwh": plain(sum(partial, Decimal("0.000"))),
-                    "unknown_seconds": sum(x["unknown_meter_seconds"] or 0 for x in sessions),
-                    "as_of": as_of, "limitation": "Accepted EV records conflict." if contradictory else None}
-            imports, peak = self._site_import(ctx)
-            import_s = bool(imports)
-            site_power = {
-                "observed_peak_kw": plain(peak), "configured_limit_kw": limit_kw,
-                "coverage": self._claim_coverage(ctx, "SITE_POWER_CONTEXT", {}),
-                "claim_limit": "CONTEXT_ONLY" if import_s else "UNKNOWN",
-                "as_of": plain(snap["known"]) if import_s else as_of,
-                "limitation": None if import_s else (no_assessment
-                                                     or "No accepted Site import intervals cover this window.")}
+            energy, site_power = self.energy_on(ctx)
             findings = self._reads.findings_on(c, snap)
             money = self._consequence(ctx)
             summary = ({"state": None, "reason": None, "quantity_kwh": None, "amount": None, "currency": None,
@@ -651,6 +627,50 @@ class EvSiteReads:
                     "needs_attention": self._attention(ctx, sessions, findings, money, links),
                     "consequence_summary": summary, "links": links}
         return self._reads.within(work)
+
+    def context_on(self, c, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
+        """W5-03a E1b: the one shared snapshot and money selector on the caller's connection `c` (`_ctx`)."""
+        return self._ctx(c, t, s, code, lo, hi, known_at)
+
+    def consequence_on(self, ctx: dict[str, Any]) -> dict[str, Any] | None:
+        """W5-03a E1b: the W2-07 consequence (`_consequence`) of the shared money selector, unchanged."""
+        return self._consequence(ctx)
+
+    def energy_on(self, ctx: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+        """W5-03a E1b: the W2-07 overview `energy` and `site_power` dicts, extracted unchanged so `overview` and
+        the EV depth read share one computation on one snapshot."""
+        c, snap = ctx["c"], ctx["snap"]
+        status, _ = self._reads.status_on(snap)
+        sessions = self._sessions(ctx)
+        as_of = self._as_of(ctx)
+        no_assessment = status["limitation"] if snap["selected"] is None else None
+        limit_kw, _ = self._import_limit(self._reads.foundation_on(c, snap))
+        # energy (W2-06 selected session heads; contradictory support is null, no report is null)
+        if not sessions:
+            energy = {"supported_kwh": None, "complete_kwh": None, "partial_kwh": None, "unknown_seconds": None,
+                      "as_of": as_of, "limitation": no_assessment or "No supported session energy."}
+        else:
+            contradictory = any(x["state"] == "CONTRADICTORY" for x in sessions)
+            complete = [_dec(x["supported_kwh"]) for x in sessions if x["energy_complete"] is True]
+            partial = [_dec(x["supported_kwh"]) or Decimal("0.000") for x in sessions
+                       if x["energy_complete"] is False]
+            supported = [_dec(x["supported_kwh"]) for x in sessions if x["supported_kwh"] is not None]
+            energy = {
+                "supported_kwh": None if contradictory or not supported else plain(sum(supported, Decimal(0))),
+                "complete_kwh": plain(sum(complete, Decimal(0))) if complete else None,
+                "partial_kwh": plain(sum(partial, Decimal("0.000"))),
+                "unknown_seconds": sum(x["unknown_meter_seconds"] or 0 for x in sessions),
+                "as_of": as_of, "limitation": "Accepted EV records conflict." if contradictory else None}
+        imports, peak = self._site_import(ctx)
+        import_s = bool(imports)
+        site_power = {
+            "observed_peak_kw": plain(peak), "configured_limit_kw": limit_kw,
+            "coverage": self._claim_coverage(ctx, "SITE_POWER_CONTEXT", {}),
+            "claim_limit": "CONTEXT_ONLY" if import_s else "UNKNOWN",
+            "as_of": plain(snap["known"]) if import_s else as_of,
+            "limitation": None if import_s else (no_assessment
+                                                 or "No accepted Site import intervals cover this window.")}
+        return energy, site_power
 
     @staticmethod
     def _import_limit(foundation: dict[str, Any] | None) -> tuple[str | None, str | None]:
