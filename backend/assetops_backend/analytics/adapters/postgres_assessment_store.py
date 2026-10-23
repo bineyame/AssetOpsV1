@@ -3074,7 +3074,9 @@ class EvReadService:
           unknown_meter_seconds) is True`; `meter_evidence_ids`: the `ev_meter_interval` evidence those revisions
           cite; `foreign_meter_evidence`: whether any of them is outside the window's accepted set at the cutoff.
         - `foundation_revision_id`: `foundation_revision_on`, null when it resolves to none or to a revision the
-          selected head does not cite."""
+          selected head does not cite (a head citing no Foundation validates none).
+        - `foreign_meter_evidence`: also true when a meter ID is absent from the selected head's `evidence_ids`
+          (E5 ruling A6, case-normalized)."""
         snap = self._snapshot(c, t, s, code, lo, hi, known_at)
         sel = snap["selected"]
         window = {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]), "known_at": _ev_plain(snap["known"]),
@@ -3101,9 +3103,10 @@ class EvReadService:
         accepted = {str(r["evidence_id"]).lower() for r in self.accepted_on(c, snap)} if sel is not None else set()
         foundation = self.foundation_revision_on(c, snap)
         foundation_id = None if foundation is None else str(foundation["id"]).lower()
-        if foundation_id is not None and sel is not None and sel["foundation_ids"] and foundation_id not in {
+        if foundation_id is not None and sel is not None and foundation_id not in {
                 str(x).lower() for x in sel["foundation_ids"]}:
-            foundation_id = None
+            foundation_id = None  # no cited Foundation cannot validate one by fallback (E5 ruling 7)
+        head_cited = set() if sel is None else {str(x).lower() for x in sel["evidence_ids"]}
         return {
             "snap": snap, "window": window,
             "selection": {"state": snap["state"],
@@ -3111,7 +3114,7 @@ class EvReadService:
                           "session_revision_ids": revision_ids, "accepted_evidence_ids": sorted(cited),
                           "source_provenance": provenance},
             "session_revision_ids": complete, "meter_evidence_ids": meter_ids,
-            "foreign_meter_evidence": any(e not in accepted for e in meter_ids),
+            "foreign_meter_evidence": any(e not in accepted or e not in head_cited for e in meter_ids),
             "foundation_revision_id": foundation_id,
             "source_provenance": self.selected_provenance_on(c, snap, meter_ids),
         }

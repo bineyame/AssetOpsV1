@@ -408,6 +408,8 @@ def selected(built, known_at=None) -> dict:
                 "AND revision_id = ANY(CAST(:ids AS uuid[]))"), {"s": built.site_id, "ids": complete})})
             return {"snap": snap, "body": body, "complete": complete, "meters": meters,
                     "foundation": reads.foundation_revision_on(c, snap),
+                    "accepted": {str(r["evidence_id"]).lower() for r in reads.accepted_on(c, snap)},
+                    "accepted": {str(r["evidence_id"]).lower() for r in reads.accepted_on(c, snap)},
                     "provenance": reads.selected_provenance_on(c, snap, meters)}
         return reads.within(work)
     finally:
@@ -443,6 +445,14 @@ def test_complete_session_baseline(chain) -> None:  # noqa: F811
         "source_provenance": want["provenance"]}
     assert basis["cutoff"] == WATERMARK  # the returned watermark, not a literal: the fixture's 09:00
     assert set(want["meters"]) <= set(sel["evidence_ids"]) and want["provenance"]["evidence_ids"] == want["meters"]
+    # Ruling A6: every stored meter ID is in the window's accepted set, the head's cited set and the provenance.
+    assert basis["accepted_evidence_ids"] == want["meters"] and set(want["meters"]) <= want["accepted"]
+    assert set(want["meters"]) <= {str(x).lower() for x in sel["evidence_ids"]}
+    assert set(want["meters"]) <= set(basis["source_provenance"]["evidence_ids"])
+    # Ruling A6: every stored meter ID is in the window's accepted set, the head's cited set and the provenance.
+    assert basis["accepted_evidence_ids"] == want["meters"] and set(want["meters"]) <= want["accepted"]
+    assert set(want["meters"]) <= {str(x).lower() for x in sel["evidence_ids"]}
+    assert set(want["meters"]) <= set(basis["source_provenance"]["evidence_ids"])
     assert row["basis_sha256"] == rules.basis_sha256(basis) and row["formula_version"] == "AUTHORED_ONLY/1"
     assert (row["actor_kind"], row["actor_id"], row["attestation"], row["authorization_basis"]) == (
         "SERVICE", PRINCIPAL, ATTEST, GRANT_PREFIX + PRINCIPAL)
@@ -560,6 +570,26 @@ def test_command_refusals_and_replay(chain) -> None:  # noqa: F811
     refused_post(c, correction_body("corr-key-0003", first["revision_id"]), 409, "EV_SCENARIO_REVISION_CONFLICT",
                  path=path)
     refused_post(c, correction_body("corr-key-0004", str(uuid4())), 422, "DECISION_LINK_SCOPE_INVALID", path=path)
+    for body, code, message in (
+            (correction_body("corr-key-0008", str(uuid4())), "DECISION_LINK_SCOPE_INVALID",
+             "A cited or linked ID is outside this Site or basis."),
+            (correction_body("corr-key-0009", "not-a-uuid"), "EV_SCENARIO_INVALID",
+             "The EV scenario request or selected basis is invalid.")):  # ruling A3
+        response = c.post(f"{ROUTE}{path}?{QUERY}", json=body)
+        assert response.status_code == 422 and response.json() == {"error": {"code": code, "message": message}}
+    response = c.post(f"{ROUTE}/{uuid4()}/revisions?{QUERY}", json=correction_body("corr-key-0010", str(uuid4())))
+    assert response.status_code == 404 and response.json() == {
+        "error": {"code": "DECISION_NOT_FOUND", "message": "No decision with this ID at this Site."}}
+    for body, code, message in (
+            (correction_body("corr-key-0008", str(uuid4())), "DECISION_LINK_SCOPE_INVALID",
+             "A cited or linked ID is outside this Site or basis."),
+            (correction_body("corr-key-0009", "not-a-uuid"), "EV_SCENARIO_INVALID",
+             "The EV scenario request or selected basis is invalid.")):  # ruling A3
+        response = c.post(f"{ROUTE}{path}?{QUERY}", json=body)
+        assert response.status_code == 422 and response.json() == {"error": {"code": code, "message": message}}
+    response = c.post(f"{ROUTE}/{uuid4()}/revisions?{QUERY}", json=correction_body("corr-key-0010", str(uuid4())))
+    assert response.status_code == 404 and response.json() == {
+        "error": {"code": "DECISION_NOT_FOUND", "message": "No decision with this ID at this Site."}}
     refused_post(c, correction_body("corr-key-0005", second["revision_id"]), 404, "DECISION_NOT_FOUND",
                  path=f"/{uuid4()}/revisions")
     refused_post(c, correction_body("corr-key-0006", second["revision_id"]), 404, "DECISION_NOT_FOUND",
@@ -612,6 +642,10 @@ def test_pending_historical_list_and_cursor(chain) -> None:  # noqa: F811
     for bad in ("0", "101", "x", "²"):
         refused_get(c, f"{QUERY}&limit={bad}", 422, "EV_LIMIT_INVALID")
     assert len(listed(c, f"{QUERY}&limit=100")["items"]) == 3
+    assert c.get(f"{ROUTE}?{QUERY}&limit=0").json() == {  # ruling A2
+        "error": {"code": "EV_LIMIT_INVALID", "message": "'limit' must be 1 to 100."}}
+    assert c.get(f"{ROUTE}?{QUERY}&limit=0").json() == {  # ruling A2
+        "error": {"code": "EV_LIMIT_INVALID", "message": "'limit' must be 1 to 100."}}
     empty = listed(c, EMPTY_W)
     assert empty["items"] == [] and empty["selection"]["state"] == "UNKNOWN" and empty["next_cursor"] is None
     assert listed(c, OTHER_W)["items"] == []  # a root is listed only for its revision 1 window
@@ -701,3 +735,501 @@ def test_main_mounts_the_scenario_routes() -> None:
     for method, path in (("get", ""), ("post", ""), ("post", f"/{uuid4()}/revisions")):
         body = getattr(c, method)(f"{ROUTE}{path}?{QUERY}").json()
         assert set(body) == {"error"}, (method, path, body)  # the typed wrapper, never the framework 404
+
+
+# --- E5 fix round (rulings A1-A6, M1, L1-L3) ------------------------------------------------------------------
+
+
+def _patched_snapshot(monkeypatch, change) -> None:
+    """Wrap `EvReadService._snapshot` so `change(selected)` returns the selected head the E5 basis sees."""
+    original = EvReadService._snapshot
+
+    def wrapped(self, *args, **kwargs):
+        snap = original(self, *args, **kwargs)
+        if snap["selected"] is not None:
+            snap = {**snap, "selected": change(dict(snap["selected"]))}
+        return snap
+    monkeypatch.setattr(EvReadService, "_snapshot", wrapped)
+
+
+@needs_db
+def test_baseline_foundation_and_foreign_meter_refusals(chain, monkeypatch) -> None:  # noqa: F811
+    """M1 and ruling A6: an absent, foreign or uncited Foundation, an accepted meter ID omitted from the selected
+    head, and a cited meter ID outside the accepted set are each 422 `EV_SCENARIO_INVALID` with nothing written;
+    the unpatched read still writes."""
+    built = settled(chain, "complete")
+    want = selected(built)
+    assert want["meters"] and set(want["meters"]) <= want["accepted"]
+    c = scenarios_client(built)
+    stranger, other = str(uuid4()), str(uuid4())
+
+    def refuse(key: str) -> None:
+        refused_post(c, command_body(key), 422, "EV_SCENARIO_INVALID")
+        assert counts(built) == [0, 0]
+
+    with monkeypatch.context() as m:  # (a) no Foundation resolves
+        m.setattr(EvReadService, "foundation_revision_on", lambda self, conn, snap: None)
+        refuse("found-key-0001")
+    with monkeypatch.context() as m:  # (b) a resolved Foundation outside a nonempty cited set
+        m.setattr(EvReadService, "foundation_revision_on",
+                  lambda self, conn, snap: {"id": stranger, "content": {}, "valid_from": None, "valid_to": None})
+        refuse("found-key-0002")
+    with monkeypatch.context() as m:  # (c) multi-ID head: the fallback Foundation is outside the cited IDs
+        _patched_snapshot(m, lambda head: {**head, "foundation_ids": [stranger, other]})
+        refuse("found-key-0003")
+    with monkeypatch.context() as m:  # (d) a head citing no Foundation cannot validate one by fallback
+        _patched_snapshot(m, lambda head: {**head, "foundation_ids": []})
+        refuse("found-key-0004")
+    with monkeypatch.context() as m:  # (e) an accepted meter ID omitted from the selected head's evidence
+        drop = set(want["meters"][:1])
+        _patched_snapshot(m, lambda head: {**head, "evidence_ids": [
+            x for x in head["evidence_ids"] if str(x).lower() not in drop]})
+        refuse("meter-key-0001")
+    with monkeypatch.context() as m:  # (f) a cited meter ID outside the window's accepted set
+        m.setattr(EvReadService, "accepted_on", lambda self, conn, snap: [])
+        refuse("meter-key-0002")
+    first = post(c, command_body("found-key-0005"))  # the unpatched read still writes
+    assert counts(built) == [1, 1]
+    with monkeypatch.context() as m:  # the correction path refuses the same way and appends nothing
+        m.setattr(EvReadService, "accepted_on", lambda self, conn, snap: [])
+        refused_post(c, correction_body("meter-key-0003", first["revision_id"]), 422, "EV_SCENARIO_INVALID",
+                     path=f"/{first['id']}/revisions")
+    assert counts(built) == [1, 1]
+    built.close()
+
+
+@needs_db
+def test_currency_must_match_priced_tariff(chain) -> None:  # noqa: F811
+    """Ruling A5 (and A1 for the null case): a USD command over a KES priced consequence is refused with nothing
+    written; KES succeeds with both money IDs stored; an unpriced selection accepts USD with both IDs null."""
+    built = settled(chain, "complete")
+    tariff = golden_tariff(built)
+    assert all(o.succeeded for o in money(built))
+    c = scenarios_client(built)
+    usd = {"tariff_per_kwh": "0.31", "currency": "USD"}
+    response = c.post(f"{ROUTE}?{QUERY}", json=command_body("cur-key-0001", assumptions=usd))
+    assert response.status_code == 422 and response.json() == {"error": {
+        "code": "EV_SCENARIO_INVALID",
+        "message": "The authored currency must match the selected priced tariff currency."}}
+    assert counts(built) == [0, 0]
+    made = post(c, command_body("cur-key-0002"))
+    basis = stored(built, made["revision_id"])["authored_basis"]
+    assert basis["tariff_revision_id"] == str(tariff).lower() and basis["consequence_revision_id"] is not None
+    assert "currency" not in basis  # compared on the write connection, never persisted
+    response = c.post(f"{ROUTE}/{made['id']}/revisions?{QUERY}", json=correction_body(
+        "cur-key-0003", made["revision_id"], assumptions=usd))
+    assert response.status_code == 422 and response.json()["error"]["code"] == "EV_SCENARIO_INVALID"
+    assert counts(built) == [1, 1]
+    built.close()
+
+    unpriced = settled(chain, "fault")
+    out = post(scenarios_client(unpriced), command_body("cur-key-0004", assumptions=usd))
+    row = stored(unpriced, out["revision_id"])
+    assert row["assumptions"] == usd
+    assert (row["authored_basis"]["consequence_revision_id"], row["authored_basis"]["tariff_revision_id"]) == (
+        None, None)
+    unpriced.close()
+
+
+def _raw_roots(built, specs: list[tuple[str, dict, datetime]]) -> list[tuple[str, str]]:
+    """Test-only roots, each with a revision 1 holding the given basis and `recorded_at`; returns (root, revision)."""
+    revision = ("INSERT INTO ev_scenario_revision (id, tenant_id, site_id, scenario_id, revision_no, "
+                "supersedes_revision_id, name, kind, assumptions, authored_basis, basis_sha256, formula_version, "
+                "correction_reason, actor_kind, actor_id, authorization_basis, attestation, idempotency_key, "
+                "payload_sha256, recorded_at) VALUES (:id, :t, :s, :r, 1, NULL, 'Raw', 'GROSS_TARIFF_CONTEXT', "
+                "CAST(:a AS jsonb), CAST(:b AS jsonb), :h, 'AUTHORED_ONLY/1', NULL, 'SERVICE', 'svc', 'grant', "
+                "'attested', :k, :h, :at)")
+    made = []
+    with built.engine.begin() as conn:
+        for key, body, at in specs:
+            root, rev = uuid4(), uuid4()
+            conn.execute(text(
+                "INSERT INTO ev_scenario (id, tenant_id, site_id, create_key, create_payload_sha256, "
+                "create_actor_id, actor_kind, actor_id) VALUES (:id, :t, :s, :k, :h, 'svc', 'SERVICE', 'svc')"),
+                {"id": root, "t": built.tenant_id, "s": built.site_id, "k": key, "h": _sha("c" + key)})
+            conn.execute(text(revision), {"id": rev, "t": built.tenant_id, "s": built.site_id, "r": root,
+                                          "a": json.dumps(ASSUMPTIONS), "b": json.dumps(body),
+                                          "h": _sha("b" + key), "k": key, "at": at})
+            made.append((str(root), str(rev)))
+    return made
+
+
+@needs_db
+def test_equal_recorded_at_pagination_order(chain) -> None:  # noqa: F811
+    """Ruling A4: the list order is `(recorded_at DESC, id DESC)` with a matching cursor predicate, so heads that
+    share one `recorded_at` page strictly by descending ID with none repeated or skipped."""
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    real = post(c, command_body("eq-key-0001"))
+    basis = stored(built, real["revision_id"])["authored_basis"]
+    tie = datetime(2026, 10, 6, 9, 30, 0, 123456, tzinfo=timezone.utc)
+    raw = _raw_roots(built, [(f"eq-raw-000{n}", basis, tie) for n in range(1, 4)])
+    want = [real["revision_id"], *sorted((rev for _, rev in raw), reverse=True)]
+    got = []
+    page = listed(c, f"{QUERY}&limit=1")
+    while True:
+        assert len(page["items"]) == 1
+        got.append(page["items"][0]["revision_id"])
+        if not page["next_cursor"]:
+            break
+        page = listed(c, f"{QUERY}&cursor={page['next_cursor']}")
+    assert got == want
+    assert [i["revision_id"] for i in listed(c, f"{QUERY}&limit=100")["items"]] == want
+    built.close()
+
+
+@needs_db
+def test_malformed_stored_basis_and_root_window_are_503(chain) -> None:  # noqa: F811
+    """L1/ruling 8: a candidate whose stored basis lacks the cutoff, and a root whose revision 1 lacks `from` or
+    `to`, each make the whole list 503 `DECISION_STORE_UNAVAILABLE` (no partial 200); deleting them restores it."""
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    real = post(c, command_body("bad-key-0001"))
+    basis = stored(built, real["revision_id"])["authored_basis"]
+    early = datetime.now(timezone.utc) - timedelta(minutes=5)
+    assert [i["id"] for i in listed(c)["items"]] == [real["id"]]
+    for missing in ("cutoff", "to", "from"):
+        broken = {k: v for k, v in basis.items() if k != missing}
+        [(root, rev)] = _raw_roots(built, [(f"bad-raw-{missing}", broken, early)])
+        for query in (QUERY, f"{QUERY}&limit=1"):
+            response = c.get(f"{ROUTE}?{query}")
+            refusal(response, 503, "DECISION_STORE_UNAVAILABLE")
+            assert "items" not in response.json()
+            assert response.json()["error"]["message"] == "Decision records could not be read or saved."
+        _replica(built.engine, f"DELETE FROM ev_scenario_revision WHERE id = '{rev}'",
+                 f"DELETE FROM ev_scenario WHERE id = '{root}'")
+        assert [i["id"] for i in listed(c)["items"]] == [real["id"]]
+    built.close()
+
+
+@needs_db
+def test_default_page_is_fifty(chain) -> None:  # noqa: F811
+    """L2/rulings 2 and 9: 51 roots without `limit` give 50 rows and a cursor, then one row; page two keeps page
+    one's clocks, window and selection basis."""
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    first = post(c, command_body("page-key-0000"))
+    basis = stored(built, first["revision_id"])["authored_basis"]
+    base = datetime(2026, 10, 6, 9, 30, tzinfo=timezone.utc)
+    _raw_roots(built, [(f"page-raw-{n:04d}", basis, base + timedelta(seconds=n)) for n in range(1, 51)])
+    one = listed(c)
+    assert len(one["items"]) == 50 and one["next_cursor"]
+    two = listed(c, f"{QUERY}&cursor={one['next_cursor']}")
+    assert len(two["items"]) == 1 and two["next_cursor"] is None
+    assert (two["scenario_at"], two["window"], two["selection"]) == (
+        one["scenario_at"], one["window"], one["selection"])
+    ids = [i["id"] for i in one["items"]] + [i["id"] for i in two["items"]]
+    assert len(set(ids)) == 51
+    assert len(listed(c, f"{QUERY}&limit=100")["items"]) == 51
+    built.close()
+
+
+@needs_db
+def test_write_race_retries_once_then_503(chain, monkeypatch) -> None:  # noqa: F811
+    """L3/ruling 10 (P-E5-6): one `IntegrityError` rolls back and retries once (201 with one root and revision); a
+    race that committed the same key answers the retry with exact-key 200; two consecutive races are 503
+    `DECISION_STORE_UNAVAILABLE` with nothing committed."""
+    from sqlalchemy.exc import IntegrityError
+
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    original_root = PostgresEvScenarioStore.insert_scenario
+    original_revision = PostgresEvScenarioStore.insert_scenario_revision
+    calls = {"n": 0}
+
+    def race_once(conn, row):  # the insert lands, then fails: the transaction rolls back
+        calls["n"] += 1
+        original_revision(conn, row)
+        if calls["n"] == 1:
+            raise IntegrityError("INSERT", {}, Exception("race"))
+
+    with monkeypatch.context() as m:  # one race: rolled back, then a clean 201
+        m.setattr(PostgresEvScenarioStore, "insert_scenario_revision", staticmethod(race_once))
+        made = post(c, command_body("race-key-0001"))
+        assert calls["n"] == 2 and made["revision_no"] == 1
+    assert counts(built) == [1, 1]  # [revisions, roots]
+
+    seen = {"n": 0}
+    other = scenarios_client(built)
+
+    def raced_root(conn, row):  # a concurrent writer commits the same key first; this insert then collides
+        seen["n"] += 1
+        if seen["n"] == 1:
+            post(other, command_body("race-key-0002"))
+        return original_root(conn, row)
+
+    with monkeypatch.context() as m:
+        m.setattr(PostgresEvScenarioStore, "insert_scenario", staticmethod(raced_root))
+        replay = post(c, command_body("race-key-0002"), status=200)
+        assert replay["revision_no"] == 1 and seen["n"] == 1
+    assert counts(built) == [2, 2]
+
+    calls["n"] = 0
+    with monkeypatch.context() as m:  # a correction race: one retry, then the appended revision
+        m.setattr(PostgresEvScenarioStore, "insert_scenario_revision", staticmethod(race_once))
+        second = post(c, correction_body("race-key-0003", made["revision_id"]), path=f"/{made['id']}/revisions")
+        assert second["revision_no"] == 2 and calls["n"] == 2
+    assert counts(built) == [3, 2]
+
+    def race_always(conn, row):
+        original_revision(conn, row)
+        raise IntegrityError("INSERT", {}, Exception("race"))
+
+    with monkeypatch.context() as m:  # two consecutive races: 503, nothing committed
+        m.setattr(PostgresEvScenarioStore, "insert_scenario_revision", staticmethod(race_always))
+        response = c.post(f"{ROUTE}?{QUERY}", json=command_body("race-key-0004"))
+        refusal(response, 503, "DECISION_STORE_UNAVAILABLE")
+        assert response.json()["error"]["message"] == "Decision records could not be read or saved."
+        refusal(c.post(f"{ROUTE}/{made['id']}/revisions?{QUERY}", json=correction_body(
+            "race-key-0005", second["revision_id"])), 503, "DECISION_STORE_UNAVAILABLE")
+    assert counts(built) == [3, 2]
+    built.close()
+
+
+# --- E5 fix round (rulings A1-A6, M1, L1-L3) ------------------------------------------------------------------
+
+
+def _patched_snapshot(monkeypatch, change) -> None:
+    """Wrap `EvReadService._snapshot` so `change(selected)` returns the selected head the E5 basis sees."""
+    original = EvReadService._snapshot
+
+    def wrapped(self, *args, **kwargs):
+        snap = original(self, *args, **kwargs)
+        if snap["selected"] is not None:
+            snap = {**snap, "selected": change(dict(snap["selected"]))}
+        return snap
+    monkeypatch.setattr(EvReadService, "_snapshot", wrapped)
+
+
+@needs_db
+def test_baseline_foundation_and_foreign_meter_refusals(chain, monkeypatch) -> None:  # noqa: F811
+    """M1 and ruling A6: an absent, foreign or uncited Foundation, an accepted meter ID omitted from the selected
+    head, and a cited meter ID outside the accepted set are each 422 `EV_SCENARIO_INVALID` with nothing written;
+    the unpatched read still writes."""
+    built = settled(chain, "complete")
+    want = selected(built)
+    assert want["meters"] and set(want["meters"]) <= want["accepted"]
+    c = scenarios_client(built)
+    stranger, other = str(uuid4()), str(uuid4())
+
+    def refuse(key: str) -> None:
+        refused_post(c, command_body(key), 422, "EV_SCENARIO_INVALID")
+        assert counts(built) == [0, 0]
+
+    with monkeypatch.context() as m:  # (a) no Foundation resolves
+        m.setattr(EvReadService, "foundation_revision_on", lambda self, conn, snap: None)
+        refuse("found-key-0001")
+    with monkeypatch.context() as m:  # (b) a resolved Foundation outside a nonempty cited set
+        m.setattr(EvReadService, "foundation_revision_on",
+                  lambda self, conn, snap: {"id": stranger, "content": {}, "valid_from": None, "valid_to": None})
+        refuse("found-key-0002")
+    with monkeypatch.context() as m:  # (c) multi-ID head: the fallback Foundation is outside the cited IDs
+        _patched_snapshot(m, lambda head: {**head, "foundation_ids": [stranger, other]})
+        refuse("found-key-0003")
+    with monkeypatch.context() as m:  # (d) a head citing no Foundation cannot validate one by fallback
+        _patched_snapshot(m, lambda head: {**head, "foundation_ids": []})
+        refuse("found-key-0004")
+    with monkeypatch.context() as m:  # (e) an accepted meter ID omitted from the selected head's evidence
+        drop = set(want["meters"][:1])
+        _patched_snapshot(m, lambda head: {**head, "evidence_ids": [
+            x for x in head["evidence_ids"] if str(x).lower() not in drop]})
+        refuse("meter-key-0001")
+    with monkeypatch.context() as m:  # (f) a cited meter ID outside the window's accepted set
+        m.setattr(EvReadService, "accepted_on", lambda self, conn, snap: [])
+        refuse("meter-key-0002")
+    first = post(c, command_body("found-key-0005"))  # the unpatched read still writes
+    assert counts(built) == [1, 1]
+    with monkeypatch.context() as m:  # the correction path refuses the same way and appends nothing
+        m.setattr(EvReadService, "accepted_on", lambda self, conn, snap: [])
+        refused_post(c, correction_body("meter-key-0003", first["revision_id"]), 422, "EV_SCENARIO_INVALID",
+                     path=f"/{first['id']}/revisions")
+    assert counts(built) == [1, 1]
+    built.close()
+
+
+@needs_db
+def test_currency_must_match_priced_tariff(chain) -> None:  # noqa: F811
+    """Ruling A5 (and A1 for the null case): a USD command over a KES priced consequence is refused with nothing
+    written; KES succeeds with both money IDs stored; an unpriced selection accepts USD with both IDs null."""
+    built = settled(chain, "complete")
+    tariff = golden_tariff(built)
+    assert all(o.succeeded for o in money(built))
+    c = scenarios_client(built)
+    usd = {"tariff_per_kwh": "0.31", "currency": "USD"}
+    response = c.post(f"{ROUTE}?{QUERY}", json=command_body("cur-key-0001", assumptions=usd))
+    assert response.status_code == 422 and response.json() == {"error": {
+        "code": "EV_SCENARIO_INVALID",
+        "message": "The authored currency must match the selected priced tariff currency."}}
+    assert counts(built) == [0, 0]
+    made = post(c, command_body("cur-key-0002"))
+    basis = stored(built, made["revision_id"])["authored_basis"]
+    assert basis["tariff_revision_id"] == str(tariff).lower() and basis["consequence_revision_id"] is not None
+    assert "currency" not in basis  # compared on the write connection, never persisted
+    response = c.post(f"{ROUTE}/{made['id']}/revisions?{QUERY}", json=correction_body(
+        "cur-key-0003", made["revision_id"], assumptions=usd))
+    assert response.status_code == 422 and response.json()["error"]["code"] == "EV_SCENARIO_INVALID"
+    assert counts(built) == [1, 1]
+    built.close()
+
+    unpriced = settled(chain, "fault")
+    out = post(scenarios_client(unpriced), command_body("cur-key-0004", assumptions=usd))
+    row = stored(unpriced, out["revision_id"])
+    assert row["assumptions"] == usd
+    assert (row["authored_basis"]["consequence_revision_id"], row["authored_basis"]["tariff_revision_id"]) == (
+        None, None)
+    unpriced.close()
+
+
+def _raw_roots(built, specs: list[tuple[str, dict, datetime]]) -> list[tuple[str, str]]:
+    """Test-only roots, each with a revision 1 holding the given basis and `recorded_at`; returns (root, revision)."""
+    revision = ("INSERT INTO ev_scenario_revision (id, tenant_id, site_id, scenario_id, revision_no, "
+                "supersedes_revision_id, name, kind, assumptions, authored_basis, basis_sha256, formula_version, "
+                "correction_reason, actor_kind, actor_id, authorization_basis, attestation, idempotency_key, "
+                "payload_sha256, recorded_at) VALUES (:id, :t, :s, :r, 1, NULL, 'Raw', 'GROSS_TARIFF_CONTEXT', "
+                "CAST(:a AS jsonb), CAST(:b AS jsonb), :h, 'AUTHORED_ONLY/1', NULL, 'SERVICE', 'svc', 'grant', "
+                "'attested', :k, :h, :at)")
+    made = []
+    with built.engine.begin() as conn:
+        for key, body, at in specs:
+            root, rev = uuid4(), uuid4()
+            conn.execute(text(
+                "INSERT INTO ev_scenario (id, tenant_id, site_id, create_key, create_payload_sha256, "
+                "create_actor_id, actor_kind, actor_id) VALUES (:id, :t, :s, :k, :h, 'svc', 'SERVICE', 'svc')"),
+                {"id": root, "t": built.tenant_id, "s": built.site_id, "k": key, "h": _sha("c" + key)})
+            conn.execute(text(revision), {"id": rev, "t": built.tenant_id, "s": built.site_id, "r": root,
+                                          "a": json.dumps(ASSUMPTIONS), "b": json.dumps(body),
+                                          "h": _sha("b" + key), "k": key, "at": at})
+            made.append((str(root), str(rev)))
+    return made
+
+
+@needs_db
+def test_equal_recorded_at_pagination_order(chain) -> None:  # noqa: F811
+    """Ruling A4: the list order is `(recorded_at DESC, id DESC)` with a matching cursor predicate, so heads that
+    share one `recorded_at` page strictly by descending ID with none repeated or skipped."""
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    real = post(c, command_body("eq-key-0001"))
+    basis = stored(built, real["revision_id"])["authored_basis"]
+    tie = datetime(2026, 10, 6, 9, 30, 0, 123456, tzinfo=timezone.utc)
+    raw = _raw_roots(built, [(f"eq-raw-000{n}", basis, tie) for n in range(1, 4)])
+    want = [real["revision_id"], *sorted((rev for _, rev in raw), reverse=True)]
+    got = []
+    page = listed(c, f"{QUERY}&limit=1")
+    while True:
+        assert len(page["items"]) == 1
+        got.append(page["items"][0]["revision_id"])
+        if not page["next_cursor"]:
+            break
+        page = listed(c, f"{QUERY}&cursor={page['next_cursor']}")
+    assert got == want
+    assert [i["revision_id"] for i in listed(c, f"{QUERY}&limit=100")["items"]] == want
+    built.close()
+
+
+@needs_db
+def test_malformed_stored_basis_and_root_window_are_503(chain) -> None:  # noqa: F811
+    """L1/ruling 8: a candidate whose stored basis lacks the cutoff, and a root whose revision 1 lacks `from` or
+    `to`, each make the whole list 503 `DECISION_STORE_UNAVAILABLE` (no partial 200); deleting them restores it."""
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    real = post(c, command_body("bad-key-0001"))
+    basis = stored(built, real["revision_id"])["authored_basis"]
+    early = datetime.now(timezone.utc) - timedelta(minutes=5)
+    assert [i["id"] for i in listed(c)["items"]] == [real["id"]]
+    for missing in ("cutoff", "to", "from"):
+        broken = {k: v for k, v in basis.items() if k != missing}
+        [(root, rev)] = _raw_roots(built, [(f"bad-raw-{missing}", broken, early)])
+        for query in (QUERY, f"{QUERY}&limit=1"):
+            response = c.get(f"{ROUTE}?{query}")
+            refusal(response, 503, "DECISION_STORE_UNAVAILABLE")
+            assert "items" not in response.json()
+            assert response.json()["error"]["message"] == "Decision records could not be read or saved."
+        _replica(built.engine, f"DELETE FROM ev_scenario_revision WHERE id = '{rev}'",
+                 f"DELETE FROM ev_scenario WHERE id = '{root}'")
+        assert [i["id"] for i in listed(c)["items"]] == [real["id"]]
+    built.close()
+
+
+@needs_db
+def test_default_page_is_fifty(chain) -> None:  # noqa: F811
+    """L2/rulings 2 and 9: 51 roots without `limit` give 50 rows and a cursor, then one row; page two keeps page
+    one's clocks, window and selection basis."""
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    first = post(c, command_body("page-key-0000"))
+    basis = stored(built, first["revision_id"])["authored_basis"]
+    base = datetime(2026, 10, 6, 9, 30, tzinfo=timezone.utc)
+    _raw_roots(built, [(f"page-raw-{n:04d}", basis, base + timedelta(seconds=n)) for n in range(1, 51)])
+    one = listed(c)
+    assert len(one["items"]) == 50 and one["next_cursor"]
+    two = listed(c, f"{QUERY}&cursor={one['next_cursor']}")
+    assert len(two["items"]) == 1 and two["next_cursor"] is None
+    assert (two["scenario_at"], two["window"], two["selection"]) == (
+        one["scenario_at"], one["window"], one["selection"])
+    ids = [i["id"] for i in one["items"]] + [i["id"] for i in two["items"]]
+    assert len(set(ids)) == 51
+    assert len(listed(c, f"{QUERY}&limit=100")["items"]) == 51
+    built.close()
+
+
+@needs_db
+def test_write_race_retries_once_then_503(chain, monkeypatch) -> None:  # noqa: F811
+    """L3/ruling 10 (P-E5-6): one `IntegrityError` rolls back and retries once (201 with one root and revision); a
+    race that committed the same key answers the retry with exact-key 200; two consecutive races are 503
+    `DECISION_STORE_UNAVAILABLE` with nothing committed."""
+    from sqlalchemy.exc import IntegrityError
+
+    built = settled(chain, "complete")
+    c = scenarios_client(built)
+    original_root = PostgresEvScenarioStore.insert_scenario
+    original_revision = PostgresEvScenarioStore.insert_scenario_revision
+    calls = {"n": 0}
+
+    def race_once(conn, row):  # the insert lands, then fails: the transaction rolls back
+        calls["n"] += 1
+        original_revision(conn, row)
+        if calls["n"] == 1:
+            raise IntegrityError("INSERT", {}, Exception("race"))
+
+    with monkeypatch.context() as m:  # one race: rolled back, then a clean 201
+        m.setattr(PostgresEvScenarioStore, "insert_scenario_revision", staticmethod(race_once))
+        made = post(c, command_body("race-key-0001"))
+        assert calls["n"] == 2 and made["revision_no"] == 1
+    assert counts(built) == [1, 1]  # [revisions, roots]
+
+    seen = {"n": 0}
+    other = scenarios_client(built)
+
+    def raced_root(conn, row):  # a concurrent writer commits the same key first; this insert then collides
+        seen["n"] += 1
+        if seen["n"] == 1:
+            post(other, command_body("race-key-0002"))
+        return original_root(conn, row)
+
+    with monkeypatch.context() as m:
+        m.setattr(PostgresEvScenarioStore, "insert_scenario", staticmethod(raced_root))
+        replay = post(c, command_body("race-key-0002"), status=200)
+        assert replay["revision_no"] == 1 and seen["n"] == 1
+    assert counts(built) == [2, 2]
+
+    calls["n"] = 0
+    with monkeypatch.context() as m:  # a correction race: one retry, then the appended revision
+        m.setattr(PostgresEvScenarioStore, "insert_scenario_revision", staticmethod(race_once))
+        second = post(c, correction_body("race-key-0003", made["revision_id"]), path=f"/{made['id']}/revisions")
+        assert second["revision_no"] == 2 and calls["n"] == 2
+    assert counts(built) == [3, 2]
+
+    def race_always(conn, row):
+        original_revision(conn, row)
+        raise IntegrityError("INSERT", {}, Exception("race"))
+
+    with monkeypatch.context() as m:  # two consecutive races: 503, nothing committed
+        m.setattr(PostgresEvScenarioStore, "insert_scenario_revision", staticmethod(race_always))
+        response = c.post(f"{ROUTE}?{QUERY}", json=command_body("race-key-0004"))
+        refusal(response, 503, "DECISION_STORE_UNAVAILABLE")
+        assert response.json()["error"]["message"] == "Decision records could not be read or saved."
+        refusal(c.post(f"{ROUTE}/{made['id']}/revisions?{QUERY}", json=correction_body(
+            "race-key-0005", second["revision_id"])), 503, "DECISION_STORE_UNAVAILABLE")
+    assert counts(built) == [3, 2]
+    built.close()

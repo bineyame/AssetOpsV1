@@ -69,7 +69,7 @@ class EvScenarioService:
             raise refused("EV_READ_UNAVAILABLE", "EV assessments cannot be read right now.", 503) from error
 
     @staticmethod
-    def _authorable(basis: Mapping[str, Any]) -> dict[str, Any]:
+    def _authorable(basis: Mapping[str, Any], cmd: Mapping[str, Any]) -> dict[str, Any]:
         """P-E5-5: only a CURRENT selection with a selected assessment, complete metered sessions, their accepted
         meter evidence and a selected Foundation; anything else is 422 `EV_SCENARIO_INVALID`."""
         window, selection = basis["window"], basis["selection"]
@@ -78,7 +78,11 @@ class EvScenarioService:
                 or not basis["meter_evidence_ids"] or basis["foreign_meter_evidence"]
                 or basis["foundation_revision_id"] is None):
             raise rules.invalid()
-        money = basis.get("money") or {"consequence_revision_id": None, "tariff_revision_id": None}
+        money = basis.get("money") or {"consequence_revision_id": None, "tariff_revision_id": None, "currency": None}
+        priced = money["tariff_revision_id"] is not None
+        if priced and money.get("currency") is not None and cmd["assumptions"]["currency"] != money["currency"]:
+            # Ruling A5: an authored currency other than the selected priced tariff's is an unsupported comparison.
+            raise refused("EV_SCENARIO_INVALID", "The authored currency must match the selected priced tariff currency.")
         return {"from": window["from"], "to": window["to"], "cutoff": window["known_at"],
                 "assessment_revision_id": selection["assessment_revision_id"],
                 "session_revision_ids": list(basis["session_revision_ids"]),
@@ -105,7 +109,7 @@ class EvScenarioService:
                 if rules.create_sha256(cmd, s, lo_text, hi_text, cutoff) != prior["create_payload_sha256"]:
                     raise refused("EV_SCENARIO_IDEMPOTENCY_CONFLICT")
                 return 200, self._write_body(prior["id"], prior["public_no"], first)
-            authored = self._authorable(self._basis(c, t, s, code, lo, hi, known_at, money=True))
+            authored = self._authorable(self._basis(c, t, s, code, lo, hi, known_at, money=True), cmd)
             sha = rules.create_sha256(cmd, s, authored["from"], authored["to"], authored["cutoff"])
             scenario_id, revision_id = uuid4(), uuid4()
             public_no = self._store.insert_scenario(c, {
@@ -149,7 +153,7 @@ class EvScenarioService:
             head = revisions[-1]
             if predecessor["id"] != head["id"]:
                 raise refused("EV_SCENARIO_REVISION_CONFLICT")
-            authored = self._authorable(self._basis(c, t, s, code, lo, hi, known_at, money=True))
+            authored = self._authorable(self._basis(c, t, s, code, lo, hi, known_at, money=True), cmd)
             sha = rules.correction_sha256(cmd, root_id, authored["from"], authored["to"], authored["cutoff"])
             revision = self._append(c, t, s, root["id"], uuid4(), head["revision_no"] + 1, head["id"], cmd, actor,
                                     authored, sha)
