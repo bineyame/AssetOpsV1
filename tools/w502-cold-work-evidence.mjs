@@ -23,6 +23,10 @@
  * Ruling 21: the manifest's UNKNOWN INC has one link (COLD_START_FAILURE) and a recorded `fixture.incident.limit`;
  * every other mode links both selected Findings. Ruling 23: `cold-incidents` and `cold-maintenance` show one visible
  * date form (the page-local Window control) and keep from, to and known_at in the URL and every Work subtab href.
+ * K3b (K3 pre-flight rulings 7-8): `W502B_EVIDENCE=cases node tools/w502-cold-work-evidence.mjs <manifest> <out>`
+ * captures only the cold Incidents and Maintenance tabs (positive, historical, complete zero, five-row worst case
+ * with one and all disclosures open, pending/stale/unknown, W4 403/503) at both widths against the "other Work" caps
+ * (page 1400/1800, panel 440/650, strip 100/150, notice 110/160) and writes <out>/w502b-k3-measurements.json.
  * It launches and stops only its own headless Chrome.
  */
 import { spawn } from "node:child_process";
@@ -283,6 +287,205 @@ const MEASURE_CASES = `(() => {
     subtabs: [...document.querySelectorAll('nav[aria-label="Work lists"] a')].map((a) => a.getAttribute('href')),
   };
 })()`;
+// ---- W5-02b K3b: the cold case tabs (v69 cold-work-incidents / cold-work-maintenance) ----------------------------
+// Build-spec "Measurement" caps for the other Work pages [1440, 390]: page <= 1400/1800, panel <= 440/650, strip
+// <= 100/150, notice <= 110/160. K3 pre-flight ruling 7 keeps these caps for the five-row and opened-disclosure states
+// (K2 ruling 24's all-open exemption is for the Actions panel only).
+const CASE_CAPS = { main: [1400, 1800], strip: [100, 150], panel: [440, 650], notice: [110, 160] };
+const CASE_BANNER = "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.";
+const CASE_READY = `document.querySelector('main [data-site-work] section.panel') && !document.querySelector('[data-work-loading]') && (document.querySelector('[data-work-loaded], [data-work-empty], [data-work-refused]'))`;
+const MEASURE_CASE = `(() => {
+  const h = (e) => (e ? Math.round(e.getBoundingClientRect().height) : null);
+  const main = document.querySelector('main');
+  const body = document.querySelector('main [data-site-work]');
+  const panel = body?.querySelector('section.panel') ?? null;
+  const scroller = body?.querySelector('.data-table__scroll') ?? null;
+  const rows = [...(body?.querySelectorAll('tbody tr[data-work-row]') ?? [])];
+  const firstCell = scroller?.querySelector('tbody tr > :first-child') ?? scroller?.querySelector('thead th');
+  const t = (e) => e?.innerText?.replace(/\\s+/g, ' ').trim() ?? null;
+  const lineBox = (e) => { const cs = getComputedStyle(e); const lh = parseFloat(cs.lineHeight); return Number.isFinite(lh) && lh > 0 ? lh : parseFloat(cs.fontSize) * 1.2; };
+  const badges = [...(body?.querySelectorAll('tbody [data-work-state], tbody [data-work-outcome]') ?? [])];
+  const visible = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.closest('[hidden]'); };
+  return {
+    href: location.pathname + location.search,
+    kind: body?.getAttribute('data-site-work') ?? null,
+    panelState: body?.querySelector('[data-work-refused]') ? 'refused' : body?.querySelector('[data-work-empty]') ? 'empty' : body?.querySelector('[data-work-loaded]') ? 'rows' : 'loading',
+    currentness: document.querySelector('[data-cold-work-currentness]')?.getAttribute('data-cold-work-currentness') ?? null,
+    currentnessTone: document.querySelector('[data-cold-work-currentness]')?.classList.contains('v69-notice--blue') ? 'blue' : document.querySelector('[data-cold-work-currentness]') ? 'amber' : null,
+    noticeAfterStrip: document.querySelector('[data-cold-work-currentness]')?.previousElementSibling?.classList.contains('status-strip') ?? null,
+    noticeBeforePanel: document.querySelector('[data-cold-work-currentness]')?.nextElementSibling === panel || null,
+    stripText: t(body?.querySelector('.status-strip')),
+    manageHref: body?.querySelector('[data-work-manage-link]')?.getAttribute('href') ?? null,
+    statusLabel: Boolean(body?.querySelector('[data-work-status]')),
+    coverageLine: Boolean(body?.querySelector('[data-work-coverage-line]')),
+    docScrollWidth: document.documentElement.scrollWidth,
+    docClientWidth: document.documentElement.clientWidth,
+    docHeight: document.documentElement.scrollHeight,
+    main: h(main),
+    strip: h(body?.querySelector('.status-strip')),
+    panel: h(panel),
+    currentnessNotice: h(document.querySelector('[data-cold-work-currentness]')),
+    contextNotice: h(document.querySelector('[data-cold-work-notice]')),
+    contextNoticeText: t(document.querySelector('[data-cold-work-notice]')),
+    banner: (main?.innerText ?? '').includes(${JSON.stringify(CASE_BANNER)}),
+    headings: [...(body?.querySelectorAll('thead th') ?? [])].map((x) => t(x)),
+    scrollerScrollWidth: scroller?.scrollWidth ?? null,
+    scrollerClientWidth: scroller?.clientWidth ?? null,
+    stickyFirstColumn: firstCell ? getComputedStyle(firstCell).position === 'sticky' : null,
+    rowCount: rows.length,
+    windows: rows.map((r) => t(r.querySelector('[data-work-window]'))).filter((x) => x !== null),
+    findings: rows.map((r) => [...r.querySelectorAll('[data-work-finding-unlinked]')].map((x) => t(x))),
+    findingAnchors: body?.querySelectorAll('tbody a[data-work-finding-link]').length ?? 0,
+    caseAnchors: rows.map((r) => r.querySelector('[data-work-case-title] a')?.getAttribute('href') ?? null),
+    assets: rows.map((r) => t(r.querySelector('[data-work-asset]'))),
+    activityChips: rows.map((r) => t(r.querySelector('[data-work-activity-cell] [data-work-state]'))),
+    nextEvidence: rows.map((r) => t(r.querySelector('[data-work-next-evidence]'))),
+    showing: t(body?.querySelector('[data-work-showing]')),
+    basis: [...(body?.querySelectorAll('summary') ?? [])].some((s) => t(s) === 'What this list is based on'),
+    empty: t(body?.querySelector('[data-work-empty]')),
+    refused: body?.querySelector('[data-work-refused]')?.getAttribute('data-work-refused') ?? null,
+    refusedCode: body?.querySelector('[data-work-refused]')?.getAttribute('data-work-code') ?? null,
+    refusedText: t(body?.querySelector('[data-work-refused]')),
+    siteRefusal: body ? null : (t(main)?.slice(0, 200) ?? null),
+    visibleForms: [...(main?.querySelectorAll('form') ?? [])].filter(visible).map((f) => f.getAttribute('data-cold-work-window') !== null ? 'cold-window' : 'other'),
+    openDetails: body?.querySelectorAll('tbody details[open]').length ?? 0,
+    allDetails: body?.querySelectorAll('tbody details').length ?? 0,
+    badgeCount: badges.length,
+    badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
+    cells: rows.flatMap((r) => [...r.querySelectorAll('td')]).map((td) => {
+      const box = td.getBoundingClientRect();
+      const inside = (e) => { const b = e.getBoundingClientRect(); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1); };
+      const previews = [...td.querySelectorAll('[data-cold-work-preview]')];
+      const bodies = [...td.querySelectorAll('details[open] .disclosure__body')];
+      return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: [...td.querySelectorAll('*')].every(inside),
+        previewLines: previews.map((c) => Math.round(c.getBoundingClientRect().height / lineBox(c))),
+        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1), openBodies: bodies.length };
+    }),
+  };
+})()`;
+
+function capCase(W, label, m, wi) {
+  const c = CASE_CAPS;
+  claim(`${W} ${label}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
+  claim(`${W} ${label}: page main <= ${c.main[wi]}`, m.main !== null && m.main <= c.main[wi], { main: m.main, docHeight: m.docHeight });
+  claim(`${W} ${label}: strip <= ${c.strip[wi]}`, m.strip !== null && m.strip <= c.strip[wi], m.strip);
+  claim(`${W} ${label}: panel <= ${c.panel[wi]}`, m.panel !== null && m.panel <= c.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  claim(`${W} ${label}: context notice <= ${c.notice[wi]} and is the domain notice`, m.contextNotice !== null && m.contextNotice <= c.notice[wi] && m.contextNoticeText === "Opening a record moves you to its own area; the breadcrumb keeps this site.", { height: m.contextNotice, text: m.contextNoticeText });
+  if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${c.notice[wi]}`, m.currentnessNotice <= c.notice[wi], m.currentnessNotice);
+  claim(`${W} ${label}: no banner on the product screen (K3 ruling 1)`, m.banner === false, m.banner);
+  claim(`${W} ${label}: one visible date form (the page-local Window control)`, m.visibleForms.length === 1 && m.visibleForms[0] === "cold-window", m.visibleForms);
+}
+function caseRowClaims(W, label, m, expectRows) {
+  claim(`${W} ${label}: ${expectRows} row(s) measured`, m.rowCount === expectRows && m.cells.length > 0, m.rowCount);
+  claim(`${W} ${label}: every row cell contains its content`, m.cells.length > 0 && m.cells.every((c) => c.fits && c.kidsInside), m.cells.filter((c) => !(c.fits && c.kidsInside)));
+  if (m.cells.some((c) => c.openBodies > 0)) claim(`${W} ${label}: every opened disclosure body stays inside its cell`, m.cells.every((c) => c.openBodyInside && c.openBodyFits), m.cells.filter((c) => !(c.openBodyInside && c.openBodyFits)));
+  const previews = m.cells.flatMap((c) => c.previewLines);
+  if (previews.length > 0) claim(`${W} ${label}: every long-text preview is at most two lines`, previews.every((n) => n >= 1 && n <= 2), previews);
+  claim(`${W} ${label}: first column is position:sticky`, m.stickyFirstColumn === true, m.stickyFirstColumn);
+  claim(`${W} ${label}: no clipped chip or badge`, m.badgeCount > 0 && m.badgesClipped === 0, { badges: m.badgeCount, clipped: m.badgesClipped });
+  claim(`${W} ${label}: R93 Pages block and R92 basis disclosure present`, /^Showing /.test(m.showing ?? "") && m.basis, { showing: m.showing, basis: m.basis });
+  if (W === "narrow") claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
+}
+function caseContentClaims(W, label, m, kind, mode) {
+  const want = kind === "incidents" ? ["Case", "Window", "What happened", "Linked findings", "State"] : ["Work request", "Asset", "Activity", "Outcome", "Next evidence"];
+  claim(`${W} ${label}: mock columns in order`, JSON.stringify(m.headings) === JSON.stringify(want), m.headings);
+  const noun = kind === "incidents" ? "Incidents" : "Maintenance";
+  claim(`${W} ${label}: strip reads the mock sentence and Manage in ${noun} →, no strip status label`,
+    (m.stripText ?? "").includes(`Same records and states as the global ${noun} list`) && (m.stripText ?? "").includes(`Manage in ${noun} →`) && !m.statusLabel && (m.manageHref ?? "").startsWith(`/${kind}?`),
+    { strip: m.stripText, href: m.manageHref, statusLabel: m.statusLabel });
+  claim(`${W} ${label}: no in-panel coverage line on cold`, m.coverageLine === false, m.coverageLine);
+  if (kind === "incidents") {
+    // K2 ruling 4: `6 Oct · from 19:11`-shaped Site-local Window; the fixture INC is at D+16h11m (19:11 Africa/Addis_Ababa).
+    claim(`${W} ${label}: Site-local Window text ("{d} {Mon} · from HH:MM"), fixture INC at 19:11`, m.windows.length > 0 && m.windows.every((x) => /^\d{1,2} [A-Z][a-z]{2} · from \d{2}:\d{2}$/.test(x)) && m.windows.includes(`${Number(manifest.modes[mode].fixture.incident.occurred_at.slice(8, 10))} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][Number(manifest.modes[mode].fixture.incident.occurred_at.slice(5, 7)) - 1]} · from 19:11`), m.windows);
+    const links = mode === "unknown" ? 1 : 2;
+    claim(`${W} ${label}: every INC shows ${links} plain Finding label(s), no Finding anchor, plain INC code (R65/R66/R73)`,
+      m.findings.length > 0 && m.findings.every((f) => f.length === links && f.every((x) => /^Finding [0-9a-f]{8}$/.test(x))) && m.findingAnchors === 0 && m.caseAnchors.every((a) => a === null),
+      { findings: m.findings, anchors: m.findingAnchors, caseAnchors: m.caseAnchors });
+  } else {
+    claim(`${W} ${label}: Asset cell reads generator-1 · backup generator (R89)`, m.assets.length > 0 && m.assets.every((a) => a === "generator-1 · backup generator"), m.assets);
+    claim(`${W} ${label}: Activity chip Completed after the performed record`, m.activityChips.length > 0 && m.activityChips.every((c) => c === "Completed"), m.activityChips);
+    claim(`${W} ${label}: Next evidence is the honest gap (R72)`, m.nextEvidence.length > 0 && m.nextEvidence.every((x) => x === "No next evidence recorded"), m.nextEvidence);
+    claim(`${W} ${label}: WR code opens the W6 C2 Overview with site_id (R68)`, m.caseAnchors.length > 0 && m.caseAnchors.every((a) => a !== null && a.startsWith("/maintenance/requests/") && a.includes(`site_id=${SITE}`)), m.caseAnchors);
+  }
+}
+const openAll = `(async () => { for (let i = 0; i < 6; i += 1) { const closed = [...document.querySelectorAll('main [data-site-work] tbody details:not([open])')]; if (closed.length === 0) break; closed.forEach((d) => d.querySelector(':scope > summary').click()); await new Promise((r) => setTimeout(r, 150)); } return document.querySelectorAll('main [data-site-work] tbody details:not([open])').length; })()`;
+
+async function casesMain() {
+  const caseUrl = (k, kind, q) => `${HOST}:${({ positive: 8971, worstcase: 8972, pending: 8973, stale: 8974, unknown: 8975 })[k] - 3500}/sites/${SITE}/work/${kind}?${new URLSearchParams(Object.fromEntries(Object.entries(q).filter(([, v]) => v != null))).toString()}`;
+  const read = (k, name, kind) => manifest.modes[k].case_reads?.[`${name}:${kind}`];
+  for (const k of ["positive", "worstcase", "pending", "stale", "unknown"]) {
+    const doc = manifest.modes[k];
+    const names = Object.keys(doc.case_reads ?? {});
+    claim(`manifest ${k}: not blocked, case reads present with expected counts`, !doc.blocked && names.length > 0 && names.every((n) => doc.case_reads[n].total_count === doc.case_reads[n].expected.total_count && doc.case_reads[n].rows === doc.case_reads[n].expected.rows), { blocked: doc.blocked ?? null, reads: names.map((n) => [n, doc.case_reads[n].status, doc.case_reads[n].total_count]) });
+  }
+  claim("manifest worstcase: four extra INC/WR pairs at the ruled minute offsets", (manifest.modes.worstcase.fixture?.extra_cases ?? []).length === 4, (manifest.modes.worstcase.fixture?.extra_cases ?? []).map((x) => [x.incident.occurred_at, x.request.occurred_at, x.request.record_occurred_at]));
+  const forbidden = manifest.processes.forbidden;
+  const unavailable = manifest.processes.unavailable;
+  const procBase = (p) => `${HOST}:${Number(new URL(p.api_base).port) - 3500}`;
+  for (const [wi, [W, width, height]] of WIDTHS.entries()) {
+    await size(width, height);
+    for (const kind of ["incidents", "maintenance"]) {
+      let m;
+      const s = (x) => `${kind}-${x}`;
+      // Positive CURRENT, historical (K3), complete zero (ruled [D-8 days, D-1 day) window).
+      m = await record(W, wi, s("positive"), caseUrl("positive", kind, read("positive", "positive", kind).query), CASE_READY, MEASURE_CASE);
+      claim(`${W} ${s("positive")}: rows, no currentness notice`, m.panelState === "rows" && m.currentness === null, { panel: m.panelState, currentness: m.currentness });
+      capCase(W, s("positive"), m, wi); caseRowClaims(W, s("positive"), m, 1); caseContentClaims(W, s("positive"), m, kind, "positive");
+      m = await record(W, wi, s("historical"), caseUrl("positive", kind, read("positive", "historical", kind).query), CASE_READY, MEASURE_CASE);
+      claim(`${W} ${s("historical")}: notice reads the returned status ${read("positive", "historical", kind).status}`, m.currentness === read("positive", "historical", kind).status, m.currentness);
+      capCase(W, s("historical"), m, wi); caseRowClaims(W, s("historical"), m, 1);
+      m = await record(W, wi, s("zero"), caseUrl("positive", kind, read("positive", "zero", kind).query), CASE_READY, MEASURE_CASE);
+      const empty = kind === "incidents"
+        ? "No incidents at this site No operational case was opened in the selected period. A case comes from a linked chain of events, not from a single data gap."
+        : "No maintenance work at this site No inspection or repair has been raised here in the selected period.";
+      claim(`${W} ${s("zero")}: v69 WORK_EMPTY title/body, basis kept, no Pages block`, m.panelState === "empty" && m.empty === empty && m.basis && m.showing === null, { empty: m.empty, basis: m.basis, showing: m.showing, status: m.currentness });
+      capCase(W, s("zero"), m, wi);
+      // Worst case: five 160-code-point rows; then one opened `Read full text`; then every disclosure open.
+      const wq = read("worstcase", "worstcase", kind).query;
+      m = await record(W, wi, s("worstcase"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE);
+      claim(`${W} ${s("worstcase")}: Showing 1–5 of 5`, m.showing?.startsWith("Showing 1–5 of 5"), m.showing);
+      capCase(W, s("worstcase"), m, wi); caseRowClaims(W, s("worstcase"), m, 5); caseContentClaims(W, s("worstcase"), m, kind, "worstcase");
+      m = await record(W, wi, s("worstcase-one-open"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE, async () => {
+        await js(`document.querySelector('main [data-site-work] tbody [data-work-case-title] details > summary').click()`);
+        await waitFor(`document.querySelector('main [data-site-work] tbody [data-work-case-title] details[open]')`);
+        await sleep(300);
+      });
+      claim(`${W} ${s("worstcase-one-open")}: one Read full text open`, m.openDetails === 1, { open: m.openDetails, of: m.allDetails });
+      capCase(W, s("worstcase-one-open"), m, wi); caseRowClaims(W, s("worstcase-one-open"), m, 5);
+      m = await record(W, wi, s("worstcase-all-open"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE, async () => {
+        await js(openAll);
+        await sleep(300);
+      });
+      claim(`${W} ${s("worstcase-all-open")}: every row disclosure open`, m.allDetails > 0 && m.openDetails === m.allDetails, { open: m.openDetails, of: m.allDetails });
+      capCase(W, s("worstcase-all-open"), m, wi); caseRowClaims(W, s("worstcase-all-open"), m, 5);
+      // Late / stale / unknown: the returned case-list status drives the notice (R91 tones).
+      for (const k of ["pending", "stale", "unknown"]) {
+        const rd = read(k, k, kind);
+        m = await record(W, wi, s(k), caseUrl(k, kind, rd.query), CASE_READY, MEASURE_CASE);
+        const tone = rd.status === "PENDING_RECOMPUTE" || rd.status === "STALE_SOURCE" ? "amber" : rd.status === "CURRENT" ? null : "blue";
+        claim(`${W} ${s(k)}: notice follows the returned status ${rd.status} (${tone ?? "none"}), between strip and panel`,
+          m.currentness === (rd.status === "CURRENT" ? null : rd.status) && m.currentnessTone === tone && (tone === null || (m.noticeAfterStrip && m.noticeBeforePanel)),
+          { currentness: m.currentness, tone: m.currentnessTone, afterStrip: m.noticeAfterStrip, beforePanel: m.noticeBeforePanel });
+        capCase(W, s(k), m, wi); caseRowClaims(W, s(k), m, 1); caseContentClaims(W, s(k), m, kind, k);
+      }
+      // 403 / 503 (K3 ruling 8): the real W4 refusals from the tool-local case router, inside the case panel.
+      for (const [k, proc, status, title] of [["forbidden-403", forbidden, "forbidden", "No access"], ["unavailable-503", unavailable, "unavailable", "Work records unavailable"]]) {
+        const q = { from: proc.query.from, to: proc.query.to };
+        m = await record(W, wi, s(k), `${procBase(proc)}/sites/${SITE}/work/${kind}?${new URLSearchParams(q).toString()}`, CASE_READY, MEASURE_CASE);
+        claim(`${W} ${s(k)}: Site read healthy, W4 refusal ${status}/${proc.expected.code} titled '${title}' inside the case panel`,
+          m.siteRefusal === null && m.panelState === "refused" && m.refused === status && m.refusedCode === proc.expected.code && (m.refusedText ?? "").includes(title),
+          { siteRefusal: m.siteRefusal, refused: m.refused, code: m.refusedCode, text: m.refusedText });
+        claim(`${W} ${s(k)}: no row and no zero count`, m.rowCount === 0 && !/· 0 /.test(m.stripText ?? ""), { rows: m.rowCount, strip: m.stripText });
+        capCase(W, s(k), m, wi);
+      }
+    }
+  }
+  const failed = results.filter((r) => !r.ok).length;
+  writeFileSync(join(OUT, "w502b-k3-measurements.json"), JSON.stringify({ manifest_revision: manifest.revision, caps: { cases: CASE_CAPS }, captures, claims: results, failed }, null, 2));
+  console.log(`${results.length - failed} PASS, ${failed} FAIL`);
+  return failed;
+}
+
 const workUrl = (base, query, extra = {}) => `${base}/sites/${SITE}/work?${new URLSearchParams({ ...query, ...extra }).toString()}`;
 
 function capWork(W, label, m, wi, notices = true, panelCap = true) {
@@ -343,6 +546,8 @@ async function main() {
   });
   await send("Page.enable");
   await send("Runtime.enable");
+  // K3b: `W502B_EVIDENCE=cases` captures only the cold case tabs (into their own measurements file).
+  if (process.env.W502B_EVIDENCE === "cases") return casesMain();
   const P = manifest.modes.positive;
   const WC = manifest.modes.worstcase;
   const pBase = `${HOST}:${8971 - 3500}`;
