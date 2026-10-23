@@ -73,6 +73,10 @@ that is the specified behaviour, not a finding.
    configured.` (main 154/172 px, no overflow, no rows, no mock zero). The cold `WORK_STORE_UNAVAILABLE` panel
    with Retry never mounts, so the browser capture of the cold 503 panel is unproven. 403 is proven:
    `SITE_SCOPE_FORBIDDEN`, Retry visible, panel 198 px.
+   **K2 ruling 3 label:** `w502b-desktop-unavailable-503.png` and `w502b-narrow-unavailable-503.png` are a separate
+   Site-level refusal (`Site unavailable`), never proof of the cold-work panel. The cold-work 503 proof is the
+   `cold-work-503` state (healthy Site read, domain-work router alone on an unreachable private DB URL), captured by
+   the updated `tools/w502-cold-work-evidence.mjs` in the next run.
 6. **F6 - State badge `Open` split over two lines: RESOLVED.** The badge is one line in every row state at both
    widths.
 

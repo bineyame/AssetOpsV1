@@ -11,6 +11,14 @@
  * strip, panel and notice heights, the table scroller, the sticky first column, visible rows and whether each
  * row's code is on one line, then writes a full-page PNG. Every claim prints PASS/FAIL with its measured value;
  * row claims require a non-empty measured row set. Writes <out>/w502b-measurements.json.
+ *
+ * K2 rulings (`.agent/W5-02b-K2-rulings.md`): ruling 2 caps the cold Actions panel at 650/850 px and the page at
+ * 1600/2000 px (1440/390), with document.scrollWidth <= clientWidth + 1, per-cell containment, a preview of at most
+ * two lines and no horizontal clip of an opened `Read full text` (including five 160-code-point rows with every
+ * disclosure open); ruling 3 captures the real WORK_STORE_UNAVAILABLE 503 inside the cold-work panel (healthy Site
+ * read) as `cold-work-503`, separate from the earlier Site-level `unavailable-503` refusal images; ruling 1 asserts
+ * the page-local `Window` control (placement, right-aligned at 1440, full width at 390, Apply keeps known_at and
+ * drops the cursor, invalid input shows the window error and does not navigate).
  * It launches and stops only its own headless Chrome.
  */
 import { spawn } from "node:child_process";
@@ -31,8 +39,8 @@ const WIDTHS = [
   ["desktop", 1440, 1000],
   ["narrow", 390, 900],
 ];
-// Build-spec caps [1440, 390].
-const WORK_CAPS = { main: [1400, 1800], strip: [100, 150], panel: [440, 650], notice: [110, 160] };
+// Build-spec caps [1440, 390]. K2 ruling 2: the cold Actions Work page <= 1600/2000 and its panel <= 650/850.
+const WORK_CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 850], notice: [110, 160] };
 const ACTION_CAPS = { main: [1350, 1750], strip: [100, 120], notice: [100, 140] };
 mkdirSync(OUT, { recursive: true });
 
@@ -128,6 +136,9 @@ async function shot(name) {
 }
 
 const WORK_READY = `(document.querySelector('[data-cold-work-state-panel]') && !document.querySelector('[data-cold-work-state-panel="loading"]')) || /Site unavailable/.test(document.querySelector('main')?.innerText ?? '')`;
+// K2 ruling 1: set a React-controlled date input the way a user edit does (native setter + input/change events).
+const setDate = (selector, value) => `(() => { const el = document.querySelector('${selector}'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(el, '${value}'); el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); return el.value; })()`;
+const dayShift = (instant, days) => new Date(Date.parse(instant) + days * 86400000).toISOString().slice(0, 10);
 const ACTION_READY = `document.querySelector('main[data-domain-action-shell]') && !document.querySelector('main[data-domain-action-shell="loading"]')`;
 const MEASURE_WORK = `(() => {
   const h = (e) => (e ? Math.round(e.getBoundingClientRect().height) : null);
@@ -175,9 +186,15 @@ const MEASURE_WORK = `(() => {
       const box = td.getBoundingClientRect();
       const inside = (e) => { const b = e.getBoundingClientRect(); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1); };
       const kids = [...td.querySelectorAll('*')];
+      // K2 ruling 2/13: the clamped preview shows at most two lines (its box height over its line height).
+      const lineBox = (e) => { const cs = getComputedStyle(e); const lh = parseFloat(cs.lineHeight); return Number.isFinite(lh) && lh > 0 ? lh : parseFloat(cs.fontSize) * 1.2; };
+      const previews = [...td.querySelectorAll('.work-cases-clamp')];
+      const bodies = [...td.querySelectorAll('details[open] .disclosure__body')];
       return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: kids.every(inside),
-        clampFits: [...td.querySelectorAll('.work-cases-clamp')].every((c) => c.scrollWidth <= c.clientWidth + 1),
-        openBodyInside: [...td.querySelectorAll('details[open] .disclosure__body')].every(inside), openBodies: td.querySelectorAll('details[open] .disclosure__body').length };
+        clampFits: previews.every((c) => c.scrollWidth <= c.clientWidth + 1),
+        previewLines: previews.map((c) => Math.round(c.getBoundingClientRect().height / lineBox(c))),
+        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1),
+        openBodies: bodies.length };
     }),
     badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
     badgeCount: badges.length,
@@ -193,6 +210,29 @@ const MEASURE_WORK = `(() => {
     siteRefusal: main ? null : (document.querySelector('main')?.innerText?.replace(/\\s+/g, ' ').trim().slice(0, 200) ?? null),
     pageMain: h(document.querySelector('main')),
     empty: document.querySelector('[data-cold-work-empty]')?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    refusalText: document.querySelector('[data-cold-work-refusal]')?.innerText?.replace(/\\s+/g, ' ').trim() ?? null,
+    // K2 ruling 1: the page-local Window control.
+    window: (() => {
+      const form = document.querySelector('[data-cold-work-window]');
+      if (!form) return null;
+      const box = form.getBoundingClientRect();
+      // The parent's content box (its padding excluded), for the full-width claim at 390.
+      const pe = form.parentElement;
+      const ps = getComputedStyle(pe);
+      const pr = pe.getBoundingClientRect();
+      const parent = { left: pr.left + parseFloat(ps.borderLeftWidth) + parseFloat(ps.paddingLeft), width: pe.clientWidth - parseFloat(ps.paddingLeft) - parseFloat(ps.paddingRight) };
+      const apply = form.querySelector('[data-cold-work-window-apply]')?.getBoundingClientRect();
+      return {
+        afterSubtabs: form.previousElementSibling?.matches('nav[aria-label="Work lists"]') === true,
+        beforeStrip: form.nextElementSibling?.querySelector(':scope > [data-cold-work-strip]') !== null && form.nextElementSibling !== null,
+        from: form.querySelector('[data-cold-work-window-from]')?.value ?? null,
+        to: form.querySelector('[data-cold-work-window-to]')?.value ?? null,
+        width: Math.round(box.width), parentWidth: Math.round(parent.width), height: Math.round(box.height),
+        rightGap: apply ? Math.round(box.right - apply.right) : null,
+        leftGap: Math.round(box.left - parent.left),
+        error: form.querySelector('[data-cold-work-window-error]')?.textContent?.trim() ?? null,
+      };
+    })(),
   };
 })()`;
 const MEASURE_ACTION = `(() => {
@@ -218,10 +258,10 @@ const workUrl = (base, query, extra = {}) => `${base}/sites/${SITE}/work?${new U
 
 function capWork(W, label, m, wi, notices = true) {
   const caps = WORK_CAPS;
-  claim(`${W} ${label}: no document horizontal overflow`, m.docScrollWidth <= m.docClientWidth, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
-  claim(`${W} ${label}: page main <= ${caps.main[wi]}`, m.main !== null && m.main <= caps.main[wi], m.main);
+  claim(`${W} ${label}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
+  claim(`${W} ${label}: page main <= ${caps.main[wi]}`, m.main !== null && m.main <= caps.main[wi], { main: m.main, docHeight: m.docHeight });
   claim(`${W} ${label}: strip <= ${caps.strip[wi]}`, m.strip !== null && m.strip <= caps.strip[wi], m.strip);
-  claim(`${W} ${label}: panel <= ${caps.panel[wi]}`, m.panel !== null && m.panel <= caps.panel[wi], m.panel);
+  claim(`${W} ${label}: panel <= ${caps.panel[wi]}`, m.panel !== null && m.panel <= caps.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
   if (notices) {
     claim(`${W} ${label}: context notice <= ${caps.notice[wi]}`, m.contextNotice !== null && m.contextNotice <= caps.notice[wi], m.contextNotice);
     if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${caps.notice[wi]}`, m.currentnessNotice <= caps.notice[wi], m.currentnessNotice);
@@ -233,11 +273,22 @@ function rowClaims(W, label, m, expectRows) {
   const summaries = m.rows.flatMap((r) => r.summaryLines);
   if (summaries.length > 0) claim(`${W} ${label}: every 'Read full text' summary is on one line`, summaries.every((n) => n === 1), summaries);
   claim(`${W} ${label}: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)`, m.cells.length > 0 && m.cells.every((c) => c.fits && c.kidsInside && c.clampFits), m.cells.filter((c) => !(c.fits && c.kidsInside && c.clampFits)));
-  if (m.cells.some((c) => c.openBodies > 0)) claim(`${W} ${label}: every opened Read full text body stays inside its cell`, m.cells.every((c) => c.openBodyInside), m.cells.filter((c) => !c.openBodyInside));
+  if (m.cells.some((c) => c.openBodies > 0)) claim(`${W} ${label}: every opened Read full text body stays inside its cell with no horizontal clip`, m.cells.every((c) => c.openBodyInside && c.openBodyFits), m.cells.filter((c) => !(c.openBodyInside && c.openBodyFits)));
+  const previews = m.cells.flatMap((c) => c.previewLines);
+  if (previews.length > 0) claim(`${W} ${label}: every long-text preview is at most two lines`, previews.every((n) => n >= 1 && n <= 2), previews);
   claim(`${W} ${label}: first column is position:sticky`, m.stickyFirstColumn === true, m.stickyFirstColumn);
   claim(`${W} ${label}: no clipped State badge`, m.badgeCount > 0 && m.badgesClipped === 0, { badges: m.badgeCount, clipped: m.badgesClipped });
   claim(`${W} ${label}: every State badge is on one line`, m.badgeLines.length > 0 && m.badgeLines.every((n) => n === 1), m.badgeLines);
   if (W === "narrow") claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
+}
+
+function windowClaims(W, label, m, wi, want) {
+  const w = m.window;
+  claim(`${W} ${label}: Window control after the Work subtabs and before the scope strip`, w !== null && w.afterSubtabs && w.beforeStrip, w);
+  if (w === null) return;
+  if (want) claim(`${W} ${label}: Window shows the selected from/to dates`, w.from === want.from && w.to === want.to, { from: w.from, to: w.to, want });
+  if (wi === 0) claim(`${W} ${label}: Window control right-aligned`, w.rightGap !== null && w.rightGap <= 1, { rightGap: w.rightGap });
+  else claim(`${W} ${label}: Window control full width`, w.width >= w.parentWidth - 1 && w.leftGap <= 1, { width: w.width, parent: w.parentWidth, leftGap: w.leftGap });
 }
 
 async function record(W, wi, state, url, ready, measure, afterLoad) {
@@ -281,6 +332,7 @@ async function main() {
     claim(`${W} positive: rows panel, CURRENT`, m.panelState === "rows" && m.currentness === null, { panel: m.panelState, currentness: m.currentness });
     capWork(W, "positive", m, wi);
     rowClaims(W, "positive", m, 1);
+    windowClaims(W, "positive", m, wi, { from: P.reads.positive.query.from.slice(0, 10), to: P.reads.positive.query.to.slice(0, 10) });
     // Complete zero.
     m = await record(W, wi, "zero", workUrl(pBase, P.reads.zero.query), WORK_READY, MEASURE_WORK);
     claim(`${W} zero: empty panel`, m.panelState === "empty" && m.rowCount === 0, { panel: m.panelState, empty: m.empty });
@@ -305,6 +357,17 @@ async function main() {
     });
     capWork(W, "worstcase-expanded", m, wi);
     rowClaims(W, "worstcase-expanded", m, 5);
+    // K2 ruling 2: five 160-code-point rows with every `Read full text` disclosure open (the worst-case cap).
+    m = await record(W, wi, "worstcase-expanded-open", workUrl(B("worstcase"), wq), WORK_READY, MEASURE_WORK, async () => {
+      await js(`document.querySelector('[data-cold-work-show-all]').click()`);
+      await waitFor(`!document.querySelector('[data-cold-work-show-all]')`);
+      await js(`[...document.querySelectorAll('[data-cold-work-row] details[data-disclosure^="cold-work-title-"], [data-cold-work-row] details[data-disclosure^="cold-work-owner-"]')].forEach((d) => { if (!d.open) d.querySelector(':scope > summary').click(); })`);
+      await waitFor(`document.querySelectorAll('[data-cold-work-row] details[data-disclosure^="cold-work-title-"][open]').length >= 5`);
+      await sleep(300);
+    });
+    claim(`${W} worstcase-expanded-open: five title disclosures open`, m.openDisclosures >= 5 && m.rowCount === 5, { open: m.openDisclosures, of: m.disclosures, rows: m.rowCount });
+    capWork(W, "worstcase-expanded-open", m, wi);
+    rowClaims(W, "worstcase-expanded-open", m, 5);
     // Worst case, one long-title disclosure open (folded page).
     m = await record(W, wi, "worstcase-disclosure", workUrl(B("worstcase"), wq), WORK_READY, MEASURE_WORK, async () => {
       await js(`document.querySelector('details[data-disclosure^="cold-work-title-"] > summary').click()`);
@@ -322,6 +385,38 @@ async function main() {
       claim(`${W} worstcase-next: cursor + known_at in URL, First page link`, /cursor=/.test(m.href) && /known_at=/.test(m.href) && m.first, m.href);
       capWork(W, "worstcase-next", m, wi);
       rowClaims(W, "worstcase-next", m, 1);
+      // K2 ruling 1: from the cursor page, Apply a new window: known_at kept, cursor dropped, page one read.
+      const knownAt = new URL(m.href, "http://x").searchParams.get("known_at");
+      const newFrom = dayShift(wq.from, -1);
+      const newTo = wq.to.slice(0, 10);
+      m = await record(W, wi, "window-apply", `${B("worstcase")}${next}`, WORK_READY, MEASURE_WORK, async () => {
+        await js(setDate("[data-cold-work-window-from]", newFrom));
+        await js(setDate("[data-cold-work-window-to]", newTo));
+        await js(`document.querySelector('[data-cold-work-window-apply]').click()`);
+        await waitFor(`!/cursor=/.test(location.search) && document.querySelector('[data-cold-work-state-panel]') && !document.querySelector('[data-cold-work-state-panel="loading"]')`);
+        await sleep(300);
+      });
+      const q = new URL(m.href, "http://x").searchParams;
+      claim(`${W} window-apply: URL carries the new from,to and the same known_at, no cursor`,
+        q.get("from") === `${newFrom}T00:00:00Z` && q.get("to") === `${newTo}T00:00:00Z` && q.get("known_at") === knownAt && !q.has("cursor"), m.href);
+      claim(`${W} window-apply: page one read (rows panel, 'Show all 5 Actions')`, m.panelState === "rows" && m.rowsTotal === 5 && !m.first, { panel: m.panelState, rows: m.rowsTotal, first: m.first });
+      windowClaims(W, "window-apply", m, wi, { from: newFrom, to: newTo });
+      capWork(W, "window-apply", m, wi);
+    }
+    // K2 ruling 1: invalid Window input (from = to) shows the window error, stays on the page and does not navigate.
+    {
+      const url = workUrl(pBase, P.reads.positive.query);
+      m = await record(W, wi, "window-invalid", url, WORK_READY, MEASURE_WORK, async () => {
+        const day = P.reads.positive.query.from.slice(0, 10);
+        await js(setDate("[data-cold-work-window-from]", day));
+        await js(setDate("[data-cold-work-window-to]", day));
+        await js(`document.querySelector('[data-cold-work-window-apply]').click()`);
+        await waitFor(`document.querySelector('[data-cold-work-window-error]')`);
+        await sleep(300);
+      });
+      claim(`${W} window-invalid: window error shown, URL unchanged`, m.window?.error === "The window may span at most 31 days." && `${pBase}${m.href}` === url, { error: m.window?.error, href: m.href });
+      windowClaims(W, "window-invalid", m, wi, null);
+      capWork(W, "window-invalid", m, wi);
     }
     // PENDING / STALE / UNKNOWN.
     for (const [k, status] of [["pending", "PENDING_RECOMPUTE"], ["stale", "STALE_SOURCE"], ["unknown", "UNKNOWN"]]) {
@@ -331,9 +426,11 @@ async function main() {
       capWork(W, k, m, wi);
       rowClaims(W, k, m, 1);
     }
-    // 403 / 503.
-    for (const [k, b, proc] of [["forbidden-403", fBase, forbidden], ["unavailable-503", uBase, unavailable]]) {
+    // 403 / 503. K2 ruling 3: `cold-work-503` is the real WORK_STORE_UNAVAILABLE inside the cold-work panel with a
+    // healthy Site read; the earlier `unavailable-503` images were a Site-level refusal and are not this proof.
+    for (const [k, b, proc] of [["forbidden-403", fBase, forbidden], ["cold-work-503", uBase, unavailable]]) {
       m = await record(W, wi, k, workUrl(b, proc.query), WORK_READY, MEASURE_WORK);
+      if (k === "cold-work-503") claim(`${W} ${k}: Site read healthy (cold Work page mounted, no Site refusal)`, m.siteRefusal === null && m.main !== null, { siteRefusal: m.siteRefusal });
       if (m.siteRefusal) claim(`${W} ${k}: page states a refusal (Site frame), no rows`, m.rowCount === 0, { main: m.siteRefusal, height: m.pageMain });
       claim(`${W} ${k}: refused panel ${proc.expected.code}`, m.panelState === "refused" && m.refusal === proc.expected.code, { panel: m.panelState, refusal: m.refusal, message: m.refusalMessage });
       if (m.siteRefusal) {
@@ -341,6 +438,12 @@ async function main() {
         continue;
       }
       claim(`${W} ${k}: Retry visible`, m.retryVisible === true, m.retryVisible);
+      if (k === "cold-work-503") {
+        claim(`${W} ${k}: panel says 'Cold work unavailable' with the server message and Retry`,
+          /Cold work unavailable/.test(m.refusalText ?? "") && Boolean(m.refusalMessage) &&
+            !/unexpected shape|could not be reached/.test(m.refusalMessage ?? "") && /Retry/.test(m.refusalText ?? ""),
+          { text: m.refusalText, message: m.refusalMessage });
+      }
       claim(`${W} ${k}: no row and no mock zero`, m.rowCount === 0 && !/^0\b/.test(m.scope ?? ""), { rows: m.rowCount, scope: m.scope });
       capWork(W, k, m, wi);
     }
