@@ -1,0 +1,324 @@
+{
+  "state": "linked-source",
+  "captured_at": "2026-10-23T03:53:02.606Z",
+  "results": [
+    {
+      "state": "linked-source",
+      "width": 1440,
+      "route": "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
+      "image": "linked-source-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": {
+          "h": 75,
+          "w": 1160
+        },
+        "state_block": null,
+        "work_done": {
+          "h": 305,
+          "w": 734
+        },
+        "lifecycle": {
+          "h": 305,
+          "w": 408
+        },
+        "request_header_with_tabs": {
+          "h": 265,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 15,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Inspect starter for the failed start",
+        "subtitle": "WR-000005 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000005Overview· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 03:52 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Not assigned"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "Open · outcome not established"
+          ],
+          [
+            "source",
+            "Incident INC-000004 · Finding df825c8d"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "source_links": [
+          [
+            "Incident INC-000004",
+            "/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z"
+          ],
+          [
+            "Finding df825c8d",
+            "/sites/KOBO-001/findings/df825c8d-4ced-463b-95bc-c998af07b3d9?revision_id=5ea29b03-da1e-4dd2-98a4-8f014bfd605f"
+          ]
+        ],
+        "narrative": "Inspection requested.",
+        "latest": "Latest activity: No maintenance activity recorded",
+        "activity": "",
+        "key_values": [
+          [
+            "type",
+            "Corrective"
+          ],
+          [
+            "asset",
+            "No asset recorded"
+          ],
+          [
+            "warranty",
+            "Warranty not recorded"
+          ],
+          [
+            "linked_action",
+            "Action e1d6ce3c"
+          ]
+        ],
+        "lifecycle_done": [
+          "Finding"
+        ],
+        "chart_notes": [
+          "Completed is not Verified. No work-case outcome evaluator is available."
+        ],
+        "panel_titles": [
+          "Work done",
+          "Lifecycle"
+        ]
+      }
+    },
+    {
+      "state": "linked-source",
+      "width": 390,
+      "route": "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
+      "image": "linked-source-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 43,
+          "w": 358
+        },
+        "page_header": {
+          "h": 104,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": {
+          "h": 222,
+          "w": 358
+        },
+        "state_block": null,
+        "work_done": {
+          "h": 305,
+          "w": 358
+        },
+        "lifecycle": {
+          "h": 167,
+          "w": 358
+        },
+        "request_header_with_tabs": {
+          "h": 457,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 15,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1166,
+      "text": {
+        "h1": "Inspect starter for the failed start",
+        "subtitle": "WR-000005 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000005Overview· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 03:53 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Not assigned"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "Open · outcome not established"
+          ],
+          [
+            "source",
+            "Incident INC-000004 · Finding df825c8d"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "source_links": [
+          [
+            "Incident INC-000004",
+            "/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z"
+          ],
+          [
+            "Finding df825c8d",
+            "/sites/KOBO-001/findings/df825c8d-4ced-463b-95bc-c998af07b3d9?revision_id=5ea29b03-da1e-4dd2-98a4-8f014bfd605f"
+          ]
+        ],
+        "narrative": "Inspection requested.",
+        "latest": "Latest activity: No maintenance activity recorded",
+        "activity": "",
+        "key_values": [
+          [
+            "type",
+            "Corrective"
+          ],
+          [
+            "asset",
+            "No asset recorded"
+          ],
+          [
+            "warranty",
+            "Warranty not recorded"
+          ],
+          [
+            "linked_action",
+            "Action e1d6ce3c"
+          ]
+        ],
+        "lifecycle_done": [
+          "Finding"
+        ],
+        "chart_notes": [
+          "Completed is not Verified. No work-case outcome evaluator is available."
+        ],
+        "panel_titles": [
+          "Work done",
+          "Lifecycle"
+        ]
+      }
+    }
+  ]
+}

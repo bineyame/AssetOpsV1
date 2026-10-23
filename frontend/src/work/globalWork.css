@@ -170,3 +170,218 @@
     max-height: 518px;
   }
 }
+
+/* W6-01c C2: the work request pages (`wr-overview`). The breadcrumb's `· site:` sits beside the trail (mock
+   `.crumb-site`); Owner and Source in the mheader show a two-line preview (section 2) with a full-text disclosure. */
+.work-request .breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-bottom: 12px;
+}
+
+.work-request-crumb-site {
+  font-size: var(--text-sm, 12px);
+  color: var(--text-secondary, #5c7190);
+}
+
+.work-request-tabs {
+  margin-bottom: 12px;
+}
+
+/* The mock tab row scrolls inside itself and never wraps; `.global-work *`'s min-width: 0 must not shrink a tab. */
+.work-request-tabs .site-tabs__item {
+  flex: none;
+  min-width: max-content;
+}
+
+.work-request-tabs .site-tabs__item * {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.work-request-bar {
+  align-items: center;
+}
+
+.work-request-bar p {
+  margin: 0;
+}
+
+.work-request-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.work-request-prose {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* W6-01c M1 ruling: the pair stretches to equal height as in the mock; the desktop Lifecycle cap is the 430 px
+   Work done cap, and at 390 px the panels stack (Work done 510, Lifecycle 300). */
+.work-request .panel-pair {
+  align-items: stretch;
+}
+
+.work-request-latest {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+.work-request-latest__label {
+  font-weight: 600;
+}
+
+.work-request .v69-key-values {
+  margin-top: 6px;
+}
+
+.work-request .lifecycle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.work-request .lifecycle li {
+  font-size: 11px;
+  padding: 6px 9px;
+  border-radius: 4px;
+  background: #eef1f6;
+  color: #5c6c86;
+}
+
+.work-request .lifecycle li.done {
+  background: #e3f4ed;
+  color: #166b50;
+}
+
+/* W6-01c C3: the Maintenance record panel (`wr-record`). Cap 650 at 1440 and 780 at 390 minus the same non-table
+   panel parts as Incidents (131 / 171); its four columns keep minimum widths (960 px), so the table scrolls inside
+   its panel below that. Each record head is a `tbody` group under a `Record {n} · {occurred_at}` row heading. */
+.work-request--record .data-table__scroll {
+  max-height: 500px;
+}
+
+@media screen and (max-width: 760px) {
+  .work-request--record .data-table__scroll {
+    max-height: 600px;
+  }
+}
+
+.work-request--record .data-table {
+  min-width: 960px;
+}
+
+.work-request--record .data-table th,
+.work-request--record .data-table td {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.work-record-group th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: none;
+  letter-spacing: 0;
+  background: #f3f6fb;
+  color: #33475f;
+}
+
+.work-record-item {
+  text-align: left;
+  font-weight: 550;
+}
+
+.work-record-badge {
+  display: inline-flex;
+  border-radius: 4px;
+  padding: 4px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #eef1f6;
+  color: #607087;
+}
+
+.work-record-badge--green {
+  background: #dff3e4;
+  color: #1d6b35;
+}
+
+.work-record-badge--amber {
+  background: #fff1d9;
+  color: #8e580c;
+}
+
+.work-record-outcome {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.work-record-outcome__basis {
+  display: block;
+  font-size: 10px;
+  color: var(--muted, #6b7a90);
+}
+
+.work-record-earlier__list {
+  margin: 4px 0 0;
+  padding-left: 16px;
+}
+
+.work-record-earlier__when {
+  display: block;
+  font-weight: 600;
+}
+
+.work-record-earlier__text {
+  overflow-wrap: anywhere;
+}
+
+/* W6-01d C4: the History panel (`wr-history`). Cap 600 at 1440 and 690 at 390 for the collapsed panel, which holds
+   the scroll hint, the `Time | Event | By` table and the in-panel `History pages` pager; its three columns keep
+   minimum widths Time 210, Event 340, By 200 (750 px), so the table scrolls inside its panel below that. */
+.global-work--history .data-table__scroll {
+  max-height: 430px;
+}
+
+@media screen and (max-width: 760px) {
+  .global-work--history .data-table__scroll {
+    max-height: 480px;
+  }
+}
+
+.global-work--history .data-table {
+  min-width: 750px;
+}
+
+.global-work--history .data-table th,
+.global-work--history .data-table td {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.work-history-event .global-work-clamp {
+  white-space: pre-line;
+}
+
+.work-history-time,
+.work-history-by {
+  display: block;
+}
+
+.work-history-time {
+  white-space: nowrap;
+}

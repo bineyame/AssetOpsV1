@@ -183,6 +183,8 @@ export interface GlobalWorkClient {
   incidents(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalIncidentsBody>>;
   maintenance?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalMaintenanceBody>>;
   preventive?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalPreventiveBody>>;
+  /** W6-01c C2: the request detail read (`global-work-detail-1`); absent reads as `WORK_STORE_UNAVAILABLE`. */
+  detail?(query: GlobalWorkDetailQuery): Promise<GlobalWorkDetailResult>;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -246,7 +248,327 @@ export function createGlobalWorkClient(basePath: string = GLOBAL_WORK_API_PATH):
     preventive(query) {
       return readGlobalWork<GlobalPreventiveBody>(`${basePath}/preventive?${globalWorkApiQuery(query)}`, "preventive");
     },
+    detail(query) {
+      return readGlobalWorkDetail(`${basePath}/requests/${encodeURIComponent(query.case_id)}?${globalWorkDetailApiQuery(query)}`);
+    },
   };
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// W6-01c C2 (".agent/W6-01-build-spec.md" section 1 Detail DTO and the "C1-C3 pre-flight rulings" P-C1-1..11,
+// P-C2-9): the request detail wire `GET /api/work/requests/{case_id}?site_id={site_code}[&known_at=]`. C2 owns these
+// types for the whole C1 wire; C3/C4 import them. The detail result is separate from the list code union: the list
+// copy map and its enumerable codes are unchanged.
+
+export const GLOBAL_WORK_DETAIL_SCHEMA = "global-work-detail-1";
+
+/** The page inputs a detail read forwards: the request ID, its Site code and an optional explicit cutoff. */
+export interface GlobalWorkDetailQuery {
+  case_id: string;
+  site_id: string;
+  known_at: string | null;
+}
+
+/** W4 `work-case-detail-1`, nested unchanged as `work_detail`. */
+interface WorkCaseDetailEventBase {
+  id: string;
+  occurred_at: string;
+  recorded_at: string;
+  actor_kind: string;
+  actor_id: string;
+}
+export type KnownWorkCaseEvent = WorkCaseDetailEventBase &
+  (
+    | { kind: "CREATED"; payload: Record<string, never> }
+    | { kind: "ASSIGN"; payload: { assignee: string } }
+    | { kind: "COMMENT"; payload: { text: string } }
+    | { kind: "COMPLETE"; payload: { maintenance_record_id: string } }
+    | { kind: "CLOSE" | "REOPEN" | "CANCEL"; payload: { reason: string } }
+  );
+export const KNOWN_WORK_CASE_EVENT_KINDS = ["CREATED", "ASSIGN", "COMMENT", "COMPLETE", "CLOSE", "REOPEN", "CANCEL"] as const;
+export type UnknownWorkCaseEvent = WorkCaseDetailEventBase & { kind: string; payload: Record<string, unknown> };
+export type WorkCaseDetailEvent = KnownWorkCaseEvent | UnknownWorkCaseEvent;
+export function isKnownWorkCaseEvent(e: WorkCaseDetailEvent): e is KnownWorkCaseEvent {
+  return (KNOWN_WORK_CASE_EVENT_KINDS as readonly string[]).includes(e.kind);
+}
+
+const EVENT_PAYLOAD_KEY: Readonly<Record<string, string>> = {
+  ASSIGN: "assignee",
+  COMMENT: "text",
+  COMPLETE: "maintenance_record_id",
+  CLOSE: "reason",
+  REOPEN: "reason",
+  CANCEL: "reason",
+};
+
+export interface WorkCaseDetailRecord {
+  id: string;
+  activity: string;
+  outcome_note: string | null;
+  occurred_at: string;
+  recorded_at: string;
+  supersedes_record_id: string | null;
+}
+
+export interface WorkCaseDetail {
+  schema_version: string;
+  site_code: string;
+  case: {
+    id: string;
+    code: string;
+    kind: string;
+    asset_id: string | null;
+    occurred_at: string;
+    created_at: string;
+    state: string;
+    incident_id: string | null;
+  };
+  selected_revision: {
+    id: string;
+    revision_no: number;
+    supersedes_revision_id: string | null;
+    title: string;
+    narrative: string;
+    reason: string | null;
+    recorded_at: string;
+    actor_kind: string;
+    actor_id: string;
+    occurred_at: string;
+  };
+  finding_links: { finding_id: string; finding_revision_id: string }[];
+  action_links: { action_id: string; action_event_id: string }[];
+  cited_accepted_evidence_ids: string[];
+  events: WorkCaseDetailEvent[];
+  records: WorkCaseDetailRecord[];
+  source_provenance: GlobalWorkProvenance;
+  coverage: { state: string; reason: string | null };
+}
+
+export interface GlobalWorkDetailRevision {
+  id: string;
+  revision_no: number;
+  supersedes_revision_id: string | null;
+  title: string;
+  reason: string | null;
+  occurred_at: string;
+  recorded_at: string;
+  actor_kind: string;
+  actor_id: string;
+}
+
+export interface GlobalWorkDetailOperationalRecord {
+  canonical_record_id: string;
+  head_id: string;
+  code: string;
+  kind: string;
+  body: string;
+  root_occurred_at: string;
+  occurred_at: string;
+  recorded_at: string;
+}
+
+export interface GlobalWorkDetailBody {
+  schema_version: typeof GLOBAL_WORK_DETAIL_SCHEMA;
+  selected: { site_code: string; site_id: string; case_id: string; case_code: string; case_kind: string; known_at: string };
+  work_detail: WorkCaseDetail;
+  work_asset: { code: string; type: string } | null;
+  history: { revisions: GlobalWorkDetailRevision[]; operational_records: GlobalWorkDetailOperationalRecord[] };
+  links: {
+    site: GlobalWorkLink;
+    overview: GlobalWorkLink;
+    record: GlobalWorkLink;
+    history: GlobalWorkLink;
+    source_incident: GlobalWorkLink | null;
+    findings: GlobalWorkLink[];
+    actions: GlobalWorkLink[];
+  };
+}
+
+/** P-C2-9: the detail refusals; network failure and a malformed 200 read as `WORK_STORE_UNAVAILABLE`. */
+export type GlobalWorkDetailRefusalCode =
+  | "UNAUTHENTICATED"
+  | "SITE_SCOPE_FORBIDDEN"
+  | "SITE_NOT_FOUND"
+  | "WORK_CASE_NOT_FOUND"
+  | "INVALID_KNOWN_AT"
+  | "WORK_STORE_UNAVAILABLE";
+
+export type GlobalWorkDetailResult =
+  | { status: "loaded"; value: GlobalWorkDetailBody }
+  | { status: "refused"; code: GlobalWorkDetailRefusalCode };
+
+/** P-C2-9 and A2Q6: the detail UI sentences (401, 422 and 503 reuse the list rows). */
+export const GLOBAL_WORK_DETAIL_REFUSAL_COPY: Readonly<Record<GlobalWorkDetailRefusalCode, string>> = {
+  UNAUTHENTICATED: GLOBAL_WORK_REFUSAL_COPY.UNAUTHENTICATED,
+  SITE_SCOPE_FORBIDDEN: "No access to this Site's work request.",
+  SITE_NOT_FOUND: "No imported Site found for this request.",
+  WORK_CASE_NOT_FOUND: "No work case with this ID at this site.",
+  INVALID_KNOWN_AT: GLOBAL_WORK_REFUSAL_COPY.INVALID_KNOWN_AT,
+  WORK_STORE_UNAVAILABLE: GLOBAL_WORK_REFUSAL_COPY.WORK_STORE_UNAVAILABLE,
+};
+
+const DETAIL_STATUS: Readonly<Record<number, ReadonlySet<string>>> = {
+  401: new Set(["UNAUTHENTICATED"]),
+  403: new Set(["SITE_SCOPE_FORBIDDEN"]),
+  404: new Set(["SITE_NOT_FOUND", "WORK_CASE_NOT_FOUND"]),
+  422: new Set(["INVALID_KNOWN_AT"]),
+  503: new Set(["WORK_STORE_UNAVAILABLE"]),
+};
+
+const isString = (value: unknown): value is string => typeof value === "string";
+const isNullableString = (value: unknown): boolean => value === null || typeof value === "string";
+const everyItem = (value: unknown, check: (item: unknown) => boolean): boolean => Array.isArray(value) && value.every(check);
+const isLink = (value: unknown): boolean => isObject(value) && isString(value.label) && isNullableString(value.href);
+
+function isWorkDetail(value: unknown): boolean {
+  if (!isObject(value) || !isObject(value.case) || !isObject(value.selected_revision)) return false;
+  const kase = value.case;
+  const revision = value.selected_revision;
+  return (
+    isString(value.schema_version) &&
+    isString(kase.id) &&
+    isString(kase.code) &&
+    isString(kase.kind) &&
+    isString(kase.state) &&
+    isNullableString(kase.asset_id) &&
+    isNullableString(kase.incident_id) &&
+    isString(revision.id) &&
+    isString(revision.title) &&
+    isString(revision.narrative) &&
+    everyItem(value.finding_links, (x) => isObject(x) && isString(x.finding_id) && isString(x.finding_revision_id)) &&
+    everyItem(value.action_links, (x) => isObject(x) && isString(x.action_id) && isString(x.action_event_id)) &&
+    everyItem(value.cited_accepted_evidence_ids, isString) &&
+    everyItem(
+      value.events,
+      (x) =>
+        isObject(x) &&
+        isString(x.id) &&
+        isString(x.kind) &&
+        isObject(x.payload) &&
+        isString(x.occurred_at) &&
+        isString(x.recorded_at) &&
+        isString(x.actor_kind) &&
+        isString(x.actor_id) &&
+        (!(x.kind in EVENT_PAYLOAD_KEY) || isString(x.payload[EVENT_PAYLOAD_KEY[x.kind]])),
+    ) &&
+    (value.events as unknown[]).some((x) => isObject(x) && x.kind === "CREATED") &&
+    everyItem(
+      value.records,
+      (x) =>
+        isObject(x) &&
+        isString(x.id) &&
+        isString(x.activity) &&
+        isNullableString(x.outcome_note) &&
+        isString(x.occurred_at) &&
+        isString(x.recorded_at) &&
+        isNullableString(x.supersedes_record_id),
+    ) &&
+    isObject(value.source_provenance) &&
+    isString(value.source_provenance.classification) &&
+    isObject(value.coverage)
+  );
+}
+
+/** P-C2-9: the malformed-200 check for `global-work-detail-1`. */
+export function isGlobalWorkDetailBody(value: unknown): value is GlobalWorkDetailBody {
+  if (!isObject(value) || value.schema_version !== GLOBAL_WORK_DETAIL_SCHEMA) return false;
+  const { selected, history, links, work_asset: asset } = value;
+  return (
+    isObject(selected) &&
+    ["site_code", "site_id", "case_id", "case_code", "case_kind", "known_at"].every((k) => isString(selected[k])) &&
+    isWorkDetail(value.work_detail) &&
+    (asset === null || (isObject(asset) && isString(asset.code) && isString(asset.type))) &&
+    isObject(history) &&
+    everyItem(history.revisions, (x) =>
+        isObject(x) &&
+        isString(x.id) &&
+        isString(x.title) &&
+        typeof x.revision_no === "number" &&
+        isNullableString(x.supersedes_revision_id) &&
+        isNullableString(x.reason) &&
+        isString(x.occurred_at) &&
+        isString(x.recorded_at) &&
+        isString(x.actor_kind) &&
+        isString(x.actor_id),
+    ) &&
+    everyItem(
+      history.operational_records,
+      (x) =>
+        isObject(x) &&
+        ["canonical_record_id", "head_id", "code", "kind", "body", "root_occurred_at", "occurred_at", "recorded_at"].every(
+          (k) => isString(x[k]),
+        ),
+    ) &&
+    isObject(links) &&
+    ["site", "overview", "record", "history"].every((k) => isLink(links[k])) &&
+    (links.source_incident === null || isLink(links.source_incident)) &&
+    everyItem(links.findings, isLink) &&
+    everyItem(links.actions, isLink)
+  );
+}
+
+/** The API query string: `site_id` and, only when the page URL supplied one, `known_at`. */
+export function globalWorkDetailApiQuery(query: GlobalWorkDetailQuery): string {
+  const params = new URLSearchParams({ site_id: query.site_id });
+  if (query.known_at) params.set("known_at", query.known_at);
+  return params.toString();
+}
+
+export async function readGlobalWorkDetail(path: string): Promise<GlobalWorkDetailResult> {
+  let response: Response;
+  try {
+    response = await fetch(path);
+  } catch {
+    return { status: "refused", code: "WORK_STORE_UNAVAILABLE" };
+  }
+  let body: unknown = null;
+  try {
+    body = await response.json();
+  } catch {
+    body = null;
+  }
+  if (response.ok) {
+    return isGlobalWorkDetailBody(body) ? { status: "loaded", value: body } : { status: "refused", code: "WORK_STORE_UNAVAILABLE" };
+  }
+  const detail = isObject(body) ? body.detail : null;
+  const code = isObject(detail) && typeof detail.code === "string" ? detail.code : null;
+  const known = DETAIL_STATUS[response.status];
+  return {
+    status: "refused",
+    code: code !== null && known !== undefined && known.has(code) ? (code as GlobalWorkDetailRefusalCode) : "WORK_STORE_UNAVAILABLE",
+  };
+}
+
+const UUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+/**
+ * P-C2-14: the detail page query. Absent, empty or repeated `site_id` and a malformed `case_id` are the no-fetch
+ * 404 sentence (`no-site` when `site_id` is absent); an invalid or repeated `known_at` is the no-fetch cutoff
+ * sentence. Unknown keys are ignored.
+ */
+export type GlobalWorkDetailPageQuery =
+  | { status: "valid"; query: GlobalWorkDetailQuery }
+  | { status: "invalid"; reason: "no-site" | "not-found" | "known-at"; siteId: string | null };
+
+export function globalWorkDetailPageQuery(caseId: string | undefined, params: URLSearchParams): GlobalWorkDetailPageQuery {
+  const sites = params.getAll("site_id");
+  const knowns = params.getAll("known_at");
+  const siteId = sites.length === 1 && sites[0] !== "" ? sites[0] : null;
+  if (sites.length === 0 || (sites.length === 1 && sites[0] === "")) return { status: "invalid", reason: "no-site", siteId: null };
+  if (siteId === null || caseId === undefined || !UUID.test(caseId)) return { status: "invalid", reason: "not-found", siteId };
+  if (knowns.length > 1) return { status: "invalid", reason: "known-at", siteId };
+  const known = knowns.length === 1 ? knowns[0] : null;
+  if (known !== null && (!INSTANT.test(known) || Number.isNaN(Date.parse(known)))) {
+    return { status: "invalid", reason: "known-at", siteId };
+  }
+  return { status: "valid", query: { case_id: caseId, site_id: siteId, known_at: known } };
+}
+
+/** The app href for a request page: `site_id` and, only with an explicit cutoff, `known_at`. */
+export function globalWorkRequestHref(path: string, query: Pick<GlobalWorkDetailQuery, "site_id" | "known_at">): string {
+  const params = new URLSearchParams({ site_id: query.site_id });
+  if (query.known_at) params.set("known_at", query.known_at);
+  return `${path}?${params.toString()}`;
 }
 
 // ---------------------------------------------------------------------------------------------------------------

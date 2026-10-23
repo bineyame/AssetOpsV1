@@ -437,32 +437,14 @@ const SITE = {
 } as unknown as SiteDetailReadModel;
 
 describe("condition_matrix: the composed cold Health page", () => {
-  it("shows the Data sources loading line inside its titled panel while the source read is pending (review L1)", async () => {
-    vi.stubGlobal("fetch", () => new Promise(() => undefined));
-    const { client } = stub(loaded());
-    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: SITE }) };
-    const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [SITE] }) };
-    render(
-      <MemoryRouter initialEntries={[`/sites/${SITE_CODE}/health?${Q}`]}>
-        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail} siteAnalytics={EMPTY_ANALYTICS_CLIENT} coldDepth={client} />
-      </MemoryRouter>,
-    );
-    // `settledScreen` treats this loading line as unsettled by design; the cold read itself is awaited positively.
-    await waitFor(() => expect(document.querySelector("[data-health-condition-notice]")).not.toBeNull());
-    const heading = document.querySelector("#site-health-sources-heading") as HTMLElement;
-    expect(heading.textContent).toBe("Data sources · data quality, not equipment condition");
-    const panel = heading.closest(".panel") as HTMLElement;
-    expect(Array.from(panel.querySelectorAll("p")).map((p) => p.textContent)).toContain("Loading the site's gateway contact.");
-  });
-
-
-  it("renders the Site-name h1, then cards, Condition and evidence, the condition notice and the S7 Data sources panel alone", async () => {
+  // W5-F1 F1-1 (R22): v69 cold-health ends at Condition and evidence; the S7 Data sources panel is not mounted.
+  async function renderPage(answer: () => ColdRead<ColdHealthRead>) {
     const requests: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {
       requests.push(url);
       return new Response(JSON.stringify({ detail: { code: "SOURCE_HEALTH_UNAVAILABLE", message: "down" } }), { status: 503 });
     });
-    const { client, getHealth } = stub(loaded());
+    const { client, getHealth } = stub(answer);
     const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: SITE }) };
     const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [SITE] }) };
     render(
@@ -473,29 +455,59 @@ describe("condition_matrix: the composed cold Health page", () => {
     await settledScreen();
     await waitFor(() => {
       if ((document.body.textContent ?? "").includes(HEALTH_LOADING)) throw new Error("the Health read has not settled");
-      if ((document.body.textContent ?? "").includes("Loading the site's gateway contact.")) throw new Error("the source read has not settled");
     });
     const main = document.querySelector("main") as HTMLElement;
-    expect(getHealth).toHaveBeenCalledWith(SITE_CODE, WINDOW);
-    expect(main.querySelector("h1")?.textContent).toContain("Kobo vaccine cold store");
-    expect(main.querySelector('nav[aria-label] a[aria-current="page"]')?.textContent).toBe("Health");
-    const order = [
-      main.querySelector("ul.v69-cards"),
-      main.querySelector(`#${"cold-health-condition-heading"}`),
-      main.querySelector("[data-health-condition-notice]"),
-      main.querySelector("#site-health-sources-heading"),
-    ] as HTMLElement[];
-    order.forEach((node) => expect(node).not.toBeNull());
-    for (let i = 1; i < order.length; i += 1) {
-      expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    }
-    expect(order[3].textContent).toBe("Data sources · data quality, not equipment condition");
-    expect(requests.some((url) => url.endsWith(`/${SITE_CODE}/source-health`))).toBe(true);
-    // No S7 battery strip, battery panel or blue notice on the cold page.
+    const titles = Array.from(main.querySelectorAll(".panel__heading")).map((h) => h.textContent);
+    return { main, requests, getHealth, titles };
+  }
+
+  function expectNoSourcePanel(main: HTMLElement, requests: string[]) {
+    expect(main.querySelector("#site-health-sources-heading")).toBeNull();
+    expect(main.textContent).not.toContain("Data sources · data quality, not equipment condition");
+    expect(requests.some((url) => url.endsWith("/source-health"))).toBe(false);
     expect(requests.some((url) => url.endsWith("/battery"))).toBe(false);
     expect(main.textContent).not.toContain("Physical asset condition");
     expect(main.querySelector("#site-health-condition-heading")).toBeNull();
     expect(main.querySelector(".v69-notice--blue")).toBeNull();
     expect(main.querySelector("[data-health-site]")).toBeNull();
+  }
+
+  for (const state of ["CURRENT", "UNKNOWN"]) {
+    it(`${state}: Site-name h1, then cards, Condition and evidence and the condition notice; Condition and evidence is the only panel`, async () => {
+      const { main, requests, getHealth, titles } = await renderPage(loaded(undefined, state));
+      expect(getHealth).toHaveBeenCalledWith(SITE_CODE, WINDOW);
+      expect(main.querySelector("h1")?.textContent).toContain("Kobo vaccine cold store");
+      expect(main.querySelector('nav[aria-label] a[aria-current="page"]')?.textContent).toBe("Health");
+      expect(titles).toEqual(["Condition and evidence"]);
+      const order = [
+        main.querySelector("ul.v69-cards"),
+        main.querySelector("#cold-health-condition-heading"),
+        main.querySelector("[data-health-condition-notice]"),
+      ] as HTMLElement[];
+      order.forEach((node) => expect(node).not.toBeNull());
+      for (let i = 1; i < order.length; i += 1) {
+        expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      }
+      // Nothing follows the condition notice inside main: the page ends at Condition and evidence.
+      const notice = order[2];
+      const tail = Array.from(main.querySelectorAll("*")).filter(
+        (el) => notice.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING && !notice.contains(el),
+      );
+      expect(tail.some((el) => el.classList.contains("panel"))).toBe(false);
+      expectNoSourcePanel(main, requests);
+    });
+  }
+
+  it("refused: the honest refusal alone; no Data sources panel and no source read", async () => {
+    const { main, requests, titles } = await renderPage(() => ({
+      status: "refused",
+      httpStatus: 422,
+      code: "COLD_WINDOW_INVALID",
+      message: "from must be before to.",
+    }));
+    expect(main.querySelector("[data-cold-depth-error]")?.textContent).toBe("COLD_WINDOW_INVALID from must be before to.");
+    expect(main.querySelector("[data-health-card]")).toBeNull();
+    expect(titles).not.toContain("Data sources · data quality, not equipment condition");
+    expectNoSourcePanel(main, requests);
   });
 });

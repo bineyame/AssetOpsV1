@@ -1,7 +1,8 @@
 """W6-01a (A1): the W6-01 global work fixture producer (`.agent/W6-01-build-spec.md` section 4).
 
     python tools/w601_seed.py --db assetops_w601_<unit>_test
-        --fixture {incidents|zero|empty_scope|historical|cursor_change|stress|maintenance|preventive|detail|linked}
+        --fixture {incidents|zero|empty_scope|historical|cursor_change|stress|maintenance|preventive|detail|linked|
+                   detail-linked|detail-history}
         --clock 2026-10-22T12:00:00Z [--append]
 
 Creates (drops first) the private `*_test` database, migrates it to head, imports two tenants and their Sites
@@ -22,6 +23,11 @@ record, COMPLETE, REOPEN and a case revision, and a second CANCELLED request), `
 Action, created by the merged test producers with an earlier F01 decision and accept clock (Q2), pinned to one incident and two requests),
 the `stress` request/record/revision/plan and the `historical` plan root plus correction. B1 captures use
 `--clock 2026-10-20T12:00:00Z` and the window `[2026-10-14, 2026-10-21)`. E1 adds `operational`.
+W6-01c C1 ("C1-C3 pre-flight rulings"): `detail` also appends one OPERATOR_LOG linked to its first request (CL3-3,
+occurrence `--clock` minus 2 days); `detail-linked` is `detail` on the `linked` producer's Site plus an incident
+pinned to the real Finding/Action and a third request sourced from that incident with the same pins; `detail-history`
+is `detail` plus one correction revision of the first request at `--clock + 2s` (the C2 historical capture reads at
+`--clock + 1s`).
 """
 
 from __future__ import annotations
@@ -55,7 +61,7 @@ PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 DB_NAME = re.compile(r"^assetops_w601_[a-z0-9_]{1,40}_test$")
 KOBO_SOURCE = REPO / "backend" / "tests" / "fixtures" / "s1" / "kobo-001.yaml"
 FIXTURES = ("incidents", "zero", "empty_scope", "historical", "cursor_change", "stress", "maintenance", "preventive",
-            "detail", "linked")
+            "detail", "linked", "detail-linked", "detail-history")
 ACTOR = {"kind": "SERVICE", "id": W401_FIXTURE_SERVICE_PRINCIPAL_ID,
          "attestation": "service=w401-fixture;job=w601-seed;rule=w601/1"}
 # A2Q2: 200 and 128 unbroken characters.
@@ -74,6 +80,13 @@ LINKED_SETUP_AT = datetime(2026, 10, 8, 12, tzinfo=timezone.utc)
 LINKED_DECIDED = "2026-10-19T08:00:00Z"  # original 2026-10-30T08:00:00Z
 LINKED_ACCEPT_AT = datetime(2026, 10, 20, tzinfo=timezone.utc)
 LINKED_FINDING_WINDOW = ("2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z")
+# W6-01c C1: the CL3-3 linked REC body; the `detail-history` successor revision; the `detail-linked` titles.
+DETAIL_REC_BODY = "Checked the starter after the inspection."
+HISTORY_TITLE = "Inspect starter, control circuit and witnessed start"
+HISTORY_NARRATIVE = "Repeat the starter check and record the witnessed start test."
+HISTORY_REASON = "Witnessed start test added to the scope"
+DETAIL_LINKED_INCIDENT = "Generator failed to start after the Finding"
+DETAIL_LINKED_REQUEST = "Inspect starter for the failed start"
 
 
 def db_url(db: str) -> str:
@@ -234,6 +247,22 @@ class Writer:
                              "supersedes_plan_id": (correction or {}).get("supersedes_plan_id")})
         return made
 
+    def post_operational_record(self, site: tuple[str, str], case_id: str | None, body: str, *,
+                                kind: str = "OPERATOR_LOG", occurred_at: datetime | None = None,
+                                correction: dict[str, str] | None = None) -> dict[str, Any]:
+        """C1 (CL3-3): an authored SUBMITTED operational record (root occurrence `--clock` minus 2 days) or, with
+        `correction`, its successor; the next write-clock instant and the fixture SERVICE principal."""
+        s = self.sites[site]
+        at = self.clock - timedelta(days=2) if occurred_at is None else occurred_at
+        _, made = self.svc.post_operational_record(s["tenant"], s["site"], {
+            "kind": kind, "body": body, "occurred_at": z(at), "period_end": None, "unit": None, "quantity": None,
+            "source_document_sha256": None, "case_id": case_id, "actor": dict(ACTOR),
+            "idempotency_key": self._key(), **(correction or {})}, W401_FIXTURE_SERVICE_PRINCIPAL_ID)
+        self.commands.append({"tenant": slug_of(site), "site_code": s["site_code"], "case_id": case_id,
+                              "operational_record_id": made["id"], "canonical_record_id": made["canonical_record_id"],
+                              "code": made["public_code"], "recorded_at": made["recorded_at"]})
+        return made
+
     def correct(self, site: tuple[str, str], case_id: str, revision_id: str, title: str) -> dict[str, Any]:
         s = self.sites[site]
         _, made = self.svc.post_revision(s["tenant"], s["site"], case_id, {
@@ -262,10 +291,10 @@ def seed(url: str, fixture: str, clock: datetime, *, append: bool = False) -> di
     """Write one fixture into an already migrated database whose Sites `import_sites` created."""
     if fixture not in FIXTURES:
         raise SystemExit(f"--fixture must be one of {', '.join(FIXTURES)}")
-    if fixture == "linked":
+    if fixture in ("linked", "detail-linked"):
         if append:
             raise SystemExit("--append applies only to --fixture cursor_change")
-        return seed_linked(url, clock)
+        return seed_linked(url, clock) if fixture == "linked" else seed_detail_linked(url, clock)
     sites = import_sites(url, clock) if not append else _existing_sites(url)
     base = clock - timedelta(minutes=1)
     if append:
@@ -296,8 +325,8 @@ def seed(url: str, fixture: str, clock: datetime, *, append: bool = False) -> di
             seed_maintenance(writer)
         elif fixture == "preventive":
             seed_preventive(writer)
-        elif fixture == "detail":
-            seed_detail(writer)
+        elif fixture in ("detail", "detail-history"):
+            made = seed_detail(writer)
         elif fixture != "zero":
             first = writer.incident(A, "Generator stopped")
             second = writer.incident(A, "Inverter fault reported")
@@ -328,6 +357,16 @@ def seed(url: str, fixture: str, clock: datetime, *, append: bool = False) -> di
             finally:
                 plans.close()
             writer.written.extend(plans.written)
+        if fixture == "detail-history":
+            # C2 historical capture (ruling "For the required 403 capture ..."): one explicit write at
+            # `--clock + 2s` that changes the first request's selected revision; read at `--clock + 1s` for history.
+            later = Writer(url, WriteClock(clock + timedelta(seconds=2)), sites, clock)
+            try:
+                later.revise(A, made["first"]["id"], made["revision"]["revision_id"], HISTORY_TITLE,
+                             HISTORY_NARRATIVE, HISTORY_REASON)
+            finally:
+                later.close()
+            writer.commands.extend(later.commands)
     finally:
         writer.close()
     return {"fixture": fixture, "clock": z(clock), "written": writer.written, "commands": writer.commands,
@@ -357,8 +396,9 @@ def seed_preventive(writer: Writer) -> None:
     writer.plan(OTHER, "Other tenant plan", "CALENDAR", due_at=utc("2026-10-29T00:00:00Z"))
 
 
-def seed_detail(writer: Writer) -> None:
-    """P-B1-5 / X9: the C2-C4 request and its second, cancelled request; each command takes the next second."""
+def seed_detail(writer: Writer) -> dict[str, Any]:
+    """P-B1-5 / X9: the C2-C4 request and its second, cancelled request; each command takes the next second.
+    C1 (CL3-3) appends one OPERATOR_LOG on the first request at the next write-clock instant."""
     first = writer.request(A, None, "Inspect starter and control circuit",
                            narrative="Inspect the failed start path before returning the generator to service.")
     writer.assign(A, first["id"], "Maintenance lead")
@@ -366,10 +406,12 @@ def seed_detail(writer: Writer) -> None:
     writer.complete(A, first["id"], "Inspected starter relay and control wiring.",
                     "Witnessed start test still required.")
     writer.event(A, first["id"], "REOPEN", {"reason": "Witnessed start test was not recorded"})
-    writer.revise(A, first["id"], first["revision"]["id"], "Inspect starter and control circuit again",
-                  "Repeat the starter check and record the witnessed test.", "Inspection scope corrected")
+    revision = writer.revise(A, first["id"], first["revision"]["id"], "Inspect starter and control circuit again",
+                             "Repeat the starter check and record the witnessed test.", "Inspection scope corrected")
     second = writer.request(A, None, "Check spare relay", narrative="Spare relay check requested.")
     writer.event(A, second["id"], "CANCEL", {"reason": "Duplicate request; first inspection covers the relay"})
+    rec = writer.post_operational_record(A, first["id"], DETAIL_REC_BODY)
+    return {"first": first, "second": second, "revision": revision, "rec": rec}
 
 
 def _linked_spec(spec: dict[str, Any]) -> dict[str, Any]:
@@ -383,9 +425,8 @@ def _linked_spec(spec: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def seed_linked(url: str, clock: datetime) -> dict[str, Any]:
-    """Q2 item 1: a real S4 Finding and S6 Action through the merged test producers on the ruled clocks, then one
-    incident and two requests through `WorkService` pinned to them, read back through the global roots."""
+def _linked_producer(url: str) -> dict[str, Any]:
+    """Q2 item 1: a real S4 Finding and S6 Action through the merged test producers on the ruled clocks."""
     os.environ["ASSETOPS_TEST_DATABASE_URL"] = url  # before the producer modules read their module-level URL
     tests = REPO / "backend" / "tests"
     if str(tests) not in sys.path:
@@ -421,6 +462,16 @@ def seed_linked(url: str, clock: datetime) -> dict[str, Any]:
             if owned_engine is not None:
                 owned_engine.dispose()
         engine.dispose()
+    return {"tenant": tenant, "site": site, "finding_id": fid, "finding_revision_id": frev, "action_id": action_id,
+            "action_event_id": action_event}
+
+
+def seed_linked(url: str, clock: datetime) -> dict[str, Any]:
+    """Q2 item 1: the real Finding and Action, then one incident and two requests through `WorkService` pinned to
+    them, read back through the global roots."""
+    made = _linked_producer(url)
+    tenant, site, fid, frev = made["tenant"], made["site"], made["finding_id"], made["finding_revision_id"]
+    action_id, action_event = made["action_id"], made["action_event_id"]
     sites = {A: {"tenant": tenant, "site": site, "site_code": "KOBO-001"}}
     finding = [{"finding_id": fid, "finding_revision_id": frev}]
     action = [{"action_id": action_id, "action_event_id": action_event}]
@@ -438,6 +489,49 @@ def seed_linked(url: str, clock: datetime) -> dict[str, Any]:
             "tenant_id": str(tenant), "site_id": str(site), "finding_id": fid, "finding_revision_id": frev,
             "action_id": action_id, "action_event_id": action_event, "hrefs": hrefs,
             "sites": [{"tenant": "demo", "site_code": "KOBO-001", "tenant_id": str(tenant), "site_id": str(site)}]}
+
+
+def seed_detail_linked(url: str, clock: datetime) -> dict[str, Any]:
+    """C1 (P-C1-11): `detail` on the `linked` producer's Site, then an incident pinned to the real Finding and Action
+    and a third request sourced from that incident with the same pins. Fails unless the C1 detail of that request
+    carries the source incident and lineage-true Finding and Action links."""
+    made = _linked_producer(url)
+    tenant, site = made["tenant"], made["site"]
+    sites = {A: {"tenant": tenant, "site": site, "site_code": "KOBO-001"}}
+    finding = [{"finding_id": made["finding_id"], "finding_revision_id": made["finding_revision_id"]}]
+    action = [{"action_id": made["action_id"], "action_event_id": made["action_event_id"]}]
+    writer = Writer(url, WriteClock(clock - timedelta(minutes=1)), sites, clock)
+    try:
+        seed_detail(writer)
+        incident = writer.incident(A, DETAIL_LINKED_INCIDENT, finding_links=finding, action_links=action)
+        third = writer.request(A, incident["id"], DETAIL_LINKED_REQUEST, finding_links=finding, action_links=action)
+    finally:
+        writer.close()
+    links = _detail_links(url, tenant, site, third["id"])
+    return {"fixture": "detail-linked", "clock": z(clock), "written": writer.written, "commands": writer.commands,
+            "tenant_id": str(tenant), "site_id": str(site),
+            **{k: v for k, v in made.items() if k not in ("tenant", "site")},
+            "incident_id": incident["id"], "request_id": third["id"], "detail_links": links,
+            "sites": [{"tenant": "demo", "site_code": "KOBO-001", "tenant_id": str(tenant), "site_id": str(site)}]}
+
+
+def _detail_links(url: str, tenant: Any, site: Any, request_id: str) -> dict[str, Any]:
+    """The C1 outer links of the incident-sourced request at the current read time (no explicit cutoff)."""
+    from assetops_backend.work.composition import build_global_work_read
+    from assetops_backend.work.global_detail import GlobalWorkDetailService
+
+    read = build_global_work_read(url)
+    try:
+        body = GlobalWorkDetailService(read).detail(tenant, site, "KOBO-001", request_id, [])
+    finally:
+        read.dispose()
+    links = body["links"]
+    if (links["source_incident"] is None or not any(x["href"] for x in links["findings"])
+            or not any(x["href"] for x in links["actions"])):
+        raise SystemExit(f"detail-linked: the request detail lacks its source incident or a lineage-true Finding "
+                         f"or Action link: {links}")
+    return {"code": body["selected"]["case_code"], "known_at": body["selected"]["known_at"],
+            "source_incident": links["source_incident"], "findings": links["findings"], "actions": links["actions"]}
 
 
 def _linked_hrefs(url: str, tenant: Any, fid: str, action_id: str, incident_id: str, request_id: str

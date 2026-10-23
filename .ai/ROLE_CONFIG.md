@@ -478,6 +478,29 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   reviewers flag it Medium (High if user-visible vs the mock), and the Architect
   rules it and amends the spec before merge
   (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
+- **Departure categories and register (owner, 2026-10-23,
+  `.agent/owner-departure-categories-2026-10-23.md`).** Every departure from the v69
+  mock carries one category code in its `MOCK DEVIATION` label and one row in
+  `.agent/mock-departure-register.md`. The row records the ID, screen, mock element,
+  what is shown instead, the category, the reason, the owning unit and the status.
+  - **D1 Data or feature not available.** Show an honest gap inside the mock's
+    structure. It becomes a future-work candidate, which the owner prioritises
+    at the walkthrough.
+  - **D2 Improvement on the mock** (better organisation, precision or clarity).
+    Flag it to the owner at the walkthrough for approval or reversal.
+  - **D3 Structural oversight by the Architect or Planner** (a missed or altered
+    mock panel, element or order). This is a defect, not a deviation: correct it
+    before merge. A reviewer finding one is High.
+  - **D4 Mock placeholder content** (illustrative text that would be false for real
+    data). Replace it with real data or an honest gap; inform the owner only.
+  - **D5 Temporary, because of build order.** Name the unit that resolves it; that
+    unit's review verifies it is resolved.
+  - **D6 Technical constraint** (guard or platform). Rare; list the alternatives
+    considered. The owner is informed, and the Architect prefers changing the
+    constraint over the mock.
+  The Architect assigns the code. The reviewer checks the code and the register row,
+  and an unlabelled or uncategorised departure is High. The walkthrough index groups
+  departures by category.
 - **Builder pre-flight and quiet-machine suites (owner, 2026-10-22,
   `.agent/owner-speed-preflight-quiet-suite-2026-10-22.md`).**
   - **Pre-flight.** Before writing any code for a sub-slice, the builder dry-reads
@@ -487,10 +510,13 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
     coordinator sends the batch to the Architect as one request, and the builder
     starts code only after those rulings merge. A mid-build stop afterwards counts
     as a missed pre-flight item, and a missed item is recorded in the readiness lessons.
-  - **Quiet-machine suites.** A full backend suite runs only while no builder,
-    capture, browser or vitest run is active on the machine. While it runs, only
-    light work (spec and Architect requests, reading reviews) proceeds. Builders
-    and captures wait for it. One suite at a time.
+  - **Quiet-machine suites (refined 2026-10-23,
+    `.agent/owner-build-during-suite-2026-10-23.md`).** One full backend suite runs
+    at a time. While it runs, builders keep writing code and may run database-free
+    unit tests, type checks and check-all. They hold Postgres-backed tests, browser
+    captures, the full vitest run, production builds and any second suite until the
+    suite ends, then run them in one batch. Spec, Architect and review-reading
+    work proceeds freely.
 - **Tiered testing (owner, 2026-10-22, `.agent/owner-tiered-testing-2026-10-22.md`;
   refines the 2026-10-20 suite policy).**
   - **Each unit:** its focused tests.
