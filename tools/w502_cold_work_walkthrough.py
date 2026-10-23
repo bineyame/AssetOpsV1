@@ -207,10 +207,14 @@ try:
     # Ruling 4 manifest assertion: the stored INC (returned ID) has the shifted occurred_at and both selected links.
     with built.engine.connect() as c:
         stored_at = c.execute(text("SELECT occurred_at FROM work_case WHERE id = :c"), {"c": inc["id"]}).scalar_one()
+        # K3 review L5: the returned (stored) performed-record time, not the requested one.
+        rec_stored_at = c.execute(text("SELECT occurred_at FROM maintenance_record WHERE id = :r"),
+                                  {"r": rec["id"]}).scalar_one()
         got_links = sorted([str(f), str(r)] for f, r in c.execute(text(
             "SELECT finding_id, finding_revision_id FROM work_case_finding_link WHERE case_revision_id = :r"),
             {"r": inc["revision"]["id"]}).all())
     assert stored_at == inc_at, (stored_at, inc_at)
+    assert rec_stored_at == rec_at, (rec_stored_at, rec_at)
     assert got_links == sorted([x["finding_id"], x["finding_revision_id"]] for x in inc_links), got_links
     links = {}
     for key, case in (("incident", inc), ("request", wr)):
@@ -247,7 +251,7 @@ try:
                                              "Finding (ruling 21; no synthetic excursion)") if mode == "unknown"
                                             else None},
                       "request": {"id": wr["id"], "revision_id": wr["revision"]["id"], "record_id": rec["id"],
-                                  "occurred_at": iso(wr_at), "record_occurred_at": iso(rec_at)},
+                                  "occurred_at": iso(wr_at), "record_occurred_at": iso(rec_stored_at)},
                       "case_links": links, "intent": intent}
     actions = [{"id": aid, "code": action["action_code"], "raised_at": iso(raised),
                 "recorded_at": action["recorded_at"], "due_at": None}]
@@ -300,10 +304,14 @@ try:
                 stored = {str(k): v for k, v in c.execute(text(
                     "SELECT id, occurred_at FROM work_case WHERE id IN (:a, :b)"), {"a": xi["id"], "b": xw["id"]}).all()}
             assert stored == {xi["id"]: i_at, xw["id"]: w_at}, stored
+            with built.engine.connect() as c:  # K3 review L5: the returned performed-record time, re-read
+                rec_stored = c.execute(text("SELECT occurred_at FROM maintenance_record WHERE id = :r"),
+                                       {"r": xr["id"]}).scalar_one()
+            assert rec_stored == r_at, (rec_stored, r_at)
             extra.append({"n": n, "incident": {"id": xi["id"], "revision_id": xi["revision"]["id"],
                                                "occurred_at": iso(stored[xi["id"]])},
                           "request": {"id": xw["id"], "revision_id": xw["revision"]["id"], "record_id": xr["id"],
-                                      "occurred_at": iso(stored[xw["id"]]), "record_occurred_at": iso(r_at)},
+                                      "occurred_at": iso(stored[xw["id"]]), "record_occurred_at": iso(rec_stored)},
                           "code_points": 160})
         doc["fixture"]["extra_cases"] = extra
     if mode == "pending":

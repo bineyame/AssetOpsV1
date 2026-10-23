@@ -436,7 +436,8 @@ async function casesMain() {
     for (const kind of ["incidents", "maintenance"]) {
       let m;
       const s = (x) => `${kind}-${x}`;
-      // Positive CURRENT, historical (K3), complete zero (ruled [D-8 days, D-1 day) window).
+      // Positive (the Action read's window at its returned cutoff, which W4 reads as HISTORICAL), historical (K3),
+      // complete zero (ruled [D-8 days, D-1 day) window, CURRENT).
       m = await record(W, wi, s("positive"), caseUrl("positive", kind, read("positive", "positive", kind).query), CASE_READY, MEASURE_CASE);
       // K3 rulings 7/13: the capture uses its recorded query (the Action read's window and returned cutoff); the
       // notice follows the returned case-list status (an explicit cutoff reads HISTORICAL), never a fixed expectation.

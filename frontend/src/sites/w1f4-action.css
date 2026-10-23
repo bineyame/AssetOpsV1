@@ -222,10 +222,6 @@
   overflow-wrap: normal;
 }
 
-.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline) {
-  margin-top: 2px;
-}
-
 .work-cases[data-cold-cases] td .disclosure .disclosure__body,
 .work-cases[data-cold-cases] td .disclosure .disclosure__body code {
   overflow-wrap: anywhere;
@@ -274,4 +270,9 @@
 .work-cases[data-cold-cases] td .work-cases-clamp {
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+/* K3 review L2: the Site-local Window value (`6 Oct · from 19:11`) is one phrase; only `UTC and IDs` wraps. */
+.work-cases[data-cold-cases] td [data-work-window] {
+  white-space: nowrap;
 }

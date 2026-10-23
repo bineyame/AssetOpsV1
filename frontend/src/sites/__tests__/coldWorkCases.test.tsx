@@ -414,6 +414,37 @@ describe("W5-02 K3b: cold case long text (K3 pre-flight ruling 7, R94)", () => {
   });
 });
 
+describe("W5-02 K3b: every long case cell replaces its preview while open (K3 review L4, rulings 7/12, R94)", () => {
+  const long = (prefix: string, c: string) => prefix + c.repeat(160 - Array.from(prefix).length);
+  const cases: { label: string; kind: WorkKind; row: () => WorkRow; cell: string; outer: string | null; value: string }[] = [
+    { label: "Incident What happened", kind: "incidents", row: () => incident(1, { narrative: long("Grid lost, automatic start failed 1 ", "N") }), cell: "[data-work-narrative]", outer: null, value: long("Grid lost, automatic start failed 1 ", "N") },
+    { label: "Maintenance Activity recorded", kind: "maintenance", row: () => request(1, { activity: long("Starter and control inspection 1 ", "A") }), cell: "[data-work-activity-cell]", outer: "Activity recorded", value: long("Starter and control inspection 1 ", "A") },
+    { label: "Maintenance Outcome note", kind: "maintenance", row: () => request(1, { outcome_note: long("Inspection complete; test required 1 ", "O") }), cell: "[data-work-outcome-cell]", outer: "Outcome note", value: long("Inspection complete; test required 1 ", "O") },
+  ];
+  const toggle = async (details: HTMLDetailsElement, open: boolean) => {
+    details.open = open;
+    fireEvent(details, new Event("toggle"));
+    await settledScreen();
+  };
+  for (const c of cases) {
+    it(c.label, async () => {
+      const { main } = await mountCases(c.kind, loaded(body([c.row()])));
+      const cell = main.querySelector(`tbody tr ${c.cell}`) as HTMLElement;
+      if (c.outer !== null) {
+        const outer = Array.from(cell.querySelectorAll("details")).find((d) => text(d.querySelector(":scope > summary")) === c.outer) as HTMLDetailsElement;
+        await toggle(outer, true);
+      }
+      const inner = Array.from(cell.querySelectorAll("details")).find((d) => text(d.querySelector(":scope > summary")) === "Read full text") as HTMLDetailsElement;
+      expect(cell.querySelector("[data-cold-work-preview]")?.classList.contains("work-cases-clamp")).toBe(true);
+      await toggle(inner, true);
+      expect(cell.querySelector("[data-cold-work-preview]")).toBeNull();
+      expect(text(cell).split(c.value).length - 1).toBe(1);
+      await toggle(inner, false);
+      expect(cell.querySelector("[data-cold-work-preview]")).not.toBeNull();
+    });
+  }
+});
+
 describe("W5-02 K3a: mini-grid isolation", () => {
   it("keeps the W4 strip, arrowless Manage link, W6 notice and form on MINIGRID", async () => {
     const mini = { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel;
