@@ -178,3 +178,63 @@ I found no unlabelled departure when comparing `C2/positive`, `linked-source` an
 
 - `test_w601c_request_detail.py` was not rerun after C2 changed `global_index.py`. The coverage holds, because `global_detail.py` does not import `global_index.py`, but the full suite is the only proof on the head.
 - The cleanup command `taskkill //F //IM node.exe` may have stopped unrelated node processes on the machine. It was recorded, and it did not affect the code.
+
+## Re-review (fix round 1)
+
+Head reviewed: `bc7a05e1`. The fix commits are `39156cac` (code), `2a825d0b` (recaptures) and `bc7a05e1` (Run entry); main is merged in at `63df90f6`. Since the merge, the fix round changes five frontend files and no backend or tools file: `WorkRequestRecord.tsx`, `workRequestShared.tsx`, `globalWorkClient.ts`, `globalWork.css` and `workRequestOverview.test.tsx`.
+
+**Verdict: ACCEPT.** M1–M4 are closed. One new Low (L5) is non-blocking.
+
+- **M1, closed against "W6-01c review rulings".**
+  - Work done/Lifecycle pair:
+    - `.work-request .panel-pair { align-items: stretch }`.
+    - The manifest records equal heights at 1440: 346/346 for positive and historical, 305/305 for linked-source and 422/422 for stress. All are within the ruled 430 px desktop cap.
+    - At 390 the panels stack: Work done 422 or less (cap 510), Lifecycle 167 (cap 300).
+    - `C2/screenshots/stress-1440.png` and `positive-1440.png` show the stretched pair, as in `mock-wr-overview-1440.png`.
+  - `wr-record` badges:
+    - `Recorded` uses `Badge tone="green"` (`.work-record-badge--green` #dff3e4/#1d6b35); `Not established` stays amber.
+    - `C3/screenshots/positive-1440.png` matches the mock's green `Captured` placement.
+    - The tokens are close to the mock `.badge.green` (#e3f4ed/#166b50) but not identical, which fits the ruling's "or the equivalent". Nit only.
+- **L1 and L2.** Both rulings record the code as built; no code change is needed.
+  - L1 strictly says to catch only that one `ValueError` message. The code catches any `ValueError`, but maps it to 503 only when CREATED is absent and otherwise re-raises. The behaviour is equivalent, because only the reducer raises when CREATED is missing.
+- **M2, closed.** These are now exported from `workRequestShared.tsx`:
+  - `WorkRequestBreadcrumbs`, `OpenSite`, `subtitleOf` and `LiveTab`
+  - `WorkRequestTabs`, `WorkRequestBar` and `WorkRequestRefusal` (renamed)
+  - `WorkRequestMHeader`, `TAB_LABEL` and `TAB_SUFFIX`
+  - `WorkRequestTab` stays `overview | record`, so C4 adds `history`. There is no behaviour change.
+- **M3, closed.** `globalWorkClient.ts` now has:
+  - a `WorkCaseDetailEventBase` that is not exported;
+  - the exported `KnownWorkCaseEvent` discriminated union, covering `CREATED:{}`, `ASSIGN:{assignee}`, `COMMENT:{text}`, `COMPLETE:{maintenance_record_id}` and `CLOSE|REOPEN|CANCEL:{reason}`;
+  - `KNOWN_WORK_CASE_EVENT_KINDS`, `UnknownWorkCaseEvent`, the `WorkCaseDetailEvent` union and the `isKnownWorkCaseEvent` guard.
+  - This is my literal fix verbatim. `ownerOf` keeps its runtime string check through a cast.
+- **M4, closed.** The parser now checks:
+  - event items for `occurred_at`, `actor_kind` and `actor_id`;
+  - the payload string for each known kind (`EVENT_PAYLOAD_KEY`);
+  - that at least one `CREATED` exists;
+  - revision items for `revision_no` (number), nullable `supersedes_revision_id`/`reason`, `occurred_at`, `actor_kind` and `actor_id`.
+  - The client test adds a 200 without CREATED and an ASSIGN without `assignee`, and both read as `WORK_STORE_UNAVAILABLE`. Fixture events now carry their payloads.
+  - Nit: `x.kind in EVENT_PAYLOAD_KEY` also matches inherited keys such as `constructor`, so an unknown kind with such a name would be rejected, never admitted. This fails closed and needs no action.
+- **Recaptures.** C2 and C3 have all states at 1440 and 390. Document width equals the viewport. C3 stress at 1440 is 1425/1425, where a scrollbar takes the 15 px; there is no overflow. Every cap is met.
+  - Evidence nit: the manifest `text` fields show `Â·` mojibake for `·`. It comes from the capture's string encoding and is not in the rendered page, which the screenshots show correctly.
+- **L5 (Low, new, from C3 and not introduced by this round).** `WorkRequestRecord.tsx` `TechnicianNotes` puts `<Clamp>`, which renders a `div`, inside `<p className="work-record-outcome">`. Vitest logs `validateDOMNesting: <div> cannot appear as a descendant of <p>`. React renders it as intended, but the markup is invalid. Fix: change that `<p>` to a `<div>`, in C4 or any later touch.
+
+**Checks I ran.**
+- `npx.cmd vitest run --minWorkers=1 --maxWorkers=2` on `workRequestOverview.test.tsx`, `workRequestRecord.test.tsx` and `globalMaintenance.test.tsx`: 3 files, 55 tests passed in 27.6 s. The only stderr is the L5 nesting warning.
+- Not run, as the brief directed: `tsc`, the full frontend suite, the build, backend tests and guards.
+
+**Shared plumbing this slice touches** (`git diff --name-only main...HEAD`):
+- `backend/assetops_backend/main.py` (router kwargs)
+- `work/composition.py` (new builder)
+- `work/detail.py` (the W4 Site detail selector extracted, which the Site route also uses)
+- `work/global_index.py` (B1/B2 list `links.detail`)
+- `work/adapters/postgres_global_read.py`
+- `global_work_api.py`
+- `tools/checks/navigation-truthfulness.ps1`
+- `tools/w601_seed.py`
+
+There is no change to conftest, `frontend/src/test` or migrations. The fix round itself touches frontend files only. The scoped regression should cover:
+- the W4 work API, read and Site-detail tests (`test_w401_*`), because of the `detail.py` extraction;
+- `test_w601a*`, `test_w601b*` and `test_w601c*`;
+- app-composition smoke, because of `main.py`.
+
+Because `main.py` and composition changed, the full suite is the safer gate if the queue allows it.
