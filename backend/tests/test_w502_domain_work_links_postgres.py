@@ -191,3 +191,76 @@ def assert_global_domain_parity(cold, b: SimpleNamespace, api_class, root: str, 
     if root == "maintenance":
         assert rows[b.free]["action_links"] == old_rows[b.free]["action_links"] == []
         assert rows[b.free]["source_provenance"] == old_rows[b.free]["source_provenance"]
+
+
+# ---- K1c rulings 2/3: link states on the test-only shifted producer (`test_w502_cold_scenario_producer.py`) -------
+
+if URL:
+    from test_w502_cold_scenario_producer import finding_revision, produce, shifted_chain, w501_read  # noqa: F401
+
+
+def produced_cold(built, mechanism: str) -> SimpleNamespace:
+    """The `cold` namespace over a shifted producer chain, pinned to its selected Finding revision of `mechanism`."""
+    from assetops_backend.work.composition import build_domain_intent_service, build_work_service
+
+    finding_id, revision_id = finding_revision(built, mechanism)
+    with built.engine.connect() as c:
+        cited = sorted(str(v) for v in c.execute(text(
+            "SELECT evidence_id FROM finding_revision_evidence WHERE finding_revision_id = :r"),
+            {"r": revision_id}).scalars())
+    assert cited, "the selected cold Finding revision cites no accepted evidence"
+    return SimpleNamespace(t=built.tenant_id, s=built.site_id, engine=built.engine, finding_id=finding_id,
+                           revision_id=revision_id, cited=cited, svc=build_domain_intent_service(URL),
+                           work=build_work_service(URL), code="COLD-LAB-001")
+
+
+def domain_selection(cold, case_id: str) -> tuple[dict, dict]:
+    """(raw `link_selections` row, `linked_coverage` link) of the case's one domain link at the read time."""
+    from assetops_backend.work.composition import build_work_read
+    from assetops_backend.work.link_coverage import linked_coverage
+
+    reads = build_work_read(URL)
+    try:
+        def work(rx):
+            rev = str(rx.revisions(case_id, rx.read_at)[-1]["id"])
+            raw = [r for r in rx.link_selections(rev, None, None, rx.read_at) if r["kind"] == DOMAIN]
+            cov = [x for x in linked_coverage(rx, cold.t, cold.s, rev, None, None, rx.read_at)["links"]
+                   if x["kind"] == DOMAIN]
+            return raw, cov
+        raw, cov = reads.snapshot(cold.t, cold.s, cold.code, work)
+    finally:
+        reads.dispose()
+    assert len(raw) == len(cov) == 1, (raw, cov)
+    return raw[0], cov[0]
+
+
+def test_pending_recompute_link_state(shifted_chain) -> None:  # noqa: F811
+    """Ruling 3 PENDING: a later accepted reading (the HELD probe report, released at the shifted late-publication
+    instant) enqueues a `cold_chain` recompute job that stays unrun; the pinned link and the W5-01 read at the
+    returned cutoff both say PENDING_RECOMPUTE over the unchanged selected assessment."""
+    built = produce(shifted_chain, "pending")
+    cold = produced_cold(built, "COLD_EXCURSION")
+    try:
+        b = bind(cold, "pending")
+        raw, cov = domain_selection(cold, b.request)
+        assert raw["pin"] is not None and raw["lineage"] and cov["state"] == "CURRENT"
+        first = raw["pin"]
+        built.advance_late()  # the later accepted reading; its recompute job is never run
+        with built.engine.connect() as c:
+            jobs = c.execute(text("SELECT status, created_at FROM recompute_job WHERE site_id = :s "
+                                  "AND domain = 'cold_chain' AND status = 'PENDING'"), {"s": built.site_id}).all()
+            late = c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE site_id = :s "
+                                  "AND decision = 'ACCEPTED'"), {"s": built.site_id}).scalar_one()
+        assert jobs and late > first["evidence_cutoff"]
+        raw, cov = domain_selection(cold, b.request)
+        pin = raw["pin"]
+        assert pin is not None and raw["lineage"] and raw["selected_id"] == cold.revision_id
+        assert (pin["state"], cov["state"]) == ("PENDING_RECOMPUTE", "PENDING_RECOMPUTE")
+        assert pin["evidence_cutoff"] == late
+        assert pin["assessment_revision_id"] == first["assessment_revision_id"]  # the selection is not recomputed
+        body = w501_read(built, iso(pin["evidence_cutoff"]))
+        assert body["selection"]["state"] == "PENDING_RECOMPUTE"
+        assert pin["assessment_revision_id"] in body["selection"]["assessment_revision_ids"]
+    finally:
+        cold.svc._store.dispose()
+        cold.work._store.dispose()
