@@ -289,8 +289,9 @@ const MEASURE_CASES = `(() => {
 })()`;
 // ---- W5-02b K3b: the cold case tabs (v69 cold-work-incidents / cold-work-maintenance) ----------------------------
 // Build-spec "Measurement" caps for the other Work pages [1440, 390]: page <= 1400/1800, panel <= 440/650, strip
-// <= 100/150, notice <= 110/160. K3 pre-flight ruling 7 keeps these caps for the five-row and opened-disclosure states
-// (K2 ruling 24's all-open exemption is for the Actions panel only).
+// <= 100/150, notice <= 110/160. K3 ruling 16 (final cap rule, as K2 ruling 24): the five-row state with every
+// disclosure open is exempt from the case panel cap only (its height is recorded); every other state, including the
+// five-row closed and one-open states, keeps it, and page/strip/notice caps, containment and no overflow still apply.
 const CASE_CAPS = { main: [1400, 1800], strip: [100, 150], panel: [440, 650], notice: [110, 160] };
 const CASE_BANNER = "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.";
 const CASE_READY = `document.querySelector('main [data-site-work] section.panel') && !document.querySelector('[data-work-loading]') && (document.querySelector('[data-work-loaded], [data-work-empty], [data-work-refused]'))`;
@@ -349,6 +350,8 @@ const MEASURE_CASE = `(() => {
     siteRefusal: body ? null : (t(main)?.slice(0, 200) ?? null),
     visibleForms: [...(main?.querySelectorAll('form') ?? [])].filter(visible).map((f) => f.getAttribute('data-cold-work-window') !== null ? 'cold-window' : 'other'),
     openDetails: body?.querySelectorAll('tbody details[open]').length ?? 0,
+    summaries: [...(body?.querySelectorAll('tbody details > summary') ?? [])].map((x) => { x.focus(); const r = x.getBoundingClientRect(); const td = x.closest('td').getBoundingClientRect();
+      return { text: x.textContent.trim(), focusable: document.activeElement === x, inside: r.width > 0 && r.left >= td.left - 1 && r.right <= td.right + 1 && x.scrollWidth <= x.clientWidth + 1 }; }),
     allDetails: body?.querySelectorAll('tbody details').length ?? 0,
     badgeCount: badges.length,
     badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
@@ -364,12 +367,13 @@ const MEASURE_CASE = `(() => {
   };
 })()`;
 
-function capCase(W, label, m, wi) {
+function capCase(W, label, m, wi, panelCap = true) {
   const c = CASE_CAPS;
   claim(`${W} ${label}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
   claim(`${W} ${label}: page main <= ${c.main[wi]}`, m.main !== null && m.main <= c.main[wi], { main: m.main, docHeight: m.docHeight });
   claim(`${W} ${label}: strip <= ${c.strip[wi]}`, m.strip !== null && m.strip <= c.strip[wi], m.strip);
-  claim(`${W} ${label}: panel <= ${c.panel[wi]}`, m.panel !== null && m.panel <= c.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  if (panelCap) claim(`${W} ${label}: panel <= ${c.panel[wi]}`, m.panel !== null && m.panel <= c.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  else console.log(`INFO  ${W} ${label}: panel height ${m.panel} (K3 ruling 16: exempt from the ${c.panel[wi]} panel cap; recorded)`);
   claim(`${W} ${label}: context notice <= ${c.notice[wi]} and is the domain notice`, m.contextNotice !== null && m.contextNotice <= c.notice[wi] && m.contextNoticeText === "Opening a record moves you to its own area; the breadcrumb keeps this site.", { height: m.contextNotice, text: m.contextNoticeText });
   if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${c.notice[wi]}`, m.currentnessNotice <= c.notice[wi], m.currentnessNotice);
   claim(`${W} ${label}: no banner on the product screen (K3 ruling 1)`, m.banner === false, m.banner);
@@ -457,7 +461,10 @@ async function casesMain() {
         await sleep(300);
       });
       claim(`${W} ${s("worstcase-all-open")}: every row disclosure open`, m.allDetails > 0 && m.openDetails === m.allDetails, { open: m.openDetails, of: m.allDetails });
-      capCase(W, s("worstcase-all-open"), m, wi); caseRowClaims(W, s("worstcase-all-open"), m, 5);
+      capCase(W, s("worstcase-all-open"), m, wi, false); // K3 ruling 16: panel-cap exemption only
+      caseRowClaims(W, s("worstcase-all-open"), m, 5);
+      // K3 ruling 12: every (nested) disclosure control is a native, keyboard-focusable summary, inside the viewport width.
+      claim(`${W} ${s("worstcase-all-open")}: every disclosure summary takes keyboard focus and is not clipped`, m.summaries.length > 0 && m.summaries.every((x) => x.focusable && x.inside), m.summaries.filter((x) => !(x.focusable && x.inside)));
       // Late / stale / unknown: the returned case-list status drives the notice (R91 tones).
       for (const k of ["pending", "stale", "unknown"]) {
         const rd = read(k, k, kind);
@@ -469,12 +476,16 @@ async function casesMain() {
         capCase(W, s(k), m, wi); caseRowClaims(W, s(k), m, 1); caseContentClaims(W, s(k), m, kind, k);
       }
       // 403 / 503 (K3 ruling 8): the real W4 refusals from the tool-local case router, inside the case panel.
-      for (const [k, proc, status, title] of [["forbidden-403", forbidden, "forbidden", "No access"], ["unavailable-503", unavailable, "unavailable", "Work records unavailable"]]) {
+      // K3 ruling 9 (ruling 8 corrected): W4 `Refused` unchanged; the title and its fixed W4 sentence, no Retry.
+      for (const [k, proc, status, title, sentence] of [
+        ["forbidden-403", forbidden, "forbidden", "No access", "You do not have access to this site's work."],
+        ["unavailable-503", unavailable, "unavailable", "Work records unavailable", "Work records are unavailable right now. Try again."],
+      ]) {
         const q = { from: proc.query.from, to: proc.query.to };
         m = await record(W, wi, s(k), `${procBase(proc)}/sites/${SITE}/work/${kind}?${new URLSearchParams(q).toString()}`, CASE_READY, MEASURE_CASE);
         claim(`${W} ${s(k)}: Site read healthy, W4 refusal ${status}/${proc.expected.code} titled '${title}' inside the case panel`,
-          m.siteRefusal === null && m.panelState === "refused" && m.refused === status && m.refusedCode === proc.expected.code && (m.refusedText ?? "").includes(title),
-          { siteRefusal: m.siteRefusal, refused: m.refused, code: m.refusedCode, text: m.refusedText });
+          m.siteRefusal === null && m.panelState === "refused" && m.refused === status && m.refusedCode === proc.expected.code && (m.refusedText ?? "").includes(title) && (m.refusedText ?? "").includes(sentence) && !/Retry/.test(m.refusedText ?? ""),
+          { siteRefusal: m.siteRefusal, refused: m.refused, code: m.refusedCode, text: m.refusedText, sentence });
         claim(`${W} ${s(k)}: no row and no zero count`, m.rowCount === 0 && !/· 0 /.test(m.stripText ?? ""), { rows: m.rowCount, strip: m.stripText });
         capCase(W, s(k), m, wi);
       }

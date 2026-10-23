@@ -49,11 +49,11 @@ Claims cover no document overflow, the caps, per-cell containment, a preview of 
 5. **Long-text component.** `CaseLongText` in `siteWorkCases.tsx` duplicates K2's private `LongText`, with the same data attributes and behaviour. `SiteWorkActions.tsx` is outside K3's file lists and already imports `siteWorkCases.tsx`, so reusing it would mean editing that file and creating a circular import.
 6. **Untouched ledger fields.** `follow_on`, `interaction` and `unknown_or_empty` are left as they were, following the W5-03a precedent. The spec names only the fields that were changed.
 
-## Open (needs a ruling before the refusal captures can pass)
+## Rulings 9-16 (main `ee99f940`, merged)
 
-1. **Ruling 8 vs code.** Ruling 8 says to "Preserve the W4 panel refusal titles `No access` and `Work records unavailable`, server message and Retry". The W4 `Refused` (`siteWorkCases.tsx` `Refused`, `REFUSAL` table) actually renders the title plus a fixed W4 sentence. It shows the server message only for a non-cursor `invalid`, and it has **no Retry button** (only `Reload the first page` for basis_changed and cursor errors). Spec :76 also says the case pages preserve W4 refusal titles and messages. I built nothing here. The evidence tool asserts the title, refusal kind and code only. Please choose:
-   - (a) keep W4 exactly as it is, and drop "server message and Retry" from ruling 8; or
-   - (b) on COLDCHAIN only, add the server message and a Retry button to the W4 refusal, naming the copy and slot and any register row.
+- Ruling 9 resolves the open refusal item with option (a): W4 `Refused` stays unchanged. The tests and capture tool assert the title, its fixed sentence, the refusal kind and code, and that neither the server message nor Retry appears.
+- Rulings 10-15 confirm judgment calls 1-6 with no code change. For ruling 12, the test and the capture tool also assert that nested summaries are native, focusable and unclipped.
+- Ruling 16: the capture tool exempts only the five-row all-open state from the case panel cap. It logs that panel height as INFO, and every other gate still applies.
 
 ## Shared plumbing
 

@@ -231,13 +231,25 @@ describe("W5-02 K3a: cold Site > Work > Incidents (v69 cold-work-incidents)", ()
     expect(text(main.querySelector("[data-work-window]"))).toBe("6 Oct · from 22:11");
   });
 
-  it("keeps the W4 refusal title and never shows a zero count on a refused read", async () => {
-    const { main } = await mountCases("incidents", { status: "forbidden", code: "SITE_SCOPE_FORBIDDEN", message: "No grant." });
-    expectV69Panels("cold-work-incidents");
-    expect(main.querySelector("[data-work-refused]")?.getAttribute("data-work-refused")).toBe("forbidden");
-    expect(text(main.querySelector("[data-work-refused]"))).toContain("No access");
-    expect(text(strip(main))).not.toMatch(/· 0 incidents/);
-    expect(main.querySelector("[data-cold-work-currentness]")).toBeNull();
+  it("keeps the W4 refusal unchanged: title and fixed sentence, no server message, no Retry, no zero (K3 ruling 9)", async () => {
+    const cases: [WorkKind, WorkIndexResult, string, string][] = [
+      ["incidents", { status: "forbidden", code: "SITE_SCOPE_FORBIDDEN", message: "No access to Site 'CR-TEST-01'." }, "No access", "You do not have access to this site's work."],
+      ["maintenance", { status: "unavailable", code: "WORK_STORE_UNAVAILABLE", message: "The work store is unavailable." }, "Work records unavailable", "Work records are unavailable right now. Try again."],
+    ];
+    for (const [kind, refusal, title, sentence] of cases) {
+      const { main } = await mountCases(kind, refusal);
+      expectV69Panels(`cold-work-${kind}`);
+      const refused = main.querySelector("[data-work-refused]") as HTMLElement;
+      expect(refused.getAttribute("data-work-refused")).toBe(refusal.status);
+      expect(refused.getAttribute("data-work-code")).toBe(refusal.status === "loaded" ? "" : refusal.code);
+      expect(text(refused)).toContain(title);
+      expect(text(refused)).toContain(sentence);
+      expect(text(refused)).not.toContain(refusal.status === "loaded" ? "" : (refusal.message as string));
+      expect(text(refused)).not.toMatch(/Retry/);
+      expect(text(strip(main))).not.toMatch(/· 0 /);
+      expect(main.querySelector("[data-cold-work-currentness]")).toBeNull();
+      cleanup();
+    }
   });
 
   it("passes the product vocabulary scan", async () => {
@@ -389,9 +401,16 @@ describe("W5-02 K3b: cold case long text (K3 pre-flight ruling 7, R94)", () => {
     fireEvent(details, new Event("toggle"));
     await settledScreen();
     expect(titleCell.querySelector("[data-cold-work-preview]")).not.toBeNull();
-    // The Activity recorded body applies the same rule.
+    // K3 ruling 12: the Activity recorded body applies the same rule; the chip stays outside the disclosure and every
+    // (nested) control is a native summary of its own details, so it is keyboard-operable.
     const activityCell = row.querySelector("[data-work-activity-cell]") as HTMLElement;
     expect(summaries(activityCell)).toEqual(["Activity recorded", "Read full text"]);
+    expect(activityCell.querySelector("[data-work-state]")?.closest("details")).toBeNull();
+    for (const summary of Array.from(activityCell.querySelectorAll("summary"))) {
+      expect(summary.parentElement?.tagName).toBe("DETAILS");
+      (summary as HTMLElement).focus();
+      expect(document.activeElement).toBe(summary);
+    }
   });
 });
 
