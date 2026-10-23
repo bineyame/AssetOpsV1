@@ -67,6 +67,7 @@ import {
   SITE_EV_EVIDENCE_ROUTE_PATH,
   SITE_EV_FINANCIALS_ROUTE_PATH,
   SITE_EV_ROUTE_PATH,
+  SITE_EV_SCENARIOS_ROUTE_PATH,
   SITE_FOUNDATION_CHANGE_ROUTE_PATH,
   SITE_FOUNDATION_CHANGES_ROUTE_PATH,
   SITE_FOUNDATION_ROUTE_PATH,
@@ -102,6 +103,7 @@ import { createEvDepthClient, type EvDepthClient } from "./sites/evDepthClient";
 import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
 import { HttpColdScenariosClient, type ColdScenariosClient } from "./sites/coldScenariosClient";
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
+import { createEvScenariosClient, type EvScenariosClient } from "./sites/evScenariosClient";
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
@@ -169,6 +171,7 @@ const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
 const defaultEstateFinancials = createEstateFinancialsClient();
 const defaultGlobalWork = createGlobalWorkClient();
 const defaultEvSite = createEvSiteClient();
+const defaultEvScenarioList = createEvScenariosClient();
 
 /**
  * Route table.
@@ -252,6 +255,8 @@ export interface AppProps {
   coldScenarioList?: ColdScenariosClient;
   /** W2-07: the five EV Site reads, used for an EV_CHARGING Site's `/ev` routes. */
   evSite?: EvSiteClient;
+  /** W5-03b E6: the authored EV scenario list (EV Financials > Scenarios); `evScenarios` is the lab run-setup choice. */
+  evScenarioList?: EvScenariosClient;
   /** W2-04: the five cold Site reads, used for a COLDCHAIN Site's Overview, Evidence and Financials routes. */
   coldSite?: ColdSiteClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
@@ -296,6 +301,7 @@ export function App({
   coldScenarioList = defaultColdScenarioList,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
+  evScenarioList = defaultEvScenarioList,
   siteTemplateLineage,
   now,
   coldScenarios,
@@ -386,9 +392,10 @@ export function App({
               [SITE_EV_ANALYSIS_ROUTE_PATH, "analysis"],
               [SITE_EV_FINANCIALS_ROUTE_PATH, "financials"],
               [SITE_EV_ASSUMPTIONS_ROUTE_PATH, "assumptions"],
+              [SITE_EV_SCENARIOS_ROUTE_PATH, "scenarios"],
             ] as const
           ).map(([path, view]) => (
-            <Route key={path} path={path} element={<SiteEvFrame detail={siteDetail} sitesPath={SITES_PATH} view={view} evSite={evSite} />} />
+            <Route key={path} path={path} element={<SiteEvFrame detail={siteDetail} sitesPath={SITES_PATH} view={view} evSite={evSite} evScenarios={evScenarioList} />} />
           ))}
           <Route
             path={SITE_EVIDENCE_ROUTE_PATH}

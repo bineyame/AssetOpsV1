@@ -463,7 +463,7 @@ describe("W2-07 EV Site routes", () => {
     expect(subtabs("Financials sections")).toEqual([
       { text: "Overview", href: `${PATHS["ev-financials"]}${Q}`, current: "page" },
       { text: "Assumptions", href: `${PATHS["ev-assumptions"]}${Q}`, current: null },
-      { text: "Scenarios · Not available yet", href: null, current: null },
+      { text: "Scenarios", href: `/sites/${CODE}/ev/financials/scenarios${Q}`, current: null },
     ]);
     expect(strip()).toContain("1 consequence line");
     expect(strip()).toContain("KES");
@@ -521,7 +521,7 @@ describe("W2-07 EV Site routes", () => {
     cleanup();
     await renderAt(PATHS["ev-assumptions"], client());
     expectV69Panels("ev-assumptions");
-    expect(subtabs("Financials sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Assumptions", "page"], ["Scenarios · Not available yet", null]]);
+    expect(subtabs("Financials sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Assumptions", "page"], ["Scenarios", null]]);
     const table = panelTitled("Financial assumptions");
     expect(Array.from(table.querySelectorAll("tbody tr")).map((r) => Array.from(r.children).map((c) => c.textContent))).toEqual([
       ["Tariff", "0.2777 KES/kWh · Authored estimate", "Translating metered energy"],
@@ -558,9 +558,10 @@ describe("W2-07 EV Site routes", () => {
         } catch (error) {
           throw new Error(`${screenId} ${label}: ${String(error)}`);
         }
-        // Only the financial rows carry an unavailable tab: the one Scenarios slot (W2-F M12); Evidence rows stay +0.
+        // W5-03b E6: no EV subtab row carries an unavailable slot; the financial rows link the live Scenarios route.
         const financialRoute = screenId === "ev-financials" || screenId === "ev-assumptions";
-        expect(main().querySelectorAll("nav.site-subtabs [data-tab-unavailable]")).toHaveLength(financialRoute ? 1 : 0);
+        expect(main().querySelectorAll("nav.site-subtabs [data-tab-unavailable]")).toHaveLength(0);
+        expect(main().querySelectorAll('nav.site-subtabs [data-ev-subtab="scenarios"]')).toHaveLength(financialRoute ? 1 : 0);
         cleanup();
       }
     }
@@ -800,16 +801,17 @@ describe("W2-F: EV Overview link, status and record IDs", () => {
     expect(main().textContent).not.toMatch(/\d+ consequence lines?/);
   });
 
-  // W2-F M12: the mock's Scenarios slot on both financial screens is unavailable text, never a control.
-  it("w2f_ev_scenarios_slot_unavailable", async () => {
+  // W5-03b E6 (replaces W2-F M12): the mock's Scenarios entry on both financial screens is a live link to the route.
+  it("w503b_ev_scenarios_tab_live", async () => {
     for (const key of ["ev-financials", "ev-assumptions"] as const) {
       await renderAt(PATHS[key], client());
       const nav = document.querySelector('nav[aria-label="Financials sections"]') as HTMLElement;
-      expect(Array.from(nav.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Overview", "Assumptions", "Scenarios · Not available yet"]);
-      const slot = nav.querySelector('[data-tab-unavailable="Scenarios"]') as HTMLElement;
-      expect(slot.querySelector("a, button, [href], [tabindex], [onclick]")).toBeNull();
-      expect(slot.getAttribute("aria-label")).toBe("Scenarios, Not available yet");
-      expect(nav.querySelectorAll("a")).toHaveLength(2);
+      expect(Array.from(nav.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Overview", "Assumptions", "Scenarios"]);
+      expect(nav.querySelector("[data-tab-unavailable]")).toBeNull();
+      const live = nav.querySelector('[data-ev-subtab="scenarios"]') as HTMLAnchorElement;
+      expect(live.getAttribute("href")).toBe(`/sites/${CODE}/ev/financials/scenarios${Q}`);
+      expect(live.hasAttribute("aria-current")).toBe(false);
+      expect(nav.querySelectorAll("a")).toHaveLength(3);
       expect(nav.querySelector('[aria-current="page"]')?.textContent).toBe(key === "ev-financials" ? "Overview" : "Assumptions");
       cleanup();
     }
