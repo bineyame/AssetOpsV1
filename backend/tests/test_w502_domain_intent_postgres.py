@@ -573,7 +573,8 @@ def test_k5_cold_action_lineage_through_product_get(cold, monkeypatch) -> None:
     assert sorted(body["intent"]["basis"]["accepted_evidence_ids"]) == accepted
     with cold.engine.connect() as c:
         code = c.execute(text("SELECT public_code FROM work_case WHERE id = :c"), {"c": case_id}).scalar_one()
-    assert body["links"]["work"] == {"case_id": case_id, "case_code": code, "case_title": wr["revision"]["title"],
+        title = c.execute(text("SELECT title FROM work_case_revision WHERE id = :r"), {"r": rev_id}).scalar_one()
+    assert body["links"]["work"] == {"case_id": case_id, "case_code": code, "case_title": title,
                                      "request_state": "COMPLETED", "record_id": rec["id"],
                                      "label": f"Maintenance request {code}", "href": None}
     # K1 <= cutoff < K2: the Action exists, no case link yet; links.work all null and no declaration yet.
