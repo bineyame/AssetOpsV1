@@ -1,6 +1,6 @@
 {
   "producer": "tools/w5f1-d3-evidence.mjs",
-  "revision": "89b88a40",
+  "revision": "8e7dd87e",
   "web": "http://127.0.0.1:6181",
   "api": "http://127.0.0.1:9781",
   "site": "COLD-LAB-001",
@@ -15,8 +15,8 @@
       "http": 200,
       "code": null,
       "selection_state": "CURRENT",
-      "known_at": "2026-10-23T06:15:56.695105Z",
-      "committed_watermark": "2026-10-23T06:15:56.695105Z",
+      "known_at": "2026-10-23T06:32:55.659284Z",
+      "committed_watermark": "2026-10-23T06:32:55.659284Z",
       "watermark_decided_at": null
     },
     "stocked:temperature": {
@@ -24,18 +24,18 @@
       "http": 200,
       "code": null,
       "selection_state": "CURRENT",
-      "known_at": "2026-10-23T06:15:56.695105Z",
+      "known_at": "2026-10-23T06:32:55.659284Z",
       "committed_watermark": null,
-      "watermark_decided_at": "2026-10-23T06:15:56.695105Z"
+      "watermark_decided_at": "2026-10-23T06:32:55.659284Z"
     },
     "stocked:analysis": {
       "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/evidence/analysis?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
       "http": 200,
       "code": null,
       "selection_state": "CURRENT",
-      "known_at": "2026-10-23T06:15:56.695105Z",
+      "known_at": "2026-10-23T06:32:55.659284Z",
       "committed_watermark": null,
-      "watermark_decided_at": "2026-10-23T06:15:56.695105Z",
+      "watermark_decided_at": "2026-10-23T06:32:55.659284Z",
       "total_count": 93,
       "first_evidence_ids": [
         "00000002-0000-4000-8000-0000000000b6",
@@ -52,8 +52,8 @@
       "http": 200,
       "code": null,
       "selection_state": "UNKNOWN",
-      "known_at": "2026-10-23T06:15:56.695105Z",
-      "committed_watermark": "2026-10-23T06:15:56.695105Z",
+      "known_at": "2026-10-23T06:32:55.659284Z",
+      "committed_watermark": "2026-10-23T06:32:55.659284Z",
       "watermark_decided_at": null
     },
     "empty:temperature": {
@@ -61,18 +61,18 @@
       "http": 200,
       "code": null,
       "selection_state": "UNKNOWN",
-      "known_at": "2026-10-23T06:15:56.695105Z",
+      "known_at": "2026-10-23T06:32:55.659284Z",
       "committed_watermark": null,
-      "watermark_decided_at": "2026-10-23T06:15:56.695105Z"
+      "watermark_decided_at": "2026-10-23T06:32:55.659284Z"
     },
     "empty:analysis": {
       "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/evidence/analysis?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
       "http": 200,
       "code": null,
       "selection_state": "UNKNOWN",
-      "known_at": "2026-10-23T06:15:56.695105Z",
+      "known_at": "2026-10-23T06:32:55.659284Z",
       "committed_watermark": null,
-      "watermark_decided_at": "2026-10-23T06:15:56.695105Z",
+      "watermark_decided_at": "2026-10-23T06:32:55.659284Z",
       "total_count": 0,
       "first_evidence_ids": [],
       "target_states": [],
@@ -132,6 +132,204 @@
       "How a claim limit is set"
     ]
   },
+  "width_claims": [
+    {
+      "name": "http://127.0.0.1:6181/mockups/v69/index.html#/cold-health: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/health?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "name": "http://127.0.0.1:6181/mockups/v69/index.html#/temperature: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "name": "http://127.0.0.1:6181/mockups/v69/index.html#/cold-evidence-analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1440
+    },
+    {
+      "name": "foundation-click@1440: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425
+    },
+    {
+      "name": "foundation-click@1440 after click: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)",
+      "ok": true,
+      "requested": 1440,
+      "innerWidth": 1440,
+      "clientWidth": 1425
+    },
+    {
+      "name": "http://127.0.0.1:6181/mockups/v69/index.html#/cold-health: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/health?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390
+    },
+    {
+      "name": "http://127.0.0.1:6181/mockups/v69/index.html#/temperature: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/mockups/v69/index.html#/cold-evidence-analysis: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390
+    },
+    {
+      "name": "http://127.0.0.1:6181/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis: laid out at the requested 390px (innerWidth 390, clientWidth 390)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 390
+    },
+    {
+      "name": "foundation-click@390: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    },
+    {
+      "name": "foundation-click@390 after click: laid out at the requested 390px (innerWidth 390, clientWidth 375)",
+      "ok": true,
+      "requested": 390,
+      "innerWidth": 390,
+      "clientWidth": 375
+    }
+  ],
   "captures": [
     {
       "kind": "mock",
