@@ -594,3 +594,11 @@ independence, or task ownership.
     false failures. Delete and re-checkout every listed file before the run. Never
     kill processes by image name (`taskkill /IM node.exe`): stop only the PIDs you
     started.
+15. **Rule layout caps once, with the worst case in view (2026-10-24).** W5-02 K2 and
+    K3 each needed 3-4 Architect rounds about caps alone (447>440, 907>650, 664>650).
+    The worst-case fixtures, five rows of 160-character text, never fit caps sized
+    from the mock's one short row. In every pre-flight and review ruling, the
+    Architect sizes each cap from the worst-case content, gives user-expanded
+    states (all disclosures open) an explicit exemption up front, and states what
+    happens if a remeasure still exceeds a cap. Builders flag likely cap misses in
+    the pre-flight, not after captures.
