@@ -4,13 +4,13 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 28 |
-| D2 improvement | 19 |
+| D1 data or feature unavailable | 29 |
+| D2 improvement | 20 |
 | D3 structural oversight | 6 |
-| D4 illustrative placeholder | 25 |
+| D4 illustrative placeholder | 27 |
 | D5 build order | 5 |
 | D6 technical constraint | 0 |
-| **Total** | **83** |
+| **Total** | **87** |
 
 ## D1 — data or feature unavailable
 
@@ -145,3 +145,7 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | R86 | W5-03a E2 | `availability` | Connector right-hand local service period | Selected `HH:mm–HH:mm UTC` occurrence or window, explicitly labelled UTC | D1 | The depth DTO carries UTC instants without a Site-local offset, so local time cannot be asserted. | Future Site-timezone read; W5-03a E2 | planned correction; owner walkthrough |
 | R87 | W5-03a E3 | `energy` | Green `Yes` for example peak below limit | Selected `Yes` green, `No` red or `Unknown` neutral from the selected sample peak and time-valid limit | D4 | The example 76/80 kW result cannot stand for another selected window. | W5-03a E3 | planned correction |
+| R88 | W5-02 K2a | `cold-work`, `cold-work-incidents`, `cold-work-maintenance` | v69 topbar range picker | Compact `Window` control after Work subtabs, before scope strip | D1 | The app has no topbar or range-picker slot; URL-only selection is unusable. | W5-02 K2a; future shared Site topbar candidate; owner walkthrough | ruled correction |
+| R89 | W5-02 K3a | `cold-work-maintenance` | Example `GEN-CR-01 · backup generator` Asset cell | Returned COLD-LAB-001 `generator-1 · backup generator` with selected ID disclosure | D4 | The mock asset code is illustrative; Foundation registers `generator-1`. | W5-02 K3a | ruled correction |
+| R90 | W5-02 K2a | `cold-work`, `cold-work-incidents`, `cold-work-maintenance` | Example Site-specific cold subtitle | `Cold-room operations at this site.` under stored Site name | D4 | Site read has no subtitle field; Foundation `summary` is a configuration-document summary. | W5-02 K2a | ruled correction |
+| R91 | W5-02 K2a | `cold-work` | No live currentness notice between strip and panel | Selected-state notice between strip and panel, blue for Historical/Unknown and amber for Pending/Stale | D2 | A live selected cutoff or source limit must be visible without changing the mock panel order. | W5-02 K2a; owner walkthrough | ruled correction |

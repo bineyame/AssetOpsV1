@@ -2405,3 +2405,6 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W5-03a Lows
 - Energy partial/unknown coverage lines (D2 R49, class `prose`) render at body size; check in the post-W6 structural audit.
 - Manual rule-5 non-vacuity proofs accepted (ruling 5); kept in the handoff, not as committed fixtures.
+
+## W5-02b K2 follow-up
+- Future authenticated Site-scoped product reads: add a `domain_work_access` injection seam in `create_app` and the equivalent W4 Work read seam, then prove 401/403 across both routers. K2's 403 browser evidence uses a capture-only `serve_entry.py` gate; current product read routers still use development access. Architect ruling 6 in `.agent/W5-02b-K2-rulings.md`; schedule with authentication work, not K2.
