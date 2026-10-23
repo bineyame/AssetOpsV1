@@ -32,9 +32,11 @@ from assetops_backend.actions.service import selected_action_links
 from assetops_backend.actions.site_index import ActionIndexService, index_token, window_scope
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at
-from assetops_backend.work.link_coverage import CURRENT, HISTORICAL, UNKNOWN, coverage_of, link_state, worst
+from assetops_backend.work.link_coverage import (CURRENT, DOMAIN_ACTION, HISTORICAL, UNKNOWN, coverage_of,
+                                                 link_state, worst)
 from assetops_backend.work.model import WorkRefused
-from assetops_backend.work.service import case_basis, missing_lineage, provenance_dto
+from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
+                                           provenance_dto)
 
 KINDS = {"incidents": m.INCIDENT, "maintenance": m.REQUEST}
 MAX_WINDOW = timedelta(days=31)
@@ -158,6 +160,10 @@ def _cold_ev_token(tenant_id: UUID, site_id: UUID, row: Mapping[str, Any], sai1:
         "selection_seqs": {k: int(v) for k, v in sorted(pin["selection_seqs"].items())},
         "assessment_revision_id": str(pin["assessment_revision_id"]),
         "evidence_cutoff": m.iso(pin["evidence_cutoff"]), "state": pin["state"]}
+    if row["kind"] == DOMAIN_ACTION:  # ruling C1: selected root and Finding revision, never W1 `sai1-`
+        basis.update({"origin_finding_id": row["origin_finding_id"],
+                      "origin_finding_revision_id": row["origin_finding_revision_id"]})
+        return "sha256:" + _sha(basis)
     if row["kind"] == "ACTION":
         if sai1 is None or not row.get("origin_finding_id") or not row.get("origin_finding_revision_id"):
             return None
@@ -186,8 +192,21 @@ def _finding_link(site_code: str, link: Mapping[str, Any], lineage: bool) -> dic
             "href": f"/sites/{site_code}/findings/{fid}?revision_id={frev}" if lineage else None}
 
 
+def action_selection_key(link: Mapping[str, Any]) -> tuple[str, str, str]:
+    """The kind-aware `link_selections` key of one Action link (ruling C1: a domain link selects its pinned
+    Finding revision, a W1 link its Action event)."""
+    if link.get("kind") == DOMAIN_ACTION:
+        return DOMAIN_ACTION, link["action_id"], link["finding_revision_id"]
+    return "ACTION", link["action_id"], link["action_event_id"]
+
+
 def _action_link(site_code: str, link: Mapping[str, Any], selection: Mapping[str, Any] | None) -> dict[str, Any]:
     aid, event = link["action_id"], link["action_event_id"]
+    if link.get("kind") == DOMAIN_ACTION:  # ruling C1: the domain Verification route, only with exact lineage
+        ok = selection is not None and selection["lineage"]
+        return {"kind": DOMAIN_ACTION, "action_id": aid, "action_event_id": None,
+                "finding_revision_id": link["finding_revision_id"], "label": f"Action {aid[:8]}",
+                "href": f"/sites/{site_code}/actions/{aid}/verification" if ok else None}
     href = None
     if selection is not None and selection["lineage"]:
         action = {"id": aid, "origin_finding_id": selection["origin_finding_id"],
@@ -219,7 +238,7 @@ def select(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, l
         events = rx.events(cid, known_at)
         records = rx.records(cid, known_at)
         record = records[-1] if records else None
-        links = rx.revision_links(rid)
+        links = rx.revision_links(rid, known_at)
         selections = rx.link_selections(rid, lo, hi, known_at)
         by_key = {(s["kind"], s["id"], s["selected_id"]): s for s in selections}
         for s in selections:
@@ -236,7 +255,7 @@ def select(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, l
         if missing:
             dto = missing_lineage(dto)
         finding_links = sorted(links["finding_links"], key=lambda x: (x["finding_id"], x["finding_revision_id"]))
-        action_links = sorted(links["action_links"], key=lambda x: (x["action_id"], x["action_event_id"]))
+        action_links = all_action_links(links)
         state = m.reduce_state(case["kind"], events)
         asset_label = None if case["asset_code"] is None else f"{case['asset_code']} · {case['asset_type']}"
         row = {
@@ -247,8 +266,7 @@ def select(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, l
             "finding_links": [_finding_link(site_code, x, by_key.get(
                 ("FINDING", x["finding_id"], x["finding_revision_id"]), {"lineage": False})["lineage"])
                 for x in finding_links],
-            "action_links": [_action_link(site_code, x, by_key.get(("ACTION", x["action_id"], x["action_event_id"])))
-                             for x in action_links],
+            "action_links": [_action_link(site_code, x, by_key.get(action_selection_key(x))) for x in action_links],
             "url": None, "source_provenance": dto}
         if case["kind"] == m.REQUEST:
             row.update({"request_state": state, "incident_id": case["incident_id"], "record_id": record_id,
@@ -257,11 +275,15 @@ def select(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, kind: str, l
                         "outcome_state": "UNVERIFIED", "next_evidence": None,
                         "next_evidence_copy": NEXT_EVIDENCE_COPY})
         rows.append({"wire": row, "after": (_sort_time(case), cid)})
-        token_rows.append({"case_id": cid, "revision_id": rid, "selected_event_ids": event_ids,
-                           "selected_record_id": record_id,
-                           "finding_revision_ids": sorted(x["finding_revision_id"] for x in finding_links),
-                           "action_event_ids": sorted(x["action_event_id"] for x in action_links),
-                           "cited_accepted_evidence_ids": cited})
+        token_row = {"case_id": cid, "revision_id": rid, "selected_event_ids": event_ids,
+                     "selected_record_id": record_id,
+                     "finding_revision_ids": sorted(x["finding_revision_id"] for x in finding_links),
+                     "action_event_ids": action_event_ids(action_links),
+                     "cited_accepted_evidence_ids": cited}
+        if links.get("domain_action_links"):  # ruling C1; a W1-only or unlinked row keeps its exact basis
+            token_row["domain_action_links"] = sorted(
+                [x["action_id"], x["finding_revision_id"]] for x in links["domain_action_links"])
+        token_rows.append(token_row)
     linked = sorted(fences.values(), key=lambda f: (f["kind"], f["root_id"], f["selected_id"],
                                                      m.canonical_json(f)))
     token = "sha256:" + _sha({

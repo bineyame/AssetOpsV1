@@ -564,3 +564,16 @@ def test_linked_finding_and_action_hrefs(store, key) -> None:  # noqa: F811
         assert any(x["label"] == f"Finding {fid[:8]}" and x["href"] for r in body["rows"] for x in r["finding_links"])
         assert any(x["label"] == f"Action {aid[:8]}" and x["href"] for r in body["rows"] for x in r["action_links"])
     assert json.dumps(out["hrefs"])
+
+
+if URL:
+    from test_w202_cold_replay_postgres import chain  # noqa: F401,F811
+    from test_w502_domain_intent_postgres import cold  # noqa: F401
+    from test_w502_domain_work_links_postgres import assert_global_domain_parity, bind
+
+
+def test_domain_action_link_matches_w4(cold, key) -> None:  # noqa: F811
+    """W5-02a ruling C2: an explicitly bound cold domain Action reaches the global maintenance row exactly as W4's
+    Site row (href, label, null event, selected IDs/citations, basis); earlier cutoff and unlinked rows unchanged."""
+    b = bind(cold)
+    assert_global_domain_parity(cold, b, Api, "maintenance", b.request)
