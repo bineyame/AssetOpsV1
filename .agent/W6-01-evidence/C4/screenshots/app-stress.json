@@ -1,0 +1,290 @@
+{
+  "state": "stress",
+  "captured_at": "2026-10-23T06:14:28.880Z",
+  "results": [
+    {
+      "state": "stress",
+      "width": 1440,
+      "route": "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001",
+      "action": null,
+      "image": "stress-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:14:25.354689Z",
+          "revision": 2,
+          "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+          "state": "IN_PROGRESS",
+          "code": null
+        },
+        {
+          "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:14:25.521072Z",
+          "revision": 2,
+          "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+          "state": "IN_PROGRESS",
+          "code": null
+        }
+      ],
+      "heights": {
+        "page_header": {
+          "h": 177,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": {
+          "h": 92,
+          "w": 1160
+        },
+        "state_block": null,
+        "history_panel": {
+          "h": 467,
+          "w": 1160
+        },
+        "pager": null,
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": [],
+      "table_scroll": {
+        "scroll": 1120,
+        "client": 1120
+      },
+      "column_widths": [
+        314,
+        508,
+        299
+      ],
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "StartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorand",
+        "subtitle": "WR-000007 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000007History· site: Kobo mini-grid",
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/record?site_id=KOBO-001"
+          ],
+          [
+            "History",
+            "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+        "refusal": null,
+        "rows": [
+          {
+            "kind": "CREATED",
+            "id": "f9578d50-21ca-4ac5-9b8f-2fea4a16cca0",
+            "time": "20 Oct 2026, 11:59:07 UTC",
+            "event": "Created",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "ASSIGN",
+            "id": "d2c1a935-26dd-46eb-86c8-b8451c52d575",
+            "time": "20 Oct 2026, 11:59:08 UTC",
+            "event": "Assigned to FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmai",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "CORRECTION",
+            "id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+            "time": "20 Oct 2026, 11:59:10 UTC",
+            "event": "Correction: Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection",
+            "by": "Name not recorded",
+            "source_link": null
+          }
+        ],
+        "gaps": [
+          [
+            "—",
+            "Site visit start not recorded",
+            "—"
+          ],
+          [
+            "—",
+            "Verification pending · no outcome assessment recorded",
+            "—"
+          ]
+        ],
+        "pager": null,
+        "panel_titles": [
+          "History"
+        ],
+        "open_text": []
+      }
+    },
+    {
+      "state": "stress",
+      "width": 390,
+      "route": "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001",
+      "action": null,
+      "image": "stress-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:14:27.831705Z",
+          "revision": 2,
+          "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+          "state": "IN_PROGRESS",
+          "code": null
+        },
+        {
+          "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:14:28.118994Z",
+          "revision": 2,
+          "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+          "state": "IN_PROGRESS",
+          "code": null
+        }
+      ],
+      "heights": {
+        "page_header": {
+          "h": 277,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": {
+          "h": 222,
+          "w": 358
+        },
+        "state_block": null,
+        "history_panel": {
+          "h": 490,
+          "w": 358
+        },
+        "pager": null,
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": [],
+      "table_scroll": {
+        "scroll": 750,
+        "client": 318
+      },
+      "column_widths": [
+        210,
+        340,
+        200
+      ],
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1318,
+      "text": {
+        "h1": "StartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorand",
+        "subtitle": "WR-000007 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000007History· site: Kobo mini-grid",
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/record?site_id=KOBO-001"
+          ],
+          [
+            "History",
+            "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+        "refusal": null,
+        "rows": [
+          {
+            "kind": "CREATED",
+            "id": "f9578d50-21ca-4ac5-9b8f-2fea4a16cca0",
+            "time": "20 Oct 2026, 11:59:07 UTC",
+            "event": "Created",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "ASSIGN",
+            "id": "d2c1a935-26dd-46eb-86c8-b8451c52d575",
+            "time": "20 Oct 2026, 11:59:08 UTC",
+            "event": "Assigned to FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmai",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "CORRECTION",
+            "id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+            "time": "20 Oct 2026, 11:59:10 UTC",
+            "event": "Correction: Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection",
+            "by": "Name not recorded",
+            "source_link": null
+          }
+        ],
+        "gaps": [
+          [
+            "—",
+            "Site visit start not recorded",
+            "—"
+          ],
+          [
+            "—",
+            "Verification pending · no outcome assessment recorded",
+            "—"
+          ]
+        ],
+        "pager": null,
+        "panel_titles": [
+          "History"
+        ],
+        "open_text": []
+      }
+    }
+  ]
+}

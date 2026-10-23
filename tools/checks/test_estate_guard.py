@@ -103,3 +103,23 @@ def test_domain_driver_import_rejected() -> None:
     assert out.returncode == 1
     assert any(f"Storage technology above the adapter layer in {ABOVE_ADAPTERS}:" in line for line in found), found
     assert any(f"Database driver imported outside" in line and ABOVE_ADAPTERS in line for line in found), found
+
+
+# W5-02a K1b (ruling A5/B3): the read-only domain Action index adapter is a listed `$pgReaders` module - its driver
+# import is admitted, and one INSERT in it still fails rule 8's single-writer refusal.
+DOMAIN_READER = "backend/assetops_backend/work/adapters/postgres_domain_action_index.py"
+DOMAIN_READER_INSERT = '\n_PROBE_WRITE = text("INSERT INTO domain_action (id, tenant_id) VALUES (:i, :t)")\n'
+
+
+def test_domain_action_index_reader_allowed_and_write_rejected() -> None:
+    real = (ROOT / DOMAIN_READER).read_text(encoding="utf-8")
+    assert "from sqlalchemy" in real
+
+    def edit(copy: Path) -> None:
+        file = copy / DOMAIN_READER
+        file.write_text(file.read_text(encoding="utf-8") + DOMAIN_READER_INSERT, encoding="utf-8")
+    out = isolated_copy(edit)
+    found = failures(out)
+    assert out.returncode == 1
+    assert any(f"A second product database writer in {DOMAIN_READER}:" in line for line in found), found
+    assert not any("Database driver imported outside" in line and DOMAIN_READER in line for line in found), found

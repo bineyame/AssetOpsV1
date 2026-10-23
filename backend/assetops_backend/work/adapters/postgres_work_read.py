@@ -26,6 +26,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, OperationalError
 
+from assetops_backend.work.link_coverage import DOMAIN_ACTION
 from assetops_backend.work.model import WorkStoreUnavailable
 
 _CASE = ("SELECT c.id, c.kind, c.public_code, c.asset_id, c.occurred_at, c.created_at, r.incident_id "
@@ -42,6 +43,21 @@ _RECORDS = ("SELECT id, activity, outcome_note, occurred_at, recorded_at, supers
 _FINDING_PIN = ("fr.domain, fr.analytic_id, fr.analytic_run_id, fr.assessment_revision_id, fr.episode_start, "
                 "fr.episode_end, fr.created_at")
 _MICROSECOND = timedelta(microseconds=1)
+_DOMAIN_LINKS = (
+    "SELECT DISTINCT ON (l.action_id) CAST(l.action_id AS text) AS action_id, "
+    "CAST(a.origin_finding_id AS text) AS origin_finding_id, "
+    "CAST(a.origin_finding_revision_id AS text) AS origin_finding_revision_id "
+    "FROM domain_action_case_link l "
+    "JOIN work_case_revision cur ON cur.tenant_id = l.tenant_id AND cur.site_id = l.site_id AND cur.id = :r "
+    "AND cur.case_id = l.case_id "
+    "JOIN work_case_revision lr ON lr.tenant_id = l.tenant_id AND lr.site_id = l.site_id "
+    "AND lr.id = l.case_revision_id AND lr.case_id = l.case_id AND lr.revision_no <= cur.revision_no "
+    "JOIN work_event ev ON ev.tenant_id = l.tenant_id AND ev.site_id = l.site_id AND ev.id = l.case_event_id "
+    "AND ev.case_id = l.case_id "
+    "JOIN domain_action a ON a.tenant_id = l.tenant_id AND a.site_id = l.site_id AND a.id = l.action_id "
+    "AND a.recorded_at <= :k "
+    "WHERE l.tenant_id = :t AND l.site_id = :s AND l.recorded_at <= :k "
+    "ORDER BY l.action_id, l.recorded_at DESC, l.id")
 # W4-01 commit 4 (spec "Commit 4 implementer dry-read"): eligible cases of one kind before paging. Incidents by root
 # `occurred_at`, requests by root `created_at`, both in `[from, to)` and created by the cutoff; a case needs its
 # revision at the cutoff. q7-1: the scoped Asset label inputs are `asset_code`, `asset_type` (no cutoff, no name).
@@ -74,6 +90,8 @@ class LinkReadPorts:
     ev_analytics: tuple[str, ...]
     # q7-2: `PostgresActionStore.site_window_on` for the exact W1 `sai1-` Action window fence on this connection.
     action_window: Callable[..., dict[str, Any]] | None = None
+    # W5-02a ruling B1: `ColdReadService.envelope_on` of the same cold read owner, for the K1b domain Action detail.
+    cold_envelope: Callable[..., dict[str, Any]] | None = None
 
 
 class _ReadTx:
@@ -104,7 +122,9 @@ class _ReadTx:
     def records(self, case_id: str, known_at: datetime) -> list[dict[str, Any]]:
         return _rows(self._c.execute(text(_RECORDS), self._p(i=case_id, k=known_at)))
 
-    def revision_links(self, revision_id: str) -> dict[str, Any]:
+    def revision_links(self, revision_id: str, known_at: datetime) -> dict[str, Any]:
+        """W1 `action_links` and, separately (W5-02a ruling C1), the explicit cold `domain_action_links` bound to
+        this case at or before `known_at` (never the battery FK table, which W4 command replay re-inserts)."""
         p = self._p(r=revision_id)
         finding = self._c.execute(text(
             "SELECT CAST(finding_id AS text) AS finding_id, CAST(finding_revision_id AS text) AS finding_revision_id "
@@ -117,7 +137,17 @@ class _ReadTx:
         evidence = self._c.execute(text(
             "SELECT CAST(evidence_id AS text) FROM work_case_evidence WHERE tenant_id = :t AND site_id = :s "
             "AND case_revision_id = :r ORDER BY evidence_id"), p)
-        return {"finding_links": _rows(finding), "action_links": _rows(action), "evidence_ids": list(evidence.scalars())}
+        domain = [{"kind": DOMAIN_ACTION, "action_id": r["action_id"], "action_event_id": None,
+                   "finding_revision_id": r["origin_finding_revision_id"]}
+                  for r in self._domain_links(revision_id, known_at)]
+        return {"finding_links": _rows(finding), "action_links": _rows(action), "evidence_ids": list(evidence.scalars()),
+                "domain_action_links": domain}
+
+    def _domain_links(self, revision_id: str, known_at: datetime) -> list[dict[str, Any]]:
+        """Ruling C1: one row per domain Action explicitly linked to this revision's case at an exact selected
+        revision/event no later than this revision (a link carries forward to later revisions of the same case),
+        recorded at or before `known_at`, scoped to this tenant/Site; the newest link of an Action wins."""
+        return _rows(self._c.execute(text(_DOMAIN_LINKS), self._p(r=revision_id, k=known_at)))
 
     def lineage_evidence(self, finding_revision_ids: list[str], action_ids: list[str]) -> list[str]:
         """Q11: pinned Finding revisions' cited evidence, each pinned Action's basis evidence and its origin
@@ -175,8 +205,21 @@ class _ReadTx:
             "LEFT JOIN finding_revision fr ON fr.tenant_id = a.tenant_id AND fr.site_id = a.site_id "
             "AND fr.id = a.origin_finding_revision_id AND fr.finding_id = a.origin_finding_id AND fr.created_at <= :k "
             "WHERE l.tenant_id = :t AND l.site_id = :s AND l.case_revision_id = :r"), p))
+        # Ruling C1: an explicit domain link's selected ID is its root's pinned cold Finding revision; lineage
+        # needs that exact stored `cold_chain` revision of the origin Finding by the cutoff.
+        domain_rows = []
+        for link in self._domain_links(revision_id, known_at):
+            fr = _rows(self._c.execute(text(
+                f"SELECT fr.id AS pinned, {_FINDING_PIN} FROM finding_revision fr WHERE fr.tenant_id = :t "
+                "AND fr.site_id = :s AND fr.id = :f AND fr.finding_id = :fid AND fr.domain = 'cold_chain' "
+                "AND fr.created_at <= :k"),
+                self._p(f=link["origin_finding_revision_id"], fid=link["origin_finding_id"], k=known_at)))
+            domain_rows.append({"root_id": link["action_id"], "selected_id": link["origin_finding_revision_id"],
+                                "origin_finding_id": link["origin_finding_id"],
+                                "origin_finding_revision_id": link["origin_finding_revision_id"],
+                                **(fr[0] if fr else {"pinned": None, "domain": "cold_chain"})})
         out = []
-        for kind, rows in (("FINDING", finding), ("ACTION", action)):
+        for kind, rows in (("FINDING", finding), ("ACTION", action), (DOMAIN_ACTION, domain_rows)):
             for row in rows:
                 domain = row["domain"]
                 pin = None if row["pinned"] is None else self._pin(row, from_, to, known_at)

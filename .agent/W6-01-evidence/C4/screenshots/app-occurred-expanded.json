@@ -1,0 +1,320 @@
+{
+  "state": "occurred-expanded",
+  "captured_at": "2026-10-23T06:13:31.632Z",
+  "results": [
+    {
+      "state": "occurred-expanded",
+      "width": 1440,
+      "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+      "action": "occurred",
+      "image": "occurred-expanded-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:13:27.123590Z",
+          "revision": 2,
+          "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+          "state": "IN_PROGRESS",
+          "code": null
+        },
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:13:27.322204Z",
+          "revision": 2,
+          "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+          "state": "IN_PROGRESS",
+          "code": null
+        }
+      ],
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": {
+          "h": 75,
+          "w": 1160
+        },
+        "state_block": null,
+        "history_panel": {
+          "h": 481,
+          "w": 1160
+        },
+        "pager": {
+          "h": 29,
+          "w": 1120
+        },
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": [
+        {
+          "hook": "data-history-occurred",
+          "h": 32
+        }
+      ],
+      "table_scroll": {
+        "scroll": 1120,
+        "client": 1120
+      },
+      "column_widths": [
+        314,
+        508,
+        299
+      ],
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Inspect starter and control circuit again",
+        "subtitle": "WR-000001 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+          ],
+          [
+            "History",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+        "refusal": null,
+        "rows": [
+          {
+            "kind": "CREATED",
+            "id": "d379ae36-b0f9-46fc-ab65-a2182519f182",
+            "time": "20 Oct 2026, 11:59:00 UTC",
+            "event": "Created",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "ASSIGN",
+            "id": "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+            "time": "20 Oct 2026, 11:59:01 UTC",
+            "event": "Assigned to Maintenance lead",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "COMMENT",
+            "id": "ce80ad8c-0419-461a-b2c3-805b563c3695",
+            "time": "20 Oct 2026, 11:59:02 UTC",
+            "event": "Commented: Starter relay inspection scheduled.",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "COMPLETE",
+            "id": "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+            "time": "20 Oct 2026, 11:59:04 UTC",
+            "event": "Completed · outcome not established · maintenance record ab57c2cd-aaad-4b5b-9566-4b091bb4891e",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "REOPEN",
+            "id": "1be6574f-aea8-4099-99be-3b2f47c1dcf4",
+            "time": "20 Oct 2026, 11:59:05 UTC",
+            "event": "Reopened: Witnessed start test was not recorded",
+            "by": "Name not recorded",
+            "source_link": null
+          }
+        ],
+        "gaps": [],
+        "pager": "Showing 1–5 of 6Next",
+        "panel_titles": [
+          "History"
+        ],
+        "open_text": [
+          "Occurrence timeOccurred 18 Oct 2026, 10:00:00 UTC"
+        ]
+      }
+    },
+    {
+      "state": "occurred-expanded",
+      "width": 390,
+      "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+      "action": "occurred",
+      "image": "occurred-expanded-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:13:30.058302Z",
+          "revision": 2,
+          "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+          "state": "IN_PROGRESS",
+          "code": null
+        },
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 200,
+          "known_at": "2026-10-23T06:13:30.285716Z",
+          "revision": 2,
+          "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+          "state": "IN_PROGRESS",
+          "code": null
+        }
+      ],
+      "heights": {
+        "page_header": {
+          "h": 133,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": {
+          "h": 205,
+          "w": 358
+        },
+        "state_block": null,
+        "history_panel": {
+          "h": 504,
+          "w": 358
+        },
+        "pager": {
+          "h": 29,
+          "w": 318
+        },
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": [
+        {
+          "hook": "data-history-occurred",
+          "h": 32
+        }
+      ],
+      "table_scroll": {
+        "scroll": 750,
+        "client": 318
+      },
+      "column_widths": [
+        210,
+        340,
+        200
+      ],
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1172,
+      "text": {
+        "h1": "Inspect starter and control circuit again",
+        "subtitle": "WR-000001 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+          ],
+          [
+            "History",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+        "refusal": null,
+        "rows": [
+          {
+            "kind": "CREATED",
+            "id": "d379ae36-b0f9-46fc-ab65-a2182519f182",
+            "time": "20 Oct 2026, 11:59:00 UTC",
+            "event": "Created",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "ASSIGN",
+            "id": "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+            "time": "20 Oct 2026, 11:59:01 UTC",
+            "event": "Assigned to Maintenance lead",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "COMMENT",
+            "id": "ce80ad8c-0419-461a-b2c3-805b563c3695",
+            "time": "20 Oct 2026, 11:59:02 UTC",
+            "event": "Commented: Starter relay inspection scheduled.",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "COMPLETE",
+            "id": "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+            "time": "20 Oct 2026, 11:59:04 UTC",
+            "event": "Completed · outcome not established · maintenance record ab57c2cd-aaad-4b5b-9566-4b091bb4891e",
+            "by": "Name not recorded",
+            "source_link": null
+          },
+          {
+            "kind": "REOPEN",
+            "id": "1be6574f-aea8-4099-99be-3b2f47c1dcf4",
+            "time": "20 Oct 2026, 11:59:05 UTC",
+            "event": "Reopened: Witnessed start test was not recorded",
+            "by": "Name not recorded",
+            "source_link": null
+          }
+        ],
+        "gaps": [],
+        "pager": "Showing 1–5 of 6Next",
+        "panel_titles": [
+          "History"
+        ],
+        "open_text": [
+          "Occurrence timeOccurred 18 Oct 2026, 10:00:00 UTC"
+        ]
+      }
+    }
+  ]
+}

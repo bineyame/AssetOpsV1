@@ -2389,3 +2389,15 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W5-F1 Lows
 - L1: the `healthHref` prop in ColdFoundationViews is now unused; remove it.
 - L2: the Architect should confirm that R22 covers the link text change from the mock's "Health › Data sources" to "Evidence › Data sources", and name the `excursion` seed in the F1 spec so the capture can be rerun.
+
+## W6-01d Lows
+- L1: the C4 evidence JSON garbles "—" and "·" (screenshots are fine).
+
+## W6-01e Lows
+- L1: the manual-reading Site options and R12 reason assume a GreenHarvest Site, but both authorized fixture Sites are stored as "Kobo mini-grid", so their rows look the same in the capture. The Architect should fix the fixture naming.
+- L2: `RECORD_KINDS` is defined in two modules; consolidate.
+- K4a must preserve E2 live rail root, nine-link count and focus order (K4a merges second).
+
+## W5-02a core Lows
+- The optional `NO_PROBE_NOTE` assertion for UNKNOWN (direct proof) is not added.
+- Readiness item 29 is closed on merge 14d0fb70.

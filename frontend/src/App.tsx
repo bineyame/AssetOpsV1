@@ -31,6 +31,7 @@ import {
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
   MAINTENANCE_PREVENTIVE_PATH,
+  WORK_REQUEST_HISTORY_ROUTE_PATH,
   WORK_REQUEST_RECORD_ROUTE_PATH,
   WORK_REQUEST_ROUTE_PATH,
   FINDINGS_COST_PATH,
@@ -107,6 +108,7 @@ import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
 import { GlobalMaintenanceFrame } from "./work/GlobalMaintenance";
 import { GlobalPreventiveFrame } from "./work/GlobalPreventive";
 import { WorkRequestOverviewFrame } from "./work/WorkRequestOverview";
+import { WorkRequestHistoryFrame } from "./work/WorkRequestHistory";
 import { WorkRequestRecordFrame } from "./work/WorkRequestRecord";
 import {
   createEstateEvidenceMoneyClient,
@@ -491,6 +493,8 @@ export function App({
           <Route path={WORK_REQUEST_ROUTE_PATH} element={<WorkRequestOverviewFrame client={globalWork} />} />
           {/* W6-01c C3: the work request Maintenance record (`WORK_REQUEST_RECORD_ROUTE_PATH`, same query). */}
           <Route path={WORK_REQUEST_RECORD_ROUTE_PATH} element={<WorkRequestRecordFrame client={globalWork} />} />
+          {/* W6-01d C4: the work request History (`WORK_REQUEST_HISTORY_ROUTE_PATH`, same query). */}
+          <Route path={WORK_REQUEST_HISTORY_ROUTE_PATH} element={<WorkRequestHistoryFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}
