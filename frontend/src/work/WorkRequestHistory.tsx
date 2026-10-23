@@ -17,6 +17,7 @@
  * MOCK DEVIATION (D4, register R39): the By cell shows `Name not recorded` with a `Stored actor` disclosure of the
  * stored actor kind and ID instead of the mock's example role names; a service ID is never presented as a person.
  */
+// MOCK DEVIATION (D1, register R41): Undated visit and verification gaps follow authored history; MOCK DEVIATION (D4, register R42): completion does not establish a witness test.
 import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { DataTable, Panel } from "../ui";
