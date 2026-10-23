@@ -4,13 +4,13 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 27 |
+| D1 data or feature unavailable | 28 |
 | D2 improvement | 19 |
 | D3 structural oversight | 6 |
-| D4 illustrative placeholder | 24 |
+| D4 illustrative placeholder | 25 |
 | D5 build order | 5 |
 | D6 technical constraint | 0 |
-| **Total** | **81** |
+| **Total** | **83** |
 
 ## D1 — data or feature unavailable
 
@@ -138,3 +138,10 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 | R83 | W5-04 V3a | `ev-work-maintenance` | WR opens Verification | WR opens mounted W6 Overview | D1 | Request Verification destination is unavailable. | V3a; future W6 request Verification | planned |
 | R84 | W5-04 V3a | `ev-work-maintenance` | Mock witnessed next-evidence instruction | Selected copy or `No next evidence recorded` | D1 | No selected instruction proves the mock witness test. | V3a; future authored next-evidence producer | planned |
 | R85 | W5-04 V3a | `ev-work-incidents` | INC code opens detail | Plain INC code | D1 | No Incident detail route is mounted. | V3a; future Incident detail route | planned |
+
+## W5-03a review correction (2026-10-23)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R86 | W5-03a E2 | `availability` | Connector right-hand local service period | Selected `HH:mm–HH:mm UTC` occurrence or window, explicitly labelled UTC | D1 | The depth DTO carries UTC instants without a Site-local offset, so local time cannot be asserted. | Future Site-timezone read; W5-03a E2 | planned correction; owner walkthrough |
+| R87 | W5-03a E3 | `energy` | Green `Yes` for example peak below limit | Selected `Yes` green, `No` red or `Unknown` neutral from the selected sample peak and time-valid limit | D4 | The example 76/80 kW result cannot stand for another selected window. | W5-03a E3 | planned correction |
