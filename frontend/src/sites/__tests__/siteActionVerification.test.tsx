@@ -36,6 +36,8 @@ import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../te
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, detailBody, indexBody } from "./coldWorkFixtures";
+import type { DomainActionClient, DomainDetailResult } from "../domainActionClient";
 
 type Body = any;
 const R = contract.responses as unknown as Record<string, Body>;
@@ -752,5 +754,59 @@ describe("W1-UX-04 phase 2 / W1-F4: Verification, Plan and Evidence state lines 
     expect(strip.getAttribute("data-product-status")).toBe("problem");
     expect(strip.querySelector("[data-recommendation-card-held-link]")).toHaveAttribute("href", `/sites/KOBO-001/actions/${ACTION}`);
     expect(screen.getByRole("button", { name: /Accept trial/ })).toBeDisabled();
+  });
+});
+
+/* W5-02 K2a (U2, P-K2a-45/46): the COLDCHAIN domain Action placeholder shell beside the unchanged W1 frame. */
+const coldActionDetail = {
+  getSite: async (siteId: string) => ({ status: "loaded", site: { ...COLD_SITE, site_id: siteId } }),
+} as unknown as SiteDetailClient;
+
+function coldDomain(result: DomainDetailResult = { status: "loaded", value: detailBody() }): DomainActionClient & { calls: string[] } {
+  const calls: string[] = [];
+  return {
+    calls,
+    getIndex: async () => ({ status: "loaded", value: indexBody([]) }),
+    getDetail: async (_site: string, id: string) => {
+      calls.push(id);
+      return result;
+    },
+  };
+}
+
+async function mountColdAction(path: string, domain: DomainActionClient, site: SiteDetailClient = coldActionDetail) {
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        {["/sites/:siteId/actions/:actionId", "/sites/:siteId/actions/:actionId/:actionView"].map((p) => (
+          <Route key={p} path={p} element={<SiteActionFrame detail={site} sitesPath="/sites" domainActions={domain} />} />
+        ))}
+      </Routes>
+    </MemoryRouter>,
+  );
+  await settledScreen();
+}
+
+describe("W5-02 K2a: cold /verification dispatch", () => {
+  it("a domain Action renders the placeholder, not the W1 verification read or its panels", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => {
+      urls.push(url);
+      return new Response("{}", { status: 599 });
+    });
+    await mountColdAction(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`, coldDomain());
+    expect(screen.getByText("Action details are being prepared.")).toBeInTheDocument();
+    expect(urls).toEqual([]);
+    expect(document.body.textContent).not.toContain("Target and guardrails");
+  });
+
+  it("a mini-grid /verification never reads the domain Action", async () => {
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 599 }));
+    const domain = coldDomain();
+    await mountColdAction(`/sites/KOBO-001/actions/${DOMAIN_ID}/verification`, domain, {
+      getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId } }),
+    } as unknown as SiteDetailClient);
+    expect(domain.calls).toEqual([]);
+    expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
   });
 });

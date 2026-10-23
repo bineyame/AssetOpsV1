@@ -1,7 +1,7 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { SiteFindings } from "../sites/FindingsIndexes";
@@ -12,7 +12,27 @@ import {
   type ActionIndexClient,
   type ActionIndexScope,
 } from "../sites/actionIndexClient";
-import { SiteWorkActions } from "../sites/SiteWorkActions";
+import { ColdSiteWorkActions, ColdWorkWindow, SiteWorkActions } from "../sites/SiteWorkActions";
+import {
+  createDomainActionClient,
+  type DomainActionClient,
+  type DomainDetailResult,
+  type DomainIndexScope,
+} from "../sites/domainActionClient";
+import {
+  COLD_ACTION_LOADING,
+  COLD_ACTION_NOTICE,
+  COLD_ACTION_NOT_FOUND,
+  COLD_ACTION_PREPARING,
+  COLD_ACTION_SUBTITLE,
+  COLD_OWNER_MISSING,
+  COLD_STATE_OPEN,
+  COLD_WORK_RETRY,
+  COLD_WORK_UNAVAILABLE,
+  coldCurrentnessNotice,
+  coldCurrentnessTone,
+} from "../sites/coldWorkPresentation";
+import { shortName } from "../sites/siteWorkCases";
 import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
 import type { WorkTrail } from "../sites/siteWorkCases";
@@ -72,7 +92,7 @@ import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import type { SiteEvidenceClient } from "../sites/siteEvidenceClient";
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
 import { useSiteRecord } from "../sites/useSiteRecord";
-import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
+import { Breadcrumbs, Disclosure, Notice, PageHeader, Panel, RailIcon, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { localView } from "../sites/findingPresentation";
 import { deriveSiteView, siteSourceModeLabel } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
@@ -98,6 +118,7 @@ import {
   siteFoundationHref,
   siteFoundationViewHref,
   sitePerformanceHref,
+  coldWorkQuery,
   siteWorkHref,
   siteWorkIncidentsHref,
   siteWorkMaintenanceHref,
@@ -1328,15 +1349,213 @@ export function SiteFinancialsFrame({
  */
 export const SITE_ACTION_HEADING_ID = "site-action-heading";
 const ACTION_SECTIONS_LABEL = "Action sections";
+const DEFAULT_DOMAIN_ACTIONS = createDomainActionClient();
+
+/** The W1 sections a domain Action address may arrive at (bare or legacy), redirected to `/verification` (U1). */
+const W1_ONLY_SECTIONS: readonly string[] = ["plan", "execution", "evidence", "history"];
+
+type DomainShellState = DomainDetailResult | { status: "loading" };
+
+/**
+ * W5-02 K2a (U1, U2, P-K2a-34/45-47): the COLDCHAIN domain Action page shell (v69 `cold-action`): the global-root
+ * breadcrumb `Actions › {code} › Verification · site: {site}`, the `{code} · {title}` heading with the mock subtitle and
+ * `Open site`, no Site tab row, one live Verification tab, the `Open` status strip and the mock panel and notice. K4a
+ * fills the panel with the declared criteria and related activity.
+ *
+ * MOCK DEVIATION (D5) R69: the mock rail selects Actions on this page; until K4a's guarded rail override the operator
+ * rail keeps Sites selected (NavRail and the shell layout are not edited here).
+ */
+function ColdDomainActionShell({
+  site,
+  actionId,
+  knownAt,
+  state,
+  onRetry,
+}: {
+  site: LoadedSite;
+  actionId: string;
+  knownAt: string | null;
+  state: DomainShellState;
+  onRetry: () => void;
+}) {
+  const loaded = state.status === "loaded" ? state.value : null;
+  const self = siteActionHref(site.site_id, actionId, "verification", { knownAt });
+  const notice = loaded === null ? null : coldCurrentnessNotice(loaded.status, loaded.known_at);
+  const revision =
+    loaded !== null && loaded.intent !== null && typeof loaded.intent.basis.finding_revision_id === "string"
+      ? loaded.intent.basis.finding_revision_id
+      : null;
+  return (
+    <main aria-labelledby={SITE_ACTION_HEADING_ID} data-domain-action-shell={state.status}>
+      <nav className="breadcrumbs mini-finding-crumbs" aria-label="Breadcrumb" data-domain-action-crumbs>
+        <ol className="breadcrumbs__list">
+          <li className="breadcrumbs__item">
+            {/* U2: the mock's Actions crumb names the global Actions root (domain-limited per M4/R02). */}
+            <Link to="/actions">Actions</Link>
+          </li>
+          {loaded === null ? null : (
+            <li className="breadcrumbs__item" data-domain-action-crumb-code>
+              {loaded.action.action_code}
+            </li>
+          )}
+          <li className="breadcrumbs__item">
+            <span className="breadcrumbs__current" aria-current="page">
+              Verification
+            </span>
+          </li>
+        </ol>
+        <span className="mini-finding-crumbs__site" data-domain-action-crumb-site>
+          <span className="mini-finding-crumbs__lead">· site:</span>{" "}
+          <Link to={siteDetailHref(site.site_id)}>{site.display_name}</Link>
+        </span>
+      </nav>
+      <PageHeader
+        title={loaded === null ? "Action" : `${loaded.action.action_code} · ${loaded.action.title}`}
+        headingId={SITE_ACTION_HEADING_ID}
+        subtitle={COLD_ACTION_SUBTITLE}
+        actions={
+          <Link className="button" to={siteDetailHref(site.site_id)} data-domain-action-open-site>
+            Open site
+          </Link>
+        }
+      />
+      <nav className="site-tabs site-subtabs" aria-label={ACTION_SECTIONS_LABEL}>
+        <ol className="site-tabs__list">
+          <li className="site-tabs__item">
+            <Link className="site-tabs__link" to={self} data-action-section="verification" aria-current="page">
+              Verification
+            </Link>
+          </li>
+        </ol>
+      </nav>
+      {loaded === null ? null : (
+        <div className="status-strip status-strip--line" aria-label="Action status" data-domain-action-strip>
+          <span className="w1f4-action-badge w1f4-action-badge--amber" data-domain-action-state={loaded.action.state}>
+            {COLD_STATE_OPEN}
+          </span>
+          <span className="muted status-strip__item" data-domain-action-status-line>
+            {/* MOCK DEVIATION (D1) R65/R66: `Finding {id8}` as plain text in the mock's F-118 slot, never an anchor. */}
+            {`${loaded.action.owner_label ?? COLD_OWNER_MISSING} · ${shortName(site.display_name)} · ${loaded.links.finding.label}`}
+          </span>
+          {revision === null ? null : (
+            <span className="status-strip__item">
+              <Disclosure name="domain-action-finding-revision" summary="Finding version" variant="inline">
+                <code data-vocabulary-exempt="source-reference" data-domain-action-revision>
+                  {revision}
+                </code>
+              </Disclosure>
+            </span>
+          )}
+        </div>
+      )}
+      {loaded !== null && notice !== null ? (
+        <Notice tone={coldCurrentnessTone(loaded.status)} data={{ "data-domain-action-currentness": loaded.status }}>
+          <RailIcon name="info" />
+          <p>{notice}</p>
+        </Notice>
+      ) : null}
+      <Panel>
+        {state.status === "loading" ? (
+          <p data-domain-action-panel="loading">{COLD_ACTION_LOADING}</p>
+        ) : state.status === "loaded" ? (
+          <p data-domain-action-panel="preparing">{COLD_ACTION_PREPARING}</p>
+        ) : state.status === "not_found" ? (
+          <p data-domain-action-panel="not-found">{COLD_ACTION_NOT_FOUND}</p>
+        ) : (
+          <div className="work-cases-state" data-domain-action-panel="refused" data-domain-action-refusal={state.code ?? (state.http === null ? "UNREACHABLE" : "UNEXPECTED")}>
+            <p>
+              <strong>{COLD_WORK_UNAVAILABLE}</strong>
+            </p>
+            <p data-domain-action-refusal-message>{state.message}</p>
+            <p>
+              <button type="button" className="button" onClick={onRetry} data-domain-action-retry>
+                {COLD_WORK_RETRY}
+              </button>
+            </p>
+          </div>
+        )}
+      </Panel>
+      {loaded === null ? null : (
+        <Notice tone="blue" data={{ "data-domain-action-notice": "" }}>
+          <RailIcon name="info" />
+          <p>{COLD_ACTION_NOTICE}</p>
+        </Notice>
+      )}
+    </main>
+  );
+}
+
+/**
+ * W5-02 K2a (U1, P-K2a-34): on a COLDCHAIN Site the route form plus the validated domain read choose the presenter.
+ * `/verification` reads the domain Action: a 200 renders the domain shell, a 404 says the Action was not found and never
+ * falls back to W1, any other refusal is `Cold work unavailable`. A bare or legacy W1 section address reads the same
+ * domain Action first: a validated domain Action redirects to `/verification` with the selected `known_at`; anything
+ * else keeps the W1 battery presenter, unchanged.
+ */
+function ColdActionRoute({
+  site,
+  actionId,
+  verification,
+  knownAt,
+  client,
+  w1,
+}: {
+  site: LoadedSite;
+  actionId: string;
+  verification: boolean;
+  knownAt: string | null;
+  client: DomainActionClient;
+  w1: () => ReactNode;
+}) {
+  const [attempt, setAttempt] = useState(0);
+  const [read, setRead] = useState<{ key: string; result: DomainDetailResult } | null>(null);
+  const key = `${site.site_id}|${actionId}|${knownAt ?? ""}|${attempt}`;
+  useEffect(() => {
+    let active = true;
+    void client.getDetail(site.site_id, actionId, knownAt).then((result) => {
+      if (active) setRead({ key, result });
+    });
+    return () => {
+      active = false;
+    };
+  }, [client, site.site_id, actionId, knownAt, key]);
+  const result = read !== null && read.key === key ? read.result : null;
+  if (!verification) {
+    if (result === null) {
+      return (
+        <main aria-labelledby={SITE_ACTION_HEADING_ID} data-domain-action-probe>
+          <PageHeader title="Action" headingId={SITE_ACTION_HEADING_ID} />
+          <p>{COLD_ACTION_LOADING}</p>
+        </main>
+      );
+    }
+    if (result.status === "loaded") {
+      return <Navigate replace to={siteActionHref(site.site_id, actionId, "verification", { knownAt })} />;
+    }
+    return <>{w1()}</>;
+  }
+  return (
+    <ColdDomainActionShell
+      site={site}
+      actionId={actionId}
+      knownAt={knownAt}
+      state={result ?? { status: "loading" }}
+      onRetry={() => setAttempt((n) => n + 1)}
+    />
+  );
+}
 
 export function SiteActionFrame({
   detail,
   sitesPath,
   actions = DEFAULT_ACTIONS,
+  domainActions = DEFAULT_DOMAIN_ACTIONS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   actions?: ActionClient;
+  /** W5-02 K2a: the domain Action read, used only on a COLDCHAIN Site. */
+  domainActions?: DomainActionClient;
 }) {
   const { siteId, actionId, actionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
   const [params] = useSearchParams();
@@ -1356,6 +1575,30 @@ export function SiteActionFrame({
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_ACTION_HEADING_ID}>
       {(site) => {
         const id = actionId ?? "";
+        const w1 = () => renderW1(site, id);
+        // W5-02 K2a: COLDCHAIN only (P-G-6). An unknown section name keeps the W1 "No such Action section" state.
+        if (
+          site.site_type === "COLDCHAIN" &&
+          (actionView === undefined || actionView === "verification" || W1_ONLY_SECTIONS.includes(actionView))
+        ) {
+          return (
+            <ColdActionRoute
+              key={`${site.site_id}|${id}|${actionView ?? ""}`}
+              site={site}
+              actionId={id}
+              verification={actionView === "verification"}
+              knownAt={params.get("known_at")}
+              client={domainActions}
+              w1={w1}
+            />
+          );
+        }
+        return w1();
+      }}
+    </SiteScoped>
+  );
+
+  function renderW1(site: LoadedSite, id: string) {
         const selector = { eventId, recordedAt, planRevisionId, outcomeId };
         const href = (target: ActionView, chosen: ActionSelector) => siteActionHref(site.site_id, id, target, chosen);
         return (
@@ -1420,9 +1663,7 @@ export function SiteActionFrame({
             )}
           </main>
         );
-      }}
-    </SiteScoped>
-  );
+  }
 }
 
 /**
@@ -1516,7 +1757,8 @@ export const SITE_WORK_SECTIONS_LABEL = "Work lists";
 const DEFAULT_ACTION_INDEX = createActionIndexClient();
 const DEFAULT_WORK_CLIENT = createWorkClient();
 
-function workScopeFromQuery(params: URLSearchParams): ActionIndexScope | null {
+/** The Work page query. W5-02 K2a (P-K2a-38): `known_at` is parsed and preserved beside the window and cursor. */
+function workScopeFromQuery(params: URLSearchParams): (ActionIndexScope & { knownAt: string | null }) | null {
   const from = params.get("from");
   const to = params.get("to");
   if (!from || !to) return null;
@@ -1526,7 +1768,19 @@ function workScopeFromQuery(params: URLSearchParams): ActionIndexScope | null {
     to,
     limit: params.get("limit") === null || !Number.isFinite(limit) ? null : limit,
     cursor: params.get("cursor"),
+    knownAt: params.get("known_at"),
   };
+}
+
+/**
+ * W5-02 K2a ("Shared Site UI", U3): the COLDCHAIN Work scope. Without `from`/`to` the window is W4's seven complete
+ * UTC days ending today 00:00 UTC; the cutoff and the Actions cursor come from the URL. `limit` is not a URL query.
+ */
+function coldWorkScope(params: URLSearchParams): DomainIndexScope {
+  const from = params.get("from");
+  const to = params.get("to");
+  const window = from && to ? { from, to } : defaultWorkWindow();
+  return { ...window, knownAt: params.get("known_at"), cursor: params.get("cursor") };
 }
 
 export function SiteWorkFrame({
@@ -1534,11 +1788,14 @@ export function SiteWorkFrame({
   sitesPath,
   actionIndex = DEFAULT_ACTION_INDEX,
   workClient = DEFAULT_WORK_CLIENT,
+  domainActions = DEFAULT_DOMAIN_ACTIONS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   actionIndex?: ActionIndexClient;
   workClient?: WorkClient;
+  /** W5-02 K2a: the union Site Action index read, used only on a COLDCHAIN Site. */
+  domainActions?: DomainActionClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -1546,7 +1803,17 @@ export function SiteWorkFrame({
   const scope = workScopeFromQuery(params);
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Work" headingId={SITE_WORK_HEADING_ID}>
-      {(site) => (
+      {(site) =>
+        site.site_type === "COLDCHAIN" ? (
+          <ColdWorkActionsPage
+            site={site}
+            sitesPath={sitesPath}
+            params={params}
+            actionIndex={actionIndex}
+            workClient={workClient}
+            domainActions={domainActions}
+          />
+        ) : (
         <main aria-labelledby={SITE_WORK_HEADING_ID}>
           <Breadcrumbs
             trail={[
@@ -1559,6 +1826,7 @@ export function SiteWorkFrame({
           <OperatorSiteTabs siteId={siteId} current="Work" />
           <WorkSubrow
             siteId={site.site_id}
+            siteType={site.site_type}
             current="actions"
             window={scope ? { from: scope.from, to: scope.to } : null}
             actionIndex={actionIndex}
@@ -1579,16 +1847,73 @@ export function SiteWorkFrame({
             onScope={(next) => navigate(siteWorkHref(site.site_id, actionIndexQuery(next)))}
           />
         </main>
-      )}
+        )
+      }
     </SiteScoped>
   );
 }
 
+/** W5-02 K2a: the COLDCHAIN Site > Work > Actions page (v69 `cold-work`). */
+function ColdWorkActionsPage({
+  site,
+  sitesPath,
+  params,
+  actionIndex,
+  workClient,
+  domainActions,
+}: {
+  site: LoadedSite;
+  sitesPath: string;
+  params: URLSearchParams;
+  actionIndex: ActionIndexClient;
+  workClient: WorkClient;
+  domainActions: DomainActionClient;
+}) {
+  const navigate = useNavigate();
+  const scope = coldWorkScope(params);
+  const page = (next: DomainIndexScope) => siteWorkHref(site.site_id, coldWorkQuery(next));
+  return (
+    <main aria-labelledby={SITE_WORK_HEADING_ID} data-cold-work-page="actions">
+      <Breadcrumbs
+        trail={[
+          { label: "Sites", to: sitesPath },
+          { label: site.display_name, to: siteDetailHref(site.site_id) },
+          { label: "Work" },
+        ]}
+      />
+      <ChangesWorkPageHeader site={site} screen="sitework" headingId={SITE_WORK_HEADING_ID} />
+      <OperatorSiteTabs siteId={site.site_id} current="Work" />
+      <WorkSubrow
+        siteId={site.site_id}
+        siteType={site.site_type}
+        current="actions"
+        window={{ from: scope.from, to: scope.to }}
+        knownAt={scope.knownAt}
+        actionIndex={actionIndex}
+        workClient={workClient}
+        domainActions={domainActions}
+      />
+      {/* K2 ruling 1: MOCK DEVIATION (D1) R88, the page-local Window control (Apply keeps known_at, drops the cursor). */}
+      <ColdWorkWindow scope={scope} onApply={(next) => navigate(page({ ...next, cursor: null }))} />
+      <ColdSiteWorkActions
+        siteId={site.site_id}
+        siteName={site.display_name}
+        client={domainActions}
+        scope={scope}
+        links={{ page }}
+        onRestart={(next) => navigate(page(next))}
+      />
+    </main>
+  );
+}
+
 /** The Work subrow (v69 `tabs subtabs`): Actions, Incidents, Maintenance, all live, the current one marked. */
-const WORK_SUBTABS: { key: "actions" | WorkKind; label: string; href: (siteId: string) => string }[] = [
-  { key: "actions", label: "Actions", href: (siteId) => siteWorkHref(siteId) },
-  { key: "incidents", label: "Incidents", href: (siteId) => siteWorkIncidentsHref(siteId) },
-  { key: "maintenance", label: "Maintenance", href: (siteId) => siteWorkMaintenanceHref(siteId) },
+// W5-02 K2a (P-K2a-38): a COLDCHAIN Site passes the encoded `from,to,known_at` query (never a cursor); mini-grid
+// passes none, so its hrefs are unchanged.
+const WORK_SUBTABS: { key: "actions" | WorkKind; label: string; href: (siteId: string, query?: string) => string }[] = [
+  { key: "actions", label: "Actions", href: (siteId, query) => siteWorkHref(siteId, query) },
+  { key: "incidents", label: "Incidents", href: (siteId, query) => siteWorkIncidentsHref(siteId, query) },
+  { key: "maintenance", label: "Maintenance", href: (siteId, query) => siteWorkMaintenanceHref(siteId, query) },
 ];
 
 type WorkCounts = { actions: number | null; incidents: number | null; maintenance: number | null };
@@ -1606,23 +1931,34 @@ function useWorkCounts(
   window: { from: string; to: string } | null,
   actionIndex: ActionIndexClient,
   workClient: WorkClient,
+  cold: { knownAt: string | null; domainActions: DomainActionClient } | null = null,
 ): WorkCounts {
   const [state, setState] = useState<{ key: string; counts: WorkCounts }>({ key: "", counts: NO_COUNTS });
   const from = window?.from ?? null;
   const to = window?.to ?? null;
-  const key = from && to ? `${siteId}|${from}|${to}` : "";
+  const coldKnownAt = cold === null ? null : cold.knownAt;
+  const domainActions = cold === null ? null : cold.domainActions;
+  const key = from && to ? `${siteId}|${from}|${to}${cold === null ? "" : `|cold|${coldKnownAt ?? ""}`}` : "";
   useEffect(() => {
     if (!from || !to) return;
     let live = true;
     const put = (part: Partial<WorkCounts>) => {
       if (live) setState((prev) => (prev.key === key ? { key, counts: { ...prev.counts, ...part } } : { key, counts: { ...NO_COUNTS, ...part } }));
     };
-    actionIndex.getActionIndex(siteId, { from, to, limit: 1, cursor: null }).then(
-      (r) => put({ actions: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
-      () => put({ actions: null }),
-    );
+    if (domainActions === null) {
+      actionIndex.getActionIndex(siteId, { from, to, limit: 1, cursor: null }).then(
+        (r) => put({ actions: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
+        () => put({ actions: null }),
+      );
+    } else {
+      // W5-02 K2a: a COLDCHAIN Site counts the union Site Action index at the same window and cutoff.
+      domainActions.getIndex(siteId, { from, to, knownAt: coldKnownAt, cursor: null }).then(
+        (r) => put({ actions: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
+        () => put({ actions: null }),
+      );
+    }
     (["incidents", "maintenance"] as const).forEach((kind) => {
-      workClient.getWorkIndex(siteId, kind, { from, to, limit: 1, knownAt: null, cursor: null }).then(
+      workClient.getWorkIndex(siteId, kind, { from, to, limit: 1, knownAt: coldKnownAt, cursor: null }).then(
         (r) => put({ [kind]: r.status === "loaded" ? fullCount(r.value.total_count) : null }),
         () => put({ [kind]: null }),
       );
@@ -1630,25 +1966,33 @@ function useWorkCounts(
     return () => {
       live = false;
     };
-  }, [siteId, from, to, key, actionIndex, workClient]);
+  }, [siteId, from, to, key, actionIndex, workClient, coldKnownAt, domainActions]);
   // Counts belong to one Site and window: a stale key reads as unknown at once.
   return state.key === key && key !== "" ? state.counts : NO_COUNTS;
 }
 
 function WorkSubrow({
   siteId,
+  siteType,
   current,
   window,
+  knownAt = null,
   actionIndex,
   workClient,
+  domainActions = DEFAULT_DOMAIN_ACTIONS,
 }: {
   siteId: string;
+  siteType: string;
   current: "actions" | WorkKind;
   window: { from: string; to: string } | null;
+  knownAt?: string | null;
   actionIndex: ActionIndexClient;
   workClient: WorkClient;
+  domainActions?: DomainActionClient;
 }) {
-  const counts = useWorkCounts(siteId, window, actionIndex, workClient);
+  const cold = siteType === "COLDCHAIN";
+  const counts = useWorkCounts(siteId, window, actionIndex, workClient, cold ? { knownAt, domainActions } : null);
+  const query = cold && window !== null ? coldWorkQuery({ from: window.from, to: window.to, knownAt }) : undefined;
   return (
     <nav className="site-tabs site-subtabs" aria-label={SITE_WORK_SECTIONS_LABEL}>
       <ol className="site-tabs__list">
@@ -1656,7 +2000,7 @@ function WorkSubrow({
           <li className="site-tabs__item" key={tab.key}>
             <Link
               className="site-tabs__link"
-              to={tab.href(siteId)}
+              to={tab.href(siteId, query)}
               aria-current={tab.key === current ? "page" : undefined}
             >
               {`${tab.label} (${counts[tab.key] ?? "—"})`}
@@ -1696,12 +2040,15 @@ export function SiteWorkCasesFrame({
   workClient = DEFAULT_WORK_CLIENT,
   actionIndex = DEFAULT_ACTION_INDEX,
   miniDecisions = DEFAULT_MINI_DECISIONS,
+  domainActions = DEFAULT_DOMAIN_ACTIONS,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   kind: WorkKind;
   workClient?: WorkClient;
   actionIndex?: ActionIndexClient;
+  /** W5-02 K2a: the cold Actions subtab count. */
+  domainActions?: DomainActionClient;
   /** W4-03 unit 8: the decision-context overlay, read only on a mini-grid Site. */
   miniDecisions?: MiniDecisionsClient;
 }) {
@@ -1728,11 +2075,24 @@ export function SiteWorkCasesFrame({
           <OperatorSiteTabs siteId={siteId} current="Work" />
           <WorkSubrow
             siteId={site.site_id}
+            siteType={site.site_type}
             current={kind}
             window={{ from: scope.from, to: scope.to }}
+            knownAt={site.site_type === "COLDCHAIN" ? scope.knownAt : null}
             actionIndex={actionIndex}
             workClient={workClient}
+            domainActions={domainActions}
           />
+          {site.site_type === "COLDCHAIN" ? (
+            // K2 ruling 1: MOCK DEVIATION (D1) R88, the same page-local Window control on cold Incidents and
+            // Maintenance; Apply keeps an explicit known_at, drops the cursor and the earlier pages, reads page one.
+            <ColdWorkWindow
+              scope={{ from: scope.from, to: scope.to, knownAt: scope.knownAt ?? null }}
+              onApply={(next) =>
+                navigate(hrefFor(site.site_id, coldWorkQuery({ ...next, cursor: null })), { state: { workTrail: [] } })
+              }
+            />
+          ) : null}
           <Body
             siteId={site.site_id}
             client={workClient}
@@ -1740,6 +2100,8 @@ export function SiteWorkCasesFrame({
             trail={trail}
             links={{ finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId) }}
             decisions={site.site_type === "MINIGRID" ? miniDecisions : undefined}
+            // K2 ruling 23: a cold Site shows only the page-local Window control above; MINIGRID keeps the W4 form.
+            windowForm={site.site_type !== "COLDCHAIN"}
             onScope={(next, nextTrail) =>
               navigate(hrefFor(site.site_id, workPageQuery(next)), { state: { workTrail: nextTrail } })
             }

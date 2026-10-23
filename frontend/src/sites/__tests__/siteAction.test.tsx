@@ -43,6 +43,7 @@ import { panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+import { COLD_SITE, DOMAIN_ID, detailBody } from "./coldWorkFixtures";
 
 type Case = { request: { method: string; path: string; body?: Record<string, unknown> }; status: number; body: any };
 const M = contract.manifest as unknown as Record<string, Record<string, Case>>;
@@ -985,4 +986,62 @@ describe("W1-F4: Recommendation state line (was the W1-UX-04 answer card, now th
       expect(document.body.textContent).not.toMatch(/Input digest/);
     });
   }
+});
+
+/* W5-02 K2a (P-K2a-34/36, U1): both Action kinds on one COLDCHAIN Site, by route form plus the validated domain read. */
+describe("W1 and domain Action IDs on one cold Site", () => {
+  const coldDetail: SiteDetailClient = {
+    getSite: async (siteId: string) => ({ status: "loaded", site: { ...COLD_SITE, site_id: siteId } }),
+  } as SiteDetailClient;
+  const DOMAIN_API = `/api/sites/KOBO-001/domain-work/actions/${DOMAIN_ID}`;
+  const W1_ON_DOMAIN_API = `/api/sites/KOBO-001/domain-work/actions/${ACTION}`;
+  const notFound: Served = { status: 404, body: { detail: { code: "ACTION_NOT_FOUND", message: "Action was not found at this site.", intent: null, results: null } } };
+  const domainLoaded: Served = { status: 200, body: detailBody({ site_code: "KOBO-001" }) };
+
+  function mountCold(path: string) {
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          {["/sites/:siteId/actions/:actionId", "/sites/:siteId/actions/:actionId/:actionView"].map((p) => (
+            <Route key={p} path={p} element={<><SiteActionFrame detail={coldDetail} sitesPath="/sites" /><Where /></>} />
+          ))}
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("a W1 ID at its bare address keeps the W1 battery detail and its six sections", async () => {
+    const s = serve({ ...actionReads(ov.applied_pending_newer_revision, hi.events_latest), [W1_ON_DOMAIN_API]: notFound });
+    mountCold(`/sites/KOBO-001/actions/${ACTION}`);
+    await settledScreen();
+    await waitFor(() => expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("Battery reserve trial"));
+    expect(qa("[data-action-section]").map((a) => a.textContent)).toHaveLength(6);
+    expect(q("[data-domain-action-shell]")).toBeNull();
+    expect(where()).toBe(`/sites/KOBO-001/actions/${ACTION}`);
+    expect(s.unmatched).toEqual([]);
+  });
+
+  it("a domain ID at its bare address redirects to /verification and renders the domain shell (direct reload)", async () => {
+    const s = serve({ [DOMAIN_API]: domainLoaded });
+    mountCold(`/sites/KOBO-001/actions/${DOMAIN_ID}`);
+    await waitFor(() => expect(where()).toBe(`/sites/KOBO-001/actions/${DOMAIN_ID}/verification`));
+    await settledScreen();
+    expect(q('[data-domain-action-shell="loaded"]')).not.toBeNull();
+    expect(s.requests.every((r) => !r.url.startsWith(`/api/sites/KOBO-001/actions/`))).toBe(true);
+  });
+
+  it("a W1 ID on /verification of a cold Site is not found and never falls back to the W1 read", async () => {
+    const s = serve({ [W1_ON_DOMAIN_API]: notFound });
+    mountCold(`/sites/KOBO-001/actions/${ACTION}/verification`);
+    await settledScreen();
+    expect(q('[data-domain-action-panel="not-found"]')?.textContent).toBe("Action was not found at this site.");
+    expect(s.requests.map((r) => r.url)).toEqual([W1_ON_DOMAIN_API]);
+  });
+
+  it("a mini-grid Site never requests the domain Action read", async () => {
+    const s = serve(actionReads(ov.applied_pending_newer_revision, hi.events_latest));
+    mount(`/sites/KOBO-001/actions/${ACTION}`);
+    await settledScreen();
+    expect(s.requests.some((r) => r.url.includes("/domain-work/"))).toBe(false);
+  });
 });

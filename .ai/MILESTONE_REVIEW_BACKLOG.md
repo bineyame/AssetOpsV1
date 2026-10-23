@@ -2408,3 +2408,9 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 
 ## W5-02b K2 follow-up
 - Future authenticated Site-scoped product reads: add a `domain_work_access` injection seam in `create_app` and the equivalent W4 Work read seam, then prove 401/403 across both routers. K2's 403 browser evidence uses a capture-only `serve_entry.py` gate; current product read routers still use development access. Architect ruling 6 in `.agent/W5-02b-K2-rulings.md`; schedule with authentication work, not K2.
+
+## W5-02b K2 Lows
+- One window error message covers every invalid input (domainActionClient.ts:350); plain-language copy pass.
+- Producer attest can print ATTEST OK with a mode whose prepare failed (w502_cold_work_walkthrough.py:604); add failures.append before continue.
+- Shared DataTable stickyFirstColumn paints the sticky header cell white for every other user (primitives.css:5406), e.g. W5-03a EV screens; check in the post-W6 structural audit.
+- At 390 the R88 Window control adds ~140 px above the scope strip; owner walkthrough note.

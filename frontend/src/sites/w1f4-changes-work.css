@@ -211,3 +211,194 @@
 .w1f4-work-foot .disclosure[open] {
   flex: 1 1 100%;
 }
+
+/* W5-02 K2a (P-K2a-44, spec "Measurement, capture and deviations"): the COLDCHAIN Site Actions table scrolls inside
+   its panel's own `.data-table__scroll` with the first column kept in view; codes, IDs and dates stay on one line and
+   the long title/owner cells wrap (two-line preview, full text in "Read full text"). No page-level overflow rule. */
+.cold-work-actions .data-table__scroll {
+  overflow-x: auto;
+}
+
+/* W5-02 review H1: the W1 `.w1f4-changes-work .panel .data-table td { white-space: nowrap }` (0,3,1) out-specified the plain
+   cold rule, so desktop never wrapped. These carry the extra `.cold-work-actions` class so they win at every width. */
+.w1f4-changes-work.cold-work-actions .panel .data-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* W5-02 review H2.1 / L1: the sticky first column comes from DataTable `stickyFirstColumn`; the header cell keeps the
+   mock's sunken table-header background (v69 `th{background:#f8fafd}`). */
+.w1f4-changes-work.cold-work-actions .data-table thead th:first-child {
+  background: var(--surface-sunken);
+}
+
+/* W5-02 review H2.2: the mock notice composition (info icon inline with the text), as coldScenarios.css does. */
+.v69-notice[data-cold-work-currentness],
+.v69-notice[data-cold-work-notice],
+.v69-notice[data-domain-action-currentness],
+.v69-notice[data-domain-action-notice] {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.v69-notice[data-cold-work-currentness] p,
+.v69-notice[data-cold-work-notice] p,
+.v69-notice[data-domain-action-currentness] p,
+.v69-notice[data-domain-action-notice] p {
+  margin: 0;
+}
+
+.cold-work-actions .cold-work-code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.cold-work-actions td .disclosure--inline {
+  display: inline;
+  margin-left: 6px;
+}
+
+/* K2 ruling 20 recapture: with every title/owner disclosure open the auto table gives Source less width; the inline
+   `Finding version` summary stays one line (the cell widens instead of splitting the link). */
+.w1f4-changes-work.cold-work-actions .panel .data-table td .disclosure--inline > .disclosure__summary {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.cold-work-actions td .disclosure:not(.disclosure--inline) {
+  margin-top: 2px;
+}
+
+.cold-work-actions td .disclosure .disclosure__body code {
+  overflow-wrap: anywhere;
+}
+
+/* W5-02b K2b (F1-F4): long title/owner cells get bounded widths so unbroken runs wrap inside the cell, Due and codes
+   stay on one line, and a long cell's "Read full text" disclosure is a compact one-line link, not a full-width box. */
+.cold-work-actions .data-table td:nth-child(1) {
+  min-width: 220px;
+  max-width: 340px;
+}
+
+.cold-work-actions .data-table td:nth-child(3) {
+  min-width: 150px;
+  max-width: 240px;
+}
+
+.w1f4-changes-work.cold-work-actions .panel .data-table td:nth-child(4) {
+  min-width: 96px;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.cold-work-actions .data-table td:nth-child(6) {
+  min-width: 180px;
+}
+
+/* W5-02b K2b (F6): the State badge (`Open`) never splits inside its cell. */
+.w1f4-changes-work.cold-work-actions .panel .data-table td:nth-child(5) {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.cold-work-actions .data-table td .work-cases-clamp {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cold-work-actions td .disclosure:not(.disclosure--inline) {
+  display: block;
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+
+.cold-work-actions td .disclosure:not(.disclosure--inline) > .disclosure__summary {
+  display: inline-block;
+  padding: 0;
+  font-size: var(--font-size-sm, 0.85em);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.cold-work-actions td .disclosure:not(.disclosure--inline)[open] > .disclosure__body {
+  padding: 4px 0 0;
+}
+
+/* K2 ruling 13: only the `.work-cases-clamp` preview hides overflow (its intentional two lines); the scroller, cells,
+   disclosure body and ancestors wrap, so an opened `Read full text` shows all 160 code points inside its cell. */
+.w1f4-changes-work.cold-work-actions .panel .data-table td .disclosure[open] > .disclosure__body {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* The refusal wraps its message and keeps Retry visible. */
+.cold-work-actions [data-cold-work-refusal-message] {
+  overflow-wrap: anywhere;
+}
+
+.cold-work-actions .status-strip {
+  flex-wrap: wrap;
+}
+
+/* W5-02 K2 ruling 1, MOCK DEVIATION (D1) R88: the page-local cold Work `Window` control after the Work subtabs and
+   before the scope strip; right-aligned at 1440, full width at 390. */
+.site-date-bar.cold-work-window {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  margin: 0 0 12px;
+  font-size: 11px;
+  color: #5c6c86;
+}
+
+.cold-work-window__lead {
+  font-weight: 650;
+  color: #405578;
+}
+
+.cold-work-window__field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cold-work-window .button {
+  padding: 6px 12px;
+  font-size: 11px;
+  min-height: 0;
+}
+
+.cold-work-window__error {
+  flex: 1 1 100%;
+  text-align: right;
+  color: #a13838;
+}
+
+@media (max-width: 760px) {
+  .site-date-bar.cold-work-window {
+    justify-content: stretch;
+  }
+
+  .cold-work-window__field {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .cold-work-window__field .v69-chip-control {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .cold-work-window .button {
+    flex: 1 1 100%;
+  }
+
+  .cold-work-window__error {
+    text-align: left;
+  }
+}

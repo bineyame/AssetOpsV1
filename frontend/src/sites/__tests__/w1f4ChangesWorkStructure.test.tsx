@@ -21,6 +21,7 @@ import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+import { COLD_SITE, SITE as COLD_CODE, coldFetch, domainRow, indexBody } from "./coldWorkFixtures";
 
 type Case = { request: { path: string }; status: number; body: any };
 type Served = { status: number; body: unknown };
@@ -219,5 +220,42 @@ describe("W1-F4: the guard is not vacuous on changes and sitework", () => {
     mount(workUrl(WINDOW));
     await settledScreen();
     expectPlantedPanelRejected("sitework");
+  });
+});
+
+/* W5-02 K2a: the COLDCHAIN Actions tab keeps the v69 `cold-work` structure (strip, one panel, notice). */
+describe("W5-02 K2a: cold-work keeps the v69 panel structure", () => {
+  function mountCold(path: string) {
+    const cold: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: COLD_SITE }) };
+    const dir: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [COLD_SITE] }) };
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={dir} siteDetail={cold} siteAnalytics={EMPTY_ANALYTICS_CLIENT} />
+      </MemoryRouter>,
+    );
+  }
+
+  for (const [name, body] of [
+    ["stocked", indexBody([domainRow()])],
+    ["complete zero", indexBody([])],
+  ] as const) {
+    it(`${name}: one Actions at this site panel; the strip holds only one-line parts; a planted panel is rejected`, async () => {
+      vi.stubGlobal("fetch", coldFetch(body).fetchStub);
+      mountCold(`/sites/${COLD_CODE}/work`);
+      await settledScreen();
+      expectV69Panels("cold-work");
+      expectPlantedPanelRejected("cold-work");
+      expect(q("[data-headline-card]")).toBeNull();
+      expect(panelTitled("Actions at this site").querySelector("form")).toBeNull();
+    });
+  }
+
+  it("refused: the refusal sits inside the one panel, never as a zero", async () => {
+    vi.stubGlobal("fetch", async () => new Response(JSON.stringify({ detail: { code: "WORK_STORE_UNAVAILABLE", message: "Unavailable." } }), { status: 503 }));
+    mountCold(`/sites/${COLD_CODE}/work`);
+    await settledScreen();
+    expectV69Panels("cold-work");
+    expect(panelTitled("Actions at this site").querySelector("[data-cold-work-refusal]")).not.toBeNull();
+    expect(q("[data-cold-work-empty]")).toBeNull();
   });
 });

@@ -19,7 +19,7 @@ import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { defaultWorkWindow, type WorkIndexBody, type WorkRow } from "../workClient";
-import { globalWorkManageHref } from "../siteWorkCases";
+import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, globalWorkManageHref, shortName } from "../siteWorkCases";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
 
@@ -786,5 +786,21 @@ describe("W6-01a A2: Site Work global manage href", () => {
       "/incidents?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z&known_at=2026-10-20T08%3A00%3A00Z",
     );
     expect(globalWorkManageHref("incidents", scope, null)).toBe("/incidents?from=2026-10-15T00%3A00%3A00Z&to=2026-10-22T00%3A00%3A00Z");
+  });
+});
+
+/* W5-02 K2a (U3, P-K2a-42): the shared W4 short name and the COLDCHAIN context notice are exported, not duplicated. */
+describe("W5-02 K2a shared Work literals", () => {
+  it("exports the W4 short name rule used by the cold Actions strip", () => {
+    expect(shortName("GreenHarvest Cold Room")).toBe("GreenHarvest");
+    expect(shortName("  Kobo  Mini-grid ")).toBe("Kobo");
+  });
+
+  it("defines the domain notice beside the unchanged W6 notice", () => {
+    expect(WORK_CONTEXT_NOTICE_DOMAIN).toBe("Opening a record moves you to its own area; the breadcrumb keeps this site.");
+    expect(WORK_CONTEXT_NOTICE).toBe(
+      "Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet.",
+    );
+    expect(WORK_CONTEXT_NOTICE_DOMAIN).not.toContain("create flow");
   });
 });

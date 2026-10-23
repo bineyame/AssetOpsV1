@@ -58,6 +58,13 @@ const LEADING_SELECTOR =
 
   // W3-03 run 2: the v69 `portfolio` screen's own three leading rows (context line, five value cards, pulse).
   ".portfolio-v2 > .portfolio-context, .portfolio-v2 > .value-grid, .portfolio-v2 > .portfolio-pulse";
+/**
+ * Screen-scoped optional leading elements, admitted only at one exact place: immediately after the status strip and
+ * immediately before panel 1. W5-02 K2 ruling 15 admits the cold Actions selected-state notice on `cold-work`
+ * (MOCK DEVIATION (D2) R91); anywhere else, or on another screen, it is an intruder.
+ */
+const SCREEN_LEADING: Record<string, string> = { "cold-work": "[data-cold-work-currentness]" };
+
 /** Section-like elements that must not render outside a panel or leading pattern. */
 const STRAY_SELECTOR = "h3, h4, h5, h6, section, article, [role=region], .card, .callout";
 
@@ -81,15 +88,25 @@ function firstPanel(root: Element): Element | null {
  * Elements rendered before panel 1 that are neither page chrome nor an allowed
  * v69 leading pattern. Empty, hidden and collapsed elements are ignored.
  */
-export function leadingIntruders(scope?: HTMLElement): string[] {
+export function leadingIntruders(scope?: HTMLElement, screenId?: string): string[] {
   const root = scope ?? document.querySelector("main") ?? document.body;
   const panel = firstPanel(root);
   if (panel === null) return [];
+  const optional = screenId === undefined ? undefined : SCREEN_LEADING[screenId];
   const intruders: string[] = [];
   for (let node: Element | null = panel; node !== null && node !== root; node = node.parentElement) {
-    for (let sibling = node.previousElementSibling; sibling !== null; sibling = sibling.previousElementSibling) {
+    for (let sibling: Element | null = node.previousElementSibling; sibling !== null; sibling = sibling.previousElementSibling) {
       if (hiddenOrCollapsed(sibling, root)) continue;
       if (sibling.matches(CHROME_SELECTOR) || sibling.matches(LEADING_SELECTOR)) continue;
+      if (
+        optional !== undefined &&
+        sibling.matches(optional) &&
+        sibling.nextElementSibling === node &&
+        node === panel &&
+        sibling.previousElementSibling?.matches(".status-strip") === true
+      ) {
+        continue;
+      }
       if (text(sibling) === "" && sibling.querySelector("img, svg, input, select, button") === null) continue;
       intruders.unshift(describe(sibling));
     }
@@ -196,7 +213,7 @@ export function expectV69Panels(
   const expected = expectedPanelTitles(screenId, values);
   const actual = renderedPanelTitles(scope);
   expect(actual, `panel structure of v69 screen "${screenId}"`).toEqual(expected);
-  expect(leadingIntruders(scope), `elements before panel 1 of v69 screen "${screenId}"`).toEqual([]);
+  expect(leadingIntruders(scope, screenId), `elements before panel 1 of v69 screen "${screenId}"`).toEqual([]);
   expect(strayOutsidePanels(scope), `sections outside the panels of v69 screen "${screenId}"`).toEqual([]);
   expect(stripIntruders(scope), `blocks inside the status strip of v69 screen "${screenId}"`).toEqual([]);
   expect(strayBetweenPanels(scope), `content blocks between panels of v69 screen "${screenId}"`).toEqual([]);
