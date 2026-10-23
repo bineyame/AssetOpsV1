@@ -11,13 +11,15 @@ ordinary replay proof and the mode fixture inputs; the three link-state assertio
 
 from __future__ import annotations
 
+import hashlib
+import json
 import secrets
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -144,17 +146,32 @@ def produce(chain_factory, mode: str):
     built = chain_factory(mode)
     built.attest()
     built.start_release_upload()
+    if built.shifted.window_end != built.shifted.start + timedelta(minutes=65):
+        enqueue_window(built)  # the W5-01 wider-window route (run-5 ruling 2): the exact stale window
     run(built)
     return built
 
 
+def enqueue_window(built) -> None:
+    """Enqueue the case's exact `cold_chain` recompute window, as W5-01 `test_stale_probe_window` does."""
+    sh = built.shifted
+    with built.engine.begin() as conn:
+        conn.execute(text(
+            "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
+            "available_at, created_at) VALUES (:j, :t, :s, 'cold_chain', :lo, :hi, 'PENDING', now(), now())"),
+            {"j": uuid4(), "t": built.tenant_id, "s": built.site_id, "lo": sh.start, "hi": sh.window_end})
+
+
 def finding_revision(built, mechanism: str | None = None) -> tuple[str, str]:
-    """(finding_id, revision_id) of the newest selected cold Finding revision (of `mechanism`, when given)."""
+    """(finding_id, revision_id) of the newest cold Finding revision (of `mechanism`, when given) whose analytic run
+    is over the case's exact evidence/assessment window."""
     with built.engine.connect() as c:
         row = c.execute(text(
             "SELECT CAST(f.id AS text), CAST(r.id AS text) FROM finding_revision r JOIN finding f ON f.id = r.finding_id "
-            "WHERE r.site_id = :s AND r.domain = 'cold_chain' AND (CAST(:m AS text) IS NULL OR f.mechanism = :m) "
-            "ORDER BY r.created_at DESC, r.id LIMIT 1"), {"s": built.site_id, "m": mechanism}).first()
+            "JOIN analytic_run ar ON ar.id = r.analytic_run_id WHERE r.site_id = :s AND r.domain = 'cold_chain' "
+            "AND (CAST(:m AS text) IS NULL OR f.mechanism = :m) AND ar.window_start = :lo AND ar.window_end = :hi "
+            "ORDER BY r.created_at DESC, r.id LIMIT 1"),
+            {"s": built.site_id, "m": mechanism, "lo": built.shifted.start, "hi": built.shifted.window_end}).first()
     assert row is not None, f"the shifted replay wrote no cold Finding ({mechanism})"
     return row[0], row[1]
 
@@ -241,3 +258,164 @@ def test_ordinary_shifted_replay(shifted_chain) -> None:
         k0 = producer.corroborate_k0(c, built.tenant_id, built.site_id, revision_id, sh, v4, body["selection"])
     assert producer.instant(body["window"]["known_at"][:19] + "Z") == k0.known_at.replace(microsecond=0)
     assert k0.window == (sh.start, sh.window_end)
+
+
+# ---- run-5 STALE/UNKNOWN rulings: the wider-window producer and the seeded empty-support selection -------------
+
+
+def selected_excursion(built) -> dict:
+    """The newest selected COLD_EXCURSION selection over the case's exact window: seq, run and assessment revision."""
+    from assetops_backend.analytics import cold as cold_analytics
+
+    sh = built.shifted
+    with built.engine.connect() as c:
+        row = c.execute(text(
+            "SELECT sel.seq, CAST(sel.run_id AS text) AS run_id, CAST(x.assessment_revision_id AS text) AS ar "
+            "FROM analytic_run_selection sel JOIN analytic_run_assessment x ON x.run_id = sel.run_id "
+            "WHERE sel.site_id = :s AND sel.analytic_id = :a AND sel.window_start = :lo AND sel.window_end = :hi "
+            "ORDER BY sel.seq DESC LIMIT 1"),
+            {"s": built.site_id, "a": cold_analytics.EXCURSION_ANALYTIC, "lo": sh.start, "hi": sh.window_end}).first()
+    assert row is not None, "no selected excursion assessment over the case window"
+    return dict(row._mapping)
+
+
+def support_times(built, assessment_revision_id: str) -> list[datetime]:
+    """Source times of the stored selected excursion result's SUPPORT probe links, ascending."""
+    with built.engine.connect() as c:
+        result = c.execute(text("SELECT result FROM assessment_revision WHERE id = :r"),
+                           {"r": assessment_revision_id}).scalar_one()
+        ids = [x["evidence_id"] for x in (result.get("links") or []) if x["use"] == "SUPPORT"]
+        return sorted(c.execute(text("SELECT source_time FROM accepted_evidence WHERE site_id = :s "
+                                     "AND id = ANY(CAST(:ids AS uuid[]))"), {"s": built.site_id, "ids": ids}).scalars())
+
+
+def _columns(conn, table: str) -> list[str]:
+    return list(conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name = :t "
+                                  "AND table_schema = current_schema() ORDER BY ordinal_position"), {"t": table}).scalars())
+
+
+def _copy(conn, table: str, where: str, params: dict, overrides: dict) -> int:
+    """`INSERT ... SELECT` one table's rows matching `where`, with column SQL overrides (None = column default)."""
+    cols = [c for c in _columns(conn, table) if not (c in overrides and overrides[c] is None)]
+    exprs = [overrides.get(c) or c for c in cols]
+    return conn.execute(text(f"INSERT INTO {table} ({', '.join(cols)}) SELECT {', '.join(exprs)} FROM {table} "
+                             f"WHERE {where}"), params).rowcount
+
+
+def _children(conn, parent: str) -> list[tuple[str, str]]:
+    """(child table, its column referencing `parent.id`) for every foreign key onto `parent`'s `id`."""
+    return [tuple(r) for r in conn.execute(text(
+        "SELECT cl.relname, ca.attname FROM pg_constraint c JOIN pg_class cl ON cl.oid = c.conrelid "
+        "JOIN LATERAL unnest(c.conkey, c.confkey) AS k(ck, fk) ON true "
+        "JOIN pg_attribute ca ON ca.attrelid = c.conrelid AND ca.attnum = k.ck "
+        "JOIN pg_attribute pa ON pa.attrelid = c.confrelid AND pa.attnum = k.fk "
+        "WHERE c.contype = 'f' AND c.confrelid = CAST(:p AS regclass) AND pa.attname = 'id' "
+        "ORDER BY cl.relname, ca.attname"), {"p": parent}).all()]
+
+
+#: Tables the seed writes explicitly (or must not copy): the selection, the run/assessment link, the run and
+#: revision themselves, the job queue and the Findings (the START_RESPONSE Finding revision stays the replay's,
+#: pinned to its unchanged assessment).
+_EXPLICIT = {"analytic_run_selection", "analytic_run_assessment", "assessment_revision", "finding_revision",
+             "analytic_run", "recompute_job"}
+
+
+def canonical(value) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def seed_empty_support(built) -> SimpleNamespace:
+    """Run-5 ruling 3: after the ordinary no-probe replay, a test-only, internally consistent selected `cold_chain`
+    excursion run/assessment/selection over the same `[D+16:00, D+17:05)` window whose result's SUPPORT probe set is
+    empty. Rows are copies of the replay's selected excursion (tenant/Site scope, frozen Foundation/binding lineage,
+    knowledge cutoff = its actual accepted watermark K0); timestamps are the committing DB's `clock_timestamp()`.
+    No accepted report is deleted or relabelled; the START_RESPONSE assessment and Finding revision are untouched."""
+    old = selected_excursion(built)
+    run_id, ar_id = str(uuid4()), str(uuid4())
+    with built.engine.begin() as c:
+        row = c.execute(text("SELECT result, evidence_ids, assessment_key FROM assessment_revision WHERE id = :r"),
+                        {"r": old["ar"]}).one()
+        result, evidence_ids, key = row[0], row[1], row[2]
+        support = {x["evidence_id"] for x in (result.get("links") or []) if x["use"] == "SUPPORT"}
+        assert support, "the replayed excursion has no SUPPORT probe to empty (closing-boundary report expected)"
+        seeded = dict(result, links=[x for x in result.get("links") or [] if x["use"] != "SUPPORT"])
+        evidence = [e for e in evidence_ids if e not in support]
+        body = canonical(seeded)
+        p = {"old_run": old["run_id"], "old_ar": old["ar"], "run": run_id, "ar": ar_id, "s": built.site_id}
+        _copy(c, "analytic_run", "id = :old_run", p, {
+            "id": ":run", "started_at": "clock_timestamp()", "completed_at": "clock_timestamp()"})
+        _copy(c, "assessment_revision", "id = :old_ar",
+              {**p, "key": key, "res": body, "ev": canonical(evidence),
+               "basis": hashlib.sha256(body.encode("utf-8")).hexdigest()},
+              {"id": ":ar", "analytic_run_id": ":run", "result": "CAST(:res AS jsonb)",
+               "evidence_ids": "CAST(:ev AS jsonb)", "basis_sha256": ":basis", "created_at": "clock_timestamp()",
+               "revision_no": "(SELECT max(revision_no) + 1 FROM assessment_revision WHERE site_id = :s "
+                              "AND assessment_key = :key)"})
+        for parent, old_key, new_key in (("assessment_revision", "old_ar", "ar"), ("analytic_run", "old_run", "run")):
+            for child, col in _children(c, parent):
+                if child in _EXPLICIT:
+                    continue
+                cols = _columns(c, child)
+                where = f"{col} = :{old_key}"
+                if "evidence_id" in cols:
+                    where += " AND CAST(evidence_id AS text) <> ALL(CAST(:support AS text[]))"
+                over = {col: f":{new_key}", **({"id": "gen_random_uuid()"} if "id" in cols else {})}
+                _copy(c, child, where, {**p, "support": sorted(support)}, over)
+        _copy(c, "analytic_run_assessment", "run_id = :old_run AND assessment_revision_id = :old_ar", p,
+              {"run_id": ":run", "assessment_revision_id": ":ar"})
+        default_seq = c.execute(text(
+            "SELECT column_default IS NOT NULL OR is_identity = 'YES' FROM information_schema.columns "
+            "WHERE table_name = 'analytic_run_selection' AND column_name = 'seq' "
+            "AND table_schema = current_schema()")).scalar_one()
+        selection_cols = _columns(c, "analytic_run_selection")
+        _copy(c, "analytic_run_selection", "run_id = :old_run AND seq = :seq", {**p, "seq": old["seq"]}, {
+            "run_id": ":run", "selected_at": "clock_timestamp()",
+            "seq": None if default_seq else "(SELECT max(seq) + 1 FROM analytic_run_selection)",
+            **({"assessment_revision_id": ":ar"} if "assessment_revision_id" in selection_cols else {})})
+    new = selected_excursion(built)
+    assert (new["run_id"], new["ar"]) == (run_id, ar_id) and new["seq"] > old["seq"]
+    return SimpleNamespace(old=old, new=new, support_removed=sorted(support))
+
+
+def test_stale_wider_window_producer(shifted_chain) -> None:
+    """Ruling 2: the ordinary replay assessed over `[D+16:00, D+17:30)`; the selected excursion's latest SUPPORT
+    probe is at or before `D+17:00`, strictly older than `window_end - 10 minutes`, and W5-01 says STALE_SOURCE."""
+    built = produce(shifted_chain, "stale")
+    sh = built.shifted
+    assert sh.window_end - sh.start == timedelta(minutes=90)
+    exc = selected_excursion(built)
+    times = support_times(built, exc["ar"])
+    assert times and times[-1] <= sh.end < sh.window_end - timedelta(minutes=10)
+    _, revision_id = finding_revision(built, "COLD_EXCURSION")
+    body = w501_read(built)
+    assert body["selection"]["state"] == "STALE_SOURCE", body["selection"]
+    assert exc["ar"] in body["selection"]["assessment_revision_ids"]
+    with built.engine.connect() as c:
+        v4 = built.run.registered_basis.binding_set_revision_id
+        k0 = producer.corroborate_k0(c, built.tenant_id, built.site_id, revision_id, sh, v4, body["selection"])
+    assert k0.window == (sh.start, sh.window_end)
+
+
+def test_unknown_seeded_empty_support(shifted_chain) -> None:
+    """Ruling 3: the no-probe replay still selects one closing-boundary SUPPORT probe (CURRENT); the test-only seeded
+    selection empties the excursion's support set and the unchanged W5-01 read says UNKNOWN for no usable probe."""
+    from assetops_backend.analytics.cold_reads import FUTURE_NOTE, NO_PROBE_NOTE, NO_SELECTION_NOTE
+
+    built = produce(shifted_chain, "no-probe")
+    assert w501_read(built)["selection"]["state"] == "CURRENT"  # the replay alone cannot yield UNKNOWN
+    seed = seed_empty_support(built)
+    assert support_times(built, seed.new["ar"]) == []
+    _, revision_id = finding_revision(built, "COLD_START_FAILURE")
+    body = w501_read(built)
+    text_body = canonical(body)
+    assert body["selection"]["state"] == "UNKNOWN", body["selection"]
+    assert NO_PROBE_NOTE in text_body and NO_SELECTION_NOTE not in text_body and FUTURE_NOTE not in text_body
+    assert seed.new["ar"] in body["selection"]["assessment_revision_ids"]
+    assert seed.old["ar"] not in body["selection"]["assessment_revision_ids"]
+    with built.engine.connect() as c:
+        v4 = built.run.registered_basis.binding_set_revision_id
+        k0 = producer.corroborate_k0(c, built.tenant_id, built.site_id, revision_id, built.shifted, v4,
+                                     body["selection"])
+        cutoff = c.execute(text("SELECT knowledge_cutoff FROM analytic_run WHERE id = :r"),
+                           {"r": seed.new["run_id"]}).scalar_one()
+    assert cutoff == k0.known_at

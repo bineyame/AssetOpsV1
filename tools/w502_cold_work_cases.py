@@ -16,9 +16,11 @@ Mode inputs (ruling 3), each a separate test-only scenario document:
 - `ordinary`: the shifted document, observations unchanged (none).
 - `pending`: one chamber probe report HELD and released at the shifted late-publication instant, so a later
   accepted reading enqueues a `cold_chain` recompute job after the first selection.
-- `stale`: every chamber probe report over the final 15 minutes of the run interval is DROPPED, so the selected
-  window's latest support probe is more than 10 minutes before its end.
-- `no-probe`: every chamber probe report is DROPPED; the START_RESPONSE Finding still settles.
+- `stale`: the wider 90-minute evidence/assessment window `[start, start+90min)` (the W5-01 stale route); the
+  closing-boundary probe at `end` is then 30 minutes before the window's `to`. The extra DROP rows over the
+  final 15 minutes before `end` remain input only.
+- `no-probe`: every droppable chamber probe report (`start <= at < end`) is DROPPED; the closing-boundary report
+  at `end` still publishes (the parser admits no fault there), so UNKNOWN needs the test's seeded selection.
 
 `validate_foundation` rejects a frozen registered basis whose Site/Foundation/binding contract is not the cold one
 before replay; `corroborate_k0` reads `K0` and fails if accepted IDs, window, revision or binding disagree.
@@ -44,12 +46,15 @@ TIMEZONE = "Africa/Addis_Ababa"
 ROLE_SET = "cold-roles-1"
 #: The shipped document's source start; the W2 helper's window/late instants are fixed offsets from it.
 BASE_START = datetime(2026, 10, 6, 19, 0, tzinfo=timezone.utc)
-BASE_WINDOW_END = datetime(2026, 10, 6, 20, 5, tzinfo=timezone.utc)  # W2 helper evidence window end (exclusive)
 BASE_RELEASE = datetime(2026, 10, 6, 20, 10, tzinfo=timezone.utc)  # W2 helper scheduled late publication
 BASE_ATTEST_FROM = datetime(2026, 10, 6, 0, 0, tzinfo=timezone.utc)  # W2-03 simulated clock attestation
 BASE_ATTEST_TO = datetime(2026, 10, 8, 0, 0, tzinfo=timezone.utc)
 MODES = ("ordinary", "pending", "stale", "no-probe")
-STALE_SUPPRESSED = timedelta(minutes=15)  # > 10 minutes of probe recency
+STALE_SUPPRESSED = timedelta(minutes=15)  # extra input only; never the cause of the state (run-5 ruling 2)
+#: The explicit evidence/assessment window per mode (run-5 STALE/UNKNOWN rulings 1, 2, 4): the W2 helper's
+#: 65-minute `[start, end+5min)` window, except STALE_SOURCE's W5-01 wider route `[start, start+90min)`, whose
+#: `to` is more than 10 minutes after the closing-boundary probe at `end`.
+WINDOW_MINUTES = {"ordinary": 65, "pending": 65, "stale": 90, "no-probe": 65}
 PROBE = "probe-1"
 _FMT = "%Y-%m-%dT%H:%M:%SZ"
 
@@ -139,7 +144,7 @@ def shifted_case(db_now: datetime, mode: str, tag: str) -> ShiftedCase:
     elif mode == "no-probe":
         document["observations"] = _probe_rows(minutes, "DROP")
     return ShiftedCase(mode=mode, scenario_id=document["scenario_id"], delta=delta, document=document,
-                       start=start, end=end, window_end=BASE_WINDOW_END + delta, release=release,
+                       start=start, end=end, window_end=start + timedelta(minutes=WINDOW_MINUTES[mode]), release=release,
                        attest_from=BASE_ATTEST_FROM + delta, attest_to=BASE_ATTEST_TO + delta)
 
 

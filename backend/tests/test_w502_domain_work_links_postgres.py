@@ -264,3 +264,64 @@ def test_pending_recompute_link_state(shifted_chain) -> None:  # noqa: F811
     finally:
         cold.svc._store.dispose()
         cold.work._store.dispose()
+
+
+if URL:
+    from test_w502_cold_scenario_producer import seed_empty_support, selected_excursion, support_times
+
+
+def test_stale_source_link_state(shifted_chain) -> None:  # noqa: F811
+    """Run-5 STALE ruling 2: the wider-window producer's selected excursion Finding, its pinned Action and Case link;
+    at the returned cutoff the exact pin, the linked coverage and the W5-01 read all say STALE_SOURCE over the same
+    assessment revision and window, after the support-time check (latest SUPPORT probe <= end < window_end - 10m)."""
+    built = produce(shifted_chain, "stale")
+    sh = built.shifted
+    cold = produced_cold(built, "COLD_EXCURSION")
+    try:
+        b = bind(cold, "stale")
+        exc = selected_excursion(built)
+        times = support_times(built, exc["ar"])
+        assert times and times[-1] <= sh.end < sh.window_end - timedelta(minutes=10)
+        raw, cov = domain_selection(cold, b.request)
+        pin = raw["pin"]
+        assert pin is not None and raw["lineage"] and raw["selected_id"] == cold.revision_id
+        assert (pin["window_start"], pin["window_end"]) == (sh.start, sh.window_end)
+        assert pin["assessment_revision_id"] == exc["ar"]
+        assert (pin["state"], cov["state"]) == ("STALE_SOURCE", "STALE_SOURCE")
+        body = w501_read(built, iso(pin["evidence_cutoff"]))
+        assert body["selection"]["state"] == "STALE_SOURCE"
+        assert exc["ar"] in body["selection"]["assessment_revision_ids"]
+    finally:
+        cold.svc._store.dispose()
+        cold.work._store.dispose()
+
+
+def test_unknown_link_state(shifted_chain) -> None:  # noqa: F811
+    """Run-5 UNKNOWN ruling 3: the no-probe replay plus the test-only seeded empty-support selection; a domain Action
+    pinned to the selected START_RESPONSE Finding revision and linked to a real W4 Case. At one returned cutoff the
+    exact pin (nonempty lineage), the linked coverage and the W5-01 read say UNKNOWN because the selected excursion
+    support set has no usable probe (not no selection, a missing Finding, a future window or an FK failure)."""
+    from assetops_backend.analytics import cold as cold_analytics
+    from assetops_backend.analytics.cold_reads import FUTURE_NOTE, NO_PROBE_NOTE, NO_SELECTION_NOTE
+    from test_w502_cold_scenario_producer import canonical
+
+    built = produce(shifted_chain, "no-probe")
+    seed = seed_empty_support(built)
+    assert support_times(built, seed.new["ar"]) == []
+    cold = produced_cold(built, "COLD_START_FAILURE")
+    try:
+        b = bind(cold, "unknown")
+        raw, cov = domain_selection(cold, b.request)
+        pin = raw["pin"]
+        assert pin is not None and raw["lineage"] and raw["selected_id"] == cold.revision_id
+        assert pin["selection_seqs"][cold_analytics.EXCURSION_ANALYTIC] == seed.new["seq"]
+        assert pin["window_end"] <= now_utc(cold.engine)
+        assert (pin["state"], cov["state"]) == ("UNKNOWN", "UNKNOWN")
+        body = w501_read(built, iso(pin["evidence_cutoff"]))
+        text_body = canonical(body)
+        assert body["selection"]["state"] == "UNKNOWN"
+        assert NO_PROBE_NOTE in text_body and NO_SELECTION_NOTE not in text_body and FUTURE_NOTE not in text_body
+        assert {seed.new["ar"], pin["assessment_revision_id"]} <= set(body["selection"]["assessment_revision_ids"])
+    finally:
+        cold.svc._store.dispose()
+        cold.work._store.dispose()
