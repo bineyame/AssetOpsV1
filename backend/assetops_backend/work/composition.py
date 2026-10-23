@@ -10,18 +10,21 @@ from typing import Callable
 from uuid import UUID, uuid4
 
 from assetops_backend.evidence.composition import build_link_rows_reader
+from assetops_backend.work.adapters.postgres_domain_action_index import PostgresDomainActionRead
 from assetops_backend.work.adapters.postgres_domain_intent import PostgresDomainIntentStore
 from assetops_backend.work.adapters.postgres_global_read import PostgresGlobalWorkRead
 from assetops_backend.work.adapters.postgres_work_read import LinkReadPorts, PostgresWorkRead, _ReadTx
 from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
 from assetops_backend.work.detail import WorkDetailService
+from assetops_backend.work.domain_action_index import DomainActionReadService
 from assetops_backend.work.domain_intent import DomainIntentService
 from assetops_backend.work.global_index import GlobalWorkIndexService
 from assetops_backend.work.site_index import WorkIndexService
 from assetops_backend.work.model import WorkStoreUnavailable
 from assetops_backend.work.service import WorkService
 
-__all__ = ["WORK_UNAVAILABLE", "build_domain_intent_service", "build_domain_intent_store",
+__all__ = ["WORK_UNAVAILABLE", "build_domain_action_read", "build_domain_action_read_service",
+           "build_domain_intent_service", "build_domain_intent_store",
            "build_global_work_index_service", "build_global_work_read",
            "build_work_detail_service", "build_work_index_service", "build_work_read", "build_work_service",
            "build_work_store"]
@@ -47,9 +50,11 @@ def _link_read_ports() -> LinkReadPorts:
                                                         build_postgres_assessment_store)
 
     selected_windows_on, pin_refused = build_cold_ev_selection_pins()
+    cold_read = build_cold_read_service(None)
 
     return LinkReadPorts(
-        cold_snapshot=build_cold_read_service(None)._snapshot, ev_snapshot=build_ev_read_service(None)._snapshot,
+        cold_snapshot=cold_read._snapshot, cold_envelope=cold_read.envelope_on,
+        ev_snapshot=build_ev_read_service(None)._snapshot,
         selected_windows=selected_windows_on, pin_refused=(pin_refused,),
         dispatch_days=build_postgres_assessment_store(None).select_dispatch_days_on,
         finding_index=build_finding_store(None).index_snapshot_on,
@@ -98,3 +103,35 @@ def build_domain_intent_service(database_url: str | None, *,
                                 new_id: Callable[[], UUID] = uuid4) -> DomainIntentService:
     """W5-02a K1a: the domain Action commands over their sole writer."""
     return DomainIntentService(build_domain_intent_store(database_url), new_id=new_id)
+
+
+def selected_cold_envelope(ports: LinkReadPorts):
+    """W5-02a ruling B1: the selected cold envelope of one valid Finding pin on the caller's connection - the
+    pin's exact window, evidence cutoff and selection seqs through `ColdReadService._snapshot`, then `envelope_on`.
+    A cold read outage is the work read's 503, never an empty success."""
+    from assetops_backend.analytics.cold_reads import ColdReadUnavailable
+
+    def envelope_of(c, tenant_id, site_id, site_code, pin, known_at):
+        if ports.cold_envelope is None:
+            raise WorkStoreUnavailable("The domain Action read has no selected cold envelope reader.")
+        try:
+            snap = ports.cold_snapshot(c, tenant_id, site_id, site_code, pin["window_start"], pin["window_end"],
+                                       pin["evidence_cutoff"], selection_cutoff=known_at,
+                                       selection_seqs=dict(pin["selection_seqs"]))
+            return ports.cold_envelope(c, snap, ports.cold_analytics)
+        except ColdReadUnavailable as error:
+            raise WorkStoreUnavailable(f"The selected cold read is unavailable: {error}") from error
+
+    return envelope_of
+
+
+def build_domain_action_read(database_url: str | None) -> PostgresDomainActionRead:
+    ports = _link_read_ports()
+    return PostgresDomainActionRead(database_url, link_rows=build_link_rows_reader(),
+                                    pin_of=selected_finding_pin(ports), envelope_of=selected_cold_envelope(ports),
+                                    action_window=ports.action_window)
+
+
+def build_domain_action_read_service(database_url: str | None) -> DomainActionReadService | None:
+    """W5-02a K1b: the domain Action detail and Site Action union index; None without a product database (503)."""
+    return None if not database_url else DomainActionReadService(build_domain_action_read(database_url))

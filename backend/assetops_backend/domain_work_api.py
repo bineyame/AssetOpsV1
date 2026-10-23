@@ -7,7 +7,16 @@
 - `POST /actions/{action_id}/case-links` - an explicit link to one W4 case revision/event
   (`domain-action-case-link-1`).
 
-Each returns 201 for a first submission and 200 with the original body for an identical retry. Refusal order:
+W5-02a K1b adds the reads (ruling B1-B3):
+
+- `GET /actions/{action_id}?known_at=` - the declared cold Action at a cutoff (`domain-action-intent-read-1`).
+- `GET /action-index?from=&to=&known_at=&limit=&cursor=` - the Site Action union index
+  (`site-domain-action-index-1`).
+
+Reads use the gate's read scope (401/403/404/503), then the read service's 422 / 404 / 409 refusals. A refused
+detail read carries `intent:null,results:null`; no refusal carries a count. A 401/403/503 is never an empty success.
+
+Each POST returns 201 for a first submission and 200 with the original body for an identical retry. Refusal order:
 the shared W4 `WorkGate` (401 `UNAUTHENTICATED`, 403 `SITE_SCOPE_FORBIDDEN`, 404 `SITE_NOT_FOUND`, write grant
 401/403, 503 `WORK_STORE_UNAVAILABLE`), then the service (absent SERVICE principal 403, 422, 404 `ACTION_NOT_FOUND`,
 409). Refusals are `{"detail":{"code","message"}}`. The SERVICE principal is injected server-side only.
@@ -21,6 +30,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from assetops_backend.work.domain_action import DomainIntentRefused
+from assetops_backend.work.domain_action_index import DomainActionReadService, parse_index_request
 from assetops_backend.work.domain_intent import DomainIntentService
 from assetops_backend.work.model import MESSAGES, WorkRefused, WorkStoreUnavailable
 from assetops_backend.work_api import WorkGate
@@ -33,7 +43,8 @@ def _refuse(status: int, code: str, message: str) -> HTTPException:
 
 
 def build_domain_work_router(service: DomainIntentService | None, gate: WorkGate,
-                             unavailable: tuple[type, ...] = ()) -> APIRouter:
+                             unavailable: tuple[type, ...] = (),
+                             reads: DomainActionReadService | None = None) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
 
@@ -71,5 +82,40 @@ def build_domain_work_router(service: DomainIntentService | None, gate: WorkGate
         tenant_id, site_id, code, who = gate.open_scope(request, site_code, service is not None)
         body = await body_of(request)
         return run(lambda: service.post_case_link(tenant_id, site_id, code, action_id, body, who))
+
+    def read(work: Callable[[], dict[str, Any]], extra: dict[str, Any]) -> JSONResponse:
+        try:
+            if reads is None:
+                raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
+            try:
+                body = work()
+            except DomainIntentRefused as refused:
+                raise _refuse(refused.status, refused.code, refused.message) from refused
+            except WorkRefused as refused:
+                raise _refuse(refused.status, refused.code, refused.message) from refused
+            except down as error:
+                raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"]) from error
+        except HTTPException as refusal:
+            raise HTTPException(status_code=refusal.status_code, detail={**refusal.detail, **extra},
+                                headers=refusal.headers) from refusal
+        return JSONResponse(status_code=200, content=body)
+
+    @router.get("/api/sites/{site_code}/domain-work/action-index")
+    def action_index(request: Request, site_code: str) -> JSONResponse:
+        tenant_id, site_id, code = gate.read_scope(request, site_code)
+        q = request.query_params
+        return read(lambda: reads.index(tenant_id, site_id, code, parse_index_request(
+            q.get("from"), q.get("to"), q.get("limit"), q.getlist("known_at"), q.get("cursor"))), {})
+
+    @router.get("/api/sites/{site_code}/domain-work/actions/{action_id}")
+    def action_detail(request: Request, site_code: str, action_id: str) -> JSONResponse:
+        refused_read = {"intent": None, "results": None}
+        try:
+            tenant_id, site_id, code = gate.read_scope(request, site_code)
+        except HTTPException as refusal:
+            raise HTTPException(status_code=refusal.status_code, detail={**refusal.detail, **refused_read},
+                                headers=refusal.headers) from refusal
+        return read(lambda: reads.detail(tenant_id, site_id, code, action_id,
+                                         request.query_params.getlist("known_at")), refused_read)
 
     return router

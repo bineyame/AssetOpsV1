@@ -74,6 +74,8 @@ class LinkReadPorts:
     ev_analytics: tuple[str, ...]
     # q7-2: `PostgresActionStore.site_window_on` for the exact W1 `sai1-` Action window fence on this connection.
     action_window: Callable[..., dict[str, Any]] | None = None
+    # W5-02a ruling B1: `ColdReadService.envelope_on` of the same cold read owner, for the K1b domain Action detail.
+    cold_envelope: Callable[..., dict[str, Any]] | None = None
 
 
 class _ReadTx:

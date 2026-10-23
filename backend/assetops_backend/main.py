@@ -78,7 +78,8 @@ from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.actions.site_index import ActionIndexService
 from assetops_backend.action_index_api import build_action_index_router
-from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_domain_intent_service,
+from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_domain_action_read_service,
+                                               build_domain_intent_service,
                                                build_global_work_index_service, build_work_detail_service,
                                                build_work_index_service, build_work_service)
 from assetops_backend.work_api import Principal, WorkGate, build_work_router, no_service_principal
@@ -556,7 +557,8 @@ def create_app(
     # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
     app.include_router(build_domain_work_router(
         build_domain_intent_service(database_url()) if database_url() else None,
-        WorkGate(registry.ledger_scope, (WORK_UNAVAILABLE,), principal=domain_work_principal), (WORK_UNAVAILABLE,)))
+        WorkGate(registry.ledger_scope, (WORK_UNAVAILABLE,), principal=domain_work_principal), (WORK_UNAVAILABLE,),
+        reads=build_domain_action_read_service(database_url())))
     # W6-01a (Lane A): the read-only global work roots `/api/work/{incidents,...}`; tenant from the server registry
     # only, per-Site admission through the Finding-route access seam; typed 503 without a database or cursor key.
     app.include_router(build_global_work_router(
