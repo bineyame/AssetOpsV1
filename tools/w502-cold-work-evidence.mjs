@@ -288,11 +288,14 @@ const MEASURE_CASES = `(() => {
   };
 })()`;
 // ---- W5-02b K3b: the cold case tabs (v69 cold-work-incidents / cold-work-maintenance) ----------------------------
-// Build-spec "Measurement" caps for the other Work pages [1440, 390]: page <= 1400/1800, panel <= 440/650, strip
-// <= 100/150, notice <= 110/160. K3 ruling 16 (final cap rule, as K2 ruling 24): the five-row state with every
-// disclosure open is exempt from the case panel cap only (its height is recorded); every other state, including the
-// five-row closed and one-open states, keeps it, and page/strip/notice caps, containment and no overflow still apply.
-const CASE_CAPS = { main: [1400, 1800], strip: [100, 150], panel: [440, 650], notice: [110, 160] };
+// K3 ruling 17 (FINAL, supersedes ruling 16 and Measurement :38 for the case tabs): case panel <= 650 and page main
+// <= 1400 at 1440, panel <= 650 and page main <= 1800 at 390, strip <= 100/150, notice <= 110/160, for every state
+// except the expanded ones. Ruling 18: `worstcase-all-open` (every `Read full text` open) and the INFO-only
+// `worstcase-every-disclosure` have no panel or page-main height cap; their page height is reported against 1600/2000
+// as information, and every other gate (strip, notice, rows, columns, containment, keyboard, values once, horizontal
+// table scrolling, no document overflow or clipping) still applies.
+const CASE_CAPS = { main: [1400, 1800], strip: [100, 150], panel: [650, 650], notice: [110, 160] };
+const CASE_INFO_PAGE = [1600, 2000];
 const CASE_BANNER = "Cold-room operating capabilities and consequence vocabulary within the stable Site shell.";
 const CASE_READY = `document.querySelector('main [data-site-work] section.panel') && !document.querySelector('[data-work-loading]') && (document.querySelector('[data-work-loaded], [data-work-empty], [data-work-refused]'))`;
 const MEASURE_CASE = `(() => {
@@ -354,25 +357,44 @@ const MEASURE_CASE = `(() => {
     allDetails: body?.querySelectorAll('tbody details').length ?? 0,
     badgeCount: badges.length,
     badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
+    // K3 ruling 20: the Window value is one line.
+    windowLines: rows.map((r) => r.querySelector('[data-work-window]')).filter(Boolean).map((e) => { const rg = document.createRange(); rg.selectNodeContents(e);
+      const tops = [...rg.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top)); return new Set(tops).size; }),
+    // K3 ruling 21: no row hidden below the table scroller's visible box (no vertical case box).
+    rowsInsideScroller: (() => { if (!scroller) return null; const sb = scroller.getBoundingClientRect(); return rows.every((r) => r.getBoundingClientRect().bottom <= sb.bottom + 1); })(),
+    scrollerOverflowY: scroller ? getComputedStyle(scroller).overflowY : null,
+    scrollerMaxHeight: scroller ? getComputedStyle(scroller).maxHeight : null,
+    // K3 ruling 18: the 'Read full text' controls, their open state, and whether each opened value is shown once.
+    readFull: (() => { const ds = [...(body?.querySelectorAll('tbody details') ?? [])].filter((d) => d.querySelector(':scope > summary')?.textContent.trim() === 'Read full text');
+      return { total: ds.length, open: ds.filter((d) => d.open).length,
+        previewsWhileOpen: ds.filter((d) => d.open && d.parentElement.querySelector(':scope > [data-cold-work-preview]')).length,
+        valuesOnce: ds.filter((d) => d.open).every((d) => { const v = d.querySelector('.disclosure__body').textContent.trim(); return d.closest('td').textContent.split(v).length - 1 === 1; }) }; })(),
+    otherOpen: [...(body?.querySelectorAll('tbody details[open]') ?? [])].map((d) => d.querySelector(':scope > summary')?.textContent.trim()).filter((x) => x !== 'Read full text' && x !== 'Activity recorded' && x !== 'Outcome note'),
+    // K3 ruling 20: each UUID in an opened 'UTC and IDs' / 'Finding version' body is one line and fully reachable by
+    // scrolling that body (overflow-x auto), without widening the cell.
+    openCodes: [...(body?.querySelectorAll('tbody details[open] .disclosure__body code') ?? [])].map((c) => { const b = c.closest('.disclosure__body'); const rg = document.createRange(); rg.selectNodeContents(c);
+      const tops = new Set([...rg.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size; const td = c.closest('td');
+      return { chars: c.textContent.length, lines: tops, reachable: b.scrollWidth >= c.scrollWidth && (getComputedStyle(b).overflowX === 'auto' || b.scrollWidth <= b.clientWidth + 1), cellFits: td.scrollWidth <= td.clientWidth + 1 }; }),
     cells: rows.flatMap((r) => [...r.querySelectorAll('td')]).map((td) => {
       const box = td.getBoundingClientRect();
-      const inside = (e) => { const b = e.getBoundingClientRect(); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1); };
+      const inside = (e) => { const b = e.getBoundingClientRect(); const sc = e.parentElement?.closest('.disclosure__body'); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1) || (sc != null && getComputedStyle(sc).overflowX === 'auto'); };
       const previews = [...td.querySelectorAll('[data-cold-work-preview]')];
       const bodies = [...td.querySelectorAll('details[open] .disclosure__body')];
       return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: [...td.querySelectorAll('*')].every(inside),
         previewLines: previews.map((c) => Math.round(c.getBoundingClientRect().height / lineBox(c))),
-        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1), openBodies: bodies.length };
+        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1 || getComputedStyle(b).overflowX === 'auto'), openBodies: bodies.length };
     }),
   };
 })()`;
 
-function capCase(W, label, m, wi, panelCap = true) {
+function capCase(W, label, m, wi, heightCaps = true) {
   const c = CASE_CAPS;
   claim(`${W} ${label}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
-  claim(`${W} ${label}: page main <= ${c.main[wi]}`, m.main !== null && m.main <= c.main[wi], { main: m.main, docHeight: m.docHeight });
+  if (heightCaps) claim(`${W} ${label}: page main <= ${c.main[wi]}`, m.main !== null && m.main <= c.main[wi], { main: m.main, docHeight: m.docHeight });
+  else console.log(`INFO  ${W} ${label}: page main ${m.main} vs ${CASE_INFO_PAGE[wi]} (K3 ruling 18: information only, no page-height cap)`);
   claim(`${W} ${label}: strip <= ${c.strip[wi]}`, m.strip !== null && m.strip <= c.strip[wi], m.strip);
-  if (panelCap) claim(`${W} ${label}: panel <= ${c.panel[wi]}`, m.panel !== null && m.panel <= c.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
-  else console.log(`INFO  ${W} ${label}: panel height ${m.panel} (K3 ruling 16: exempt from the ${c.panel[wi]} panel cap; recorded)`);
+  if (heightCaps) claim(`${W} ${label}: panel <= ${c.panel[wi]}`, m.panel !== null && m.panel <= c.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  else console.log(`INFO  ${W} ${label}: panel height ${m.panel} (K3 ruling 18: no panel-height cap; recorded)`);
   claim(`${W} ${label}: context notice <= ${c.notice[wi]} and is the domain notice`, m.contextNotice !== null && m.contextNotice <= c.notice[wi] && m.contextNoticeText === "Opening a record moves you to its own area; the breadcrumb keeps this site.", { height: m.contextNotice, text: m.contextNoticeText });
   if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${c.notice[wi]}`, m.currentnessNotice <= c.notice[wi], m.currentnessNotice);
   claim(`${W} ${label}: no banner on the product screen (K3 ruling 1)`, m.banner === false, m.banner);
@@ -388,6 +410,10 @@ function caseRowClaims(W, label, m, expectRows) {
   claim(`${W} ${label}: no clipped chip or badge`, m.badgeCount > 0 && m.badgesClipped === 0, { badges: m.badgeCount, clipped: m.badgesClipped });
   claim(`${W} ${label}: R93 Pages block and R92 basis disclosure present`, /^Showing /.test(m.showing ?? "") && m.basis, { showing: m.showing, basis: m.basis });
   if (W === "narrow") claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
+  // K3 ruling 21: both cold case tabs grow with their rows; no vertical case box hides a row.
+  claim(`${W} ${label}: every row visible inside the table scroller (no vertical case box)`, m.rowsInsideScroller === true && m.scrollerMaxHeight === "none", { inside: m.rowsInsideScroller, maxHeight: m.scrollerMaxHeight, overflowY: m.scrollerOverflowY });
+  if (m.windowLines.length > 0) claim(`${W} ${label}: Window value on one line (ruling 20)`, m.windowLines.every((n) => n === 1), m.windowLines);
+  if (m.openCodes.length > 0) claim(`${W} ${label}: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)`, m.openCodes.every((c) => c.lines === 1 && c.reachable && c.cellFits), m.openCodes.filter((c) => !(c.lines === 1 && c.reachable && c.cellFits)));
 }
 function caseContentClaims(W, label, m, kind, mode) {
   const want = kind === "incidents" ? ["Case", "Window", "What happened", "Linked findings", "State"] : ["Work request", "Asset", "Activity", "Outcome", "Next evidence"];
@@ -406,8 +432,10 @@ function caseContentClaims(W, label, m, kind, mode) {
       { findings: m.findings, anchors: m.findingAnchors, caseAnchors: m.caseAnchors });
   } else {
     claim(`${W} ${label}: Asset cell reads generator-1 · backup generator (R89)`, m.assets.length > 0 && m.assets.every((a) => a === "generator-1 · backup generator"), m.assets);
-    // K3 ruling 3: the chip is the selected request state; the producer's WRs are OPEN after their performed record.
-    claim(`${W} ${label}: Activity chip is a W4 request-state label (Completed only for COMPLETED)`, m.activityChips.length > 0 && m.activityChips.every((c) => ["Open", "In progress", "Completed", "Closed", "Cancelled", "Verification window"].includes(c)), m.activityChips);
+    // K3 rulings 3/22: the chip is the selected request state. The fixture WR is COMPLETED (ASSIGN + COMPLETE before its
+    // case link); the four extra worst-case WRs stay OPEN. A historical cutoff before completion would read Open.
+    const want = mode === "worstcase" ? ["Completed", "Open", "Open", "Open", "Open"] : ["Completed"];
+    claim(`${W} ${label}: Activity chips are the selected states ${want.join("/")}`, JSON.stringify([...m.activityChips].sort()) === JSON.stringify(want), m.activityChips);
     claim(`${W} ${label}: Next evidence is the honest gap (R72)`, m.nextEvidence.length > 0 && m.nextEvidence.every((x) => x === "No next evidence recorded"), m.nextEvidence);
     claim(`${W} ${label}: WR code opens the W6 C2 Overview with site_id (R68)`, m.caseAnchors.length > 0 && m.caseAnchors.every((a) => a !== null && a.startsWith("/maintenance/requests/") && a.includes(`site_id=${SITE}`)), m.caseAnchors);
   }
@@ -417,6 +445,14 @@ function caseContentClaims(W, label, m, kind, mode) {
 const FOCUS_CHECK = `(() => { const out = [...document.querySelectorAll('main [data-site-work] tbody details > summary')].map((x) => { x.focus(); const r = x.getBoundingClientRect(); const td = x.closest('td').getBoundingClientRect();
   return { text: x.textContent.trim(), focusable: document.activeElement === x, inside: r.width > 0 && r.left >= td.left - 1 && r.right <= td.right + 1 && x.scrollWidth <= x.clientWidth + 1 }; });
   document.activeElement?.blur(); const sc = document.querySelector('main [data-site-work] .data-table__scroll'); if (sc) sc.scrollLeft = 0; return out; })()`;
+// K3 ruling 18: open every `Read full text`, opening only its `Activity recorded`/`Outcome note` parent when needed;
+// `UTC and IDs`, `Finding version`, identity and basis disclosures stay closed.
+const OPEN_READ_FULL = `(async () => { const q = () => [...document.querySelectorAll('main [data-site-work] tbody details')];
+  for (const d of q()) { const s = d.querySelector(':scope > summary')?.textContent.trim(); if ((s === 'Activity recorded' || s === 'Outcome note') && !d.open && d.querySelector('details > summary')) d.querySelector(':scope > summary').click(); }
+  await new Promise((r) => setTimeout(r, 150));
+  for (const d of q()) { if (d.querySelector(':scope > summary')?.textContent.trim() === 'Read full text' && !d.open) d.querySelector(':scope > summary').click(); }
+  await new Promise((r) => setTimeout(r, 150)); return true; })()`;
+// INFO-only `worstcase-every-disclosure` (ruling 18): every tbody disclosure open, nested ones as they appear.
 const openAll = `(async () => { for (let i = 0; i < 6; i += 1) { const closed = [...document.querySelectorAll('main [data-site-work] tbody details:not([open])')]; if (closed.length === 0) break; closed.forEach((d) => d.querySelector(':scope > summary').click()); await new Promise((r) => setTimeout(r, 150)); } return document.querySelectorAll('main [data-site-work] tbody details:not([open])').length; })()`;
 
 async function casesMain() {
@@ -444,6 +480,13 @@ async function casesMain() {
       const ps = read("positive", "positive", kind).status;
       claim(`${W} ${s("positive")}: rows, notice follows the returned status ${ps}`, m.panelState === "rows" && m.currentness === (ps === "CURRENT" ? null : ps), { panel: m.panelState, currentness: m.currentness });
       capCase(W, s("positive"), m, wi); caseRowClaims(W, s("positive"), m, 1); caseContentClaims(W, s("positive"), m, kind, "positive");
+      // K3 ruling 19: the CURRENT capture uses only the recorded from,to (no known_at); the returned case status is
+      // CURRENT and no currentness notice shows.
+      const cur = read("positive", "current", kind);
+      m = await record(W, wi, s("current"), caseUrl("positive", kind, { from: cur.query.from, to: cur.query.to }), CASE_READY, MEASURE_CASE);
+      claim(`${W} ${s("current")}: URL has no known_at, manifest status CURRENT, no currentness notice`,
+        !/known_at=/.test(m.href) && cur.status === "CURRENT" && m.currentness === null && m.panelState === "rows", { href: m.href, status: cur.status, returnedKnownAt: cur.known_at, currentness: m.currentness });
+      capCase(W, s("current"), m, wi); caseRowClaims(W, s("current"), m, 1); caseContentClaims(W, s("current"), m, kind, "positive");
       m = await record(W, wi, s("historical"), caseUrl("positive", kind, read("positive", "historical", kind).query), CASE_READY, MEASURE_CASE);
       claim(`${W} ${s("historical")}: notice reads the returned status ${read("positive", "historical", kind).status}`, m.currentness === read("positive", "historical", kind).status, m.currentness);
       capCase(W, s("historical"), m, wi); caseRowClaims(W, s("historical"), m, 1);
@@ -466,15 +509,27 @@ async function casesMain() {
       claim(`${W} ${s("worstcase-one-open")}: one Read full text open`, m.openDetails === 1, { open: m.openDetails, of: m.allDetails });
       capCase(W, s("worstcase-one-open"), m, wi); caseRowClaims(W, s("worstcase-one-open"), m, 5);
       m = await record(W, wi, s("worstcase-all-open"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE, async () => {
-        await js(openAll);
+        await js(OPEN_READ_FULL);
         await sleep(300);
       });
-      claim(`${W} ${s("worstcase-all-open")}: every row disclosure open`, m.allDetails > 0 && m.openDetails === m.allDetails, { open: m.openDetails, of: m.allDetails });
-      capCase(W, s("worstcase-all-open"), m, wi, false); // K3 ruling 16: panel-cap exemption only
+      // Ruling 18: every expected long-text control open, its preview replaced and its full value shown once; the
+      // identity/version/basis disclosures stay closed.
+      claim(`${W} ${s("worstcase-all-open")}: every Read full text open, previews replaced, each value once, other disclosures closed`,
+        m.readFull.total > 0 && m.readFull.open === m.readFull.total && m.readFull.previewsWhileOpen === 0 && m.readFull.valuesOnce && m.otherOpen.length === 0,
+        { readFull: m.readFull, otherOpen: m.otherOpen });
+      capCase(W, s("worstcase-all-open"), m, wi, false); // K3 ruling 18: no panel/page-main height cap
       caseRowClaims(W, s("worstcase-all-open"), m, 5);
       // K3 ruling 12: every (nested) disclosure control is a native, keyboard-focusable summary, inside the viewport width.
       const focus = await js(FOCUS_CHECK);
       claim(`${W} ${s("worstcase-all-open")}: every disclosure summary takes keyboard focus and is not clipped`, focus.length > 0 && focus.every((x) => x.focusable && x.inside), { summaries: focus.length, failing: focus.filter((x) => !(x.focusable && x.inside)) });
+      // Ruling 18: the INFO-only every-disclosure state (cannot supply the all-open gate); no height caps, other gates kept.
+      m = await record(W, wi, s("worstcase-every-disclosure"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE, async () => {
+        await js(openAll);
+        await sleep(300);
+      });
+      claim(`${W} ${s("worstcase-every-disclosure")}: every row disclosure open`, m.allDetails > 0 && m.openDetails === m.allDetails, { open: m.openDetails, of: m.allDetails });
+      capCase(W, s("worstcase-every-disclosure"), m, wi, false);
+      caseRowClaims(W, s("worstcase-every-disclosure"), m, 5);
       // Late / stale / unknown: the returned case-list status drives the notice (R91 tones).
       for (const k of ["pending", "stale", "unknown"]) {
         const rd = read(k, k, kind);

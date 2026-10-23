@@ -92,7 +92,7 @@ import test_w502_cold_scenario_producer as P
 producer = P.producer
 from sqlalchemy import text
 from fastapi.testclient import TestClient
-from test_w401_work_service_postgres import ACTOR, PRINCIPAL, incident, record, request
+from test_w401_work_service_postgres import ACTOR, PRINCIPAL, event, incident, record, request
 from test_w502_domain_intent_postgres import criteria, iso, now_utc
 from assetops_backend.config import load_feature_flags
 from assetops_backend.main import create_app
@@ -204,6 +204,23 @@ try:
         f"w502b-{mode}-rec-{tag}", activity="Starter and control inspection", occurred_at=iso(rec_at),
         outcome_note="Inspection complete; witnessed automatic-start test remains required"), PRINCIPAL)
     assert s == 201, rec
+    # K3 ruling 22: complete the fixture WR through W4 (ASSIGN at D+16h41m, COMPLETE at D+16h42m citing the returned
+    # performed record), before its domain Action case link and intent are pinned, so the selected link event and
+    # the K2/K4 basis see the completed state. The four extra worst-case WRs stay OPEN.
+    assign_at, complete_at = d16 + timedelta(minutes=41), d16 + timedelta(minutes=42)
+    assert rec_at < assign_at < complete_at < d16 + timedelta(hours=1)
+    s, ev_assign = work.post_event(built.tenant_id, built.site_id, wr["id"], event(
+        "ASSIGN", {"assignee": "Maintenance lead"}, f"w502b-{mode}-wr-assign-{tag}", occurred_at=iso(assign_at)), PRINCIPAL)
+    assert s == 201 and ev_assign["state"] == "IN_PROGRESS", (s, ev_assign)
+    s, ev_complete = work.post_event(built.tenant_id, built.site_id, wr["id"], event(
+        "COMPLETE", {"maintenance_record_id": rec["id"]}, f"w502b-{mode}-wr-complete-{tag}",
+        occurred_at=iso(complete_at)), PRINCIPAL)
+    assert s == 201 and ev_complete["state"] == "COMPLETED", (s, ev_complete)
+    assert at(ev_assign["event"]["occurred_at"]) == assign_at and at(ev_complete["event"]["occurred_at"]) == complete_at
+    wr_events = {"assign": {"id": ev_assign["event"]["id"], "occurred_at": ev_assign["event"]["occurred_at"],
+                            "state": ev_assign["state"]},
+                 "complete": {"id": ev_complete["event"]["id"], "occurred_at": ev_complete["event"]["occurred_at"],
+                              "state": ev_complete["state"]}}
     # Ruling 4 manifest assertion: the stored INC (returned ID) has the shifted occurred_at and both selected links.
     with built.engine.connect() as c:
         stored_at = c.execute(text("SELECT occurred_at FROM work_case WHERE id = :c"), {"c": inc["id"]}).scalar_one()
@@ -251,7 +268,8 @@ try:
                                              "Finding (ruling 21; no synthetic excursion)") if mode == "unknown"
                                             else None},
                       "request": {"id": wr["id"], "revision_id": wr["revision"]["id"], "record_id": rec["id"],
-                                  "occurred_at": iso(wr_at), "record_occurred_at": iso(rec_stored_at)},
+                                  "occurred_at": iso(wr_at), "record_occurred_at": iso(rec_stored_at),
+                                  "events": wr_events},
                       "case_links": links, "intent": intent}
     actions = [{"id": aid, "code": action["action_code"], "raised_at": iso(raised),
                 "recorded_at": action["recorded_at"], "due_at": None}]
@@ -367,7 +385,9 @@ try:
         assert r.status_code == 200, (kind, r.status_code, r.text)
         b = r.json()
         return {"query": q, "status": b["status"], "coverage": b["coverage"], "known_at": b["known_at"],
-                "total_count": b["total_count"], "rows": len(b["rows"]), "row_ids": [x["case_id"] for x in b["rows"]]}
+                "total_count": b["total_count"], "rows": len(b["rows"]), "row_ids": [x["case_id"] for x in b["rows"]],
+                "row_states": [{"case_id": x["case_id"], "state": x["state"], "request_state": x.get("request_state")}
+                               for x in b["rows"]]}
 
     case_reads = {}
     windows = {name: {"from": rd["query"]["from"], "to": rd["query"]["to"], "known_at": rd["known_at"]}
@@ -376,6 +396,8 @@ try:
         # Ruling 7: the case complete zero uses the valid seven-day [D-8 days, D-1 day) window (D = sh.start's day).
         dz = d16.replace(hour=0)
         windows["zero"] = {"from": iso(dz - timedelta(days=8)), "to": iso(dz - timedelta(days=1))}
+        # K3 ruling 19: the CURRENT read the browser makes from the recorded from,to alone (no known_at).
+        windows["current"] = {"from": reads["positive"]["query"]["from"], "to": reads["positive"]["query"]["to"]}
     for name, q in windows.items():
         want = 0 if name == "zero" else 5 if mode == "worstcase" else 1
         for kind in ("incidents", "maintenance"):
@@ -385,6 +407,17 @@ try:
             if (got["total_count"], got["rows"]) != (want, want):
                 doc["blocked"] = (doc["blocked"] or "") + f" {name}:{kind}: cases {got['total_count']}/{got['rows']} != {want}"
     doc["case_reads"] = case_reads
+    # K3 ruling 22: the fixture WR reads COMPLETED at the current read; the four extra worst-case WRs stay OPEN.
+    if mode == "positive":
+        cur = case_reads["current:maintenance"]
+        if cur["status"] != "CURRENT" or [x["request_state"] for x in cur["row_states"]] != ["COMPLETED"]:
+            doc["blocked"] = (doc["blocked"] or "") + f" current:maintenance {cur['status']} {cur['row_states']}"
+        if case_reads["current:incidents"]["status"] != "CURRENT":
+            doc["blocked"] = (doc["blocked"] or "") + " current:incidents not CURRENT"
+    if mode == "worstcase":
+        got = sorted(x["request_state"] for x in case_reads["worstcase:maintenance"]["row_states"])
+        if got != ["COMPLETED", "OPEN", "OPEN", "OPEN", "OPEN"]:
+            doc["blocked"] = (doc["blocked"] or "") + f" worstcase WR states {got}"
 finally:
     work._store.dispose()
     built.close()
@@ -695,7 +728,8 @@ class Walk:
                 continue
             # K3 pre-flight ruling 7: every mode's case reads exist and hold the expected full count and page rows.
             case_reads = doc.get("case_reads") or {}
-            want_names = {f"{n}:{k}" for n in (doc.get("reads") or {}) for k in ("incidents", "maintenance")}
+            names = set(doc.get("reads") or {}) | ({"current"} if m == "positive" else set())  # K3 ruling 19
+            want_names = {f"{n}:{k}" for n in names for k in ("incidents", "maintenance")}
             if set(case_reads) != want_names:
                 failures.append(f"{m}: case reads {sorted(case_reads)} != {sorted(want_names)}")
             for name, rd in case_reads.items():

@@ -206,7 +206,7 @@
 }
 
 /* W5-02b K3b (K3 pre-flight rulings 2 and 7, R94): the cold Incident/Maintenance cells. A `Finding {id8}` label stays
-   on one line with its inline `Finding version` disclosure; chips never split; disclosure bodies wrap inside the cell. */
+   on one line with its inline `Finding version` disclosure; chips never split; disclosure text wraps inside the cell. */
 .work-cases[data-cold-cases] .cold-work-code {
   white-space: nowrap;
   overflow-wrap: normal;
@@ -222,9 +222,17 @@
   overflow-wrap: normal;
 }
 
-.work-cases[data-cold-cases] td .disclosure .disclosure__body,
+/* K3 ruling 20 (M2): an opened `UTC and IDs` or `Finding version` body keeps each 36-character UUID on one line and
+   scrolls horizontally inside its own cell; `contain: inline-size` keeps the unbroken code from widening the column. */
+.work-cases[data-cold-cases] td .disclosure .disclosure__body {
+  contain: inline-size;
+  overflow-x: auto;
+}
+
 .work-cases[data-cold-cases] td .disclosure .disclosure__body code {
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .work-cases[data-cold-cases] td [data-work-state],
@@ -272,7 +280,15 @@
   word-break: break-word;
 }
 
-/* K3 review L2: the Site-local Window value (`6 Oct · from 19:11`) is one phrase; only `UTC and IDs` wraps. */
+/* K3 review L2 / ruling 20: the Site-local Window value (`6 Oct · from 19:11`) is one phrase; only `UTC and IDs` wraps. */
 .work-cases[data-cold-cases] td [data-work-window] {
   white-space: nowrap;
+}
+
+/* K3 ruling 21 (M3): the cold case tables grow with their rows and scroll only horizontally; MINIGRID keeps W4's 224 px
+   vertical Incident box (w4-work-cases.css, narrow media query). */
+.work-cases[data-cold-cases] [data-work-table="incidents"] .data-table__scroll {
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: visible;
 }
