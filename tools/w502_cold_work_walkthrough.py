@@ -30,7 +30,10 @@ is written. `prepare`:
 `host/lab_app.py` app and puts, ahead of its domain-work routes, the same `build_domain_work_router` with a `WorkGate`
 whose read access is a server-configured operator principal scoped to that Site (`<work>/principal-<mode>.json`,
 nothing a client sends). The `forbidden` process holds an operator principal with no Site grant (403
-`SITE_SCOPE_FORBIDDEN` from the real gate); the `unavailable` process has an unreachable private DB URL (503).
+`SITE_SCOPE_FORBIDDEN` from the real gate). K2 ruling 3 (option b): the `unavailable` process serves the healthy
+positive DB for the app (the Site read stays healthy) and gives the domain-work router alone an unreachable private
+DB URL (`W502B_DOMAIN_WORK_DB_URL`), so the real `WORK_STORE_UNAVAILABLE` 503 renders inside the cold-work panel.
+No product router changes.
 
 Guards: `--work` must be a `var/w502b*` folder directly under this repository's `var/`; database names are
 `w502b_<mode>_<tag>_test`; `drop` acts only on what the work folder's marker and pid file record.
@@ -125,10 +128,25 @@ try:
             "SELECT evidence_id FROM finding_revision_evidence WHERE finding_revision_id = :r"), {"r": revision_id}).scalars())
     if selection["state"] != W501:
         doc["blocked"] = f"W5-01 selection state {selection['state']}, expected {W501}"
-    gens = [a for a in built.store.registrations(built.tenant_id, built.site_id).assets
-            if a.asset_code in ("GEN-CR-01", "generator-1")]
+    # K2 ruling 5: the returned COLD-LAB-001 Foundation asset `generator-1` and its returned ID; no `GEN-CR-01`
+    # lookup or display remapping (MOCK DEVIATION (D4) R89 covers the mock's illustrative `GEN-CR-01`).
+    gens = [a for a in built.store.registrations(built.tenant_id, built.site_id).assets if a.asset_code == "generator-1"]
     assert len(gens) == 1, [a.asset_code for a in built.store.registrations(built.tenant_id, built.site_id).assets]
     gen = gens[0]
+    # K2 ruling 4: the SERVICE-attested INC occurs at D+16h11m inside the source window [D+16h, D+17h) and links both
+    # returned selected cold Findings; the WR and its performed record follow it inside the same interval.
+    d16 = sh.start
+    assert d16 == d16.replace(hour=16, minute=0, second=0, microsecond=0) and d16.utcoffset() == timedelta(0), d16
+    inc_at, wr_at, rec_at = (d16 + timedelta(minutes=m) for m in (11, 20, 40))
+    assert d16 <= inc_at < wr_at < rec_at < d16 + timedelta(hours=1)
+    inc_links = []
+    for mech in ("COLD_START_FAILURE", "COLD_EXCURSION"):
+        try:
+            fid, rid = P.finding_revision(built, mech)
+        except AssertionError:
+            doc["blocked"] = (doc["blocked"] or "") + f" INC: no selected {mech} Finding revision to link (ruling 4)"
+            continue
+        inc_links.append({"finding_id": fid, "finding_revision_id": rid, "mechanism": mech})
     doc.update({"finding": {"id": finding_id, "revision_id": revision_id, "mechanism": MECH,
                             "assessment_revision_id": k0.assessment_revision_id, "cited_evidence_ids": cited},
                 "w501": {"state": selection["state"], "assessment_revision_ids": selection.get("assessment_revision_ids"),
@@ -149,6 +167,8 @@ try:
     # Attested raised_at values lie strictly between K0 and this DB read (the Action follows its evidence).
     step = (db_now - k0.known_at) / 7
     raised = k0.known_at + step
+    # K2 ruling 17: every Action raised_at is strictly after K0 and no later than the DB read before the POST.
+    assert k0.known_at < raised <= db_now, (k0.known_at, raised, db_now)
     action = post("/actions", {"domain": "COLDCHAIN", "origin_finding_id": finding_id,
                                "origin_finding_revision_id": revision_id, "title": "Witness automatic-start test",
                                "owner_label": "Maintenance lead", "due_at": None, "raised_at": iso(raised),
@@ -156,17 +176,27 @@ try:
     aid = action["id"]
     flink = [{"finding_id": finding_id, "finding_revision_id": revision_id}]
     s, inc = work.create_case(built.tenant_id, built.site_id, incident(
-        f"w502b-{mode}-inc-{tag}", title="Backup response failure",
-        narrative="Grid lost, automatic start failed, chamber above policy", asset_id=str(gen.id)), PRINCIPAL)
+        f"w502b-{mode}-inc-{tag}", title="Backup response failure", occurred_at=iso(inc_at),
+        narrative="Grid lost, automatic start failed, chamber above policy", asset_id=str(gen.id),
+        finding_links=[{"finding_id": x["finding_id"], "finding_revision_id": x["finding_revision_id"]}
+                       for x in inc_links]), PRINCIPAL)
     assert s == 201, inc
     s, wr = work.create_case(built.tenant_id, built.site_id, request(
-        f"w502b-{mode}-wr-{tag}", title="Starter/control inspection", asset_id=str(gen.id), finding_links=flink,
-        incident_id=inc["id"]), PRINCIPAL)
+        f"w502b-{mode}-wr-{tag}", title="Starter/control inspection", occurred_at=iso(wr_at), asset_id=str(gen.id),
+        finding_links=flink, incident_id=inc["id"]), PRINCIPAL)
     assert s == 201, wr
     s, rec = work.post_record(built.tenant_id, built.site_id, wr["id"], record(
-        f"w502b-{mode}-rec-{tag}", activity="Starter and control inspection",
+        f"w502b-{mode}-rec-{tag}", activity="Starter and control inspection", occurred_at=iso(rec_at),
         outcome_note="Inspection complete; witnessed automatic-start test remains required"), PRINCIPAL)
     assert s == 201, rec
+    # Ruling 4 manifest assertion: the stored INC (returned ID) has the shifted occurred_at and both selected links.
+    with built.engine.connect() as c:
+        stored_at = c.execute(text("SELECT occurred_at FROM work_case WHERE id = :c"), {"c": inc["id"]}).scalar_one()
+        got_links = sorted([str(f), str(r)] for f, r in c.execute(text(
+            "SELECT finding_id, finding_revision_id FROM work_case_finding_link WHERE case_revision_id = :r"),
+            {"r": inc["revision"]["id"]}).all())
+    assert stored_at == inc_at, (stored_at, inc_at)
+    assert got_links == sorted([x["finding_id"], x["finding_revision_id"]] for x in inc_links), got_links
     links = {}
     for key, case in (("incident", inc), ("request", wr)):
         with built.engine.connect() as c:
@@ -193,8 +223,11 @@ try:
     doc["fixture"] = {"action": {"id": aid, "code": action["action_code"], "recorded_at": action["recorded_at"],
                                  "raised_at": iso(raised), "title": "Witness automatic-start test",
                                  "owner_label": "Maintenance lead", "due_at": None},
-                      "incident": {"id": inc["id"], "revision_id": inc["revision"]["id"]},
-                      "request": {"id": wr["id"], "revision_id": wr["revision"]["id"], "record_id": rec["id"]},
+                      "incident": {"id": inc["id"], "revision_id": inc["revision"]["id"], "occurred_at": iso(inc_at),
+                                   "finding_links": inc_links, "returned_finding_links": got_links,
+                                   "source_window": [iso(d16), iso(d16 + timedelta(hours=1))]},
+                      "request": {"id": wr["id"], "revision_id": wr["revision"]["id"], "record_id": rec["id"],
+                                  "occurred_at": iso(wr_at), "record_occurred_at": iso(rec_at)},
                       "case_links": links, "intent": intent}
     actions = [{"id": aid, "code": action["action_code"], "raised_at": iso(raised),
                 "recorded_at": action["recorded_at"], "due_at": None}]
@@ -202,6 +235,7 @@ try:
         dues = [None, timedelta(days=1), None, timedelta(days=30), timedelta(days=200)]
         for n, due in enumerate(dues):
             r_at = k0.known_at + step * (n + 2)
+            assert raised < r_at <= db_now, (raised, r_at, db_now)  # ruling 17: later than the fixture Action
             head = f"Witness automatic-start test {n + 1} — long title proof "
             title = (head + "x" * 160)[:160]
             owner = (f"Maintenance lead {n + 1} — long owner proof " + "y" * 160)[:160]
@@ -350,11 +384,14 @@ grant = json.loads(open(os.environ["W502B_PRINCIPAL_FILE"], encoding="utf-8").re
 sites = {c.upper() for c in grant["sites"]}
 access = lambda request, code: None if code.upper() in sites else 403
 url = M.database_url()
+# K2 ruling 3 (option b): capture-only. The Site registry and the product app keep the healthy DB; only this
+# domain-work router's stores use W502B_DOMAIN_WORK_DB_URL when set (the `unavailable` process: unreachable -> 503).
+work_url = os.environ.get("W502B_DOMAIN_WORK_DB_URL") or url
 registry = ImportedSiteRegistry(FoundationService(M.build_foundation_store(url), M.DEVELOPMENT_TENANT_SLUG, M.utc_now))
 router = build_domain_work_router(
-    build_domain_intent_service(url) if url else None,
+    build_domain_intent_service(work_url) if work_url else None,
     WorkGate(registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access, command_access=access),
-    (M.WORK_UNAVAILABLE,), reads=build_domain_action_read_service(url))
+    (M.WORK_UNAVAILABLE,), reads=build_domain_action_read_service(work_url))
 app.router.routes[0:0] = list(router.routes)
 '''
 
@@ -479,9 +516,12 @@ class Walk:
                           "site_code": SITE, "query": (positive.get("reads") or {}).get("positive", {}).get("query"),
                           "expected": {"http": 403, "code": "SITE_SCOPE_FORBIDDEN"},
                           "frontend": self.frontend_hint("forbidden")},
-            "unavailable": {"api_base": f"http://127.0.0.1:{PORTS['unavailable']}", "db_url": UNREACHABLE,
-                            "site_code": SITE, "query": (positive.get("reads") or {}).get("positive", {}).get("query"),
-                            "expected": {"http": 503, "code": "WORK_STORE_UNAVAILABLE"},
+            "unavailable": {"api_base": f"http://127.0.0.1:{PORTS['unavailable']}", "db": self.dbs["positive"],
+                            "domain_work_db_url": UNREACHABLE, "site_code": SITE,
+                            "query": (positive.get("reads") or {}).get("positive", {}).get("query"),
+                            "expected": {"http": 503, "code": "WORK_STORE_UNAVAILABLE", "site_read_http": 200},
+                            "mechanism": "K2 ruling 3 option (b): healthy Site read, domain-work router alone on an "
+                                         "unreachable private DB URL",
                             "frontend": self.frontend_hint("unavailable")}}
         manifest = {"schema": "w502b-cold-work-walkthrough-1", "revision": getattr(self, "revision", None),
                     "work": str(self.work), "site_code": SITE, "principal": principal, "modes": modes,
@@ -504,7 +544,7 @@ class Walk:
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
         plan = [(m, self.url(m), [SITE]) for m in DB_MODES if manifest["modes"][m].get("reads")]
-        plan += [("forbidden", self.url("positive"), []), ("unavailable", UNREACHABLE, [SITE])]
+        plan += [("forbidden", self.url("positive"), []), ("unavailable", self.url("positive"), [SITE])]
         flags = (getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0) | getattr(subprocess, "DETACHED_PROCESS", 0))
         for name, db_url, sites in plan:
             if name in pids and _alive(pids[name]["pid"]):
@@ -516,12 +556,15 @@ class Walk:
                              encoding="utf-8")
             env = self.env(db_url)
             env["W502B_PRINCIPAL_FILE"] = str(grant)
+            if name == "unavailable":
+                env["W502B_DOMAIN_WORK_DB_URL"] = UNREACHABLE  # ruling 3: the domain-work router alone
             env["PYTHONPATH"] = os.pathsep.join([str(self.work), env["PYTHONPATH"]])
             log = open(logs / f"api-{name}-{port}.log", "w", encoding="utf-8")
             proc = subprocess.Popen([str(PY), "-m", "uvicorn", "serve_entry:app", "--host", "127.0.0.1", "--port",
                                      str(port)], cwd=str(self.tree / "host"), env=env, stdout=log,
                                     stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, creationflags=flags)
             pids[name] = {"pid": proc.pid, "port": port, "db_url": db_url.replace(PW, "***"),
+                          "domain_work_db_url": UNREACHABLE if name == "unavailable" else None,
                           "log": str(logs / f"api-{name}-{port}.log")}
             self.pids_file().write_text(json.dumps(pids, indent=2), encoding="utf-8")
         for name, info in pids.items():
@@ -574,6 +617,11 @@ class Walk:
             say(f"    {name:<11} :{pids[name]['port']} -> HTTP {code} {detail.get('code')} {detail.get('message')!r}")
             if (code, detail.get("code")) != (spec["expected"]["http"], spec["expected"]["code"]):
                 failures.append(f"served {name}: HTTP {code} {detail}")
+            if "site_read_http" in spec["expected"]:
+                site_code, _ = _get_path(pids[name]["port"], f"/api/sites/{SITE}")
+                say(f"    {name:<11} :{pids[name]['port']} Site read -> HTTP {site_code}")
+                if site_code != spec["expected"]["site_read_http"]:
+                    failures.append(f"served {name}: Site read HTTP {site_code}, expected a healthy Site (ruling 3)")
         if failures:
             raise SystemExit("ATTEST FAILED: " + "; ".join(failures))
         say("ATTEST OK")
@@ -610,7 +658,11 @@ def _alive(pid: int) -> bool:
 
 
 def _get(port: int, query: dict | None) -> tuple[int, dict]:
-    url = f"http://127.0.0.1:{port}/api/sites/{SITE}/domain-work/action-index?{urllib.parse.urlencode(query or {})}"
+    return _get_path(port, f"/api/sites/{SITE}/domain-work/action-index?{urllib.parse.urlencode(query or {})}")
+
+
+def _get_path(port: int, path: str) -> tuple[int, dict]:
+    url = f"http://127.0.0.1:{port}{path}"
     try:
         with urllib.request.urlopen(url, timeout=60) as r:
             return r.status, json.loads(r.read())
