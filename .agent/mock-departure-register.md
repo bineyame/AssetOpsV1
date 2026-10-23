@@ -50,11 +50,11 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R22 | W5-01 C3 | `cold-health` | Mock ends after Condition and evidence | Additional Data sources panel | D3 | A faithful alternative exists: keep cold Health panel set and point Foundation Data sources to the existing `cold-evidence` source panel. | W5-F1 F1-1: remove added panel and fix fragment destination; re-review | correction planned: W5-F1 |
+| R22 | W5-01 C3 | `cold-health` | Mock ends after Condition and evidence | Additional Data sources panel | D3 | A faithful alternative exists: keep cold Health panel set and point Foundation Data sources to the existing `cold-evidence` source panel. | W5-F1 F1-1: remove added panel and fix fragment destination; re-review | built: W5-F1 f0812934 |
 | R23 | W5-02 K3a M5 withdrawn | `cold-work-incidents` | Site-local Window date/time | Fixed EAT/UTC formatting was proposed | D3 | `SiteDetailReadModel.timezone` already exists. Correct with `siteWindowText(occurred_at, site.timezone)` and two-zone/date-boundary tests. | W5-02 K3a | resolved |
 | R24 | W5-04 V3a E5 withdrawn | `ev-work-incidents` | Site-local Window date/time | Fixed UTC/offset formatting was proposed | D3 | Stored EV Site timezone already exists. Reuse K3a `siteWindowText` and test both zones/date boundary. | W5-04 V3a | resolved |
-| R37 | W2-03 retro correction | `cold-performance` | Loading / batch row | Row was omitted in first build | D3 | The mock row can be rendered faithfully; restore it in its original order. | W5-F1 F1-2: keep row, prove mock order and capture; re-review | correction planned: W5-F1 |
-| R38 | W2-03 retro correction | `cold-evidence-analysis` | Exact target record links | Links were offered before target integration proof | D3 | Keep link placement but show labelled references/unavailable state until exact target is proved. | W5-F1 F1-3: remove unproved anchor and capture; re-review | correction planned: W5-F1 |
+| R37 | W2-03 retro correction | `cold-performance` | Loading / batch row | Row was omitted in first build | D3 | The mock row can be rendered faithfully; restore it in its original order. | W5-F1 F1-2: keep row, prove mock order and capture; re-review | built: W5-F1 42964500 |
+| R38 | W2-03 retro correction | `cold-evidence-analysis` | Exact target record links | Links were offered before target integration proof | D3 | Keep link placement but show labelled references/unavailable state until exact target is proved. | W5-F1 F1-3: remove unproved anchor and capture; re-review | built: W5-F1 89b88a40 |
 
 ## D4 — illustrative mock placeholder
 
