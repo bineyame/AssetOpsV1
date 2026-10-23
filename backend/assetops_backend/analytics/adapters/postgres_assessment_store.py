@@ -3027,19 +3027,39 @@ class EvReadService:
 
     def foundation_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any] | None:
         """The selected assessment's Foundation revision, else the one effective at the cutoff: `{content,
-        valid_from}`. None when no Foundation exists."""
+        valid_from}`. None when no Foundation exists. Delegates to `foundation_revision_on` (W5-03a pre-flight)
+        so the two reads can never disagree."""
+        row = self.foundation_revision_on(c, snap)
+        return None if row is None else {"content": row["content"], "valid_from": row["valid_from"]}
+
+    def foundation_revision_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any] | None:
+        """W5-03a pre-flight: the `foundation_on` revision with its identity and validity, `{id, content,
+        valid_from, valid_to}` (`id` lowercase, `valid_to` None when open ended), by the same predicate: the selected
+        head's single `foundation_ids` entry, else the revision effective at the cutoff. None when none resolves."""
         p: dict[str, Any] = {"t": snap["t"], "s": snap["s"]}
         sel = snap["selected"]
         if sel is not None and len(sel["foundation_ids"]) == 1:
-            row = c.execute(text("SELECT content, valid_from FROM foundation_revision WHERE tenant_id = :t "
-                                 "AND site_id = :s AND id = :f"), {**p, "f": UUID(str(sel["foundation_ids"][0]))}).first()
+            row = c.execute(text("SELECT id, content, valid_from, valid_to FROM foundation_revision "
+                                 "WHERE tenant_id = :t AND site_id = :s AND id = :f"),
+                            {**p, "f": UUID(str(sel["foundation_ids"][0]))}).first()
         else:
             at = snap["known"] or snap["hi"]
             row = None if at is None else c.execute(text(
-                "SELECT content, valid_from FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
-                "AND superseded_at IS NULL AND valid_from <= :k AND (valid_to IS NULL OR valid_to > :k) "
+                "SELECT id, content, valid_from, valid_to FROM foundation_revision WHERE tenant_id = :t "
+                "AND site_id = :s AND superseded_at IS NULL AND valid_from <= :k AND (valid_to IS NULL OR valid_to > :k) "
                 "ORDER BY valid_from DESC, version DESC LIMIT 1"), {**p, "k": at}).first()
-        return None if row is None else {"content": _ev_json(row[0]) or {}, "valid_from": row[1]}
+        return None if row is None else {"id": _ev_plain(row[0]), "content": _ev_json(row[1]) or {},
+                                         "valid_from": row[2], "valid_to": row[3]}
+
+    def selected_provenance_on(self, c: Connection, snap: dict[str, Any], ids) -> dict[str, Any]:
+        """W5-03a pre-flight: the public source-provenance DTO of depth-specific selected citations (status/import
+        IDs). Only IDs inside the selected head's cited set are kept, deduplicated and lowercased, then resolved by
+        `PublicProvenance.cited_set`; empty, broken or foreign is UNKNOWN and crossed classes MIXED."""
+        sel = snap["selected"]
+        allowed = set() if sel is None else set(sel["evidence_ids"])
+        cited = sorted({str(x).lower() for x in ids} & allowed)
+        revisions = [] if sel is None else [str(sel["revision_id"]).lower()]
+        return self._public(c).cited_set(snap["t"], snap["s"], cited, revisions)
 
     def assets_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, str]:
         """asset_code -> lowercase asset UUID for the Site (the Foundation component IDs' scoped assets)."""

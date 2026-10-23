@@ -203,6 +203,71 @@ def service_windows(foundation: dict[str, Any] | None, assets: dict[str, str], l
                                                                            key=lambda x: (x[0], sorted(x[1])))]
 
 
+def connector_service_windows(foundation: dict[str, Any] | None, assets: dict[str, str], lo: datetime | None,
+                              hi: datetime | None) -> list[dict[str, Any]]:
+    """W5-03a E1a: one row per enabled connector component with a scoped asset, sorted by component ID:
+    `{component_id, asset_id, schedule, windows}`. `schedule` is `WEEKLY` (a declared non-empty weekly list),
+    `EMPTY` (a declared `weekly: []`) or `NONE` (no declaration, or a malformed, duplicated or self-overlapping one,
+    which is rejected rather than turned into invented hours). `windows` are that connector's own occurrences
+    clipped to `[lo,hi)`, sorted and unioned (`[]` unless `WEEKLY`). Configuration only, never observed state."""
+    if foundation is None:
+        return []
+    enabled = enabled_connectors(foundation)
+    declared: dict[str, list[Any]] = {}
+    for schedule in foundation["content"].get("connector_enable_schedules") or ():
+        declared.setdefault(str(schedule.get("connector_asset_id")), []).append(schedule.get("weekly"))
+    out = []
+    for cid in sorted(enabled):
+        asset = assets.get(cid)
+        if asset is None:
+            continue
+        found = declared.get(cid) or []
+        kind, windows = "NONE", []
+        if len(found) == 1 and isinstance(found[0], list):
+            weekly = found[0]
+            if not weekly:
+                kind = "EMPTY"
+            else:
+                spans = _occurrences(weekly, lo, hi)
+                if spans is not None:
+                    kind, windows = "WEEKLY", spans
+        out.append({"component_id": cid, "asset_id": asset, "schedule": kind, "windows": windows})
+    return out
+
+
+def _occurrences(weekly: list[Any], lo: datetime | None, hi: datetime | None) -> list[tuple[datetime, datetime]] | None:
+    """The clipped `[lo,hi)` occurrences of one connector's weekly list, or None when any entry is malformed or two
+    occurrences overlap (an ambiguous declaration)."""
+    if lo is None or hi is None:
+        return None
+    raw: list[tuple[datetime, datetime]] = []
+    for w in weekly:
+        if not isinstance(w, dict) or w.get("weekday") not in WEEKDAYS:
+            return None
+        try:
+            h1, m1 = (int(x) for x in str(w["local_start"]).split(":"))
+            h2, m2 = (int(x) for x in str(w["local_end"]).split(":"))
+            offset = timedelta(minutes=int(w["utc_offset_minutes"]))
+        except (KeyError, ValueError, TypeError):
+            return None
+        if not (0 <= h1 <= 24 and 0 <= h2 <= 24 and 0 <= m1 < 60 and 0 <= m2 < 60):
+            return None
+        length = timedelta(hours=h2, minutes=m2) - timedelta(hours=h1, minutes=m1)
+        if length <= timedelta(0):
+            return None
+        first = (lo + offset).date() - timedelta(days=8)
+        day = first + timedelta(days=(WEEKDAYS.index(w["weekday"]) - first.weekday()) % 7)
+        while day <= (hi + offset).date() + timedelta(days=1):
+            base = datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc) - offset
+            start = base + timedelta(hours=h1, minutes=m1)
+            raw.append((start, start + length))
+            day += timedelta(days=7)
+    raw.sort()
+    if any(b[0] < a[1] for a, b in zip(raw, raw[1:])):
+        return None
+    return _union((max(a, lo), min(b, hi)) for a, b in raw if a < hi and b > lo)
+
+
 def _utc_words(at: datetime) -> str:
     return at.strftime("%Y-%m-%d %H:%M")
 
