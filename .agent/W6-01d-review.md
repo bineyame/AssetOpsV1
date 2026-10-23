@@ -125,3 +125,22 @@ migrations or `globalWorkClient.ts`.
 - jsdom has no layout, so a unit test cannot prove the M1 fix. It needs a 390 capture.
 - The spec's "browser assertion of malformed-200" is met by a jsdom test with a stubbed `fetch`, not by a real
   browser. That is a reasonable reading, but the Architect may want to confirm it.
+
+## Re-review (head `200bab81`, 2026-10-23)
+
+**Verdict: ACCEPT.** H1 and M1 are both closed, and no new finding.
+
+- **H1 closed.** Main (merged in at `ea8d02aa`) now has register rows R41 (D1, the gap rows) and R42 (D4, the
+  completion wording). The register counts are updated to D1 15, D4 9 and 42 in total. The spec labels both rulings
+  `MOCK DEVIATION` (`W6-01-build-spec.md:662`, `:664`). In `e951f7fd`, `WorkRequestHistory.tsx` adds the header line
+  word for word as ruled at spec `:666`, and nothing else changed in the code.
+- **M1 closed.** In `12c73637`, `WorkRequestTabs` attaches `useCurrentTabInView` to the `Context tabs` nav. A new test
+  stubs the layout and checks that `scrollLeft` moves the current History tab into view. In `c75f6cad`,
+  `page1-m1-390.png` shows History current and visible at the right of the row, with Overview scrolled off to the left.
+  This is the same behaviour as the other tab rows from W1-F5b.
+- **Diff since the first review** (backend, frontend, tools): only `workRequestShared.tsx` (+3 lines), the History test
+  (+23 lines) and the one header line. The merge from main brought no other change to these paths.
+- **Checks:** focused vitest on History, Overview and Record passed 56 of 56. `tsc --noEmit` exited 0. No browser
+  was run.
+- **Carried forward:** L1, the garbled characters in the evidence JSON, is still open and does not block. The full
+  backend suite gate for `tools/checks/*` is still the coordinator's decision.
