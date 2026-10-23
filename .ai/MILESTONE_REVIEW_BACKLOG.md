@@ -2381,3 +2381,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W5-01b Lows
 - Environment: `test_runs_api.py::TestTheShippedFuelLossEventAgainstAPropertylessFoundation` reads the gitignored `var/sites/mg-001.yaml`, so it fails in a fresh worktree. The test should create it or use a tracked fixture (OPS follow-up).
 - Builder confirmed choices are listed in the W5-01b handoff (Q-C5b-7 confirmed by Codex).
+
+## W6-01c Lows
+- L5: C3 Technician notes cell nests a `div` inside a `p` (invalid markup). Change the `p` to a `div`.
+- Review L3/L4 notes are in `.agent/W6-01c-review.md` on the branch.

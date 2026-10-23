@@ -478,6 +478,29 @@ from W1 rework and W2-00..W2-03 (about 30-40% avoidable rework, then 15-20%):
   reviewers flag it Medium (High if user-visible vs the mock), and the Architect
   rules it and amends the spec before merge
   (`.agent/owner-fidelity-and-design-ownership-2026-10-18.md`).
+- **Departure categories and register (owner, 2026-10-23,
+  `.agent/owner-departure-categories-2026-10-23.md`).** Every departure from the v69
+  mock carries one category code in its `MOCK DEVIATION` label and one row in
+  `.agent/mock-departure-register.md`. The row records the ID, screen, mock element,
+  what is shown instead, the category, the reason, the owning unit and the status.
+  - **D1 Data or feature not available.** Show an honest gap inside the mock's
+    structure. It becomes a future-work candidate, which the owner prioritises
+    at the walkthrough.
+  - **D2 Improvement on the mock** (better organisation, precision or clarity).
+    Flag it to the owner at the walkthrough for approval or reversal.
+  - **D3 Structural oversight by the Architect or Planner** (a missed or altered
+    mock panel, element or order). This is a defect, not a deviation: correct it
+    before merge. A reviewer finding one is High.
+  - **D4 Mock placeholder content** (illustrative text that would be false for real
+    data). Replace it with real data or an honest gap; inform the owner only.
+  - **D5 Temporary, because of build order.** Name the unit that resolves it; that
+    unit's review verifies it is resolved.
+  - **D6 Technical constraint** (guard or platform). Rare; list the alternatives
+    considered. The owner is informed, and the Architect prefers changing the
+    constraint over the mock.
+  The Architect assigns the code. The reviewer checks the code and the register row,
+  and an unlabelled or uncategorised departure is High. The walkthrough index groups
+  departures by category.
 - **Builder pre-flight and quiet-machine suites (owner, 2026-10-22,
   `.agent/owner-speed-preflight-quiet-suite-2026-10-22.md`).**
   - **Pre-flight.** Before writing any code for a sub-slice, the builder dry-reads
@@ -561,3 +584,10 @@ Change bindings here when the team wants a different tool to own a role. Record
 material changes in `.ai/DECISIONS.md` if they affect workflow, review
 independence, or task ownership.
 
+14. **Line-ending check before every full suite (2026-10-23).** The command is
+    `git ls-files --eol | grep "eol=lf" | awk '$2=="w/crlf"'`. The attribute sits in
+    field 4, so an awk test on `$3` silently finds nothing. A main merge in a Windows
+    worktree can rewrite LF-pinned golden files as CRLF; on 2026-10-23 this caused 8
+    false failures. Delete and re-checkout every listed file before the run. Never
+    kill processes by image name (`taskkill /IM node.exe`): stop only the PIDs you
+    started.

@@ -208,7 +208,8 @@ def test_owner_payload_and_latest_record(store, key) -> None:  # noqa: F811
 
 
 def test_site_maintenance_fallback_href(store, key) -> None:  # noqa: F811
-    """P-B1-13 / A1Q Q8: label `Site maintenance`, the same window and the response `known_at`; no detail href."""
+    """P-B1-13 / A1Q Q8: label `Site maintenance`, the same window and the response `known_at`. W6-01c C2 replaced
+    only the detail href (`test_detail_href_after_c2`)."""
     info = seed("maintenance")
     demo = info["tenants"]["demo"]
     body = read(demo, "maintenance")
@@ -217,10 +218,33 @@ def test_site_maintenance_fallback_href(store, key) -> None:  # noqa: F811
         assert row["links"]["site_maintenance"] == {
             "label": "Site maintenance",
             "href": f"/sites/{row['site_code']}/work/maintenance?{query(body['known_at'])}"}
-        assert row["links"]["detail"] is None
+        assert row["links"]["detail"] is not None
     historical = read(demo, "maintenance", known_at=z(CLOCK))
     assert historical["status"] == "HISTORICAL" and historical["known_at"] == z(CLOCK)
     assert historical["rows"][0]["links"]["site_maintenance"]["href"].endswith(quote(z(CLOCK), safe=""))
+
+
+def test_detail_href_after_c2(store, key) -> None:  # noqa: F811
+    """W6-01c C2 (P-C2-12, P-C1-5): `links.detail` is the exact request Overview with the row's Site code; it carries
+    `known_at` only when the list request named an explicit cutoff, at that exact instant."""
+    info = seed("maintenance")
+    demo = info["tenants"]["demo"]
+    body = read(demo, "maintenance")
+    assert body["rows"]
+    for row in body["rows"]:
+        assert row["links"]["detail"] == {
+            "label": row["code"],
+            "href": f"/maintenance/requests/{row['case_id']}?site_id={quote(row['site_code'], safe='')}"}
+    historical = read(demo, "maintenance", known_at=z(CLOCK))
+    assert historical["rows"]
+    for row in historical["rows"]:
+        assert row["links"]["detail"]["href"] == (
+            f"/maintenance/requests/{row['case_id']}?site_id={quote(row['site_code'], safe='')}"
+            f"&known_at={quote(m.iso(CLOCK), safe='')}")
+    # Page two keeps the explicit cutoff; a list without one never adds it.
+    rows = all_rows(demo, "maintenance", known_at=z(READ_NOW))
+    assert len(rows) > 5 and all(r["links"]["detail"]["href"].endswith(quote(m.iso(READ_NOW), safe="")) for r in rows)
+    assert all("known_at" not in r["links"]["detail"]["href"] for r in all_rows(demo, "maintenance"))
 
 
 def test_request_root_created_at_window(store, key) -> None:  # noqa: F811

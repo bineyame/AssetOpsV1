@@ -18,6 +18,7 @@ from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
 from assetops_backend.work.detail import WorkDetailService
 from assetops_backend.work.domain_action_index import DomainActionReadService
 from assetops_backend.work.domain_intent import DomainIntentService
+from assetops_backend.work.global_detail import GlobalWorkDetailService
 from assetops_backend.work.global_index import GlobalWorkIndexService
 from assetops_backend.work.site_index import WorkIndexService
 from assetops_backend.work.model import WorkStoreUnavailable
@@ -25,7 +26,7 @@ from assetops_backend.work.service import WorkService
 
 __all__ = ["WORK_UNAVAILABLE", "build_domain_action_read", "build_domain_action_read_service",
            "build_domain_intent_service", "build_domain_intent_store",
-           "build_global_work_index_service", "build_global_work_read",
+           "build_global_work_detail_service", "build_global_work_index_service", "build_global_work_read",
            "build_work_detail_service", "build_work_index_service", "build_work_read", "build_work_service",
            "build_work_store"]
 
@@ -135,3 +136,8 @@ def build_domain_action_read(database_url: str | None) -> PostgresDomainActionRe
 def build_domain_action_read_service(database_url: str | None) -> DomainActionReadService | None:
     """W5-02a K1b: the domain Action detail and Site Action union index; None without a product database (503)."""
     return None if not database_url else DomainActionReadService(build_domain_action_read(database_url))
+
+
+def build_global_work_detail_service(database_url: str | None) -> GlobalWorkDetailService | None:
+    """W6-01c: the exact request detail on the global read; None without a product database (503)."""
+    return None if not database_url else GlobalWorkDetailService(build_global_work_read(database_url))

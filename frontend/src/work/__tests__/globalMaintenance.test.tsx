@@ -423,6 +423,21 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
   });
 });
 
+describe("W6-01c C2: the request Overview link", () => {
+  it("detail_href_after_c2", async () => {
+    const detail = `/maintenance/requests/${row(1).case_id}?site_id=KOBO-001&known_at=2026-10-21T12%3A00%3A00.000000Z`;
+    const reads = client({
+      "page-one": loaded(body([row(1, { links: { ...row(1).links, detail: { label: "WR-000001", href: detail } } }), row(2)])),
+    });
+    mount(`${PAGE}&known_at=${encodeURIComponent(KNOWN)}`, reads);
+    await settled();
+    const [first, second] = Array.from(document.querySelectorAll("[data-global-work-row]"));
+    expect(within(first as HTMLElement).getByRole("link", { name: "WR-000001 · Request 1" })).toHaveAttribute("href", detail);
+    // A row without a detail link keeps the Site maintenance fallback.
+    expect(within(second as HTMLElement).getByRole("link", { name: "WR-000002 · Request 2" })).toHaveAttribute("href", SITE_MAINTENANCE);
+  });
+});
+
 describe("W6-01b B2: the maintenance client", () => {
   it("reads /api/work/maintenance with limit=5 and accepts only object state counts", async () => {
     const seen: string[] = [];
