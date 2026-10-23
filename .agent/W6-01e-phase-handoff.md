@@ -231,3 +231,8 @@ There are 23 items: P-E-0, P-E1-1…10 and P-E2-1…12. Ten are blocking: P-E-0,
 - Packet: `.agent/W6-01e-review-packet.md` (acceptance by P-ID, checks, KD1-KD5). Evidence: `.agent/W6-01-evidence/E2/`.
 - Open for the Architect: KD1 (`cutoff` keyword on `select_operational`), KD2 (form panel cap 180/230 vs mock 289/443),
   KD3 unruled literals (`Until {date}`, `Reading:` line), KD5 departure-register status (R12, R29-R31 built; R34 resolved).
+
+## Run (KD3 fix, 2026-10-23)
+
+- Commit `79bce5f2`: `readingLine` returns null when the body already contains `{quantity}[ {unit}]` (KD3 ruling); test updated plus a KD3 unit test.
+- Checks: `operationalRecords.test.tsx` 11 passed; `tsc -b` clean; `tools/check-all.ps1` 11/11. No Postgres tests or captures (full backend suite running).
