@@ -28,6 +28,7 @@ const PAGE = `/maintenance/requests/${CASE}?site_id=KOBO-001`;
 const KNOWN = "2026-10-20T12:00:01Z";
 const OVERVIEW = `/maintenance/requests/${CASE}?site_id=KOBO-001`;
 const RECORD = `/maintenance/requests/${CASE}/record?site_id=KOBO-001`;
+const HISTORY = `/maintenance/requests/${CASE}/history?site_id=KOBO-001`;
 const TITLE200 = "Startermotorandcontrolpanelinspection".repeat(6).slice(0, 200);
 const NARRATIVE = "Inspection narrative ".repeat(200).slice(0, 4000);
 
@@ -115,7 +116,7 @@ function detail(over: Partial<GlobalWorkDetailBody> = {}, state = "IN_PROGRESS")
       site: { label: "Kobo", href: "/sites/KOBO-001" },
       overview: { label: "Overview", href: OVERVIEW },
       record: { label: "Maintenance record", href: RECORD },
-      history: { label: "History", href: `/maintenance/requests/${CASE}/history?site_id=KOBO-001` },
+      history: { label: "History", href: HISTORY },
       source_incident: null,
       findings: [],
       actions: [],
@@ -194,7 +195,8 @@ describe("W6-01c C2: work request Overview", () => {
     expect(screen.getByRole("link", { name: "Open site" })).toHaveAttribute("href", "/sites/KOBO-001");
 
     // P-C2-5: Context tabs in mock order; Overview live and current. W6-01c C3 (P-C3-5): Maintenance record is a
-    // live `/record` link with the same Site; Verification and History stay unavailable.
+    // live `/record` link with the same Site. W6-01d C4 (P-C4-2): History is a live `/history` link with the same
+    // Site; Verification stays unavailable.
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(tabs.querySelector(".site-tabs__list")).not.toBeNull();
     const overview = within(tabs).getByRole("link", { name: "Overview" });
@@ -203,12 +205,15 @@ describe("W6-01c C2: work request Overview", () => {
     const record = within(tabs).getByRole("link", { name: "Maintenance record" });
     expect(record).toHaveAttribute("href", RECORD);
     expect(record).not.toHaveAttribute("aria-current");
-    expect(within(tabs).getAllByRole("link")).toHaveLength(2);
+    const history = within(tabs).getByRole("link", { name: "History" });
+    expect(history).toHaveAttribute("href", HISTORY);
+    expect(history).not.toHaveAttribute("aria-current");
+    expect(within(tabs).getAllByRole("link")).toHaveLength(3);
     expect(Array.from(tabs.querySelectorAll("li")).map((li) => text(li))).toEqual([
       "Overview",
       "Maintenance record",
       "Verification · Not available yet",
-      "History · Not available yet",
+      "History",
     ]);
 
     // P-C2-4: As known at + Reload in the date bar.
@@ -274,9 +279,10 @@ describe("W6-01c C2: work request Overview", () => {
     expect(q("[data-work-request-breadcrumb-site]")).toBeNull();
     expect(screen.queryByRole("link", { name: "Open site" })).toBeNull();
     expect(text(q('[data-work-request-open-site="text"]'))).toBe("Open site");
-    // The Overview anchor is built from validated inputs before the response.
+    // The Overview anchor is built from validated inputs before the response (C4: so is History).
     const tabs = screen.getByRole("navigation", { name: "Context tabs" });
     expect(within(tabs).getByRole("link", { name: "Overview" })).toHaveAttribute("href", OVERVIEW);
+    expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", HISTORY);
     expect(screen.queryByRole("button", { name: "Reload" })).toBeNull();
     expect(q(".v69-mheader")).toBeNull();
     release();
@@ -382,6 +388,7 @@ describe("W6-01c C2: work request Overview", () => {
             ...detail().links,
             overview: { label: "Overview", href },
             record: { label: "Maintenance record", href: `${RECORD}&known_at=${encodeURIComponent(KNOWN)}` },
+            history: { label: "History", href: `${HISTORY}&known_at=${encodeURIComponent(KNOWN)}` },
           },
         }),
       ),
@@ -399,6 +406,10 @@ describe("W6-01c C2: work request Overview", () => {
       "href",
       `${RECORD}&known_at=${encodeURIComponent(KNOWN)}`,
     );
+    // W6-01d C4 (P-C4-2): the explicit cutoff stays on the live History tab; Verification stays unavailable.
+    const tabs = screen.getByRole("navigation", { name: "Context tabs" });
+    expect(within(tabs).getByRole("link", { name: "History" })).toHaveAttribute("href", `${HISTORY}&known_at=${encodeURIComponent(KNOWN)}`);
+    expect(text(tabs)).toContain("Verification · Not available yet");
   });
 
   it("marks Completed and Finding only on stored facts; Cancelled adds its note and never Completed", async () => {

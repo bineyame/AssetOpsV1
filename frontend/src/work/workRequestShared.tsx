@@ -7,13 +7,14 @@
  * The page reads `GET /api/work/requests/{case_id}?site_id={site_code}[&known_at=]` once per route/query. Headings
  * stay visible while loading and on refusal with ruled literals; an invalid page query never fetches. The tab row
  * owns the remaining `UnavailableTab` literals once, so `navigation-truthfulness.ps1` `$expectedTabs` counts each
- * once. C3 promoted Maintenance record (`${WORK_REQUEST_PATH_PREFIX}/{id}/record`); Verification and History stay
- * unavailable until their pages mount.
+ * once. C3 promoted Maintenance record (`${WORK_REQUEST_PATH_PREFIX}/{id}/record`) and W6-01d C4 promoted History
+ * (`${WORK_REQUEST_PATH_PREFIX}/{id}/history`); Verification stays unavailable until its page mounts.
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { MetricHeader, PageHeader } from "../ui";
 import { UnavailableTab } from "../ui/UnavailableEntry";
+import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 import {
   GLOBAL_WORK_DETAIL_REFUSAL_COPY,
   createGlobalWorkClient,
@@ -181,17 +182,21 @@ export function subtitleOf(page: WorkRequestRead): string {
   return WORK_REQUEST_LOADING;
 }
 
-export type WorkRequestTab = "overview" | "record";
+export type WorkRequestTab = "overview" | "record" | "history";
 
 /** The mock `WR_TABS` labels of the mounted tabs; the breadcrumb's last item names the current one (`s.section`). */
-export const TAB_LABEL: Readonly<Record<WorkRequestTab, string>> = { overview: "Overview", record: "Maintenance record" };
+export const TAB_LABEL: Readonly<Record<WorkRequestTab, string>> = {
+  overview: "Overview",
+  record: "Maintenance record",
+  history: "History",
+};
 /** The route suffix of each mounted tab under `${WORK_REQUEST_PATH_PREFIX}/{case_id}`. */
-export const TAB_SUFFIX: Readonly<Record<WorkRequestTab, string>> = { overview: "", record: "/record" };
+export const TAB_SUFFIX: Readonly<Record<WorkRequestTab, string>> = { overview: "", record: "/record", history: "/history" };
 
 /** One mounted tab: the API link after load, else the validated inputs; text when neither exists. */
 export function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: WorkRequestTab; current: WorkRequestTab }) {
   const { target, body } = page;
-  const apiHref = body === null ? null : (tab === "overview" ? body.links.overview : body.links.record).href;
+  const apiHref = body === null ? null : body.links[tab].href;
   const href =
     apiHref ??
     (target === null
@@ -217,20 +222,22 @@ export function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: Wo
 }
 
 /**
- * P-C2-5 / F4: `Context tabs` in mock `WR_TABS` order. Overview (C2) and Maintenance record (C3) are live (validated
- * inputs before the response, API `links.overview` / `links.record` after; an explicit cutoff stays on both);
- * Verification and History are unavailable until their pages mount (C4 promotes History). With no valid case/Site
+ * P-C2-5 / F4: `Context tabs` in mock `WR_TABS` order. Overview (C2), Maintenance record (C3) and History (C4) are
+ * live (validated inputs before the response, API `links.overview` / `links.record` / `links.history` after; an
+ * explicit cutoff stays on each); Verification is unavailable until its page mounts. With no valid case/Site
  * the live labels are text. The `UnavailableTab` element renders an `li`, so the list element is the `ol` every
  * other tab row uses.
  */
 export function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkRequestTab }) {
+  // W6-01d review M1: at 390 the row scrolls inside itself; keep the current tab (History is fourth) in view.
+  const rowRef = useCurrentTabInView<HTMLElement>();
   return (
-    <nav aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
+    <nav ref={rowRef} aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
       <ol className="site-tabs__list">
         <LiveTab page={page} tab="overview" current={tab} />
         <LiveTab page={page} tab="record" current={tab} />
         <UnavailableTab label="Verification" />
-        <UnavailableTab label="History" />
+        <LiveTab page={page} tab="history" current={tab} />
       </ol>
     </nav>
   );
@@ -359,21 +366,34 @@ export function WorkRequestMHeader({ body }: { body: GlobalWorkDetailBody }) {
 
 /**
  * The request page frame: breadcrumb, heading with `Open site`, tab row, date bar, then the refusal block or the
- * mheader, then the page's panels (`children` receives the loaded body or null; panels keep their slots).
+ * mheader, then the page's panels (`children` receives the loaded body or null; panels keep their slots). A page's
+ * `accept` check (C4: a CREATED event) turns a loaded body it rejects into the 503 store refusal, failing closed.
  */
 export function WorkRequestFrame({
   client,
   rootClass,
   tab = "overview",
+  accept,
   children,
 }: {
   client?: GlobalWorkClient;
   rootClass: string;
   /** The current mounted tab; Overview when omitted (C2's page passes none). */
   tab?: WorkRequestTab;
+  /** A page-local consistency check on the loaded body; a rejected body reads as `WORK_STORE_UNAVAILABLE`. */
+  accept?: (body: GlobalWorkDetailBody) => boolean;
   children: (body: GlobalWorkDetailBody | null) => ReactNode;
 }) {
-  const page = useWorkRequest(client);
+  const raw = useWorkRequest(client);
+  const page: WorkRequestRead =
+    accept !== undefined && raw.body !== null && !accept(raw.body)
+      ? {
+          ...raw,
+          read: { status: "refused", code: "WORK_STORE_UNAVAILABLE" },
+          body: null,
+          failure: { kind: "code", code: "WORK_STORE_UNAVAILABLE" },
+        }
+      : raw;
   const { body, failure } = page;
   return (
     <main aria-labelledby={WORK_REQUEST_HEADING_ID}>

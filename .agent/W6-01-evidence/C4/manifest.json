@@ -1,0 +1,2427 @@
+{
+ "unit": "W6-01d C4",
+ "spec": ".agent/W6-01-build-spec.md C4 pre-flight rulings P-C4-1..22 (supersede earlier C4 wording); section 2 history row",
+ "server": "uvicorn on 8084 per state (DATABASE_URL per state); Vite dev server --port 5284 with ASSETOPS_API_PORT=8084; driver run_state.sh; capture.mjs (CDP 9774)",
+ "clock": "--clock 2026-10-20T12:00:00Z (B1/C1 fixtures); current reads at real DB time; historical cutoff known_at=2026-10-20T11:59:04Z (inclusive)",
+ "historical_comparison": {
+  "current": {
+   "selected_revision": 2,
+   "state": "IN_PROGRESS",
+   "authored_rows": 6
+  },
+  "historical_11_59_04Z": {
+   "selected_revision": 1,
+   "state": "COMPLETED",
+   "authored_rows": 4
+  }
+ },
+ "r8_note": "the dev server's StrictMode issues each read twice; the built app issues one. Each capture records both identical GET responses; the page rendered the single stored result shown in rendered_rows. Duplicate dev reads are not a second stored result.",
+ "caps_px_1440_390": {
+  "history_panel": [
+   600,
+   690
+  ],
+  "new_disclosure_or_pager": [
+   180,
+   300
+  ]
+ },
+ "caps_note": "history_panel is measured collapsed except in occurred-expanded and stress-full-expanded (expanded-disclosure exemption, section 2)",
+ "mock_reference": "screenshots/mock-wr-history-1440.png, mock-wr-history-390.png (B2/mock_capture.mjs wr-history)",
+ "states": [
+  {
+   "state": "page1",
+   "note": "WR-000001 current: six authored rows (revision 1 omitted), page 1 of 2",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:13:02.495Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/page1-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:12:59.867998Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:12:59.963511Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "d379ae36-b0f9-46fc-ab65-a2182519f182",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "ce80ad8c-0419-461a-b2c3-805b563c3695",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+       "20 Oct 2026, 11:59:04 UTC"
+      ],
+      [
+       "REOPEN",
+       "1be6574f-aea8-4099-99be-3b2f47c1dcf4",
+       "20 Oct 2026, 11:59:05 UTC"
+      ]
+     ],
+     "gaps": [],
+     "pager": "Showing 1–5 of 6Next",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:12 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 75,
+      "state_block": null,
+      "history_panel": 465,
+      "pager": 29,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/page1-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:01.459061Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:01.643738Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "d379ae36-b0f9-46fc-ab65-a2182519f182",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "ce80ad8c-0419-461a-b2c3-805b563c3695",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+       "20 Oct 2026, 11:59:04 UTC"
+      ],
+      [
+       "REOPEN",
+       "1be6574f-aea8-4099-99be-3b2f47c1dcf4",
+       "20 Oct 2026, 11:59:05 UTC"
+      ]
+     ],
+     "gaps": [],
+     "pager": "Showing 1–5 of 6Next",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 133,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 205,
+      "state_block": null,
+      "history_panel": 488,
+      "pager": 29,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "page1-m1",
+   "note": "review M1 recapture after useCurrentTabInView: WR-000001 page 1; at 390 the current History tab is scrolled into view (fresh detail seed, its own stored IDs)",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4m1_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "e3d20c95-7264-47b4-8515-18908261e2e9",
+    "WR-000002": "88b8c398-178b-481a-a43d-08a1baf24931"
+   },
+   "captured_at": "2026-10-23T06:44:03.712Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/page1-m1-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/e3d20c95-7264-47b4-8515-18908261e2e9?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:44:01.210217Z",
+       "revision": 2,
+       "revision_id": "b2fc3a91-9021-4851-9f70-8db9c778cf73",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/e3d20c95-7264-47b4-8515-18908261e2e9?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:44:01.331805Z",
+       "revision": 2,
+       "revision_id": "b2fc3a91-9021-4851-9f70-8db9c778cf73",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "34e8fd49-f7ad-4e51-aace-2674841988d0",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "1437be92-95f3-4cca-a1a7-3b09b64da1ab",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "4d13c446-c25f-41df-91a5-b2625abe0b7b",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "44763013-8824-42b6-938d-b1d44d49503d",
+       "20 Oct 2026, 11:59:04 UTC"
+      ],
+      [
+       "REOPEN",
+       "e5dad304-3072-4cc1-85c9-04862cde014f",
+       "20 Oct 2026, 11:59:05 UTC"
+      ]
+     ],
+     "gaps": [],
+     "pager": "Showing 1–5 of 6Next",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:44 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 75,
+      "state_block": null,
+      "history_panel": 465,
+      "pager": 29,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/page1-m1-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/e3d20c95-7264-47b4-8515-18908261e2e9?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:44:02.845605Z",
+       "revision": 2,
+       "revision_id": "b2fc3a91-9021-4851-9f70-8db9c778cf73",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/e3d20c95-7264-47b4-8515-18908261e2e9?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:44:03.018081Z",
+       "revision": 2,
+       "revision_id": "b2fc3a91-9021-4851-9f70-8db9c778cf73",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "34e8fd49-f7ad-4e51-aace-2674841988d0",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "1437be92-95f3-4cca-a1a7-3b09b64da1ab",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "4d13c446-c25f-41df-91a5-b2625abe0b7b",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "44763013-8824-42b6-938d-b1d44d49503d",
+       "20 Oct 2026, 11:59:04 UTC"
+      ],
+      [
+       "REOPEN",
+       "e5dad304-3072-4cc1-85c9-04862cde014f",
+       "20 Oct 2026, 11:59:05 UTC"
+      ]
+     ],
+     "gaps": [],
+     "pager": "Showing 1–5 of 6Next",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:44 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/e3d20c95-7264-47b4-8515-18908261e2e9/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 133,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 205,
+      "state_block": null,
+      "history_panel": 488,
+      "pager": 29,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "page2",
+   "note": "WR-000001 current after Next: row 6 (Correction) then the two in-table gaps",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:13:16.670Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": "next",
+     "image": "screenshots/page2-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:12.198181Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:12.639006Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CORRECTION",
+       "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "20 Oct 2026, 11:59:06 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": "Showing 6–6 of 6Previous",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 75,
+      "state_block": null,
+      "history_panel": 314,
+      "pager": 29,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": "next",
+     "image": "screenshots/page2-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:15.251077Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:15.464507Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CORRECTION",
+       "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "20 Oct 2026, 11:59:06 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": "Showing 6–6 of 6Previous",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 133,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 205,
+      "state_block": null,
+      "history_panel": 336,
+      "pager": 29,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "occurred-expanded",
+   "note": "WR-000001 page 1 with the first row's Occurrence time disclosure opened",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:13:31.632Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": "occurred",
+     "image": "screenshots/occurred-expanded-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:27.123590Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:27.322204Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "d379ae36-b0f9-46fc-ab65-a2182519f182",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "ce80ad8c-0419-461a-b2c3-805b563c3695",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+       "20 Oct 2026, 11:59:04 UTC"
+      ],
+      [
+       "REOPEN",
+       "1be6574f-aea8-4099-99be-3b2f47c1dcf4",
+       "20 Oct 2026, 11:59:05 UTC"
+      ]
+     ],
+     "gaps": [],
+     "pager": "Showing 1–5 of 6Next",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [
+      {
+       "hook": "data-history-occurred",
+       "h": 32
+      }
+     ],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 75,
+      "state_block": null,
+      "history_panel": 481,
+      "pager": 29,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": "occurred",
+     "image": "screenshots/occurred-expanded-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:30.058302Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:30.285716Z",
+       "revision": 2,
+       "revision_id": "9d4b6321-f05a-476b-b824-7841c58b6425",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "d379ae36-b0f9-46fc-ab65-a2182519f182",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "ce80ad8c-0419-461a-b2c3-805b563c3695",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+       "20 Oct 2026, 11:59:04 UTC"
+      ],
+      [
+       "REOPEN",
+       "1be6574f-aea8-4099-99be-3b2f47c1dcf4",
+       "20 Oct 2026, 11:59:05 UTC"
+      ]
+     ],
+     "gaps": [],
+     "pager": "Showing 1–5 of 6Next",
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [
+      {
+       "hook": "data-history-occurred",
+       "h": 32
+      }
+     ],
+     "heights": {
+      "page_header": 133,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 205,
+      "state_block": null,
+      "history_panel": 504,
+      "pager": 29,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "cancel",
+   "note": "WR-000002: persisted CANCEL",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:13:45.995Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/cancel-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/08d75cb6-af7f-48b8-9773-d13f96275609?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:42.727959Z",
+       "revision": 1,
+       "revision_id": "f276cea7-e78b-4273-960e-08aad8a73698",
+       "state": "CANCELLED",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/08d75cb6-af7f-48b8-9773-d13f96275609?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:42.901293Z",
+       "revision": 1,
+       "revision_id": "f276cea7-e78b-4273-960e-08aad8a73698",
+       "state": "CANCELLED",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "01a5d594-7199-4ee6-b339-2162d6310e4a",
+       "20 Oct 2026, 11:59:07 UTC"
+      ],
+      [
+       "CANCEL",
+       "fe056328-fa9a-407f-ad20-302bf84682f9",
+       "20 Oct 2026, 11:59:08 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+     "breadcrumb": "MaintenanceWR-000002History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 75,
+      "state_block": null,
+      "history_panel": 332,
+      "pager": null,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/cancel-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/08d75cb6-af7f-48b8-9773-d13f96275609?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:44.824647Z",
+       "revision": 1,
+       "revision_id": "f276cea7-e78b-4273-960e-08aad8a73698",
+       "state": "CANCELLED",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/08d75cb6-af7f-48b8-9773-d13f96275609?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:13:45.023600Z",
+       "revision": 1,
+       "revision_id": "f276cea7-e78b-4273-960e-08aad8a73698",
+       "state": "CANCELLED",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "01a5d594-7199-4ee6-b339-2162d6310e4a",
+       "20 Oct 2026, 11:59:07 UTC"
+      ],
+      [
+       "CANCEL",
+       "fe056328-fa9a-407f-ad20-302bf84682f9",
+       "20 Oct 2026, 11:59:08 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:13 UTCReload",
+     "breadcrumb": "MaintenanceWR-000002History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/08d75cb6-af7f-48b8-9773-d13f96275609/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 54,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 205,
+      "state_block": null,
+      "history_panel": 355,
+      "pager": null,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "historical",
+   "note": "WR-000001 at known_at=2026-10-20T11:59:04Z: four rows, revision 1, COMPLETED",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:13:59.679Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04Z",
+     "action": null,
+     "image": "screenshots/historical-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04Z",
+       "status": 200,
+       "known_at": "2026-10-20T11:59:04.000000Z",
+       "revision": 1,
+       "revision_id": "b4020ad7-f5fc-4a9c-acd2-155148c5d2ef",
+       "state": "COMPLETED",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04Z",
+       "status": 200,
+       "known_at": "2026-10-20T11:59:04.000000Z",
+       "revision": 1,
+       "revision_id": "b4020ad7-f5fc-4a9c-acd2-155148c5d2ef",
+       "state": "COMPLETED",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "d379ae36-b0f9-46fc-ab65-a2182519f182",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "ce80ad8c-0419-461a-b2c3-805b563c3695",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+       "20 Oct 2026, 11:59:04 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "Historical as of 20 Oct 2026, 11:59 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04.000000Z"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04.000000Z"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04.000000Z"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 75,
+      "state_block": null,
+      "history_panel": 461,
+      "pager": null,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04Z",
+     "action": null,
+     "image": "screenshots/historical-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04Z",
+       "status": 200,
+       "known_at": "2026-10-20T11:59:04.000000Z",
+       "revision": 1,
+       "revision_id": "b4020ad7-f5fc-4a9c-acd2-155148c5d2ef",
+       "state": "COMPLETED",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04Z",
+       "status": 200,
+       "known_at": "2026-10-20T11:59:04.000000Z",
+       "revision": 1,
+       "revision_id": "b4020ad7-f5fc-4a9c-acd2-155148c5d2ef",
+       "state": "COMPLETED",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "d379ae36-b0f9-46fc-ab65-a2182519f182",
+       "20 Oct 2026, 11:59:00 UTC"
+      ],
+      [
+       "ASSIGN",
+       "addfe30b-01a2-4e93-8e2e-618a31a0ded7",
+       "20 Oct 2026, 11:59:01 UTC"
+      ],
+      [
+       "COMMENT",
+       "ce80ad8c-0419-461a-b2c3-805b563c3695",
+       "20 Oct 2026, 11:59:02 UTC"
+      ],
+      [
+       "COMPLETE",
+       "c2aecfb9-a4dd-4c28-9b41-54052ec759e3",
+       "20 Oct 2026, 11:59:04 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "Historical as of 20 Oct 2026, 11:59 UTCReload",
+     "breadcrumb": "MaintenanceWR-000001History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04.000000Z"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04.000000Z"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001&known_at=2026-10-20T11%3A59%3A04.000000Z"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 104,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 205,
+      "state_block": null,
+      "history_panel": 484,
+      "pager": null,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "linked-source",
+   "note": "WR-000005 incident-sourced: Raised from INC-000004 with its authorized href",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4linked_test --fixture detail-linked --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "c000bb16-ee98-4e3e-a270-753d23799015",
+    "WR-000002": "246fbe53-2b2c-45a9-84b7-ce815561cbaa",
+    "INC-000004": "f7c2a6fd-0d1c-4de4-88f7-24344ef77290",
+    "WR-000005": "b4dc477f-df6b-4f88-998d-b8873cb05f5e"
+   },
+   "captured_at": "2026-10-23T06:14:14.807Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/linked-source-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:09.617869Z",
+       "revision": 1,
+       "revision_id": "acc21bc6-b9f6-4a87-a5d1-358ae2f18734",
+       "state": "OPEN",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:10.376536Z",
+       "revision": 1,
+       "revision_id": "acc21bc6-b9f6-4a87-a5d1-358ae2f18734",
+       "state": "OPEN",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "edc073f0-632d-4a97-ad01-9dcede68d1f6",
+       "20 Oct 2026, 11:59:11 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+     "breadcrumb": "MaintenanceWR-000005History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 75,
+      "state_block": null,
+      "history_panel": 268,
+      "pager": null,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/linked-source-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:13.005123Z",
+       "revision": 1,
+       "revision_id": "acc21bc6-b9f6-4a87-a5d1-358ae2f18734",
+       "state": "OPEN",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:13.743653Z",
+       "revision": 1,
+       "revision_id": "acc21bc6-b9f6-4a87-a5d1-358ae2f18734",
+       "state": "OPEN",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "edc073f0-632d-4a97-ad01-9dcede68d1f6",
+       "20 Oct 2026, 11:59:11 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+     "breadcrumb": "MaintenanceWR-000005History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/b4dc477f-df6b-4f88-998d-b8873cb05f5e/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 104,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 222,
+      "state_block": null,
+      "history_panel": 290,
+      "pager": null,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "stress",
+   "note": "WR-000007: CREATED, ASSIGN (128-character assignee), Correction (500-character reason); no pager",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4stress_test --fixture stress --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "INC-000001": "ef3dc185-e96c-4c42-8694-1ee61a6da23b",
+    "INC-000002": "33f57c55-0d6b-4065-aea2-0f1d0f09e9ca",
+    "INC-000003": "3118bacd-fc2f-4cde-acd9-3bfc19e8f1f6",
+    "INC-000004": "4833e89b-6892-479d-bf5b-48fb9289e43e",
+    "INC-000005": "45a8bd78-c0ac-48d8-a18e-6d368da8e27f",
+    "INC-000006": "712d1218-eebd-46ac-9adc-8b9a4c6cd683",
+    "WR-000007": "83c99aac-ff0f-4710-ba04-00f26e2205b3"
+   },
+   "captured_at": "2026-10-23T06:14:28.880Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/stress-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:25.354689Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:25.521072Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "f9578d50-21ca-4ac5-9b8f-2fea4a16cca0",
+       "20 Oct 2026, 11:59:07 UTC"
+      ],
+      [
+       "ASSIGN",
+       "d2c1a935-26dd-46eb-86c8-b8451c52d575",
+       "20 Oct 2026, 11:59:08 UTC"
+      ],
+      [
+       "CORRECTION",
+       "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "20 Oct 2026, 11:59:10 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+     "breadcrumb": "MaintenanceWR-000007History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 177,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 92,
+      "state_block": null,
+      "history_panel": 467,
+      "pager": null,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1120,
+      "client": 1120
+     },
+     "column_widths": [
+      314,
+      508,
+      299
+     ],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/stress-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:27.831705Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:28.118994Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "f9578d50-21ca-4ac5-9b8f-2fea4a16cca0",
+       "20 Oct 2026, 11:59:07 UTC"
+      ],
+      [
+       "ASSIGN",
+       "d2c1a935-26dd-46eb-86c8-b8451c52d575",
+       "20 Oct 2026, 11:59:08 UTC"
+      ],
+      [
+       "CORRECTION",
+       "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "20 Oct 2026, 11:59:10 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+     "breadcrumb": "MaintenanceWR-000007History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 277,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 222,
+      "state_block": null,
+      "history_panel": 490,
+      "pager": null,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "stress-full-expanded",
+   "note": "WR-000007 with the Correction Full event text disclosure opened",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4stress_test --fixture stress --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "INC-000001": "ef3dc185-e96c-4c42-8694-1ee61a6da23b",
+    "INC-000002": "33f57c55-0d6b-4065-aea2-0f1d0f09e9ca",
+    "INC-000003": "3118bacd-fc2f-4cde-acd9-3bfc19e8f1f6",
+    "INC-000004": "4833e89b-6892-479d-bf5b-48fb9289e43e",
+    "INC-000005": "45a8bd78-c0ac-48d8-a18e-6d368da8e27f",
+    "INC-000006": "712d1218-eebd-46ac-9adc-8b9a4c6cd683",
+    "WR-000007": "83c99aac-ff0f-4710-ba04-00f26e2205b3"
+   },
+   "captured_at": "2026-10-23T06:14:43.356Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001",
+     "action": "full",
+     "image": "screenshots/stress-full-expanded-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:39.240115Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:39.424126Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "f9578d50-21ca-4ac5-9b8f-2fea4a16cca0",
+       "20 Oct 2026, 11:59:07 UTC"
+      ],
+      [
+       "ASSIGN",
+       "d2c1a935-26dd-46eb-86c8-b8451c52d575",
+       "20 Oct 2026, 11:59:08 UTC"
+      ],
+      [
+       "CORRECTION",
+       "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "20 Oct 2026, 11:59:10 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+     "breadcrumb": "MaintenanceWR-000007History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [
+      {
+       "hook": "data-history-full",
+       "h": 160
+      }
+     ],
+     "heights": {
+      "page_header": 177,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 92,
+      "state_block": null,
+      "history_panel": 510,
+      "pager": null,
+      "scroll_hint": 0
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 1090,
+      "client": 1090
+     },
+     "column_widths": [
+      305,
+      494,
+      291
+     ],
+     "document_width": {
+      "scroll": 1425,
+      "client": 1425
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001",
+     "action": "full",
+     "image": "screenshots/stress-full-expanded-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:41.931840Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      },
+      {
+       "url": "/api/work/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001",
+       "status": 200,
+       "known_at": "2026-10-23T06:14:42.149487Z",
+       "revision": 2,
+       "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "state": "IN_PROGRESS",
+       "code": null
+      }
+     ],
+     "rendered_rows": [
+      [
+       "CREATED",
+       "f9578d50-21ca-4ac5-9b8f-2fea4a16cca0",
+       "20 Oct 2026, 11:59:07 UTC"
+      ],
+      [
+       "ASSIGN",
+       "d2c1a935-26dd-46eb-86c8-b8451c52d575",
+       "20 Oct 2026, 11:59:08 UTC"
+      ],
+      [
+       "CORRECTION",
+       "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+       "20 Oct 2026, 11:59:10 UTC"
+      ]
+     ],
+     "gaps": [
+      [
+       "—",
+       "Site visit start not recorded",
+       "—"
+      ],
+      [
+       "—",
+       "Verification pending · no outcome assessment recorded",
+       "—"
+      ]
+     ],
+     "pager": null,
+     "refusal": null,
+     "date_bar": "As known at 23 Oct 2026, 06:14 UTCReload",
+     "breadcrumb": "MaintenanceWR-000007History· site: Kobo mini-grid",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/83c99aac-ff0f-4710-ba04-00f26e2205b3/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [
+      {
+       "hook": "data-history-full",
+       "h": 224
+      }
+     ],
+     "heights": {
+      "page_header": 277,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": 222,
+      "state_block": null,
+      "history_panel": 582,
+      "pager": null,
+      "scroll_hint": 17
+     },
+     "collapsed_details_max_h": 16,
+     "table_scroll": {
+      "scroll": 750,
+      "client": 318
+     },
+     "column_widths": [
+      210,
+      340,
+      200
+     ],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "forbidden-403",
+   "note": "TEST-ONLY composition api_403.py (copied from C2): access callback deny_fixture_site returns 403 for KOBO-001; not a production grant outcome; no browser interceptor",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn api_403:app --app-dir .agent/W6-01-evidence/C4",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:14:56.444Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/forbidden-403-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 403,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "SITE_SCOPE_FORBIDDEN"
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 403,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "SITE_SCOPE_FORBIDDEN"
+      }
+     ],
+     "rendered_rows": [],
+     "gaps": [],
+     "pager": null,
+     "refusal": "No access to this Site's work request.",
+     "date_bar": "Work request unavailable.Reload",
+     "breadcrumb": "MaintenanceWork requestHistory",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": null,
+      "state_block": 42,
+      "history_panel": 80,
+      "pager": null,
+      "scroll_hint": null
+     },
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "column_widths": [],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/forbidden-403-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 403,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "SITE_SCOPE_FORBIDDEN"
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 403,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "SITE_SCOPE_FORBIDDEN"
+      }
+     ],
+     "rendered_rows": [],
+     "gaps": [],
+     "pager": null,
+     "refusal": "No access to this Site's work request.",
+     "date_bar": "Work request unavailable.Reload",
+     "breadcrumb": "MaintenanceWork requestHistory",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 54,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": null,
+      "state_block": 42,
+      "history_panel": 80,
+      "pager": null,
+      "scroll_hint": null
+     },
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "column_widths": [],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "not-found-404",
+   "note": "no site_id: the page does not fetch and states the 404 sentence",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn assetops_backend.main:app",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:15:08.650Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history",
+     "action": null,
+     "image": "screenshots/not-found-404-1440.png",
+     "ready": true,
+     "api": [],
+     "rendered_rows": [],
+     "gaps": [],
+     "pager": null,
+     "refusal": "No work case with this ID at this site.",
+     "date_bar": "Work request unavailable.",
+     "breadcrumb": "MaintenanceWork requestHistory",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 20,
+      "mheader": null,
+      "state_block": 42,
+      "history_panel": 80,
+      "pager": null,
+      "scroll_hint": null
+     },
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "column_widths": [],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history",
+     "action": null,
+     "image": "screenshots/not-found-404-390.png",
+     "ready": true,
+     "api": [],
+     "rendered_rows": [],
+     "gaps": [],
+     "pager": null,
+     "refusal": "No work case with this ID at this site.",
+     "date_bar": "Work request unavailable.",
+     "breadcrumb": "MaintenanceWork requestHistory",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [],
+     "open_details": [],
+     "heights": {
+      "page_header": 54,
+      "tabs": 43,
+      "date_bar_slot": 20,
+      "mheader": null,
+      "state_block": 42,
+      "history_panel": 80,
+      "pager": null,
+      "scroll_hint": null
+     },
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "column_widths": [],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  },
+  {
+   "state": "unavailable-503",
+   "note": "TEST-ONLY composition api_503.py: the C1 outage Site scope raises SiteStoreUnavailable; route answers 503; not a missing-CREATED producer (that is the typed browser test and the C1 rollback-scoped server test)",
+   "fixture_command": "python tools/w601_seed.py --db assetops_w601_c4_test --fixture detail --clock 2026-10-20T12:00:00Z",
+   "server": "uvicorn api_503:app --app-dir .agent/W6-01-evidence/C4",
+   "stored_ids": {
+    "WR-000001": "6444d5f0-e591-4f00-ab2e-aa2bdbe543c0",
+    "WR-000002": "08d75cb6-af7f-48b8-9773-d13f96275609"
+   },
+   "captured_at": "2026-10-23T06:15:21.871Z",
+   "results": [
+    {
+     "width": 1440,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/unavailable-503-1440.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 503,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "WORK_STORE_UNAVAILABLE"
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 503,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "WORK_STORE_UNAVAILABLE"
+      }
+     ],
+     "rendered_rows": [],
+     "gaps": [],
+     "pager": null,
+     "refusal": "Work records could not be read. Reload.",
+     "date_bar": "Work request unavailable.Reload",
+     "breadcrumb": "MaintenanceWork requestHistory",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 59,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": null,
+      "state_block": 42,
+      "history_panel": 80,
+      "pager": null,
+      "scroll_hint": null
+     },
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "column_widths": [],
+     "document_width": {
+      "scroll": 1440,
+      "client": 1440
+     }
+    },
+    {
+     "width": 390,
+     "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+     "action": null,
+     "image": "screenshots/unavailable-503-390.png",
+     "ready": true,
+     "api": [
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 503,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "WORK_STORE_UNAVAILABLE"
+      },
+      {
+       "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+       "status": 503,
+       "known_at": null,
+       "revision": null,
+       "revision_id": null,
+       "state": null,
+       "code": "WORK_STORE_UNAVAILABLE"
+      }
+     ],
+     "rendered_rows": [],
+     "gaps": [],
+     "pager": null,
+     "refusal": "Work records could not be read. Reload.",
+     "date_bar": "Work request unavailable.Reload",
+     "breadcrumb": "MaintenanceWork requestHistory",
+     "tabs": [
+      "Overview",
+      "Maintenance record",
+      "Verification · Not available yet",
+      "History"
+     ],
+     "tab_links": [
+      [
+       "Overview",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+      ],
+      [
+       "Maintenance record",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+      ],
+      [
+       "History",
+       "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+      ]
+     ],
+     "open_details": [],
+     "heights": {
+      "page_header": 54,
+      "tabs": 43,
+      "date_bar_slot": 35,
+      "mheader": null,
+      "state_block": 42,
+      "history_panel": 80,
+      "pager": null,
+      "scroll_hint": null
+     },
+     "collapsed_details_max_h": null,
+     "table_scroll": null,
+     "column_widths": [],
+     "document_width": {
+      "scroll": 390,
+      "client": 390
+     }
+    }
+   ]
+  }
+ ]
+}

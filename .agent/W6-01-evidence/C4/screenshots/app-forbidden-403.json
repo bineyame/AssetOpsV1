@@ -1,0 +1,198 @@
+{
+  "state": "forbidden-403",
+  "captured_at": "2026-10-23T06:14:56.444Z",
+  "results": [
+    {
+      "state": "forbidden-403",
+      "width": 1440,
+      "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+      "action": null,
+      "image": "forbidden-403-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 403,
+          "known_at": null,
+          "revision": null,
+          "revision_id": null,
+          "state": null,
+          "code": "SITE_SCOPE_FORBIDDEN"
+        },
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 403,
+          "known_at": null,
+          "revision": null,
+          "revision_id": null,
+          "state": null,
+          "code": "SITE_SCOPE_FORBIDDEN"
+        }
+      ],
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": null,
+        "state_block": {
+          "h": 42,
+          "w": 1160
+        },
+        "history_panel": {
+          "h": 80,
+          "w": 1160
+        },
+        "pager": null,
+        "scroll_hint": null
+      },
+      "collapsed_details_max_h": null,
+      "open_details": [],
+      "table_scroll": null,
+      "column_widths": [],
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Work request",
+        "subtitle": "Request details could not be shown.",
+        "breadcrumb": "MaintenanceWork requestHistory",
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+          ],
+          [
+            "History",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "Work request unavailable.Reload",
+        "refusal": "No access to this Site's work request.",
+        "rows": [],
+        "gaps": [],
+        "pager": null,
+        "panel_titles": [
+          "History"
+        ],
+        "open_text": []
+      }
+    },
+    {
+      "state": "forbidden-403",
+      "width": 390,
+      "route": "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001",
+      "action": null,
+      "image": "forbidden-403-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 403,
+          "known_at": null,
+          "revision": null,
+          "revision_id": null,
+          "state": null,
+          "code": "SITE_SCOPE_FORBIDDEN"
+        },
+        {
+          "url": "/api/work/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001",
+          "status": 403,
+          "known_at": null,
+          "revision": null,
+          "revision_id": null,
+          "state": null,
+          "code": "SITE_SCOPE_FORBIDDEN"
+        }
+      ],
+      "heights": {
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": null,
+        "state_block": {
+          "h": 42,
+          "w": 358
+        },
+        "history_panel": {
+          "h": 80,
+          "w": 358
+        },
+        "pager": null,
+        "scroll_hint": null
+      },
+      "collapsed_details_max_h": null,
+      "open_details": [],
+      "table_scroll": null,
+      "column_widths": [],
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 900,
+      "text": {
+        "h1": "Work request",
+        "subtitle": "Request details could not be shown.",
+        "breadcrumb": "MaintenanceWork requestHistory",
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/record?site_id=KOBO-001"
+          ],
+          [
+            "History",
+            "/maintenance/requests/6444d5f0-e591-4f00-ab2e-aa2bdbe543c0/history?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "Work request unavailable.Reload",
+        "refusal": "No access to this Site's work request.",
+        "rows": [],
+        "gaps": [],
+        "pager": null,
+        "panel_titles": [
+          "History"
+        ],
+        "open_text": []
+      }
+    }
+  ]
+}

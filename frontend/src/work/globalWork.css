@@ -348,3 +348,40 @@
 .work-record-earlier__text {
   overflow-wrap: anywhere;
 }
+
+/* W6-01d C4: the History panel (`wr-history`). Cap 600 at 1440 and 690 at 390 for the collapsed panel, which holds
+   the scroll hint, the `Time | Event | By` table and the in-panel `History pages` pager; its three columns keep
+   minimum widths Time 210, Event 340, By 200 (750 px), so the table scrolls inside its panel below that. */
+.global-work--history .data-table__scroll {
+  max-height: 430px;
+}
+
+@media screen and (max-width: 760px) {
+  .global-work--history .data-table__scroll {
+    max-height: 480px;
+  }
+}
+
+.global-work--history .data-table {
+  min-width: 750px;
+}
+
+.global-work--history .data-table th,
+.global-work--history .data-table td {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.work-history-event .global-work-clamp {
+  white-space: pre-line;
+}
+
+.work-history-time,
+.work-history-by {
+  display: block;
+}
+
+.work-history-time {
+  white-space: nowrap;
+}
