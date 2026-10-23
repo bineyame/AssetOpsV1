@@ -4,13 +4,13 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 29 |
-| D2 improvement | 20 |
+| D1 data or feature unavailable | 31 |
+| D2 improvement | 24 |
 | D3 structural oversight | 6 |
-| D4 illustrative placeholder | 27 |
+| D4 illustrative placeholder | 28 |
 | D5 build order | 5 |
 | D6 technical constraint | 0 |
-| **Total** | **87** |
+| **Total** | **94** |
 
 ## D1 — data or feature unavailable
 
@@ -32,7 +32,7 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R36 | W2-05a QM–QP | `ev-sld`, `ev-readiness` | Load manager, breakers, feeder meters, investigation Action | Unknown equipment slots and unavailable Action entry | D1 | These components and Action are undeclared/unbuilt. | Future EV Foundation and Action units | built |
 | R41 | W6-01 C4 | `wr-history` | `Site visit started` (row 3) and `Verification pending` (row 5) in the authored chronology | Two in-table gaps, `Site visit start not recorded` and `Verification pending · no outcome assessment recorded`, with `—` in Time/By after the last authored row on the last page only | D1 | W4 has no selected site-visit event or work-outcome assessment; inserting undated gaps at the mock positions would imply an unsupported sequence among authored events. | Future site-visit event and work-outcome evaluator | planned |
 | R51 | W5-03 E3 | `energy` | `Stationary battery: Not configured` conclusion value | `Unknown` and the Foundation limitation | D1 | The merged EV Foundation cannot declare battery presence or absence. | Future EV battery configuration; W5-03 E3 gap | planned |
-| R56 | W5-03 E4 | `ev-health` | Stationary battery `Not applicable` / `None installed` | `Unknown` with a configuration gap unless selected Foundation explicitly establishes none installed | D1 | The selected EV Foundation may not declare stationary storage. | Future EV battery configuration; W5-03 E4 | planned |
+| R56 | W5-03 E4 | `ev-health` | Stationary battery `Not applicable` / `None installed` | Always `Unknown` / `Battery configuration is not established by this Foundation.` | D1 | The merged EV Foundation cannot declare stationary storage present or absent. | Future EV battery configuration; W5-03 E4 | ruled correction |
 
 ## D2 — improvement on the mock; flag at walkthrough
 
@@ -57,7 +57,7 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | R22 | W5-01 C3 | `cold-health` | Mock ends after Condition and evidence | Additional Data sources panel | D3 | A faithful alternative exists: keep cold Health panel set and point Foundation Data sources to the existing `cold-evidence` source panel. | W5-F1 F1-1: remove added panel and fix fragment destination; re-review | built: W5-F1 f0812934 |
-| R60 | W5-03 E4 | `ev-health` | Mock ends after Condition and evidence | Proposed additional S7 Data sources panel | D3 | Same structural oversight as R22; remove the panel and point Foundation at existing `ev-evidence` Data sources. | W5-03 E4 correction and review | planned correction; never ship extra panel |
+| R60 | W5-03 E4 | `ev-health` | Mock ends after Condition and evidence | Proposed additional S7 Data sources panel, withdrawn before build | D3 | Same structural oversight as R22; retain the sole mock panel and point Foundation at `/sites/{code}/ev/evidence#ev-site-sources-heading`. | W5-03 E4 correction and review | corrected in spec; never ship extra panel |
 | R23 | W5-02 K3a M5 withdrawn | `cold-work-incidents` | Site-local Window date/time | Fixed EAT/UTC formatting was proposed | D3 | `SiteDetailReadModel.timezone` already exists. Correct with `siteWindowText(occurred_at, site.timezone)` and two-zone/date-boundary tests. | W5-02 K3a | resolved |
 | R24 | W5-04 V3a E5 withdrawn | `ev-work-incidents` | Site-local Window date/time | Fixed UTC/offset formatting was proposed | D3 | Stored EV Site timezone already exists. Reuse K3a `siteWindowText` and test both zones/date boundary. | W5-04 V3a | resolved |
 | R37 | W2-03 retro correction | `cold-performance` | Loading / batch row | Row was omitted in first build | D3 | The mock row can be rendered faithfully; restore it in its original order. | W5-F1 F1-2: keep row, prove mock order and capture; re-review | built: W5-F1 42964500 |
@@ -70,7 +70,7 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R25 | W5-01 C5 | `cold-scenarios` | Empty illustrative scenarios only | Persisted authored rows/basis and honest pending state | D4 | Real selected authored facts replace a static example without claiming observed outcome. | W5-01 C4/C5 | planned |
 | R26 | W5-03 E2 | `availability` | Fixed percentages and 08:00/12:00/16:00 axis | Selected spans, derived percentages and window times | D4 | Mock numbers are examples, not accepted Site evidence. | W5-03 E1a/E2 | planned |
 | R57 | W5-03 E4 | `ev-health` | Connector card notes and `Needs attention`/gray/amber values for the illustrative fault pattern | Same positions and tones with selected fault count and honest Unknown when no condition assessment exists | D4 | The mock's normal and single-fault sentences are illustrative; no completed session proves hardware health. | W5-03 E4 | planned |
-| R59 | W5-03 E4 | `ev-health` | Site-meter row says `Power limit respected in observed samples` | Same statement only when selected samples and declared limit prove it; otherwise `Power limit not assessed from selected samples` | D4 | Mock's within-limit conclusion is illustrative and cannot be asserted for an unsupported selection. | W5-03 E4 | planned |
+| R59 | W5-03 E4 | `ev-health` | Site-meter row says `Power limit respected in observed samples` | Always `Power limit not assessed from selected samples` for a selected `SITE_METER` | D4 | Health DTO carries no peak/limit comparison or interval-wide proof; the mock's positive statement is illustrative. | W5-03 E4; future reviewed Health claim field | ruled correction |
 | R28 | W6-01 B3 | `maintenance-preventive` | PM-0455/INC-203 narrative | No incident link or cause established | D4 | Selected stored plans have no cited incident relation. | W6-01 B3 | planned |
 | R29 | W6-01 E2 | `oprecords` | Cards 2–4 example counts/REC codes | No publication, review workflow or request list established | D4 | Mock counts and codes are illustrative; selected store cannot substantiate them. | W6-01 E2 | built: W6-01 E2 `173cfc73`; review pending |
 | R30 | W6-01 E2 | `oprecords` | Requested/accepted/in-review example rows and role names | Persisted Submitted heads and stored actor IDs | D4 | W4 stores submitted authored records and actor IDs, not example roles/statuses. | W6-01 E2 | built: W6-01 E2 `173cfc73`; review pending |
@@ -152,3 +152,12 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 | R92 | W5-02 K3a | `cold-work-incidents`, `cold-work-maintenance` | Case panel has table or empty card and subtitle, no basis disclosure | Selected `What this list is based on` disclosure at panel foot after table/pager or empty card | D2 | Makes the W4 selected window, cutoff and provenance inspectable on cold case tabs. | W5-02 K3a; owner walkthrough | ruled pre-flight |
 | R93 | W5-02 K3a | `cold-work-incidents`, `cold-work-maintenance` | One illustrative row in a horizontally scrollable five-column table | Selected `Showing a–b of N` below-table `Pages` block with `Showing a–b of N`, `Scroll the table for more columns →` and page controls | D2 | Real selected case lists can exceed the mock's one example row and mobile width. | W5-02 K3a; owner walkthrough | ruled pre-flight |
 | R94 | W5-02 K3b | `cold-work-incidents`, `cold-work-maintenance` | Short text in Case, What happened, Activity and Outcome cells | Two-line previews with `Read full text` disclosures for selected long values in the same cells | D2 | Full selected 160-code-point values must remain readable without changing columns or clipping. | W5-02 K3b; owner walkthrough | ruled pre-flight |
+
+## W5-03b E4/E6 UI pre-flight refresh (2026-10-23)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R95 | W5-03b E4 | `ev-health` | Cards labelled `Connector 1` and `Connector 2` | Selected Foundation `display_name` per `CONNECTOR` row | D4 | Mock names are illustrative; the selected Foundation label identifies the actual configured connector. | E4 | ruled; inform owner |
+| R96 | W5-03b E4 | `ev-health` | Exactly two connector cards, then battery | One card per selected connector, then battery; zero connectors show the Health empty sentence and battery | D2 | The selected Foundation may have zero, one or more than two connectors; hiding configured assets would mislead. | E4; owner walkthrough | ruled pre-flight |
+| R97 | W5-03b E4 | `ev-health` | Site-meter row in `Condition and evidence` | No Site-meter row when the selected meter lacks a Site-import role (`kind:"UNKNOWN"`) | D1 | The meter cannot be identified as a Site meter from the selected binding. | E4; future Site-import binding | ruled pre-flight |
+| R98 | W5-03b E6 | `ev-scenarios` | Empty placeholder panel with no list paging | First page of at most 50 authored rows; a non-null cursor shows `Showing first {items.length} authored scenarios. More exist; later pages are not available in this view.` | D1 | E6 has no later-page control, so the list must disclose its visible limit. | E6; future scenario paging | ruled; owner walkthrough |

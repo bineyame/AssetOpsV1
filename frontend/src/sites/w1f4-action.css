@@ -204,3 +204,91 @@
 .w1f4-action-panel td small .w1f4-failure-code code {
   max-width: none;
 }
+
+/* W5-02b K3b (K3 pre-flight rulings 2 and 7, R94): the cold Incident/Maintenance cells. A `Finding {id8}` label stays
+   on one line with its inline `Finding version` disclosure; chips never split; disclosure text wraps inside the cell. */
+.work-cases[data-cold-cases] .cold-work-code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.work-cases[data-cold-cases] td .disclosure--inline {
+  display: inline;
+  margin-left: 6px;
+}
+
+.work-cases[data-cold-cases] td .disclosure--inline > .disclosure__summary {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+/* K3 ruling 20 (M2): an opened `UTC and IDs` or `Finding version` body keeps each 36-character UUID on one line and
+   scrolls horizontally inside its own cell; `contain: inline-size` keeps the unbroken code from widening the column. */
+.work-cases[data-cold-cases] td .disclosure .disclosure__body {
+  contain: inline-size;
+  overflow-x: auto;
+}
+
+.work-cases[data-cold-cases] td .disclosure .disclosure__body code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.work-cases[data-cold-cases] td [data-work-state],
+.work-cases[data-cold-cases] td [data-work-outcome] {
+  white-space: nowrap;
+}
+
+/* K3b capture fix: in a narrow case column the two-column fact grid (term 8-12rem) left the value no width, so an
+   opened `UTC and IDs` wrapped every ID one character per line; inside a cold case cell the facts stack instead. */
+.work-cases[data-cold-cases] td .fact-list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+
+.work-cases[data-cold-cases] td .fact-list__value {
+  margin: 0 0 4px;
+}
+
+/* K3b (R94, as the K2 F1-F4 compact control): a long cell's `Read full text` is a one-line link, not a boxed panel. */
+.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline) {
+  display: block;
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+
+.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline) > .disclosure__summary {
+  display: inline-block;
+  padding: 0;
+  font-size: var(--font-size-sm, 0.85em);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline)[open] > .disclosure__body {
+  padding: 4px 0 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.work-cases[data-cold-cases] td .work-cases-clamp {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* K3 review L2 / ruling 20: the Site-local Window value (`6 Oct · from 19:11`) is one phrase; only `UTC and IDs` wraps. */
+.work-cases[data-cold-cases] td [data-work-window] {
+  white-space: nowrap;
+}
+
+/* K3 ruling 21 (M3): the cold case tables grow with their rows and scroll only horizontally; MINIGRID keeps W4's 224 px
+   vertical Incident box (w4-work-cases.css, narrow media query). */
+.work-cases[data-cold-cases] [data-work-table="incidents"] .data-table__scroll {
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: visible;
+}

@@ -2419,3 +2419,8 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - test_w503_ev_scenarios_postgres.py has copy-paste duplicates: duplicated "accepted" key :411-412 and duplicated blocks :448-455, :573-592, :645-648.
 - Foundation cases (c)/(d) at :777-782 do not assert the fallback finds a Foundation, so they could pass via the absent-Foundation path.
 - The refused correction at :821 asserts only the code, not the ruled message.
+
+## W5-02b K3 Lows (K4b owns the capture tool next)
+- Ruling-20 rule (contain: inline-size; overflow-x: auto, w1f4-action.css:227-230) applies to every cold disclosure body, and the capture containment checks were relaxed to match (w502-cold-work-evidence.mjs:380,385), so long-text wrap failures would not be caught. Scope the rule or the relaxation to bodies containing code.
+- MINIGRID isolation test (coldWorkCases.test.tsx:448-460) does not assert [data-cold-cases] absent; no cold test asserts it present.
+- K4 must prove both ruling-22 Related activity branches (completed-inspection at a current cutoff, not-linked before completion).
