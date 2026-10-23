@@ -818,15 +818,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "ConnectorAvailabilityWindow",
-            "ServiceSchedule"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Connector states over the service schedule",
@@ -861,17 +853,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "ChargingEnergyWindow",
-            "SitePowerLimit"
-          ],
-          "projection_contracts": [
-            "FinancialConsequence"
-          ],
-          "fixture_or_record_gate": "EV Site, session/connector/energy and missing-session fixture through the shared ingestion path.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Import power and configured limit",
