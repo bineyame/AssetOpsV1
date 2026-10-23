@@ -170,3 +170,9 @@ Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('e
 | R100 | W5-02c K4a/K4b | `cold-action` | Completed WR-019 sentence in `Related activity` | `No completed inspection is linked to this Action.` when the selected cutoff has no completed linked inspection | D2 | A selected Action may exist before its WR link; completion cannot be inferred from the mock example. | K4a selected presenter, K4b cutoff capture; owner walkthrough | ruled pre-flight |
 | R101 | W5-02c K4a | `cold-action` | Two headed loaded panels | One untitled state panel during loading, 404 or 403/422/503 refusal | D2 | A read without loaded detail cannot truthfully populate either mock panel. | K4a; owner walkthrough | ruled pre-flight |
 | R102 | W5-02c K4a | `cold-action` | `Related activity` says completed WR-019 inspection | Selected linked OPEN/IN_PROGRESS request is named with its actual state and the witnessed-test requirement; Inspect opens that request | D2 | The selected request can be ongoing; saying it is complete or hiding its link would misstate the record. | K4a; owner walkthrough | ruled build-time; inform owner |
+
+## W5-03b E4/E6 build-time refresh (2026-10-24)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R103 | W5-03b E4 | `ev-health` | Subtitle `2 × 60 kW connectors · 80 kW site limit · no stationary battery` | `Health · site-level asset-condition summary` | D4 | The mock equipment values describe its illustrative Site and the E4 Health DTO does not supply ratings or battery absence for every selected Foundation. | E4; inform owner | ruled build-time; review pending |
