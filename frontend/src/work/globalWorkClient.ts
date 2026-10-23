@@ -110,6 +110,41 @@ export interface GlobalPreventiveRow {
   links: { site: GlobalWorkLink };
 }
 
+/** W6-01e E2 (P-E2-1): the four stored operational record kinds. */
+export type GlobalOperationalKind = "OPERATOR_LOG" | "MANUAL_READING" | "SHIFT_NOTE" | "SITE_VISIT";
+export const GLOBAL_OPERATIONAL_KINDS: readonly GlobalOperationalKind[] = ["OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT"];
+
+/** W6-01e E2 (P-E2-1): the section 1 operational-records row, exactly. */
+export interface GlobalOperationalRow {
+  site_code: string;
+  site_name: string;
+  site_id: string;
+  site_code_key: string;
+  canonical_record_id: string;
+  root_id: string;
+  head_id: string;
+  code: string;
+  kind: GlobalOperationalKind;
+  body: string;
+  root_occurred_at: string;
+  occurred_at: string;
+  recorded_at: string;
+  period_end: string | null;
+  actor_kind: string;
+  actor_id: string;
+  quantity: string | null;
+  unit: string | null;
+  source_document_sha256: string | null;
+  case_id: string | null;
+  case_kind: "INCIDENT" | "MAINTENANCE_REQUEST" | null;
+  case_code: string | null;
+  state: "SUBMITTED";
+  supersedes_record_id: string | null;
+  correction_reason: string | null;
+  source_provenance: GlobalWorkProvenance;
+  links: { site: GlobalWorkLink; case: GlobalWorkLink | null };
+}
+
 export type GlobalWorkStatus = "CURRENT" | "HISTORICAL" | "EMPTY_SCOPE" | "PARTIAL";
 
 export interface GlobalWorkEnvelope<Row, Counts> {
@@ -133,16 +168,22 @@ export interface GlobalWorkEnvelope<Row, Counts> {
 export type GlobalIncidentsBody = GlobalWorkEnvelope<GlobalIncidentRow, Record<GlobalIncidentState, number>>;
 export type GlobalMaintenanceBody = GlobalWorkEnvelope<GlobalMaintenanceRow, Record<GlobalMaintenanceState, number>>;
 export type GlobalPreventiveBody = GlobalWorkEnvelope<GlobalPreventiveRow, null>;
+export type GlobalOperationalBody = GlobalWorkEnvelope<GlobalOperationalRow, null>;
 
 /** The list root a read asks for; it decides the `state_counts` shape the answer must carry (P-B2-2). */
 export type GlobalWorkRoot = "incidents" | "maintenance" | "preventive" | "operational-records";
 
-/** The page query (A2Q10): window, optional cutoff and optional opaque cursor. Nothing else is forwarded. */
+/**
+ * The page query (A2Q10): window, optional cutoff and optional opaque cursor. Nothing else is forwarded. W6-01e
+ * (P-E2-1): Operational records alone may carry `kind` (a stored kind; absent means `all`); the other roots never set
+ * it, so their URLs and client calls are unchanged.
+ */
 export interface GlobalWorkQuery {
   from: string;
   to: string;
   known_at: string | null;
   cursor: string | null;
+  kind?: GlobalOperationalKind;
 }
 
 export type GlobalWorkRefusalCode =
@@ -183,6 +224,8 @@ export interface GlobalWorkClient {
   incidents(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalIncidentsBody>>;
   maintenance?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalMaintenanceBody>>;
   preventive?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalPreventiveBody>>;
+  /** W6-01e E2 (P-E2-1): `GET /api/work/operational-records`; absent reads as `WORK_STORE_UNAVAILABLE`. */
+  operationalRecords?(query: GlobalWorkQuery): Promise<GlobalWorkResult<GlobalOperationalBody>>;
   /** W6-01c C2: the request detail read (`global-work-detail-1`); absent reads as `WORK_STORE_UNAVAILABLE`. */
   detail?(query: GlobalWorkDetailQuery): Promise<GlobalWorkDetailResult>;
 }
@@ -247,6 +290,14 @@ export function createGlobalWorkClient(basePath: string = GLOBAL_WORK_API_PATH):
     },
     preventive(query) {
       return readGlobalWork<GlobalPreventiveBody>(`${basePath}/preventive?${globalWorkApiQuery(query)}`, "preventive");
+    },
+    operationalRecords(query) {
+      // P-E2-1: `kind` reaches the API on this root only, and only when a stored kind is chosen (absent = all).
+      const kind = query.kind ? `&kind=${encodeURIComponent(query.kind)}` : "";
+      return readGlobalWork<GlobalOperationalBody>(
+        `${basePath}/operational-records?${globalWorkApiQuery(query)}${kind}`,
+        "operational-records",
+      );
     },
     detail(query) {
       return readGlobalWorkDetail(`${basePath}/requests/${encodeURIComponent(query.case_id)}?${globalWorkDetailApiQuery(query)}`);
@@ -619,10 +670,18 @@ export function globalWorkPageQuery(params: URLSearchParams, now?: number): Glob
   return { status: "valid", query: { ...window, known_at: known, cursor: cursors.length > 0 ? cursors[0] : null } };
 }
 
-/** The app href for a global page: `from`, `to`, `known_at` when present, `cursor` when given. */
-export function globalWorkHref(path: string, query: Pick<GlobalWorkQuery, "from" | "to" | "known_at">, cursor?: string | null): string {
+/**
+ * The app href for a global page: `from`, `to`, `known_at` when present, `kind` when present (Operational records
+ * only, P-E2-1), `cursor` when given.
+ */
+export function globalWorkHref(
+  path: string,
+  query: Pick<GlobalWorkQuery, "from" | "to" | "known_at" | "kind">,
+  cursor?: string | null,
+): string {
   const params = new URLSearchParams({ from: query.from, to: query.to });
   if (query.known_at) params.set("known_at", query.known_at);
+  if (query.kind) params.set("kind", query.kind);
   if (cursor) params.set("cursor", cursor);
   return `${path}?${params.toString()}`;
 }

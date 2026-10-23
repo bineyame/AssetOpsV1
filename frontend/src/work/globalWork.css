@@ -385,3 +385,37 @@
 .work-history-time {
   white-space: nowrap;
 }
+
+/* W6-01e E2 (P-E2-8): Operational records. The panel cap is 650 at 1440 and 780 at 390 (section 2) minus the
+   non-table panel parts measured for Incidents; the eight columns keep their minimum widths (1150 px), so the table
+   scrolls inside its panel below that. The chip row wraps inside the page (section 2 chips cap 40 / 80). */
+.global-work--oprecords .data-table__scroll {
+  max-height: 500px;
+}
+
+@media screen and (max-width: 760px) {
+  .global-work--oprecords .data-table__scroll {
+    max-height: 590px;
+  }
+}
+
+.global-work--oprecords .data-table {
+  min-width: 1150px;
+}
+
+.global-work-chips {
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.global-work-form .field select:disabled,
+.global-work-form .field input:disabled {
+  opacity: 0.7;
+}
+
+.global-work-form-reason {
+  font-size: 11px;
+  color: var(--muted, #6b7a90);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
