@@ -17,8 +17,8 @@ Mode inputs (ruling 3), each a separate test-only scenario document:
 - `pending`: one chamber probe report HELD and released at the shifted late-publication instant, so a later
   accepted reading enqueues a `cold_chain` recompute job after the first selection.
 - `stale`: the wider 90-minute evidence/assessment window `[start, start+90min)` (the W5-01 stale route); the
-  closing-boundary probe at `end` is then 30 minutes before the window's `to`. The extra DROP rows over the
-  final 15 minutes before `end` remain input only.
+  closing-boundary probe at `end` is then 30 minutes before the window's `to`. Observations are unchanged (a
+  plain ordinary replay): run-5 DROP rows over the final 15 minutes left the excursion UNKNOWN with no Finding.
 - `no-probe`: every droppable chamber probe report (`start <= at < end`) is DROPPED; the closing-boundary report
   at `end` still publishes (the parser admits no fault there), so UNKNOWN needs the test's seeded selection.
 
@@ -50,7 +50,6 @@ BASE_RELEASE = datetime(2026, 10, 6, 20, 10, tzinfo=timezone.utc)  # W2 helper s
 BASE_ATTEST_FROM = datetime(2026, 10, 6, 0, 0, tzinfo=timezone.utc)  # W2-03 simulated clock attestation
 BASE_ATTEST_TO = datetime(2026, 10, 8, 0, 0, tzinfo=timezone.utc)
 MODES = ("ordinary", "pending", "stale", "no-probe")
-STALE_SUPPRESSED = timedelta(minutes=15)  # extra input only; never the cause of the state (run-5 ruling 2)
 #: The explicit evidence/assessment window per mode (run-5 STALE/UNKNOWN rulings 1, 2, 4): the W2 helper's
 #: 65-minute `[start, end+5min)` window, except STALE_SOURCE's W5-01 wider route `[start, start+90min)`, whose
 #: `to` is more than 10 minutes after the closing-boundary probe at `end`.
@@ -139,8 +138,6 @@ def shifted_case(db_now: datetime, mode: str, tag: str) -> ShiftedCase:
         raise ValueError("the base scenario's own observation rows would collide with a mode input")
     if mode == "pending":
         document["observations"] = _probe_rows([start + timedelta(minutes=50)], "HOLD", release)
-    elif mode == "stale":
-        document["observations"] = _probe_rows([m for m in minutes if m >= end - STALE_SUPPRESSED], "DROP")
     elif mode == "no-probe":
         document["observations"] = _probe_rows(minutes, "DROP")
     return ShiftedCase(mode=mode, scenario_id=document["scenario_id"], delta=delta, document=document,

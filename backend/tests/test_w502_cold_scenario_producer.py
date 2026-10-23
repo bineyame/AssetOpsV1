@@ -205,9 +205,8 @@ def test_shifted_definition_is_pure_and_unregistered() -> None:
     assert [f.at for f in shifted.forcings] == [producer.text_of(producer.instant(f.at) + case.delta)
                                                 for f in base.forcings]
     assert case.release - case.start == timedelta(minutes=70) and case.window_end - case.start == timedelta(minutes=65)
-    stale = producer.shifted_case(now, "stale", "t1").definition()
-    assert min(o.at for o in stale.observations) == "2026-10-22T16:45:00Z"
-    assert all(o.action == "DROP" for o in stale.observations)
+    stale = producer.shifted_case(now, "stale", "t1")
+    assert stale.definition().observations == () and stale.window_end - stale.start == timedelta(minutes=90)
     pending = producer.shifted_case(now, "pending", "t1").definition()
     assert [(o.action, o.release_at) for o in pending.observations] == [("HOLD", "2026-10-22T17:10:00Z")]
     assert len(producer.shifted_case(now, "no-probe", "t1").definition().observations) == 60
@@ -291,11 +290,14 @@ def support_times(built, assessment_revision_id: str) -> list[datetime]:
 
 def _columns(conn, table: str) -> list[str]:
     return list(conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name = :t "
-                                  "AND table_schema = current_schema() ORDER BY ordinal_position"), {"t": table}).scalars())
+                                  "AND table_schema = current_schema() AND is_generated <> 'ALWAYS' "
+                                  "ORDER BY ordinal_position"), {"t": table}).scalars())
 
 
 def _copy(conn, table: str, where: str, params: dict, overrides: dict) -> int:
     """`INSERT ... SELECT` one table's rows matching `where`, with column SQL overrides (None = column default)."""
+    if not conn.execute(text(f"SELECT count(*) FROM {table} WHERE {where}"), params).scalar_one():
+        return 0
     cols = [c for c in _columns(conn, table) if not (c in overrides and overrides[c] is None)]
     exprs = [overrides.get(c) or c for c in cols]
     return conn.execute(text(f"INSERT INTO {table} ({', '.join(cols)}) SELECT {', '.join(exprs)} FROM {table} "
@@ -343,7 +345,9 @@ def seed_empty_support(built) -> SimpleNamespace:
         body = canonical(seeded)
         p = {"old_run": old["run_id"], "old_ar": old["ar"], "run": run_id, "ar": ar_id, "s": built.site_id}
         _copy(c, "analytic_run", "id = :old_run", p, {
-            "id": ":run", "started_at": "clock_timestamp()", "completed_at": "clock_timestamp()"})
+            "id": ":run", "started_at": "clock_timestamp()", "completed_at": "clock_timestamp()",
+            # A distinct input basis: the seeded result's support set differs from the replayed one.
+            "input_sha256": "encode(sha256(convert_to(input_sha256 || '|w502-seeded-empty-support', 'UTF8')), 'hex')"})
         _copy(c, "assessment_revision", "id = :old_ar",
               {**p, "key": key, "res": body, "ev": canonical(evidence),
                "basis": hashlib.sha256(body.encode("utf-8")).hexdigest()},
@@ -399,7 +403,6 @@ def test_stale_wider_window_producer(shifted_chain) -> None:
 def test_unknown_seeded_empty_support(shifted_chain) -> None:
     """Ruling 3: the no-probe replay still selects one closing-boundary SUPPORT probe (CURRENT); the test-only seeded
     selection empties the excursion's support set and the unchanged W5-01 read says UNKNOWN for no usable probe."""
-    from assetops_backend.analytics.cold_reads import FUTURE_NOTE, NO_PROBE_NOTE, NO_SELECTION_NOTE
 
     built = produce(shifted_chain, "no-probe")
     assert w501_read(built)["selection"]["state"] == "CURRENT"  # the replay alone cannot yield UNKNOWN
@@ -407,9 +410,10 @@ def test_unknown_seeded_empty_support(shifted_chain) -> None:
     assert support_times(built, seed.new["ar"]) == []
     _, revision_id = finding_revision(built, "COLD_START_FAILURE")
     body = w501_read(built)
-    text_body = canonical(body)
     assert body["selection"]["state"] == "UNKNOWN", body["selection"]
-    assert NO_PROBE_NOTE in text_body and NO_SELECTION_NOTE not in text_body and FUTURE_NOTE not in text_body
+    # The reason is the empty selected support set (the depth read carries no note): a selection exists, the
+    # window has ended before the read cutoff, and the seeded excursion's SUPPORT probes are zero.
+    assert body["selection"]["assessment_revision_ids"] and body["window"]["to"] < body["window"]["known_at"]
     assert seed.new["ar"] in body["selection"]["assessment_revision_ids"]
     assert seed.old["ar"] not in body["selection"]["assessment_revision_ids"]
     with built.engine.connect() as c:

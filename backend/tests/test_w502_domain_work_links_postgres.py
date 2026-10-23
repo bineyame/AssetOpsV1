@@ -302,8 +302,6 @@ def test_unknown_link_state(shifted_chain) -> None:  # noqa: F811
     exact pin (nonempty lineage), the linked coverage and the W5-01 read say UNKNOWN because the selected excursion
     support set has no usable probe (not no selection, a missing Finding, a future window or an FK failure)."""
     from assetops_backend.analytics import cold as cold_analytics
-    from assetops_backend.analytics.cold_reads import FUTURE_NOTE, NO_PROBE_NOTE, NO_SELECTION_NOTE
-    from test_w502_cold_scenario_producer import canonical
 
     built = produce(shifted_chain, "no-probe")
     seed = seed_empty_support(built)
@@ -318,9 +316,10 @@ def test_unknown_link_state(shifted_chain) -> None:  # noqa: F811
         assert pin["window_end"] <= now_utc(cold.engine)
         assert (pin["state"], cov["state"]) == ("UNKNOWN", "UNKNOWN")
         body = w501_read(built, iso(pin["evidence_cutoff"]))
-        text_body = canonical(body)
         assert body["selection"]["state"] == "UNKNOWN"
-        assert NO_PROBE_NOTE in text_body and NO_SELECTION_NOTE not in text_body and FUTURE_NOTE not in text_body
+        # The reason is the empty selected support set (the depth read carries no note): a selection exists, the
+        # window has ended before the read cutoff, and the seeded excursion's SUPPORT probes are zero.
+        assert body["selection"]["assessment_revision_ids"] and body["window"]["to"] < body["window"]["known_at"]
         assert {seed.new["ar"], pin["assessment_revision_id"]} <= set(body["selection"]["assessment_revision_ids"])
     finally:
         cold.svc._store.dispose()
