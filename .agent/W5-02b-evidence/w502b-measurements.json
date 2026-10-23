@@ -1,0 +1,4020 @@
+{
+  "manifest_revision": "1bfd74b2",
+  "caps": {
+    "work": {
+      "main": [
+        1400,
+        1800
+      ],
+      "strip": [
+        100,
+        150
+      ],
+      "panel": [
+        440,
+        650
+      ],
+      "notice": [
+        110,
+        160
+      ]
+    },
+    "action": {
+      "main": [
+        1350,
+        1750
+      ],
+      "strip": [
+        100,
+        120
+      ],
+      "notice": [
+        100,
+        140
+      ]
+    }
+  },
+  "captures": [
+    {
+      "state": "positive",
+      "width": 1440,
+      "file": "w502b-desktop-positive.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 547,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": null,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "4862d03f-271c-4d82-a9b5-f3bf2f8c238a",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 99e5a71e",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 47,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 547,
+        "empty": null
+      }
+    },
+    {
+      "state": "zero",
+      "width": 1440,
+      "file": "w502b-desktop-zero.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
+        "panelState": "empty",
+        "currentness": null,
+        "scope": "Scoped to Cold · 0 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 625,
+        "strip": 39,
+        "panel": 262,
+        "currentnessNotice": null,
+        "contextNotice": 66,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "stickyHead": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "rows": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 625,
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet."
+      }
+    },
+    {
+      "state": "historical",
+      "width": 1440,
+      "file": "w502b-desktop-historical.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A44%3A36.748026Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A44%3A36.748026Z",
+        "panelState": "rows",
+        "currentness": "HISTORICAL",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 631,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": 66,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "4862d03f-271c-4d82-a9b5-f3bf2f8c238a",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 99e5a71e",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 47,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 631,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-folded",
+      "width": 1440,
+      "file": "w502b-desktop-worstcase-folded.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 892,
+        "strip": 39,
+        "panel": 529,
+        "currentnessNotice": null,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 2236,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 4,
+        "rowsTotal": 5,
+        "rows": [
+          {
+            "id": "0b69c44e-b22a-4f09-bd97-90cb39cfc998",
+            "codes": [
+              {
+                "text": "ACT-000006",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2027-05-11",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "da34df15-4d85-4595-9f01-05bedc8025d9",
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-11-22",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "7b983a79-3db6-4dca-a9ff-9f90ecf2d412",
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "ad04eafc-9ee4-4ca2-bff4-b30003aaf7ac",
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-10-24",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 4,
+        "showAll": "Show all 5 Actions",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A16%3A36.131164Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTY6MzYuMTMxMTY0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4YTY5YTYzNzc1ZjQ4ODE1MzQ2ODM0NjJhNTU2Y2RiZjFlNThlODQwNDI4NmMwZjg0NDU5YmQxNjNmNzRhNWJjIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "first": false,
+        "disclosures": 5,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 892,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-expanded",
+      "width": 1440,
+      "file": "w502b-desktop-worstcase-expanded.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 1425,
+        "docClientWidth": 1425,
+        "docHeight": 1059,
+        "main": 985,
+        "strip": 39,
+        "panel": 622,
+        "currentnessNotice": null,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 2236,
+        "scrollerClientWidth": 1105,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 5,
+        "rowsTotal": 5,
+        "rows": [
+          {
+            "id": "0b69c44e-b22a-4f09-bd97-90cb39cfc998",
+            "codes": [
+              {
+                "text": "ACT-000006",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2027-05-11",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "da34df15-4d85-4595-9f01-05bedc8025d9",
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-11-22",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "7b983a79-3db6-4dca-a9ff-9f90ecf2d412",
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "ad04eafc-9ee4-4ca2-bff4-b30003aaf7ac",
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-10-24",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "ee304521-0656-498f-af21-dd68931b5303",
+            "codes": [
+              {
+                "text": "ACT-000002",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 5,
+        "showAll": null,
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A16%3A38.407529Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTY6MzguNDA3NTI5WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxOThlMTE5Y2UyMTkwMjU3YmVkMzMzYTJiODY1ZGE4OTBkZjMzNDJmMWJiNDFhODg3ZTBhMjc0YzExOWYxMjNiIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "first": false,
+        "disclosures": 5,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 985,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-disclosure",
+      "width": 1440,
+      "file": "w502b-desktop-worstcase-disclosure.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 922,
+        "strip": 39,
+        "panel": 559,
+        "currentnessNotice": null,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 2270,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 4,
+        "rowsTotal": 5,
+        "rows": [
+          {
+            "id": "0b69c44e-b22a-4f09-bd97-90cb39cfc998",
+            "codes": [
+              {
+                "text": "ACT-000006",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2027-05-11",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 124,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "da34df15-4d85-4595-9f01-05bedc8025d9",
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-11-22",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "7b983a79-3db6-4dca-a9ff-9f90ecf2d412",
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "id": "ad04eafc-9ee4-4ca2-bff4-b30003aaf7ac",
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-10-24",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 94,
+            "summaryLines": [
+              1,
+              1,
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 4,
+        "showAll": "Show all 5 Actions",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A16%3A41.417593Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTY6NDEuNDE3NTkzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4Mjg0MTI0MGQ1NmE4ODcyMGI3MTI1MDA0YTgyNGQ4YzcyMmRiZjU3NzBhNWE0YzZmMGM5ZDQ4Y2QwY2U1OWY2Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "first": false,
+        "disclosures": 5,
+        "openDisclosures": 1,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 922,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-next",
+      "width": 1440,
+      "file": "w502b-desktop-worstcase-next.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A16%3A41.417593Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTY6NDEuNDE3NTkzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4Mjg0MTI0MGQ1NmE4ODcyMGI3MTI1MDA0YTgyNGQ4YzcyMmRiZjU3NzBhNWE0YzZmMGM5ZDQ4Y2QwY2U1OWY2Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A16%3A41.417593Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTY6NDEuNDE3NTkzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4Mjg0MTI0MGQ1NmE4ODcyMGI3MTI1MDA0YTgyNGQ4YzcyMmRiZjU3NzBhNWE0YzZmMGM5ZDQ4Y2QwY2U1OWY2Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "panelState": "rows",
+        "currentness": "HISTORICAL",
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 630,
+        "strip": 39,
+        "panel": 183,
+        "currentnessNotice": 66,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "6ca8669c-caaa-4046-9988-5bdc7c025b03",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 47,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": true,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 630,
+        "empty": null
+      }
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "file": "w502b-desktop-pending.png",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A19.700781Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A19.700781Z",
+        "panelState": "rows",
+        "currentness": "PENDING_RECOMPUTE",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 631,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": 66,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "f56a5cbc-98e2-4ea5-a761-7ffc5da48f14",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding bf76229a",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 47,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 631,
+        "empty": null
+      }
+    },
+    {
+      "state": "stale",
+      "width": 1440,
+      "file": "w502b-desktop-stale.png",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A40.637339Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A40.637339Z",
+        "panelState": "rows",
+        "currentness": "STALE_SOURCE",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 631,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": 66,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "654ff8e0-e70c-4351-a09b-fde6c9ec6220",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 8c323887",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 47,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 631,
+        "empty": null
+      }
+    },
+    {
+      "state": "unknown",
+      "width": 1440,
+      "file": "w502b-desktop-unknown.png",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A46%3A00.655162Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A46%3A00.655162Z",
+        "panelState": "rows",
+        "currentness": "UNKNOWN",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 631,
+        "strip": 39,
+        "panel": 184,
+        "currentnessNotice": 66,
+        "contextNotice": 66,
+        "scrollerScrollWidth": 1120,
+        "scrollerClientWidth": 1120,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "1e239497-88f9-453e-a8cd-fd7d579eae3a",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding f8fec106",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 1
+              }
+            ],
+            "codeOneLine": true,
+            "height": 47,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 631,
+        "empty": null
+      }
+    },
+    {
+      "state": "forbidden-403",
+      "width": 1440,
+      "file": "w502b-desktop-forbidden-403.png",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "refused",
+        "currentness": null,
+        "scope": "Scoped to Cold · — actions",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 561,
+        "strip": 39,
+        "panel": 198,
+        "currentnessNotice": null,
+        "contextNotice": 66,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "stickyHead": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "rows": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalMessage": "No access to Site 'COLD-LAB-001'.",
+        "retryVisible": true,
+        "siteRefusal": null,
+        "pageMain": 561,
+        "empty": null
+      }
+    },
+    {
+      "state": "unavailable-503",
+      "width": 1440,
+      "file": "w502b-desktop-unavailable-503.png",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": null,
+        "currentness": null,
+        "scope": null,
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": null,
+        "strip": null,
+        "panel": null,
+        "currentnessNotice": null,
+        "contextNotice": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "stickyHead": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "rows": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "pageMain": 154,
+        "empty": null
+      }
+    },
+    {
+      "state": "action-positive",
+      "width": 1440,
+      "file": "w502b-desktop-action-positive.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/4862d03f-271c-4d82-a9b5-f3bf2f8c238a/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/4862d03f-271c-4d82-a9b5-f3bf2f8c238a/verification",
+        "shell": "loaded",
+        "panelState": "preparing",
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 364,
+        "strip": 42,
+        "panel": 23,
+        "notice": 66,
+        "currentnessNotice": null,
+        "panelText": "Action details are being prepared."
+      }
+    },
+    {
+      "state": "action-not-found",
+      "width": 1440,
+      "file": "w502b-desktop-action-not-found.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+        "shell": "not_found",
+        "panelState": "not-found",
+        "heading": "Action",
+        "docScrollWidth": 1440,
+        "docClientWidth": 1440,
+        "docHeight": 1000,
+        "main": 220,
+        "strip": null,
+        "panel": 23,
+        "notice": null,
+        "currentnessNotice": null,
+        "panelText": "Action was not found at this site."
+      }
+    },
+    {
+      "state": "positive",
+      "width": 390,
+      "file": "w502b-narrow-positive.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 656,
+        "strip": 84,
+        "panel": 234,
+        "currentnessNotice": null,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 467,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "4862d03f-271c-4d82-a9b5-f3bf2f8c238a",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 99e5a71e",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 97,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 656,
+        "empty": null
+      }
+    },
+    {
+      "state": "zero",
+      "width": 390,
+      "file": "w502b-narrow-zero.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
+        "panelState": "empty",
+        "currentness": null,
+        "scope": "Scoped to Cold · 0 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 703,
+        "strip": 84,
+        "panel": 282,
+        "currentnessNotice": null,
+        "contextNotice": 84,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "stickyHead": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "rows": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 703,
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet."
+      }
+    },
+    {
+      "state": "historical",
+      "width": 390,
+      "file": "w502b-narrow-historical.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A44%3A36.748026Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A44%3A36.748026Z",
+        "panelState": "rows",
+        "currentness": "HISTORICAL",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 739,
+        "strip": 84,
+        "panel": 234,
+        "currentnessNotice": 66,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 467,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "4862d03f-271c-4d82-a9b5-f3bf2f8c238a",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 99e5a71e",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 97,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 739,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-folded",
+      "width": 390,
+      "file": "w502b-narrow-worstcase-folded.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 1718,
+        "main": 1569,
+        "strip": 84,
+        "panel": 1148,
+        "currentnessNotice": null,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 476,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 4,
+        "rowsTotal": 5,
+        "rows": [
+          {
+            "id": "0b69c44e-b22a-4f09-bd97-90cb39cfc998",
+            "codes": [
+              {
+                "text": "ACT-000006",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2027-05-11",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "da34df15-4d85-4595-9f01-05bedc8025d9",
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-11-22",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "7b983a79-3db6-4dca-a9ff-9f90ecf2d412",
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "ad04eafc-9ee4-4ca2-bff4-b30003aaf7ac",
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-10-24",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 4,
+        "showAll": "Show all 5 Actions",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A17%3A14.614434Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTc6MTQuNjE0NDM0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpjOTEyNzkzYTc0MmI0OWQyOWMxY2NhYzI5M2E2MjUwZjMxN2MwYzQxODEzMTYxOGY5ZTBlMzViMjFiOGJlZGU1Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "first": false,
+        "disclosures": 5,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 1569,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-expanded",
+      "width": 390,
+      "file": "w502b-narrow-worstcase-expanded.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 1970,
+        "main": 1820,
+        "strip": 84,
+        "panel": 1399,
+        "currentnessNotice": null,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 476,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 5,
+        "rowsTotal": 5,
+        "rows": [
+          {
+            "id": "0b69c44e-b22a-4f09-bd97-90cb39cfc998",
+            "codes": [
+              {
+                "text": "ACT-000006",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2027-05-11",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "da34df15-4d85-4595-9f01-05bedc8025d9",
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-11-22",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "7b983a79-3db6-4dca-a9ff-9f90ecf2d412",
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "ad04eafc-9ee4-4ca2-bff4-b30003aaf7ac",
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-10-24",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "ee304521-0656-498f-af21-dd68931b5303",
+            "codes": [
+              {
+                "text": "ACT-000002",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 252,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 5,
+        "showAll": null,
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A17%3A16.993684Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTc6MTYuOTkzNjg0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo0NDBkOTViMDExM2Q0OTZhOGU5MWFlNDc2MDk1MzZjMjdhYmZjNzMzYzA1Mjg2OTY2YzViNTIzNTA4NzZjMzE2Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "first": false,
+        "disclosures": 5,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 1820,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-disclosure",
+      "width": 390,
+      "file": "w502b-narrow-worstcase-disclosure.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "rows",
+        "currentness": null,
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 2311,
+        "main": 2161,
+        "strip": 84,
+        "panel": 1740,
+        "currentnessNotice": null,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 476,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 4,
+        "rowsTotal": 5,
+        "rows": [
+          {
+            "id": "0b69c44e-b22a-4f09-bd97-90cb39cfc998",
+            "codes": [
+              {
+                "text": "ACT-000006",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2027-05-11",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 845,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "da34df15-4d85-4595-9f01-05bedc8025d9",
+            "codes": [
+              {
+                "text": "ACT-000005",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-11-22",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "7b983a79-3db6-4dca-a9ff-9f90ecf2d412",
+            "codes": [
+              {
+                "text": "ACT-000004",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          },
+          {
+            "id": "ad04eafc-9ee4-4ca2-bff4-b30003aaf7ac",
+            "codes": [
+              {
+                "text": "ACT-000003",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "2026-10-24",
+                "lines": 4
+              }
+            ],
+            "codeOneLine": false,
+            "height": 253,
+            "summaryLines": [
+              4,
+              1,
+              8
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 4,
+        "showAll": "Show all 5 Actions",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A17%3A19.546167Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTc6MTkuNTQ2MTY3WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1YjQ0ZTQ3ZmExY2EwZWIwYzQ4ZjNjYzdjYTZkMDMxYmRhNjQ0ZjA0YjQ5MmIyYzA5MjNjYmUwOWE1M2JiYWRhIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "first": false,
+        "disclosures": 5,
+        "openDisclosures": 1,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 2161,
+        "empty": null
+      }
+    },
+    {
+      "state": "worstcase-next",
+      "width": 390,
+      "file": "w502b-narrow-worstcase-next.png",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A17%3A19.546167Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTc6MTkuNTQ2MTY3WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1YjQ0ZTQ3ZmExY2EwZWIwYzQ4ZjNjYzdjYTZkMDMxYmRhNjQ0ZjA0YjQ5MmIyYzA5MjNjYmUwOWE1M2JiYWRhIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A17%3A19.546167Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTc6MTkuNTQ2MTY3WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1YjQ0ZTQ3ZmExY2EwZWIwYzQ4ZjNjYzdjYTZkMDMxYmRhNjQ0ZjA0YjQ5MmIyYzA5MjNjYmUwOWE1M2JiYWRhIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "panelState": "rows",
+        "currentness": "HISTORICAL",
+        "scope": "Scoped to Cold · 6 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 739,
+        "strip": 84,
+        "panel": 234,
+        "currentnessNotice": 66,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 467,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "6ca8669c-caaa-4046-9988-5bdc7c025b03",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 0c8ed884",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 97,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": true,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 739,
+        "empty": null
+      }
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "file": "w502b-narrow-pending.png",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A19.700781Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A19.700781Z",
+        "panelState": "rows",
+        "currentness": "PENDING_RECOMPUTE",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 907,
+        "main": 758,
+        "strip": 84,
+        "panel": 234,
+        "currentnessNotice": 84,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 465,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "f56a5cbc-98e2-4ea5-a761-7ffc5da48f14",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding bf76229a",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 97,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 758,
+        "empty": null
+      }
+    },
+    {
+      "state": "stale",
+      "width": 390,
+      "file": "w502b-narrow-stale.png",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A40.637339Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A45%3A40.637339Z",
+        "panelState": "rows",
+        "currentness": "STALE_SOURCE",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 907,
+        "main": 758,
+        "strip": 84,
+        "panel": 234,
+        "currentnessNotice": 84,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 467,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "654ff8e0-e70c-4351-a09b-fde6c9ec6220",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding 8c323887",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 97,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 758,
+        "empty": null
+      }
+    },
+    {
+      "state": "unknown",
+      "width": 390,
+      "file": "w502b-narrow-unknown.png",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A46%3A00.655162Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T14%3A46%3A00.655162Z",
+        "panelState": "rows",
+        "currentness": "UNKNOWN",
+        "scope": "Scoped to Cold · 1 actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 907,
+        "main": 758,
+        "strip": 84,
+        "panel": 234,
+        "currentnessNotice": 84,
+        "contextNotice": 84,
+        "scrollerScrollWidth": 462,
+        "scrollerClientWidth": 318,
+        "stickyFirstColumn": true,
+        "stickyHead": true,
+        "rowCount": 1,
+        "rowsTotal": 1,
+        "rows": [
+          {
+            "id": "1e239497-88f9-453e-a8cd-fd7d579eae3a",
+            "codes": [
+              {
+                "text": "ACT-000001",
+                "lines": 1
+              },
+              {
+                "text": "Finding f8fec106",
+                "lines": 1
+              },
+              {
+                "text": "Not set",
+                "lines": 2
+              }
+            ],
+            "codeOneLine": false,
+            "height": 97,
+            "summaryLines": [
+              1
+            ]
+          }
+        ],
+        "badgesClipped": 0,
+        "badgeCount": 1,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": null,
+        "pageMain": 758,
+        "empty": null
+      }
+    },
+    {
+      "state": "forbidden-403",
+      "width": 390,
+      "file": "w502b-narrow-forbidden-403.png",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": "refused",
+        "currentness": null,
+        "scope": "Scoped to Cold · — actions",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 619,
+        "strip": 84,
+        "panel": 198,
+        "currentnessNotice": null,
+        "contextNotice": 84,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "stickyHead": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "rows": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "refusalMessage": "No access to Site 'COLD-LAB-001'.",
+        "retryVisible": true,
+        "siteRefusal": null,
+        "pageMain": 619,
+        "empty": null
+      }
+    },
+    {
+      "state": "unavailable-503",
+      "width": 390,
+      "file": "w502b-narrow-unavailable-503.png",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "panelState": null,
+        "currentness": null,
+        "scope": null,
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": null,
+        "strip": null,
+        "panel": null,
+        "currentnessNotice": null,
+        "contextNotice": null,
+        "scrollerScrollWidth": null,
+        "scrollerClientWidth": null,
+        "stickyFirstColumn": null,
+        "stickyHead": null,
+        "rowCount": 0,
+        "rowsTotal": 0,
+        "rows": [],
+        "badgesClipped": 0,
+        "badgeCount": 0,
+        "showAll": null,
+        "next": null,
+        "first": false,
+        "disclosures": 0,
+        "openDisclosures": 0,
+        "refusal": null,
+        "refusalMessage": null,
+        "retryVisible": null,
+        "siteRefusal": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "pageMain": 172,
+        "empty": null
+      }
+    },
+    {
+      "state": "action-positive",
+      "width": 390,
+      "file": "w502b-narrow-action-positive.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/4862d03f-271c-4d82-a9b5-f3bf2f8c238a/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/4862d03f-271c-4d82-a9b5-f3bf2f8c238a/verification",
+        "shell": "loaded",
+        "panelState": "preparing",
+        "heading": "ACT-000001 · Witness automatic-start test",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 465,
+        "strip": 65,
+        "panel": 23,
+        "notice": 84,
+        "currentnessNotice": null,
+        "panelText": "Action details are being prepared."
+      }
+    },
+    {
+      "state": "action-not-found",
+      "width": 390,
+      "file": "w502b-narrow-action-not-found.png",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+      "measurements": {
+        "href": "/sites/COLD-LAB-001/actions/00000000-0000-4000-8000-0000000000aa/verification",
+        "shell": "not_found",
+        "panelState": "not-found",
+        "heading": "Action",
+        "docScrollWidth": 390,
+        "docClientWidth": 390,
+        "docHeight": 900,
+        "main": 252,
+        "strip": null,
+        "panel": 23,
+        "notice": null,
+        "currentnessNotice": null,
+        "panelText": "Action was not found at this site."
+      }
+    }
+  ],
+  "claims": [
+    {
+      "name": "desktop positive: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop positive: rows panel, CURRENT",
+      "ok": true,
+      "detail": {
+        "panel": "rows",
+        "currentness": null
+      }
+    },
+    {
+      "name": "desktop positive: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop positive: page main <= 1400",
+      "ok": true,
+      "detail": 547
+    },
+    {
+      "name": "desktop positive: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop positive: panel <= 440",
+      "ok": true,
+      "detail": 184
+    },
+    {
+      "name": "desktop positive: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop positive: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop positive: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop positive: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop positive: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop positive: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop zero: settled",
+      "ok": true,
+      "detail": "empty"
+    },
+    {
+      "name": "desktop zero: empty panel",
+      "ok": true,
+      "detail": {
+        "panel": "empty",
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet."
+      }
+    },
+    {
+      "name": "desktop zero: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop zero: page main <= 1400",
+      "ok": true,
+      "detail": 625
+    },
+    {
+      "name": "desktop zero: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop zero: panel <= 440",
+      "ok": true,
+      "detail": 262
+    },
+    {
+      "name": "desktop zero: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop historical: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop historical: HISTORICAL notice",
+      "ok": true,
+      "detail": "HISTORICAL"
+    },
+    {
+      "name": "desktop historical: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop historical: page main <= 1400",
+      "ok": true,
+      "detail": 631
+    },
+    {
+      "name": "desktop historical: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop historical: panel <= 440",
+      "ok": true,
+      "detail": 184
+    },
+    {
+      "name": "desktop historical: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop historical: currentness notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop historical: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop historical: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop historical: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop historical: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop historical: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop worstcase-folded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop worstcase-folded: 'Show all 5 Actions' visible",
+      "ok": true,
+      "detail": "Show all 5 Actions"
+    },
+    {
+      "name": "desktop worstcase-folded: 5 rows on page, 4 visible",
+      "ok": true,
+      "detail": {
+        "total": 5,
+        "visible": 4
+      }
+    },
+    {
+      "name": "desktop worstcase-folded: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop worstcase-folded: page main <= 1400",
+      "ok": true,
+      "detail": 892
+    },
+    {
+      "name": "desktop worstcase-folded: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop worstcase-folded: panel <= 440",
+      "ok": false,
+      "detail": 529
+    },
+    {
+      "name": "desktop worstcase-folded: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop worstcase-folded: 4 visible row(s) measured",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "desktop worstcase-folded: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop worstcase-folded: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "desktop worstcase-folded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop worstcase-folded: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 4,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop worstcase-expanded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop worstcase-expanded: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1425,
+        "clientWidth": 1425
+      }
+    },
+    {
+      "name": "desktop worstcase-expanded: page main <= 1400",
+      "ok": true,
+      "detail": 985
+    },
+    {
+      "name": "desktop worstcase-expanded: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop worstcase-expanded: panel <= 440",
+      "ok": false,
+      "detail": 622
+    },
+    {
+      "name": "desktop worstcase-expanded: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop worstcase-expanded: 5 visible row(s) measured",
+      "ok": true,
+      "detail": 5
+    },
+    {
+      "name": "desktop worstcase-expanded: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop worstcase-expanded: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "desktop worstcase-expanded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop worstcase-expanded: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 5,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop worstcase-disclosure: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop worstcase-disclosure: one disclosure open",
+      "ok": true,
+      "detail": {
+        "open": 1,
+        "of": 5
+      }
+    },
+    {
+      "name": "desktop worstcase-disclosure: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop worstcase-disclosure: page main <= 1400",
+      "ok": true,
+      "detail": 922
+    },
+    {
+      "name": "desktop worstcase-disclosure: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop worstcase-disclosure: panel <= 440",
+      "ok": false,
+      "detail": 559
+    },
+    {
+      "name": "desktop worstcase-disclosure: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop worstcase-disclosure: 4 visible row(s) measured",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "desktop worstcase-disclosure: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop worstcase-disclosure: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "name": "desktop worstcase-disclosure: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop worstcase-disclosure: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 4,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop worstcase: Next page link present",
+      "ok": true,
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A16%3A41.417593Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTY6NDEuNDE3NTkzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4Mjg0MTI0MGQ1NmE4ODcyMGI3MTI1MDA0YTgyNGQ4YzcyMmRiZjU3NzBhNWE0YzZmMGM5ZDQ4Y2QwY2U1OWY2Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+    },
+    {
+      "name": "desktop worstcase-next: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop worstcase-next: cursor + known_at in URL, First page link",
+      "ok": true,
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A16%3A41.417593Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTY6NDEuNDE3NTkzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo4Mjg0MTI0MGQ1NmE4ODcyMGI3MTI1MDA0YTgyNGQ4YzcyMmRiZjU3NzBhNWE0YzZmMGM5ZDQ4Y2QwY2U1OWY2Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+    },
+    {
+      "name": "desktop worstcase-next: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop worstcase-next: page main <= 1400",
+      "ok": true,
+      "detail": 630
+    },
+    {
+      "name": "desktop worstcase-next: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop worstcase-next: panel <= 440",
+      "ok": true,
+      "detail": 183
+    },
+    {
+      "name": "desktop worstcase-next: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop worstcase-next: currentness notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop worstcase-next: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop worstcase-next: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop worstcase-next: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop worstcase-next: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop worstcase-next: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop pending: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop pending: PENDING_RECOMPUTE notice",
+      "ok": true,
+      "detail": "PENDING_RECOMPUTE"
+    },
+    {
+      "name": "desktop pending: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop pending: page main <= 1400",
+      "ok": true,
+      "detail": 631
+    },
+    {
+      "name": "desktop pending: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop pending: panel <= 440",
+      "ok": true,
+      "detail": 184
+    },
+    {
+      "name": "desktop pending: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop pending: currentness notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop pending: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop pending: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop pending: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop pending: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop pending: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop stale: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop stale: STALE_SOURCE notice",
+      "ok": true,
+      "detail": "STALE_SOURCE"
+    },
+    {
+      "name": "desktop stale: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop stale: page main <= 1400",
+      "ok": true,
+      "detail": 631
+    },
+    {
+      "name": "desktop stale: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop stale: panel <= 440",
+      "ok": true,
+      "detail": 184
+    },
+    {
+      "name": "desktop stale: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop stale: currentness notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop stale: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop stale: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop stale: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop stale: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop stale: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop unknown: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "desktop unknown: UNKNOWN notice",
+      "ok": true,
+      "detail": "UNKNOWN"
+    },
+    {
+      "name": "desktop unknown: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop unknown: page main <= 1400",
+      "ok": true,
+      "detail": 631
+    },
+    {
+      "name": "desktop unknown: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop unknown: panel <= 440",
+      "ok": true,
+      "detail": 184
+    },
+    {
+      "name": "desktop unknown: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop unknown: currentness notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop unknown: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop unknown: every row's code is on one line",
+      "ok": true,
+      "detail": [
+        [
+          1,
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "name": "desktop unknown: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "desktop unknown: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop unknown: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "desktop forbidden-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "desktop forbidden-403: refused panel SITE_SCOPE_FORBIDDEN",
+      "ok": true,
+      "detail": {
+        "panel": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "message": "No access to Site 'COLD-LAB-001'."
+      }
+    },
+    {
+      "name": "desktop forbidden-403: Retry visible",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "desktop forbidden-403: no row and no mock zero",
+      "ok": true,
+      "detail": {
+        "rows": 0,
+        "scope": "Scoped to Cold · — actions"
+      }
+    },
+    {
+      "name": "desktop forbidden-403: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop forbidden-403: page main <= 1400",
+      "ok": true,
+      "detail": 561
+    },
+    {
+      "name": "desktop forbidden-403: strip <= 100",
+      "ok": true,
+      "detail": 39
+    },
+    {
+      "name": "desktop forbidden-403: panel <= 440",
+      "ok": true,
+      "detail": 198
+    },
+    {
+      "name": "desktop forbidden-403: context notice <= 110",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop unavailable-503: settled",
+      "ok": true
+    },
+    {
+      "name": "desktop unavailable-503: page states a refusal (Site frame), no rows",
+      "ok": true,
+      "detail": {
+        "main": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "height": 154
+      }
+    },
+    {
+      "name": "desktop unavailable-503: refused panel WORK_STORE_UNAVAILABLE",
+      "ok": false,
+      "detail": {
+        "panel": null,
+        "refusal": null,
+        "message": null
+      }
+    },
+    {
+      "name": "desktop unavailable-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-positive: settled",
+      "ok": true,
+      "detail": "preparing"
+    },
+    {
+      "name": "desktop action-positive: shell/panel state",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": "preparing"
+      }
+    },
+    {
+      "name": "desktop action-positive: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-positive: page main <= 1350",
+      "ok": true,
+      "detail": 364
+    },
+    {
+      "name": "desktop action-positive: strip <= 100",
+      "ok": true,
+      "detail": 42
+    },
+    {
+      "name": "desktop action-positive: notice <= 100",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "desktop action-not-found: settled",
+      "ok": true,
+      "detail": "not-found"
+    },
+    {
+      "name": "desktop action-not-found: shell/panel state",
+      "ok": true,
+      "detail": {
+        "shell": "not_found",
+        "panel": "not-found"
+      }
+    },
+    {
+      "name": "desktop action-not-found: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      }
+    },
+    {
+      "name": "desktop action-not-found: page main <= 1350",
+      "ok": true,
+      "detail": 220
+    },
+    {
+      "name": "narrow positive: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow positive: rows panel, CURRENT",
+      "ok": true,
+      "detail": {
+        "panel": "rows",
+        "currentness": null
+      }
+    },
+    {
+      "name": "narrow positive: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow positive: page main <= 1800",
+      "ok": true,
+      "detail": 656
+    },
+    {
+      "name": "narrow positive: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow positive: panel <= 650",
+      "ok": true,
+      "detail": 234
+    },
+    {
+      "name": "narrow positive: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow positive: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow positive: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "name": "narrow positive: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow positive: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow positive: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow positive: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 467,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow zero: settled",
+      "ok": true,
+      "detail": "empty"
+    },
+    {
+      "name": "narrow zero: empty panel",
+      "ok": true,
+      "detail": {
+        "panel": "empty",
+        "empty": "No actions at this site No accepted recommendation or evidence request has been raised here yet."
+      }
+    },
+    {
+      "name": "narrow zero: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow zero: page main <= 1800",
+      "ok": true,
+      "detail": 703
+    },
+    {
+      "name": "narrow zero: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow zero: panel <= 650",
+      "ok": true,
+      "detail": 282
+    },
+    {
+      "name": "narrow zero: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow historical: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow historical: HISTORICAL notice",
+      "ok": true,
+      "detail": "HISTORICAL"
+    },
+    {
+      "name": "narrow historical: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow historical: page main <= 1800",
+      "ok": true,
+      "detail": 739
+    },
+    {
+      "name": "narrow historical: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow historical: panel <= 650",
+      "ok": true,
+      "detail": 234
+    },
+    {
+      "name": "narrow historical: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow historical: currentness notice <= 160",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "narrow historical: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow historical: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "name": "narrow historical: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow historical: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow historical: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow historical: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 467,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worstcase-folded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow worstcase-folded: 'Show all 5 Actions' visible",
+      "ok": true,
+      "detail": "Show all 5 Actions"
+    },
+    {
+      "name": "narrow worstcase-folded: 5 rows on page, 4 visible",
+      "ok": true,
+      "detail": {
+        "total": 5,
+        "visible": 4
+      }
+    },
+    {
+      "name": "narrow worstcase-folded: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow worstcase-folded: page main <= 1800",
+      "ok": true,
+      "detail": 1569
+    },
+    {
+      "name": "narrow worstcase-folded: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-folded: panel <= 650",
+      "ok": false,
+      "detail": 1148
+    },
+    {
+      "name": "narrow worstcase-folded: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-folded: 4 visible row(s) measured",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "narrow worstcase-folded: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          4
+        ]
+      ]
+    },
+    {
+      "name": "narrow worstcase-folded: every 'Read full text' summary is on one line",
+      "ok": false,
+      "detail": [
+        4,
+        1,
+        8,
+        4,
+        1,
+        8,
+        4,
+        1,
+        8,
+        4,
+        1,
+        8
+      ]
+    },
+    {
+      "name": "narrow worstcase-folded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow worstcase-folded: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 4,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow worstcase-folded: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 476,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worstcase-expanded: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow worstcase-expanded: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow worstcase-expanded: page main <= 1800",
+      "ok": false,
+      "detail": 1820
+    },
+    {
+      "name": "narrow worstcase-expanded: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-expanded: panel <= 650",
+      "ok": false,
+      "detail": 1399
+    },
+    {
+      "name": "narrow worstcase-expanded: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-expanded: 5 visible row(s) measured",
+      "ok": true,
+      "detail": 5
+    },
+    {
+      "name": "narrow worstcase-expanded: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "name": "narrow worstcase-expanded: every 'Read full text' summary is on one line",
+      "ok": false,
+      "detail": [
+        4,
+        1,
+        8,
+        4,
+        1,
+        8,
+        4,
+        1,
+        8,
+        4,
+        1,
+        8,
+        4,
+        1,
+        8
+      ]
+    },
+    {
+      "name": "narrow worstcase-expanded: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow worstcase-expanded: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 5,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow worstcase-expanded: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 476,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worstcase-disclosure: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow worstcase-disclosure: one disclosure open",
+      "ok": true,
+      "detail": {
+        "open": 1,
+        "of": 5
+      }
+    },
+    {
+      "name": "narrow worstcase-disclosure: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow worstcase-disclosure: page main <= 1800",
+      "ok": false,
+      "detail": 2161
+    },
+    {
+      "name": "narrow worstcase-disclosure: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-disclosure: panel <= 650",
+      "ok": false,
+      "detail": 1740
+    },
+    {
+      "name": "narrow worstcase-disclosure: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-disclosure: 4 visible row(s) measured",
+      "ok": true,
+      "detail": 4
+    },
+    {
+      "name": "narrow worstcase-disclosure: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          1,
+          4
+        ],
+        [
+          1,
+          1,
+          2
+        ],
+        [
+          1,
+          1,
+          4
+        ]
+      ]
+    },
+    {
+      "name": "narrow worstcase-disclosure: every 'Read full text' summary is on one line",
+      "ok": false,
+      "detail": [
+        4,
+        1,
+        8,
+        4,
+        1,
+        8,
+        4,
+        1,
+        8,
+        4,
+        1,
+        8
+      ]
+    },
+    {
+      "name": "narrow worstcase-disclosure: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow worstcase-disclosure: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 4,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow worstcase-disclosure: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 476,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow worstcase: Next page link present",
+      "ok": true,
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A17%3A19.546167Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTc6MTkuNTQ2MTY3WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1YjQ0ZTQ3ZmExY2EwZWIwYzQ4ZjNjYzdjYTZkMDMxYmRhNjQ0ZjA0YjQ5MmIyYzA5MjNjYmUwOWE1M2JiYWRhIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+    },
+    {
+      "name": "narrow worstcase-next: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow worstcase-next: cursor + known_at in URL, First page link",
+      "ok": true,
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A17%3A19.546167Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MTc6MTkuNTQ2MTY3WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1YjQ0ZTQ3ZmExY2EwZWIwYzQ4ZjNjYzdjYTZkMDMxYmRhNjQ0ZjA0YjQ5MmIyYzA5MjNjYmUwOWE1M2JiYWRhIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+    },
+    {
+      "name": "narrow worstcase-next: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow worstcase-next: page main <= 1800",
+      "ok": true,
+      "detail": 739
+    },
+    {
+      "name": "narrow worstcase-next: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-next: panel <= 650",
+      "ok": true,
+      "detail": 234
+    },
+    {
+      "name": "narrow worstcase-next: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow worstcase-next: currentness notice <= 160",
+      "ok": true,
+      "detail": 66
+    },
+    {
+      "name": "narrow worstcase-next: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow worstcase-next: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "name": "narrow worstcase-next: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow worstcase-next: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow worstcase-next: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow worstcase-next: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 467,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow pending: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow pending: PENDING_RECOMPUTE notice",
+      "ok": true,
+      "detail": "PENDING_RECOMPUTE"
+    },
+    {
+      "name": "narrow pending: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow pending: page main <= 1800",
+      "ok": true,
+      "detail": 758
+    },
+    {
+      "name": "narrow pending: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow pending: panel <= 650",
+      "ok": true,
+      "detail": 234
+    },
+    {
+      "name": "narrow pending: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow pending: currentness notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow pending: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow pending: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "name": "narrow pending: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow pending: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow pending: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow pending: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 465,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow stale: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow stale: STALE_SOURCE notice",
+      "ok": true,
+      "detail": "STALE_SOURCE"
+    },
+    {
+      "name": "narrow stale: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow stale: page main <= 1800",
+      "ok": true,
+      "detail": 758
+    },
+    {
+      "name": "narrow stale: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow stale: panel <= 650",
+      "ok": true,
+      "detail": 234
+    },
+    {
+      "name": "narrow stale: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow stale: currentness notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow stale: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow stale: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "name": "narrow stale: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow stale: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow stale: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow stale: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 467,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow unknown: settled",
+      "ok": true,
+      "detail": "rows"
+    },
+    {
+      "name": "narrow unknown: UNKNOWN notice",
+      "ok": true,
+      "detail": "UNKNOWN"
+    },
+    {
+      "name": "narrow unknown: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow unknown: page main <= 1800",
+      "ok": true,
+      "detail": 758
+    },
+    {
+      "name": "narrow unknown: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow unknown: panel <= 650",
+      "ok": true,
+      "detail": 234
+    },
+    {
+      "name": "narrow unknown: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow unknown: currentness notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow unknown: 1 visible row(s) measured",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "narrow unknown: every row's code is on one line",
+      "ok": false,
+      "detail": [
+        [
+          1,
+          1,
+          2
+        ]
+      ]
+    },
+    {
+      "name": "narrow unknown: every 'Read full text' summary is on one line",
+      "ok": true,
+      "detail": [
+        1
+      ]
+    },
+    {
+      "name": "narrow unknown: first column is position:sticky",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow unknown: no clipped State badge",
+      "ok": true,
+      "detail": {
+        "badges": 1,
+        "clipped": 0
+      }
+    },
+    {
+      "name": "narrow unknown: table scrolls inside its panel",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 462,
+        "clientWidth": 318
+      }
+    },
+    {
+      "name": "narrow forbidden-403: settled",
+      "ok": true,
+      "detail": "refused"
+    },
+    {
+      "name": "narrow forbidden-403: refused panel SITE_SCOPE_FORBIDDEN",
+      "ok": true,
+      "detail": {
+        "panel": "refused",
+        "refusal": "SITE_SCOPE_FORBIDDEN",
+        "message": "No access to Site 'COLD-LAB-001'."
+      }
+    },
+    {
+      "name": "narrow forbidden-403: Retry visible",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "name": "narrow forbidden-403: no row and no mock zero",
+      "ok": true,
+      "detail": {
+        "rows": 0,
+        "scope": "Scoped to Cold · — actions"
+      }
+    },
+    {
+      "name": "narrow forbidden-403: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow forbidden-403: page main <= 1800",
+      "ok": true,
+      "detail": 619
+    },
+    {
+      "name": "narrow forbidden-403: strip <= 150",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow forbidden-403: panel <= 650",
+      "ok": true,
+      "detail": 198
+    },
+    {
+      "name": "narrow forbidden-403: context notice <= 160",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow unavailable-503: settled",
+      "ok": true
+    },
+    {
+      "name": "narrow unavailable-503: page states a refusal (Site frame), no rows",
+      "ok": true,
+      "detail": {
+        "main": "Work Site unavailable The site store could not be read, so nothing is known about whether the site is configured.",
+        "height": 172
+      }
+    },
+    {
+      "name": "narrow unavailable-503: refused panel WORK_STORE_UNAVAILABLE",
+      "ok": false,
+      "detail": {
+        "panel": null,
+        "refusal": null,
+        "message": null
+      }
+    },
+    {
+      "name": "narrow unavailable-503: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-positive: settled",
+      "ok": true,
+      "detail": "preparing"
+    },
+    {
+      "name": "narrow action-positive: shell/panel state",
+      "ok": true,
+      "detail": {
+        "shell": "loaded",
+        "panel": "preparing"
+      }
+    },
+    {
+      "name": "narrow action-positive: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-positive: page main <= 1750",
+      "ok": true,
+      "detail": 465
+    },
+    {
+      "name": "narrow action-positive: strip <= 120",
+      "ok": true,
+      "detail": 65
+    },
+    {
+      "name": "narrow action-positive: notice <= 140",
+      "ok": true,
+      "detail": 84
+    },
+    {
+      "name": "narrow action-not-found: settled",
+      "ok": true,
+      "detail": "not-found"
+    },
+    {
+      "name": "narrow action-not-found: shell/panel state",
+      "ok": true,
+      "detail": {
+        "shell": "not_found",
+        "panel": "not-found"
+      }
+    },
+    {
+      "name": "narrow action-not-found: no document horizontal overflow",
+      "ok": true,
+      "detail": {
+        "scrollWidth": 390,
+        "clientWidth": 390
+      }
+    },
+    {
+      "name": "narrow action-not-found: page main <= 1750",
+      "ok": true,
+      "detail": 252
+    }
+  ],
+  "failed": 22
+}
