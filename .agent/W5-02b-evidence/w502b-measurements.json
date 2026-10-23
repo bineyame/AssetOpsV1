@@ -221,12 +221,12 @@
         "docScrollWidth": 1440,
         "docClientWidth": 1440,
         "docHeight": 1000,
-        "main": 757,
+        "main": 764,
         "strip": 39,
-        "panel": 394,
+        "panel": 401,
         "currentnessNotice": null,
         "contextNotice": 66,
-        "scrollerScrollWidth": 1120,
+        "scrollerScrollWidth": 1125,
         "scrollerClientWidth": 1120,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -250,7 +250,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -274,7 +274,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -298,7 +298,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -322,7 +322,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -333,13 +333,13 @@
         "badgesClipped": 0,
         "badgeCount": 4,
         "badgeLines": [
-          2,
-          2,
-          2,
-          2
+          1,
+          1,
+          1,
+          1
         ],
         "showAll": "Show all 5 Actions",
-        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A24%3A52.550310Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjQ6NTIuNTUwMzEwWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2OGQxMWQ1N2U1NGViZGUxMjQxNTdkMmM1OTM1NTE4NDBhY2I3ZDdmZmE2NDkxZDYzNzg2ZDQ2MDQwOWRhNzQ3Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A28%3A27.643169Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjg6MjcuNjQzMTY5WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjplMmU0ZWZkNTA0NDdmYmJkMzA2NGE3ZjJkNjgyNmU0NGZjNzg4NzhhOGFiZjkwOTVmMjUyMGJiZmI3YmIyYjcxIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "first": false,
         "disclosures": 5,
         "openDisclosures": 0,
@@ -347,7 +347,7 @@
         "refusalMessage": null,
         "retryVisible": null,
         "siteRefusal": null,
-        "pageMain": 757,
+        "pageMain": 764,
         "empty": null
       }
     },
@@ -364,12 +364,12 @@
         "docScrollWidth": 1440,
         "docClientWidth": 1440,
         "docHeight": 1000,
-        "main": 820,
+        "main": 825,
         "strip": 39,
-        "panel": 457,
+        "panel": 462,
         "currentnessNotice": null,
         "contextNotice": 66,
-        "scrollerScrollWidth": 1120,
+        "scrollerScrollWidth": 1125,
         "scrollerClientWidth": 1120,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -393,7 +393,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -417,7 +417,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -441,7 +441,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -465,7 +465,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -489,7 +489,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -500,14 +500,14 @@
         "badgesClipped": 0,
         "badgeCount": 5,
         "badgeLines": [
-          2,
-          2,
-          2,
-          2,
-          2
+          1,
+          1,
+          1,
+          1,
+          1
         ],
         "showAll": null,
-        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A24%3A54.969164Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjQ6NTQuOTY5MTY0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpmMDEwMDNjMWI3OTI1MDJhNDVmNmYxOGU2ODkzZmY1OWVjYTU1ZDgzZTczNDczODM4YThjNWNhNjM3ZTUyNGIxIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A28%3A29.866537Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjg6MjkuODY2NTM3WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpiMDBmY2RhNjY2OGY0NmI2NjA3MjA5OWVkNWU2MjA4ZDBjNGJlMjQ5MWMzM2YyYjEwNDlmZmViODYzYzZiM2YyIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "first": false,
         "disclosures": 5,
         "openDisclosures": 0,
@@ -515,7 +515,7 @@
         "refusalMessage": null,
         "retryVisible": null,
         "siteRefusal": null,
-        "pageMain": 820,
+        "pageMain": 825,
         "empty": null
       }
     },
@@ -532,12 +532,12 @@
         "docScrollWidth": 1440,
         "docClientWidth": 1440,
         "docHeight": 1000,
-        "main": 779,
+        "main": 786,
         "strip": 39,
-        "panel": 416,
+        "panel": 423,
         "currentnessNotice": null,
         "contextNotice": 66,
-        "scrollerScrollWidth": 1120,
+        "scrollerScrollWidth": 1125,
         "scrollerClientWidth": 1120,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -561,7 +561,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 86,
+            "height": 84,
             "summaryLines": [
               1,
               1,
@@ -585,7 +585,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -609,7 +609,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -633,7 +633,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 64,
+            "height": 62,
             "summaryLines": [
               1,
               1,
@@ -644,13 +644,13 @@
         "badgesClipped": 0,
         "badgeCount": 4,
         "badgeLines": [
-          2,
-          2,
-          2,
-          2
+          1,
+          1,
+          1,
+          1
         ],
         "showAll": "Show all 5 Actions",
-        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A24%3A57.593006Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjQ6NTcuNTkzMDA2WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpjNTZhNTJiY2VlMzE1N2RmODgxNTAxYjY4OWJjOTgyZWQ2NDg2ZDljNzU1ZjI4ZDljZDE1MjQ4ZWQyZGM4N2M3Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A28%3A32.509698Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjg6MzIuNTA5Njk4WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxYThhODRiYzE1YjE4NGMxMzI0NjdhZmMxMzVjMTY2YTNkZjIzMjk5M2MwMDYyNjM4M2FiYWM2ZTZiMzgwNTlmIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "first": false,
         "disclosures": 5,
         "openDisclosures": 1,
@@ -658,7 +658,7 @@
         "refusalMessage": null,
         "retryVisible": null,
         "siteRefusal": null,
-        "pageMain": 779,
+        "pageMain": 786,
         "empty": null
       }
     },
@@ -666,9 +666,9 @@
       "state": "worstcase-next",
       "width": 1440,
       "file": "w502b-desktop-worstcase-next.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A24%3A57.593006Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjQ6NTcuNTkzMDA2WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpjNTZhNTJiY2VlMzE1N2RmODgxNTAxYjY4OWJjOTgyZWQ2NDg2ZDljNzU1ZjI4ZDljZDE1MjQ4ZWQyZGM4N2M3Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A28%3A32.509698Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjg6MzIuNTA5Njk4WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxYThhODRiYzE1YjE4NGMxMzI0NjdhZmMxMzVjMTY2YTNkZjIzMjk5M2MwMDYyNjM4M2FiYWM2ZTZiMzgwNTlmIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A24%3A57.593006Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjQ6NTcuNTkzMDA2WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpjNTZhNTJiY2VlMzE1N2RmODgxNTAxYjY4OWJjOTgyZWQ2NDg2ZDljNzU1ZjI4ZDljZDE1MjQ4ZWQyZGM4N2M3Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A28%3A32.509698Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjg6MzIuNTA5Njk4WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxYThhODRiYzE1YjE4NGMxMzI0NjdhZmMxMzVjMTY2YTNkZjIzMjk5M2MwMDYyNjM4M2FiYWM2ZTZiMzgwNTlmIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "panelState": "rows",
         "currentness": "HISTORICAL",
         "scope": "Scoped to Cold · 6 actions",
@@ -1068,7 +1068,7 @@
         "panel": 199,
         "currentnessNotice": null,
         "contextNotice": 84,
-        "scrollerScrollWidth": 811,
+        "scrollerScrollWidth": 821,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1101,7 +1101,7 @@
         "badgesClipped": 0,
         "badgeCount": 1,
         "badgeLines": [
-          2
+          1
         ],
         "showAll": null,
         "next": null,
@@ -1175,7 +1175,7 @@
         "panel": 199,
         "currentnessNotice": 66,
         "contextNotice": 84,
-        "scrollerScrollWidth": 811,
+        "scrollerScrollWidth": 821,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1208,7 +1208,7 @@
         "badgesClipped": 0,
         "badgeCount": 1,
         "badgeLines": [
-          2
+          1
         ],
         "showAll": null,
         "next": null,
@@ -1235,13 +1235,13 @@
         "scope": "Scoped to Cold · 6 actions",
         "docScrollWidth": 390,
         "docClientWidth": 390,
-        "docHeight": 1035,
-        "main": 886,
+        "docHeight": 1027,
+        "main": 878,
         "strip": 84,
-        "panel": 465,
+        "panel": 457,
         "currentnessNotice": null,
         "contextNotice": 84,
-        "scrollerScrollWidth": 811,
+        "scrollerScrollWidth": 821,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1265,7 +1265,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1289,7 +1289,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1313,7 +1313,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1337,7 +1337,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1348,13 +1348,13 @@
         "badgesClipped": 0,
         "badgeCount": 4,
         "badgeLines": [
-          2,
-          2,
-          2,
-          2
+          1,
+          1,
+          1,
+          1
         ],
         "showAll": "Show all 5 Actions",
-        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A25%3A28.946960Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjU6MjguOTQ2OTYwWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjozY2E3NzAxNDA2ZjgzNDllMWJhMDkzOWM2Njg1NzFhZTk5OWNiMTE2NThjYWE5MmVlOGVmNjQ2YzgxNTY1YzE0Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A29%3A33.648424Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjk6MzMuNjQ4NDI0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo5MWRiNDY5NzAxNDUyMzQwMGE2NzU5NjBhMGIxMjAzNmY0ZGQyNzBiMzFlMTBkZDQ2M2ZlZGVhNDUwNTE1MjQ0Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "first": false,
         "disclosures": 5,
         "openDisclosures": 0,
@@ -1362,7 +1362,7 @@
         "refusalMessage": null,
         "retryVisible": null,
         "siteRefusal": null,
-        "pageMain": 886,
+        "pageMain": 878,
         "empty": null
       }
     },
@@ -1378,13 +1378,13 @@
         "scope": "Scoped to Cold · 6 actions",
         "docScrollWidth": 390,
         "docClientWidth": 390,
-        "docHeight": 1116,
-        "main": 967,
+        "docHeight": 1106,
+        "main": 957,
         "strip": 84,
-        "panel": 545,
+        "panel": 535,
         "currentnessNotice": null,
         "contextNotice": 84,
-        "scrollerScrollWidth": 811,
+        "scrollerScrollWidth": 821,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1408,7 +1408,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1432,7 +1432,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1456,7 +1456,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1480,7 +1480,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1504,7 +1504,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 81,
+            "height": 79,
             "summaryLines": [
               1,
               1,
@@ -1515,14 +1515,14 @@
         "badgesClipped": 0,
         "badgeCount": 5,
         "badgeLines": [
-          2,
-          2,
-          2,
-          2,
-          2
+          1,
+          1,
+          1,
+          1,
+          1
         ],
         "showAll": null,
-        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A25%3A31.047161Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjU6MzEuMDQ3MTYxWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxZTE5NjcxZmQ3MjY3N2U1MjQ5YmM4MWEwNTJlNjUzM2UyNjY0OTFhY2ZlMTI1ODZhNzU0NWViMmY1NTBkMjNlIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A29%3A36.204179Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjk6MzYuMjA0MTc5WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjphODE2YWMyYTIzMDZlODc1MWE0M2UwOWFlN2EwNTk5YTQ3YjliZTdhMWQ3MTA5NWViMTkxZjU3YzQwZWM0MGM1Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "first": false,
         "disclosures": 5,
         "openDisclosures": 0,
@@ -1530,7 +1530,7 @@
         "refusalMessage": null,
         "retryVisible": null,
         "siteRefusal": null,
-        "pageMain": 967,
+        "pageMain": 957,
         "empty": null
       }
     },
@@ -1546,13 +1546,13 @@
         "scope": "Scoped to Cold · 6 actions",
         "docScrollWidth": 390,
         "docClientWidth": 390,
-        "docHeight": 1127,
-        "main": 978,
+        "docHeight": 1119,
+        "main": 970,
         "strip": 84,
-        "panel": 556,
+        "panel": 548,
         "currentnessNotice": null,
         "contextNotice": 84,
-        "scrollerScrollWidth": 811,
+        "scrollerScrollWidth": 821,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1576,7 +1576,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 174,
+            "height": 172,
             "summaryLines": [
               1,
               1,
@@ -1600,7 +1600,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1624,7 +1624,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1648,7 +1648,7 @@
               }
             ],
             "codeOneLine": true,
-            "height": 82,
+            "height": 80,
             "summaryLines": [
               1,
               1,
@@ -1659,13 +1659,13 @@
         "badgesClipped": 0,
         "badgeCount": 4,
         "badgeLines": [
-          2,
-          2,
-          2,
-          2
+          1,
+          1,
+          1,
+          1
         ],
         "showAll": "Show all 5 Actions",
-        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A25%3A33.597235Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjU6MzMuNTk3MjM1WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpkNTY5YTRiYjQ4MjA1ODQ4MjczZjQ0YzZhMTYxZWM1YzY2YzRkYWJjYTdhMzUwODY2MmE3NmEzMmExOWY2OTFlIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "next": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A29%3A38.848704Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjk6MzguODQ4NzA0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2YWEzZWMwNjkwNzE5MmZmOTNkMzMxNmRkYmI2ZjczYzAwYTI2NmFjNjM2OGIxNGRlODNmNGU2OTlhY2UzMDU0Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "first": false,
         "disclosures": 5,
         "openDisclosures": 1,
@@ -1673,7 +1673,7 @@
         "refusalMessage": null,
         "retryVisible": null,
         "siteRefusal": null,
-        "pageMain": 978,
+        "pageMain": 970,
         "empty": null
       }
     },
@@ -1681,9 +1681,9 @@
       "state": "worstcase-next",
       "width": 390,
       "file": "w502b-narrow-worstcase-next.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A25%3A33.597235Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjU6MzMuNTk3MjM1WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpkNTY5YTRiYjQ4MjA1ODQ4MjczZjQ0YzZhMTYxZWM1YzY2YzRkYWJjYTdhMzUwODY2MmE3NmEzMmExOWY2OTFlIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A29%3A38.848704Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjk6MzguODQ4NzA0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2YWEzZWMwNjkwNzE5MmZmOTNkMzMxNmRkYmI2ZjczYzAwYTI2NmFjNjM2OGIxNGRlODNmNGU2OTlhY2UzMDU0Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A25%3A33.597235Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjU6MzMuNTk3MjM1WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpkNTY5YTRiYjQ4MjA1ODQ4MjczZjQ0YzZhMTYxZWM1YzY2YzRkYWJjYTdhMzUwODY2MmE3NmEzMmExOWY2OTFlIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
+        "href": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A29%3A38.848704Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjk6MzguODQ4NzA0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2YWEzZWMwNjkwNzE5MmZmOTNkMzMxNmRkYmI2ZjczYzAwYTI2NmFjNjM2OGIxNGRlODNmNGU2OTlhY2UzMDU0Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0",
         "panelState": "rows",
         "currentness": "HISTORICAL",
         "scope": "Scoped to Cold · 6 actions",
@@ -1695,7 +1695,7 @@
         "panel": 199,
         "currentnessNotice": 66,
         "contextNotice": 84,
-        "scrollerScrollWidth": 811,
+        "scrollerScrollWidth": 821,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1728,7 +1728,7 @@
         "badgesClipped": 0,
         "badgeCount": 1,
         "badgeLines": [
-          2
+          1
         ],
         "showAll": null,
         "next": null,
@@ -1761,7 +1761,7 @@
         "panel": 199,
         "currentnessNotice": 84,
         "contextNotice": 84,
-        "scrollerScrollWidth": 809,
+        "scrollerScrollWidth": 819,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1794,7 +1794,7 @@
         "badgesClipped": 0,
         "badgeCount": 1,
         "badgeLines": [
-          2
+          1
         ],
         "showAll": null,
         "next": null,
@@ -1827,7 +1827,7 @@
         "panel": 199,
         "currentnessNotice": 84,
         "contextNotice": 84,
-        "scrollerScrollWidth": 810,
+        "scrollerScrollWidth": 820,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1860,7 +1860,7 @@
         "badgesClipped": 0,
         "badgeCount": 1,
         "badgeLines": [
-          2
+          1
         ],
         "showAll": null,
         "next": null,
@@ -1893,7 +1893,7 @@
         "panel": 199,
         "currentnessNotice": 84,
         "contextNotice": 84,
-        "scrollerScrollWidth": 805,
+        "scrollerScrollWidth": 815,
         "scrollerClientWidth": 318,
         "stickyFirstColumn": true,
         "stickyHead": true,
@@ -1926,7 +1926,7 @@
         "badgesClipped": 0,
         "badgeCount": 1,
         "badgeLines": [
-          2
+          1
         ],
         "showAll": null,
         "next": null,
@@ -2307,7 +2307,7 @@
     {
       "name": "desktop worstcase-folded: page main <= 1400",
       "ok": true,
-      "detail": 757
+      "detail": 764
     },
     {
       "name": "desktop worstcase-folded: strip <= 100",
@@ -2317,7 +2317,7 @@
     {
       "name": "desktop worstcase-folded: panel <= 440",
       "ok": true,
-      "detail": 394
+      "detail": 401
     },
     {
       "name": "desktop worstcase-folded: context notice <= 110",
@@ -2388,12 +2388,12 @@
     },
     {
       "name": "desktop worstcase-folded: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2,
-        2,
-        2,
-        2
+        1,
+        1,
+        1,
+        1
       ]
     },
     {
@@ -2412,7 +2412,7 @@
     {
       "name": "desktop worstcase-expanded: page main <= 1400",
       "ok": true,
-      "detail": 820
+      "detail": 825
     },
     {
       "name": "desktop worstcase-expanded: strip <= 100",
@@ -2422,7 +2422,7 @@
     {
       "name": "desktop worstcase-expanded: panel <= 440",
       "ok": false,
-      "detail": 457
+      "detail": 462
     },
     {
       "name": "desktop worstcase-expanded: context notice <= 110",
@@ -2501,13 +2501,13 @@
     },
     {
       "name": "desktop worstcase-expanded: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2,
-        2,
-        2,
-        2,
-        2
+        1,
+        1,
+        1,
+        1,
+        1
       ]
     },
     {
@@ -2534,7 +2534,7 @@
     {
       "name": "desktop worstcase-disclosure: page main <= 1400",
       "ok": true,
-      "detail": 779
+      "detail": 786
     },
     {
       "name": "desktop worstcase-disclosure: strip <= 100",
@@ -2544,7 +2544,7 @@
     {
       "name": "desktop worstcase-disclosure: panel <= 440",
       "ok": true,
-      "detail": 416
+      "detail": 423
     },
     {
       "name": "desktop worstcase-disclosure: context notice <= 110",
@@ -2615,18 +2615,18 @@
     },
     {
       "name": "desktop worstcase-disclosure: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2,
-        2,
-        2,
-        2
+        1,
+        1,
+        1,
+        1
       ]
     },
     {
       "name": "desktop worstcase: Next page link present",
       "ok": true,
-      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A24%3A57.593006Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjQ6NTcuNTkzMDA2WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpjNTZhNTJiY2VlMzE1N2RmODgxNTAxYjY4OWJjOTgyZWQ2NDg2ZDljNzU1ZjI4ZDljZDE1MjQ4ZWQyZGM4N2M3Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A28%3A32.509698Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjg6MzIuNTA5Njk4WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxYThhODRiYzE1YjE4NGMxMzI0NjdhZmMxMzVjMTY2YTNkZjIzMjk5M2MwMDYyNjM4M2FiYWM2ZTZiMzgwNTlmIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
     },
     {
       "name": "desktop worstcase-next: settled",
@@ -2636,7 +2636,7 @@
     {
       "name": "desktop worstcase-next: cursor + known_at in URL, First page link",
       "ok": true,
-      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A24%3A57.593006Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjQ6NTcuNTkzMDA2WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpjNTZhNTJiY2VlMzE1N2RmODgxNTAxYjY4OWJjOTgyZWQ2NDg2ZDljNzU1ZjI4ZDljZDE1MjQ4ZWQyZGM4N2M3Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A28%3A32.509698Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjg6MzIuNTA5Njk4WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxYThhODRiYzE1YjE4NGMxMzI0NjdhZmMxMzVjMTY2YTNkZjIzMjk5M2MwMDYyNjM4M2FiYWM2ZTZiMzgwNTlmIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
     },
     {
       "name": "desktop worstcase-next: no document horizontal overflow",
@@ -3197,16 +3197,16 @@
     },
     {
       "name": "narrow positive: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2
+        1
       ]
     },
     {
       "name": "narrow positive: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 811,
+        "scrollWidth": 821,
         "clientWidth": 318
       }
     },
@@ -3332,16 +3332,16 @@
     },
     {
       "name": "narrow historical: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2
+        1
       ]
     },
     {
       "name": "narrow historical: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 811,
+        "scrollWidth": 821,
         "clientWidth": 318
       }
     },
@@ -3374,7 +3374,7 @@
     {
       "name": "narrow worstcase-folded: page main <= 1800",
       "ok": true,
-      "detail": 886
+      "detail": 878
     },
     {
       "name": "narrow worstcase-folded: strip <= 150",
@@ -3384,7 +3384,7 @@
     {
       "name": "narrow worstcase-folded: panel <= 650",
       "ok": true,
-      "detail": 465
+      "detail": 457
     },
     {
       "name": "narrow worstcase-folded: context notice <= 160",
@@ -3455,19 +3455,19 @@
     },
     {
       "name": "narrow worstcase-folded: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2,
-        2,
-        2,
-        2
+        1,
+        1,
+        1,
+        1
       ]
     },
     {
       "name": "narrow worstcase-folded: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 811,
+        "scrollWidth": 821,
         "clientWidth": 318
       }
     },
@@ -3487,7 +3487,7 @@
     {
       "name": "narrow worstcase-expanded: page main <= 1800",
       "ok": true,
-      "detail": 967
+      "detail": 957
     },
     {
       "name": "narrow worstcase-expanded: strip <= 150",
@@ -3497,7 +3497,7 @@
     {
       "name": "narrow worstcase-expanded: panel <= 650",
       "ok": true,
-      "detail": 545
+      "detail": 535
     },
     {
       "name": "narrow worstcase-expanded: context notice <= 160",
@@ -3576,20 +3576,20 @@
     },
     {
       "name": "narrow worstcase-expanded: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2,
-        2,
-        2,
-        2,
-        2
+        1,
+        1,
+        1,
+        1,
+        1
       ]
     },
     {
       "name": "narrow worstcase-expanded: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 811,
+        "scrollWidth": 821,
         "clientWidth": 318
       }
     },
@@ -3617,7 +3617,7 @@
     {
       "name": "narrow worstcase-disclosure: page main <= 1800",
       "ok": true,
-      "detail": 978
+      "detail": 970
     },
     {
       "name": "narrow worstcase-disclosure: strip <= 150",
@@ -3627,7 +3627,7 @@
     {
       "name": "narrow worstcase-disclosure: panel <= 650",
       "ok": true,
-      "detail": 556
+      "detail": 548
     },
     {
       "name": "narrow worstcase-disclosure: context notice <= 160",
@@ -3698,26 +3698,26 @@
     },
     {
       "name": "narrow worstcase-disclosure: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2,
-        2,
-        2,
-        2
+        1,
+        1,
+        1,
+        1
       ]
     },
     {
       "name": "narrow worstcase-disclosure: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 811,
+        "scrollWidth": 821,
         "clientWidth": 318
       }
     },
     {
       "name": "narrow worstcase: Next page link present",
       "ok": true,
-      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A25%3A33.597235Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjU6MzMuNTk3MjM1WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpkNTY5YTRiYjQ4MjA1ODQ4MjczZjQ0YzZhMTYxZWM1YzY2YzRkYWJjYTdhMzUwODY2MmE3NmEzMmExOWY2OTFlIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A29%3A38.848704Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjk6MzguODQ4NzA0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2YWEzZWMwNjkwNzE5MmZmOTNkMzMxNmRkYmI2ZjczYzAwYTI2NmFjNjM2OGIxNGRlODNmNGU2OTlhY2UzMDU0Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
     },
     {
       "name": "narrow worstcase-next: settled",
@@ -3727,7 +3727,7 @@
     {
       "name": "narrow worstcase-next: cursor + known_at in URL, First page link",
       "ok": true,
-      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A25%3A33.597235Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6MjU6MzMuNTk3MjM1WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpkNTY5YTRiYjQ4MjA1ODQ4MjczZjQ0YzZhMTYxZWM1YzY2YzRkYWJjYTdhMzUwODY2MmE3NmEzMmExOWY2OTFlIiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+      "detail": "/sites/COLD-LAB-001/work?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T15%3A29%3A38.848704Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTIzVDE0OjQ0OjU3LjIyMzc3NFoiLCJlZTMwNDUyMS0wNjU2LTQ5OGYtYWYyMS1kZDY4OTMxYjUzMDMiXSwiZnJvbSI6IjIwMjYtMTAtMjJUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMTU6Mjk6MzguODQ4NzA0WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2YWEzZWMwNjkwNzE5MmZmOTNkMzMxNmRkYmI2ZjczYzAwYTI2NmFjNjM2OGIxNGRlODNmNGU2OTlhY2UzMDU0Iiwic2l0ZV9pZCI6IjU5MmRlZGFlLWNjZGQtNDljOC1hOGMwLTc2YWEzMjg0NGYxNiIsInRlbmFudF9pZCI6ImQ2OTgxM2IwLTA5OTYtNGI5Yi04ZjBjLTU1MjFkYWU3NTQyNCIsInRvIjoiMjAyNi0xMC0yNFQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
     },
     {
       "name": "narrow worstcase-next: no document horizontal overflow",
@@ -3800,16 +3800,16 @@
     },
     {
       "name": "narrow worstcase-next: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2
+        1
       ]
     },
     {
       "name": "narrow worstcase-next: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 811,
+        "scrollWidth": 821,
         "clientWidth": 318
       }
     },
@@ -3894,16 +3894,16 @@
     },
     {
       "name": "narrow pending: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2
+        1
       ]
     },
     {
       "name": "narrow pending: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 809,
+        "scrollWidth": 819,
         "clientWidth": 318
       }
     },
@@ -3988,16 +3988,16 @@
     },
     {
       "name": "narrow stale: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2
+        1
       ]
     },
     {
       "name": "narrow stale: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 810,
+        "scrollWidth": 820,
         "clientWidth": 318
       }
     },
@@ -4082,16 +4082,16 @@
     },
     {
       "name": "narrow unknown: every State badge is on one line",
-      "ok": false,
+      "ok": true,
       "detail": [
-        2
+        1
       ]
     },
     {
       "name": "narrow unknown: table scrolls inside its panel",
       "ok": true,
       "detail": {
-        "scrollWidth": 805,
+        "scrollWidth": 815,
         "clientWidth": 318
       }
     },
@@ -4242,5 +4242,5 @@
       "detail": 252
     }
   ],
-  "failed": 15
+  "failed": 3
 }
