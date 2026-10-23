@@ -2412,7 +2412,6 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W5-02b K2 Lows
 - One window error message covers every invalid input (domainActionClient.ts:350); plain-language copy pass.
 - Producer attest can print ATTEST OK with a mode whose prepare failed (w502_cold_work_walkthrough.py:604); add failures.append before continue.
-- Shared DataTable stickyFirstColumn paints the sticky header cell white for every other user (primitives.css:5406), e.g. W5-03a EV screens; check in the post-W6 structural audit.
 - At 390 the R88 Window control adds ~140 px above the scope strip; owner walkthrough note.
 
 ## W5-03b E5 Lows (fix with E4/E6, which own the test file next)
