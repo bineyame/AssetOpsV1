@@ -548,7 +548,7 @@ function Get-OperatorRailFailures {
         "live|Findings|INTELLIGENCE|/findings",
         "live|Actions|WORK|/actions",
         "live|Incidents|WORK|/incidents",
-        "unavailable|Maintenance|WORK|",
+        "live|Maintenance|WORK|/maintenance",
         "unavailable|Operational records|WORK|",
         "live|Evidence|ASSURANCE|/evidence",
         "live|Financials|BUSINESS|/financials",
@@ -751,8 +751,12 @@ function Get-InPageUnavailableEntryFailures {
     # Alternatives has zero unavailable occurrences; the mini Finding row's Analysis slot is the one new entry.
     # W5-01a C2: cold Performance > Cooling is a live route (`/sites/{site_code}/performance/cooling`), so its
     # one unavailable occurrence is gone; the live subtab and page branch are held below.
+    # W6-01b B3 (F4): the global Maintenance page's Preventive view is live, so its B2 entry is gone again.
+    # W6-01c C2 (F4): the work request Overview's Context tabs render Maintenance record, Verification and History
+    # unavailable, once each in `workRequestShared.tsx`; C3 removes Maintenance record and C4 removes History.
+    # W6-01c C3 (F4): the Maintenance record tab is live (`WORK_REQUEST_RECORD_ROUTE_PATH`), so its entry is gone.
     $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation", "Availability",
-        "Energy / site power", "Analysis")
+        "Energy / site power", "Analysis", "Verification", "History")
     # W2-F unit 4b (M12): EV Financials/Assumptions carry the mock's Scenarios slot as one literal in EvSiteViews.tsx.
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
@@ -838,6 +842,25 @@ function Get-InPageUnavailableEntryFailures {
     if (-not ($coldText.Contains('data-performance-subtab="cooling"') -and $coldText.Contains('<ColdCooling'))) {
         $failures.Add(("The live cold Cooling subtab or page branch is missing from ${coldFramePath}: it must " +
             "carry both data-performance-subtab=""cooling"" and <ColdCooling (W5-01a C2).")) | Out-Null
+    }
+
+    # W5-01b C5 (P-C5-9..16): the cold Financials Scenarios tab is live for COLDCHAIN only. The Scenarios view
+    # renders <ColdScenarios as the direct consequent of the site_type === "COLDCHAIN" branch, the cold Financials
+    # rows pass scenarios="live", and every other non-mini-grid Site keeps the one fallback literal at its own
+    # FinancialsSections branch (so a second occurrence elsewhere cannot stand in for it).
+    $framesPath = "frontend/src/shell/SiteAnalyticsFrames.tsx"
+    $framesModule = @($Modules | Where-Object { $_.Path -eq $framesPath })
+    $framesText = if ($framesModule.Count -eq 0) { "" } else { $framesModule[0].Lines -join "`n" }
+    $coldBranch = [regex]::IsMatch($framesText, 'site_type === "COLDCHAIN" \? \(\s*<ColdScenarios\b')
+    if (-not ($coldBranch -and $framesText.Contains('scenarios="live"'))) {
+        $failures.Add(("${framesPath}: the cold Financials Scenarios destination is live (W5-01b C5): the Scenarios " +
+            "view must render <ColdScenarios directly under site_type === ""COLDCHAIN"" and the cold Financials rows " +
+            "must pass scenarios=""live"".")) | Out-Null
+    }
+    if (-not $framesText.Contains('{scenarios === "live" ? null : <UnavailableTab label="Scenarios" />}')) {
+        $failures.Add(("${framesPath}: the non-cold Scenarios fallback must stay at its FinancialsSections branch " +
+            "({scenarios === ""live"" ? null : <UnavailableTab label=""Scenarios"" />}) for every other non-mini-grid " +
+            "Site (W5-01b C5).")) | Out-Null
     }
 
     return $failures

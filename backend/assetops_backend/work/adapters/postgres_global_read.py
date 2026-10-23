@@ -1,4 +1,4 @@
-"""W6-01a: the read-only global work reader (A1Q G1/G2; a rule-8 named PostgreSQL reader, never a writer).
+"""W6-01a/b/c: the read-only global work reader (A1Q G1/G2; a rule-8 named PostgreSQL reader, never a writer).
 
 One caller-owned **read-only REPEATABLE READ** connection selects every authorized imported Site of the tenant and
 hands each Site's per-Site W4 reads (`_ReadTx` of the sibling `postgres_work_read.py`) the same connection, so a
@@ -36,6 +36,34 @@ _LINKED_REQUEST_CODES = (
     "WHERE v.tenant_id = c.tenant_id AND v.site_id = c.site_id AND v.case_id = c.id AND v.recorded_at <= :k) "
     "ORDER BY c.created_at, c.id")
 
+# B1 (P-B1-10): DRAFT plan roots whose own root `occurred_at` is in `[from, to)` and whose root is recorded by K, each
+# with the last head of its lineage recorded by K by `(recorded_at, id)`; the Asset label inputs follow `_ELIGIBLE`.
+_PLANS = (
+    "SELECT CAST(r.id AS text) AS root_id, r.public_code AS root_code, r.occurred_at AS root_occurred_at, "
+    "r.recorded_at AS root_recorded_at, CAST(h.id AS text) AS head_id, h.title, h.trigger_kind, h.next_due_at, "
+    "h.next_due_hours, h.state, CAST(h.asset_id AS text) AS asset_id, h.occurred_at, h.recorded_at, "
+    "CAST(h.supersedes_plan_id AS text) AS supersedes_plan_id, h.correction_reason, a.asset_code, a.asset_type "
+    "FROM maintenance_plan r JOIN LATERAL (SELECT * FROM maintenance_plan p WHERE p.tenant_id = r.tenant_id "
+    "AND p.site_id = r.site_id AND p.canonical_plan_id = r.id AND p.recorded_at <= :k "
+    "ORDER BY p.recorded_at DESC, p.id DESC LIMIT 1) h ON true "
+    "LEFT JOIN asset a ON a.tenant_id = h.tenant_id AND a.site_id = h.site_id AND a.id = h.asset_id "
+    "WHERE r.tenant_id = :t AND r.site_id = :s AND r.supersedes_plan_id IS NULL AND r.canonical_plan_id = r.id "
+    "AND r.occurred_at >= :lo AND r.occurred_at < :hi AND r.recorded_at <= :k")
+
+# W6-01c C1 (pre-flight ruling "C1 outer wire and selection"): operational-record roots whose immutable root
+# `case_id` is this request and that are recorded by K, each with its latest correction head recorded by K by
+# `(recorded_at, id)` (the head may name another case; a later head never admits a root). Ordered by root occurrence.
+_CASE_OPERATIONAL = (
+    "SELECT CAST(r.id AS text) AS canonical_record_id, r.public_code AS code, r.occurred_at AS root_occurred_at, "
+    "CAST(h.id AS text) AS head_id, h.kind, h.body, h.occurred_at, h.recorded_at "
+    "FROM operational_record r JOIN LATERAL (SELECT * FROM operational_record p WHERE p.tenant_id = r.tenant_id "
+    "AND p.site_id = r.site_id AND p.canonical_record_id = r.id AND p.recorded_at <= :k "
+    "ORDER BY p.recorded_at DESC, p.id DESC LIMIT 1) h ON true "
+    "WHERE r.tenant_id = :t AND r.site_id = :s AND r.supersedes_record_id IS NULL AND r.canonical_record_id = r.id "
+    "AND r.case_id = :c AND r.recorded_at <= :k ORDER BY r.occurred_at, r.id")
+# W6-01c C1: the scoped Asset code/type of a case's stored `asset_id` (the W4 `_ELIGIBLE` label inputs).
+_ASSET = "SELECT asset_code, asset_type FROM asset WHERE tenant_id = :t AND site_id = :s AND id = :a"
+
 
 class GlobalReadTx:
     """One global read: every method reads on the snapshot connection; per-Site reads go through W4 `_ReadTx`."""
@@ -57,6 +85,20 @@ class GlobalReadTx:
     def linked_request_codes(self, tenant_id: UUID, site_id: UUID, case_id: str, known_at: datetime) -> list[str]:
         return list(self._c.execute(text(_LINKED_REQUEST_CODES),
                                     {"t": tenant_id, "s": site_id, "i": case_id, "k": known_at}).scalars())
+
+    def plans(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+              known_at: datetime) -> list[dict[str, Any]]:
+        return [dict(r._mapping) for r in self._c.execute(
+            text(_PLANS), {"t": tenant_id, "s": site_id, "lo": lo, "hi": hi, "k": known_at})]
+
+    def case_operational_records(self, tenant_id: UUID, site_id: UUID, case_id: str,
+                                 known_at: datetime) -> list[dict[str, Any]]:
+        return [dict(r._mapping) for r in self._c.execute(
+            text(_CASE_OPERATIONAL), {"t": tenant_id, "s": site_id, "c": case_id, "k": known_at})]
+
+    def asset(self, tenant_id: UUID, site_id: UUID, asset_id: str) -> dict[str, Any] | None:
+        row = self._c.execute(text(_ASSET), {"t": tenant_id, "s": site_id, "a": asset_id}).first()
+        return None if row is None else {"code": row[0], "type": row[1]}
 
 
 class PostgresGlobalWorkRead:

@@ -14,12 +14,14 @@ from assetops_backend.work.adapters.postgres_global_read import PostgresGlobalWo
 from assetops_backend.work.adapters.postgres_work_read import LinkReadPorts, PostgresWorkRead
 from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
 from assetops_backend.work.detail import WorkDetailService
+from assetops_backend.work.global_detail import GlobalWorkDetailService
 from assetops_backend.work.global_index import GlobalWorkIndexService
 from assetops_backend.work.site_index import WorkIndexService
 from assetops_backend.work.model import WorkStoreUnavailable
 from assetops_backend.work.service import WorkService
 
-__all__ = ["WORK_UNAVAILABLE", "build_global_work_index_service", "build_global_work_read",
+__all__ = ["WORK_UNAVAILABLE", "build_global_work_detail_service", "build_global_work_index_service",
+           "build_global_work_read",
            "build_work_detail_service", "build_work_index_service", "build_work_read", "build_work_service",
            "build_work_store"]
 
@@ -75,3 +77,8 @@ def build_global_work_read(database_url: str | None) -> PostgresGlobalWorkRead:
 def build_global_work_index_service(database_url: str | None) -> GlobalWorkIndexService | None:
     """W6-01a: None without a product database; the router answers 503, never an empty list."""
     return None if not database_url else GlobalWorkIndexService(build_global_work_read(database_url))
+
+
+def build_global_work_detail_service(database_url: str | None) -> GlobalWorkDetailService | None:
+    """W6-01c: the exact request detail on the global read; None without a product database (503)."""
+    return None if not database_url else GlobalWorkDetailService(build_global_work_read(database_url))

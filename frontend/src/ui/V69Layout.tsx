@@ -303,6 +303,8 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   assumptions: "Financials · assumptions and their history",
   // W4-03 unit 6a: the mini Scenarios subtitle, without the mock's "(placeholder)" once the read is live.
   scenarios: "Financials · scenarios",
+  // W5-01b C5 (P-C5-1..5): the cold-scenarios mock subtitle is restored verbatim; the mini key above is unchanged.
+  coldScenarios: "Financials · scenarios (placeholder)",
   // W4-03 unit 7: the typed five-day Opportunity detail (closure 1 Q17-Q30).
   opportunity: "Five-day renewable headroom and an explicitly authored scenario, with evidence and demand limits.",
 } as const;

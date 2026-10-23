@@ -1,0 +1,310 @@
+{
+  "state": "positive",
+  "captured_at": "2026-10-23T03:51:19.131Z",
+  "results": [
+    {
+      "state": "positive",
+      "width": 1440,
+      "route": "/maintenance/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001",
+      "image": "positive-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": {
+          "h": 75,
+          "w": 1160
+        },
+        "state_block": null,
+        "work_done": {
+          "h": 346,
+          "w": 734
+        },
+        "lifecycle": {
+          "h": 346,
+          "w": 408
+        },
+        "request_header_with_tabs": {
+          "h": 265,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 15,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Inspect starter and control circuit again",
+        "subtitle": "WR-000001 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000001Overview· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 03:51 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Maintenance lead"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "In progress · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "source_links": [],
+        "narrative": "Repeat the starter check and record the witnessed test.",
+        "latest": "Latest activity:",
+        "activity": "Inspected starter relay and control wiring.",
+        "key_values": [
+          [
+            "type",
+            "Corrective"
+          ],
+          [
+            "asset",
+            "No asset recorded"
+          ],
+          [
+            "warranty",
+            "Warranty not recorded"
+          ],
+          [
+            "linked_action",
+            "No linked action recorded"
+          ]
+        ],
+        "lifecycle_done": [
+          "Triage",
+          "Assigned",
+          "Visit"
+        ],
+        "chart_notes": [
+          "Completed is not Verified. No work-case outcome evaluator is available."
+        ],
+        "panel_titles": [
+          "Work done",
+          "Lifecycle"
+        ]
+      }
+    },
+    {
+      "state": "positive",
+      "width": 390,
+      "route": "/maintenance/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001",
+      "image": "positive-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 43,
+          "w": 358
+        },
+        "page_header": {
+          "h": 133,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": {
+          "h": 205,
+          "w": 358
+        },
+        "state_block": null,
+        "work_done": {
+          "h": 346,
+          "w": 358
+        },
+        "lifecycle": {
+          "h": 167,
+          "w": 358
+        },
+        "request_header_with_tabs": {
+          "h": 470,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 15,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1219,
+      "text": {
+        "h1": "Inspect starter and control circuit again",
+        "subtitle": "WR-000001 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000001Overview· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/c38f8e2f-69ec-4197-9c42-5da528e1f73d/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 03:51 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Maintenance lead"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "In progress · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "source_links": [],
+        "narrative": "Repeat the starter check and record the witnessed test.",
+        "latest": "Latest activity:",
+        "activity": "Inspected starter relay and control wiring.",
+        "key_values": [
+          [
+            "type",
+            "Corrective"
+          ],
+          [
+            "asset",
+            "No asset recorded"
+          ],
+          [
+            "warranty",
+            "Warranty not recorded"
+          ],
+          [
+            "linked_action",
+            "No linked action recorded"
+          ]
+        ],
+        "lifecycle_done": [
+          "Triage",
+          "Assigned",
+          "Visit"
+        ],
+        "chart_notes": [
+          "Completed is not Verified. No work-case outcome evaluator is available."
+        ],
+        "panel_titles": [
+          "Work done",
+          "Lifecycle"
+        ]
+      }
+    }
+  ]
+}

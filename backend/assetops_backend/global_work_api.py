@@ -1,4 +1,5 @@
-"""W6-01a: the read-only global work list roots (`global-work-index-1`); A1 mounts `GET /api/work/incidents`.
+"""W6-01a/b: the read-only global work list roots (`global-work-index-1`); A1 mounts `GET /api/work/incidents`,
+B1 `GET /api/work/maintenance` and `GET /api/work/preventive` (same checks, same order).
 
 `GET /api/work/incidents?from=&to=&known_at=&limit=&cursor=`. Order of checks (the W3 estate roots' order):
 
@@ -9,6 +10,13 @@
    by the per-Site `access(request, site_code)` before any value enters a response or digest, so global lists never
    answer 403/404. 409 `WORK_BASIS_CHANGED`; 503 `WORK_STORE_UNAVAILABLE` without a database, a readable store or a
    valid cursor key, never an empty list.
+
+W6-01c C1 mounts `GET /api/work/requests/{case_id}?site_id={site_code}&known_at=` (`global-work-detail-1`, a
+MAINTENANCE_REQUEST only; pre-flight ruling "C1 outer wire and selection"). Order: `authenticate` 401 `Sign in to
+read work.`; exactly one nonempty `site_id`, else 404 `WORK_CASE_NOT_FOUND` with no store read; the W4 `read_scope`
+order (`access` 401/403 `SITE_SCOPE_FORBIDDEN`, `scope` 503/404 `SITE_NOT_FOUND`); then the case UUID (404) and
+`known_at` (W4 422) and the one snapshot. Refusals are detail-only `{"detail":{"code","message"}}`; unknown query
+keys are ignored.
 """
 
 from __future__ import annotations
@@ -20,16 +28,21 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 
 from assetops_backend.estate_api import Authenticate, development_authenticate
-from assetops_backend.finding_api import Access, development_access
+from assetops_backend.finding_api import Access, Scope, development_access
+from assetops_backend.sites.foundation_records import FoundationStoreError
+from assetops_backend.sites.ports import SiteStoreUnavailable
+from assetops_backend.work.global_detail import GlobalWorkDetailService
 from assetops_backend.work.global_index import (MESSAGES, GlobalWorkIndexService, GlobalWorkRefusal,
                                                 parse_global_request)
-from assetops_backend.work.model import WorkStoreUnavailable
+from assetops_backend.work.model import MESSAGES as WORK_MESSAGES
+from assetops_backend.work.model import WorkRefused, WorkStoreUnavailable
 
 
 def build_global_work_router(service: GlobalWorkIndexService | None, tenant: Callable[[], UUID | None], *,
                              authenticate: Authenticate = development_authenticate,
                              access: Access = development_access,
-                             unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
+                             unavailable: tuple[type[BaseException], ...] = (),
+                             details: GlobalWorkDetailService | None = None, scope: Scope | None = None) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
 
@@ -58,5 +71,48 @@ def build_global_work_router(service: GlobalWorkIndexService | None, tenant: Cal
     @router.get("/api/work/incidents")
     def global_incidents(request: Request) -> dict[str, Any]:
         return serve("incidents", request)
+
+    @router.get("/api/work/maintenance")
+    def global_maintenance(request: Request) -> dict[str, Any]:
+        return serve("maintenance", request)
+
+    @router.get("/api/work/preventive")
+    def global_preventive(request: Request) -> dict[str, Any]:
+        return serve("preventive", request)
+
+    def refuse(status: int, code: str, message: str | None = None) -> HTTPException:
+        """C1 detail-only refusal body: `{code, message}`, never the list `rows`/`total_count`."""
+        headers = {"WWW-Authenticate": "Bearer"} if status == 401 else None
+        return HTTPException(status_code=status, headers=headers,
+                             detail={"code": code, "message": WORK_MESSAGES[code] if message is None else message})
+
+    @router.get("/api/work/requests/{case_id}")
+    def global_request_detail(request: Request, case_id: str) -> dict[str, Any]:
+        if authenticate(request) == 401:
+            raise refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
+        codes = request.query_params.getlist("site_id")
+        if len(codes) != 1 or not codes[0]:
+            raise refuse(404, "WORK_CASE_NOT_FOUND")
+        refusal = access(request, codes[0])
+        if refusal == 401:
+            raise refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
+        if refusal == 403:
+            raise refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site '{codes[0]}'.")
+        if details is None or scope is None:
+            raise refuse(503, "WORK_STORE_UNAVAILABLE")
+        try:
+            found = scope(codes[0])
+        except (SiteStoreUnavailable, FoundationStoreError, *down) as error:
+            raise refuse(503, "WORK_STORE_UNAVAILABLE") from error
+        if found is None:
+            raise refuse(404, "SITE_NOT_FOUND", f"No imported Site '{codes[0]}' in this tenant.")
+        site_code, tenant_id, site_id = found
+        try:
+            body = details.detail(tenant_id, site_id, site_code, case_id, request.query_params.getlist("known_at"))
+        except WorkRefused as refused:
+            raise refuse(refused.status, refused.code, refused.message) from refused
+        except (SiteStoreUnavailable, FoundationStoreError, *down) as error:
+            raise refuse(503, "WORK_STORE_UNAVAILABLE") from error
+        return jsonable_encoder(body)
 
     return router

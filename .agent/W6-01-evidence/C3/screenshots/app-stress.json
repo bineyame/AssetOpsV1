@@ -1,0 +1,380 @@
+{
+  "state": "stress",
+  "captured_at": "2026-10-23T03:54:52.959Z",
+  "results": [
+    {
+      "state": "stress",
+      "width": 1440,
+      "route": "/maintenance/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c/record?site_id=KOBO-001",
+      "image": "stress-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1145
+        },
+        "page_header": {
+          "h": 177,
+          "w": 1145
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1145
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1145
+        },
+        "mheader": {
+          "h": 92,
+          "w": 1145
+        },
+        "state_block": null,
+        "record_panel": {
+          "h": 577,
+          "w": 1145
+        },
+        "record_table_scroll": {
+          "h": 474,
+          "w": 1105
+        },
+        "record_notice": {
+          "h": 42,
+          "w": 1145
+        },
+        "request_header_with_tabs": {
+          "h": 400,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 1425,
+        "client": 1425
+      },
+      "page_height": 1160,
+      "text": {
+        "h1": "StartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorand",
+        "subtitle": "WR-000007 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000007Maintenance record· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 03:54 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmai"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "In progress · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "table_columns": [
+          "Item",
+          "Detail",
+          "Status",
+          "Basis"
+        ],
+        "groups": [
+          {
+            "heading": "Record 1 · 19 Oct 2026, 12:00 UTC",
+            "rows": [
+              [
+                "Technician notes",
+                "Replaced starter relay and tested Replaced starter relay and tested Replaced starter relay and tested Replaced starter relay and tested Repl",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "19 Oct 2026, 12:00 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ]
+          }
+        ],
+        "activity_clamp_h": {
+          "h": 53,
+          "w": 461
+        },
+        "empty": null,
+        "notice": "No linked Operational record.",
+        "notice_links": [],
+        "oprecords_anchors": 0,
+        "table_width": {
+          "scroll": 1105,
+          "client": 1105
+        },
+        "scroll_hint_visible": false,
+        "panel_titles": [
+          "Maintenance record · activity"
+        ]
+      }
+    },
+    {
+      "state": "stress",
+      "width": 390,
+      "route": "/maintenance/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c/record?site_id=KOBO-001",
+      "image": "stress-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c?site_id=KOBO-001",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c?site_id=KOBO-001",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 43,
+          "w": 358
+        },
+        "page_header": {
+          "h": 277,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": {
+          "h": 222,
+          "w": 358
+        },
+        "state_block": null,
+        "record_panel": {
+          "h": 618,
+          "w": 358
+        },
+        "record_table_scroll": {
+          "h": 474,
+          "w": 318
+        },
+        "record_notice": {
+          "h": 42,
+          "w": 358
+        },
+        "request_header_with_tabs": {
+          "h": 630,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1530,
+      "text": {
+        "h1": "StartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorandcontrolpanelinspectionStartermotorand",
+        "subtitle": "WR-000007 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000007Maintenance record· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/8b5bd9cd-d8c4-4250-b5f7-92a3c86c102c/record?site_id=KOBO-001"
+          ]
+        ],
+        "date_bar": "As known at 23 Oct 2026, 03:54 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "FieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmaintenancesupervisorteamFieldmai"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "In progress · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "table_columns": [
+          "Item",
+          "Detail",
+          "Status",
+          "Basis"
+        ],
+        "groups": [
+          {
+            "heading": "Record 1 · 19 Oct 2026, 12:00 UTC",
+            "rows": [
+              [
+                "Technician notes",
+                "Replaced starter relay and tested Replaced starter relay and tested Replaced starter relay and tested Replaced starter relay and tested Repl",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "19 Oct 2026, 12:00 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ]
+          }
+        ],
+        "activity_clamp_h": {
+          "h": 53,
+          "w": 398
+        },
+        "empty": null,
+        "notice": "No linked Operational record.",
+        "notice_links": [],
+        "oprecords_anchors": 0,
+        "table_width": {
+          "scroll": 960,
+          "client": 318
+        },
+        "scroll_hint_visible": true,
+        "panel_titles": [
+          "Maintenance record · activity"
+        ]
+      }
+    }
+  ]
+}

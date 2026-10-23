@@ -751,6 +751,29 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
     expect(strip().textContent).toContain("Open");
     expect(strip().textContent).toContain("Confidence: Bounded");
     expect(strip().textContent).toContain("Newer readings waiting to be assessed");
+    cleanup();
+    // W5-01b C5 (W2-F L1, P-C5-17/18/21): a refused Finding keeps its state strip, Unknown state and confidence,
+    // directly above the refusal; an invalid period shows no window line, and nothing loaded is invented.
+    const invalid = { status: "refused", httpStatus: 422, code: "COLD_WINDOW_INVALID", message: "'from' must be before 'to'." } as const;
+    renderCold(`${ROUTES[2][1]}?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z`, { ...STOCKED, finding: () => invalid });
+    await settledScreen();
+    const refusal = main().querySelector("[data-page-refusal]") as HTMLElement;
+    expect(refusal).not.toBeNull();
+    expect(strip().nextElementSibling).toBe(refusal);
+    expect(strip().querySelector(".badge, [class*='badge']")?.textContent).toBe("Unknown");
+    expect(strip().textContent).toBe("Unknown Confidence: Unknown Kobo vaccine cold store");
+    expect(strip().textContent).not.toMatch(/Open|Bounded|Observed|Selected source|Newer readings/);
+    expect(main().querySelector("[data-cold-date-bar]")).toBeNull();
+    expect(main().querySelectorAll('[aria-label="Finding state"]')).toHaveLength(1);
+    cleanup();
+    // A valid requested period keeps its window line above the strip.
+    renderCold(`${ROUTES[2][1]}?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z`, { ...STOCKED, finding: () => DOWN });
+    await settledScreen();
+    const bar = main().querySelector("[data-cold-date-bar-requested]") as HTMLElement;
+    expect(bar).not.toBeNull();
+    expect(bar.nextElementSibling).toBe(strip());
+    expect(strip().nextElementSibling).toBe(main().querySelector("[data-page-refusal]"));
+    expect(strip().textContent).toContain("Confidence: Unknown");
   });
 
   // H1/S2: Backup keeps the selected chain's `Not recorded` when the compressor is reported off with no running record.

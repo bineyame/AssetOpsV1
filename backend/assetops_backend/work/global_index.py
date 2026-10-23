@@ -1,10 +1,13 @@
-"""W6-01a: the global work list roots (`global-work-index-1`), unit A1: `GET /api/work/incidents`.
+"""W6-01a/b: the global work list roots (`global-work-index-1`): A1 `GET /api/work/incidents`; B1
+`GET /api/work/maintenance` and `GET /api/work/preventive`.
 
 `.agent/W6-01-build-spec.md` section 1 (wire, parser, refusals, envelope, incident row) and section 3.1 (A1Q G2 and
 the Q3-Q9 rulings). One read-only REPEATABLE READ snapshot (`PostgresGlobalWorkRead.snapshot`) at one fixed cutoff
 K selects every authorized imported Site of the server's tenant (a denied candidate never enters a row, count,
 digest or cursor) and every eligible case of every such Site before paging, through the per-Site W4 reads on the
-same connection. Rows sort by `(root occurred_at desc, site_code_key asc, site_id asc, case_id asc)`.
+same connection. Incident rows sort by `(root occurred_at desc, site_code_key asc, site_id asc, case_id asc)`,
+request rows by root `created_at` in the same tuple, and draft plan rows by the selected head
+`(recorded_at desc, site_code_key asc, site_id asc, canonical_plan_id asc)` (B1 pre-flight rulings P-B1-10..13).
 
 The cursor is the W3-03 Portfolio HMAC pattern with the dedicated `ASSETOPS_WORK_CURSOR_KEY_HEX` key (bad key 503,
 bad MAC or shape 422, changed scope or selection 409); W4's unsigned Site cursor is not reused. Page one's status
@@ -33,8 +36,13 @@ from assetops_backend.work.site_index import _action_link, _finding_link
 
 SCHEMA = "global-work-index-1"
 SELECTION_VERSION = "global-work-selection/1"
-KINDS = {"incidents": m.INCIDENT}  # A1: incidents only; B1 adds maintenance/preventive, E1 operational-records
-KEYS = {"incidents": ("from", "to", "known_at", "limit", "cursor")}
+PLAN = "PLAN"
+KINDS = {"incidents": m.INCIDENT, "maintenance": m.REQUEST, "preventive": PLAN}  # E1 adds operational-records
+_LIST_KEYS = ("from", "to", "known_at", "limit", "cursor")
+KEYS = {"incidents": _LIST_KEYS, "maintenance": _LIST_KEYS, "preventive": _LIST_KEYS}
+# A2Q1 / X1 / P-B1-11: the full-selection state counts; preventive (and E1 operational records) carry null.
+STATE_COUNTS = {"incidents": ("OPEN", "IN_PROGRESS", "CLOSED"),
+                "maintenance": ("OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"), "preventive": None}
 MAX_DAYS = 31
 DEFAULT_LIMIT, MAX_LIMIT = 50, 100
 CURRENT, HISTORICAL, EMPTY_SCOPE = "CURRENT", "HISTORICAL", "EMPTY_SCOPE"
@@ -226,22 +234,38 @@ def _owner(events: list[dict[str, Any]]) -> str | None:
 
 
 def select_incidents(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
-                     known_at: datetime) -> list[dict[str, Any]]:
+                     known_at: datetime, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     """Every eligible Incident of every authorized Site at K, before paging: `{wire, key, basis}` sorted by the
     section 1 tuple. Provenance and links follow the Site row exactly (A1Q Q3, Q7)."""
+    return _select_cases(gx, tenant_id, sites, lo, hi, known_at, m.INCIDENT)
+
+
+def select_maintenance(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
+                       known_at: datetime, cutoff: datetime | None = None) -> list[dict[str, Any]]:
+    """B1: every eligible maintenance request at K (membership by root `created_at`, P-B1-1), before paging. The
+    record fields are the W4 Site row's: the last selected record by `(recorded_at, id)` (P-B1-12). W6-01c C2:
+    `cutoff` is K when the list request named an explicit `known_at`, else None; it decides `links.detail`'s cutoff."""
+    return _select_cases(gx, tenant_id, sites, lo, hi, known_at, m.REQUEST, cutoff)
+
+
+def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
+                  known_at: datetime, case_kind: str, cutoff: datetime | None = None) -> list[dict[str, Any]]:
     out = []
     query = _window_query(lo, hi, known_at)
+    states = STATE_COUNTS["incidents" if case_kind == m.INCIDENT else "maintenance"]
+    member = "occurred_at" if case_kind == m.INCIDENT else "created_at"
     for site in sites:
         site_id, code, name = site["site_id"], site["site_code"], site["site_name"]
         sid = str(site_id).lower()
         rx = gx.site(tenant_id, site_id, code)
-        for case in rx.eligible_cases(m.INCIDENT, lo, hi, known_at):
+        for case in rx.eligible_cases(case_kind, lo, hi, known_at):
             cid = str(case["id"]).lower()
             revision = rx.revisions(cid, known_at)[-1]
             rid = str(revision["id"])
             events = rx.events(cid, known_at)
             records = rx.records(cid, known_at)
-            record_id = None if not records else str(records[-1]["id"])
+            record = records[-1] if records else None
+            record_id = None if record is None else str(record["id"])
             links = rx.revision_links(rid)
             selections = rx.link_selections(rid, lo, hi, known_at)
             by_key = {(s["kind"], s["id"], s["selected_id"]): s for s in selections}
@@ -256,34 +280,104 @@ def select_incidents(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: 
                                                           {"lineage": False})["lineage"]) for x in finding_links]
             actions = [_action_link(code, x, by_key.get(("ACTION", x["action_id"], x["action_event_id"])))
                        for x in action_links]
-            requests = gx.linked_request_codes(tenant_id, site_id, cid, known_at)
+            try:
+                state = m.reduce_state(case_kind, events)
+            except (ValueError, m.WorkRefused) as error:  # no CREATED event, or an event chain W4 cannot reduce
+                raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE") from error
+            if state not in states:  # P-B1-11: e.g. VERIFICATION_WINDOW is a consistency failure, never uncounted
+                raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE")
             asset_label = None if case["asset_code"] is None else f"{case['asset_code']} · {case['asset_type']}"
             wire = {
                 "site_code": code, "site_name": name, "site_id": sid, "site_code_key": site["site_code_key"],
-                "case_id": cid, "code": case["public_code"], "kind": m.INCIDENT, "revision_id": rid,
+                "case_id": cid, "code": case["public_code"], "kind": case_kind, "revision_id": rid,
                 "title": revision["title"], "narrative": revision["narrative"],
                 "occurred_at": wire_time(case["occurred_at"]), "created_at": wire_time(case["created_at"]),
-                "recorded_at": wire_time(revision["recorded_at"]), "state": m.reduce_state(m.INCIDENT, events),
+                "recorded_at": wire_time(revision["recorded_at"]), "state": state,
                 "owner": _owner(events), "asset_id": case["asset_id"], "asset_label": asset_label,
-                "incident_id": case["incident_id"], "linked_request_codes": requests,
-                "finding_links": [{"label": x["label"], "href": x["href"]} for x in findings],
-                "action_links": [{"label": x["label"], "href": x["href"]} for x in actions],
-                "source_provenance": dto,
-                "links": {"site": {"label": name, "href": _site_href(code)},
-                          "site_incidents": {"label": "Site incidents",
-                                             "href": f"{_site_href(code)}/work/incidents?{query}"}}}
+                "incident_id": case["incident_id"]}
             basis = {"site_id": sid, "case_id": cid, "revision_id": rid, "selected_event_ids": event_ids,
                      "selected_record_id": record_id,
                      "finding_revision_ids": sorted(x["finding_revision_id"] for x in finding_links),
                      "action_event_ids": sorted(x["action_event_id"] for x in action_links),
                      "link_lineage": sorted([s["kind"], s["id"], s["selected_id"], bool(s["lineage"])]
                                             for s in selections),
-                     "cited_accepted_evidence_ids": cited, "linked_request_codes": requests}
-            key = (-_micros(case["occurred_at"]), site["site_code_key"], sid, cid)
-            marker = [token_time(case["occurred_at"]), site["site_code_key"], sid, cid]
-            out.append({"wire": wire, "key": key, "marker": marker, "basis": basis})
+                     "cited_accepted_evidence_ids": cited}
+            site_link = {"label": name, "href": _site_href(code)}
+            if case_kind == m.INCIDENT:
+                requests = gx.linked_request_codes(tenant_id, site_id, cid, known_at)
+                wire["linked_request_codes"] = requests
+                basis["linked_request_codes"] = requests
+            else:  # P-B1-12: W4 Site row parity for the latest selected record
+                wire.update({"record_id": record_id, "activity": None if record is None else record["activity"],
+                             "outcome_note": None if record is None else record["outcome_note"]})
+            wire["finding_links"] = [{"label": x["label"], "href": x["href"]} for x in findings]
+            wire["action_links"] = [{"label": x["label"], "href": x["href"]} for x in actions]
+            wire["source_provenance"] = dto
+            if case_kind == m.INCIDENT:
+                wire["links"] = {"site": site_link,
+                                 "site_incidents": {"label": "Site incidents",
+                                                    "href": f"{_site_href(code)}/work/incidents?{query}"}}
+            else:  # P-B1-13 label and Site fallback; W6-01c C2 (P-C2-12): the exact request Overview
+                detail = f"/maintenance/requests/{quote(cid, safe='')}?site_id={quote(code, safe='')}"
+                if cutoff is not None:  # P-C1-5: only an explicit cutoff is carried, at its exact instant
+                    detail += f"&known_at={quote(m.iso(cutoff), safe='')}"
+                wire["links"] = {"site": site_link,
+                                 "site_maintenance": {"label": "Site maintenance",
+                                                      "href": f"{_site_href(code)}/work/maintenance?{query}"},
+                                 "detail": {"label": wire["code"], "href": detail}}
+            key = (-_micros(case[member]), site["site_code_key"], sid, cid)
+            marker = [token_time(case[member]), site["site_code_key"], sid, cid]
+            out.append({"wire": wire, "key": key, "marker": marker, "basis": basis, "id": cid})
     out.sort(key=lambda r: r["key"])
     return out
+
+
+def select_preventive(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: datetime, hi: datetime,
+                      known_at: datetime, cutoff: datetime | None = None) -> list[dict[str, Any]]:
+    """B1 (P-B1-10): DRAFT plan roots whose root `occurred_at` is in `[from, to)` and recorded by K, each at its
+    last head recorded by K (`(recorded_at, id)`); sorted by the selected head `(recorded_at desc, site_code_key,
+    site_id, canonical_plan_id)`. Provenance is `provenance_dto` over `[head_id]` with no cited IDs."""
+    out = []
+    for site in sites:
+        site_id, code, name = site["site_id"], site["site_code"], site["site_name"]
+        sid = str(site_id).lower()
+        rx = gx.site(tenant_id, site_id, code)
+        for plan in gx.plans(tenant_id, site_id, lo, hi, known_at):
+            root_id, head_id = str(plan["root_id"]).lower(), str(plan["head_id"]).lower()
+            if plan["state"] != "DRAFT":  # the wire admits only DRAFT; another stored state is a consistency failure
+                raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE")
+            asset_id = None if plan["asset_id"] is None else str(plan["asset_id"]).lower()
+            asset_label = None if plan["asset_code"] is None else f"{plan['asset_code']} · {plan['asset_type']}"
+            supersedes = None if plan["supersedes_plan_id"] is None else str(plan["supersedes_plan_id"]).lower()
+            dto = provenance_dto(rx, tenant_id, site_id, [], [head_id])
+            wire = {
+                "site_code": code, "site_name": name, "site_id": sid, "site_code_key": site["site_code_key"],
+                "canonical_plan_id": root_id, "root_id": root_id, "head_id": head_id, "code": plan["root_code"],
+                "title": plan["title"], "trigger_kind": plan["trigger_kind"],
+                "next_due_at": None if plan["next_due_at"] is None else wire_time(plan["next_due_at"]),
+                "next_due_hours": m.decimal_text(plan["next_due_hours"]), "state": plan["state"],
+                "asset_id": asset_id, "asset_label": asset_label,
+                "root_occurred_at": wire_time(plan["root_occurred_at"]), "occurred_at": wire_time(plan["occurred_at"]),
+                "recorded_at": wire_time(plan["recorded_at"]), "supersedes_plan_id": supersedes,
+                "correction_reason": plan["correction_reason"], "source_provenance": dto,
+                "links": {"site": {"label": name, "href": _site_href(code)}}}
+            # A1Q2 R3 standing rule: every stored value a row field reads is bound in the basis.
+            basis = {"site_id": sid, "canonical_plan_id": root_id, "head_id": head_id, "asset_id": asset_id,
+                     "root_code": plan["root_code"], "root_occurred_at": token_time(plan["root_occurred_at"]),
+                     "root_recorded_at": token_time(plan["root_recorded_at"]), "title": plan["title"],
+                     "trigger_kind": plan["trigger_kind"], "next_due_at": wire["next_due_at"],
+                     "next_due_hours": wire["next_due_hours"], "state": plan["state"],
+                     "occurred_at": token_time(plan["occurred_at"]), "recorded_at": token_time(plan["recorded_at"]),
+                     "supersedes_plan_id": supersedes, "correction_reason": plan["correction_reason"],
+                     "asset_label": asset_label, "selected_source_ids": [head_id]}
+            key = (-_micros(plan["recorded_at"]), site["site_code_key"], sid, root_id)
+            marker = [token_time(plan["recorded_at"]), site["site_code_key"], sid, root_id]
+            out.append({"wire": wire, "key": key, "marker": marker, "basis": basis, "id": root_id})
+    out.sort(key=lambda r: r["key"])
+    return out
+
+
+SELECT = {"incidents": select_incidents, "maintenance": select_maintenance, "preventive": select_preventive}
 
 
 def _marker_key(after: list[Any]) -> tuple:
@@ -330,11 +424,12 @@ class GlobalWorkIndexService:
                 status = _MODES[cursor["page_one_mode"]]
             else:
                 status = HISTORICAL if known is not None and known < read_at else CURRENT
-            rows = select_incidents(gx, tenant_id, sites, request.from_, request.to, k) if sites else []
+            cutoff = k if request.known_at is not None else None  # W6-01c C2: the explicit cutoff only
+            rows = SELECT[kind](gx, tenant_id, sites, request.from_, request.to, k, cutoff) if sites else []
             token = _digest({"version": SELECTION_VERSION, "route": kind, "filter": None, "tenant_id": tenant,
                              "authorized_site_ids": ids, "access_basis": basis, "from": token_time(request.from_),
                              "to": token_time(request.to), "known_at": token_time(k),
-                             "rows": sorted((r["basis"] for r in rows), key=lambda b: (b["site_id"], b["case_id"]))})
+                             "rows": [r["basis"] for r in sorted(rows, key=lambda r: (r["basis"]["site_id"], r["id"]))]})
             after = None
             if cursor is not None:
                 expected = {"tenant_id": tenant, "authorized_site_ids": ids, "access_basis": basis,
@@ -354,8 +449,11 @@ class GlobalWorkIndexService:
                     "known_at": token_time(k), "page_one_mode": mode, "selection_token": token,
                     "after": page[-1]["marker"]}, key)
             empty = not sites
-            state_counts = {name: sum(1 for r in rows if r["wire"]["state"] == name)
-                            for name in ("OPEN", "IN_PROGRESS", "CLOSED")}  # A2Q1: full selection, before paging
+            names = STATE_COUNTS[kind]  # A2Q1: full selection, before paging; null on preventive
+            state_counts = None if names is None else {name: sum(1 for r in rows if r["wire"]["state"] == name)
+                                                       for name in names}
+            if state_counts is not None and sum(state_counts.values()) != len(rows):
+                raise GlobalWorkRefusal("WORK_STORE_UNAVAILABLE")  # P-B1-11
             return {
                 "schema_version": SCHEMA,
                 "scope": {"tenant_id": None if tenant_id is None else str(tenant_id),

@@ -174,7 +174,7 @@ function expectSlots(screenId: "sitework-incidents" | "sitework-maintenance") {
   expect(strips[0].compareDocumentPosition(panels[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(panels[0].compareDocumentPosition(notices[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(text(notices[0])).toBe(
-    "Case history is stored with this site. Incidents can be managed globally. Global Maintenance and the create flow are not available yet.",
+    "Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet.",
   );
   expect(text(strips[0])).toContain("These are work records at this site");
   expect(main.textContent).not.toMatch(/INC-203|WR-019|Manage in \w+ →|global create flow with this site filled in/);
@@ -395,7 +395,14 @@ describe("W4-01: Site > Work > Maintenance", () => {
     expectSlots("sitework-maintenance");
     expectPlantedPanelRejected("sitework-maintenance");
     expect(text(strip())).toContain("Scoped to Kobo · 3 maintenance");
-    expect(text(strip())).toContain("Manage in Maintenance · Not available yet");
+    // W6-01b B2: the Maintenance strip links to the live global page with the Site window and the loaded cutoff.
+    expect(text(strip())).not.toContain("Not available yet");
+    expect(Array.from(strip().querySelectorAll("a")).map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+      [
+        "Manage in Maintenance",
+        "/maintenance?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A00%3A00.000000Z",
+      ],
+    ]);
     expect(text(strip())).toContain("Linked evidence is being reassessed");
     const panel = panelTitled("Maintenance at this site");
     expect(text(panel)).toContain("Completed work is activity; the outcome is verified separately");
@@ -457,10 +464,10 @@ describe("W4-01: Site > Work > Maintenance", () => {
     );
     expect(document.querySelectorAll("main nav[aria-label='Work lists']")).toHaveLength(1);
     expect(document.querySelectorAll("main [data-tab-unavailable='Incidents'], main [data-tab-unavailable='Maintenance']")).toHaveLength(0);
-    // The Maintenance global Manage entry is still static text until W6-01b; the notice has no link.
+    // W6-01b B2: the Maintenance global Manage entry is a live link; the notice has no link.
     expect(notice().querySelector("a")).toBeNull();
-    expect(text(strip().querySelector("[data-work-manage]"))).toBe("Manage in Maintenance · Not available yet");
-    expect(strip().querySelector("[data-work-manage] a")).toBeNull();
+    expect(text(strip().querySelector("[data-work-manage]"))).toBe("Manage in Maintenance");
+    expect(strip().querySelector("[data-work-manage] a")?.getAttribute("href")).toMatch(/^\/maintenance\?from=/);
     // The page heading is the mock's (site name and the screen subtitle).
     expect(screen.getByRole("heading", { level: 1 }).textContent).toContain(HYBRID_MINI_GRID_SITE.display_name);
     expect(document.body.textContent).toContain("Site-scoped work · maintenance");

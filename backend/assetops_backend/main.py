@@ -70,12 +70,16 @@ from assetops_backend.cold_replay_api import build_cold_replay_router, no_owner_
 from assetops_backend.ev_replay import EvReplayService
 from assetops_backend.ev_replay_api import build_ev_replay_router
 from assetops_backend.cold_depth_api import build_cold_depth_router
+from assetops_backend.cold_scenarios.service import ColdScenarioService
+from assetops_backend.cold_scenarios.store import PostgresColdScenarioStore
+from assetops_backend.cold_scenarios_api import build_cold_scenarios_router
 from assetops_backend.cold_site_api import build_cold_site_router
 from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.actions.site_index import ActionIndexService
 from assetops_backend.action_index_api import build_action_index_router
-from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_global_work_index_service,
+from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_global_work_detail_service,
+                                               build_global_work_index_service,
                                                build_work_detail_service, build_work_index_service,
                                                build_work_service)
 from assetops_backend.work_api import build_work_router
@@ -464,6 +468,13 @@ def create_app(
     # W5-01 C1: the selected cold Cooling depth read over the same W2-03 read service and the W2-04 gate.
     app.include_router(build_cold_depth_router(
         registry, None if cold_reads is None else ColdDepthReadService(cold_reads)))
+    # W5-01b C4: authored cold scenarios. Writes need the two explicit decision injections; reads use the cold gate.
+    cold_scenario_store = PostgresColdScenarioStore.from_url(database_url()) if cold_reads is not None else None
+    if cold_scenario_store is not None:
+        app.router.on_shutdown.append(cold_scenario_store.dispose)
+    app.include_router(build_cold_scenarios_router(
+        registry, None if cold_scenario_store is None else ColdScenarioService(cold_scenario_store, cold_reads),
+        command_access=mini_decision_command_access, principal=mini_decision_principal))
     app.include_router(build_analytics_router(assessments, ingestion.store, repository))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))
@@ -542,9 +553,11 @@ def create_app(
         lists=build_work_index_service(database_url()) if database_url() else None))
     # W6-01a (Lane A): the read-only global work roots `/api/work/{incidents,...}`; tenant from the server registry
     # only, per-Site admission through the Finding-route access seam; typed 503 without a database or cursor key.
+    # W6-01c (G5): the exact request detail `/api/work/requests/{case_id}?site_id=` on the same router.
     app.include_router(build_global_work_router(
         build_global_work_index_service(database_url()), registry_tenant(registry),
-        access=development_access, unavailable=(SiteStoreUnavailable,)))
+        access=development_access, unavailable=(SiteStoreUnavailable,),
+        details=build_global_work_detail_service(database_url()), scope=registry.ledger_scope))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
     app.include_router(build_financial_assumption_router(registry.ledger_scope))
     # S4-08: the Site consequence history at one recorded cutoff (read-only). Included before the price reads so
