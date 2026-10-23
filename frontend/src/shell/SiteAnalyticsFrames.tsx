@@ -1414,7 +1414,7 @@ function ColdDomainActionShell({
         headingId={SITE_ACTION_HEADING_ID}
         subtitle={COLD_ACTION_SUBTITLE}
         actions={
-          <Link to={siteDetailHref(site.site_id)} data-domain-action-open-site>
+          <Link className="button" to={siteDetailHref(site.site_id)} data-domain-action-open-site>
             Open site
           </Link>
         }

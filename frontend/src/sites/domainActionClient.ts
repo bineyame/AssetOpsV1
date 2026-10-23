@@ -256,6 +256,7 @@ function isDetail(value: unknown, siteCode: string, actionId: string): value is 
   if (!exactKeys(value, DETAIL_KEYS)) return false;
   const action = value.action;
   const links = value.links;
+  const work = isObject(links) ? links.work : undefined;
   const intent = value.intent;
   const results = value.results;
   return (
@@ -291,7 +292,8 @@ function isDetail(value: unknown, siteCode: string, actionId: string): value is 
     isObject(links.finding) &&
     isString(links.finding.label) &&
     isNullableString(links.finding.href) &&
-    isObject(links.work) &&
+    isObject(work) &&
+    ["case_id", "case_code", "case_title", "request_state", "record_id", "label", "href"].every((key) => isNullableString(work[key])) &&
     isString(value.selection_token)
   );
 }

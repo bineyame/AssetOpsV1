@@ -634,7 +634,7 @@ function ColdRowState({ row }: { row: DomainIndexRow }) {
 
 function ColdRows({ body, all }: { body: DomainIndexBody; all: boolean }) {
   return (
-    <DataTable labelledBy={COLD_WORK_HEADING_ID}>
+    <DataTable labelledBy={COLD_WORK_HEADING_ID} stickyFirstColumn>
       <thead>
         <tr>
           <th scope="col">Action</th>

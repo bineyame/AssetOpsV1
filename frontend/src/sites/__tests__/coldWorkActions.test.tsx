@@ -202,6 +202,15 @@ describe("domainActionClient wire validation (P-K2a-48)", () => {
     expect(fetchRecord).toEqual([]);
   });
 
+  it("refuses a detail whose links.work misses or mistypes a key (review L2)", async () => {
+    const work = detailBody().links.work;
+    const { href: _omitted, ...withoutHref } = work;
+    for (const bad of [withoutHref, { ...work, case_id: 7 }, { ...work, label: undefined }]) {
+      stubFetch(() => json(200, detailBody({ links: { ...detailBody().links, work: bad as never } })));
+      expect(await createDomainActionClient().getDetail(SITE, DOMAIN_ID, null)).toEqual({ status: "refused", http: 200, code: null, message: COLD_WORK_UNEXPECTED });
+    }
+  });
+
   it("loads a COLDCHAIN detail and refuses a W1 or mismatched one; 404 and refusals keep intent and results null", async () => {
     stubFetch(() => json(200, detailBody()));
     expect((await createDomainActionClient().getDetail(SITE, DOMAIN_ID, KNOWN)).status).toBe("loaded");
