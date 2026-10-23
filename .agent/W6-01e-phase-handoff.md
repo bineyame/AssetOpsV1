@@ -222,4 +222,4 @@ Items marked **(blocking)** stop the named unit. The rest are literals a builder
 
 ### Summary
 
-There are 22 items: P-E-0, P-E1-1…10 and P-E2-1…12. Ten are blocking: P-E-0, P-E1-1, P-E1-2, P-E1-3, P-E1-6, P-E1-9, P-E2-1, P-E2-5, P-E2-10 and P-E2-12. Unlabelled mock departures are P-E2-2 through P-E2-6 and P-E2-8. The builder waits for the rulings to merge before writing code.
+There are 23 items: P-E-0, P-E1-1…10 and P-E2-1…12. Ten are blocking: P-E-0, P-E1-1, P-E1-2, P-E1-3, P-E1-6, P-E1-9, P-E2-1, P-E2-5, P-E2-10 and P-E2-12. Unlabelled mock departures are P-E2-2 through P-E2-6 and P-E2-8. The builder waits for the rulings to merge before writing code.
