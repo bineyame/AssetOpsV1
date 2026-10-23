@@ -301,7 +301,7 @@ async function mountColdAction(path: string, domain: DomainActionClient, site: S
 }
 
 describe("W5-02 K2a: cold-action placeholder shell structure", () => {
-  it("has no Site tab row, the mock breadcrumb, one live Verification tab and the Open strip", async () => {
+  it("has no Site tab row, the mock breadcrumb, one live Verification tab, the Open strip and the two mock panels", async () => {
     vi.stubGlobal("fetch", async () => new Response("{}", { status: 599 }));
     await mountColdAction(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`, coldDomain());
     const main = document.querySelector("main") as HTMLElement;
@@ -315,9 +315,11 @@ describe("W5-02 K2a: cold-action placeholder shell structure", () => {
     expect(sections).toHaveLength(1);
     expect(sections[0].querySelector("a[aria-current='page']")?.textContent).toBe("Verification");
     expect(main.querySelector("[data-domain-action-strip] .w1f4-action-badge--amber")?.textContent).toBe("Open");
-    // K4a renders the two cold-action panel headings; the placeholder keeps one untitled mock panel and the notice.
-    expect(main.querySelectorAll("section.panel")).toHaveLength(1);
-    expect(main.querySelector("section.panel h2")).toBeNull();
+    // W5-02c K4a ruling 4: a loaded read renders the two mock panel headings, in order, then the notice.
+    expect(Array.from(main.querySelectorAll("section.panel h2")).map((h) => h.textContent)).toEqual([
+      "Declared outcome criteria",
+      "Related activity",
+    ]);
     expect(main.querySelector("[data-domain-action-notice]")).not.toBeNull();
   });
 

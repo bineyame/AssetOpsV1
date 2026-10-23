@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
@@ -180,6 +180,66 @@ describe("operator rail inventory (W1-UX-07)", () => {
       side.querySelectorAll<HTMLElement>("a[href], button, input, [tabindex]"),
     ).filter((element) => element.getAttribute("tabindex") !== "-1");
     expect(focusable.map((element) => element.textContent)).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"]);
+  });
+});
+
+/**
+ * W5-02c K4a (`.agent/W5-02c-K4-preflight-rulings.md` rulings 1-2; register R69 resolved): every Site Action detail
+ * path, for any Site type, selects the Actions root as the v69 rail does (`index.html:729,742,1114`). Only Actions has
+ * `nav-rail__link active` and `aria-current="page"` there; ordinary Site paths, global Actions and Operational records
+ * keep their NavLink selection. The nine live links and their focus order never change.
+ */
+describe("Site Action detail rail selection (W5-02c K4a)", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const LIVE = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"];
+
+  async function railAt(path: string) {
+    vi.stubGlobal("fetch", async () => new Response(JSON.stringify({ detail: { code: "UNAVAILABLE", message: "No read in this test." } }), { status: 503 }));
+    renderAt(path);
+    await settledScreen();
+    const links = within(rail()).getAllByRole("link");
+    return {
+      links,
+      current: links.filter((l) => l.getAttribute("aria-current") === "page").map((l) => l.textContent),
+      active: links.filter((l) => l.classList.contains("active")).map((l) => l.textContent),
+    };
+  }
+
+  it.each([
+    ["a cold domain Action Verification", "/sites/CR-TEST-01/actions/6f1c2a7e-0d4b-4c3e-9a51-1b2c3d4e5f60/verification"],
+    ["a W1 mini-grid Action detail", "/sites/KOBO-001/actions/0b5d7f1e-2c3a-4b6d-8e9f-a1b2c3d4e5f6"],
+    ["a W1 mini-grid Action section", "/sites/KOBO-001/actions/0b5d7f1e-2c3a-4b6d-8e9f-a1b2c3d4e5f6/plan"],
+  ])("selects Actions alone on %s", async (_name, path) => {
+    const { links, current, active } = await railAt(path);
+    expect(current).toEqual(["Actions"]);
+    expect(active).toEqual(["Actions"]);
+    const actions = links.find((l) => l.textContent === "Actions") as HTMLElement;
+    const sites = links.find((l) => l.textContent === "Sites") as HTMLElement;
+    expect(actions.className).toBe("nav-rail__link active");
+    expect(actions.getAttribute("href")).toBe("/actions");
+    expect(sites.className).toBe("nav-rail__link");
+    expect(sites.getAttribute("aria-current")).toBeNull();
+    // Same nine live links, hrefs and focus order as every other route.
+    const side = rail().parentElement as HTMLElement;
+    const focusable = Array.from(side.querySelectorAll<HTMLElement>("a[href], button, input, [tabindex]")).filter(
+      (element) => element.getAttribute("tabindex") !== "-1",
+    );
+    expect(focusable.map((element) => element.textContent)).toEqual(LIVE);
+    expect(links.map((l) => l.getAttribute("href"))).toEqual([
+      "/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/operational-records", "/evidence", "/financials",
+    ]);
+  });
+
+  it.each([
+    ["an ordinary Site page", "/sites/KOBO-001", "Sites"],
+    ["a Site Work page", "/sites/KOBO-001/work", "Sites"],
+    ["the global Actions root", "/actions", "Actions"],
+    ["the Operational records root", "/operational-records", "Operational records"],
+  ])("keeps NavLink selection on %s", async (_name, path, label) => {
+    const { links, current, active } = await railAt(path);
+    expect(current).toEqual([label]);
+    expect(active).toEqual([label]);
+    expect(links.map((l) => l.textContent)).toEqual(LIVE);
   });
 });
 

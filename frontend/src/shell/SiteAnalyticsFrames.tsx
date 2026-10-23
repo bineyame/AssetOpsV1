@@ -23,7 +23,6 @@ import {
   COLD_ACTION_LOADING,
   COLD_ACTION_NOTICE,
   COLD_ACTION_NOT_FOUND,
-  COLD_ACTION_PREPARING,
   COLD_ACTION_SUBTITLE,
   COLD_OWNER_MISSING,
   COLD_STATE_OPEN,
@@ -33,6 +32,7 @@ import {
   coldCurrentnessTone,
 } from "../sites/coldWorkPresentation";
 import { shortName } from "../sites/siteWorkCases";
+import { DomainActionVerification } from "../sites/DomainActionVerification";
 import { SiteWorkIncidents } from "../sites/SiteWorkIncidents";
 import { SiteWorkMaintenance } from "../sites/SiteWorkMaintenance";
 import type { WorkTrail } from "../sites/siteWorkCases";
@@ -1359,11 +1359,13 @@ type DomainShellState = DomainDetailResult | { status: "loading" };
 /**
  * W5-02 K2a (U1, U2, P-K2a-34/45-47): the COLDCHAIN domain Action page shell (v69 `cold-action`): the global-root
  * breadcrumb `Actions › {code} › Verification · site: {site}`, the `{code} · {title}` heading with the mock subtitle and
- * `Open site`, no Site tab row, one live Verification tab, the `Open` status strip and the mock panel and notice. K4a
- * fills the panel with the declared criteria and related activity.
+ * `Open site`, no Site tab row, one live Verification tab, the `Open` status strip, then (W5-02c K4a) the two loaded
+ * mock panels `Declared outcome criteria` and `Related activity` and the concluding notice. Loading, 404 and refusals
+ * show one untitled state panel instead (ruling 4, MOCK DEVIATION (D2) R101). The rail selects Actions on this path
+ * through `OperatorShellLayout`'s pathname-scoped override (ruling 1/2; R69 resolved in K4a).
  *
- * MOCK DEVIATION (D5) R69: the mock rail selects Actions on this page; until K4a's guarded rail override the operator
- * rail keeps Sites selected (NavRail and the shell layout are not edited here).
+ * MOCK DEVIATION (D2) R99: the full stored title and owner wrap (`overflow-wrap:anywhere` on the heading and the
+ * owner span); the Finding version UUID stays one line inside its contained disclosure body (ruling 6).
  */
 function ColdDomainActionShell({
   site,
@@ -1434,8 +1436,12 @@ function ColdDomainActionShell({
             {COLD_STATE_OPEN}
           </span>
           <span className="muted status-strip__item" data-domain-action-status-line>
-            {/* MOCK DEVIATION (D1) R65/R66: `Finding {id8}` as plain text in the mock's F-118 slot, never an anchor. */}
-            {`${loaded.action.owner_label ?? COLD_OWNER_MISSING} · ${shortName(site.display_name)} · ${loaded.links.finding.label}`}
+            {/* MOCK DEVIATION (D1) R65/R66: `Finding {id8}` as plain text in the mock's F-118 slot, never an anchor.
+                Ruling 9: the derived short Site name, with the full stored display name when the derivation is empty. */}
+            <span className="domain-action-owner" data-domain-action-owner>
+              {loaded.action.owner_label ?? COLD_OWNER_MISSING}
+            </span>
+            {` · ${shortName(site.display_name) || site.display_name} · ${loaded.links.finding.label}`}
           </span>
           {revision === null ? null : (
             <span className="status-strip__item">
@@ -1454,11 +1460,12 @@ function ColdDomainActionShell({
           <p>{notice}</p>
         </Notice>
       ) : null}
+      {state.status === "loaded" ? (
+        <DomainActionVerification detail={state.value} siteCode={site.site_id} knownAt={knownAt} />
+      ) : (
       <Panel>
         {state.status === "loading" ? (
           <p data-domain-action-panel="loading">{COLD_ACTION_LOADING}</p>
-        ) : state.status === "loaded" ? (
-          <p data-domain-action-panel="preparing">{COLD_ACTION_PREPARING}</p>
         ) : state.status === "not_found" ? (
           <p data-domain-action-panel="not-found">{COLD_ACTION_NOT_FOUND}</p>
         ) : (
@@ -1475,6 +1482,7 @@ function ColdDomainActionShell({
           </div>
         )}
       </Panel>
+      )}
       {loaded === null ? null : (
         <Notice tone="blue" data={{ "data-domain-action-notice": "" }}>
           <RailIcon name="info" />

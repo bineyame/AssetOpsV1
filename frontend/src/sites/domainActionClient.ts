@@ -252,6 +252,16 @@ function isIndexBody(value: unknown, siteCode: string): value is DomainIndexBody
   return true;
 }
 
+/** The stored initial result values the cold contract emits (`domain_action_index.py` INITIAL_RESULTS). */
+export const DOMAIN_RESULTS = ["NOT_TESTED", "NOT_ESTABLISHED", "PENDING"] as const;
+
+function resultsAligned(criteria: { key: string }[], results: { key: string; result: string }[]): boolean {
+  return (
+    criteria.length === results.length &&
+    criteria.every((c, i) => results[i].key === c.key && (DOMAIN_RESULTS as readonly string[]).includes(results[i].result))
+  );
+}
+
 function isDetail(value: unknown, siteCode: string, actionId: string): value is DomainActionDetail {
   if (!exactKeys(value, DETAIL_KEYS)) return false;
   const action = value.action;
@@ -288,6 +298,8 @@ function isDetail(value: unknown, siteCode: string, actionId: string): value is 
         results.every((r) => isObject(r) && isString(r.key) && isString(r.result) && Array.isArray(r.evidence_ids)))) &&
     // An intent and its results arrive together; a missing declaration has neither.
     (intent === null) === (results === null) &&
+    // W5-02c K4a: one stored result per declared criterion, in criterion order, each a known initial result label.
+    (intent === null || resultsAligned(intent.criteria as { key: string }[], results as { key: string; result: string }[])) &&
     isObject(links) &&
     isObject(links.finding) &&
     isString(links.finding.label) &&

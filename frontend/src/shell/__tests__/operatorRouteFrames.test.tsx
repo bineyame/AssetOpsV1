@@ -357,17 +357,25 @@ describe("cold Site Work and domain Action route frames", () => {
     expect(urls.some((u) => u.startsWith(`/api/sites/${COLD_CODE}/action-index?`))).toBe(false);
   });
 
-  it("renders the domain Action placeholder at /verification with the interim Sites rail (R69)", async () => {
+  it("renders the domain Action at /verification with the Actions rail root selected (K4a ruling 1, R69 resolved)", async () => {
     const { fetchStub, urls } = coldFetch();
     vi.stubGlobal("fetch", fetchStub);
     renderCold(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`);
     await settledScreen();
     const main = document.querySelector("main") as HTMLElement;
     expect(main.getAttribute("data-domain-action-shell")).toBe("loaded");
-    expect(screen.getByText("Action details are being prepared.")).toBeInTheDocument();
+    expect(screen.queryByText("Action details are being prepared.")).toBeNull();
+    expect(screen.getByRole("heading", { level: 2, name: "Declared outcome criteria" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Related activity" })).toBeInTheDocument();
     expect(urls.every((u) => !u.includes(`/api/sites/${COLD_CODE}/actions/`))).toBe(true);
+    // Ruling 2 (inverted interim R69 assertion): only Actions is active and current; Sites has neither.
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
-    expect(within(rail).getByRole("link", { name: /Sites/ }).getAttribute("aria-current")).toBe("page");
-    expect(within(rail).getByRole("link", { name: /^Actions/ }).getAttribute("aria-current")).toBeNull();
+    const actions = within(rail).getByRole("link", { name: /^Actions/ });
+    const sites = within(rail).getByRole("link", { name: /Sites/ });
+    expect(actions.getAttribute("aria-current")).toBe("page");
+    expect(actions.className).toBe("nav-rail__link active");
+    expect(sites.getAttribute("aria-current")).toBeNull();
+    expect(sites.className).toBe("nav-rail__link");
+    expect(rail.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
   });
 });
