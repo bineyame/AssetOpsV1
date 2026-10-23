@@ -170,6 +170,15 @@ const MEASURE_WORK = `(() => {
         codeOneLine: codes.length > 0 && codes.every((c) => lines(c) === 1), height: h(r),
         summaryLines: [...r.querySelectorAll('summary')].map((x) => lines(x)) };
     }),
+    // Review H1: every row cell (and each open disclosure body and clamped preview) keeps its content inside its own box.
+    cells: rows.flatMap((r) => [...r.querySelectorAll('td')]).map((td) => {
+      const box = td.getBoundingClientRect();
+      const inside = (e) => { const b = e.getBoundingClientRect(); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1); };
+      const kids = [...td.querySelectorAll('*')];
+      return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: kids.every(inside),
+        clampFits: [...td.querySelectorAll('.work-cases-clamp')].every((c) => c.scrollWidth <= c.clientWidth + 1),
+        openBodyInside: [...td.querySelectorAll('details[open] .disclosure__body')].every(inside), openBodies: td.querySelectorAll('details[open] .disclosure__body').length };
+    }),
     badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
     badgeCount: badges.length,
     badgeLines: badges.map((x) => lines(x)),
@@ -223,6 +232,8 @@ function rowClaims(W, label, m, expectRows) {
   claim(`${W} ${label}: every row's code is on one line`, m.rows.length > 0 && m.rows.every((r) => r.codeOneLine), m.rows.map((r) => r.codes.map((c) => c.lines)));
   const summaries = m.rows.flatMap((r) => r.summaryLines);
   if (summaries.length > 0) claim(`${W} ${label}: every 'Read full text' summary is on one line`, summaries.every((n) => n === 1), summaries);
+  claim(`${W} ${label}: every row cell contains its content (scrollWidth <= clientWidth + 1, children inside the cell rect)`, m.cells.length > 0 && m.cells.every((c) => c.fits && c.kidsInside && c.clampFits), m.cells.filter((c) => !(c.fits && c.kidsInside && c.clampFits)));
+  if (m.cells.some((c) => c.openBodies > 0)) claim(`${W} ${label}: every opened Read full text body stays inside its cell`, m.cells.every((c) => c.openBodyInside), m.cells.filter((c) => !c.openBodyInside));
   claim(`${W} ${label}: first column is position:sticky`, m.stickyFirstColumn === true, m.stickyFirstColumn);
   claim(`${W} ${label}: no clipped State badge`, m.badgeCount > 0 && m.badgesClipped === 0, { badges: m.badgeCount, clipped: m.badgesClipped });
   claim(`${W} ${label}: every State badge is on one line`, m.badgeLines.length > 0 && m.badgeLines.every((n) => n === 1), m.badgeLines);
