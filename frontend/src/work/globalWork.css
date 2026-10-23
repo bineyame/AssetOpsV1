@@ -223,10 +223,10 @@
   line-height: 1.6;
 }
 
-/* Section 2 caps Work done at 430 / 510 and Lifecycle at 350 / 300 px (1440 / 390); each panel keeps its own
-   height, so a long narrative never stretches Lifecycle past its cap. */
+/* W6-01c M1 ruling: the pair stretches to equal height as in the mock; the desktop Lifecycle cap is the 430 px
+   Work done cap, and at 390 px the panels stack (Work done 510, Lifecycle 300). */
 .work-request .panel-pair {
-  align-items: start;
+  align-items: stretch;
 }
 
 .work-request-latest {
@@ -312,6 +312,11 @@
   white-space: nowrap;
   background: #eef1f6;
   color: #607087;
+}
+
+.work-record-badge--green {
+  background: #dff3e4;
+  color: #1d6b35;
 }
 
 .work-record-badge--amber {

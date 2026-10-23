@@ -101,7 +101,7 @@ function LongText({ text, hook }: { text: string; hook: string }) {
   );
 }
 
-function Badge({ tone, children }: { tone: "neutral" | "amber"; children: string }) {
+function Badge({ tone, children }: { tone: "green" | "amber"; children: string }) {
   return (
     <span className={`work-record-badge work-record-badge--${tone}`} data-work-record-status={children}>
       {children}
@@ -151,9 +151,9 @@ type Row = [item: (typeof RECORD_ITEMS)[number], detail: ReactNode, status: Reac
 function groupRows(group: RecordGroup): Row[] {
   const gap = (item: (typeof RECORD_ITEMS)[number]): Row => [item, "Not recorded", <Badge tone="amber">Not established</Badge>, "No stored field"];
   return [
-    ["Technician notes", <TechnicianNotes group={group} />, <Badge tone="neutral">Recorded</Badge>, "Authored maintenance record"],
+    ["Technician notes", <TechnicianNotes group={group} />, <Badge tone="green">Recorded</Badge>, "Authored maintenance record"],
     gap("Parts"),
-    ["Time on site", globalWorkUtc(group.head.occurred_at), <Badge tone="neutral">Recorded</Badge>, "Authored time"],
+    ["Time on site", globalWorkUtc(group.head.occurred_at), <Badge tone="green">Recorded</Badge>, "Authored time"],
     gap("Return-to-service reading"),
     gap("Configuration readback"),
     gap("Witnessed automatic start"),

@@ -270,15 +270,36 @@ export interface GlobalWorkDetailQuery {
 }
 
 /** W4 `work-case-detail-1`, nested unchanged as `work_detail`. */
-export interface WorkCaseDetailEvent {
+interface WorkCaseDetailEventBase {
   id: string;
-  kind: string;
-  payload: Record<string, unknown>;
   occurred_at: string;
   recorded_at: string;
   actor_kind: string;
   actor_id: string;
 }
+export type KnownWorkCaseEvent = WorkCaseDetailEventBase &
+  (
+    | { kind: "CREATED"; payload: Record<string, never> }
+    | { kind: "ASSIGN"; payload: { assignee: string } }
+    | { kind: "COMMENT"; payload: { text: string } }
+    | { kind: "COMPLETE"; payload: { maintenance_record_id: string } }
+    | { kind: "CLOSE" | "REOPEN" | "CANCEL"; payload: { reason: string } }
+  );
+export const KNOWN_WORK_CASE_EVENT_KINDS = ["CREATED", "ASSIGN", "COMMENT", "COMPLETE", "CLOSE", "REOPEN", "CANCEL"] as const;
+export type UnknownWorkCaseEvent = WorkCaseDetailEventBase & { kind: string; payload: Record<string, unknown> };
+export type WorkCaseDetailEvent = KnownWorkCaseEvent | UnknownWorkCaseEvent;
+export function isKnownWorkCaseEvent(e: WorkCaseDetailEvent): e is KnownWorkCaseEvent {
+  return (KNOWN_WORK_CASE_EVENT_KINDS as readonly string[]).includes(e.kind);
+}
+
+const EVENT_PAYLOAD_KEY: Readonly<Record<string, string>> = {
+  ASSIGN: "assignee",
+  COMMENT: "text",
+  COMPLETE: "maintenance_record_id",
+  CLOSE: "reason",
+  REOPEN: "reason",
+  CANCEL: "reason",
+};
 
 export interface WorkCaseDetailRecord {
   id: string;
@@ -419,8 +440,18 @@ function isWorkDetail(value: unknown): boolean {
     everyItem(value.cited_accepted_evidence_ids, isString) &&
     everyItem(
       value.events,
-      (x) => isObject(x) && isString(x.id) && isString(x.kind) && isObject(x.payload) && isString(x.recorded_at),
+      (x) =>
+        isObject(x) &&
+        isString(x.id) &&
+        isString(x.kind) &&
+        isObject(x.payload) &&
+        isString(x.occurred_at) &&
+        isString(x.recorded_at) &&
+        isString(x.actor_kind) &&
+        isString(x.actor_id) &&
+        (!(x.kind in EVENT_PAYLOAD_KEY) || isString(x.payload[EVENT_PAYLOAD_KEY[x.kind]])),
     ) &&
+    (value.events as unknown[]).some((x) => isObject(x) && x.kind === "CREATED") &&
     everyItem(
       value.records,
       (x) =>
@@ -448,7 +479,18 @@ export function isGlobalWorkDetailBody(value: unknown): value is GlobalWorkDetai
     isWorkDetail(value.work_detail) &&
     (asset === null || (isObject(asset) && isString(asset.code) && isString(asset.type))) &&
     isObject(history) &&
-    everyItem(history.revisions, (x) => isObject(x) && isString(x.id) && isString(x.title) && isString(x.recorded_at)) &&
+    everyItem(history.revisions, (x) =>
+        isObject(x) &&
+        isString(x.id) &&
+        isString(x.title) &&
+        typeof x.revision_no === "number" &&
+        isNullableString(x.supersedes_revision_id) &&
+        isNullableString(x.reason) &&
+        isString(x.occurred_at) &&
+        isString(x.recorded_at) &&
+        isString(x.actor_kind) &&
+        isString(x.actor_id),
+    ) &&
     everyItem(
       history.operational_records,
       (x) =>

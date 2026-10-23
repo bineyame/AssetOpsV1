@@ -134,7 +134,7 @@ export function useWorkRequest(client: GlobalWorkClient | undefined): WorkReques
  * with no invented window; the WR code and `Overview` are text; the Site links to `links.site.href` after load.
  * Before data it reads `Maintenance › Work request › Overview` with no Site.
  */
-function WorkRequestBreadcrumbs({ body, tab }: { body: GlobalWorkDetailBody | null; tab: WorkRequestTab }) {
+export function WorkRequestBreadcrumbs({ body, tab }: { body: GlobalWorkDetailBody | null; tab: WorkRequestTab }) {
   return (
     <nav className="breadcrumbs" aria-label="Breadcrumb" data-work-request-breadcrumb>
       <ol className="breadcrumbs__list">
@@ -161,7 +161,7 @@ function WorkRequestBreadcrumbs({ body, tab }: { body: GlobalWorkDetailBody | nu
 }
 
 /** P-C2-3: the mock `Open site` heading action; text without an anchor before load or on refusal. */
-function OpenSite({ body }: { body: GlobalWorkDetailBody | null }) {
+export function OpenSite({ body }: { body: GlobalWorkDetailBody | null }) {
   const href = body?.links.site.href ?? null;
   return href ? (
     <Link className="button" to={href} data-work-request-open-site>
@@ -174,7 +174,7 @@ function OpenSite({ body }: { body: GlobalWorkDetailBody | null }) {
   );
 }
 
-function subtitleOf(page: WorkRequestRead): string {
+export function subtitleOf(page: WorkRequestRead): string {
   if (page.body !== null) return `${page.body.selected.case_code} · ${page.body.links.site.label} · corrective`;
   if (page.failure?.kind === "no-site") return WORK_REQUEST_NO_SITE_SUBTITLE;
   if (page.failure !== null) return WORK_REQUEST_REFUSED_SUBTITLE;
@@ -184,12 +184,12 @@ function subtitleOf(page: WorkRequestRead): string {
 export type WorkRequestTab = "overview" | "record";
 
 /** The mock `WR_TABS` labels of the mounted tabs; the breadcrumb's last item names the current one (`s.section`). */
-const TAB_LABEL: Readonly<Record<WorkRequestTab, string>> = { overview: "Overview", record: "Maintenance record" };
+export const TAB_LABEL: Readonly<Record<WorkRequestTab, string>> = { overview: "Overview", record: "Maintenance record" };
 /** The route suffix of each mounted tab under `${WORK_REQUEST_PATH_PREFIX}/{case_id}`. */
-const TAB_SUFFIX: Readonly<Record<WorkRequestTab, string>> = { overview: "", record: "/record" };
+export const TAB_SUFFIX: Readonly<Record<WorkRequestTab, string>> = { overview: "", record: "/record" };
 
 /** One mounted tab: the API link after load, else the validated inputs; text when neither exists. */
-function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: WorkRequestTab; current: WorkRequestTab }) {
+export function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: WorkRequestTab; current: WorkRequestTab }) {
   const { target, body } = page;
   const apiHref = body === null ? null : (tab === "overview" ? body.links.overview : body.links.record).href;
   const href =
@@ -223,7 +223,7 @@ function LiveTab({ page, tab, current }: { page: WorkRequestRead; tab: WorkReque
  * the live labels are text. The `UnavailableTab` element renders an `li`, so the list element is the `ol` every
  * other tab row uses.
  */
-function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkRequestTab }) {
+export function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkRequestTab }) {
   return (
     <nav aria-label="Context tabs" className="site-tabs work-request-tabs" data-work-request-tabs>
       <ol className="site-tabs__list">
@@ -237,7 +237,7 @@ function WorkRequestTabs({ page, tab }: { page: WorkRequestRead; tab: WorkReques
 }
 
 /** P-C2-4 (R6): the date-bar slot; no window picker, list status or invented chip. */
-function WorkRequestBar({ page }: { page: WorkRequestRead }) {
+export function WorkRequestBar({ page }: { page: WorkRequestRead }) {
   const { body, failure, loading, target } = page;
   let line: ReactNode = null;
   if (loading) {
@@ -269,7 +269,7 @@ function WorkRequestBar({ page }: { page: WorkRequestRead }) {
   );
 }
 
-function RequestRefusal({ failure }: { failure: WorkRequestFailure }) {
+export function WorkRequestRefusal({ failure }: { failure: WorkRequestFailure }) {
   const code: GlobalWorkDetailRefusalCode = failure.kind === "no-site" ? "WORK_CASE_NOT_FOUND" : failure.code;
   const hook = failure.kind === "no-site" ? "NO_SITE" : failure.code;
   return (
@@ -293,7 +293,7 @@ export function ownerOf(body: GlobalWorkDetailBody): string {
     .filter((e) => e.kind === "ASSIGN")
     .sort((a, b) => (a.recorded_at === b.recorded_at ? (a.id < b.id ? -1 : 1) : a.recorded_at < b.recorded_at ? -1 : 1));
   const last = assigns[assigns.length - 1];
-  const assignee = last?.payload.assignee;
+  const assignee = (last?.payload as Record<string, unknown> | undefined)?.assignee;
   return typeof assignee === "string" && assignee !== "" ? assignee : NOT_ASSIGNED;
 }
 
@@ -339,7 +339,7 @@ function Preview({ value, full, summary, hook }: { value: ReactNode; full: strin
 }
 
 /** The mock `wrHeader` mheader (`.v69-mheader`): Owner, Due / SLA, State, Source, Success criterion (CL3-5). */
-function WorkRequestMHeader({ body }: { body: GlobalWorkDetailBody }) {
+export function WorkRequestMHeader({ body }: { body: GlobalWorkDetailBody }) {
   const owner = ownerOf(body);
   const source = sourceOf(body);
   return (
@@ -387,7 +387,7 @@ export function WorkRequestFrame({
         />
         <WorkRequestTabs page={page} tab={tab} />
         <WorkRequestBar page={page} />
-        {failure !== null ? <RequestRefusal failure={failure} /> : null}
+        {failure !== null ? <WorkRequestRefusal failure={failure} /> : null}
         {body !== null ? <WorkRequestMHeader body={body} /> : null}
         {children(body)}
       </div>

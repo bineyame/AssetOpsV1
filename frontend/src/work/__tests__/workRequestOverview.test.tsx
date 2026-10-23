@@ -86,8 +86,8 @@ function detail(over: Partial<GlobalWorkDetailBody> = {}, state = "IN_PROGRESS")
         event(0, "CREATED"),
         event(1, "ASSIGN", { assignee: "Field team A" }),
         event(2, "COMMENT", { text: "Parts ordered" }),
-        event(4, "COMPLETE"),
-        event(5, "REOPEN"),
+        event(4, "COMPLETE", { maintenance_record_id: "00000000-0000-4000-8000-000000000401" }),
+        event(5, "REOPEN", { reason: "Fault returned" }),
       ],
       records: [
         {
@@ -404,7 +404,7 @@ describe("W6-01c C2: work request Overview", () => {
   it("marks Completed and Finding only on stored facts; Cancelled adds its note and never Completed", async () => {
     const pinned = {
       finding_links: [{ finding_id: "f1", finding_revision_id: "r1" }],
-      events: [event(0, "CREATED"), event(4, "COMPLETE")],
+      events: [event(0, "CREATED"), event(4, "COMPLETE", { maintenance_record_id: "00000000-0000-4000-8000-000000000401" })],
       records: [],
     };
     const completed = detail({}, "COMPLETED");
@@ -418,7 +418,7 @@ describe("W6-01c C2: work request Overview", () => {
     cleanup();
 
     const cancelled = detail({}, "CANCELLED");
-    mount(PAGE, client(loaded({ ...cancelled, work_detail: { ...cancelled.work_detail, events: [event(0, "CREATED"), event(8, "CANCEL")], records: [] } })));
+    mount(PAGE, client(loaded({ ...cancelled, work_detail: { ...cancelled.work_detail, events: [event(0, "CREATED"), event(8, "CANCEL", { reason: "No longer needed" })], records: [] } })));
     await settled();
     expect(doneSteps()).toEqual([]);
     expect(text(q("[data-work-request-cancelled]"))).toBe("Cancelled · work stopped");
@@ -480,10 +480,16 @@ describe("W6-01c C2: work request Overview", () => {
 describe("W6-01c C2: the detail client", () => {
   it("reads /api/work/requests/{id}, validates global-work-detail-1 and maps refusals by status", async () => {
     const seen: string[] = [];
+    const base = detail();
+    const withEvents = (events: WorkCaseDetailEvent[]) => ({ ...base, work_detail: { ...base.work_detail, events } });
+    const noCreated = withEvents(base.work_detail.events.filter((e) => e.kind !== "CREATED"));
+    const assignNoAssignee = withEvents([event(0, "CREATED"), event(1, "ASSIGN", {})]);
     const malformed = { ...detail(), links: { ...detail().links, findings: [{ label: 3, href: null }] } };
     const answers: [number, unknown][] = [
       [200, detail()],
       [200, malformed],
+      [200, noCreated],
+      [200, assignNoAssignee],
       [200, { ...detail(), schema_version: "global-work-index-1" }],
       [403, { detail: { code: "SITE_SCOPE_FORBIDDEN", message: "x" } }],
       [404, { detail: { code: "SITE_NOT_FOUND", message: "x" } }],
@@ -505,9 +511,11 @@ describe("W6-01c C2: the detail client", () => {
     const reads = createGlobalWorkClient();
     const query = { case_id: CASE, site_id: "KOBO-001", known_at: null };
     const results = [];
-    for (let i = 0; i < 11; i += 1) results.push(await reads.detail!(i === 1 ? { ...query, known_at: KNOWN } : query));
+    for (let i = 0; i < 13; i += 1) results.push(await reads.detail!(i === 1 ? { ...query, known_at: KNOWN } : query));
     expect(results.map((r) => (r.status === "loaded" ? "loaded" : r.code))).toEqual([
       "loaded",
+      "WORK_STORE_UNAVAILABLE",
+      "WORK_STORE_UNAVAILABLE",
       "WORK_STORE_UNAVAILABLE",
       "WORK_STORE_UNAVAILABLE",
       "SITE_SCOPE_FORBIDDEN",
