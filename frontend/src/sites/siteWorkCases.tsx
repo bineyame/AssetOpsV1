@@ -118,6 +118,11 @@ export const WORK_KIND_COPY: Record<WorkKind, KindCopy> = {
 export const WORK_CONTEXT_NOTICE =
   "Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet.";
 
+// MOCK DEVIATION (D1) R01 (spec M2): the v69 cold Work notice's second sentence promises a global create flow, which
+// does not exist (W4 commands are SERVICE-only); the mock notice keeps its form and first sentence only.
+/** W5-02 K2a (P-K2a-42): the COLDCHAIN Work context notice; K3a reuses it on the cold case tabs. */
+export const WORK_CONTEXT_NOTICE_DOMAIN = "Opening a record moves you to its own area; the breadcrumb keeps this site.";
+
 /**
  * W6-01a A2 (spec section 1 "Site Work strip manage links"): the global page for this strip's kind, carrying the
  * Site window and the cutoff (an explicit `scope.knownAt` wins over the loaded list's `known_at`). Never the Site
@@ -185,7 +190,7 @@ function StateChip({ kind, state }: { kind: WorkKind; state: string }) {
 }
 
 /** `Kobo` from `Kobo Mini-grid`: the mock's short name, for the status copy only (B10). */
-const shortName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
+export const shortName = (name: string) => name.trim().split(/\s+/)[0] ?? name;
 
 const firstDay = (instant: string) => new Date(instant).toISOString().slice(0, 10);
 const lastDay = (to: string) => new Date(new Date(to).getTime() - 1).toISOString().slice(0, 10);
