@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 from sqlalchemy import text
 
-MINI_HEAD = "0033_w5_cold_work"  # W5-02a: current head above 0032 (W5-01b above 0030, W4-03 above 0029)
+MINI_HEAD = "0034_w5_ev_scenarios"  # W5-03b: current head above 0033 (W5-02a above 0032, W5-01b above 0030)
 COLD_WORK_PREDECESSOR = "0032_w5_cold_scenarios"  # 0033 is crossed empty first
 COLD_WORK_TABLES = ("domain_action_case_link", "domain_action_intent", "domain_action")
 COLD_SCENARIO_PREDECESSOR = "0030_w4_mini_decisions"  # 0032 is crossed empty before 0029
