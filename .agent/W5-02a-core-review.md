@@ -70,3 +70,23 @@ It can close on the producer evidence. `test_w502_cold_scenario_producer.py` (or
 - `npx.cmd tsc --noEmit` (frontend): exit 0. I did not run `npm.cmd test` or `npm.cmd run build`, so the frontend suite and build are unverified by me. The diff's frontend changes are type and key only.
 - Focused backend tests, `-n 3`, one private DB `assetops_w502rv_test` plus harness clones, all dropped afterwards. Files: `test_w502_cold_scenario_producer`, `test_w502_domain_work_links_postgres`, `test_w502_domain_intent_{model,api,postgres}`, `test_w502_domain_action_index_{api,postgres}`, `test_s6_action_store_postgres`, `test_w601{a,b,c}_*`, `test_w403_work_links_postgres`, `test_w401_work_api`. Result: **104 passed**, 0 failed, 614 s.
 - Not rerun: the full backend suite and `tools/check-all.ps1`. The packet cites check-all 11/11 on `d7ff896c`. Only the handoff text changed after that commit. I did not inspect the full-suite JUnit numbers.
+
+## Re-review (fix `b67fd239`, against "W5-02a build rulings (core review M1/L1)")
+
+Verdict: **ACCEPT**. One Low remains and should be cleaned up before the merge.
+
+- **M1 closed.**
+  - `globalWorkClient.ts` now types the field as `action_event_id: string | null`, with optional `kind` and `finding_revision_id`.
+  - `isWorkDetail` uses `isNullableString` and checks the two optional fields exactly as ruled. `action_id` stays required.
+  - The new `globalWorkClient.test.ts::test_read_global_work_detail_accepts_domain_action_link_with_null_event` is a runtime test through `readGlobalWorkDetail` with a mocked fetch. It proves a domain link with a null event loads and is preserved, and that a W1 link still loads.
+  - I ran this test with `npx.cmd vitest run src/work/__tests__/globalWorkClient.test.ts`: 1 passed. `tsc --noEmit` exited 0.
+- **L1 closed.** Three tests were added to `test_w502_domain_intent_postgres.py` under the ruled names:
+  - The record test is parameterized over an operational record, a `maintenance_record` from another case, and a `maintenance_record` from another Site (created through the W4 service on a second imported Site). Each returns 422 `DOMAIN_INTENT_LINK_INVALID`, and no intent is written.
+  - The retry test links, advances the case, gets 409 `BASIS_CHANGED` for a new key, then 200 with the original response for the original key/body.
+  - The absent-Action test gets 404 for both child commands carrying invalid links. The same invalid link against an existing Action gets 422.
+  - The existing assertions are kept.
+  - I read these but did not rerun them (read-only re-review). The fix round reports 34 passed on one private DB, which was dropped. That run did not include the `-api` files; the fix touches none of them.
+- **L3 (Low, unnecessary scope):** `b67fd239` commits `frontend/tsconfig.tsbuildinfo`. It is a generated tsc build artifact: not on any card, not tracked on `main`, and not git-ignored. It will churn on every type check.
+  - Fix: `git rm --cached frontend/tsconfig.tsbuildinfo` on the branch before the merge. Optionally ignore it, if the Architect agrees.
+  - It does not block.
+- No new issues in the fix diff. `6c24334e` (merging main into the branch) touches no W5-02a file.
