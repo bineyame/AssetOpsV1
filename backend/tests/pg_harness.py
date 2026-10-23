@@ -57,7 +57,6 @@ TEMPLATE_SWITCH = "ASSETOPS_TEST_TEMPLATE"
 SHARED_ENV = "ASSETOPS_TEST_SHARED_TEMPLATE"  # "1" in xdist workers: the template belongs to the controller
 # Measurement knobs, off by default (see backend/TESTING.md).
 STRATEGY_ENV = "ASSETOPS_TEST_CLONE_STRATEGY"  # WAL_LOG (server default) or FILE_COPY
-SYNC_COMMIT_ENV = "ASSETOPS_TEST_SYNCHRONOUS_COMMIT"  # e.g. "off", applied per run-owned database only
 
 BACKEND = Path(__file__).resolve().parents[1]
 LEASE_PREFIX = "assetops-test-run:"
@@ -250,10 +249,8 @@ def _create(name: str, template: str | None = None) -> None:
         clause += f" STRATEGY {strategy}"
     admin = _admin()
     admin.execute(text(f"CREATE DATABASE {_quote(name)}{clause}"))
-    sync = os.environ.get(SYNC_COMMIT_ENV)
-    if sync:
-        assert sync in {"on", "off", "local", "remote_write", "remote_apply"}, sync
-        admin.execute(text(f"ALTER DATABASE {_quote(name)} SET synchronous_commit = {sync}"))
+    # OPS-04: test databases only (callers pass guarded *_test names); fast writes.
+    admin.execute(text(f"ALTER DATABASE {_quote(name)} SET synchronous_commit = off"))
 
 
 def _build_template(template: str) -> None:

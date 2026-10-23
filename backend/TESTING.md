@@ -184,6 +184,8 @@ and a `0600` file accepted by `verify_owner_only`.
 
 ## Timing
 
+OPS-04: 4 workers, synchronous_commit off on test DBs, Postgres max_connections 200; re-measure.
+
 Measured on this Windows host (Docker Desktop Postgres 16), serial, full
 suite. Run-to-run variance is large (disk sync inside Docker Desktop), so
 compare only back-to-back runs in a quiet window.

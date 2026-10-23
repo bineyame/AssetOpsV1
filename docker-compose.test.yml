@@ -24,6 +24,7 @@ services:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONPATH: /workspace/backend:/workspace/contracts:/workspace/simulator:/workspace/gateway:/workspace/host
       ASSETOPS_TEST_DATABASE_URL: ${ASSETOPS_CONTAINER_TEST_DATABASE_URL:?set by tools/run-backend-suite-in-container.ps1}
+      ASSETOPS_TEST_WORKERS: ${ASSETOPS_TEST_WORKERS:-4}
       OPS03_RUN_ID: ${OPS03_RUN_ID:?set by tools/run-backend-suite-in-container.ps1}
     volumes:
       - type: bind
