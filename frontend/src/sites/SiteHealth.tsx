@@ -363,23 +363,6 @@ function SourcesPanel({
   );
 }
 
-/**
- * W5-01a C3 (Q-C3-1): the S7 Data sources panel alone, for the cold Health page. Same source read and key,
- * heading ID, description, body and refusal as `SiteHealth`; no battery strip, battery panel or blue notice.
- */
-export function SiteHealthSources({
-  siteId,
-  client,
-  selectedGateway,
-}: {
-  siteId: string;
-  client: HealthClient;
-  selectedGateway: string | null;
-}) {
-  const health = useRead(() => client.getSourceHealth(siteId), `health:${siteId}`);
-  return <SourcesPanel siteId={siteId} read={health} selectedGateway={selectedGateway} />;
-}
-
 /** The mock's status line: physical asset condition only, said once. */
 function ConditionStrip({
   siteName,

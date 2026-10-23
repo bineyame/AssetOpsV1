@@ -12,7 +12,7 @@ import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthC
 import { ColdHealthDepth } from "../sites/ColdHealthDepth";
 import { createHealthClient, type HealthClient } from "../sites/healthClient";
 import { SiteBattery, SiteBatteryEntry, type BatteryHeader } from "../sites/SiteBattery";
-import { HealthLinksContext, SiteHealth, SiteHealthSources, type HealthLinks } from "../sites/SiteHealth";
+import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteHealth";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { siteSourceModeLabel } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
@@ -65,17 +65,13 @@ export function SiteHealthFrame({
           <OperatorSiteTabs siteId={site.site_id} current="Health" />
           <HealthLinksContext.Provider value={LINKS}>
             {site.site_type === "COLDCHAIN" ? (
-              <>
-                {/* W5-01a C3: condition cards, Condition and evidence, the condition notice, then (Q-C3-1, labelled
-                    mock deviation) the S7 Data sources panel alone; no S7 battery strip, panel or blue notice. */}
-                <ColdHealthDepth
-                  siteCode={site.site_id}
-                  window={coldWindowFromParams(params)}
-                  client={coldDepth}
-                  routes={coldSiteRoutes(site.site_id)}
-                />
-                <SiteHealthSources siteId={site.site_id} client={health} selectedGateway={gateway} />
-              </>
+              /* W5-F1 F1-1 (R22): v69 cold-health ends at Condition and evidence; no Data sources panel. */
+              <ColdHealthDepth
+                siteCode={site.site_id}
+                window={coldWindowFromParams(params)}
+                client={coldDepth}
+                routes={coldSiteRoutes(site.site_id)}
+              />
             ) : (
               <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
             )}
