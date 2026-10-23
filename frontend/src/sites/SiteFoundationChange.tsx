@@ -41,6 +41,7 @@ import {
 } from "../ui";
 import type { SiteSummary } from "./siteReadModel";
 import { deriveSiteView } from "./siteViewModel";
+import { COLD_WORK_SUBTITLE_FALLBACK } from "./coldWorkPresentation";
 import type {
   ActionClient,
   ActionEventsBody,
@@ -95,7 +96,11 @@ export function ChangesWorkPageHeader({
       siteName={view.displayName}
       siteId={view.siteId}
       mode={view.sourceMode}
-      description={SITE_SCREEN_DESCRIPTIONS[screen]}
+      description={
+        // W5-02 K2a (P-K2a-40): a COLDCHAIN Site's Work pages carry the mock's Site subtitle slot. The Site read has
+        // no stored subtitle field, so the fallback sentence is shown; mini-grid keeps its screen description.
+        site.site_type === "COLDCHAIN" && screen !== "changes" ? COLD_WORK_SUBTITLE_FALLBACK : SITE_SCREEN_DESCRIPTIONS[screen]
+      }
       headingId={headingId}
     />
   );

@@ -316,6 +316,25 @@ export function siteWorkHref(siteId: string, query?: string): string {
 }
 
 /**
+ * W5-02 K2a (P-K2a-38/39, U3): the COLDCHAIN Work query. The validated `[from,to)` window and an explicit cutoff ride
+ * on every cold Work subtab; a cursor rides only on the Actions page it belongs to (never between kinds). Mini-grid
+ * Work hrefs do not use this.
+ */
+export interface ColdWorkQueryScope {
+  from: string;
+  to: string;
+  knownAt: string | null;
+  cursor?: string | null;
+}
+
+export function coldWorkQuery(scope: ColdWorkQueryScope): string {
+  const query = new URLSearchParams({ from: scope.from, to: scope.to });
+  if (scope.knownAt) query.set("known_at", scope.knownAt);
+  if (scope.cursor) query.set("cursor", scope.cursor);
+  return query.toString();
+}
+
+/**
  * W4-01 (`sitework-incidents`, `sitework-maintenance`): the Work subrow's
  * Incidents and Maintenance lists. The window, the fixed cutoff and the server
  * cursor ride in the query (`?from=&to=&known_at=&cursor=`); without a window
@@ -351,6 +370,8 @@ export interface ActionHrefSelector {
   recordedAt?: string | null;
   planRevisionId?: string | null;
   outcomeId?: string | null;
+  /** W5-02 K2a (U1): the selected cutoff, carried when a domain Action address is redirected to `/verification`. */
+  knownAt?: string | null;
 }
 
 export function siteActionHref(
@@ -366,6 +387,7 @@ export function siteActionHref(
   if (selector?.recordedAt) query.set("recorded_at", selector.recordedAt);
   if (selector?.planRevisionId) query.set("plan_revision_id", selector.planRevisionId);
   if (selector?.outcomeId) query.set("outcome_id", selector.outcomeId);
+  if (selector?.knownAt) query.set("known_at", selector.knownAt);
   const text = query.toString();
   return text ? `${base}?${text}` : base;
 }
