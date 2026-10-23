@@ -128,3 +128,5 @@ Provisional reading noted for each; nothing here invents a product state.
     160-character title wraps to three lines in the 340 px Action column, and the owner to four or five lines in the
     240 px Owner column. Cells are contained and there is no document overflow. No clipping or exemption has been
     applied. Ruling 20 asks for a further ruling at this point.
+    **Closed by K2 ruling 24 (FINAL):** the all-open state has no panel-height cap; the page caps, containment and
+    no-overflow still apply. The capture tool was updated, and the stored measurements give 461 claims with 0 failing.

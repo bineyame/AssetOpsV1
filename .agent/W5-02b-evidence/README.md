@@ -111,3 +111,7 @@ Window control (rulings 1, 22, 23): placement and alignment claims pass at both 
 `known_at`, drops the cursor and reads page one. `window-invalid` shows `The window may span at most 31 days.` and
 does not navigate. Cold Incidents and Maintenance show only this control. Domain Action shell: `loaded/preparing` for
 the positive Action and `not_found` for an unknown ID.
+
+## Re-evaluation under K2 ruling 24 (no browser recapture)
+
+Ruling 24 (FINAL) removes the Actions-panel height cap for the five-row state with every disclosure open. The page-main caps, containment and no-overflow claims still apply. `tools/w502-cold-work-evidence.mjs` no longer emits the panel-cap claim for `worstcase-expanded-open`. The tool has no replay mode, so the stored `w502b-measurements.json` from capture `83c3e1c3` was re-evaluated with a one-off node filter instead. Of its 463 claims, only two failed: `desktop worstcase-expanded-open: panel <= 650` and `narrow worstcase-expanded-open: panel <= 850`. Both are exempt under ruling 24. That leaves **461 claims, 0 failing**. The retained all-open claims pass: no document overflow at both widths, page main 1203 <= 1600 and 1629 <= 2000, and cell containment. The JSON file itself is unchanged, so it still shows `failed: 2` from the capture run. F1 is closed by ruling 24.

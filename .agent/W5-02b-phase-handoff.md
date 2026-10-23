@@ -250,3 +250,7 @@ Main merged in `9e5ddf0a`.
 
 ### Open
 - Q20 / F1: with every disclosure open, after replacement the panel is 819 px at 1440 (cap 650) and 1083 px at 390 (cap 850). The page is 1203/1629, within its caps. Not clipped or exempted; this waits for the Architect, per ruling 20.
+
+## Ruling 24 (2026-10-23)
+
+Main merged. Q20 / F1 is closed: the five-row all-open state is exempt from the Actions-panel cap, and the page caps, containment and no-overflow still apply. `tools/w502-cold-work-evidence.mjs` `capWork` takes `panelCap`, and the all-open call passes `false` (ruling 24 cited in a comment). No browser recapture was run, because a full backend suite was running. The stored measurements from `83c3e1c3`, re-evaluated with a one-off node filter (the tool has no replay mode), give 461 claims with 0 failing. The two removed claims are exactly the exempt panel caps. The evidence README records this. No open findings or questions remain for K2a/K2b.

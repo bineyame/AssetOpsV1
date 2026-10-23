@@ -285,12 +285,14 @@ const MEASURE_CASES = `(() => {
 })()`;
 const workUrl = (base, query, extra = {}) => `${base}/sites/${SITE}/work?${new URLSearchParams({ ...query, ...extra }).toString()}`;
 
-function capWork(W, label, m, wi, notices = true) {
+function capWork(W, label, m, wi, notices = true, panelCap = true) {
   const caps = WORK_CAPS;
   claim(`${W} ${label}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
   claim(`${W} ${label}: page main <= ${caps.main[wi]}`, m.main !== null && m.main <= caps.main[wi], { main: m.main, docHeight: m.docHeight });
   claim(`${W} ${label}: strip <= ${caps.strip[wi]}`, m.strip !== null && m.strip <= caps.strip[wi], m.strip);
-  claim(`${W} ${label}: panel <= ${caps.panel[wi]}`, m.panel !== null && m.panel <= caps.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  // K2 ruling 24 (FINAL): the five-row state with every `Read full text` disclosure open has no Actions-panel height
+  // cap; the page-main caps, containment and no-overflow claims still apply. Every other state keeps the panel cap.
+  if (panelCap) claim(`${W} ${label}: panel <= ${caps.panel[wi]}`, m.panel !== null && m.panel <= caps.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
   if (notices) {
     claim(`${W} ${label}: context notice <= ${caps.notice[wi]}`, m.contextNotice !== null && m.contextNotice <= caps.notice[wi], m.contextNotice);
     if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${caps.notice[wi]}`, m.currentnessNotice <= caps.notice[wi], m.currentnessNotice);
@@ -404,7 +406,7 @@ async function main() {
       await sleep(300);
     });
     claim(`${W} worstcase-expanded-open: five title disclosures open`, m.openDisclosures >= 5 && m.rowCount === 5, { open: m.openDisclosures, of: m.disclosures, rows: m.rowCount });
-    capWork(W, "worstcase-expanded-open", m, wi);
+    capWork(W, "worstcase-expanded-open", m, wi, true, false); // K2 ruling 24: panel-cap exemption only
     rowClaims(W, "worstcase-expanded-open", m, 5);
     // Worst case, one long-title disclosure open (folded page).
     m = await record(W, wi, "worstcase-disclosure", workUrl(B("worstcase"), wq), WORK_READY, MEASURE_WORK, async () => {
