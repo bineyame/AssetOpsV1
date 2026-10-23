@@ -303,6 +303,35 @@ describe("W2-03: cold assessment routes keep the v69 panel structure", () => {
 });
 
 describe("W2-03: temperature", () => {
+  // W5-F1 F1-2 (R37): the complete selected/empty/refused page keeps the mock Excursion context row order.
+  const MOCK_TAIL = ["Peak observed", "Power outage", "Door opening", "Loading / batch", "Defrost"];
+  const contextLabels = () =>
+    Array.from(panelTitled("Excursion context").querySelectorAll("[data-key-value] dt")).map((dt) => dt.textContent);
+
+  it.each([
+    ["selected", STOCKED],
+    ["empty (UNKNOWN 200)", EMPTY],
+  ] as const)("%s: Excursion context rows follow v69 order with Loading / batch Not established", async (_name, reads) => {
+    renderCold(ROUTES[0][1], reads);
+    await settledScreen();
+    expectV69Panels("temperature");
+    const labels = contextLabels();
+    expect(labels[0]).toBe("Excursion window");
+    expect(labels[1]).toMatch(/^(Upper|Lower) policy limit$/);
+    expect(labels.slice(2)).toEqual(MOCK_TAIL);
+    expect(labels.filter((l) => l === "Loading / batch")).toHaveLength(1);
+    expect(document.querySelector('[data-key-value="loading"] dd')?.textContent).toBe("Not established");
+    expect(panelTitled("Claim boundary").textContent).toMatch(/No spoilage|do not support a temperature conclusion/);
+  });
+
+  it("refused: no fabricated Excursion context rows", async () => {
+    renderCold(ROUTES[0][1], REFUSED);
+    await settledScreen();
+    expectV69Panels("temperature");
+    expect(contextLabels()).toEqual([]);
+    expect(panelTitled("Excursion context").querySelector("[data-panel-gap]")).not.toBeNull();
+  });
+
   it("draws every selected point, the policy band and the excursion bounds", async () => {
     renderCold(ROUTES[0][1], STOCKED);
     await settledScreen();

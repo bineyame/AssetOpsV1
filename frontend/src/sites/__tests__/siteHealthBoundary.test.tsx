@@ -360,6 +360,32 @@ describe("W5-01a C3: the cold Health composition stays off non-cold Sites", () =
     expect(q("[data-health-card]")).toBeNull();
     expect(q("[data-health-condition-notice]")).toBeNull();
   });
+
+  it("W5-F1 F1-1 (R22): a cold Site makes no /source-health or /battery request and mounts no Data sources panel", async () => {
+    const requests = serve(recorded());
+    const coldDetail = {
+      getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId, site_type: "COLDCHAIN" } }),
+    } as SiteDetailClient;
+    const getHealth = vi.fn(async () => ({ status: "unavailable" as const, message: null }));
+    render(
+      <MemoryRouter initialEntries={["/sites/COLD-001/health"]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/health"
+            element={<SiteHealthFrame detail={coldDetail} sitesPath="/sites" coldDepth={{ getCooling: vi.fn(), getHealth }} />}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(getHealth).toHaveBeenCalled();
+    expect(q("[data-cold-depth-error]")).not.toBeNull();
+    expect(requests.some((url) => url.endsWith("/source-health"))).toBe(false);
+    expect(requests.some((url) => url.endsWith("/battery"))).toBe(false);
+    expect(q("#site-health-sources-heading")).toBeNull();
+    expect(q("[data-health-site]")).toBeNull();
+    expect(q(".v69-notice--blue")).toBeNull();
+  });
 });
 
 describe("Battery boundary (asset:3#a)", () => {

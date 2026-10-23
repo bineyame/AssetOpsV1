@@ -2385,3 +2385,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W6-01c Lows
 - L5: C3 Technician notes cell nests a `div` inside a `p` (invalid markup). Change the `p` to a `div`.
 - Review L3/L4 notes are in `.agent/W6-01c-review.md` on the branch.
+
+## W5-F1 Lows
+- L1: the `healthHref` prop in ColdFoundationViews is now unused; remove it.
+- L2: the Architect should confirm that R22 covers the link text change from the mock's "Health › Data sources" to "Evidence › Data sources", and name the `excursion` seed in the F1 spec so the capture can be rerun.
