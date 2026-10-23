@@ -433,7 +433,10 @@ async function casesMain() {
       const s = (x) => `${kind}-${x}`;
       // Positive CURRENT, historical (K3), complete zero (ruled [D-8 days, D-1 day) window).
       m = await record(W, wi, s("positive"), caseUrl("positive", kind, read("positive", "positive", kind).query), CASE_READY, MEASURE_CASE);
-      claim(`${W} ${s("positive")}: rows, no currentness notice`, m.panelState === "rows" && m.currentness === null, { panel: m.panelState, currentness: m.currentness });
+      // K3 rulings 7/13: the capture uses its recorded query (the Action read's window and returned cutoff); the
+      // notice follows the returned case-list status (an explicit cutoff reads HISTORICAL), never a fixed expectation.
+      const ps = read("positive", "positive", kind).status;
+      claim(`${W} ${s("positive")}: rows, notice follows the returned status ${ps}`, m.panelState === "rows" && m.currentness === (ps === "CURRENT" ? null : ps), { panel: m.panelState, currentness: m.currentness });
       capCase(W, s("positive"), m, wi); caseRowClaims(W, s("positive"), m, 1); caseContentClaims(W, s("positive"), m, kind, "positive");
       m = await record(W, wi, s("historical"), caseUrl("positive", kind, read("positive", "historical", kind).query), CASE_READY, MEASURE_CASE);
       claim(`${W} ${s("historical")}: notice reads the returned status ${read("positive", "historical", kind).status}`, m.currentness === read("positive", "historical", kind).status, m.currentness);
@@ -447,7 +450,7 @@ async function casesMain() {
       // Worst case: five 160-code-point rows; then one opened `Read full text`; then every disclosure open.
       const wq = read("worstcase", "worstcase", kind).query;
       m = await record(W, wi, s("worstcase"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE);
-      claim(`${W} ${s("worstcase")}: Showing 1–5 of 5`, m.showing?.startsWith("Showing 1–5 of 5"), m.showing);
+      claim(`${W} ${s("worstcase")}: Showing 1–5 of 5, notice follows the returned status`, m.showing?.startsWith("Showing 1–5 of 5") && m.currentness === (read("worstcase", "worstcase", kind).status === "CURRENT" ? null : read("worstcase", "worstcase", kind).status), { showing: m.showing, currentness: m.currentness });
       capCase(W, s("worstcase"), m, wi); caseRowClaims(W, s("worstcase"), m, 5); caseContentClaims(W, s("worstcase"), m, kind, "worstcase");
       m = await record(W, wi, s("worstcase-one-open"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE, async () => {
         await js(`document.querySelector('main [data-site-work] tbody [data-work-case-title] details > summary').click()`);
