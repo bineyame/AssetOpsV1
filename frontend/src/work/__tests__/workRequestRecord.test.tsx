@@ -232,26 +232,41 @@ describe("W6-01c C3: work request Maintenance record", () => {
     expect(panel.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("C3 plain-text: one linked REC is named as plain text with the preparing sentence and no /operational-records anchor", async () => {
-    mount(PAGE, client(loaded(detail())));
+  // W6-01e E2 (P-E2-10): the C3 staged plain-text REC codes are promoted to live Operational records links.
+  const DAY = `from=${encodeURIComponent("2026-10-18T00:00:00Z")}&to=${encodeURIComponent("2026-10-19T00:00:00Z")}`;
+
+  it("linked_rec_filtered_window_href: one linked REC opens its root-occurrence day and kind, with no cutoff", async () => {
+    const body = detail();
+    mount(PAGE, client(loaded({ ...body, selected: { ...body.selected, known_at: "2026-10-23T08:00:00.123456Z" } })));
     await settled();
     const notice = q('[data-work-record-notice="linked"]') as HTMLElement;
-    expect(text(notice)).toBe(
-      "This record is also listed in Operational records as REC-000003 (Operator log). The Operational records page is being prepared.",
+    expect(text(notice)).toBe("This record is also listed in Operational records as REC-000003 (Operator log).");
+    expect(within(notice).getByRole("link", { name: "REC-000003" })).toHaveAttribute(
+      "href",
+      `/operational-records?${DAY}&kind=OPERATOR_LOG`,
     );
-    expect(within(notice).queryByRole("link")).toBeNull();
-    expect(q('a[href*="/operational-records"]')).toBeNull();
+    expect(notice.textContent).not.toContain("being prepared");
   });
 
-  it("C3 plain-text: several linked RECs are joined in the C1 array order, still without anchors", async () => {
+  it("linked_rec_filtered_window_href: several linked RECs keep the C1 order; an explicit cutoff is carried exactly", async () => {
     const recs = [oprec("REC-000009", "SITE_VISIT", 1), oprec("REC-000003", "OPERATOR_LOG", 2), oprec("REC-000011", "MANUAL_READING", 3)];
-    mount(PAGE, client(loaded(detail(undefined, { history: { revisions: [], operational_records: recs } }))));
+    recs[2] = { ...recs[2], root_occurred_at: "2026-10-31T23:59:59.999999Z" };
+    const cut = `&known_at=${encodeURIComponent(KNOWN)}`;
+    mount(`${PAGE}${cut}`, client(loaded(detail(undefined, { history: { revisions: [], operational_records: recs } }))));
     await settled();
-    expect(text(q("[data-work-record-notice]"))).toBe(
+    const notice = q("[data-work-record-notice]") as HTMLElement;
+    expect(text(notice)).toBe(
       "This record is also listed in Operational records as REC-000009 (Site visit), REC-000003 (Operator log), " +
-        "REC-000011 (Manual reading). The Operational records page is being prepared.",
+        "REC-000011 (Manual reading).",
     );
-    expect(q('a[href*="/operational-records"]')).toBeNull();
+    expect(Array.from(notice.querySelectorAll("a")).map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
+      ["REC-000009", `/operational-records?${DAY}&kind=SITE_VISIT${cut}`],
+      ["REC-000003", `/operational-records?${DAY}&kind=OPERATOR_LOG${cut}`],
+      [
+        "REC-000011",
+        `/operational-records?from=${encodeURIComponent("2026-10-31T00:00:00Z")}&to=${encodeURIComponent("2026-11-01T00:00:00Z")}&kind=MANUAL_READING${cut}`,
+      ],
+    ]);
   });
 
   it("states No maintenance activity recorded and No linked Operational record. with no records", async () => {

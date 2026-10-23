@@ -89,6 +89,12 @@ function Invoke-NavigationRailFixturesCheck {
                App = (Remove-Line $app 'path=\{MAINTENANCE_PATH\}') },
             @{ Name = "W6-01b: Maintenance demoted back to unavailable"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/maintenance", label: "Maintenance", end: false' 'kind: "unavailable", label: "Maintenance"') },
+            @{ Name = "W6-01e: Operational records live root points at a missing route"; Expect = "points at '/operational-recordz'";
+               Rail = (Edit-Lines $rail 'to: "/operational-records"' 'to: "/operational-recordz"') },
+            @{ Name = "W6-01e: Operational records route removed (only the catch-all would serve it)"; Expect = "points at '/operational-records'";
+               App = (Remove-Line $app 'path=\{OPERATIONAL_RECORDS_PATH\}') },
+            @{ Name = "W6-01e: Operational records demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/operational-records", label: "Operational records", end: false' 'kind: "unavailable", label: "Operational records"') },
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";
                Rail = (Insert-After $rail 'label: "Settings", group: "ADMIN"' '  { kind: "unavailable", label: "Reports", group: "ADMIN", icon: "log" },') },
             @{ Name = "label typo"; Expect = "the W1 rail is exactly";

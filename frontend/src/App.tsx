@@ -30,6 +30,7 @@ import {
   PORTFOLIO_ROOT_PATH,
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
+  OPERATIONAL_RECORDS_PATH,
   MAINTENANCE_PREVENTIVE_PATH,
   WORK_REQUEST_HISTORY_ROUTE_PATH,
   WORK_REQUEST_RECORD_ROUTE_PATH,
@@ -110,6 +111,7 @@ import { GlobalPreventiveFrame } from "./work/GlobalPreventive";
 import { WorkRequestOverviewFrame } from "./work/WorkRequestOverview";
 import { WorkRequestHistoryFrame } from "./work/WorkRequestHistory";
 import { WorkRequestRecordFrame } from "./work/WorkRequestRecord";
+import { OperationalRecordsFrame } from "./work/OperationalRecords";
 import {
   createEstateEvidenceMoneyClient,
   createEstateFinancialsClient,
@@ -495,6 +497,8 @@ export function App({
           <Route path={WORK_REQUEST_RECORD_ROUTE_PATH} element={<WorkRequestRecordFrame client={globalWork} />} />
           {/* W6-01d C4: the work request History (`WORK_REQUEST_HISTORY_ROUTE_PATH`, same query). */}
           <Route path={WORK_REQUEST_HISTORY_ROUTE_PATH} element={<WorkRequestHistoryFrame client={globalWork} />} />
+          {/* W6-01e E2: the global Operational records root (`OPERATIONAL_RECORDS_PATH`). */}
+          <Route path={OPERATIONAL_RECORDS_PATH} element={<OperationalRecordsFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

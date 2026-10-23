@@ -3566,7 +3566,7 @@
       "follow_on": null,
       "data_owner": "W6-01 global work read (GlobalWorkIndexService / GlobalWorkDetailService)",
       "supported_claim": "The request's authored maintenance records at the cutoff, each at its latest correction head with earlier versions disclosed, and the operational records that name the case.",
-      "interaction": "Linked REC codes are shown; the Operational records page opens after W6-01e.",
+      "interaction": "Linked REC codes open Operational records in the root occurrence day and selected kind; current links omit a cutoff, and explicit historical links retain it.",
       "unknown_or_empty": "No maintenance activity recorded and No linked Operational record. are stated; an outcome note is an unverified authored note.",
       "visual_reference": "index.html#/wr-record",
       "proposed_fidelity_tier": "Deferred",
@@ -3613,32 +3613,25 @@
       "registry_dependencies": {"product_node_id":"P-work-area","node_ids":["I-w601e-read","I-w601e-ui","D-work-records"]},
       "mock_route": "#/oprecords",
       "product_destination": "Operational records",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 work-domain design",
-      "data_owner": "Unassigned Operational records read model",
-      "supported_claim": "No S1-S7 product claim. OperationalRecord needs a reviewed data and claim contract.",
-      "interaction": "Open Operational records and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until OperationalRecord is backed by accepted records; no mock value is product evidence.",
+      "coverage": "bounded",
+      "task": "W6-01e",
+      "follow_on": null,
+      "data_owner": "W6-01 global work read (GlobalWorkIndexService / GlobalWorkDetailService)",
+      "supported_claim": "Authored operational records across every authorized imported Site whose root occurred in the selected UTC window, each at its selected correction head and filtered by kind with an exact filtered count; all are Submitted and none is accepted evidence.",
+      "interaction": "Open Operational records, choose a window and kind chip and page through the list; a row opens its Site or the case it names.",
+      "unknown_or_empty": "No operational record in the window is an exact zero; manual readings cannot be submitted from this page; Feeding evidence is Not established; refused or unreadable reads are stated and never shown as zero.",
       "visual_reference": "index.html#/oprecords",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "OperationalRecord"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "Operational records",
             "Record a manual reading",
             "How records are used"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W6-01e review accepting the exact slice, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }
