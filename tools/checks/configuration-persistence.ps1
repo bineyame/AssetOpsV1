@@ -1149,6 +1149,7 @@ function Invoke-ConfigurationPersistenceCheck {
                     } else {
                         $coldScenarioInsertsSeen[$target]++
                     }
+                }
                 if ($module.Path -eq $evScenarioWriter -and -not (
                         $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $evScenarioTables -contains $Matches[1].ToLowerInvariant())) {
                     $failures.Add(("The EV scenario store only inserts into $($evScenarioTables -join ', ') " +
@@ -1411,6 +1412,7 @@ function Invoke-ConfigurationPersistenceCheck {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $coldScenarioWriter, so the cold scenario insert-only " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
+    }
     foreach ($table in $evScenarioTables) {
         if ($extractorRan -and $evScenarioInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $evScenarioWriter, so the EV scenario insert-only " +
