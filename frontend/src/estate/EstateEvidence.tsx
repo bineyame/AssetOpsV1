@@ -350,11 +350,20 @@ function GapsTable({ body }: { body: EstateEvidenceBody }) {
 
 /** W6-01b B3 (Codex retrospective "RESTORE TO MOCK", P-B3-2): the Preventive plan example is a live destination. */
 export const PREVENTIVE_EXAMPLE_PATH = "/maintenance/preventive";
+/** W6-01e E2 (Codex retrospective "RESTORE TO MOCK", P-E2-9): the Operational records example is a live destination. */
+export const OPERATIONAL_RECORDS_EXAMPLE_PATH = "/operational-records";
+
+/** The live examples: label, destination and the evidence hook (both keep the effective window and explicit cutoff). */
+const LIVE_EXAMPLES: Readonly<Record<string, [string, string]>> = {
+  "Preventive plan": [PREVENTIVE_EXAMPLE_PATH, "preventive"],
+  "Operational records": [OPERATIONAL_RECORDS_EXAMPLE_PATH, "operational-records"],
+};
 
 /**
- * The mock's `Example destinations`. `Preventive plan →` opens the global Preventive view for the rendered Evidence
- * window (`[from, to)` from the response, falling back to the validated page query) and its explicit cutoff, never
- * a cursor; the other examples stay inert until their destinations exist.
+ * The mock's `Example destinations`. `Preventive plan →` and `Operational records →` open the global Preventive view
+ * and Operational records for the rendered Evidence window (`[from, to)` from the response, falling back to the
+ * validated page query) and its explicit cutoff, never a cursor; the other examples stay inert until their
+ * destinations exist.
  */
 function ExampleDestinations({ query, body }: { query: EstateQuery; body: EstateEvidenceBody | null }) {
   const effective = {
@@ -366,9 +375,9 @@ function ExampleDestinations({ query, body }: { query: EstateQuery; body: Estate
     <div className="note estate-evidence-examples" data-estate-examples>
       <span className="estate-evidence-examples__label">Example destinations</span>
       {EXAMPLE_DESTINATIONS.map((label) =>
-        label === "Preventive plan" ? (
-          <Link key={label} to={estateHref(PREVENTIVE_EXAMPLE_PATH, effective)} data-estate-example-live="preventive">
-            Preventive plan →
+        label in LIVE_EXAMPLES ? (
+          <Link key={label} to={estateHref(LIVE_EXAMPLES[label][0], effective)} data-estate-example-live={LIVE_EXAMPLES[label][1]}>
+            {`${label} →`}
           </Link>
         ) : (
           <UnavailableLinkEntry key={label} label={label} />

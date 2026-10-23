@@ -4,13 +4,13 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 22 |
-| D2 improvement | 15 |
+| D1 data or feature unavailable | 27 |
+| D2 improvement | 19 |
 | D3 structural oversight | 6 |
-| D4 illustrative placeholder | 21 |
+| D4 illustrative placeholder | 24 |
 | D5 build order | 5 |
 | D6 technical constraint | 0 |
-| **Total** | **69** |
+| **Total** | **81** |
 
 ## D1 — data or feature unavailable
 
@@ -18,8 +18,8 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | R01 | W5-02 K2a M2 | `cold-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists; W4 command is service-only. | Future global Work create flow | planned |
 | R02 | W5-02 K2a M4 | `cold-work` | Actions strip says same as global list and offers Manage | Cold-only scope text; global gap | D1 | W3 global Actions excludes cold roots. | Future cross-domain global Actions union | planned |
-| R03 | W5-04 V3a E1 | `ev-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists. | Future global Work create flow | planned |
-| R04 | W5-04 V3b E4 | `ev-work` | Actions strip says same as global list and offers Manage | EV-only scope text; global gap | D1 | W3 global Actions excludes EV roots. | Future cross-domain global Actions union | planned |
+| R03 | W5-04 V2a/V3a E1 | `ev-work`, `ev-work-incidents`, `ev-work-maintenance` | Work notice promises global create | First sentence only | D1 | No operator create flow exists. | W5-04 V2a/V3a; future global Work create flow | planned |
+| R04 | W5-04 V2a E4 | `ev-work` | Actions strip says same as global list and offers Manage | EV-only scope text; global gap | D1 | W3 global Actions excludes EV roots. | W5-04 V2a; future cross-domain global Actions union | planned |
 | R05 | W5-01 C2 | `cold-cooling` | Recovery temperature curves | Chart frame and selected categorical marks; no curve | D1 | Selected records have no accepted numeric recovery series. | Future selected recovery-series producer | planned |
 | R06 | W5-03 E3 | `energy` | Continuous import-power line | Selected sample marks and declared limit; no connecting path | D1 | Accepted samples do not establish continuous coverage. | Future coverage-capable EV evidence read | planned |
 | R07 | W6-01 B2 | `maintenance` | Lifecycle notice describes active follow-up | Activity recorded, outcome unverified | D1 | No work-outcome evaluator or follow-up path exists. | Future work-outcome evaluator | planned |
@@ -119,3 +119,22 @@ These rows use the register columns above and are included in its category count
 | R73 | W5-02 K3a | `cold-work-incidents` | INC code opens Incident detail | Plain INC code in same Case cell | D1 | No Incident detail route is mounted. | Future W6 Incident detail route | planned |
 
 - Register IDs: the W5-02b R56-R64 were renumbered R65-R73 because they collided with the W5-03b IDs (coordinator, 2026-10-23).
+
+## W5-04 pre-flight additions (2026-10-23)
+
+Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('ev',…)`, and `add('ev-action'…)` in `frontend/mockups/v69/index.html`. R74–R85 are planned, not built.
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R74 | W5-04 V2a/V3a | `ev-work`, `ev-work-incidents` | Source/Linked findings mock F-130 code | `Finding {id8}` from selected public UUID | D1 | Selected EV Finding has no public F-130 code. | V2a/V3a; future public Finding code | planned |
+| R75 | W5-04 V2a/V3a | `ev-work`, `ev-work-incidents` | Finding link opens selected source | Plain revision label, disclosure and unavailable exact-revision control | D1 | EV Finding frame ignores `revision_id`; a window-only link can show another revision. | V2a/V3a; future exact-revision Finding frame | planned |
+| R76 | W5-04 V2a | `ev-work` | `Due dates are not yet set in this example` | `Due dates are not yet set` only for all-null selected due dates | D4 | Example qualifier cannot describe arbitrary persisted rows. | V2a | planned |
+| R77 | W5-04 V2a/V4a | `ev-work`, `ev-action` | Fixed EAT in topbar example window | Stored Site-zone abbreviation, UTC for private fixture | D4 | Fixture timezone is Etc/UTC, and user Sites vary. | V2a/V4a | planned |
+| R78 | W5-04 V2a | `ev-work` | Example connector/power subtitle | `EV charging operations at this site.` when stored subtitle is null | D4 | No selected Foundation fact supports copied example configuration. | V2a | planned |
+| R79 | W5-04 V2a | `ev-work` | `1 actions` in scope strip | `1 action` | D2 | Correct singular grammar improves clarity. | V2a; owner walkthrough | planned |
+| R80 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | No currentness notice in example | Selected historical/pending/stale/unknown notice below strip | D2 | The cutoff/source state must remain visible in live reads. | V2a/V3a/V4a; owner walkthrough | planned |
+| R81 | W5-04 V3a | `ev-work-maintenance` | Activity Completed chip only | Completed chip plus stored activity disclosure | D2 | Exposes attested text in the existing cell. | V3a; owner walkthrough | planned |
+| R82 | W5-04 V3a | `ev-work-maintenance` | Outcome Unverified badge only | Badge plus attested outcome note disclosure | D2 | Clarifies what was recorded without claiming verified outcome. | V3a; owner walkthrough | planned |
+| R83 | W5-04 V3a | `ev-work-maintenance` | WR opens Verification | WR opens mounted W6 Overview | D1 | Request Verification destination is unavailable. | V3a; future W6 request Verification | planned |
+| R84 | W5-04 V3a | `ev-work-maintenance` | Mock witnessed next-evidence instruction | Selected copy or `No next evidence recorded` | D1 | No selected instruction proves the mock witness test. | V3a; future authored next-evidence producer | planned |
+| R85 | W5-04 V3a | `ev-work-incidents` | INC code opens detail | Plain INC code | D1 | No Incident detail route is mounted. | V3a; future Incident detail route | planned |

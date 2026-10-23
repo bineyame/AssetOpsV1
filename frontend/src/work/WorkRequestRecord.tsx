@@ -9,12 +9,12 @@
  * record head (grouped `Record {n} · {occurred_at UTC}`, ordered `(occurred_at, id)`); rows without a stored field
  * state the gap (`Not recorded` / `Not established` / `No stored field`). The footer is the Panel description (A2Q7).
  *
- * MOCK DEVIATION (P-C3-4): the mock's notice links `Operational records` immediately, but `/operational-records` is
- * not mounted until W6-01e (E2). Until then the linked REC codes are PLAIN TEXT and the notice adds
- * `The Operational records page is being prepared.`; no `/operational-records` anchor renders. E2 promotes the codes
- * to CL3-3 window anchors in this file.
+ * W6-01e E2 (P-E2-10): each linked REC code in the notice opens Operational records on the UTC day of its root
+ * occurrence, filtered to its selected head kind; the link carries `known_at` only when this page's URL had one,
+ * exactly as given (a current link omits a cutoff). The interim C3 plain-text deviation (register R34) is resolved.
  */
 import type { ReactNode } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { DataTable, Notice, Panel } from "../ui";
 import {
   globalWorkUtc,
@@ -32,7 +32,6 @@ export const RECORD_FOOTER = "What was recorded on site; no outcome verification
 export const NO_MAINTENANCE_ACTIVITY = "No maintenance activity recorded";
 export const NO_OUTCOME_NOTE = "No outcome note recorded";
 export const NO_LINKED_REC = "No linked Operational record.";
-export const REC_PAGE_PREPARED = "The Operational records page is being prepared.";
 export const RECORD_COLUMNS = ["Item", "Detail", "Status", "Basis"] as const;
 export const RECORD_ITEMS = [
   "Technician notes",
@@ -200,14 +199,30 @@ function RecordTable({ groups }: { groups: RecordGroup[] }) {
   );
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * P-E2-10 (`linked_rec_filtered_window_href`): `/operational-records?from={UTC day of root_occurred_at}&to={next UTC
+ * day}&kind={selected head kind}`, plus `known_at` only when the inbound request URL explicitly carried it, at its
+ * exact requested precision. The response `selected.known_at` is never used for a current link.
+ */
+export function linkedRecHref(record: GlobalWorkDetailOperationalRecord, explicitKnownAt: string | null): string {
+  const from = `${record.root_occurred_at.slice(0, 10)}T00:00:00Z`;
+  const to = `${new Date(Date.parse(from) + DAY_MS).toISOString().slice(0, 10)}T00:00:00Z`;
+  const cutoff = explicitKnownAt ? `&known_at=${encodeURIComponent(explicitKnownAt)}` : "";
+  return `/operational-records?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&kind=${encodeURIComponent(record.kind)}${cutoff}`;
+}
+
 /** P-C3-3: the exact root REC codes with their kind labels, in the C1 array order. */
 export function recNoticeSentence(records: GlobalWorkDetailOperationalRecord[]): string {
   const listed = records.map((r) => `${r.code} (${recKindLabel(r.kind)})`).join(", ");
   return `This record is also listed in Operational records as ${listed}.`;
 }
 
-/** The mock notice under the table; codes are plain text until E2 mounts `/operational-records` (MOCK DEVIATION). */
+/** The mock notice under the table: each REC code opens its Operational records day and kind (P-E2-10). */
 function RecordNotice({ body }: { body: GlobalWorkDetailBody }) {
+  const [params] = useSearchParams();
+  const explicit = params.get("known_at");
   const recs = body.history.operational_records;
   return (
     <Notice tone="blue" data={{ "data-work-record-notice": recs.length === 0 ? "none" : "linked" }}>
@@ -215,7 +230,17 @@ function RecordNotice({ body }: { body: GlobalWorkDetailBody }) {
         <p>{NO_LINKED_REC}</p>
       ) : (
         <p>
-          {recNoticeSentence(recs)} {REC_PAGE_PREPARED}
+          {"This record is also listed in Operational records as "}
+          {recs.map((r, index) => (
+            <span key={r.canonical_record_id}>
+              {index > 0 ? ", " : null}
+              <Link to={linkedRecHref(r, explicit)} data-work-record-rec={r.code}>
+                {r.code}
+              </Link>
+              {` (${recKindLabel(r.kind)})`}
+            </span>
+          ))}
+          {"."}
         </p>
       )}
     </Notice>

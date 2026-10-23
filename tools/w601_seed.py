@@ -61,7 +61,7 @@ PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 DB_NAME = re.compile(r"^assetops_w601_[a-z0-9_]{1,40}_test$")
 KOBO_SOURCE = REPO / "backend" / "tests" / "fixtures" / "s1" / "kobo-001.yaml"
 FIXTURES = ("incidents", "zero", "empty_scope", "historical", "cursor_change", "stress", "maintenance", "preventive",
-            "detail", "linked", "detail-linked", "detail-history")
+            "detail", "linked", "detail-linked", "detail-history", "operational")
 ACTOR = {"kind": "SERVICE", "id": W401_FIXTURE_SERVICE_PRINCIPAL_ID,
          "attestation": "service=w401-fixture;job=w601-seed;rule=w601/1"}
 # A2Q2: 200 and 128 unbroken characters.
@@ -74,6 +74,8 @@ STRESS_NARRATIVE = ("Inspection narrative " * 200)[:4000].rstrip()
 STRESS_ACTIVITY = ("Replaced starter relay and tested " * 120)[:4000]
 STRESS_REASON = ("Corrected the inspection scope " * 20)[:500].rstrip()
 STRESS_PLAN_TITLE = ("Quarterlyfilterandbeltinspection" * 7)[:200]
+STRESS_RECORD_BODY = ("Operator checked the panel and logged readings " * 90)[:4000]  # X2 / P-E1-9
+OPERATIONAL_CORRECTION_REASON = "Log wording corrected after review"  # P-E1-9
 # W6-01b build rulings (Q2) item 1: the linked fixture keeps the S4 setup, F01 day, readings and anchors (all inside
 # the KOBO-001 Foundation period from 2026-09-29) and moves only F01's `deliver.decided` and the S6 accept clock earlier.
 LINKED_SETUP_AT = datetime(2026, 10, 8, 12, tzinfo=timezone.utc)
@@ -249,13 +251,15 @@ class Writer:
 
     def post_operational_record(self, site: tuple[str, str], case_id: str | None, body: str, *,
                                 kind: str = "OPERATOR_LOG", occurred_at: datetime | None = None,
+                                quantity: str | None = None, unit: str | None = None,
                                 correction: dict[str, str] | None = None) -> dict[str, Any]:
         """C1 (CL3-3): an authored SUBMITTED operational record (root occurrence `--clock` minus 2 days) or, with
-        `correction`, its successor; the next write-clock instant and the fixture SERVICE principal."""
+        `correction`, its successor; the next write-clock instant and the fixture SERVICE principal. E1 (P-E1-9) adds the
+        MANUAL_READING `quantity`/`unit` pair; every other caller keeps both null."""
         s = self.sites[site]
         at = self.clock - timedelta(days=2) if occurred_at is None else occurred_at
         _, made = self.svc.post_operational_record(s["tenant"], s["site"], {
-            "kind": kind, "body": body, "occurred_at": z(at), "period_end": None, "unit": None, "quantity": None,
+            "kind": kind, "body": body, "occurred_at": z(at), "period_end": None, "unit": unit, "quantity": quantity,
             "source_document_sha256": None, "case_id": case_id, "actor": dict(ACTOR),
             "idempotency_key": self._key(), **(correction or {})}, W401_FIXTURE_SERVICE_PRINCIPAL_ID)
         self.commands.append({"tenant": slug_of(site), "site_code": s["site_code"], "case_id": case_id,
@@ -321,6 +325,10 @@ def seed(url: str, fixture: str, clock: datetime, *, append: bool = False) -> di
             writer.revise(A, long["id"], long["revision"]["id"], STRESS_REQUEST_TITLE, STRESS_NARRATIVE,
                           STRESS_REASON)
             writer.plan(A, STRESS_PLAN_TITLE, "CALENDAR")
+            # X2 / P-E1-9: one unlinked 4000-character OPERATOR_LOG at KOBO-001, root occurrence `--clock` - 2 days.
+            writer.post_operational_record(A, None, STRESS_RECORD_BODY)
+        elif fixture == "operational":
+            made = seed_operational(writer)
         elif fixture == "maintenance":
             seed_maintenance(writer)
         elif fixture == "preventive":
@@ -357,6 +365,23 @@ def seed(url: str, fixture: str, clock: datetime, *, append: bool = False) -> di
             finally:
                 plans.close()
             writer.written.extend(plans.written)
+        if fixture == "operational":
+            # P-E1-9: the first demo log corrected at `--clock + 1s` to a SHIFT_NOTE, same root occurrence and case.
+            later = Writer(url, WriteClock(clock + timedelta(seconds=1)), sites, clock)
+            try:
+                log = made["first_log"]
+                later.post_operational_record(
+                    A, made["incident"]["id"], "Shift note at KOBO-001: generator stop handed over to the next shift.",
+                    kind="SHIFT_NOTE", occurred_at=OPERATIONAL_AT,
+                    correction={"supersedes_record_id": log["id"], "canonical_record_id": log["canonical_record_id"],
+                                "correction_reason": OPERATIONAL_CORRECTION_REASON})
+            finally:
+                later.close()
+            writer.commands.extend(later.commands)
+            _not_future(url, clock + timedelta(seconds=1))
+
+            return {"fixture": fixture, "clock": z(clock), "written": writer.written, "commands": writer.commands,
+                    "operational_records": _stored_operational(url), **_ids(sites)}
         if fixture == "detail-history":
             # C2 historical capture (ruling "For the required 403 capture ..."): one explicit write at
             # `--clock + 2s` that changes the first request's selected revision; read at `--clock + 1s` for history.
@@ -394,6 +419,67 @@ def seed_preventive(writer: Writer) -> None:
     writer.plan(B, "Inspect pump seals", "CALENDAR", due_at=utc("2026-10-25T00:00:00Z"))
     writer.plan(B, "Review switchgear", "RUN_HOURS", due_hours="750")
     writer.plan(OTHER, "Other tenant plan", "CALENDAR", due_at=utc("2026-10-29T00:00:00Z"))
+
+
+OPERATIONAL_AT = utc("2026-10-18T09:00:00Z")  # P-E1-9: the first in-window root occurrence
+
+
+def seed_operational(writer: Writer) -> dict[str, Any]:
+    """P-E1-9: a KOBO-001 incident and request first, then seven in-window `demo` roots at 2026-10-18 09:00-09:06
+    (KOBO-001 OPERATOR_LOG x2, MANUAL_READING, SHIFT_NOTE; KOBO-002 OPERATOR_LOG, MANUAL_READING, SHIFT_NOTE), one
+    KOBO-002 SITE_VISIT on 2026-10-13 (outside the standard window) and one other-tenant in-window SITE_VISIT."""
+    incident = writer.incident(A, "Generator stopped")
+    request = writer.request(A, None, "Inspect starter")
+    at = [OPERATIONAL_AT + timedelta(minutes=n) for n in range(7)]
+    first_log = writer.post_operational_record(
+        A, incident["id"], "Operator log at KOBO-001: generator stopped during the morning run.", occurred_at=at[0])
+    writer.post_operational_record(A, None, "Operator log at KOBO-001: panel checked after the restart.",
+                                   occurred_at=at[1])
+    writer.post_operational_record(A, request["id"], "Manual reading at KOBO-001: Fuel tank dip: 198 L",
+                                   kind="MANUAL_READING", occurred_at=at[2], quantity="198", unit="L")
+    writer.post_operational_record(A, None, "Shift note at KOBO-001: handover completed with no open alarms.",
+                                   kind="SHIFT_NOTE", occurred_at=at[3])
+    writer.post_operational_record(B, None, "Operator log at KOBO-002: pump started on schedule.", occurred_at=at[4])
+    writer.post_operational_record(B, None, "Manual reading at KOBO-002: Stock in chamber: 42 kg",
+                                   kind="MANUAL_READING", occurred_at=at[5], quantity="42", unit="kg")
+    writer.post_operational_record(B, None, "Shift note at KOBO-002: chamber door closed at handover.",
+                                   kind="SHIFT_NOTE", occurred_at=at[6])
+    writer.post_operational_record(B, None, "Site visit at KOBO-002: technician inspected the site.",
+                                   kind="SITE_VISIT", occurred_at=utc("2026-10-13T09:00:00Z"))
+    writer.post_operational_record(OTHER, None, "Site visit at the other tenant's KOBO-001: routine inspection.",
+                                   kind="SITE_VISIT", occurred_at=OPERATIONAL_AT + timedelta(minutes=7))
+    return {"incident": incident, "request": request, "first_log": first_log}
+
+
+def _not_future(url: str, last_write: datetime) -> None:
+    """P-E1-9: refuse a fixture whose clock or successor write lies in the future of DB wall time."""
+    from sqlalchemy import create_engine, text
+    engine = create_engine(url)
+    try:
+        with engine.connect() as c:
+            now = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+    finally:
+        engine.dispose()
+    if last_write > now:
+        raise SystemExit(f"fixture write {z(last_write)} is in the future of DB time {now.isoformat()}")
+
+
+def _stored_operational(url: str) -> list[dict[str, Any]]:
+    """P-E1-9: root/head IDs, codes, write instants and case IDs as stored, read back after the writes."""
+    from sqlalchemy import create_engine, text
+    engine = create_engine(url)
+    try:
+        with engine.connect() as c:
+            rows = c.execute(text(
+                "SELECT CAST(o.id AS text), CAST(o.canonical_record_id AS text), o.public_code, o.kind, o.occurred_at, "
+                "o.recorded_at, CAST(o.case_id AS text), s.site_code, CAST(o.tenant_id AS text) "
+                "FROM operational_record o JOIN site s ON s.tenant_id = o.tenant_id AND s.id = o.site_id "
+                "ORDER BY o.recorded_at, o.id")).all()
+    finally:
+        engine.dispose()
+    return [{"id": r[0], "canonical_record_id": r[1], "code": r[2], "kind": r[3], "occurred_at": z(r[4]),
+             "recorded_at": r[5].astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ"), "case_id": r[6],
+             "site_code": r[7], "tenant_id": r[8]} for r in rows]
 
 
 def seed_detail(writer: Writer) -> dict[str, Any]:

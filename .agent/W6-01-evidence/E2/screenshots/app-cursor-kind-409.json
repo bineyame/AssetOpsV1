@@ -1,0 +1,232 @@
+{
+  "state": "cursor-kind-409",
+  "captured_at": "2026-10-23T08:38:18.290Z",
+  "results": [
+    {
+      "state": "cursor-kind-409",
+      "width": 1440,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTEuNjYwODAwWiIsIm1hYyI6IjliZDgyYzVjMGFkY2FmMzYzYjEzYjFhYzdhN2FjMjZlNmYzN2EzNmFjMGRkMWJhNDcyZDM0NGY2OTNlYTAzZDgiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2ZDEzZTdiMGQ1NWQ5ZGQwZThlYTVjNDE3MDgxZmVkNGQ0ZDgzMDI5OTA1ZWQ5OTU3YTI0NWRiNDBjYzMzNjQxIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&kind=OPERATOR_LOG",
+      "image": "cursor-kind-409-1440.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTEuNjYwODAwWiIsIm1hYyI6IjliZDgyYzVjMGFkY2FmMzYzYjEzYjFhYzdhN2FjMjZlNmYzN2EzNmFjMGRkMWJhNDcyZDM0NGY2OTNlYTAzZDgiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2ZDEzZTdiMGQ1NWQ5ZGQwZThlYTVjNDE3MDgxZmVkNGQ0ZDgzMDI5OTA1ZWQ5OTU3YTI0NWRiNDBjYzMzNjQxIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&kind=OPERATOR_LOG",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "status_line": null,
+        "cards": null,
+        "chips": {
+          "h": 33,
+          "w": 1160
+        },
+        "state_block": {
+          "h": 60,
+          "w": 1160
+        },
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": null,
+        "thead": null,
+        "notice": {
+          "h": 60,
+          "w": 1160
+        }
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 103,
+          "w": 1160
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 298,
+          "w": 734
+        },
+        {
+          "title": "How records are used",
+          "h": 298,
+          "w": 408
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Operational records",
+        "status": null,
+        "cards": [],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "true"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": "The list changed. Reload the first page.Reload the first page",
+        "zero": null,
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTEuNjYwODAwWiIsIm1hYyI6IjliZDgyYzVjMGFkY2FmMzYzYjEzYjFhYzdhN2FjMjZlNmYzN2EzNmFjMGRkMWJhNDcyZDM0NGY2OTNlYTAzZDgiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2ZDEzZTdiMGQ1NWQ5ZGQwZThlYTVjNDE3MDgxZmVkNGQ0ZDgzMDI5OTA1ZWQ5OTU3YTI0NWRiNDBjYzMzNjQxIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&limit=5&kind=OPERATOR_LOG",
+          "status": 409
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTEuNjYwODAwWiIsIm1hYyI6IjliZDgyYzVjMGFkY2FmMzYzYjEzYjFhYzdhN2FjMjZlNmYzN2EzNmFjMGRkMWJhNDcyZDM0NGY2OTNlYTAzZDgiLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo2ZDEzZTdiMGQ1NWQ5ZGQwZThlYTVjNDE3MDgxZmVkNGQ0ZDgzMDI5OTA1ZWQ5OTU3YTI0NWRiNDBjYzMzNjQxIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&limit=5&kind=OPERATOR_LOG",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "state": "cursor-kind-409",
+      "width": 390,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTUuODM4MjUzWiIsIm1hYyI6IjRmNDYxMTNiOGU4NTAwY2M5NGYzZmU2Y2JkOWJkOGNiOWZhNzRlODM5ZDIwOTE2NDRjZGQ2ODBjMDkzNmQ3YzciLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1MWZjMjIyZWVhMTNlOTA0MWJiN2FmZjZjNmJiOTZjMDg5YmRlZDBjZDE3NDQyNjUwODg0Mzg2MWUyM2UwOTViIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&kind=OPERATOR_LOG",
+      "image": "cursor-kind-409-390.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTUuODM4MjUzWiIsIm1hYyI6IjRmNDYxMTNiOGU4NTAwY2M5NGYzZmU2Y2JkOWJkOGNiOWZhNzRlODM5ZDIwOTE2NDRjZGQ2ODBjMDkzNmQ3YzciLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1MWZjMjIyZWVhMTNlOTA0MWJiN2FmZjZjNmJiOTZjMDg5YmRlZDBjZDE3NDQyNjUwODg0Mzg2MWUyM2UwOTViIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&kind=OPERATOR_LOG",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 177,
+          "w": 358
+        },
+        "status_line": null,
+        "cards": null,
+        "chips": {
+          "h": 73,
+          "w": 358
+        },
+        "state_block": {
+          "h": 60,
+          "w": 358
+        },
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": null,
+        "thead": null,
+        "notice": {
+          "h": 60,
+          "w": 358
+        }
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 103,
+          "w": 358
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 486,
+          "w": 358
+        },
+        {
+          "title": "How records are used",
+          "h": 223,
+          "w": 358
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1440,
+      "text": {
+        "h1": "Operational records",
+        "status": null,
+        "cards": [],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "true"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": "The list changed. Reload the first page.Reload the first page",
+        "zero": null,
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTUuODM4MjUzWiIsIm1hYyI6IjRmNDYxMTNiOGU4NTAwY2M5NGYzZmU2Y2JkOWJkOGNiOWZhNzRlODM5ZDIwOTE2NDRjZGQ2ODBjMDkzNmQ3YzciLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1MWZjMjIyZWVhMTNlOTA0MWJiN2FmZjZjNmJiOTZjMDg5YmRlZDBjZDE3NDQyNjUwODg0Mzg2MWUyM2UwOTViIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&limit=5&kind=OPERATOR_LOG",
+          "status": 409
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6NjNhMDg0ZGJjNzg3ZDVmNjY3OWFiNWJhMjUyMTgxZGRiN2NmNzg0NjViZWY3MmMwNGU5MTFhYjk2M2NmNTBkYSIsImFmdGVyIjpbIjIwMjYtMTAtMjFUMTE6NTk6MDUuMDAwMDAwWiIsImtvYm8tMDAxIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1IiwiNGE4YjdhNGYtM2Y1Yi00Zjk0LThlODctNzUyMDU3NDE5YzA0Il0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMThkNjU3NzctOWQ5Ni00ZWE0LThmZGQtMGEwNmMwNTQ4YzJmIiwiNjMxNjE3YTQtNDc2ZC00YWE2LTlhYzEtMjE2OWQ0NTEwOWE1Il0sImZpbHRlciI6ImFsbCIsImZyb20iOiIyMDI2LTEwLTE0VDAwOjAwOjAwLjAwMDAwMFoiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjNUMDg6Mzg6MTUuODM4MjUzWiIsIm1hYyI6IjRmNDYxMTNiOGU4NTAwY2M5NGYzZmU2Y2JkOWJkOGNiOWZhNzRlODM5ZDIwOTE2NDRjZGQ2ODBjMDkzNmQ3YzciLCJwYWdlX29uZV9tb2RlIjoiY3VycmVudCIsInJvdXRlIjoib3BlcmF0aW9uYWwtcmVjb3JkcyIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1MWZjMjIyZWVhMTNlOTA0MWJiN2FmZjZjNmJiOTZjMDg5YmRlZDBjZDE3NDQyNjUwODg0Mzg2MWUyM2UwOTViIiwidGVuYW50X2lkIjoiYzRiNzMxOGEtZjE3Ny00ZDUxLTljOTAtM2E2NjNlY2FkZGU3IiwidG8iOiIyMDI2LTEwLTIxVDAwOjAwOjAwLjAwMDAwMFoiLCJ2IjoxfQ&limit=5&kind=OPERATOR_LOG",
+          "status": 409
+        }
+      ]
+    }
+  ]
+}
