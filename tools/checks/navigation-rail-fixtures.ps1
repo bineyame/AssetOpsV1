@@ -201,17 +201,29 @@ function Invoke-NavigationRailFixturesCheck {
             # W2-06 r7 P8: the EV entries are part of the closed multiset.
             @{ Name = "the EV Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '') },
-            @{ Name = "the EV Availability entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Availability" />' '') },
-            @{ Name = "the EV Energy / site power entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Energy / site power" />' '') },
+            # W5-03a E2: Availability is live; dropping its subtab or page branch fails, and an unavailable
+            # Availability entry coming back breaks the closed multiset.
+            @{ Name = "the live EV Availability subtab is dropped"; Expect = "The live EV Availability subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $ev 'data-performance-subtab="availability"' '') },
+            @{ Name = "the live EV Availability page branch is dropped"; Expect = "The live EV Availability subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $frames '<EvAvailability' '<Missing') },
+            @{ Name = "the EV Availability entry comes back unavailable"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '<UnavailableTab label="Recommendation" /><UnavailableTab label="Availability" />') },
+            # W5-03a E3: Energy / site power is live; dropping its subtab or page branch fails, and an unavailable
+            # Energy / site power entry coming back breaks the closed multiset.
+            @{ Name = "the live EV Energy subtab is dropped"; Expect = "The live EV Energy / site power subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $ev 'data-performance-subtab="energy"' '') },
+            @{ Name = "the live EV Energy page branch is dropped"; Expect = "The live EV Energy / site power subtab or page branch is missing";
+               Modules = (Set-ModuleLines $modules $frames '<EvEnergy ' '<Missing ') },
+            @{ Name = "the EV Energy / site power entry comes back unavailable"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '<UnavailableTab label="Recommendation" /><UnavailableTab label="Energy / site power" />') },
             # W2-F M12: the EV Financials Scenarios slot is part of the closed multiset.
             @{ Name = "the EV Financials Scenarios entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $evSite '<UnavailableTab label="Scenarios" />' 'null') },
             @{ Name = "an EV entry is duplicated"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Availability" />' '<UnavailableTab label="Availability" /><UnavailableTab label="Availability" />') },
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '<UnavailableTab label="Recommendation" /><UnavailableTab label="Recommendation" />') },
             @{ Name = "an arbitrary new EV tab is appended"; Expect = "the W1-plus-W2 inventory is exactly";
-               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Energy / site power" />' '<UnavailableTab label="Energy / site power" /><UnavailableTab label="Tariffs" />') },
+               Modules = (Set-ModuleLines $modules $ev '<UnavailableTab label="Recommendation" />' '<UnavailableTab label="Recommendation" /><UnavailableTab label="Tariffs" />') },
             @{ Name = "a lens chip with a computed label"; Expect = "non-literal label";
                Modules = (Set-ModuleLines $modules $index '<UnavailableChip label="Risks" />' '<UnavailableChip label={lens} />') },
             @{ Name = "the component is missing (fail closed)"; Expect = "check is vacuous";

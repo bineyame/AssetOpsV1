@@ -112,3 +112,43 @@ Built per E1a card + pre-flight E1a ruling: `analytics/ev_availability.py` (pure
 ## Next
 
 All four units are committed; W5-03a is ready for independent review (E1a, E1b, E2, E3). Open items for review/Architect: `selected_provenance_on` placement in the DTO; the panel-contracts/candidate-gate edit; the import note position (ruling vs mock sub-line); builder literals named above.
+
+## Fix round (2026-10-23; review `.agent/W5-03a-review.md`, rulings `.agent/W5-03a-review-rulings.md`)
+
+Code part done; the Postgres/vitest/build/recapture batch is held (see "Batch status" at the end of this section).
+
+| Finding | Commit | Where |
+| --- | --- | --- |
+| H1 chart-note class | 71a828a7 | `EvAvailability.tsx`, `EvEnergy.tsx` use `v69-chart-note` |
+| H2 bound value class | 71a828a7 | `v69-panel-value` on `[data-ev-bound]` |
+| H3 legend after chart | 71a828a7 | `evDepthGraphics.tsx` legend follows `.ev-depth-graphic__scroll`; test asserts sibling order |
+| H4 / ruling 1 import note | 71a828a7 | `Panel description={IMPORT_NOTE}`, chart note removed, test updated |
+| M1 / ruling 2 one selected peak | 4e22e59f | `ev_depth.py` `observed_peak(samples)`; `test_energy_peak_is_one_selected_peak`, `test_energy_peak_ignores_unselected_row_while_pending` (persisted clones via `ev_depth_cases.add_import`) |
+| M2 / ruling 3 literals, tones, placement | 71a828a7 | Energy: muted limit fallback kept, window note no fallback, red `No`, bare Y ticks + one `kW`, per-mark title, legend both labels, frame only when empty; Availability: `coverage not applicable` zero-schedule note, three next-evidence branches, unbounded prose + panel-value, no-connector `v69-chart-note`, connector-prefix once on bar label and note, UTC period (R86), time axis spans the row |
+| M3 small units | 71a828a7 | `unitValue` renders `{n} <small>unit</small>` |
+| L1 / ruling 4 | 4e22e59f | `selected_provenance_on` removed; pending provenance asserted for Energy and Health |
+| L2 known_at omitted | 4e22e59f | `ev_depth._wrap` |
+| L3 Health sort key | 4e22e59f | homogeneous string key; `test_health_sort_key_tolerates_a_missing_or_datetime_start` |
+| L4 test strength | 4e22e59f | exact CURRENT, new `test_historical_cutoff_before_late_release`, gap-neighbor AVAILABLE spans, Energy/Health pending + historical + selected provenance |
+| L5 / ruling 5 | none | four manual probes above are kept; the unmodified guard reruns in the batch |
+| L6 one foundation read | 4e22e59f | `ev_site_reads._foundation(ctx)` caches per context |
+| L7 regular-weight first column | 71a828a7 | `th.ev-bridge-rowhead` |
+| L8 / ruling 6 | 22e85dfa, 4e5f4ddf | six panel-contract rows replaced; `unresolved_panels: []` forced by the ledger validator |
+| Ruling 7 builder interpretations | 4e22e59f | new pure tests `test_null_connector_id_binds_by_scoped_asset`, `test_unusable_transition_ends_the_previous_observation`; connector-level meter test already existed |
+
+Checks run in the code part (DB-free): `tsc --noEmit` clean; vitest `evDepth.test.tsx` + `evEnergy.test.tsx` 21 passed; backend pure tests of the two W5-03a files 18 passed / 11 DB tests skipped; `check_v69_ledger.py` valid; `check_v69_dependency_registry.cjs` exit 0. Open points: `.agent/W5-03a-fix-questions.md`.
+
+### Fix-round rulings applied (2026-10-23)
+Main 44a1739e merged. Ruling 1 (telemetry-only next evidence) confirmed and now tested. Ruling 2: Availability chart notes (`{H} h`), bound prose (`Lower bound: {a} / {s} hours. Upper bound: ({a} + {u} unknown) / {s}.`) and next-evidence (`missing {H} hour` for exactly 1, else `hours`) use `hoursText` from exact seconds; `evDepth.test.tsx` updated plus singular and telemetry-only assertions. Ruling 3 confirmed; ruling 4 verified in the batch. Batch still held.
+
+### Batch results (code head before this commit: 77d5b22a + one test edit)
+- Focused Postgres, `-n 4`, shared test DB: `test_w503_ev_availability_postgres`, `test_w503_ev_depth_postgres`, `test_w207_ev_site_reads_postgres`, `test_w206_ev_reads_postgres`, `test_w207_ev_money_postgres`: 84 passed, 1 failed in 1010 s. The failure was my new `test_energy_peak_is_one_selected_peak` asserting state CURRENT after the cloned rows (they enqueue a recompute job, so the state is PENDING_RECOMPUTE; the clone insert itself worked and the ids were selected). Removed that state assertion; peak tests rerun: 3 passed (55.9 s). Ruling 4: triggers admit the clones.
+- Full vitest `--minWorkers=1 --maxWorkers=2`: 118 files, 2748 passed. `vite build` ok. `tsc` clean. `check-all.ps1`: all 11 guards passed.
+- Recaptures at 1440 and 390 for all 11 states (22 pairs) in `.agent/W5-03a-evidence/` (`evidence.json`, revision 77d5b22a): read_ok, no overflow, panel titles equal to the mock, 0 ellipsized, no cap exceeded on any pair.
+- Cleanup: `assetops_w503cap_test` dropped; my API, Vite and Chrome processes stopped; throwaway seed test and logs deleted. Run-owned test DBs are dropped by the suite.
+
+### Re-review fix (RR-M1, RR-M2, Low)
+- RR-M1: `.v69-metric__value small { font-size: 12px; font-weight: 400; letter-spacing: 0; }` in `primitives.css`; Energy complete, missing-meter, pending and historical recaptured at 1440 and 390 (all read_ok, no overflow, titles equal, no cap exceeded).
+- RR-M2: `test_energy_peak_is_one_selected_peak` calls `run_worker(built)` before `select_exact` and asserts CURRENT again; `add_import` docstring says each call queues a recompute job.
+- Low: `MOCK DEVIATION (D4) R87` comment at `answerTone`.
+- Checks: focused Postgres (5 files, `-n 4`) 85 passed, JUnit 0 skipped/0 failures, 684 s; vitest (estateEvidence, coldHealthDepth, evEnergy, evDepth) 57 passed; tsc clean; vite build ok; check-all 11/11. Cleanup: private capture DB dropped; my API stopped by recorded PID and Vite by listener PID.

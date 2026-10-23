@@ -76,6 +76,9 @@ function Invoke-ShellOverflowCheck {
     # renders that region, and its module is the only other place an svg may be drawn.
     $coldDepthScrollClass = ".cold-depth-graphic__scroll"
     $coldDepthModule = "frontend/src/sites/coldDepthGraphics.tsx"
+    # W5-03a E3: the EV Energy import chart is the sole owner of its svg, inside its own region.
+    $evDepthScrollClass = ".ev-depth-graphic__scroll"
+    $evDepthModule = "frontend/src/sites/evDepthGraphics.tsx"
 
     # V-01a round 2: fixed-size icons are the sixth, and the only svg allowed
     # without a region. A rail or component-type icon is drawn at a fixed
@@ -342,11 +345,29 @@ function Invoke-ShellOverflowCheck {
     $chartRegionSeen = $false
     $chartSvgSeen = $false
     $timelineRegionSeen = $false
+    # 1g. W5-03a E3: the EV depth graphic region contains the inline axis as well.
+    $evDepthContainsInlineAxis = $false
+    foreach ($block in $blocks) {
+        if ($block.Selector -ne $evDepthScrollClass) { continue }
+        if ($block.Declarations -match '(?m)^\s*overflow(-x)?\s*:\s*(auto|scroll)\s*;') {
+            $evDepthContainsInlineAxis = $true
+        }
+    }
+
+    if (-not $evDepthContainsInlineAxis) {
+        $failures.Add(("$evDepthScrollClass in $primitivesCss does not declare " +
+            "'overflow-x: auto' or 'overflow-x: scroll'. Without the region " +
+            "that owns it, the EV depth graphic has nothing between it and " +
+            "the document.")) | Out-Null
+    }
+
     $timelineSvgSeen = $false
     $graphicsRegionSeen = $false
     $graphicsSvgSeen = $false
     $coldDepthRegionSeen = $false
     $coldDepthSvgSeen = $false
+    $evDepthRegionSeen = $false
+    $evDepthSvgSeen = $false
 
     foreach ($module in (Get-ScannedModules -Root "frontend/src" -Extensions @(".ts", ".tsx"))) {
         $lineNumber = 0
@@ -367,6 +388,9 @@ function Invoke-ShellOverflowCheck {
             }
             if ($line -match ('["`]' + [regex]::Escape($coldDepthScrollClass.TrimStart(".")) + '[ "`]')) {
                 if ($module.Path -eq $coldDepthModule) { $coldDepthRegionSeen = $true }
+            }
+            if ($line -match ('["`]' + [regex]::Escape($evDepthScrollClass.TrimStart(".")) + '[ "`]')) {
+                if ($module.Path -eq $evDepthModule) { $evDepthRegionSeen = $true }
             }
 
             # A comment naming the element is not an element. AppHeader's own
@@ -401,6 +425,10 @@ function Invoke-ShellOverflowCheck {
                 $coldDepthSvgSeen = $true
                 continue
             }
+            if ($module.Path -eq $evDepthModule) {
+                $evDepthSvgSeen = $true
+                continue
+            }
             if ($iconModules.ContainsKey($module.Path)) {
                 $iconSvgSeen[$module.Path] = $true
                 if (($module.Lines -join "`n") -notmatch [regex]::Escape($iconModules[$module.Path])) {
@@ -416,7 +444,8 @@ function Invoke-ShellOverflowCheck {
                 "configured diagram renders through $diagramModule, the Lab's " +
                 "history charts through $chartModule and the Overview timeline " +
                 "through $timelineModule, the assessment graphics through " +
-                "$graphicsModule and the cold depth graphic through $coldDepthModule, each of which " +
+                "$graphicsModule, the cold depth graphic through $coldDepthModule and the EV depth " +
+                "graphic through $evDepthModule, each of which " +
                 "supplies the region that owns its overflow. A drawing " +
                 "anywhere else has nothing between it and the document.")) | Out-Null
         }
@@ -482,6 +511,17 @@ function Invoke-ShellOverflowCheck {
 
     if (-not $coldDepthRegionSeen) {
         $failures.Add(("$coldDepthModule does not render $coldDepthScrollClass, " +
+            "so the graphic it draws has no region that owns its overflow.")) | Out-Null
+    }
+
+    if (-not $evDepthSvgSeen) {
+        $failures.Add(("$evDepthModule renders no svg element, so its " +
+            "exemption from the one-diagram-pattern check is vacuous. Update " +
+            "the check, do not delete it.")) | Out-Null
+    }
+
+    if (-not $evDepthRegionSeen) {
+        $failures.Add(("$evDepthModule does not render $evDepthScrollClass, " +
             "so the graphic it draws has no region that owns its overflow.")) | Out-Null
     }
 

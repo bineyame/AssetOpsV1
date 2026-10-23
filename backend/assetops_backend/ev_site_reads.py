@@ -203,6 +203,71 @@ def service_windows(foundation: dict[str, Any] | None, assets: dict[str, str], l
                                                                            key=lambda x: (x[0], sorted(x[1])))]
 
 
+def connector_service_windows(foundation: dict[str, Any] | None, assets: dict[str, str], lo: datetime | None,
+                              hi: datetime | None) -> list[dict[str, Any]]:
+    """W5-03a E1a: one row per enabled connector component with a scoped asset, sorted by component ID:
+    `{component_id, asset_id, schedule, windows}`. `schedule` is `WEEKLY` (a declared non-empty weekly list),
+    `EMPTY` (a declared `weekly: []`) or `NONE` (no declaration, or a malformed, duplicated or self-overlapping one,
+    which is rejected rather than turned into invented hours). `windows` are that connector's own occurrences
+    clipped to `[lo,hi)`, sorted and unioned (`[]` unless `WEEKLY`). Configuration only, never observed state."""
+    if foundation is None:
+        return []
+    enabled = enabled_connectors(foundation)
+    declared: dict[str, list[Any]] = {}
+    for schedule in foundation["content"].get("connector_enable_schedules") or ():
+        declared.setdefault(str(schedule.get("connector_asset_id")), []).append(schedule.get("weekly"))
+    out = []
+    for cid in sorted(enabled):
+        asset = assets.get(cid)
+        if asset is None:
+            continue
+        found = declared.get(cid) or []
+        kind, windows = "NONE", []
+        if len(found) == 1 and isinstance(found[0], list):
+            weekly = found[0]
+            if not weekly:
+                kind = "EMPTY"
+            else:
+                spans = _occurrences(weekly, lo, hi)
+                if spans is not None:
+                    kind, windows = "WEEKLY", spans
+        out.append({"component_id": cid, "asset_id": asset, "schedule": kind, "windows": windows})
+    return out
+
+
+def _occurrences(weekly: list[Any], lo: datetime | None, hi: datetime | None) -> list[tuple[datetime, datetime]] | None:
+    """The clipped `[lo,hi)` occurrences of one connector's weekly list, or None when any entry is malformed or two
+    occurrences overlap (an ambiguous declaration)."""
+    if lo is None or hi is None:
+        return None
+    raw: list[tuple[datetime, datetime]] = []
+    for w in weekly:
+        if not isinstance(w, dict) or w.get("weekday") not in WEEKDAYS:
+            return None
+        try:
+            h1, m1 = (int(x) for x in str(w["local_start"]).split(":"))
+            h2, m2 = (int(x) for x in str(w["local_end"]).split(":"))
+            offset = timedelta(minutes=int(w["utc_offset_minutes"]))
+        except (KeyError, ValueError, TypeError):
+            return None
+        if not (0 <= h1 <= 24 and 0 <= h2 <= 24 and 0 <= m1 < 60 and 0 <= m2 < 60):
+            return None
+        length = timedelta(hours=h2, minutes=m2) - timedelta(hours=h1, minutes=m1)
+        if length <= timedelta(0):
+            return None
+        first = (lo + offset).date() - timedelta(days=8)
+        day = first + timedelta(days=(WEEKDAYS.index(w["weekday"]) - first.weekday()) % 7)
+        while day <= (hi + offset).date() + timedelta(days=1):
+            base = datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc) - offset
+            start = base + timedelta(hours=h1, minutes=m1)
+            raw.append((start, start + length))
+            day += timedelta(days=7)
+    raw.sort()
+    if any(b[0] < a[1] for a, b in zip(raw, raw[1:])):
+        return None
+    return _union((max(a, lo), min(b, hi)) for a, b in raw if a < hi and b > lo)
+
+
 def _utc_words(at: datetime) -> str:
     return at.strftime("%Y-%m-%d %H:%M")
 
@@ -413,6 +478,12 @@ class EvSiteReads:
                       if r["role"] == role and r["use"] != "EXCLUDED"
                       and r["interval_start"] is not None and r["interval_end"] is not None)
 
+    def _foundation(self, ctx: dict[str, Any]) -> Any:
+        """The effective Foundation on this snapshot, read once per context (one REPEATABLE READ snapshot)."""
+        if "foundation" not in ctx:
+            ctx["foundation"] = self._reads.foundation_on(ctx["c"], ctx["snap"])
+        return ctx["foundation"]
+
     def _site_import(self, ctx: dict[str, Any]) -> tuple[list[tuple[datetime, datetime]], Decimal | None]:
         lo, hi = ctx["snap"]["lo"], ctx["snap"]["hi"]
         peak = None
@@ -527,34 +598,10 @@ class EvSiteReads:
             sessions = self._sessions(ctx)
             as_of = self._as_of(ctx)
             no_assessment = status["limitation"] if snap["selected"] is None else None
-            foundation = self._reads.foundation_on(c, snap)
+            foundation = self._foundation(ctx)
             limit_kw, feed_as_of = self._import_limit(foundation)
             common, windows, declared = objective_windows(foundation, self._assets(c, ctx), snap["lo"], snap["hi"])
-            # energy (W2-06 selected session heads; contradictory support is null, no report is null)
-            if not sessions:
-                energy = {"supported_kwh": None, "complete_kwh": None, "partial_kwh": None, "unknown_seconds": None,
-                          "as_of": as_of, "limitation": no_assessment or "No supported session energy."}
-            else:
-                contradictory = any(x["state"] == "CONTRADICTORY" for x in sessions)
-                complete = [_dec(x["supported_kwh"]) for x in sessions if x["energy_complete"] is True]
-                partial = [_dec(x["supported_kwh"]) or Decimal("0.000") for x in sessions
-                           if x["energy_complete"] is False]
-                supported = [_dec(x["supported_kwh"]) for x in sessions if x["supported_kwh"] is not None]
-                energy = {
-                    "supported_kwh": None if contradictory or not supported else plain(sum(supported, Decimal(0))),
-                    "complete_kwh": plain(sum(complete, Decimal(0))) if complete else None,
-                    "partial_kwh": plain(sum(partial, Decimal("0.000"))),
-                    "unknown_seconds": sum(x["unknown_meter_seconds"] or 0 for x in sessions),
-                    "as_of": as_of, "limitation": "Accepted EV records conflict." if contradictory else None}
-            imports, peak = self._site_import(ctx)
-            import_s = bool(imports)
-            site_power = {
-                "observed_peak_kw": plain(peak), "configured_limit_kw": limit_kw,
-                "coverage": self._claim_coverage(ctx, "SITE_POWER_CONTEXT", {}),
-                "claim_limit": "CONTEXT_ONLY" if import_s else "UNKNOWN",
-                "as_of": plain(snap["known"]) if import_s else as_of,
-                "limitation": None if import_s else (no_assessment
-                                                     or "No accepted Site import intervals cover this window.")}
+            energy, site_power = self.energy_on(ctx)
             findings = self._reads.findings_on(c, snap)
             money = self._consequence(ctx)
             summary = ({"state": None, "reason": None, "quantity_kwh": None, "amount": None, "currency": None,
@@ -586,6 +633,50 @@ class EvSiteReads:
                     "needs_attention": self._attention(ctx, sessions, findings, money, links),
                     "consequence_summary": summary, "links": links}
         return self._reads.within(work)
+
+    def context_on(self, c, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
+        """W5-03a E1b: the one shared snapshot and money selector on the caller's connection `c` (`_ctx`)."""
+        return self._ctx(c, t, s, code, lo, hi, known_at)
+
+    def consequence_on(self, ctx: dict[str, Any]) -> dict[str, Any] | None:
+        """W5-03a E1b: the W2-07 consequence (`_consequence`) of the shared money selector, unchanged."""
+        return self._consequence(ctx)
+
+    def energy_on(self, ctx: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+        """W5-03a E1b: the W2-07 overview `energy` and `site_power` dicts, extracted unchanged so `overview` and
+        the EV depth read share one computation on one snapshot."""
+        c, snap = ctx["c"], ctx["snap"]
+        status, _ = self._reads.status_on(snap)
+        sessions = self._sessions(ctx)
+        as_of = self._as_of(ctx)
+        no_assessment = status["limitation"] if snap["selected"] is None else None
+        limit_kw, _ = self._import_limit(self._foundation(ctx))
+        # energy (W2-06 selected session heads; contradictory support is null, no report is null)
+        if not sessions:
+            energy = {"supported_kwh": None, "complete_kwh": None, "partial_kwh": None, "unknown_seconds": None,
+                      "as_of": as_of, "limitation": no_assessment or "No supported session energy."}
+        else:
+            contradictory = any(x["state"] == "CONTRADICTORY" for x in sessions)
+            complete = [_dec(x["supported_kwh"]) for x in sessions if x["energy_complete"] is True]
+            partial = [_dec(x["supported_kwh"]) or Decimal("0.000") for x in sessions
+                       if x["energy_complete"] is False]
+            supported = [_dec(x["supported_kwh"]) for x in sessions if x["supported_kwh"] is not None]
+            energy = {
+                "supported_kwh": None if contradictory or not supported else plain(sum(supported, Decimal(0))),
+                "complete_kwh": plain(sum(complete, Decimal(0))) if complete else None,
+                "partial_kwh": plain(sum(partial, Decimal("0.000"))),
+                "unknown_seconds": sum(x["unknown_meter_seconds"] or 0 for x in sessions),
+                "as_of": as_of, "limitation": "Accepted EV records conflict." if contradictory else None}
+        imports, peak = self._site_import(ctx)
+        import_s = bool(imports)
+        site_power = {
+            "observed_peak_kw": plain(peak), "configured_limit_kw": limit_kw,
+            "coverage": self._claim_coverage(ctx, "SITE_POWER_CONTEXT", {}),
+            "claim_limit": "CONTEXT_ONLY" if import_s else "UNKNOWN",
+            "as_of": plain(snap["known"]) if import_s else as_of,
+            "limitation": None if import_s else (no_assessment
+                                                 or "No accepted Site import intervals cover this window.")}
+        return energy, site_power
 
     @staticmethod
     def _import_limit(foundation: dict[str, Any] | None) -> tuple[str | None, str | None]:

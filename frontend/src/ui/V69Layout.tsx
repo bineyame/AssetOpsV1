@@ -291,6 +291,10 @@ export const SITE_SCREEN_DESCRIPTIONS = {
   cooling: "Performance · recovery under comparable conditions",
   // W2-06: the EV Sessions screen's mock subtitle (no illustrative values in it).
   sessions: "Performance · charging sessions and delivered service",
+  // W5-03a E2: the EV Availability depth page (the v6.9 subtitle).
+  availability: "Performance · connector availability and unknown time",
+  // W5-03a E3: the EV Energy depth page (the v6.9 subtitle).
+  energy: "Performance · charging energy and site-power context",
   // W4-02 Q20: the mini-depth Performance pages.
   renewable: "Assess measured solar headroom and its limits.",
   service: "See delivered power and where requested service remains unknown.",
