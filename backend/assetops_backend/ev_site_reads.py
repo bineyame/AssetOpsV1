@@ -478,6 +478,12 @@ class EvSiteReads:
                       if r["role"] == role and r["use"] != "EXCLUDED"
                       and r["interval_start"] is not None and r["interval_end"] is not None)
 
+    def _foundation(self, ctx: dict[str, Any]) -> Any:
+        """The effective Foundation on this snapshot, read once per context (one REPEATABLE READ snapshot)."""
+        if "foundation" not in ctx:
+            ctx["foundation"] = self._reads.foundation_on(ctx["c"], ctx["snap"])
+        return ctx["foundation"]
+
     def _site_import(self, ctx: dict[str, Any]) -> tuple[list[tuple[datetime, datetime]], Decimal | None]:
         lo, hi = ctx["snap"]["lo"], ctx["snap"]["hi"]
         peak = None
@@ -592,7 +598,7 @@ class EvSiteReads:
             sessions = self._sessions(ctx)
             as_of = self._as_of(ctx)
             no_assessment = status["limitation"] if snap["selected"] is None else None
-            foundation = self._reads.foundation_on(c, snap)
+            foundation = self._foundation(ctx)
             limit_kw, feed_as_of = self._import_limit(foundation)
             common, windows, declared = objective_windows(foundation, self._assets(c, ctx), snap["lo"], snap["hi"])
             energy, site_power = self.energy_on(ctx)
@@ -644,7 +650,7 @@ class EvSiteReads:
         sessions = self._sessions(ctx)
         as_of = self._as_of(ctx)
         no_assessment = status["limitation"] if snap["selected"] is None else None
-        limit_kw, _ = self._import_limit(self._reads.foundation_on(c, snap))
+        limit_kw, _ = self._import_limit(self._foundation(ctx))
         # energy (W2-06 selected session heads; contradictory support is null, no report is null)
         if not sessions:
             energy = {"supported_kwh": None, "complete_kwh": None, "partial_kwh": None, "unknown_seconds": None,

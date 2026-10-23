@@ -113,3 +113,30 @@ def declared_empty(built: Chain) -> str:
              "note": "W5-03a E1a test-scoped Foundation with empty weekly schedules"})
     select_exact(built, LO, HI)
     return str(new_id).lower()
+
+
+def add_import(built: Chain, value: str, *, quality: str | None = None, unit: str | None = None) -> str:
+    """W5-03a fix (ruling 2): a persisted accepted `ev_site_import` row cloned from the first replayed import row with
+    a new identity, the given stored value and optionally a different quality or normalized unit, plus its ACCEPTED
+    disposition at the original clock. Inserted after `select_exact` it is accepted but outside the selected evidence
+    set; inserted before a fresh `select_exact` it is selected. Returns the new evidence ID (lowercase)."""
+    new_id = uuid4()
+    with built.engine.begin() as c:
+        old = c.execute(text("SELECT id, batch_id FROM accepted_evidence WHERE site_id = :s AND role = 'ev_site_import' "
+                             "ORDER BY source_time, id LIMIT 1"), {"s": built.site_id}).one()
+        c.execute(text("CREATE TEMP TABLE _w503a_e ON COMMIT DROP AS SELECT * FROM accepted_evidence WHERE id = :i"),
+                  {"i": old.id})
+        c.execute(text("CREATE TEMP TABLE _w503a_d ON COMMIT DROP AS SELECT * FROM ingestion_disposition "
+                       "WHERE accepted_evidence_id = :i AND decision = 'ACCEPTED'"), {"i": old.id})
+        ordinal = c.execute(text("SELECT max(ordinal) + 1 FROM ingestion_disposition WHERE batch_id = :b"),
+                            {"b": old.batch_id}).scalar_one()
+        message = f"w503a-import-{new_id}"
+        c.execute(text("UPDATE _w503a_e SET id = :n, ordinal = :o, message_id = :m, sequence = sequence + 1000000, "
+                       "normalized_value_text = :v, original_value_text = :v, "
+                       "quality = COALESCE(:q, quality), normalized_unit = COALESCE(:u, normalized_unit)"),
+                  {"n": new_id, "o": ordinal, "m": message, "v": value, "q": quality, "u": unit})
+        c.execute(text("UPDATE _w503a_d SET ordinal = :o, message_id = :m, accepted_evidence_id = :n"),
+                  {"o": ordinal, "m": message, "n": new_id})
+        c.execute(text("INSERT INTO accepted_evidence SELECT * FROM _w503a_e"))
+        c.execute(text("INSERT INTO ingestion_disposition SELECT * FROM _w503a_d"))
+    return str(new_id).lower()

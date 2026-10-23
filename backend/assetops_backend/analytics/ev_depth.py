@@ -57,7 +57,9 @@ class EvDepthReadService:
             if accepted is None:
                 accepted = self._reads.accepted_on(c, snap)
             samples = import_samples(accepted, snap)
-            peak, limit = site_power["observed_peak_kw"], site_power["configured_limit_kw"]
+            # One selected peak (ruling 2): the card, chart, peak time and below-limit answer all come from `samples`.
+            # The W2 overview keeps its broader `_site_import` peak for compatibility; it is not a depth source.
+            peak, limit = observed_peak(samples), site_power["configured_limit_kw"]
             return _wrap(snap, body, code, "energy", {
                 "metered_complete_kwh": energy["complete_kwh"],
                 "partial_kwh": energy["partial_kwh"],
@@ -129,12 +131,23 @@ def import_samples(accepted: list[dict[str, Any]], snap: dict[str, Any]) -> list
     return sorted(out, key=lambda x: (x["source_time"], x["evidence_id"]))
 
 
-def peak_sample_at(samples: list[dict[str, Any]]) -> str | None:
-    """The maximum sample's `source_time`; ties go to the earliest `(source_time, evidence_id)`."""
+def _peak_sample(samples: list[dict[str, Any]]) -> dict[str, Any] | None:
     best = None
     for x in samples:  # already in (source_time, evidence_id) order, so a strict `>` keeps the earliest tie
         if best is None or Decimal(x["import_kw"]) > Decimal(best["import_kw"]):
             best = x
+    return best
+
+
+def observed_peak(samples: list[dict[str, Any]]) -> str | None:
+    """The selected samples' maximum `import_kw` (stored value verbatim); null when there are none."""
+    best = _peak_sample(samples)
+    return None if best is None else best["import_kw"]
+
+
+def peak_sample_at(samples: list[dict[str, Any]]) -> str | None:
+    """The maximum sample's `source_time`; ties go to the earliest `(source_time, evidence_id)`."""
+    best = _peak_sample(samples)
     return None if best is None else best["source_time"]
 
 
@@ -178,7 +191,7 @@ def health(revision: dict[str, Any] | None, assets: dict[str, str], sessions: li
                     key=lambda x: x["component_id"]):
         faulted = sorted((y for y in sessions if y.get("connector_asset_id") == assets[x["component_id"]]
                           and y.get("fault_evidence_id") is not None),
-                         key=lambda y: (y.get("start_at") or "", y["session_id"]))
+                         key=lambda y: (plain(y["start_at"]) if y.get("start_at") is not None else "", str(y["session_id"])))
         if faulted:
             rows.append(row("CONNECTOR", x, CONNECTOR_FAULT, faulted[0]["session_id"],
                             sorted({y["fault_evidence_id"] for y in faulted})))
@@ -199,8 +212,11 @@ def _wrap(snap: dict[str, Any], body: dict[str, Any], code: str, key: str, paylo
     if provenance is None:
         provenance = dual_blocks(None, None)["source_provenance"]
     window = body["window"]
-    query = "" if snap["lo"] is None else (f"?from={window['from']}&to={window['to']}"
-                                           f"&known_at={window['known_at']}")
+    query = ""
+    if snap["lo"] is not None:
+        query = f"?from={window['from']}&to={window['to']}"
+        if window["known_at"] is not None:  # no resolved watermark: omit the parameter (W2 precedent)
+            query += f"&known_at={window['known_at']}"
     base = f"/api/sites/{quote(code, safe='')}/ev"
     return {
         "schema_version": SCHEMA_VERSION,

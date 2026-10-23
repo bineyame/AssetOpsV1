@@ -3051,16 +3051,6 @@ class EvReadService:
         return None if row is None else {"id": _ev_plain(row[0]), "content": _ev_json(row[1]) or {},
                                          "valid_from": row[2], "valid_to": row[3]}
 
-    def selected_provenance_on(self, c: Connection, snap: dict[str, Any], ids) -> dict[str, Any]:
-        """W5-03a pre-flight: the public source-provenance DTO of depth-specific selected citations (status/import
-        IDs). Only IDs inside the selected head's cited set are kept, deduplicated and lowercased, then resolved by
-        `PublicProvenance.cited_set`; empty, broken or foreign is UNKNOWN and crossed classes MIXED."""
-        sel = snap["selected"]
-        allowed = set() if sel is None else set(sel["evidence_ids"])
-        cited = sorted({str(x).lower() for x in ids} & allowed)
-        revisions = [] if sel is None else [str(sel["revision_id"]).lower()]
-        return self._public(c).cited_set(snap["t"], snap["s"], cited, revisions)
-
     def assets_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, str]:
         """asset_code -> lowercase asset UUID for the Site (the Foundation component IDs' scoped assets)."""
         return {code: _ev_plain(i) for i, code in c.execute(text(

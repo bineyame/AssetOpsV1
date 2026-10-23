@@ -127,6 +127,25 @@ def test_same_time_conflict_and_duplicate() -> None:
         "00000000-0000-4000-8000-000000000001", "00000000-0000-4000-8000-000000000002"]
 
 
+def test_null_connector_id_binds_by_scoped_asset() -> None:
+    # A row with no connector_id binds through its scoped asset to the enabled Foundation connector (and only that one).
+    body = _calc([_row(1, 0, "UNPLUGGED", asset=A1, connector=None)])
+    c1, c2 = body["connectors"]
+    assert c1["known_available_seconds"] == 60 and c2["known_available_seconds"] == 0
+
+
+def test_unusable_transition_ends_the_previous_observation() -> None:
+    # The mismatched (unusable) row at 08:00:30 still ends the 08:00 observation's hold: only 30 s is known, the rest
+    # is Unknown until the later valid transition at 08:05.
+    rows = [_row(1, 0, "UNPLUGGED"), _row(2, 0.5, "UNPLUGGED", connector="c2"), _row(3, 5, "UNPLUGGED")]
+    c1 = _calc(rows)["connectors"][0]
+    assert c1["known_available_seconds"] == 30 + 60
+    assert [(s["from"][11:19], s["to"][11:19], s["state"]) for s in c1["spans"]] == [
+        ("08:00:00", "08:00:30", "AVAILABLE"), ("08:00:30", "08:05:00", "UNKNOWN"), ("08:05:00", "08:06:00", "AVAILABLE"),
+        ("08:06:00", "09:00:00", "UNKNOWN")]
+    _conserved(_calc(rows))
+
+
 def test_untrustworthy_rows_never_classify() -> None:
     bad = [_row(1, 0, "UNPLUGGED", quality="SUSPECT"), _row(2, 2, "UNPLUGGED", use="EXCLUDED"),
            _row(3, 4, "UNPLUGGED", reason="CLOCK_UNATTESTED"), _row(4, 6, "UNPLUGGED", connector="c2"),
@@ -241,7 +260,18 @@ def test_observed_complete_and_historical(chain) -> None:  # noqa: F811
     assert all(s["evidence_ids"] == [] for r in body["connectors"] for s in r["spans"] if s["state"] == "UNKNOWN")
     _conserved(body)
     old_snap, old, _ = _read(built, datetime.fromisoformat(HISTORICAL_KNOWN_AT.replace("Z", "+00:00")))
-    assert old_snap["state"] in ("CURRENT", "HISTORICAL") and old == body
+    # The saved first watermark equals the current one here, so nothing newer exists: still CURRENT, same body.
+    assert old_snap["state"] == "CURRENT" and old == body
+
+
+@needs_db
+def test_historical_cutoff_before_late_release(chain) -> None:  # noqa: F811
+    built = pending(chain)
+    snap, body, _ = _read(built)
+    old_snap, old, accepted = _read(built, datetime.fromisoformat(HISTORICAL_KNOWN_AT.replace("Z", "+00:00")))
+    assert snap["state"] == "PENDING_RECOMPUTE" and old_snap["state"] == "HISTORICAL"
+    assert _classified(old) <= _state_ids(accepted, old_snap)
+    _conserved(old)
 
 
 @needs_db
@@ -273,10 +303,15 @@ def test_status_gap_and_empty_schedule(chain) -> None:  # noqa: F811
     gap = [s for s in c1["spans"] if s["state"] == "UNKNOWN"
            and s["from"] <= "2026-10-06T08:40:00.000000Z" and s["to"] >= "2026-10-06T08:45:00.000000Z"]
     assert gap, c1["spans"]
-    # The omitted reports sit inside UNPLUGGED time: exactly that five-minute span turns Unknown between two
-    # available spans.
-    assert {"from": "2026-10-06T08:40:00.000000Z", "to": "2026-10-06T08:45:00.000000Z", "state": "UNKNOWN",
-            "evidence_ids": []} in c1["spans"], c1["spans"]
+    # The omitted reports leave exactly that five-minute span Unknown, with an AVAILABLE span adjacent on each side.
+    unknown = {"from": "2026-10-06T08:40:00.000000Z", "to": "2026-10-06T08:45:00.000000Z", "state": "UNKNOWN",
+               "evidence_ids": []}
+    assert unknown in c1["spans"], c1["spans"]
+    at = c1["spans"].index(unknown)
+    assert 0 < at < len(c1["spans"]) - 1, c1["spans"]
+    before, after = c1["spans"][at - 1], c1["spans"][at + 1]
+    assert before["state"] == "AVAILABLE" and before["to"] == unknown["from"], before
+    assert after["state"] == "AVAILABLE" and after["from"] == unknown["to"], after
     c1_states = [r for r in accepted if r["role"] == "ev_connector_state" and r["asset_id"] == c1["asset_id"]]
     assert not [r for r in c1_states if LO + timedelta(minutes=40) <= r["source_time"] < LO + timedelta(minutes=45)]
     assert _classified(body) <= _state_ids(accepted, snap) and c1["known_available_seconds"] > 0

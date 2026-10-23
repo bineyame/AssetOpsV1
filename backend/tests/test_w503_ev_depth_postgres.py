@@ -18,11 +18,12 @@ from assetops_backend.analytics.ev_depth import (
     ENERGY_KEYS,
     health,
     import_samples,
+    observed_peak,
     peak_below_limit,
     peak_sample_at,
 )
 from assetops_backend.ev_depth_api import build_ev_depth_router
-from ev_depth_cases import HI, HISTORICAL_KNOWN_AT, LO, QUERY, URL, chain, pending, settled  # noqa: F401
+from ev_depth_cases import HI, HISTORICAL_KNOWN_AT, LO, QUERY, URL, add_import, chain, pending, settled  # noqa: F401
 
 needs_db = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -60,6 +61,11 @@ def test_import_samples_peak_and_limit() -> None:
         {"source_time": "2026-10-06T08:15:00.000000Z", "import_kw": "60", "evidence_id": rows[1]["evidence_id"]},
         {"source_time": "2026-10-06T08:15:00.000000Z", "import_kw": "60", "evidence_id": rows[0]["evidence_id"]}]
     assert peak_sample_at(samples) == "2026-10-06T08:15:00.000000Z" and peak_sample_at([]) is None
+    # One selected peak (ruling 2): the stored value of the maximum selected sample, null when there are none; an equal
+    # maximum keeps the earliest `(source_time, evidence_id)`.
+    assert observed_peak(samples) == "60" and observed_peak([]) is None
+    tie = [{"source_time": "t1", "import_kw": "60.0", "evidence_id": "a"}, {"source_time": "t2", "import_kw": "60", "evidence_id": "b"}]
+    assert observed_peak(tie) == "60.0" and peak_sample_at(tie) == "t1"
     assert import_samples(rows, {"selected": None, "lo": LO, "hi": HI}) == []
     assert [peak_below_limit(*x) for x in (("60", "80"), ("80", "80"), ("81", "80"), (None, "80"), ("1", None))] \
         == ["YES", "NO", "NO", "UNKNOWN", "UNKNOWN"]
@@ -118,6 +124,15 @@ def test_health_rows_battery_and_meter_role() -> None:
     assert [r["kind"] for r in health(_foundation(False), ASSETS, [], [])["rows"]][2:] == ["UNKNOWN", "UNKNOWN"]
     assert health(None, ASSETS, sessions, ["i-1"]) == {"foundation_revision_id": None, "rows": [],
                                                        "battery": body["battery"]}
+
+
+def test_health_sort_key_tolerates_a_missing_or_datetime_start() -> None:
+    # L3: one faulted session without start_at and another with a datetime never raise TypeError; the missing start
+    # sorts first, then by session ID.
+    sessions = [{"session_id": "s-b", "connector_asset_id": "a-c2", "fault_evidence_id": "e-b", "start_at": LO},
+                {"session_id": "s-a", "connector_asset_id": "a-c2", "fault_evidence_id": "e-a", "start_at": None}]
+    row = health(_foundation(), ASSETS, sessions, [])["rows"][1]
+    assert row["asset_code"] == "c2" and row["session_id"] == "s-a" and row["evidence_ids"] == ["e-a", "e-b"]
 
 
 class _FakeReads:
@@ -272,7 +287,8 @@ def test_energy_baseline_rows(chain) -> None:  # noqa: F811
     assert energy["metered_complete_kwh"] == overview["energy"]["complete_kwh"] == "30.000"
     assert energy["partial_kwh"] == overview["energy"]["partial_kwh"]
     assert energy["unknown_seconds"] == overview["energy"]["unknown_seconds"] == 0
-    assert energy["observed_peak_import_kw"] == overview["site_power"]["observed_peak_kw"]
+    # The overview keeps its broader `_site_import` peak; here nothing differs, so the two agree on this fixture.
+    assert float(energy["observed_peak_import_kw"]) == float(overview["site_power"]["observed_peak_kw"])
     assert energy["configured_import_limit_kw"] == overview["site_power"]["configured_limit_kw"]
     money = energy["consequence"]
     assert money is None or money["state"] in ("ESTIMATED", "UNPRICED", "WITHHELD")
@@ -296,6 +312,76 @@ def test_partial_energy_and_pending_selection(chain) -> None:  # noqa: F811
     assert read["selection"]["source_provenance"] != body["pending_source_provenance"]
     old = _get(_client(late), "availability", f"{QUERY}&known_at={HISTORICAL_KNOWN_AT}")
     assert old["selection"]["state"] == "HISTORICAL"
+    # L4: every route keeps the selected provenance block while pending and answers the exact pending/historical state.
+    for route in ("energy", "health"):
+        now = _get(_client(late), route)
+        assert now["selection"]["state"] == "PENDING_RECOMPUTE"
+        assert now["selection"]["source_provenance"] == body["selected_source_provenance"]
+        assert now["selection"]["source_provenance"] != body["pending_source_provenance"]
+        before = _get(_client(late), route, f"{QUERY}&known_at={HISTORICAL_KNOWN_AT}")
+        assert before["selection"]["state"] == "HISTORICAL"
+        assert before["selection"]["source_provenance"] == body["selected_source_provenance"]
+
+
+def _peak_view(energy: dict) -> tuple:
+    return (energy["observed_peak_import_kw"], energy["peak_sample_at"], energy["peak_below_limit"],
+            energy["import_sample_count"], energy["import_samples"])
+
+
+def _overview_peak(built) -> float:
+    from assetops_backend.financials.composition import build_ev_site_read_service
+
+    return float(build_ev_site_read_service(URL).overview(built.tenant_id, built.site_id, CODE, LO, HI,
+                                                          None)["site_power"]["observed_peak_kw"])
+
+
+@needs_db
+def test_energy_peak_is_one_selected_peak(chain) -> None:  # noqa: F811
+    """Ruling 2: card, chart, peak time and below-limit all come from the selected `import_samples`; a selected row
+    failing GOOD/`INTERVAL_MEAN`/`kW` and an accepted row outside the selected set never move them, while the broader
+    W2 overview peak may differ."""
+    built = settled(chain, "complete")
+    c = _client(built)
+    base = _get(c, "energy")
+    baseline = _peak_view(base["energy"])
+    assert baseline[0] is not None and baseline[2] == "YES" and baseline[3] == len(baseline[4]) > 0
+    peak_kw = float(baseline[0])
+    from test_w206_ev_store_postgres import select_exact
+
+    # A selected row that fails the sample predicate (SUSPECT quality; a non-kW unit) is not a sample.
+    bad = [add_import(built, "500", quality="SUSPECT"), add_import(built, "600", unit="W")]
+    select_exact(built, LO, HI)
+    reselected = _get(c, "energy")
+    assert set(bad) <= set(reselected["selection"]["accepted_evidence_ids"])
+    assert reselected["selection"]["state"] == "CURRENT"
+    assert _peak_view(reselected["energy"]) == baseline
+    assert not set(bad) & {x["evidence_id"] for x in reselected["energy"]["import_samples"]}
+    assert _overview_peak(built) == 600.0 != peak_kw
+    # A higher accepted row outside the selected evidence set is also ignored.
+    high = add_import(built, "999")
+    after = _get(c, "energy")
+    assert high not in after["selection"]["accepted_evidence_ids"]
+    assert _peak_view(after["energy"]) == baseline
+    assert _overview_peak(built) == 999.0
+    built.close()
+
+
+@needs_db
+def test_energy_peak_ignores_unselected_row_while_pending(chain) -> None:  # noqa: F811
+    built = pending(chain)
+    c = _client(built)
+    base = _get(c, "energy")
+    assert base["selection"]["state"] == "PENDING_RECOMPUTE"
+    high = add_import(built, "999")
+    after = _get(c, "energy")
+    assert after["selection"]["state"] == "PENDING_RECOMPUTE"
+    assert high not in after["selection"]["accepted_evidence_ids"]
+    assert _peak_view(after["energy"]) == _peak_view(base["energy"])
+    assert _overview_peak(built) == 999.0
+    # The selected result carries its own pending state and selected provenance block.
+    _, body, _, _ = _snapshot(built)
+    assert after["selection"]["source_provenance"] == body["selected_source_provenance"]
+    built.close()
 
 
 @needs_db
