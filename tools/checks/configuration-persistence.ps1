@@ -828,6 +828,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $coldScenarioTables = @('cold_scenario', 'cold_scenario_revision')
     $coldScenarioInsertsSeen = @{}
     foreach ($table in $coldScenarioTables) { $coldScenarioInsertsSeen[$table] = 0 }
+    # W5-03b E5 (migration 0034): the authored EV scenario store is the sole runtime writer of the two 0034 tables,
+    # INSERT-only (no UPDATE, DELETE, upsert, TRUNCATE, MERGE, COPY or DDL), and it writes no other table. Each table
+    # keeps at least one owner INSERT in the store (anti-vacuity below).
+    $evScenarioWriter = "$backendRoot/ev_scenarios/store.py"
+    $evScenarioTables = @('ev_scenario', 'ev_scenario_revision')
+    $evScenarioInsertsSeen = @{}
+    foreach ($table in $evScenarioTables) { $evScenarioInsertsSeen[$table] = 0 }
     # W5-02a K1a (build spec rule 8 K1a, pre-flight ruling A5; migration 0033): the domain-intent store is the sole
     # runtime writer of the three cold domain Action tables, INSERT-only (0033 triggers refuse UPDATE/DELETE; no
     # upsert, TRUNCATE, MERGE, COPY or DDL), and it writes no other table. Each table keeps at least one owner INSERT
@@ -844,7 +851,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
-        $domainIntentWriter)
+        $evScenarioWriter, $domainIntentWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -898,11 +905,12 @@ function Invoke-ConfigurationPersistenceCheck {
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
-        $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $domainIntentWriter = 0 }
+        $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
+        $domainIntentWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
-        $domainIntentWriter = $false }
+        $evScenarioWriter = $false; $domainIntentWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -962,6 +970,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $coldScenarioWriter -and $line -match $actionForbidden) {
                 $failures.Add("The cold scenario store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $evScenarioWriter -and $line -match $actionForbidden) {
+                $failures.Add("The EV scenario store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($module.Path -eq $domainIntentWriter -and $line -match $actionForbidden) {
@@ -1136,6 +1148,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $coldScenarioInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $evScenarioWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $evScenarioTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The EV scenario store only inserts into $($evScenarioTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $evScenarioTables -contains $target) {
+                    if ($module.Path -ne $evScenarioWriter) {
+                        $failures.Add(("Only $evScenarioWriter writes EV scenario table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("EV scenario table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $evScenarioInsertsSeen[$target]++
                     }
                 }
                 if ($module.Path -eq $domainIntentWriter -and -not (
@@ -1385,6 +1413,12 @@ function Invoke-ConfigurationPersistenceCheck {
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
+    foreach ($table in $evScenarioTables) {
+        if ($extractorRan -and $evScenarioInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $evScenarioWriter, so the EV scenario insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
     foreach ($table in $domainIntentTables) {
         if ($extractorRan -and $domainIntentInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $domainIntentWriter, so the domain Action insert-only " +
@@ -1569,6 +1603,13 @@ function Invoke-ConfigurationPersistenceCheck {
             "cold-scenario $table owner insert unseen")
     }
     $workProbeNames += @('cold-scenario truncate')
+    # W5-03b E5: the EV scenario writer policy fails closed the same way.
+    foreach ($table in $evScenarioTables) {
+        $workProbeNames += @("controls ev-scenario $table insert", "ev-scenario $table foreign insert",
+            "ev-scenario $table update", "ev-scenario $table delete", "ev-scenario $table upsert",
+            "ev-scenario $table owner insert unseen")
+    }
+    $workProbeNames += @('ev-scenario truncate')
     # W5-02a ruling A5: the domain-intent writer policy fails closed on its four named probes.
     $workProbeNames += @('domain_action_insert_from_foreign_writer', 'domain_action_intent_insert_from_foreign_writer',
         'domain_action_case_link_insert_from_foreign_writer', 'domain_action_update_in_owned_writer')

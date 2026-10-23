@@ -40,3 +40,22 @@ The public methods W5-04 will call are `EvReadService.scenario_basis_on(c,t,s,co
 10. **List payload.** The DTO has no `total_pages`, following the E5 DTO literally. The API imports `_instant` and `_Refused` from `ev_assessment_api` to reuse the gate's exact time and refusal behaviour.
 
 No question file was written: nothing contradicted merged code. The items above are spec-reading calls, each isolated to a single place in the code.
+
+## Fix round (branch task/W5-03b-e5-fix, rulings in .agent/W5-03b-e5-rulings.md)
+
+Commit 7034cae7 holds code and tests (one commit). Unchanged: `main.py`, the migration 0034, the rule-8 guards and the writer probes (no schema or guard change, so no probe rerun is needed).
+
+| Finding / ruling | Change |
+| --- | --- |
+| A1 current money head | No code change: `service._basis` already calls `scenario_money_on(c, snap)` with no cutoff. Covered by the baseline test (priced IDs equal the W2-07 head and cited tariff) and by the stale and fault cases (both IDs null, scenario accepted). |
+| A2 limit | No code change (422 `EV_LIMIT_INVALID`, "'limit' must be 1 to 100."). Test: exact body for limit=0 and the 51-root default page. |
+| A3 correction identity | No code change (404 DECISION_NOT_FOUND, 422 DECISION_LINK_SCOPE_INVALID, 422 EV_SCENARIO_INVALID for a malformed predecessor shape). Exact messages asserted in `test_command_refusals_and_replay`. |
+| A4 index/order | No code change. Index already pinned in `test_schema_constraints`; new `test_equal_recorded_at_pagination_order`. |
+| A5 currency | `EvSiteReads.scenario_money_on` now also returns `currency` (never persisted). `EvScenarioService._authorable(basis, cmd)` refuses a different authored currency when a tariff revision is selected (422 EV_SCENARIO_INVALID, the ruled message). Test: `test_currency_must_match_priced_tariff` (KES+USD refused with [0,0], KES ok, correction refused, unpriced+USD ok with null IDs). |
+| A6 foreign meter | `foreign_meter_evidence` in `scenario_basis_on` is also true for a meter ID absent from the head's `evidence_ids`. Tests (e) and (f) in `test_baseline_foundation_and_foreign_meter_refusals`; positive test asserts accepted, head and provenance membership. |
+| M1 / ruling 7 | `foundation_revision_id` is now null when the head cites no Foundation IDs (fallback no longer validates). `test_baseline_foundation_and_foreign_meter_refusals` cases (a)-(d), each 422 and [0,0]; correction path too. |
+| L1 malformed 503 | `test_malformed_stored_basis_and_root_window_are_503` (missing cutoff, to, from; restored after delete). |
+| L2 default page | `test_default_page_is_fifty` (51 roots, 50 then 1; page two keeps clocks, window, selection). |
+| L3 race | `test_write_race_retries_once_then_503` (one race 201, same-key race 200, correction race, two races 503; counts checked). |
+
+Verification (batch run, private DB assetops_w503e5fix_test, dropped afterwards): E5 file + 0034 head-pin files + test_w503_ev_depth + test_w207_ev_site_reads, `-n 4 --dist loadfile`: 259 tests, 258 passed, 1 failed in 1126 s. The failure was a test bug in `test_write_race_retries_once_then_503` (asserted the root insert ran once; the racing writer's own insert also counts, so 2). Corrected without weakening anything; the E5 file rerun alone: 15 passed in 469 s. A stray duplicate of the new tests was also removed from the file. `tools/check-architecture.ps1` passes (with ASSETOPS_GUARD_PYTHON set). Writer probes not rerun: no guard or schema change.
