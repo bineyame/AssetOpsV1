@@ -848,12 +848,43 @@ describe("W2-04: link mapping and retro correction 17", () => {
     expect(coldUiHref(null, routes)).toBeNull();
   });
 
-  it("the cold Performance context row reads exactly 'Loading / batch' with 'Not established'", async () => {
-    renderCold(`/sites/COLD-001/performance/temperature${Q}`, STOCKED);
-    await settledScreen();
-    const row = document.querySelector('[data-key-value="loading"]')!;
+  // W5-F1 F1-2 (R37): the v69 #/temperature Excursion context rows, in mock order, with the honest Loading / batch gap.
+  const contextLabels = () =>
+    Array.from(panelTitled("Excursion context").querySelectorAll("[data-key-value] dt")).map((dt) => dt.textContent);
+  const expectMockContextOrder = () => {
+    const labels = contextLabels();
+    expect(labels).toHaveLength(7);
+    expect(labels[0]).toBe("Excursion window");
+    expect(labels[1]).toMatch(/^(Upper|Lower) policy limit$/);
+    expect(labels.slice(2)).toEqual(["Peak observed", "Power outage", "Door opening", "Loading / batch", "Defrost"]);
+    expect(labels.filter((l) => l === "Loading / batch")).toHaveLength(1);
+    expect(labels.indexOf("Loading / batch")).toBe(labels.indexOf("Door opening") + 1);
+    expect(labels.indexOf("Defrost")).toBe(labels.indexOf("Loading / batch") + 1);
+    const row = panelTitled("Excursion context").querySelector('[data-key-value="loading"]')!;
     expect(row.querySelector("dt")?.textContent).toBe("Loading / batch");
     expect(row.querySelector("dd")?.textContent).toBe("Not established");
+    expect(panelTitled("Excursion context").textContent).not.toContain("Matched");
+  };
+
+  it("the cold Performance context row reads exactly 'Loading / batch' with 'Not established', between Door opening and Defrost", async () => {
+    renderCold(`/sites/COLD-001/performance/temperature${Q}`, STOCKED);
+    await settledScreen();
+    expectMockContextOrder();
+    expect(panelTitled("Claim boundary").textContent).toMatch(/No spoilage|do not support a temperature conclusion/);
+  });
+
+  it("empty/unknown window: the same seven context rows in mock order", async () => {
+    renderCold(`/sites/COLD-001/performance/temperature${Q}`, EMPTY);
+    await settledScreen();
+    expectMockContextOrder();
+  });
+
+  it("refused: the Excursion context keeps its gap and fabricates no context rows", async () => {
+    renderCold(`/sites/COLD-001/performance/temperature${Q}`, all(FORBIDDEN));
+    await settledScreen();
+    expect(panelTitled("Excursion context").querySelector("[data-panel-gap]")).not.toBeNull();
+    expect(contextLabels()).toEqual([]);
+    expect(document.querySelector('[data-key-value="loading"]')).toBeNull();
   });
 });
 
