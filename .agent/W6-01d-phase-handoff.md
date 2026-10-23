@@ -174,3 +174,12 @@ Base `d798029e`. Commits `f756d86e` (Lane A), `f7122095` (Lane B), `09536c95` (B
 - Guard proofs: removing `accept` fails the typed missing-CREATED test; re-adding `"History"` to `$expectedTabs` fails navigation-truthfulness. Both were reverted.
 - Captures: 11 states at 1440/390 plus the mock pair. Collapsed History panel max 467/490 (cap 600/690); pager 29; disclosures 16; the 390 table is 750 px and scrolls within 318 px; document width equals the viewport. Historical `11:59:04Z`: revision 1, COMPLETED, 4 rows, against current revision 2, IN_PROGRESS, 6 rows. The DBs `assetops_w601_c4{,linked,stress}_test` and `assetops_w601d_c4f_test` were dropped. Vite was stopped by PID 17732. uvicorn and Chrome were stopped by the driver.
 - Open for Architect: there is no register row for the two gap rows. ACTIVE_CONTEXT, CODE_STATE and task status were left for closeout, because they are not on the card.
+
+## Run review fixes M1 + H1 (2026-10-23, builder)
+
+Commits `12c73637` (M1 code and test), `c75f6cad` (M1 recapture), `ea8d02aa` (merge main with the H1 ruling), `e951f7fd` (H1 comment).
+
+- M1: `WorkRequestTabs` uses `useCurrentTabInView` (`<nav ref={rowRef}>`). A new test in `workRequestHistory.test.tsx` uses jsdom layout stubs to prove the row scrolls the current History tab into view. Replacing the hook with an inert ref makes the test fail; I reverted that change.
+- I recaptured state `page1-m1` at 1440/390 from a fresh `detail` seed (`assetops_w601_c4m1_test`, dropped) and added it to manifest.json. At 390 the tab row shows `Maintenance record | Verification · Not available yet | History`, with History current and visible. Panel heights are unchanged at 465/488. Vite was stopped by PID 24888.
+- H1: the exact line-666 comment (R41 D1, R42 D4) sits beside the R19/R39 header comments. Display is unchanged.
+- Tests: History+Overview+Record 56 passed; tsc 0; check-all 11/11 PASS.
