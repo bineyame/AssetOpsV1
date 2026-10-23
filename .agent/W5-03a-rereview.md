@@ -140,3 +140,6 @@ shell) are outside this slice and I did not review them.
   addition and were not part of this round, but they read heavier than the mock's small card note. Worth a look in the
   W1-end UI pass.
 - **Priced path and FAULTED state.** Still capture-unproven, as the first review noted.
+
+## Coordinator verification of re-review closure (2026-10-23)
+RR-M1 (`.v69-metric__value small` 12px/400), RR-M2 (run_worker before select_exact; CURRENT asserted), Low (R87 label) verified in 0df7c366 diff. Focused Postgres 85 passed; targeted vitest 57; build, tsc, check-all 11/11. Verdict: ACCEPT. Full backend suite 3965 passed on 03a20a7e; the fix rounds touch no shared plumbing (tiered testing: scoped regression).
