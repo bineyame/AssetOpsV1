@@ -2401,3 +2401,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W5-02a core Lows
 - The optional `NO_PROBE_NOTE` assertion for UNKNOWN (direct proof) is not added.
 - Readiness item 29 is closed on merge 14d0fb70.
+
+## W5-03a Lows
+- Energy partial/unknown coverage lines (D2 R49, class `prose`) render at body size; check in the post-W6 structural audit.
+- Manual rule-5 non-vacuity proofs accepted (ruling 5); kept in the handoff, not as committed fixtures.
