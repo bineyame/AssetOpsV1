@@ -4,20 +4,20 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 17 |
-| D2 improvement | 13 |
+| D1 data or feature unavailable | 22 |
+| D2 improvement | 15 |
 | D3 structural oversight | 6 |
-| D4 illustrative placeholder | 20 |
-| D5 build order | 4 |
+| D4 illustrative placeholder | 21 |
+| D5 build order | 5 |
 | D6 technical constraint | 0 |
-| **Total** | **60** |
+| **Total** | **69** |
 
 ## D1 — data or feature unavailable
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R01 | W5-02 K3a M2 | `cold-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists; W4 command is service-only. | Future global Work create flow | planned |
-| R02 | W5-02 K3b M4 | `cold-work` | Actions strip says same as global list and offers Manage | Cold-only scope text; global gap | D1 | W3 global Actions excludes cold roots. | Future cross-domain global Actions union | planned |
+| R01 | W5-02 K2a M2 | `cold-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists; W4 command is service-only. | Future global Work create flow | planned |
+| R02 | W5-02 K2a M4 | `cold-work` | Actions strip says same as global list and offers Manage | Cold-only scope text; global gap | D1 | W3 global Actions excludes cold roots. | Future cross-domain global Actions union | planned |
 | R03 | W5-04 V3a E1 | `ev-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists. | Future global Work create flow | planned |
 | R04 | W5-04 V3b E4 | `ev-work` | Actions strip says same as global list and offers Manage | EV-only scope text; global gap | D1 | W3 global Actions excludes EV roots. | Future cross-domain global Actions union | planned |
 | R05 | W5-01 C2 | `cold-cooling` | Recovery temperature curves | Chart frame and selected categorical marks; no curve | D1 | Selected records have no accepted numeric recovery series. | Future selected recovery-series producer | planned |
@@ -100,3 +100,22 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 ## D6 — technical constraint
 
 No unresolved D6 ruling was found. The W5 C2/E3 chart substitutions originally attributed to the SVG allowlist were withdrawn: the feasible correction is to register a graphics module and restore the mock chart form. The W6 source disclosure and Time precision are classified as D2 choices, not platform necessities.
+
+
+## W5-02 Site-screen additions (2026-10-23)
+
+These rows use the register columns above and are included in its category counts.
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R65 | W5-02 K2a/K3a/K4a | `cold-work`, `cold-work-incidents`, `cold-action` | Mock Finding codes F-118/F-119 | `Finding {id8}` in the same source/status cells | D1 | No public cold Finding code exists on the selected wire. | Future public Finding code; W5-02 preserves selected UUID | planned |
+| R66 | W5-02 K2a/K3a/K4a | `cold-work`, `cold-work-incidents`, `cold-action` | Linked Finding and Open source Finding | Plain selected label, revision disclosure and unavailable exact-revision control | D1 | Cold Finding frame ignores `revision_id`; following current URL may show another revision. | Future exact-revision cold Finding API/client/frame | planned |
+| R67 | W5-02 K2a | `cold-work` | `Due dates are not yet set in this example` | Selected-data phrase Due dates are not yet set | D4 | Example qualifier is not true for arbitrary Sites. | W5-02 K2a | planned |
+| R68 | W5-02 K3a/K4a | `cold-work-maintenance`, `cold-action` | WR and Inspect target `workverification` | Selected W6 request Overview in same slots | D1 | W6 Verification destination is unavailable; Overview is mounted. | Future W6 request Verification destination | planned |
+| R69 | W5-02 K2a to K4a | `cold-action` | Actions active in operator rail | Sites active on interim placeholder | D5 | K4a owns guarded rail override after W6-01e. | W5-02 K4a rail override and tests | planned; resolve in K4a review |
+| R70 | W5-02 K3a | `cold-work-maintenance` | Activity Completed chip only | Same chip plus stored activity in in-cell disclosure | D2 | Exposes attested text without changing column/order. | W5-02 K3a; owner walkthrough | planned |
+| R71 | W5-02 K3a | `cold-work-maintenance` | Outcome Unverified badge only | Same badge plus selected outcome note in in-cell disclosure | D2 | Qualifies unverified state in the mock cell. | W5-02 K3a; owner walkthrough | planned |
+| R72 | W5-02 K3a | `cold-work-maintenance` | Next evidence witnessed automatic-start test | Selected next-evidence copy or `No next evidence recorded` | D1 | No selected instruction proves the mock witness test. | Future authored next-evidence producer | planned |
+| R73 | W5-02 K3a | `cold-work-incidents` | INC code opens Incident detail | Plain INC code in same Case cell | D1 | No Incident detail route is mounted. | Future W6 Incident detail route | planned |
+
+- Register IDs: the W5-02b R56-R64 were renumbered R65-R73 because they collided with the W5-03b IDs (coordinator, 2026-10-23).
