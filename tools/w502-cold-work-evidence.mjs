@@ -387,13 +387,14 @@ const MEASURE_CASE = `(() => {
   };
 })()`;
 
-function capCase(W, label, m, wi, heightCaps = true) {
+function capCase(W, label, m, wi, heightCaps = true, panelCap = null) {
   const c = CASE_CAPS;
+  const pc = panelCap ?? c.panel[wi];
   claim(`${W} ${label}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
   if (heightCaps) claim(`${W} ${label}: page main <= ${c.main[wi]}`, m.main !== null && m.main <= c.main[wi], { main: m.main, docHeight: m.docHeight });
   else console.log(`INFO  ${W} ${label}: page main ${m.main} vs ${CASE_INFO_PAGE[wi]} (K3 ruling 18: information only, no page-height cap)`);
   claim(`${W} ${label}: strip <= ${c.strip[wi]}`, m.strip !== null && m.strip <= c.strip[wi], m.strip);
-  if (heightCaps) claim(`${W} ${label}: panel <= ${c.panel[wi]}`, m.panel !== null && m.panel <= c.panel[wi], { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
+  if (heightCaps) claim(`${W} ${label}: panel <= ${pc}`, m.panel !== null && m.panel <= pc, { panel: m.panel, tableScrollWidth: m.scrollerScrollWidth, tableClientWidth: m.scrollerClientWidth });
   else console.log(`INFO  ${W} ${label}: panel height ${m.panel} (K3 ruling 18: no panel-height cap; recorded)`);
   claim(`${W} ${label}: context notice <= ${c.notice[wi]} and is the domain notice`, m.contextNotice !== null && m.contextNotice <= c.notice[wi] && m.contextNoticeText === "Opening a record moves you to its own area; the breadcrumb keeps this site.", { height: m.contextNotice, text: m.contextNoticeText });
   if (m.currentnessNotice !== null) claim(`${W} ${label}: currentness notice <= ${c.notice[wi]}`, m.currentnessNotice <= c.notice[wi], m.currentnessNotice);
@@ -507,7 +508,10 @@ async function casesMain() {
         await sleep(300);
       });
       claim(`${W} ${s("worstcase-one-open")}: one Read full text open`, m.openDetails === 1, { open: m.openDetails, of: m.allDetails });
-      capCase(W, s("worstcase-one-open"), m, wi); caseRowClaims(W, s("worstcase-one-open"), m, 5);
+      // K3 ruling 25 (FINAL): only cold-work-incidents at 390, five rows with one `Read full text` open, has a 680 px
+      // panel cap (measured 664); every other cap, including its 1800 page main, is unchanged.
+      capCase(W, s("worstcase-one-open"), m, wi, true, kind === "incidents" && W === "narrow" ? 680 : null);
+      caseRowClaims(W, s("worstcase-one-open"), m, 5);
       m = await record(W, wi, s("worstcase-all-open"), caseUrl("worstcase", kind, wq), CASE_READY, MEASURE_CASE, async () => {
         await js(OPEN_READ_FULL);
         await sleep(300);

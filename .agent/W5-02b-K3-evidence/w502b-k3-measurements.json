@@ -14477,13 +14477,14 @@
       "detail": 84
     },
     {
-      "name": "narrow incidents-worstcase-one-open: panel <= 650",
-      "ok": false,
+      "name": "narrow incidents-worstcase-one-open: panel <= 680",
+      "ok": true,
       "detail": {
         "panel": 664,
         "tableScrollWidth": 720,
         "tableClientWidth": 324
-      }
+      },
+      "reevaluated": "K3 ruling 25"
     },
     {
       "name": "narrow incidents-worstcase-one-open: context notice <= 160 and is the domain notice",
@@ -17243,5 +17244,9 @@
       ]
     }
   ],
-  "failed": 1
+  "failed": 0,
+  "reevaluation": {
+    "ruling": "K3 ruling 25",
+    "note": "stored measurements re-evaluated, no browser recapture; only the 390 cold-work-incidents five-row one-open panel cap changed 650 -> 680"
+  }
 }

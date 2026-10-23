@@ -87,9 +87,13 @@ Claims cover no document overflow, the caps, per-cell containment, a preview of 
 - **Cleanup:** Vite (7 PIDs), the APIs and DBs (tool `drop`) and keep-awake were stopped by PID. Ports are free and no `*k3*` databases remain.
 - **Focused w502 Postgres:** skipped, as the coordinator directed; those tests do not import the producer.
 
-## Open (for the Architect)
+## Ruling 25 (2026-10-24)
 
-1. **The one FAIL:** at 390, Incidents `worstcase-one-open` measures a 664 px panel against the 650 cap from ruling 17. The page main is 1270 of 1800. Nothing is clipped; see the evidence README.
+Main is merged. Ruling 25 closes the one FAIL: the `cold-work-incidents` 390 five-row one-open panel cap is now 680 px. `capCase` takes a per-call `panelCap`, and only that call passes 680, with ruling 25 cited in a comment.
+
+There was no browser recapture. The stored measurements from `6cd7f733` were re-evaluated with a one-off node filter, giving 934 claims with 0 failing. The only changed claim is that cap, measured at 664 px. The evidence README records this.
+
+No open findings or questions remain for K3a/K3b.
 
 ## Shared plumbing
 

@@ -8,7 +8,7 @@ The images were produced by `W502B_EVIDENCE=cases node tools/w502-cold-work-evid
   - The new `current` reads from `from,to` alone return `CURRENT` on both tabs.
   - The fixture WR is `COMPLETED`: ASSIGN at D+16h41m and COMPLETE at D+16h42m, both before its case link (ruling 22). The worst-case WRs read COMPLETED + 4×OPEN.
   - The served W4 case reads return 403 `SITE_SCOPE_FORBIDDEN` and 503 `WORK_STORE_UNAVAILABLE`, with the Site read healthy.
-- **Claims:** 934 in total, **933 PASS and 1 FAIL**. There are 52 PNGs: 13 states × 2 tabs × 2 widths. The full record is in `w502b-k3-measurements.json`.
+- **Claims:** 934 in total. The run gave 933 PASS and 1 FAIL; after the ruling 25 re-evaluation below, **0 are failing**. There are 52 PNGs: 13 states × 2 tabs × 2 widths. The full record is in `w502b-k3-measurements.json`.
 
 ## States (each tab, at 1440 and 390)
 
@@ -33,17 +33,17 @@ Ruling 17 caps apply to every state except the two expanded ones: panel <= 650 a
 |---|---|---|---|---|
 | current | 212 / 595 | 247 / 793 | 212 / 595 | 201 / 747 |
 | worstcase | 486 / 930 | 599 / 1204 | 486 / 930 | 430 / 1036 |
-| worstcase-one-open | 539 / 983 | **664** / 1270 | 539 / 983 | 526 / 1132 |
+| worstcase-one-open | 539 / 983 | 664 / 1270 (cap 680, ruling 25) | 539 / 983 | 526 / 1132 |
 | worstcase-all-open (info vs page 1600/2000) | 700 / 1144 | 861 / 1467 | 1149 / 1593 | 1469 / 2075 |
 | worstcase-every-disclosure (info) | 1659 / 2103 | 1714 / 2319 | 2334 / 2778 | 2199 / 2804 |
 
-## The one FAIL (measured, not clipped; for the Architect)
+## Ruling 25 (FINAL): re-evaluation, no recapture
 
-**390 Incidents, `worstcase-one-open`: the panel measures 664 px against the 650 px cap (ruling 17), 14 px over.**
-- Ruling 21 removed the vertical Incidents box, so all five rows now show. The opened 160-code-point title adds about 65 px to a 599 px closed panel.
-- The page main is 1270, inside its 1800 cap.
-- Containment, the five rows and no overflow all pass.
-- Ruling 17 forbids clipping and row reduction, so this is reported unchanged.
+Ruling 25 raises only one cap: `cold-work-incidents` at 390, five rows with one `Read full text` open, goes from 650 to 680 px. That state measured 664 px; its page main is 1270 of 1800, all five rows are visible, and containment holds.
+
+`tools/w502-cold-work-evidence.mjs` passes 680 for that one state and cites ruling 25 in a comment. Every other cap is unchanged.
+
+There was no browser recapture. The stored `w502b-k3-measurements.json` was re-evaluated with a one-off node filter, because the tool has no replay mode. That filter renamed the one claim to `panel <= 680`, re-checked it against its stored panel value (664), and added a `reevaluation` note. The result is **934 claims, 0 failing**.
 
 ## Ruling gates confirmed in this run
 
