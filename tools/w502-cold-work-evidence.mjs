@@ -379,12 +379,14 @@ const MEASURE_CASE = `(() => {
       return { chars: c.textContent.length, lines: tops, reachable: b.scrollWidth >= c.scrollWidth && (getComputedStyle(b).overflowX === 'auto' || b.scrollWidth <= b.clientWidth + 1), cellFits: td.scrollWidth <= td.clientWidth + 1 }; }),
     cells: rows.flatMap((r) => [...r.querySelectorAll('td')]).map((td) => {
       const box = td.getBoundingClientRect();
-      const inside = (e) => { const b = e.getBoundingClientRect(); const sc = e.parentElement?.closest('.disclosure__body'); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1) || (sc != null && getComputedStyle(sc).overflowX === 'auto'); };
+      // W5-02c ruling 12: the scroll relaxation applies only inside a disclosure body whose direct child is the code.
+      const codeScroller = (x) => x != null && x.querySelector(':scope > code') !== null && getComputedStyle(x).overflowX === 'auto';
+      const inside = (e) => { const b = e.getBoundingClientRect(); const sc = e.parentElement?.closest('.disclosure__body'); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1) || codeScroller(sc); };
       const previews = [...td.querySelectorAll('[data-cold-work-preview]')];
       const bodies = [...td.querySelectorAll('details[open] .disclosure__body')];
       return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: [...td.querySelectorAll('*')].every(inside),
         previewLines: previews.map((c) => Math.round(c.getBoundingClientRect().height / lineBox(c))),
-        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1 || getComputedStyle(b).overflowX === 'auto'), openBodies: bodies.length };
+        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1 || codeScroller(b)), openBodies: bodies.length };
     }),
   };
 })()`;
