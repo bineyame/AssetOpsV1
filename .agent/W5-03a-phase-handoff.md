@@ -1,6 +1,6 @@
 # W5-03a phase handoff
 
-Branch `task/W5-03a-ev-selected-depth` (from main `43a75577`). No code written.
+Branch `task/W5-03a-ev-selected-depth` (from main `43a75577`, main merged at `ccf16c2f`). E1a, E1b, E2, E3 built; run entries below.
 
 ## Pre-flight
 
@@ -73,3 +73,42 @@ Dry-read of units E1a, E1b, E2 and E3 in `.agent/W5-03-build-spec.md` against ma
 ### Next
 
 Coordinator: send this batch to the Architect as one request. The builder starts E1a only after the rulings merge into consolidated cards.
+
+## Run — E1a (commits `8b632bc2`, `bdd56fbd`) — BUILT
+
+Built per E1a card + pre-flight E1a ruling: `analytics/ev_availability.py` (pure `availability(foundation, assets, accepted, lo, hi)`, `selected_rows` = lowercase intersection with `snap['selected']['evidence_ids']`, `selected_foundation` = the selected head's single `foundation_ids` revision covering `[lo,hi)`, never a fallback; `availability_on(reads, c, snap)`; `CALCULATION_VERSION`); `EvReadService.foundation_revision_on` (same predicate, `foundation_on` delegates) and `selected_provenance_on`; `ev_site_reads.connector_service_windows` (per connector, clipped/unioned, `WEEKLY`/`EMPTY`/`NONE`, malformed/duplicate/self-overlapping → `NONE`); `tests/ev_depth_cases.py` (wraps `Chain`; `settled`, `pending`, `status_gap`, `declared_empty`); `test_w503_ev_availability_postgres.py`.
+- Builder interpretations (for review): (1) state rows carry `connector_id=null` in every vector, so "require `connector_id` to match" is applied as W2 `_connector_mismatch`: null or equal to the component ID; a different value is unusable. (2) An unusable row inside the selected set is an UNKNOWN transition (it ends the prior observation) rather than ignored. (3) Clock check = UTC `source_time`/`sent_at`/`received_at` with receipt not before source or send. (4) Adjacent same-state spans are merged (evidence IDs unioned). (5) No selected head → `NOT_ESTABLISHED`, `connectors: []`.
+- Producer corrections found in the DB run: the worker's own job window is not `[08:00,09:00)`, so every producer adds `select_exact(built, LO, HI)` (the W2-06 test helper). The status gap cannot be cut at the file Stage (registered EV runs publish through the gateway schedule), so `status_gap` drops the five c1 state reports `[08:40,08:45)` (inside UNPLUGGED time, so exactly that span turns Unknown; commit `b7fbc5ed`) from `lab_execution.ev_reports` before the series is sealed and published.
+- Open (non-blocking): `selected_provenance_on` exists and is not wired into the DTO, because the closure-2 key tables have no field for a depth-specific provenance block; `selection.source_provenance` is the selected block. Architect to say whether a field is wanted.
+
+## Run — E1b (commit `292e444f`) — BUILT
+
+`analytics/ev_depth.py` (`EvDepthReadService`: availability/health on `reads.within` + one `open_on`; energy on `EvSiteReads.context_on`; `import_samples`, `peak_sample_at`, `peak_below_limit`, Health rows, `_wrap` envelope), `ev_depth_api.py` (three routes on `ev_gate`, `WINDOW_KEYS`), `ev_site_reads.py` (`context_on`, `consequence_on`, `energy_on` extracted from `overview` unchanged), `financials/composition.build_ev_depth_read_service`, `main.py` mount after the EV Site router, `test_w503_ev_depth_postgres.py`.
+- Interpretations: `selection.source_provenance` = `body['selected_source_provenance']`, else the literal empty UNKNOWN block; `SITE_METER` = a METER whose topology `METERING` node is fed directly by a `BUS` node; site-meter `evidence_ids` and `import_samples` are restricted to the selected cited set.
+
+## Run — E2 (commit `cb9001ff`) — BUILT
+
+`evDepthClient.ts` (three validated DTOs, shared copy, `durationText`, `depthStateNotice`), `EvAvailability.tsx`, `EvSessionsFrame` typed `view` + `subtabHref` + linked Performance crumb, `SiteAnalyticsFrames` branch, `App` `evDepth` prop, `evSiteRoutes.availability`, Overview `Availability` label link and Evidence `Review availability` link, `SITE_SCREEN_DESCRIPTIONS.availability`, `DataTable stickyFirstColumn`, bar CSS, settled LOADING regex, nav guard hold + fixtures, `evAssessmentRoutes.test.tsx` updates, `evDepth.test.tsx`.
+- Interpretations: `Connector {label}` chart note does not double the word when the Foundation label already starts with "Connector"; the Known-time note uses hours to two decimals (`1.17 / 1.42 known hours; coverage 94.44%`); the bar right text is the clipped occurrence in UTC (the DTO has no local offset).
+
+## Run — E3 page/chart (commit `2a1909bc`) and closeout (commits `c0f890bd`, `51f4a610`) — BUILT
+
+`EvEnergy.tsx`, `evDepthGraphics.tsx` (`EvDepthPowerChart`), rule-5 registration in `shell-overflow.ps1`, chart CSS, live Energy subtab, Sessions `Energy summary →` and Overview `Site power` links, `evSiteRoutes.energy`, `SITE_SCREEN_DESCRIPTIONS.energy`, nav guard hold + fixtures, `evEnergy.test.tsx`; registry: two nodes + six panels; ledger `availability`/`energy`: `registry_dependencies`, `coverage: partial`, `task: W5-03a`, `Real with honest gaps`.
+- Rule-5 non-vacuity (committed tree, each reverted with `git checkout --`): wrapper class removed → "does not render .ev-depth-graphic__scroll"; `<svg />` planted in `EvEnergy.tsx` → "An svg element outside the diagram and chart modules at frontend/src/sites/EvEnergy.tsx:166"; `overflow-x` removed from CSS → "does not declare 'overflow-x: auto'"; module svg removed → "renders no svg element". Baseline and after-revert: 0 failures.
+- Departures/notes for review: the import note is rendered beneath the figure as the ruling says (the mock places it as the panel sub-line; possible D3, ruling wins here); fallback card note `No time-valid site limit declared` and disclosure summary `Measure and value detail` are builder literals (no ruled text); `evDepth.test.tsx` (an E2 file) was edited in E3 because the live Energy tab changes its unavailable count.
+- Off-list edit: `frontend/docs/architecture/v69-panel-contracts.json` (six availability/energy rows `proposed_fidelity_tier` → `Real with honest gaps`) and the ledger `to_candidate: null` for both screens. `check_v69_ledger.py` requires both once the ruled `coverage: partial` / tier apply; without them check-all fails 1/11. Reviewer/Architect to confirm.
+
+## Run — W5-03a held DB batch (machine free, coordinator 2026-10-23) — PASSED
+
+- Postgres focused (private `assetops_w503a_test`): `test_w503_ev_availability_postgres.py` + `test_w503_ev_depth_postgres.py` 23 passed (~4 min) on `bdd56fbd`; `test_w503_ev_availability_postgres.py` 12 passed again on `b7fbc5ed` after the gap move.
+- Adjacent `-n 4` (w503 ×2, w207 site reads, w206 reads, w207 money, w301 EV selection, w302 financials links, w301 estate EV): **89 passed** in 748 s on `bdd56fbd` (covers the `overview`→`energy_on` extraction and `foundation_on` delegation).
+- Frontend: full vitest `--minWorkers=1 --maxWorkers=2`: **117 files, 2736 passed**; `tsc` clean; `npm run build` ok (chunk-size warning only).
+- `tools/check-all.ps1` on `51f4a610`: **All 11 guards passed**.
+- Captures (`.agent/W5-03a-evidence/`, `capture.mjs`, `evidence.json`, 12 app pairs + 4 mock PNGs) at `b7fbc5ed` code: shared method, private `assetops_w503cap_test` (`ASSETOPS_TEST_TEMPLATE=0`), throwaway seed test over `ev_depth_cases.py`, `lab_app` 9791, Vite 6191, headless Chrome CDP 9792. States: availability-observed/-status-gap/-declared-empty-schedule (CURRENT, wm 09:00), -pending (PENDING_RECOMPUTE, wm 09:05), -historical (`known_at` 09:00, HISTORICAL), -refused (422 EV_WINDOW_INVALID); energy-complete/-missing-meter (CURRENT), -pending, -historical, -refused. Every capture: read_ok, no horizontal overflow, panel titles equal to the mock, 0 ellipsized, no block over the caps. Worst blocks: availability 1440 states 296 / page 1047, 390 states 388 / page 1649; energy 1440 panels 391 / page 1211, 390 conclusion 356 / bridge 226 / page 1842; refusal 140.
+- Observed capture uses `complete` as ruled; it has no FAULTED state, so Known unavailable is 0 there (the `interrupted` DB test proves nonzero unavailable).
+- Cleanup: DBs `assetops_w503a_test`, `assetops_w503cap_test` dropped; my Vite, lab_app and keep-awake stopped by PID; throwaway seed test deleted.
+- Not run: the quiet-machine full real-Postgres backend suite (pre-flight: after E3 on the same revision) — left for the coordinator to schedule.
+
+## Next
+
+All four units are committed; W5-03a is ready for independent review (E1a, E1b, E2, E3). Open items for review/Architect: `selected_provenance_on` placement in the DTO; the panel-contracts/candidate-gate edit; the import note position (ruling vs mock sub-line); builder literals named above.
