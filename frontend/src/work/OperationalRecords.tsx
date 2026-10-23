@@ -85,10 +85,14 @@ export function operationalKindOf(values: string[]): GlobalOperationalKind | nul
   return (GLOBAL_OPERATIONAL_KINDS as readonly string[]).includes(values[0]) ? (values[0] as GlobalOperationalKind) : undefined;
 }
 
-/** P-E2-8: `{quantity} {unit}` for a manual reading, shown once as `Reading: ...`. */
-function readingLine(row: GlobalOperationalRow): string | null {
+/**
+ * P-E2-8 / KD3 ruling: `Reading: {quantity}[ {unit}]` for a manual reading with a quantity, only when the body does
+ * not already contain that formatted value (then the body shows it once and no reading line renders).
+ */
+export function readingLine(row: Pick<GlobalOperationalRow, "kind" | "quantity" | "unit" | "body">): string | null {
   if (row.kind !== "MANUAL_READING" || row.quantity === null) return null;
-  return `Reading: ${row.quantity}${row.unit === null ? "" : ` ${row.unit}`}`;
+  const value = `${row.quantity}${row.unit === null ? "" : ` ${row.unit}`}`;
+  return row.body.includes(value) ? null : `Reading: ${value}`;
 }
 
 function RecordRow({ row }: { row: GlobalOperationalRow }) {

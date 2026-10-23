@@ -13,7 +13,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { OPERATIONAL_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
-import { OperationalRecordsFrame, operationalKindOf } from "../OperationalRecords";
+import { OperationalRecordsFrame, operationalKindOf, readingLine } from "../OperationalRecords";
 import {
   createGlobalWorkClient,
   type GlobalOperationalBody,
@@ -296,7 +296,9 @@ describe("W6-01e E2: global Operational records", () => {
     expect(badge.className).toContain("w1f4-action-badge--blue");
     // the reading line, the request link
     expect(text(cell(trs[1], 1))).toBe("Manual reading");
-    expect(text(cell(trs[1], 5).querySelector("[data-global-work-reading]"))).toBe("Reading: 198 L");
+    // KD3 ruling: the body already says `198 L`, so it shows once and no reading line renders.
+    expect(text(cell(trs[1], 5).querySelector("[data-global-work-body]"))).toBe("Manual reading at KOBO-001: Fuel tank dip: 198 L");
+    expect(cell(trs[1], 5).querySelector("[data-global-work-reading]")).toBeNull();
     expect(text(cell(trs[1], 6))).toBe("WR-000002 →");
     expect(within(cell(trs[1], 6)).getByRole("link", { name: "WR-000002" })).toHaveAttribute(
       "href",
@@ -486,6 +488,15 @@ describe("W6-01e E2: global Operational records", () => {
     mount(PAGE, { async incidents() { throw new Error("unused"); } });
     await settled();
     expect(document.querySelector("[data-page-refusal='WORK_STORE_UNAVAILABLE']")).not.toBeNull();
+  });
+
+  it("KD3: the reading line appears only when the body lacks the formatted quantity and unit", () => {
+    const base = { kind: "MANUAL_READING" as const, quantity: "198", unit: "L" };
+    expect(readingLine({ ...base, body: "Fuel tank dip: 198 L" })).toBeNull();
+    expect(readingLine({ ...base, body: "Fuel tank dip taken" })).toBe("Reading: 198 L");
+    expect(readingLine({ ...base, unit: null, body: "Dip taken" })).toBe("Reading: 198");
+    expect(readingLine({ ...base, kind: "OPERATOR_LOG", body: "x" })).toBeNull();
+    expect(readingLine({ ...base, quantity: null, unit: null, body: "x" })).toBeNull();
   });
 
   it("maps page kinds: absent and all to all, stored kinds to themselves, the rest invalid", () => {
