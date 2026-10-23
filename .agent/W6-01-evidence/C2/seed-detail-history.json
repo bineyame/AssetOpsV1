@@ -2,66 +2,66 @@
   "clock": "2026-10-20T12:00:00Z",
   "commands": [
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "event": "ASSIGN",
-      "event_id": "d568b4c6-fa16-4644-b120-f9f6b08d719a",
+      "event_id": "1b176e07-883f-4803-85ec-ce6139ba1b81",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "event": "COMMENT",
-      "event_id": "52797985-3213-4175-bbf6-eb8754d99272",
+      "event_id": "ede31647-bc14-40d7-aeda-e18e0cab5cd7",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
-      "record_id": "95fdea0c-5445-41e4-9ea3-b25a6f3650e6",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
+      "record_id": "0c5c554f-6df6-4d9f-99a1-28ecf3954fc1",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "event": "COMPLETE",
-      "event_id": "9a8eaee4-6247-4f47-967f-5da22c27199f",
+      "event_id": "75a17f37-c07c-4f6b-91f3-29f93069129b",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "event": "REOPEN",
-      "event_id": "9cd39ac9-beab-4f7e-a5d4-5e6a6bd837da",
+      "event_id": "9a143e19-9945-466f-910e-cecacc602869",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "reason": "Inspection scope corrected",
-      "revision_id": "ee150959-111e-4874-94ce-6b6cc5f507dc",
+      "revision_id": "0f75b5ed-f381-4255-9acd-590ab85e9a99",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "case_id": "a42b18ff-3667-46cb-9a29-c6134ac94cc4",
+      "case_id": "bf1dc34b-7090-4359-8c50-95779c032a45",
       "event": "CANCEL",
-      "event_id": "151dac2c-9fb0-4c1e-a8a1-56680b02ba43",
+      "event_id": "8c8fde7b-feb2-4113-bd47-f5ba3eafe2c1",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "canonical_record_id": "c11c20f5-74be-454a-bcc4-4f52c977ba27",
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "canonical_record_id": "2a0369af-7cf1-4648-ad21-1560505afbc6",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "code": "REC-000003",
-      "operational_record_id": "c11c20f5-74be-454a-bcc4-4f52c977ba27",
+      "operational_record_id": "2a0369af-7cf1-4648-ad21-1560505afbc6",
       "recorded_at": "2026-10-20T11:59:09.000000Z",
       "site_code": "KOBO-001",
       "tenant": "demo"
     },
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "reason": "Witnessed start test added to the scope",
-      "revision_id": "1ae0dfc7-39c6-4cb8-a2f7-6bc68b83fd25",
+      "revision_id": "17997140-00f7-4127-9ea6-f1a219c06937",
       "site_code": "KOBO-001",
       "tenant": "demo"
     }
@@ -70,26 +70,26 @@
   "sites": [
     {
       "site_code": "KOBO-001",
-      "site_id": "03a28992-ca5c-4b4a-bf6c-2914dcba6ba5",
+      "site_id": "29ad72ba-1a53-4919-a4c5-34fba15b8906",
       "tenant": "demo",
-      "tenant_id": "b7314188-397a-489c-ae16-5dceee2a70ef"
+      "tenant_id": "f207079b-7060-44c1-99bf-9a643133cb8b"
     },
     {
       "site_code": "KOBO-002",
-      "site_id": "2418d204-e9cf-4d2f-a4ee-9fb8e4b153ff",
+      "site_id": "15e31ee8-95e7-409e-9df1-74d3cc9e66a5",
       "tenant": "demo",
-      "tenant_id": "b7314188-397a-489c-ae16-5dceee2a70ef"
+      "tenant_id": "f207079b-7060-44c1-99bf-9a643133cb8b"
     },
     {
       "site_code": "KOBO-001",
-      "site_id": "55412042-2c5e-48a3-9d96-4783fbde72f2",
+      "site_id": "b4b56e49-2eb3-4a83-b854-588d4ba15fa7",
       "tenant": "w601-other",
-      "tenant_id": "03218c77-85d6-49d1-b69b-8287fbedc66e"
+      "tenant_id": "432815dc-2666-45a7-a066-d01f91783565"
     }
   ],
   "written": [
     {
-      "case_id": "7899f664-1e40-4d1e-8f22-7629727ef34a",
+      "case_id": "1b6e7eea-5375-41f6-af51-88b5e066b0c6",
       "code": "WR-000001",
       "incident_id": null,
       "kind": "MAINTENANCE_REQUEST",
@@ -97,7 +97,7 @@
       "tenant": "demo"
     },
     {
-      "case_id": "a42b18ff-3667-46cb-9a29-c6134ac94cc4",
+      "case_id": "bf1dc34b-7090-4359-8c50-95779c032a45",
       "code": "WR-000002",
       "incident_id": null,
       "kind": "MAINTENANCE_REQUEST",

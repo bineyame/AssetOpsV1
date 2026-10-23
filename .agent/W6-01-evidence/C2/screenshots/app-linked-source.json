@@ -1,20 +1,20 @@
 {
   "state": "linked-source",
-  "captured_at": "2026-10-22T20:46:22.390Z",
+  "captured_at": "2026-10-23T03:53:02.606Z",
   "results": [
     {
       "state": "linked-source",
       "width": 1440,
-      "route": "/maintenance/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001",
+      "route": "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
       "image": "linked-source-1440.png",
       "ready": true,
       "api": [
         {
-          "url": "/api/work/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001",
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
           "status": 200
         },
         {
-          "url": "/api/work/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001",
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
           "status": 200
         }
       ],
@@ -45,7 +45,7 @@
           "w": 734
         },
         "lifecycle": {
-          "h": 135,
+          "h": 305,
           "w": 408
         },
         "request_header_with_tabs": {
@@ -80,17 +80,21 @@
         ],
         "tabs": [
           "Overview",
-          "Maintenance record · Not available yet",
+          "Maintenance record",
           "Verification · Not available yet",
           "History · Not available yet"
         ],
         "tab_links": [
           [
             "Overview",
-            "/maintenance/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001"
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a/record?site_id=KOBO-001"
           ]
         ],
-        "date_bar": "As known at 22 Oct 2026, 20:46 UTCReload",
+        "date_bar": "As known at 23 Oct 2026, 03:52 UTCReload",
         "refusal": null,
         "mheader": [
           [
@@ -107,7 +111,7 @@
           ],
           [
             "source",
-            "Incident INC-000004 · Finding 2d3bb330"
+            "Incident INC-000004 · Finding df825c8d"
           ],
           [
             "success",
@@ -120,8 +124,8 @@
             "/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z"
           ],
           [
-            "Finding 2d3bb330",
-            "/sites/KOBO-001/findings/2d3bb330-d7b4-401e-9852-0f098bed819b?revision_id=e1e6ce5a-3d86-453a-b8bc-d64833645b0d"
+            "Finding df825c8d",
+            "/sites/KOBO-001/findings/df825c8d-4ced-463b-95bc-c998af07b3d9?revision_id=5ea29b03-da1e-4dd2-98a4-8f014bfd605f"
           ]
         ],
         "narrative": "Inspection requested.",
@@ -142,7 +146,7 @@
           ],
           [
             "linked_action",
-            "Action 6e3f1a24"
+            "Action e1d6ce3c"
           ]
         ],
         "lifecycle_done": [
@@ -160,16 +164,16 @@
     {
       "state": "linked-source",
       "width": 390,
-      "route": "/maintenance/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001",
+      "route": "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
       "image": "linked-source-390.png",
       "ready": true,
       "api": [
         {
-          "url": "/api/work/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001",
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
           "status": 200
         },
         {
-          "url": "/api/work/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001",
+          "url": "/api/work/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001",
           "status": 200
         }
       ],
@@ -235,17 +239,21 @@
         ],
         "tabs": [
           "Overview",
-          "Maintenance record · Not available yet",
+          "Maintenance record",
           "Verification · Not available yet",
           "History · Not available yet"
         ],
         "tab_links": [
           [
             "Overview",
-            "/maintenance/requests/a10d1791-e961-4835-baa6-3856f141e17b?site_id=KOBO-001"
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/8c76dc17-5b7c-4079-a139-92ca872f3a1a/record?site_id=KOBO-001"
           ]
         ],
-        "date_bar": "As known at 22 Oct 2026, 20:46 UTCReload",
+        "date_bar": "As known at 23 Oct 2026, 03:53 UTCReload",
         "refusal": null,
         "mheader": [
           [
@@ -262,7 +270,7 @@
           ],
           [
             "source",
-            "Incident INC-000004 · Finding 2d3bb330"
+            "Incident INC-000004 · Finding df825c8d"
           ],
           [
             "success",
@@ -275,8 +283,8 @@
             "/sites/KOBO-001/work/incidents?from=2026-10-18T00%3A00%3A00Z&to=2026-10-19T00%3A00%3A00Z"
           ],
           [
-            "Finding 2d3bb330",
-            "/sites/KOBO-001/findings/2d3bb330-d7b4-401e-9852-0f098bed819b?revision_id=e1e6ce5a-3d86-453a-b8bc-d64833645b0d"
+            "Finding df825c8d",
+            "/sites/KOBO-001/findings/df825c8d-4ced-463b-95bc-c998af07b3d9?revision_id=5ea29b03-da1e-4dd2-98a4-8f014bfd605f"
           ]
         ],
         "narrative": "Inspection requested.",
@@ -297,7 +305,7 @@
           ],
           [
             "linked_action",
-            "Action 6e3f1a24"
+            "Action e1d6ce3c"
           ]
         ],
         "lifecycle_done": [

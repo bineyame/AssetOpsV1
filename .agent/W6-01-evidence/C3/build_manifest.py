@@ -62,8 +62,7 @@ manifest = {
     "server": "uvicorn on 8083 (DATABASE_URL per state; ASSETOPS_WORK_CURSOR_KEY_HEX generated per start, never printed); "
               "Vite dev server --port 5283 with ASSETOPS_API_PORT=8083; driver run_state.sh; capture.mjs (CDP 9773)",
     "clock": f"--clock {CLOCK} (C1 fixtures); reads at real DB time; the historical cutoff is 2026-10-20T12:00:01Z (P-C2-11).",
-    "r8_note": "Record the actual requests and identify the response rendered by this capture; duplicate development reads "
-               "do not prove a second stored result.",
+    "r8_note": "dev server StrictMode issues each read twice; the built app issues one; every assertion uses the response the page rendered.",
     "r8_observed": "each capture recorded two identical GET responses (dev-server effect repeat); the page rendered the "
                    "single stored result shown in `text`",
     "caps_px_1440_390": CAPS,

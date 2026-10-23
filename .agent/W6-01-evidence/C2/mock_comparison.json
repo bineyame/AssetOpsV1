@@ -7,7 +7,7 @@
   "Full narrative/activity/owner/source text disclosures (section 2 previews)"
  ],
  "named_mismatches": [
-  "Lifecycle panel takes its own height (align-items: start) instead of the mock's equal-height pair, so a long Work done never stretches Lifecycle past its 350 px cap (section 2)",
+  "Lifecycle now stretches to Work done as in the mock (M1 ruling); desktop cap 430 px for both panels, measured 346/346, 305/305, 422/422",
   "Breadcrumb separators are the app's `/`, not the mock `›` (shared Breadcrumbs CSS); order and links per P-C2-2",
   "Tabs other than Overview carry `· Not available yet` (UnavailableTab, F4); the mock shows them live",
   "Values: Due / SLA `Not set`, State `… · outcome not established`, Success criterion `Not recorded`, Warranty `Warranty not recorded`, Asset without diagram link, Verified step never done, chart-note `Completed is not Verified. No work-case outcome evaluator is available.` (ruled MOCK DEVIATIONs P-C2-6/7/8, CL3-5)",

@@ -7,7 +7,7 @@ SHOTS = HERE / "screenshots"
 CLOCK = "2026-10-20T12:00:00Z"
 CAPS = {  # section 2 caps (1440, 390) and the provisional new-element cap
     "request_header_h1_subtitle_mheader": [380, 860], "tabs": [90, 150], "mheader": [150, 400],
-    "work_done": [430, 510], "lifecycle": [350, 300], "date_bar_slot": [180, 300], "state_block": [180, 300],
+    "work_done": [430, 510], "lifecycle": [430, 300], "date_bar_slot": [180, 300], "state_block": [180, 300],
 }
 STATES = [
     ("positive", "detail", "assetops_w601_c2detail_test", "WR-000001 IN_PROGRESS after COMPLETE+REOPEN, 2 revisions, one record"),
@@ -54,8 +54,7 @@ manifest = {
               "Vite dev server --port 5281 with ASSETOPS_API_PORT=8081; driver run_state.sh; capture.mjs",
     "clock": f"--clock {CLOCK} (C1 fixtures); list window from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z; reads at real DB time. "
              "The detail historical cutoff is 2026-10-20T12:00:01Z (P-C2-11), not the A2Q3 list cutoff.",
-    "r8_note": "Record the actual requests and identify the response rendered by this capture; duplicate development reads "
-               "do not prove a second stored result.",
+    "r8_note": "dev server StrictMode issues each read twice; the built app issues one; every assertion uses the response the page rendered.",
     "caps_px_1440_390": CAPS,
     "historical_assertion": {"historical_h1": hist["h1"], "current_h1": cur["h1"],
                              "historical_date_bar": hist["date_bar"], "current_date_bar": cur["date_bar"],

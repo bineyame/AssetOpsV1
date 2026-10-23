@@ -1,20 +1,20 @@
 {
   "state": "stress",
-  "captured_at": "2026-10-22T20:46:07.687Z",
+  "captured_at": "2026-10-23T03:52:29.916Z",
   "results": [
     {
       "state": "stress",
       "width": 1440,
-      "route": "/maintenance/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001",
+      "route": "/maintenance/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001",
       "image": "stress-1440.png",
       "ready": true,
       "api": [
         {
-          "url": "/api/work/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001",
+          "url": "/api/work/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001",
           "status": 200
         },
         {
-          "url": "/api/work/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001",
+          "url": "/api/work/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001",
           "status": 200
         }
       ],
@@ -45,7 +45,7 @@
           "w": 734
         },
         "lifecycle": {
-          "h": 135,
+          "h": 422,
           "w": 408
         },
         "request_header_with_tabs": {
@@ -80,17 +80,21 @@
         ],
         "tabs": [
           "Overview",
-          "Maintenance record · Not available yet",
+          "Maintenance record",
           "Verification · Not available yet",
           "History · Not available yet"
         ],
         "tab_links": [
           [
             "Overview",
-            "/maintenance/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001"
+            "/maintenance/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260/record?site_id=KOBO-001"
           ]
         ],
-        "date_bar": "As known at 22 Oct 2026, 20:46 UTCReload",
+        "date_bar": "As known at 23 Oct 2026, 03:52 UTCReload",
         "refusal": null,
         "mheader": [
           [
@@ -153,16 +157,16 @@
     {
       "state": "stress",
       "width": 390,
-      "route": "/maintenance/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001",
+      "route": "/maintenance/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001",
       "image": "stress-390.png",
       "ready": true,
       "api": [
         {
-          "url": "/api/work/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001",
+          "url": "/api/work/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001",
           "status": 200
         },
         {
-          "url": "/api/work/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001",
+          "url": "/api/work/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001",
           "status": 200
         }
       ],
@@ -228,17 +232,21 @@
         ],
         "tabs": [
           "Overview",
-          "Maintenance record · Not available yet",
+          "Maintenance record",
           "Verification · Not available yet",
           "History · Not available yet"
         ],
         "tab_links": [
           [
             "Overview",
-            "/maintenance/requests/956ff926-dfb1-4a50-9307-89a73fc21894?site_id=KOBO-001"
+            "/maintenance/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/ef56f69c-6270-4fa5-8ae6-80a80b3fb260/record?site_id=KOBO-001"
           ]
         ],
-        "date_bar": "As known at 22 Oct 2026, 20:46 UTCReload",
+        "date_bar": "As known at 23 Oct 2026, 03:52 UTCReload",
         "refusal": null,
         "mheader": [
           [

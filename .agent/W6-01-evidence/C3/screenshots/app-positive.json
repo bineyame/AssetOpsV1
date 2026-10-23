@@ -1,20 +1,20 @@
 {
   "state": "positive",
-  "captured_at": "2026-10-22T21:11:15.701Z",
+  "captured_at": "2026-10-23T03:53:42.420Z",
   "results": [
     {
       "state": "positive",
       "width": 1440,
-      "route": "/maintenance/requests/e83019f2-d352-4a11-9523-a8cab2668d5e/record?site_id=KOBO-001",
+      "route": "/maintenance/requests/73ac5004-da12-4544-a7df-91eff86c4fc8/record?site_id=KOBO-001",
       "image": "positive-1440.png",
       "ready": true,
       "api": [
         {
-          "url": "/api/work/requests/e83019f2-d352-4a11-9523-a8cab2668d5e?site_id=KOBO-001",
+          "url": "/api/work/requests/73ac5004-da12-4544-a7df-91eff86c4fc8?site_id=KOBO-001",
           "status": 200
         },
         {
-          "url": "/api/work/requests/e83019f2-d352-4a11-9523-a8cab2668d5e?site_id=KOBO-001",
+          "url": "/api/work/requests/73ac5004-da12-4544-a7df-91eff86c4fc8?site_id=KOBO-001",
           "status": 200
         }
       ],
@@ -91,14 +91,14 @@
         "tab_links": [
           [
             "Overview",
-            "/maintenance/requests/e83019f2-d352-4a11-9523-a8cab2668d5e?site_id=KOBO-001"
+            "/maintenance/requests/73ac5004-da12-4544-a7df-91eff86c4fc8?site_id=KOBO-001"
           ],
           [
             "Maintenance record",
-            "/maintenance/requests/e83019f2-d352-4a11-9523-a8cab2668d5e/record?site_id=KOBO-001"
+            "/maintenance/requests/73ac5004-da12-4544-a7df-91eff86c4fc8/record?site_id=KOBO-001"
           ]
         ],
-        "date_bar": "As known at 22 Oct 2026, 21:11 UTCReload",
+        "date_bar": "As known at 23 Oct 2026, 03:53 UTCReload",
         "refusal": null,
         "mheader": [
           [
@@ -192,16 +192,16 @@
     {
       "state": "positive",
       "width": 390,
-      "route": "/maintenance/requests/e83019f2-d352-4a11-9523-a8cab2668d5e/record?site_id=KOBO-001",
+      "route": "/maintenance/requests/73ac5004-da12-4544-a7df-91eff86c4fc8/record?site_id=KOBO-001",
       "image": "positive-390.png",
       "ready": true,
       "api": [
         {
-          "url": "/api/work/requests/e83019f2-d352-4a11-9523-a8cab2668d5e?site_id=KOBO-001",
+          "url": "/api/work/requests/73ac5004-da12-4544-a7df-91eff86c4fc8?site_id=KOBO-001",
           "status": 200
         },
         {
-          "url": "/api/work/requests/e83019f2-d352-4a11-9523-a8cab2668d5e?site_id=KOBO-001",
+          "url": "/api/work/requests/73ac5004-da12-4544-a7df-91eff86c4fc8?site_id=KOBO-001",
           "status": 200
         }
       ],
@@ -278,14 +278,14 @@
         "tab_links": [
           [
             "Overview",
-            "/maintenance/requests/e83019f2-d352-4a11-9523-a8cab2668d5e?site_id=KOBO-001"
+            "/maintenance/requests/73ac5004-da12-4544-a7df-91eff86c4fc8?site_id=KOBO-001"
           ],
           [
             "Maintenance record",
-            "/maintenance/requests/e83019f2-d352-4a11-9523-a8cab2668d5e/record?site_id=KOBO-001"
+            "/maintenance/requests/73ac5004-da12-4544-a7df-91eff86c4fc8/record?site_id=KOBO-001"
           ]
         ],
-        "date_bar": "As known at 22 Oct 2026, 21:11 UTCReload",
+        "date_bar": "As known at 23 Oct 2026, 03:53 UTCReload",
         "refusal": null,
         "mheader": [
           [

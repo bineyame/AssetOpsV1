@@ -1,6 +1,6 @@
 {
   "state": "not-found-404",
-  "captured_at": "2026-10-22T20:47:10.927Z",
+  "captured_at": "2026-10-23T03:51:40.720Z",
   "results": [
     {
       "state": "not-found-404",
@@ -41,7 +41,7 @@
           "w": 1160
         },
         "work_done": {
-          "h": 80,
+          "h": 96,
           "w": 734
         },
         "lifecycle": {
@@ -76,7 +76,7 @@
         ],
         "tabs": [
           "Overview",
-          "Maintenance record · Not available yet",
+          "Maintenance record",
           "Verification · Not available yet",
           "History · Not available yet"
         ],
@@ -84,6 +84,10 @@
           [
             "Overview",
             "/maintenance/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/00000000-0000-4000-8000-000000000404/record?site_id=KOBO-001"
           ]
         ],
         "date_bar": "Work request unavailable.Reload",
@@ -178,7 +182,7 @@
         ],
         "tabs": [
           "Overview",
-          "Maintenance record · Not available yet",
+          "Maintenance record",
           "Verification · Not available yet",
           "History · Not available yet"
         ],
@@ -186,6 +190,10 @@
           [
             "Overview",
             "/maintenance/requests/00000000-0000-4000-8000-000000000404?site_id=KOBO-001"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/00000000-0000-4000-8000-000000000404/record?site_id=KOBO-001"
           ]
         ],
         "date_bar": "Work request unavailable.Reload",
