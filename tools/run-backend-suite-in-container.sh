@@ -42,7 +42,7 @@ date -u +%Y-%m-%dT%H:%M:%SZ > "$out/pytest-started"
 start=$(date +%s)
 set +e
 {
-  /opt/assetops-venv/bin/python -m pytest backend/tests -n 2 --dist loadfile --no-loadscope-reorder -q \
+  /opt/assetops-venv/bin/python -m pytest backend/tests -n "${ASSETOPS_TEST_WORKERS:-4}" --dist loadfile --no-loadscope-reorder -q \
     --durations=30 --junitxml="/workspace/var/test-results/OPS-03/$run_id/junit.xml"
   echo $? > "$out/exit-code"
 } 2>&1 | tee "$out/console.log"

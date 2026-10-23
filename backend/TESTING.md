@@ -77,9 +77,9 @@ CASCADE reports. `ASSETOPS_TEST_CLEANUP=truncate` restores TRUNCATE.
 - `ASSETOPS_TEST_TEMPLATE=0` turns routing off and restores the old behaviour
   (drop `public` and migrate in place per module). Use it only if cloning is
   unavailable; it is serial-only and slower.
-- Measurement knobs, off by default: `ASSETOPS_TEST_CLONE_STRATEGY`
-  (`WAL_LOG` or `FILE_COPY`) and `ASSETOPS_TEST_SYNCHRONOUS_COMMIT` (applied with
-  `ALTER DATABASE` to run-owned databases only). Server-wide settings are never
+- Measurement knob, off by default: `ASSETOPS_TEST_CLONE_STRATEGY`
+  (`WAL_LOG` or `FILE_COPY`). Since OPS-04 every run-owned `*_test` database gets
+  `ALTER DATABASE ... SET synchronous_commit = off`. Server-wide settings are never
   changed by the tests.
 
 ## Commands (PowerShell, from the repository root)
@@ -184,6 +184,8 @@ and a `0600` file accepted by `verify_owner_only`.
 
 ## Timing
 
+OPS-04: 4 workers, synchronous_commit off on test DBs, Postgres max_connections 200; re-measure.
+
 Measured on this Windows host (Docker Desktop Postgres 16), serial, full
 suite. Run-to-run variance is large (disk sync inside Docker Desktop), so
 compare only back-to-back runs in a quiet window.
@@ -215,9 +217,9 @@ A test that must see an unreachable database names `127.0.0.1:1` with
 `?connect_timeout=2`: without it psycopg on Windows waits its 130 s default for
 the refused connection. Replay-chain fixtures share one per-process scenario
 catalogue (`tests/scenario_cache.py`); byte-pinned EV golden files are checked
-out with LF (`.gitattributes`). Use `-n 2`, never `-n auto`: the suite is
-disk-bound inside Docker Desktop, and each worker adds about 10-20 sessions
-against `max_connections = 100`.
+out with LF (`.gitattributes`). Use the runner default (`-n 4` since OPS-04,
+`-Workers` to override), never `-n auto`: each worker adds about 10-35 sessions,
+against `max_connections = 200` (set in `docker-compose.yml`).
 
 If a timing-sensitive test (S4 tick hung-stage and claims replay, health skew
 and overlap race, drain 30 s deadline, work enqueue-lock poll) fails under
