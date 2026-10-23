@@ -561,3 +561,10 @@ Change bindings here when the team wants a different tool to own a role. Record
 material changes in `.ai/DECISIONS.md` if they affect workflow, review
 independence, or task ownership.
 
+14. **Line-ending check before every full suite (2026-10-23).** The command is
+    `git ls-files --eol | grep "eol=lf" | awk '$2=="w/crlf"'`. The attribute sits in
+    field 4, so an awk test on `$3` silently finds nothing. A main merge in a Windows
+    worktree can rewrite LF-pinned golden files as CRLF; on 2026-10-23 this caused 8
+    false failures. Delete and re-checkout every listed file before the run. Never
+    kill processes by image name (`taskkill /IM node.exe`): stop only the PIDs you
+    started.
