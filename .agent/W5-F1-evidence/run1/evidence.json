@@ -1,0 +1,1653 @@
+{
+  "producer": "tools/w5f1-d3-evidence.mjs",
+  "revision": "89b88a40",
+  "web": "http://127.0.0.1:6181",
+  "api": "http://127.0.0.1:9781",
+  "site": "COLD-LAB-001",
+  "windows": {
+    "stocked": "from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+    "empty": "from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+    "refused": "from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z"
+  },
+  "responses": {
+    "stocked:health": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "http": 200,
+      "code": null,
+      "selection_state": "CURRENT",
+      "known_at": "2026-10-23T06:15:56.695105Z",
+      "committed_watermark": "2026-10-23T06:15:56.695105Z",
+      "watermark_decided_at": null
+    },
+    "stocked:temperature": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "http": 200,
+      "code": null,
+      "selection_state": "CURRENT",
+      "known_at": "2026-10-23T06:15:56.695105Z",
+      "committed_watermark": null,
+      "watermark_decided_at": "2026-10-23T06:15:56.695105Z"
+    },
+    "stocked:analysis": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/evidence/analysis?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "http": 200,
+      "code": null,
+      "selection_state": "CURRENT",
+      "known_at": "2026-10-23T06:15:56.695105Z",
+      "committed_watermark": null,
+      "watermark_decided_at": "2026-10-23T06:15:56.695105Z",
+      "total_count": 93,
+      "first_evidence_ids": [
+        "00000002-0000-4000-8000-0000000000b6",
+        "00000002-0000-4000-8000-0000000000b8",
+        "00000002-0000-4000-8000-0000000000ba"
+      ],
+      "target_states": [
+        "UNAVAILABLE"
+      ],
+      "target_links": 0
+    },
+    "empty:health": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "http": 200,
+      "code": null,
+      "selection_state": "UNKNOWN",
+      "known_at": "2026-10-23T06:15:56.695105Z",
+      "committed_watermark": "2026-10-23T06:15:56.695105Z",
+      "watermark_decided_at": null
+    },
+    "empty:temperature": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "http": 200,
+      "code": null,
+      "selection_state": "UNKNOWN",
+      "known_at": "2026-10-23T06:15:56.695105Z",
+      "committed_watermark": null,
+      "watermark_decided_at": "2026-10-23T06:15:56.695105Z"
+    },
+    "empty:analysis": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/evidence/analysis?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "http": 200,
+      "code": null,
+      "selection_state": "UNKNOWN",
+      "known_at": "2026-10-23T06:15:56.695105Z",
+      "committed_watermark": null,
+      "watermark_decided_at": "2026-10-23T06:15:56.695105Z",
+      "total_count": 0,
+      "first_evidence_ids": [],
+      "target_states": [],
+      "target_links": 0
+    },
+    "refused:health": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/health?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "http": 422,
+      "code": "COLD_WINDOW_INVALID",
+      "selection_state": null,
+      "known_at": null,
+      "committed_watermark": null,
+      "watermark_decided_at": null
+    },
+    "refused:temperature": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "http": 422,
+      "code": "COLD_WINDOW_INVALID",
+      "selection_state": null,
+      "known_at": null,
+      "committed_watermark": null,
+      "watermark_decided_at": null
+    },
+    "refused:analysis": {
+      "url": "http://127.0.0.1:9781/api/sites/COLD-LAB-001/cold/evidence/analysis?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "http": 422,
+      "code": "COLD_WINDOW_INVALID",
+      "selection_state": null,
+      "known_at": null,
+      "committed_watermark": null,
+      "watermark_decided_at": null
+    }
+  },
+  "mock_titles": {
+    "cold-health@1440": [
+      "Condition and evidence"
+    ],
+    "temperature@1440": [
+      "Temperature with operating context",
+      "Excursion context",
+      "Claim boundary"
+    ],
+    "cold-evidence-analysis@1440": [
+      "Accepted records behind the conclusions",
+      "How a claim limit is set"
+    ],
+    "cold-health@390": [
+      "Condition and evidence"
+    ],
+    "temperature@390": [
+      "Temperature with operating context",
+      "Excursion context",
+      "Claim boundary"
+    ],
+    "cold-evidence-analysis@390": [
+      "Accepted records behind the conclusions",
+      "How a claim limit is set"
+    ]
+  },
+  "captures": [
+    {
+      "kind": "mock",
+      "screen": "health",
+      "viewport": "1440x1000",
+      "hash": "#/cold-health",
+      "settled": true,
+      "url": "/mockups/v69/index.html#/cold-health",
+      "panels": [
+        "Condition and evidence"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1425,
+      "clientWidth": 1425,
+      "pageHeight": 1001,
+      "image": "cold-health-1440-mock.png"
+    },
+    {
+      "kind": "app",
+      "screen": "health",
+      "state": "stocked",
+      "viewport": "1440x1000",
+      "mock_hash": "#/cold-health",
+      "mock_titles": [
+        "Condition and evidence"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "panels": [
+        "Condition and evidence"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "pageHeight": 1000,
+      "image": "health-stocked-1440-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "health",
+      "state": "empty",
+      "viewport": "1440x1000",
+      "mock_hash": "#/cold-health",
+      "mock_titles": [
+        "Condition and evidence"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "panels": [
+        "Condition and evidence"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "pageHeight": 1000,
+      "image": "health-empty-1440-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "health",
+      "state": "refused",
+      "viewport": "1440x1000",
+      "mock_hash": "#/cold-health",
+      "mock_titles": [
+        "Condition and evidence"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/health?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "panels": [],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": true,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "pageHeight": 1000,
+      "image": "health-refused-1440-app.png"
+    },
+    {
+      "kind": "mock",
+      "screen": "temperature",
+      "viewport": "1440x1000",
+      "hash": "#/temperature",
+      "settled": true,
+      "url": "/mockups/v69/index.html#/temperature",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1425,
+      "clientWidth": 1425,
+      "pageHeight": 1269,
+      "image": "temperature-1440-mock.png"
+    },
+    {
+      "kind": "app",
+      "screen": "temperature",
+      "state": "stocked",
+      "viewport": "1440x1000",
+      "mock_hash": "#/temperature",
+      "mock_titles": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [
+        "Excursion window",
+        "Upper policy limit",
+        "Peak observed",
+        "Power outage",
+        "Door opening",
+        "Loading / batch",
+        "Defrost"
+      ],
+      "loadingRow": "Not established",
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1425,
+      "clientWidth": 1425,
+      "pageHeight": 1173,
+      "image": "temperature-stocked-1440-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "temperature",
+      "state": "empty",
+      "viewport": "1440x1000",
+      "mock_hash": "#/temperature",
+      "mock_titles": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [
+        "Excursion window",
+        "Upper policy limit",
+        "Peak observed",
+        "Power outage",
+        "Door opening",
+        "Loading / batch",
+        "Defrost"
+      ],
+      "loadingRow": "Not established",
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1425,
+      "clientWidth": 1425,
+      "pageHeight": 1101,
+      "image": "temperature-empty-1440-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "temperature",
+      "state": "refused",
+      "viewport": "1440x1000",
+      "mock_hash": "#/temperature",
+      "mock_titles": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": true,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "pageHeight": 1000,
+      "image": "temperature-refused-1440-app.png"
+    },
+    {
+      "kind": "mock",
+      "screen": "analysis",
+      "viewport": "1440x1000",
+      "hash": "#/cold-evidence-analysis",
+      "settled": true,
+      "url": "/mockups/v69/index.html#/cold-evidence-analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1425,
+      "clientWidth": 1425,
+      "pageHeight": 1001,
+      "image": "cold-evidence-analysis-1440-mock.png"
+    },
+    {
+      "kind": "app",
+      "screen": "analysis",
+      "state": "stocked",
+      "viewport": "1440x1000",
+      "mock_hash": "#/cold-evidence-analysis",
+      "mock_titles": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [
+        {
+          "id": "00000002-0000-4000-8000-0000000000b6",
+          "text": "REC 00000002-0000-4000-8000-0000000000b6\nRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000b6",
+          "links": 0,
+          "clipped": false,
+          "hidden": false
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000b8",
+          "text": "REC 00000002-0000-4000-8000-0000000000b8\nRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000b8",
+          "links": 0,
+          "clipped": false,
+          "hidden": false
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ba",
+          "text": "REC 00000002-0000-4000-8000-0000000000ba\nRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ba",
+          "links": 0,
+          "clipped": false,
+          "hidden": false
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000bb",
+          "text": "REC 00000002-0000-4000-8000-0000000000bbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000bb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000bd",
+          "text": "REC 00000002-0000-4000-8000-0000000000bdRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000bd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000be",
+          "text": "REC 00000002-0000-4000-8000-0000000000beRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000be",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c0",
+          "text": "REC 00000002-0000-4000-8000-0000000000c0Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c0",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c2",
+          "text": "REC 00000002-0000-4000-8000-0000000000c2Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c2",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c4",
+          "text": "REC 00000002-0000-4000-8000-0000000000c4Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c4",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c6",
+          "text": "REC 00000002-0000-4000-8000-0000000000c6Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c6",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c8",
+          "text": "REC 00000002-0000-4000-8000-0000000000c8Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c8",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ca",
+          "text": "REC 00000002-0000-4000-8000-0000000000caRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ca",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000cb",
+          "text": "REC 00000002-0000-4000-8000-0000000000cbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000cb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000cd",
+          "text": "REC 00000002-0000-4000-8000-0000000000cdRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000cd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000cf",
+          "text": "REC 00000002-0000-4000-8000-0000000000cfRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000cf",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d1",
+          "text": "REC 00000002-0000-4000-8000-0000000000d1Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d1",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d3",
+          "text": "REC 00000002-0000-4000-8000-0000000000d3Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d3",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d5",
+          "text": "REC 00000002-0000-4000-8000-0000000000d5Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d5",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d7",
+          "text": "REC 00000002-0000-4000-8000-0000000000d7Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d7",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d9",
+          "text": "REC 00000002-0000-4000-8000-0000000000d9Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d9",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000db",
+          "text": "REC 00000002-0000-4000-8000-0000000000dbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000db",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000dd",
+          "text": "REC 00000002-0000-4000-8000-0000000000ddRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000dd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000df",
+          "text": "REC 00000002-0000-4000-8000-0000000000dfRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000df",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e1",
+          "text": "REC 00000002-0000-4000-8000-0000000000e1Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e1",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e3",
+          "text": "REC 00000002-0000-4000-8000-0000000000e3Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e3",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e5",
+          "text": "REC 00000002-0000-4000-8000-0000000000e5Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e5",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e7",
+          "text": "REC 00000002-0000-4000-8000-0000000000e7Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e7",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e9",
+          "text": "REC 00000002-0000-4000-8000-0000000000e9Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e9",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000eb",
+          "text": "REC 00000002-0000-4000-8000-0000000000ebRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000eb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ed",
+          "text": "REC 00000002-0000-4000-8000-0000000000edRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ed",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ef",
+          "text": "REC 00000002-0000-4000-8000-0000000000efRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ef",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f1",
+          "text": "REC 00000002-0000-4000-8000-0000000000f1Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f1",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f3",
+          "text": "REC 00000002-0000-4000-8000-0000000000f3Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f3",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f5",
+          "text": "REC 00000002-0000-4000-8000-0000000000f5Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f5",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f7",
+          "text": "REC 00000002-0000-4000-8000-0000000000f7Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f7",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f9",
+          "text": "REC 00000002-0000-4000-8000-0000000000f9Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f9",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000fb",
+          "text": "REC 00000002-0000-4000-8000-0000000000fbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000fb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000fd",
+          "text": "REC 00000002-0000-4000-8000-0000000000fdRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000fd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ff",
+          "text": "REC 00000002-0000-4000-8000-0000000000ffRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ff",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000101",
+          "text": "REC 00000002-0000-4000-8000-000000000101Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000101",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000103",
+          "text": "REC 00000002-0000-4000-8000-000000000103Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000103",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000105",
+          "text": "REC 00000002-0000-4000-8000-000000000105Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000105",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000107",
+          "text": "REC 00000002-0000-4000-8000-000000000107Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000107",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000109",
+          "text": "REC 00000002-0000-4000-8000-000000000109Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000109",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-00000000010b",
+          "text": "REC 00000002-0000-4000-8000-00000000010bRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-00000000010b",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-00000000010d",
+          "text": "REC 00000002-0000-4000-8000-00000000010dRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-00000000010d",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-00000000010f",
+          "text": "REC 00000002-0000-4000-8000-00000000010fRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-00000000010f",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000111",
+          "text": "REC 00000002-0000-4000-8000-000000000111Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000111",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000113",
+          "text": "REC 00000002-0000-4000-8000-000000000113Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000113",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000115",
+          "text": "REC 00000002-0000-4000-8000-000000000115Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000115",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        }
+      ],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "pageHeight": 1000,
+      "image": "analysis-stocked-1440-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "analysis",
+      "state": "empty",
+      "viewport": "1440x1000",
+      "mock_hash": "#/cold-evidence-analysis",
+      "mock_titles": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "pageHeight": 1000,
+      "image": "analysis-empty-1440-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "analysis",
+      "state": "refused",
+      "viewport": "1440x1000",
+      "mock_hash": "#/cold-evidence-analysis",
+      "mock_titles": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": true,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "pageHeight": 1000,
+      "image": "analysis-refused-1440-app.png"
+    },
+    {
+      "kind": "click",
+      "viewport": "1440x1000",
+      "foundation_ready": true,
+      "href": "/sites/COLD-LAB-001/evidence#cold-site-sources-heading",
+      "landed": "/sites/COLD-LAB-001/evidence#cold-site-sources-heading",
+      "evidence_ready": true,
+      "sources_target": true,
+      "sources_title": "Data sources · data quality, not equipment condition",
+      "before_image": "foundation-readiness-1440-app.png",
+      "after_image": "foundation-to-evidence-1440-app.png",
+      "scrollWidth": 1425,
+      "clientWidth": 1425,
+      "pageHeight": 1399
+    },
+    {
+      "kind": "mock",
+      "screen": "health",
+      "viewport": "390x900",
+      "hash": "#/cold-health",
+      "settled": true,
+      "url": "/mockups/v69/index.html#/cold-health",
+      "panels": [
+        "Condition and evidence"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 1277,
+      "image": "cold-health-390-mock.png"
+    },
+    {
+      "kind": "app",
+      "screen": "health",
+      "state": "stocked",
+      "viewport": "390x900",
+      "mock_hash": "#/cold-health",
+      "mock_titles": [
+        "Condition and evidence"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/health?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "panels": [
+        "Condition and evidence"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 1167,
+      "image": "health-stocked-390-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "health",
+      "state": "empty",
+      "viewport": "390x900",
+      "mock_hash": "#/cold-health",
+      "mock_titles": [
+        "Condition and evidence"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/health?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "panels": [
+        "Condition and evidence"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 1231,
+      "image": "health-empty-390-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "health",
+      "state": "refused",
+      "viewport": "390x900",
+      "mock_hash": "#/cold-health",
+      "mock_titles": [
+        "Condition and evidence"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/health?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "panels": [],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": true,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "pageHeight": 900,
+      "image": "health-refused-390-app.png"
+    },
+    {
+      "kind": "mock",
+      "screen": "temperature",
+      "viewport": "390x900",
+      "hash": "#/temperature",
+      "settled": true,
+      "url": "/mockups/v69/index.html#/temperature",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 2272,
+      "image": "temperature-390-mock.png"
+    },
+    {
+      "kind": "app",
+      "screen": "temperature",
+      "state": "stocked",
+      "viewport": "390x900",
+      "mock_hash": "#/temperature",
+      "mock_titles": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [
+        "Excursion window",
+        "Upper policy limit",
+        "Peak observed",
+        "Power outage",
+        "Door opening",
+        "Loading / batch",
+        "Defrost"
+      ],
+      "loadingRow": "Not established",
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 2065,
+      "image": "temperature-stocked-390-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "temperature",
+      "state": "empty",
+      "viewport": "390x900",
+      "mock_hash": "#/temperature",
+      "mock_titles": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/performance/temperature?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [
+        "Excursion window",
+        "Upper policy limit",
+        "Peak observed",
+        "Power outage",
+        "Door opening",
+        "Loading / batch",
+        "Defrost"
+      ],
+      "loadingRow": "Not established",
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 1596,
+      "image": "temperature-empty-390-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "temperature",
+      "state": "refused",
+      "viewport": "390x900",
+      "mock_hash": "#/temperature",
+      "mock_titles": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/performance/temperature?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z",
+      "panels": [
+        "Temperature with operating context",
+        "Excursion context",
+        "Claim boundary"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": true,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 979,
+      "image": "temperature-refused-390-app.png"
+    },
+    {
+      "kind": "mock",
+      "screen": "analysis",
+      "viewport": "390x900",
+      "hash": "#/cold-evidence-analysis",
+      "settled": true,
+      "url": "/mockups/v69/index.html#/cold-evidence-analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 1449,
+      "image": "cold-evidence-analysis-390-mock.png"
+    },
+    {
+      "kind": "app",
+      "screen": "analysis",
+      "state": "stocked",
+      "viewport": "390x900",
+      "mock_hash": "#/cold-evidence-analysis",
+      "mock_titles": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/evidence?from=2026-10-06T19:00:00Z&to=2026-10-06T20:05:00Z&view=analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [
+        {
+          "id": "00000002-0000-4000-8000-0000000000b6",
+          "text": "REC 00000002-0000-4000-8000-0000000000b6\nRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000b6",
+          "links": 0,
+          "clipped": false,
+          "hidden": false
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000b8",
+          "text": "REC 00000002-0000-4000-8000-0000000000b8\nRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000b8",
+          "links": 0,
+          "clipped": false,
+          "hidden": false
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ba",
+          "text": "REC 00000002-0000-4000-8000-0000000000ba\nRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ba",
+          "links": 0,
+          "clipped": false,
+          "hidden": false
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000bb",
+          "text": "REC 00000002-0000-4000-8000-0000000000bbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000bb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000bd",
+          "text": "REC 00000002-0000-4000-8000-0000000000bdRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000bd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000be",
+          "text": "REC 00000002-0000-4000-8000-0000000000beRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000be",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c0",
+          "text": "REC 00000002-0000-4000-8000-0000000000c0Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c0",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c2",
+          "text": "REC 00000002-0000-4000-8000-0000000000c2Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c2",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c4",
+          "text": "REC 00000002-0000-4000-8000-0000000000c4Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c4",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c6",
+          "text": "REC 00000002-0000-4000-8000-0000000000c6Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c6",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000c8",
+          "text": "REC 00000002-0000-4000-8000-0000000000c8Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000c8",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ca",
+          "text": "REC 00000002-0000-4000-8000-0000000000caRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ca",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000cb",
+          "text": "REC 00000002-0000-4000-8000-0000000000cbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000cb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000cd",
+          "text": "REC 00000002-0000-4000-8000-0000000000cdRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000cd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000cf",
+          "text": "REC 00000002-0000-4000-8000-0000000000cfRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000cf",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d1",
+          "text": "REC 00000002-0000-4000-8000-0000000000d1Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d1",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d3",
+          "text": "REC 00000002-0000-4000-8000-0000000000d3Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d3",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d5",
+          "text": "REC 00000002-0000-4000-8000-0000000000d5Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d5",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d7",
+          "text": "REC 00000002-0000-4000-8000-0000000000d7Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d7",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000d9",
+          "text": "REC 00000002-0000-4000-8000-0000000000d9Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000d9",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000db",
+          "text": "REC 00000002-0000-4000-8000-0000000000dbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000db",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000dd",
+          "text": "REC 00000002-0000-4000-8000-0000000000ddRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000dd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000df",
+          "text": "REC 00000002-0000-4000-8000-0000000000dfRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000df",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e1",
+          "text": "REC 00000002-0000-4000-8000-0000000000e1Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e1",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e3",
+          "text": "REC 00000002-0000-4000-8000-0000000000e3Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e3",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e5",
+          "text": "REC 00000002-0000-4000-8000-0000000000e5Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e5",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e7",
+          "text": "REC 00000002-0000-4000-8000-0000000000e7Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e7",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000e9",
+          "text": "REC 00000002-0000-4000-8000-0000000000e9Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000e9",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000eb",
+          "text": "REC 00000002-0000-4000-8000-0000000000ebRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000eb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ed",
+          "text": "REC 00000002-0000-4000-8000-0000000000edRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ed",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ef",
+          "text": "REC 00000002-0000-4000-8000-0000000000efRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ef",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f1",
+          "text": "REC 00000002-0000-4000-8000-0000000000f1Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f1",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f3",
+          "text": "REC 00000002-0000-4000-8000-0000000000f3Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f3",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f5",
+          "text": "REC 00000002-0000-4000-8000-0000000000f5Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f5",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f7",
+          "text": "REC 00000002-0000-4000-8000-0000000000f7Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f7",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000f9",
+          "text": "REC 00000002-0000-4000-8000-0000000000f9Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000f9",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000fb",
+          "text": "REC 00000002-0000-4000-8000-0000000000fbRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000fb",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000fd",
+          "text": "REC 00000002-0000-4000-8000-0000000000fdRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000fd",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-0000000000ff",
+          "text": "REC 00000002-0000-4000-8000-0000000000ffRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-0000000000ff",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000101",
+          "text": "REC 00000002-0000-4000-8000-000000000101Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000101",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000103",
+          "text": "REC 00000002-0000-4000-8000-000000000103Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000103",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000105",
+          "text": "REC 00000002-0000-4000-8000-000000000105Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000105",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000107",
+          "text": "REC 00000002-0000-4000-8000-000000000107Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000107",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000109",
+          "text": "REC 00000002-0000-4000-8000-000000000109Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000109",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-00000000010b",
+          "text": "REC 00000002-0000-4000-8000-00000000010bRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-00000000010b",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-00000000010d",
+          "text": "REC 00000002-0000-4000-8000-00000000010dRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-00000000010d",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-00000000010f",
+          "text": "REC 00000002-0000-4000-8000-00000000010fRecord page unavailable",
+          "code": "REC 00000002-0000-4000-8000-00000000010f",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000111",
+          "text": "REC 00000002-0000-4000-8000-000000000111Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000111",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000113",
+          "text": "REC 00000002-0000-4000-8000-000000000113Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000113",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        },
+        {
+          "id": "00000002-0000-4000-8000-000000000115",
+          "text": "REC 00000002-0000-4000-8000-000000000115Record page unavailable",
+          "code": "REC 00000002-0000-4000-8000-000000000115",
+          "links": 0,
+          "clipped": true,
+          "hidden": true
+        }
+      ],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 1330,
+      "image": "analysis-stocked-390-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "analysis",
+      "state": "empty",
+      "viewport": "390x900",
+      "mock_hash": "#/cold-evidence-analysis",
+      "mock_titles": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/evidence?from=2026-10-05T19:00:00Z&to=2026-10-05T20:05:00Z&view=analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": false,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "pageHeight": 900,
+      "image": "analysis-empty-390-app.png",
+      "titles_equal": true
+    },
+    {
+      "kind": "app",
+      "screen": "analysis",
+      "state": "refused",
+      "viewport": "390x900",
+      "mock_hash": "#/cold-evidence-analysis",
+      "mock_titles": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "settled": true,
+      "url": "/sites/COLD-LAB-001/evidence?from=2026-10-06T20:05:00Z&to=2026-10-06T19:00:00Z&view=analysis",
+      "panels": [
+        "Accepted records behind the conclusions",
+        "How a claim limit is set"
+      ],
+      "context": [],
+      "loadingRow": null,
+      "recordCells": [],
+      "refusal": true,
+      "sourcesTarget": false,
+      "sourcesTitle": null,
+      "healthSources": false,
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "pageHeight": 900,
+      "image": "analysis-refused-390-app.png"
+    },
+    {
+      "kind": "click",
+      "viewport": "390x900",
+      "foundation_ready": true,
+      "href": "/sites/COLD-LAB-001/evidence#cold-site-sources-heading",
+      "landed": "/sites/COLD-LAB-001/evidence#cold-site-sources-heading",
+      "evidence_ready": true,
+      "sources_target": true,
+      "sources_title": "Data sources · data quality, not equipment condition",
+      "before_image": "foundation-readiness-390-app.png",
+      "after_image": "foundation-to-evidence-390-app.png",
+      "scrollWidth": 375,
+      "clientWidth": 375,
+      "pageHeight": 2108
+    }
+  ],
+  "failures": [],
+  "result": "PASS"
+}
