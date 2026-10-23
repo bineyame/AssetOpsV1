@@ -7,6 +7,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import type { ColdFoundationClient, ColdFoundationRead, ColdFoundationReadModel } from "../coldFoundationClient";
 import type { EvidenceRead } from "../evidenceRead";
 import type { GatewayHealth, GatewayHealthClient } from "../gatewayHealthClient";
+import type { ColdSiteClient } from "../coldSiteClient";
 import { createSiteEvidenceClient } from "../siteEvidenceClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { FoundationVersionsReadModel, SiteFoundationClient } from "../siteFoundationClient";
@@ -195,7 +196,12 @@ function Location() {
   return <output data-testid="location">{location.pathname + location.search}</output>;
 }
 
-function renderCold(path: string, read: (at: string | null) => ColdFoundationRead, health: EvidenceRead<GatewayHealth> = healthOf(["edge-cold-001"])) {
+function renderCold(
+  path: string,
+  read: (at: string | null) => ColdFoundationRead,
+  health: EvidenceRead<GatewayHealth> = healthOf(["edge-cold-001"]),
+  coldSite?: ColdSiteClient,
+) {
   const cold: ColdFoundationClient = { getColdFoundation: vi.fn((_site: string, at: string | null) => Promise.resolve(read(at))) };
   const gatewayHealth: GatewayHealthClient = { getGatewayHealth: vi.fn(() => Promise.resolve(health)) };
   render(
@@ -208,6 +214,7 @@ function renderCold(path: string, read: (at: string | null) => ColdFoundationRea
         siteFoundation={genericFoundation}
         coldFoundation={cold}
         siteEvidence={{ ...createSiteEvidenceClient(), gatewayHealth }}
+        {...(coldSite === undefined ? {} : { coldSite })}
       />
       <Location />
     </MemoryRouter>,
@@ -271,12 +278,30 @@ describe("W2-01: cold Foundation routes keep the v69 panel structure", () => {
     for (const gap of gaps()) expect(gap.textContent).toContain("could not be read");
   });
 
-  it("links the cold gateway panel to Health Data sources", async () => {
-    renderCold(`${BASE}/readiness`, loaded(STOCKED));
+  it("W5-F1 F1-1 (R22): links the cold gateway panel to the existing cold-evidence Data sources panel", async () => {
+    const refused = () => Promise.resolve({ status: "refused" as const, httpStatus: 422, code: "COLD_WINDOW_INVALID", message: null });
+    const coldSite: ColdSiteClient = {
+      getOverview: vi.fn(refused),
+      getEvidence: vi.fn(refused),
+      getAnalysis: vi.fn(refused),
+      getFinancials: vi.fn(refused),
+      getAssumptions: vi.fn(refused),
+    };
+    renderCold(`${BASE}/readiness`, loaded(STOCKED), healthOf(["edge-cold-001"]), coldSite);
     await settledScreen();
-    const link = Array.from(panelTitled("Gateway status · edge-cold-001").querySelectorAll("a"))
-      .find((a) => a.textContent === "Health › Data sources →");
-    expect(link?.getAttribute("href")).toBe("/sites/COLD-001/health#site-health-sources-heading");
+    const panel = panelTitled("Gateway status · edge-cold-001");
+    const links = Array.from(panel.querySelectorAll("a"));
+    expect(links.some((a) => a.textContent === "Health › Data sources →")).toBe(false);
+    const link = links.find((a) => a.textContent === "Evidence › Data sources →");
+    expect(link?.getAttribute("href")).toBe("/sites/COLD-001/evidence#cold-site-sources-heading");
+    fireEvent.click(link as HTMLElement);
+    await settledScreen();
+    expect(screen.getByTestId("location").textContent).toBe("/sites/COLD-001/evidence");
+    expect(coldSite.getEvidence).toHaveBeenCalled();
+    const target = document.getElementById("cold-site-sources-heading") as HTMLElement;
+    expect(target).not.toBeNull();
+    expect(target.textContent).toBe("Data sources · data quality, not equipment condition");
+    expect(document.getElementById("site-health-sources-heading")).toBeNull();
   });
 });
 

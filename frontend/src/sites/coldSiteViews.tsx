@@ -1136,19 +1136,12 @@ function AnalysisScreen(p: ScreenProps) {
                       <td>{utcClock(r.sent_at)}</td>
                       <td>{utcClock(r.received_at)}</td>
                       <td>
-                        {r.record_target_state === "PROVED" && r.link !== null ? (
-                          <ToLink href={coldUiHref(r.link, p.routes) ?? r.link} data={{ "aria-label": `Open record REC ${r.evidence_id}` }}>
-                            Open record
-                          </ToLink>
-                        ) : (
-                          <span data-record-target="unavailable">
-                            {/* W2-F M10/N1: the full stored ID, visibly, in a wrapping cell; never a shortened prefix. */}
-                            <code className="cold-site-id" title={r.evidence_id} aria-label={r.evidence_id} data-record-id={r.evidence_id} data-vocabulary-exempt="source-reference">
-                              {`REC ${r.evidence_id}`}
-                            </code>
-                            <span className="cold-site-line">No analysis link</span>
-                          </span>
-                        )}
+                        {/* W5-F1 F1-3 (R38): a labelled reference to the selected accepted record, never an anchor.
+                            No exact record route is integrated; a wire link, even PROVED, is not a record destination. */}
+                        <span data-record-target="unavailable">
+                          <code className="cold-site-id" title={r.evidence_id} aria-label={r.evidence_id} data-record-id={r.evidence_id} data-vocabulary-exempt="source-reference">{`REC ${r.evidence_id}`}</code>
+                          <span className="cold-site-line">Record page unavailable</span>
+                        </span>
                       </td>
                     </tr>
                   ))
