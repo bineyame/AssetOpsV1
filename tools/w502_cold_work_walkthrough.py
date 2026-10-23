@@ -23,8 +23,12 @@ is written. `prepare`:
    intent through the real `POST /api/sites/{site}/domain-work/...` routes of `assetops_backend.main.create_app`
    composed with the W4 fixture SERVICE principal (`domain_work_principal`). Nothing is direct-inserted except the
    ruled UNKNOWN selection seed. `worstcase` adds five Actions through the same POST (160-code-point title and owner,
-   mixed due dates). `pending` then releases the late accepted reading and leaves its recompute job unrun.
-4. Reads each mode's real `GET .../domain-work/action-index` in process and writes `<work>/manifest.json`.
+   mixed due dates) and, for K3b (K3 pre-flight ruling 7), four more SERVICE-attested INCs and WRs with records
+   (160-code-point text), so each case tab has five rows. `pending` then releases the late accepted reading and
+   leaves its recompute job unrun.
+4. Reads each mode's real `GET .../domain-work/action-index` in process, and the W4 `GET .../work/{incidents,
+   maintenance}` case lists at each read's window and returned cutoff (plus the ruled case complete-zero window),
+   and writes `<work>/manifest.json`. `attest` fails on any mode without reads or with a case count/row mismatch.
 
 `serve` starts, per mode, `uvicorn` over a tool-local entry (`<work>/serve_entry.py`) that imports the product
 `host/lab_app.py` app and puts, ahead of its domain-work routes, the same `build_domain_work_router` with a `WorkGate`
@@ -33,7 +37,8 @@ nothing a client sends). The `forbidden` process holds an operator principal wit
 `SITE_SCOPE_FORBIDDEN` from the real gate). K2 ruling 3 (option b): the `unavailable` process serves the healthy
 positive DB for the app (the Site read stays healthy) and gives the domain-work router alone an unreachable private
 DB URL (`W502B_DOMAIN_WORK_DB_URL`), so the real `WORK_STORE_UNAVAILABLE` 503 renders inside the cold-work panel.
-No product router changes.
+K3 ruling 8: the `forbidden` and `unavailable` processes also put a W4 Site work router (same grant, same unreachable
+store) ahead of the product W4 routes, for the real case-read 403/503. No product router changes.
 
 Guards: `--work` must be a `var/w502b*` folder directly under this repository's `var/`; database names are
 `w502b_<mode>_<tag>_test`; `drop` acts only on what the work folder's marker and pid file record.
@@ -263,6 +268,44 @@ try:
                             "recorded_at": made["recorded_at"],
                             "due_at": None if due is None else iso(r_at + due), "title_code_points": 160,
                             "owner_code_points": 160})
+        # K3 pre-flight ruling 7 (K3b): four more SERVICE-attested INCs and four more WRs, each WR followed by its
+        # performed record, through the same W4 service and principal, at D+16h+(11+n)m / (20+n)m / (40+n)m.
+        def pad160(prefix, c):
+            value = prefix + c * (160 - len(prefix))
+            assert len(value) == 160, (prefix, len(value))
+            return value
+
+        extra = []
+        for n in range(1, 5):
+            i_at, w_at, r_at = (d16 + timedelta(minutes=m) for m in (11 + n, 20 + n, 40 + n))
+            assert inc_at < i_at < w_at < r_at < d16 + timedelta(hours=1), (i_at, w_at, r_at)
+            s, xi = work.create_case(built.tenant_id, built.site_id, incident(
+                f"w502b-worst-inc-{n}-{tag}", title=pad160(f"Backup response failure {n} ", "T"),
+                occurred_at=iso(i_at), narrative=pad160(f"Grid lost, automatic start failed {n} ", "N"),
+                asset_id=str(gen.id), finding_links=[{"finding_id": x["finding_id"],
+                                                      "finding_revision_id": x["finding_revision_id"]}
+                                                     for x in inc_links]), PRINCIPAL)
+            assert s == 201, xi
+            # The WR mirrors the fixture WR's shape: the selected Finding link and its own INC.
+            s, xw = work.create_case(built.tenant_id, built.site_id, request(
+                f"w502b-worst-wr-{n}-{tag}", title=pad160(f"Starter/control inspection {n} ", "T"),
+                occurred_at=iso(w_at), asset_id=str(gen.id), finding_links=flink, incident_id=xi["id"]), PRINCIPAL)
+            assert s == 201, xw
+            s, xr = work.post_record(built.tenant_id, built.site_id, xw["id"], record(
+                f"w502b-worst-rec-{n}-{tag}", activity=pad160(f"Starter and control inspection {n} ", "A"),
+                occurred_at=iso(r_at), outcome_note=pad160(f"Inspection complete; test required {n} ", "O")),
+                PRINCIPAL)
+            assert s == 201, xr
+            with built.engine.connect() as c:
+                stored = {str(k): v for k, v in c.execute(text(
+                    "SELECT id, occurred_at FROM work_case WHERE id IN (:a, :b)"), {"a": xi["id"], "b": xw["id"]}).all()}
+            assert stored == {xi["id"]: i_at, xw["id"]: w_at}, stored
+            extra.append({"n": n, "incident": {"id": xi["id"], "revision_id": xi["revision"]["id"],
+                                               "occurred_at": iso(stored[xi["id"]])},
+                          "request": {"id": xw["id"], "revision_id": xw["revision"]["id"], "record_id": xr["id"],
+                                      "occurred_at": iso(stored[xw["id"]]), "record_occurred_at": iso(r_at)},
+                          "code_points": 160})
+        doc["fixture"]["extra_cases"] = extra
     if mode == "pending":
         built.advance_late()  # the later accepted reading; its cold_chain recompute job is deliberately not run
         with built.engine.connect() as c:
@@ -308,6 +351,32 @@ try:
         if (rd["status"], rd["total_count"]) != (rd["expected"]["status"], rd["expected"]["total_count"]):
             doc["blocked"] = (doc["blocked"] or "") + f" {name}: index {rd['status']}/{rd['total_count']} != expected"
     doc["reads"] = reads
+
+    # K3b (K3 pre-flight ruling 7): the W4 Site case list reads behind each capture, at the Action read's exact
+    # window and returned cutoff; actual status and coverage are recorded, the full count and page rows asserted.
+    def cases(kind, q):
+        r = api.get(f"/api/sites/{SITE}/work/{kind}", params={**q, "limit": 5})  # the client page size
+        assert r.status_code == 200, (kind, r.status_code, r.text)
+        b = r.json()
+        return {"query": q, "status": b["status"], "coverage": b["coverage"], "known_at": b["known_at"],
+                "total_count": b["total_count"], "rows": len(b["rows"]), "row_ids": [x["case_id"] for x in b["rows"]]}
+
+    case_reads = {}
+    windows = {name: {"from": rd["query"]["from"], "to": rd["query"]["to"], "known_at": rd["known_at"]}
+               for name, rd in reads.items() if name != "zero"}
+    if mode == "positive":
+        # Ruling 7: the case complete zero uses the valid seven-day [D-8 days, D-1 day) window (D = sh.start's day).
+        dz = d16.replace(hour=0)
+        windows["zero"] = {"from": iso(dz - timedelta(days=8)), "to": iso(dz - timedelta(days=1))}
+    for name, q in windows.items():
+        want = 0 if name == "zero" else 5 if mode == "worstcase" else 1
+        for kind in ("incidents", "maintenance"):
+            got = cases(kind, q)
+            got["expected"] = {"total_count": want, "rows": want}
+            case_reads[f"{name}:{kind}"] = got
+            if (got["total_count"], got["rows"]) != (want, want):
+                doc["blocked"] = (doc["blocked"] or "") + f" {name}:{kind}: cases {got['total_count']}/{got['rows']} != {want}"
+    doc["case_reads"] = case_reads
 finally:
     work._store.dispose()
     built.close()
@@ -407,7 +476,15 @@ router = build_domain_work_router(
     build_domain_intent_service(work_url) if work_url else None,
     WorkGate(registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access, command_access=access),
     (M.WORK_UNAVAILABLE,), reads=build_domain_action_read_service(work_url))
-app.router.routes[0:0] = list(router.routes)
+routes = list(router.routes)
+# K3 pre-flight ruling 8 (K3b): only the `forbidden` and `unavailable` processes also put a W4 Site work router ahead of
+# the product W4 routes, behind the same server-side grant (real W4 403) and the same unreachable store (real W4 503).
+if os.environ.get("W502B_CASE_GATE") == "1":
+    from assetops_backend.work_api import build_work_router
+    from assetops_backend.work.composition import build_work_index_service
+    routes += list(build_work_router(None, registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access,
+                                     command_access=access, lists=build_work_index_service(work_url)).routes)
+app.router.routes[0:0] = routes
 '''
 
 
@@ -573,6 +650,8 @@ class Walk:
             env["W502B_PRINCIPAL_FILE"] = str(grant)
             if name == "unavailable":
                 env["W502B_DOMAIN_WORK_DB_URL"] = UNREACHABLE  # ruling 3: the domain-work router alone
+            if name in ("forbidden", "unavailable"):
+                env["W502B_CASE_GATE"] = "1"  # K3 ruling 8: the tool-local W4 case-read router, these two only
             env["PYTHONPATH"] = os.pathsep.join([str(self.work), env["PYTHONPATH"]])
             log = open(logs / f"api-{name}-{port}.log", "w", encoding="utf-8")
             proc = subprocess.Popen([str(PY), "-m", "uvicorn", "serve_entry:app", "--host", "127.0.0.1", "--port",
@@ -603,7 +682,21 @@ class Walk:
             doc = manifest["modes"][m]
             if not doc.get("reads"):
                 say(f"  {m}: BLOCKED ({doc.get('blocked')})")
+                # Backlog (K2 review): a mode without reads is an attest failure, never a silent skip.
+                failures.append(f"{m}: no reads ({doc.get('blocked')})")
                 continue
+            # K3 pre-flight ruling 7: every mode's case reads exist and hold the expected full count and page rows.
+            case_reads = doc.get("case_reads") or {}
+            want_names = {f"{n}:{k}" for n in (doc.get("reads") or {}) for k in ("incidents", "maintenance")}
+            if set(case_reads) != want_names:
+                failures.append(f"{m}: case reads {sorted(case_reads)} != {sorted(want_names)}")
+            for name, rd in case_reads.items():
+                say(f"    {name:<22} cases status={rd['status']} coverage={rd['coverage']} "
+                    f"total_count={rd['total_count']} rows={rd['rows']}")
+                if (rd["total_count"], rd["rows"]) != (rd["expected"]["total_count"], rd["expected"]["rows"]):
+                    failures.append(f"{m} {name}: cases {rd['total_count']}/{rd['rows']} != {rd['expected']}")
+            if m == "worstcase" and len((doc.get("fixture") or {}).get("extra_cases") or []) != 4:
+                failures.append("worstcase: four extra INC/WR pairs are not in the manifest")
             # K2 ruling 21: no mode is blocked; UNKNOWN has its one ruled link, every other mode both links.
             inc = (doc.get("fixture") or {}).get("incident") or {}
             mechs = [x["mechanism"] for x in inc.get("finding_links") or []]
@@ -630,6 +723,14 @@ class Walk:
                     f"known_at={body.get('known_at')}")
                 if got != (200, rd["expected"]["status"], rd["expected"]["total_count"]):
                     failures.append(f"served {name}: {got}")
+            for name, rd in (manifest["modes"][m].get("case_reads") or {}).items():
+                kind = name.split(":")[1]
+                code, body = _get_cases(pids[m]["port"], kind, rd["query"])
+                got = (code, body.get("total_count"), len(body.get("rows") or []))
+                say(f"    {name:<22} :{pids[m]['port']} -> HTTP {code} status={body.get('status')} "
+                    f"total_count={got[1]} rows={got[2]}")
+                if got != (200, rd["expected"]["total_count"], rd["expected"]["rows"]):
+                    failures.append(f"served {m} {name}: {got}")
         for name in ("forbidden", "unavailable"):
             if name not in pids:
                 continue
@@ -639,6 +740,14 @@ class Walk:
             say(f"    {name:<11} :{pids[name]['port']} -> HTTP {code} {detail.get('code')} {detail.get('message')!r}")
             if (code, detail.get("code")) != (spec["expected"]["http"], spec["expected"]["code"]):
                 failures.append(f"served {name}: HTTP {code} {detail}")
+            # K3 pre-flight ruling 8: the same real refusal on both W4 case reads (tool-local W4 router).
+            for kind in ("incidents", "maintenance"):
+                code, body = _get_cases(pids[name]["port"], kind, spec["query"])
+                detail = body.get("detail") or {}
+                say(f"    {name:<11} :{pids[name]['port']} {kind} -> HTTP {code} {detail.get('code')} "
+                    f"{detail.get('message')!r}")
+                if (code, detail.get("code")) != (spec["expected"]["http"], spec["expected"]["code"]):
+                    failures.append(f"served {name} {kind}: HTTP {code} {detail}")
             if "site_read_http" in spec["expected"]:
                 site_code, _ = _get_path(pids[name]["port"], f"/api/sites/{SITE}")
                 say(f"    {name:<11} :{pids[name]['port']} Site read -> HTTP {site_code}")
@@ -681,6 +790,12 @@ def _alive(pid: int) -> bool:
 
 def _get(port: int, query: dict | None) -> tuple[int, dict]:
     return _get_path(port, f"/api/sites/{SITE}/domain-work/action-index?{urllib.parse.urlencode(query or {})}")
+
+
+def _get_cases(port: int, kind: str, query: dict | None) -> tuple[int, dict]:
+    """K3b: the W4 Site case list the case tabs read (`limit=5`, the client page size)."""
+    q = {k: v for k, v in (query or {}).items() if v is not None}
+    return _get_path(port, f"/api/sites/{SITE}/work/{kind}?{urllib.parse.urlencode({**q, 'limit': 5})}")
 
 
 def _get_path(port: int, path: str) -> tuple[int, dict]:
