@@ -46,6 +46,8 @@ Sets:
   `mini_enqueue_configuration`). Rule 8 fails closed when any name is missing.
 - `decision <table> ...`: W4-03 unit 1 (migration 0030) ten mini-decision tables, the same family as `work`, owned
   by `mini_decisions/store.py`; `decision truncate`; `controls decision <table> insert` must pass.
+- `cold-scenario <table> ...`: W5-01b C4 (migration 0032) two cold scenario tables, the same family as `decision`,
+  owned by `cold_scenarios/store.py`; `cold-scenario truncate`; `controls cold-scenario <table> insert` must pass.
 - `cutover site_cutover_basis ...`: W4-02 q12-6 (B-L1) cutover basis table of migration 0029, owned INSERT-only by
   the Foundation store (its ON CONFLICT DO NOTHING is allowed): foreign INSERT, UPDATE, DELETE, DO UPDATE, TRUNCATE
   and `owner insert unseen`; `controls cutover site_cutover_basis insert` must pass.
@@ -74,6 +76,7 @@ ACTION = f"{B}/actions/adapters/postgres_action_store.py"
 WORK = f"{B}/work/adapters/postgres_work_store.py"
 MINI = f"{B}/mini_depth/store.py"
 DECISION = f"{B}/mini_decisions/store.py"
+COLD_SCENARIO = f"{B}/cold_scenarios/store.py"
 TICK = f"{B}/scheduling/tick.py"
 WORKER = f"{B}/analytics/assessment_worker.py"
 COLD_MIGRATION = "backend/migrations/versions/0023_w2_cold_consequence.py"
@@ -795,6 +798,33 @@ NEGATIVE += [
      "The mini-decision store never updates, deletes, truncates, upserts or runs DDL"),
 ]
 
+# W5-01b C4 (migration 0032): the cold scenario store alone INSERTs both cold scenario tables, which no module
+# updates, deletes, upserts, truncates, merges or copies; each table keeps at least one owner INSERT.
+
+def _cold_scenario_only(table: str) -> str:
+    return f"Cold scenario table '{table}' is insert-only"
+
+
+def _cold_scenario_unseen(table: str) -> tuple:
+    return (COLD_SCENARIO, ("replace", f'"INSERT INTO {table} (', f'"SELECT * FROM {table} WHERE ('),
+            f"Rule 8 found no INSERT INTO {table} in ")
+
+
+NEGATIVE += [
+    ("cold-scenario cold_scenario foreign insert", FINDING, _work_foreign("cold_scenario"), "writes cold scenario table 'cold_scenario'"),
+    ("cold-scenario cold_scenario update", COLD_SCENARIO, split("cold_scenario", "site_id = :s WHERE tenant_id = :i"), _cold_scenario_only("cold_scenario")),
+    ("cold-scenario cold_scenario delete", COLD_SCENARIO, _work_delete("cold_scenario"), _cold_scenario_only("cold_scenario")),
+    ("cold-scenario cold_scenario upsert", COLD_SCENARIO, _work_upsert("cold_scenario"), _cold_scenario_only("cold_scenario")),
+    ("cold-scenario cold_scenario owner insert unseen", *_cold_scenario_unseen("cold_scenario")),
+    ("cold-scenario cold_scenario_revision foreign insert", FINDING, _work_foreign("cold_scenario_revision"), "writes cold scenario table 'cold_scenario_revision'"),
+    ("cold-scenario cold_scenario_revision update", COLD_SCENARIO, split("cold_scenario_revision", "site_id = :s WHERE tenant_id = :i"), _cold_scenario_only("cold_scenario_revision")),
+    ("cold-scenario cold_scenario_revision delete", COLD_SCENARIO, _work_delete("cold_scenario_revision"), _cold_scenario_only("cold_scenario_revision")),
+    ("cold-scenario cold_scenario_revision upsert", COLD_SCENARIO, _work_upsert("cold_scenario_revision"), _cold_scenario_only("cold_scenario_revision")),
+    ("cold-scenario cold_scenario_revision owner insert unseen", *_cold_scenario_unseen("cold_scenario_revision")),
+    ("cold-scenario truncate", COLD_SCENARIO, '_OPS02 = "TRUNCATE cold_scenario"\n',
+     "The cold scenario store never updates, deletes, truncates, upserts or runs DDL"),
+]
+
 WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls attestation insert", ASSESS,
      '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id, proof_class) "\n    "VALUES (:i, :p)"\n)\n'),
@@ -893,6 +923,10 @@ WRITER_CONTROLS += [
     ("controls decision mini_opportunity_selection insert", DECISION, _work_control("mini_opportunity_selection")),
     ("controls decision mini_decision_work_link insert", DECISION, _work_control("mini_decision_work_link")),
     ("controls decision mini_opportunity_scenario_link insert", DECISION, _work_control("mini_opportunity_scenario_link")),
+]
+WRITER_CONTROLS += [
+    ("controls cold-scenario cold_scenario insert", COLD_SCENARIO, _work_control("cold_scenario")),
+    ("controls cold-scenario cold_scenario_revision insert", COLD_SCENARIO, _work_control("cold_scenario_revision")),
 ]
 
 

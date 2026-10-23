@@ -104,6 +104,27 @@ const DISCLOSURE_TERMS: Term[] = [
 ];
 const UNDERSCORE_CODE = W1_PATTERNS[0];
 
+/**
+ * W5-01b C5 (P-C5-6/7/8): per-screen glosses, keyed by v6.9 screen ID. Each is an exact, case-sensitive string
+ * removed from that screen's text before the T028 (+W1) scan; nothing is removed on any other screen, and the
+ * global glosses and T028 terms are unchanged.
+ */
+const SCREEN_GLOSSES: Record<string, string[]> = Object.fromEntries(
+  Object.entries(vocabulary.screenGlosses as Record<string, { text: string }[]>).map(([screen, glosses]) => [
+    screen,
+    // Longest first, so a gloss that contains a shorter one is removed whole.
+    glosses.map((gloss) => gloss.text).sort((a, b) => b.length - a.length),
+  ]),
+);
+
+/** `text` with the exact glosses of `screen` removed (unchanged when the screen has none). */
+export function withoutScreenGlosses(text: string, screen: string | undefined): string {
+  if (screen === undefined) return text;
+  let out = text;
+  for (const gloss of SCREEN_GLOSSES[screen] ?? []) out = out.split(gloss).join(" ");
+  return out;
+}
+
 /** Which list a scan applies: the T028 list alone, or T028 plus the W1 set. */
 export type VocabularySet = "t028" | "w1";
 
@@ -190,9 +211,9 @@ function exemptReason(element: Element | null, root: Element): string | null {
 export function scanProductVocabulary(
   root: HTMLElement,
   page: string,
-  options: { set?: VocabularySet } = {},
+  options: { set?: VocabularySet; screen?: string } = {},
 ): { violations: VocabularyViolation[]; scanned: number } {
-  return scanWith(root, page, (text) => forbiddenPhrases(text, options.set ?? "t028"));
+  return scanWith(root, page, (text) => forbiddenPhrases(withoutScreenGlosses(text, options.screen), options.set ?? "t028"));
 }
 
 /**

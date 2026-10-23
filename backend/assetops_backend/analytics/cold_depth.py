@@ -218,6 +218,20 @@ class ColdDepthReadService:
                           "source_provenance": provenance},
         }
 
+    def basis_on(self, c, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
+        """W5-01b C4: the selected window, selection and server-resolved authored basis on the caller's `c` (the
+        C4 write or read snapshot), composed only from `_selected`, `_head` and `foundation_on`. Read-only."""
+        snap = self._selected(c, t, s, code, lo, hi, known_at)
+        head = self._head(c, snap)
+        foundation = self._reads.foundation_on(c, snap)
+        window, selection = head["window"], head["selection"]
+        return {"window": window, "selection": selection, "authored_basis": {
+            "from": window["from"], "to": window["to"], "cutoff": window["known_at"],
+            "assessment_revision_ids": selection["assessment_revision_ids"],
+            "accepted_evidence_ids": selection["accepted_evidence_ids"],
+            "foundation_revision_id": foundation["revision_id"] if foundation else None,
+            "source_provenance": selection["source_provenance"]}}
+
     @staticmethod
     def _selected_ids(snap: dict[str, Any]) -> list[str]:
         return _ids(e for sel in snap["selected"].values() for e in sel.evidence_ids)

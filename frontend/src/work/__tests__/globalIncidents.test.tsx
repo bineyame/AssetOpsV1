@@ -419,6 +419,18 @@ describe("W6-01a A2: global work client", () => {
     expect(await createGlobalWorkClient().incidents(query)).toEqual({ status: "refused", code: "WORK_STORE_UNAVAILABLE" });
   });
 
+  it("accepts object state counts on /incidents and refuses null ones (W6-01b P-B2-2)", async () => {
+    const answers: unknown[] = [body([row(1)]), { ...body([row(1)]), state_counts: null }];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(answers.shift() ?? null), { status: 200 })),
+    );
+    const reads = createGlobalWorkClient();
+    const query = { from: FROM, to: TO, known_at: null, cursor: null };
+    expect((await reads.incidents(query)).status).toBe("loaded");
+    expect(await reads.incidents(query)).toEqual({ status: "refused", code: "WORK_STORE_UNAVAILABLE" });
+  });
+
   it("ignores undeclared page keys", () => {
     const parsed = globalWorkPageQuery(new URLSearchParams(`from=${FROM}&to=${TO}&site_id=KOBO-001&limit=50`));
     expect(parsed).toEqual({ status: "valid", query: { from: FROM, to: TO, known_at: null, cursor: null } });

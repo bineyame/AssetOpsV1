@@ -1,0 +1,290 @@
+{
+  "state": "positive",
+  "captured_at": "2026-10-22T17:02:02.558Z",
+  "results": [
+    {
+      "state": "positive",
+      "width": 1440,
+      "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "image": "positive-1440.png",
+      "heights": {
+        "page_header": {
+          "h": 59,
+          "w": 1145
+        },
+        "control_bar": {
+          "h": 35,
+          "w": 595
+        },
+        "status_line": {
+          "h": 33,
+          "w": 175
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1145
+        },
+        "cards": {
+          "h": 130,
+          "w": 1145
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "table_panel": {
+          "h": 609,
+          "w": 1145
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1145
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 1145
+        },
+        "notice": {
+          "h": 42,
+          "w": 1145
+        },
+        "status_strip": null,
+        "table": {
+          "h": 545,
+          "w": 1090
+        },
+        "thead": {
+          "h": 35,
+          "w": 1090
+        },
+        "pager": {
+          "h": 29,
+          "w": 1105
+        },
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        },
+        "card_max": {
+          "h": 130,
+          "w": 0
+        }
+      },
+      "scroll_hint_visible": false,
+      "row_heights": [
+        102,
+        102,
+        102,
+        102,
+        102
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1090,
+        "scroll": 1090,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 1425,
+        "client": 1425
+      },
+      "page_height": 1113,
+      "text": {
+        "status": "As known at 22 Oct 2026, 17:01 UTC",
+        "cards": [
+          "Open work55 requests in progress or open",
+          "Verification overdueNot assessedNo work-outcome verification clock",
+          "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+          "Repeat findingsNot assessedNo repeat-finding assessment"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–5 of 7",
+        "first_row": [
+          "WR-000007 · Inspect inverter relayFull title textInspect inverter relayNo linked",
+          "No asset recorded · Kobo mini-grid",
+          "Not assigned",
+          "Open",
+          "Not established",
+          "Not recorded"
+        ],
+        "codes": [
+          "WR-000007",
+          "WR-000006",
+          "WR-000005",
+          "WR-000004",
+          "WR-000003"
+        ],
+        "lineage": [
+          "No linked Finding or Action",
+          "No linked Finding or Action",
+          "No linked Finding or Action",
+          "No linked Finding or Action",
+          "No linked Finding or Action"
+        ],
+        "lineage_links": [
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "tabs": "CorrectivePreventive · scheduled · Not available yet",
+        "notice": "A completed request records activity; an equipment outcome remains unverified."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "positive",
+      "width": 390,
+      "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "image": "positive-390.png",
+      "heights": {
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "control_bar": {
+          "h": 165,
+          "w": 358
+        },
+        "status_line": {
+          "h": 17,
+          "w": 175
+        },
+        "date_bar_slot": {
+          "h": 211,
+          "w": 358
+        },
+        "cards": {
+          "h": 269,
+          "w": 358
+        },
+        "loading": null,
+        "state_block": null,
+        "zero_block": null,
+        "table_panel": {
+          "h": 690,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "notice": {
+          "h": 60,
+          "w": 358
+        },
+        "status_strip": null,
+        "table": {
+          "h": 545,
+          "w": 1030
+        },
+        "thead": {
+          "h": 35,
+          "w": 1030
+        },
+        "pager": {
+          "h": 29,
+          "w": 318
+        },
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        },
+        "card_max": {
+          "h": 130,
+          "w": 0
+        }
+      },
+      "scroll_hint_visible": true,
+      "row_heights": [
+        102,
+        102,
+        102,
+        102,
+        102
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 318,
+        "scroll": 1030,
+        "overflowX": "auto"
+      },
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1586,
+      "text": {
+        "status": "As known at 22 Oct 2026, 17:02 UTC",
+        "cards": [
+          "Open work55 requests in progress or open",
+          "Verification overdueNot assessedNo work-outcome verification clock",
+          "Preventive due in 30 daysNot assessedSee PreventiveView detail · Not available yet",
+          "Repeat findingsNot assessedNo repeat-finding assessment"
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–5 of 7",
+        "first_row": [
+          "WR-000007 · Inspect inverter relayFull title textInspect inverter relayNo linked",
+          "No asset recorded · Kobo mini-grid",
+          "Not assigned",
+          "Open",
+          "Not established",
+          "Not recorded"
+        ],
+        "codes": [
+          "WR-000007",
+          "WR-000006",
+          "WR-000005",
+          "WR-000004",
+          "WR-000003"
+        ],
+        "lineage": [
+          "No linked Finding or Action",
+          "No linked Finding or Action",
+          "No linked Finding or Action",
+          "No linked Finding or Action",
+          "No linked Finding or Action"
+        ],
+        "lineage_links": [
+          [],
+          [],
+          [],
+          [],
+          []
+        ],
+        "tabs": "CorrectivePreventive · scheduled · Not available yet",
+        "notice": "A completed request records activity; an equipment outcome remains unverified."
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

@@ -70,16 +70,9 @@ export const REVIEWED_EXEMPTIONS = [
   {
     file: 'frontend/src/sites/siteWorkCases.tsx',
     constName: 'WORK_CONTEXT_NOTICE',
-    text: 'Case history is stored with this site. Incidents can be managed globally. Global Maintenance and the create flow are not available yet.',
-    decision: 'W4-01 Run 8 rulings (q8-1); W6-01 build spec section 3 A2 card',
-    reason: 'A Site Work notice about the unavailable global Maintenance destination and create flow (global Incidents is live since W6-01a), not missing Site evidence or a Site claim, so it is not a mock_gaps placement.',
-  },
-  {
-    file: 'frontend/src/sites/siteWorkCases.tsx',
-    constName: 'WORK_MANAGE_UNAVAILABLE_STATUS',
-    text: 'Not available yet',
-    decision: 'W4-01 Run 8 rulings (q8-1)',
-    reason: 'The Site Work strip status for the unavailable global Incidents/Maintenance destination and create flow, not missing Site evidence or a Site claim, so it is not a mock_gaps placement.',
+    text: 'Case history is stored with this site. Incidents and Maintenance can be managed globally. The create flow is not available yet.',
+    decision: 'W4-01 Run 8 rulings (q8-1); W6-01 build spec section 3 A2 and B2 cards',
+    reason: 'A Site Work notice about the unavailable create flow (global Incidents is live since W6-01a and global Maintenance since W6-01b), not missing Site evidence or a Site claim, so it is not a mock_gaps placement.',
   },
 ];
 

@@ -30,7 +30,8 @@ if URL:
 
     from assetops_backend.mini_decisions.store import MiniDecisionWriteRefused, PostgresMiniDecisionStore
 
-HEAD = "0030_w4_mini_decisions"
+HEAD = "0030_w4_mini_decisions"  # the W4 migration under test
+LATEST_HEAD = "0032_w5_cold_scenarios"  # W5-01b: the current sole head, crossed empty before 0030
 PREVIOUS = "0029_w4_mini_depth"
 REFUSED_HISTORY = "Downgrade of 0030_w4_mini_decisions refused: decision history exists"
 REFUSED_JOBS = "Downgrade of 0030_w4_mini_decisions refused: opportunity jobs exist"
@@ -172,6 +173,15 @@ def head_counters(engine, site_id) -> tuple:  # noqa: F811
                                {"s": site_id}).one())
 
 
+def to_0030(config, engine) -> None:  # noqa: F811
+    """Downgrade the empty 0032 to the 0030 migration under test before any 0030 downgrade."""
+    from alembic import command
+
+    engine.dispose()
+    command.downgrade(config, HEAD)
+    assert head(engine) == HEAD and catalog(engine) == expected_at_head()
+
+
 def module_0030():
     path = Path(__file__).resolve().parents[1] / "migrations" / "versions" / "0030_w4_mini_decisions.py"
     spec = importlib.util.spec_from_file_location("m0030", path)
@@ -242,8 +252,8 @@ class TestMigration0030:
 
         config = _alembic()
         script = ScriptDirectory.from_config(config)
-        assert script.get_heads() == [HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
-        assert head(engine) == HEAD and catalog(engine) == expected_at_head()
+        assert script.get_heads() == [LATEST_HEAD] and script.get_revision(HEAD).down_revision == PREVIOUS
+        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
         assert (len(TABLES), len(UNIQUES), len(FKS), len(INDEXES), len(CHECKS)) == (10, 22, 20, 5, 45)
         # S3/S4: the selection job FK is the one ordinary, unscoped reference to recompute_job(id).
         with engine.connect() as c:
@@ -260,13 +270,14 @@ class TestMigration0030:
         assert tuple(job_fk) == ("recompute_job", ["job_id"]) and scoped == 19 and source_job_fk == 0
         engine.dispose()
         try:
+            to_0030(config, engine)
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS and catalog(engine) == expected_at_0029()
             command.upgrade(config, "head")
         finally:
-            if head(engine) != HEAD:
+            if head(engine) != LATEST_HEAD:
                 command.upgrade(config, "head")
-        assert head(engine) == HEAD and catalog(engine) == expected_at_head()
+        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
 
     def test_counters_zero_on_existing_site_head_and_round_trip(self, ctx, engine) -> None:  # noqa: F811
         """u1: a Site head that exists before 0030 reads zero on all three counters after upgrade; the counters
@@ -277,6 +288,7 @@ class TestMigration0030:
         _replica(engine, f"DELETE FROM schedule_site_head WHERE site_id = '{s}'")
         config = downgrade_config(ctx.site_obj, engine)
         try:
+            to_0030(config, engine)
             command.downgrade(config, PREVIOUS)
             assert head(engine) == PREVIOUS and catalog(engine) == expected_at_0029()
             with engine.begin() as c:
@@ -284,10 +296,10 @@ class TestMigration0030:
                                "created_at) VALUES (:t, :s, 'MINI', clock_timestamp(), clock_timestamp())"),
                           {"t": t, "s": s})
             command.upgrade(config, "head")
-            assert head(engine) == HEAD and catalog(engine) == expected_at_head()
+            assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
             assert head_counters(engine, s) == (0, 0, 0)
         finally:
-            if head(engine) != HEAD:
+            if head(engine) != LATEST_HEAD:
                 command.upgrade(config, "head")
             _replica(engine, f"DELETE FROM schedule_site_head WHERE site_id = '{s}'")
 
@@ -314,7 +326,7 @@ class TestMigration0030:
             holding.rollback()
         finally:
             holder.close()
-        assert head(engine) == HEAD and catalog(engine) == expected_at_head()
+        assert head(engine) == LATEST_HEAD and catalog(engine) == expected_at_head()
 
     @pytest.mark.parametrize("status", ["PENDING", "DONE", "FAILED"])
     def test_downgrade_refuses_job_only(self, status, ctx, engine) -> None:  # noqa: F811
@@ -326,6 +338,7 @@ class TestMigration0030:
         assert all(scalar(engine, f"SELECT count(*) FROM {t}") == 0 for t in TABLES)
         config = downgrade_config(ctx.site_obj, engine)
         try:
+            to_0030(config, engine)
             with pytest.raises(DBAPIError, match=REFUSED_JOBS):
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD and catalog(engine) == expected_at_head()
@@ -333,7 +346,7 @@ class TestMigration0030:
                           j=job_id) == f"mini_opportunity/{status}"
             assert head_counters(engine, ctx.ctx.s) == (3, 2, 1)
         finally:
-            if head(engine) != HEAD:
+            if head(engine) != LATEST_HEAD:
                 command.upgrade(config, "head")
             _replica(engine, f"DELETE FROM schedule_site_head WHERE site_id = '{ctx.ctx.s}'")
 
@@ -344,6 +357,7 @@ class TestMigration0030:
         site_head(engine, t, s, stage="OPPORTUNITY", counters=(4, 1, 2))
         config = downgrade_config(ctx.site_obj, engine)
         try:
+            to_0030(config, engine)
             with pytest.raises(DBAPIError, match=REFUSED_STAGE):
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD and catalog(engine) == expected_at_head()
@@ -353,7 +367,7 @@ class TestMigration0030:
             with engine.begin() as c:
                 c.execute(text("DELETE FROM schedule_site_head WHERE tenant_id = :t AND site_id = :s"),
                           {"t": t, "s": s})
-            if head(engine) != HEAD:
+            if head(engine) != LATEST_HEAD:
                 command.upgrade(config, "head")
 
     def test_downgrade_refuses_decision_history(self, ctx, engine) -> None:  # noqa: F811
@@ -365,6 +379,7 @@ class TestMigration0030:
         site_head(engine, ctx.ctx.t, ctx.ctx.s)
         config = downgrade_config(ctx.site_obj, engine)
         try:
+            to_0030(config, engine)
             with pytest.raises(DBAPIError, match=REFUSED_HISTORY):
                 command.downgrade(config, PREVIOUS)
             assert head(engine) == HEAD and catalog(engine) == expected_at_head()
@@ -372,7 +387,7 @@ class TestMigration0030:
             assert scalar(engine, "SELECT narrative FROM mini_scenario_revision") == "Raise the stop SOC."
             assert head_counters(engine, ctx.ctx.s) == (3, 2, 1)
         finally:
-            if head(engine) != HEAD:
+            if head(engine) != LATEST_HEAD:
                 command.upgrade(config, "head")
             _replica(engine, f"DELETE FROM schedule_site_head WHERE site_id = '{ctx.ctx.s}'")
 

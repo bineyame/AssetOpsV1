@@ -131,3 +131,42 @@
     display: block;
   }
 }
+
+/* W6-01b P-X-2: page modifiers. Maintenance: the Corrective work requests panel cap (610 at 1440, 690 at 390)
+   minus the same non-table panel parts as Incidents; its six columns keep their P-B2-7 minimum widths (1030 px),
+   so the table scrolls inside its panel below that. A2's incident heights above are unchanged. */
+.global-work--maintenance .data-table__scroll {
+  max-height: 478px;
+}
+
+@media screen and (max-width: 760px) {
+  .global-work--maintenance .data-table__scroll {
+    max-height: 518px;
+  }
+}
+
+.global-work--maintenance .data-table {
+  min-width: 1030px;
+}
+
+/* The mock's separate card link (`View detail →`) under the card note. */
+.global-work-card-link {
+  display: block;
+  margin-top: 6px;
+}
+
+/* The view tabs sit between the page header and the date bar (mock `MAINT_GTABS`). */
+.global-work-tabs {
+  margin-bottom: 12px;
+}
+
+/* W6-01b B3 (P-X-2): Preventive plan panel cap 600 at 1440 and 690 at 390, the same non-table parts as Incidents. */
+.global-work--preventive .data-table__scroll {
+  max-height: 468px;
+}
+
+@media screen and (max-width: 760px) {
+  .global-work--preventive .data-table__scroll {
+    max-height: 518px;
+  }
+}
