@@ -258,7 +258,7 @@
    stay on one line, and a long cell's "Read full text" disclosure is a compact one-line link, not a full-width box. */
 .cold-work-actions .data-table td:nth-child(1) {
   min-width: 220px;
-  max-width: 360px;
+  max-width: 340px;
 }
 
 .cold-work-actions .data-table td:nth-child(3) {
