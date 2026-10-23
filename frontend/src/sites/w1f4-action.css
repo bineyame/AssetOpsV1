@@ -204,3 +204,34 @@
 .w1f4-action-panel td small .w1f4-failure-code code {
   max-width: none;
 }
+
+/* W5-02b K3b (K3 pre-flight rulings 2 and 7, R94): the cold Incident/Maintenance cells. A `Finding {id8}` label stays
+   on one line with its inline `Finding version` disclosure; chips never split; disclosure bodies wrap inside the cell. */
+.work-cases[data-cold-cases] .cold-work-code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.work-cases[data-cold-cases] td .disclosure--inline {
+  display: inline;
+  margin-left: 6px;
+}
+
+.work-cases[data-cold-cases] td .disclosure--inline > .disclosure__summary {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline) {
+  margin-top: 2px;
+}
+
+.work-cases[data-cold-cases] td .disclosure .disclosure__body,
+.work-cases[data-cold-cases] td .disclosure .disclosure__body code {
+  overflow-wrap: anywhere;
+}
+
+.work-cases[data-cold-cases] td [data-work-state],
+.work-cases[data-cold-cases] td [data-work-outcome] {
+  white-space: nowrap;
+}

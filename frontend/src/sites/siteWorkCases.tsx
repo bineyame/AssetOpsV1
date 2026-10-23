@@ -975,8 +975,12 @@ function Loaded({
   );
 }
 
-function Body({ copy, children }: { copy: KindCopy; children: ReactNode }) {
-  return <div className="w1f4-changes-work work-cases" data-site-work={copy.kind}>{children}</div>;
+function Body({ copy, cold, children }: { copy: KindCopy; cold: boolean; children: ReactNode }) {
+  return (
+    <div className="w1f4-changes-work work-cases" data-site-work={copy.kind} data-cold-cases={cold ? "" : undefined}>
+      {children}
+    </div>
+  );
 }
 
 export function SiteWorkCases({
@@ -1010,7 +1014,7 @@ export function SiteWorkCases({
     };
   }, [client, siteId, kind, from, to, knownAt, cursor]);
   return (
-    <Body copy={copy}>
+    <Body copy={copy} cold={cold !== null}>
       <WorkStrip copy={copy} result={result} scope={scope} cold={cold !== null} />
       {/* MOCK DEVIATION (D2) R91 (K3 pre-flight ruling 5): the cold selected-state notice between strip and panel,
           blue for Historical/Unknown and amber for Pending recompute/Stale source; absent on CURRENT. */}
