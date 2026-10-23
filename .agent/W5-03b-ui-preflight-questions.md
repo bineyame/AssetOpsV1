@@ -113,13 +113,13 @@ This file lists only points that are new or still open: 16 in total. The impleme
 ## E6: EV Scenarios against the E5 API as built
 
 **11. Nullability of `window` and `selection` is not in the client card.**
-- `window.{from,to,known_at,committed_watermark}` come from `_ev_plain(snap[...])` and can be null (`postgres_assessment_store.py:3082-3083`). The service branches on null `from`/`known_at` (`service.py:262,268-269`). `selection.assessment_revision_id` is null with no selected head (`postgres_assessment_store.py:3113`).
+- `window.{from,to,known_at,committed_watermark}` come from `_ev_plain(snap[...])` and can be null (`postgres_assessment_store.py:3082-3083`). The service branches on null `from`/`known_at` (`service.py:264`). `selection.assessment_revision_id` is null with no selected head (`postgres_assessment_store.py:3113`).
 - The card says "exact keys" and gives no types.
 - Options:
   - (a) (rec) Window values are string or null. `assessment_revision_id` is string or null. `session_revision_ids` and `accepted_evidence_ids` are string arrays. A null window with `items:[]` renders the empty block plus the UNKNOWN sentence.
   - (b) Treat any null as the unavailable state.
 
-**12. `next_cursor` has no UI.** GET pages with a default of 50 and a maximum of 100 (`rules.py:30`), and returns `next_cursor` when more rows exist (`service.py:272-281`). Cursor refusals are `EV_SCENARIO_CURSOR_INVALID` and `_BASIS_CHANGED`.
+**12. `next_cursor` has no UI.** GET pages with a default of 50 and a maximum of 100 (`rules.py:30`), and returns `next_cursor` when more rows exist (`service.py:275-281`). Cursor refusals are `EV_SCENARIO_CURSOR_INVALID` and `_BASIS_CHANGED`.
 - Options:
   - (a) (rec) Read the first page only. When `next_cursor` is non-null, show a muted line with an Architect-supplied literal and no control.
   - (b) A `Show more` button that follows `next_cursor`.
@@ -147,7 +147,7 @@ This file lists only points that are new or still open: 16 in total. The impleme
 
 **16. The E6 producer clock for `ev-scenarios-historical`.** `scenario_state` is `HISTORICAL` when either:
 - the row is superseded (`revision_no < latest_no`); or
-- `window.known_at < committed_watermark` (`service.py:270-271,291-293`).
+- `window.known_at < committed_watermark` (`service.py:271-272,291-293`).
 
 The card's capture uses "correction and saved pre-correction `scenario_at`", which proves the first case only.
 - Options:
