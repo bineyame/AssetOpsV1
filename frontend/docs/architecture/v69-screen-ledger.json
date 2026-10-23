@@ -820,11 +820,7 @@
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
-          "unresolved_panels": [
-            "Connector states over the service schedule",
-            "Full-schedule availability bound",
-            "Most useful next evidence"
-          ],
+          "unresolved_panels": [],
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
@@ -855,11 +851,7 @@
       "promotion_dependencies": {
         "to_candidate": null,
         "to_real": {
-          "unresolved_panels": [
-            "Import power and configured limit",
-            "What can be concluded",
-            "Technical-to-financial bridge"
-          ],
+          "unresolved_panels": [],
           "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
