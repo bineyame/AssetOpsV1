@@ -5452,3 +5452,33 @@ input.v69-chip-control[type="datetime-local"] {
   .ev-depth-bars__row { grid-template-columns: minmax(0, 72px) minmax(0, 1fr) minmax(0, 72px); gap: 8px; }
   .ev-depth-bars__times { margin-left: calc(72px + 8px); margin-right: calc(72px + 8px); }
 }
+
+/* W5-03a E3: EV Energy `Import power and configured limit` chart (registered `sites/evDepthGraphics.tsx`). */
+.ev-depth-badge--blue { background: #e9f0fd; color: #275ba8; }
+.ev-depth-graphic {
+  margin: 0 0 var(--space-3);
+  min-width: 0;
+  max-width: 100%;
+}
+.ev-depth-graphic__scroll {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  position: relative;
+}
+.ev-depth-graphic__scroll svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+}
+.ev-depth-graphic__legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 10px; color: var(--text-muted); margin: 9px 0; }
+.ev-depth-graphic__swatch { display: inline-block; width: 15px; height: 3px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+.ev-depth-graphic__swatch--import { background: #4f7fc6; height: 8px; width: 8px; border-radius: 50%; }
+.ev-depth-graphic__swatch--limit { background: repeating-linear-gradient(90deg, #c99748 0 6px, transparent 6px 10px); }
+.ev-depth-graphic__frame { fill: none; stroke: var(--border-subtle); stroke-width: 1; }
+.ev-depth-graphic__grid { stroke: #eaf0f5; stroke-width: 1; }
+.ev-depth-graphic__axis { font-size: 10px; fill: #7a889b; }
+.ev-depth-graphic__mark { fill: #4f7fc6; stroke: #ffffff; stroke-width: 1.5; }
+.ev-depth-graphic__limit { stroke: #c99748; stroke-width: 2; fill: none; }
+.ev-depth-graphic__limit-label { font-size: 10px; fill: #8e580c; }

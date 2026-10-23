@@ -20,6 +20,7 @@ export function evSiteRoutes(siteId: string): EvSiteRoutes {
     assumptions: siteEvHref(siteId, "assumptions"),
     sessions: sitePerformanceHref(siteId, "sessions"),
     availability: sitePerformanceHref(siteId, "availability"),
+    energy: sitePerformanceHref(siteId, "energy"),
     finding: (findingId) => siteFindingHref(siteId, findingId),
     // W2-F B2/M8: the Foundation SLD takes only `at`; the Overview passes the window end (cutoff is not carried).
     sld: (at) => siteFoundationViewHref(siteId, "sld", at),

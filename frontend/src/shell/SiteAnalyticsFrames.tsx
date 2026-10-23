@@ -60,6 +60,7 @@ import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref } from "../sites/EvAssessmentViews";
 import { EvAvailability } from "../sites/EvAvailability";
+import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
 import { evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
@@ -179,7 +180,7 @@ const DEFAULT_COLD_DEPTH = createColdDepthClient();
 const DEFAULT_MINI_DEPTH = createMiniDepthClient();
 
 /** W5-03a: the EV Performance subtabs with a live page. */
-const EV_PERFORMANCE_VIEWS: Record<string, EvPerformanceView> = { sessions: "sessions", availability: "availability" };
+const EV_PERFORMANCE_VIEWS: Record<string, EvPerformanceView> = { sessions: "sessions", availability: "availability", energy: "energy" };
 
 const DEFAULT_EV_DEPTH = createEvDepthClient();
 
@@ -207,7 +208,7 @@ export function SitePerformanceFrame({
   miniDecisions?: MiniDecisionsClient;
   /** W5-01a C2: the selected cold depth reads; a COLDCHAIN Site renders `cooling` from them. */
   coldDepth?: ColdDepthClient;
-  /** W5-03a E2: the selected EV depth reads; an EV_CHARGING Site renders `availability` from them. */
+  /** W5-03a E2/E3: the selected EV depth reads; an EV_CHARGING Site renders `availability` and `energy` from them. */
   evDepth?: EvDepthClient;
 }) {
   const { siteId, capabilityId } = useParams<{ siteId: string; capabilityId?: string }>();
@@ -236,6 +237,8 @@ export function SitePerformanceFrame({
               depth={
                 evView === "availability" ? (
                   <EvAvailability siteCode={site.site_id} window={window} client={evDepth} routes={{ analysis: evRoutes.analysis, sessions: evRoutes.sessions }} />
+                ) : evView === "energy" ? (
+                  <EvEnergy siteCode={site.site_id} window={window} client={evDepth} routes={{ analysis: evRoutes.analysis, sessions: evRoutes.sessions }} />
                 ) : undefined
               }
               siteId={site.site_id}

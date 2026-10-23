@@ -175,11 +175,12 @@ describe("W5-03a E2: EV Availability", () => {
     const crumbs = Array.from(document.querySelectorAll(".breadcrumbs a, nav[aria-label='Breadcrumb'] a")).map((a) => [a.textContent, a.getAttribute("href")]);
     expect(crumbs).toContainEqual(["Performance", `/sites/${CODE}/performance`]);
     expect(main().textContent).toContain("Performance · connector availability and unknown time");
-    // Subtabs: Availability selected and live; Energy still the one inert entry.
+    // Subtabs: Availability selected and live (E3 also made Energy / site power live: no inert entry remains).
     const tab = document.querySelector('[data-performance-subtab="availability"]') as HTMLElement;
     expect(tab.getAttribute("aria-current")).toBe("page");
     expect(document.querySelector('[data-performance-subtab="sessions"]')?.hasAttribute("aria-current")).toBe(false);
-    expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(1);
+    expect(document.querySelector('[data-performance-subtab="energy"]')?.hasAttribute("aria-current")).toBe(false);
+    expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(0);
     expect(document.querySelector('[data-tab-unavailable="Availability"]')).toBeNull();
     // Status always Evidence limited; muted text from the selected (differing) schedules.
     expect(text(".status-strip")).toContain("Evidence limited");

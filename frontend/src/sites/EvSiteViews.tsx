@@ -74,6 +74,8 @@ export interface EvSiteRoutes {
   sessions: string;
   /** W5-03a E2: the selected EV Availability depth page (Performance subtab). */
   availability: string;
+  /** W5-03a E3: the selected EV Energy / site power depth page (Performance subtab). */
+  energy: string;
   finding: (findingId: string) => string;
   /** W2-F B2/M8: the Foundation single line diagram at one instant (`at` only; no `from` or `known_at`). */
   sld: (at: string) => string;
@@ -451,7 +453,7 @@ function OverviewCards({ o, caps, routes }: { o: EvOverviewRead; caps: EvCapabil
     <MetricCards columns={5} label="EV charging conditions">
       <MetricCard label={<Link to={sel(routes.sessions, window)}>Session service</Link>} value={sessionWord(o)} note={sessionNote} tone="muted" assessment data={{ "data-ev-card": "sessions" }} />
       <MetricCard label={<Link to={sel(routes.availability, window)}>Availability</Link>} value="Not assessed" note="Connector availability is not assessed" tone="muted" assessment data={{ "data-ev-card": "availability" }} />
-      <MetricCard label="Site power" value={peak} note={powerNote} tone="muted" assessment data={{ "data-ev-card": "power" }} />
+      <MetricCard label={<Link to={sel(routes.energy, window)}>Site power</Link>} value={peak} note={powerNote} tone="muted" assessment data={{ "data-ev-card": "power" }} />
       <MetricCard label="Charger condition" value="Not assessed" note="Source reporting is not equipment condition" tone="muted" assessment data={{ "data-ev-card": "charger" }} />
       <MetricCard
         label={<Link to={sel(routes.evidence, window)}>Evidence</Link>}

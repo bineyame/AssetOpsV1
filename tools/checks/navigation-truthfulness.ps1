@@ -758,8 +758,10 @@ function Get-InPageUnavailableEntryFailures {
     # W6-01d C4 (F4, 2026-10-23): the History tab is live (`WORK_REQUEST_HISTORY_ROUTE_PATH`), so its entry is gone.
     # W5-03a E2: EV Performance > Availability is a live route (`/sites/{site_code}/performance/availability`), so
     # its one unavailable occurrence is gone; the live subtab and page branch are held below.
+    # W5-03a E3: EV Performance > Energy / site power is live (`/sites/{site_code}/performance/energy`), so its
+    # one unavailable occurrence is gone too; its live subtab and page branch are held below.
     $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation",
-        "Energy / site power", "Analysis", "Verification")
+        "Analysis", "Verification")
     # W2-F unit 4b (M12): EV Financials/Assumptions carry the mock's Scenarios slot as one literal in EvSiteViews.tsx.
     $expectedChips = @("Cost", "Risks", "Opportunities")
 
@@ -858,6 +860,10 @@ function Get-InPageUnavailableEntryFailures {
     if (-not ($evFrameText.Contains('data-performance-subtab="availability"') -and $evPageText.Contains('<EvAvailability'))) {
         $failures.Add(("The live EV Availability subtab or page branch is missing: ${evFramePath} must carry " +
             "data-performance-subtab=""availability"" and ${evPagePath} must render <EvAvailability (W5-03a E2).")) | Out-Null
+    }
+    if (-not ($evFrameText.Contains('data-performance-subtab="energy"') -and $evPageText.Contains('<EvEnergy'))) {
+        $failures.Add(("The live EV Energy / site power subtab or page branch is missing: ${evFramePath} must carry " +
+            "data-performance-subtab=""energy"" and ${evPagePath} must render <EvEnergy (W5-03a E3).")) | Out-Null
     }
 
     # W5-01b C5 (P-C5-9..16): the cold Financials Scenarios tab is live for COLDCHAIN only. The Scenarios view

@@ -393,7 +393,7 @@ function sourceDetail(read: EvSessionsRead) {
   ];
 }
 
-function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null; gap: string | null; findingHref: (findingId: string) => string }) {
+function RecordsPanel({ read, gap, findingHref, energyHref }: { read: EvSessionsRead | null; gap: string | null; findingHref: (findingId: string) => string; energyHref: string }) {
   let body: ReactNode;
   const sourceBlocked = read !== null && read.limitations.includes(EV_COPY.sourceUnassessable);
   if (read === null) {
@@ -436,7 +436,7 @@ function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null;
     );
   }
   return (
-    <Panel heading="Session service records" headingId="ev-records-heading" description={<UnavailableInline label="Energy summary" />}>
+    <Panel heading="Session service records" headingId="ev-records-heading" description={<Link to={energyHref} data-ev-energy-summary="">Energy summary →</Link>}>
       {body}
     </Panel>
   );
@@ -535,7 +535,7 @@ function SessionsStrip({ read, gap }: { read: EvSessionsRead | null; gap: string
 /* ---------- Performance / Sessions frame ---------- */
 
 /** W5-03a: the EV Performance subtabs with a live page; `sessions` is the W2-06 default. */
-export type EvPerformanceView = "sessions" | "availability";
+export type EvPerformanceView = "sessions" | "availability" | "energy";
 
 export interface EvSessionsFrameProps {
   siteId: string;
@@ -560,6 +560,7 @@ export interface EvSessionsFrameProps {
 const SCREEN_OF: Record<EvPerformanceView, keyof typeof SITE_SCREEN_DESCRIPTIONS> = {
   sessions: "sessions",
   availability: "availability",
+  energy: "energy",
 };
 
 function EvPerformanceSubtabs({ view, props }: { view: EvPerformanceView; props: EvSessionsFrameProps }) {
@@ -576,7 +577,11 @@ function EvPerformanceSubtabs({ view, props }: { view: EvPerformanceView; props:
             Availability
           </Link>
         </li>
-        <UnavailableTab label="Energy / site power" />
+        <li className="site-tabs__item">
+          <Link className="site-tabs__link" to={props.subtabHref("energy")} data-performance-subtab="energy" aria-current={view === "energy" ? "page" : undefined}>
+            Energy / site power
+          </Link>
+        </li>
       </ol>
     </nav>
   );
@@ -628,7 +633,7 @@ function EvSessionsPage(props: EvSessionsFrameProps) {
         <>
           <SessionsStrip read={read} gap={gap} />
           <SessionCards read={read} />
-          <RecordsPanel read={read} gap={gap} findingHref={props.findingHref} />
+          <RecordsPanel read={read} gap={gap} findingHref={props.findingHref} energyHref={props.subtabHref("energy")} />
           <div className="panel-pair ev-pair">
             <DenominatorPanel read={read} gap={gap} />
             <CausePanel read={read} gap={gap} />
