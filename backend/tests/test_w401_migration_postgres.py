@@ -25,7 +25,7 @@ if URL:
     from test_s4_consequence_store_postgres import _release_connections, site, site_before_0029  # noqa: F401
     from test_w203_cold_migration_postgres import _replica, constraint, head, minigrid_rows, scalar, table_exists
 
-HEAD = "0032_w5_cold_scenarios"  # W5-01b: 0032 sits above 0030 (W4-03 above 0029)
+HEAD = "0033_w5_cold_work"  # W5-02a: 0033 sits above 0032 (W5-01b above 0030)
 PREVIOUS = "0026_w2_ev_money"
 REFUSED = "0027 downgrade requires empty W4 work tables"
 APPEND_ONLY = "W4 work history is append only"
