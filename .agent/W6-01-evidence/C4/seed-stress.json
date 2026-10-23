@@ -1,0 +1,120 @@
+﻿{
+  "clock": "2026-10-20T12:00:00Z",
+  "commands": [
+    {
+      "case_id": "ef3dc185-e96c-4c42-8694-1ee61a6da23b",
+      "event": "ASSIGN",
+      "event_id": "d86e43fb-3cc4-4b2d-85cf-076c66d5a6ff",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "83c99aac-ff0f-4710-ba04-00f26e2205b3",
+      "event": "ASSIGN",
+      "event_id": "d2c1a935-26dd-46eb-86c8-b8451c52d575",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "83c99aac-ff0f-4710-ba04-00f26e2205b3",
+      "record_id": "d1b5ab7e-744f-43cf-95b9-0fe9ce504bbf",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "83c99aac-ff0f-4710-ba04-00f26e2205b3",
+      "reason": "Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corrected the inspection scope Corr",
+      "revision_id": "4498454a-b3d8-4ce1-a3d7-1fb7499667d4",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    }
+  ],
+  "fixture": "stress",
+  "sites": [
+    {
+      "site_code": "KOBO-001",
+      "site_id": "df25a1c8-ecd0-4e66-9ab8-ba65c4aa5050",
+      "tenant": "demo",
+      "tenant_id": "f523e903-8be1-4c61-a35f-cc66bed39407"
+    },
+    {
+      "site_code": "KOBO-002",
+      "site_id": "c2c97f94-a302-4e1d-b2fd-7b6d226fde10",
+      "tenant": "demo",
+      "tenant_id": "f523e903-8be1-4c61-a35f-cc66bed39407"
+    },
+    {
+      "site_code": "KOBO-001",
+      "site_id": "f616157c-1ba5-4d39-9d22-7d3a376caf1c",
+      "tenant": "w601-other",
+      "tenant_id": "fcc7db4b-2918-467d-bc41-0127738b532e"
+    }
+  ],
+  "written": [
+    {
+      "case_id": "ef3dc185-e96c-4c42-8694-1ee61a6da23b",
+      "code": "INC-000001",
+      "kind": "INCIDENT",
+      "revision_id": "cc4eefbd-3a98-46dc-88f0-5688674bafbf",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "33f57c55-0d6b-4065-aea2-0f1d0f09e9ca",
+      "code": "INC-000002",
+      "kind": "INCIDENT",
+      "revision_id": "53022176-7e13-4167-a5cf-7a49d77e12b9",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "3118bacd-fc2f-4cde-acd9-3bfc19e8f1f6",
+      "code": "INC-000003",
+      "kind": "INCIDENT",
+      "revision_id": "441a4029-3d23-4cdb-8da6-6b0a0380e309",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "4833e89b-6892-479d-bf5b-48fb9289e43e",
+      "code": "INC-000004",
+      "kind": "INCIDENT",
+      "revision_id": "83fb5369-2209-474b-80c9-f20f2052b963",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "45a8bd78-c0ac-48d8-a18e-6d368da8e27f",
+      "code": "INC-000005",
+      "kind": "INCIDENT",
+      "revision_id": "6d6216e4-70be-4c4f-b02d-b6e9cb332c03",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "712d1218-eebd-46ac-9adc-8b9a4c6cd683",
+      "code": "INC-000006",
+      "kind": "INCIDENT",
+      "revision_id": "834d6841-05e0-4481-a354-eea0f51f6bd2",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "case_id": "83c99aac-ff0f-4710-ba04-00f26e2205b3",
+      "code": "WR-000007",
+      "incident_id": null,
+      "kind": "MAINTENANCE_REQUEST",
+      "site_code": "KOBO-001",
+      "tenant": "demo"
+    },
+    {
+      "code": "PM-000008",
+      "kind": "PLAN",
+      "plan_id": "697361a5-fa62-4013-a91e-f33720b587ea",
+      "site_code": "KOBO-001",
+      "supersedes_plan_id": null,
+      "tenant": "demo",
+      "title": "QuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterlyfilterandbeltinspectionQuarterl"
+    }
+  ]
+}

@@ -755,8 +755,9 @@ function Get-InPageUnavailableEntryFailures {
     # W6-01c C2 (F4): the work request Overview's Context tabs render Maintenance record, Verification and History
     # unavailable, once each in `workRequestShared.tsx`; C3 removes Maintenance record and C4 removes History.
     # W6-01c C3 (F4): the Maintenance record tab is live (`WORK_REQUEST_RECORD_ROUTE_PATH`), so its entry is gone.
+    # W6-01d C4 (F4, 2026-10-23): the History tab is live (`WORK_REQUEST_HISTORY_ROUTE_PATH`), so its entry is gone.
     $expectedTabs = @("Scenarios", "Scenarios", "Recommendation", "Recommendation", "Availability",
-        "Energy / site power", "Analysis", "Verification", "History")
+        "Energy / site power", "Analysis", "Verification")
     # W2-F unit 4b (M12): EV Financials/Assumptions carry the mock's Scenarios slot as one literal in EvSiteViews.tsx.
     $expectedChips = @("Cost", "Risks", "Opportunities")
 

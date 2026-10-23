@@ -8,10 +8,10 @@ Deliver v6.9 `availability`, `energy`, `ev-health`, and `ev-scenarios` for an au
 
 | Merge | Result | Units | Migration | Predecessor |
 | --- | --- | --- | --- | --- |
-| W5-03a | Selected observed connector availability and energy/site-power pages | E1a–E3 (four builder runs) | None | W5-02 reviewed/merged at `0033` |
+| W5-03a | Selected observed connector availability and energy/site-power pages | E1a, E1b, E2, E3 page/chart, E3 closeout (five builder runs, four reviewed units) | None | W5-02a core K1a–K1c independently reviewed and merged with sole `0033` head; W5-02 K2a/K2b screens may follow W5-03a |
 | W5-03b | Bounded EV Health and immutable authored financial scenarios | E4–E6 | `0034_w5_ev_scenarios`, `down_revision="0033_w5_cold_work"` (the required exact head produced by W5-02) | reviewed W5-03a and merged `0033` |
 
-W5-02 owns the exact `0033_w5_cold_work` revision ID, and W5-03b must verify one parent and one head. W5-04 (`0035`) follows W5-03b. No W4-01 case-model change is authorized.
+W5-02a core owns the exact `0033_w5_cold_work` revision ID. W5-03a may start after that core merges; W5-03b must verify one parent and one head. W5-04 (`0035`) follows W5-03b. The shared-file merge order is W5-02a core (`main.py`), W5-03a E1b (`main.py`), E2/E3 (Site frames, routes and navigation guards), then W5-02 K2a/K2b rebased over those UI edits. No W4-01 case-model change is authorized.
 
 ## Observable acceptance
 

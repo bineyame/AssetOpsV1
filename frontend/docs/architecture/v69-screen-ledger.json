@@ -3539,7 +3539,7 @@
       "follow_on": null,
       "data_owner": "W6-01 global work read (GlobalWorkIndexService / GlobalWorkDetailService)",
       "supported_claim": "One work request at one cutoff, read from the stored case detail by Site code: selected revision, state, latest assignee, latest authored activity and the exact Finding or Incident source; Completed is not Verified.",
-      "interaction": "Open a request from Maintenance; Overview keeps its Site and explicit cutoff. Maintenance record keeps the same request and explicit cutoff. History is shown as unavailable until its page mounts.",
+      "interaction": "Open a request from Maintenance; Overview, Maintenance record and History keep the same request, Site and explicit cutoff. Verification is not available yet.",
       "unknown_or_empty": "No maintenance activity recorded, Not assigned, Due / SLA Not set and Success criterion Not recorded are stated; a wrong Site is No access or Not found, never an empty request.",
       "visual_reference": "index.html#/wr-overview",
       "proposed_fidelity_tier": "Deferred",
@@ -3587,30 +3587,23 @@
       "registry_dependencies": {"product_node_id":"P-work-cases","node_ids":["I-w601c-detail","I-w601d-history-ui","D-work-records"]},
       "mock_route": "#/wr-history",
       "product_destination": "Maintenance > History",
-      "coverage": "deferred",
-      "task": null,
-      "follow_on": "post-S7 cold-chain domain",
-      "data_owner": "Unassigned Maintenance read model",
-      "supported_claim": "No S1-S7 product claim. WorkEvent needs a reviewed data and claim contract.",
-      "interaction": "Open Maintenance > History and follow its primary record or selected window; interaction contract pending.",
-      "unknown_or_empty": "Show unavailable/Unknown until WorkEvent is backed by accepted records; no mock value is product evidence.",
+      "coverage": "bounded",
+      "task": "W6-01d",
+      "follow_on": null,
+      "data_owner": "W6-01 global work read (GlobalWorkIndexService / GlobalWorkDetailService)",
+      "supported_claim": "The request's authored events and correction revisions at the cutoff in recorded order, with the stored actor and occurrence time.",
+      "interaction": "Open History from a request; five authored rows per page keep the same request, Site and explicit cutoff, with occurrence time in each row.",
+      "unknown_or_empty": "A request without its Created event is a read failure, not an empty history; no event verifies an equipment outcome.",
       "visual_reference": "index.html#/wr-history",
       "proposed_fidelity_tier": "Deferred",
       "tier_approval": "pending owner review",
       "promotion_dependencies": {
-        "to_candidate": {
-          "architecture_decisions": [
-            "WorkEvent"
-          ],
-          "projection_contracts": [],
-          "fixture_or_record_gate": "Attested incident, maintenance or operational-record lifecycle with Site/Asset links and a missing-evidence case.",
-          "task_gate": "Owner chooses the fidelity tier; Planner defines a bounded task after the named contracts and fixture gate are reviewed."
-        },
+        "to_candidate": null,
         "to_real": {
           "unresolved_panels": [
             "History"
           ],
-          "remaining_work": "After candidacy, implement and verify every panel/interaction against its reviewed model, persisted fixture and visual reference.",
+          "remaining_work": "Independent W6-01d review accepting the exact slice, the owner fidelity tier decision and the post-W6 owner walkthrough.",
           "acceptance": "Review rendered layout and interactions at desktop/narrow widths, missing states, reload and source-to-claim lineage."
         }
       }

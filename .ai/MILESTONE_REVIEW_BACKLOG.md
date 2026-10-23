@@ -2389,3 +2389,6 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 ## W5-F1 Lows
 - L1: the `healthHref` prop in ColdFoundationViews is now unused; remove it.
 - L2: the Architect should confirm that R22 covers the link text change from the mock's "Health › Data sources" to "Evidence › Data sources", and name the `excursion` seed in the F1 spec so the capture can be rerun.
+
+## W6-01d Lows
+- L1: the C4 evidence JSON garbles "—" and "·" (screenshots are fine).
