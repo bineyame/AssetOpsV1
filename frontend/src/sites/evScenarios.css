@@ -1,0 +1,12 @@
+/*
+ * W5-03b E6: at phone width the authored-basis expansion row spans the whole (horizontally scrolled) table, so its
+ * disclosure would start wider than the visible table viewport and cut long exact IDs at the right edge. Pin the
+ * disclosure to the viewport's left edge and width so every ID breaks inside the visible 360px-capped scroller.
+ */
+@media (max-width: 640px) {
+  .ev-scenarios-basis {
+    position: sticky;
+    left: 0;
+    max-width: calc(100vw - 108px);
+  }
+}

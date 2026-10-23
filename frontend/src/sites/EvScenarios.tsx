@@ -26,6 +26,7 @@ import {
   type EvScenariosState,
 } from "./evScenariosClient";
 import "./coldScenarios.css";
+import "./evScenarios.css";
 
 export const EV_SCENARIOS_LOADING = "Loading the site's EV scenarios.";
 export const EV_SCENARIOS_REFUSAL_HEADING = "EV scenarios unavailable";
@@ -122,7 +123,7 @@ function RefList({ values }: { values: string[] }) {
 function Basis({ item }: { item: EvScenarioItem }) {
   const basis = item.authored_basis;
   return (
-    <div className="cold-scenarios-basis" data-ev-scenario-basis={item.id} role="region" aria-label="Authored scenario basis" tabIndex={0}>
+    <div className="cold-scenarios-basis ev-scenarios-basis" data-ev-scenario-basis={item.id} role="region" aria-label="Authored scenario basis" tabIndex={0}>
       <dl>
         <dt>Kind</dt>
         <dd>
