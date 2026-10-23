@@ -1,47 +1,55 @@
-# W5-02b K3 evidence (cold Incidents and Maintenance tabs)
+# W5-02b K3 evidence (cold Incidents and Maintenance tabs), final recapture under K3 rulings 17-24
 
-The images were produced by `W502B_EVIDENCE=cases node tools/w502-cold-work-evidence.mjs <manifest> .agent/W5-02b-K3-evidence`. The manifest came from `python tools/w502_cold_work_walkthrough.py --work var/w502b_cold_work_k3 --tag k3 prepare|serve|attest`, with the tool tree at `a0c3c17e` (backend unchanged).
+The images were produced by `W502B_EVIDENCE=cases node tools/w502-cold-work-evidence.mjs .agent/W5-02b-K3-evidence/manifest.json .agent/W5-02b-K3-evidence`. The manifest is a copy of the one from `python tools/w502_cold_work_walkthrough.py --work var/w502b_cold_work_k3 --tag k3 prepare|serve|attest`, with the tool tree at `6815ae65` (backend unchanged).
 
-- **attest:** OK. All five modes are unblocked, with the expected case counts:
-  - positive, historical and every non-worst-case mode: 1 Incident and 1 Maintenance request;
-  - worstcase: 5 of each, 5 rows each;
-  - complete zero: 0.
-- **Served refusals:** the 403 is `SITE_SCOPE_FORBIDDEN` and the 503 is `WORK_STORE_UNAVAILABLE`, on both W4 case reads. The Site read stays healthy.
-- **Claims:** 738 in total, 731 PASS and 7 FAIL. The full record is in `w502b-k3-measurements.json`.
-- **Layout fixes before this run:** the earlier run exposed layout defects, which are now fixed in `w1f4-action.css`:
-  - the facts in `UTC and IDs` stack inside a case cell, where they used to wrap one character per line;
-  - `Read full text` is a compact one-line link.
+- **prepare:** all five modes unblocked, 120 s.
+- **attest:** OK.
+  - The case reads have the expected counts.
+  - The new `current` reads from `from,to` alone return `CURRENT` on both tabs.
+  - The fixture WR is `COMPLETED`: ASSIGN at D+16h41m and COMPLETE at D+16h42m, both before its case link (ruling 22). The worst-case WRs read COMPLETED + 4×OPEN.
+  - The served W4 case reads return 403 `SITE_SCOPE_FORBIDDEN` and 503 `WORK_STORE_UNAVAILABLE`, with the Site read healthy.
+- **Claims:** 934 in total, **933 PASS and 1 FAIL**. There are 52 PNGs: 13 states × 2 tabs × 2 widths. The full record is in `w502b-k3-measurements.json`.
 
 ## States (each tab, at 1440 and 390)
 
-| State | What it shows |
+| State | Gates and notes |
 |---|---|
-| positive, worstcase | The recorded query, at the Action read's window and its returned cutoff. The returned case status is `HISTORICAL`, so the blue notice shows. |
-| historical | Read at cutoff K3. |
-| zero | The ruled `[D-8d, D-1d)` window, read as CURRENT. Shows the mock empty card. |
+| current | Ruling 19. The URL has no `known_at`, the read is `CURRENT`, and no currentness notice shows. |
+| positive | The recorded explicit cutoff; reads `HISTORICAL`. |
+| historical | Cutoff K3. |
+| zero | Complete zero. |
+| worstcase | Five rows, closed. |
 | worstcase-one-open | One `Read full text` open. |
-| worstcase-all-open | Every disclosure open. |
-| pending | Amber notice. |
-| stale | Amber notice. |
-| unknown | Blue notice. The Incident has 1 Finding link (ruling 21). |
-| forbidden-403 | W4 `Refused`, unchanged: title and fixed sentence, no Retry (ruling 9). |
-| unavailable-503 | W4 `Refused`, unchanged: title and fixed sentence, no Retry (ruling 9). |
+| worstcase-all-open | Ruling 18: every `Read full text` open, nested parents opened as needed, IDs, versions and basis closed. No height caps. |
+| worstcase-every-disclosure | Information only. No height caps. |
+| pending, stale, unknown | Notice follows the returned status. |
+| forbidden-403, unavailable-503 | W4 refusal unchanged (ruling 9). |
 
-## The 7 FAIL claims (measured, not clipped; for the Architect)
+Ruling 17 caps apply to every state except the two expanded ones: panel <= 650 at 1440 and 390, page main <= 1400/1800, strip <= 100/150, notice <= 110/160.
 
-| Width | State | Gate | Measured |
-|---|---|---|---|
-| 1440 | incidents-worstcase (closed) | panel <= 440 | 486 |
-| 1440 | incidents-worstcase-one-open | panel <= 440 | 539 |
-| 1440 | maintenance-worstcase (closed) | panel <= 440 | 486 |
-| 1440 | maintenance-worstcase-one-open | panel <= 440 | 539 |
-| 1440 | incidents-worstcase-all-open | page main <= 1400 | 2203 (panel 1759, exempt) |
-| 1440 | maintenance-worstcase-all-open | page main <= 1400 | 3140 (panel 2696, exempt) |
-| 390 | maintenance-worstcase-all-open | page main <= 1800 | 3214 (panel 2608, exempt) |
+### Measured heights, all states (panel / page main, px)
 
-The 390 worst-case panels hold their caps: Incidents 353 and Maintenance 430/526/2608. At 390 the existing W4 table scroller limits its own height and scrolls vertically inside the panel, so Incidents stays at 353 in every state.
+| State | Incidents 1440 | Incidents 390 | Maintenance 1440 | Maintenance 390 |
+|---|---|---|---|---|
+| current | 212 / 595 | 247 / 793 | 212 / 595 | 201 / 747 |
+| worstcase | 486 / 930 | 599 / 1204 | 486 / 930 | 430 / 1036 |
+| worstcase-one-open | 539 / 983 | **664** / 1270 | 539 / 983 | 526 / 1132 |
+| worstcase-all-open (info vs page 1600/2000) | 700 / 1144 | 861 / 1467 | 1149 / 1593 | 1469 / 2075 |
+| worstcase-every-disclosure (info) | 1659 / 2103 | 1714 / 2319 | 2334 / 2778 | 2199 / 2804 |
 
-## Other observations
+## The one FAIL (measured, not clipped; for the Architect)
 
-- **WR state stays OPEN.** Every producer WR is still `OPEN` after its performed record, because W4 `post_record` does not complete a request. The Activity cell therefore shows the real `Open` chip, not the mock's `Completed`, which is correct under K3 ruling 3. The mock's completed example would need a W4 completion step in the producer.
-- **No CURRENT positive capture.** A pinned explicit cutoff reads `HISTORICAL`, so no CURRENT positive capture exists. The CURRENT state is shown by the complete zero and covered by the component tests.
+**390 Incidents, `worstcase-one-open`: the panel measures 664 px against the 650 px cap (ruling 17), 14 px over.**
+- Ruling 21 removed the vertical Incidents box, so all five rows now show. The opened 160-code-point title adds about 65 px to a 599 px closed panel.
+- The page main is 1270, inside its 1800 cap.
+- Containment, the five rows and no overflow all pass.
+- Ruling 17 forbids clipping and row reduction, so this is reported unchanged.
+
+## Ruling gates confirmed in this run
+
+| Ruling | What the run confirms |
+|---|---|
+| 18 | The all-open controls are open, their previews replaced, each value shown once, and the other disclosures closed. Every disclosure summary takes keyboard focus and is not clipped. |
+| 20 | Every opened UUID stays on one line, can be reached by scrolling its own body, and does not widen its cell. The Window value is on one line at both widths. |
+| 21 | Every row sits inside the table scroller, with `max-height: none` on both cold tabs. |
+| 22 | The single-row Maintenance states show `Completed`. The five-row states show `Completed` + 4 `Open`. |

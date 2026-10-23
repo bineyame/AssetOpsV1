@@ -68,14 +68,28 @@ Claims cover no document overflow, the caps, per-cell containment, a preview of 
 - Rulings 10-15 confirm judgment calls 1-6 with no code change. For ruling 12, the test and the capture tool also assert that nested summaries are native, focusable and unclipped.
 - Ruling 16: the capture tool exempts only the five-row all-open state from the case panel cap. It logs that panel height as INFO, and every other gate still applies.
 
+## K3 review Lows and rulings 17-24
+
+- `a35cc7ee`: L1-L5.
+- `6815ae65`: rulings 17-22.
+  - 650 case-panel caps.
+  - All-open now means every `Read full text` control open, plus an INFO-only every-disclosure state. Neither has a height cap.
+  - A CURRENT capture with no `known_at`.
+  - One-line UUIDs (`contain: inline-size` + body scroll) and a one-line Window.
+  - No vertical box on the cold Incidents table.
+  - The fixture WR gets ASSIGN then COMPLETE before its case link. The four extra worst-case WRs stay OPEN.
+
+## Final batch (2026-10-24, tool tree `6815ae65`)
+
+- **Producer:** prepare passed (120 s) and attest returned ATTEST OK, including the `current` CURRENT reads and the WR `COMPLETED` state.
+- **Recapture:** 934 claims, 933 PASS and 1 FAIL, over 52 PNGs. The manifest copy is in `.agent/W5-02b-K3-evidence/`.
+- **Full vitest:** 120 files, 2835 passed. `npm run build` is green.
+- **Cleanup:** Vite (7 PIDs), the APIs and DBs (tool `drop`) and keep-awake were stopped by PID. Ports are free and no `*k3*` databases remain.
+- **Focused w502 Postgres:** skipped, as the coordinator directed; those tests do not import the producer.
+
 ## Open (for the Architect)
 
-1. **Case panel and page caps.** Seven measured cap failures are listed in the evidence README:
-   - the closed and one-open five-row panels at 1440 measure 486 and 539 against a 440 cap;
-   - the all-open page main measures 2203 and 3140 at 1440 and 3214 at 390, against 1400 and 1800 caps.
-
-   Ruling 16 keeps these caps, so I report them and have not clipped anything.
-2. **WR state.** Producer WRs stay `OPEN` after their performed record, so the mock's `Completed` chip never appears. Should the producer complete the request through W4? This is not a product change.
+1. **The one FAIL:** at 390, Incidents `worstcase-one-open` measures a 664 px panel against the 650 cap from ruling 17. The page main is 1270 of 1800. Nothing is clipped; see the evidence README.
 
 ## Shared plumbing
 
