@@ -1,0 +1,196 @@
+{
+  "state": "evidence-root",
+  "captured_at": "2026-10-23T08:39:03.519Z",
+  "results": [
+    {
+      "state": "evidence-root",
+      "width": 1440,
+      "route": "/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "image": "evidence-root-1440.png",
+      "location": "/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "heights": {
+        "breadcrumb": null,
+        "page_header": {
+          "h": 78,
+          "w": 1160
+        },
+        "date_bar_slot": null,
+        "status_line": null,
+        "cards": null,
+        "chips": null,
+        "state_block": null,
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": {
+          "h": 804,
+          "w": 1105
+        },
+        "thead": {
+          "h": 30,
+          "w": 1105
+        },
+        "notice": {
+          "h": 43,
+          "w": 1160
+        }
+      },
+      "panels": [
+        {
+          "title": "Capability coverage across sites",
+          "h": 302,
+          "w": 1160
+        },
+        {
+          "title": "Recurring evidence gaps",
+          "h": 161,
+          "w": 1160
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": 15,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1105,
+        "scroll": 1105,
+        "overflowX": "auto",
+        "maxHeight": "176px"
+      },
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Portfolio evidence",
+        "status": null,
+        "cards": [],
+        "chips": [],
+        "state": null,
+        "zero": null,
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [
+          [
+            "Operational records →",
+            "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+          ],
+          [
+            "Preventive plan →",
+            "/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+          ]
+        ],
+        "notice": null,
+        "examples": "Example destinationsACT-049, ACT-061 · Not available yetMap transfer switch · Not available yetOperational records →Preventive plan →"
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        },
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "evidence-root",
+      "width": 390,
+      "route": "/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "image": "evidence-root-390.png",
+      "location": "/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "heights": {
+        "breadcrumb": null,
+        "page_header": {
+          "h": 91,
+          "w": 358
+        },
+        "date_bar_slot": null,
+        "status_line": null,
+        "cards": null,
+        "chips": null,
+        "state_block": null,
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": {
+          "h": 1908,
+          "w": 520
+        },
+        "thead": {
+          "h": 43,
+          "w": 520
+        },
+        "notice": {
+          "h": 80,
+          "w": 358
+        }
+      },
+      "panels": [
+        {
+          "title": "Capability coverage across sites",
+          "h": 445,
+          "w": 358
+        },
+        {
+          "title": "Recurring evidence gaps",
+          "h": 218,
+          "w": 358
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": 32,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 318,
+        "scroll": 520,
+        "overflowX": "auto",
+        "maxHeight": "300px"
+      },
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1505,
+      "text": {
+        "h1": "Portfolio evidence",
+        "status": null,
+        "cards": [],
+        "chips": [],
+        "state": null,
+        "zero": null,
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [
+          [
+            "Operational records →",
+            "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+          ],
+          [
+            "Preventive plan →",
+            "/maintenance/preventive?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+          ]
+        ],
+        "notice": null,
+        "examples": "Example destinationsACT-049, ACT-061 · Not available yetMap transfer switch · Not available yetOperational records →Preventive plan →"
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        },
+        {
+          "url": "/api/estate/evidence?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

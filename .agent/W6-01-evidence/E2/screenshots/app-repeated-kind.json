@@ -1,0 +1,214 @@
+{
+  "state": "repeated-kind",
+  "captured_at": "2026-10-23T08:37:39.332Z",
+  "results": [
+    {
+      "state": "repeated-kind",
+      "width": 1440,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE&kind=SHIFT_NOTE",
+      "image": "repeated-kind-1440.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE&kind=SHIFT_NOTE",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "status_line": null,
+        "cards": null,
+        "chips": {
+          "h": 33,
+          "w": 1160
+        },
+        "state_block": {
+          "h": 42,
+          "w": 1160
+        },
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": null,
+        "thead": null,
+        "notice": {
+          "h": 42,
+          "w": 1160
+        }
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 103,
+          "w": 1160
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 298,
+          "w": 734
+        },
+        {
+          "title": "How records are used",
+          "h": 298,
+          "w": 408
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Operational records",
+        "status": null,
+        "cards": [],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "false"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": "Choose a supported record type.",
+        "zero": null,
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": []
+    },
+    {
+      "state": "repeated-kind",
+      "width": 390,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE&kind=SHIFT_NOTE",
+      "image": "repeated-kind-390.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SHIFT_NOTE&kind=SHIFT_NOTE",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 177,
+          "w": 358
+        },
+        "status_line": null,
+        "cards": null,
+        "chips": {
+          "h": 73,
+          "w": 358
+        },
+        "state_block": {
+          "h": 42,
+          "w": 358
+        },
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": null,
+        "thead": null,
+        "notice": {
+          "h": 42,
+          "w": 358
+        }
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 103,
+          "w": 358
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 486,
+          "w": 358
+        },
+        {
+          "title": "How records are used",
+          "h": 223,
+          "w": 358
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1422,
+      "text": {
+        "h1": "Operational records",
+        "status": null,
+        "cards": [],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "false"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": "Choose a supported record type.",
+        "zero": null,
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": []
+    }
+  ]
+}
