@@ -549,14 +549,14 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(Array.from(diagram.querySelectorAll("[data-ev-dot]")).every((d) => d.getAttribute("data-ev-dot") === "unknown")).toBe(true);
   });
 
-  it("ev-readiness shows Financials, Assumptions and Health as unavailable entries, and keeps supported links live", async () => {
+  it("ev-readiness shows Financials and Assumptions as unavailable entries, and keeps supported links live", async () => {
     for (const read of [STOCKED, MISSING_ROLE]) {
       renderEv(`${BASE}/readiness`, loaded(read));
       await settledScreen();
       const m = main();
       const panels = Array.from(m.querySelectorAll("section.panel")) as HTMLElement[];
       expect(panels.length).toBeGreaterThan(0);
-      for (const [label, count] of [["Financials", 1], ["Assumptions", 1], ["Health › Data sources", 2]] as const) {
+      for (const [label, count] of [["Financials", 1], ["Assumptions", 1]] as const) {
         const entries = Array.from(m.querySelectorAll(`[data-link-unavailable="${label}"]`)) as HTMLElement[];
         expect(entries, label).toHaveLength(count);
         for (const entry of entries) {
@@ -575,6 +575,36 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
       expect(within(m).getAllByRole("link", { name: /Single line diagram/ }).length).toBeGreaterThan(0);
       expect(within(m).getAllByRole("link", { name: /Evidence/ }).length).toBeGreaterThan(0);
       expect(within(m).getAllByRole("link", { name: /Site model/ }).length).toBeGreaterThan(0);
+      expect(m.querySelector('[data-link-unavailable="Health › Data sources"]')).toBeNull();
+      cleanup();
+    }
+  });
+
+  it("W5-03b E4 (ruling 3): both source controls open EV Evidence > Data sources with only a valid window", async () => {
+    const FROM = "2026-10-06T08:00:00.000000Z";
+    const TO = "2026-10-06T09:00:00.000000Z";
+    const KNOWN = "2026-10-06T09:00:00.000000Z";
+    const cases: [string, string][] = [
+      ["", ""],
+      [`?from=${FROM}&to=${TO}&known_at=${KNOWN}&gateway=GW-EV-01`, `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`],
+      [`?from=${FROM}&to=${TO}`, `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`],
+      [`?from=${FROM}&known_at=${KNOWN}`, ""],
+      [`?from=${TO}&to=${FROM}&known_at=${KNOWN}`, ""],
+      [`?from=${FROM}&to=${TO}&known_at=yesterday`, `?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`],
+    ];
+    for (const [query, expected] of cases) {
+      renderEv(`${BASE}/readiness${query}`, loaded(STOCKED));
+      await settledScreen();
+      const links = Array.from(main().querySelectorAll("[data-ev-sources-link]")) as HTMLAnchorElement[];
+      expect(links.map((a) => a.getAttribute("data-ev-sources-link")), query).toEqual(["gateway-status", "connected-sources"]);
+      for (const a of links) {
+        expect(a.textContent, query).toBe("Evidence › Data sources →");
+        const url = new URL(a.getAttribute("href")!, "http://x");
+        expect(url.pathname, query).toBe("/sites/EV-LAB-001/ev/evidence");
+        expect(url.search, query).toBe(expected);
+        expect(url.hash, query).toBe("#ev-site-sources-heading");
+        expect(url.searchParams.has("gateway"), query).toBe(false);
+      }
       cleanup();
     }
   });

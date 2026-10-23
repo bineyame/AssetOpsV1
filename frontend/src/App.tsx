@@ -456,7 +456,7 @@ export function App({
               element={<SiteFindingFrame detail={siteDetail} sitesPath={SITES_PATH} coldAssessment={coldAssessment} evAssessment={evAssessment} miniDecisions={miniDecisions} />}
             />
           ))}
-          <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} coldDepth={coldDepth} />} />
+          <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} coldDepth={coldDepth} evDepth={evDepth} />} />
           <Route path={SITE_ASSETS_ROUTE_PATH} element={<SiteAssetsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_ASSET_ROUTE_PATH} element={<SiteAssetFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_WORK_ROUTE_PATH} element={<SiteWorkFrame detail={siteDetail} sitesPath={SITES_PATH} />} />

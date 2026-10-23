@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import {
   AttentionList,
@@ -25,6 +25,8 @@ import type { FoundationVersionsReadModel } from "./siteFoundationClient";
 import { EvSingleLineDiagram } from "./SiteSingleLineDiagram";
 import { connectorName, LIMIT_NOT_DECLARED, NO_CONNECTOR_DECLARED, NOT_DECLARED } from "./evWords";
 import { COMMISSIONING_RECORD, NOTHING_FURTHER_RECORDED } from "./ColdFoundationViews";
+import { siteEvHref } from "../shell/operatorSiteRoutes";
+import { isUtcInstant } from "./domainActionClient";
 import "./w2-cold-foundation.css";
 import "./w2-ev-foundation.css";
 
@@ -53,6 +55,28 @@ export const NOT_CONNECTED = "Not connected";
 export const EMPTY_SELECTION = "No EV Foundation for this selection";
 export const FORBIDDEN = "Source details are not available for this Site";
 export const UNAVAILABLE = "EV Foundation is temporarily unavailable";
+
+/** W5-03b E4 (ruling 3): both Foundation source controls open the EV Evidence `Data sources` panel. */
+export const SOURCES_LINK = "Evidence › Data sources →";
+export const EV_SITE_SOURCES_FRAGMENT = "#ev-site-sources-heading";
+
+/**
+ * The EV Evidence source-panel destination: `siteEvHref(code, "evidence")`, the address's `from,to` only when both
+ * are valid UTC instants in order, `known_at` only when valid, then the source-panel fragment. `gateway` is dropped.
+ */
+export function evSourcesHref(siteCode: string, params: URLSearchParams): string {
+  const query = new URLSearchParams();
+  const from = params.get("from");
+  const to = params.get("to");
+  if (from !== null && to !== null && isUtcInstant(from) && isUtcInstant(to) && Date.parse(from) < Date.parse(to)) {
+    query.set("from", from);
+    query.set("to", to);
+    const known = params.get("known_at");
+    if (known !== null && isUtcInstant(known)) query.set("known_at", known);
+  }
+  const text = query.toString();
+  return `${siteEvHref(siteCode, "evidence")}${text === "" ? "" : `?${text}`}${EV_SITE_SOURCES_FRAGMENT}`;
+}
 export const EV_TIMELINE_NO_HISTORY = "No history to draw";
 
 /** Plain labels of the `ev-roles-1` roles (backend `sites/binding_roles.py`). */
@@ -512,6 +536,8 @@ const NOTICE_CODES = new Set(["SOURCE_NOT_CONTACTED", "COMMISSIONING_UNCONFIRMED
 
 function EvReadinessView(props: ViewProps) {
   const { read, health } = props;
+  const [params] = useSearchParams();
+  const sources = evSourcesHref(props.siteId, params);
   const names = partNames(read);
   const messages = read.readiness.messages;
   const ready = read.readiness.state === "READY_TO_REPORT";
@@ -628,7 +654,7 @@ function EvReadinessView(props: ViewProps) {
         heading={`Gateway status · ${props.gateway}`}
         headingId="ev-gateway-heading"
         description={`How site data reaches AssetOps · configuration selected ${formatInstant(read.selected_at)} · gateway contact only, not charger health`}
-        actions={<UnavailableLinkEntry label="Health › Data sources" />}
+        actions={<Link to={sources} data-ev-sources-link="gateway-status">{SOURCES_LINK}</Link>}
       >
         {health === null ? <p>Loading the site's gateway contact.</p> : null}
         <MetricCards label="Gateway contact" data={{ "data-ev-gateway-metrics": "" }}>
@@ -685,7 +711,10 @@ function EvReadinessView(props: ViewProps) {
               {SOURCE_CONTACT_UNAVAILABLE}: no per-source contact is read, so no source is shown as reporting.
             </p>
             <div className="v69-chart-note">
-              <Link to={props.viewHref("sld")}>Single line diagram →</Link> <UnavailableLinkEntry label="Health › Data sources" />
+              <Link to={props.viewHref("sld")}>Single line diagram →</Link>{" "}
+              <Link to={sources} data-ev-sources-link="connected-sources">
+                {SOURCES_LINK}
+              </Link>
             </div>
             <ExactReferences
               name="ev-source-references"

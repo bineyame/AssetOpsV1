@@ -10,6 +10,8 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { coldWindowFromParams } from "../sites/coldAssessmentClient";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { ColdHealthDepth } from "../sites/ColdHealthDepth";
+import { createEvDepthClient, type EvDepthClient } from "../sites/evDepthClient";
+import { EvHealthDepth } from "../sites/EvHealthDepth";
 import { createHealthClient, type HealthClient } from "../sites/healthClient";
 import { SiteBattery, SiteBatteryEntry, type BatteryHeader } from "../sites/SiteBattery";
 import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteHealth";
@@ -17,12 +19,13 @@ import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { siteSourceModeLabel } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { coldSiteRoutes } from "./coldSiteRoutes";
-import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref } from "./operatorSiteRoutes";
+import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref } from "./operatorSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 const DEFAULT_HEALTH = createHealthClient();
 const DEFAULT_COLD_DEPTH = createColdDepthClient();
+const DEFAULT_EV_DEPTH = createEvDepthClient();
 const LINKS: HealthLinks = { health: siteHealthHref, assets: siteAssetsHref, asset: siteAssetHref };
 export const SITE_HEALTH_HEADING_ID = "site-health-heading";
 export const SITE_BATTERY_HEADING_ID = "site-battery-heading";
@@ -32,12 +35,15 @@ export function SiteHealthFrame({
   sitesPath,
   health = DEFAULT_HEALTH,
   coldDepth = DEFAULT_COLD_DEPTH,
+  evDepth = DEFAULT_EV_DEPTH,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   health?: HealthClient;
   /** W5-01a C3: a COLDCHAIN Site renders `cold-health` from the selected `/cold/health` read. */
   coldDepth?: ColdDepthClient;
+  /** W5-03b E4: an EV_CHARGING Site renders `ev-health` from the selected `/ev/health` read. */
+  evDepth?: EvDepthClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -71,6 +77,14 @@ export function SiteHealthFrame({
                 window={coldWindowFromParams(params)}
                 client={coldDepth}
                 routes={coldSiteRoutes(site.site_id)}
+              />
+            ) : site.site_type === "EV_CHARGING" ? (
+              /* W5-03b E4 (R60 withdrawn): v69 ev-health ends at Condition and evidence; no Data sources panel. */
+              <EvHealthDepth
+                siteCode={site.site_id}
+                window={coldWindowFromParams(params)}
+                client={evDepth}
+                sessionsPath={sitePerformanceHref(site.site_id, "sessions")}
               />
             ) : (
               <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
