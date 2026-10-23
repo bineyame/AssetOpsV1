@@ -2100,6 +2100,8 @@ export function SiteWorkCasesFrame({
             trail={trail}
             links={{ finding: (findingId, revisionId) => siteFindingHref(site.site_id, findingId, revisionId) }}
             decisions={site.site_type === "MINIGRID" ? miniDecisions : undefined}
+            // K2 ruling 23: a cold Site shows only the page-local Window control above; MINIGRID keeps the W4 form.
+            windowForm={site.site_type !== "COLDCHAIN"}
             onScope={(next, nextTrail) =>
               navigate(hrefFor(site.site_id, workPageQuery(next)), { state: { workTrail: nextTrail } })
             }

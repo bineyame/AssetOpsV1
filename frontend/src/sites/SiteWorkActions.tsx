@@ -27,7 +27,7 @@
  * success criterion and any verification verdict are not shown: this read has
  * none of them, and the list derives none.
  */
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { ChartNote, DataTable, Disclosure, Fact, FactList, Notice, Panel, RailIcon, readResultWords, type ProductWords } from "../ui";
@@ -663,20 +663,38 @@ export function ColdWorkWindow({ scope, onApply }: { scope: ColdWorkWindowScope;
   );
 }
 
-/** U4: a long value previews at two lines; the full text sits in a "Read full text" disclosure. */
+/**
+ * U4: a long value previews at two lines; the full text sits in a "Read full text" disclosure.
+ * K2 ruling 20: while that disclosure is open the two-line preview is removed and the disclosure body shows the
+ * complete value once (with the same content, so the Action link stays); closing restores the preview. The shared
+ * Disclosure markup is unchanged: the wrapper listens for the details `toggle` (which does not bubble) in capture.
+ */
 function LongText({ text, name, children }: { text: string; name: string; children?: ReactNode }) {
   const long = isLongText(text);
+  const [open, setOpen] = useState(false);
+  const wrapper = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = wrapper.current;
+    if (!long || el === null) return undefined;
+    const onToggle = (event: Event) => {
+      const details = event.target;
+      if (details instanceof HTMLDetailsElement && details.parentElement === el) setOpen(details.open);
+    };
+    el.addEventListener("toggle", onToggle, true);
+    return () => el.removeEventListener("toggle", onToggle, true);
+  }, [long]);
+  if (!long) return <span>{children ?? text}</span>;
   return (
-    <>
-      <span className={long ? "work-cases-clamp" : undefined} data-cold-work-preview={long ? name : undefined}>
-        {children ?? text}
-      </span>
-      {long ? (
-        <Disclosure name={name} summary={READ_FULL_TEXT}>
-          {text}
-        </Disclosure>
-      ) : null}
-    </>
+    <div className="cold-work-longtext" ref={wrapper} data-cold-work-longtext={open ? "open" : "closed"}>
+      {open ? null : (
+        <span className="work-cases-clamp" data-cold-work-preview={name}>
+          {children ?? text}
+        </span>
+      )}
+      <Disclosure name={name} summary={READ_FULL_TEXT}>
+        {open ? (children ?? text) : text}
+      </Disclosure>
+    </div>
   );
 }
 

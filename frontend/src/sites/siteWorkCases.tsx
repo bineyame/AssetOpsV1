@@ -59,6 +59,11 @@ export interface SiteWorkCasesProps {
   onScope: (scope: WorkScope, trail: WorkTrail) => void;
   /** W4-03 unit 8: the decision-context overlay; given only for a mini-grid Site. */
   decisions?: MiniDecisionsClient;
+  /**
+   * W5-02 K2 ruling 23: the W4 in-panel window form. On by default (MINIGRID keeps it); a COLDCHAIN Site passes
+   * `false` because its page-local `Window` control after the Work subtabs is the one date form.
+   */
+  windowForm?: boolean;
 }
 
 /** One case's overlay state: `null` while unread (nothing shown), a list, or `"refused"`. */
@@ -729,6 +734,7 @@ export function SiteWorkCases({
   links,
   onScope,
   decisions,
+  windowForm = true,
 }: SiteWorkCasesProps & { kind: WorkKind }) {
   const copy = WORK_KIND_COPY[kind];
   const [result, setResult] = useState<WorkIndexResult | null>(null);
@@ -750,7 +756,7 @@ export function SiteWorkCases({
         heading={copy.title}
         headingId={`site-work-${kind}-heading`}
         description={copy.subcopy}
-        actions={<WindowForm copy={copy} scope={scope} onScope={onScope} />}
+        actions={windowForm ? <WindowForm copy={copy} scope={scope} onScope={onScope} /> : undefined}
       >
         {result === null ? (
           <p data-work-loading>Loading the site&apos;s work records.</p>

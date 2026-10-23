@@ -558,6 +558,44 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(shortMain.querySelector("[data-cold-work-owner] .work-cases-clamp")).toBeNull();
   });
 
+  it("an opened `Read full text` hides its cell's preview and shows the full value once; closing restores it (ruling 20)", async () => {
+    const title = "T".repeat(160);
+    const owner = "O".repeat(81);
+    const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow({ title, owner_label: owner })]) }));
+    const { main } = await mountWork(workPath(), client);
+    const row = main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"]`) as HTMLElement;
+    const [action, , ownerCell] = Array.from(row.querySelectorAll("td"));
+    const count = (cell: Element, needle: string) => (cell.textContent ?? "").split(needle).length - 1;
+    for (const [cell, full, needle] of [
+      [action, `ACT-000051 · ${title}`, title],
+      [ownerCell, owner, owner],
+    ] as const) {
+      const details = cell.querySelector("details") as HTMLDetailsElement;
+      expect(cell.querySelector(".work-cases-clamp")).not.toBeNull();
+      details.open = true;
+      fireEvent(details, new Event("toggle"));
+      await waitFor(() => expect(cell.querySelector(".work-cases-clamp")).toBeNull());
+      expect(cell.querySelector("[data-cold-work-preview]")).toBeNull();
+      expect(count(cell, needle)).toBe(1);
+      expect(text(details.querySelector(".disclosure__body"))).toBe(full);
+      // The Action link stays reachable inside the opened body; only one link to the Action is in the cell.
+      if (cell === action) expect(cell.querySelectorAll("[data-cold-work-action-link]").length).toBe(1);
+      details.open = false;
+      fireEvent(details, new Event("toggle"));
+      await waitFor(() => expect(cell.querySelector(".work-cases-clamp")).not.toBeNull());
+      expect(text(cell.querySelector(".work-cases-clamp"))).toBe(full);
+      expect(text(details.querySelector(".disclosure__body"))).toBe(full);
+    }
+    // Opening one cell's disclosure leaves the other cell's preview in place.
+    const titleDetails = action.querySelector("details") as HTMLDetailsElement;
+    titleDetails.open = true;
+    fireEvent(titleDetails, new Event("toggle"));
+    await waitFor(() => expect(action.querySelector(".work-cases-clamp")).toBeNull());
+    expect(ownerCell.querySelector(".work-cases-clamp")).not.toBeNull();
+    // Still six columns: the table shape does not change when a disclosure opens.
+    expect(main.querySelectorAll(".cold-work-actions thead th").length).toBe(6);
+  });
+
   it("puts the page-local Window control after the Work subtabs and before the scope strip, showing the default dates (ruling 1, R88)", async () => {
     const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
     const { main } = await mountWork(`/sites/${SITE}/work`, client);
@@ -649,6 +687,39 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
       await settledScreen();
       const last = work.calls.filter((c) => c.kind === kind).at(-1);
       expect(last?.scope).toMatchObject({ from: "2026-10-02T00:00:00Z", to: "2026-10-09T00:00:00Z", knownAt: KNOWN, cursor: null });
+      cleanup();
+    }
+  });
+
+  it("shows exactly one visible date form on each cold Work subtab and keeps from,to,known_at on every subtab href (ruling 23)", async () => {
+    const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}&cursor=abc`;
+    const keep = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+    const hrefs = [`/sites/${SITE}/work?${keep}`, `/sites/${SITE}/work/incidents?${keep}`, `/sites/${SITE}/work/maintenance?${keep}`];
+    for (const kind of ["actions", "incidents", "maintenance"] as const) {
+      const { client } = domainClient(() => ({ status: "loaded", value: indexBody([domainRow()]) }));
+      const main =
+        kind === "actions"
+          ? (await mountWork(workPath(query), client)).main
+          : (await mountCases(kind, `/sites/${SITE}/work/${kind}?${query}`, client)).main;
+      const forms = Array.from(main.querySelectorAll("form")).filter((f) => !f.closest("[hidden], details:not([open])"));
+      expect(forms.map((f) => f.hasAttribute("data-cold-work-window"))).toEqual([true]);
+      expect(main.querySelector("[data-work-window]")).toBeNull();
+      expect(main.querySelector("[data-site-work-window]")).toBeNull();
+      expect(Array.from(document.querySelectorAll('nav[aria-label="Work lists"] a')).map((a) => a.getAttribute("href"))).toEqual(hrefs);
+      cleanup();
+    }
+  });
+
+  it("keeps the W4 in-panel window form on MINIGRID Incidents and Maintenance (ruling 23)", async () => {
+    const mini = { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel;
+    for (const kind of ["incidents", "maintenance"] as const) {
+      const { client, indexCalls } = domainClient(() => ({ status: "loaded", value: indexBody([]) }));
+      const { main } = await mountCases(kind, `/sites/${SITE}/work/${kind}`, client, mini);
+      const form = main.querySelector("form[data-work-window]") as HTMLFormElement;
+      expect(form).not.toBeNull();
+      expect(form.closest("section.panel")).not.toBeNull();
+      expect(main.querySelector("[data-cold-work-window]")).toBeNull();
+      expect(indexCalls).toEqual([]);
       cleanup();
     }
   });

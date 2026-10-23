@@ -144,9 +144,19 @@ try:
         try:
             fid, rid = P.finding_revision(built, mech)
         except AssertionError:
+            # K2 ruling 21: the no-probe UNKNOWN replay selects no COLD_EXCURSION revision, so its INC links only the
+            # returned COLD_START_FAILURE Finding (expected, not blocked). Every other mode still needs both links.
+            if mode == "unknown" and mech == "COLD_EXCURSION":
+                continue
             doc["blocked"] = (doc["blocked"] or "") + f" INC: no selected {mech} Finding revision to link (ruling 4)"
             continue
         inc_links.append({"finding_id": fid, "finding_revision_id": rid, "mechanism": mech})
+    if mode == "unknown":
+        # K2 ruling 21: exactly one selected link (COLD_START_FAILURE) and no excursion link; no synthetic excursion.
+        assert [x["mechanism"] for x in inc_links] == ["COLD_START_FAILURE"], inc_links
+    else:
+        # K2 ruling 4: both selected cold Findings are linked in every other mode.
+        assert [x["mechanism"] for x in inc_links] == ["COLD_START_FAILURE", "COLD_EXCURSION"] or doc["blocked"], inc_links
     doc.update({"finding": {"id": finding_id, "revision_id": revision_id, "mechanism": MECH,
                             "assessment_revision_id": k0.assessment_revision_id, "cited_evidence_ids": cited},
                 "w501": {"state": selection["state"], "assessment_revision_ids": selection.get("assessment_revision_ids"),
@@ -225,7 +235,12 @@ try:
                                  "owner_label": "Maintenance lead", "due_at": None},
                       "incident": {"id": inc["id"], "revision_id": inc["revision"]["id"], "occurred_at": iso(inc_at),
                                    "finding_links": inc_links, "returned_finding_links": got_links,
-                                   "source_window": [iso(d16), iso(d16 + timedelta(hours=1))]},
+                                   "source_window": [iso(d16), iso(d16 + timedelta(hours=1))],
+                                   # K2 ruling 21: the selected-data link limit of this mode, stated in the manifest.
+                                   "limit": ("UNKNOWN one-link limit: the no-probe replay selects no COLD_EXCURSION "
+                                             "Finding revision, so the INC links only the returned COLD_START_FAILURE "
+                                             "Finding (ruling 21; no synthetic excursion)") if mode == "unknown"
+                                            else None},
                       "request": {"id": wr["id"], "revision_id": wr["revision"]["id"], "record_id": rec["id"],
                                   "occurred_at": iso(wr_at), "record_occurred_at": iso(rec_at)},
                       "case_links": links, "intent": intent}
@@ -589,6 +604,13 @@ class Walk:
             if not doc.get("reads"):
                 say(f"  {m}: BLOCKED ({doc.get('blocked')})")
                 continue
+            # K2 ruling 21: no mode is blocked; UNKNOWN has its one ruled link, every other mode both links.
+            inc = (doc.get("fixture") or {}).get("incident") or {}
+            mechs = [x["mechanism"] for x in inc.get("finding_links") or []]
+            want = ["COLD_START_FAILURE"] if m == "unknown" else ["COLD_START_FAILURE", "COLD_EXCURSION"]
+            say(f"  {m}: blocked={doc.get('blocked')} INC links={mechs} limit={inc.get('limit')}")
+            if doc.get("blocked") or mechs != want or (m == "unknown") != bool(inc.get("limit")):
+                failures.append(f"{m}: blocked={doc.get('blocked')} INC links {mechs} != {want} or limit missing")
             done = self.py(["-c", ATTEST, m, str(self.work / "build" / m)], self.url(m), tests=True, check=False,
                            cwd=self.tree / "backend" / "tests")
             line = (done.stdout.strip().splitlines() or ["{}"])[-1]

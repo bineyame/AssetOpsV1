@@ -19,6 +19,10 @@
  * read) as `cold-work-503`, separate from the earlier Site-level `unavailable-503` refusal images; ruling 1 asserts
  * the page-local `Window` control (placement, right-aligned at 1440, full width at 390, Apply keeps known_at and
  * drops the cursor, invalid input shows the window error and does not navigate).
+ * Ruling 20: an opened `Read full text` replaces its cell's two-line preview (the preview is unmounted while open).
+ * Ruling 21: the manifest's UNKNOWN INC has one link (COLD_START_FAILURE) and a recorded `fixture.incident.limit`;
+ * every other mode links both selected Findings. Ruling 23: `cold-incidents` and `cold-maintenance` show one visible
+ * date form (the page-local Window control) and keep from, to and known_at in the URL and every Work subtab href.
  * It launches and stops only its own headless Chrome.
  */
 import { spawn } from "node:child_process";
@@ -254,6 +258,31 @@ const MEASURE_ACTION = `(() => {
     panelText: document.querySelector('[data-domain-action-panel]')?.innerText?.replace(/\\s+/g, ' ').trim().slice(0, 240) ?? null,
   };
 })()`;
+// K2 ruling 23: a cold Incidents or Maintenance page has one visible date form (the page-local Window control after
+// the Work subtabs, no W4 in-panel form) and every Work subtab href keeps from, to and known_at.
+const CASES_READY = `document.querySelector('main [data-cold-work-window]') && document.querySelector('main section.panel') && !document.querySelector('[data-work-loading]')`;
+const MEASURE_CASES = `(() => {
+  const h = (e) => (e ? Math.round(e.getBoundingClientRect().height) : null);
+  const main = document.querySelector('main');
+  const visible = (e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.closest('[hidden]'); };
+  const forms = [...(main?.querySelectorAll('form') ?? [])].filter(visible);
+  const form = main?.querySelector('[data-cold-work-window]') ?? null;
+  return {
+    href: location.pathname + location.search,
+    panelState: document.querySelector('[data-work-loading]') ? 'loading' : 'settled',
+    docScrollWidth: document.documentElement.scrollWidth,
+    docClientWidth: document.documentElement.clientWidth,
+    docHeight: document.documentElement.scrollHeight,
+    main: h(main),
+    panel: h(main?.querySelector('section.panel')),
+    visibleForms: forms.map((f) => f.getAttribute('data-cold-work-window') !== null ? 'cold-window' : f.getAttribute('data-work-window') !== null ? 'w4-window' : (f.getAttribute('aria-label') ?? 'form')),
+    w4Form: Boolean(main?.querySelector('[data-work-window]')),
+    windowAfterSubtabs: form?.previousElementSibling?.matches('nav[aria-label="Work lists"]') === true,
+    windowFrom: form?.querySelector('[data-cold-work-window-from]')?.value ?? null,
+    windowTo: form?.querySelector('[data-cold-work-window-to]')?.value ?? null,
+    subtabs: [...document.querySelectorAll('nav[aria-label="Work lists"] a')].map((a) => a.getAttribute('href')),
+  };
+})()`;
 const workUrl = (base, query, extra = {}) => `${base}/sites/${SITE}/work?${new URLSearchParams({ ...query, ...extra }).toString()}`;
 
 function capWork(W, label, m, wi, notices = true) {
@@ -324,6 +353,15 @@ async function main() {
   const positiveAction = P.actions[0].id;
   const NOT_FOUND = "00000000-0000-4000-8000-0000000000aa";
 
+  // K2 ruling 21 (manifest): the positive INC links both selected Findings; UNKNOWN has its one ruled link and limit.
+  for (const k of ["positive", "worstcase", "pending", "stale", "unknown"]) {
+    const inc = manifest.modes[k].fixture?.incident ?? {};
+    const mechs = (inc.finding_links ?? []).map((x) => x.mechanism);
+    const want = k === "unknown" ? ["COLD_START_FAILURE"] : ["COLD_START_FAILURE", "COLD_EXCURSION"];
+    claim(`manifest ${k}: not blocked, INC links ${want.join("+")}${k === "unknown" ? " with the one-link limit recorded" : ""}`,
+      !manifest.modes[k].blocked && JSON.stringify(mechs) === JSON.stringify(want) && (k === "unknown") === Boolean(inc.limit),
+      { blocked: manifest.modes[k].blocked ?? null, links: mechs, limit: inc.limit ?? null });
+  }
   for (const [wi, [W, width, height]] of WIDTHS.entries()) {
     await size(width, height);
     let m;
@@ -417,6 +455,25 @@ async function main() {
       claim(`${W} window-invalid: window error shown, URL unchanged`, m.window?.error === "The window may span at most 31 days." && `${pBase}${m.href}` === url, { error: m.window?.error, href: m.href });
       windowClaims(W, "window-invalid", m, wi, null);
       capWork(W, "window-invalid", m, wi);
+    }
+    // K2 ruling 23: cold Incidents and Maintenance (existing W4 content; K3 not built) with one visible date form.
+    {
+      const q = { ...P.reads.positive.query };
+      if (!q.known_at) q.known_at = P.cutoffs.K3;
+      const keep = new URLSearchParams({ from: q.from, to: q.to, known_at: q.known_at }).toString();
+      const wantTabs = [`/sites/${SITE}/work?${keep}`, `/sites/${SITE}/work/incidents?${keep}`, `/sites/${SITE}/work/maintenance?${keep}`];
+      for (const kind of ["incidents", "maintenance"]) {
+        const state = `cold-${kind}`;
+        m = await record(W, wi, state, `${pBase}/sites/${SITE}/work/${kind}?${new URLSearchParams(q).toString()}`, CASES_READY, MEASURE_CASES);
+        claim(`${W} ${state}: exactly one visible date form, the page-local Window control (no W4 in-panel form)`,
+          m.visibleForms.length === 1 && m.visibleForms[0] === "cold-window" && !m.w4Form, { forms: m.visibleForms, w4Form: m.w4Form });
+        claim(`${W} ${state}: Window control after the Work subtabs, showing the selected dates`,
+          m.windowAfterSubtabs && m.windowFrom === q.from.slice(0, 10) && m.windowTo === q.to.slice(0, 10), { after: m.windowAfterSubtabs, from: m.windowFrom, to: m.windowTo });
+        const hq = new URL(m.href, "http://x").searchParams;
+        claim(`${W} ${state}: page URL keeps from,to,known_at`, hq.get("from") === q.from && hq.get("to") === q.to && hq.get("known_at") === q.known_at, m.href);
+        claim(`${W} ${state}: every Work subtab href keeps from,to,known_at`, JSON.stringify(m.subtabs) === JSON.stringify(wantTabs), { got: m.subtabs, want: wantTabs });
+        claim(`${W} ${state}: no document horizontal overflow (scrollWidth <= clientWidth + 1)`, m.docScrollWidth <= m.docClientWidth + 1, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
+      }
     }
     // PENDING / STALE / UNKNOWN.
     for (const [k, status] of [["pending", "PENDING_RECOMPUTE"], ["stale", "STALE_SOURCE"], ["unknown", "UNKNOWN"]]) {
