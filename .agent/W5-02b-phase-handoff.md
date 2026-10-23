@@ -151,3 +151,40 @@ Only M2 and M4 are labelled today.
 ## Next
 
 The coordinator sends this batch to the Architect as one request. Code starts only after the rulings merge and P-G-1 to P-G-3 clear.
+
+## Build part 1: K2a + K2b (2026-10-23)
+
+Built on `task/W5-02b-cold-site-screens` from `1bfd74b2`. Scope was K2a and K2b only; K3/K4/K5 were not touched. NavRail, OperatorShellLayout and App.tsx are unchanged, so W5-03a's E2 live rail root is preserved (interim Sites-active rail = R69).
+
+### Commits
+- `ec0e8dc5` producer `tools/w502_cold_work_walkthrough.py` (prepare|serve|attest|drop) + questions Q1-Q5
+- `9a44d20b` `domainActionClient.ts`, `coldWorkPresentation.ts`
+- `b2c4e7fe` frontend questions Q6-Q16
+- `261d0a04` cold Actions tab, cold scope/subtabs/counts, domain Action placeholder shell, tests
+- `101c9afd` `tools/w502-cold-work-evidence.mjs` + first captures
+- `f36b054d` question Q17 (503 capture)
+- `df04dc59`, `63d35dd9`, `75abbaf3` K2b CSS fixes for capture findings F1-F4, F6 (all scoped to `.cold-work-actions` in `w1f4-changes-work.css`)
+- `3ad10479`, `bde1c003`, `a9af343f` recaptures; `a9af343f` is the evidence of record
+
+### Runs (revision `75abbaf3` for frontend; backend unchanged from `1bfd74b2`)
+- tsc clean; `vite build` green.
+- Full vitest `--minWorkers=1 --maxWorkers=2`: 119 files, 2795 passed, 1 failed (`s404SiteFindingIndex.test.tsx` "changing the dates writes a new window", date input read 2026-10-25 vs 2026-10-20). The file is untouched by this slice; it passed 37/37 alone and 75/75 twice with its shell neighbours. Recorded as a load flake, not a pass of the full run.
+- `tools/check-all.ps1`: all 11 guards passed.
+- Focused Postgres `backend/tests/test_w502_*.py -n 4` on private DB at `1bfd74b2`: 34 passed, 0 failed, 0 skipped, 185 s (needs PYTHONPATH to the worktree packages, else the shared .venv imports the main checkout).
+- Targeted vitest at builder commit: 13 files, 303 passed.
+- Captures `.agent/W5-02b-evidence/` (README + measurements JSON + 28 PNGs): 14 states x 1440/390, 315 claims, 312 pass, 3 fail. States: positive, zero, historical, worstcase folded/expanded/disclosure-open/next page, PENDING_RECOMPUTE, STALE_SOURCE, UNKNOWN (all produced for real), 403, 503, domain Action preparing, not-found.
+- Cleanup: all seven API PIDs and every dev-server/Chrome PID stopped by PID; the five `w502b_*_k2_test` DBs and `assetops_w502bk2_test` dropped; ports 5471-5477/8971-8977 free.
+
+### Open findings (for review)
+- F1: worst-case five rows expanded at 1440, panel 447 px vs 440 cap (all other states within caps; folded 386, 390 widths 457-548 vs 650). Not tuned further; needs reviewer/Architect call.
+- F5 / Q17: the ruled 503 mechanism (invalid-DB API) fails the Site read first, so the browser shows `Site unavailable`; the cold 503 refusal panel is proven only in jsdom.
+- Q6: no topbar date-range slot, Site switch or range picker exists in the app, so the P-K2a-39 cold range control and the U2 topbar-visibility assertions are NOT built. This is an unbuilt ruled item.
+
+### Judgment calls (each recorded in `.agent/W5-02b-questions.md` for ruling)
+Q1 generator asset is Foundation `generator-1` (no `GEN-CR-01`); Q2 403 via a tool-local `serve_entry.py` that puts the domain-work router behind the real access gate (product domain-work reads have no read-access hook - worth an Architect look); Q3 Finding pinned per mode; Q4 INC has no Finding link; Q5 `raised_at` between K0 and DB time; Q7 no Site subtitle field, fallback always shown; Q8 W1 ID on cold `/verification` shows not-found (follows P-K2a-34 over the older Shared-UI sentence); Q9 client accepts both refusal placements; Q10 untitled placeholder panel; Q11 unknown-count literal `—`; Q12 revision disclosure summary `Finding version`; Q13 preview reuses `.work-cases-clamp`; Q14 vocabulary-scan test excludes the ruled criterion summary literal; Q15 `expectV69Panels('cold-work')` asserted only on CURRENT/zero/refused; Q16 notice tones and fold removal. Coordinator CSS fixes (F1/F6 widths, nowrap State cell, summary line-height) are layout-only, no literal or contract change.
+
+### Shared plumbing
+None: no main.py, composition, tools/checks, conftest, migrations or existing seed tools. New files only under `tools/` (the two capture tools) and `frontend/src`. `frontend/src/test/settled.ts` gained one loading phrase.
+
+### Next
+Independent review of K2a+K2b, with Architect rulings on Q1-Q17 and F1 first. No MOCK DEVIATION beyond R01, R02, R65, R66, R67, R69 is labelled.
