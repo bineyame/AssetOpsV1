@@ -1,5 +1,6 @@
 """W6-01a/b: the read-only global work list roots (`global-work-index-1`); A1 mounts `GET /api/work/incidents`,
-B1 `GET /api/work/maintenance` and `GET /api/work/preventive` (same checks, same order).
+B1 `GET /api/work/maintenance` and `GET /api/work/preventive`, E1 `GET /api/work/operational-records?kind=` (same
+checks, same order).
 
 `GET /api/work/incidents?from=&to=&known_at=&limit=&cursor=`. Order of checks (the W3 estate roots' order):
 
@@ -79,6 +80,10 @@ def build_global_work_router(service: GlobalWorkIndexService | None, tenant: Cal
     @router.get("/api/work/preventive")
     def global_preventive(request: Request) -> dict[str, Any]:
         return serve("preventive", request)
+
+    @router.get("/api/work/operational-records")
+    def global_operational_records(request: Request) -> dict[str, Any]:
+        return serve("operational-records", request)  # W6-01e E1; `kind` is parsed by the shared parser
 
     def refuse(status: int, code: str, message: str | None = None) -> HTTPException:
         """C1 detail-only refusal body: `{code, message}`, never the list `rows`/`total_count`."""

@@ -31,7 +31,7 @@ if URL:
     from assetops_backend.mini_decisions.store import MiniDecisionWriteRefused, PostgresMiniDecisionStore
 
 HEAD = "0030_w4_mini_decisions"  # the W4 migration under test
-LATEST_HEAD = "0032_w5_cold_scenarios"  # W5-01b: the current sole head, crossed empty before 0030
+LATEST_HEAD = "0033_w5_cold_work"  # W5-02a: the current sole head; 0033 and 0032 are crossed empty before 0030
 PREVIOUS = "0029_w4_mini_depth"
 REFUSED_HISTORY = "Downgrade of 0030_w4_mini_decisions refused: decision history exists"
 REFUSED_JOBS = "Downgrade of 0030_w4_mini_decisions refused: opportunity jobs exist"
@@ -174,7 +174,7 @@ def head_counters(engine, site_id) -> tuple:  # noqa: F811
 
 
 def to_0030(config, engine) -> None:  # noqa: F811
-    """Downgrade the empty 0032 to the 0030 migration under test before any 0030 downgrade."""
+    """Downgrade the empty 0033 and 0032 to the 0030 migration under test before any 0030 downgrade."""
     from alembic import command
 
     engine.dispose()

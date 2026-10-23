@@ -1,0 +1,1491 @@
+{
+  "revision": "74855af2",
+  "pairs": [
+    {
+      "state": "availability-observed",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5340,
+          0,
+          1860
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-observed-1440-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 275,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 182,
+          "page": 1000
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nKnown available\n1 h 29 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n31 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.48 / 1.48 known hours; coverage 74.17%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–09:00 UTC Available. 29 min available, 0 min unavailable, 31 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.48 h available, 0 h observed unavailable and 0.52 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n74.17–100.00%\n\nLower bound: 1.48 / 2 hours. Upper bound: (1.48 + 0.52 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.52 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 245,
+          "Full-schedule availability bound": 180,
+          "Most useful next evidence": 180,
+          "page": 1055
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-observed",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5340,
+          0,
+          1860
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-observed-390-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 66,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 316,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 205,
+          "page": 1481
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nKnown available\n1 h 29 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n31 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.48 / 1.48 known hours; coverage 74.17%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–09:00 UTC Available. 29 min available, 0 min unavailable, 31 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.48 h available, 0 h observed unavailable and 0.52 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n74.17–100.00%\n\nLower bound: 1.48 / 2 hours. Upper bound: (1.48 + 0.52 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.52 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-390-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 71,
+          "cards": 264,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 277,
+          "Full-schedule availability bound": 176,
+          "Most useful next evidence": 180,
+          "page": 1729
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "read": {
+        "http": 422,
+        "code": "EV_WINDOW_INVALID",
+        "selection_state": null,
+        "committed_watermark": null,
+        "known_at": null,
+        "schedule_state": null,
+        "seconds": null,
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-refused-1440-app.png",
+      "app": {
+        "panels": [],
+        "blocks": {
+          "status": null,
+          "cards": null,
+          "notice": null,
+          "refusal": 140,
+          "state_notice": null,
+          "page": 1000
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\n\nEV depth unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
+      },
+      "mock_image": "availability-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 245,
+          "Full-schedule availability bound": 180,
+          "Most useful next evidence": 180,
+          "page": 1055
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": null,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "read": {
+        "http": 422,
+        "code": "EV_WINDOW_INVALID",
+        "selection_state": null,
+        "committed_watermark": null,
+        "known_at": null,
+        "schedule_state": null,
+        "seconds": null,
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-refused-390-app.png",
+      "app": {
+        "panels": [],
+        "blocks": {
+          "status": null,
+          "cards": null,
+          "notice": null,
+          "refusal": 140,
+          "state_notice": null,
+          "page": 900
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\n\nEV depth unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
+      },
+      "mock_image": "availability-390-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 71,
+          "cards": 264,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 277,
+          "Full-schedule availability bound": 176,
+          "Most useful next evidence": 180,
+          "page": 1729
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": null,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-refused",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "read": {
+        "http": 422,
+        "code": "EV_WINDOW_INVALID",
+        "selection_state": null,
+        "committed_watermark": null,
+        "known_at": null,
+        "schedule_state": null,
+        "seconds": null,
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "energy-refused-1440-app.png",
+      "app": {
+        "panels": [],
+        "blocks": {
+          "status": null,
+          "cards": null,
+          "notice": null,
+          "refusal": 140,
+          "state_notice": null,
+          "page": 1000
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\n\nEV depth unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
+      },
+      "mock_image": "energy-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 356,
+          "What can be concluded": 356,
+          "Technical-to-financial bridge": 243,
+          "page": 1230
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": null,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-refused",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "read": {
+        "http": 422,
+        "code": "EV_WINDOW_INVALID",
+        "selection_state": null,
+        "committed_watermark": null,
+        "known_at": null,
+        "schedule_state": null,
+        "seconds": null,
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "energy-refused-390-app.png",
+      "app": {
+        "panels": [],
+        "blocks": {
+          "status": null,
+          "cards": null,
+          "notice": null,
+          "refusal": 140,
+          "state_notice": null,
+          "page": 900
+        },
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\n\nEV depth unavailable\n\nEV_WINDOW_INVALID 'from' must be before 'to'.\n\nRetry"
+      },
+      "mock_image": "energy-390-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 113,
+          "cards": 248,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 231,
+          "What can be concluded": 308,
+          "Technical-to-financial bridge": 416,
+          "page": 2076
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": null,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-status-gap",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5040,
+          0,
+          2160
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-status-gap-1440-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 275,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 182,
+          "page": 1000
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nKnown available\n1 h 24 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n36 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.4 / 1.4 known hours; coverage 70.00%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–08:40 UTC Available; 08:40–08:45 UTC Unknown; 08:45–09:00 UTC Available. 24 min available, 0 min unavailable, 36 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.4 h available, 0 h observed unavailable and 0.6 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n70.00–100.00%\n\nLower bound: 1.4 / 2 hours. Upper bound: (1.4 + 0.6 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.6 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 245,
+          "Full-schedule availability bound": 180,
+          "Most useful next evidence": 180,
+          "page": 1055
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-status-gap",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5040,
+          0,
+          2160
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-status-gap-390-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 66,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 316,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 205,
+          "page": 1481
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nKnown available\n1 h 24 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n36 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.4 / 1.4 known hours; coverage 70.00%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–08:40 UTC Available; 08:40–08:45 UTC Unknown; 08:45–09:00 UTC Available. 24 min available, 0 min unavailable, 36 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.4 h available, 0 h observed unavailable and 0.6 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n70.00–100.00%\n\nLower bound: 1.4 / 2 hours. Upper bound: (1.4 + 0.6 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.6 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-390-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 71,
+          "cards": 264,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 277,
+          "Full-schedule availability bound": 176,
+          "Most useful next evidence": 180,
+          "page": 1729
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-declared-empty-schedule",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "DECLARED_EMPTY",
+        "seconds": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-declared-empty-schedule-1440-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 136,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 182,
+          "page": 1000
+        },
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 0 scheduled hours = 0 connector-hours\nKnown available\n0 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n0 min\nNo trustworthy state coverage\nKnown-time availability\nUnknown\n0 / 0 known hours; coverage not applicable\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\n\nNo service hours are declared in this window.\n\nFull-schedule availability bound\nUnknown\n\nLower bound: Unknown. Upper bound: Unknown. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nDeclare service hours before assessing connector availability. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 245,
+          "Full-schedule availability bound": 180,
+          "Most useful next evidence": 180,
+          "page": 1055
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-declared-empty-schedule",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "DECLARED_EMPTY",
+        "seconds": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-declared-empty-schedule-390-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 66,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 136,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 205,
+          "page": 1302
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 0 scheduled hours = 0 connector-hours\nKnown available\n0 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n0 min\nNo trustworthy state coverage\nKnown-time availability\nUnknown\n0 / 0 known hours; coverage not applicable\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\n\nNo service hours are declared in this window.\n\nFull-schedule availability bound\nUnknown\n\nLower bound: Unknown. Upper bound: Unknown. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nDeclare service hours before assessing connector availability. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-390-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 71,
+          "cards": 264,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 277,
+          "Full-schedule availability bound": 176,
+          "Most useful next evidence": 180,
+          "page": 1729
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-pending",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "PENDING_RECOMPUTE",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:05:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5340,
+          0,
+          1860
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-pending-1440-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 43,
+          "Connector states over the service schedule": 275,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 182,
+          "page": 1025
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nNew evidence is being assessed. Earlier selected results may change.\nKnown available\n1 h 29 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n31 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.48 / 1.48 known hours; coverage 74.17%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–09:00 UTC Available. 29 min available, 0 min unavailable, 31 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.48 h available, 0 h observed unavailable and 0.52 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n74.17–100.00%\n\nLower bound: 1.48 / 2 hours. Upper bound: (1.48 + 0.52 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.52 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 245,
+          "Full-schedule availability bound": 180,
+          "Most useful next evidence": 180,
+          "page": 1055
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-pending",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "PENDING_RECOMPUTE",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:05:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5340,
+          0,
+          1860
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-pending-390-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 66,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 61,
+          "Connector states over the service schedule": 316,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 205,
+          "page": 1560
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nNew evidence is being assessed. Earlier selected results may change.\nKnown available\n1 h 29 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n31 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.48 / 1.48 known hours; coverage 74.17%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–09:00 UTC Available. 29 min available, 0 min unavailable, 31 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.48 h available, 0 h observed unavailable and 0.52 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n74.17–100.00%\n\nLower bound: 1.48 / 2 hours. Upper bound: (1.48 + 0.52 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.52 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-390-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 71,
+          "cards": 264,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 277,
+          "Full-schedule availability bound": 176,
+          "Most useful next evidence": 180,
+          "page": 1729
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-historical",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "HISTORICAL",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5340,
+          0,
+          1860
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-historical-1440-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 43,
+          "Connector states over the service schedule": 275,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 182,
+          "page": 1025
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nThis result reflects records known at the selected cutoff.\nKnown available\n1 h 29 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n31 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.48 / 1.48 known hours; coverage 74.17%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–09:00 UTC Available. 29 min available, 0 min unavailable, 31 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.48 h available, 0 h observed unavailable and 0.52 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n74.17–100.00%\n\nLower bound: 1.48 / 2 hours. Upper bound: (1.48 + 0.52 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.52 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 245,
+          "Full-schedule availability bound": 180,
+          "Most useful next evidence": 180,
+          "page": 1055
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "availability-historical",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/availability?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "HISTORICAL",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": "SCHEDULED",
+        "seconds": [
+          7200,
+          5340,
+          0,
+          1860
+        ],
+        "energy": null
+      },
+      "read_ok": true,
+      "app_image": "availability-historical-390-app.png",
+      "app": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 66,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 43,
+          "Connector states over the service schedule": 316,
+          "Full-schedule availability bound": 182,
+          "Most useful next evidence": 205,
+          "page": 1541
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · connector availability and unknown time\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEvidence limited 2 connectors × 1 scheduled hours = 2 connector-hours\nThis result reflects records known at the selected cutoff.\nKnown available\n1 h 29 min\nState-supported service time\nKnown unavailable\n0 min\nFaulted or unavailable state evidenced\nUnknown\n31 min\nNo trustworthy state coverage\nKnown-time availability\n100.0%\n1.48 / 1.48 known hours; coverage 74.17%\nConnector states over the service schedule\nAvailable\nUnavailable\nUnknown\nConnector c1\n08:00–09:00 UTC\nConnector c1: 08:00–08:31 UTC Unknown; 08:31–09:00 UTC Available. 29 min available, 0 min unavailable, 31 min unknown.\nConnector c2\n08:00–09:00 UTC\nConnector c2: 08:00–09:00 UTC Available. 1 h 0 min available, 0 min unavailable, 0 min unknown.\n08:00 UTC\n08:30 UTC\n09:00 UTC\n\nConnector c1: 0.48 h available, 0 h observed unavailable and 0.52 h unknown. Spans use accepted transition timestamps.\n\nConnector c2: 1 h available, 0 h observed unavailable and 0 h unknown. Spans use accepted transition timestamps.\n\nFull-schedule availability bound\n74.17–100.00%\n\nLower bound: 1.48 / 2 hours. Upper bound: (1.48 + 0.52 unknown) / 2. Unknown time is not silently included as available.\n\nMost useful next evidence\n\nRecover the connector status/heartbeat history for the missing 0.52 hours. A telemetry outage does not prove the charging connector was physically unavailable.\n\nInspect connector-state lineage ↗"
+      },
+      "mock_image": "availability-390-mock.png",
+      "mock": {
+        "panels": [
+          "Connector states over the service schedule",
+          "Full-schedule availability bound",
+          "Most useful next evidence"
+        ],
+        "blocks": {
+          "status": 71,
+          "cards": 264,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Connector states over the service schedule": 277,
+          "Full-schedule availability bound": 176,
+          "Most useful next evidence": 180,
+          "page": 1729
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-complete",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": "30.000",
+          "partial": "0.000",
+          "unknown_s": 0,
+          "samples": 14,
+          "peak": "60",
+          "consequence": "WITHHELD"
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-complete-1440-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 375,
+          "What can be concluded": 375,
+          "Technical-to-financial bridge": 183,
+          "page": 1066
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: measured Complete session meter records · incomplete session energy excluded\nInspect meter basis ↗\nMetered session energy\n30.000 kWh\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnpriced\nScenario tariff not established\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible tariff applied\tUnpriced\tThe gross tariff scenario is being refreshed.\nIncomplete session\tNo complete meter interval\tUnavailable\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 356,
+          "What can be concluded": 356,
+          "Technical-to-financial bridge": 243,
+          "page": 1230
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-complete",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": "30.000",
+          "partial": "0.000",
+          "unknown_s": 0,
+          "samples": 14,
+          "peak": "60",
+          "consequence": "WITHHELD"
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-complete-390-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 82,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 259,
+          "What can be concluded": 339,
+          "Technical-to-financial bridge": 226,
+          "page": 1618
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: measured Complete session meter records · incomplete session energy excluded\nInspect meter basis ↗\nMetered session energy\n30.000 kWh\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnpriced\nScenario tariff not established\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible tariff applied\tUnpriced\tThe gross tariff scenario is being refreshed.\nIncomplete session\tNo complete meter interval\tUnavailable\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-390-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 113,
+          "cards": 248,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 231,
+          "What can be concluded": 308,
+          "Technical-to-financial bridge": 416,
+          "page": 2076
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-missing-meter",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": null,
+          "partial": "25.000",
+          "unknown_s": 300,
+          "samples": 14,
+          "peak": "60",
+          "consequence": "WITHHELD"
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-missing-meter-1440-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 375,
+          "What can be concluded": 375,
+          "Technical-to-financial bridge": 183,
+          "page": 1169
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: limited Complete session meter records not established · incomplete session energy kept separate\nInspect meter basis ↗\nMetered session energy\nUnknown\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnpriced\nScenario tariff not established\n\n25.000 kWh from incomplete sessions is shown separately and not included.\n\nMeter coverage is unknown for 5 min of session time.\n\nNo complete metered delivery is established for this window.\n\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible tariff applied\tUnpriced\tThe gross tariff scenario is being refreshed.\n25.000 kWh incomplete-session delivery\tNo complete meter interval\tNot priced\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 356,
+          "What can be concluded": 356,
+          "Technical-to-financial bridge": 243,
+          "page": 1230
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-missing-meter",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "CURRENT",
+        "committed_watermark": "2026-10-06T09:00:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": null,
+          "partial": "25.000",
+          "unknown_s": 300,
+          "samples": 14,
+          "peak": "60",
+          "consequence": "WITHHELD"
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-missing-meter-390-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 82,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 259,
+          "What can be concluded": 339,
+          "Technical-to-financial bridge": 226,
+          "page": 1741
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: limited Complete session meter records not established · incomplete session energy kept separate\nInspect meter basis ↗\nMetered session energy\nUnknown\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnpriced\nScenario tariff not established\n\n25.000 kWh from incomplete sessions is shown separately and not included.\n\nMeter coverage is unknown for 5 min of session time.\n\nNo complete metered delivery is established for this window.\n\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible tariff applied\tUnpriced\tThe gross tariff scenario is being refreshed.\n25.000 kWh incomplete-session delivery\tNo complete meter interval\tNot priced\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-390-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 113,
+          "cards": 248,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 231,
+          "What can be concluded": 308,
+          "Technical-to-financial bridge": 416,
+          "page": 2076
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-pending",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "PENDING_RECOMPUTE",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:05:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": null,
+          "partial": "30.000",
+          "unknown_s": 0,
+          "samples": 14,
+          "peak": "60",
+          "consequence": null
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-pending-1440-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 43,
+          "Import power and configured limit": 375,
+          "What can be concluded": 375,
+          "Technical-to-financial bridge": 183,
+          "page": 1195
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: limited Complete session meter records not established · incomplete session energy kept separate\nInspect meter basis ↗\nNew evidence is being assessed. Earlier selected results may change.\nMetered session energy\nUnknown\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnknown\nScenario tariff not established\n\n30.000 kWh from incomplete sessions is shown separately and not included.\n\nNo complete metered delivery is established for this window.\n\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible gross tariff scenario.\tUnpriced\tNo collections or profit claim\n30.000 kWh incomplete-session delivery\tNo complete meter interval\tNot priced\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 356,
+          "What can be concluded": 356,
+          "Technical-to-financial bridge": 243,
+          "page": 1230
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-pending",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "PENDING_RECOMPUTE",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:05:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": null,
+          "partial": "30.000",
+          "unknown_s": 0,
+          "samples": 14,
+          "peak": "60",
+          "consequence": null
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-pending-390-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 82,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 61,
+          "Import power and configured limit": 259,
+          "What can be concluded": 339,
+          "Technical-to-financial bridge": 226,
+          "page": 1786
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: limited Complete session meter records not established · incomplete session energy kept separate\nInspect meter basis ↗\nNew evidence is being assessed. Earlier selected results may change.\nMetered session energy\nUnknown\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnknown\nScenario tariff not established\n\n30.000 kWh from incomplete sessions is shown separately and not included.\n\nNo complete metered delivery is established for this window.\n\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible gross tariff scenario.\tUnpriced\tNo collections or profit claim\n30.000 kWh incomplete-session delivery\tNo complete meter interval\tNot priced\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-390-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 113,
+          "cards": 248,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 231,
+          "What can be concluded": 308,
+          "Technical-to-financial bridge": 416,
+          "page": 2076
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-historical",
+      "viewport": "1440x1000",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "HISTORICAL",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": null,
+          "partial": "30.000",
+          "unknown_s": 0,
+          "samples": 14,
+          "peak": "60",
+          "consequence": null
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-historical-1440-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 43,
+          "cards": 115,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 43,
+          "Import power and configured limit": 375,
+          "What can be concluded": 375,
+          "Technical-to-financial bridge": 183,
+          "page": 1195
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: limited Complete session meter records not established · incomplete session energy kept separate\nInspect meter basis ↗\nThis result reflects records known at the selected cutoff.\nMetered session energy\nUnknown\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnknown\nScenario tariff not established\n\n30.000 kWh from incomplete sessions is shown separately and not included.\n\nNo complete metered delivery is established for this window.\n\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible gross tariff scenario.\tUnpriced\tNo collections or profit claim\n30.000 kWh incomplete-session delivery\tNo complete meter interval\tNot priced\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-1440-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 44,
+          "cards": 113,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 356,
+          "What can be concluded": 356,
+          "Technical-to-financial bridge": 243,
+          "page": 1230
+        },
+        "scrollWidth": 1425,
+        "clientWidth": 1425,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    },
+    {
+      "state": "energy-historical",
+      "viewport": "390x900",
+      "app_url": "http://localhost:6191/sites/EV-LAB-001/performance/energy?from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z&known_at=2026-10-06T09%3A00%3A00.000000Z",
+      "read": {
+        "http": 200,
+        "code": null,
+        "selection_state": "HISTORICAL",
+        "committed_watermark": "2026-10-06T09:05:00.000000Z",
+        "known_at": "2026-10-06T09:00:00.000000Z",
+        "schedule_state": null,
+        "seconds": null,
+        "energy": {
+          "complete": null,
+          "partial": "30.000",
+          "unknown_s": 0,
+          "samples": 14,
+          "peak": "60",
+          "consequence": null
+        }
+      },
+      "read_ok": true,
+      "app_image": "energy-historical-390-app.png",
+      "app": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 82,
+          "cards": 267,
+          "notice": null,
+          "refusal": null,
+          "state_notice": 43,
+          "Import power and configured limit": 259,
+          "What can be concluded": 339,
+          "Technical-to-financial bridge": 226,
+          "page": 1767
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0,
+        "text": "Sites\nEV charging lab\nPerformance\nEV charging lab\nDemonstration data · EV-LAB-001\n\nPerformance · charging energy and site-power context\n\nOverview\nFoundation\nHealth\nPerformance\nFindings\nWork\nFinancials\nEvidence\nSessions\nAvailability\nEnergy / site power\nEnergy basis: limited Complete session meter records not established · incomplete session energy kept separate\nInspect meter basis ↗\nThis result reflects records known at the selected cutoff.\nMetered session energy\nUnknown\nComplete metered sessions only\nObserved peak import\n60 kW\nSelected 1-hour window\nDeclared site limit\n80 kW\nTime-valid configuration\nGross tariff estimate\nUnknown\nScenario tariff not established\n\n30.000 kWh from incomplete sessions is shown separately and not included.\n\nNo complete metered delivery is established for this window.\n\nImport power and configured limit\n\nObserved import is not proof of vehicle-requested power\n\nkW\n0\n25\n50\n75\n100\n08:00\n08:10\n08:20\n08:30\n08:40\n08:50\n09:00\n80 kW limit\nSite import\nSite power limit\nMeasure and value detail\nWhat can be concluded\nObserved peak below limit\nYes\nSite limit caused interruption\nNot established\nRequested vehicle power\nIncomplete evidence\nStationary battery\nUnknown Battery configuration is not established by this Foundation.\nBilling settlement\nNot connected\n\nNo eligible revenue estimate is established; no payment evidence is connected\n\nTechnical-to-financial bridge\nQUANTITY\tASSUMPTION\tRESULT\tLIMIT\nUnknown\tNo eligible gross tariff scenario.\tUnpriced\tNo collections or profit claim\n30.000 kWh incomplete-session delivery\tNo complete meter interval\tNot priced\tNo extrapolated energy silently added\nInterrupted service\tNo demand/sales baseline\tUnpriced exposure\tNo invented lost revenue"
+      },
+      "mock_image": "energy-390-mock.png",
+      "mock": {
+        "panels": [
+          "Import power and configured limit",
+          "What can be concluded",
+          "Technical-to-financial bridge"
+        ],
+        "blocks": {
+          "status": 113,
+          "cards": 248,
+          "notice": null,
+          "refusal": null,
+          "state_notice": null,
+          "Import power and configured limit": 231,
+          "What can be concluded": 308,
+          "Technical-to-financial bridge": 416,
+          "page": 2076
+        },
+        "scrollWidth": 375,
+        "clientWidth": 375,
+        "ellipsized": 0
+      },
+      "titles_equal": true,
+      "no_overflow": true,
+      "over_cap": []
+    }
+  ]
+}

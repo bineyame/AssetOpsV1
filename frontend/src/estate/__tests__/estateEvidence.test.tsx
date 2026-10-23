@@ -305,7 +305,8 @@ describe("W3-02 estate Evidence root", () => {
     const gaps = panelTitled(GAPS_PANEL);
     const examples = gaps.querySelector("[data-estate-examples]") as HTMLElement;
     expect(examples.textContent).toContain("Example destinations");
-    for (const label of ["ACT-049, ACT-061", "Map transfer switch", "Operational records"]) {
+    // W6-01e E2 (P-E2-9): two inert examples remain.
+    for (const label of ["ACT-049, ACT-061", "Map transfer switch"]) {
       const entry = within(examples).getByLabelText(`${label}, Not available yet`);
       expect(entry.textContent).toBe(`${label} · Not available yet`);
     }
@@ -314,7 +315,13 @@ describe("W3-02 estate Evidence root", () => {
     expect(within(examples).queryByLabelText("Preventive plan, Not available yet")).toBeNull();
     const live = within(examples).getByRole("link", { name: "Preventive plan →" });
     expect(live).toHaveAttribute("href", `/maintenance/preventive?${WINDOW}`);
-    expect(gaps.querySelectorAll("a, button, [href]")).toHaveLength(1);
+    // W6-01e E2 (P-E2-9): Operational records is the second live example, to the same selected window.
+    expect(within(examples).queryByLabelText("Operational records, Not available yet")).toBeNull();
+    expect(within(examples).getByRole("link", { name: "Operational records →" })).toHaveAttribute(
+      "href",
+      `/operational-records?${WINDOW}`,
+    );
+    expect(gaps.querySelectorAll("a, button, [href]")).toHaveLength(2);
     expect(gaps.querySelector("table a, table button, table [href]")).toBeNull();
     expect(within(gaps).getAllByRole("row")).toHaveLength(3);
   });
@@ -326,6 +333,22 @@ describe("W3-02 estate Evidence root", () => {
     expect(within(examples).getByRole("link", { name: "Preventive plan →" })).toHaveAttribute(
       "href",
       `/maintenance/preventive?${WINDOW}&known_at=${encodeURIComponent(KNOWN)}`,
+    );
+    expect(within(examples).getByRole("link", { name: "Operational records →" })).toHaveAttribute(
+      "href",
+      `/operational-records?${WINDOW}&known_at=${encodeURIComponent(KNOWN)}`,
+    );
+  });
+
+  it("operational_records_example_uses_the_effective_response_window", async () => {
+    const shifted = body();
+    const window = { ...shifted.window, from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" };
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded({ ...shifted, window })));
+    await settledScreen();
+    const examples = panelTitled(GAPS_PANEL).querySelector("[data-estate-examples]") as HTMLElement;
+    expect(within(examples).getByRole("link", { name: "Operational records →" })).toHaveAttribute(
+      "href",
+      `/operational-records?from=${encodeURIComponent("2026-10-01T00:00:00Z")}&to=${encodeURIComponent("2026-10-08T00:00:00Z")}`,
     );
   });
 

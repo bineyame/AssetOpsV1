@@ -828,6 +828,14 @@ function Invoke-ConfigurationPersistenceCheck {
     $coldScenarioTables = @('cold_scenario', 'cold_scenario_revision')
     $coldScenarioInsertsSeen = @{}
     foreach ($table in $coldScenarioTables) { $coldScenarioInsertsSeen[$table] = 0 }
+    # W5-02a K1a (build spec rule 8 K1a, pre-flight ruling A5; migration 0033): the domain-intent store is the sole
+    # runtime writer of the three cold domain Action tables, INSERT-only (0033 triggers refuse UPDATE/DELETE; no
+    # upsert, TRUNCATE, MERGE, COPY or DDL), and it writes no other table. Each table keeps at least one owner INSERT
+    # in the store (anti-vacuity below). `postgres_domain_action_index.py` (K1b) is a named reader.
+    $domainIntentWriter = "$backendRoot/work/adapters/postgres_domain_intent.py"
+    $domainIntentTables = @('domain_action', 'domain_action_intent', 'domain_action_case_link')
+    $domainIntentInsertsSeen = @{}
+    foreach ($table in $domainIntentTables) { $domainIntentInsertsSeen[$table] = 0 }
     # W4-02 closure 2/closure 4 S2: the 0029 enqueue SQL functions write recompute_job inside the database. The
     # Foundation/binding publication store alone calls `mini_enqueue_configuration` (after a successful publish, on
     # its publication connection); `mini_enqueue_hour` and `mini_enqueue_accepted` run only inside the database.
@@ -835,14 +843,17 @@ function Invoke-ConfigurationPersistenceCheck {
     $miniPublishEnqueueSql = '(?i)\bSELECT\s+mini_enqueue_configuration\s*\('
     $miniPublishEnqueueSeen = 0
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
-        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter)
+        $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
+        $domainIntentWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
         # W6-01a A1Q G1: the read-only global work reader; the SQL-write refusal still applies to it.
         "$backendRoot/work/adapters/postgres_global_read.py",
         # W4-02 unit 5 (closure 1 Q25): the read-only mini-depth reader; the SQL-write refusal still applies to it.
-        "$backendRoot/mini_depth/read.py")
+        "$backendRoot/mini_depth/read.py",
+        # W5-02a ruling A5: the read-only Site Action index (K1b); the SQL-write refusal still applies to it.
+        "$backendRoot/work/adapters/postgres_domain_action_index.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
@@ -887,10 +898,11 @@ function Invoke-ConfigurationPersistenceCheck {
     $dbDriver = '(?:^|\s)(?:import|from)\s+(?:sqlalchemy|psycopg|alembic)(?:[.\s]|$)'
     $pgWritesSeen = @{ $pgWriter = 0; $ledgerWriter = 0; $accessWriter = 0; $assessWriter = 0; $findingWriter = 0
         $assumptionWriter = 0; $consequenceWriter = 0; $scheduleWriter = 0; $actionWriter = 0; $workWriter = 0
-        $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0 }
+        $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $domainIntentWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
-        $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false }
+        $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
+        $domainIntentWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -950,6 +962,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $coldScenarioWriter -and $line -match $actionForbidden) {
                 $failures.Add("The cold scenario store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $domainIntentWriter -and $line -match $actionForbidden) {
+                $failures.Add("The domain-intent store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1120,6 +1136,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $coldScenarioInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $domainIntentWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $domainIntentTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The domain-intent store only inserts into $($domainIntentTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $domainIntentTables -contains $target) {
+                    if ($module.Path -ne $domainIntentWriter) {
+                        $failures.Add(("Only $domainIntentWriter writes domain Action table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Domain Action table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $domainIntentInsertsSeen[$target]++
                     }
                 }
                 if ($null -ne $target -and $target -eq $cutoverTable) {
@@ -1353,6 +1385,12 @@ function Invoke-ConfigurationPersistenceCheck {
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
+    foreach ($table in $domainIntentTables) {
+        if ($extractorRan -and $domainIntentInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $domainIntentWriter, so the domain Action insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
     if ($evPublishEnqueueSeen -lt 1) {
         $failures.Add(("Rule 8 found no ev_enqueue_configuration call in $pgWriter (W2-06 q3 P7 publication " +
             "enqueue), so its allowance is vacuous. Update the check, do not delete it.")) | Out-Null
@@ -1531,6 +1569,9 @@ function Invoke-ConfigurationPersistenceCheck {
             "cold-scenario $table owner insert unseen")
     }
     $workProbeNames += @('cold-scenario truncate')
+    # W5-02a ruling A5: the domain-intent writer policy fails closed on its four named probes.
+    $workProbeNames += @('domain_action_insert_from_foreign_writer', 'domain_action_intent_insert_from_foreign_writer',
+        'domain_action_case_link_insert_from_foreign_writer', 'domain_action_update_in_owned_writer')
     # W4-02 B-L1: the q12-6 cutover basis writer policy fails closed the same way.
     $workProbeNames += @("controls cutover $cutoverTable insert", "cutover $cutoverTable foreign insert",
         "cutover $cutoverTable update", "cutover $cutoverTable delete", "cutover $cutoverTable upsert",
@@ -1578,7 +1619,7 @@ function Invoke-ConfigurationPersistenceCheck {
     if ($routeModules.Count -lt 2) {
         $failures.Add("Rule 8 scanned $($routeModules.Count) HTTP module(s) for designation routes; update the check.") | Out-Null
     }
-    $designation = '(?i)\b(?:register_publication|register_authored|register_run|authored_record|simulation_records|publish_source|evidence_publication|batch_publication_link|run_attestation)\b|evidence\.publication\b|runs\.source_publication\b'
+    $designation = '(?i)\b(?:register_publication|register_authored|register_run|authored_record|simulation_records|publish_source|evidence_publication|batch_publication_link|run_attestation|source_publication)\b|evidence\.publication\b|runs\.source_publication\b'
     foreach ($module in $routeModules) {
         $lineNumber = 0
         foreach ($line in $module.Lines) {

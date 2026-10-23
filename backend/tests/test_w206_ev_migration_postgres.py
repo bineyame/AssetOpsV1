@@ -26,7 +26,7 @@ if URL:
     from test_w203_cold_migration_postgres import (
         T0, _replica, _sha, constraint, head, minigrid_rows, scalar, table_exists)
 
-HEAD = "0032_w5_cold_scenarios"  # W5-01b: 0032 sits above 0030 (W4-03 above 0029)
+HEAD = "0033_w5_cold_work"  # W5-02a: 0033 sits above 0032 (W5-01b above 0030)
 PREVIOUS = "0024_w2_ev_config"
 REFUSED = "Downgrade of 0025_w2_ev_session refused"
 EV = ("ev_session", "ev_session_revision", "ev_session_evidence", "ev_meter_interval")

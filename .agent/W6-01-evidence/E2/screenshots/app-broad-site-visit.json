@@ -1,0 +1,322 @@
+{
+  "state": "broad-site-visit",
+  "captured_at": "2026-10-23T08:36:20.266Z",
+  "results": [
+    {
+      "state": "broad-site-visit",
+      "width": 1440,
+      "route": "/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT",
+      "image": "broad-site-visit-1440.png",
+      "location": "/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "status_line": {
+          "h": 33,
+          "w": 175
+        },
+        "cards": {
+          "h": 115,
+          "w": 1160
+        },
+        "chips": {
+          "h": 33,
+          "w": 1160
+        },
+        "state_block": null,
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        },
+        "pager": {
+          "h": 29,
+          "w": 1120
+        },
+        "table": {
+          "h": 117,
+          "w": 1150
+        },
+        "thead": {
+          "h": 35,
+          "w": 1150
+        },
+        "notice": null
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 263,
+          "w": 1160
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 298,
+          "w": 734
+        },
+        {
+          "title": "How records are used",
+          "h": 298,
+          "w": 408
+        }
+      ],
+      "row_heights": [
+        82
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1120,
+        "scroll": 1150,
+        "overflowX": "auto",
+        "maxHeight": "500px"
+      },
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Operational records",
+        "status": "As known at 23 Oct 2026, 08:36 UTC",
+        "cards": [
+          "Records in window1Logs, readings, notes and visits",
+          "Feeding evidenceNot establishedNo accepted-evidence publication link",
+          "In reviewNo review workflowAll stored records are Submitted",
+          "Requested, not yet doneNot recordedNo request list recorded"
+        ],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "false"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "true"
+          ]
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–1 of 1",
+        "rows": [
+          [
+            "REC-000010Source unverifiedThe origin of this authored work record is not established. No ",
+            "Site visit",
+            "Kobo mini-grid",
+            "13 Oct 2026, 09:00 UTC",
+            "service:w401-fixture",
+            "Site visit at KOBO-002: technician inspected the site.Full record textSite visit at KOBO-0",
+            "None linked",
+            "Submitted"
+          ]
+        ],
+        "heads": [
+          [
+            "11f62754-6dbc-4c82-9856-7f4ef03310d3",
+            "11f62754-6dbc-4c82-9856-7f4ef03310d3"
+          ]
+        ],
+        "links": [
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-002"
+          ]
+        ],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=SITE_VISIT",
+          "status": 200
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=SITE_VISIT",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "broad-site-visit",
+      "width": 390,
+      "route": "/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT",
+      "image": "broad-site-visit-390.png",
+      "location": "/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=SITE_VISIT",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 211,
+          "w": 358
+        },
+        "status_line": {
+          "h": 17,
+          "w": 175
+        },
+        "cards": {
+          "h": 281,
+          "w": 358
+        },
+        "chips": {
+          "h": 73,
+          "w": 358
+        },
+        "state_block": null,
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        },
+        "pager": {
+          "h": 29,
+          "w": 318
+        },
+        "table": {
+          "h": 117,
+          "w": 1150
+        },
+        "thead": {
+          "h": 35,
+          "w": 1150
+        },
+        "notice": null
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 270,
+          "w": 358
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 486,
+          "w": 358
+        },
+        {
+          "title": "How records are used",
+          "h": 223,
+          "w": 358
+        }
+      ],
+      "row_heights": [
+        82
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 318,
+        "scroll": 1150,
+        "overflowX": "auto",
+        "maxHeight": "590px"
+      },
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1862,
+      "text": {
+        "h1": "Operational records",
+        "status": "As known at 23 Oct 2026, 08:36 UTC",
+        "cards": [
+          "Records in window1Logs, readings, notes and visits",
+          "Feeding evidenceNot establishedNo accepted-evidence publication link",
+          "In reviewNo review workflowAll stored records are Submitted",
+          "Requested, not yet doneNot recordedNo request list recorded"
+        ],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "false"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "true"
+          ]
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–1 of 1",
+        "rows": [
+          [
+            "REC-000010Source unverifiedThe origin of this authored work record is not established. No ",
+            "Site visit",
+            "Kobo mini-grid",
+            "13 Oct 2026, 09:00 UTC",
+            "service:w401-fixture",
+            "Site visit at KOBO-002: technician inspected the site.Full record textSite visit at KOBO-0",
+            "None linked",
+            "Submitted"
+          ]
+        ],
+        "heads": [
+          [
+            "11f62754-6dbc-4c82-9856-7f4ef03310d3",
+            "11f62754-6dbc-4c82-9856-7f4ef03310d3"
+          ]
+        ],
+        "links": [
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-002"
+          ]
+        ],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=SITE_VISIT",
+          "status": 200
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-13T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=SITE_VISIT",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

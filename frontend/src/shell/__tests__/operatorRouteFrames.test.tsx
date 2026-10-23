@@ -219,6 +219,7 @@ describe("operator route navigation", () => {
       within(operatorNavigation)
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
+    // W6-01e: Operational records rail root is live.
     ).toEqual([
       ["Portfolio", "/portfolio"],
       ["Sites", "/sites"],
@@ -226,6 +227,7 @@ describe("operator route navigation", () => {
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
       ["Maintenance", "/maintenance"],
+      ["Operational records", "/operational-records"],
       ["Evidence", "/evidence"],
       ["Financials", "/financials"],
     ]);
@@ -270,7 +272,8 @@ describe("operator route navigation", () => {
           "Actions | live",
           "Incidents | live",
           "Maintenance | live",
-          `Operational records | ${off}`,
+          // W6-01e: Operational records rail root is live.
+          "Operational records | live",
         ],
       ],
       [[["ASSURANCE", "ASSURANCE"]], ["Evidence | live"]],

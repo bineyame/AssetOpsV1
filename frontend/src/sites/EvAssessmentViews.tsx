@@ -393,7 +393,7 @@ function sourceDetail(read: EvSessionsRead) {
   ];
 }
 
-function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null; gap: string | null; findingHref: (findingId: string) => string }) {
+function RecordsPanel({ read, gap, findingHref, energyHref }: { read: EvSessionsRead | null; gap: string | null; findingHref: (findingId: string) => string; energyHref: string }) {
   let body: ReactNode;
   const sourceBlocked = read !== null && read.limitations.includes(EV_COPY.sourceUnassessable);
   if (read === null) {
@@ -436,7 +436,7 @@ function RecordsPanel({ read, gap, findingHref }: { read: EvSessionsRead | null;
     );
   }
   return (
-    <Panel heading="Session service records" headingId="ev-records-heading" description={<UnavailableInline label="Energy summary" />}>
+    <Panel heading="Session service records" headingId="ev-records-heading" description={<Link to={energyHref} data-ev-energy-summary="">Energy summary →</Link>}>
       {body}
     </Panel>
   );
@@ -534,6 +534,9 @@ function SessionsStrip({ read, gap }: { read: EvSessionsRead | null; gap: string
 
 /* ---------- Performance / Sessions frame ---------- */
 
+/** W5-03a: the EV Performance subtabs with a live page; `sessions` is the W2-06 default. */
+export type EvPerformanceView = "sessions" | "availability" | "energy";
+
 export interface EvSessionsFrameProps {
   siteId: string;
   siteName: string;
@@ -544,9 +547,70 @@ export interface EvSessionsFrameProps {
   parentTrail: Crumb[];
   sessionsHref: string;
   findingHref: (findingId: string) => string;
+  /** W5-03a E2: the selected subtab (default `sessions`); only it carries `aria-current`. */
+  view?: EvPerformanceView;
+  /** W5-03a E2: a live subtab's address, carrying the read window query. */
+  subtabHref: (view: EvPerformanceView) => string;
+  /** W5-03a E2: the live Performance landing the depth pages' breadcrumb links to. */
+  performanceHref?: string;
+  /** W5-03a E2: the depth page body rendered under the subtabs for a non-sessions view. */
+  depth?: ReactNode;
+}
+
+const SCREEN_OF: Record<EvPerformanceView, keyof typeof SITE_SCREEN_DESCRIPTIONS> = {
+  sessions: "sessions",
+  availability: "availability",
+  energy: "energy",
+};
+
+function EvPerformanceSubtabs({ view, props }: { view: EvPerformanceView; props: EvSessionsFrameProps }) {
+  return (
+    <nav className="site-tabs site-subtabs" aria-label="Performance sections">
+      <ol className="site-tabs__list">
+        <li className="site-tabs__item">
+          <Link className="site-tabs__link" to={props.sessionsHref} data-performance-subtab="sessions" aria-current={view === "sessions" ? "page" : undefined}>
+            Sessions
+          </Link>
+        </li>
+        <li className="site-tabs__item">
+          <Link className="site-tabs__link" to={props.subtabHref("availability")} data-performance-subtab="availability" aria-current={view === "availability" ? "page" : undefined}>
+            Availability
+          </Link>
+        </li>
+        <li className="site-tabs__item">
+          <Link className="site-tabs__link" to={props.subtabHref("energy")} data-performance-subtab="energy" aria-current={view === "energy" ? "page" : undefined}>
+            Energy / site power
+          </Link>
+        </li>
+      </ol>
+    </nav>
+  );
 }
 
 export function EvSessionsFrame(props: EvSessionsFrameProps) {
+  const view = props.view ?? "sessions";
+  return view === "sessions" ? <EvSessionsPage {...props} /> : <EvDepthPage view={view} props={props} />;
+}
+
+function EvDepthPage({ view, props }: { view: EvPerformanceView; props: EvSessionsFrameProps }) {
+  return (
+    <main aria-labelledby={EV_SESSIONS_HEADING_ID} data-ev-view={view}>
+      <Breadcrumbs trail={[...props.parentTrail, props.performanceHref === undefined ? { label: "Performance" } : { label: "Performance", to: props.performanceHref }]} />
+      <SitePageHeader
+        siteName={props.siteName}
+        siteId={props.siteId}
+        mode={props.mode}
+        description={SITE_SCREEN_DESCRIPTIONS[SCREEN_OF[view]]}
+        headingId={EV_SESSIONS_HEADING_ID}
+      />
+      {props.tabs}
+      <EvPerformanceSubtabs view={view} props={props} />
+      {props.depth}
+    </main>
+  );
+}
+
+function EvSessionsPage(props: EvSessionsFrameProps) {
   const { siteId, window, client } = props;
   const sessions = useRead(() => client.listSessions(siteId, window), `s|${siteId}|${windowKey(window)}`);
   const read = sessions !== null && sessions.status === "loaded" ? sessions.value : null;
@@ -562,24 +626,14 @@ export function EvSessionsFrame(props: EvSessionsFrameProps) {
         headingId={EV_SESSIONS_HEADING_ID}
       />
       {props.tabs}
-      <nav className="site-tabs site-subtabs" aria-label="Performance sections">
-        <ol className="site-tabs__list">
-          <li className="site-tabs__item">
-            <Link className="site-tabs__link" to={props.sessionsHref} data-performance-subtab="sessions" aria-current="page">
-              Sessions
-            </Link>
-          </li>
-          <UnavailableTab label="Availability" />
-          <UnavailableTab label="Energy / site power" />
-        </ol>
-      </nav>
+      <EvPerformanceSubtabs view="sessions" props={props} />
       {sessions === null ? (
         <p>{EV_LOADING}</p>
       ) : (
         <>
           <SessionsStrip read={read} gap={gap} />
           <SessionCards read={read} />
-          <RecordsPanel read={read} gap={gap} findingHref={props.findingHref} />
+          <RecordsPanel read={read} gap={gap} findingHref={props.findingHref} energyHref={props.subtabHref("energy")} />
           <div className="panel-pair ev-pair">
             <DenominatorPanel read={read} gap={gap} />
             <CausePanel read={read} gap={gap} />

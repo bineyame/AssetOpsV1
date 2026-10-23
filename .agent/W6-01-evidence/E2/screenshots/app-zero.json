@@ -1,0 +1,248 @@
+{
+  "state": "zero",
+  "captured_at": "2026-10-23T08:37:05.368Z",
+  "results": [
+    {
+      "state": "zero",
+      "width": 1440,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "image": "zero-1440.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1160
+        },
+        "status_line": {
+          "h": 33,
+          "w": 175
+        },
+        "cards": {
+          "h": 115,
+          "w": 1160
+        },
+        "chips": {
+          "h": 33,
+          "w": 1160
+        },
+        "state_block": null,
+        "zero_block": {
+          "h": 60,
+          "w": 1120
+        },
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": null,
+        "thead": null,
+        "notice": null
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 177,
+          "w": 1160
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 298,
+          "w": 734
+        },
+        {
+          "title": "How records are used",
+          "h": 298,
+          "w": 408
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Operational records",
+        "status": "As known at 23 Oct 2026, 08:37 UTC",
+        "cards": [
+          "Records in window0Logs, readings, notes and visits",
+          "Feeding evidenceNot establishedNo accepted-evidence publication link",
+          "In reviewNo review workflowAll stored records are Submitted",
+          "Requested, not yet doneNot recordedNo request list recorded"
+        ],
+        "chips": [
+          [
+            "All",
+            "true"
+          ],
+          [
+            "Operator log",
+            "false"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": null,
+        "zero": "No operational records in this window.Change the UTC window or open a Site record.",
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "zero",
+      "width": 390,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "image": "zero-390.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 211,
+          "w": 358
+        },
+        "status_line": {
+          "h": 17,
+          "w": 175
+        },
+        "cards": {
+          "h": 281,
+          "w": 358
+        },
+        "chips": {
+          "h": 73,
+          "w": 358
+        },
+        "state_block": null,
+        "zero_block": {
+          "h": 60,
+          "w": 318
+        },
+        "loading": null,
+        "scroll_hint": null,
+        "pager": null,
+        "table": null,
+        "thead": null,
+        "notice": null
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 177,
+          "w": 358
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 486,
+          "w": 358
+        },
+        {
+          "title": "How records are used",
+          "h": 223,
+          "w": 358
+        }
+      ],
+      "row_heights": [],
+      "collapsed_details_max_h": null,
+      "open_details": 0,
+      "table_scroll": null,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1769,
+      "text": {
+        "h1": "Operational records",
+        "status": "As known at 23 Oct 2026, 08:37 UTC",
+        "cards": [
+          "Records in window0Logs, readings, notes and visits",
+          "Feeding evidenceNot establishedNo accepted-evidence publication link",
+          "In reviewNo review workflowAll stored records are Submitted",
+          "Requested, not yet doneNot recordedNo request list recorded"
+        ],
+        "chips": [
+          [
+            "All",
+            "true"
+          ],
+          [
+            "Operator log",
+            "false"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": null,
+        "zero": "No operational records in this window.Change the UTC window or open a Site record.",
+        "showing": null,
+        "rows": [],
+        "heads": [],
+        "links": [],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}
