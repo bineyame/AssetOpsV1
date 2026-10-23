@@ -5444,13 +5444,10 @@ input.v69-chip-control[type="datetime-local"] {
   justify-content: space-between;
   font-size: 9px;
   color: var(--text-muted);
-  margin-left: calc(min(100px, 25%) + 12px);
-  margin-right: calc(min(90px, 22%) + 12px);
 }
 .ev-depth-claim { margin-top: 15px; font-size: 11px; }
 @media (max-width: 600px) {
   .ev-depth-bars__row { grid-template-columns: minmax(0, 72px) minmax(0, 1fr) minmax(0, 72px); gap: 8px; }
-  .ev-depth-bars__times { margin-left: calc(72px + 8px); margin-right: calc(72px + 8px); }
 }
 
 /* W5-03a E3: EV Energy `Import power and configured limit` chart (registered `sites/evDepthGraphics.tsx`). */
@@ -5481,4 +5478,8 @@ input.v69-chip-control[type="datetime-local"] {
 .ev-depth-graphic__axis { font-size: 10px; fill: #7a889b; }
 .ev-depth-graphic__mark { fill: #4f7fc6; stroke: #ffffff; stroke-width: 1.5; }
 .ev-depth-graphic__limit { stroke: #c99748; stroke-width: 2; fill: none; }
-.ev-depth-graphic__limit-label { font-size: 10px; fill: #8e580c; }
+.ev-depth-graphic__limit-label { font-size: 10px; fill: #7a889b; }
+.ev-depth-graphic__swatch--none { background: var(--border-subtle); }
+
+/* W5-03a fix L7: the mock bridge first column is regular weight; the cell stays a row header for assistive tech. */
+.data-table__scroll th.ev-bridge-rowhead { font-weight: 400; }

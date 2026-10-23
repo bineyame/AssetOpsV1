@@ -66,26 +66,19 @@ export function EvDepthPowerChart({
   const limit = limitKw === null ? null : Number(limitKw);
   return (
     <figure className="ev-depth-graphic" data-ev-chart={marks.length === 0 ? "empty" : "marks"}>
-      <div className="legend ev-depth-graphic__legend">
-        <span className="legend-item">
-          <span className="ev-depth-graphic__swatch ev-depth-graphic__swatch--import" aria-hidden="true" />
-          Site import
-        </span>
-        {limit === null ? null : (
-          <span className="legend-item">
-            <span className="ev-depth-graphic__swatch ev-depth-graphic__swatch--limit" aria-hidden="true" />
-            Site power limit
-          </span>
-        )}
-      </div>
       <div className="ev-depth-graphic__scroll">
         <svg viewBox={`0 0 ${EV_CHART_W} ${EV_CHART_H}`} role="img" aria-label={EV_CHART_LABEL} preserveAspectRatio="xMinYMin meet">
-          <rect className="ev-depth-graphic__frame" x={EV_CHART_PAD.l} y={EV_CHART_PAD.t} width={PLOT_W} height={PLOT_H} />
+          {marks.length === 0 ? (
+            <rect className="ev-depth-graphic__frame" x={EV_CHART_PAD.l} y={EV_CHART_PAD.t} width={PLOT_W} height={PLOT_H} />
+          ) : null}
+          <text className="ev-depth-graphic__axis" x={EV_CHART_PAD.l} y={EV_CHART_PAD.t - 2} data-ev-y-unit="">
+            kW
+          </text>
           {yTicks.map((v) => (
             <g key={v} data-ev-y-tick={v}>
               <line className="ev-depth-graphic__grid" x1={EV_CHART_PAD.l} x2={EV_CHART_W - EV_CHART_PAD.r} y1={y(v)} y2={y(v)} />
               <text className="ev-depth-graphic__axis" x={EV_CHART_PAD.l - 6} y={y(v) + 4} textAnchor="end">
-                {`${v} kW`}
+                {String(v)}
               </text>
             </g>
           ))}
@@ -110,6 +103,19 @@ export function EvDepthPowerChart({
             </circle>
           ))}
         </svg>
+      </div>
+      <div className="legend ev-depth-graphic__legend">
+        <span className="legend-item">
+          <span className="ev-depth-graphic__swatch ev-depth-graphic__swatch--import" aria-hidden="true" />
+          Site import
+        </span>
+        <span className="legend-item" data-ev-legend-limit={limit === null ? "none" : "line"}>
+          <span
+            className={`ev-depth-graphic__swatch ev-depth-graphic__swatch--limit${limit === null ? " ev-depth-graphic__swatch--none" : ""}`}
+            aria-hidden="true"
+          />
+          Site power limit
+        </span>
       </div>
     </figure>
   );

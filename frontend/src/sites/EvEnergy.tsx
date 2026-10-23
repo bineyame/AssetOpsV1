@@ -30,7 +30,15 @@ const DETAIL_ID = "ev-energy-detail-heading";
 /* ---------- formats ---------- */
 
 const kw = (value: string | null) => (value === null ? "Unknown" : `${value} kW`);
-const kwh = (value: string | null) => (value === null ? "Unknown" : `${value} kWh`);
+/** Mock `120 <small>kWh</small>` (`index.html:594`): number and unit are separate; a null value is plain `Unknown`. */
+const unitValue = (value: string | null, unit: string) =>
+  value === null ? (
+    "Unknown"
+  ) : (
+    <>
+      {value} <small>{unit}</small>
+    </>
+  );
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /** Closure 2: `HH:MM:SS UTC` of a wire instant, else `Unknown`. */
@@ -92,7 +100,7 @@ function useEnergyRead(client: EvDepthClient, siteCode: string, window: ColdWind
 }
 
 function answerTone(word: string): string | undefined {
-  return word === "Yes" ? "ev-tone--green" : word === "Not established" || word === "No" ? "ev-tone--amber" : undefined;
+  return word === "Yes" ? "ev-tone--green" : word === "No" ? "ev-tone--red" : word === "Not established" ? "ev-tone--amber" : undefined;
 }
 
 function Answer({ word }: { word: string }) {
@@ -109,7 +117,8 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
   const measured = measuredBasis(read);
   const from = read.window.from;
   const to = read.window.to;
-  const windowNote = from === null || to === null ? "No selected window" : `Selected ${hoursText((instantMs(to) - instantMs(from)) / 1000)}-hour window`;
+  // The paired window is required by the read; a missing window is a refused read, never a card fallback.
+  const windowNote = from === null || to === null ? undefined : `Selected ${hoursText((instantMs(to) - instantMs(from)) / 1000)}-hour window`;
   const below = e.peak_below_limit === "YES" ? "Yes" : e.peak_below_limit === "NO" ? "No" : "Unknown";
   const disclosures: string[] = [];
   if (e.partial_kwh !== null && Number(e.partial_kwh) > 0) disclosures.push(`${e.partial_kwh} kWh from incomplete sessions is shown separately and not included.`);
@@ -136,11 +145,11 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
       </StatusBar>
       {notice === null ? null : <Notice data={{ "data-ev-depth-state-notice": state }}>{notice}</Notice>}
       <MetricCards label="Charging energy">
-        <MetricCard label="Metered session energy" value={kwh(e.metered_complete_kwh)} note="Complete metered sessions only" data={{ "data-ev-energy-card": "energy" }} />
-        <MetricCard label="Observed peak import" value={kw(e.observed_peak_import_kw)} note={windowNote} data={{ "data-ev-energy-card": "peak" }} />
+        <MetricCard label="Metered session energy" value={unitValue(e.metered_complete_kwh, "kWh")} note="Complete metered sessions only" data={{ "data-ev-energy-card": "energy" }} />
+        <MetricCard label="Observed peak import" value={unitValue(e.observed_peak_import_kw, "kW")} note={windowNote} data={{ "data-ev-energy-card": "peak" }} />
         <MetricCard
           label="Declared site limit"
-          value={kw(e.configured_import_limit_kw)}
+          value={unitValue(e.configured_import_limit_kw, "kW")}
           note={e.configured_import_limit_kw === null ? "No time-valid site limit declared" : "Time-valid configuration"}
           data={{ "data-ev-energy-card": "limit" }}
         />
@@ -162,16 +171,13 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
         </p>
       ) : null}
       <div className="panel-pair">
-        <Panel heading="Import power and configured limit" headingId="ev-energy-import-heading">
+        <Panel heading="Import power and configured limit" headingId="ev-energy-import-heading" description={IMPORT_NOTE}>
           <EvDepthPowerChart from={from} to={to} samples={e.import_samples} limitKw={e.configured_import_limit_kw} />
           {e.import_samples.length === 0 ? (
             <p className="not-available-yet" data-ev-samples-empty="">
               {ENERGY_EMPTY_SAMPLES}
             </p>
           ) : null}
-          <p className="chart-note" data-ev-import-note="">
-            {IMPORT_NOTE}
-          </p>
           <Disclosure summary="Measure and value detail" name="ev-energy-detail" variant="tech">
             <h3 id={DETAIL_ID} className="visually-hidden">
               Import measures
@@ -227,7 +233,7 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
               ["Billing settlement", "Not connected", "billing"],
             ]}
           />
-          <p className="chart-note" data-ev-conclusion-note="">
+          <p className="v69-chart-note" data-ev-conclusion-note="">
             {estimated(c)
               ? "Revenue is an estimate from metered kWh and the declared tariff, not payment evidence."
               : "No eligible revenue estimate is established; no payment evidence is connected"}
@@ -248,7 +254,7 @@ function EnergyBody({ read, routes }: { read: EvEnergyRead; routes: EvDepthRoute
           <tbody>
             {bridgeRows(read).map((row, index) => (
               <tr key={index} data-ev-bridge-row={index + 1}>
-                {row.map((cell, i) => (i === 0 ? <th key={i} scope="row">{cell}</th> : <td key={i}>{cell}</td>))}
+                {row.map((cell, i) => (i === 0 ? <th key={i} scope="row" className="ev-bridge-rowhead">{cell}</th> : <td key={i}>{cell}</td>))}
               </tr>
             ))}
           </tbody>

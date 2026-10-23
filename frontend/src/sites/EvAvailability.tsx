@@ -107,7 +107,7 @@ export function knownTimeNote(read: EvAvailabilityRead): string {
     return "Known hours and coverage unknown";
   }
   const known = a.known_available_seconds + a.known_unavailable_seconds;
-  const coverage = a.scheduled_seconds > 0 ? `${((known / a.scheduled_seconds) * 100).toFixed(2)}%` : "Unknown";
+  const coverage = a.scheduled_seconds > 0 ? `${((known / a.scheduled_seconds) * 100).toFixed(2)}%` : "not applicable";
   return `${hoursText(a.known_available_seconds)} / ${hoursText(known)} known hours; coverage ${coverage}`;
 }
 
@@ -185,10 +185,12 @@ export function segmentsOf(row: AvailabilityConnector, fromMs: number, toMs: num
 function ConnectorBar({ row, fromMs, toMs }: { row: AvailabilityConnector; fromMs: number; toMs: number }) {
   const segments = segmentsOf(row, fromMs, toMs);
   const spans = occurrences(row);
-  const period = spans.length === 1 ? `${hhmm(spans[0][0])}–${hhmm(spans[0][1])}` : `${hhmm(fromMs)}–${hhmm(toMs)}`;
+  // MOCK DEVIATION (D1) R86: the DTO has UTC instants and no Site-local offset, so the period is UTC, not the mock's local time.
+  const period = `${spans.length === 1 ? `${hhmm(spans[0][0])}–${hhmm(spans[0][1])}` : `${hhmm(fromMs)}–${hhmm(toMs)}`} UTC`;
+  const name = connectorName(row.label);
   return (
     <div className="ev-depth-bars__row" data-ev-bar-row={row.asset_id}>
-      <span className="ev-depth-bars__label">{row.label}</span>
+      <span className="ev-depth-bars__label">{name}</span>
       <div className="ev-depth-bars__track">
         {segments.map((s) => (
           <div
@@ -202,7 +204,7 @@ function ConnectorBar({ row, fromMs, toMs }: { row: AvailabilityConnector; fromM
       </div>
       <strong className="ev-depth-bars__period">{period}</strong>
       <span className="visually-hidden" data-ev-span-summary={row.asset_id}>
-        {`${row.label}: ${segments
+        {`${name}: ${segments
           .map((s) => `${hhmm(s.from)}–${hhmm(s.to)} UTC ${s.state === "OUTSIDE" ? OUTSIDE_SCHEDULE : STATE_WORD[s.state]}`)
           .join("; ")}. ${dur(row.known_available_seconds)} available, ${dur(row.known_unavailable_seconds)} unavailable, ${dur(row.unknown_seconds)} unknown.`}
       </span>
@@ -252,10 +254,10 @@ function StatePanel({ read }: { read: EvAvailabilityRead }) {
             </p>
           ) : null}
           {a.connectors.length === 0 ? (
-            <p className="chart-note">No selected connector has a service schedule in this window.</p>
+            <p className="v69-chart-note" data-ev-no-connector="">No selected connector has a service schedule in this window.</p>
           ) : (
             a.connectors.map((row) => (
-              <p key={row.asset_id} className="chart-note" data-ev-chart-note={row.asset_id}>
+              <p key={row.asset_id} className="v69-chart-note" data-ev-chart-note={row.asset_id}>
                 {`${connectorName(row.label)}: ${dur(row.known_available_seconds)} available, ${dur(row.known_unavailable_seconds)} observed unavailable and ${dur(row.unknown_seconds)} unknown. Spans use accepted transition timestamps.`}
               </p>
             ))
@@ -272,7 +274,14 @@ function AvailabilityBody({ read, routes }: { read: EvAvailabilityRead; routes: 
   const notice = depthStateNotice(state);
   const query = coldWindowSearch(read.window);
   const bounded = a.full_lower !== null && a.full_upper !== null && a.scheduled_seconds !== null;
-  const missing = a.unknown_seconds !== null && a.unknown_seconds > 0 ? `the missing ${durationText(a.unknown_seconds)}` : "any unknown scheduled time";
+  const nextEvidence =
+    a.schedule_state === "NOT_ESTABLISHED"
+      ? `Establish the connector service schedule before assessing availability. ${TELEMETRY_SENTENCE}`
+      : a.schedule_state === "DECLARED_EMPTY"
+        ? `Declare service hours before assessing connector availability. ${TELEMETRY_SENTENCE}`
+        : a.unknown_seconds !== null && a.unknown_seconds > 0
+          ? `Recover the connector status/heartbeat history for the missing ${durationText(a.unknown_seconds)}. ${TELEMETRY_SENTENCE}`
+          : TELEMETRY_SENTENCE;
   return (
     <>
       <StatusBar label="Connector availability">
@@ -293,17 +302,17 @@ function AvailabilityBody({ read, routes }: { read: EvAvailabilityRead; routes: 
       <StatePanel read={read} />
       <div className="panel-pair">
         <Panel heading="Full-schedule availability bound" headingId="ev-availability-bound-heading">
-          <div className="metric-value" data-ev-bound="">
+          <div className="v69-panel-value" data-ev-bound="">
             {boundText(a.full_lower, a.full_upper)}
           </div>
           <p className="prose" data-ev-bound-prose="">
             {bounded
               ? `Lower bound: ${dur(a.known_available_seconds)} / ${dur(a.scheduled_seconds)}. Upper bound: (${dur(a.known_available_seconds)} + ${dur(a.unknown_seconds)} unknown) / ${dur(a.scheduled_seconds)}. Unknown time is not silently included as available.`
-              : "Unknown time is not silently included as available."}
+              : "Lower bound: Unknown. Upper bound: Unknown. Unknown time is not silently included as available."}
           </p>
         </Panel>
         <Panel heading="Most useful next evidence" headingId="ev-availability-next-heading">
-          <p className="prose" data-ev-next-evidence="">{`Recover the connector status/heartbeat history for ${missing}. ${TELEMETRY_SENTENCE}`}</p>
+          <p className="prose" data-ev-next-evidence="">{nextEvidence}</p>
           <p className="ev-depth-claim">
             <Link to={`${routes.analysis}${query}`} data-ev-lineage="">
               Inspect connector-state lineage ↗

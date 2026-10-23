@@ -144,9 +144,24 @@ describe("W5-03a E3: EV Energy", () => {
     expect(svg.querySelectorAll("path, polyline")).toHaveLength(0);
     expect(document.querySelector("[data-ev-limit-line] line")?.getAttribute("stroke-dasharray")).toBe("6 4");
     expect(Array.from(document.querySelectorAll("[data-ev-x-tick]")).map((x) => x.textContent)).toEqual(["08:00", "08:10", "08:20", "08:30", "08:40", "08:50", "09:00"]);
-    expect(Array.from(document.querySelectorAll("[data-ev-y-tick] text")).map((x) => x.textContent)).toEqual(["0 kW", "25 kW", "50 kW", "75 kW", "100 kW"]);
+    expect(Array.from(document.querySelectorAll("[data-ev-y-tick] text")).map((x) => x.textContent)).toEqual(["0", "25", "50", "75", "100"]);
+    expect(text("[data-ev-y-unit]")).toBe("kW");
+    expect(text("[data-ev-limit-line] text")).toBe("80 kW limit");
+    expect(marks()[0].querySelector("title")?.textContent).toBe("Site import 0 kW · 08:05:00 UTC");
+    // H3/plot frame: legend follows the svg; no frame rectangle when marks exist.
+    expect(document.querySelector(".ev-depth-graphic__scroll")?.nextElementSibling?.classList.contains("ev-depth-graphic__legend")).toBe(true);
+    expect(document.querySelector(".ev-depth-graphic__frame")).toBeNull();
     expect(Array.from(document.querySelectorAll(".ev-depth-graphic__legend .legend-item")).map((x) => x.textContent)).toEqual(["Site import", "Site power limit"]);
-    expect(text("[data-ev-import-note]")).toBe("Observed import is not proof of vehicle-requested power");
+    // H4: the sentence is the panel description under the heading, not a chart note below the figure.
+    expect(text(".panel__description")).toBe("Observed import is not proof of vehicle-requested power");
+    expect(document.querySelector("[data-ev-import-note]")).toBeNull();
+    expect(document.querySelector(".ev-depth-graphic")?.parentElement?.querySelector(".chart-note, .v69-chart-note")).toBeNull();
+    // M3: number and small unit are separate; H1: the conclusion note uses the global chart-note class.
+    expect(document.querySelector('[data-ev-energy-card="energy"] .v69-metric__value small')?.textContent).toBe("kWh");
+    expect(document.querySelector('[data-ev-energy-card="peak"] .v69-metric__value small')?.textContent).toBe("kW");
+    expect(document.querySelector("[data-ev-conclusion-note]")?.classList.contains("v69-chart-note")).toBe(true);
+    // L7: bridge first-column cells are regular weight but stay row headers.
+    expect(document.querySelector("[data-ev-bridge-row] th[scope='row']")?.classList.contains("ev-bridge-rowhead")).toBe(true);
     expect(document.querySelector("[data-ev-samples-empty]")).toBeNull();
     // Measure/Value detail stays in a closed disclosure with the exact sample facts.
     const details = document.querySelector("details") as HTMLDetailsElement;
@@ -189,9 +204,10 @@ describe("W5-03a E3: EV Energy", () => {
       "Meter coverage is unknown for 5 min of session time.",
     ]);
     expect(text("[data-ev-energy-empty]")).toBe("No complete metered delivery is established for this window.");
-    // No limit: no dashed line and no limit legend; a sub-limit peak never exonerates the limit.
+    // No limit: no dashed line, both legend labels remain (muted limit swatch); a sub-limit peak never exonerates the limit.
     expect(document.querySelector("[data-ev-limit-line]")).toBeNull();
-    expect(Array.from(document.querySelectorAll(".ev-depth-graphic__legend .legend-item")).map((x) => x.textContent)).toEqual(["Site import"]);
+    expect(Array.from(document.querySelectorAll(".ev-depth-graphic__legend .legend-item")).map((x) => x.textContent)).toEqual(["Site import", "Site power limit"]);
+    expect(document.querySelector("[data-ev-legend-limit]")?.getAttribute("data-ev-legend-limit")).toBe("none");
     expect(conclusions()[0]).toEqual(["Observed peak below limit", "Unknown"]);
     expect(conclusions()[1]).toEqual(["Site limit caused interruption", "Not established"]);
     expect(text("[data-ev-conclusion-note]")).toBe("No eligible revenue estimate is established; no payment evidence is connected");
@@ -213,6 +229,19 @@ describe("W5-03a E3: EV Energy", () => {
     await settledScreen();
     expect(cards()[3]).toEqual(["Gross tariff estimate", "Unpriced", "Scenario tariff not established"]);
     expect(main().textContent).not.toContain("0.00 USD");
+  });
+
+  it("the below-limit answer is red No at or above the limit, green Yes below, neutral Unknown", async () => {
+    const tone = (word: string) => document.querySelector('[data-key-value="below"] .badge')?.className.includes(word);
+    renderEnergy(loaded(read({ peak_below_limit: "NO" })));
+    await settledScreen();
+    expect(conclusions()[0]).toEqual(["Observed peak below limit", "No"]);
+    expect(tone("ev-tone--red")).toBe(true);
+    expect(tone("ev-tone--amber")).toBe(false);
+    cleanup();
+    renderEnergy(loaded(read({ peak_below_limit: "UNKNOWN" })));
+    await settledScreen();
+    expect(tone("ev-tone--red") || tone("ev-tone--green") || tone("ev-tone--amber")).toBe(false);
   });
 
   it("empty samples keep the axes and an empty frame with the honest sentence", async () => {
@@ -261,7 +290,7 @@ describe("W5-03a E3: chart geometry and validator", () => {
       cleanup();
     }
     render(<EvDepthPowerChart from={FROM} to={TO} samples={[sample(9, t(8, 0), "130")]} limitKw={null} />);
-    expect(Array.from(document.querySelectorAll("[data-ev-y-tick] text")).map((x) => x.textContent)).toEqual(["0 kW", "37.5 kW", "75 kW", "112.5 kW", "150 kW"]);
+    expect(Array.from(document.querySelectorAll("[data-ev-y-tick] text")).map((x) => x.textContent)).toEqual(["0", "37.5", "75", "112.5", "150"]);
     expect(utcSeconds(null)).toBe("Unknown");
   });
 

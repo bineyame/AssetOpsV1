@@ -204,7 +204,11 @@ describe("W5-03a E2: EV Availability", () => {
     const blank = document.querySelector(`[data-ev-bar-row="${id(8)}"] [data-ev-segment="OUTSIDE"]`) as HTMLElement;
     expect(blank.getAttribute("aria-label")).toBe("Outside scheduled service hours");
     expect(Array.from(document.querySelectorAll("[data-ev-bar-times] span")).map((s) => s.textContent)).toEqual(["08:00 UTC", "08:30 UTC", "09:00 UTC"]);
-    expect(Array.from(document.querySelectorAll(".ev-depth-bars__period")).map((s) => s.textContent)).toEqual(["08:00–09:00", "08:30–09:00"]);
+    expect(Array.from(document.querySelectorAll(".ev-depth-bars__period")).map((s) => s.textContent)).toEqual(["08:00–09:00 UTC", "08:30–09:00 UTC"]);
+    // H1/H2: global chart-note and panel-value classes; labels use the selected name verbatim.
+    expect(document.querySelector(`[data-ev-chart-note="${id(7)}"]`)?.classList.contains("v69-chart-note")).toBe(true);
+    expect(document.querySelector("[data-ev-bound]")?.classList.contains("v69-panel-value")).toBe(true);
+    expect(Array.from(document.querySelectorAll(".ev-depth-bars__label")).map((s) => s.textContent)).toEqual(["Connector c1", "Connector c2"]);
     expect(Array.from(document.querySelectorAll(".ev-depth-legend .badge")).map((b) => b.textContent)).toEqual(["Available", "Unavailable", "Unknown"]);
     expect(text(`[data-ev-span-summary="${id(7)}"]`)).toContain("08:20–08:25 UTC Unknown");
     expect(text(`[data-ev-chart-note="${id(7)}"]`)).toBe(
@@ -243,6 +247,12 @@ describe("W5-03a E2: EV Availability", () => {
     expect(document.querySelector("[data-ev-bars]")).toBeNull();
     expect(cards().map((c) => c[1])).toEqual(["Unknown", "Unknown", "Unknown", "Unknown"]);
     expect(text("[data-ev-bound]")).toBe("Unknown");
+    expect(document.querySelector("[data-ev-bound]")?.classList.contains("v69-panel-value")).toBe(true);
+    expect(text("[data-ev-bound-prose]")).toBe("Lower bound: Unknown. Upper bound: Unknown. Unknown time is not silently included as available.");
+    expect(text("[data-ev-next-evidence]")).toBe(
+      "Establish the connector service schedule before assessing availability. A telemetry outage does not prove the charging connector was physically unavailable.",
+    );
+    expect(cards()[3][2]).toBe("Known hours and coverage unknown");
     expect(text("[data-ev-connector-hours]")).toBe("Scheduled connector-hours unknown");
     cleanup();
     const empty = (label: string, asset: number) => ({ ...connector(label, asset, []), scheduled_seconds: 0 });
@@ -254,6 +264,23 @@ describe("W5-03a E2: EV Availability", () => {
     expect(document.querySelector("[data-ev-bars]")).toBeNull();
     expect(cards().map((c) => c[1])).toEqual(["0 min", "0 min", "0 min", "Unknown"]);
     expect(text("[data-ev-bound]")).toBe("Unknown");
+    expect(cards()[3][2]).toBe("0 / 0 known hours; coverage not applicable");
+    expect(text("[data-ev-next-evidence]")).toBe(
+      "Declare service hours before assessing connector availability. A telemetry outage does not prove the charging connector was physically unavailable.",
+    );
+    expect(main().textContent).not.toContain("any unknown scheduled time");
+    cleanup();
+    // A scheduled window with no selected connector gives the muted no-data chart note; a bare label gains the prefix once.
+    renderAvailability(loaded(read({ schedule_state: "SCHEDULED", scheduled_seconds: 3600, known_available_seconds: 0, known_unavailable_seconds: 0, unknown_seconds: 3600 }, "CURRENT", [])));
+    await settledScreen();
+    expect(text("[data-ev-no-connector]")).toBe("No selected connector has a service schedule in this window.");
+    expect(document.querySelector("[data-ev-no-connector]")?.classList.contains("v69-chart-note")).toBe(true);
+    cleanup();
+    const bare = connector("1", 9, [{ from: t(8, 0), to: t(9, 0), state: "AVAILABLE", evidence_ids: [id(105)] }]);
+    renderAvailability(loaded(read({}, "CURRENT", [bare])));
+    await settledScreen();
+    expect(text(".ev-depth-bars__label")).toBe("Connector 1");
+    expect(text(`[data-ev-chart-note="${id(9)}"]`)).toContain("Connector 1: ");
   });
 
   it.each([
