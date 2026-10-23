@@ -235,3 +235,43 @@
 .work-cases[data-cold-cases] td [data-work-outcome] {
   white-space: nowrap;
 }
+
+/* K3b capture fix: in a narrow case column the two-column fact grid (term 8-12rem) left the value no width, so an
+   opened `UTC and IDs` wrapped every ID one character per line; inside a cold case cell the facts stack instead. */
+.work-cases[data-cold-cases] td .fact-list {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+
+.work-cases[data-cold-cases] td .fact-list__value {
+  margin: 0 0 4px;
+}
+
+/* K3b (R94, as the K2 F1-F4 compact control): a long cell's `Read full text` is a one-line link, not a boxed panel. */
+.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline) {
+  display: block;
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+
+.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline) > .disclosure__summary {
+  display: inline-block;
+  padding: 0;
+  font-size: var(--font-size-sm, 0.85em);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.work-cases[data-cold-cases] td .disclosure:not(.disclosure--inline)[open] > .disclosure__body {
+  padding: 4px 0 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.work-cases[data-cold-cases] td .work-cases-clamp {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

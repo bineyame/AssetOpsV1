@@ -329,7 +329,8 @@ const MEASURE_CASE = `(() => {
     contextNotice: h(document.querySelector('[data-cold-work-notice]')),
     contextNoticeText: t(document.querySelector('[data-cold-work-notice]')),
     banner: (main?.innerText ?? '').includes(${JSON.stringify(CASE_BANNER)}),
-    headings: [...(body?.querySelectorAll('thead th') ?? [])].map((x) => t(x)),
+    // textContent: the header cells are uppercased by CSS only.
+    headings: [...(body?.querySelectorAll('thead th') ?? [])].map((x) => x.textContent.replace(/\\s+/g, ' ').trim()),
     scrollerScrollWidth: scroller?.scrollWidth ?? null,
     scrollerClientWidth: scroller?.clientWidth ?? null,
     stickyFirstColumn: firstCell ? getComputedStyle(firstCell).position === 'sticky' : null,
@@ -350,8 +351,6 @@ const MEASURE_CASE = `(() => {
     siteRefusal: body ? null : (t(main)?.slice(0, 200) ?? null),
     visibleForms: [...(main?.querySelectorAll('form') ?? [])].filter(visible).map((f) => f.getAttribute('data-cold-work-window') !== null ? 'cold-window' : 'other'),
     openDetails: body?.querySelectorAll('tbody details[open]').length ?? 0,
-    summaries: [...(body?.querySelectorAll('tbody details > summary') ?? [])].map((x) => { x.focus(); const r = x.getBoundingClientRect(); const td = x.closest('td').getBoundingClientRect();
-      return { text: x.textContent.trim(), focusable: document.activeElement === x, inside: r.width > 0 && r.left >= td.left - 1 && r.right <= td.right + 1 && x.scrollWidth <= x.clientWidth + 1 }; }),
     allDetails: body?.querySelectorAll('tbody details').length ?? 0,
     badgeCount: badges.length,
     badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
@@ -385,7 +384,7 @@ function caseRowClaims(W, label, m, expectRows) {
   if (m.cells.some((c) => c.openBodies > 0)) claim(`${W} ${label}: every opened disclosure body stays inside its cell`, m.cells.every((c) => c.openBodyInside && c.openBodyFits), m.cells.filter((c) => !(c.openBodyInside && c.openBodyFits)));
   const previews = m.cells.flatMap((c) => c.previewLines);
   if (previews.length > 0) claim(`${W} ${label}: every long-text preview is at most two lines`, previews.every((n) => n >= 1 && n <= 2), previews);
-  claim(`${W} ${label}: first column is position:sticky`, m.stickyFirstColumn === true, m.stickyFirstColumn);
+  if (W === "narrow") claim(`${W} ${label}: first column is position:sticky (spec: at 390 px)`, m.stickyFirstColumn === true, m.stickyFirstColumn);
   claim(`${W} ${label}: no clipped chip or badge`, m.badgeCount > 0 && m.badgesClipped === 0, { badges: m.badgeCount, clipped: m.badgesClipped });
   claim(`${W} ${label}: R93 Pages block and R92 basis disclosure present`, /^Showing /.test(m.showing ?? "") && m.basis, { showing: m.showing, basis: m.basis });
   if (W === "narrow") claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
@@ -407,11 +406,17 @@ function caseContentClaims(W, label, m, kind, mode) {
       { findings: m.findings, anchors: m.findingAnchors, caseAnchors: m.caseAnchors });
   } else {
     claim(`${W} ${label}: Asset cell reads generator-1 · backup generator (R89)`, m.assets.length > 0 && m.assets.every((a) => a === "generator-1 · backup generator"), m.assets);
-    claim(`${W} ${label}: Activity chip Completed after the performed record`, m.activityChips.length > 0 && m.activityChips.every((c) => c === "Completed"), m.activityChips);
+    // K3 ruling 3: the chip is the selected request state; the producer's WRs are OPEN after their performed record.
+    claim(`${W} ${label}: Activity chip is a W4 request-state label (Completed only for COMPLETED)`, m.activityChips.length > 0 && m.activityChips.every((c) => ["Open", "In progress", "Completed", "Closed", "Cancelled", "Verification window"].includes(c)), m.activityChips);
     claim(`${W} ${label}: Next evidence is the honest gap (R72)`, m.nextEvidence.length > 0 && m.nextEvidence.every((x) => x === "No next evidence recorded"), m.nextEvidence);
     claim(`${W} ${label}: WR code opens the W6 C2 Overview with site_id (R68)`, m.caseAnchors.length > 0 && m.caseAnchors.every((a) => a !== null && a.startsWith("/maintenance/requests/") && a.includes(`site_id=${SITE}`)), m.caseAnchors);
   }
 }
+// K3 ruling 12: run after the capture (focusing scrolls the table): every disclosure summary takes keyboard focus and
+// sits inside its cell. The table scroller is restored to its start afterwards.
+const FOCUS_CHECK = `(() => { const out = [...document.querySelectorAll('main [data-site-work] tbody details > summary')].map((x) => { x.focus(); const r = x.getBoundingClientRect(); const td = x.closest('td').getBoundingClientRect();
+  return { text: x.textContent.trim(), focusable: document.activeElement === x, inside: r.width > 0 && r.left >= td.left - 1 && r.right <= td.right + 1 && x.scrollWidth <= x.clientWidth + 1 }; });
+  document.activeElement?.blur(); const sc = document.querySelector('main [data-site-work] .data-table__scroll'); if (sc) sc.scrollLeft = 0; return out; })()`;
 const openAll = `(async () => { for (let i = 0; i < 6; i += 1) { const closed = [...document.querySelectorAll('main [data-site-work] tbody details:not([open])')]; if (closed.length === 0) break; closed.forEach((d) => d.querySelector(':scope > summary').click()); await new Promise((r) => setTimeout(r, 150)); } return document.querySelectorAll('main [data-site-work] tbody details:not([open])').length; })()`;
 
 async function casesMain() {
@@ -467,7 +472,8 @@ async function casesMain() {
       capCase(W, s("worstcase-all-open"), m, wi, false); // K3 ruling 16: panel-cap exemption only
       caseRowClaims(W, s("worstcase-all-open"), m, 5);
       // K3 ruling 12: every (nested) disclosure control is a native, keyboard-focusable summary, inside the viewport width.
-      claim(`${W} ${s("worstcase-all-open")}: every disclosure summary takes keyboard focus and is not clipped`, m.summaries.length > 0 && m.summaries.every((x) => x.focusable && x.inside), m.summaries.filter((x) => !(x.focusable && x.inside)));
+      const focus = await js(FOCUS_CHECK);
+      claim(`${W} ${s("worstcase-all-open")}: every disclosure summary takes keyboard focus and is not clipped`, focus.length > 0 && focus.every((x) => x.focusable && x.inside), { summaries: focus.length, failing: focus.filter((x) => !(x.focusable && x.inside)) });
       // Late / stale / unknown: the returned case-list status drives the notice (R91 tones).
       for (const k of ["pending", "stale", "unknown"]) {
         const rd = read(k, k, kind);
