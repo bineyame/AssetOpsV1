@@ -25,7 +25,7 @@ if URL:
         ASSET_CODE, patched_v4, raw_copy, remove_test_blockers, rows, v4)
     from test_w203_cold_migration_postgres import constraint, head, scalar
 
-HEAD = "0032_w5_cold_scenarios"  # W5-01b: 0032 sits above 0030 (W4-03 above 0029)
+HEAD = "0033_w5_cold_work"  # W5-02a: 0033 sits above 0032 (W5-01b above 0030)
 PREVIOUS = "0023_w2_cold_consequence"
 INDEX = "accepted_evidence_ev_measurement"
 REFUSED = "Downgrade of 0024_w2_ev_config refused"

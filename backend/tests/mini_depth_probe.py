@@ -19,7 +19,9 @@ from unittest.mock import patch
 
 from sqlalchemy import text
 
-MINI_HEAD = "0032_w5_cold_scenarios"  # W5-01b: current head above 0030 (W4-03 above 0029)
+MINI_HEAD = "0033_w5_cold_work"  # W5-02a: current head above 0032 (W5-01b above 0030, W4-03 above 0029)
+COLD_WORK_PREDECESSOR = "0032_w5_cold_scenarios"  # 0033 is crossed empty first
+COLD_WORK_TABLES = ("domain_action_case_link", "domain_action_intent", "domain_action")
 COLD_SCENARIO_PREDECESSOR = "0030_w4_mini_decisions"  # 0032 is crossed empty before 0029
 COLD_SCENARIO_TABLES = ("cold_scenario_revision", "cold_scenario")
 PREDECESSOR = "0027_w4_work_cases"
@@ -54,6 +56,13 @@ def assert_no_cold_scenarios(engine) -> None:
                 for t in COLD_SCENARIO_TABLES] == [0, 0]
 
 
+def assert_no_cold_work(engine) -> None:
+    """At head only: the 0033 domain Action tables, which block the 0033 downgrade, are empty."""
+    with engine.connect() as connection:
+        assert [connection.execute(text(f"SELECT count(*) FROM {t}")).scalar_one()
+                for t in COLD_WORK_TABLES] == [0, 0, 0]
+
+
 def has_mini_jobs(engine) -> bool:
     return sum(mini_history(engine)[len(MINI_TABLES):]) > 0
 
@@ -81,8 +90,11 @@ def seeded_before_0029(config, engine, *holders):
     assert_no_mini_history(engine)
     assert_no_cutover_basis(engine)
     assert_no_cold_scenarios(engine)
+    assert_no_cold_work(engine)
     release()
-    command.downgrade(config, COLD_SCENARIO_PREDECESSOR)  # traverse the empty 0032 first
+    command.downgrade(config, COLD_WORK_PREDECESSOR)  # traverse the empty 0033 first
+    assert _head(engine) == COLD_WORK_PREDECESSOR
+    command.downgrade(config, COLD_SCENARIO_PREDECESSOR)  # then the empty 0032
     assert _head(engine) == COLD_SCENARIO_PREDECESSOR
     command.downgrade(config, PREDECESSOR)
     assert _head(engine) == PREDECESSOR

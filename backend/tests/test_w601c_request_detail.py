@@ -508,3 +508,37 @@ def test_missing_created_is_503(store) -> None:  # noqa: F811
                 tx.rollback()
     finally:
         engine_.dispose()
+
+
+if URL:
+    from test_w202_cold_replay_postgres import chain  # noqa: F401,F811
+    from test_w502_domain_intent_postgres import cold  # noqa: F401
+    from test_w502_domain_work_links_postgres import bind, expected_link, rows_by_id, site_index
+    from test_w502_domain_work_links_postgres import iso as micro_iso
+
+    from assetops_backend.work.site_index import _action_link, action_selection_key
+
+
+def test_domain_action_link_matches_w4(cold) -> None:  # noqa: F811
+    """W5-02a K1c ruling 1: an explicitly bound cold domain Action on a Maintenance request reaches the global
+    request detail exactly as the W4 Site link at the same cutoff; an absent or wrong-Site pin leaves href null."""
+    b = bind(cold)
+    scope = lambda code: (cold.code, cold.t, cold.s) if code == cold.code else None  # noqa: E731
+    api = Api(scope, None)
+    try:
+        body = api.ok(b.request, site=cold.code, known_at=micro_iso(b.after))
+        old = api.ok(b.request, site=cold.code, known_at=micro_iso(b.before))
+    finally:
+        api.close()
+    w4 = rows_by_id(site_index(cold, "maintenance", b.window, [micro_iso(b.after)]))[b.request]["action_links"]
+    domain = expected_link(cold, b.aid)
+    assert w4 == [domain]
+    assert body["links"]["actions"] == [{"label": domain["label"], "href": domain["href"]}]
+    assert body["links"]["actions"][0]["href"] == f"/sites/{cold.code}/actions/{b.aid}/verification"
+    raw = body["work_detail"]["action_links"]
+    assert raw == [{k: domain[k] for k in ("kind", "action_id", "action_event_id", "finding_revision_id")}]
+    assert action_selection_key(raw[0]) == ("DOMAIN_ACTION", b.aid, cold.revision_id)
+    assert old["links"]["actions"] == []
+    # Absent pin (no selection) or a pin without lineage (another Site's selection never keys this link): null.
+    assert _action_link(cold.code, raw[0], None)["href"] is None
+    assert _action_link(cold.code, raw[0], {"lineage": False})["href"] is None

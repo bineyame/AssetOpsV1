@@ -29,7 +29,7 @@ from uuid import UUID
 from assetops_backend.work import model as m
 from assetops_backend.work.detail import parse_known_at, select_case_detail
 from assetops_backend.work.model import WorkRefused, WorkStoreUnavailable
-from assetops_backend.work.site_index import _action_link, _finding_link
+from assetops_backend.work.site_index import _action_link, _finding_link, action_selection_key
 
 SCHEMA_GLOBAL_DETAIL = "global-work-detail-1"
 
@@ -95,8 +95,7 @@ def _body(gx: Any, rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, cid:
     findings = [_finding_link(site_code, x, by_key.get(("FINDING", x["finding_id"], x["finding_revision_id"]),
                                                        {"lineage": False})["lineage"])
                 for x in work_detail["finding_links"]]
-    actions = [_action_link(site_code, x, by_key.get(("ACTION", x["action_id"], x["action_event_id"])))
-               for x in work_detail["action_links"]]
+    actions = [_action_link(site_code, x, by_key.get(action_selection_key(x))) for x in work_detail["action_links"]]
 
     source_incident = None
     if case["incident_id"] is not None:
