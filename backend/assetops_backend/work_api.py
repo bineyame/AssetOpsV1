@@ -60,6 +60,43 @@ def _refuse(status: int, code: str, message: str) -> HTTPException:
     return HTTPException(status_code=status, headers=headers, detail={"code": code, "message": message})
 
 
+class WorkGate:
+    """The shared W4 Site/grant/principal gate (W5-02a ruling A2): read access 401/403, Site scope 404 (a scope
+    outage is 503), then the write grant 401/403 and store availability 503, returning the server principal.
+    `build_work_router` and the domain-work router both use it, so the refusal order and literals are one."""
+
+    def __init__(self, scope: Scope, unavailable: tuple[type, ...] = (), access: Access = development_access,
+                 command_access: Access = development_access, principal: Principal = no_service_principal) -> None:
+        self._scope, self._access, self._command_access, self._principal = scope, access, command_access, principal
+        self._down = (WorkStoreUnavailable, *unavailable)
+
+    def read_scope(self, request: Request, site_code: str) -> tuple[UUID, UUID, str]:
+        refusal = self._access(request, site_code)
+        if refusal == 401:
+            raise _refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
+        if refusal == 403:
+            raise _refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site '{site_code}'.")
+        try:  # q3 reading 5: a Site scope/storage outage is this API's 503, never a raw 500 or a 404
+            found = self._scope(site_code)
+        except (SiteStoreUnavailable, FoundationStoreError, *self._down) as error:
+            raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"]) from error
+        if found is None:
+            raise _refuse(404, "SITE_NOT_FOUND", f"No imported Site '{site_code}' in this tenant.")
+        code, tenant_id, site_id = found
+        return tenant_id, site_id, code
+
+    def open_scope(self, request: Request, site_code: str, available: bool) -> tuple[UUID, UUID, str, str | None]:
+        tenant_id, site_id, code = self.read_scope(request, site_code)
+        grant = self._command_access(request, site_code)
+        if grant == 401:
+            raise _refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
+        if grant == 403:
+            raise _refuse(403, "WORK_WRITE_FORBIDDEN", MESSAGES["WORK_WRITE_FORBIDDEN"])
+        if not available:
+            raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
+        return tenant_id, site_id, code, self._principal(request, site_code)
+
+
 def build_work_router(service: WorkService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                       access: Access = development_access, command_access: Access = development_access,
                       principal: Principal = no_service_principal,
@@ -67,32 +104,12 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
                       access_basis: str = ACCESS_BASIS) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
-
-    def read_scope(request: Request, site_code: str) -> tuple[UUID, UUID, str]:
-        refusal = access(request, site_code)
-        if refusal == 401:
-            raise _refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
-        if refusal == 403:
-            raise _refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site '{site_code}'.")
-        try:  # q3 reading 5: a Site scope/storage outage is this API's 503, never a raw 500 or a 404
-            found = scope(site_code)
-        except (SiteStoreUnavailable, FoundationStoreError, *down) as error:
-            raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"]) from error
-        if found is None:
-            raise _refuse(404, "SITE_NOT_FOUND", f"No imported Site '{site_code}' in this tenant.")
-        code, tenant_id, site_id = found
-        return tenant_id, site_id, code
+    gate = WorkGate(scope, unavailable, access, command_access, principal)
+    read_scope = gate.read_scope
 
     def open_scope(request: Request, site_code: str) -> tuple[UUID, UUID, str | None]:
-        tenant_id, site_id, _ = read_scope(request, site_code)
-        grant = command_access(request, site_code)
-        if grant == 401:
-            raise _refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
-        if grant == 403:
-            raise _refuse(403, "WORK_WRITE_FORBIDDEN", MESSAGES["WORK_WRITE_FORBIDDEN"])
-        if service is None:
-            raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
-        return tenant_id, site_id, principal(request, site_code)
+        tenant_id, site_id, _, who = gate.open_scope(request, site_code, service is not None)
+        return tenant_id, site_id, who
 
     async def body_of(request: Request) -> Any:
         try:

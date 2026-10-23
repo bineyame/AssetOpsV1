@@ -10,16 +10,19 @@ from typing import Callable
 from uuid import UUID, uuid4
 
 from assetops_backend.evidence.composition import build_link_rows_reader
+from assetops_backend.work.adapters.postgres_domain_intent import PostgresDomainIntentStore
 from assetops_backend.work.adapters.postgres_global_read import PostgresGlobalWorkRead
-from assetops_backend.work.adapters.postgres_work_read import LinkReadPorts, PostgresWorkRead
+from assetops_backend.work.adapters.postgres_work_read import LinkReadPorts, PostgresWorkRead, _ReadTx
 from assetops_backend.work.adapters.postgres_work_store import PostgresWorkStore
 from assetops_backend.work.detail import WorkDetailService
+from assetops_backend.work.domain_intent import DomainIntentService
 from assetops_backend.work.global_index import GlobalWorkIndexService
 from assetops_backend.work.site_index import WorkIndexService
 from assetops_backend.work.model import WorkStoreUnavailable
 from assetops_backend.work.service import WorkService
 
-__all__ = ["WORK_UNAVAILABLE", "build_global_work_index_service", "build_global_work_read",
+__all__ = ["WORK_UNAVAILABLE", "build_domain_intent_service", "build_domain_intent_store",
+           "build_global_work_index_service", "build_global_work_read",
            "build_work_detail_service", "build_work_index_service", "build_work_read", "build_work_service",
            "build_work_store"]
 
@@ -75,3 +78,23 @@ def build_global_work_read(database_url: str | None) -> PostgresGlobalWorkRead:
 def build_global_work_index_service(database_url: str | None) -> GlobalWorkIndexService | None:
     """W6-01a: None without a product database; the router answers 503, never an empty list."""
     return None if not database_url else GlobalWorkIndexService(build_global_work_read(database_url))
+
+
+def selected_finding_pin(ports: LinkReadPorts):
+    """W5-02a K1a (ruling A3): the W4 linked-selection pin of one Finding revision at a cutoff, on the caller's
+    connection - the exact selection W4 links use (`_ReadTx._pin`), not a second selection implementation."""
+
+    def pin_of(c, tenant_id, site_id, site_code, revision, known_at):
+        return _ReadTx(c, tenant_id, site_id, site_code, known_at, None, ports)._pin(revision, None, None, known_at)
+
+    return pin_of
+
+
+def build_domain_intent_store(database_url: str | None) -> PostgresDomainIntentStore:
+    return PostgresDomainIntentStore(database_url, pin_of=selected_finding_pin(_link_read_ports()))
+
+
+def build_domain_intent_service(database_url: str | None, *,
+                                new_id: Callable[[], UUID] = uuid4) -> DomainIntentService:
+    """W5-02a K1a: the domain Action commands over their sole writer."""
+    return DomainIntentService(build_domain_intent_store(database_url), new_id=new_id)
