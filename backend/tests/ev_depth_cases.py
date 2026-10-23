@@ -7,7 +7,7 @@ a private `*_test` database; nothing here imports private simulator truth into a
 - `settled(chain, case)`: `complete` (observed, historical), `missing-meter` (partial energy), `fault` /
   `interrupted` (faulted status), `late-record` (first cutoff of the pending case).
 - `pending(chain)`: `late-record` settled at 09:00, then `advance_late()` with its recompute job left unrun.
-- `status_gap(chain)`: `complete` with the five Connector c1 state reports in `[08:20, 08:25)` omitted from the
+- `status_gap(chain)`: `complete` with the five Connector c1 state reports in `[08:40, 08:45)` omitted from the
   registered series before publication (a gap five times the one-minute cadence), then assessed at the returned decision clock.
 - `declared_empty(built)`: a test-scoped time-valid Foundation revision with `weekly: []` for every connector,
   selected by a new assessment of the same window.
@@ -34,7 +34,7 @@ QUERY = "from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"
 #: The saved first watermark a historical read passes as `known_at`.
 HISTORICAL_KNOWN_AT = "2026-10-06T09:00:00.000000Z"
 GAP_DEVICE, GAP_SIGNAL = "c1-connector-controller", "state"
-GAP_FROM, GAP_TO = "2026-10-06T08:20:00Z", "2026-10-06T08:25:00Z"
+GAP_FROM, GAP_TO = "2026-10-06T08:40:00Z", "2026-10-06T08:45:00Z"
 
 
 def settled(chain, case: str = "complete") -> Chain:  # noqa: F811
@@ -53,7 +53,7 @@ def pending(chain) -> Chain:  # noqa: F811
 
 
 def status_gap(chain) -> Chain:  # noqa: F811
-    """`complete` with Connector c1's state reports in `[08:20, 08:25)` dropped from the registered public series
+    """`complete` with Connector c1's state reports in `[08:40, 08:45)` dropped from the registered public series
     before it is sealed and published (`lab_execution.ev_reports`), so they never reach the gateway."""
     import lab_execution
 
@@ -78,7 +78,7 @@ def status_gap(chain) -> Chain:  # noqa: F811
         lab_execution.ev_reports = original
     run_worker(built)
     select_exact(built, LO, HI)
-    assert sorted(omitted) == [f"2026-10-06T08:2{m}:00Z" for m in range(5)], omitted
+    assert sorted(omitted) == [f"2026-10-06T08:4{m}:00Z" for m in range(5)], omitted
     return built
 
 

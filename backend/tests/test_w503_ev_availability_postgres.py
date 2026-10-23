@@ -271,10 +271,14 @@ def test_status_gap_and_empty_schedule(chain) -> None:  # noqa: F811
     assert all(list(r) == ROW_KEYS and all(list(s) == SPAN_KEYS for s in r["spans"]) for r in body["connectors"])
     c1 = next(r for r in body["connectors"] if r["label"] == "Connector c1")
     gap = [s for s in c1["spans"] if s["state"] == "UNKNOWN"
-           and s["from"] <= "2026-10-06T08:20:00.000000Z" and s["to"] >= "2026-10-06T08:25:00.000000Z"]
+           and s["from"] <= "2026-10-06T08:40:00.000000Z" and s["to"] >= "2026-10-06T08:45:00.000000Z"]
     assert gap, c1["spans"]
+    # The omitted reports sit inside UNPLUGGED time: exactly that five-minute span turns Unknown between two
+    # available spans.
+    assert {"from": "2026-10-06T08:40:00.000000Z", "to": "2026-10-06T08:45:00.000000Z", "state": "UNKNOWN",
+            "evidence_ids": []} in c1["spans"], c1["spans"]
     c1_states = [r for r in accepted if r["role"] == "ev_connector_state" and r["asset_id"] == c1["asset_id"]]
-    assert not [r for r in c1_states if LO + timedelta(minutes=20) <= r["source_time"] < LO + timedelta(minutes=25)]
+    assert not [r for r in c1_states if LO + timedelta(minutes=40) <= r["source_time"] < LO + timedelta(minutes=45)]
     assert _classified(body) <= _state_ids(accepted, snap) and c1["known_available_seconds"] > 0
     _conserved(body)
     new_id = declared_empty(built)
