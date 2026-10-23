@@ -24,6 +24,9 @@ from uuid import UUID
 UNKNOWN, PENDING, STALE, HISTORICAL, CURRENT = (
     "UNKNOWN", "PENDING_RECOMPUTE", "STALE_SOURCE", "HISTORICAL", "CURRENT")
 _PRECEDENCE = (UNKNOWN, PENDING, STALE, HISTORICAL, CURRENT)
+# W5-02a ruling C1: an explicit cold domain Action case link; its selected ID is the pinned Finding revision and
+# its token is the same `sha256:` link-selection token as every other kind (W1 `sai1-` stays on W1 links only).
+DOMAIN_ACTION = "DOMAIN_ACTION"
 _REASON = {UNKNOWN: "LINK_SELECTION_MISSING", PENDING: "LINK_WORK_PENDING", STALE: "LINK_SOURCE_STALE"}
 
 # S3 dispatch day statuses (`analytics/dispatch_read.py`) as link states.

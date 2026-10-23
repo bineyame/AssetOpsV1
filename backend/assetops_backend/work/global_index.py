@@ -32,8 +32,9 @@ from uuid import UUID
 from assetops_backend.estate.scope import MESSAGES as ESTATE_MESSAGES
 from assetops_backend.estate.scope import access_basis, encode_cursor, token_time, wire_time
 from assetops_backend.work import model as m
-from assetops_backend.work.service import case_basis, missing_lineage, provenance_dto
-from assetops_backend.work.site_index import _action_link, _finding_link
+from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
+                                           provenance_dto)
+from assetops_backend.work.site_index import _action_link, _finding_link, action_selection_key
 
 SCHEMA = "global-work-index-1"
 SELECTION_VERSION = "global-work-selection/1"
@@ -278,7 +279,7 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             records = rx.records(cid, known_at)
             record = records[-1] if records else None
             record_id = None if record is None else str(record["id"])
-            links = rx.revision_links(rid)
+            links = rx.revision_links(rid, known_at)
             selections = rx.link_selections(rid, lo, hi, known_at)
             by_key = {(s["kind"], s["id"], s["selected_id"]): s for s in selections}
             event_ids = sorted(str(e["id"]) for e in events)
@@ -287,11 +288,10 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             if not all(s["lineage"] for s in selections):
                 dto = missing_lineage(dto)
             finding_links = sorted(links["finding_links"], key=lambda x: (x["finding_id"], x["finding_revision_id"]))
-            action_links = sorted(links["action_links"], key=lambda x: (x["action_id"], x["action_event_id"]))
+            action_links = all_action_links(links)
             findings = [_finding_link(code, x, by_key.get(("FINDING", x["finding_id"], x["finding_revision_id"]),
                                                           {"lineage": False})["lineage"]) for x in finding_links]
-            actions = [_action_link(code, x, by_key.get(("ACTION", x["action_id"], x["action_event_id"])))
-                       for x in action_links]
+            actions = [_action_link(code, x, by_key.get(action_selection_key(x))) for x in action_links]
             try:
                 state = m.reduce_state(case_kind, events)
             except (ValueError, m.WorkRefused) as error:  # no CREATED event, or an event chain W4 cannot reduce
@@ -310,10 +310,13 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             basis = {"site_id": sid, "case_id": cid, "revision_id": rid, "selected_event_ids": event_ids,
                      "selected_record_id": record_id,
                      "finding_revision_ids": sorted(x["finding_revision_id"] for x in finding_links),
-                     "action_event_ids": sorted(x["action_event_id"] for x in action_links),
+                     "action_event_ids": action_event_ids(action_links),
                      "link_lineage": sorted([s["kind"], s["id"], s["selected_id"], bool(s["lineage"])]
                                             for s in selections),
                      "cited_accepted_evidence_ids": cited}
+            if links.get("domain_action_links"):  # W5-02a ruling C1; W1-only and unlinked rows keep their basis
+                basis["domain_action_links"] = sorted(
+                    [x["action_id"], x["finding_revision_id"]] for x in links["domain_action_links"])
             site_link = {"label": name, "href": _site_href(code)}
             if case_kind == m.INCIDENT:
                 requests = gx.linked_request_codes(tenant_id, site_id, cid, known_at)

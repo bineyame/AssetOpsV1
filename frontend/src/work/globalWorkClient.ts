@@ -387,7 +387,7 @@ export interface WorkCaseDetail {
     occurred_at: string;
   };
   finding_links: { finding_id: string; finding_revision_id: string }[];
-  action_links: { action_id: string; action_event_id: string }[];
+  action_links: { action_id: string; action_event_id: string | null; kind?: string; finding_revision_id?: string }[];
   cited_accepted_evidence_ids: string[];
   events: WorkCaseDetailEvent[];
   records: WorkCaseDetailRecord[];
@@ -487,7 +487,15 @@ function isWorkDetail(value: unknown): boolean {
     isString(revision.title) &&
     isString(revision.narrative) &&
     everyItem(value.finding_links, (x) => isObject(x) && isString(x.finding_id) && isString(x.finding_revision_id)) &&
-    everyItem(value.action_links, (x) => isObject(x) && isString(x.action_id) && isString(x.action_event_id)) &&
+    everyItem(
+      value.action_links,
+      (x) =>
+        isObject(x) &&
+        isString(x.action_id) &&
+        isNullableString(x.action_event_id) &&
+        (!("kind" in x) || isString(x.kind)) &&
+        (!("finding_revision_id" in x) || isString(x.finding_revision_id)),
+    ) &&
     everyItem(value.cited_accepted_evidence_ids, isString) &&
     everyItem(
       value.events,

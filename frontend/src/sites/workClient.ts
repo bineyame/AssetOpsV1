@@ -39,8 +39,13 @@ export interface WorkFindingLink {
 }
 
 export interface WorkActionLink {
+  /** W5-02a: present only on an explicit cold domain Action link. */
+  kind?: "DOMAIN_ACTION";
   action_id: string;
-  action_event_id: string;
+  /** Null for a domain Action link, which has no W1 Action event. */
+  action_event_id: string | null;
+  /** A domain Action link's pinned Finding revision. */
+  finding_revision_id?: string;
   label: string;
   href: string | null;
 }

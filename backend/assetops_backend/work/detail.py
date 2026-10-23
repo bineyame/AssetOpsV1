@@ -17,7 +17,7 @@ from uuid import UUID
 from assetops_backend.work import model as m
 from assetops_backend.work.link_coverage import linked_coverage
 from assetops_backend.work.model import WorkRefused
-from assetops_backend.work.service import case_provenance
+from assetops_backend.work.service import all_action_links, case_provenance
 
 
 class WorkReads(Protocol):
@@ -54,7 +54,7 @@ def select_case_detail(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, 
     revision = revisions[-1]
     events = rx.events(cid, known_at)
     records = rx.records(cid, known_at)
-    links = rx.revision_links(str(revision["id"]))
+    links = rx.revision_links(str(revision["id"]), known_at)
     provenance = case_provenance(rx, tenant_id, site_id, links, str(revision["id"]),
                                  [str(e["id"]) for e in events],
                                  str(records[-1]["id"]) if records else None)
@@ -72,7 +72,7 @@ def select_case_detail(rx: Any, tenant_id: UUID, site_id: UUID, site_code: str, 
             "recorded_at": m.iso(revision["recorded_at"]), "actor_kind": revision["actor_kind"],
             "actor_id": revision["actor_id"], "occurred_at": m.iso(revision["occurred_at"])},
         "finding_links": sorted(links["finding_links"], key=lambda x: (x["finding_id"], x["finding_revision_id"])),
-        "action_links": sorted(links["action_links"], key=lambda x: (x["action_id"], x["action_event_id"])),
+        "action_links": all_action_links(links),
         "cited_accepted_evidence_ids": sorted(links["evidence_ids"]),
         "events": [{"id": str(e["id"]), "kind": e["kind"], "payload": e["payload"],
                     "occurred_at": m.iso(e["occurred_at"]), "recorded_at": m.iso(e["recorded_at"]),
