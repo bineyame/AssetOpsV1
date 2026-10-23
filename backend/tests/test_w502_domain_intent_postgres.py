@@ -22,11 +22,11 @@ pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is n
 if URL:
     from sqlalchemy import text
     from sqlalchemy.exc import DBAPIError, IntegrityError
-    from test_s1_bindings_postgres import _alembic
+    from test_s1_bindings_postgres import _alembic, imported
     from test_w202_cold_replay_postgres import COLD, chain  # noqa: F401 - the W2-02 replay fixture
     from test_w203_cold_migration_postgres import _replica, head
     from test_w203_cold_replay_postgres import opened, run
-    from test_w401_work_service_postgres import ACTOR, PRINCIPAL, event, incident, record, request
+    from test_w401_work_service_postgres import ACTOR, PRINCIPAL, event, incident, oprec, record, request
 
     from assetops_backend.work import domain_action as d
     from assetops_backend.work.adapters.postgres_domain_intent import PostgresDomainIntentStore
@@ -81,7 +81,7 @@ def cold(chain):  # noqa: F811
             {"r": pin[1]}).scalars())
     assert cited, "the selected cold Finding revision cites no accepted evidence"
     svc, work = build_domain_intent_service(URL), build_work_service(URL)
-    ns = SimpleNamespace(t=built.tenant_id, s=built.site_id, engine=built.engine, finding_id=pin[0],
+    ns = SimpleNamespace(t=built.tenant_id, s=built.site_id, engine=built.engine, store=built.store, finding_id=pin[0],
                          revision_id=pin[1], cited=cited, svc=svc, work=work, code=COLD)
     yield ns
     svc._store.dispose()
@@ -243,6 +243,63 @@ def test_case_link_and_intent_chain(cold) -> None:
             intent_body(cold, "w502-intent-0004", supersedes=root["intent_id"]))  # not the head
     assert counts(cold.engine) == [1, 2, 2]
     assert relinked["case_link_id"] != linked["case_link_id"] and v2["intent_id"] != root["intent_id"]
+
+
+def _advance_case(cold, case_id: str, key: str) -> None:
+    status, _ = cold.work.post_event(cold.t, cold.s, case_id, event("ASSIGN", {"assignee": "maintenance-lead"}, key),
+                                     PRINCIPAL)
+    assert status == 201
+
+
+@pytest.mark.parametrize("kind", ["operational_record", "other_case_record", "other_site_record"])
+def test_intent_rejects_operational_or_foreign_maintenance_record(cold, kind) -> None:
+    _, action = create(cold, action_body(cold))
+    aid = action["id"]
+    wr = w4_request(cold, "w502-request-0001")
+    case_id, rev_id = wr["id"], wr["revision"]["id"]
+    assert link(cold, aid, link_body(case_id, rev_id, head_event(cold, case_id)))[0] == 201
+    if kind == "operational_record":
+        status, made = cold.work.post_operational_record(cold.t, cold.s, oprec("w502-oprec-0001"), PRINCIPAL)
+    elif kind == "other_case_record":
+        other = w4_request(cold, "w502-request-0002")
+        status, made = cold.work.post_record(cold.t, cold.s, other["id"], record("w502-record-0002"), PRINCIPAL)
+    else:
+        imported(cold.store, code="KOBO-002")
+        with cold.engine.connect() as c:
+            other_site = c.execute(text("SELECT id FROM site WHERE tenant_id = :t AND id <> :s ORDER BY id LIMIT 1"),
+                                   {"t": cold.t, "s": cold.s}).scalar_one()
+        status, other = cold.work.create_case(cold.t, other_site, request("w502-request-0003"), PRINCIPAL)
+        assert status == 201, other
+        status, made = cold.work.post_record(cold.t, other_site, other["id"], record("w502-record-0003"), PRINCIPAL)
+    assert status == 201, made
+    refused("DOMAIN_INTENT_LINK_INVALID", intent, cold, aid,
+            intent_body(cold, work_case_id=case_id, work_record_id=made["id"]))
+    assert counts(cold.engine)[1] == 0
+
+
+def test_case_link_original_retry_after_case_advance_returns_200(cold) -> None:
+    _, action = create(cold, action_body(cold))
+    wr = w4_request(cold, "w502-request-0001")
+    case_id, rev_id = wr["id"], wr["revision"]["id"]
+    body = link_body(case_id, rev_id, head_event(cold, case_id))
+    status, linked = link(cold, action["id"], body)
+    assert status == 201
+    _advance_case(cold, case_id, "w502-assign-0001")
+    refused("DOMAIN_INTENT_BASIS_CHANGED", link, cold, action["id"], {**body, "idempotency_key": "w502-link-0009"})
+    assert link(cold, action["id"], body) == (200, linked)
+    assert counts(cold.engine)[2] == 1
+
+
+def test_absent_action_precedes_invalid_link_with_404(cold) -> None:
+    _, action = create(cold, action_body(cold))
+    wr = w4_request(cold, "w502-request-0001")
+    case_id, rev_id = wr["id"], wr["revision"]["id"]
+    invalid = link_body(case_id, rev_id, str(uuid4()), key="w502-link-0001")
+    refused("ACTION_NOT_FOUND", link, cold, str(uuid4()), invalid)
+    refused("ACTION_NOT_FOUND", intent, cold, str(uuid4()),
+            intent_body(cold, work_case_id=str(uuid4()), work_record_id=str(uuid4())))
+    refused("DOMAIN_INTENT_LINK_INVALID", link, cold, action["id"], invalid)
+    assert counts(cold.engine) == [1, 0, 0]
 
 
 # ---- schema, triggers and downgrade --------------------------------------------------------------------------------

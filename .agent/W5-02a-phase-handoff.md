@@ -240,3 +240,8 @@ Built per "W5-02a build rulings (run 5 STALE/UNKNOWN)".
   - STALE: wider-window job not queued → both STALE tests FAILED.
   - UNKNOWN: SUPPORT links kept and the zero-support assert disabled → both UNKNOWN tests FAILED on `CURRENT` != `UNKNOWN`.
 - Batch on `d7ff896c` (`-n 3`, one DB `assetops_w502a_k1z_test` + clones, dropped): run 5 (producer 5 tests, domain work links 5), `test_w601{a,b,c}`, `test_w502_domain_action_index_{postgres,api}`, `test_w502_domain_intent_{api,postgres,model}`, `test_s6_action_store_postgres` — **90 passed**, 0 failed, 279 s. check-all on `d7ff896c`: **All 11 guards passed**. Item 29 can close on the merged base after review.
+
+## Run — core review M1/L1 fix round
+- M1: `globalWorkClient.ts` `action_links` type now `action_event_id: string | null` plus optional `kind`, `finding_revision_id`; `isWorkDetail` uses `isNullableString` and the optional-field checks. New `frontend/src/work/__tests__/globalWorkClient.test.ts::test_read_global_work_detail_accepts_domain_action_link_with_null_event` (domain link and W1 link both load, preserved).
+- L1: three tests added to `test_w502_domain_intent_postgres.py` (record test parameterized over operational, other-case and other-Site record).
+- Checks: frontend vitest (new test + workRequestOverview) 24 passed; tsc clean. Backend: intent_postgres, domain_work_links_postgres, w601c_request_detail, cold_scenario_producer, one DB `assetops_w502fix_test` (dropped): 34 passed, 610 s. check-all: All 11 guards passed.
