@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
@@ -11,6 +11,8 @@ import {
 } from "../../sites/__tests__/analyticsFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
+import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
+import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
 
 /**
  * The operator route frames that name no site.
@@ -320,5 +322,52 @@ describe("operator route navigation", () => {
     expect(
       screen.queryByRole("navigation", { name: "Operator routes" }),
     ).toBeNull();
+  });
+});
+
+/* W5-02 K2a: the COLDCHAIN Work and domain Action routes through the real App route set (App.tsx unchanged). */
+describe("cold Site Work and domain Action route frames", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
+  const coldDetail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: COLD_SITE }) };
+  const renderCold = (path: string) =>
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <App
+          flags={simulatorLabDisabled}
+          siteDirectory={{ listSites: () => Promise.resolve({ status: "loaded", sites: [COLD_SITE] }) }}
+          siteDetail={coldDetail}
+          siteAnalytics={EMPTY_ANALYTICS_CLIENT}
+        />
+      </MemoryRouter>,
+    );
+
+  it("renders the cold Actions tab at /sites/{site}/work from the union index", async () => {
+    const { fetchStub, urls } = coldFetch();
+    vi.stubGlobal("fetch", fetchStub);
+    renderCold(`/sites/${COLD_CODE}/work`);
+    await settledScreen();
+    const main = document.querySelector("main") as HTMLElement;
+    expect(main.querySelector("[data-cold-work-strip]")).not.toBeNull();
+    expect(main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"]`)).not.toBeNull();
+    expect(urls.some((u) => u.startsWith(`/api/sites/${COLD_CODE}/domain-work/action-index?`))).toBe(true);
+    expect(urls.some((u) => u.startsWith(`/api/sites/${COLD_CODE}/action-index?`))).toBe(false);
+  });
+
+  it("renders the domain Action placeholder at /verification with the interim Sites rail (R69)", async () => {
+    const { fetchStub, urls } = coldFetch();
+    vi.stubGlobal("fetch", fetchStub);
+    renderCold(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`);
+    await settledScreen();
+    const main = document.querySelector("main") as HTMLElement;
+    expect(main.getAttribute("data-domain-action-shell")).toBe("loaded");
+    expect(screen.getByText("Action details are being prepared.")).toBeInTheDocument();
+    expect(urls.every((u) => !u.includes(`/api/sites/${COLD_CODE}/actions/`))).toBe(true);
+    const rail = screen.getByRole("navigation", { name: "Operator routes" });
+    expect(within(rail).getByRole("link", { name: /Sites/ }).getAttribute("aria-current")).toBe("page");
+    expect(within(rail).getByRole("link", { name: /^Actions/ }).getAttribute("aria-current")).toBeNull();
   });
 });

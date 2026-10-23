@@ -392,3 +392,23 @@ describe("W1-F4: the former Site Work answer card, merged into the strip and the
     expect(document.body.textContent).not.toMatch(/0 Actions|No Actions were created|No Actions created/);
   });
 });
+
+/* W5-02 K2a (P-G-6): a mini-grid Site keeps every W1 Work Actions literal; no union read, no cold slot. */
+describe("mini-grid Work Actions stay on W1 beside the cold dispatch", () => {
+  it("reads only the W1 index and renders none of the cold strip, gap, notice or empty block", async () => {
+    const { requests } = serve({ [apiKey(WINDOW)]: { status: 200, body: POSITIVE } });
+    mount(workUrl(WINDOW));
+    await settledScreen();
+    expect(requests.some((u) => u.includes("/domain-work/"))).toBe(false);
+    expect(q("[data-site-work-window]")).not.toBeNull();
+    expect(q("[data-cold-work-strip]")).toBeNull();
+    expect(q("[data-cold-work-notice]")).toBeNull();
+    const text = document.body.textContent ?? "";
+    expect(text).toContain("Opening an Action moves you to its own page; the breadcrumb keeps this site.");
+    expect(text).toContain("This list holds Actions only. Incidents and maintenance work are not part of it.");
+    expect(text).toContain("Battery reserve trial");
+    expect(text).not.toContain("Cold-chain Actions recorded at this site");
+    expect(text).not.toContain("Global Actions does not include cold-chain Actions yet.");
+    expect(text).not.toContain("No success criterion declared");
+  });
+});

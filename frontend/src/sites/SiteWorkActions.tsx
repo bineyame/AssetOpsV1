@@ -27,13 +27,45 @@
  * success criterion and any verification verdict are not shown: this read has
  * none of them, and the list derives none.
  */
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { ChartNote, DataTable, Disclosure, Fact, FactList, Panel, readResultWords, type ProductWords } from "../ui";
+import { ChartNote, DataTable, Disclosure, Fact, FactList, Notice, Panel, RailIcon, readResultWords, type ProductWords } from "../ui";
 import type { ActionIndexBody, ActionIndexClient, ActionIndexResult, ActionIndexRow, ActionIndexScope } from "./actionIndexClient";
+import {
+  COLD_DOMAIN,
+  invalidScope,
+  isUtcInstant,
+  type DomainActionClient,
+  type DomainIndexBody,
+  type DomainIndexResult,
+  type DomainIndexRow,
+  type DomainIndexScope,
+} from "./domainActionClient";
+import {
+  COLD_CRITERION_MISSING,
+  COLD_OWNER_MISSING,
+  COLD_STATE_OPEN,
+  COLD_WORK_DUE_UNSET,
+  COLD_WORK_EMPTY,
+  COLD_WORK_GLOBAL_GAP,
+  COLD_WORK_LOADING,
+  COLD_WORK_PANEL_TITLE,
+  COLD_WORK_RETRY,
+  COLD_WORK_STRIP_DETAIL,
+  COLD_WORK_UNAVAILABLE,
+  READ_FULL_TEXT,
+  coldActionCount,
+  coldCurrentnessNotice,
+  coldCurrentnessTone,
+  coldDueText,
+  coldShowAll,
+  isLongText,
+} from "./coldWorkPresentation";
+import { WORK_CONTEXT_NOTICE_DOMAIN, shortName } from "./siteWorkCases";
 import "./w1f4-action.css";
 import "./w1f4-changes-work.css";
+import "./w4-work-cases.css";
 
 export interface SiteWorkLinks {
   /** The same page at another scope (a new window, page one, or the next page). */
@@ -90,7 +122,7 @@ export const STEP_WORDS: Record<string, string> = {
 };
 
 /** Where the Action stands, from the same lifecycle the Action page shows. */
-export function stateWords(row: ActionIndexRow): string {
+export function stateWords(row: Pick<ActionIndexRow, "state">): string {
   const { state } = row;
   if (state.resolution?.state === "RESOLVED") return "Trial closed";
   if (state.resolution?.state === "RESOLUTION_WITHDRAWN") return "Being checked again";
@@ -104,7 +136,7 @@ export function stateWords(row: ActionIndexRow): string {
 }
 
 /** The State badge tone: closed is green, waiting on a step is amber, applied is blue. */
-function stateTone(row: ActionIndexRow): "green" | "amber" | "blue" {
+function stateTone(row: Pick<ActionIndexRow, "state">): "green" | "amber" | "blue" {
   if (row.state.resolution?.state === "RESOLVED") return "green";
   if (row.state.resolution?.state === "RESOLUTION_WITHDRAWN") return "amber";
   return row.state.application === "APPLIED" ? "blue" : "amber";
@@ -541,3 +573,331 @@ export function SiteWorkActions({ siteId, siteName, client, scope, links, onScop
   );
 }
 
+/* ---------- W5-02 K2a: the COLDCHAIN Site Actions tab (v69 `cold-work`) ---------- */
+
+/**
+ * W5-02 K2a (spec "Shared Site UI and mock slots", U3, P-K2a-33..44): Site > Work > Actions on a COLDCHAIN Site, over
+ * the union Site Action index (`domainActionClient.ts`). The v69 `cold-work` slots: the scope strip, the currentness
+ * notice below it, the one "Actions at this site" panel with the six mock columns, and the blue context notice. The
+ * window and cutoff come from the URL (the frame defaults the window); there is no W1 date form, helper line or
+ * "What this list is based on" disclosure here, because those describe W1-only fields.
+ */
+export interface ColdSiteWorkLinks {
+  /** The same tab at another page of the same window and cutoff. */
+  page: (scope: DomainIndexScope) => string;
+}
+
+export interface ColdSiteWorkActionsProps {
+  siteId: string;
+  /** The stored Site display name; the strip uses its W4 short name. */
+  siteName: string;
+  client: DomainActionClient;
+  scope: DomainIndexScope;
+  links: ColdSiteWorkLinks;
+  /** U1: a changed basis restarts on page one without the cursor (a navigation). */
+  onRestart: (scope: DomainIndexScope) => void;
+}
+
+export const COLD_WORK_HEADING_ID = "cold-work-actions-heading";
+
+/** The `[from,to)` window and explicit cutoff the cold Work URL carries (no cursor). */
+export interface ColdWorkWindowScope {
+  from: string;
+  to: string;
+  knownAt: string | null;
+}
+
+const utcDay = (instant: string) => (isUtcInstant(instant) ? new Date(instant).toISOString().slice(0, 10) : "");
+
+/**
+ * W5-02 K2 ruling 1 (P-K2a-39): the compact page-local `Window` control on COLDCHAIN Site Work (Actions, Incidents and
+ * Maintenance), immediately after the Work subtabs and before the scope strip. It displays the selected `from` and
+ * `to` UTC dates (the frame's seven-UTC-day default when the URL has no pair) and, on Apply, writes a nonempty strict
+ * UTC half-open `[from,to)` of at most 31 days with `from < to`; the frame keeps an explicit `known_at`, drops the
+ * cursor and reads page one. Invalid input stays on the page with the existing window error and makes no new read.
+ *
+ * MOCK DEVIATION (D1) R88: the v69 `cold-work` topbar range picker (`index.html:782,1138`) cannot live in the absent
+ * app topbar; this page-local control keeps the mock's ability to select a range.
+ */
+export function ColdWorkWindow({ scope, onApply }: { scope: ColdWorkWindowScope; onApply: (next: ColdWorkWindowScope) => void }) {
+  const [first, setFirst] = useState(utcDay(scope.from));
+  const [last, setLast] = useState(utcDay(scope.to));
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    setFirst(utcDay(scope.from));
+    setLast(utcDay(scope.to));
+    setError(null);
+  }, [scope.from, scope.to]);
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const next = { from: first ? `${first}T00:00:00Z` : "", to: last ? `${last}T00:00:00Z` : "", knownAt: scope.knownAt };
+    // The client's own window check (the server's INVALID_WINDOW literal); nothing is navigated or read when it fails.
+    const invalid = invalidScope({ from: next.from, to: next.to, knownAt: null, cursor: null });
+    if (invalid !== null) {
+      setError(invalid.message);
+      return;
+    }
+    setError(null);
+    onApply(next);
+  };
+  return (
+    <form className="site-date-bar cold-work-window" onSubmit={submit} aria-label="Window" data-cold-work-window>
+      <span className="cold-work-window__lead">Window</span>
+      <label className="cold-work-window__field">
+        {"From (UTC) "}
+        <input className="v69-chip-control" type="date" value={first} onChange={(event) => setFirst(event.target.value)} data-cold-work-window-from />
+      </label>
+      <label className="cold-work-window__field">
+        {"To (UTC, exclusive) "}
+        <input className="v69-chip-control" type="date" value={last} onChange={(event) => setLast(event.target.value)} data-cold-work-window-to />
+      </label>
+      <button className="button" type="submit" data-cold-work-window-apply>
+        Apply
+      </button>
+      {error === null ? null : (
+        <span className="cold-work-window__error" role="alert" data-cold-work-window-error>
+          {error}
+        </span>
+      )}
+    </form>
+  );
+}
+
+/**
+ * U4: a long value previews at two lines; the full text sits in a "Read full text" disclosure.
+ * K2 ruling 20: while that disclosure is open the two-line preview is removed and the disclosure body shows the
+ * complete value once (with the same content, so the Action link stays); closing restores the preview. The shared
+ * Disclosure markup is unchanged: the wrapper listens for the details `toggle` (which does not bubble) in capture.
+ */
+function LongText({ text, name, children }: { text: string; name: string; children?: ReactNode }) {
+  const long = isLongText(text);
+  const [open, setOpen] = useState(false);
+  const wrapper = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = wrapper.current;
+    if (!long || el === null) return undefined;
+    const onToggle = (event: Event) => {
+      const details = event.target;
+      if (details instanceof HTMLDetailsElement && details.parentElement === el) setOpen(details.open);
+    };
+    el.addEventListener("toggle", onToggle, true);
+    return () => el.removeEventListener("toggle", onToggle, true);
+  }, [long]);
+  if (!long) return <span>{children ?? text}</span>;
+  return (
+    <div className="cold-work-longtext" ref={wrapper} data-cold-work-longtext={open ? "open" : "closed"}>
+      {open ? null : (
+        <span className="work-cases-clamp" data-cold-work-preview={name}>
+          {children ?? text}
+        </span>
+      )}
+      <Disclosure name={name} summary={READ_FULL_TEXT}>
+        {open ? (children ?? text) : text}
+      </Disclosure>
+    </div>
+  );
+}
+
+function ColdRowState({ row }: { row: DomainIndexRow }) {
+  if (row.domain === COLD_DOMAIN) {
+    return (
+      <span className="w1f4-action-badge w1f4-action-badge--amber" data-cold-work-state="OPEN">
+        {COLD_STATE_OPEN}
+      </span>
+    );
+  }
+  // P-K2a-33: a W1 row keeps the existing W1 state presenter (its state object); its W1-only step line is omitted.
+  const w1 = { state: row.state as ActionIndexRow["state"] };
+  return (
+    <span className={`w1f4-action-badge w1f4-action-badge--${stateTone(w1)}`} data-cold-work-state={w1.state.application}>
+      {stateWords(w1)}
+    </span>
+  );
+}
+
+function ColdRows({ body, all }: { body: DomainIndexBody; all: boolean }) {
+  return (
+    <DataTable labelledBy={COLD_WORK_HEADING_ID} stickyFirstColumn>
+      <thead>
+        <tr>
+          <th scope="col">Action</th>
+          <th scope="col">Source</th>
+          <th scope="col">Owner</th>
+          <th scope="col">Due</th>
+          <th scope="col">State</th>
+          <th scope="col">Success criterion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {body.rows.map((row, index) => {
+          const domain = row.domain === COLD_DOMAIN;
+          // P-K2a-33: a W1 row shows its stored code only (no battery title); a domain row its stored code and title.
+          const label = domain && row.title !== null ? `${row.action_code} · ${row.title}` : row.action_code;
+          const owner = row.owner_label ?? COLD_OWNER_MISSING;
+          return (
+            <tr
+              key={row.action_id}
+              hidden={!all && index >= SITE_WORK_VISIBLE_ROWS}
+              data-cold-work-row={row.action_id}
+              data-cold-work-domain={row.domain}
+            >
+              <td>
+                {/* The server's own Action href: `/verification` for a domain row, the bare W1 address for a W1 row. */}
+                <LongText text={label} name={`cold-work-title-${row.action_id}`}>
+                  <Link to={row.links.action} data-cold-work-action-link={domain ? "domain" : "w1"}>
+                    <span className="cold-work-code">{row.action_code}</span>
+                    {domain && row.title !== null ? ` · ${row.title}` : null}
+                  </Link>
+                </LongText>
+              </td>
+              <td>
+                {/* MOCK DEVIATION (D1) R65: the mock's F-118 code slot shows `Finding {id8}`; no public Finding code
+                    exists. MOCK DEVIATION (D1) R66: plain text, never an anchor, because the cold Finding frame does
+                    not read `revision_id`; the selected revision is in the disclosure. */}
+                <span className="cold-work-code" data-cold-work-source={row.origin.finding_id}>
+                  {row.origin.label}
+                </span>
+                <Disclosure name={`cold-work-source-${row.action_id}`} summary="Finding version" variant="inline">
+                  <code data-vocabulary-exempt="source-reference" data-cold-work-revision>
+                    {row.origin.finding_revision_id}
+                  </code>
+                </Disclosure>
+              </td>
+              <td data-cold-work-owner>
+                <LongText text={owner} name={`cold-work-owner-${row.action_id}`} />
+              </td>
+              <td className="cold-work-code" data-cold-work-due>
+                {coldDueText(row.due_at)}
+              </td>
+              <td>
+                <ColdRowState row={row} />
+              </td>
+              <td data-cold-work-criterion>{row.criterion_summary ?? COLD_CRITERION_MISSING}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </DataTable>
+  );
+}
+
+function ColdLoadedRows({ body, scope, links }: { body: DomainIndexBody; scope: DomainIndexScope; links: ColdSiteWorkLinks }) {
+  const [all, setAll] = useState(false);
+  const folded = body.rows.length > SITE_WORK_VISIBLE_ROWS;
+  const pager = (folded && !all) || scope.cursor !== null || body.next_cursor !== null;
+  return (
+    <div data-site-work-state="current-rows" data-cold-work-state-panel="rows">
+      <ColdRows body={body} all={all} />
+      {pager ? (
+        <div className="w1f4-work-foot">
+          <nav aria-label="Actions pages" data-cold-work-pages className="w1f4-work-pages">
+            {folded && !all ? (
+              <button type="button" className="link-button" aria-expanded={false} onClick={() => setAll(true)} data-cold-work-show-all>
+                {coldShowAll(body.rows.length)}
+              </button>
+            ) : null}{" "}
+            {scope.cursor !== null ? (
+              <Link to={links.page({ ...scope, cursor: null })} data-cold-work-first>
+                First page
+              </Link>
+            ) : null}{" "}
+            {body.next_cursor !== null ? (
+              // U3: a cursor page pins the response cutoff in the URL.
+              <Link to={links.page({ ...scope, knownAt: body.known_at, cursor: body.next_cursor })} data-cold-work-next>
+                Next page
+              </Link>
+            ) : null}
+          </nav>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function ColdSiteWorkActions({ siteId, siteName, client, scope, links, onRestart }: ColdSiteWorkActionsProps) {
+  const [attempt, setAttempt] = useState(0);
+  const [read, setRead] = useState<{ key: string; result: DomainIndexResult } | null>(null);
+  const { from, to, knownAt, cursor } = scope;
+  const key = `${siteId}|${from}|${to}|${knownAt ?? ""}|${cursor ?? ""}|${attempt}`;
+  useEffect(() => {
+    let active = true;
+    void client.getIndex(siteId, { from, to, knownAt, cursor }).then((result) => {
+      if (active) setRead({ key, result });
+    });
+    return () => {
+      active = false;
+    };
+  }, [client, siteId, from, to, knownAt, cursor, key]);
+  const result = read !== null && read.key === key ? read.result : null;
+  const body = result !== null && result.status === "loaded" ? result.value : null;
+  const notice = body === null ? null : coldCurrentnessNotice(body.status, body.known_at);
+  const retry = () => {
+    if (result !== null && result.status === "basis_changed" && cursor !== null) onRestart({ ...scope, cursor: null });
+    else setAttempt((n) => n + 1);
+  };
+  return (
+    <div className="w1f4-changes-work cold-work-actions" data-site-work="actions" data-cold-work="actions">
+      <div className="status-strip status-strip--line" aria-label="Actions at this site, scope" data-cold-work-strip>
+        <span className="status-strip__lead" data-site-work-scope>
+          {/* K2 ruling 11: loading and refusal show exactly `— actions`, never the mock's zero. */}
+          <strong>Scoped to {shortName(siteName)}</strong> · {body === null ? "— actions" : coldActionCount(body.total_count)}
+        </span>
+        <span className="muted status-strip__item">{COLD_WORK_STRIP_DETAIL}</span>
+        <span className="muted status-strip__item" data-cold-work-global-gap>
+          {COLD_WORK_GLOBAL_GAP}
+        </span>
+      </div>
+      {/* MOCK DEVIATION (D2) R91 (K2 rulings 15, 16): the selected-state notice sits between the strip and the panel,
+          blue for Historical/Unknown and amber for Pending recompute/Stale source; absent on CURRENT. */}
+      {body !== null && notice !== null ? (
+        <Notice tone={coldCurrentnessTone(body.status)} data={{ "data-cold-work-currentness": body.status }}>
+          <RailIcon name="info" />
+          <p>{notice}</p>
+        </Notice>
+      ) : null}
+      <Panel
+        heading={COLD_WORK_PANEL_TITLE}
+        headingId={COLD_WORK_HEADING_ID}
+        description={body !== null && body.total_count > 0 && body.all_due_dates_unset ? COLD_WORK_DUE_UNSET : undefined}
+      >
+        {result === null ? (
+          <p data-site-work-state="loading" data-cold-work-state-panel="loading">
+            {COLD_WORK_LOADING}
+          </p>
+        ) : body === null ? (
+          <div
+            className="work-cases-state"
+            data-site-work-state="refused"
+            data-cold-work-state-panel="refused"
+            data-cold-work-refusal={result.status === "loaded" ? "" : (result.code ?? (result.http === null ? "UNREACHABLE" : "UNEXPECTED"))}
+          >
+            <p>
+              <strong>{COLD_WORK_UNAVAILABLE}</strong>
+            </p>
+            <p data-cold-work-refusal-message>{result.status === "loaded" ? "" : result.message}</p>
+            <p>
+              <button type="button" className="button" onClick={retry} data-cold-work-retry>
+                {COLD_WORK_RETRY}
+              </button>
+            </p>
+          </div>
+        ) : body.total_count === 0 ? (
+          <div className="work-cases-empty" data-cold-work-empty data-cold-work-state-panel="empty">
+            <span className="work-cases-empty__icon" aria-hidden="true">
+              <RailIcon name="evidence" />
+            </span>
+            <h3>{COLD_WORK_EMPTY[0]}</h3>
+            <p>{COLD_WORK_EMPTY[1]}</p>
+          </div>
+        ) : (
+          <ColdLoadedRows key={key} body={body} scope={scope} links={links} />
+        )}
+      </Panel>
+      {/* MOCK DEVIATION (D1) R01: the mock notice's create-flow sentence is omitted (no create flow exists). */}
+      <Notice tone="blue" data={{ "data-cold-work-notice": "" }}>
+        <RailIcon name="info" />
+        <p>{WORK_CONTEXT_NOTICE_DOMAIN}</p>
+      </Notice>
+    </div>
+  );
+}

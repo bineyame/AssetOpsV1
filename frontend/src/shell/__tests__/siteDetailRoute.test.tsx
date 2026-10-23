@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
@@ -13,6 +13,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
+import { COLD_SITE, SITE as COLD_CODE, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 
@@ -459,5 +460,32 @@ describe("operator navigation lost an item and gained none", () => {
 
       view.unmount();
     }
+  });
+});
+
+/* W5-02 K2a (P-K2a-40): the cold Work page heading is the stored Site name with the mock's Site subtitle slot. */
+describe("Site Work page heading by Site type", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
+  it("a COLDCHAIN Site's Work page shows its display name and the cold subtitle fallback", async () => {
+    vi.stubGlobal("fetch", coldFetch().fetchStub);
+    renderAt(`/sites/${COLD_CODE}/work`, featureFlagsWith(false), [COLD_SITE]);
+    await settledScreen();
+    const header = document.querySelector("main header.page-header") as HTMLElement;
+    expect(within(header).getByRole("heading", { level: 1 }).textContent).toContain("GreenHarvest Cold Room");
+    expect(header.querySelector(".page-header__subtitle")?.textContent).toBe("Cold-room operations at this site.");
+    expect(header.querySelector(".prov-tag")).not.toBeNull();
+  });
+
+  it("a mini-grid Site's Work page keeps its screen description", async () => {
+    vi.stubGlobal("fetch", coldFetch().fetchStub);
+    renderAt(`/sites/${SITE_DETAIL.site_id}/work`, featureFlagsWith(false));
+    await settledScreen();
+    const header = document.querySelector("main header.page-header") as HTMLElement;
+    expect(header.querySelector(".page-header__subtitle")?.textContent).toBe("Site-scoped work · the same managed records as global queues");
+    expect(document.body.textContent).not.toContain("Cold-room operations at this site.");
   });
 });

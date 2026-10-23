@@ -13,10 +13,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import actionContract from "../../../../backend/tests/fixtures/s6_action_api_contract.json";
 import contract from "../../../../backend/tests/fixtures/s6_verification_api_contract.json";
 import { SiteActionFrame } from "../../shell/SiteAnalyticsFrames";
-import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { expectPlantedPanelRejected, expectV69Panels, panelTitled, stripIntruders } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, detailBody, indexBody } from "./coldWorkFixtures";
+import type { DomainActionClient, DomainDetailResult } from "../domainActionClient";
 
 type Body = any;
 const R = contract.responses as unknown as Record<string, Body>;
@@ -269,5 +271,60 @@ describe("W1-F4 C2: the guard is not vacuous on Plan, Evidence and Verification"
     mount(`/sites/KOBO-001/actions/${ACTION}/verification`);
     await structure("verification");
     expectPlantedPanelRejected("verification");
+  });
+});
+
+/* W5-02 K2a (U2, P-K2a-45/46): the COLDCHAIN domain Action placeholder shell beside the unchanged W1 frame. */
+const coldActionDetail = {
+  getSite: async (siteId: string) => ({ status: "loaded", site: { ...COLD_SITE, site_id: siteId } }),
+} as unknown as SiteDetailClient;
+
+function coldDomain(result: DomainDetailResult = { status: "loaded", value: detailBody() }): DomainActionClient & { calls: string[] } {
+  const calls: string[] = [];
+  return {
+    calls,
+    getIndex: async () => ({ status: "loaded", value: indexBody([]) }),
+    getDetail: async (_site: string, id: string) => {
+      calls.push(id);
+      return result;
+    },
+  };
+}
+
+async function mountColdAction(path: string, domain: DomainActionClient, site: SiteDetailClient = coldActionDetail) {
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        {["/sites/:siteId/actions/:actionId", "/sites/:siteId/actions/:actionId/:actionView"].map((p) => (
+          <Route key={p} path={p} element={<SiteActionFrame detail={site} sitesPath="/sites" domainActions={domain} />} />
+        ))}
+      </Routes>
+    </MemoryRouter>,
+  );
+  await settledScreen();
+}
+
+describe("W5-02 K2a: the domain Verification tab is a live self-link", () => {
+  it("is one Verification link with aria-current, never an unavailable tab; the strip holds one-line parts only", async () => {
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 599 }));
+    const known = "2026-10-22T09:30:00Z";
+    await mountColdAction(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification?known_at=${encodeURIComponent(known)}`, coldDomain());
+    const tab = document.querySelector('nav[aria-label="Action sections"] a') as HTMLAnchorElement;
+    expect(tab.getAttribute("aria-current")).toBe("page");
+    expect(tab.getAttribute("href")).toBe(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification?known_at=${encodeURIComponent(known)}`);
+    expect(document.querySelector("[data-tab-unavailable]")).toBeNull();
+    expect(stripIntruders()).toEqual([]);
+  });
+
+  it("a refusal shows Cold work unavailable inside the panel, with no invented heading or criteria", async () => {
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 599 }));
+    await mountColdAction(
+      `/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`,
+      coldDomain({ status: "refused", http: 503, code: "WORK_STORE_UNAVAILABLE", message: "Work records are unavailable right now." }),
+    );
+    expect(document.querySelector("h1")?.textContent).toBe("Action");
+    expect(document.querySelector('[data-domain-action-panel="refused"]')?.textContent).toContain("Cold work unavailable");
+    expect(document.body.textContent).not.toContain("Declared outcome criteria");
+    expect(document.querySelector("table")).toBeNull();
   });
 });

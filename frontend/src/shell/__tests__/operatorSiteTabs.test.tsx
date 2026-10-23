@@ -1,6 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith, type FeatureFlags } from "../../config/featureFlags";
@@ -13,6 +13,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { EMPTY_EVIDENCE_CLIENT } from "../../sites/__tests__/evidenceFixtures";
+import { COLD_SITE, FROM, KNOWN, SITE as COLD_CODE, TO, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
 import { settledScreen } from "../../test/settled";
 import {
   OPERATOR_SITE_TABS,
@@ -386,5 +387,50 @@ describe("the landing route", () => {
         .map((link) => link.textContent),
     // W6-01e: Operational records rail root is live.
     ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"]);
+  });
+});
+
+/* W5-02 K2a (P-K2a-38): cold Work subtabs carry the window and cutoff, never the cursor; mini-grid hrefs are unchanged. */
+describe("Work subtab query preservation by Site type", () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
+
+  const query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}&cursor=abc`;
+  const kept = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`;
+  const subtabHrefs = () =>
+    within(screen.getByRole("navigation", { name: "Work lists" }))
+      .getAllByRole("link")
+      .map((a) => a.getAttribute("href"));
+
+  for (const kind of ["", "/incidents", "/maintenance"]) {
+    it(`a COLDCHAIN Site's Work${kind || " Actions"} subtabs keep from, to and known_at and drop the cursor`, async () => {
+      vi.stubGlobal("fetch", coldFetch().fetchStub);
+      render(
+        <MemoryRouter initialEntries={[`/sites/${COLD_CODE}/work${kind}?${query}`]}>
+          <App
+            flags={ENABLED}
+            siteDirectory={directoryWith([COLD_SITE])}
+            siteDetail={detailClientFor([COLD_SITE])}
+            siteEvidence={EMPTY_EVIDENCE_CLIENT}
+          />
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      expect(subtabHrefs()).toEqual([
+        `/sites/${COLD_CODE}/work?${kept}`,
+        `/sites/${COLD_CODE}/work/incidents?${kept}`,
+        `/sites/${COLD_CODE}/work/maintenance?${kept}`,
+      ]);
+      expect(within(tabRow()).getByRole("link", { name: "Work" }).getAttribute("aria-current")).toBe("page");
+    });
+  }
+
+  it("a mini-grid Site's Work subtab hrefs stay bare even with a cutoff in the URL", async () => {
+    vi.stubGlobal("fetch", coldFetch().fetchStub);
+    renderAt(`/sites/MG-002/work/incidents?${query}`);
+    await settledScreen();
+    expect(subtabHrefs()).toEqual(["/sites/MG-002/work", "/sites/MG-002/work/incidents", "/sites/MG-002/work/maintenance"]);
   });
 });

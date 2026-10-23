@@ -24,6 +24,8 @@ import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
+import { COLD_SITE, DOMAIN_ID, SITE as COLD_CODE, detailBody, indexBody } from "./coldWorkFixtures";
+import type { DomainActionClient, DomainDetailResult } from "../domainActionClient";
 
 type Case = { request: { method: string; path: string }; status: number; body: any };
 type Served = { status: number; body: unknown };
@@ -265,5 +267,68 @@ describe("W1-F4 C1: the guard is not vacuous on the Action views", () => {
     mount(`/sites/KOBO-001/actions/${ACTION}${segment}`);
     await settledScreen();
     expectPlantedPanelRejected(screenId);
+  });
+});
+
+/* W5-02 K2a (U2, P-K2a-45/46): the COLDCHAIN domain Action placeholder shell beside the unchanged W1 frame. */
+const coldActionDetail = {
+  getSite: async (siteId: string) => ({ status: "loaded", site: { ...COLD_SITE, site_id: siteId } }),
+} as unknown as SiteDetailClient;
+
+function coldDomain(result: DomainDetailResult = { status: "loaded", value: detailBody() }): DomainActionClient & { calls: string[] } {
+  const calls: string[] = [];
+  return {
+    calls,
+    getIndex: async () => ({ status: "loaded", value: indexBody([]) }),
+    getDetail: async (_site: string, id: string) => {
+      calls.push(id);
+      return result;
+    },
+  };
+}
+
+async function mountColdAction(path: string, domain: DomainActionClient, site: SiteDetailClient = coldActionDetail) {
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        {["/sites/:siteId/actions/:actionId", "/sites/:siteId/actions/:actionId/:actionView"].map((p) => (
+          <Route key={p} path={p} element={<SiteActionFrame detail={site} sitesPath="/sites" domainActions={domain} />} />
+        ))}
+      </Routes>
+    </MemoryRouter>,
+  );
+  await settledScreen();
+}
+
+describe("W5-02 K2a: cold-action placeholder shell structure", () => {
+  it("has no Site tab row, the mock breadcrumb, one live Verification tab and the Open strip", async () => {
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 599 }));
+    await mountColdAction(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`, coldDomain());
+    const main = document.querySelector("main") as HTMLElement;
+    expect(main.querySelector('nav[aria-label="Site sections"]')).toBeNull();
+    expect(Array.from(main.querySelectorAll("[data-domain-action-crumbs] li")).map((li) => li.textContent)).toEqual([
+      "Actions",
+      "ACT-000051",
+      "Verification",
+    ]);
+    const sections = Array.from(main.querySelectorAll('nav[aria-label="Action sections"] li'));
+    expect(sections).toHaveLength(1);
+    expect(sections[0].querySelector("a[aria-current='page']")?.textContent).toBe("Verification");
+    expect(main.querySelector("[data-domain-action-strip] .w1f4-action-badge--amber")?.textContent).toBe("Open");
+    // K4a renders the two cold-action panel headings; the placeholder keeps one untitled mock panel and the notice.
+    expect(main.querySelectorAll("section.panel")).toHaveLength(1);
+    expect(main.querySelector("section.panel h2")).toBeNull();
+    expect(main.querySelector("[data-domain-action-notice]")).not.toBeNull();
+  });
+
+  it("a W1 Action on a mini-grid Site keeps its six sections and never reads the domain Action", async () => {
+    vi.stubGlobal("fetch", async () => new Response("{}", { status: 599 }));
+    const domain = coldDomain();
+    await mountColdAction(`/sites/KOBO-001/actions/${DOMAIN_ID}`, domain, {
+      getSite: async (siteId: string) => ({ status: "loaded", site: { ...HYBRID_MINI_GRID_SITE, site_id: siteId } }),
+    } as unknown as SiteDetailClient);
+    expect(domain.calls).toEqual([]);
+    expect(document.querySelectorAll("[data-action-section]")).toHaveLength(6);
+    expect(document.querySelector("[data-domain-action-shell]")).toBeNull();
   });
 });

@@ -41,6 +41,7 @@ import {
 } from "../ui";
 import type { SiteSummary } from "./siteReadModel";
 import { deriveSiteView } from "./siteViewModel";
+import { COLD_WORK_SUBTITLE_FALLBACK } from "./coldWorkPresentation";
 import type {
   ActionClient,
   ActionEventsBody,
@@ -95,7 +96,13 @@ export function ChangesWorkPageHeader({
       siteName={view.displayName}
       siteId={view.siteId}
       mode={view.sourceMode}
-      description={SITE_SCREEN_DESCRIPTIONS[screen]}
+      description={
+        // W5-02 K2a (P-K2a-40, K2 ruling 9): a COLDCHAIN Site's Work pages carry the mock's Site subtitle slot. There is
+        // no Site subtitle field, so the cold Work page always reads `Cold-room operations at this site.` under the
+        // stored Site name, never Foundation `summary`; mini-grid keeps its screen description.
+        // MOCK DEVIATION (D4) R90: the mock `cold-work` site-specific subtitle (`index.html:1138`) is illustrative copy.
+        site.site_type === "COLDCHAIN" && screen !== "changes" ? COLD_WORK_SUBTITLE_FALLBACK : SITE_SCREEN_DESCRIPTIONS[screen]
+      }
       headingId={headingId}
     />
   );
