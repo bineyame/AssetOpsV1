@@ -228,3 +228,25 @@ Builder readings, not conflicts: ruling 1's form combines the global-work labels
 - **Q19 / F7:** the `unknown` mode has no COLD_EXCURSION Finding, so its INC carries one link and the mode is marked `blocked` against ruling 4.
 
 Shared plumbing: none. The producer, the capture tool and `frontend/src/test/panelStructure.ts` changed.
+
+## Rulings 20-23 (2026-10-23)
+
+Main merged in `9e5ddf0a`.
+
+| Ruling | Change | Commit |
+|---|---|---|
+| 20 | An opened `Read full text` replaces its cell's preview and shows the value once; closing restores it (`SiteWorkActions.tsx` `LongText`, with a test). The `Finding version` summary stays on one line. | `1d7e2b39`, `4cac402a` |
+| 21 | UNKNOWN keeps exactly one `COLD_START_FAILURE` link, with `fixture.incident.limit` in the manifest and not blocked. Other modes require both links, and attest enforces this. | `1d7e2b39` |
+| 22 | No change; the Window literals are confirmed | none |
+| 23 | COLDCHAIN Incidents and Maintenance drop the W4 in-panel date form (`siteWorkCases.tsx` `windowForm`). MINIGRID keeps it. New tests and capture states check for one form and that the query is kept. | `1d7e2b39`, `4cac402a` |
+
+### Batch (frontend code at `4cac402a`, head `ed5c34b2`)
+- tsc clean; vite build green.
+- Full vitest `--minWorkers=1 --maxWorkers=2`: 119 files, 2808 passed, 0 failed.
+- check-all: 11/11 passed.
+- Focused Postgres `test_w502_*.py -n 4` at `1d7e2b39`: 34 passed, 0 failed, 0 skipped, 1328 s (the machine was loaded by the other builder).
+- Recapture `83c3e1c3`: 19 states x 1440/390, 463 claims, 461 pass, 2 fail. Both failures are F1. F2-F7 are resolved.
+- Cleanup: every Vite, Chrome and API PID stopped by PID, `w502b` DBs dropped, ports free.
+
+### Open
+- Q20 / F1: with every disclosure open, after replacement the panel is 819 px at 1440 (cap 650) and 1083 px at 390 (cap 850). The page is 1203/1629, within its caps. Not clipped or exempted; this waits for the Architect, per ruling 20.
