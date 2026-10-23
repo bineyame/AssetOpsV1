@@ -48,6 +48,8 @@ Sets:
   by `mini_decisions/store.py`; `decision truncate`; `controls decision <table> insert` must pass.
 - `cold-scenario <table> ...`: W5-01b C4 (migration 0032) two cold scenario tables, the same family as `decision`,
   owned by `cold_scenarios/store.py`; `cold-scenario truncate`; `controls cold-scenario <table> insert` must pass.
+- `domain_action_*`: W5-02a ruling A5 (migration 0033) four-tuples: a foreign INSERT into each of the three cold
+  domain Action tables from the Finding store, and an UPDATE of `domain_action` in its owning domain-intent store.
 - `cutover site_cutover_basis ...`: W4-02 q12-6 (B-L1) cutover basis table of migration 0029, owned INSERT-only by
   the Foundation store (its ON CONFLICT DO NOTHING is allowed): foreign INSERT, UPDATE, DELETE, DO UPDATE, TRUNCATE
   and `owner insert unseen`; `controls cutover site_cutover_basis insert` must pass.
@@ -77,6 +79,7 @@ WORK = f"{B}/work/adapters/postgres_work_store.py"
 MINI = f"{B}/mini_depth/store.py"
 DECISION = f"{B}/mini_decisions/store.py"
 COLD_SCENARIO = f"{B}/cold_scenarios/store.py"
+DOMAIN_INTENT = f"{B}/work/adapters/postgres_domain_intent.py"
 TICK = f"{B}/scheduling/tick.py"
 WORKER = f"{B}/analytics/assessment_worker.py"
 COLD_MIGRATION = "backend/migrations/versions/0023_w2_cold_consequence.py"
@@ -825,6 +828,18 @@ NEGATIVE += [
      "The cold scenario store never updates, deletes, truncates, upserts or runs DDL"),
 ]
 
+# W5-02a ruling A5 (migration 0033): the domain-intent store alone INSERTs the three cold domain Action tables.
+NEGATIVE += [
+    ("domain_action_insert_from_foreign_writer", FINDING, _work_foreign("domain_action"),
+     "writes domain Action table 'domain_action'"),
+    ("domain_action_intent_insert_from_foreign_writer", FINDING, _work_foreign("domain_action_intent"),
+     "writes domain Action table 'domain_action_intent'"),
+    ("domain_action_case_link_insert_from_foreign_writer", FINDING, _work_foreign("domain_action_case_link"),
+     "writes domain Action table 'domain_action_case_link'"),
+    ("domain_action_update_in_owned_writer", DOMAIN_INTENT, split("domain_action", "site_id = :s WHERE tenant_id = :i"),
+     "Domain Action table 'domain_action' is insert-only"),
+]
+
 WRITER_CONTROLS: list[tuple[str, str, str]] = [
     ("controls attestation insert", ASSESS,
      '_OPS02 = (\n    "INSERT INTO source_clock_attestation (id, proof_class) "\n    "VALUES (:i, :p)"\n)\n'),
@@ -927,6 +942,11 @@ WRITER_CONTROLS += [
 WRITER_CONTROLS += [
     ("controls cold-scenario cold_scenario insert", COLD_SCENARIO, _work_control("cold_scenario")),
     ("controls cold-scenario cold_scenario_revision insert", COLD_SCENARIO, _work_control("cold_scenario_revision")),
+]
+WRITER_CONTROLS += [
+    ("controls domain domain_action insert", DOMAIN_INTENT, _work_control("domain_action")),
+    ("controls domain domain_action_intent insert", DOMAIN_INTENT, _work_control("domain_action_intent")),
+    ("controls domain domain_action_case_link insert", DOMAIN_INTENT, _work_control("domain_action_case_link")),
 ]
 
 

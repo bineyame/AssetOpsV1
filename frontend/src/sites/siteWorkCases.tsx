@@ -379,7 +379,7 @@ function RowDetail({ row }: { row: WorkRow }) {
         {row.action_links.length > 0 ? (
           <Fact term="Linked actions">
             {row.action_links.map((a, i) => (
-              <span key={`${a.action_id}:${a.action_event_id}`} data-work-action-link={a.action_id}>
+              <span key={`${a.kind ?? "ACTION"}:${a.action_id}:${a.action_event_id ?? a.finding_revision_id}`} data-work-action-link={a.action_id}>
                 {i > 0 ? ", " : null}
                 {a.href ? <Link to={a.href}>{a.label}</Link> : a.label}
               </span>

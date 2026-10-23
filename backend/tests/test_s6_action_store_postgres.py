@@ -9,6 +9,7 @@ persisted evidence. Requires ASSETOPS_TEST_DATABASE_URL (backend/README-db.md).
 
 from __future__ import annotations
 
+import json
 import threading
 from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
@@ -634,3 +635,123 @@ def test_action_source_is_unverified_when_the_resolver_is_unwired_or_fails() -> 
     seen = []
     exact = ActionService(None, lambda *a: None, source=lambda *a: seen.append(a) or {"state": "AUTHORED_DEMONSTRATION"})
     assert exact.source_provenance(t, s, r)["state"] == "AUTHORED_DEMONSTRATION" and seen == [(t, s, r)]
+
+
+# W5-02a K1a (build spec "Backend wire" collision paragraph, pre-flight ruling A4): W1 `action` and the cold
+# `domain_action` share one Action code space per tenant. W1 acceptance refuses a code already held by a domain
+# Action with 409 ACTION_CODE_CONFLICT, both on its pre-INSERT check and on the 0033 trigger's named 23505, and
+# leaves no partial accepted Action. The domain row is direct SQL against the real persisted S4 Finding.
+CODE_CONFLICT = ("ACTION_CODE_CONFLICT", "Action code already belongs to another Action.")
+DOMAIN_ROOT_INSERT = (
+    "INSERT INTO domain_action (id, tenant_id, site_id, action_no, action_code, domain, origin_finding_id, "
+    "origin_finding_revision_id, title, raised_at, actor_kind, actor_id, attestation, idempotency_key, "
+    "payload_sha256) VALUES (:id, :t, :s, :no, :code, 'COLDCHAIN', :f, :r, 'T', clock_timestamp(), 'SERVICE', "
+    "'service:x', 'a', :key, :sha)")
+
+
+class TestActionCodeCollision:
+    @staticmethod
+    def _next_code(runner) -> int:
+        """The number the next `nextval('action_code_seq')` returns (this test is the sequence's only user)."""
+        with runner.engine.begin() as c:
+            return c.execute(text("SELECT nextval('action_code_seq')")).scalar_one() + 1
+
+    @staticmethod
+    def _domain_root(runner, finding_id, revision_id, number: int) -> dict:
+        return {"id": str(uuid4()), "t": runner.tenant, "s": runner.site, "no": number, "code": f"ACT-{number:06d}",
+                "f": finding_id, "r": revision_id, "key": f"w502-w1-collision-{number}", "sha": "0" * 64}
+
+    def test_precheck_refuses_a_code_held_by_a_domain_action(self, runner) -> None:
+        run_case(runner, CASES["F01"])
+        h = harness(runner)
+        try:
+            f01 = h.findings()["2026-10-06"]
+            rec = h.recommendation(f01).json()
+            p = rec["proposal"]
+            number = self._next_code(runner)
+            with runner.engine.begin() as c:
+                c.execute(text(DOMAIN_ROOT_INSERT), self._domain_root(runner, f01, rec["revision_id"], number))
+            before = h.counts()
+            refused = h.accept(f01, p)
+            assert refused.status_code == 409, refused.text
+            detail = refused.json()["detail"]
+            assert (detail["code"], detail["message"]) == CODE_CONFLICT
+            assert h.counts() == before and before["action"] == 0 and before["action_event"] == 0
+            # The refusal rolled back the whole acceptance; the same command then accepts on the next code.
+            again = h.accept(f01, p)
+            assert again.status_code == 201, again.text
+            assert again.json()["action"]["action_code"] == f"ACT-{number + 1:06d}"
+            assert h.counts()["action"] == 1
+        finally:
+            h.close()
+
+    def test_trigger_conflict_from_a_concurrent_domain_insert_is_typed(self, runner) -> None:
+        """The domain row is uncommitted when W1 checks, so the 0033 trigger (waiting on the domain session's
+        advisory lock) raises the named 23505, which acceptance maps outside `_run` to the same refusal."""
+        run_case(runner, CASES["F01"])
+        h = harness(runner)
+        try:
+            f01 = h.findings()["2026-10-06"]
+            rec = h.recommendation(f01).json()
+            p = rec["proposal"]
+            number = self._next_code(runner)
+            before = h.counts()
+            result: dict = {}
+            with runner.engine.connect() as domain:
+                tx = domain.begin()
+                domain.execute(text(DOMAIN_ROOT_INSERT), self._domain_root(runner, f01, rec["revision_id"], number))
+                worker = threading.Thread(target=lambda: result.setdefault("response", h.accept(f01, p)))
+                worker.start()
+                with runner.engine.connect() as probe:
+                    for _ in range(200):
+                        waiting = probe.execute(text(
+                            "SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' "
+                            "AND wait_event = 'advisory' AND datname = current_database()")).scalar_one()
+                        if waiting:
+                            break
+                        threading.Event().wait(0.05)
+                assert waiting == 1, "W1 acceptance never waited on the cross-domain code lock"
+                tx.commit()
+            worker.join(30)
+            assert not worker.is_alive()
+            refused = result["response"]
+            assert refused.status_code == 409, refused.text
+            detail = refused.json()["detail"]
+            assert (detail["code"], detail["message"]) == CODE_CONFLICT
+            assert h.counts() == before
+            with runner.engine.connect() as c:
+                assert c.execute(text("SELECT count(*) FROM domain_action WHERE action_code = :c"),
+                                 {"c": f"ACT-{number:06d}"}).scalar_one() == 1
+        finally:
+            h.close()
+
+    def test_other_integrity_failures_still_propagate(self, runner) -> None:
+        """Only `action_cross_domain_code_conflict` is typed; another unique (here `action_no_unique`, forced by a
+        direct-SQL domain-free W1 row on the next number) still raises IntegrityError."""
+        run_case(runner, CASES["F01"])
+        h = harness(runner)
+        try:
+            f01 = h.findings()["2026-10-06"]
+            p = h.recommendation(f01).json()["proposal"]
+            number = self._next_code(runner)
+            with runner.engine.begin() as c:
+                c.execute(text("SET LOCAL session_replication_role = replica"))  # setup row only: skip FKs
+                c.execute(text(
+                    "INSERT INTO action SELECT * FROM jsonb_populate_record(NULL::action, CAST(:row AS jsonb))"),
+                    {"row": json.dumps({
+                        "id": str(uuid4()), "tenant_id": str(runner.tenant), "site_id": str(runner.site),
+                        "action_no": number, "action_code": "ACT-999999", "recommendation_key": "e" * 64,
+                        "acceptance_key": "e" * 64, "acceptance_payload_sha256": "e" * 64,
+                        "origin_finding_id": str(uuid4()), "origin_finding_revision_id": str(uuid4()),
+                        "primary_assessment_revision_id": str(uuid4()), "foundation_revision_id": str(uuid4()),
+                        "asset_id": str(uuid4()), "rule_id": "reserve-trial-1", "rule_version": 1,
+                        "field": "reserve-state-of-charge", "unit": "%", "old_value": 20, "proposed_value": 15,
+                        "limitation_code": "x", "limitation_text": "x", "input_sha256": "e" * 64, "snapshot": {},
+                        "snapshot_sha256": "e" * 64, "created_at": T_ACCEPT.isoformat()})})
+            with pytest.raises(IntegrityError) as caught:
+                h.store.accept(runner.tenant, runner.site, p, payload_sha256="f" * 64, payload={},
+                               idempotency_key="accept-int-01", fixture_id="race", recorded_at=T_ACCEPT,
+                               guard=lambda actions: None)
+            assert caught.value.orig.diag.constraint_name == "action_no_unique"
+        finally:
+            h.close()

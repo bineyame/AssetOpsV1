@@ -30,6 +30,7 @@ import {
   PORTFOLIO_ROOT_PATH,
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
+  OPERATIONAL_RECORDS_PATH,
   MAINTENANCE_PREVENTIVE_PATH,
   WORK_REQUEST_HISTORY_ROUTE_PATH,
   WORK_REQUEST_RECORD_ROUTE_PATH,
@@ -97,6 +98,7 @@ import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/c
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
 import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
 import { createColdDepthClient, type ColdDepthClient } from "./sites/ColdDepthClient";
+import { createEvDepthClient, type EvDepthClient } from "./sites/evDepthClient";
 import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
 import { HttpColdScenariosClient, type ColdScenariosClient } from "./sites/coldScenariosClient";
 import { createEvSiteClient, type EvSiteClient } from "./sites/evSiteClient";
@@ -110,6 +112,7 @@ import { GlobalPreventiveFrame } from "./work/GlobalPreventive";
 import { WorkRequestOverviewFrame } from "./work/WorkRequestOverview";
 import { WorkRequestHistoryFrame } from "./work/WorkRequestHistory";
 import { WorkRequestRecordFrame } from "./work/WorkRequestRecord";
+import { OperationalRecordsFrame } from "./work/OperationalRecords";
 import {
   createEstateEvidenceMoneyClient,
   createEstateFinancialsClient,
@@ -157,6 +160,7 @@ const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultMiniDepth = createMiniDepthClient();
 const defaultColdDepth = createColdDepthClient();
+const defaultEvDepth = createEvDepthClient();
 const defaultMiniDecisions = createMiniDecisionsClient();
 const defaultColdScenarioList: ColdScenariosClient = new HttpColdScenariosClient();
 const defaultColdSite = createColdSiteClient();
@@ -240,6 +244,8 @@ export interface AppProps {
   miniDepth?: MiniDepthClient;
   /** W5-01a C2: the selected cold depth reads (Cooling) for a COLDCHAIN Site's Performance route. */
   coldDepth?: ColdDepthClient;
+  /** W5-03a E2: the selected EV depth reads (Availability). */
+  evDepth?: EvDepthClient;
   /** W4-03 unit 6: the read-only mini decision reads (Scenarios). */
   miniDecisions?: MiniDecisionsClient;
   /** W5-01b C5: the authored cold scenario list read, for a COLDCHAIN Site's Financials > Scenarios route. */
@@ -286,6 +292,7 @@ export function App({
   miniDepth = defaultMiniDepth,
   miniDecisions = defaultMiniDecisions,
   coldDepth = defaultColdDepth,
+  evDepth = defaultEvDepth,
   coldScenarioList = defaultColdScenarioList,
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
@@ -410,6 +417,7 @@ export function App({
                   miniDepth={miniDepth}
                   miniDecisions={miniDecisions}
                   coldDepth={coldDepth}
+                  evDepth={evDepth}
                 />
               }
             />
@@ -495,6 +503,8 @@ export function App({
           <Route path={WORK_REQUEST_RECORD_ROUTE_PATH} element={<WorkRequestRecordFrame client={globalWork} />} />
           {/* W6-01d C4: the work request History (`WORK_REQUEST_HISTORY_ROUTE_PATH`, same query). */}
           <Route path={WORK_REQUEST_HISTORY_ROUTE_PATH} element={<WorkRequestHistoryFrame client={globalWork} />} />
+          {/* W6-01e E2: the global Operational records root (`OPERATIONAL_RECORDS_PATH`). */}
+          <Route path={OPERATIONAL_RECORDS_PATH} element={<OperationalRecordsFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

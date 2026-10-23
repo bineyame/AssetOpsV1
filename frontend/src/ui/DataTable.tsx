@@ -47,13 +47,15 @@ import type { ReactNode } from "react";
 export interface DataTableProps {
   /** The id of the heading that names this table. */
   labelledBy?: string;
+  /** W5-03a: keep the first column visible while the region scrolls horizontally (opt-in). */
+  stickyFirstColumn?: boolean;
   children: ReactNode;
 }
 
-export function DataTable({ labelledBy, children }: DataTableProps) {
+export function DataTable({ labelledBy, stickyFirstColumn = false, children }: DataTableProps) {
   return (
     <div
-      className="data-table__scroll"
+      className={stickyFirstColumn ? "data-table__scroll data-table__scroll--sticky" : "data-table__scroll"}
       role={labelledBy === undefined ? undefined : "region"}
       aria-labelledby={labelledBy}
       tabIndex={labelledBy === undefined ? undefined : 0}

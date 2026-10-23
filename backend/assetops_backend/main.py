@@ -63,6 +63,7 @@ from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
 from assetops_backend.cold_assessment_api import build_cold_assessment_router
 from assetops_backend.cold_foundation_api import build_cold_foundation_router
 from assetops_backend.ev_assessment_api import build_ev_assessment_router
+from assetops_backend.ev_depth_api import build_ev_depth_router
 from assetops_backend.ev_site_api import build_ev_site_router
 from assetops_backend.ev_foundation_api import build_ev_foundation_router
 from assetops_backend.cold_replay import ColdReplayService
@@ -78,11 +79,12 @@ from assetops_backend.action_api import build_action_router
 from assetops_backend.actions.composition import ACTION_UNAVAILABLE, build_action_service
 from assetops_backend.actions.site_index import ActionIndexService
 from assetops_backend.action_index_api import build_action_index_router
-from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_global_work_detail_service,
-                                               build_global_work_index_service,
-                                               build_work_detail_service, build_work_index_service,
-                                               build_work_service)
-from assetops_backend.work_api import build_work_router
+from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_domain_action_read_service,
+                                               build_domain_intent_service, build_global_work_detail_service,
+                                               build_global_work_index_service, build_work_detail_service,
+                                               build_work_index_service, build_work_service)
+from assetops_backend.work_api import Principal, WorkGate, build_work_router, no_service_principal
+from assetops_backend.domain_work_api import build_domain_work_router
 from assetops_backend.global_work_api import build_global_work_router
 from assetops_backend.financial_api import build_financial_assumption_router
 from assetops_backend.financial_read_api import build_financial_read_router
@@ -94,6 +96,7 @@ from assetops_backend.financials.composition import (
     build_cold_consequence_store,
     build_consequence_history_service,
     build_consequence_read_service,
+    build_ev_depth_read_service,
     build_ev_site_read_service,
 )
 from assetops_backend.performance_api import build_performance_router
@@ -220,6 +223,7 @@ def create_app(
     ev_owner: EvCatalogOwner = no_owner_principal,
     mini_decision_command_access: Access = deny_decision_writes,
     mini_decision_principal: DecisionPrincipalResolver = no_decision_principal,
+    domain_work_principal: Principal = no_service_principal,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -458,6 +462,11 @@ def create_app(
     if ev_site_reads is not None:
         app.router.on_shutdown.append(ev_site_reads.dispose)
     app.include_router(build_ev_site_router(registry, ev_site_reads))
+    # W5-03a E1b (Lane A): selected EV Availability, Energy and Health depth; typed 503 without a database.
+    ev_depth_reads = build_ev_depth_read_service(database_url()) if database_url() else None
+    if ev_depth_reads is not None:
+        app.router.on_shutdown.append(ev_depth_reads.dispose)
+    app.include_router(build_ev_depth_router(registry, ev_depth_reads))
     # W2-04: the five cold Site reads over the same W2-03 read service and the cold consequence store's
     # caller-connection heads; one REPEATABLE READ snapshot per request, typed 503 without a database.
     cold_consequences = build_cold_consequence_store(database_url()) if cold_reads is not None else None
@@ -551,6 +560,12 @@ def create_app(
         build_work_service(database_url()) if database_url() else None, registry.ledger_scope, (WORK_UNAVAILABLE,),
         details=build_work_detail_service(database_url()) if database_url() else None,
         lists=build_work_index_service(database_url()) if database_url() else None))
+    # W5-02a K1a (ruling A2): the domain Action commands through the same W4 gate. `domain_work_principal` is the
+    # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
+    app.include_router(build_domain_work_router(
+        build_domain_intent_service(database_url()) if database_url() else None,
+        WorkGate(registry.ledger_scope, (WORK_UNAVAILABLE,), principal=domain_work_principal), (WORK_UNAVAILABLE,),
+        reads=build_domain_action_read_service(database_url())))
     # W6-01a (Lane A): the read-only global work roots `/api/work/{incidents,...}`; tenant from the server registry
     # only, per-Site admission through the Finding-route access seam; typed 503 without a database or cursor key.
     # W6-01c (G5): the exact request detail `/api/work/requests/{case_id}?site_id=` on the same router.

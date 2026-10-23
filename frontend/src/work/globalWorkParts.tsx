@@ -4,6 +4,10 @@
  * page without changing its DOM, `data-*` hooks, copy, URLs or behaviour: the trail, the three-line clamp, the
  * link-or-text cell, the A2Q6 refusal block, the control bar, the status line, the A2Q10 pager, the A2Q4 work
  * provenance line and the page read hook. Root-specific accessible names are parameters.
+ *
+ * W6-01e E2 (P-E2-1/2): the page query may carry `kind` on Operational records only. The hook takes an
+ * operational-only kind validator; with it, an invalid or repeated `kind` is a no-fetch `INVALID_KIND` refusal, and a
+ * valid kind rides through Show, Reload, the first-page link and the pager. Without it the other roots ignore `kind`.
  */
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -15,6 +19,7 @@ import {
   globalWorkHref,
   globalWorkPageQuery,
   globalWorkUtc,
+  type GlobalOperationalKind,
   type GlobalWorkClient,
   type GlobalWorkLink,
   type GlobalWorkPageQuery,
@@ -28,6 +33,11 @@ import {
 export const NO_ACCESSIBLE_SITES = "No accessible Sites.";
 export const CHANGE_WINDOW = "Change the UTC window or open a Site record.";
 export const SCROLL_TABLE = "Scroll table horizontally";
+/** CL3-6 / P-E2-2: the Operational records page refusal for an invalid or repeated `kind` (no fetch). */
+export const CHOOSE_RECORD_TYPE = "Choose a supported record type.";
+
+/** A page-query refusal: the window/cutoff codes, or the Operational records `INVALID_KIND` (never an API code). */
+export type GlobalWorkPageRefusalCode = GlobalWorkRefusalCode | "INVALID_KIND";
 
 /** Section 2: the four work provenance pairs, chosen by `source_provenance.classification` (A2Q4). */
 export const WORK_PROVENANCE_WORDS: Readonly<Record<string, [string, string]>> = {
@@ -87,11 +97,11 @@ export function joined(parts: ReactNode[], separator: string): ReactNode[] {
 }
 
 /** A2Q6: one refusal sentence, with `Reload the first page` for a changed list or a stale cursor. */
-export function RefusalBlock({ code, firstPage }: { code: GlobalWorkRefusalCode; firstPage: string }) {
+export function RefusalBlock({ code, firstPage }: { code: GlobalWorkPageRefusalCode; firstPage: string }) {
   return (
     <div className="notice v69-notice global-work-state" data-global-work-refusal={code} data-page-refusal={code}>
-      <p>{GLOBAL_WORK_REFUSAL_COPY[code]}</p>
-      {GLOBAL_WORK_FIRST_PAGE_CODES.has(code) ? (
+      <p>{code === "INVALID_KIND" ? CHOOSE_RECORD_TYPE : GLOBAL_WORK_REFUSAL_COPY[code]}</p>
+      {code !== "INVALID_KIND" && GLOBAL_WORK_FIRST_PAGE_CODES.has(code) ? (
         <p>
           <Link to={firstPage} data-global-work-first-page>
             Reload the first page
@@ -212,8 +222,10 @@ export function Pager({
 
 /** The page read for one root: the validated page query, the history trail and the typed read of that query. */
 export interface GlobalWorkPageRead<B extends GlobalWorkBodyBase> {
-  parsed: GlobalWorkPageQuery;
+  parsed: GlobalWorkPageQuery | { status: "invalid"; code: "INVALID_KIND" };
   query: GlobalWorkQuery | null;
+  /** The valid window and cutoff even when `kind` is invalid (P-E2-2: the chips preserve them), else null. */
+  windowQuery: GlobalWorkQuery | null;
   trail: Trail;
   read: GlobalWorkResult<B> | null;
   body: B | null;
@@ -222,26 +234,33 @@ export interface GlobalWorkPageRead<B extends GlobalWorkBodyBase> {
   firstPage: string;
   rawFrom: string | null;
   rawTo: string | null;
-  go: (next: Pick<GlobalWorkQuery, "from" | "to" | "known_at">, cursor: string | null, nextTrail: Trail) => void;
+  go: (next: Pick<GlobalWorkQuery, "from" | "to" | "known_at" | "kind">, cursor: string | null, nextTrail: Trail) => void;
   reload: () => void;
 }
 
 /**
  * Reads the page query from the URL (section 1, A2Q10) and the root through `readRoot`, which receives the client
  * (a test may supply one). `readRoot` answering null (an optional client method that is absent) reads as
- * `WORK_STORE_UNAVAILABLE` (P-B2-2), never a throw.
+ * `WORK_STORE_UNAVAILABLE` (P-B2-2), never a throw. `kindOf` (Operational records only, P-E2-1) maps every `kind`
+ * value in the URL to a stored kind, null for `all`/absent, or undefined for an invalid or repeated value.
  */
 export function useGlobalWorkPage<B extends GlobalWorkBodyBase>(
   pagePath: string,
   client: GlobalWorkClient | undefined,
   readRoot: (reads: GlobalWorkClient, query: GlobalWorkQuery) => Promise<GlobalWorkResult<B>> | null,
+  kindOf?: (values: string[]) => GlobalOperationalKind | null | undefined,
 ): GlobalWorkPageRead<B> {
   const reads = useMemo(() => client ?? createGlobalWorkClient(), [client]);
   const [params] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const parsed = globalWorkPageQuery(params);
-  const query: GlobalWorkQuery | null = parsed.status === "valid" ? parsed.query : null;
+  const windowParsed = globalWorkPageQuery(params);
+  const kind = kindOf === undefined ? null : kindOf(params.getAll("kind"));
+  const parsed: GlobalWorkPageRead<B>["parsed"] =
+    windowParsed.status === "valid" && kind === undefined ? { status: "invalid", code: "INVALID_KIND" } : windowParsed;
+  const windowQuery = windowParsed.status === "valid" ? windowParsed.query : null;
+  const query: GlobalWorkQuery | null =
+    parsed.status === "valid" ? (kind ? { ...parsed.query, kind } : parsed.query) : null;
   const trail = readTrail(location.state);
   const key = query === null ? "" : JSON.stringify(query);
   const [nonce, setNonce] = useState(0);
@@ -261,7 +280,7 @@ export function useGlobalWorkPage<B extends GlobalWorkBodyBase>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reads, key, nonce]);
 
-  const go = (next: Pick<GlobalWorkQuery, "from" | "to" | "known_at">, cursor: string | null, nextTrail: Trail) =>
+  const go = (next: Pick<GlobalWorkQuery, "from" | "to" | "known_at" | "kind">, cursor: string | null, nextTrail: Trail) =>
     navigate(globalWorkHref(pagePath, next, cursor), { state: { globalWorkTrail: nextTrail } });
 
   const read = query !== null && result?.key === key && result.nonce === nonce ? result.read : null;
@@ -271,6 +290,7 @@ export function useGlobalWorkPage<B extends GlobalWorkBodyBase>(
   return {
     parsed,
     query,
+    windowQuery,
     trail,
     read,
     body,
@@ -297,7 +317,9 @@ export function GlobalWorkBar<B extends GlobalWorkBodyBase>({ page, label }: { p
         label={label}
         from={query ? dateOf(query.from) : dateOf(rawFrom)}
         to={query ? dateOf(query.to) : dateOf(rawTo)}
-        onShow={(from, to) => page.go({ from, to, known_at: query?.known_at ?? null }, null, [])}
+        onShow={(from, to) =>
+          page.go({ from, to, known_at: query?.known_at ?? null, ...(query?.kind ? { kind: query.kind } : {}) }, null, [])
+        }
         onReload={page.reload}
       />
       {body !== null ? <StatusLine body={body} /> : null}

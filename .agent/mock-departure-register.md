@@ -4,22 +4,22 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 
 | Category | Count |
 | --- | ---: |
-| D1 data or feature unavailable | 16 |
-| D2 improvement | 11 |
-| D3 structural oversight | 5 |
-| D4 illustrative placeholder | 19 |
-| D5 build order | 4 |
+| D1 data or feature unavailable | 28 |
+| D2 improvement | 19 |
+| D3 structural oversight | 6 |
+| D4 illustrative placeholder | 25 |
+| D5 build order | 5 |
 | D6 technical constraint | 0 |
-| **Total** | **55** |
+| **Total** | **83** |
 
 ## D1 — data or feature unavailable
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| R01 | W5-02 K3a M2 | `cold-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists; W4 command is service-only. | Future global Work create flow | planned |
-| R02 | W5-02 K3b M4 | `cold-work` | Actions strip says same as global list and offers Manage | Cold-only scope text; global gap | D1 | W3 global Actions excludes cold roots. | Future cross-domain global Actions union | planned |
-| R03 | W5-04 V3a E1 | `ev-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists. | Future global Work create flow | planned |
-| R04 | W5-04 V3b E4 | `ev-work` | Actions strip says same as global list and offers Manage | EV-only scope text; global gap | D1 | W3 global Actions excludes EV roots. | Future cross-domain global Actions union | planned |
+| R01 | W5-02 K2a M2 | `cold-work` | Work notice promises global create | First sentence only | D1 | No operator create flow exists; W4 command is service-only. | Future global Work create flow | planned |
+| R02 | W5-02 K2a M4 | `cold-work` | Actions strip says same as global list and offers Manage | Cold-only scope text; global gap | D1 | W3 global Actions excludes cold roots. | Future cross-domain global Actions union | planned |
+| R03 | W5-04 V2a/V3a E1 | `ev-work`, `ev-work-incidents`, `ev-work-maintenance` | Work notice promises global create | First sentence only | D1 | No operator create flow exists. | W5-04 V2a/V3a; future global Work create flow | planned |
+| R04 | W5-04 V2a E4 | `ev-work` | Actions strip says same as global list and offers Manage | EV-only scope text; global gap | D1 | W3 global Actions excludes EV roots. | W5-04 V2a; future cross-domain global Actions union | planned |
 | R05 | W5-01 C2 | `cold-cooling` | Recovery temperature curves | Chart frame and selected categorical marks; no curve | D1 | Selected records have no accepted numeric recovery series. | Future selected recovery-series producer | planned |
 | R06 | W5-03 E3 | `energy` | Continuous import-power line | Selected sample marks and declared limit; no connecting path | D1 | Accepted samples do not establish continuous coverage. | Future coverage-capable EV evidence read | planned |
 | R07 | W6-01 B2 | `maintenance` | Lifecycle notice describes active follow-up | Activity recorded, outcome unverified | D1 | No work-outcome evaluator or follow-up path exists. | Future work-outcome evaluator | planned |
@@ -32,6 +32,7 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R36 | W2-05a QM–QP | `ev-sld`, `ev-readiness` | Load manager, breakers, feeder meters, investigation Action | Unknown equipment slots and unavailable Action entry | D1 | These components and Action are undeclared/unbuilt. | Future EV Foundation and Action units | built |
 | R41 | W6-01 C4 | `wr-history` | `Site visit started` (row 3) and `Verification pending` (row 5) in the authored chronology | Two in-table gaps, `Site visit start not recorded` and `Verification pending · no outcome assessment recorded`, with `—` in Time/By after the last authored row on the last page only | D1 | W4 has no selected site-visit event or work-outcome assessment; inserting undated gaps at the mock positions would imply an unsupported sequence among authored events. | Future site-visit event and work-outcome evaluator | planned |
 | R51 | W5-03 E3 | `energy` | `Stationary battery: Not configured` conclusion value | `Unknown` and the Foundation limitation | D1 | The merged EV Foundation cannot declare battery presence or absence. | Future EV battery configuration; W5-03 E3 gap | planned |
+| R56 | W5-03 E4 | `ev-health` | Stationary battery `Not applicable` / `None installed` | `Unknown` with a configuration gap unless selected Foundation explicitly establishes none installed | D1 | The selected EV Foundation may not declare stationary storage. | Future EV battery configuration; W5-03 E4 | planned |
 
 ## D2 — improvement on the mock; flag at walkthrough
 
@@ -48,12 +49,15 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | R21 | W1 decision | Site/Finding/Work/Financials subtab screens | Mock live entries for unbuilt destinations | Visible noninteractive Not available yet entries | D2 | Preserves menu placement and prevents false navigation. | W1 F5; owner W1 walkthrough | built |
 | R46 | W5-03 E3 | `energy` | Import chart only | Chart followed by a collapsed `Measure`/`Value` detail disclosure | D2 | Exact sample facts remain keyboard and screen-reader accessible within the measured panel cap; an always-open table exceeded the cap. | W5-03 E3; owner walkthrough | planned |
 | R49 | W5-03 E3 | `energy` | No separate partial/unknown coverage disclosures under the cards | Selected partial-kWh and unknown-duration disclosure lines | D2 | Keeps incomplete meter evidence visible beside the summary without replacing any mock panel. | W5-03 E3; owner walkthrough | planned |
+| R27 | W5-03 E6 | `ev-scenarios` | Empty placeholder block inside `Financial scenarios` | Persisted authored rows replace that empty block only when items exist | D2 | A real authored list makes the mock's designed empty state useful after a scenario is defined; no observed outcome is implied. | W5-03 E5/E6; owner walkthrough | planned |
+| R58 | W5-03 E4 | `ev-health` | Two condition-table rows: fault connector and Site meter | Optional third row for another selected connector with an honest no-assessment statement | D2 | The selected Foundation may include another connector that needs visible coverage. | W5-03 E4; owner walkthrough | planned |
 
 ## D3 — structural oversight; correct before merge
 
 | ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | R22 | W5-01 C3 | `cold-health` | Mock ends after Condition and evidence | Additional Data sources panel | D3 | A faithful alternative exists: keep cold Health panel set and point Foundation Data sources to the existing `cold-evidence` source panel. | W5-F1 F1-1: remove added panel and fix fragment destination; re-review | built: W5-F1 f0812934 |
+| R60 | W5-03 E4 | `ev-health` | Mock ends after Condition and evidence | Proposed additional S7 Data sources panel | D3 | Same structural oversight as R22; remove the panel and point Foundation at existing `ev-evidence` Data sources. | W5-03 E4 correction and review | planned correction; never ship extra panel |
 | R23 | W5-02 K3a M5 withdrawn | `cold-work-incidents` | Site-local Window date/time | Fixed EAT/UTC formatting was proposed | D3 | `SiteDetailReadModel.timezone` already exists. Correct with `siteWindowText(occurred_at, site.timezone)` and two-zone/date-boundary tests. | W5-02 K3a | resolved |
 | R24 | W5-04 V3a E5 withdrawn | `ev-work-incidents` | Site-local Window date/time | Fixed UTC/offset formatting was proposed | D3 | Stored EV Site timezone already exists. Reuse K3a `siteWindowText` and test both zones/date boundary. | W5-04 V3a | resolved |
 | R37 | W2-03 retro correction | `cold-performance` | Loading / batch row | Row was omitted in first build | D3 | The mock row can be rendered faithfully; restore it in its original order. | W5-F1 F1-2: keep row, prove mock order and capture; re-review | built: W5-F1 42964500 |
@@ -65,7 +69,8 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | R25 | W5-01 C5 | `cold-scenarios` | Empty illustrative scenarios only | Persisted authored rows/basis and honest pending state | D4 | Real selected authored facts replace a static example without claiming observed outcome. | W5-01 C4/C5 | planned |
 | R26 | W5-03 E2 | `availability` | Fixed percentages and 08:00/12:00/16:00 axis | Selected spans, derived percentages and window times | D4 | Mock numbers are examples, not accepted Site evidence. | W5-03 E1a/E2 | planned |
-| R27 | W5-03 E6 | `ev-scenarios` | Illustrative scenario rows | Stored authored revisions and honest pending state | D4 | Mock values cannot stand in for selected authored facts. | W5-03 E5/E6 | planned |
+| R57 | W5-03 E4 | `ev-health` | Connector card notes and `Needs attention`/gray/amber values for the illustrative fault pattern | Same positions and tones with selected fault count and honest Unknown when no condition assessment exists | D4 | The mock's normal and single-fault sentences are illustrative; no completed session proves hardware health. | W5-03 E4 | planned |
+| R59 | W5-03 E4 | `ev-health` | Site-meter row says `Power limit respected in observed samples` | Same statement only when selected samples and declared limit prove it; otherwise `Power limit not assessed from selected samples` | D4 | Mock's within-limit conclusion is illustrative and cannot be asserted for an unsupported selection. | W5-03 E4 | planned |
 | R28 | W6-01 B3 | `maintenance-preventive` | PM-0455/INC-203 narrative | No incident link or cause established | D4 | Selected stored plans have no cited incident relation. | W6-01 B3 | planned |
 | R29 | W6-01 E2 | `oprecords` | Cards 2–4 example counts/REC codes | No publication, review workflow or request list established | D4 | Mock counts and codes are illustrative; selected store cannot substantiate them. | W6-01 E2 | built: W6-01 E2 `173cfc73`; review pending |
 | R30 | W6-01 E2 | `oprecords` | Requested/accepted/in-review example rows and role names | Persisted Submitted heads and stored actor IDs | D4 | W4 stores submitted authored records and actor IDs, not example roles/statuses. | W6-01 E2 | built: W6-01 E2 `173cfc73`; review pending |
@@ -95,3 +100,48 @@ Architect classification, 2026-10-23. Counts below count distinct screen/element
 ## D6 — technical constraint
 
 No unresolved D6 ruling was found. The W5 C2/E3 chart substitutions originally attributed to the SVG allowlist were withdrawn: the feasible correction is to register a graphics module and restore the mock chart form. The W6 source disclosure and Time precision are classified as D2 choices, not platform necessities.
+
+
+## W5-02 Site-screen additions (2026-10-23)
+
+These rows use the register columns above and are included in its category counts.
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R65 | W5-02 K2a/K3a/K4a | `cold-work`, `cold-work-incidents`, `cold-action` | Mock Finding codes F-118/F-119 | `Finding {id8}` in the same source/status cells | D1 | No public cold Finding code exists on the selected wire. | Future public Finding code; W5-02 preserves selected UUID | planned |
+| R66 | W5-02 K2a/K3a/K4a | `cold-work`, `cold-work-incidents`, `cold-action` | Linked Finding and Open source Finding | Plain selected label, revision disclosure and unavailable exact-revision control | D1 | Cold Finding frame ignores `revision_id`; following current URL may show another revision. | Future exact-revision cold Finding API/client/frame | planned |
+| R67 | W5-02 K2a | `cold-work` | `Due dates are not yet set in this example` | Selected-data phrase Due dates are not yet set | D4 | Example qualifier is not true for arbitrary Sites. | W5-02 K2a | planned |
+| R68 | W5-02 K3a/K4a | `cold-work-maintenance`, `cold-action` | WR and Inspect target `workverification` | Selected W6 request Overview in same slots | D1 | W6 Verification destination is unavailable; Overview is mounted. | Future W6 request Verification destination | planned |
+| R69 | W5-02 K2a to K4a | `cold-action` | Actions active in operator rail | Sites active on interim placeholder | D5 | K4a owns guarded rail override after W6-01e. | W5-02 K4a rail override and tests | planned; resolve in K4a review |
+| R70 | W5-02 K3a | `cold-work-maintenance` | Activity Completed chip only | Same chip plus stored activity in in-cell disclosure | D2 | Exposes attested text without changing column/order. | W5-02 K3a; owner walkthrough | planned |
+| R71 | W5-02 K3a | `cold-work-maintenance` | Outcome Unverified badge only | Same badge plus selected outcome note in in-cell disclosure | D2 | Qualifies unverified state in the mock cell. | W5-02 K3a; owner walkthrough | planned |
+| R72 | W5-02 K3a | `cold-work-maintenance` | Next evidence witnessed automatic-start test | Selected next-evidence copy or `No next evidence recorded` | D1 | No selected instruction proves the mock witness test. | Future authored next-evidence producer | planned |
+| R73 | W5-02 K3a | `cold-work-incidents` | INC code opens Incident detail | Plain INC code in same Case cell | D1 | No Incident detail route is mounted. | Future W6 Incident detail route | planned |
+
+- Register IDs: the W5-02b R56-R64 were renumbered R65-R73 because they collided with the W5-03b IDs (coordinator, 2026-10-23).
+
+## W5-04 pre-flight additions (2026-10-23)
+
+Mock selectors are `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('ev',…)`, and `add('ev-action'…)` in `frontend/mockups/v69/index.html`. R74–R85 are planned, not built.
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R74 | W5-04 V2a/V3a | `ev-work`, `ev-work-incidents` | Source/Linked findings mock F-130 code | `Finding {id8}` from selected public UUID | D1 | Selected EV Finding has no public F-130 code. | V2a/V3a; future public Finding code | planned |
+| R75 | W5-04 V2a/V3a | `ev-work`, `ev-work-incidents` | Finding link opens selected source | Plain revision label, disclosure and unavailable exact-revision control | D1 | EV Finding frame ignores `revision_id`; a window-only link can show another revision. | V2a/V3a; future exact-revision Finding frame | planned |
+| R76 | W5-04 V2a | `ev-work` | `Due dates are not yet set in this example` | `Due dates are not yet set` only for all-null selected due dates | D4 | Example qualifier cannot describe arbitrary persisted rows. | V2a | planned |
+| R77 | W5-04 V2a/V4a | `ev-work`, `ev-action` | Fixed EAT in topbar example window | Stored Site-zone abbreviation, UTC for private fixture | D4 | Fixture timezone is Etc/UTC, and user Sites vary. | V2a/V4a | planned |
+| R78 | W5-04 V2a | `ev-work` | Example connector/power subtitle | `EV charging operations at this site.` when stored subtitle is null | D4 | No selected Foundation fact supports copied example configuration. | V2a | planned |
+| R79 | W5-04 V2a | `ev-work` | `1 actions` in scope strip | `1 action` | D2 | Correct singular grammar improves clarity. | V2a; owner walkthrough | planned |
+| R80 | W5-04 V2a/V3a/V4a | `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-action` | No currentness notice in example | Selected historical/pending/stale/unknown notice below strip | D2 | The cutoff/source state must remain visible in live reads. | V2a/V3a/V4a; owner walkthrough | planned |
+| R81 | W5-04 V3a | `ev-work-maintenance` | Activity Completed chip only | Completed chip plus stored activity disclosure | D2 | Exposes attested text in the existing cell. | V3a; owner walkthrough | planned |
+| R82 | W5-04 V3a | `ev-work-maintenance` | Outcome Unverified badge only | Badge plus attested outcome note disclosure | D2 | Clarifies what was recorded without claiming verified outcome. | V3a; owner walkthrough | planned |
+| R83 | W5-04 V3a | `ev-work-maintenance` | WR opens Verification | WR opens mounted W6 Overview | D1 | Request Verification destination is unavailable. | V3a; future W6 request Verification | planned |
+| R84 | W5-04 V3a | `ev-work-maintenance` | Mock witnessed next-evidence instruction | Selected copy or `No next evidence recorded` | D1 | No selected instruction proves the mock witness test. | V3a; future authored next-evidence producer | planned |
+| R85 | W5-04 V3a | `ev-work-incidents` | INC code opens detail | Plain INC code | D1 | No Incident detail route is mounted. | V3a; future Incident detail route | planned |
+
+## W5-03a review correction (2026-10-23)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R86 | W5-03a E2 | `availability` | Connector right-hand local service period | Selected `HH:mm–HH:mm UTC` occurrence or window, explicitly labelled UTC | D1 | The depth DTO carries UTC instants without a Site-local offset, so local time cannot be asserted. | Future Site-timezone read; W5-03a E2 | planned correction; owner walkthrough |
+| R87 | W5-03a E3 | `energy` | Green `Yes` for example peak below limit | Selected `Yes` green, `No` red or `Unknown` neutral from the selected sample peak and time-valid limit | D4 | The example 76/80 kW result cannot stand for another selected window. | W5-03a E3 | planned correction |

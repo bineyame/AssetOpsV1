@@ -1,0 +1,360 @@
+{
+  "state": "kind-OPERATOR_LOG",
+  "captured_at": "2026-10-23T08:35:31.691Z",
+  "results": [
+    {
+      "state": "kind-OPERATOR_LOG",
+      "width": 1440,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG",
+      "image": "kind-OPERATOR_LOG-1440.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1145
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1145
+        },
+        "date_bar_slot": {
+          "h": 47,
+          "w": 1145
+        },
+        "status_line": {
+          "h": 33,
+          "w": 175
+        },
+        "cards": {
+          "h": 115,
+          "w": 1145
+        },
+        "chips": {
+          "h": 33,
+          "w": 1145
+        },
+        "state_block": null,
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": {
+          "h": 0,
+          "w": 0
+        },
+        "pager": {
+          "h": 29,
+          "w": 1105
+        },
+        "table": {
+          "h": 199,
+          "w": 1150
+        },
+        "thead": {
+          "h": 35,
+          "w": 1150
+        },
+        "notice": null
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 345,
+          "w": 1145
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 298,
+          "w": 725
+        },
+        {
+          "title": "How records are used",
+          "h": 298,
+          "w": 403
+        }
+      ],
+      "row_heights": [
+        82,
+        82
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 1105,
+        "scroll": 1150,
+        "overflowX": "auto",
+        "maxHeight": "500px"
+      },
+      "document_width": {
+        "scroll": 1425,
+        "client": 1425
+      },
+      "page_height": 1070,
+      "text": {
+        "h1": "Operational records",
+        "status": "As known at 23 Oct 2026, 08:35 UTC",
+        "cards": [
+          "Records in window2Logs, readings, notes and visits",
+          "Feeding evidenceNot establishedNo accepted-evidence publication link",
+          "In reviewNo review workflowAll stored records are Submitted",
+          "Requested, not yet doneNot recordedNo request list recorded"
+        ],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "true"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–2 of 2",
+        "rows": [
+          [
+            "REC-000007Source unverifiedThe origin of this authored work record is not established. No ",
+            "Operator log",
+            "Kobo mini-grid",
+            "18 Oct 2026, 09:04 UTC",
+            "service:w401-fixture",
+            "Operator log at KOBO-002: pump started on schedule.Full record textOperator log at KOBO-00",
+            "None linked",
+            "Submitted"
+          ],
+          [
+            "REC-000004Source unverifiedThe origin of this authored work record is not established. No ",
+            "Operator log",
+            "Kobo mini-grid",
+            "18 Oct 2026, 09:01 UTC",
+            "service:w401-fixture",
+            "Operator log at KOBO-001: panel checked after the restart.Full record textOperator log at ",
+            "None linked",
+            "Submitted"
+          ]
+        ],
+        "heads": [
+          [
+            "1ffb8db9-2f2b-4d4a-9b23-168a0007a445",
+            "1ffb8db9-2f2b-4d4a-9b23-168a0007a445"
+          ],
+          [
+            "b0ed2de9-a61a-488a-9116-3c20e7fbb812",
+            "b0ed2de9-a61a-488a-9116-3c20e7fbb812"
+          ]
+        ],
+        "links": [
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-002"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=OPERATOR_LOG",
+          "status": 200
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=OPERATOR_LOG",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "state": "kind-OPERATOR_LOG",
+      "width": 390,
+      "route": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG",
+      "image": "kind-OPERATOR_LOG-390.png",
+      "location": "/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&kind=OPERATOR_LOG",
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 358
+        },
+        "page_header": {
+          "h": 54,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 211,
+          "w": 358
+        },
+        "status_line": {
+          "h": 17,
+          "w": 175
+        },
+        "cards": {
+          "h": 281,
+          "w": 358
+        },
+        "chips": {
+          "h": 73,
+          "w": 358
+        },
+        "state_block": null,
+        "zero_block": null,
+        "loading": null,
+        "scroll_hint": {
+          "h": 17,
+          "w": 318
+        },
+        "pager": {
+          "h": 29,
+          "w": 318
+        },
+        "table": {
+          "h": 199,
+          "w": 1150
+        },
+        "thead": {
+          "h": 35,
+          "w": 1150
+        },
+        "notice": null
+      },
+      "panels": [
+        {
+          "title": "Operational records",
+          "h": 352,
+          "w": 358
+        },
+        {
+          "title": "Record a manual reading",
+          "h": 486,
+          "w": 358
+        },
+        {
+          "title": "How records are used",
+          "h": 223,
+          "w": 358
+        }
+      ],
+      "row_heights": [
+        82,
+        82
+      ],
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "table_scroll": {
+        "client": 318,
+        "scroll": 1150,
+        "overflowX": "auto",
+        "maxHeight": "590px"
+      },
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1944,
+      "text": {
+        "h1": "Operational records",
+        "status": "As known at 23 Oct 2026, 08:35 UTC",
+        "cards": [
+          "Records in window2Logs, readings, notes and visits",
+          "Feeding evidenceNot establishedNo accepted-evidence publication link",
+          "In reviewNo review workflowAll stored records are Submitted",
+          "Requested, not yet doneNot recordedNo request list recorded"
+        ],
+        "chips": [
+          [
+            "All",
+            "false"
+          ],
+          [
+            "Operator log",
+            "true"
+          ],
+          [
+            "Manual reading",
+            "false"
+          ],
+          [
+            "Shift note",
+            "false"
+          ],
+          [
+            "Site visit",
+            "false"
+          ]
+        ],
+        "state": null,
+        "zero": null,
+        "showing": "Showing 1–2 of 2",
+        "rows": [
+          [
+            "REC-000007Source unverifiedThe origin of this authored work record is not established. No ",
+            "Operator log",
+            "Kobo mini-grid",
+            "18 Oct 2026, 09:04 UTC",
+            "service:w401-fixture",
+            "Operator log at KOBO-002: pump started on schedule.Full record textOperator log at KOBO-00",
+            "None linked",
+            "Submitted"
+          ],
+          [
+            "REC-000004Source unverifiedThe origin of this authored work record is not established. No ",
+            "Operator log",
+            "Kobo mini-grid",
+            "18 Oct 2026, 09:01 UTC",
+            "service:w401-fixture",
+            "Operator log at KOBO-001: panel checked after the restart.Full record textOperator log at ",
+            "None linked",
+            "Submitted"
+          ]
+        ],
+        "heads": [
+          [
+            "1ffb8db9-2f2b-4d4a-9b23-168a0007a445",
+            "1ffb8db9-2f2b-4d4a-9b23-168a0007a445"
+          ],
+          [
+            "b0ed2de9-a61a-488a-9116-3c20e7fbb812",
+            "b0ed2de9-a61a-488a-9116-3c20e7fbb812"
+          ]
+        ],
+        "links": [
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-002"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "notice": null,
+        "examples": null
+      },
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=OPERATOR_LOG",
+          "status": 200
+        },
+        {
+          "url": "/api/work/operational-records?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5&kind=OPERATOR_LOG",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}

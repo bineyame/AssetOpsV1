@@ -24,7 +24,7 @@ from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
 
 from assetops_backend.actions.lifecycle import ACCEPTED, APPLIED, FAILED, OBSERVED, OBSERVATION_CODE, SYSTEM_DEMO
-from assetops_backend.actions.ports import ActionStoreUnavailable, ApplyFailed
+from assetops_backend.actions.ports import ActionRefused, ActionStoreUnavailable, ApplyFailed
 from assetops_backend.actions.reserve_trial import (
     CANDIDATE,
     FIELD,
@@ -73,6 +73,14 @@ CHANGE_COLUMNS = ("id, tenant_id, site_id, action_id, applied_event_id, command_
                   "old_value, new_value, expected_foundation_revision_id, superseded_foundation_revision_id, "
                   "new_foundation_revision_id, split_foundation_revision_id, effective_from, recorded_at, validity")
 
+
+# W5-02a ruling A4: the 0033 trigger `reject_cross_domain_action_code` raises 23505 under this constraint name when
+# an inserted Action code already belongs to a cold domain Action (one global code space per tenant).
+CODE_CONFLICT_CONSTRAINT = "action_cross_domain_code_conflict"
+
+
+def _code_conflict() -> ActionRefused:
+    return ActionRefused(409, "ACTION_CODE_CONFLICT", "Action code already belongs to another Action.")
 
 class PostgresActionStore:
     def __init__(self, database_url: str | None, *, statement_timeout_ms: int = 30_000,
@@ -269,6 +277,9 @@ class PostgresActionStore:
             guard(self._trial_actions(c, tenant_id, site_id, proposal["asset_id"], proposal["rule"]["id"],
                                       where="AND a.recommendation_key <> :k", k=proposal["recommendation_key"]))
             number = c.execute(text("SELECT nextval('action_code_seq')")).scalar_one()
+            if c.execute(text("SELECT 1 FROM domain_action WHERE tenant_id = :t AND action_code = :code"),
+                         {"t": tenant_id, "code": f"ACT-{number:06d}"}).first() is not None:
+                raise _code_conflict()
             action_id, event_id = uuid4(), uuid4()
             snapshot = {k: v for k, v in proposal.items() if k != "current_foundation_revision_id"}
             snapshot["current_foundation_revision_id_at_acceptance"] = proposal["current_foundation_revision_id"]
@@ -307,7 +318,14 @@ class PostgresActionStore:
             action = c.execute(text(f"SELECT {ACTION_COLUMNS} FROM action WHERE id = :a"), {"a": action_id}).one()
             event = c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE id = :e"), {"e": event_id}).one()
             return dict(action._mapping), dict(event._mapping), False
-        return self._run(work)
+        try:
+            return self._run(work)
+        except IntegrityError as error:
+            # W5-02a ruling A4: only the 0033 cross-table code trigger is typed; caught outside `_run` so its
+            # handling is unchanged, and every other integrity failure propagates.
+            if getattr(getattr(error.orig, "diag", None), "constraint_name", None) != CODE_CONFLICT_CONSTRAINT:
+                raise
+            raise _code_conflict() from error
 
     def observe(self, tenant_id: UUID, site_id: UUID, action_id: UUID, *, occurred_at: datetime,
                 idempotency_key: str, payload: dict[str, Any], payload_sha256: str, fixture_id: str,

@@ -537,3 +537,16 @@ def test_missing_lineage_matches_site_row(runner, monkeypatch, key) -> None:  # 
     assert global_row["finding_links"] == [{"label": x["label"], "href": x["href"]} for x in site_row["finding_links"]]
     assert global_row["finding_links"] == [{"label": f"Finding {fid[:8]}", "href": None}]
     assert body["status"] == "HISTORICAL"
+
+
+if URL:
+    from test_w202_cold_replay_postgres import chain  # noqa: F401,F811
+    from test_w502_domain_intent_postgres import cold  # noqa: F401
+    from test_w502_domain_work_links_postgres import assert_global_domain_parity, bind
+
+
+def test_domain_action_link_matches_w4(cold, key) -> None:  # noqa: F811
+    """W5-02a ruling C2: an explicitly bound cold domain Action reaches the global incidents row exactly as W4's
+    Site row (href, label, null event, selected IDs/citations, basis); earlier cutoff and unlinked rows unchanged."""
+    b = bind(cold)
+    assert_global_domain_parity(cold, b, Api, "incidents", b.incident)

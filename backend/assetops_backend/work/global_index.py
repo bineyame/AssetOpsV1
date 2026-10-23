@@ -1,5 +1,6 @@
 """W6-01a/b: the global work list roots (`global-work-index-1`): A1 `GET /api/work/incidents`; B1
-`GET /api/work/maintenance` and `GET /api/work/preventive`.
+`GET /api/work/maintenance` and `GET /api/work/preventive`; E1 `GET /api/work/operational-records` (selection in
+`work/operational_index.py`, kind filter bound in the cursor and token `filter`).
 
 `.agent/W6-01-build-spec.md` section 1 (wire, parser, refusals, envelope, incident row) and section 3.1 (A1Q G2 and
 the Q3-Q9 rulings). One read-only REPEATABLE READ snapshot (`PostgresGlobalWorkRead.snapshot`) at one fixed cutoff
@@ -31,18 +32,24 @@ from uuid import UUID
 from assetops_backend.estate.scope import MESSAGES as ESTATE_MESSAGES
 from assetops_backend.estate.scope import access_basis, encode_cursor, token_time, wire_time
 from assetops_backend.work import model as m
-from assetops_backend.work.service import case_basis, missing_lineage, provenance_dto
-from assetops_backend.work.site_index import _action_link, _finding_link
+from assetops_backend.work.service import (action_event_ids, all_action_links, case_basis, missing_lineage,
+                                           provenance_dto)
+from assetops_backend.work.site_index import _action_link, _finding_link, action_selection_key
 
 SCHEMA = "global-work-index-1"
 SELECTION_VERSION = "global-work-selection/1"
 PLAN = "PLAN"
-KINDS = {"incidents": m.INCIDENT, "maintenance": m.REQUEST, "preventive": PLAN}  # E1 adds operational-records
+OPERATIONAL = "operational-records"
+KINDS = {"incidents": m.INCIDENT, "maintenance": m.REQUEST, "preventive": PLAN, OPERATIONAL: "OPERATIONAL_RECORD"}
 _LIST_KEYS = ("from", "to", "known_at", "limit", "cursor")
-KEYS = {"incidents": _LIST_KEYS, "maintenance": _LIST_KEYS, "preventive": _LIST_KEYS}
-# A2Q1 / X1 / P-B1-11: the full-selection state counts; preventive (and E1 operational records) carry null.
+KEYS = {"incidents": _LIST_KEYS, "maintenance": _LIST_KEYS, "preventive": _LIST_KEYS,
+        OPERATIONAL: (*_LIST_KEYS, "kind")}  # P-E1-2: only operational records admit `kind`
+# W6-01e P-E1-2: the normalized operational `kind` filter (absent and `all` are both `all`).
+RECORD_KINDS = ("all", "OPERATOR_LOG", "MANUAL_READING", "SHIFT_NOTE", "SITE_VISIT")
+# A2Q1 / X1 / P-B1-11: the full-selection state counts; preventive and operational records carry null.
 STATE_COUNTS = {"incidents": ("OPEN", "IN_PROGRESS", "CLOSED"),
-                "maintenance": ("OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"), "preventive": None}
+                "maintenance": ("OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"), "preventive": None,
+                OPERATIONAL: None}
 MAX_DAYS = 31
 DEFAULT_LIMIT, MAX_LIMIT = 50, 100
 CURRENT, HISTORICAL, EMPTY_SCOPE = "CURRENT", "HISTORICAL", "EMPTY_SCOPE"
@@ -83,6 +90,7 @@ class GlobalWorkRequest:
     known_at: datetime | None
     limit: int = DEFAULT_LIMIT
     cursor: str | None = None
+    record_kind: str = "all"
 
 
 def _instant(value: str, code: str) -> datetime:
@@ -126,7 +134,10 @@ def parse_global_request(kind: str, items: Iterable[tuple[str, str]]) -> GlobalW
     cursor = one.get("cursor")
     if cursor is not None:
         _envelope(cursor)
-    return GlobalWorkRequest(kind, from_, to, known_at, limit, cursor)
+    record_kind = one.get("kind", "all")  # P-E1-2: KEYS admits `kind` on operational records only
+    if record_kind not in RECORD_KINDS:  # empty, unsupported (a repeated key already failed above)
+        raise GlobalWorkRefusal("INVALID_CURSOR")
+    return GlobalWorkRequest(kind, from_, to, known_at, limit, cursor, record_kind)
 
 
 # --- authenticated cursor (the W3-03 Portfolio pattern, `estate/scope.py:299-341`) ----------------------------
@@ -190,7 +201,9 @@ def decode_global_cursor(value: str, key: bytes) -> dict[str, Any]:
     if not hmac.compare_digest(payload["mac"], _mac(body, key)):
         raise GlobalWorkRefusal("INVALID_CURSOR")
     after = body["after"]
-    ok = (body["v"] == 1 and body["route"] in KINDS and body["filter"] is None
+    # P-E1-2: `filter` is null on the three case/plan routes and an allowed kind string on operational records.
+    ok = (body["v"] == 1 and body["route"] in KINDS
+          and (body["filter"] in RECORD_KINDS if body["route"] == OPERATIONAL else body["filter"] is None)
           and body["page_one_mode"] in _MODES
           and (body["tenant_id"] is None or _uuid(body["tenant_id"]))
           and isinstance(body["authorized_site_ids"], list) and all(_uuid(x) for x in body["authorized_site_ids"])
@@ -266,7 +279,7 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             records = rx.records(cid, known_at)
             record = records[-1] if records else None
             record_id = None if record is None else str(record["id"])
-            links = rx.revision_links(rid)
+            links = rx.revision_links(rid, known_at)
             selections = rx.link_selections(rid, lo, hi, known_at)
             by_key = {(s["kind"], s["id"], s["selected_id"]): s for s in selections}
             event_ids = sorted(str(e["id"]) for e in events)
@@ -275,11 +288,10 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             if not all(s["lineage"] for s in selections):
                 dto = missing_lineage(dto)
             finding_links = sorted(links["finding_links"], key=lambda x: (x["finding_id"], x["finding_revision_id"]))
-            action_links = sorted(links["action_links"], key=lambda x: (x["action_id"], x["action_event_id"]))
+            action_links = all_action_links(links)
             findings = [_finding_link(code, x, by_key.get(("FINDING", x["finding_id"], x["finding_revision_id"]),
                                                           {"lineage": False})["lineage"]) for x in finding_links]
-            actions = [_action_link(code, x, by_key.get(("ACTION", x["action_id"], x["action_event_id"])))
-                       for x in action_links]
+            actions = [_action_link(code, x, by_key.get(action_selection_key(x))) for x in action_links]
             try:
                 state = m.reduce_state(case_kind, events)
             except (ValueError, m.WorkRefused) as error:  # no CREATED event, or an event chain W4 cannot reduce
@@ -298,10 +310,13 @@ def _select_cases(gx: Any, tenant_id: UUID, sites: list[dict[str, Any]], lo: dat
             basis = {"site_id": sid, "case_id": cid, "revision_id": rid, "selected_event_ids": event_ids,
                      "selected_record_id": record_id,
                      "finding_revision_ids": sorted(x["finding_revision_id"] for x in finding_links),
-                     "action_event_ids": sorted(x["action_event_id"] for x in action_links),
+                     "action_event_ids": action_event_ids(action_links),
                      "link_lineage": sorted([s["kind"], s["id"], s["selected_id"], bool(s["lineage"])]
                                             for s in selections),
                      "cited_accepted_evidence_ids": cited}
+            if links.get("domain_action_links"):  # W5-02a ruling C1; W1-only and unlinked rows keep their basis
+                basis["domain_action_links"] = sorted(
+                    [x["action_id"], x["finding_revision_id"]] for x in links["domain_action_links"])
             site_link = {"label": name, "href": _site_href(code)}
             if case_kind == m.INCIDENT:
                 requests = gx.linked_request_codes(tenant_id, site_id, cid, known_at)
@@ -393,11 +408,14 @@ class GlobalWorkIndexService:
         if kind not in KINDS:
             raise GlobalWorkRefusal("INVALID_CURSOR")
         tenant = None if tenant_id is None else str(tenant_id).lower()
+        record_filter = request.record_kind if kind == OPERATIONAL else None
 
         def work(gx: Any) -> dict[str, Any]:
             key = cursor_key()  # checked on every request, page one and an empty scope too, before any selection
             cursor = None if request.cursor is None else decode_global_cursor(request.cursor, key)
             if cursor is not None and cursor["route"] != kind:
+                raise GlobalWorkRefusal("WORK_BASIS_CHANGED")
+            if cursor is not None and cursor["filter"] != record_filter:  # P-E1-2: before any selection
                 raise GlobalWorkRefusal("WORK_BASIS_CHANGED")
             read_at: datetime = gx.read_at
             known = request.known_at
@@ -425,8 +443,15 @@ class GlobalWorkIndexService:
             else:
                 status = HISTORICAL if known is not None and known < read_at else CURRENT
             cutoff = k if request.known_at is not None else None  # W6-01c C2: the explicit cutoff only
-            rows = SELECT[kind](gx, tenant_id, sites, request.from_, request.to, k, cutoff) if sites else []
-            token = _digest({"version": SELECTION_VERSION, "route": kind, "filter": None, "tenant_id": tenant,
+            if not sites:
+                rows = []
+            elif kind == OPERATIONAL:  # W6-01e P-E1-1: the one operational dispatch; the old roots are unchanged
+                from assetops_backend.work.operational_index import select_operational  # import cycle: lazy
+                rows = select_operational(gx, tenant_id, sites, request.from_, request.to, k, request.record_kind,
+                                          cutoff=cutoff)
+            else:
+                rows = SELECT[kind](gx, tenant_id, sites, request.from_, request.to, k, cutoff)
+            token = _digest({"version": SELECTION_VERSION, "route": kind, "filter": record_filter, "tenant_id": tenant,
                              "authorized_site_ids": ids, "access_basis": basis, "from": token_time(request.from_),
                              "to": token_time(request.to), "known_at": token_time(k),
                              "rows": [r["basis"] for r in sorted(rows, key=lambda r: (r["basis"]["site_id"], r["id"]))]})
@@ -444,7 +469,7 @@ class GlobalWorkIndexService:
                 mode = cursor["page_one_mode"] if cursor is not None else (
                     "historical" if status == HISTORICAL else "current")
                 next_cursor = encode_global_cursor({
-                    "v": 1, "route": kind, "filter": None, "tenant_id": tenant, "authorized_site_ids": ids,
+                    "v": 1, "route": kind, "filter": record_filter, "tenant_id": tenant, "authorized_site_ids": ids,
                     "access_basis": basis, "from": token_time(request.from_), "to": token_time(request.to),
                     "known_at": token_time(k), "page_one_mode": mode, "selection_token": token,
                     "after": page[-1]["marker"]}, key)

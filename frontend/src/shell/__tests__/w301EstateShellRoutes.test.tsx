@@ -152,7 +152,8 @@ describe("W3-01 estate roots in the operator shell", () => {
       view.unmount();
     }
 
-    // The rail's Actions root is a live link to the estate Actions root; Incidents (W6-01a) and Maintenance (W6-01b) are live.
+    // The rail's Actions root is a live link to the estate Actions root; Incidents (W6-01a), Maintenance (W6-01b) and
+    // Operational records (W6-01e) are live.
     const estate = fakeClient(() => loaded(findingsBody("all")));
     renderAt("/sites", { estate });
     await settledScreen();
@@ -163,6 +164,7 @@ describe("W3-01 estate roots in the operator shell", () => {
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
       ["Maintenance", "/maintenance"],
+      ["Operational records", "/operational-records"],
       ["Evidence", "/evidence"],
       ["Financials", "/financials"],
     ]);

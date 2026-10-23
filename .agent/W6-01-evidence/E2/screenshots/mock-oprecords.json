@@ -1,0 +1,50 @@
+[
+  {
+    "width": 1440,
+    "page_height": 1335,
+    "panels": [
+      {
+        "title": "Operational records",
+        "h": 540
+      },
+      {
+        "title": "Record a manual reading",
+        "h": 289
+      },
+      {
+        "title": "How records are used",
+        "h": 289
+      }
+    ],
+    "chips": 31,
+    "cards": 113,
+    "doc": [
+      1425,
+      1425
+    ]
+  },
+  {
+    "width": 390,
+    "page_height": 2569,
+    "panels": [
+      {
+        "title": "Operational records",
+        "h": 1069
+      },
+      {
+        "title": "Record a manual reading",
+        "h": 443
+      },
+      {
+        "title": "How records are used",
+        "h": 188
+      }
+    ],
+    "chips": 70,
+    "cards": 263,
+    "doc": [
+      390,
+      390
+    ]
+  }
+]

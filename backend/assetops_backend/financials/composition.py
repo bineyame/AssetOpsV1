@@ -112,3 +112,16 @@ def build_ev_site_read_service(database_url: str):
     from assetops_backend.financials.adapters.postgres_consequence_store import EvMoneyReads
 
     return EvSiteReads(build_ev_read_service(database_url), EvMoneyReads(build_link_rows_reader()))
+
+
+def build_ev_depth_read_service(database_url: str):
+    """W5-03a E1b: EV Availability, Energy and Health depth over W2-06's `EvReadService` and the SELECT-only EV money
+    reads, both on the one read connection (W2-07's shared selector)."""
+    from assetops_backend.analytics.composition import build_ev_read_service
+    from assetops_backend.analytics.ev_depth import EvDepthReadService
+    from assetops_backend.ev_site_reads import EvSiteReads
+    from assetops_backend.evidence.composition import build_link_rows_reader
+    from assetops_backend.financials.adapters.postgres_consequence_store import EvMoneyReads
+
+    reads = build_ev_read_service(database_url)
+    return EvDepthReadService(reads, EvSiteReads(reads, EvMoneyReads(build_link_rows_reader())))

@@ -14,7 +14,7 @@ union; this module never builds a second DTO.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Callable, Mapping, Protocol
+from typing import Any, Callable, Mapping, Protocol, Sequence
 from uuid import UUID, uuid4
 
 from assetops_backend.evidence.public_provenance import LinkRowsReads, PublicProvenance, canonical_reasons
@@ -53,10 +53,27 @@ def case_basis(tx: Any, links: Mapping[str, Any], revision_id: str, event_ids: l
     splits it from the DTO so the list can classify the union over every eligible case)."""
     finding_revs = [f["finding_revision_id"] for f in links["finding_links"]]
     action_events = [a["action_event_id"] for a in links["action_links"]]
-    selected = {revision_id, *event_ids, *finding_revs, *action_events, *([record_id] if record_id else [])}
+    # W5-02a ruling C1: an explicit domain Action link adds its root ID and pinned Finding revision to the
+    # selected IDs and that revision's cited evidence to the citations (no Action event exists for it).
+    domain = links.get("domain_action_links", [])
+    domain_ids = [x for a in domain for x in (a["action_id"], a["finding_revision_id"])]
+    selected = {revision_id, *event_ids, *finding_revs, *action_events, *domain_ids,
+                *([record_id] if record_id else [])}
     cited = set(links["evidence_ids"]) | set(tx.lineage_evidence(
-        finding_revs, [a["action_id"] for a in links["action_links"]]))
+        [*finding_revs, *(a["finding_revision_id"] for a in domain)], [a["action_id"] for a in links["action_links"]]))
     return sorted(str(x) for x in selected), sorted(str(x) for x in cited)
+
+
+def all_action_links(links: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """W5-02a ruling C1: W1 and domain Action links in one stable order; a domain link's null `action_event_id`
+    sorts with the empty-string sentinel."""
+    return sorted([*links["action_links"], *links.get("domain_action_links", [])],
+                  key=lambda x: (x["action_id"], x["action_event_id"] or "", x.get("kind", "ACTION")))
+
+
+def action_event_ids(links: Sequence[Mapping[str, Any]]) -> list[str]:
+    """W1 Action event IDs only; a domain link's null event is excluded (ruling C1)."""
+    return sorted(x["action_event_id"] for x in links if x["action_event_id"] is not None)
 
 
 def provenance_dto(tx: Any, tenant_id: UUID, site_id: UUID, cited: list[str],
