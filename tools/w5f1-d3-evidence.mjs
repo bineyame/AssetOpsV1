@@ -12,6 +12,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative, resolve, sep } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const [, , OUT_ARG, REV, WEB, API] = process.argv;
 if (!OUT_ARG || !REV || !WEB || !API) {
@@ -100,6 +101,9 @@ ws.addEventListener("message", (e) => { const m = JSON.parse(e.data); if (m.id &
 const send = (method, params = {}) => new Promise((res, rej) => { const id = ++n; pending.set(id, (m) => m.error ? rej(new Error(JSON.stringify(m.error))) : res(m.result)); ws.send(JSON.stringify({ id, method, params })); });
 const evalv = async (expression) => (await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true })).result.value;
 await send("Page.enable"); await send("Runtime.enable");
+// W1-UX-06 shared width check: each resize/navigation must lay out at the requested width before it is measured.
+const widthClaims = [];
+const requireWidth = widthGuard({ send, claim: (name, ok, detail) => { widthClaims.push({ name, ok, ...detail }); if (!ok) fail(name); } });
 
 // Route-specific settle markers; never `/Loading /` text, which matches the required Loading / batch row.
 const READY = {
@@ -156,6 +160,7 @@ async function capture(url, ready, file, w, h) {
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: h, deviceScaleFactor: 1, mobile: false });
   await send("Page.navigate", { url });
   const settled = await settle(ready);
+  await requireWidth(w, h, url);
   await sleep(400);
   const m = await evalv(MEASURE);
   await shot(file, w, m.pageHeight);
@@ -213,11 +218,13 @@ for (const [w, h] of SIZES) {
   await send("Page.navigate", { url: `${WEB}/sites/${CODE}/foundation/readiness` });
   const tag = `foundation-click@${w}`;
   const foundationReady = await settle(READY.foundation);
+  await requireWidth(w, h, tag);
   const href = await evalv(`[...document.querySelectorAll("a")].find((a) => a.textContent === "Evidence › Data sources →")?.getAttribute("href") ?? null`);
   const before = await evalv(MEASURE);
   await shot(`foundation-readiness-${w}-app.png`, w, before.pageHeight);
   await evalv(`[...document.querySelectorAll("a")].find((a) => a.textContent === "Evidence › Data sources →")?.click()`);
   const evidenceReady = await settle(READY.evidence);
+  await requireWidth(w, h, `${tag} after click`);
   await sleep(400);
   const after = await evalv(MEASURE);
   await shot(`foundation-to-evidence-${w}-app.png`, w, after.pageHeight);
@@ -235,7 +242,7 @@ for (const [w, h] of SIZES) {
 writeFileSync(join(OUT, "evidence.json"), JSON.stringify({
   producer: "tools/w5f1-d3-evidence.mjs", revision: REV, web: WEB, api: API, site: CODE,
   windows: Object.fromEntries(Object.entries(STATES).map(([k, v]) => [k, v.query])),
-  responses, mock_titles: mockTitles, captures: captures.map((c) => ({ ...c })), failures, result: failures.length === 0 ? "PASS" : "FAIL",
+  responses, mock_titles: mockTitles, width_claims: widthClaims, captures: captures.map((c) => ({ ...c })), failures, result: failures.length === 0 ? "PASS" : "FAIL",
 }, null, 2));
 console.log(`result ${failures.length === 0 ? "PASS" : `FAIL (${failures.length})`}`);
 ws.close(); chrome.kill();
