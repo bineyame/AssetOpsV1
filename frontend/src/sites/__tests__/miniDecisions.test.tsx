@@ -456,7 +456,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     ]);
     expect(document.querySelector('[data-financials-section="scenarios"]')).toBeNull();
     cleanup();
-    for (const siteType of ["COLDCHAIN", "EV_CHARGING"]) {
+    for (const siteType of ["EV_CHARGING"]) {
       const other = renderAt(`/sites/OTHER-1/financials/scenarios`, [ok(list([]))], siteType, "OTHER-1");
       await settledScreen();
       await screen.findByText("Scenarios are read for mini-grid sites only.");

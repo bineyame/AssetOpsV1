@@ -368,9 +368,23 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     for (const panel of Array.from(main().querySelectorAll("section.panel"))) {
       expect(panel.querySelectorAll("details").length).toBeLessThanOrEqual(1);
     }
-    const result = scanProductVocabulary(main(), screenId, { set: "w1" });
+    // W5-01b C5 (P-C5-6/7/8): the scan takes this screen's exact glossary, which allows the live Scenarios tab.
+    const result = scanProductVocabulary(main(), screenId, { set: "w1", screen: screenId });
     expect(result.scanned).toBeGreaterThan(3);
     expect(describeViolations(result.violations.filter((v) => !LEDGER_CLAIM.test(v.text.trim())))).toBe("");
+    if (screenId === "cold-financials" || screenId === "cold-assumptions") {
+      const live = main().querySelector('[data-financials-section="scenarios"]') as HTMLAnchorElement;
+      expect(live.textContent).toBe("Scenarios");
+      expect(live.getAttribute("href")).toBe(`/sites/COLD-001/financials/scenarios${Q}`);
+      expect(main().querySelector("[data-tab-unavailable]")).toBeNull();
+      // The glossary is exact: an unglossed banned word on the same screen still fails.
+      const planted = document.createElement("p");
+      planted.textContent = "Two scenarios are a draft.";
+      main().appendChild(planted);
+      const failing = scanProductVocabulary(main(), screenId, { set: "w1", screen: screenId }).violations.map((v) => v.phrase);
+      expect(failing).toEqual(expect.arrayContaining(["scenarios", "draft"]));
+      planted.remove();
+    }
     // No raw enum or backend code reaches the screen.
     expect(text(main())).not.toMatch(/\b[A-Z]{2,}_[A-Z_]{2,}\b/);
   });

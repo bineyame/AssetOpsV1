@@ -181,6 +181,15 @@ function Invoke-NavigationRailFixturesCheck {
                Modules = (Set-ModuleLines $modules $cold 'data-performance-subtab="cooling"' '') },
             @{ Name = "the live cold Cooling page branch is dropped"; Expect = "The live cold Cooling subtab or page branch is missing";
                Modules = (Set-ModuleLines $modules $cold '<ColdCooling' '<Missing') },
+            # W5-01b C5: the cold Scenarios branch is live and the non-cold fallback stays at its branch.
+            @{ Name = "the live cold Scenarios page branch is dropped"; Expect = "the cold Financials Scenarios destination is live";
+               Modules = (Set-ModuleLines $modules $frames '<ColdScenarios' '<Missing') },
+            @{ Name = "the cold Financials rows lose scenarios=live"; Expect = "the cold Financials Scenarios destination is live";
+               Modules = (Set-ModuleLines (Set-ModuleLines $modules $frames 'scenarios="live"' 'scenarios="unavailable"') $frames 'scenarios="live"' 'scenarios="unavailable"') },
+            @{ Name = "the non-cold Scenarios fallback is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
+               Modules = (Set-ModuleLines $modules $frames '\{scenarios === "live" \? null : <UnavailableTab label="Scenarios" />\}' '{null}') },
+            @{ Name = "the non-cold Scenarios fallback moves off its branch"; Expect = "the non-cold Scenarios fallback must stay at its FinancialsSections branch";
+               Modules = (Set-ModuleLines (Set-ModuleLines $modules $frames '\{scenarios === "live" \? null : <UnavailableTab label="Scenarios" />\}' '{null}') $frames '^(\s*)<OperatorSiteTabs siteId=\{siteId\} current="Financials" />' '$1<UnavailableTab label="Scenarios" />') },
             @{ Name = "the cold Recommendation entry is dropped"; Expect = "the W1-plus-W2 inventory is exactly";
                Modules = (Set-ModuleLines $modules $cold '<UnavailableTab label="Recommendation" />' '') },
             # W2-06 r7 P8: the EV entries are part of the closed multiset.
