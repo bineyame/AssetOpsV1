@@ -1,0 +1,380 @@
+{
+  "state": "historical",
+  "captured_at": "2026-10-23T03:54:22.924Z",
+  "results": [
+    {
+      "state": "historical",
+      "width": 1440,
+      "route": "/maintenance/requests/e65810cb-4aa9-4047-a972-5c0826f2e973/record?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01Z",
+      "image": "historical-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/e65810cb-4aa9-4047-a972-5c0826f2e973?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01Z",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/e65810cb-4aa9-4047-a972-5c0826f2e973?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01Z",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 20,
+          "w": 1160
+        },
+        "page_header": {
+          "h": 59,
+          "w": 1160
+        },
+        "tabs": {
+          "h": 43,
+          "w": 1160
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 1160
+        },
+        "mheader": {
+          "h": 75,
+          "w": 1160
+        },
+        "state_block": null,
+        "record_panel": {
+          "h": 542,
+          "w": 1160
+        },
+        "record_table_scroll": {
+          "h": 439,
+          "w": 1120
+        },
+        "record_notice": {
+          "h": 42,
+          "w": 1160
+        },
+        "request_header_with_tabs": {
+          "h": 265,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "h1": "Inspect starter and control circuit again",
+        "subtitle": "WR-000001 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000001Maintenance record· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/e65810cb-4aa9-4047-a972-5c0826f2e973?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01.000000Z"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/e65810cb-4aa9-4047-a972-5c0826f2e973/record?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01.000000Z"
+          ]
+        ],
+        "date_bar": "Historical as of 20 Oct 2026, 12:00 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Maintenance lead"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "In progress · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "table_columns": [
+          "Item",
+          "Detail",
+          "Status",
+          "Basis"
+        ],
+        "groups": [
+          {
+            "heading": "Record 1 · 19 Oct 2026, 12:00 UTC",
+            "rows": [
+              [
+                "Technician notes",
+                "Inspected starter relay and control wiring.Full activity textInspected starter relay and control wiring.Outcome note: Witnessed start test s",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "19 Oct 2026, 12:00 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ]
+          }
+        ],
+        "activity_clamp_h": {
+          "h": 18,
+          "w": 468
+        },
+        "empty": null,
+        "notice": "This record is also listed in Operational records as REC-000003 (Operator log). The Operational records page is being prepared.",
+        "notice_links": [],
+        "oprecords_anchors": 0,
+        "table_width": {
+          "scroll": 1120,
+          "client": 1120
+        },
+        "scroll_hint_visible": false,
+        "panel_titles": [
+          "Maintenance record · activity"
+        ]
+      }
+    },
+    {
+      "state": "historical",
+      "width": 390,
+      "route": "/maintenance/requests/e65810cb-4aa9-4047-a972-5c0826f2e973/record?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01Z",
+      "image": "historical-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/requests/e65810cb-4aa9-4047-a972-5c0826f2e973?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01Z",
+          "status": 200
+        },
+        {
+          "url": "/api/work/requests/e65810cb-4aa9-4047-a972-5c0826f2e973?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01Z",
+          "status": 200
+        }
+      ],
+      "heights": {
+        "breadcrumb": {
+          "h": 43,
+          "w": 358
+        },
+        "page_header": {
+          "h": 133,
+          "w": 358
+        },
+        "tabs": {
+          "h": 43,
+          "w": 358
+        },
+        "date_bar_slot": {
+          "h": 35,
+          "w": 358
+        },
+        "mheader": {
+          "h": 205,
+          "w": 358
+        },
+        "state_block": null,
+        "record_panel": {
+          "h": 583,
+          "w": 358
+        },
+        "record_table_scroll": {
+          "h": 439,
+          "w": 318
+        },
+        "record_notice": {
+          "h": 60,
+          "w": 358
+        },
+        "request_header_with_tabs": {
+          "h": 470,
+          "w": 0
+        }
+      },
+      "collapsed_details_max_h": 16,
+      "open_details": 0,
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1353,
+      "text": {
+        "h1": "Inspect starter and control circuit again",
+        "subtitle": "WR-000001 · Kobo mini-grid · corrective",
+        "breadcrumb": "MaintenanceWR-000001Maintenance record· site: Kobo mini-grid",
+        "breadcrumb_links": [
+          [
+            "Maintenance",
+            "/maintenance"
+          ],
+          [
+            "Kobo mini-grid",
+            "/sites/KOBO-001"
+          ]
+        ],
+        "open_site": [
+          "A",
+          "/sites/KOBO-001"
+        ],
+        "tabs": [
+          "Overview",
+          "Maintenance record",
+          "Verification · Not available yet",
+          "History · Not available yet"
+        ],
+        "tab_links": [
+          [
+            "Overview",
+            "/maintenance/requests/e65810cb-4aa9-4047-a972-5c0826f2e973?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01.000000Z"
+          ],
+          [
+            "Maintenance record",
+            "/maintenance/requests/e65810cb-4aa9-4047-a972-5c0826f2e973/record?site_id=KOBO-001&known_at=2026-10-20T12%3A00%3A01.000000Z"
+          ]
+        ],
+        "date_bar": "Historical as of 20 Oct 2026, 12:00 UTCReload",
+        "refusal": null,
+        "mheader": [
+          [
+            "owner",
+            "Maintenance lead"
+          ],
+          [
+            "due",
+            "Not set"
+          ],
+          [
+            "state",
+            "In progress · outcome not established"
+          ],
+          [
+            "source",
+            "Not recorded"
+          ],
+          [
+            "success",
+            "Not recorded"
+          ]
+        ],
+        "table_columns": [
+          "Item",
+          "Detail",
+          "Status",
+          "Basis"
+        ],
+        "groups": [
+          {
+            "heading": "Record 1 · 19 Oct 2026, 12:00 UTC",
+            "rows": [
+              [
+                "Technician notes",
+                "Inspected starter relay and control wiring.Full activity textInspected starter relay and control wiring.Outcome note: Witnessed start test s",
+                "Recorded",
+                "Authored maintenance record"
+              ],
+              [
+                "Parts",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Time on site",
+                "19 Oct 2026, 12:00 UTC",
+                "Recorded",
+                "Authored time"
+              ],
+              [
+                "Return-to-service reading",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Configuration readback",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ],
+              [
+                "Witnessed automatic start",
+                "Not recorded",
+                "Not established",
+                "No stored field"
+              ]
+            ]
+          }
+        ],
+        "activity_clamp_h": {
+          "h": 18,
+          "w": 398
+        },
+        "empty": null,
+        "notice": "This record is also listed in Operational records as REC-000003 (Operator log). The Operational records page is being prepared.",
+        "notice_links": [],
+        "oprecords_anchors": 0,
+        "table_width": {
+          "scroll": 960,
+          "client": 318
+        },
+        "scroll_hint_visible": true,
+        "panel_titles": [
+          "Maintenance record · activity"
+        ]
+      }
+    }
+  ]
+}

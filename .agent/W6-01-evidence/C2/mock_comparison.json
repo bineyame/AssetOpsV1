@@ -1,0 +1,16 @@
+{
+ "panels_order": "match: mock and app both render breadcrumb, h1 + subtitle with Open site, tab row (Overview, Maintenance record, Verification, History), mheader (Owner, Due / SLA, State, Source, Success criterion), then the Work done | Lifecycle pair; panel titles Work done, Lifecycle in order",
+ "prominence": "match at 1440: Work done is the wide left column, Lifecycle the narrow right one; at 390 both stack full width in the same order",
+ "added_slots": [
+  "date bar slot (As known at / Historical as of + Reload) between tabs and mheader (R6, P-C2-4); the mock has its window in the topbar",
+  "Latest activity line with its own full-text disclosure after the narrative (P-C2-6)",
+  "Full narrative/activity/owner/source text disclosures (section 2 previews)"
+ ],
+ "named_mismatches": [
+  "Lifecycle now stretches to Work done as in the mock (M1 ruling); desktop cap 430 px for both panels, measured 346/346, 305/305, 422/422",
+  "Breadcrumb separators are the app's `/`, not the mock `›` (shared Breadcrumbs CSS); order and links per P-C2-2",
+  "Tabs other than Overview carry `· Not available yet` (UnavailableTab, F4); the mock shows them live",
+  "Values: Due / SLA `Not set`, State `… · outcome not established`, Success criterion `Not recorded`, Warranty `Warranty not recorded`, Asset without diagram link, Verified step never done, chart-note `Completed is not Verified. No work-case outcome evaluator is available.` (ruled MOCK DEVIATIONs P-C2-6/7/8, CL3-5)",
+  "Tab row markup is `<ol class=site-tabs__list>` (UnavailableTab renders an `li`), not the ruling's `<div class=site-tabs__list>`"
+ ]
+}

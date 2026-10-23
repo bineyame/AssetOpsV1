@@ -31,6 +31,8 @@ import {
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
   MAINTENANCE_PREVENTIVE_PATH,
+  WORK_REQUEST_RECORD_ROUTE_PATH,
+  WORK_REQUEST_ROUTE_PATH,
   FINDINGS_COST_PATH,
   FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
@@ -104,6 +106,8 @@ import { createGlobalWorkClient, type GlobalWorkClient } from "./work/globalWork
 import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
 import { GlobalMaintenanceFrame } from "./work/GlobalMaintenance";
 import { GlobalPreventiveFrame } from "./work/GlobalPreventive";
+import { WorkRequestOverviewFrame } from "./work/WorkRequestOverview";
+import { WorkRequestRecordFrame } from "./work/WorkRequestRecord";
 import {
   createEstateEvidenceMoneyClient,
   createEstateFinancialsClient,
@@ -483,6 +487,10 @@ export function App({
           <Route path={MAINTENANCE_PATH} element={<GlobalMaintenanceFrame client={globalWork} />} />
           {/* W6-01b B3: the global Maintenance root, Preventive view (`MAINTENANCE_PREVENTIVE_PATH`). */}
           <Route path={MAINTENANCE_PREVENTIVE_PATH} element={<GlobalPreventiveFrame client={globalWork} />} />
+          {/* W6-01c C2: the work request Overview (`WORK_REQUEST_ROUTE_PATH`, `?site_id={site_code}`). */}
+          <Route path={WORK_REQUEST_ROUTE_PATH} element={<WorkRequestOverviewFrame client={globalWork} />} />
+          {/* W6-01c C3: the work request Maintenance record (`WORK_REQUEST_RECORD_ROUTE_PATH`, same query). */}
+          <Route path={WORK_REQUEST_RECORD_ROUTE_PATH} element={<WorkRequestRecordFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

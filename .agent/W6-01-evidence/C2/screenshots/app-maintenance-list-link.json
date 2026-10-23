@@ -1,0 +1,74 @@
+{
+  "state": "maintenance-list-link",
+  "captured_at": "2026-10-22T20:47:21.554Z",
+  "results": [
+    {
+      "state": "maintenance-list-link",
+      "width": 1440,
+      "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "image": "maintenance-list-link-1440.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ],
+      "document_width": {
+        "scroll": 1440,
+        "client": 1440
+      },
+      "page_height": 1000,
+      "text": {
+        "row_links": [
+          [
+            "WR-000002 · Check spare relay",
+            "/maintenance/requests/41e1db91-37fb-4a18-b761-8bf5fdbe5fd9?site_id=KOBO-001"
+          ],
+          [
+            "WR-000001 · Inspect starter and control circuit again",
+            "/maintenance/requests/cefd8ff3-93fb-4ab8-8135-6dbb3388daff?site_id=KOBO-001"
+          ]
+        ]
+      }
+    },
+    {
+      "state": "maintenance-list-link",
+      "width": 390,
+      "route": "/maintenance?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z",
+      "image": "maintenance-list-link-390.png",
+      "ready": true,
+      "api": [
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        },
+        {
+          "url": "/api/work/maintenance?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&limit=5",
+          "status": 200
+        }
+      ],
+      "document_width": {
+        "scroll": 390,
+        "client": 390
+      },
+      "page_height": 1324,
+      "text": {
+        "row_links": [
+          [
+            "WR-000002 · Check spare relay",
+            "/maintenance/requests/41e1db91-37fb-4a18-b761-8bf5fdbe5fd9?site_id=KOBO-001"
+          ],
+          [
+            "WR-000001 · Inspect starter and control circuit again",
+            "/maintenance/requests/cefd8ff3-93fb-4ab8-8135-6dbb3388daff?site_id=KOBO-001"
+          ]
+        ]
+      }
+    }
+  ]
+}
