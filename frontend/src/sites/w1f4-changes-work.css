@@ -254,6 +254,53 @@
   overflow-wrap: anywhere;
 }
 
+/* W5-02b K2b (F1-F4): long title/owner cells get bounded widths so unbroken runs wrap inside the cell, Due and codes
+   stay on one line, and a long cell's "Read full text" disclosure is a compact one-line link, not a full-width box. */
+.cold-work-actions .data-table td:nth-child(1) {
+  min-width: 220px;
+  max-width: 360px;
+}
+
+.cold-work-actions .data-table td:nth-child(3) {
+  min-width: 150px;
+  max-width: 240px;
+}
+
+.cold-work-actions .data-table td:nth-child(4) {
+  min-width: 96px;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.cold-work-actions .data-table td:nth-child(6) {
+  min-width: 180px;
+}
+
+.cold-work-actions .data-table td .work-cases-clamp {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cold-work-actions td .disclosure:not(.disclosure--inline) {
+  display: block;
+  margin: 2px 0 0;
+  border: 0;
+  background: transparent;
+}
+
+.cold-work-actions td .disclosure:not(.disclosure--inline) > .disclosure__summary {
+  display: inline-block;
+  padding: 0;
+  font-size: var(--font-size-sm, 0.85em);
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.cold-work-actions td .disclosure:not(.disclosure--inline)[open] > .disclosure__body {
+  padding: 4px 0 0;
+}
+
 /* The refusal wraps its message and keeps Retry visible. */
 .cold-work-actions [data-cold-work-refusal-message] {
   overflow-wrap: anywhere;
