@@ -3051,6 +3051,71 @@ class EvReadService:
         return None if row is None else {"id": _ev_plain(row[0]), "content": _ev_json(row[1]) or {},
                                          "valid_from": row[2], "valid_to": row[3]}
 
+    def selected_provenance_on(self, c: Connection, snap: dict[str, Any], ids) -> dict[str, Any]:
+        """W5-03b P-E5-3/4: the public source-provenance DTO of `ids` inside the selected head's cited set, on the
+        caller's `c`. Both ID sets are lowercased before the intersection; only IDs the selected head cites are kept
+        (deduplicated, sorted), then resolved by `PublicProvenance.cited_set` with the selected assessment as the
+        selected revision. Empty, foreign-only or no selected head is UNKNOWN; crossed classes are MIXED."""
+        sel = snap["selected"]
+        allowed = set() if sel is None else {str(x).lower() for x in sel["evidence_ids"]}
+        cited = sorted({str(x).lower() for x in ids} & allowed)
+        revisions = [] if sel is None else [str(sel["revision_id"]).lower()]
+        return self._public(c).cited_set(snap["t"], snap["s"], cited, revisions)
+
+    def scenario_basis_on(self, c: Connection, t: UUID, s: UUID, code: str, lo, hi, known_at) -> dict[str, Any]:
+        """W5-03b P-E5-5/6: the E5 selected window, selection and authored-basis parts on the caller's `c` (the E5
+        store's REPEATABLE READ write or read snapshot), composed from `_snapshot`, `sessions_on`, `accepted_on`,
+        `foundation_revision_on`, the selected provenance block and `selected_provenance_on`. Read-only; refuses
+        nothing itself (the E5 service decides what may be authored).
+
+        - `selection.accepted_evidence_ids`: every `ev_session_evidence` and `ev_meter_interval` evidence ID cited
+          by the selected session revisions (P-E5-3).
+        - `session_revision_ids`: the selected revisions with `energy_complete(state, supported_kwh,
+          unknown_meter_seconds) is True`; `meter_evidence_ids`: the `ev_meter_interval` evidence those revisions
+          cite; `foreign_meter_evidence`: whether any of them is outside the window's accepted set at the cutoff.
+        - `foundation_revision_id`: `foundation_revision_on`, null when it resolves to none or to a revision the
+          selected head does not cite."""
+        snap = self._snapshot(c, t, s, code, lo, hi, known_at)
+        sel = snap["selected"]
+        window = {"from": _ev_plain(snap["lo"]), "to": _ev_plain(snap["hi"]), "known_at": _ev_plain(snap["known"]),
+                  "committed_watermark": _ev_plain(snap["watermark"])}
+        provenance = self._provenance_blocks(c, snap)["selected_source_provenance"]
+        if provenance is None:
+            provenance = dual_blocks(None, None)["source_provenance"]
+        sessions = self.sessions_on(c, snap) if sel is not None else []
+        revision_ids = sorted(str(x).lower() for x in (sel["result"].get("session_revision_ids") or ())) if sel else []
+        cited: set[str] = set()
+        meters: dict[str, set[str]] = {}
+        if revision_ids:
+            for rid, evidence_id, kind in c.execute(text(
+                    "SELECT revision_id, evidence_id, 'S' FROM ev_session_evidence WHERE tenant_id = :t "
+                    "AND site_id = :s AND revision_id = ANY(CAST(:ids AS uuid[])) UNION SELECT revision_id, "
+                    "evidence_id, 'M' FROM ev_meter_interval WHERE tenant_id = :t AND site_id = :s "
+                    "AND revision_id = ANY(CAST(:ids AS uuid[])) AND evidence_id IS NOT NULL"),
+                    {"t": t, "s": s, "ids": revision_ids}).all():
+                cited.add(str(evidence_id).lower())
+                if kind == "M":
+                    meters.setdefault(str(rid).lower(), set()).add(str(evidence_id).lower())
+        complete = sorted({str(x["revision_id"]).lower() for x in sessions if x["energy_complete"] is True})
+        meter_ids = sorted({e for rid in complete for e in meters.get(rid, ())})
+        accepted = {str(r["evidence_id"]).lower() for r in self.accepted_on(c, snap)} if sel is not None else set()
+        foundation = self.foundation_revision_on(c, snap)
+        foundation_id = None if foundation is None else str(foundation["id"]).lower()
+        if foundation_id is not None and sel is not None and sel["foundation_ids"] and foundation_id not in {
+                str(x).lower() for x in sel["foundation_ids"]}:
+            foundation_id = None
+        return {
+            "snap": snap, "window": window,
+            "selection": {"state": snap["state"],
+                          "assessment_revision_id": None if sel is None else _ev_plain(sel["revision_id"]),
+                          "session_revision_ids": revision_ids, "accepted_evidence_ids": sorted(cited),
+                          "source_provenance": provenance},
+            "session_revision_ids": complete, "meter_evidence_ids": meter_ids,
+            "foreign_meter_evidence": any(e not in accepted for e in meter_ids),
+            "foundation_revision_id": foundation_id,
+            "source_provenance": self.selected_provenance_on(c, snap, meter_ids),
+        }
+
     def assets_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, str]:
         """asset_code -> lowercase asset UUID for the Site (the Foundation component IDs' scoped assets)."""
         return {code: _ev_plain(i) for i, code in c.execute(text(

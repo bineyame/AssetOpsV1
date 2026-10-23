@@ -642,6 +642,22 @@ class EvSiteReads:
         """W5-03a E1b: the W2-07 consequence (`_consequence`) of the shared money selector, unchanged."""
         return self._consequence(ctx)
 
+    def scenario_money_on(self, c, snap: dict[str, Any], cutoff: datetime | None = None) -> dict[str, str | None]:
+        """W5-03b P-E5-2: the selected W2-07 consequence revision ID and its cited tariff revision ID for one
+        already open W2-06 snapshot `snap` on the caller's connection `c` (the E5 write snapshot), through the one
+        shared selector `_select` (its `_select_as_of` branch when `cutoff` is given) and `_consequence`; no
+        second snapshot and no money SQL of its own. Both IDs are lowercase text only for an eligible current
+        priced row: a stored revision with no read guard, an amount and a tariff revision. A labelled historical
+        head, a WITHHELD guard (null revision), an unpriced row or no consequence yields two nulls."""
+        ctx = {"c": c, "t": snap["t"], "s": snap["s"], "code": snap["code"], "snap": snap}
+        ctx["money"] = self._select(ctx, cutoff)
+        consequence = self._consequence(ctx)
+        if (consequence is None or ctx["money"]["guard"] is not None or consequence.get("revision_id") is None
+                or consequence.get("amount") is None or consequence.get("tariff_revision_id") is None):
+            return {"consequence_revision_id": None, "tariff_revision_id": None}
+        return {"consequence_revision_id": str(consequence["revision_id"]).lower(),
+                "tariff_revision_id": str(consequence["tariff_revision_id"]).lower()}
+
     def energy_on(self, ctx: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
         """W5-03a E1b: the W2-07 overview `energy` and `site_power` dicts, extracted unchanged so `overview` and
         the EV depth read share one computation on one snapshot."""
