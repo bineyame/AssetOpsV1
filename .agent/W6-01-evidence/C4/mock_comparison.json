@@ -1,0 +1,18 @@
+{
+ "mock": "screenshots/mock-wr-history-1440.png, mock-wr-history-390.png",
+ "app": "screenshots/page1-1440.png, page2-1440.png, page1-390.png, page2-390.png and the other states in manifest.json",
+ "panels_order": "match: breadcrumb (Maintenance > WR code > History · site), h1 + subtitle with Open site, tab row Overview | Maintenance record | Verification | History (current), mheader (Owner, Due / SLA, State, Source, Success criterion), then the single panel 'History' with the three-column Time | Event | By table",
+ "prominence": "match: the History panel is the dominant block at both widths (1440: 465 px app vs ~330 px mock for five rows; 390: the table scrolls inside the panel)",
+ "rows": "mock 'Raised from INC-203' -> CREATED 'Raised from {INC code}' with its href when the source incident exists, else 'Created'; 'Assigned to maintenance lead' -> 'Assigned to {assignee}'; 'Marked completed · witness test outstanding' -> 'Completed · outcome not established · maintenance record {id}' (witness text only if authored); 'Site visit started' and 'Verification pending' -> the two in-table gap rows on the last page (no time, actor or disclosure)",
+ "mismatches": [
+  "MOCK DEVIATION (D2, register R19): Time shows UTC year and seconds ('20 Oct 2026, 11:59:00 UTC') instead of '6 Oct 19:20', plus a collapsed 'Occurrence time' disclosure per authored row",
+  "MOCK DEVIATION (D4, register R39): By shows 'Name not recorded' with a collapsed 'Stored actor' disclosure ({actor_kind} · {actor_id}) instead of example role names",
+  "Added date-bar slot (As known at / Historical as of + Reload) between tabs and mheader (R6, P-C2-4); not in the mock",
+  "Added in-panel 'History pages' pager below the table (Showing a–b of N, Previous/Next) when more than five authored rows exist; the mock has five rows and no pager",
+  "Stored free text (assignee, comment, reasons, Correction) is clamped to three lines with a 'Full event text' disclosure (section 2)",
+  "Extra authored rows not in the mock: Commented, Reopened, Cancelled and Correction (stored events and successor revisions)",
+  "Verification tab shows the ' · Not available yet' suffix; breadcrumb separator is '/' (shared CSS), mock '›'",
+  "mheader values are stored facts or stated gaps (C2 rulings)",
+  "At 390 the app shows the 'Scroll table horizontally' affordance above the table (section 2); the mock has none"
+ ]
+}

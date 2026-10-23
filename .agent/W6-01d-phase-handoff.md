@@ -164,3 +164,13 @@ Blocking items are marked **(blocking)**.
   - No `missing-claim-scan.mjs`, `site-substrate.ps1` or `shell-overflow.ps1` conflict was found for the card literals, provided that tables use `DataTable`, no `<svg>` is used, and no `Site…Row` names appear.
 
 Counts: 22 items. Blocking: P-C4-1, 2, 3, 5, 6, 19. The builder starts code only after the rulings merge, and after W6-01b and W6-01c have merged to main and this branch has been updated from main.
+
+## Run C4 (2026-10-23, builder)
+
+Base `d798029e`. Commits `f756d86e` (Lane A), `f7122095` (Lane B), `09536c95` (By-cell layout), then the evidence/packet commit. Packet `.agent/W6-01d-review-packet.md`; evidence `.agent/W6-01-evidence/C4/`.
+
+- Built to the C4 pre-flight rulings: the History page in the shared C2 frame; revision 1 is omitted; rows are sorted by the exact recorded_at string, then the lowercase ID; there is a five-row in-panel `History pages` pager; the two in-table gaps sit on the last page; Time uses UTC seconds with an `Occurrence time` disclosure; By shows `Name not recorded` with a `Stored actor` disclosure; `Raised from {INC}` uses its href; an unknown kind is an authored row with `meaning not established`; a missing CREATED event or a missing known payload fails closed as the 503 sentence (`WorkRequestFrame` `accept`).
+- Tests: history 17 and Overview+Record 38 passed. The wide frontend set (`src/work src/shell src/sites src/estate src/ui`) gave 2645 passed and 1 failed, the load-sensitive S4-04 date test in `s404SiteFindingIndex.test.tsx`, which passes alone. `tsc` and `vite build` exit 0. Backend `test_w601c_request_detail.py` gave 15 passed. check-all 11/11.
+- Guard proofs: removing `accept` fails the typed missing-CREATED test; re-adding `"History"` to `$expectedTabs` fails navigation-truthfulness. Both were reverted.
+- Captures: 11 states at 1440/390 plus the mock pair. Collapsed History panel max 467/490 (cap 600/690); pager 29; disclosures 16; the 390 table is 750 px and scrolls within 318 px; document width equals the viewport. Historical `11:59:04Z`: revision 1, COMPLETED, 4 rows, against current revision 2, IN_PROGRESS, 6 rows. The DBs `assetops_w601_c4{,linked,stress}_test` and `assetops_w601d_c4f_test` were dropped. Vite was stopped by PID 17732. uvicorn and Chrome were stopped by the driver.
+- Open for Architect: there is no register row for the two gap rows. ACTIVE_CONTEXT, CODE_STATE and task status were left for closeout, because they are not on the card.
