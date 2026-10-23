@@ -4,7 +4,7 @@ INSERT-only (0033 triggers refuse UPDATE/DELETE on all three): this module never
 truncates or runs DDL. Each command runs in one SERIALIZABLE transaction with ONE DB instant `command_now`
 (`SELECT clock_timestamp()`, kept across a serialization retry) that bounds every selection read and is bound
 explicitly to the inserted `recorded_at`. Idempotency is a transaction-scoped advisory lock keyed by
-`(tenant, site, command, idempotency_key)`, then select-prior, compare hash, insert (ruling A2; no ON CONFLICT).
+`(tenant, site, command, idempotency_key)`, then select-prior, compare hash, insert (ruling A2; never an upsert).
 
 The cross-table Action code trigger's named failure (`action_cross_domain_code_conflict`, ruling A4) and the two
 intent-chain uniques are typed 409 `DOMAIN_INTENT_CONFLICT` at this transaction boundary; any other integrity

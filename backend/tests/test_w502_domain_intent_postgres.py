@@ -348,3 +348,102 @@ def test_db_checks_triggers_and_downgrade(cold) -> None:
     with engine.connect() as c:
         assert c.execute(text("SELECT count(*) FROM pg_trigger WHERE tgname IN ('w1_action_cross_domain_code', "
                               "'domain_action_cross_domain_code')")).scalar_one() == 2
+
+
+# Ruling A4: one global Action code space per tenant across W1 `action` and `domain_action`, held by the 0033
+# trigger under an advisory lock. W1 rows here are direct SQL against the cold replay's real persisted rows.
+CROSS = "action_cross_domain_code_conflict"
+CROSS_MESSAGE = "Action code already belongs to another Action."
+W1_INSERT = ("INSERT INTO action (id, tenant_id, site_id, action_no, action_code, recommendation_key, acceptance_key, "
+             "acceptance_payload_sha256, origin_finding_id, origin_finding_revision_id, primary_assessment_revision_id, "
+             "foundation_revision_id, asset_id, rule_id, rule_version, field, unit, old_value, proposed_value, "
+             "limitation_code, limitation_text, input_sha256, snapshot, snapshot_sha256, created_at) VALUES "
+             "(:id, :t, :s, :no, :code, :rk, :rk, :sha, :f, :r, :ar, :fo, :asset, 'reserve-trial-1', 1, "
+             "'reserve-state-of-charge', '%', 20, 15, 'x', 'x', :sha, CAST('{}' AS jsonb), :sha, clock_timestamp())")
+
+
+def _w1_sql(cold, no: int) -> dict:
+    with cold.engine.connect() as c:
+        ar = c.execute(text("SELECT id FROM assessment_revision WHERE site_id = :s LIMIT 1"), {"s": cold.s}).scalar()
+        fo = c.execute(text("SELECT id FROM foundation_revision WHERE site_id = :s LIMIT 1"), {"s": cold.s}).scalar()
+        asset = c.execute(text("SELECT id FROM asset WHERE site_id = :s LIMIT 1"), {"s": cold.s}).scalar()
+    assert None not in (ar, fo, asset), "the cold replay has no assessment, Foundation revision or asset to cite"
+    return {"id": str(uuid4()), "t": cold.t, "s": cold.s, "no": no, "code": f"ACT-{no:06d}", "rk": f"{no:064x}",
+            "sha": SHA, "f": cold.finding_id, "r": cold.revision_id, "ar": ar, "fo": fo, "asset": asset}
+
+
+def _held(engine, code: str) -> tuple[int, int]:
+    with engine.connect() as c:
+        return tuple(c.execute(text(f"SELECT count(*) FROM {t} WHERE action_code = :c"), {"c": code}).scalar_one()
+                     for t in ("action", "domain_action"))
+
+
+def _cross_refused(engine, sql: str, params: dict) -> None:
+    with pytest.raises(IntegrityError) as caught:
+        with engine.begin() as c:
+            c.execute(text(sql), params)
+    orig = caught.value.orig
+    assert (orig.sqlstate, orig.diag.constraint_name, orig.diag.message_primary) == ("23505", CROSS, CROSS_MESSAGE)
+
+
+def test_cross_domain_code_collisions(cold) -> None:
+    import threading
+
+    engine = cold.engine
+    # Direct SQL, W1 first: the domain insert of the same code is refused.
+    with engine.begin() as c:
+        c.execute(text(W1_INSERT), _w1_sql(cold, 910001))
+    _cross_refused(engine, ROOT_INSERT, _root_sql(cold, code="ACT-910001", no=910001))
+    assert _held(engine, "ACT-910001") == (1, 0)
+    # Direct SQL, domain first: the W1 insert of the same code is refused.
+    with engine.begin() as c:
+        c.execute(text(ROOT_INSERT), _root_sql(cold, code="ACT-910002", no=910002))
+    _cross_refused(engine, W1_INSERT, _w1_sql(cold, 910002))
+    assert _held(engine, "ACT-910002") == (0, 1)
+
+    # Domain command: the shared sequence's next code already belongs to a W1 Action -> 409 DOMAIN_INTENT_CONFLICT.
+    with engine.begin() as c:
+        number = c.execute(text("SELECT nextval('action_code_seq')")).scalar_one() + 1
+        c.execute(text(W1_INSERT), _w1_sql(cold, number))
+    before = counts(engine)
+    with pytest.raises(d.DomainIntentRefused) as caught:
+        create(cold, action_body(cold, "w502-collision-0001"))
+    assert (caught.value.status, caught.value.code, caught.value.message) == (
+        409, "DOMAIN_INTENT_CONFLICT", "This Action declaration has a newer version; reload it.")
+    assert counts(engine) == before and _held(engine, f"ACT-{number:06d}") == (1, 0)
+
+    # Two concurrent sessions, each order: the first committed root wins, the second waits on the advisory lock
+    # and gets the named 23505; nothing of the loser is stored.
+    for no, (first_sql, first), (second_sql, second), expected in (
+            (910003, (ROOT_INSERT, _root_sql(cold, code="ACT-910003", no=910003)),
+             (W1_INSERT, _w1_sql(cold, 910003)), (0, 1)),
+            (910004, (W1_INSERT, _w1_sql(cold, 910004)),
+             (ROOT_INSERT, _root_sql(cold, code="ACT-910004", no=910004)), (1, 0))):
+        errors: list = []
+
+        def loser(sql=second_sql, params=second) -> None:
+            try:
+                with engine.begin() as c:
+                    c.execute(text(sql), params)
+            except IntegrityError as error:
+                errors.append(error.orig)
+
+        with engine.connect() as winner:
+            tx = winner.begin()
+            winner.execute(text(first_sql), first)
+            thread = threading.Thread(target=loser)
+            thread.start()
+            with engine.connect() as probe:
+                for _ in range(200):
+                    waiting = probe.execute(text(
+                        "SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock' "
+                        "AND wait_event = 'advisory' AND datname = current_database()")).scalar_one()
+                    if waiting:
+                        break
+                    threading.Event().wait(0.05)
+            assert waiting == 1, "the second session never waited on the cross-domain code lock"
+            tx.commit()
+        thread.join(30)
+        assert not thread.is_alive() and len(errors) == 1
+        assert (errors[0].sqlstate, errors[0].diag.constraint_name) == ("23505", CROSS)
+        assert _held(engine, f"ACT-{no:06d}") == expected
