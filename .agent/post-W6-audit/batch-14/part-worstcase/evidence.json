@@ -1,0 +1,1978 @@
+{
+  "revision": "06745622",
+  "captured_at": "2026-10-24T17:32:26.972Z",
+  "pairs": [
+    {
+      "screen": "cold-work",
+      "case": "worstcase",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5184/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work",
+      "app_image": "cold-work-worstcase-1440-app.png",
+      "mock_image": "cold-work-worstcase-1440-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1160,
+            "h": 457,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 6,
+            "buttons": 1,
+            "details": 15,
+            "rowText": [
+              [
+                "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2027-05-12",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-11-23",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-10-25",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification"
+              ],
+              [
+                "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification"
+              ],
+              [
+                "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification"
+              ],
+              [
+                "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification"
+              ],
+              [
+                "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification"
+              ]
+            ],
+            "panelText": "Actions at this siteActionSourceOwnerDueStateSuccess criterionACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxFinding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1000,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 6 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 15,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1160,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (6) -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "ACT-000006 · Witness automatic-start test 5 — long title pro -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification",
+          "ACT-000005 · Witness automatic-start test 4 — long title pro -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification",
+          "ACT-000004 · Witness automatic-start test 3 — long title pro -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification",
+          "ACT-000003 · Witness automatic-start test 2 — long title pro -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification",
+          "ACT-000002 · Witness automatic-start test 1 — long title pro -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification",
+          "Next page -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A32%3A41.530288Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDE3OjIzOjM5LjM5OTQ4NVoiLCI1ZTJiMDExYS01Yjc2LTRjYmItOGU4Yi0xMWNlM2Q4YjNhODEiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMTc6MzI6NDEuNTMwMjg4WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpmZDVmZGY2ZmQ5YTI3MDVhODEyZDE5YTkwMTUyM2M5YTE4ZmU4NDhkNDAxMzVmOGVjODcwNGZiM2NlNjVkZWQ4Iiwic2l0ZV9pZCI6IjNjOTZhMWFjLTYwNWUtNDhhMC04NDQ5LTg4NTNmYWI1MzM3ZSIsInRlbmFudF9pZCI6IjA5NDNiMjg2LTk0NzItNDhiYS1iYTIxLTg4ZTY3ZGU1MGVlNCIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (6)*",
+              "Incidents (5)",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 323,
+            "cw": 323,
+            "sh": 53,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 222,
+            "cw": 222,
+            "sh": 70,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 323,
+            "cw": 323,
+            "sh": 53,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 222,
+            "cw": 222,
+            "sh": 70,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 323,
+            "cw": 323,
+            "sh": 53,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 222,
+            "cw": 222,
+            "sh": 70,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 323,
+            "cw": 323,
+            "sh": 53,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 222,
+            "cw": 222,
+            "sh": 70,
+            "ch": 35
+          }
+        ],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1000
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-051 · Witness automatic-start test",
+                "F-118",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "F-118 -> #/cold-finding"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet set in this exampleActionSourceOwnerDueStateSuccess criterionACT-051 · Witness automatic-start testF-118Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 actions"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Actions → -> #/actions",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-work",
+      "case": "worstcase",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5184/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work",
+      "app_image": "cold-work-worstcase-390-app.png",
+      "mock_image": "cold-work-worstcase-390-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 457,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 6,
+            "buttons": 1,
+            "details": 15,
+            "rowText": [
+              [
+                "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2027-05-12",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-11-23",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-10-25",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyRead full textMaintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification"
+              ],
+              [
+                "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification"
+              ],
+              [
+                "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification"
+              ],
+              [
+                "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification"
+              ],
+              [
+                "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification"
+              ]
+            ],
+            "panelText": "Actions at this siteActionSourceOwnerDueStateSuccess criterionACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxRead full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxFinding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1152,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 6 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 15,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (6) -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "ACT-000006 · Witness automatic-start test 5 — long title pro -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification",
+          "ACT-000005 · Witness automatic-start test 4 — long title pro -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification",
+          "ACT-000004 · Witness automatic-start test 3 — long title pro -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification",
+          "ACT-000003 · Witness automatic-start test 2 — long title pro -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification",
+          "ACT-000002 · Witness automatic-start test 1 — long title pro -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification",
+          "Next page -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A32%3A48.269435Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDE3OjIzOjM5LjM5OTQ4NVoiLCI1ZTJiMDExYS01Yjc2LTRjYmItOGU4Yi0xMWNlM2Q4YjNhODEiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMTc6MzI6NDguMjY5NDM1WiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1Njo1NDliZjYxMDJjYWZmYTkwNWQ1YjVlYjJhYjIxYjYwNTJhYTYzZmY4ZGNkNjhjNmJlOTdlMGUxMjhjNDc1OTRiIiwic2l0ZV9pZCI6IjNjOTZhMWFjLTYwNWUtNDhhMC04NDQ5LTg4NTNmYWI1MzM3ZSIsInRlbmFudF9pZCI6IjA5NDNiMjg2LTk0NzItNDhiYS1iYTIxLTg4ZTY3ZGU1MGVlNCIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (6)*",
+              "Incidents (5)",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 198,
+            "cw": 198,
+            "sh": 88,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 128,
+            "cw": 128,
+            "sh": 141,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 198,
+            "cw": 198,
+            "sh": 88,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 128,
+            "cw": 128,
+            "sh": 141,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 198,
+            "cw": 198,
+            "sh": 88,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 128,
+            "cw": 128,
+            "sh": 141,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxx",
+            "sw": 198,
+            "cw": 198,
+            "sh": 88,
+            "ch": 35
+          },
+          {
+            "tag": "SPAN",
+            "cls": "work-cases-clamp",
+            "text": "Maintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            "sw": 128,
+            "cw": 128,
+            "sh": 141,
+            "ch": 35
+          }
+        ],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll data-table__scroll--sticky",
+            "sw": 819,
+            "cw": 318,
+            "panel": "Actions at this site"
+          }
+        ],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-051 · Witness automatic-start test",
+                "F-118",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "F-118 -> #/cold-finding"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet set in this exampleActionSourceOwnerDueStateSuccess criterionACT-051 · Witness automatic-start testF-118Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 actions"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Actions → -> #/actions",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 444,
+            "cw": 320,
+            "panel": "Actions at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    },
+    {
+      "screen": "cold-work",
+      "case": "worstcase-all-open",
+      "viewport": "1440x1000",
+      "app_url": "http://127.0.0.1:5184/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work",
+      "app_image": "cold-work-worstcase-all-open-1440-app.png",
+      "mock_image": "cold-work-worstcase-all-open-1440-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 248,
+            "y": 348,
+            "w": 1145,
+            "h": 684,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 6,
+            "buttons": 1,
+            "details": 15,
+            "rowText": [
+              [
+                "Read full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2027-05-12",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-11-23",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-10-25",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification"
+              ],
+              [
+                "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification"
+              ],
+              [
+                "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification"
+              ],
+              [
+                "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification"
+              ],
+              [
+                "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification"
+              ]
+            ],
+            "panelText": "Actions at this siteActionSourceOwnerDueStateSuccess criterionRead full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxFinding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9Read full textMaintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy2027-05-12OpenNo success criterion declaredRead full textACT-000005 · Witness automatic-start test 4 — long ti",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1142,
+        "header": {
+          "cls": "app-header",
+          "h": 59,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 44,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 6 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 4,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 15,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 248,
+            "w": 1145,
+            "h": 33,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 15
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (6) -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "ACT-000006 · Witness automatic-start test 5 — long title pro -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification",
+          "ACT-000005 · Witness automatic-start test 4 — long title pro -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification",
+          "ACT-000004 · Witness automatic-start test 3 — long title pro -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification",
+          "ACT-000003 · Witness automatic-start test 2 — long title pro -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification",
+          "ACT-000002 · Witness automatic-start test 1 — long title pro -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification",
+          "Next page -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A32%3A53.848413Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDE3OjIzOjM5LjM5OTQ4NVoiLCI1ZTJiMDExYS01Yjc2LTRjYmItOGU4Yi0xMWNlM2Q4YjNhODEiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMTc6MzI6NTMuODQ4NDEzWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjpmOGJjZThmY2Y5MWY4OWIxYWI2ODNhNWY2OTU1MTAzOTgzMmFiOGQxNzVjNTA1NzExMWRhMzQ2OWVjOTM2YzY2Iiwic2l0ZV9pZCI6IjNjOTZhMWFjLTYwNWUtNDhhMC04NDQ5LTg4NTNmYWI1MzM3ZSIsInRlbmFudF9pZCI6IjA5NDNiMjg2LTk0NzItNDhiYS1iYTIxLTg4ZTY3ZGU1MGVlNCIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (6)*",
+              "Incidents (5)",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 1142
+          }
+        ],
+        "mainTop": 24,
+        "viewportH": 1000,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 234,
+            "y": 409,
+            "w": 1161,
+            "h": 183,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-051 · Witness automatic-start test",
+                "F-118",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "F-118 -> #/cold-finding"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet set in this exampleActionSourceOwnerDueStateSuccess criterionACT-051 · Witness automatic-start testF-118Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1001,
+        "header": {
+          "cls": "topbar",
+          "h": 65,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 165,
+          "family": "system-ui",
+          "size": "27px",
+          "weight": "650",
+          "lineHeight": "33.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 actions"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Actions → -> #/actions",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [
+          {
+            "cls": "rail",
+            "tag": "ASIDE",
+            "x": 0,
+            "y": 44,
+            "w": 204,
+            "h": 957
+          }
+        ],
+        "mainTop": 44,
+        "viewportH": 1000
+      }
+    },
+    {
+      "screen": "cold-work",
+      "case": "worstcase-all-open",
+      "viewport": "390x900",
+      "app_url": "http://127.0.0.1:5184/sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+      "mock_hash": "#/cold-work",
+      "app_image": "cold-work-worstcase-all-open-390-app.png",
+      "mock_image": "cold-work-worstcase-all-open-390-mock.png",
+      "app": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 16,
+            "y": 575,
+            "w": 358,
+            "h": 895,
+            "tables": 1,
+            "rows": 5,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open",
+              "Open",
+              "Open",
+              "Open",
+              "Open"
+            ],
+            "links": 6,
+            "buttons": 1,
+            "details": 15,
+            "rowText": [
+              [
+                "Read full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2027-05-12",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 4 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-11-23",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 3 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "2026-10-25",
+                "Open",
+                "No success criterion declared"
+              ],
+              [
+                "Read full textACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Finding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9",
+                "Read full textMaintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+                "Not set",
+                "Open",
+                "No success criterion declared"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification"
+              ],
+              [
+                "ACT-000005 · Witness automatic-start test 4 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification"
+              ],
+              [
+                "ACT-000004 · Witness automatic-start test 3 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification"
+              ],
+              [
+                "ACT-000003 · Witness automatic-start test 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification"
+              ],
+              [
+                "ACT-000002 · Witness automatic-start test 1 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification"
+              ]
+            ],
+            "panelText": "Actions at this siteActionSourceOwnerDueStateSuccess criterionRead full textACT-000006 · Witness automatic-start test 5 — long title proof xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxFinding f54abba8Finding versiona12237de-8b4d-450e-a80a-3c7df84892f9Read full textMaintenance lead 5 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy2027-05-12OpenNo success criterion declaredRead full textACT-000005 · Witness automatic-start test 4 — long ti",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1590,
+        "header": {
+          "cls": "app-header",
+          "h": 58,
+          "bg": "rgba(0, 0, 0, 0)"
+        },
+        "h1": {
+          "text": "Cold replay lab",
+          "top": 127,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "21px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "18px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "22.5px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "14.4px",
+            "color": "rgb(107, 118, 144)"
+          }
+        },
+        "mini": {
+          "strip": "Scoped to Cold · 6 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.",
+          "cards": [],
+          "notice": [
+            "Opening a record moves you to its own area; the breadcrumb keeps this site."
+          ],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 4,
+          "utc": 2,
+          "periodBar": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+          "details": 15,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [],
+          "evConnector": 0,
+          "windowForm": {
+            "x": 16,
+            "w": 358,
+            "h": 136,
+            "text": "WindowFrom (UTC) To (UTC, exclusive) Apply",
+            "error": ""
+          },
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 1,
+          "readFull": 10,
+          "detailsOpen": 15
+        },
+        "mainLinks": [
+          "Sites -> /sites",
+          "Cold replay lab -> /sites/COLD-LAB-001",
+          "Overview -> /sites/COLD-LAB-001",
+          "Foundation -> /sites/COLD-LAB-001/foundation",
+          "Health -> /sites/COLD-LAB-001/health",
+          "Performance -> /sites/COLD-LAB-001/performance",
+          "Findings -> /sites/COLD-LAB-001/findings",
+          "Work -> /sites/COLD-LAB-001/work",
+          "Financials -> /sites/COLD-LAB-001/financials",
+          "Evidence -> /sites/COLD-LAB-001/evidence",
+          "Actions (6) -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Incidents (5) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "Maintenance (5) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z",
+          "ACT-000006 · Witness automatic-start test 5 — long title pro -> /sites/COLD-LAB-001/actions/51bc29d1-a127-48ef-a04e-a5276ed0c23e/verification",
+          "ACT-000005 · Witness automatic-start test 4 — long title pro -> /sites/COLD-LAB-001/actions/afbb8f72-cf02-46d9-b905-6390c7c7a131/verification",
+          "ACT-000004 · Witness automatic-start test 3 — long title pro -> /sites/COLD-LAB-001/actions/81ab79db-768c-41a5-bc18-3707cdc8a164/verification",
+          "ACT-000003 · Witness automatic-start test 2 — long title pro -> /sites/COLD-LAB-001/actions/3ac9c00f-b96e-4db8-a7b5-9174129b847d/verification",
+          "ACT-000002 · Witness automatic-start test 1 — long title pro -> /sites/COLD-LAB-001/actions/5e2b011a-5b76-4cbb-8e8b-11ce3d8b3a81/verification",
+          "Next page -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A33%3A00.326231Z&cursor=eyJhZnRlciI6WyIyMDI2LTEwLTI0VDE3OjIzOjM5LjM5OTQ4NVoiLCI1ZTJiMDExYS01Yjc2LTRjYmItOGU4Yi0xMWNlM2Q4YjNhODEiXSwiZnJvbSI6IjIwMjYtMTAtMjNUMDA6MDA6MDAuMDAwMDAwWiIsImtpbmQiOiJzaXRlLWRvbWFpbi1hY3Rpb24taW5kZXgiLCJrbm93bl9hdCI6IjIwMjYtMTAtMjRUMTc6MzM6MDAuMzI2MjMxWiIsInNlbGVjdGlvbl90b2tlbiI6InNoYTI1NjoxNzdlNDJiNjhiYzU5OGUwM2Q3NzNjODM0OTIyZmVkMjdiMGM2MWU2YjMwOTllMWFjNzY3YTk3YWQ0Y2Y2YzJlIiwic2l0ZV9pZCI6IjNjOTZhMWFjLTYwNWUtNDhhMC04NDQ5LTg4NTNmYWI1MzM3ZSIsInRlbmFudF9pZCI6IjA5NDNiMjg2LTk0NzItNDhiYS1iYTIxLTg4ZTY3ZGU1MGVlNCIsInRvIjoiMjAyNi0xMC0yNVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "site-tabs",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "site-tabs site-subtabs",
+            "items": [
+              "Actions (6)*",
+              "Incidents (5)",
+              "Maintenance (5)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "site-tabs__list",
+            "sw": 521,
+            "cw": 358,
+            "panel": ""
+          },
+          {
+            "cls": "data-table__scroll data-table__scroll--sticky",
+            "sw": 819,
+            "cw": 318,
+            "panel": "Actions at this site"
+          }
+        ],
+        "pSizes": {},
+        "dark": [
+          {
+            "cls": "app-frame__side",
+            "tag": "DIV",
+            "x": 0,
+            "y": 0,
+            "w": 390,
+            "h": 92
+          }
+        ],
+        "mainTop": 108,
+        "viewportH": 900,
+        "consoleErrors": []
+      },
+      "mock": {
+        "titles": [
+          "Actions at this site"
+        ],
+        "panels": [
+          {
+            "title": "Actions at this site",
+            "x": 15,
+            "y": 708,
+            "w": 360,
+            "h": 230,
+            "tables": 1,
+            "rows": 1,
+            "columns": [
+              "Action",
+              "Source",
+              "Owner",
+              "Due",
+              "State",
+              "Success criterion"
+            ],
+            "chips": [
+              "Open"
+            ],
+            "links": 2,
+            "buttons": 0,
+            "details": 0,
+            "rowText": [
+              [
+                "ACT-051 · Witness automatic-start test",
+                "F-118",
+                "Maintenance lead",
+                "Not set",
+                "Open",
+                "Start requested → generator runs → power → cooling"
+              ]
+            ],
+            "rowLinks": [
+              [
+                "ACT-051 · Witness automatic-start test -> #/cold-action",
+                "F-118 -> #/cold-finding"
+              ]
+            ],
+            "panelText": "Actions at this siteDue dates are not yet set in this exampleActionSourceOwnerDueStateSuccess criterionACT-051 · Witness automatic-start testF-118Maintenance leadNot setOpenStart requested → generator runs → power → cooling",
+            "h3": [],
+            "background": "rgb(255, 255, 255)",
+            "border": "rgb(224, 230, 239) 1px",
+            "radius": "7px"
+          }
+        ],
+        "overflowX": 0,
+        "pageH": 1128,
+        "header": {
+          "cls": "topbar",
+          "h": 131,
+          "bg": "rgb(255, 255, 255)"
+        },
+        "h1": {
+          "text": "GreenHarvest Cold Room",
+          "top": 339,
+          "family": "system-ui",
+          "size": "23px",
+          "weight": "650",
+          "lineHeight": "28.75px",
+          "color": "rgb(23, 36, 59)"
+        },
+        "fonts": {
+          "body": {
+            "family": "system-ui",
+            "size": "14px",
+            "weight": "400",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "prose": {
+            "family": "system-ui",
+            "size": "12px",
+            "weight": "400",
+            "lineHeight": "19.8px",
+            "color": "rgb(97, 112, 135)"
+          },
+          "proseSizes": [],
+          "h2": {
+            "family": "system-ui",
+            "size": "15px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(23, 36, 59)"
+          },
+          "td": {
+            "family": "system-ui",
+            "size": "11px",
+            "weight": "400",
+            "lineHeight": "17.6px",
+            "color": "rgb(23, 36, 59)"
+          },
+          "th": {
+            "family": "system-ui",
+            "size": "9px",
+            "weight": "650",
+            "lineHeight": "normal",
+            "color": "rgb(117, 129, 152)"
+          }
+        },
+        "mini": {
+          "strip": "",
+          "cards": [],
+          "notice": [],
+          "refusal": "",
+          "refusalKey": null,
+          "notRecorded": 0,
+          "notAvailableYet": 0,
+          "prepared": false,
+          "enums": [],
+          "uuids": 0,
+          "utc": 0,
+          "periodBar": "",
+          "details": 0,
+          "objective": []
+        },
+        "cold": {
+          "plural1": [
+            "1 actions"
+          ],
+          "evConnector": 0,
+          "windowForm": null,
+          "alerts": [],
+          "cardLinks": [],
+          "svg": 4,
+          "readFull": 0,
+          "detailsOpen": 0
+        },
+        "mainLinks": [
+          "Sites -> #/sites",
+          "GreenHarvest Cold Room -> #/cold",
+          "Overview -> #/cold",
+          "Foundation -> #/cold-foundation",
+          "Health -> #/cold-health",
+          "Performance -> #/temperature",
+          "Findings -> #/cold-findings",
+          "Work -> #/cold-work",
+          "Financials -> #/cold-financials",
+          "Evidence -> #/cold-evidence",
+          "Actions (1) -> #/cold-work",
+          "Incidents (1) -> #/cold-work-incidents",
+          "Maintenance (1) -> #/cold-work-maintenance",
+          "Manage in Actions → -> #/actions",
+          "ACT-051 · Witness automatic-start test -> #/cold-action",
+          "F-118 -> #/cold-finding"
+        ],
+        "cardsDom": [],
+        "tabRows": [
+          {
+            "cls": "tabs ",
+            "items": [
+              "Overview",
+              "Foundation",
+              "Health",
+              "Performance",
+              "Findings",
+              "Work*",
+              "Financials",
+              "Evidence"
+            ]
+          },
+          {
+            "cls": "tabs subtabs",
+            "items": [
+              "Actions (1)*",
+              "Incidents (1)",
+              "Maintenance (1)"
+            ]
+          }
+        ],
+        "clipped": [],
+        "hscroll": [
+          {
+            "cls": "tabs ",
+            "sw": 509,
+            "cw": 360,
+            "panel": ""
+          },
+          {
+            "cls": "table-wrap",
+            "sw": 444,
+            "cw": 320,
+            "panel": "Actions at this site"
+          }
+        ],
+        "pSizes": {
+          "11px": 1
+        },
+        "dark": [],
+        "mainTop": 158,
+        "viewportH": 900
+      }
+    }
+  ]
+}

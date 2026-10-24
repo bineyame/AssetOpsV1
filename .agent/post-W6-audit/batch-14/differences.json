@@ -1,0 +1,190 @@
+[
+ {
+  "id": "B14-X1",
+  "screens": [
+   "cooling",
+   "cold-health",
+   "cold-scenarios",
+   "cold-work"
+  ],
+  "what": "Cross-cutting, cited not re-described: B1-01/B2-01 shell top bar missing (all pairs); B1-04/B2-36 rail 'Not available yet' (all); B2-02 page-local window: depth pages have NO window control (URL only, like B7-02), cold-work has the R88 page-local Window form; B1-07/B2-03 14 px panel text (cooling Next best evidence / table cells, cold-work empty-state body); B1-02/B2-04 tall dark header at 390 on the depth refused pages (288-318 px dark block; cold-work refused keeps the normal 95 px because its furniture stays); B1-53 raw codes/UUIDs (B14-05); B2-21/B3-04 UTC instead of Site-local (every depth page prints 'Selected window 23 Oct 2026 16:00-17:05 UTC' for an Africa/Addis_Ababa Site; cold-work Window labels 'From (UTC)'). B3-01 does not recur (Site tabs and subtabs match the mock).",
+  "disp": "Cite existing IDs."
+ },
+ {
+  "id": "B14-01",
+  "screens": [
+   "cooling",
+   "cold-health",
+   "cold-scenarios"
+  ],
+  "cases": [
+   "refused-reversed"
+  ],
+  "what": "Refused window (from > to, real 422 COLD_WINDOW_INVALID): the strip, cards and all panels are dropped (0 vs 1-3 mock panels); the body shows 'Cold depth unavailable' / 'Cold scenarios unavailable' with the raw code and server text \"COLD_WINDOW_INVALID 'from' must be before 'to'.\" and a 'Retry' button that cannot succeed. There is no window control on the page to correct the input.",
+  "disp": "Cite B6-13/B9-05 for dropped furniture; raw code: cite B1-53; useless Retry + no correction path: D3 Low (shared with B12-06 / domainActionClient copy owner); window control: extend R88 (D1) to cold depth pages."
+ },
+ {
+  "id": "B14-02",
+  "screens": [
+   "cold-work"
+  ],
+  "cases": [
+   "refused-reversed",
+   "refused-span-32d"
+  ],
+  "what": "Carried domainActionClient check CONFIRMED: a reversed one-hour window and a 32-day window both render 'Cold work unavailable · The window may span at most 31 days.' (invalidScope returns one message for every invalid input). For the reversed window the sentence is false. The Window form then shows From 10/23 To 10/23 (both truncated to the same UTC day). Retry cannot help.",
+  "disp": "D3 Low (carried UI-pass item; shared fix owner for domainActionClient.ts window copy)."
+ },
+ {
+  "id": "B14-03",
+  "screens": [
+   "cold-work"
+  ],
+  "what": "R88 verified: page-local Window control after the Work subtabs, before the scope strip; 1440 one row 33 px right-aligned; 390 stacked 136 px full width (the extra height the spec asks about). Date inputs render in browser locale (10/23/2026) with '(UTC)' labels. '1 actions' plural appears in the strip in every one-Action state (the mock literal also says '1 actions'). No '1 incidents' on these four screens (tabs use 'Incidents (1)'). No 'c1 · EV_CONNECTOR'.",
+  "disp": "(a) R88 D1 covers the control and its 390 height; '1 actions' = carried plural item, D3 Low with the shared copy owner (a mock typo is not a ruling)."
+ },
+ {
+  "id": "B14-04",
+  "screens": [
+   "cooling",
+   "cold-health",
+   "cold-scenarios",
+   "cold-work"
+  ],
+  "what": "Tones missing: cooling strip chips 'Comparison limited' / 'Confidence: Low' neutral grey (mock amber + dashed info chip); Context normalization Match cells all neutral 'Not established' (value ruled by Codex retrospective Q-C2-2; tone is the open question). Health and Work chips (Open amber) are toned correctly.",
+  "disp": "Same seam as B12-02: D3 Low (shared tone tokens) or D2."
+ },
+ {
+  "id": "B14-05",
+  "screens": [
+   "cooling",
+   "cold-health"
+  ],
+  "what": "Raw identifiers: cooling 'Evidence' column prints full evidence UUIDs (2 per pair, wrapped to 2-3 lines at 390); cold-health Asset cells print '<name> <asset UUID>' plus a 'Full ID' disclosure although asset_code (generator-1, probe-1) is on the wire (mock: GEN-CR-01 / CMP-003).",
+  "disp": "Cite B1-53 (show asset_code / short evidence reference)."
+ },
+ {
+  "id": "B14-06",
+  "screens": [
+   "cooling"
+  ],
+  "what": "Recovery curves 390: 412 px vs mock 235 (1.75x). Measured reason: the panel holds the categorical-lane chart (480 px scroller in 318) PLUS the accessible selected-point table ruled by Codex retrospective Q-C2-3; within the C2 cap (500 px at 390). 1440 is 1.08. R05 (D1) covers the absent curve; 'No accepted recovery sequence in this window.' is shown. Next best evidence item 1 has no link (mock 'Plan a witnessed test ->') and item 2 drops the mock explanatory line.",
+  "disp": "Height: reviewed ruling needed, propose accept under the C2 cap (Q-C2-3). R05 (a) verified. Next-step link: D1 (no plan-test flow); missing line: D3 Low."
+ },
+ {
+  "id": "B14-07",
+  "screens": [
+   "cooling",
+   "cold-health"
+  ],
+  "cases": [
+   "unknown"
+  ],
+  "what": "UNKNOWN selection (ruled seeded empty-support selection): blue notice 'No selected cold assessment covers this window yet.' sits above a strip 'Comparison limited · Confidence: Low' and populated observations / condition cards (Needs attention, Limited). Notice and content contradict each other on the same page.",
+  "disp": "D3 Low candidate (state notice vs strip/cards source); Architect to confirm against R13 (D2) wording."
+ },
+ {
+  "id": "B14-08",
+  "screens": [
+   "cold-scenarios"
+  ],
+  "cases": [
+   "pending"
+  ],
+  "what": "Pending notice reads 'Underlying evidence is being reassessed; the authored scenario remains separate.' while the read has 0 authored scenarios (the panel says 'No scenario defined yet'). Every empty state keeps the mock literals 'Placeholder · to be designed with the owner' and subtitle 'Financials · scenarios (placeholder)' although authored scenarios are built (R25).",
+  "disp": "Notice copy: D3 Low (condition on items > 0). Placeholder literals: D4 under R25, or D2."
+ },
+ {
+  "id": "B14-09",
+  "screens": [
+   "cold-work"
+  ],
+  "cases": [
+   "no-window",
+   "zero"
+  ],
+  "what": "No-window default is seven UTC days ending at today 00:00Z (17-24 Oct), so an Action recorded today is excluded: Actions (0) while Incidents (1). The empty panel says 'No accepted recommendation or evidence request has been raised here yet.', a window-independent claim that is false for this Site (ACT-000001 exists).",
+  "disp": "D3 Low: scope the empty copy to the window; Architect to confirm whether the default window should include today."
+ },
+ {
+  "id": "B14-10",
+  "screens": [
+   "cooling",
+   "cold-health",
+   "cold-scenarios",
+   "cold-work"
+  ],
+  "what": "Site main-tab links (Overview, Foundation, Health, Findings, Work, Financials, Evidence) carry no window query on every captured page; only subtabs and in-panel links keep from/to/known_at. Moving Cooling -> Health or Work -> Health drops the selected window (depth pages fall back to the latest selection, Work to its 7-day default).",
+  "disp": "D3 Low (shared Site tab seam), or fold into R88 if the future topbar picker is the intended carrier."
+ },
+ {
+  "id": "B14-11",
+  "screens": [
+   "cold-work"
+  ],
+  "cases": [
+   "worstcase",
+   "worstcase-all-open"
+  ],
+  "what": "Worst case (6 Actions, five 160-code-point titles/owners): panel 457 px at both widths (2.5x/2.0x mock, which has 1 row) within K2 ruling 2 caps 650/850; page 1000/1152 within 1600/2000; two-line clamp + 'Read full text' (10 disclosures; the clamp is the intended preview). All-open: panel 684/895, page 1142/1590 (all-disclosures-open exemption), no horizontal overflow. Lesson-15 caps hold.",
+  "disp": "Informational; heights within ruled caps."
+ },
+ {
+  "id": "B14-12",
+  "screens": [
+   "cold-work"
+  ],
+  "cases": [
+   "forbidden-403",
+   "store-unavailable-503"
+  ],
+  "what": "Real 403 SITE_SCOPE_FORBIDDEN and 503 WORK_STORE_UNAVAILABLE render inside the Actions panel; strip '— actions'; subtab counts '(—)'. Structure kept (1 panel, as mock).",
+  "disp": "Informational (K2 ruling 3)."
+ },
+ {
+  "id": "B14-13",
+  "screens": [
+   "cold-health"
+  ],
+  "what": "R22 (D3) verified CLOSED: cold Health ends after 'Condition and evidence' plus the amber condition notice (R14 D2); no Data sources panel. Panel 251/198 (1.27x, 3 rows vs mock 2). Card 'View detail' links reach Backup, Cooling and Evidence with exact window + known_at. Subtitle 'Health · site-level asset-condition summary' vs the mock Site description (R90-type).",
+  "disp": "(a) R22 closed; R13/R14 (D2) present; subtitle D4 (extend R90)."
+ },
+ {
+  "id": "B14-14",
+  "screens": [
+   "link-check"
+  ],
+  "what": "Cross-check (not counted). Cold Overview at the W5-01 window: Temperature, Backup and Evidence cards link with exact window; the Cooling card ('Limited · Cooling recovery is not established...') is still UNLINKED although Cooling is built, and the Maintenance card still says 'Not recorded · No maintenance work record is available for this window' with no Work link, while this producer has an INC (occurred 16:11Z) and a completed WR (16:20Z, record 16:40Z) inside that window (recorded after the evidence cutoff the card pins). 'What happened' says 'No incident recorded'. Cold Site Findings still renders the mini index ('No Performance comparison report exists for this Site...', 0 rows, lens chips 'Not available yet') and links to none of these pages. The cold Temperature subtab links Cooling (R40 built).",
+  "disp": "B7-03 and B7-01 remain OPEN (D3); add the incident/maintenance contradiction to B7-03's fix card."
+ },
+ {
+  "id": "B14-15",
+  "screens": [],
+  "what": "Spec/producer notes: routes correct (cooling = SITE_PERFORMANCE_SUBTAB_ROUTE_PATH /performance/cooling; cold-health = SITE_HEALTH_ROUTE_PATH dispatched by Site type; cold-scenarios = SITE_FINANCIAL_SCENARIOS_ROUTE_PATH; cold-work = SITE_WORK_ROUTE_PATH). The spec's W5-01 producers ('cold selected-depth replay', 'authored scenario producer') were throwaway uncommitted seed tests (W5-01a/b phase handoffs) and cannot be rerun unmodified; all data here comes from tools/w502_cold_work_walkthrough.py, whose modes carry the W5-01 selection (CURRENT/PENDING/STALE/UNKNOWN). Register rows R05/R13 use screen ID `cold-cooling`, the manifest ID is `cooling`.",
+  "disp": "Correct the spec producer column; rename register screen IDs (informational)."
+ },
+ {
+  "id": "B14-16",
+  "screens": [
+   "cold-scenarios"
+  ],
+  "what": "BLOCKER/gap: no reviewed committed producer authors a cold scenario, so authored, authored-expanded, historical-with-row and the expanded over-cap states (W5-01b C5) could not be recaptured; only 0-item states (current, empty, pending, historical, stale, unknown, refused, no-window) were. Lesson-15 worst case for cold-scenarios is unverified.",
+  "disp": "Architect: commit a reviewed authored-scenario producer mode before the fix-slice recapture."
+ },
+ {
+  "id": "B14-17",
+  "screens": [
+   "cold-health",
+   "cold-work"
+  ],
+  "cases": [
+   "all-open",
+   "empty-window",
+   "work-day-window",
+   "zero",
+   "no-window"
+  ],
+  "what": "Other panels over 1.3x, with measured reasons: cold-health all-open 390 472/269 (1.75x) = the three opened 'Full ID' UUID disclosures (all-disclosures-open exemption; would shrink with B14-05); cold-health empty-window and work-day-window 1440 285/198 (1.44x) = the added 'No condition observation is available for this window.' line plus 3 asset rows vs mock 2; cold-work zero / no-window 1440 262/183 (1.43x) = the empty-state heading + body in place of the mock's single table row. All inside the W5-01 C3 / W5-02 K2 caps.",
+  "disp": "Reviewed ruling needed; propose accept under existing caps (no D3)."
+ }
+]

@@ -1,0 +1,150 @@
+=== cooling unknown 1440x1000 pageH app/mock 1278/1312 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Recovery curves' 417/386 (1.08) w=725/735 rows=2/0 cols=['Step', 'Time (UTC)', 'Evidence'] | []
+     chips [] links=0/0 details=0/0 h3=[]
+     row ['Compressor running', '16:05:00', 'e6616d02-f158-4bb1-96f7-36496bc01398']
+     row ['Chamber temperature', '17:00:00', 'e2309faf-2390-466a-a77f-981587d23b98']
+  P 'Context normalization' 417/386 (1.08) w=403/408 rows=5/5 cols=['Factor', 'Evidence', 'Match'] | ['Factor', 'Evidence', 'Match']
+     chips ['Not established', 'Not established', 'Not established', 'Not established', 'Not established'] links=0/0 details=0/0 h3=[]
+     row ['Ambient temperature', 'Not selected by the cooling assessment', 'Not established']
+     row ['Power availability', '1 accepted grid power record', 'Not established']
+     row ['Door-open duration', 'Door open for 1 min', 'Not established']
+     row ['Loading / batch', 'No loading record role', 'Not established']
+     row ['Defrost', 'No defrost record role', 'Not established']
+  P 'Next best evidence' 191/234 (0.82) w=1145/1161 rows=0/0 cols=[] | []
+     chips [] links=1/2 details=0/0 h3=['Record a comparable recovery', 'Inspect the backup sequence']
+  strip: Comparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.Inspect recovery basis →
+  cards A: ['Usual time back to 4°CUnknownNo matched earlier window', 'This time back to 4°CNot establishedNo ordered compressor-to-policy re', 'DifferenceUnknownA comparison is not supported', 'Comparable?Not yetAmbient, loading and defrost records missing'] | M: []
+  cardsH A/M: [124, 124, 124, 124] []
+  refusal[None]:   notice: ['No selected cold assessment covers this window yet.', 'These records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 2 Zcount 8 details 0
+  fonts prose 12px [] pSizes {'11px': 2, '13px': 1, '14px': 2} | M 12px {'11px': 3}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Temperature', 'Cooling*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Temperature', 'Cooling*', 'Backup']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1278}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Cooling -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Inspect recovery basis → -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'Open Backup → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z']
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks ['Usual time back to 4°CUnknownNo matched earlier window | ', 'This time back to 4°CNot establishedNo ordered compressor-to-policy recovery assessment | ', 'DifferenceUnknownA comparison is not supported | ', 'Comparable?Not yetAmbient, loading and defrost records missing | ']
+=== cooling unknown 390x900 pageH app/mock 2094/2124 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Recovery curves' 412/235 (1.75) w=358/360 rows=2/0 cols=['Step', 'Time (UTC)', 'Evidence'] | []
+     chips [] links=0/0 details=0/0 h3=[]
+     row ['Compressor running', '16:05:00', 'e6616d02-f158-4bb1-96f7-36496bc01398']
+     row ['Chamber temperature', '17:00:00', 'e2309faf-2390-466a-a77f-981587d23b98']
+  P 'Context normalization' 466/398 (1.17) w=358/360 rows=5/5 cols=['Factor', 'Evidence', 'Match'] | ['Factor', 'Evidence', 'Match']
+     chips ['Not established', 'Not established', 'Not established', 'Not established', 'Not established'] links=0/0 details=0/0 h3=[]
+     row ['Ambient temperature', 'Not selected by the cooling assessment', 'Not established']
+     row ['Power availability', '1 accepted grid power record', 'Not established']
+     row ['Door-open duration', 'Door open for 1 min', 'Not established']
+     row ['Loading / batch', 'No loading record role', 'Not established']
+     row ['Defrost', 'No defrost record role', 'Not established']
+  P 'Next best evidence' 208/268 (0.78) w=358/360 rows=0/0 cols=[] | []
+     chips [] links=1/2 details=0/0 h3=['Record a comparable recovery', 'Inspect the backup sequence']
+  strip: Comparison limited Confidence: Low Observed cooling response is incomplete; ambient, loading and defrost context is missing.Inspect recovery basis →
+  cards A: ['Usual time back to 4°CUnknownNo matched earlier window', 'This time back to 4°CNot establishedNo ordered compressor-to-policy re', 'DifferenceUnknownA comparison is not supported', 'Comparable?Not yetAmbient, loading and defrost records missing'] | M: []
+  cardsH A/M: [124, 124, 124, 124] []
+  refusal[None]:   notice: ['No selected cold assessment covers this window yet.', 'These records do not establish cooling degradation or compressor failure. Record loading and door activity and compare a']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 2 Zcount 8 details 0
+  fonts prose 12px [] pSizes {'11px': 2, '13px': 1, '14px': 2} | M 12px {'11px': 3}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Temperature', 'Cooling*', 'Backup']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance*', 'Findings', 'Work', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Temperature', 'Cooling*', 'Backup']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'cold-depth-graphic__scroll', 'sw': 480, 'cw': 318, 'panel': 'Recovery curves'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'Temperature -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Cooling -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Backup -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Inspect recovery basis → -> /sites/COLD-LAB-001/performance/temperature?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'Open Backup → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z']
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'windowForm': None, 'alerts': [], 'svg': 1, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks ['Usual time back to 4°CUnknownNo matched earlier window | ', 'This time back to 4°CNot establishedNo ordered compressor-to-policy recovery assessment | ', 'DifferenceUnknownA comparison is not supported | ', 'Comparable?Not yetAmbient, loading and defrost records missing | ']
+=== cold-health unknown 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Condition and evidence' 251/198 (1.27) w=1160/1161 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+     chips [] links=0/0 details=3/0 h3=[]
+     row ['Backup generator eff7cf72-7d31-40de-9219-f7eaf501ec60generator-1Full IDeff7cf72-7d31-40de-9219-f7eaf501ec60', 'Automatic start failed', 'Witness an automatic-start test']
+     row ['Refrigeration compressor 830e1cc6-c31d-4b7a-96c2-8aa29f3c5e4ccompressor-1Full ID830e1cc6-c31d-4b7a-96c2-8aa29f3c5e4c', 'Condition unknown', 'Record matched loading, door and ambient context']
+     row ['Chamber temperature probe 86ff9cfb-beb6-4d34-b959-0e8bd37bd3b9probe-1Full ID86ff9cfb-beb6-4d34-b959-0e8bd37bd3b9', 'Single-point observation', 'Add calibrated spatial coverage']
+  strip: 
+  cards A: ['Backup generatorNeeds attentionFailed automatic start observed; part n', 'Cooling plantUnknownComparable recovery and condition evidence absentV', 'Temperature sensingLimitedOne accepted probe does not establish room-w'] | M: []
+  cardsH A/M: [140, 140, 140] []
+  refusal[None]:   notice: ['No selected cold assessment covers this window yet.', 'These records show what was observed at the selected assets. They do not establish physical equipment condition or diagn']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 3 Zcount 2 details 3
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z']
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks ['Backup generatorNeeds attentionFailed automatic start observed; part not diagnosedView det | View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'Cooling plantUnknownComparable recovery and condition evidence absentView detail → | View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'Temperature sensingLimitedOne accepted probe does not establish room-wide coverageView det | View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z']
+=== cold-health unknown 390x900 pageH app/mock 1152/1244 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Condition and evidence' 295/269 (1.10) w=358/360 rows=3/2 cols=['Asset', 'Supported assessment', 'Next evidence'] | ['Asset', 'Supported assessment', 'Next evidence']
+     chips [] links=0/0 details=3/0 h3=[]
+     row ['Backup generator eff7cf72-7d31-40de-9219-f7eaf501ec60generator-1Full IDeff7cf72-7d31-40de-9219-f7eaf501ec60', 'Automatic start failed', 'Witness an automatic-start test']
+     row ['Refrigeration compressor 830e1cc6-c31d-4b7a-96c2-8aa29f3c5e4ccompressor-1Full ID830e1cc6-c31d-4b7a-96c2-8aa29f3c5e4c', 'Condition unknown', 'Record matched loading, door and ambient context']
+     row ['Chamber temperature probe 86ff9cfb-beb6-4d34-b959-0e8bd37bd3b9probe-1Full ID86ff9cfb-beb6-4d34-b959-0e8bd37bd3b9', 'Single-point observation', 'Add calibrated spatial coverage']
+  strip: 
+  cards A: ['Backup generatorNeeds attentionFailed automatic start observed; part n', 'Cooling plantUnknownComparable recovery and condition evidence absentV', 'Temperature sensingLimitedOne accepted probe does not establish room-w'] | M: []
+  cardsH A/M: [152, 152, 152] []
+  refusal[None]:   notice: ['No selected cold assessment covers this window yet.', 'These records show what was observed at the selected assets. They do not establish physical equipment condition or diagn']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 3
+  fonts prose 12px [] pSizes {} | M 12px {}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health*', 'Performance', 'Findings', 'Work', 'Financials', 'Evidence']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z']
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'windowForm': None, 'alerts': [], 'svg': 0, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks ['Backup generatorNeeds attentionFailed automatic start observed; part not diagnosedView det | View detail → -> /sites/COLD-LAB-001/performance/backup?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'Cooling plantUnknownComparable recovery and condition evidence absentView detail → | View detail → -> /sites/COLD-LAB-001/performance/cooling?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z', 'Temperature sensingLimitedOne accepted probe does not establish room-wide coverageView det | View detail → -> /sites/COLD-LAB-001/evidence?from=2026-10-23T16%3A00%3A00.000000Z&to=2026-10-23T17%3A05%3A00.000000Z&known_at=2026-10-24T17%3A25%3A03.936980Z']
+=== cold-scenarios unknown 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Financial scenarios' 305/316 (0.97) w=1160/1161 rows=0/0 cols=[] | []
+     chips [] links=0/0 details=0/0 h3=['No scenario defined yet']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected cold assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Financials -> /sites/COLD-LAB-001/financials?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'Overview -> /sites/COLD-LAB-001/financials?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Assumptions -> /sites/COLD-LAB-001/financials/assumptions?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Scenarios -> /sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z']
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks []
+=== cold-scenarios unknown 390x900 pageH app/mock 924/1125 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Financial scenarios' 345/355 (0.97) w=358/360 rows=0/0 cols=[] | []
+     chips [] links=0/0 details=0/0 h3=['No scenario defined yet']
+  strip: 
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected cold assessment covers this window yet.', 'Scenarios never change measured results or the consequence lines on Overview. They are labelled what-ifs, kept separate ']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 0
+  fonts prose 12px [] pSizes {'11px': 1, '12px': 1} | M 12px {'11px': 1, '12px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work', 'Financials*', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Overview', 'Assumptions', 'Scenarios*']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Financials -> /sites/COLD-LAB-001/financials?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'Overview -> /sites/COLD-LAB-001/financials?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Assumptions -> /sites/COLD-LAB-001/financials/assumptions?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z', 'Scenarios -> /sites/COLD-LAB-001/financials/scenarios?from=2026-10-23T16%3A00%3A00Z&to=2026-10-23T17%3A05%3A00Z']
+  objective []
+  cold: {'plural1': [], 'evConnector': 0, 'windowForm': None, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks []
+=== cold-work unknown 1440x1000 pageH app/mock 1000/1001 ovX 0 hdr 59 mainTop 24/44 cerr []
+  P 'Actions at this site' 184/183 (1.01) w=1160/1161 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+     chips ['Open'] links=1/2 details=1/0 h3=[]
+     row ['ACT-000001 · Witness automatic-start test', 'Finding 1b1114fbFinding version1f8573f2-9174-4bd2-a73c-b326abdcfd01', 'Maintenance lead', 'Not set', 'Open', 'Start requested → generator runs → power → cooling']
+  strip: Scoped to Cold · 1 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected source for linked evidence. The work record remains recorded.', 'Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}]
+  clip [] hscroll [] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z', 'Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z', 'Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z', 'ACT-000001 · Witness automatic-start test -> /sites/COLD-LAB-001/actions/155663fb-2de9-4d9f-b9f5-91a86bce175b/verification']
+  objective []
+  cold: {'plural1': ['1 actions'], 'evConnector': 0, 'windowForm': {'x': 248, 'w': 1160, 'h': 33, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks []
+=== cold-work unknown 390x900 pageH app/mock 973/1128 ovX 0 hdr 58 mainTop 108/158 cerr []
+  P 'Actions at this site' 199/230 (0.87) w=358/360 rows=1/1 cols=['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion'] | ['Action', 'Source', 'Owner', 'Due', 'State', 'Success criterion']
+     chips ['Open'] links=1/2 details=1/0 h3=[]
+     row ['ACT-000001 · Witness automatic-start test', 'Finding 1b1114fbFinding version1f8573f2-9174-4bd2-a73c-b326abdcfd01', 'Maintenance lead', 'Not set', 'Open', 'Start requested → generator runs → power → cooling']
+  strip: Scoped to Cold · 1 actionsCold-chain Actions recorded at this siteGlobal Actions does not include cold-chain Actions yet.
+  cards A: [] | M: []
+  cardsH A/M: [] []
+  refusal[None]:   notice: ['No selected source for linked evidence. The work record remains recorded.', 'Opening a record moves you to its own area; the breadcrumb keeps this site.']
+  NotRecorded 0 NAY 0 prepared False enums [] uuids 0 Zcount 2 details 1
+  fonts prose 12px [] pSizes {'11px': 1} | M 12px {'11px': 1}
+  tabs [{'cls': 'site-tabs', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'site-tabs site-subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}] | M [{'cls': 'tabs ', 'items': ['Overview', 'Foundation', 'Health', 'Performance', 'Findings', 'Work*', 'Financials', 'Evidence']}, {'cls': 'tabs subtabs', 'items': ['Actions (1)*', 'Incidents (1)', 'Maintenance (1)']}]
+  clip [] hscroll [{'cls': 'site-tabs__list', 'sw': 521, 'cw': 358, 'panel': ''}, {'cls': 'data-table__scroll data-table__scroll--sticky', 'sw': 820, 'cw': 318, 'panel': 'Actions at this site'}] dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}]
+  links ['Sites -> /sites', 'Cold replay lab -> /sites/COLD-LAB-001', 'Overview -> /sites/COLD-LAB-001', 'Foundation -> /sites/COLD-LAB-001/foundation', 'Health -> /sites/COLD-LAB-001/health', 'Performance -> /sites/COLD-LAB-001/performance', 'Findings -> /sites/COLD-LAB-001/findings', 'Work -> /sites/COLD-LAB-001/work', 'Financials -> /sites/COLD-LAB-001/financials', 'Evidence -> /sites/COLD-LAB-001/evidence', 'Actions (1) -> /sites/COLD-LAB-001/work?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z', 'Incidents (1) -> /sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z', 'Maintenance (1) -> /sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T17%3A25%3A05.547920Z', 'ACT-000001 · Witness automatic-start test -> /sites/COLD-LAB-001/actions/155663fb-2de9-4d9f-b9f5-91a86bce175b/verification']
+  objective []
+  cold: {'plural1': ['1 actions'], 'evConnector': 0, 'windowForm': {'x': 16, 'w': 358, 'h': 136, 'text': 'WindowFrom (UTC) To (UTC, exclusive) Apply', 'error': ''}, 'alerts': [], 'svg': 2, 'readFull': 0, 'detailsOpen': 0}
+  cardLinks []
