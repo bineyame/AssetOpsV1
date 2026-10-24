@@ -1,0 +1,26 @@
+PASS  loaded http://localhost:5181/sites/KOBO-001/assets/2661fe42-55be-4ad4-bb96-9e653d18231a: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset-kobo001-s701 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset-kobo001-s701 1440: mock rendered its panels
+PASS  asset-kobo001-s701 1440: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-kobo001-s701 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-001/assets/2661fe42-55be-4ad4-bb96-9e653d18231a: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-kobo001-s701 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-kobo001-s701 390: mock rendered its panels
+PASS  asset-kobo001-s701 390: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-kobo001-s701 390: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000: laid out at the requested 1440px (innerWidth 1440, clientWidth 1440)  {"requested":1440,"innerWidth":1440,"clientWidth":1440,"ok":true}
+PASS  asset-refusal-kobo002 1440: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 1440px (innerWidth 1440, clientWidth 1425)  {"requested":1440,"innerWidth":1440,"clientWidth":1425,"ok":true}
+PASS  asset-refusal-kobo002 1440: mock rendered its panels
+PASS  asset-refusal-kobo002 1440: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-refusal-kobo002 1440: app has no horizontal page overflow  {"overflowX":0}
+PASS  loaded http://localhost:5181/sites/KOBO-002/assets/00000000-0000-4000-8000-000000000000: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-refusal-kobo002 390: app rendered its main content
+PASS  loaded http://localhost:5181/mockups/v69/index.html#/asset: laid out at the requested 390px (innerWidth 390, clientWidth 390)  {"requested":390,"innerWidth":390,"clientWidth":390,"ok":true}
+PASS  asset-refusal-kobo002 390: mock rendered its panels
+PASS  asset-refusal-kobo002 390: app and mock render the same number of panels  {"app":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and its limits"],"mock":["Observed reserve and power exposure","Interpretation and next evidence","Condition evidence and claim boundary"]}
+PASS  asset-refusal-kobo002 390: app has no horizontal page overflow  {"overflowX":0}
+
+24/24 claims passed; evidence in .agent/post-W6-audit/batch-01/s701
