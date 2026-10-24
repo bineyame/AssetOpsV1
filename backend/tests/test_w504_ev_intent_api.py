@@ -292,3 +292,65 @@ def test_producer_refuses_mismatched_window_or_clock(ev) -> None:
             producer.read_k0(shifted, ev.code, LO, HI)
     finally:
         close()
+
+
+# ==== W5-04c V5 closeout: public session -> selected Finding -> Action -> intent, and no automatic work ==========
+
+WORK_TABLES = ("work_case", "incident", "maintenance_work_request", "maintenance_record", "work_event",
+               "domain_action_case_link")
+
+
+def test_v5_ev_lineage_from_public_session_to_intent_without_automatic_work(ev) -> None:
+    """W5-04 task acceptance 1 and 3: the producer's public session list and selected Finding (K0 window) root the
+    Action and its intent; the product GET reads the same chain back with three `PENDING` results citing nothing and
+    no work link. Posting the Action and intent opens no Incident, Maintenance request, performed record or case link,
+    and leaves the observed session exactly as it was (it stays an observation, never a verified outcome)."""
+    own, _ = members(ev)
+    get, close = _ev_reads(ev)
+    api = Api(ev)
+    bounds = {"from": producer.text_of(LO), "to": producer.text_of(HI)}
+
+    def session_rows():
+        status, body = get(f"/api/sites/{ev.code}/ev/sessions", bounds)
+        assert status == 200, body
+        rows = [r for r in body.get("items") or () if str(r["session_id"]).lower() == own.lower()]
+        assert len(rows) == 1, body
+        return rows[0]
+
+    try:
+        before = session_rows()
+        with ev.engine.connect() as c:
+            work_before = [c.execute(text(f"SELECT count(*) FROM {t}")).scalar_one() for t in WORK_TABLES]
+        assert work_before == [0] * len(WORK_TABLES)
+        selected = producer.read_k0(get, ev.code, LO, HI)
+        assert selected.session_id.lower() == own.lower()
+        assert selected.finding_revision_id == str(ev.revision["id"])
+        with ev.engine.connect() as c:
+            raised = c.execute(text("SELECT clock_timestamp()")).scalar_one() - _timedelta(seconds=1)
+        action = api.post("", producer.action_body(selected, raised, "w504c-v5-action"))
+        assert action.status_code == 201, action.text
+        aid = action.json()["id"]
+        intent = api.post(f"/{aid}/intents", producer.intent_body(
+            selected, selected.finding_revision_id, producer.instant(action.json()["recorded_at"]), "w504c-v5-intent"))
+        assert intent.status_code == 201, intent.text
+        for params in ({}, {"known_at": intent.json()["recorded_at"]}):
+            detail = api.get(f"/actions/{aid}", **params)
+            assert detail.status_code == 200, detail.text
+            body = detail.json()
+            assert body["action"]["domain"] == "EV_CHARGING" and body["action"]["state"] == "OPEN"
+            assert body["intent"]["id"] == intent.json()["intent_id"]
+            assert body["intent"]["basis"]["finding_revision_id"] == selected.finding_revision_id
+            assert body["intent"]["basis"]["session_ids"] == [own.lower()]
+            assert set(body["intent"]["basis"]["accepted_evidence_ids"]) == {e.lower() for e in selected.accepted_evidence_ids}
+            assert [(r["key"], r["result"], r["evidence_ids"]) for r in body["results"]] == [
+                (k, "PENDING", []) for k, _, _ in d.EV_CRITERIA]
+            assert body["links"]["finding"]["label"] == f"Finding {ev.revision['finding_id'][:8]}"
+            assert all(v is None for v in body["links"]["work"].values()), body["links"]["work"]
+            assert body["status"] in ("CURRENT", "HISTORICAL")
+        with ev.engine.connect() as c:
+            work_after = [c.execute(text(f"SELECT count(*) FROM {t}")).scalar_one() for t in WORK_TABLES]
+        assert work_after == work_before
+        assert session_rows() == before
+    finally:
+        api.close()
+        close()
