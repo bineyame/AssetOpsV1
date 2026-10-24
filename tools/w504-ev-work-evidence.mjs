@@ -100,7 +100,7 @@ function send(method, params = {}) {
   seq += 1;
   const id = seq;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`timeout ${method}`)), 60000);
+    const timer = setTimeout(() => reject(new Error(`timeout ${method}`)), Number(process.env.W504B_CDP_TIMEOUT_MS ?? 60000));
     pending.set(id, (msg) => {
       clearTimeout(timer);
       msg.error ? reject(new Error(JSON.stringify(msg.error))) : resolve(msg.result);
@@ -109,7 +109,17 @@ function send(method, params = {}) {
   });
 }
 async function js(expression) {
-  const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+  // V3b: under a loaded machine an evaluation issued while a navigation commits can stay unanswered; retry it
+  // (bounded) instead of waiting out the whole CDP timeout. Expressions here are read-only or idempotent.
+  let r;
+  for (let attempt = 1; ; attempt += 1) {
+    const call = send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+    call.catch(() => {});
+    r = await Promise.race([call, sleep(20000).then(() => null)]);
+    if (r !== null) break;
+    if (attempt >= 5) throw new Error("Runtime.evaluate unanswered after 5 attempts");
+    console.log(`INFO  evaluate retry ${attempt}`);
+  }
   if (r.exceptionDetails) throw new Error(`page eval: ${JSON.stringify(r.exceptionDetails).slice(0, 400)}`);
   return r.result.value;
 }
@@ -318,7 +328,8 @@ const dayBefore = (iso) => new Date(Date.parse(iso) - 86400000).toISOString().re
 // Every row is a walkthrough row (pre-flight 23): `positive` after `attest` (the submitted INC/WR + record + explicit
 // domain Action case links), `zero`, `worstcase` (five long INC and five long WR from the walkthrough) and `forbidden`.
 const CASE_CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 650], panelOneOpen: [650, 680], emptyPanel: [460, 560], notice: [110, 160] };
-const CASE_READY = `document.querySelector('[data-work-loaded], [data-work-empty], [data-work-refused]') || (document.querySelector('main') && !document.querySelector('.work-cases') && /unavailable|could not|not reachable|not found/i.test(document.querySelector('main').innerText))`;
+// Every cases-mode state renders the case panel (no Site-level refusal is captured here), so only a settled case panel counts.
+const CASE_READY = `document.querySelector('.work-cases [data-work-loaded], .work-cases [data-work-empty], .work-cases [data-work-refused]')`;
 const caseMeasure = (kind) => `(() => {
   const h = (e) => (e ? Math.round(e.getBoundingClientRect().height) : null);
   const main = document.querySelector('main');
@@ -398,11 +409,17 @@ const caseMeasure = (kind) => `(() => {
       const previews = [...td.querySelectorAll('.work-cases-clamp')].filter((c) => c.closest('[data-domain-work-longtext]'));
       const bodies = [...td.querySelectorAll('details[open] > .disclosure__body')];
       const codes = [...td.querySelectorAll('details[open] .disclosure__body > code, details[open] .fact-list__value > code')];
-      return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: [...td.querySelectorAll('*')].every(inside),
+      // W5-02c rulings 12/14 (the cold K3b precedent): a UUID code may overflow only inside its own scroller (a
+      // direct-code disclosure body or \`.fact-list__value:has(> code)\`), and only while that scroller stays in the cell.
+      const codeScroller = (x) => x != null && x.matches('.disclosure__body, .fact-list__value') && x.querySelector(':scope > code') !== null && getComputedStyle(x).overflowX === 'auto';
+      const contained = (e) => inside(e) || (e.tagName === 'CODE' && codeScroller(e.parentElement) && inside(e.parentElement));
+      const outside = [...td.querySelectorAll('*')].filter((e) => !contained(e));
+      return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: outside.length === 0,
+        outside: outside.slice(0, 3).map((e) => { const b = e.getBoundingClientRect(); return { tag: e.tagName, cls: e.className, attrs: e.getAttributeNames().join(' '), left: Math.round(b.left - box.left), right: Math.round(b.right - box.right), text: e.textContent.trim().slice(0, 40) }; }),
         clampFits: previews.every((c) => c.scrollWidth <= c.clientWidth + 1),
         previewLines: previews.map((c) => Math.round(c.getBoundingClientRect().height / lineBox(c))),
         openBodyInside: bodies.every(inside), openBodies: bodies.length,
-        uuidOneLine: codes.every((c) => lines(c) === 1), uuidScrollerInside: codes.every((c) => inside(c.parentElement)), uuids: codes.length,
+        uuidOneLine: codes.every((c) => lines(c) === 1), uuidScrollerInside: codes.every((c) => codeScroller(c.parentElement) && inside(c.parentElement)), uuids: codes.length,
         fullText: [...td.querySelectorAll('[data-domain-work-longtext="open"] details[open] > .disclosure__body')].map((b) => b.textContent.trim().length) };
     }),
     badgesClipped: badges.filter((b) => b.scrollWidth > b.clientWidth + 1).length,
@@ -453,6 +470,9 @@ function caseRowClaims(W, label, m, expectRows) {
   }
 }
 async function caseRecord(W, wi, kind, state, url, afterLoad) {
+  // The previous capture's settled DOM would satisfy CASE_READY before the navigation commits: leave it first.
+  await send("Page.navigate", { url: "about:blank" });
+  await waitFor("location.href === 'about:blank' && document.readyState === 'complete'");
   const ok = await go(url, CASE_READY);
   if (afterLoad) await afterLoad();
   const m = await js(caseMeasure(kind));
@@ -497,7 +517,8 @@ async function mainCases() {
       m = await caseRecord(W, wi, kind, "submitted", `${base("positive")}${path}?${q({ from: SW.from, to: SW.to })}`);
       claim(`${W} ${kind} submitted: stored Site name, R78 subtitle, mock strip and Manage link to the mounted W6 root`,
         m.h1?.includes(P.site.display_name) && m.subtitle && m.scope === `Scoped to ${P.site.display_name.split(/\s+/)[0]} · 1 ${words.noun}` && m.stripDetail?.startsWith(`Same records and states as the global ${words.global} list`)
-          && m.manage?.text === `Manage in ${words.global} →` && m.manage?.href === `/${kind}?${q({ from: SW.from, to: SW.to })}`,
+          // W6-01a A2: the Site window plus the cutoff (no explicit `known_at` here, so the loaded list's own `known_at`).
+          && m.manage?.text === `Manage in ${words.global} →` && (m.manage?.href ?? "").startsWith(`/${kind}?${q({ from: SW.from, to: SW.to })}&known_at=`),
         { h1: m.h1, scope: m.scope, strip: m.stripDetail, manage: m.manage });
       claim(`${W} ${kind} submitted: mock columns and panel-head subtitle`, JSON.stringify(m.headings) === JSON.stringify(words.columns) && m.panelDescription === words.subtitle, { headings: m.headings, subtitle: m.panelDescription });
       claim(`${W} ${kind} submitted: CURRENT, no notice; R105 basis and R106 pages`, m.currentness === null && m.basis && m.showing === "Showing 1–1 of 1", { currentness: m.currentness, showing: m.showing });
