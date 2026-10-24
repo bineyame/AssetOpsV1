@@ -2442,3 +2442,10 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - Handoff should name the uncaptured states: Incident Finding version disclosure with R75 (producer posts finding_links: []), the No asset linked fallback, and the late state; all are covered by component tests.
 - Maintenance asset capture claim (w504-ev-work-evidence.mjs:537) passes for any value; compare against the manifest asset label.
 - UI pass: strip grammar "1 incidents"/"1 maintenance" and raw asset label "c1 · EV_CONNECTOR".
+
+## W5-04c Lows and Architect carries
+- Architect (retrospective batch): ratify V4a edit to w1f4ChangesWorkStructure.test.tsx (forced by the link switch); confirm strict EV parser (non-PENDING EV result => unexpected shape; a future evaluator must widen EV_DOMAIN_RESULTS and labels together); confirm 409, missing-intent UNKNOWN and in-panel 503 are component-test-only (build spec line 88 says V4b captures 409).
+- DomainActionPresentation.windowQuery is set but unread (SiteAnalyticsFrames.tsx:1643 uses site_type).
+- V5 no-write check omits work_case_action_link, work_case_finding_link, work_case_revision, verification_outcome, verification_evaluation_request; compares only the cited session; status in (CURRENT,HISTORICAL) accepts a swap (test_w504_ev_intent_api.py:299,313-317,349).
+- R113 cites 69+ (should be 71); W5-04c handoff opening and calls 1,2,9 read stale; old top-level W5-04c captures assert the bare link and are not marked superseded by post-w504b/.
+- UI pass: dark mobile header stretches to ~275-335 px on short 390 pages (also cold K4).
