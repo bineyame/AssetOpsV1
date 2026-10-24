@@ -4,7 +4,7 @@ Architect plan, 2026-10-24. Each card is a reviewable vertical correction on a f
 
 ## Sequencing and shared files
 
-Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 EV, W6 global in that merge order. The `a` card precedes `b` within a seam. Parallel work is safe only for W3 estate with W5 cold while their listed files stay disjoint; W5 cold/EV both touch `siteWorkCases.tsx` and `domainActionClient.ts`, W1/W2 touch `App.tsx`, and shell touches all captures. Rebase and recapture after every merge that changes shared navigation. Each card has five build units: (1) correct structure/routing; (2) correct selected data and copy; (3) correct refusals and long content; (4) focused tests; (5) paired recaptures and cap proof. Split cards divide affected panels, with no shared-file parallelism within one seam.
+Run shell first: its CSS/tokens, Action frame crumbs and Work count copy have shared reach. After it merges, W1-a then W1-b are serial. W2-cold, W2-EV and W3-estate can run in parallel with each other and with W1; W4-mini can join that group only after W1-b releases their shared `SiteAnalyticsFrames.tsx`. W5-cold-Work and W5-EV-Work can develop separate cold/EV components in parallel after their W2 predecessors; serialize their edits to `DomainActionVerification.tsx`. W6-global-Work can run alongside W2/W3/W4/W5 after shell, but rebase and refresh affected cases before merge. W4 and W5 case pages use `siteWorkCases.tsx`; if either changes that shared file, serialize those edits and recapture mini/cold/EV case screens. R373 builds separately on `task/post-W6-R373-request-access`; rebase W6 after it lands and keep B19 403/200 recapture in W6. No card owns `App.tsx` merely to change already-mounted links. Each card has five build units: structure/routing; selected data/copy; refusals/long content; focused tests; paired recapture/cap proof. For each card recapture every indexed case of its listed screens at both widths, plus screens reached by any shared component it actually changes; use pure selected-DTO tests and record a capture gap where a producer cannot honestly create a state. Refresh affected representative cover cases after a shared-navigation merge.
 
 ## Cards
 
@@ -14,17 +14,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R115` (B1-02), `R119` (B1-06), `R120` (B1-07), `R125` (B1-14), `R127` (B1-16), `R129` (B1-21), `R130` (B1-22), `R133` (B1-25), `R140` (B1-43), `R141` (B1-55), `R149` (B1-66), `R151` (B1-53), `R152` (B1-54), `R170` (B2-21), `R203` (B4-03), `R319` (B13-01).
 
-**Panels and order:** `asset`: Observed reserve and power exposure → Interpretation and next evidence → Condition evidence and claim boundary; `changes`: Change and effect → Decision path; `evidence-analysis`: Accepted records behind the conclusions → How a claim limit is set; `foundation`: Configured topology → Identity & operating obligations → Time-valid control configuration; `readiness`: Readiness and commissioning evidence → Gateway status · GW-MG-01 → Connected sources → Effect on readiness and confidence; `sites`: Site inventory → In setup; `sitework-incidents`: Incidents at this site; `sitework-maintenance`: Maintenance at this site; `sld`: Kobo Mini-grid · AC-coupled mini-grid → What each part does.
+**Affected screens; panels in page order:** `sites`: breadcrumb/empty prose and provenance chip; `foundation`: Configured topology → Identity and operating obligations; `readiness`: closing notice and no-version heading; `sld`: diagram → unknown-part notice; `changes`: Change and effect → page-end notice, plus header crumb; `asset`: refusal prose; `evidence-analysis`: Accepted records behind the conclusions time column; `action-overview`, `action-plan`, `action-execution`, `action-evidence`, `action-history`: Action breadcrumb; `sitework-incidents`, `sitework-maintenance`, `cold-work-incidents`, `cold-work-maintenance`, `ev-work-incidents`, `ev-work-maintenance`: count strip. Other panels on those pages are regression-only.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
-**States:** all 87 baseline screens at 1440/390; every short refusal; singleton counts; UTC/EAT.
+**States:** one case for each of 87 baseline screens, then every indexed case of the 18 affected screens: short refusal, singleton/zero/plural count, plan available/pending/failed, no-version, and Addis/UTC evidence time.
 
-**Files:** frontend/src/App.tsx; frontend/src/shell/OperatorShellLayout.tsx; frontend/src/shell/WorkspaceShellLayout.tsx; frontend/src/sites/domainActionClient.ts; frontend/src/sites/siteWorkCases.tsx; frontend/src/sites/EvHealthDepth.tsx; frontend/src/work/globalWorkParts.tsx; frontend/src/work/WorkRequestOverview.tsx.
+**Files:** `frontend/src/ui/primitives.css`, `ui/tokens.css`, `ui/Badge.tsx`, `ui/V69Layout.tsx`; `shell/SitesFrame.tsx`, `shell/SiteFoundationFrame.tsx`, `shell/SiteAnalyticsFrames.tsx`, `shell/SiteHealthFrames.tsx`, `shell/SiteEvidenceFrame.tsx`; `sites/SitesIndex.tsx`, `sites/StoredFoundationViews.tsx`, `sites/FoundationRevisionPanel.tsx`, `sites/SiteSingleLineDiagram.tsx`, `sites/SiteFoundationChange.tsx`, `sites/SiteBattery.tsx`, `sites/LedgerSiteEvidence.tsx`, `sites/siteWorkCases.tsx`; read `sites/verificationClient.ts` for the frozen plan. All paths after the first are under `frontend/src/`. Edit only where the ruling needs it.
 
-**Tests:** frontend/src/sites/__tests__/siteWorkCases.test.tsx; frontend/src/work/__tests__/globalWorkClient.test.ts; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/siteWorkCases.test.tsx`, `coldWorkCases.test.tsx`, `evWorkCases.test.tsx`, `siteAction.test.tsx`, `foundationScreen.test.tsx`; `shell/__tests__/v01bEvidenceVisual.test.tsx`, `siteFoundationRevision.test.tsx`; existing shell/SLD and shared vocabulary tests. Add plan loaded/pending/error, Site-timezone/UTC, no-version name, Action crumb, count grammar and CSS-row assertions.
 
-**Paired recaptures:** all 87 baseline screens at 1440/390; every short refusal; singleton counts; UTC/EAT. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** 174 representative pairs across the 87 baseline screens plus all 230 indexed pairs of the 18 screens above (overlap allowed), from the frozen index's 21-producer cover. Record current SHA, panel order, time basis, overflow and closed heights; capture open UTC/technical disclosures as explicit viewer states.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -34,17 +34,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R156` (B2-07), `R157` (B2-08), `R159` (B2-10), `R164` (B2-15), `R171` (B2-22), `R178` (B2-29), `R184` (B3-01), `R185` (B3-02), `R186` (B3-03), `R187` (B3-04), `R188` (B3-05), `R189` (B3-06), `R190` (B3-07), `R191` (B3-08), `R192` (B3-09), `R193` (B3-10), `R195` (B3-12), `R196` (B3-13).
 
-**Panels and order:** `dispatch`: Sources and 15-minute blocks → Selected block · 14:20–14:35 → Accepted sample coverage; `evidence-analysis`: Accepted records behind the conclusions → How a claim limit is set; `finding`: What happened → What limits this conclusion → What to do next → Where to look next; `finding-evidence`: Evidence bundle · F-104 → Inspect source lineage; `finding-history`: Revision history; `mini`: What happened in the selected hour → Operating context → Needs attention → Bounded money consequence → Next step; `sitefindings`: Findings at this site.
+**Affected screens; panels in page order:** `mini`: breadcrumb → objective cards → Operating context and SLD link → failed-day rows; `evidence-analysis`: Accepted records behind the conclusions → How each limit is set; `dispatch`: selected-block refusal; `finding`: section tabs → header/strip → What happened → What limits this conclusion → What to do next → Where to look next; `finding-evidence`: section tabs/header → Evidence bundle; `finding-history`: section tabs/header → Revision history; `sitefindings`: lens chips → scope strip → Findings at this site. Adjacent panels are regression-only.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B1–B5 representative, priced, held, failed, unknown, selected and refused at both widths.
 
-**Files:** frontend/src/sites/SiteFinding.tsx; frontend/src/sites/SiteFindingEvidence.tsx; frontend/src/sites/SiteFindingHistory.tsx; frontend/src/sites/SiteAction.tsx; frontend/src/sites/SiteActionVerification.tsx; frontend/src/sites/SiteWorkActions.tsx; frontend/src/sites/miniDepthClient.ts; frontend/src/App.tsx.
+**Files:** `frontend/src/sites/SiteOverview.tsx`, `LedgerSiteEvidence.tsx`, `EvidenceClaimLimit.tsx`, `PerformanceDispatch.tsx`, `SiteFinding.tsx`, `SiteFindingEvidence.tsx`, `SiteFindingHistory.tsx`, `SiteFindingIndex.tsx`; `shell/SiteAnalyticsFrames.tsx` for existing route links. No Action or App edit in this card.
 
-**Tests:** frontend/src/sites/__tests__/siteAction.test.tsx; frontend/src/sites/__tests__/siteActionVerification.test.tsx; frontend/src/sites/__tests__/siteWorkActions.test.tsx; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/siteFinding.test.tsx`, `siteFindingEvidence.test.tsx`, `siteFindingHistory.test.tsx`, `evidenceClaimLimit.test.tsx`, Overview/Dispatch tests and `shell/__tests__/s404SiteFindingIndex.test.tsx`; add failed-day key and wrong-revision refusal cases.
 
-**Paired recaptures:** B1–B5 representative, priced, held, failed, unknown, selected and refused at both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 88 indexed pairs for `mini`, `evidence-analysis`, `dispatch`, `finding`, `finding-evidence`, `finding-history`, `sitefindings`; both widths, including failed, selected, unknown and refused. Record the current SHA and cap proof.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -54,17 +54,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R197` (B3-14), `R198` (B3-15), `R199` (B3-16), `R200` (B3-17), `R201` (B3-18), `R202` (B4-01), `R204` (B4-04), `R205` (B4-05), `R209` (B4-10), `R218` (B4-19), `R219` (B4-20), `R220` (B4-21), `R221` (B4-22), `R222` (B4-24), `R223` (B5-01), `R228` (B5-07), `R229` (B5-08), `R230` (B5-09).
 
-**Panels and order:** `action-evidence`: Evidence requirements; `action-history`: Action history; `action-plan`: Success criteria; `assumptions`: Financial assumptions → Impact preview → Interpretation history; `financials`: What happened → what it means in money → Assumptions in use → Trade-offs and exclusions; `recommendation`: Proposed intervention → Declare success before evaluating → Evidence needed to verify; `sitefindings`: Findings at this site; `sitework`: Actions at this site; `verification`: Target and guardrails evaluated together → Activity evidence → Outcome evidence.
+**Affected screens; panels in page order:** `sitefindings`: Findings at this site table; `financials`: KPI/bridge → Assumptions in use → Trade-offs and exclusions; `assumptions`: Financial assumptions → Interpretation history; `recommendation`: Proposed intervention → Declare success before evaluating → Evidence needed to verify; `action-overview`: Action scope/refusal; `action-plan`: Success criteria; `action-execution`: Activity log; `action-evidence`: Evidence requirements; `action-history`: Action history; `verification`: Target and guardrails evaluated together → Activity evidence → Outcome evidence; `sitework`: Actions at this site. B4 “all six” includes Recommendation and five Action views; no unrelated panel is in scope.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B1–B5 representative, priced, held, failed, unknown, selected and refused at both widths.
 
-**Files:** frontend/src/sites/SiteFinding.tsx; frontend/src/sites/SiteFindingEvidence.tsx; frontend/src/sites/SiteFindingHistory.tsx; frontend/src/sites/SiteAction.tsx; frontend/src/sites/SiteActionVerification.tsx; frontend/src/sites/SiteWorkActions.tsx; frontend/src/sites/miniDepthClient.ts; frontend/src/App.tsx.
+**Files:** `frontend/src/sites/SiteFindingIndex.tsx`, `SiteFinancials.tsx`, `SiteAction.tsx`, `actionPresentation.tsx`, `SiteActionVerification.tsx`, `SiteWorkActions.tsx`; `shell/SiteAnalyticsFrames.tsx` for mounted route/section behavior. No Finding Evidence/History, mini depth client or App edit.
 
-**Tests:** frontend/src/sites/__tests__/siteAction.test.tsx; frontend/src/sites/__tests__/siteActionVerification.test.tsx; frontend/src/sites/__tests__/siteWorkActions.test.tsx; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/siteAction.test.tsx`, `siteActionVerification.test.tsx`, `siteWorkActions.test.tsx`, Financials/assumption and Finding index tests; add unknown Action section, long history page, verification and work-link cases.
 
-**Paired recaptures:** B1–B5 representative, priced, held, failed, unknown, selected and refused at both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 118 indexed pairs for `sitefindings`, `financials`, `assumptions`, `recommendation`, five `action-*`, `verification`, `sitework`; both widths, including unknown section, verified replay, historical and long-row states. Record current SHA and closed-height caps.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -74,17 +74,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R241` (B6-10), `R242` (B6-11), `R244` (B6-13), `R245` (B6-14), `R246` (B6-15), `R247` (B6-17), `R249` (B6-20), `R253` (B7-01), `R254` (B7-03), `R255` (B7-04), `R256` (B7-05), `R258` (B7-07), `R259` (B7-08), `R261` (B7-11).
 
-**Panels and order:** `cold`: What happened · power → cooling → product conditions → Chamber temperature → Needs attention → Bounded money consequence → Next step; `cold-assumptions`: Financial assumptions; `cold-evidence`: What we can conclude now → Data sources · data quality, not equipment condition → Most useful next evidence; `cold-evidence-analysis`: Accepted records behind the conclusions → How a claim limit is set; `cold-financials`: What happened → what it means in money → Assumptions in use → Not included; `cold-finding`: Bounded conclusion → Operational context → Recommended next step; `cold-findings`: Findings at this site; `coldbackup`: What the chain shows → Reconstructed event chain → Backup event chains → Evidence by causal step; `temperature`: Temperature with operating context → Excursion context → Claim boundary.
+**Affected screens; panels in page order:** `temperature`: Temperature with operating context → Excursion context → Claim boundary; `coldbackup`: What the chain shows → Reconstructed event chain → Backup event chains → Evidence by causal step; `cold-finding`: Bounded conclusion → Operational context → Recommended next step; `cold-findings`: Findings at this site; `cold`: event narrative/cards → Chamber temperature → Next step; `cold-evidence`: What we can conclude now → Most useful next evidence; `cold-evidence-analysis`: Accepted records behind the conclusions; `cold-financials`, `cold-assumptions`: Site tab/window state and respective selected panel. Other panels are regression-only.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B6–B7 plus cold-finding-excursion representative and false Findings reason; both widths.
 
-**Files:** frontend/src/sites/coldSiteViews.tsx; frontend/src/sites/SiteFindingIndex.tsx; frontend/src/shell/coldSiteRoutes.tsx; frontend/src/App.tsx.
+**Files:** `frontend/src/sites/ColdAssessmentViews.tsx`, `coldSiteViews.tsx`, `SiteFindingIndex.tsx`; `shell/coldSiteRoutes.tsx` for mounted destination/window links. Read `ColdDepthClient.ts` to preserve selected-row semantics. Keep App routing unchanged.
 
-**Tests:** frontend/src/sites/__tests__/coldSiteViews.test.tsx; frontend/src/shell/__tests__/s404SiteFindingIndex.test.tsx; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/coldSiteViews.test.tsx`, `coldDepth.test.tsx`, `coldRoutes.test.tsx`; `shell/__tests__/s404SiteFindingIndex.test.tsx`; add event-chain order, Finding destination, selected-window and refusal assertions.
 
-**Paired recaptures:** B6–B7 plus cold-finding-excursion representative and false Findings reason; both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 92 indexed pairs for the nine screens above, plus the absent-from-index `cold-finding-excursion` representative at 1440/390 and its false Findings reason. Include selected/refused/historical; record current SHA and cap proof.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -94,17 +94,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R265` (B8-06), `R267` (B8-08), `R268` (B8-12), `R270` (B8-14), `R271` (B8-15), `R275` (B8-19), `R276` (B8-20), `R280` (B8-24), `R281` (B8-27), `R283` (B9-03), `R284` (B9-05), `R285` (B9-08), `R286` (B9-09).
 
-**Panels and order:** `ev`: What happened on the service day → Charging activity and site power → Needs attention → Bounded money consequence → Next step; `ev-assumptions`: Financial assumptions; `ev-evidence`: What we can conclude now → Data sources · data quality, not equipment condition → Most useful next evidence; `ev-evidence-analysis`: Accepted records behind the conclusions → How a claim limit is set; `ev-financials`: What happened → what it means in money → Assumptions in use → Not included; `ev-finding`: Bounded conclusion → Operational context → Recommended next step; `ev-readiness`: Readiness and commissioning evidence → Gateway status · GW-EV-01 → Connected sources → Effect on readiness and confidence; `sessions`: Session service records → How to read the denominator → Cause remains bounded.
+**Affected screens; panels in page order:** `ev-readiness`: Readiness and commissioning evidence → Gateway status; `sessions`: Session service records → How to read the denominator → Cause remains bounded; `ev-finding`: Bounded conclusion → Operational context → Recommended next step; `ev`: event/charging cards → Next step; `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions`: Site tab/window state and the selected evidence/money panel. Connected sources and other adjacent panels are regression-only.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B8–B9, EV main-tab destinations, refused and missing-meter; both widths.
 
-**Files:** frontend/src/sites/EvSiteViews.tsx; frontend/src/sites/evDepthClient.ts; frontend/src/shell/evSiteRoutes.tsx; frontend/src/App.tsx.
+**Files:** `frontend/src/sites/EvFoundationViews.tsx`, `EvAssessmentViews.tsx`, `EvSiteViews.tsx`; `shell/evSiteRoutes.tsx` for mounted destination/window links. Read `evDepthClient.ts` to preserve selected-row semantics. Keep App routing unchanged.
 
-**Tests:** frontend/src/sites/__tests__/evDepth.test.tsx; frontend/src/sites/__tests__/evSiteMoneyRoutes.test.tsx; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/evFoundation.test.tsx`, `evAssessmentRoutes.test.tsx`, `evDepth.test.tsx`, `evSiteMoneyRoutes.test.tsx`; add session denominator, Finding link, tab-window and missing-meter assertions.
 
-**Paired recaptures:** B8–B9, EV main-tab destinations, refused and missing-meter; both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 92 indexed pairs for the eight screens above, plus `ev-findings` as a destination regression for changed EV links; both widths, including interrupted, refused and missing-meter. Record current SHA and cap proof.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -114,17 +114,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R293` (B10-07), `R294` (B10-08), `R295` (B10-09), `R296` (B11-01), `R297` (B11-02), `R300` (B11-05), `R302` (B11-07), `R307` (B11-12), `R308` (B11-13).
 
-**Panels and order:** `actions`: Managed actions; `findings`: Findings across the estate; `findings-cost`: Cost lens; `findings-opportunities`: Opportunities lens; `findings-risks`: Risks lens; `globalevidence`: Capability coverage across sites → Recurring evidence gaps; `globalfinancials`: Consequence register → Aggregation rule; `portfolio`: Where management should act first → Objectives across the estate → An opportunity beyond reducing cost → What changed in this review.
+**Affected screens; panels in page order:** `actions`: Managed actions title/criterion; `findings`: Findings across the estate rows/390 title; `findings-cost`, `findings-risks`, `findings-opportunities`: selected pending/partial lens rows; `globalevidence`: Capability coverage across sites → Recurring evidence gaps; `globalfinancials`: Consequence register → Aggregation rule; `portfolio`: Where management should act first → Objectives across the estate → scope disclosure and Site/Finding links. Other panels are regression-only.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B10–B11 clean, partial, pending, historical, page two and long-row; both widths.
 
-**Files:** frontend/src/estate/findingIndex.tsx; frontend/src/estate/actionIndex.tsx; frontend/src/estate/EstateEvidence.tsx; frontend/src/estate/EstateFinancials.tsx; frontend/src/estate/EstatePortfolio.tsx; backend/assetops_backend/estate/index.py; backend/assetops_backend/estate/evidence_money.py; backend/assetops_backend/estate/financials.py; backend/assetops_backend/estate/portfolio.py.
+**Files:** `frontend/src/estate/actionIndex.tsx`, `findingIndex.tsx`, `EstateEvidence.tsx`, `EstateFinancials.tsx`, `EstatePortfolio.tsx`; their existing estate styles if wrap/scroll is required. The nine D3 rows are presentation, navigation and selected-copy defects; no backend estate file is assigned without a demonstrated DTO omission.
 
-**Tests:** frontend/src/estate/__tests__/estateRoots.test.tsx; frontend/src/estate/__tests__/estateEvidence.test.tsx; frontend/src/estate/__tests__/estatePortfolio.test.tsx; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `estate/__tests__/estateRoots.test.tsx`, `estateEvidence.test.tsx`, `estatePortfolio.test.tsx`, `estatePortfolioRoutes.test.tsx`; add pending/partial row, 390 unclamped title, real link and bounded scope-disclosure cases.
 
-**Paired recaptures:** B10–B11 clean, partial, pending, historical, page two and long-row; both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 128 indexed pairs for `actions`, four Findings lenses, `globalevidence`, `globalfinancials`, `portfolio`; both widths, including pending, partial, page two, long text and refused. Add the KOBO-001 W1 landing proof for corrected links. Record current SHA/caps.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -134,17 +134,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R309` (B12-02), `R310` (B12-03), `R311` (B12-04), `R312` (B12-05), `R313` (B12-06), `R316` (B12-09), `R318` (B12-11), `R320` (B13-02), `R321` (B13-03), `R322` (B13-04), `R324` (B13-06), `R325` (B13-07), `R328` (B13-11), `R331` (B13-15), `R333` (B13-18).
 
-**Panels and order:** `alternatives`: Alternatives to investigate; `backup`: Backup event chains → Backup readiness evidence → Operating evidence → Next evidence; `fuel`: Fuel balance at a glance → Balance bridge → Inspect existing generator fuel interpretation; `opportunity-finding`: Bounded opportunity → Next decision → Consequence basis; `renewable`: From physical headroom to an opportunity → Productive-use evaluation → Eligible and excluded windows; `scenarios`: Financial scenarios; `service`: Where the power went → Delivered power by addressed load → What is supported → What unlocks a service conclusion; `sitework-incidents`: Incidents at this site; `sitework-maintenance`: Maintenance at this site.
+**Affected screens; panels in page order:** `renewable`: tone/decision cards → From physical headroom to an opportunity → Productive-use evaluation → Eligible and excluded windows; `service`: tone/decision cards → Where the power went → Delivered power by addressed load → What is supported; `fuel`: tone/decision cards → Fuel balance at a glance → Balance bridge; `backup`: tone/decision cards → Backup event chains → Backup readiness evidence; `sitework-incidents`, `sitework-maintenance`: list/refusal strip → cases and unclamped text; `opportunity-finding`: Bounded opportunity → Next decision → Consequence basis; `scenarios`: Financial scenarios; `alternatives`: Alternatives to investigate and route/header. Adjacent panels are regression-only.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B12–B13 stocked, zero, DB-time 409, refused, page two and long-row; both widths.
 
-**Files:** frontend/src/sites/SiteWorkIncidents.tsx; frontend/src/sites/SiteWorkMaintenance.tsx; frontend/src/sites/siteWorkCases.tsx; frontend/src/sites/miniDepthClient.ts; frontend/src/sites/MiniPerformance.tsx; frontend/src/sites/MiniScenarios.tsx.
+**Files:** `frontend/src/sites/MiniPerformance.tsx`, `MiniOpportunity.tsx`, `MiniScenarios.tsx`, `MiniAlternatives.tsx`, `SiteWorkIncidents.tsx`, `SiteWorkMaintenance.tsx`, `siteWorkCases.tsx`; `shell/SiteAnalyticsFrames.tsx` for the mounted mini destination/header. Read `miniDepthClient.ts` for selected-state semantics.
 
-**Tests:** frontend/src/sites/__tests__/siteWorkCases.test.tsx; frontend/src/sites/__tests__/miniDecisions.test.tsx; frontend/src/sites/__tests__/miniRenewableRoutes.test.tsx; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/siteWorkCases.test.tsx`, `miniRenewableRoutes.test.tsx`, `miniServiceRoutes.test.tsx`, `miniFuelRoutes.test.tsx`, `miniBackupRoutes.test.tsx`; existing mini decision/scenario and opportunity Finding tests. Add long narrative, zero, bad-window and tab visibility cases.
 
-**Paired recaptures:** B12–B13 stocked, zero, DB-time 409, refused, page two and long-row; both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 96 indexed pairs for `renewable`, `service`, `fuel`, `backup`, `sitework-incidents`, `sitework-maintenance`, `opportunity-finding`, `scenarios`, `alternatives`; both widths, including zero, DB-time 409, refused and long text. If `siteWorkCases.tsx` changes, add cold/EV case-page regression pairs. Record SHA/caps.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -154,17 +154,17 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R334` (B14-03), `R336` (B14-07), `R337` (B14-08), `R338` (B14-09), `R339` (B14-10), `R344` (B15-10).
 
-**Panels and order:** `cold-action`: Declared outcome criteria → Related activity; `cold-health`: Condition and evidence; `cold-scenarios`: Financial scenarios; `cold-work`: Actions at this site; `cooling`: Recovery curves → Context normalization → Next best evidence.
+**Affected screens; panels in page order:** `cold-work`: Actions at this site count/empty state and default window; `cooling`: selected/pending notice → Recovery curves → Context normalization; `cold-health`: selected/pending notice → Condition and evidence; `cold-scenarios`: Financial scenarios placeholder/notice; `cold-action`: Declared outcome criteria → Related activity linked-request copy. Window preservation applies across these five screens; other panels are regression-only.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B14–B15 positive, pending, unknown, zero, refused, forbidden and worst case; both widths.
 
-**Files:** frontend/src/sites/coldSiteViews.tsx; frontend/src/sites/DomainActionVerification.tsx; frontend/src/sites/siteWorkCases.tsx; frontend/src/sites/domainActionClient.ts.
+**Files:** `frontend/src/sites/coldSiteViews.tsx`, `ColdCooling.tsx`, `ColdHealthDepth.tsx`, `ColdScenarios.tsx`, `SiteWorkActions.tsx`, `DomainActionVerification.tsx`; `shell/coldSiteRoutes.tsx` for URL window preservation. Read `domainActionClient.ts` for linked-state semantics.
 
-**Tests:** frontend/src/sites/__tests__/coldDepth.test.tsx; frontend/src/sites/__tests__/coldWorkActions.test.tsx; frontend/src/sites/__tests__/domainActionVerification.test.tsx; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/coldDepth.test.tsx`, `coldHealthDepth.test.tsx`, `coldScenarios.test.tsx`, `coldWorkActions.test.tsx`, `domainActionVerification.test.tsx`; add current-day default, invalid window, zero Action, and exact linked VERIFICATION_WINDOW/CANCELLED copy.
 
-**Paired recaptures:** B14–B15 positive, pending, unknown, zero, refused, forbidden and worst case; both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 116 indexed pairs for `cold-work`, `cooling`, `cold-health`, `cold-scenarios`, `cold-action`; both widths, including pending, unknown, zero, refused and forbidden. A linked VERIFICATION_WINDOW/CANCELLED capture remains a declared producer gap until the story bootstrap exists; use selected-DTO tests now. Record SHA/caps.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -174,37 +174,37 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 **Exact D3 IDs:** `R345` (B16-06), `R346` (B16-07), `R347` (B16-16), `R348` (B17-04), `R349` (B17-06), `R350` (B17-08).
 
-**Panels and order:** `availability`: Connector states over the service schedule → Full-schedule availability bound → Most useful next evidence; `energy`: Import power and configured limit → What can be concluded → Technical-to-financial bridge; `ev-action`: Declared verification plan; `ev-health`: Condition and evidence; `ev-scenarios`: Financial scenarios; `ev-work`: Actions at this site.
+**Affected screens; panels in page order:** `availability`: schedule count/units → Connector states over the service schedule → Full-schedule availability bound; `energy`: selected bridge row → Import power and configured limit → What can be concluded; `ev-health`: Condition and evidence window state; `ev-scenarios`: Financial scenarios window state; `ev-work`: Actions at this site window state; `ev-action`: Declared verification plan → non-loaded/invalid-window refusal. R350 also checks the existing Action `/overview` link destination; it does not authorize rewriting W1 Action chrome.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B16–B17 positive, unknown, pending, stale, refused, forbidden and worst case; both widths.
 
-**Files:** frontend/src/sites/evDepthClient.ts; frontend/src/sites/DomainActionVerification.tsx; frontend/src/sites/siteWorkCases.tsx; frontend/src/sites/domainActionClient.ts; backend/tests/test_w504_ev_intent_api.py.
+**Files:** `frontend/src/sites/EvAvailability.tsx`, `EvEnergy.tsx`, `EvHealthDepth.tsx`, `EvScenarios.tsx`, `EvSiteViews.tsx`, `DomainActionVerification.tsx`; `shell/evSiteRoutes.tsx` for window/link propagation. Read `evDepthClient.ts` and `domainActionClient.ts` for DTO semantics. Backend `test_w504_ev_intent_api.py` is a test, not a production edit file.
 
-**Tests:** frontend/src/sites/__tests__/evDepth.test.tsx; frontend/src/sites/__tests__/evWorkActions.test.tsx; frontend/src/sites/__tests__/domainActionVerification.test.tsx; backend/tests/test_w504_ev_intent_api.py; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `sites/__tests__/evDepth.test.tsx`, `evEnergy.test.tsx`, `evHealthDepth.test.tsx`, `evScenarios.test.tsx`, `evWorkActions.test.tsx`, `domainActionVerification.test.tsx`; `backend/tests/test_w504_ev_intent_api.py` for existing intent contract. Add invalid-window, non-loaded, unit and bridge-value cases.
 
-**Paired recaptures:** B16–B17 positive, unknown, pending, stale, refused, forbidden and worst case; both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 124 indexed pairs for `availability`, `energy`, `ev-health`, `ev-scenarios`, `ev-work`, `ev-action`; both widths, plus the indexed R350 link-check landing. Include unknown, pending, stale, refused and forbidden; mark unproducible selected states as gaps with DTO tests. Record SHA/caps.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
 ### W6-global-Work — Global lists and exact request
 
-**Size:** 16 D3 IDs; five build units. **Severity:** High.
+**Size:** 15 D3 IDs here; R373 is a separate task. Five build units. **Severity:** High.
 
-**Exact D3 IDs:** `R352` (B18-03), `R353` (B18-04), `R354` (B18-05), `R356` (B18-07), `R357` (B18-08), `R359` (B18-10), `R360` (B18-11), `R361` (B18-13), `R364` (B19-03), `R366` (B19-05), `R367` (B19-07), `R368` (B19-08), `R370` (B19-10), `R371` (B19-12), `R372` (B19-13), `R373` (B19-15).
+**Exact D3 IDs:** `R352` (B18-03), `R353` (B18-04), `R354` (B18-05), `R356` (B18-07), `R357` (B18-08), `R359` (B18-10), `R360` (B18-11), `R361` (B18-13), `R364` (B19-03), `R366` (B19-05), `R367` (B19-07), `R368` (B19-08), `R370` (B19-10), `R371` (B19-12), `R372` (B19-13). R373/B19-15 builds on `task/post-W6-R373-request-access`; this card retains its recapture gate.
 
-**Panels and order:** `incidents`: Incident cases → Case boundaries; `maintenance`: Corrective work requests; `maintenance-preventive`: Preventive plan; `oprecords`: Operational records → Record a manual reading → How records are used; `wr-history`: History; `wr-overview`: Work done → Lifecycle; `wr-record`: Maintenance record · activity.
+**Affected screens; panels in page order:** `incidents`: crumb/window and paging → Incident cases links/rows; `maintenance`: window/paging → Corrective work requests; `maintenance-preventive`: window state → Preventive plan; `oprecords`: window/paging/refusal → Operational records; `wr-overview`: request tabs → Work done → Lifecycle; `wr-record`: request tabs → Maintenance record · activity; `wr-history`: request tabs → History. R371 also covers unknown-section `link-check` refusal. R373's granted/forbidden state is recapture-only here.
 
 **Data source:** selected stored Site/Foundation/evidence/Action/Work records at the captured window and cutoff; use the existing reviewed walkthrough named in each batch. Never insert mock literals as live facts.
 
 **States:** B18–B19 mini, cold, EV, 403, 404, 503, page two, historical, all-open and 160-char rows; both widths.
 
-**Files:** frontend/src/work/globalWorkParts.tsx; frontend/src/work/WorkRequestOverview.tsx; frontend/src/work/WorkRequestRecord.tsx; frontend/src/work/WorkRequestHistory.tsx; backend/assetops_backend/main.py; backend/assetops_backend/global_work_api.py; backend/assetops_backend/work/global_index.py.
+**Files:** `frontend/src/work/GlobalIncidents.tsx`, `GlobalMaintenance.tsx`, `GlobalPreventive.tsx`, `OperationalRecords.tsx`, `globalWorkParts.tsx`, `globalWorkClient.ts`, `globalWork.css`, `WorkRequestOverview.tsx`, `WorkRequestRecord.tsx`, `WorkRequestHistory.tsx`. R373 owns backend `main.py`/`global_work_api.py`; page-two caption and list layout are frontend work under the current DTO.
 
-**Tests:** frontend/src/work/__tests__/globalWorkClient.test.ts; backend/tests/test_w601a_global_incidents.py; backend/tests/test_w601b_global_maintenance.py; backend/tests/test_w601c_request_detail.py; backend/tests/test_w601e_operational_index.py; add focused routing, refusal, selected-row and access tests for each changed behavior.
+**Tests:** `work/__tests__/globalIncidents.test.tsx`, `globalMaintenance.test.tsx`, `globalPreventive.test.tsx`, `operationalRecords.test.tsx`, `globalWorkClient.test.ts`, `workRequestOverview.test.tsx`, `workRequestRecord.test.tsx`, `workRequestHistory.test.tsx`. Add page-two caption, 390 overflow, historical seconds, unknown section and refused request cases; reuse R373's independent access tests. Run existing W6 backend contract tests as regression.
 
-**Paired recaptures:** B18–B19 mini, cold, EV, 403, 404, 503, page two, historical, all-open and 160-char rows; both widths. Compare exact panel count/order/titles, links, typography, horizontal overflow, and closed-panel heights at 1440 and 390. Reuse the indexed producer and record the new SHA.
+**Paired recaptures:** all 380 indexed pairs for `incidents`, `maintenance`, `maintenance-preventive`, `oprecords`, `wr-overview`, `wr-record`, `wr-history`; include R371 link-check landing, mini/cold/EV 403/200 after R373, 404/503, page two, historical, all-open and 160-character rows at both widths. Record current SHA, producer and cap proof.
 
 **Caps:** apply the measured docket below. User-expanded all-disclosures-open is exempt from closed-height caps; it must remain readable without page or panel clipping. If a remeasure exceeds a cap, adjust layout or internal scrolling and recapture; if that cannot preserve the content, return to Architect for a revised cap based on the worst-case fixture before merge.
 
@@ -241,7 +241,7 @@ Run shell first. Then W1 mini, W2 cold, W2 EV, W3 estate, W4 mini, W5 cold, W5 E
 
 ## Closed-height cap docket
 
-Caps below are per named panel and viewport. Each is based on the largest captured closed state, with a five-row, 160-character allowance where a panel has table rows. A cap is a readability/scroll budget, never permission to hide a row. Before building, use the selected worst-case producer or a pure render fixture of five 160-character rows. The all-disclosures-open viewer state is expressly exempt from these closed-height caps; no clipping is allowed. If a remeasure exceeds a cap, change wrapping, paging or inner scroll and recapture, or ask the Architect to revise the measured cap before merge.
+Caps below are per named panel and viewport. They use the largest captured closed state and a five-row, 160-character worst-case fixture wherever rows can lengthen. The mini records and Foundation Identity caps below are explicit shell pre-flight rulings, not mock one-row estimates. A cap is a readability/scroll budget, never permission to hide a row. Before building, use the selected worst-case producer or a pure render fixture of five 160-character rows. The all-disclosures-open viewer state is expressly exempt from these closed-height caps; no clipping is allowed. If a remeasure exceeds a cap, change wrapping, paging or inner scroll and recapture, or ask the Architect to revise the measured cap before merge.
 
 | Screen | Panel | Width | Peak observed closed px | Cap px |
 | --- | --- | ---: | ---: | ---: |
@@ -301,8 +301,8 @@ Caps below are per named panel and viewport. Each is based on the largest captur
 | `ev-work-maintenance` | Maintenance at this site | 1440 | 502 | 600 |
 | `ev-work-maintenance` | Maintenance at this site | 390 | 445 | 800 |
 | `evidence` | Data sources · data quality, not equipment condition | 390 | 774 | 900 |
-| `evidence-analysis` | Accepted records behind the conclusions | 1440 | 910 | 1050 |
-| `evidence-analysis` | Accepted records behind the conclusions | 390 | 1235 | 1400 |
+| `evidence-analysis` | Accepted records behind the conclusions | 1440 | 910 | 1200 |
+| `evidence-analysis` | Accepted records behind the conclusions | 390 | 1235 | 1800 |
 | `evidence-analysis` | How each limit is set | 1440 | 311 | 400 |
 | `evidence-analysis` | How each limit is set | 390 | 542 | 800 |
 | `financials` | Trade-offs and exclusions | 390 | 387 | 450 |
@@ -318,8 +318,8 @@ Caps below are per named panel and viewport. Each is based on the largest captur
 | `finding-history` | Revision history | 1440 | 635 | 750 |
 | `finding-history` | Revision history | 390 | 1329 | 1500 |
 | `foundation` | Configured topology | 1440 | 595 | 700 |
-| `foundation` | Identity and operating obligations | 1440 | 595 | 700 |
-| `foundation` | Identity and operating obligations | 390 | 678 | 800 |
+| `foundation` | Identity and operating obligations | 1440 | 595 | 850 |
+| `foundation` | Identity and operating obligations | 390 | 678 | 1050 |
 | `foundation` | Time-valid control configuration | 1440 | 759 | 900 |
 | `foundation` | Time-valid control configuration | 390 | 1152 | 1300 |
 | `health` | Data sources · data quality, not equipment condition | 1440 | 766 | 900 |
