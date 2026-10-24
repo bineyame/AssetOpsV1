@@ -292,7 +292,7 @@ describe("W6-01c C2: work request Overview", () => {
 
   it.each([
     ["UNAUTHENTICATED", "Sign in to see work records."],
-    ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work request."],
+    ["SITE_SCOPE_FORBIDDEN", "No access to this Site's work."],
     ["SITE_NOT_FOUND", "No imported Site found for this request."],
     ["WORK_CASE_NOT_FOUND", "No work case with this ID at this site."],
     ["INVALID_KNOWN_AT", "Choose a valid cutoff time."],

@@ -557,6 +557,13 @@ if os.environ.get("W502B_CASE_GATE") == "1":
     from assetops_backend.work.composition import build_work_index_service
     routes += list(build_work_router(None, registry.ledger_scope, (M.WORK_UNAVAILABLE,), access=access,
                                      command_access=access, lists=build_work_index_service(work_url)).routes)
+# R373 (B19-15) ruling Q7: global Work (request detail and the four lists) behind the same server-side grant, with
+# the product global router's own service, tenant, scope and unavailable dependencies: denied detail 403, lists filtered.
+from assetops_backend.global_work_api import build_global_work_router
+routes += list(build_global_work_router(
+    M.build_global_work_index_service(url), M.registry_tenant(registry), access=access,
+    unavailable=(M.SiteStoreUnavailable,), details=M.build_global_work_detail_service(url),
+    scope=registry.ledger_scope).routes)
 app.router.routes[0:0] = routes
 '''
 

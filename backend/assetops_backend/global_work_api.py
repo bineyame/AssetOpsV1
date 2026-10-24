@@ -37,6 +37,7 @@ from assetops_backend.work.global_index import (MESSAGES, GlobalWorkIndexService
                                                 parse_global_request)
 from assetops_backend.work.model import MESSAGES as WORK_MESSAGES
 from assetops_backend.work.model import WorkRefused, WorkStoreUnavailable
+from assetops_backend.work_api import WorkGate
 
 
 def build_global_work_router(service: GlobalWorkIndexService | None, tenant: Callable[[], UUID | None], *,
@@ -46,6 +47,14 @@ def build_global_work_router(service: GlobalWorkIndexService | None, tenant: Cal
                              details: GlobalWorkDetailService | None = None, scope: Scope | None = None) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
+
+    def no_store(site_code: str) -> None:
+        """Without a detail service or Site scope the detail is the existing 503, after access (R373 ruling Q2)."""
+        raise WorkStoreUnavailable("no global work detail store is composed")
+
+    # R373 (B19-15) ruling Q2: detail admission IS the W4 Site Work `read_scope` (access 401/403, then scope 503/404),
+    # with the same callable as the lists, so a denied Site answers W4's 403 before any Site or case lookup.
+    gate = WorkGate(scope if details is not None and scope is not None else no_store, tuple(unavailable), access)
 
     def store_down() -> HTTPException:
         return HTTPException(status_code=503, detail={"code": "WORK_STORE_UNAVAILABLE",
@@ -98,20 +107,9 @@ def build_global_work_router(service: GlobalWorkIndexService | None, tenant: Cal
         codes = request.query_params.getlist("site_id")
         if len(codes) != 1 or not codes[0]:
             raise refuse(404, "WORK_CASE_NOT_FOUND")
-        refusal = access(request, codes[0])
-        if refusal == 401:
-            raise refuse(401, "UNAUTHENTICATED", "Sign in to read work.")
-        if refusal == 403:
-            raise refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site '{codes[0]}'.")
-        if details is None or scope is None:
+        tenant_id, site_id, site_code = gate.read_scope(request, codes[0])
+        if details is None:  # unreachable: `no_store` already refused 503; kept for type narrowing
             raise refuse(503, "WORK_STORE_UNAVAILABLE")
-        try:
-            found = scope(codes[0])
-        except (SiteStoreUnavailable, FoundationStoreError, *down) as error:
-            raise refuse(503, "WORK_STORE_UNAVAILABLE") from error
-        if found is None:
-            raise refuse(404, "SITE_NOT_FOUND", f"No imported Site '{codes[0]}' in this tenant.")
-        site_code, tenant_id, site_id = found
         try:
             body = details.detail(tenant_id, site_id, site_code, case_id, request.query_params.getlist("known_at"))
         except WorkRefused as refused:
