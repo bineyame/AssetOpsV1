@@ -222,14 +222,29 @@
   overflow-wrap: normal;
 }
 
-/* K3 ruling 20 (M2): an opened `UTC and IDs` or `Finding version` body keeps each 36-character UUID on one line and
-   scrolls horizontally inside its own cell; `contain: inline-size` keeps the unbroken code from widening the column. */
-.work-cases[data-cold-cases] td .disclosure .disclosure__body {
+/* K3 ruling 20 (M2), narrowed by W5-02c ruling 12: an opened body whose direct child is the code (`Finding version`)
+   keeps its 36-character UUID on one line and scrolls horizontally inside its own cell; `contain: inline-size` keeps
+   the unbroken code from widening the column. Every other disclosure body (`UTC and IDs` facts) wraps in its cell;
+   its UUID fact values scroll on their own (ruling 14, below). */
+.work-cases[data-cold-cases] td .disclosure .disclosure__body:has(> code) {
   contain: inline-size;
   overflow-x: auto;
 }
 
-.work-cases[data-cold-cases] td .disclosure .disclosure__body code {
+.work-cases[data-cold-cases] td .disclosure .disclosure__body > code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* W5-02c ruling 14 (Q1 option b): inside the wrapping `UTC and IDs` body, each fact value whose direct child is the
+   UUID code is its own one-line horizontal scroller, so K3 ruling 20's one-line UUIDs hold in both disclosures. */
+.work-cases[data-cold-cases] td .fact-list__value:has(> code) {
+  contain: inline-size;
+  overflow-x: auto;
+}
+
+.work-cases[data-cold-cases] td .fact-list__value > code {
   white-space: nowrap;
   overflow-wrap: normal;
   word-break: normal;
@@ -291,4 +306,39 @@
   max-height: none;
   overflow-x: auto;
   overflow-y: visible;
+}
+
+/* W5-02c K4a (rulings 6 and 8, MOCK DEVIATION (D2) R99): the cold Action page (v69 `cold-action`). The full stored
+   title and owner wrap anywhere, never clamped or ellipsized; the Related activity controls follow the mock's
+   `margin-top:15px` row. */
+main[data-domain-action-shell] .page-header__heading,
+main[data-domain-action-shell] [data-domain-action-owner] {
+  overflow-wrap: anywhere;
+}
+
+.domain-action-related__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin-top: 15px;
+}
+
+/* W5-02c K4b (ruling 12): the strip's `Finding version` body, outside `[data-cold-cases]`, gets the same one-line UUID
+   containment. An opened disclosure takes the strip's full row (a user expansion, exempt from height caps) so the
+   contained body has the strip width to show the UUID. */
+main[data-domain-action-shell] [data-domain-action-strip] > .status-strip__item:has(> .disclosure[open]) {
+  flex-basis: 100%;
+  min-width: 0;
+}
+
+main[data-domain-action-shell] [data-domain-action-strip] .disclosure__body:has(> code) {
+  contain: inline-size;
+  overflow-x: auto;
+}
+
+main[data-domain-action-shell] [data-domain-action-strip] .disclosure__body > code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
 }

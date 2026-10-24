@@ -788,14 +788,14 @@ async function mountColdAction(path: string, domain: DomainActionClient, site: S
 }
 
 describe("W5-02 K2a: cold /verification dispatch", () => {
-  it("a domain Action renders the placeholder, not the W1 verification read or its panels", async () => {
+  it("a domain Action renders the domain panels, not the W1 verification read or its panels", async () => {
     const urls: string[] = [];
     vi.stubGlobal("fetch", async (url: string) => {
       urls.push(url);
       return new Response("{}", { status: 599 });
     });
     await mountColdAction(`/sites/${COLD_CODE}/actions/${DOMAIN_ID}/verification`, coldDomain());
-    expect(screen.getByText("Action details are being prepared.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Declared outcome criteria" })).toBeInTheDocument();
     expect(urls).toEqual([]);
     expect(document.body.textContent).not.toContain("Target and guardrails");
   });

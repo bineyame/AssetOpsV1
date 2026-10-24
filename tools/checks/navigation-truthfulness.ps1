@@ -642,9 +642,24 @@ function Get-OperatorRailFailures {
     }
 
     # The shell renders this inventory, and no destination outside it.
-    if (($RailLines -join "`n") -notmatch '<NavRail\s+label="Operator routes"\s+items=\{operatorRailItems\}\s*/>') {
-        $failures.Add(("$railPath does not pass operatorRailItems to the 'Operator routes' " +
-            "NavRail, so the checked inventory is not what renders.")) | Out-Null
+    # W5-02c K4a (.agent/W5-02c-K4-preflight-rulings.md rulings 1-2): the call also passes the pathname-scoped
+    # Actions selection, and nothing else may choose the active root.
+    if (($RailLines -join "`n") -notmatch '<NavRail\s+label="Operator routes"\s+items=\{operatorRailItems\}\s+activeLabel=\{\s*railActiveLabel\(\s*pathname\s*\)\s*\}\s*/>') {
+        $failures.Add(("$railPath does not pass operatorRailItems and activeLabel={railActiveLabel(pathname)} " +
+            "to the 'Operator routes' NavRail, so the checked inventory or the Action-detail selection is not what " +
+            "renders.")) | Out-Null
+    }
+    # The selection helper is exactly the ruled source line (whitespace-flexible): Actions only for a Site Action
+    # detail path, null otherwise. A widened pattern or an unconditional label would select Actions elsewhere.
+    $railHelper = 'const railActiveLabel = (pathname: string): "Actions" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : null);'
+    $railHelperPattern = (($railHelper -split '\s+') | ForEach-Object { [regex]::Escape($_) }) -join '\s*'
+    if (($RailLines -join "`n") -notmatch $railHelperPattern) {
+        $failures.Add(("$railPath does not declare the ruled rail selection helper '$railHelper', so the Actions " +
+            "root could be selected outside a Site Action detail path.")) | Out-Null
+    }
+    if (@($RailLines | Where-Object { $_ -match 'activeLabel\s*=\s*["''{]' -and $_ -notmatch 'activeLabel=\{\s*railActiveLabel\(\s*pathname\s*\)\s*\}' }).Count -gt 0) {
+        $failures.Add(("$railPath passes activeLabel other than railActiveLabel(pathname), so the Actions root " +
+            "would be selected on every route.")) | Out-Null
     }
     for ($i = 0; $i -lt $RailLines.Count; $i++) {
         $line = $RailLines[$i]

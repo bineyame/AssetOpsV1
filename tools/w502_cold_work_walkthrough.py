@@ -378,6 +378,38 @@ try:
             doc["blocked"] = (doc["blocked"] or "") + f" {name}: index {rd['status']}/{rd['total_count']} != expected"
     doc["reads"] = reads
 
+    # W5-02c K4b (`.agent/W5-02c-K4-preflight-rulings.md` ruling 5): the domain Action detail reads behind the
+    # `cold-action` captures. Positive: the CURRENT read (completed linked WR plus performed record) and an explicit
+    # returned cutoff K1 <= c < K2 (the Action exists, no case link yet, links.work all null). A cutoff before the WR
+    # completed predates the Action root (ACTION_NOT_FOUND). Worstcase: worstcase Action 1 (160-code-point title and
+    # owner, intent null, no WR link).
+    def detail(aid, **q):
+        r = api.get(base + f"/actions/{aid}", params=q)
+        assert r.status_code == 200, (aid, q, r.status_code, r.text)
+        b = r.json()
+        return {"action_id": aid, "query": q, "status": b["status"], "known_at": b["known_at"],
+                "intent": b["intent"] is not None, "results": [x["result"] for x in (b["results"] or [])],
+                "work": b["links"]["work"], "title_code_points": len(b["action"]["title"]),
+                "owner_code_points": len(b["action"]["owner_label"] or "")}
+
+    detail_reads = {}
+    if mode == "positive":
+        detail_reads["action-current"] = dict(detail(aid), expected={"intent": True, "work": "COMPLETED"})
+        detail_reads["action-not-linked"] = dict(detail(aid, known_at=doc["cutoffs"]["K1"]),
+                                                 expected={"intent": False, "work": None})
+    elif mode == "worstcase":
+        detail_reads["action-worstcase"] = dict(detail(actions[1]["id"]), expected={"intent": False, "work": None})
+    for name, rd in detail_reads.items():
+        work_state = rd["work"]["request_state"] if rd["work"]["case_id"] else None
+        ok = rd["intent"] == rd["expected"]["intent"] and work_state == rd["expected"]["work"]
+        if rd["expected"]["work"] == "COMPLETED":
+            ok = ok and rd["work"]["record_id"] is not None and rd["status"] == "CURRENT" and                 rd["results"] == ["NOT_TESTED", "NOT_TESTED", "NOT_ESTABLISHED", "PENDING"]
+        else:
+            ok = ok and all(v is None for v in rd["work"].values())
+        if not ok:
+            doc["blocked"] = (doc["blocked"] or "") + f" {name}: detail {rd['status']} intent={rd['intent']} work={rd['work']}"
+    doc["detail_reads"] = detail_reads
+
     # K3b (K3 pre-flight ruling 7): the W4 Site case list reads behind each capture, at the Action read's exact
     # window and returned cutoff; actual status and coverage are recorded, the full count and page rows asserted.
     def cases(kind, q):
@@ -737,6 +769,14 @@ class Walk:
                     f"total_count={rd['total_count']} rows={rd['rows']}")
                 if (rd["total_count"], rd["rows"]) != (rd["expected"]["total_count"], rd["expected"]["rows"]):
                     failures.append(f"{m} {name}: cases {rd['total_count']}/{rd['rows']} != {rd['expected']}")
+            # W5-02c K4b ruling 5: the cold-action detail reads exist and hold their selected link shapes.
+            want_details = {"positive": {"action-current", "action-not-linked"}, "worstcase": {"action-worstcase"}}.get(m, set())
+            details = doc.get("detail_reads") or {}
+            if set(details) != want_details:
+                failures.append(f"{m}: detail reads {sorted(details)} != {sorted(want_details)}")
+            for name, rd in details.items():
+                say(f"    {name:<22} detail status={rd['status']} known_at={rd['known_at']} intent={rd['intent']} "
+                    f"work={rd['work'].get('request_state')} record={rd['work'].get('record_id')}")
             if m == "worstcase" and len((doc.get("fixture") or {}).get("extra_cases") or []) != 4:
                 failures.append("worstcase: four extra INC/WR pairs are not in the manifest")
             # K2 ruling 21: no mode is blocked; UNKNOWN has its one ruled link, every other mode both links.
@@ -765,6 +805,14 @@ class Walk:
                     f"known_at={body.get('known_at')}")
                 if got != (200, rd["expected"]["status"], rd["expected"]["total_count"]):
                     failures.append(f"served {name}: {got}")
+            for name, rd in (manifest["modes"][m].get("detail_reads") or {}).items():
+                code, body = _get_path(pids[m]["port"], f"/api/sites/{SITE}/domain-work/actions/{rd['action_id']}"
+                                       + (f"?{urllib.parse.urlencode(rd['query'])}" if rd["query"] else ""))
+                work = (body.get("links") or {}).get("work") or {}
+                say(f"    {name:<22} :{pids[m]['port']} -> HTTP {code} status={body.get('status')} "
+                    f"work={work.get('request_state')}")
+                if (code, body.get("status"), work) != (200, rd["status"], rd["work"]):
+                    failures.append(f"served {m} {name}: HTTP {code} {body.get('status')} {work}")
             for name, rd in (manifest["modes"][m].get("case_reads") or {}).items():
                 kind = name.split(":")[1]
                 code, body = _get_cases(pids[m]["port"], kind, rd["query"])

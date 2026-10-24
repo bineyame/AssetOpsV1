@@ -760,7 +760,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
 
 /* ---------- the domain Action placeholder shell (v69 cold-action) ---------- */
 
-describe("cold domain Action route and placeholder shell (U1, U2)", () => {
+describe("cold domain Action route and shell (U1, U2; W5-02c K4a)", () => {
   it("renders the mock shell for a validated domain Action on /verification", async () => {
     stubFetch(() => json(599, {}));
     const { client, detailCalls } = domainClient(() => ({ status: "loaded", value: indexBody([]) }));
@@ -795,16 +795,16 @@ describe("cold domain Action route and placeholder shell (U1, U2)", () => {
     expect(text(strip.querySelector("[data-domain-action-status-line]"))).toBe(`Maintenance lead · GreenHarvest · Finding ${FINDING.slice(0, 8)}`);
     expect(strip.querySelector("a")).toBeNull();
     expect(strip.querySelector("[data-domain-action-revision]")?.textContent).toBe(FINDING_REV);
-    expect(text(main.querySelector("[data-domain-action-panel]"))).toBe("Action details are being prepared.");
+    expect(main.querySelector("[data-domain-action-panel]")).toBeNull();
     expect(text(main.querySelector("[data-domain-action-notice]"))).toBe("Completed inspection does not establish successful service restoration.");
     expect(main.querySelector("[data-domain-action-currentness]")).toBeNull();
-    // K2 ruling 10 / U2 order: one untitled panel right after the status strip, then the blue notice, last.
-    const panelBox = main.querySelector("[data-domain-action-panel]")?.closest("section.panel") as HTMLElement;
-    expect(main.querySelectorAll("section.panel")).toHaveLength(1);
-    expect(panelBox.querySelector("h2")).toBeNull();
-    expect(panelBox.previousElementSibling).toBe(strip);
+    // W5-02c K4a ruling 4 / U2 order: the two mock panels right after the status strip, then the blue notice, last.
+    const panels = Array.from(main.querySelectorAll("section.panel"));
+    expect(panels.map((p) => text(p.querySelector("h2")))).toEqual(["Declared outcome criteria", "Related activity"]);
+    expect(panels[0].previousElementSibling).toBe(strip);
+    expect(panels[0].nextElementSibling).toBe(panels[1]);
     const notice = main.querySelector("[data-domain-action-notice]") as HTMLElement;
-    expect(panelBox.nextElementSibling).toBe(notice);
+    expect(panels[1].nextElementSibling).toBe(notice);
     expect(notice.classList.contains("v69-notice--blue")).toBe(true);
     expect(notice.nextElementSibling).toBeNull();
     // No battery read on a domain Action.

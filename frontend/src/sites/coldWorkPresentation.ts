@@ -36,9 +36,8 @@ export const COLD_STATE_OPEN = "Open";
  */
 export const COLD_WORK_SUBTITLE_FALLBACK = "Cold-room operations at this site.";
 
-/** U2: the domain Action page (v69 `cold-action`) PageHeader subtitle and placeholder copy. */
+/** U2: the domain Action page (v69 `cold-action`) PageHeader subtitle and state copy. */
 export const COLD_ACTION_SUBTITLE = "Has backup service been restored after the inspection?";
-export const COLD_ACTION_PREPARING = "Action details are being prepared.";
 export const COLD_ACTION_NOT_FOUND = "Action was not found at this site.";
 export const COLD_ACTION_NOTICE = "Completed inspection does not establish successful service restoration.";
 

@@ -112,7 +112,12 @@ function Invoke-NavigationRailFixturesCheck {
             @{ Name = "a link outside the inventory"; Expect = "outside the checked inventory";
                Rail = (Insert-After $rail '\{chrome\?\.footer' '        <NavLink to="/portfolio">Portfolio</NavLink>') },
             @{ Name = "NavRail type stops forbidding to"; Expect = "no longer declares NavRailUnavailableItem";
-               Nav = (Remove-Line $nav '^\s*to\?: never;') }
+               Nav = (Remove-Line $nav '^\s*to\?: never;') },
+            # W5-02c K4a (rulings 1-2): the Actions selection stays pathname-scoped to Site Action detail paths.
+            @{ Name = "W5-02c: Actions selected unconditionally"; Expect = "passes activeLabel other than railActiveLabel(pathname)";
+               Rail = (Edit-Lines $rail 'activeLabel=\{railActiveLabel\(pathname\)\}' 'activeLabel="Actions"') },
+            @{ Name = "W5-02c: Actions selection widened to every Site path"; Expect = "does not declare the ruled rail selection helper";
+               Rail = (Edit-Lines $rail '\(/\^\\/sites\\/\[\^/\]\+\\/actions\\/\[\^/\]\+\(\?:\\/\.\*\)\?\$/' '(/^\/sites\//') }
         )
     }
     catch {

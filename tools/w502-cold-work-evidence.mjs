@@ -49,7 +49,9 @@ const WIDTHS = [
 ];
 // Build-spec caps [1440, 390]. K2 ruling 2: the cold Actions Work page <= 1600/2000 and its panel <= 650/850.
 const WORK_CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 850], notice: [110, 160] };
-const ACTION_CAPS = { main: [1350, 1750], strip: [100, 120], notice: [100, 140] };
+// W5-02c K4b (`.agent/W5-02c-K4-preflight-rulings.md` ruling 7): final closed `cold-action` caps [1440, 390]; each
+// panel is measured on its own. Any user-opened disclosure is exempt from every height cap (recorded as INFO).
+const ACTION_CAPS = { main: [1500, 1900], strip: [140, 200], criteria: [500, 760], related: [360, 500], notice: [110, 160] };
 mkdirSync(OUT, { recursive: true });
 
 const profile = mkdtempSync(join(tmpdir(), "assetops-w502b-cdp-"));
@@ -373,17 +375,30 @@ const MEASURE_CASE = `(() => {
     otherOpen: [...(body?.querySelectorAll('tbody details[open]') ?? [])].map((d) => d.querySelector(':scope > summary')?.textContent.trim()).filter((x) => x !== 'Read full text' && x !== 'Activity recorded' && x !== 'Outcome note'),
     // K3 ruling 20: each UUID in an opened 'UTC and IDs' / 'Finding version' body is one line and fully reachable by
     // scrolling that body (overflow-x auto), without widening the cell.
-    openCodes: [...(body?.querySelectorAll('tbody details[open] .disclosure__body code') ?? [])].map((c) => { const b = c.closest('.disclosure__body'); const rg = document.createRange(); rg.selectNodeContents(c);
+    // W5-02c ruling 14: each opened UUID's own scroller is its direct parent, a direct-code disclosure body
+    // (\`Finding version\`) or a \`.fact-list__value:has(> code)\` (\`UTC and IDs\`); scrolling that exact container
+    // reaches the full code, and the scroller stays inside its cell.
+    openCodes: [...(body?.querySelectorAll('tbody details[open] .disclosure__body code') ?? [])].map((c) => {
+      const sc = c.parentElement; const own = sc.matches('.disclosure__body, .fact-list__value') && getComputedStyle(sc).overflowX === 'auto';
+      const rg = document.createRange(); rg.selectNodeContents(c);
       const tops = new Set([...rg.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size; const td = c.closest('td');
-      return { chars: c.textContent.length, lines: tops, reachable: b.scrollWidth >= c.scrollWidth && (getComputedStyle(b).overflowX === 'auto' || b.scrollWidth <= b.clientWidth + 1), cellFits: td.scrollWidth <= td.clientWidth + 1 }; }),
+      const tb = td.getBoundingClientRect(), sb = sc.getBoundingClientRect();
+      const before = sc.scrollLeft; sc.scrollLeft = sc.scrollWidth; const end = c.getBoundingClientRect().right <= sc.getBoundingClientRect().right + 1; sc.scrollLeft = 0;
+      const start = c.getBoundingClientRect().left >= sc.getBoundingClientRect().left - 1; sc.scrollLeft = before;
+      return { chars: c.textContent.length, full: /^[0-9a-f-]{36}$/.test(c.textContent), lines: tops, scroller: sc.className, ownScroller: own,
+        reachable: (own || sc.scrollWidth <= sc.clientWidth + 1) && start && end, scrollerInCell: sb.left >= tb.left - 1 && sb.right <= tb.right + 1, cellFits: td.scrollWidth <= td.clientWidth + 1 }; }),
     cells: rows.flatMap((r) => [...r.querySelectorAll('td')]).map((td) => {
       const box = td.getBoundingClientRect();
-      const inside = (e) => { const b = e.getBoundingClientRect(); const sc = e.parentElement?.closest('.disclosure__body'); return b.width === 0 || (b.left >= box.left - 1 && b.right <= box.right + 1) || (sc != null && getComputedStyle(sc).overflowX === 'auto'); };
+      // W5-02c rulings 12/14: the scroll relaxation applies only to a code inside its own scroller (a direct-code
+      // disclosure body or \`.fact-list__value:has(> code)\`), and only when that scroller itself stays in the cell.
+      const codeScroller = (x) => x != null && x.matches('.disclosure__body, .fact-list__value') && x.querySelector(':scope > code') !== null && getComputedStyle(x).overflowX === 'auto';
+      const inBox = (r) => r.left >= box.left - 1 && r.right <= box.right + 1;
+      const inside = (e) => { const b = e.getBoundingClientRect(); if (b.width === 0 || inBox(b)) return true; const sc = e.parentElement; return e.tagName === 'CODE' && codeScroller(sc) && inBox(sc.getBoundingClientRect()); };
       const previews = [...td.querySelectorAll('[data-cold-work-preview]')];
       const bodies = [...td.querySelectorAll('details[open] .disclosure__body')];
       return { col: td.cellIndex, fits: td.scrollWidth <= td.clientWidth + 1, kidsInside: [...td.querySelectorAll('*')].every(inside),
         previewLines: previews.map((c) => Math.round(c.getBoundingClientRect().height / lineBox(c))),
-        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1 || getComputedStyle(b).overflowX === 'auto'), openBodies: bodies.length };
+        openBodyInside: bodies.every(inside), openBodyFits: bodies.every((b) => b.scrollWidth <= b.clientWidth + 1 || codeScroller(b)), openBodies: bodies.length };
     }),
   };
 })()`;
@@ -415,7 +430,7 @@ function caseRowClaims(W, label, m, expectRows) {
   // K3 ruling 21: both cold case tabs grow with their rows; no vertical case box hides a row.
   claim(`${W} ${label}: every row visible inside the table scroller (no vertical case box)`, m.rowsInsideScroller === true && m.scrollerMaxHeight === "none", { inside: m.rowsInsideScroller, maxHeight: m.scrollerMaxHeight, overflowY: m.scrollerOverflowY });
   if (m.windowLines.length > 0) claim(`${W} ${label}: Window value on one line (ruling 20)`, m.windowLines.every((n) => n === 1), m.windowLines);
-  if (m.openCodes.length > 0) claim(`${W} ${label}: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)`, m.openCodes.every((c) => c.lines === 1 && c.reachable && c.cellFits), m.openCodes.filter((c) => !(c.lines === 1 && c.reachable && c.cellFits)));
+  if (m.openCodes.length > 0) claim(`${W} ${label}: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)`, m.openCodes.every((c) => c.lines === 1 && c.full && c.reachable && c.scrollerInCell && c.cellFits), m.openCodes.filter((c) => !(c.lines === 1 && c.full && c.reachable && c.scrollerInCell && c.cellFits)));
 }
 function caseContentClaims(W, label, m, kind, mode) {
   const want = kind === "incidents" ? ["Case", "Window", "What happened", "Linked findings", "State"] : ["Work request", "Asset", "Activity", "Outcome", "Next evidence"];
@@ -629,6 +644,8 @@ async function main() {
   await send("Runtime.enable");
   // K3b: `W502B_EVIDENCE=cases` captures only the cold case tabs (into their own measurements file).
   if (process.env.W502B_EVIDENCE === "cases") return casesMain();
+  // W5-02c K4b: `W502B_EVIDENCE=action` captures only the cold Action detail (into its own measurements file).
+  if (process.env.W502B_EVIDENCE === "action") return actionMain();
   const P = manifest.modes.positive;
   const WC = manifest.modes.worstcase;
   const pBase = `${HOST}:${8971 - 3500}`;
@@ -795,7 +812,8 @@ async function main() {
     // Domain Action shell: positive Action and a not-found ID.
     for (const [k, id] of [["action-positive", positiveAction], ["action-not-found", NOT_FOUND]]) {
       m = await record(W, wi, k, `${pBase}/sites/${SITE}/actions/${id}/verification`, ACTION_READY, MEASURE_ACTION);
-      const want = k === "action-positive" ? ["loaded", "preparing"] : ["not_found", "not-found"];
+      // W5-02c K4a: a loaded read renders the two mock panels (no state panel); the K4 mode captures them in full.
+      const want = k === "action-positive" ? ["loaded", null] : ["not_found", "not-found"];
       claim(`${W} ${k}: shell/panel state`, m.shell === want[0] && m.panelState === want[1], { shell: m.shell, panel: m.panelState });
       claim(`${W} ${k}: no document horizontal overflow`, m.docScrollWidth <= m.docClientWidth, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
       claim(`${W} ${k}: page main <= ${ACTION_CAPS.main[wi]}`, m.main !== null && m.main <= ACTION_CAPS.main[wi], m.main);
@@ -805,6 +823,217 @@ async function main() {
   }
   const failed = results.filter((r) => !r.ok).length;
   writeFileSync(join(OUT, "w502b-measurements.json"), JSON.stringify({ manifest_revision: manifest.revision, caps: { work: WORK_CAPS, action: ACTION_CAPS }, captures, claims: results, failed }, null, 2));
+  console.log(`${results.length - failed} PASS, ${failed} FAIL`);
+  return failed;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// W5-02c K4b (`.agent/W5-02c-K4-preflight-rulings.md` rulings 4-8, 12): `W502B_EVIDENCE=action`. The v69
+// `cold-action` detail at 1440/390 from the producer's served reads: positive CURRENT (four criteria, completed WR),
+// the open `Finding version` (user expansion, no height cap), the explicit K1 cutoff with no linked work, historical,
+// pending/stale/unknown, worstcase Action 1 (160-code-point title/owner, intent null, no WR), not found, 403/503
+// from the tool-local processes, and the client-side invalid `known_at` refusal beside the server's real 422 body.
+const ACTION_K4_READY = `document.querySelector('main[data-domain-action-shell]') && !document.querySelector('main[data-domain-action-shell="loading"]')`;
+const MEASURE_ACTION_K4 = `(() => {
+  const h = (e) => (e ? Math.round(e.getBoundingClientRect().height) : null);
+  const t = (e) => (e?.textContent ?? '').replace(/\\s+/g, ' ').trim();
+  const main = document.querySelector('main[data-domain-action-shell]');
+  const panels = [...(main?.querySelectorAll('section.panel') ?? [])];
+  const titled = (x) => panels.find((p) => t(p.querySelector('h2')) === x) ?? null;
+  const crit = titled('Declared outcome criteria');
+  const rel = titled('Related activity');
+  const strip = document.querySelector('[data-domain-action-strip]');
+  // Ruling 12: only a disclosure body whose direct child is the code may scroll; everything else stays in its box.
+  const codeBody = (e) => { const b = e.closest('.disclosure__body'); return b !== null && b.querySelector(':scope > code') !== null && getComputedStyle(b).overflowX === 'auto' ? b : null; };
+  const outside = (root) => root === null ? [] : [...root.querySelectorAll('*')].filter((e) => {
+    const r = e.getBoundingClientRect(); if (r.width === 0 && r.height === 0) return false;
+    // A closed disclosure's body is not rendered (Chrome keeps layout boxes behind ::details-content).
+    const shut = e.closest('details:not([open])'); if (shut && !e.closest('summary')) return false;
+    if (e.closest('.data-table__scroll') && e.closest('.data-table__scroll') !== e) return false;
+    const box = (e.tagName === 'CODE' && codeBody(e) ? codeBody(e) : root).getBoundingClientRect();
+    return r.left < box.left - 1 || r.right > box.right + 1;
+  }).map((e) => e.tagName + (e.className ? '.' + String(e.className).split(' ')[0] : '') + ':' + t(e).slice(0, 40));
+  const scrollers = [...(crit?.querySelectorAll('.data-table__scroll') ?? [])];
+  const inspect = document.querySelector('[data-domain-action-inspect]');
+  const finding = document.querySelector('[data-domain-action-finding-control]');
+  const rail = document.querySelector('nav[aria-label="Operator routes"]');
+  const body = document.querySelector('[data-domain-action-strip] .disclosure[open] .disclosure__body');
+  const code = body?.querySelector(':scope > code') ?? null;
+  return {
+    href: location.pathname + location.search,
+    shell: main?.getAttribute('data-domain-action-shell') ?? null,
+    panelState: document.querySelector('[data-domain-action-panel]')?.getAttribute('data-domain-action-panel') ?? null,
+    refusal: document.querySelector('[data-domain-action-refusal]')?.getAttribute('data-domain-action-refusal') ?? null,
+    refusalText: t(document.querySelector('[data-domain-action-panel="refused"]')),
+    refusalMessage: t(document.querySelector('[data-domain-action-refusal-message]')),
+    retryVisible: (() => { const b = document.querySelector('[data-domain-action-retry]'); if (!b) return false; const r = b.getBoundingClientRect(); return r.width > 0 && r.right <= innerWidth + 1; })(),
+    heading: t(document.querySelector('main h1')),
+    headingFits: (() => { const e = document.querySelector('main h1'); return e ? e.scrollWidth <= e.clientWidth + 1 : null; })(),
+    headings: panels.map((p) => t(p.querySelector('h2'))),
+    panelCount: panels.length,
+    statusLine: t(document.querySelector('[data-domain-action-status-line]')),
+    owner: t(document.querySelector('[data-domain-action-owner]')),
+    ownerWrap: (() => { const e = document.querySelector('[data-domain-action-owner]'); return e ? getComputedStyle(e).overflowWrap : null; })(),
+    headingWrap: (() => { const e = document.querySelector('main h1'); return e ? getComputedStyle(e).overflowWrap : null; })(),
+    revisionOpen: Boolean(body),
+    revisionText: t(code),
+    revisionOneLine: code ? getComputedStyle(code).whiteSpace === 'nowrap' && code.getClientRects().length === 1 : null,
+    revisionBodyInsideStrip: body && strip ? (() => { const b = body.getBoundingClientRect(), s = strip.getBoundingClientRect(); return b.left >= s.left - 1 && b.right <= s.right + 1; })() : null,
+    revisionReadable: body && code ? body.scrollWidth <= body.clientWidth + 1 || getComputedStyle(body).overflowX === 'auto' : null,
+    rows: [...(crit?.querySelectorAll('tbody tr') ?? [])].map((tr) => [...tr.querySelectorAll('td')].map(t)),
+    columns: [...(crit?.querySelectorAll('thead th') ?? [])].map(t),
+    intentMissing: t(document.querySelector('[data-domain-action-intent-missing]')),
+    related: document.querySelector('[data-domain-action-related]')?.getAttribute('data-domain-action-related') ?? null,
+    relatedSentence: t(document.querySelector('[data-domain-action-related-sentence]')),
+    inspect: inspect ? { tag: inspect.tagName, type: inspect.getAttribute('type'), cls: inspect.className, disabled: inspect.disabled, text: t(inspect), describedBy: inspect.getAttribute('aria-describedby'), target: inspect.getAttribute('data-domain-action-inspect-target') } : null,
+    inspectNote: (() => { const id = inspect?.getAttribute('aria-describedby'); const n = id ? document.getElementById(id) : null; return n ? { text: t(n), visible: n.getBoundingClientRect().width > 0 } : null; })(),
+    finding: finding ? { tag: finding.tagName, text: t(finding), interactive: finding.closest('a,button') !== null || finding.hasAttribute('href') || finding.hasAttribute('tabindex'), note: t(finding.nextElementSibling) } : null,
+    relatedLinks: rel ? rel.querySelectorAll('a').length : null,
+    currentness: document.querySelector('[data-domain-action-currentness]')?.getAttribute('data-domain-action-currentness') ?? null,
+    currentnessAfterStrip: (() => { const n = document.querySelector('[data-domain-action-currentness]'); return n ? n.previousElementSibling === strip && n.nextElementSibling === crit : null; })(),
+    noticeText: t(document.querySelector('[data-domain-action-notice]')),
+    noticeLast: (() => { const n = document.querySelector('[data-domain-action-notice]'); return n ? n.previousElementSibling === rel && n.nextElementSibling === null : null; })(),
+    railCurrent: rail ? [...rail.querySelectorAll('a[aria-current="page"]')].map(t) : null,
+    railActive: rail ? [...rail.querySelectorAll('a.active')].map(t) : null,
+    railLinks: rail ? rail.querySelectorAll('a').length : null,
+    hasDue: /\\bDue\\b/.test(main?.innerText ?? ''),
+    docScrollWidth: document.documentElement.scrollWidth,
+    docClientWidth: document.documentElement.clientWidth,
+    main: h(main), strip: h(strip), criteria: h(crit), relatedPanel: h(rel),
+    notice: h(document.querySelector('[data-domain-action-notice]')),
+    currentnessNotice: h(document.querySelector('[data-domain-action-currentness]')),
+    statePanel: h(document.querySelector('[data-domain-action-panel]')?.closest('section.panel')),
+    stripOutside: outside(strip), critOutside: outside(crit), relOutside: outside(rel),
+    tableScrollsInPanel: scrollers.length > 0 && scrollers.every((x) => { const r = x.getBoundingClientRect(), p = crit.getBoundingClientRect(); return r.left >= p.left - 1 && r.right <= p.right + 1; }),
+  };
+})()`;
+const RESULTS_K4 = ["Not tested", "Not tested", "Not established", "Pending"];
+const CRITERIA_K4 = [
+  ["Automatic start", "Accepted command followed by successful running status"],
+  ["Power delivery", "Generator supply reaches the cooling system"],
+  ["Cooling recovery", "Temperature recovery within declared test conditions"],
+  ["Recurrence", "Covered observation window without a qualifying repeat"],
+];
+async function recordK4(W, wi, state, url, afterLoad) {
+  const ok = await go(url, ACTION_K4_READY);
+  if (afterLoad) await afterLoad();
+  await sleep(200);
+  const m = await js(MEASURE_ACTION_K4);
+  claim(`${W} ${state}: settled`, ok, m.shell);
+  const file = await shot(`w502c-k4-${W}-${state}`);
+  captures.push({ state, width: WIDTHS[wi][1], file, url, measurements: m });
+  return m;
+}
+function capK4(W, k, m, wi, expanded = false) {
+  claim(`${W} ${k}: no document horizontal overflow`, m.docScrollWidth <= m.docClientWidth, { scrollWidth: m.docScrollWidth, clientWidth: m.docClientWidth });
+  claim(`${W} ${k}: heading text fits its box`, m.headingFits !== false, m.headingFits);
+  claim(`${W} ${k}: strip and panel content inside their boxes`, m.stripOutside.length === 0 && m.critOutside.length === 0 && m.relOutside.length === 0, { strip: m.stripOutside, criteria: m.critOutside, related: m.relOutside });
+  const caps = [["page main", m.main, ACTION_CAPS.main[wi]], ["strip", m.strip, ACTION_CAPS.strip[wi]], ["criteria panel", m.criteria, ACTION_CAPS.criteria[wi]],
+    ["Related activity panel", m.relatedPanel, ACTION_CAPS.related[wi]], ["concluding notice", m.notice, ACTION_CAPS.notice[wi]], ["currentness notice", m.currentnessNotice, ACTION_CAPS.notice[wi]]];
+  for (const [name, got, cap] of caps) {
+    if (got === null) continue;
+    if (expanded) results.push({ name: `${W} ${k}: INFO ${name} ${got} px (user-expanded; height cap ${cap} exempt, ruling 7)`, ok: true, detail: got });
+    else claim(`${W} ${k}: ${name} <= ${cap}`, got <= cap, got);
+  }
+}
+function loadedK4(W, k, m, want) {
+  claim(`${W} ${k}: loaded, two mock panels in order, no state panel`, m.shell === "loaded" && m.panelState === null && JSON.stringify(m.headings) === JSON.stringify(["Declared outcome criteria", "Related activity"]), { shell: m.shell, panel: m.panelState, headings: m.headings });
+  claim(`${W} ${k}: Actions alone selected in the rail (nine links)`, JSON.stringify(m.railCurrent) === '["Actions"]' && JSON.stringify(m.railActive) === '["Actions"]' && m.railLinks === 9, { current: m.railCurrent, active: m.railActive, links: m.railLinks });
+  claim(`${W} ${k}: concluding notice last with the mock text`, m.noticeLast === true && m.noticeText === "Completed inspection does not establish successful service restoration.", { last: m.noticeLast, text: m.noticeText });
+  claim(`${W} ${k}: currentness ${want.status === "CURRENT" ? "absent" : `${want.status} right after the strip, before criteria`}`, want.status === "CURRENT" ? m.currentness === null : m.currentness === want.status && m.currentnessAfterStrip === true, { currentness: m.currentness, placed: m.currentnessAfterStrip });
+  if (want.intent) {
+    claim(`${W} ${k}: four declared criteria with the stored initial results in the mock columns`, JSON.stringify(m.columns) === JSON.stringify(["Criterion", "Required evidence", "Current result"]) && JSON.stringify(m.rows) === JSON.stringify(CRITERIA_K4.map((c, i) => [...c, RESULTS_K4[i]])), { columns: m.columns, rows: m.rows });
+    claim(`${W} ${k}: criteria table scroller inside its panel`, m.tableScrollsInPanel === true, m.tableScrollsInPanel);
+  } else {
+    claim(`${W} ${k}: criteria heading kept, exact missing sentence, no table`, m.intentMissing === "No outcome criteria have been declared for this Action." && m.rows.length === 0 && m.columns.length === 0, { missing: m.intentMissing, rows: m.rows.length });
+  }
+  if (want.work) {
+    claim(`${W} ${k}: completed selected WR sentence`, m.related === "completed" && m.relatedSentence === `${want.work.case_title} ${want.work.case_code} is complete. A witnessed outcome test remains required.`, m.relatedSentence);
+    claim(`${W} ${k}: Inspect is a live secondary button to the selected WR Overview`, m.inspect?.tag === "BUTTON" && m.inspect.type === "button" && m.inspect.cls === "button" && !m.inspect.disabled && (m.inspect.target ?? "").startsWith(`/maintenance/requests/${want.work.case_id}?site_id=${SITE}`), m.inspect);
+  } else {
+    claim(`${W} ${k}: no completed inspection sentence`, m.related === "not-linked" && m.relatedSentence === "No completed inspection is linked to this Action.", m.relatedSentence);
+    claim(`${W} ${k}: Inspect disabled, described by the visible adjacent sentence`, m.inspect?.tag === "BUTTON" && m.inspect.cls === "button" && m.inspect.disabled === true && m.inspectNote?.visible === true && m.inspectNote.text === "Maintenance detail is unavailable for this record.", { inspect: m.inspect, note: m.inspectNote });
+  }
+  claim(`${W} ${k}: Open source Finding is muted noninteractive text with its sentence; no link in Related activity`, m.finding?.tag === "SPAN" && m.finding.text === "Open source Finding →" && m.finding.interactive === false && m.finding.note === "The selected Finding revision cannot be opened here yet." && m.relatedLinks === 0, m.finding);
+  claim(`${W} ${k}: owner and heading wrap anywhere; no Due date`, m.ownerWrap === "anywhere" && m.headingWrap === "anywhere" && m.hasDue === false, { owner: m.ownerWrap, heading: m.headingWrap, due: m.hasDue });
+}
+async function actionMain() {
+  const portOf = { positive: 8971, worstcase: 8972, pending: 8973, stale: 8974, unknown: 8975 };
+  const B = (k) => `${HOST}:${portOf[k] - 3500}`;
+  const P = manifest.modes.positive;
+  const D = P.detail_reads ?? {};
+  const WD = manifest.modes.worstcase.detail_reads ?? {};
+  const forbidden = manifest.processes.forbidden;
+  const unavailable = manifest.processes.unavailable;
+  const procBase = (p) => `${HOST}:${Number(new URL(p.api_base).port) - 3500}`;
+  const aid = P.actions[0].id;
+  const worst = manifest.modes.worstcase.actions[1];
+  const url = (base, id, knownAt) => `${base}/sites/${SITE}/actions/${id}/verification${knownAt ? `?known_at=${encodeURIComponent(knownAt)}` : ""}`;
+  claim("manifest: positive detail reads (CURRENT completed WR; K1 cutoff with no work) and worstcase Action 1 read present",
+    D["action-current"]?.work?.request_state === "COMPLETED" && D["action-not-linked"]?.work?.case_id === null && WD["action-worstcase"]?.intent === false &&
+      WD["action-worstcase"]?.title_code_points === 160 && WD["action-worstcase"]?.owner_code_points === 160,
+    { current: D["action-current"]?.work, notLinked: D["action-not-linked"]?.query, worst: WD["action-worstcase"] });
+  // P-K4b-1: the server's own 422 for an invalid known_at, read directly (the browser refuses it before fetching).
+  const api422 = await fetch(`http://127.0.0.1:${portOf.positive}/api/sites/${SITE}/domain-work/actions/${aid}?known_at=not-a-time`)
+    .then(async (r) => ({ status: r.status, body: await r.json().catch(() => null) }))
+    .catch((e) => ({ status: 0, body: String(e) }));
+  claim("API 422: invalid known_at answers 422 INVALID_KNOWN_AT (captured beside the client refusal, P-K4b-1)",
+    api422.status === 422 && api422.body?.detail?.code === "INVALID_KNOWN_AT", api422);
+  const notLinkedAt = D["action-not-linked"]?.query?.known_at;
+  const cut = P.cutoffs;
+  const modeCut = (k) => manifest.modes[k].reads?.[k]?.query?.known_at;
+  // Warm each dev server once (first-load module compile) so the first measured state is not a cold-start timeout.
+  for (const k of Object.keys(portOf)) await go(url(B(k), manifest.modes[k].actions[0].id, null), ACTION_K4_READY);
+  for (const p of [forbidden, unavailable]) await go(url(procBase(p), aid, null), ACTION_K4_READY);
+  for (const [wi, [W, width, height]] of WIDTHS.entries()) {
+    await size(width, height);
+    let m;
+    m = await recordK4(W, wi, "action-positive", url(B("positive"), aid, null));
+    loadedK4(W, "action-positive", m, { status: "CURRENT", intent: true, work: D["action-current"]?.work });
+    claim(`${W} action-positive: status line owner · short Site · Finding id8`, /^Maintenance lead · \S+ · Finding [0-9a-f]{8}/.test(m.statusLine), m.statusLine);
+    capK4(W, "action-positive", m, wi);
+    // The user-opened Finding version: exempt from height caps; full UUID on one line inside the strip, no overflow.
+    m = await recordK4(W, wi, "action-positive-version-open", url(B("positive"), aid, null), async () => {
+      await js(`(() => { const d = document.querySelector('[data-domain-action-strip] details'); if (d) d.open = true; return Boolean(d); })()`);
+    });
+    claim(`${W} action-positive-version-open: full revision UUID readable on one line inside the strip`,
+      m.revisionOpen && /^[0-9a-f-]{36}$/.test(m.revisionText) && m.revisionOneLine === true && m.revisionBodyInsideStrip === true && m.revisionReadable === true,
+      { open: m.revisionOpen, text: m.revisionText, oneLine: m.revisionOneLine, inside: m.revisionBodyInsideStrip, readable: m.revisionReadable });
+    capK4(W, "action-positive-version-open", m, wi, true);
+    m = await recordK4(W, wi, "action-not-linked", url(B("positive"), aid, notLinkedAt));
+    loadedK4(W, "action-not-linked", m, { status: D["action-not-linked"]?.status, intent: D["action-not-linked"]?.intent, work: null });
+    capK4(W, "action-not-linked", m, wi);
+    m = await recordK4(W, wi, "action-historical", url(B("positive"), aid, cut.K3));
+    loadedK4(W, "action-historical", m, { status: "HISTORICAL", intent: true, work: D["action-current"]?.work });
+    capK4(W, "action-historical", m, wi);
+    for (const [k, status] of [["pending", "PENDING_RECOMPUTE"], ["stale", "STALE_SOURCE"], ["unknown", "UNKNOWN"]]) {
+      const id = manifest.modes[k].actions[0].id;
+      m = await recordK4(W, wi, `action-${k}`, url(B(k), id, modeCut(k)));
+      claim(`${W} action-${k}: ${status} notice right after the strip, two panels`, m.shell === "loaded" && m.currentness === status && m.currentnessAfterStrip === true && m.headings.length === 2, { currentness: m.currentness, headings: m.headings });
+      capK4(W, `action-${k}`, m, wi);
+    }
+    m = await recordK4(W, wi, "action-worstcase", url(B("worstcase"), worst.id, null));
+    loadedK4(W, "action-worstcase", m, { status: WD["action-worstcase"]?.status ?? "CURRENT", intent: false, work: null });
+    claim(`${W} action-worstcase: full 160-code-point title and owner shown whole`, [...m.heading].length >= 160 && [...m.owner].length === 160 && !/…/.test(m.heading + m.owner), { heading: [...m.heading].length, owner: [...m.owner].length });
+    capK4(W, "action-worstcase", m, wi);
+    m = await recordK4(W, wi, "action-not-found", url(B("positive"), "00000000-0000-4000-8000-0000000000aa", null));
+    claim(`${W} action-not-found: one untitled not-found panel`, m.shell === "not_found" && m.panelState === "not-found" && m.panelCount === 1 && m.headings[0] === "", { shell: m.shell, panel: m.panelState, headings: m.headings });
+    capK4(W, "action-not-found", m, wi);
+    for (const [k, proc] of [["action-403", forbidden], ["action-503", unavailable]]) {
+      m = await recordK4(W, wi, k, url(procBase(proc), aid, null));
+      claim(`${W} ${k}: one untitled refusal panel, 'Cold work unavailable', server message and Retry (${proc.expected.http} ${proc.expected.code})`,
+        m.shell === "refused" && m.panelCount === 1 && m.headings[0] === "" && m.refusal === proc.expected.code && /Cold work unavailable/.test(m.refusalText) &&
+          m.refusalMessage.length > 0 && !/unexpected shape|could not be reached/.test(m.refusalMessage) && m.retryVisible === true,
+        { refusal: m.refusal, text: m.refusalText, message: m.refusalMessage, retry: m.retryVisible });
+      capK4(W, k, m, wi);
+    }
+    m = await recordK4(W, wi, "action-422-client", url(B("positive"), aid, "not-a-time"));
+    claim(`${W} action-422-client: the client refuses the invalid known_at before fetching (INVALID_KNOWN_AT), one untitled panel`,
+      m.shell === "refused" && m.refusal === "INVALID_KNOWN_AT" && m.panelCount === 1 && m.retryVisible === true, { refusal: m.refusal, message: m.refusalMessage });
+    capK4(W, "action-422-client", m, wi);
+  }
+  const failed = results.filter((r) => !r.ok).length;
+  writeFileSync(join(OUT, "w502c-k4-measurements.json"), JSON.stringify({ manifest_revision: manifest.revision, caps: { action: ACTION_CAPS }, api422, captures, claims: results, failed }, null, 2));
   console.log(`${results.length - failed} PASS, ${failed} FAIL`);
   return failed;
 }
