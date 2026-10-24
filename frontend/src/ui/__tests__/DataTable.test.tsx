@@ -12,6 +12,7 @@ import { DataTable } from "../DataTable";
 const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
 const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
 const CSS = NODE_FS.readFileSync(`${CWD}/src/ui/primitives.css`, "utf8");
+const COLD_CSS = NODE_FS.readFileSync(`${CWD}/src/sites/w1f4-changes-work.css`, "utf8");
 const GREY = "rgb(248, 250, 253)";
 
 afterEach(() => {
@@ -19,12 +20,18 @@ afterEach(() => {
   document.head.querySelectorAll("style[data-test-primitives]").forEach((n) => n.remove());
 });
 
-function mount(sticky: boolean) {
-  const style = document.createElement("style");
-  style.setAttribute("data-test-primitives", "");
-  style.textContent = CSS;
-  document.head.appendChild(style);
-  return render(
+const TOKENS = NODE_FS.readFileSync(`${CWD}/src/ui/tokens.css`, "utf8");
+const TOKEN_VALUES = new Map(Array.from(TOKENS.matchAll(/(--[a-z0-9-]+):\s*([^;]+);/g)).map((m) => [m[1], m[2].trim()]));
+/** jsdom does not resolve `var()`, so each `var(--token)` is replaced by its `tokens.css` value before injection. */
+const resolveTokens = (css: string) => css.replace(/var\((--[a-z0-9-]+)\)/g, (all, name: string) => TOKEN_VALUES.get(name) ?? all);
+function mount(sticky: boolean, wrapperClass?: string) {
+  for (const text of [CSS, COLD_CSS]) {
+    const style = document.createElement("style");
+    style.setAttribute("data-test-primitives", "");
+    style.textContent = resolveTokens(text);
+    document.head.appendChild(style);
+  }
+  const table = (
     <DataTable stickyFirstColumn={sticky}>
       <thead>
         <tr>
@@ -38,29 +45,34 @@ function mount(sticky: boolean) {
           <td>x</td>
         </tr>
       </tbody>
-    </DataTable>,
+    </DataTable>
   );
+  return render(wrapperClass === undefined ? table : <div className={wrapperClass}>{table}</div>);
 }
 
 describe("DataTable sticky header", () => {
-  for (const width of [1440, 390]) {
-    it(`sticky mode keeps the class and a uniformly grey header at ${width}px; body first cell stays raised`, () => {
-      Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
-      const { container } = mount(true);
-      expect(container.querySelector(".data-table__scroll--sticky")).not.toBeNull();
-      const heads = Array.from(container.querySelectorAll("thead th"));
-      expect(heads).toHaveLength(2);
-      expect(getComputedStyle(heads[0]).backgroundColor).toBe(GREY);
-      expect(getComputedStyle(heads[1]).backgroundColor).toBe(GREY);
-      const bodyFirst = container.querySelector("tbody th")!;
-      expect(getComputedStyle(bodyFirst).backgroundColor).not.toBe(GREY);
-    });
-  }
+  it("sticky mode keeps the class and a uniformly grey header; the body first cell keeps the raised token", () => {
+    const { container } = mount(true);
+    expect(container.querySelector(".data-table__scroll--sticky")).not.toBeNull();
+    const heads = Array.from(container.querySelectorAll("thead th"));
+    expect(heads).toHaveLength(2);
+    expect(getComputedStyle(heads[0]).backgroundColor).toBe(GREY);
+    expect(getComputedStyle(heads[1]).backgroundColor).toBe(GREY);
+    expect(getComputedStyle(container.querySelector("tbody th")!).backgroundColor).toBe("rgb(255, 255, 255)");
+  });
 
-  it("non-sticky mode has no sticky class and the sticky header rule does not apply", () => {
+  it("the cold Actions wrapper (w1f4-changes-work cold-work-actions) has one uniform #f8fafd header row (RR-M1)", () => {
+    const { container } = mount(true, "w1f4-changes-work cold-work-actions");
+    const heads = Array.from(container.querySelectorAll("thead th"));
+    expect(heads.map((h) => getComputedStyle(h).backgroundColor)).toEqual([GREY, GREY]);
+    expect(COLD_CSS).not.toMatch(/thead th:first-child\s*\{[^}]*background/);
+  });
+
+  it("non-sticky mode has no sticky class and its header is not given the sticky grey rule", () => {
     const { container } = mount(false);
     expect(container.querySelector(".data-table__scroll--sticky")).toBeNull();
     expect(container.querySelector(".data-table__scroll")).not.toBeNull();
-    expect(getComputedStyle(container.querySelector("thead th")!).backgroundColor).not.toBe(GREY);
+    const bg = getComputedStyle(container.querySelector("thead th")!).backgroundColor;
+    expect(bg).toBe("rgb(241, 244, 249)"); // the shared `--surface-sunken` head, not the sticky #f8fafd
   });
 });

@@ -226,12 +226,6 @@
   overflow-wrap: anywhere;
 }
 
-/* W5-02 review H2.1 / L1: the sticky first column comes from DataTable `stickyFirstColumn`; the header cell keeps the
-   mock's sunken table-header background (v69 `th{background:#f8fafd}`). */
-.w1f4-changes-work.cold-work-actions .data-table thead th:first-child {
-  background: var(--surface-sunken);
-}
-
 /* W5-02 review H2.2: the mock notice composition (info icon inline with the text), as coldScenarios.css does. */
 .v69-notice[data-cold-work-currentness],
 .v69-notice[data-cold-work-notice],
