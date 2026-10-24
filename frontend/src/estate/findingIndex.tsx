@@ -263,7 +263,7 @@ function miniGridSiteIds(body: EstateFindingsBody): ReadonlySet<string> {
 /**
  * Post-W6 W3-estate Q4 (R297): whether a row's Finding title is live. A mini-grid row links its exact revision
  * link. A cold or EV row is live only when the server sends a provable row-local windowed link (one carrying its
- * own `from` and `to`); a null, absent or unwindowed link leaves the title inert with a labelled unavailable detail.
+ * own `from`, `to` and `known_at`; the server otherwise sends the legacy `?revision_id=` link); a null, absent or unwindowed link leaves the title inert with a labelled unavailable detail.
  * The wire type stays `string`; the runtime check also covers a null the server sends for an unprovable link.
  */
 export function findingLinkLive(row: EstateFindingRow, miniGridIds: ReadonlySet<string>): boolean {
@@ -272,7 +272,7 @@ export function findingLinkLive(row: EstateFindingRow, miniGridIds: ReadonlySet<
   if (miniGridIds.has(row.site_id)) return true;
   if (!link.includes("?")) return false;
   const params = new URLSearchParams(link.slice(link.indexOf("?") + 1));
-  return params.has("from") && params.has("to");
+  return params.has("from") && params.has("to") && params.has("known_at");
 }
 
 export const FINDING_DETAIL_UNAVAILABLE = "Finding detail unavailable";

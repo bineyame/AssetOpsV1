@@ -19,6 +19,13 @@ import { categoryLabel, moneyText, moneyWindowText, NOT_DISPLAYABLE, quantityTex
 import type { FinancialAmount } from "./estateEvidenceMoneyClient";
 import {
   ACTION_WINDOW_NOTE,
+  ASSESSMENT_IDS,
+  coverageStateWords,
+  exclusionLineLabel,
+  exclusionReasonWords,
+  NO_CONFIGURED_OBJECTIVE,
+  OBJECTIVE_DETAIL_UNAVAILABLE,
+  selectedAssessmentWords,
   CARD_LABEL,
   CARD_VALUE,
   CATEGORIES_SEPARATE,
@@ -348,17 +355,29 @@ function ObjectivesPanel({ body }: { body: EstatePortfolioBody }) {
                 const cell = site.cells.find((c) => c.key === key);
                 if (cell === undefined) return <span key={site.site_id} role="cell" />;
                 const tone = cell.state === "REVIEW" || cell.state === "LIMITED" ? "attention" : cell.state === "NOT_APPLICABLE" ? "na" : "unknown";
+                // Q10 (R297): a cell with a server destination is a link to that mounted domain route; an EV Backup
+                // objective has no configured target and says so; other null destinations stay labelled unavailable.
+                const cellProps = {
+                  className: `objective-cell ${tone}`,
+                  title: cell.reason,
+                  "aria-description": cell.reason,
+                  "data-portfolio-cell": `${site.site_code}|${key}|${cell.state}`,
+                };
+                if (cell.destination !== null) {
+                  return (
+                    <span key={site.site_id} role="cell">
+                      <Link {...cellProps} to={cell.destination} data-portfolio-cell-link>
+                        {cell.label}
+                      </Link>
+                    </span>
+                  );
+                }
+                const unavailable =
+                  site.domain === "EV_CHARGING" && key === "BACKUP" ? NO_CONFIGURED_OBJECTIVE : OBJECTIVE_DETAIL_UNAVAILABLE;
                 return (
-                  <span
-                    key={site.site_id}
-                    role="cell"
-                    className={`objective-cell ${tone}`}
-                    title={cell.reason}
-                    aria-description={cell.reason}
-                    data-portfolio-cell={`${site.site_code}|${key}|${cell.state}`}
-                  >
+                  <span key={site.site_id} role="cell" {...cellProps}>
                     {cell.label}
-                    {cell.destination === null ? <small>Site detail unavailable</small> : null}
+                    <small data-portfolio-cell-unavailable>{unavailable}</small>
                   </span>
                 );
               })}
@@ -520,15 +539,26 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
           </thead>
           <tbody>
             {body.scope_disclosure.sites.map((s) => (
-              <tr key={s.site_id}>
+              <tr key={s.site_id} data-portfolio-scope-site={s.site_code}>
                 <td>
-                  {s.site_name} · {s.selected_revision_ids.length > 0 ? s.selected_revision_ids.join(", ") : "No selected assessment"}
+                  <span data-portfolio-scope-summary>
+                    {s.site_name} · {selectedAssessmentWords(s.selected_revision_ids.length)}
+                  </span>
+                  {s.selected_revision_ids.length > 0 ? (
+                    <Disclosure summary={ASSESSMENT_IDS} name={`portfolio-scope-ids-${s.site_id}`} variant="inline">
+                      <div className="portfolio-scope-ids" data-portfolio-assessment-ids>
+                        {s.selected_revision_ids.map((id) => (
+                          <div key={id}>{id}</div>
+                        ))}
+                      </div>
+                    </Disclosure>
+                  ) : null}
                 </td>
                 <td>
                   {s.window.from.slice(0, 10)}–{s.window.to.slice(0, 10)} UTC
                 </td>
-                <td>
-                  {DOMAIN_WORD[s.domain] ?? s.domain} · {s.coverage.state}
+                <td data-portfolio-scope-coverage>
+                  {DOMAIN_WORD[s.domain] ?? s.domain} · {coverageStateWords(s.coverage.state)}
                   {s.source_provenance === null ? <small> · No selected source basis</small> : null}
                 </td>
               </tr>
@@ -544,8 +574,15 @@ function ScopeDisclosure({ body }: { body: EstatePortfolioBody }) {
         {body.scope_disclosure.exclusions.length > 0 ? (
           <ul>
             {body.scope_disclosure.exclusions.map((x) => (
-              <li key={`${x.line_key}|${x.group_key ?? ""}`}>
-                {x.line_key} · {x.group_key ?? "no group"} · {x.reason_codes.join(", ")}
+              <li key={`${x.line_key}|${x.group_key ?? ""}`} data-portfolio-exclusion>
+                <span data-portfolio-exclusion-words>
+                  {exclusionLineLabel(x.line_key, body)} · {exclusionReasonWords(x)}
+                </span>
+                <Disclosure summary="Record details" name={`portfolio-exclusion-${x.line_key}`} variant="inline">
+                  <span className="portfolio-scope-raw">
+                    {x.line_key} · {x.group_key ?? "no group"} · {x.reason_codes.length > 0 ? x.reason_codes.join(", ") : "no reason code"}
+                  </span>
+                </Disclosure>
               </li>
             ))}
           </ul>

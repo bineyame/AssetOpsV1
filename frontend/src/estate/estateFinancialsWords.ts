@@ -60,6 +60,8 @@ const REASON_WORDS: Readonly<Record<string, string>> = {
 };
 
 export const reasonWord = (code: string): string => REASON_WORDS[code] ?? "reason not described";
+/** Post-W6 W3-estate Q13: whether a reason code has plain words (unknown codes are shown as a raw detail). */
+export const hasReasonWord = (code: string): boolean => code in REASON_WORDS;
 
 export function reasonText(codes: string[]): string {
   const words = codes.map(reasonWord);
