@@ -1754,7 +1754,8 @@ export function SiteFoundationChangeFrame({
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
-              { label: "Change" },
+              // post-W6 shell R152 (Q16): the same leaf as the bare Changes route.
+              { label: "Change & effect" },
             ]}
           />
           {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}

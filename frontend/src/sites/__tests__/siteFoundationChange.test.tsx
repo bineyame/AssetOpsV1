@@ -17,6 +17,7 @@ import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } f
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { foundationViewFor } from "../FoundationSubtabs";
+import { failureWords } from "../SiteFoundationChange";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -129,7 +130,11 @@ describe("Foundation change (changes:1#a)", () => {
     expect(q("[data-change-status] .status-strip__lead")?.textContent).toBe("Battery reserve change · Applied");
     expect(q("[data-change-old]")?.textContent).toBe("20%");
     expect(q("[data-change-new]")?.textContent).toBe("15%");
-    expect(q("[data-change-asset]")?.textContent).toBe(CHANGE.asset_id);
+    // post-W6 shell R151 (Q15): no stored battery label on the change, so the sentence says "Battery"; the UUID is
+    // kept on the attribute and in the technical references.
+    expect(q("[data-change-asset]")?.textContent).toBe("Battery");
+    expect(q("[data-change-asset]")?.getAttribute("data-change-asset")).toBe(CHANGE.asset_id);
+    expect(q('[data-disclosure="change-references"]')?.textContent).toContain(CHANGE.asset_id);
     expect(q("[data-change-effective]")?.getAttribute("data-change-effective")).toBe(CHANGE.effective_from);
     expect(q("[data-change-recorded]")?.getAttribute("data-change-recorded")).toBe(CHANGE.recorded_at);
     expect(qa("[data-change-revision]").map((r) => r.getAttribute("data-change-revision-origin"))).toEqual([
@@ -303,3 +308,119 @@ describe("W1-F4: the former Change answer card, merged into the strip and panel 
     expect(document.body.textContent).not.toMatch(/0 recorded|No failed application attempts/);
   });
 });
+
+describe("post-W6 shell: change page plan figures, failure words, crumb and closing notice", () => {
+  const PLAN_ID = "a0000000-0000-4000-8000-0000000000aa";
+  const PLAN_PATH = `${ACTION_API}/verification/plan?plan_id=${PLAN_ID}`;
+  const withPlan = (): Record<string, Served> => {
+    const body = JSON.parse(JSON.stringify(changes.change.body));
+    body.verification = { ...body.verification, state: "PENDING", plan_id: PLAN_ID };
+    return { [changes.change.request.path]: { status: 200, body }, [`${ACTION_API}/events`]: served(hi.events_latest) };
+  };
+  const planBody = (plan: unknown) => ({
+    label: "trial",
+    action_id: ACTION,
+    selector: { plan_id: PLAN_ID, recorded_at: null },
+    verification_state: { state: "PENDING", reasons: [], plan_id: PLAN_ID, outcome_id: null, statement: "" },
+    history: [],
+    plan,
+    selection_bindings: [],
+  });
+  const storedPlan = {
+    plan_id: PLAN_ID,
+    target: { classification: "CANDIDATE_AVOIDABLE", metric: "m", ratio: [3, 4], rule: "r", inconclusive_when: [] },
+    guardrails: { a: { rule: "r", unit: "s" }, b: { rule: "r", unit: "s" }, c: { rule: "r", unit: "%" } },
+  };
+  const metric = (name: string) => q(`[data-change-metric='${name}']`) as HTMLElement;
+
+  it("R141: shows the frozen plan's stored target and guardrail count", async () => {
+    serve({ ...withPlan(), [PLAN_PATH]: { status: 200, body: planBody(storedPlan) } });
+    mount(CHANGE_URL);
+    await settledScreen();
+    await screen.findByText("≥25% lower");
+    expect(metric("target").getAttribute("data-change-plan-read")).toBe("loaded");
+    expect(metric("guardrails").textContent).toContain("3 required");
+    expect(document.body.textContent).not.toContain("Plan details are not available yet.");
+  });
+
+  it("R141: a failed plan read and a plan with no stored values keep 'Set in the plan' with the not-available line", async () => {
+    for (const [name, answer] of [
+      ["failed", { status: 503, body: { detail: { code: "VERIFICATION_STORE_UNAVAILABLE", message: "down" } } }],
+      ["absent", { status: 200, body: planBody(null) }],
+    ] as const) {
+      serve({ ...withPlan(), [PLAN_PATH]: answer });
+      mount(CHANGE_URL);
+      await settledScreen();
+      await waitForPlanState(name);
+      for (const card of ["target", "guardrails"]) {
+        expect(metric(card).textContent, name).toContain("Set in the plan");
+        expect(metric(card).textContent, name).toContain("Plan details are not available yet.");
+      }
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("R141: while the plan read is pending the cards say so and never show a target", async () => {
+    const reads = withPlan();
+    vi.stubGlobal("fetch", (url: string) => {
+      const path = decodeURIComponent(String(url));
+      if (path === PLAN_PATH) return new Promise<Response>(() => undefined);
+      const hit = reads[path];
+      return Promise.resolve(new Response(JSON.stringify(hit?.body ?? {}), { status: hit?.status ?? 599 }));
+    });
+    mount(CHANGE_URL);
+    await settledScreen();
+    expect(metric("target").getAttribute("data-change-plan-read")).toBe("pending");
+    expect(metric("target").textContent).toContain("Set in the plan");
+    expect(metric("target").textContent).toContain("Plan details are not available yet.");
+    expect(document.body.textContent).not.toMatch(/≥\d+% lower/);
+  });
+
+  it("R151: failed attempts read in plain words, with the raw codes only in the technical disclosure", async () => {
+    serve(changeReads());
+    mount(CHANGE_URL);
+    await settledScreen();
+    const attempts = q("[data-change-attempts]") as HTMLElement;
+    const words = Array.from(attempts.querySelectorAll("[data-change-failure-words]"));
+    expect(words.length).toBeGreaterThan(0);
+    for (const word of words) {
+      const code = word.getAttribute("data-change-failure-words") as string;
+      expect(word.textContent).toBe(failureWords(code));
+      expect(word.textContent).not.toContain(code);
+    }
+    const list = attempts.querySelector("ul") as HTMLElement;
+    expect(list.textContent).not.toMatch(/ACTION_[A-Z_]+/);
+    expect(attempts.querySelector('[data-disclosure="change-failed-attempt-codes"]')?.textContent).toMatch(/ACTION_[A-Z_]+/);
+  });
+
+  it("R151: maps every known failure code and falls back for an unknown one", () => {
+    expect(failureWords("ACTION_FOUNDATION_STALE")).toBe("The site configuration changed before this was applied");
+    expect(failureWords("ACTION_VALUE_INVALID")).toBe("The proposed value was outside the allowed range");
+    expect(failureWords("ACTION_EFFECTIVE_TIME_INVALID")).toBe("The effective time was not valid");
+    expect(failureWords("ACTION_SOMETHING_NEW")).toBe("The attempt was refused");
+    expect(failureWords(null)).toBe("The attempt was refused");
+  });
+
+  it("R152/R119: both change routes end the crumb at 'Change & effect' under a linked Foundation; the closing note is the blue notice", async () => {
+    for (const path of [CHANGE_URL, "/sites/KOBO-001/foundation/changes"]) {
+      serve(changeReads());
+      mount(path);
+      await settledScreen();
+      const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
+      const items = Array.from(crumbs.querySelectorAll("li")).map((li) => li.textContent);
+      expect(items.slice(-2), path).toEqual(["Foundation", "Change & effect"]);
+      expect(within(crumbs).getByRole("link", { name: "Foundation" })).toHaveAttribute("href", "/sites/KOBO-001/foundation");
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+    serve(changeReads());
+    mount(CHANGE_URL);
+    await settledScreen();
+    expect(q("[data-change-later-sections]")?.className).toBe("notice v69-notice v69-notice--blue");
+  });
+});
+
+async function waitForPlanState(state: string) {
+  await vi.waitFor(() => expect(q("[data-change-metric='target']")?.getAttribute("data-change-plan-read")).toBe(state));
+}
