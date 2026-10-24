@@ -1,4 +1,4 @@
-# post-W6 W2-EV phase 1 handoff (PARTIAL: interfaces only)
+# post-W6 W2-EV phase 1 handoff (PARTIAL: interfaces, U1-U3 landed; resume at U4)
 
 Branch `task/post-W6-W2-EV`, worktree `AssetOpsV1-review5`. Inputs: `.agent/post-W6-W2-EV-rulings.md` (binding),
 `.agent/post-W6-W2-EV-preflight.md` (anchors and Q numbers), `.agent/post-W6-W2-cold-rulings.md` (cold behaviour for
@@ -113,6 +113,32 @@ Line anchors are from main 7554111e.
 - Run `tools/check-architecture.ps1`, `tools/check-agent-workflow.ps1`, the navigation rail fixtures (keep the pinned
   strings in preflight Q22 byte-identical) and the missing-claim scan.
 - Captures (Q27-Q29; caps in ruling 8 and Q26) and the full vitest run wait until the coordinator clears the R373 suite.
+
+## Progress (second builder)
+
+- U1 fc95d2e3, U2 74c86e64, U3 620a5902. Each commit message lists its R-IDs and behaviour.
+- Mechanism: `sites/evSelectedWindow.ts` holds `selectedWindowSearch(read)` and `EvTabs` = ReactNode | (search) => ReactNode.
+  The EV Site screens report through `WindowBar` (context in `EvSiteViews.tsx`). Sessions and Finding use their own
+  read. Depth pages (availability, energy) pass "" for W5-EV-Work. The EV Foundation mount gets hrefs only, with no
+  window. The EV child-address frame in `SiteFindingFrame` gets hrefs only.
+- `EvSiteRoutes` gained `health`, `work` and `portfolioEvidence`, and `EvSiteFrameProps` gained `timeZone`.
+- Deviations to record in the packet:
+  - The Assumptions route is `/ev/financial-assumptions`; the ruling's "/ev/assumptions" was shorthand.
+  - The missing-claim baseline had no EV readiness entry to lower. Only the exemption reason changed. The guard was
+    proven non-vacuous, failing on an untagged "not available yet" in `EvFoundationViews`.
+  - The R270 line is the first line of panel 1 ("Session service records"), not a free line under the cards. The v69
+    panel guard rejects any element between the cards and panel 1.
+  - The bare `/sites/:id` frame shows the mini loading state while the Site type is unread, so an EV Site does not
+    flash the mini Overview. The tab query arrives one effect tick after the read settles, so tests use `waitFor`.
+- Focused suites green at 620a5902: evSiteMoneyRoutes 26, evAssessmentRoutes 48, evFoundation 29, miniDecisions 27,
+  operatorSiteTabs and override, siteDetailRoute and siteDetailScreen, cold views and routes, evScenarios, evDepth,
+  evEnergy, siteTime. `tsc` is clean, and the missing-claim scan passes.
+
+## Resume at U4 (not started)
+
+U4 is as specified above. `SiteFindingsFrame` is at `shell/SiteAnalyticsFrames.tsx` ~:451, and its tabs are at ~:490.
+Pass `evAssessment` from `App.tsx` ~:433. The EV branch should also give its tabs `hrefs={EV_SITE_TAB_HREFS}`
+(imported already) and `search={selectedWindowSearch(read)}`. Then do U5 per the plan above.
 
 ## Risks
 
