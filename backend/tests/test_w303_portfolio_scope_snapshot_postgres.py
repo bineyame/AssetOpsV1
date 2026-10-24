@@ -16,6 +16,7 @@ from uuid import uuid4
 import pytest
 
 from test_w301_estate_index_postgres import URL
+from assetops_backend.estate.evidence_money import CURRENT_VIEW
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -564,6 +565,9 @@ def _gap_row(site: dict, capability: str, gaps: list[tuple[str, str | None]], re
             "capability_key": capability, "_key": (site["site_code_key"], sid, capability),
             "raw_state": readiness, "readiness": readiness, "selected_revision_ids": [f"rev-{sid}"],
             "_assessments": [f"rev-{sid}"], "_cited": [], "_token_cited": [],
+            # Real rows always carry `links`; a fake row has no proven window, so it takes the label-carrying fallback.
+            "links": {"site": f"/sites/{site['site_code']}", "site_readiness": f"/sites/{site['site_code']}",
+                      "site_readiness_label": CURRENT_VIEW},
             "_gaps": [{"key": ("mini_grid", code, "role"), "domain": "mini_grid", "gap_code": code,
                        "missing_role": "role", "label": f"label {code}", "next_step": step} for code, step in gaps]}
 
