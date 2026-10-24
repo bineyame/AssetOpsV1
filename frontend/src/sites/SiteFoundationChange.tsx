@@ -33,6 +33,7 @@ import {
   KeyValues,
   MetricCard,
   MetricCards,
+  MissingClaim,
   Notice,
   Panel,
   plainTime,
@@ -180,6 +181,15 @@ const DEFAULT_VERIFICATION = createVerificationClient();
 
 /** post-W6 shell R141 (Q14): copy for the frozen plan's Target and Guardrails cards. */
 export const PLAN_DETAILS_NOT_AVAILABLE = "Plan details are not available yet.";
+
+/** The not-available line, tagged as the registered gap (G-changes-plan-figures, register R379). */
+function PlanDetailsNotAvailable() {
+  return (
+    <MissingClaim gapId="G-changes-plan-figures" placement="changes.metrics.plan-figures">
+      {PLAN_DETAILS_NOT_AVAILABLE}
+    </MissingClaim>
+  );
+}
 
 type PlanFigures = { target: string; guardrails: string } | null;
 
@@ -330,7 +340,7 @@ export function SiteFoundationChange({
         <MetricCard
           label="Target"
           value={planId ? (figures ? figures.target : "Set in the plan") : "Not recorded yet"}
-          note={planId ? (figures ? "Frozen before the later window is judged" : PLAN_DETAILS_NOT_AVAILABLE) : "No verification plan is frozen yet"}
+          note={planId ? (figures ? "Frozen before the later window is judged" : <PlanDetailsNotAvailable />) : "No verification plan is frozen yet"}
           word={!(planId && figures)}
           tone={planId ? undefined : "muted"}
           data={{ "data-change-metric": "target", "data-change-plan-read": planState }}
@@ -338,7 +348,7 @@ export function SiteFoundationChange({
         <MetricCard
           label="Guardrails"
           value={planId ? (figures ? figures.guardrails : "Set in the plan") : "Not recorded yet"}
-          note={planId ? (figures ? "Service, reserve and stored-energy limits" : PLAN_DETAILS_NOT_AVAILABLE) : "Limits are set when the plan is frozen"}
+          note={planId ? (figures ? "Service, reserve and stored-energy limits" : <PlanDetailsNotAvailable />) : "Limits are set when the plan is frozen"}
           word={!(planId && figures)}
           tone={planId ? undefined : "muted"}
           data={{ "data-change-metric": "guardrails", "data-change-plan-read": planState }}

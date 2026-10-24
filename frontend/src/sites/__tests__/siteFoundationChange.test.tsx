@@ -355,6 +355,7 @@ describe("post-W6 shell: change page plan figures, failure words, crumb and clos
       for (const card of ["target", "guardrails"]) {
         expect(metric(card).textContent, name).toContain("Set in the plan");
         expect(metric(card).textContent, name).toContain("Plan details are not available yet.");
+        expect(metric(card).querySelector('[data-gap-id="G-changes-plan-figures"]'), name).not.toBeNull();
       }
       cleanup();
       vi.unstubAllGlobals();
