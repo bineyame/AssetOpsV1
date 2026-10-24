@@ -174,3 +174,65 @@ branch merges main, resolves conflicts and reruns the batch (see "Rebase plan").
   - check-all: 11/11 passed.
 - **Captures not rerun yet.** The committed W5-04c evidence predates the tool claim change. The action and list
   captures are rerun in the post-W5-04b batch.
+
+## Post-W5-04b batch (main `7d8c3273` merged at `12434612`; rulings 69-72)
+
+- **Merge.** The only textual conflicts were `panelStructure.ts`, where all EV leading entries are kept, and the
+  register's R113 row.
+  - The R113 row keeps main's four-screen row and is closed on all four named screens.
+  - `evWorkActions.test.tsx` and `w1f4ChangesWorkStructure.test.tsx` auto-merged. V3a's mounted Window and one-form
+    tests are kept, and so are the live-link and query tests.
+- **Ruling 71, `e92e81b3`.** The case-row Action links now carry the selected scope.
+  - In `siteWorkCases.tsx`, the EV `DOMAIN_ACTION` link inside `UTC and IDs` on Incidents and Maintenance goes through
+    `evActionHref`. That function moved to `evWorkPresentation.ts` and is re-exported by `SiteWorkActions.tsx`, so
+    there is no import cycle.
+  - It carries the page's `from`, `to` and an explicit `known_at`, and drops the cursor and any server query.
+  - Cold and MINIGRID keep the server href.
+- **Ruling 71 tests (`evWorkCases.test.tsx`).**
+  - Both screens with an explicit historical cutoff: the click opens the detail at the same address, reads at
+    `known_at`, and the Verification link keeps the scope.
+  - Both screens with no explicit cutoff: the link carries `from,to` only, and a reload of it reads with no cutoff.
+  - The cold case href is byte-identical.
+  - V3a's two plain-link assertions now expect the live link.
+  - Non-vacuity: making the case-link href change do nothing fails 6 tests; reverted with `git checkout`.
+- **Ruling 70.** The refused case panel cap is now 360/590 (`CASE_CAPS.refusedPanel`). Measured 145/153: pass.
+- **No Incident Finding link** was added to the producer.
+- **Capture tool, `5e0a6e0f` and `7ee032b8`:**
+  - The case claims assert every case-page `/actions/` href is the live detail with the page's scope; previously they
+    asserted plain text.
+  - New explicit-cutoff claim in the historical case state.
+  - Fix: between case captures the tool now opens a device-width `data:` blank page instead of `about:blank`. At the
+    390 mobile emulation, `about:blank` laid out at 980 px and failed V3b's width guard every time.
+- **Cold byte identity after the merge.** Probe rerun on the merged tree: 40/40 states, 0 differences against base
+  `ad7b82f9` (`cold-bytes/cold-head-post-w504b.json`).
+- **Checks:**
+  - tsc is clean.
+  - Full vitest: **126 files, 2970/2970 passed**, 11m.
+  - Build green.
+  - check-all: All 11 guards passed.
+  - Focused Postgres (`backend/tests/test_w504_*.py`, all 5 files, `-n 4`, private `assetops_w504c_test`): JUnit
+    tests=53, failures=0, errors=0, skipped=0, 5m27s. The database has been dropped.
+- **Walkthrough.** Run with `W504_API_PORT_BASE=9000` (V3b's option; no wrapper needed), work folder
+  `var/w504a_c5_work`, tag `c5`.
+  - prepare: positive, zero and worstcase ready.
+  - serve: 5/5 healthy.
+  - attest: forbidden 403; unavailable stopped.
+- **Captures** in `.agent/W5-04c-evidence/post-w504b/`:
+
+  | Mode | Folder | Result |
+  |---|---|---|
+  | list | `list-run2` | 195 PASS, 0 FAIL |
+  | cases | `cases-run5` | 476 PASS, 0 FAIL |
+  | action | `action-run2` | 212 PASS, 0 FAIL |
+
+  - The first pass failed every worstcase state because the 5503 Vite server exited by itself (V2b saw the same).
+    It was restarted as PID 10064 and all modes were rerun.
+  - The superseded folders were deleted.
+  - No cap misses.
+- **Cleanup by PID:**
+  - Vite 15288, 19944, 10064, 28788 and 23936 stopped; 5512 had already exited.
+  - Walkthrough `drop` stopped its uvicorn processes and dropped `w504a_*_c5_test`.
+  - No capture Chrome is left on 9491.
+- **Full backend suite: not run.** This branch changes no backend product code, migration, composition, `main.py`,
+  `tools/checks` or fixture; the only backend change is one test. W5-04b's merged walkthrough and producer-test
+  changes are main's. The coordinator decides.
