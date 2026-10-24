@@ -39,7 +39,7 @@ import {
   type FindingIndexClient,
   type FindingIndexScope,
 } from "../sites/findingIndexClient";
-import { SiteFindingIndex } from "../sites/SiteFindingIndex";
+import { LensChips, SiteFindingIndex } from "../sites/SiteFindingIndex";
 import { createFindingClient, type FindingClient } from "../sites/findingClient";
 import { ACTION_VIEWS, ACTION_VIEW_LABELS, SiteAction, type ActionSelector, type ActionView } from "../sites/SiteAction";
 import { ChangesWorkPageHeader, NoChangeSelected, SiteFoundationChange, type SiteFoundationChangeLinks } from "../sites/SiteFoundationChange";
@@ -71,7 +71,7 @@ import {
   serviceWindowFromParams,
   type MiniDepthClient,
 } from "../sites/miniDepthClient";
-import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
+import { ColdFindingFrame, ColdFindingIndex, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref } from "../sites/EvAssessmentViews";
@@ -453,11 +453,14 @@ export function SiteFindingsFrame({
   analytics,
   sitesPath,
   findingIndex = DEFAULT_FINDING_INDEX,
+  coldAssessment,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
   findingIndex?: FindingIndexClient;
+  /** post-W6 W2-cold R253: a COLDCHAIN Site's index reads its selected cold Findings, not the mini index. */
+  coldAssessment?: ColdAssessmentClient;
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -488,6 +491,17 @@ export function SiteFindingsFrame({
             headingId={SITE_FINDINGS_HEADING_ID}
           />
           <OperatorSiteTabs siteId={siteId} current="Findings" />
+          {site.site_type === "COLDCHAIN" && coldAssessment !== undefined ? (
+            <ColdFindingIndex
+              siteId={site.site_id}
+              siteName={site.display_name}
+              window={coldWindowFromParams(params)}
+              client={coldAssessment}
+              routes={coldSiteRoutes(site.site_id)}
+              lenses={<LensChips />}
+            />
+          ) : (
+          // The mini/generic index lines below are left unindented so the shared hunk stays minimal.
           <SiteFindingIndex
             siteId={site.site_id}
             opportunityHelper={site.site_type === "MINIGRID"}
@@ -508,6 +522,7 @@ export function SiteFindingsFrame({
               />
             }
           />
+          )}
         </main>
       )}
     </SiteScoped>

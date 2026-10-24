@@ -75,7 +75,7 @@ const PanelControls = createContext<ReactNode>(null);
 export const OPPORTUNITY_INDEX_HELPER =
   "Opportunity index unavailable; open the renewable evaluation for this site's five-day study.";
 
-function LensChips({ opportunityHelper = false }: { opportunityHelper?: boolean }) {
+export function LensChips({ opportunityHelper = false }: { opportunityHelper?: boolean }) {
   return (
     <>
     <ul className="v69-chips v69-chips--lenses" aria-label="Finding lenses" data-site-findings-lenses>

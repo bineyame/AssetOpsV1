@@ -27,6 +27,7 @@ import {
   type ColdBackupRead,
   type ColdChainRead,
   type ColdFindingDetailRead,
+  type ColdFindingItem,
   type ColdFindingsRead,
   type ColdRead,
   type ColdStepRead,
@@ -52,10 +53,10 @@ import {
 } from "./coldAssessmentWords";
 import { ColdTemperatureChart } from "./assessmentGraphics";
 import { NOT_ASSESSED, NOT_RECORDED, between, date, dayHm, decimal, deg, degreeMinutes, hm, num, range, windowText } from "./coldFormat";
-import { UnavailableTab } from "../ui/UnavailableEntry";
+import { UnavailableInline, UnavailableTab } from "../ui/UnavailableEntry";
 import { ColdCooling } from "./ColdCooling";
 import type { ColdDepthClient } from "./ColdDepthClient";
-import { RefusedStrip, RefusedTiles, RequestedWindowBar, selected, type ColdSiteRoutes } from "./coldSiteViews";
+import { NO_COLD_ASSESSMENT, RefusedStrip, RefusedTiles, RequestedWindowBar, selected, type ColdSiteRoutes } from "./coldSiteViews";
 import "./w2-cold-assessment.css";
 
 /*
@@ -1217,5 +1218,145 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
         </>
       )}
     </main>
+  );
+}
+
+/* ---------- cold-findings (Site Findings index) ---------- */
+
+export const COLD_FINDINGS_EMPTY = "No Findings at this site in the selected window.";
+export const COLD_FINDINGS_NOT_GLOBAL = "Cold-chain Findings are not in the global Findings list";
+export const coldFindingsCursorNote = (n: number) => `Showing the first ${n} Findings; paging is not available on this page.`;
+const COLD_FINDINGS_HEADING_ID = "cold-findings-heading";
+
+export interface ColdFindingIndexProps {
+  siteId: string;
+  siteName: string;
+  window: ColdWindowQuery;
+  client: ColdAssessmentClient;
+  routes: ColdSiteRoutes;
+  /** The shared lens row (`LensChips` from the mini index), so the closed chip set gains no literal. */
+  lenses: ReactNode;
+}
+
+/** The Finding's episode period, from its stored bounds. */
+function episodePeriod(item: ColdFindingItem): string {
+  const start = item.episode_bounds.start;
+  const end = item.episode_bounds.end;
+  const began = `Began ${between(start.earliest, start.latest)}`;
+  return end.earliest === null && end.latest === null ? began : `${began} · ended ${between(end.earliest, end.latest)}`;
+}
+
+/** The main consequence from the on-wire claim only; nothing is priced or inferred. */
+function mainConsequence(item: ColdFindingItem): string {
+  const claim = item.claim as {
+    direction?: string;
+    duration_bounds?: { low: string | null; high: string | null };
+    peak_observed?: string | null;
+    result?: string | null;
+  };
+  if (item.kind === "EXCURSION" && claim.duration_bounds !== undefined) {
+    return `${range(claim.duration_bounds.low, claim.duration_bounds.high, "min")} ${claim.direction === "LOW" ? "below" : "above"} the limit · peak ${deg(claim.peak_observed)}`;
+  }
+  if (item.kind === "START_RESPONSE") return startResultWord(claim.result);
+  return "Not in this list";
+}
+
+/**
+ * post-W6 W2-cold R253 (Q1-Q3): a COLDCHAIN Site's Findings index from the selected `ColdFindingsRead`, in the v69
+ * `siteFindingsScreen` order: lens chips, the scoped strip, then one panel with the seven-column table. The read
+ * carries no priority, lens or money, so those say `Not assessed`; cold Findings are not in the global list.
+ */
+export function ColdFindingIndex(props: ColdFindingIndexProps) {
+  const { siteId, window, client, routes } = props;
+  const read = useRead(() => client.listFindings(siteId, window), `cf|${siteId}|${windowKey(window)}`);
+  if (read === null) return <p>{COLD_ASSESSMENT_LOADING}</p>;
+  if (read.status !== "loaded") {
+    const text = refusalText(read);
+    return (
+      <>
+        {props.lenses}
+        <RequestedWindowBar window={window} refusal={{ sentence: text.body, retry: false, key: text.key }} />
+        <RefusedStrip label="Findings state" title={text.title} />
+        <Panel heading="Findings at this site" headingId={COLD_FINDINGS_HEADING_ID}>
+          <Gap id={COLD_FINDINGS_HEADING_ID}>{text.body}</Gap>
+          <RefusalReferences read={read} window={window} />
+        </Panel>
+      </>
+    );
+  }
+  const r = read.value;
+  const selection = r.currentness.watermark.assessment_revision_ids.length > 0;
+  const open = r.items.filter((f) => f.lifecycle === "SUPPORTED").length;
+  return (
+    <>
+      {props.lenses}
+      <StatusBar label="Findings state" action={<UnavailableInline label="Manage in Findings" />} data={{ "data-cold-findings-status": "" }}>
+        <strong>Scoped to {props.siteName}</strong>
+        {` · ${open} open · ${[windowText(r.window.from, r.window.to), currentnessWord(r.currentness.state), COLD_FINDINGS_NOT_GLOBAL].join(" · ")}`}
+      </StatusBar>
+      <Panel heading="Findings at this site" headingId={COLD_FINDINGS_HEADING_ID} description="Domain links back to the Performance view that produced the finding">
+        {!selection ? (
+          <Gap id={COLD_FINDINGS_HEADING_ID}>{NO_COLD_ASSESSMENT}</Gap>
+        ) : r.items.length === 0 ? (
+          <Gap id={COLD_FINDINGS_HEADING_ID}>{COLD_FINDINGS_EMPTY}</Gap>
+        ) : (
+          <>
+            <DataTable labelledBy={COLD_FINDINGS_HEADING_ID}>
+              <thead>
+                <tr>
+                  {["Finding", "Domain", "Priority", "Confidence", "State", "Main consequence", "Lens"].map((h) => (
+                    <th key={h} scope="col">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {r.items.map((f) => (
+                  <tr key={f.finding_id} data-cold-finding-row={f.finding_id}>
+                    <td>
+                      <Link to={selected(routes.finding(f.finding_id), r.window)} data-cold-finding-link={f.finding_id}>
+                        {f.title}
+                      </Link>
+                      <br />
+                      <small>{episodePeriod(f)}</small>
+                    </td>
+                    <td>
+                      {f.kind === "EXCURSION" ? (
+                        <Link to={selected(routes.temperature, r.window)} data-cold-domain-link="temperature">
+                          Temperature
+                        </Link>
+                      ) : f.kind === "START_RESPONSE" ? (
+                        <Link to={selected(routes.backup, r.window)} data-cold-domain-link="backup">
+                          Backup
+                        </Link>
+                      ) : (
+                        plainCode(f.kind)
+                      )}
+                    </td>
+                    <td>
+                      <Badge tone="neutral">{NOT_ASSESSED}</Badge>
+                    </td>
+                    <td>{claimWord(f.claim_level)}</td>
+                    <td>
+                      <Badge tone="lifecycle">{lifecycleWord(f.lifecycle)}</Badge>
+                    </td>
+                    <td>{mainConsequence(f)}</td>
+                    <td>
+                      <Badge tone="neutral">{NOT_ASSESSED}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </DataTable>
+            {r.next_cursor === null ? null : (
+              <p className="v69-chart-note" data-cold-findings-cursor>
+                {coldFindingsCursorNote(r.items.length)}
+              </p>
+            )}
+          </>
+        )}
+      </Panel>
+    </>
   );
 }
