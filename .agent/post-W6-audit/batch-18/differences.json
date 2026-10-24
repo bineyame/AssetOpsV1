@@ -1,0 +1,227 @@
+[
+ {
+  "id": "B18-X1",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "what": "Cross-cutting, cited not re-described. B1-01/B2-01 shell top bar missing (all 180 pairs; the mock topbar carries the estate Window picker). B1-04/B2-36 rail 'Not available yet' on Assets and Settings (all). B2-02 page-local window controls 'From (UTC) / To (UTC, exclusive) / Show records / Reload' (all; about 165 px stacked at 390). B1-07/B2-03 14 px panel prose against the mock's 12 px: incidents 'Case boundaries' and oprecords 'How records are used' (every pair). B1-02/B2-04 tall dark header at 390 on short pages: refused/503/empty-scope pairs, dark block 174 px (incidents), 164 px (maintenance), 120 px (preventive), 147/103 px (empty scope), against 92 px on populated pages. B1-53 raw system values: oprecords 'By' = 'service:w401-fixture' (stored actor ID, ruled by R30), 'Action 3728c61a' / 'Finding 05280089' id8 labels on cold/EV rows. B2-21/B3-04 UTC: Start/When columns ('23 Oct 2026, 16:11 UTC' for an Africa/Addis_Ababa cold Site whose own tab shows 19:11), 'As known at ... UTC', '(UTC)' labels. B3-01 does not recur.",
+  "disp": "Cite existing IDs; the estate-wide UTC basis still needs the Architect ruling noted by batch 10."
+ },
+ {
+  "id": "B18-01",
+  "screens": [
+   "maintenance"
+  ],
+  "what": "'1 requests' plural: the Open work card note is '{N} requests in progress or open', so N=1 reads '1 requests in progress or open' (EV positive, mini stress). Global incidents does NOT produce '1 incidents' (card note 'Open or in progress in this window'). The Site tabs reached from the global INC links still read 'Scoped to Cold · 1 incidents' / 'Scoped to EV · 1 incidents' (link captures).",
+  "disp": "(c) D3 Low, same shared plural owner as B13-01/B15-02."
+ },
+ {
+  "id": "B18-02",
+  "screens": [
+   "maintenance"
+  ],
+  "cases": [
+   "ev",
+   "ev-all-open",
+   "evwc",
+   "evwc-all-open",
+   "cold",
+   "cold-all-open",
+   "coldwc",
+   "coldwc-all-open"
+  ],
+  "what": "Raw asset type code in the Asset / site cell: EV rows show 'c1 · EV_CONNECTOR · EV charging lab' (mandatory check CONFIRMED, 1 and 5 rows); cold rows show 'generator-1 · GENERATOR · Cold replay lab', although R89 rules the cold Site work cell 'generator-1 · backup generator'. Source: backend work/global_index.py:301 builds asset_label = asset_code + ' · ' + asset_type (the enum).",
+  "disp": "(c) D3 Low (Medium for consistency with R89): reuse the Site-tab asset wording; one fix with the c1 · EV_CONNECTOR backlog item; cite B1-53."
+ },
+ {
+  "id": "B18-03",
+  "screens": [
+   "incidents",
+   "maintenance"
+  ],
+  "cases": [
+   "cold",
+   "cold-all-open",
+   "coldwc",
+   "coldwc-all-open"
+  ],
+  "what": "Cold Finding links contradict R66. Global incidents and maintenance rows link 'Finding 05280089' / 'Finding 29553f83' to /sites/COLD-LAB-001/findings/{id}?revision_id={rev}, but R66 records that the cold Finding frame ignores revision_id, and the cold Site tabs therefore show a plain label with a version disclosure. The link landed on the current Finding (link capture linkcold-finding*), which is only right while the pinned revision is current. EV rows show no Finding (the EV Site tab also says 'No linked finding'). Mini Finding links carry revision_id to the W1 Finding frame, which honours it (linkmini-finding).",
+  "disp": "(c) D3 Medium: withhold the href for cold (and EV) Findings until the exact-revision route is proved, as R66/R75 and the R38 principle require; Architect to confirm."
+ },
+ {
+  "id": "B18-04",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "cases": [
+   "ev",
+   "evwc"
+  ],
+  "what": "EV Site-name links open /sites/EV-LAB-001, which renders the generic 'Awaiting evidence migration' Overview rather than the EV Overview at /sites/EV-LAB-001/ev (link capture linkev-site-overview). Cold names open /sites/COLD-LAB-001 (the correct cold Overview); mini names open /sites/KOBO-001 (correct).",
+  "disp": "(c) D3 Medium, B11-01 recurrence (B7-01/B9-10 family): the server _site_href (global_index.py:231) is domain-blind."
+ },
+ {
+  "id": "B18-05",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "oprecords"
+  ],
+  "cases": [
+   "page-two"
+  ],
+  "what": "Page-two range is wrong when the page is opened from its URL: incidents 'Showing 1–1 of 6', maintenance and oprecords 'Showing 1–2 of 7'. Pager computes the range from the in-memory trail (globalWorkParts.tsx:194), which is empty after a reload, a shared link or a new tab. Previous then returns to page one, which is acceptable. A Next click from page one gives the right range (W6-01e E2 precedent).",
+  "disp": "(c) D3 Low: carry the page offset in the cursor or URL, or show 'Page 2' without a false range."
+ },
+ {
+  "id": "B18-06",
+  "screens": [
+   "maintenance"
+  ],
+  "cases": [
+   "positive",
+   "all-open",
+   "no-window",
+   "coldwc",
+   "coldwc-all-open",
+   "evwc",
+   "evwc-all-open"
+  ],
+  "what": "The Corrective work requests panel is capped at 609 px at 1440 with an inner vertical scroll: five rows leave rows 4-5 behind a nested scrollbar while the viewport has free space below (positive 1440, worst case). The mock has 2 rows and no inner scroll. The cap is the W6-01b B2 measured cap (610/690); a short mock row alone cannot set a production cap (lesson 15).",
+  "disp": "Architect: remeasure. Either raise the cap from the worst-case fixture (five 160-code-point rows, measured here at 609 capped) or drop the nested scroll at desktop. Proposed D3 Low if left as is."
+ },
+ {
+  "id": "B18-07",
+  "screens": [
+   "oprecords"
+  ],
+  "what": "The Operational records table needs a horizontal scroll at 1440 (scrollWidth 1150 vs 1105 client; scrollbar visible under the five rows) where the mock's eight columns fit. Same class as the W1-F5b Findings index fix.",
+  "disp": "(c) D3 Low (layout): fit the eight columns at 1440."
+ },
+ {
+  "id": "B18-08",
+  "screens": [
+   "incidents"
+  ],
+  "what": "No breadcrumb on Incidents (h1 at y=24) while the mock shows 'Incidents' above the title. Maintenance, Preventive and Operational records render their breadcrumb (h1 at y=44). The page is inconsistent with its siblings.",
+  "disp": "(c) D3 Low, B1-01 family (shell/breadcrumb owner)."
+ },
+ {
+  "id": "B18-09",
+  "screens": [
+   "incidents",
+   "maintenance"
+  ],
+  "what": "Incidents cards 2-4 read 'Not assessed' (High severity / Awaiting evidence / Closed verified) and the Severity column 'Not recorded' for every row, against mock values 1 / 1 / 0 and 'High'. W6-01 build spec section 2 rules this, but no register row exists and GlobalIncidents.tsx carries no MOCK DEVIATION label (only R17/R18/R39 are registered for incidents). Same for maintenance cards 2-4 ('Not assessed') and the Verification ('Not established') and Warranty ('Not recorded') columns: R07 covers only the lifecycle notice.",
+  "disp": "(b) D1 candidates: register 'incidents severity/evidence/verified cards and Severity column' and 'maintenance cards 2-4, Verification and Warranty columns' as honest unavailable capabilities, and add the MOCK DEVIATION label."
+ },
+ {
+  "id": "B18-10",
+  "screens": [
+   "incidents"
+  ],
+  "what": "Linked work in the Findings / work column is plain text ('WR-000008'), while the mock links 'WR-019'. The request Overview /maintenance/requests/{id} is mounted and the maintenance rows link to it, but the incidents wire carries only linked_request_codes, not case IDs. The INC code links to the Site incidents tab, not an incident detail (no incident route; mock INC-203 opens the incident).",
+  "disp": "WR code: (c) D3 Low (route exists, as for R32's resolution), or D1 if the Architect keeps codes only. INC code: (b) D1, extend R73/R85 to `incidents`."
+ },
+ {
+  "id": "B18-11",
+  "screens": [
+   "incidents"
+  ],
+  "what": "The INC-code link to the Site incidents tab carries known_at = the list's response cutoff even on a current read (e.g. ...&known_at=2026-10-24T18:48:29Z). The landing tab then shows 'Read as of 2026-10-24 18:48 UTC. Later work may differ.', a historical notice for a click that started from a current list. The maintenance detail link carries known_at only for an explicit cutoff (P-C1-5).",
+  "disp": "(c) D3 Low: carry known_at only when the list itself is historical, as the detail link does."
+ },
+ {
+  "id": "B18-12",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "cases": [
+   "ev-default-window",
+   "evwc-default-window",
+   "worstcase",
+   "worstcase-all-open"
+  ],
+  "what": "Window membership. (1) The default window (no query) is the seven UTC days ending today 00:00Z, so today's EV incident (attested 2026-10-24 18:48Z) is excluded: 'No incident cases' with an EV case open (B14-09 recurrence). (2) Requests are windowed by root created_at: the W6 stress request (occurrence 19 Oct, created 21 Oct 11:59Z) is absent from [14 Oct, 21 Oct) and appears only in [15 Oct, 22 Oct), and the list does not say which time decides membership (B15-06 recurrence).",
+  "disp": "(c) D3 Low, cite B14-09 and B15-06; Architect to rule the default window and the stated basis."
+ },
+ {
+  "id": "B18-13",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "cases": [
+   "refused-reversed",
+   "refused-span-32d",
+   "refused-one-bound",
+   "refused-bad-known-at",
+   "unavailable-503"
+  ],
+  "what": "Window refusals. A reversed range, a 32-day span and a missing bound all read 'Choose a valid date range of at most 31 days.' (globalWorkClient.ts:203). This is the same one-generic-window-error pattern as the carried domainActionClient item, though here the sentence is plain and true for all three. Bad known_at reads 'Choose a valid cutoff time.'; invalid kind 'Choose a supported record type.' No backticks or raw server text (B13-04/B15-03 do not recur), and no false 'work source unavailable'. The refusal and 503 blocks have no role=alert/status, so a screen reader is not told.",
+  "disp": "Generic copy: propose accept (no D3), or fold into the shared domainActionClient copy owner. Missing live-region role: (c) D3 Low (accessibility)."
+ },
+ {
+  "id": "B18-14",
+  "screens": [
+   "oprecords"
+  ],
+  "what": "The inert 'Record a manual reading' form shows mock facts as values: Site options 'Kobo Mini-grid' and 'GreenHarvest Cold Room' (GreenHarvest is a mock-only Site; the options are the same on the cold-only and EV-only estates), Reading options 'Fuel tank dip / Stock in chamber / Meter reading', and Taken at defaultValue '6 Oct 2026 · 16:00 EAT' (OperationalRecords.tsx:273-293). R12 covers the inert submission, not these values.",
+  "disp": "(b) D4 candidate (replace false placeholder facts), or extend R12; Architect."
+ },
+ {
+  "id": "B18-15",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "what": "Registered departures verified as built: R07 (maintenance lifecycle notice), R08/R09/R10/R11 (preventive due/Assets/trigger/footer), R12 (inert form), R17 (selected-provenance disclosure 'Source unverified' / 'Generated test data'), R18 (URL-only known_at; 'Historical as of 21 Oct 2026, 12:00 UTC' status line), R28 (preventive 'No incident link or cause...'), R29/R30/R31 (oprecords cards, Submitted heads/actor IDs, bounded prose), R32 resolved (WR code opens the request Overview; landed for mini, cold and EV), R33 resolved (Preventive tab live), R39 (stored rows; 'Not assigned').",
+  "disp": "(a) verified. R12/R29/R30/R31 still say 'review pending' in the register; the Architect may update their status."
+ },
+ {
+  "id": "B18-16",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "what": "Panels over 1.3x, with measured reasons. Incidents 489/183 (2.67x at 1440) and 682/248 at 390 = five rows plus 'Full title text' / 'Source unverified' disclosures against the mock's one row; within the W6-01a cap 600/690. All-open 599/690 = at the cap. Maintenance 609/234 (2.6x) = five rows (mock 2), capped by the inner scroll (B18-06). Preventive all-open 599/432 (1.39x) = opened disclosures. Cold/EV one-row 1.15-1.63x = the 'Generated test data' provenance block and opened disclosures. Worst case (five 160-code-point rows, cold and EV producers): incidents 599/690 at the cap, two-line clamp plus 'Full title text' (4-5 clipped cells each, intended). Oprecords stays at or under 1.19x.",
+  "disp": "Informational: within the ruled W6-01 caps (all-disclosures-open exemption for all-open). Propose accept, except B18-06."
+ },
+ {
+  "id": "B18-17",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "what": "Mini, cold and EV row links checked by landing captures (part-link*, not counted as pairs). Mini: Site -> /sites/KOBO-001 Overview; INC -> Site incidents; Finding -> W1 Finding at its revision; Action -> W1 Action at event_id; WR -> request Overview. All correct. Cold: Site -> cold Overview (correct); INC -> cold Site incidents; Finding -> see B18-03; Action -> /actions/{id}/verification, the cold Action (correct); WR -> request Overview. EV: Site -> generic page (B18-04); INC -> EV Site incidents; Action -> EV Action verification (correct); WR -> request Overview. A single list holding all three domains is not producible: no reviewed producer seeds mini, cold and EV work into one database, so domains were captured from three producer databases.",
+  "disp": "Informational; defects are B18-03/B18-04."
+ },
+ {
+  "id": "B18-18",
+  "screens": [
+   "incidents",
+   "maintenance",
+   "maintenance-preventive",
+   "oprecords"
+  ],
+  "what": "Environment (not a visual defect): the global work roots return 503 WORK_STORE_UNAVAILABLE on page one whenever ASSETOPS_WORK_CURSOR_KEY_HEX is unset (global_index.py:148-150). The W5-04 walkthrough servers (w504 serve, 18801/18803) do not set it, so /incidents, /maintenance, /maintenance/preventive and /operational-records all show 'Work records could not be read. Reload.' there. These captures therefore used the plain product API (the W6-01 run_state.sh server form) over the producer DBs. The worktree's ignored var/sites/kobo-001.yaml is stale against the W6 import (/api/sites 503); it was moved aside only for the mini link captures and restored, as batch 10 did.",
+  "disp": "Architect: either require the key only when a next cursor is minted, or have the walkthrough serve modes set it before the owner walkthrough. Informational for the audit."
+ }
+]

@@ -1,0 +1,38 @@
+[
+ {
+  "id": "link",
+  "case": "linkmini-site-incidents",
+  "url": "http://127.0.0.1:5188/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-24T18%3A43%3A48Z",
+  "mock": "sitework-incidents"
+ },
+ {
+  "id": "link",
+  "case": "linkmini-site-overview",
+  "url": "http://127.0.0.1:5188/sites/KOBO-001",
+  "mock": "mini"
+ },
+ {
+  "id": "link",
+  "case": "linkmini-finding",
+  "url": "http://127.0.0.1:5188/sites/KOBO-001/findings/74c3c7c0-d266-41a2-a201-a5f74bf96bba?revision_id=e79353e7-6cd4-43de-9ff0-31a6f44738de",
+  "mock": "finding"
+ },
+ {
+  "id": "link",
+  "case": "linkmini-action",
+  "url": "http://127.0.0.1:5188/sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81",
+  "mock": "action-overview"
+ },
+ {
+  "id": "link",
+  "case": "linkmini-request",
+  "url": "http://127.0.0.1:5188/maintenance/requests/580ba46a-519e-41ba-ad89-8e62ecd8dd7c?site_id=KOBO-001",
+  "mock": "wr-overview"
+ },
+ {
+  "id": "link",
+  "case": "linkmini-request2",
+  "url": "http://127.0.0.1:5188/maintenance/requests/a7eeb7c0-3bd3-471b-9016-c0c48c899a5e?site_id=KOBO-001",
+  "mock": "wr-overview"
+ }
+]

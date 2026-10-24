@@ -1,0 +1,1302 @@
+## part-absent\evidence.json incidents unavailable-503 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 103, 183, 0.56), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-absent\evidence.json incidents unavailable-503 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 121, 248, 0.49), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 900 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 174}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-absent\evidence.json maintenance unavailable-503 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 103, 234, 0.44)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-absent\evidence.json maintenance unavailable-503 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 121, 327, 0.37)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 900 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 164}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-absent\evidence.json maintenance-preventive unavailable-503 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 103, 432, 0.24)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-absent\evidence.json maintenance-preventive unavailable-503 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 121, 602, 0.2)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 900 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 120}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-absent\evidence.json oprecords unavailable-503 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 540, 0.19), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-absent\evidence.json oprecords unavailable-503 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 1069, 0.1), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1422 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-cold\evidence.json incidents cold 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 245, 183, 1.34), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 05280089 -> /sites/COLD-LAB-001/findings/05280089-bd9e-4845-b6fc-abdb0352bb8c?revision_id=58fd6449-3dcd-4d83-b7c6-aab56a324e34', 'Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-cold\evidence.json incidents cold 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 308, 248, 1.24), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1178 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'Finding 05280089 · Finding 295')] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 05280089 -> /sites/COLD-LAB-001/findings/05280089-bd9e-4845-b6fc-abdb0352bb8c?revision_id=58fd6449-3dcd-4d83-b7c6-aab56a324e34', 'Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-cold\evidence.json maintenance cold 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 268, 234, 1.15)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-cold\evidence.json maintenance cold 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 308, 327, 0.94)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1204 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-cold\evidence.json maintenance-preventive cold 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 177, 432, 0.41)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-cold\evidence.json maintenance-preventive cold 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 195, 602, 0.32)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1141 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-cold\evidence.json oprecords cold 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 540, 0.33), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-cold\evidence.json oprecords cold 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 1069, 0.17), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1769 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-cold\evidence.json incidents cold-all-open 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 298, 183, 1.63), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 05280089 -> /sites/COLD-LAB-001/findings/05280089-bd9e-4845-b6fc-abdb0352bb8c?revision_id=58fd6449-3dcd-4d83-b7c6-aab56a324e34', 'Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-cold\evidence.json incidents cold-all-open 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 388, 248, 1.56), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1258 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'Finding 05280089 · Finding 295')] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 05280089 -> /sites/COLD-LAB-001/findings/05280089-bd9e-4845-b6fc-abdb0352bb8c?revision_id=58fd6449-3dcd-4d83-b7c6-aab56a324e34', 'Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-cold\evidence.json maintenance cold-all-open 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 332, 234, 1.42)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-cold\evidence.json maintenance cold-all-open 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 372, 327, 1.14)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1268 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-cold\evidence.json incidents cold-default-window 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 245, 183, 1.34), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 05280089 -> /sites/COLD-LAB-001/findings/05280089-bd9e-4845-b6fc-abdb0352bb8c?revision_id=58fd6449-3dcd-4d83-b7c6-aab56a324e34', 'Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-cold\evidence.json incidents cold-default-window 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 308, 248, 1.24), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1178 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'Finding 05280089 · Finding 295')] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 05280089 -> /sites/COLD-LAB-001/findings/05280089-bd9e-4845-b6fc-abdb0352bb8c?revision_id=58fd6449-3dcd-4d83-b7c6-aab56a324e34', 'Finding 29553f83 -> /sites/COLD-LAB-001/findings/29553f83-8f0c-4fef-a8cc-89a9ca76d7b5?revision_id=3133d48c-5f18-42b2-88b7-d755a392b2e0', 'Action 3728c61a -> /sites/COLD-LAB-001/actions/3728c61a-0d38-4f19-a3b0-adb86ad31b53/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-coldwc\evidence.json incidents coldwc 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 599, 183, 3.27), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1062 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1062}] console [] clipped [('DIV', 'INC-000009 · Backup response f'), ('DIV', 'INC-000007 · Backup response f'), ('DIV', 'INC-000005 · Backup response f')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-coldwc\evidence.json incidents coldwc 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'INC-000009 · Backup response f'), ('DIV', 'INC-000007 · Backup response f'), ('DIV', 'INC-000005 · Backup response f')] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-coldwc\evidence.json maintenance coldwc 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 609, 234, 2.6)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1113 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1113}] console [] clipped [('DIV', 'WR-000010 · Starter/control in'), ('DIV', 'WR-000008 · Starter/control in'), ('DIV', 'WR-000006 · Starter/control in')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Action 1a470c47 -> /sites/COLD-LAB-001/actions/1a470c47-ae30-4b0f-8b1b-5f98f43695fa/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-coldwc\evidence.json maintenance coldwc 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 690, 327, 2.11)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1586 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'WR-000010 · Starter/control in'), ('DIV', 'WR-000008 · Starter/control in'), ('DIV', 'WR-000006 · Starter/control in')] hscroll [(1030, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Action 1a470c47 -> /sites/COLD-LAB-001/actions/1a470c47-ae30-4b0f-8b1b-5f98f43695fa/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-coldwc\evidence.json maintenance-preventive coldwc 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 177, 432, 0.41)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-coldwc\evidence.json maintenance-preventive coldwc 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 195, 602, 0.32)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1141 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-coldwc\evidence.json oprecords coldwc 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 540, 0.33), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-coldwc\evidence.json oprecords coldwc 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 1069, 0.17), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1769 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-coldwc\evidence.json incidents coldwc-all-open 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 599, 183, 3.27), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1062 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1062}] console [] clipped [('DIV', 'INC-000009 · Backup response f'), ('DIV', 'INC-000007 · Backup response f'), ('DIV', 'INC-000005 · Backup response f')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-coldwc\evidence.json incidents coldwc-all-open 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'INC-000009 · Backup response f'), ('DIV', 'INC-000007 · Backup response f'), ('DIV', 'INC-000005 · Backup response f')] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-coldwc\evidence.json maintenance coldwc-all-open 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 609, 234, 2.6)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1113 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1113}] console [] clipped [('DIV', 'WR-000010 · Starter/control in'), ('DIV', 'WR-000008 · Starter/control in'), ('DIV', 'WR-000006 · Starter/control in')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Action 1a470c47 -> /sites/COLD-LAB-001/actions/1a470c47-ae30-4b0f-8b1b-5f98f43695fa/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-coldwc\evidence.json maintenance coldwc-all-open 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 690, 327, 2.11)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1586 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'WR-000010 · Starter/control in'), ('DIV', 'WR-000008 · Starter/control in'), ('DIV', 'WR-000006 · Starter/control in')] hscroll [(1030, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets ['1 · GENERATOR'] enums [] utc 3
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Action 1a470c47 -> /sites/COLD-LAB-001/actions/1a470c47-ae30-4b0f-8b1b-5f98f43695fa/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-coldwc\evidence.json incidents coldwc-default-window 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 599, 183, 3.27), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1062 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1062}] console [] clipped [('DIV', 'INC-000009 · Backup response f'), ('DIV', 'INC-000007 · Backup response f'), ('DIV', 'INC-000005 · Backup response f')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-coldwc\evidence.json incidents coldwc-default-window 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'INC-000009 · Backup response f'), ('DIV', 'INC-000007 · Backup response f'), ('DIV', 'INC-000005 · Backup response f')] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001', 'COLD-LAB-001 -> /sites/COLD-LAB-001'] work ['Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527', 'Finding 826bd5ba -> /sites/COLD-LAB-001/findings/826bd5ba-5c7f-4192-a31c-d7c7422a57c5?revision_id=e54c9931-4b44-49e8-afa7-54dce856724f', 'Finding a0dc47d6 -> /sites/COLD-LAB-001/findings/a0dc47d6-bf0c-4c89-b7bc-cddb2f5c2475?revision_id=d0ee38c7-4464-4ce2-8df9-5373719ba527']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-ev\evidence.json incidents ev 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 230, 183, 1.26), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-ev\evidence.json incidents ev 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 308, 248, 1.24), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1178 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-ev\evidence.json maintenance ev 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 285, 234, 1.22)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 1 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-ev\evidence.json maintenance ev 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 326, 327, 1.0)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1222 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 1 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-ev\evidence.json maintenance-preventive ev 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 177, 432, 0.41)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-ev\evidence.json maintenance-preventive ev 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 195, 602, 0.32)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1141 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-ev\evidence.json oprecords ev 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 540, 0.33), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-ev\evidence.json oprecords ev 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 1069, 0.17), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1769 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-ev\evidence.json incidents ev-all-open 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 298, 183, 1.63), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-ev\evidence.json incidents ev-all-open 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 388, 248, 1.56), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1258 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-ev\evidence.json maintenance ev-all-open 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 349, 234, 1.49)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 1 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-ev\evidence.json maintenance ev-all-open 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 390, 327, 1.19)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1286 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 1 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001'] work ['Action 8bf35356 -> /sites/EV-LAB-001/actions/8bf35356-500f-418e-b864-ede581cf6f0b/verification']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-ev\evidence.json incidents ev-default-window 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 177, 183, 0.97), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 3} mock {'11px': 1, '12px': 1} td None 11px
+## part-ev\evidence.json incidents ev-default-window 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 195, 248, 0.79), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1065 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 3} mock {'11px': 1, '12px': 1} td None 11px
+## part-evwc\evidence.json incidents evwc 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 599, 183, 3.27), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1062 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1062}] console [] clipped [('DIV', 'INC-000009 · Charging session '), ('DIV', 'INC-000007 · Charging session '), ('DIV', 'INC-000005 · Charging session ')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-evwc\evidence.json incidents evwc 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'INC-000009 · Charging session '), ('DIV', 'INC-000007 · Charging session '), ('DIV', 'INC-000005 · Charging session ')] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-evwc\evidence.json maintenance evwc 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 609, 234, 2.6)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1113 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1113}] console [] clipped [('DIV', 'WR-000010 · Connector diagnost'), ('DIV', 'WR-000008 · Connector diagnost'), ('DIV', 'WR-000006 · Connector diagnost')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 5 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-evwc\evidence.json maintenance evwc 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 690, 327, 2.11)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1586 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'WR-000010 · Connector diagnost'), ('DIV', 'WR-000008 · Connector diagnost'), ('DIV', 'WR-000006 · Connector diagnost')] hscroll [(1030, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 5 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-evwc\evidence.json maintenance-preventive evwc 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 177, 432, 0.41)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-evwc\evidence.json maintenance-preventive evwc 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 195, 602, 0.32)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1141 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-evwc\evidence.json oprecords evwc 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 540, 0.33), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-evwc\evidence.json oprecords evwc 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 1069, 0.17), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1769 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-evwc\evidence.json incidents evwc-all-open 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 599, 183, 3.27), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1062 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1062}] console [] clipped [('DIV', 'INC-000009 · Charging session '), ('DIV', 'INC-000007 · Charging session '), ('DIV', 'INC-000005 · Charging session ')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-evwc\evidence.json incidents evwc-all-open 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'INC-000009 · Charging session '), ('DIV', 'INC-000007 · Charging session '), ('DIV', 'INC-000005 · Charging session ')] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-evwc\evidence.json maintenance evwc-all-open 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 609, 234, 2.6)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1113 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1113}] console [] clipped [('DIV', 'WR-000010 · Connector diagnost'), ('DIV', 'WR-000008 · Connector diagnost'), ('DIV', 'WR-000006 · Connector diagnost')] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 5 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-evwc\evidence.json maintenance evwc-all-open 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 690, 327, 2.11)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1586 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'WR-000010 · Connector diagnost'), ('DIV', 'WR-000008 · Connector diagnost'), ('DIV', 'WR-000006 · Connector diagnost')] hscroll [(1030, 318)]
+  showing Showing 1–5 of 5 pager [] alerts [] plural [] ev 5 assets ['c1 · EV_CONNECTOR'] enums ['EV_CONNECTOR'] utc 3
+  sites ['EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001', 'EV-LAB-001 -> /sites/EV-LAB-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-evwc\evidence.json incidents evwc-default-window 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 177, 183, 0.97), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 3} mock {'11px': 1, '12px': 1} td None 11px
+## part-evwc\evidence.json incidents evwc-default-window 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 195, 248, 0.79), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1065 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 3} mock {'11px': 1, '12px': 1} td None 11px
+## part-hist\evidence.json incidents historical 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 489, 183, 2.67), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-hist\evidence.json incidents historical 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 682, 248, 2.75), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1552 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-hist\evidence.json incidents historical-current 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 489, 183, 2.67), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-hist\evidence.json incidents historical-current 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-hist\evidence.json maintenance-preventive historical 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 230, 432, 0.53)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-hist\evidence.json maintenance-preventive historical 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 291, 602, 0.48)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1237 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-hist\evidence.json maintenance-preventive historical-current 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 268, 432, 0.62)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-hist\evidence.json maintenance-preventive historical-current 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 346, 602, 0.57)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1292 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-inc\evidence.json incidents positive 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 489, 183, 2.67), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-inc\evidence.json incidents positive 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 682, 248, 2.75), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1552 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-inc\evidence.json incidents all-open 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 599, 183, 3.27), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1062 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1062}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-inc\evidence.json incidents all-open 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-inc\evidence.json incidents page-two 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 230, 183, 1.26), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 6 pager ['Previous'] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-inc\evidence.json incidents page-two 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 291, 248, 1.17), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1161 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–1 of 6 pager ['Previous'] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-inc\evidence.json incidents refused-reversed 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 103, 183, 0.56), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents refused-reversed 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 121, 248, 0.49), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 900 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 174}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents refused-span-32d 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 103, 183, 0.56), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents refused-span-32d 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 121, 248, 0.49), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 900 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 174}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents refused-one-bound 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 103, 183, 0.56), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents refused-one-bound 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 121, 248, 0.49), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 900 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 174}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents refused-bad-known-at 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 103, 183, 0.56), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents refused-bad-known-at 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 121, 248, 0.49), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 900 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 174}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-inc\evidence.json incidents no-window 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 489, 183, 2.67), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-inc\evidence.json incidents no-window 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 682, 248, 2.75), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1552 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-linked\evidence.json incidents linked 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 230, 183, 1.26), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work ['Finding 74c3c7c0 -> /sites/KOBO-001/findings/74c3c7c0-d266-41a2-a201-a5f74bf96bba?revision_id=e79353e7-6cd4-43de-9ff0-31a6f44738de', 'Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-linked\evidence.json incidents linked 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 308, 248, 1.24), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1178 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work ['Finding 74c3c7c0 -> /sites/KOBO-001/findings/74c3c7c0-d266-41a2-a201-a5f74bf96bba?revision_id=e79353e7-6cd4-43de-9ff0-31a6f44738de', 'Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-linked\evidence.json maintenance linked 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 370, 234, 1.58)] rows [2] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work ['Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81', 'Finding 74c3c7c0 -> /sites/KOBO-001/findings/74c3c7c0-d266-41a2-a201-a5f74bf96bba?revision_id=e79353e7-6cd4-43de-9ff0-31a6f44738de', 'Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-linked\evidence.json maintenance linked 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 446, 327, 1.36)] rows [2] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1342 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work ['Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81', 'Finding 74c3c7c0 -> /sites/KOBO-001/findings/74c3c7c0-d266-41a2-a201-a5f74bf96bba?revision_id=e79353e7-6cd4-43de-9ff0-31a6f44738de', 'Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-linked\evidence.json maintenance linked-all-open 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 466, 234, 1.99)] rows [2] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work ['Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81', 'Finding 74c3c7c0 -> /sites/KOBO-001/findings/74c3c7c0-d266-41a2-a201-a5f74bf96bba?revision_id=e79353e7-6cd4-43de-9ff0-31a6f44738de', 'Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81']
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-linked\evidence.json maintenance linked-all-open 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 574, 327, 1.76)] rows [2] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1470 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work ['Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81', 'Finding 74c3c7c0 -> /sites/KOBO-001/findings/74c3c7c0-d266-41a2-a201-a5f74bf96bba?revision_id=e79353e7-6cd4-43de-9ff0-31a6f44738de', 'Action 8afa88a8 -> /sites/KOBO-001/actions/8afa88a8-3e6b-48b4-a87b-4d4356570462?event_id=01ea1b23-bc82-46ed-8ce3-08cfb2b94f81']
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance positive 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 609, 234, 2.6)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1113 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1113}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance positive 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 690, 327, 2.11)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1586 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance all-open 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 609, 234, 2.6)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1113 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1113}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance all-open 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 690, 327, 2.11)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1586 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance page-two 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 370, 234, 1.58)] rows [2] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–2 of 7 pager ['Previous'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance page-two 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 411, 327, 1.26)] rows [2] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1307 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–2 of 7 pager ['Previous'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance refused-reversed 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 103, 234, 0.44)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance refused-reversed 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 121, 327, 0.37)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 900 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 164}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance refused-span-32d 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 103, 234, 0.44)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance refused-span-32d 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 121, 327, 0.37)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 900 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 164}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance refused-one-bound 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 103, 234, 0.44)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance refused-one-bound 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 121, 327, 0.37)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 900 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 164}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance refused-bad-known-at 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 103, 234, 0.44)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance refused-bad-known-at 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 121, 327, 0.37)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 900 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 164}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-maint\evidence.json maintenance no-window 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 609, 234, 2.6)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1113 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1113}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-maint\evidence.json maintenance no-window 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 690, 327, 2.11)] rows [5] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1586 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1030, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-op\evidence.json oprecords positive 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 629, 540, 1.16), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1355 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1355}] console [] clipped [] hscroll [(1150, 1105)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords positive 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 637, 1069, 0.6), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 2229 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords all-open 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 631, 540, 1.17), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1357 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1357}] console [] clipped [] hscroll [(1150, 1090)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords all-open 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 744, 1069, 0.7), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 2336 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords page-two 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 345, 540, 0.64), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [2, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1070 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1070}] console [] clipped [] hscroll [(1150, 1105)]
+  showing Showing 1–2 of 7 pager ['Previous'] alerts [] plural [] ev 0 assets [] enums [] utc 5
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords page-two 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 352, 1069, 0.33), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [2, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1944 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–2 of 7 pager ['Previous'] alerts [] plural [] ev 0 assets [] enums [] utc 5
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords kind-OPERATOR_LOG 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 345, 540, 0.64), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [2, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1070 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1070}] console [] clipped [] hscroll [(1150, 1105)]
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 5
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords kind-OPERATOR_LOG 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 352, 1069, 0.33), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [2, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1944 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 5
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords kind-MANUAL_READING 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 345, 540, 0.64), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [2, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1070 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1070}] console [] clipped [] hscroll [(1150, 1105)]
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 5
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords kind-MANUAL_READING 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 352, 1069, 0.33), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [2, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1944 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–2 of 2 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 5
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords kind-SHIFT_NOTE 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 465, 540, 0.86), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [3, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1190 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1190}] console [] clipped [] hscroll [(1150, 1105)]
+  showing Showing 1–3 of 3 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 6
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords kind-SHIFT_NOTE 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 472, 1069, 0.44), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [3, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 2064 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–3 of 3 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 6
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords kind-SITE_VISIT 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 540, 0.33), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords kind-SITE_VISIT 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 1069, 0.17), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1769 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords historical 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 591, 540, 1.09), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1317 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1317}] console [] clipped [] hscroll [(1150, 1105)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords historical 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 599, 1069, 0.56), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 2191 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords invalid-kind 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 540, 0.19), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords invalid-kind 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 1069, 0.1), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1422 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-reversed 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 540, 0.19), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-reversed 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 1069, 0.1), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1422 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-span-32d 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 540, 0.19), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-span-32d 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 1069, 0.1), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1422 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-one-bound 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 540, 0.19), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-one-bound 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 1069, 0.1), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1422 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-bad-known-at 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 540, 0.19), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords refused-bad-known-at 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 1069, 0.1), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1422 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-op\evidence.json oprecords no-window 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 629, 540, 1.16), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1355 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1355}] console [] clipped [] hscroll [(1150, 1105)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json oprecords no-window 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 637, 1069, 0.6), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [5, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 2229 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(1150, 318)]
+  showing Showing 1–5 of 7 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-op\evidence.json incidents one-row 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 230, 183, 1.26), ('Case boundaries', 103, 99, 1.04)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-op\evidence.json incidents one-row 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 291, 248, 1.17), ('Case boundaries', 126, 142, 0.89)] rows [1, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1161 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-prev\evidence.json maintenance-preventive positive 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 489, 432, 1.13)] rows [5] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1037 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1037}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-prev\evidence.json maintenance-preventive positive 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 690, 602, 1.15)] rows [5] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1636 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-prev\evidence.json maintenance-preventive all-open 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 599, 432, 1.39)] rows [5] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1148 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1148}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-prev\evidence.json maintenance-preventive all-open 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 690, 602, 1.15)] rows [5] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1636 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-prev\evidence.json maintenance-preventive refused-reversed 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 103, 432, 0.24)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive refused-reversed 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 121, 602, 0.2)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 900 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 120}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive refused-span-32d 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 103, 432, 0.24)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive refused-span-32d 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 121, 602, 0.2)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 900 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 120}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive refused-one-bound 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 103, 432, 0.24)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive refused-one-bound 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 121, 602, 0.2)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 900 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 120}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive refused-bad-known-at 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 103, 432, 0.24)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive refused-bad-known-at 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 121, 602, 0.2)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 900 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 120}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 2
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-prev\evidence.json maintenance-preventive no-window 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 489, 432, 1.13)] rows [5] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1037 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1037}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 5 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-prev\evidence.json maintenance-preventive no-window 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 690, 602, 1.15)] rows [5] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1636 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 5 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-002 -> /sites/KOBO-002', 'KOBO-002 -> /sites/KOBO-002', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-scope\evidence.json incidents empty-scope 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 103, 183, 0.56), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-scope\evidence.json incidents empty-scope 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 121, 248, 0.49), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 900 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 157}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td None 11px
+## part-scope\evidence.json maintenance empty-scope 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 103, 234, 0.44)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-scope\evidence.json maintenance empty-scope 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 121, 327, 0.37)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 900 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 147}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-scope\evidence.json maintenance-preventive empty-scope 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 103, 432, 0.24)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-scope\evidence.json maintenance-preventive empty-scope 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 121, 602, 0.2)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 900 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 103}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td None 11px
+## part-scope\evidence.json oprecords empty-scope 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 540, 0.19), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-scope\evidence.json oprecords empty-scope 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 103, 1069, 0.1), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1456 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 3
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td None 11px
+## part-stress\evidence.json incidents worstcase 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 489, 183, 2.67), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-stress\evidence.json incidents worstcase 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 629, 248, 2.54), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1499 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-stress\evidence.json incidents worstcase-all-open 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 599, 183, 3.27), ('Case boundaries', 103, 99, 1.04)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1062 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1062}] console [] clipped [] hscroll []
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-stress\evidence.json incidents worstcase-all-open 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 690, 248, 2.78), ('Case boundaries', 126, 142, 0.89)] rows [5, 0] cols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1560 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll [(720, 318)]
+  showing Showing 1–5 of 6 pager ['Next'] alerts [] plural [] ev 0 assets [] enums [] utc 8
+  sites ['KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001', 'KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1, '14px': 1} mock {'11px': 1, '12px': 1} td 11px 11px
+## part-stress\evidence.json maintenance worstcase 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 303, 234, 1.29)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [('DIV', 'WR-000007 · Startermotorandcon'), ('DIV', 'Fieldmaintenancesupervisorteam')] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json maintenance worstcase 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 344, 327, 1.05)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1240 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'WR-000007 · Startermotorandcon'), ('DIV', 'Fieldmaintenancesupervisorteam')] hscroll [(1030, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json maintenance worstcase-all-open 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 415, 234, 1.77)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [('DIV', 'WR-000007 · Startermotorandcon'), ('DIV', 'Fieldmaintenancesupervisorteam')] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json maintenance worstcase-all-open 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 488, 327, 1.49)] rows [1] cols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1384 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'WR-000007 · Startermotorandcon'), ('DIV', 'Fieldmaintenancesupervisorteam')] hscroll [(1030, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural ['1 requests'] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json maintenance-preventive worstcase 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 265, 432, 0.61)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [('DIV', 'PM-000008 · Quarterlyfilterand')] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json maintenance-preventive worstcase 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 326, 602, 0.54)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1272 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'PM-000008 · Quarterlyfilterand')] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json maintenance-preventive worstcase-all-open 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 381, 432, 0.88)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [('DIV', 'PM-000008 · Quarterlyfilterand')] hscroll []
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json maintenance-preventive worstcase-all-open 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 486, 602, 0.81)] rows [1] cols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1432 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'PM-000008 · Quarterlyfilterand')] hscroll [(720, 318)]
+  showing Showing 1–1 of 1 pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 3
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '10px': 1} mock {'11px': 1} td 11px 11px
+## part-stress\evidence.json oprecords worstcase 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 280, 540, 0.52), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [1, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1006 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1006}] console [] clipped [('DIV', 'Operator checked the panel and')] hscroll [(1150, 1105)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-stress\evidence.json oprecords worstcase 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 288, 1069, 0.27), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [1, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1880 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'Operator checked the panel and')] hscroll [(1150, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-stress\evidence.json oprecords worstcase-all-open 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 631, 540, 1.17), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [1, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1357 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1357}] console [] clipped [('DIV', 'Operator checked the panel and')] hscroll [(1150, 1090)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-stress\evidence.json oprecords worstcase-all-open 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 744, 1069, 0.7), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [1, 0, 0] cols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 2336 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [('DIV', 'Operator checked the panel and')] hscroll [(1150, 318)]
+  showing Showing 1–1 of 1 pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites ['KOBO-001 -> /sites/KOBO-001'] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '10px': 1, '14px': 2} mock {'11px': 2, '12px': 2} td 11px 11px
+## part-zero\evidence.json incidents zero 1440x1000
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 177, 183, 0.97), ('Case boundaries', 103, 99, 1.04)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 3} mock {'11px': 1, '12px': 1} td None 11px
+## part-zero\evidence.json incidents zero 390x900
+  titles app ['Incident cases', 'Case boundaries'] | mock ['Incident cases', 'Case boundaries']
+  panels(app,mock h) [('Incident cases', 195, 248, 0.79), ('Case boundaries', 126, 142, 0.89)] rows [0, 0] cols [[]] mockcols [['Incident', 'Site', 'Start', 'Severity', 'State', 'Owner', 'Findings / work']]
+  pageH 1065 1139 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 3} mock {'11px': 1, '12px': 1} td None 11px
+## part-zero\evidence.json maintenance zero 1440x1000
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 177, 234, 0.76)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1000 1001 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-zero\evidence.json maintenance zero 390x900
+  titles app ['Corrective work requests'] | mock ['Corrective work requests']
+  panels(app,mock h) [('Corrective work reques', 195, 327, 0.6)] rows [0] cols [[]] mockcols [['Work request', 'Asset / site', 'Owner', 'State', 'Verification', 'Warranty']]
+  pageH 1091 1240 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-zero\evidence.json maintenance-preventive zero 1440x1000
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 177, 432, 0.41)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1000 1055 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-zero\evidence.json maintenance-preventive zero 390x900
+  titles app ['Preventive plan'] | mock ['Preventive plan']
+  panels(app,mock h) [('Preventive plan', 195, 602, 0.32)] rows [0] cols [[]] mockcols [['Plan item', 'Asset / site', 'Trigger', 'Last done', 'Next due', 'State', 'What it proves']]
+  pageH 1141 1588 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts ['Due status not assessedScheduled by calendar or running hours · due dates are plan factsAssets · Not available yet'] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 1, '14px': 2} mock {'11px': 1} td None 11px
+## part-zero\evidence.json oprecords zero 1440x1000
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 540, 0.33), ('Record a manual readin', 298, 289, 1.03), ('How records are used', 298, 289, 1.03)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1000 1335 ovf 0 hdr 59 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 216, 'h': 1000}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px
+## part-zero\evidence.json oprecords zero 390x900
+  titles app ['Operational records', 'Record a manual reading', 'How records are used'] | mock ['Operational records', 'Record a manual reading', 'How records are used']
+  panels(app,mock h) [('Operational records', 177, 1069, 0.17), ('Record a manual readin', 486, 443, 1.1), ('How records are used', 223, 188, 1.19)] rows [0, 0, 0] cols [[]] mockcols [['Record', 'Type', 'Site', 'When', 'By', 'What it says', 'Feeds', 'State']]
+  pageH 1769 2569 ovf 0 hdr 58 dark [{'cls': 'app-frame__side', 'tag': 'DIV', 'x': 0, 'y': 0, 'w': 390, 'h': 92}] console [] clipped [] hscroll []
+  showing  pager [] alerts [] plural [] ev 0 assets [] enums [] utc 4
+  sites [] work []
+  fonts prose 12px mock 12px pSizes {'11px': 2, '14px': 4} mock {'11px': 2, '12px': 2} td None 11px

@@ -1,0 +1,43 @@
+[
+ {
+  "id": "incidents",
+  "case": "positive",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "all-open",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z",
+  "openAll": true
+ },
+ {
+  "id": "incidents",
+  "case": "page-two",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&cursor=eyJhY2Nlc3NfYmFzaXMiOiJzaGEyNTY6YTg3NDdjMjQ2YmE0ZWE0NDkxZDUwNTQ4ZWQ5NjJlODNhM2FhMTZhMDIxM2YzODFmN2MwNzEwNGM4YjM5MDgzYSIsImFmdGVyIjpbIjIwMjYtMTAtMTlUMDk6MDA6MDAuMDAwMDAwWiIsImtvYm8tMDAyIiwiNjE5OGJjNzktMzlmZC00YjMzLTk2NmUtYmY0OTg4MzQ1NjUyIiwiMmZhYTliY2YtMzA5NC00YmY2LTkwOGUtOTc2Y2IwMGQ5YTNhIl0sImF1dGhvcml6ZWRfc2l0ZV9pZHMiOlsiMWNjOTQ3YmYtMmU2Mi00N2IzLThhNDQtY2JkMzQwZGY1NTc4IiwiNjE5OGJjNzktMzlmZC00YjMzLTk2NmUtYmY0OTg4MzQ1NjUyIl0sImZpbHRlciI6bnVsbCwiZnJvbSI6IjIwMjYtMTAtMTRUMDA6MDA6MDAuMDAwMDAwWiIsImtub3duX2F0IjoiMjAyNi0xMC0yNFQxODozMzowOC4wOTM1NDBaIiwibWFjIjoiODQ5MThjNjEzMmJkMTEyNGI2ZjYzMmRmMGU1NDMyNDI2OTVlN2NmNTM4YjZkMGFhYzljNDhhY2EwN2RlNmFiOCIsInBhZ2Vfb25lX21vZGUiOiJjdXJyZW50Iiwicm91dGUiOiJpbmNpZGVudHMiLCJzZWxlY3Rpb25fdG9rZW4iOiJzaGEyNTY6MzNkYmZhYmY0ZmUzYWQ0NWYzNTcyZDAxYjhlYjM2NmNkYTU2ZjUzZTQ5NTFlOTNhNjY3NjhmNmY0NTBkMGIyZSIsInRlbmFudF9pZCI6IjYyMmEzNmI0LWRkNWQtNGUxZC1iN2IzLWQyZGQzMzYzNTFlMiIsInRvIjoiMjAyNi0xMC0yMVQwMDowMDowMC4wMDAwMDBaIiwidiI6MX0"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-reversed",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-21T00%3A00%3A00Z&to=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-span-32d",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-09-19T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-one-bound",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-14T00%3A00%3A00Z"
+ },
+ {
+  "id": "incidents",
+  "case": "refused-bad-known-at",
+  "url": "http://127.0.0.1:5188/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=not-a-time"
+ },
+ {
+  "id": "incidents",
+  "case": "no-window",
+  "url": "http://127.0.0.1:5188/incidents"
+ }
+]
