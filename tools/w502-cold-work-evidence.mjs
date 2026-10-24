@@ -180,6 +180,7 @@ const MEASURE_WORK = `(() => {
     scrollerScrollWidth: scroller?.scrollWidth ?? null,
     scrollerClientWidth: scroller?.clientWidth ?? null,
     stickyFirstColumn: firstCell ? getComputedStyle(firstCell).position === 'sticky' : null,
+    headerBackgrounds: scroller ? [...scroller.querySelectorAll('thead th')].map((c) => getComputedStyle(c).backgroundColor) : null,
     stickyHead: firstHead ? getComputedStyle(firstHead).position === 'sticky' : null,
     rowCount: rows.length,
     rowsTotal: document.querySelectorAll('[data-cold-work-row]').length,
