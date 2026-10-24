@@ -21,3 +21,14 @@ Builder: W5-04c on `task/W5-04c-ev-action`. One open item; everything else is bu
     V4a's files (about 4 lines through `DomainWorkPresentation`), and makes EV differ from cold.
   - (c) As (b) for both domains. Changes cold output, which rulings 41/53 forbid without a new ruling.
 - **Mock.** `ACT-061` in `SITE_WORK.ev` links to `ev-action` (`index.html:337`); the mock has no query state.
+
+## Q2 - `ev-action` ledger `data_owner` / `supported_claim` literals (V4b; blocks nothing)
+
+- **Ruling text.** Build spec "EV producer, UI and registry": "Set `coverage:'partial'`, `task:'W5-04'`,
+  `follow_on:null`, and the named data_owner/supported_claim below." No `data_owner`/`supported_claim` literal follows
+  in the spec, the pre-flight (43) or readiness (21) rulings.
+- **Built (pending ruling).** `data_owner: "W5 domain Action intent read"` (the merged cold-action row's literal for
+  the same `domain-action-intent-read-1` read) and `supported_claim` = the spec's own EV panel-contract `claim_limit`
+  (`Stored EV work and declared intent only; no completed-session, no-recurrence or availability pass is inferred.`).
+  The panel-contract row uses the spec's literal row exactly. Ledger and registry checkers pass.
+- **Ask.** Confirm these two strings or name the literals; V3b's three EV Work rows face the same gap.
