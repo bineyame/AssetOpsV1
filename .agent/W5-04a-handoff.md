@@ -147,3 +147,55 @@ and the HISTORICAL status assertions in it. A failure there is either a test fix
    uses the Finding citation set, not `tx.cited_evidence`.
 6. Membership sets made non-empty in Postgres by perturbing one set of the real basis (`perturbed`), plus foreign
    uuid4 IDs; the real valid set is asserted non-empty.
+
+---
+
+# Round 3 (producer) - library, CLI and K0 tests landed; the shifted replay is BLOCKED (Q8-Q10)
+
+## Commits
+- `8ec98969` `tools/w504_ev_work_cases.py`, `tools/w504_ev_work_walkthrough.py`, DB-free `backend/tests/test_w504_ev_work_cases.py`.
+- `f553118d` appended section in `backend/tests/test_w504_ev_intent_api.py` (2 Postgres tests; the two earlier tests untouched).
+- `77c82369` questions Q8-Q12 in `.agent/W5-04a-questions.md`.
+
+## Landed
+- Library (no `backend/tests` import; AST-guarded by a test): R/D/delta and `[D+08:00,D+09:00)`; shifted scenario
+  document (window, `forcing[].time`, `observations[].time/release_at`) and Site document (code
+  `EV-W504-DEPOT-{suffix}`, `Depot Charging Hub`, `Etc/UTC`, Foundation `valid_from/valid_to` shifted, components
+  unchanged, no subtitle; short name manifest-only, Q12); `cross_check_k0` / `select_positive` / `read_k0` (ruling 29:
+  scenarios + sessions without `known_at`, findings at the returned K0, refusal on null K0, unequal bounds or clocks,
+  or a Finding/session not in that window); exact Action/intent/INC/WR/record/case-link bodies; `evidence_clock_for`
+  (ruling 21). `replay_shifted` raises `ProducerBlocked` (Q9 parser pin, then Q10 test-only runner).
+- CLI `prepare|serve|attest|drop`: private `w504a_<mode>_<tag>_test` DBs (`positive`, `zero`, `pending`, `stale`,
+  `unknown`), product Alembic upgrade, per-mode child (`DATABASE_URL`) that runs replay -> K0 -> Action/intent via
+  the public domain-work routes (zero mode asserts complete-zero W4 reads); `attest` posts INC/WR/record via a W4
+  router with the SERVICE principal, then explicit case links, K3 (case `event.recorded_at`, record `recorded_at`),
+  K4 (link `recorded_at`); 403 via a `forbidden` process granted no Site; 503 by `taskkill /PID` of only the recorded
+  `unavailable` PID; `drop` kills recorded PIDs only and drops only marker-listed `w504a_*_test` DBs. On merged code
+  `prepare` records `blocked`/`unavailable` with the reason and exits 3.
+
+## DB-free / guards (at `77c82369`)
+- `test_w504_ev_work_cases.py` 16 passed; with `test_w504_ev_intent_api.py`, `test_w504_ev_intent_model.py`,
+  `test_w502_domain_intent_model.py`: **32 passed, 4 skipped** (skips = no DB URL).
+- Non-vacuous: removing the `known_at == K0` check failed 3 tests; adding a `test_w205b` import to the library failed
+  the import guard; both reverted with `git checkout`, tree clean.
+- `tools/check-all.ps1`: **All 11 guards passed** (rc 0). `ruff --select F,E9` clean on the new/changed files.
+
+## Held Postgres batch (add to round 2's list)
+5. `backend/tests/test_w504_ev_intent_api.py::test_producer_k0_route_shape_and_positive_payloads` and
+   `::test_producer_refuses_mismatched_window_or_clock` (over the `interrupted` replay). Most likely to need
+   adjustment: `accepted_evidence_ids <= valid` (assumes the sessions `selected_source_provenance.evidence_ids` is
+   within A and B) and the earlier-`known_at` sessions read status set.
+
+## Manual walkthrough (later, idle machine; only after Q8-Q10 are answered)
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 prepare
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 serve
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 attest
+    .venv\Scripts\python.exe tools\w504_ev_work_walkthrough.py --work var/w504a_ev_work --tag k1 drop
+Today `prepare` creates the five DBs, writes `blocked` modes and exits 3; run `drop` afterwards. Never run.
+
+## Judgment calls
+1. Not decided: positive scenario (Q8), the replay path (Q9/Q10). `replay_shifted` is the single seam to replace.
+2. Declared evidence = Finding citations ∩ sessions `selected_source_provenance.evidence_ids`; the server re-checks A.
+3. INC/WR asset = selected session `connector_asset_id` (returned); `finding_links: []` on both (spec silent).
+4. WR narrative provisional (Q11). Separate `positive` and `zero` DBs so mock-zero stays zero after `attest`.
+5. The walkthrough runs from the repo tree (records `git rev-parse HEAD` and dirty flag), not a `git archive` copy.
