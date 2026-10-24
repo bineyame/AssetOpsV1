@@ -56,3 +56,24 @@ citations). Which is "the selected accepted set" - (b), with (a) not required, o
 V1b's card includes `tools/w504_ev_work_cases.py` (non-test, W2 manifests and ingestion APIs) and
 `tools/w504_ev_work_walkthrough.py` (`prepare|serve|attest|drop`). The cold equivalents are 272 + 895 lines. They
 depend on Q3. Confirm they stay in V1b rather than a separate unit.
+
+## Round 2 (V1a service / V1b read build, 2026-10-24) - recorded, not decided
+
+### Q6 - Ruling 27 "greatest accepted disposition" vs the merged pin's evidence cutoff
+Ruling 27 computes the evidence cutoff as the greatest **accepted** `ingestion_disposition.decided_at <= command_now`
+and says this "follows W5-02 cold `_ReadTx._pin`". Merged `_ReadTx._cold_ev`
+(`backend/assetops_backend/work/adapters/postgres_work_read.py:281-283`) uses
+`SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id=:t AND site_id=:s AND decided_at <= :k` -
+no `decision = 'ACCEPTED'` filter, so a later REJECTED disposition moves the cutoff. `EvReadService._snapshot`
+(`postgres_assessment_store.py:2681`) uses the same unfiltered `max(decided_at)` as its watermark. Not decided: the
+V1 build uses the existing `selected_finding_pin` (unfiltered, shared with cold and W4 links) unchanged. Adding the
+filter would change cold/W4 link pins too. Which is binding - the merged unfiltered cutoff (amend ruling 27's word
+"accepted"), or an EV-only accepted-filtered cutoff (a second pin implementation)?
+
+### Q7 - EV detail without an intent when the Finding is no longer selected at `known_at`
+Ruling 27 pins the historical selection at the intent's `recorded_at`; with no intent there is no immutable cutoff,
+so the pin is taken at the read `known_at` (coordinator brief). After any later EV recompute the Action's Finding
+revision is no longer the selected head at `known_at`. Built: no intent -> 200 with `status` UNKNOWN, null Finding
+href and `missing_lineage` provenance (the cold behaviour); with an intent any missing/mismatched recheck -> 409
+`DOMAIN_INTENT_BASIS_CHANGED` (EV message). Confirm, or should the no-intent case pin at the Action's `recorded_at`
+or refuse 409?
