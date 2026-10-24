@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 
+import { siteTime } from "./siteTime";
+
 import {
   AttentionList,
   Badge,
@@ -164,12 +166,13 @@ const OTHER_SOURCE_NAME: Record<string, string> = {
 const PRODUCT_REQUIRED_BASIS = "Product identity; stock quantity and unit value; currency; reviewed product response rule";
 
 const pad = (n: number) => String(n).padStart(2, "0");
-/** The mock's `Measured (EAT)` time: East Africa Time (UTC+3, no daylight saving), while data stays UTC. */
-export function eatTime(value: string | null | undefined): string | null {
-  const d = date(value);
-  if (d === null) return null;
-  const e = new Date(d.getTime() + 3 * 3600 * 1000);
-  return `${pad(e.getUTCHours())}:${pad(e.getUTCMinutes())}:${pad(e.getUTCSeconds())}`;
+/**
+ * The Site-local `Measured` time (`HH:MM:SS`), while data stays UTC. post-W6 W2-EV: takes the Site timezone (shared
+ * signature; `siteTime` in `./siteTime` gives the zone label, exact UTC and a cross-day date). The default keeps the
+ * earlier East Africa Time behaviour for callers not yet passing a zone.
+ */
+export function eatTime(value: string | null | undefined, timeZone: string | null = "Africa/Addis_Ababa", reference?: string | null): string | null {
+  return siteTime(value, timeZone, reference)?.text ?? null;
 }
 const utc = (value: string | null | undefined) => (date(value) === null ? NOT_RECORDED : `${dayHm(value)} UTC`);
 const limitText = (value: string | null | undefined) => (value ? plainLimitation(value) : null);
