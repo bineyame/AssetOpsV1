@@ -16,7 +16,7 @@ import { OperatorSiteTabs } from "./operatorSiteTabs";
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { useSiteRecord } from "../sites/useSiteRecord";
-import { coldSiteScreen } from "./coldSiteRoutes";
+import { coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import {
   findingHref,
   siteEvidenceAcceptedRecordHref,
@@ -125,7 +125,7 @@ export function SiteDetailFrame({
       params,
       coldSite,
       coldAssessment,
-      tabs: <OperatorSiteTabs siteId={siteId} current="Overview" />,
+      tabs: <OperatorSiteTabs siteId={siteId} current="Overview" search={coldTabSearch(record.site, params)} />,
       sitesPath,
     });
   }

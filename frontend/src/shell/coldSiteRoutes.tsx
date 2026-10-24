@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
-import { coldWindowFromParams } from "../sites/coldAssessmentClient";
+import { coldWindowFromParams, coldWindowSearch } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { ColdSiteFrame, type ColdSiteRoutes, type ColdSiteView } from "../sites/coldSiteViews";
 import type { SiteDetailReadModel } from "../sites/siteReadModel";
@@ -19,6 +19,14 @@ import {
   sitePerformanceHref,
   siteWorkMaintenanceHref,
 } from "./operatorSiteRoutes";
+
+/**
+ * post-W6 W2-cold (cross-card ruling 3, B14-10): a COLDCHAIN Site's main tabs keep the selected `from`, `to` and
+ * `known_at` through W2-EV's `OperatorSiteTabs` `search` override; other Site types get no query (undefined).
+ */
+export function coldTabSearch(site: { site_type: string }, params: URLSearchParams): string | undefined {
+  return site.site_type === "COLDCHAIN" ? coldWindowSearch(coldWindowFromParams(params)) : undefined;
+}
 
 /** W2-04: the UI route bases (no query) the five cold Site screens link to. */
 export function coldSiteRoutes(siteId: string): ColdSiteRoutes {

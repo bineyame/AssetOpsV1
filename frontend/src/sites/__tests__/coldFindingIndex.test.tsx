@@ -138,6 +138,10 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     expect(text(document.querySelector("main"))).not.toMatch(/not released/i);
     expect(document.querySelector("[data-cold-findings-cursor]")).toBeNull();
     expectV69Panels("sitefindings");
+    // Ruling 3 (B14-10): the main tabs keep the selected window.
+    const tabs = Array.from(document.querySelectorAll("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"));
+    expect(tabs.length).toBeGreaterThan(4);
+    for (const a of tabs) expect(a.getAttribute("href")?.endsWith(Q)).toBe(true);
     const scan = scanProductVocabulary(document.querySelector("main") as HTMLElement, "sitefindings", { set: "w1" });
     expect(scan.scanned).toBeGreaterThan(5);
     expect(describeViolations(scan.violations)).toBe("");
@@ -182,6 +186,8 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     const { cold, findingIndex } = renderIndex(ok(STOCKED), `/sites/COLD-001/findings${Q}`, "MINIGRID");
     await waitFor(() => expect(findingIndex.getFindingIndex).toHaveBeenCalled(), { timeout: 5000 });
     expect(cold.listFindings).not.toHaveBeenCalled();
+    // A mini Site's main tabs carry no cold window query.
+    for (const a of Array.from(document.querySelectorAll("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"))) expect(a.getAttribute("href")).not.toContain("known_at");
     expect(document.querySelector("[data-cold-finding-row]")).toBeNull();
   });
 });

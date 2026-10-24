@@ -12,7 +12,7 @@ import { Breadcrumbs, PageHeader, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeade
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
-import { coldSiteScreen } from "./coldSiteRoutes";
+import { coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import { siteDetailHref, sitePerformanceHref } from "./operatorSiteRoutes";
 
 /** The heading id the Evidence landmark is labelled by. */
@@ -110,7 +110,7 @@ export function SiteEvidenceFrame({
       params,
       coldSite,
       coldAssessment,
-      tabs: <OperatorSiteTabs siteId={siteId} current="Evidence" />,
+      tabs: <OperatorSiteTabs siteId={siteId} current="Evidence" search={coldTabSearch(site, params)} />,
       sitesPath,
     });
   }

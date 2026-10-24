@@ -80,7 +80,7 @@ import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
 import { evSiteRoutes } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
-import { coldSiteRoutes, coldSiteScreen } from "./coldSiteRoutes";
+import { coldSiteRoutes, coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
 import type { SiteAnalyticsClient } from "../sites/siteAnalyticsClient";
@@ -284,7 +284,7 @@ export function SitePerformanceFrame({
               window={window}
               client={coldAssessment}
               links={coldLinks(site.site_id, window)}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" />}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Performance" search={coldWindowSearch(window)} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
@@ -490,7 +490,7 @@ export function SiteFindingsFrame({
             description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
           />
-          <OperatorSiteTabs siteId={siteId} current="Findings" />
+          <OperatorSiteTabs siteId={siteId} current="Findings" search={coldTabSearch(site, params)} />
           {site.site_type === "COLDCHAIN" && coldAssessment !== undefined ? (
             <ColdFindingIndex
               siteId={site.site_id}
@@ -697,7 +697,7 @@ export function SiteFindingFrame({
               window={window}
               client={coldAssessment}
               links={coldLinks(site.site_id, window)}
-              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" />}
+              tabs={<OperatorSiteTabs siteId={siteId} current="Findings" search={coldWindowSearch(window)} />}
               parentTrail={[
                 { label: "Sites", to: sitesPath },
                 { label: site.display_name, to: siteDetailHref(site.site_id) },
@@ -1299,7 +1299,7 @@ export function SiteFinancialsFrame({
             ),
             coldSite,
             coldAssessment,
-            tabs: <OperatorSiteTabs siteId={siteId} current="Financials" />,
+            tabs: <OperatorSiteTabs siteId={siteId} current="Financials" search={coldTabSearch(site, params)} />,
             sitesPath,
           });
         }

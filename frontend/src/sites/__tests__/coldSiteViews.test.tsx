@@ -1319,3 +1319,14 @@ describe("W2-cold unit 3: cold Evidence and Analysis", () => {
     }
   });
 });
+
+// post-W6 W2-cold (ruling 3, B14-10): the cold main tabs keep the selected window through W2-EV's tab `search`.
+describe("W2-cold: cold main tabs keep the window", () => {
+  it.each([ROUTES[0], ROUTES[1], ROUTES[3]])("b14_10_main_tabs_carry_from_to_known_at: %s", async (_screen, path) => {
+    renderCold(path, STOCKED);
+    await settledScreen();
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"));
+    expect(links.length).toBeGreaterThan(4);
+    for (const a of links) expect(a.getAttribute("href")?.endsWith(Q), a.getAttribute("href") ?? "").toBe(true);
+  });
+});
