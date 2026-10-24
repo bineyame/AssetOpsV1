@@ -29,7 +29,7 @@ import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, Ra
 import { globalWorkRequestHref } from "../work/globalWorkClient";
 import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
 import type { DomainStatus } from "./domainActionClient";
-import { EV_ACTION_LINK_LIVE, EV_SOURCE_FINDING_UNAVAILABLE } from "./evWorkPresentation";
+import { EV_ACTION_LINK_LIVE, EV_SOURCE_FINDING_UNAVAILABLE, evActionHref } from "./evWorkPresentation";
 import type { DecisionRead, MiniDecisionsClient, WorkContextsBody, WorkDecisionContext } from "./miniDecisionsClient";
 import { SOURCE_WORDS, SourceProvenanceRecord, sourceState } from "./sourceProvenance";
 import {
@@ -93,6 +93,17 @@ interface DomainCells {
   site: SiteWorkCasesSite;
   knownAt: string | null;
   legacyCold: boolean;
+  /** W5-04 V4a (ruling 71): the page's selected window, for the EV case-row Action link. */
+  from: string;
+  to: string;
+}
+
+/**
+ * W5-04 V4a (readiness ruling 71, R113 closed): the EV case-row domain Action address keeps the page's selected
+ * `from`, `to` and explicit `known_at`; cold (and W4 MINIGRID, which has no domain cells) keep the server href.
+ */
+function evCaseActionHref(cells: DomainCells): ((href: string) => string) | undefined {
+  return cells.legacyCold || !EV_ACTION_LINK_LIVE ? undefined : (href) => evActionHref(href, cells);
 }
 
 /** The Site types with the domain case presentation; MINIGRID (and any other type) keeps W4's. */
@@ -468,9 +479,12 @@ function RowDetail({
   row,
   assetId = false,
   plainDomainActions = false,
+  domainActionHref,
 }: {
   row: WorkRow;
   assetId?: boolean;
+  /** W5-04 V4a (ruling 71): the EV domain Action address with the selected scope; absent keeps the server href. */
+  domainActionHref?: (href: string) => string;
   /**
    * W5-04 V3a (MOCK DEVIATION (D1) R113, readiness ruling 46): on an EV Site a linked domain Action stays plain text
    * until V4a mounts the EV detail route (`EV_ACTION_LINK_LIVE`); no interim dead link to the W1 presenter.
@@ -512,7 +526,7 @@ function RowDetail({
               <span key={`${a.kind ?? "ACTION"}:${a.action_id}:${a.action_event_id ?? a.finding_revision_id}`} data-work-action-link={a.action_id}>
                 {i > 0 ? ", " : null}
                 {a.href && !(plainDomainActions && a.kind === "DOMAIN_ACTION") ? (
-                  <Link to={a.href}>{a.label}</Link>
+                  <Link to={domainActionHref && a.kind === "DOMAIN_ACTION" ? domainActionHref(a.href) : a.href}>{a.label}</Link>
                 ) : plainDomainActions && a.kind === "DOMAIN_ACTION" ? (
                   <span data-work-action-plain>{a.label}</span>
                 ) : (
@@ -759,7 +773,7 @@ function DomainIncidentCells({ row, cells }: { row: WorkRow; cells: DomainCells 
       <td>
         {/* W5-02 K3a; W5-04 build spec E5 withdrawn (R-10): the occurrence time in the stored Site IANA zone. */}
         <span data-work-window>{siteWindowText(row.occurred_at, cells.site.timezone)}</span>
-        <RowDetail row={row} plainDomainActions={!cells.legacyCold && !EV_ACTION_LINK_LIVE} />
+        <RowDetail row={row} plainDomainActions={!cells.legacyCold && !EV_ACTION_LINK_LIVE} domainActionHref={evCaseActionHref(cells)} />
       </td>
       <td data-work-narrative>
         <CaseLongText text={row.narrative} name={`work-narrative-${row.case_id}`} legacyCold={cells.legacyCold} />
@@ -789,7 +803,7 @@ function DomainMaintenanceCells({ row, cells }: { row: WorkRow; cells: DomainCel
         ) : (
           <span className="muted">No asset linked</span>
         )}
-        <RowDetail row={row} assetId={lc} plainDomainActions={!lc && !EV_ACTION_LINK_LIVE} />
+        <RowDetail row={row} assetId={lc} plainDomainActions={!lc && !EV_ACTION_LINK_LIVE} domainActionHref={evCaseActionHref(cells)} />
       </td>
       <td data-work-activity-cell>
         {/* K3 pre-flight ruling 3: the selected request-state chip (`Completed` only for COMPLETED).
@@ -1073,7 +1087,7 @@ export function SiteWorkCases({
   // W5-02 K3a (COLDCHAIN) and W5-04 V3a (EV_CHARGING): the domain case presentation; MINIGRID keeps W4's.
   const cells: DomainCells | null =
     site !== undefined && DOMAIN_CASE_SITE_TYPES.has(site.siteType)
-      ? { site, knownAt: knownAt ?? null, legacyCold: site.siteType === "COLDCHAIN" }
+      ? { site, knownAt: knownAt ?? null, legacyCold: site.siteType === "COLDCHAIN", from, to }
       : null;
   const legacyCold = cells !== null && cells.legacyCold;
   const loadedBody = result !== null && result.status === "loaded" ? result.value : null;

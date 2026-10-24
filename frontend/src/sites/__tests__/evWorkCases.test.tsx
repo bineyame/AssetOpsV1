@@ -4,17 +4,18 @@
  * V3b's. Covers readiness rulings 13, 14, 17, 18, 45, 46 and 57, build spec E5-withdrawn (R-10) and R03, R74, R75,
  * R80-R85, R104-R107, R111-R113.
  */
-import { cleanup, fireEvent, render } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { SiteWorkCasesFrame } from "../../shell/SiteAnalyticsFrames";
+import { SiteActionFrame, SiteWorkCasesFrame } from "../../shell/SiteAnalyticsFrames";
 import { expectV69Panels, leadingIntruders } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
-import type { DomainActionClient } from "../domainActionClient";
+import type { DomainActionClient, DomainActionDetail } from "../domainActionClient";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
+import { COLD_SITE } from "./coldWorkFixtures";
 import {
   WORK_CONTEXT_NOTICE,
   WORK_CONTEXT_NOTICE_DOMAIN,
@@ -41,6 +42,10 @@ import {
 } from "./evWorkFixtures";
 
 const R75_SENTENCE = "The selected Finding revision cannot be opened here yet.";
+/** W5-04 V4a (ruling 71): the EV detail address and the selected case-page scope it carries. */
+const EV_DETAIL = `/sites/${EV_SITE_CODE}/actions/${EV_ACTION_ID}/verification`;
+const SELECTED = `?${new URLSearchParams({ from: EV_FROM, to: EV_TO, known_at: EV_KNOWN }).toString()}`;
+const WINDOW_ONLY = `?${new URLSearchParams({ from: EV_FROM, to: EV_TO }).toString()}`;
 
 const domainActions: DomainActionClient = {
   getIndex: vi.fn(async () => ({ status: "loaded" as const, value: evIndexBody([]) })),
@@ -153,12 +158,12 @@ describe("W5-04 V3a: EV Site > Work > Incidents (v69 ev-work-incidents)", () => 
     expect(text(finding.querySelector("[data-domain-work-source-unavailable]"))).toBe(R75_SENTENCE);
     expect(text(row.querySelector("[data-work-state]"))).toBe("Open");
     expect(row.querySelector("[data-work-state]")?.getAttribute("data-work-tone")).toBe("red");
-    // R113 (ruling 46): the linked EV domain Action stays plain text until V4a; the row has no anchor at all.
+    // R113 closed in V4a (ruling 71): the linked EV domain Action is live with the page's from,to,known_at; it is the
+    // row's only anchor.
     const actionLink = row.querySelector(`[data-work-action-link="${EV_ACTION_ID}"]`) as HTMLElement;
     expect(text(actionLink)).toBe(`Action ${EV_ACTION_ID.slice(0, 8)}`);
-    expect(actionLink.querySelector("[data-work-action-plain]")).not.toBeNull();
-    expect(Array.from(row.querySelectorAll("a")).length).toBe(0);
-    expect(main.querySelector('a[href*="/actions/"]')).toBeNull();
+    expect(actionLink.querySelector("[data-work-action-plain]")).toBeNull();
+    expect(Array.from(row.querySelectorAll("a")).map((a) => a.getAttribute("href"))).toEqual([`${EV_DETAIL}${SELECTED}`]);
     // R03: the domain notice's first sentence only; no W6 notice.
     expect(text(main.querySelector("[data-domain-work-notice]"))).toBe(WORK_CONTEXT_NOTICE_DOMAIN);
     expect(main.textContent).not.toContain(WORK_CONTEXT_NOTICE);
@@ -266,9 +271,9 @@ describe("W5-04 V3a: EV Site > Work > Maintenance (v69 ev-work-maintenance)", ()
     expect(main.textContent).not.toMatch(/\bVerified\b/);
     // R84: the honest next-evidence gap.
     expect(text(row.querySelector("[data-work-next-evidence]"))).toBe("No next evidence recorded");
-    // R113: the domain Action link in `UTC and IDs` is plain; the WR Overview is the only anchor in the row.
-    expect(row.querySelector("[data-work-action-plain]")).not.toBeNull();
-    expect(Array.from(row.querySelectorAll("a")).map((a) => a.getAttribute("href"))).toEqual([wr.getAttribute("href")]);
+    // R113 closed in V4a (ruling 71): the WR Overview and the live domain Action link (with the selected scope).
+    expect(row.querySelector("[data-work-action-plain]")).toBeNull();
+    expect(Array.from(row.querySelectorAll("a")).map((a) => a.getAttribute("href"))).toEqual([wr.getAttribute("href"), `${EV_DETAIL}${SELECTED}`]);
     expectNoColdNames(main);
   });
 
@@ -370,3 +375,96 @@ describe("W5-04 V3a: EV long case text (R107)", () => {
     expectNoColdNames(main);
   });
 });
+
+/* ---------- W5-04 V4a readiness ruling 71: the EV case-row Action link carries the selected scope (R113 closed) ---------- */
+
+describe("EV case-row Action link in `UTC and IDs` (ruling 71)", () => {
+  const evDetailBody = () => {
+    const criteria = [
+      { key: "WITNESSED_SESSION", label: "Complete a witnessed charging session", required_evidence: "Session start, end, outcome and meter delta" },
+      { key: "NO_FAULT_RECURRENCE", label: "No fault recurrence during observation", required_evidence: "Connector diagnostic events with full coverage" },
+      { key: "NO_SERVICE_REDUCTION", label: "No reduction in service availability", required_evidence: "Comparable status coverage / operational window" },
+    ];
+    return {
+      schema_version: "domain-action-intent-read-1",
+      site_code: EV_SITE_CODE,
+      action: {
+        id: EV_ACTION_ID, action_code: "ACT-000061", domain: "EV_CHARGING", title: "Investigate connector 2", owner_label: "Charging operations",
+        due_at: null, raised_at: "2026-10-06T09:10:00Z", recorded_at: "2026-10-06T09:10:01Z", state: "OPEN",
+      },
+      known_at: EV_KNOWN,
+      status: "HISTORICAL",
+      intent: { id: "bbbb0000-0000-4000-8000-000000000001", recorded_at: "2026-10-06T09:11:00Z", criteria, basis: {} },
+      results: criteria.map((c) => ({ key: c.key, result: "PENDING", evidence_ids: [] })),
+      links: { finding: { label: "Finding c0ffee12", href: null }, work: { case_id: null, case_code: null, case_title: null, request_state: null, record_id: null, label: null, href: null } },
+      source_provenance: null,
+      selection_token: "sha256:ev",
+    } as unknown as DomainActionDetail;
+  };
+
+  function mountWithDetail(kind: WorkKind, page: WorkIndexResult, path: string) {
+    const work = workClient(page);
+    const detailCalls: (string | null)[] = [];
+    const client = {
+      getIndex: vi.fn(async () => ({ status: "loaded" as const, value: evIndexBody([]) })),
+      getDetail: vi.fn(async (_s: string, _id: string, knownAt: string | null) => {
+        detailCalls.push(knownAt);
+        return { status: "loaded" as const, value: evDetailBody() };
+      }),
+    } as unknown as DomainActionClient;
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route
+            path={`/sites/:siteId/work/${kind}`}
+            element={<SiteWorkCasesFrame detail={siteDetail(EV_SITE)} sitesPath="/sites" kind={kind} workClient={work.client} domainActions={client} />}
+          />
+          <Route path="/sites/:siteId/actions/:actionId/:actionView" element={<SiteActionFrame detail={siteDetail(EV_SITE)} sitesPath="/sites" domainActions={client} />} />
+        </Routes>
+        <CaseWhere />
+      </MemoryRouter>,
+    );
+    return { detailCalls };
+  }
+
+  const pages: [WorkKind, () => WorkIndexResult][] = [
+    ["incidents", () => loaded(evCaseBody([evIncident(1)]))],
+    ["maintenance", () => loaded(evCaseBody([evRequest(1, { action_links: [evDomainActionLink()] })]))],
+  ];
+
+  it.each(pages)("%s: an explicit historical cutoff rides on the link; the click opens the detail there and its Verification link keeps it", async (kind, page) => {
+    const { detailCalls } = mountWithDetail(kind, page(), `/sites/${EV_SITE_CODE}/work/${kind}?${query()}`);
+    await settledScreen();
+    const link = document.querySelector(`[data-work-action-link="${EV_ACTION_ID}"] a`) as HTMLElement;
+    expect(link.getAttribute("href")).toBe(`${EV_DETAIL}${SELECTED}`);
+    fireEvent.click(link);
+    await settledScreen();
+    await waitFor(() => expect(document.querySelector("main")?.getAttribute("data-domain-action-shell")).toBe("loaded"));
+    expect(screen.getByTestId("case-where").textContent).toBe(`${EV_DETAIL}${SELECTED}`);
+    expect(detailCalls).toEqual([EV_KNOWN]);
+    expect(document.querySelector('[data-action-section="verification"]')?.getAttribute("href")).toBe(`${EV_DETAIL}${SELECTED}`);
+  });
+
+  it.each(pages)("%s: without an explicit cutoff the link carries from,to only, and a reload of it reads with no cutoff", async (kind, page) => {
+    mountWithDetail(kind, page(), `/sites/${EV_SITE_CODE}/work/${kind}?${query(null)}`);
+    await settledScreen();
+    expect(document.querySelector(`[data-work-action-link="${EV_ACTION_ID}"] a`)?.getAttribute("href")).toBe(`${EV_DETAIL}${WINDOW_ONLY}`);
+    cleanup();
+    const { detailCalls } = mountWithDetail(kind, page(), `${EV_DETAIL}${WINDOW_ONLY}`);
+    await settledScreen();
+    expect(detailCalls).toEqual([null]);
+    expect(document.querySelector('[data-action-section="verification"]')?.getAttribute("href")).toBe(`${EV_DETAIL}${WINDOW_ONLY}`);
+  });
+});
+
+describe("cold case-row Action link stays the server href (ruling 71)", () => {
+  it("a COLDCHAIN Incident row keeps the server `links.action` href byte-identical", async () => {
+    const { main } = await mountCases("incidents", loaded(evCaseBody([evIncident(1)])), COLD_SITE as unknown as SiteDetailReadModel);
+    expect(main.querySelector(`[data-work-action-link="${EV_ACTION_ID}"] a`)?.getAttribute("href")).toBe(EV_DETAIL);
+  });
+});
+
+function CaseWhere() {
+  const location = useLocation();
+  return <output data-testid="case-where">{`${location.pathname}${location.search}`}</output>;
+}

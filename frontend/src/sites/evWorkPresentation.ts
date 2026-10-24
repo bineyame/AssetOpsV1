@@ -4,6 +4,7 @@
  * reads. Cold literals stay in `coldWorkPresentation.ts` (ruling 47 moves shared literals only in V4a).
  */
 import { coldCurrentnessNotice, coldCurrentnessTone } from "./coldWorkPresentation";
+import type { DomainIndexScope } from "./domainActionClient";
 import type { DomainActionPresentation } from "./DomainActionVerification";
 
 /** The v69 `ev-work` panel title (`index.html:340-343`, `siteWorkScreen`). */
@@ -43,6 +44,18 @@ export const EV_WORK_SUBTITLE_FALLBACK = "EV charging operations at this site.";
  * R113.
  */
 export const EV_ACTION_LINK_LIVE = true;
+
+/**
+ * Readiness rulings 67 and 71: the EV Action detail address from the server `links.action` pathname plus the page's
+ * selected `from`, `to` and explicitly selected `known_at` (the detail keeps them on its own links, ruling 14). Used by
+ * the EV Work Action row and both EV case-row `UTC and IDs` links; never carries a list cursor or a server query.
+ */
+export function evActionHref(serverHref: string, scope: Pick<DomainIndexScope, "from" | "to" | "knownAt">): string {
+  const [path] = serverHref.split("?");
+  const query = new URLSearchParams({ from: scope.from, to: scope.to });
+  if (scope.knownAt) query.set("known_at", scope.knownAt);
+  return `${path}?${query.toString()}`;
+}
 
 /**
  * Pre-flight 24 / R75: the selected Finding revision cannot be opened at its exact revision (the EV Finding frame

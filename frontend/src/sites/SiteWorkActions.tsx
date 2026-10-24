@@ -69,6 +69,7 @@ import {
 import {
   EV_CRITERION_MISSING,
   EV_ACTION_LINK_LIVE,
+  evActionHref,
   EV_DUE_MISSING,
   EV_OWNER_MISSING,
   EV_SOURCE_FINDING_UNAVAILABLE,
@@ -876,16 +877,8 @@ function dueText(p: DomainWorkPresentation, due: string | null): string {
   return due === null ? p.dueMissing : coldDueText(due);
 }
 
-/**
- * Readiness ruling 67: the EV Action detail address keeps the selected Work window and explicit cutoff (the detail
- * then keeps them on its own links, ruling 14). The server pathname is used as given; the list cursor is dropped.
- */
-export function evActionHref(serverHref: string, scope: DomainIndexScope): string {
-  const [path] = serverHref.split("?");
-  const query = new URLSearchParams({ from: scope.from, to: scope.to });
-  if (scope.knownAt) query.set("known_at", scope.knownAt);
-  return `${path}?${query.toString()}`;
-}
+/** Readiness ruling 67 (re-exported; defined beside the EV switch so the case rows share it, ruling 71). */
+export { evActionHref };
 
 function DomainRows({ body, all, p, scope }: { body: DomainIndexBody; all: boolean; p: DomainWorkPresentation; scope: DomainIndexScope }) {
   const lc = p.legacyCold;
