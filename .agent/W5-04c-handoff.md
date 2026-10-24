@@ -148,3 +148,29 @@ branch merges main, resolves conflicts and reruns the batch (see "Rebase plan").
 
 `A-ev-work-projections` stays open. Its open predecessors are `A-ev-session-rules` (W2-06), `A-maintenance-index`
 (W4-01) and `A-work-cases` (W4-01); all three show `status:"open"` in `v69-dependency-registry-pilot.json`.
+
+## Rulings 67/68 round (main `f5f7f70b`, merged at `e37ece05`; commit `c7ffced6`)
+
+- **Ruling 67 (Q1).** `DomainWorkPresentation.actionHref` was added in `SiteWorkActions.tsx`, which is now a V4a file.
+  - Cold keeps the server `links.action` unchanged.
+  - EV uses `evActionHref`. It takes the server pathname and adds the selected `from` and `to`, plus `known_at` only
+    when a cutoff is explicit. It never carries the cursor.
+- **New tests in `evWorkActions.test.tsx`:**
+  - a historical window and cutoff: the click opens the detail at the same address, reads at `known_at`, and the
+    Verification link keeps the scope;
+  - a reload of that detail address;
+  - no explicit cutoff: the link carries `from,to` only, and a list cursor is dropped;
+  - `evActionHref` replaces any server query;
+  - the cold href stays byte-identical.
+- **Adjusted assertions.** The EV href assertions in `operatorRouteFrames` and `w1f4ChangesWorkStructure` now expect
+  the query. The capture tool's R113 and work-link claims now expect it too.
+- **Register.** The R113 row now mentions the query.
+- **Non-vacuity.** Making the EV `actionHref` return the server href unchanged fails 5 tests; reverted with
+  `git checkout`.
+- **Ruling 68 (Q2).** The `ev-action` ledger strings already match exactly, so nothing changed.
+- **Checks on this round:**
+  - tsc is clean.
+  - Targeted vitest, 6 files: 173/173 passed.
+  - check-all: 11/11 passed.
+- **Captures not rerun yet.** The committed W5-04c evidence predates the tool claim change. The action and list
+  captures are rerun in the post-W5-04b batch.
