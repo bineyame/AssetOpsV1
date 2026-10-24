@@ -20,7 +20,7 @@
 - `attest`: on `positive`, the separate SERVICE-attested INC and WR (+ its record) at current DB time with the
   returned EV connector asset, then explicit domain Action case links; K3 per case/record, K4 per link, from
   returned `recorded_at`; `K0 < K1 <= K2 <= K3 <= K4` and the Work window W are enforced before capture.
-- `drop`: stops only recorded PIDs (`taskkill /PID <pid> /T /F`, never `/IM`), drops only marker-listed
+- `drop`: stops only recorded PIDs (a process-tree kill by PID only, never by image name; Windows `taskkill /PID <pid> /T /F`), drops only marker-listed
   `w504a_*_test` databases, removes the work folder.
 
 Manifest: `<work>/manifest.json`, with E and W labelled separately, every ID, clock (R, K0-K4 and the evidence clock
@@ -51,7 +51,24 @@ import w504_ev_work_cases as P  # noqa: E402
 PY = Path(sys.executable)
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
-PG_ADMIN = f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops"
+
+
+def _server() -> tuple[str, str]:
+    """(psycopg admin URL, SQLAlchemy URL prefix up to the database name). Under the test harness / container suite
+    (`ASSETOPS_TEST_DATABASE_URL`) the server, port and credentials are the harness's; otherwise the local compose
+    defaults. The admin URL connects to the server's `postgres` database and only ever CREATE/DROPs `w504a_*_test`."""
+    named = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
+    if named:
+        from sqlalchemy.engine import make_url
+
+        base = make_url(named)
+        return (base.set(drivername="postgresql", database="postgres").render_as_string(hide_password=False),
+                base.set(drivername="postgresql+psycopg", database="").render_as_string(hide_password=False))
+    return (f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops",
+            f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/")
+
+
+PG_ADMIN, _PG_URL_PREFIX = _server()
 MARKER = ".w504a-walkthrough-work"
 SCHEMA = "w504a-ev-work-walkthrough-2"
 FIXTURE_MODES = ("positive", "zero")
@@ -403,7 +420,7 @@ class Walk:
         self.dbs = {m: f"w504a_{m}_{tag}_test" for m in DB_MODES}
 
     def url(self, mode: str) -> str:
-        return f"postgresql+psycopg://assetops:{PW}@127.0.0.1:{PG_PORT}/{self.dbs[mode]}"
+        return _PG_URL_PREFIX + self.dbs[mode]
 
     def env(self, db_url: str, *, replay: bool = False) -> dict[str, str]:
         """The child environment: product `DATABASE_URL`; for the replay child also `ASSETOPS_TEST_DATABASE_URL`
@@ -566,31 +583,65 @@ class Walk:
         return 0
 
 
-def _alive(pid: int) -> bool:
-    done = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True, text=True)
-    return str(pid) in done.stdout
+def pid_alive(pid: int) -> bool:
+    """Portable liveness: `tasklist` on Windows; on POSIX `kill 0` plus a zombie check through /proc."""
+    if os.name == "nt":
+        done = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True, text=True)
+        return str(pid) in done.stdout
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    try:
+        return Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[0] != "Z"
+    except (OSError, IndexError):
+        return True
+
+
+_alive = pid_alive
 
 
 def is_recorded_server(command_line: str | None, port: int) -> bool:
     """Review L6: a recorded PID is only ours while its command line is still the uvicorn `serve_entry:app` this tool
     started on the recorded port; a reused PID of any other process never matches."""
     text = command_line or ""
-    return "uvicorn" in text and "serve_entry:app" in text and re.search(rf"--port\s+{int(port)}(\s|$)", text) is not None
+    return ("uvicorn" in text and "serve_entry:app" in text
+            and re.search(rf"--port\s+{int(port)}(\s|$)", text) is not None)
 
 
 def _command_line(pid: int) -> str | None:
-    done = subprocess.run(
-        ["powershell", "-NoProfile", "-NonInteractive", "-Command",
-         f"(Get-CimInstance Win32_Process -Filter 'ProcessId={int(pid)}').CommandLine"],
-        capture_output=True, text=True)
-    return done.stdout.strip() or None
+    if os.name == "nt":
+        done = subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+             f"(Get-CimInstance Win32_Process -Filter 'ProcessId={int(pid)}').CommandLine"],
+            capture_output=True, text=True)
+        return done.stdout.strip() or None
+    try:
+        return Path(f"/proc/{int(pid)}/cmdline").read_bytes().replace(bytes([0]), b" ").decode(errors="replace").strip() or None
+    except OSError:
+        return None
+
+
+def _kill_tree(pid: int) -> None:
+    if os.name == "nt":
+        subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"], capture_output=True)
+        return
+    import signal
+
+    subprocess.run(["pkill", "-KILL", "-P", str(pid)], capture_output=True)  # direct children, then the PID itself
+    try:
+        os.kill(pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
 
 
 def _stop_owned(info: dict) -> bool:
     """Kill the recorded server tree only when the live PID still carries our command line; True when stopped."""
-    if not is_recorded_server(_command_line(info["pid"]), info["port"]):
+    if info.get("port") is None or not is_recorded_server(_command_line(info["pid"]), info["port"]):
         return False
-    subprocess.run(["taskkill", "/PID", str(info["pid"]), "/T", "/F"], capture_output=True)
+    _kill_tree(info["pid"])
     return True
 
 

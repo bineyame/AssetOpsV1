@@ -242,12 +242,13 @@ def test_walkthrough_kills_only_its_own_recorded_server() -> None:
                   ours.replace("8123", "81234"), ours.replace("8123", "8124")):
         assert not W.is_recorded_server(other, 8123), other
     calls = []
-    real_cmd, real_run = W._command_line, W.subprocess.run
+    real_cmd, real_kill = W._command_line, W._kill_tree
     W._command_line = lambda pid: "notepad.exe"
-    W.subprocess.run = lambda *a, **k: calls.append(a)
+    W._kill_tree = lambda pid: calls.append(pid)
     try:
         assert W._stop_owned({"pid": 4242, "port": 8123}) is False and calls == []
+        assert W._stop_owned({"pid": 4242}) is False and calls == [], "no recorded port: never ours"
         W._command_line = lambda pid: ours
-        assert W._stop_owned({"pid": 4242, "port": 8123}) is True and calls[0][0][:3] == ["taskkill", "/PID", "4242"]
+        assert W._stop_owned({"pid": 4242, "port": 8123}) is True and calls == [4242]
     finally:
-        W._command_line, W.subprocess.run = real_cmd, real_run
+        W._command_line, W._kill_tree = real_cmd, real_kill

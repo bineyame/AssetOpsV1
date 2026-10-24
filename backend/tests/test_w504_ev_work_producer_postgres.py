@@ -41,9 +41,7 @@ def test_native_replay_and_k0_refusals(replayed) -> None:
         "ev-interrupted", "interrupted", "EV-LAB-001")
     assert replayed["evidence_window"] == {"from": "2026-10-06T08:00:00Z", "to": "2026-10-06T09:00:00Z"}
     assert replayed["dispositions"].get("ACCEPTED", 0) > 0 and replayed["worker_outcomes"] > 0
-    gone = subprocess.run(["tasklist", "/FI", f"PID eq {replayed['gateway_pid']}", "/NH"], capture_output=True,
-                          text=True)
-    assert str(replayed["gateway_pid"]) not in gone.stdout, "the replay gateway outlived the child"
+    assert not walk.pid_alive(replayed["gateway_pid"]), "the replay gateway outlived the child"
     app, _ = walk._clients(URL)
     get = walk._getter(app)
     selected = P.read_k0(get, P.SITE_CODE, P.E_START, P.E_END)
@@ -101,20 +99,28 @@ def test_drop_stops_only_recorded_pids_and_drops_only_marker_dbs() -> None:
     db = f"w504a_fx_{tag}_test"
     with psycopg.connect(walk.PG_ADMIN, autocommit=True) as c:
         c.execute(f"CREATE DATABASE {db}")
-    sleeper = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(120)"])
+    # A recorded server looks like ours (review L6: a PID is killed only while its command line matches); a second
+    # recorded PID is an unrelated process (PID reuse) and must survive `drop`.
+    ours = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(120)", "uvicorn", "serve_entry:app",
+                             "--port", "55999"])
+    sleeper = ours
+    unrelated = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(120)"])
     try:
         work.mkdir(parents=True)
         (work / walk.MARKER).write_text(json.dumps({"tool": "w504a", "dbs": [db, "assetops_not_owned"]}),
                                         encoding="utf-8")
-        (work / "pids.json").write_text(json.dumps({"api": {"pid": sleeper.pid}}), encoding="utf-8")
+        (work / "pids.json").write_text(json.dumps({"api": {"pid": ours.pid, "port": 55999},
+                                                              "reused": {"pid": unrelated.pid, "port": 55999}}), encoding="utf-8")
         assert w.drop() == 0
-        sleeper.wait(timeout=30)
-        assert sleeper.returncode is not None
+        ours.wait(timeout=30)
+        assert ours.returncode is not None
+        assert unrelated.poll() is None and walk.pid_alive(unrelated.pid), "drop killed an unrelated reused PID"
         with psycopg.connect(walk.PG_ADMIN, autocommit=True) as c:
             left = c.execute("SELECT datname FROM pg_database WHERE datname = %s", (db,)).fetchall()
         assert left == [] and not work.exists()
     finally:
-        if sleeper.poll() is None:
-            sleeper.kill()
+        for process in (ours, unrelated):
+            if process.poll() is None:
+                process.kill()
         with psycopg.connect(walk.PG_ADMIN, autocommit=True) as c:
             c.execute(f"DROP DATABASE IF EXISTS {db} WITH (FORCE)")
