@@ -1,0 +1,17 @@
+[
+ {
+  "id": "cold-work-incidents",
+  "case": "forbidden-403",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-work-maintenance",
+  "case": "forbidden-403",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+ },
+ {
+  "id": "cold-action",
+  "case": "forbidden-403",
+  "url": "http://127.0.0.1:5185/sites/COLD-LAB-001/actions/5198a58a-3695-44da-a4f6-b673da41f79a/verification"
+ }
+]
