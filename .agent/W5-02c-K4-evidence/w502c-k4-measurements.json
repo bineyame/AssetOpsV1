@@ -1,5 +1,5 @@
 {
-  "manifest_revision": "5db28f19",
+  "manifest_revision": "de57ee51",
   "caps": {
     "action": {
       "main": [
@@ -40,9 +40,9 @@
       "state": "action-positive",
       "width": 1440,
       "file": "w502c-k4-desktop-action-positive.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -56,7 +56,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -102,7 +102,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+          "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
         },
         "inspectNote": null,
         "finding": {
@@ -143,9 +143,9 @@
       "state": "action-positive-version-open",
       "width": 1440,
       "file": "w502c-k4-desktop-action-positive-version-open.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -159,12 +159,12 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
         "revisionOpen": true,
-        "revisionText": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "revisionText": "c3d31eef-ae7c-4c7b-9c34-30bf46d09b36",
         "revisionOneLine": true,
         "revisionBodyInsideStrip": true,
         "revisionReadable": true,
@@ -205,7 +205,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+          "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
         },
         "inspectNote": null,
         "finding": {
@@ -246,9 +246,9 @@
       "state": "action-not-linked",
       "width": 1440,
       "file": "w502c-k4-desktop-action-not-linked.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.257641Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.257641Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -262,7 +262,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -327,9 +327,9 @@
       "state": "action-historical",
       "width": 1440,
       "file": "w502c-k4-desktop-action-historical.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.790620Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.790620Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -343,7 +343,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -389,7 +389,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+          "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.790620Z"
         },
         "inspectNote": null,
         "finding": {
@@ -430,9 +430,9 @@
       "state": "action-pending",
       "width": 1440,
       "file": "w502c-k4-desktop-action-pending.png",
-      "url": "http://localhost:5473/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/actions/17c5e7b0-b4eb-4c37-b5c8-1f32bef54f19/verification?known_at=2026-10-24T01%3A59%3A19.056906Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/sites/COLD-LAB-001/actions/17c5e7b0-b4eb-4c37-b5c8-1f32bef54f19/verification?known_at=2026-10-24T01%3A59%3A19.056906Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -446,7 +446,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 88d089bb",
+        "statusLine": "Maintenance lead · Cold · Finding 3126f053",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -492,7 +492,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+          "target": "/maintenance/requests/64b7cc03-b548-4b11-9f9f-5d345c954656?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A19.056906Z"
         },
         "inspectNote": null,
         "finding": {
@@ -533,9 +533,9 @@
       "state": "action-stale",
       "width": 1440,
       "file": "w502c-k4-desktop-action-stale.png",
-      "url": "http://localhost:5474/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/actions/9e66e093-4d42-4088-85b4-2dc54ab74b60/verification?known_at=2026-10-24T01%3A59%3A42.261431Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/sites/COLD-LAB-001/actions/9e66e093-4d42-4088-85b4-2dc54ab74b60/verification?known_at=2026-10-24T01%3A59%3A42.261431Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -549,7 +549,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 27283914",
+        "statusLine": "Maintenance lead · Cold · Finding c7c93036",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -595,7 +595,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+          "target": "/maintenance/requests/db33ce8a-b6fc-4349-b619-5fad57614467?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A42.261431Z"
         },
         "inspectNote": null,
         "finding": {
@@ -636,9 +636,9 @@
       "state": "action-unknown",
       "width": 1440,
       "file": "w502c-k4-desktop-action-unknown.png",
-      "url": "http://localhost:5475/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/actions/6cdc95f3-5beb-4c47-9a88-81f659643e20/verification?known_at=2026-10-24T02%3A00%3A02.424150Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/sites/COLD-LAB-001/actions/6cdc95f3-5beb-4c47-9a88-81f659643e20/verification?known_at=2026-10-24T02%3A00%3A02.424150Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -652,7 +652,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 8e9c77ab",
+        "statusLine": "Maintenance lead · Cold · Finding ac09d8bc",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -698,7 +698,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+          "target": "/maintenance/requests/ddedb238-17e6-4524-98e5-eec4c80dee12?site_id=COLD-LAB-001&known_at=2026-10-24T02%3A00%3A02.424150Z"
         },
         "inspectNote": null,
         "finding": {
@@ -739,9 +739,9 @@
       "state": "action-worstcase",
       "width": 1440,
       "file": "w502c-k4-desktop-action-worstcase.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/actions/30188e56-60c1-4d4e-9e61-269b43a180a8/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+        "href": "/sites/COLD-LAB-001/actions/30188e56-60c1-4d4e-9e61-269b43a180a8/verification",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -755,7 +755,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · Cold · Finding 270f923e",
+        "statusLine": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · Cold · Finding 080995ed",
         "owner": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -884,9 +884,9 @@
       "state": "action-403",
       "width": 1440,
       "file": "w502c-k4-desktop-action-403.png",
-      "url": "http://localhost:5476/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "refused",
         "panelState": "refused",
         "refusal": "SITE_SCOPE_FORBIDDEN",
@@ -948,9 +948,9 @@
       "state": "action-503",
       "width": 1440,
       "file": "w502c-k4-desktop-action-503.png",
-      "url": "http://localhost:5477/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "refused",
         "panelState": "refused",
         "refusal": "WORK_STORE_UNAVAILABLE",
@@ -1012,9 +1012,9 @@
       "state": "action-422-client",
       "width": 1440,
       "file": "w502c-k4-desktop-action-422-client.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=not-a-time",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=not-a-time",
         "shell": "refused",
         "panelState": "refused",
         "refusal": "INVALID_KNOWN_AT",
@@ -1076,9 +1076,9 @@
       "state": "action-positive",
       "width": 390,
       "file": "w502c-k4-narrow-action-positive.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1092,7 +1092,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -1138,7 +1138,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+          "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
         },
         "inspectNote": null,
         "finding": {
@@ -1179,9 +1179,9 @@
       "state": "action-positive-version-open",
       "width": 390,
       "file": "w502c-k4-narrow-action-positive-version-open.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1195,12 +1195,12 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
         "revisionOpen": true,
-        "revisionText": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "revisionText": "c3d31eef-ae7c-4c7b-9c34-30bf46d09b36",
         "revisionOneLine": true,
         "revisionBodyInsideStrip": true,
         "revisionReadable": true,
@@ -1241,7 +1241,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+          "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
         },
         "inspectNote": null,
         "finding": {
@@ -1282,9 +1282,9 @@
       "state": "action-not-linked",
       "width": 390,
       "file": "w502c-k4-narrow-action-not-linked.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.257641Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A56.292341Z",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.257641Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1298,7 +1298,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -1363,9 +1363,9 @@
       "state": "action-historical",
       "width": 390,
       "file": "w502c-k4-narrow-action-historical.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.790620Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=2026-10-24T01%3A58%3A31.790620Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1379,7 +1379,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 6c9a371d",
+        "statusLine": "Maintenance lead · Cold · Finding a065a7a3",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -1425,7 +1425,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+          "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.790620Z"
         },
         "inspectNote": null,
         "finding": {
@@ -1466,9 +1466,9 @@
       "state": "action-pending",
       "width": 390,
       "file": "w502c-k4-narrow-action-pending.png",
-      "url": "http://localhost:5473/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/actions/17c5e7b0-b4eb-4c37-b5c8-1f32bef54f19/verification?known_at=2026-10-24T01%3A59%3A19.056906Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/05d758d0-675b-4261-a7fd-760935ea0206/verification?known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/sites/COLD-LAB-001/actions/17c5e7b0-b4eb-4c37-b5c8-1f32bef54f19/verification?known_at=2026-10-24T01%3A59%3A19.056906Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1482,7 +1482,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 88d089bb",
+        "statusLine": "Maintenance lead · Cold · Finding 3126f053",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -1528,7 +1528,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+          "target": "/maintenance/requests/64b7cc03-b548-4b11-9f9f-5d345c954656?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A19.056906Z"
         },
         "inspectNote": null,
         "finding": {
@@ -1569,9 +1569,9 @@
       "state": "action-stale",
       "width": 390,
       "file": "w502c-k4-narrow-action-stale.png",
-      "url": "http://localhost:5474/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/actions/9e66e093-4d42-4088-85b4-2dc54ab74b60/verification?known_at=2026-10-24T01%3A59%3A42.261431Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/cf91c873-9a5f-4d4e-a238-c65994f05836/verification?known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/sites/COLD-LAB-001/actions/9e66e093-4d42-4088-85b4-2dc54ab74b60/verification?known_at=2026-10-24T01%3A59%3A42.261431Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1585,7 +1585,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 27283914",
+        "statusLine": "Maintenance lead · Cold · Finding c7c93036",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -1631,7 +1631,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+          "target": "/maintenance/requests/db33ce8a-b6fc-4349-b619-5fad57614467?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A42.261431Z"
         },
         "inspectNote": null,
         "finding": {
@@ -1672,9 +1672,9 @@
       "state": "action-unknown",
       "width": 390,
       "file": "w502c-k4-narrow-action-unknown.png",
-      "url": "http://localhost:5475/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/actions/6cdc95f3-5beb-4c47-9a88-81f659643e20/verification?known_at=2026-10-24T02%3A00%3A02.424150Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/7a65d58d-6c53-470f-ad57-f915386f685d/verification?known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/sites/COLD-LAB-001/actions/6cdc95f3-5beb-4c47-9a88-81f659643e20/verification?known_at=2026-10-24T02%3A00%3A02.424150Z",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1688,7 +1688,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead · Cold · Finding 8e9c77ab",
+        "statusLine": "Maintenance lead · Cold · Finding ac09d8bc",
         "owner": "Maintenance lead",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -1734,7 +1734,7 @@
           "disabled": false,
           "text": "Inspect maintenance evidence",
           "describedBy": null,
-          "target": "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+          "target": "/maintenance/requests/ddedb238-17e6-4524-98e5-eec4c80dee12?site_id=COLD-LAB-001&known_at=2026-10-24T02%3A00%3A02.424150Z"
         },
         "inspectNote": null,
         "finding": {
@@ -1775,9 +1775,9 @@
       "state": "action-worstcase",
       "width": 390,
       "file": "w502c-k4-narrow-action-worstcase.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/actions/30188e56-60c1-4d4e-9e61-269b43a180a8/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4f9fd53-3b87-4260-8e6b-849ecf80fecd/verification",
+        "href": "/sites/COLD-LAB-001/actions/30188e56-60c1-4d4e-9e61-269b43a180a8/verification",
         "shell": "loaded",
         "panelState": null,
         "refusal": null,
@@ -1791,7 +1791,7 @@
           "Related activity"
         ],
         "panelCount": 2,
-        "statusLine": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · Cold · Finding 270f923e",
+        "statusLine": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy · Cold · Finding 080995ed",
         "owner": "Maintenance lead 1 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
         "ownerWrap": "anywhere",
         "headingWrap": "anywhere",
@@ -1920,9 +1920,9 @@
       "state": "action-403",
       "width": 390,
       "file": "w502c-k4-narrow-action-403.png",
-      "url": "http://localhost:5476/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "refused",
         "panelState": "refused",
         "refusal": "SITE_SCOPE_FORBIDDEN",
@@ -1984,9 +1984,9 @@
       "state": "action-503",
       "width": 390,
       "file": "w502c-k4-narrow-action-503.png",
-      "url": "http://localhost:5477/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification",
         "shell": "refused",
         "panelState": "refused",
         "refusal": "WORK_STORE_UNAVAILABLE",
@@ -2048,9 +2048,9 @@
       "state": "action-422-client",
       "width": 390,
       "file": "w502c-k4-narrow-action-422-client.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=not-a-time",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/actions/c4522207-e163-4ddb-872d-67c1af466722/verification?known_at=not-a-time",
+        "href": "/sites/COLD-LAB-001/actions/032d8ee7-8e06-4d83-b766-a38b7635ffaf/verification?known_at=not-a-time",
         "shell": "refused",
         "panelState": "refused",
         "refusal": "INVALID_KNOWN_AT",
@@ -2115,22 +2115,22 @@
       "ok": true,
       "detail": {
         "current": {
-          "case_id": "0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c",
+          "case_id": "6d060205-56b6-4ee9-a62c-4c5916344421",
           "case_code": "WR-000002",
           "case_title": "Starter/control inspection",
           "request_state": "COMPLETED",
-          "record_id": "a13da30b-805a-4c7d-8008-017ca14bdff4",
+          "record_id": "c7db2959-c8f9-493c-a0fb-62caad96d74f",
           "label": "Maintenance request WR-000002",
           "href": null
         },
         "notLinked": {
-          "known_at": "2026-10-23T22:43:56.292341Z"
+          "known_at": "2026-10-24T01:58:31.257641Z"
         },
         "worst": {
-          "action_id": "c4f9fd53-3b87-4260-8e6b-849ecf80fecd",
+          "action_id": "30188e56-60c1-4d4e-9e61-269b43a180a8",
           "query": {},
           "status": "CURRENT",
-          "known_at": "2026-10-23T22:44:39.245786Z",
+          "known_at": "2026-10-24T01:58:56.206298Z",
           "intent": false,
           "results": [],
           "work": {
@@ -2265,7 +2265,7 @@
         "disabled": false,
         "text": "Inspect maintenance evidence",
         "describedBy": null,
-        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
       }
     },
     {
@@ -2290,7 +2290,7 @@
     {
       "name": "desktop action-positive: status line owner · short Site · Finding id8",
       "ok": true,
-      "detail": "Maintenance lead · Cold · Finding 6c9a371d"
+      "detail": "Maintenance lead · Cold · Finding a065a7a3"
     },
     {
       "name": "desktop action-positive: no document horizontal overflow",
@@ -2349,7 +2349,7 @@
       "ok": true,
       "detail": {
         "open": true,
-        "text": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "text": "c3d31eef-ae7c-4c7b-9c34-30bf46d09b36",
         "oneLine": true,
         "inside": true,
         "readable": true
@@ -2650,7 +2650,7 @@
         "disabled": false,
         "text": "Inspect maintenance evidence",
         "describedBy": null,
-        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+        "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.790620Z"
       }
     },
     {
@@ -3346,7 +3346,7 @@
         "disabled": false,
         "text": "Inspect maintenance evidence",
         "describedBy": null,
-        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
       }
     },
     {
@@ -3371,7 +3371,7 @@
     {
       "name": "narrow action-positive: status line owner · short Site · Finding id8",
       "ok": true,
-      "detail": "Maintenance lead · Cold · Finding 6c9a371d"
+      "detail": "Maintenance lead · Cold · Finding a065a7a3"
     },
     {
       "name": "narrow action-positive: no document horizontal overflow",
@@ -3430,7 +3430,7 @@
       "ok": true,
       "detail": {
         "open": true,
-        "text": "ec554a99-10c4-454d-9608-806f9a36f59c",
+        "text": "c3d31eef-ae7c-4c7b-9c34-30bf46d09b36",
         "oneLine": true,
         "inside": true,
         "readable": true
@@ -3731,7 +3731,7 @@
         "disabled": false,
         "text": "Inspect maintenance evidence",
         "describedBy": null,
-        "target": "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+        "target": "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.790620Z"
       }
     },
     {

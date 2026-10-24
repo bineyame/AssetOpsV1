@@ -1,5 +1,19 @@
 # W5-02c K4 evidence: cold-action at 1440 and 390
 
+**Current run (supersedes the figures further down).** Code tree `de57ee51`, with main E4/E6 `48b0bf84` merged and
+build rulings 14-22 applied.
+- **Producer:** `prepare` took 121 s and blocked no mode. `serve` started 7 healthy APIs and `attest` returned ATTEST OK.
+  Served detail reads: `action-current` HTTP 200 CURRENT with work COMPLETED; `action-not-linked` HISTORICAL with no
+  work; `action-worstcase` CURRENT with no work.
+- **Action captures:** 292 PASS, 0 FAIL. Heights are unchanged from the table below.
+- **`cases-recheck/`:** 934 PASS, 0 FAIL. The four former ruling-20 failures now pass at 1440 and 390:
+  - `incidents-worstcase-every-disclosure`: 20 opened UUIDs (10 fact values and 10 direct-code bodies).
+  - `maintenance-worstcase-every-disclosure`: 25 opened UUIDs, all fact values.
+  - Every one renders on one line inside its own scroller.
+- **Cleanup:** the 7 Vite processes, the APIs and the databases were stopped and dropped by PID or with the tool's `drop`.
+
+## Earlier run (pre-rebase, tree `5db28f19`)
+
 Producer: `tools/w502_cold_work_walkthrough.py --work var/w502b_k4 --tag k4`. Code tree `5db28f19`. `prepare` took 187 s
 and blocked no mode. `serve` started 7 APIs on 8971-8977 and `attest` returned ATTEST OK. The served detail reads were:
 

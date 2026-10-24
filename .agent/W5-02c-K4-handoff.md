@@ -1,8 +1,7 @@
 # W5-02c K4a + K4b + K5 handoff (cold Action detail and W5-02 closeout)
 
 Branch `task/W5-02c-K4-cold-action`, from main `acf3f078` (K2, K3 and the K4 rulings), merged at `2b287613`. It is built
-against the 13 pre-flight rulings in `.agent/W5-02c-K4-preflight-rulings.md`. **Not yet rebased on W5-03b E4/E6**: per
-ruling 13, review happens only after that merge and a rerun of the batch.
+against the 13 pre-flight rulings in `.agent/W5-02c-K4-preflight-rulings.md`. Rebased on W5-03b E4/E6 (main `48b0bf84`, merged at `de57ee51`); the batch was rerun on that head (see the last section).
 
 ## Commits
 
@@ -125,3 +124,32 @@ All counts are at `b9db3711`.
   - `check-all`: 11/11.
   - The full batch (vitest, build, producer, captures and the P-K5-2 full backend suite) runs once after the E4/E6
     merge.
+
+## Post-E4/E6 batch (head `de57ee51`, then the evidence commit)
+
+- **Merge:** one conflict, in `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+  - Main removed the DataTable sticky-header Low (E4 fixed it), and this branch removed the stale attest Low, so
+    neither line is kept.
+  - E6's Scenarios work is an in-page tab, not a rail root. The rail still has 9 live links, so the
+    `operatorRailInventory` count and focus order need no change.
+  - The `activeLabel` guard and fixtures sit alongside E6's Scenarios guard and fixtures.
+  - E4's `missing-claim-scan.mjs` edit and its removal of the cold `thead th:first-child` workaround from
+    `w1f4-changes-work.css` are kept.
+- **Checks:**
+  - tsc is clean and `npm run build` is green.
+  - check-all: 11/11.
+  - Full vitest: 124 files, 2879 passed, 310 s.
+- **Focused w502 Postgres** (`-n 4`, private `assetops_w502ck4_test`): tests=35, failures=0, errors=0, skipped=0,
+  154 s. The database is dropped.
+- **Producer:** `prepare` 121 s, no mode blocked. `serve` 7/7 healthy. `attest` ATTEST OK, including the 3 served
+  detail reads.
+- **Captures:**
+  - Action: 292 PASS, 0 FAIL.
+  - Case recapture: 934 PASS, 0 FAIL. All four former ruling-20 failures pass at 1440 and 390, over a non-empty set:
+    20 or 25 opened UUIDs per state, covering both scroller kinds.
+  - Under ruling 21, the K3 Lows can close once the independent review has seen this evidence.
+- **Full backend suite:** not run, as directed. The coordinator runs it on the final head.
+- **Cleanup by PID:**
+  - Stopped: 7 Vite processes, 7 APIs (via the tool's `drop`) and keep-awake.
+  - Dropped: 5 `w502b_*_k4_test` databases and `assetops_w502ck4_test`.
+  - Ports 5471-5477, 8971-8977 and 9481 are free.

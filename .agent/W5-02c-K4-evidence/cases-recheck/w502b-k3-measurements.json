@@ -1,5 +1,5 @@
 {
-  "manifest_revision": "5db28f19",
+  "manifest_revision": "de57ee51",
   "caps": {
     "cases": {
       "main": [
@@ -25,9 +25,9 @@
       "state": "incidents-positive",
       "width": 1440,
       "file": "w502b-desktop-incidents-positive.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -35,7 +35,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -60,12 +60,12 @@
         "stickyFirstColumn": false,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "findingAnchors": 0,
@@ -162,9 +162,9 @@
       "state": "incidents-current",
       "width": 1440,
       "file": "w502b-desktop-incidents-current.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": null,
@@ -172,7 +172,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A01%3A10.320111Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A03%3A28.569399Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -197,12 +197,12 @@
         "stickyFirstColumn": false,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "findingAnchors": 0,
@@ -299,9 +299,9 @@
       "state": "incidents-historical",
       "width": 1440,
       "file": "w502b-desktop-incidents-historical.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -309,7 +309,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -334,12 +334,12 @@
         "stickyFirstColumn": false,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "findingAnchors": 0,
@@ -436,9 +436,9 @@
       "state": "incidents-zero",
       "width": 1440,
       "file": "w502b-desktop-incidents-zero.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "empty",
         "currentness": null,
@@ -446,7 +446,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 0 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A01%3A15.526628Z",
+        "manageHref": "/incidents?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A03%3A33.473433Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -504,9 +504,9 @@
       "state": "incidents-worstcase",
       "width": 1440,
       "file": "w502b-desktop-incidents-worstcase.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -514,7 +514,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
@@ -539,32 +539,32 @@
         "stickyFirstColumn": false,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -877,9 +877,9 @@
       "state": "incidents-worstcase-one-open",
       "width": 1440,
       "file": "w502b-desktop-incidents-worstcase-one-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -887,7 +887,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
@@ -912,32 +912,32 @@
         "stickyFirstColumn": false,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -1248,9 +1248,9 @@
       "state": "incidents-worstcase-all-open",
       "width": 1440,
       "file": "w502b-desktop-incidents-worstcase-all-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -1258,7 +1258,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
@@ -1283,32 +1283,32 @@
         "stickyFirstColumn": false,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -1605,9 +1605,9 @@
       "state": "incidents-worstcase-every-disclosure",
       "width": 1440,
       "file": "w502b-desktop-incidents-worstcase-every-disclosure.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -1615,15 +1615,15 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
         "docClientWidth": 1425,
-        "docHeight": 2277,
-        "main": 2203,
+        "docHeight": 2252,
+        "main": 2178,
         "strip": 39,
-        "panel": 1759,
+        "panel": 1734,
         "currentnessNotice": 42,
         "contextNotice": 42,
         "contextNoticeText": "Opening a record moves you to its own area; the breadcrumb keeps this site.",
@@ -1640,32 +1640,32 @@
         "stickyFirstColumn": false,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -1747,122 +1747,202 @@
         "openCodes": [
           {
             "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 2,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           }
         ],
@@ -2099,9 +2179,9 @@
       "state": "incidents-pending",
       "width": 1440,
       "file": "w502b-desktop-incidents-pending.png",
-      "url": "http://localhost:5473/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "PENDING_RECOMPUTE",
@@ -2109,7 +2189,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2134,12 +2214,12 @@
         "stickyFirstColumn": false,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 516c665e",
-            "Finding 88d089bb"
+            "Finding 03ed20b8",
+            "Finding 3126f053"
           ]
         ],
         "findingAnchors": 0,
@@ -2236,9 +2316,9 @@
       "state": "incidents-stale",
       "width": 1440,
       "file": "w502b-desktop-incidents-stale.png",
-      "url": "http://localhost:5474/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "STALE_SOURCE",
@@ -2246,7 +2326,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2271,12 +2351,12 @@
         "stickyFirstColumn": false,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 27283914",
-            "Finding 5e6b7532"
+            "Finding 00caf279",
+            "Finding c7c93036"
           ]
         ],
         "findingAnchors": 0,
@@ -2373,9 +2453,9 @@
       "state": "incidents-unknown",
       "width": 1440,
       "file": "w502b-desktop-incidents-unknown.png",
-      "url": "http://localhost:5475/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "UNKNOWN",
@@ -2383,7 +2463,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2408,11 +2488,11 @@
         "stickyFirstColumn": false,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 8e9c77ab"
+            "Finding ac09d8bc"
           ]
         ],
         "findingAnchors": 0,
@@ -2509,9 +2589,9 @@
       "state": "incidents-forbidden-403",
       "width": 1440,
       "file": "w502b-desktop-incidents-forbidden-403.png",
-      "url": "http://localhost:5476/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "refused",
         "currentness": null,
@@ -2519,7 +2599,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2577,9 +2657,9 @@
       "state": "incidents-unavailable-503",
       "width": 1440,
       "file": "w502b-desktop-incidents-unavailable-503.png",
-      "url": "http://localhost:5477/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "refused",
         "currentness": null,
@@ -2587,7 +2667,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2645,9 +2725,9 @@
       "state": "maintenance-positive",
       "width": 1440,
       "file": "w502b-desktop-maintenance-positive.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -2655,7 +2735,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2685,7 +2765,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.194577Z"
+          "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.901217Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -2775,9 +2855,9 @@
       "state": "maintenance-current",
       "width": 1440,
       "file": "w502b-desktop-maintenance-current.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": null,
@@ -2785,7 +2865,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A02%3A14.271314Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A04%3A25.974954Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2815,7 +2895,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+          "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -2905,9 +2985,9 @@
       "state": "maintenance-historical",
       "width": 1440,
       "file": "w502b-desktop-maintenance-historical.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -2915,7 +2995,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -2945,7 +3025,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+          "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.790620Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -3035,9 +3115,9 @@
       "state": "maintenance-zero",
       "width": 1440,
       "file": "w502b-desktop-maintenance-zero.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "empty",
         "currentness": null,
@@ -3045,7 +3125,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A02%3A19.133521Z",
+        "manageHref": "/maintenance?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A04%3A30.839212Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -3103,9 +3183,9 @@
       "state": "maintenance-worstcase",
       "width": 1440,
       "file": "w502b-desktop-maintenance-worstcase.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -3113,7 +3193,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
@@ -3147,11 +3227,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -3457,9 +3537,9 @@
       "state": "maintenance-worstcase-one-open",
       "width": 1440,
       "file": "w502b-desktop-maintenance-worstcase-one-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -3467,7 +3547,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
@@ -3501,11 +3581,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -3809,9 +3889,9 @@
       "state": "maintenance-worstcase-all-open",
       "width": 1440,
       "file": "w502b-desktop-maintenance-worstcase-all-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -3819,7 +3899,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
@@ -3853,11 +3933,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -4139,9 +4219,9 @@
       "state": "maintenance-worstcase-every-disclosure",
       "width": 1440,
       "file": "w502b-desktop-maintenance-worstcase-every-disclosure.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -4149,15 +4229,15 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1425,
         "docClientWidth": 1425,
-        "docHeight": 3214,
-        "main": 3140,
+        "docHeight": 3152,
+        "main": 3078,
         "strip": 39,
-        "panel": 2696,
+        "panel": 2634,
         "currentnessNotice": 42,
         "contextNotice": 42,
         "contextNoticeText": "Opening a record moves you to its own area; the breadcrumb keeps this site.",
@@ -4183,11 +4263,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -4244,152 +4324,252 @@
         "openCodes": [
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           }
         ],
@@ -4626,9 +4806,9 @@
       "state": "maintenance-pending",
       "width": 1440,
       "file": "w502b-desktop-maintenance-pending.png",
-      "url": "http://localhost:5473/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "PENDING_RECOMPUTE",
@@ -4636,7 +4816,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -4666,7 +4846,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+          "/maintenance/requests/64b7cc03-b548-4b11-9f9f-5d345c954656?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A19.056906Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -4756,9 +4936,9 @@
       "state": "maintenance-stale",
       "width": 1440,
       "file": "w502b-desktop-maintenance-stale.png",
-      "url": "http://localhost:5474/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "STALE_SOURCE",
@@ -4766,7 +4946,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -4796,7 +4976,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+          "/maintenance/requests/db33ce8a-b6fc-4349-b619-5fad57614467?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A42.261431Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -4886,9 +5066,9 @@
       "state": "maintenance-unknown",
       "width": 1440,
       "file": "w502b-desktop-maintenance-unknown.png",
-      "url": "http://localhost:5475/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "UNKNOWN",
@@ -4896,7 +5076,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -4926,7 +5106,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+          "/maintenance/requests/ddedb238-17e6-4524-98e5-eec4c80dee12?site_id=COLD-LAB-001&known_at=2026-10-24T02%3A00%3A02.424150Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -5016,9 +5196,9 @@
       "state": "maintenance-forbidden-403",
       "width": 1440,
       "file": "w502b-desktop-maintenance-forbidden-403.png",
-      "url": "http://localhost:5476/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "refused",
         "currentness": null,
@@ -5026,7 +5206,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -5084,9 +5264,9 @@
       "state": "maintenance-unavailable-503",
       "width": 1440,
       "file": "w502b-desktop-maintenance-unavailable-503.png",
-      "url": "http://localhost:5477/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "refused",
         "currentness": null,
@@ -5094,7 +5274,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 1440,
@@ -5152,9 +5332,9 @@
       "state": "incidents-positive",
       "width": 390,
       "file": "w502b-narrow-incidents-positive.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -5162,7 +5342,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -5187,12 +5367,12 @@
         "stickyFirstColumn": true,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "findingAnchors": 0,
@@ -5289,9 +5469,9 @@
       "state": "incidents-current",
       "width": 390,
       "file": "w502b-narrow-incidents-current.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": null,
@@ -5299,7 +5479,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A03%3A06.446258Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A05%3A21.056617Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -5324,12 +5504,12 @@
         "stickyFirstColumn": true,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "findingAnchors": 0,
@@ -5426,9 +5606,9 @@
       "state": "incidents-historical",
       "width": 390,
       "file": "w502b-narrow-incidents-historical.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -5436,7 +5616,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -5461,12 +5641,12 @@
         "stickyFirstColumn": true,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "findingAnchors": 0,
@@ -5563,9 +5743,9 @@
       "state": "incidents-zero",
       "width": 390,
       "file": "w502b-narrow-incidents-zero.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/incidents?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "empty",
         "currentness": null,
@@ -5573,7 +5753,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 0 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A03%3A11.538987Z",
+        "manageHref": "/incidents?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A05%3A26.506111Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -5631,9 +5811,9 @@
       "state": "incidents-worstcase",
       "width": 390,
       "file": "w502b-narrow-incidents-worstcase.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -5641,7 +5821,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -5666,32 +5846,32 @@
         "stickyFirstColumn": true,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -6004,9 +6184,9 @@
       "state": "incidents-worstcase-one-open",
       "width": 390,
       "file": "w502b-narrow-incidents-worstcase-one-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -6014,7 +6194,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -6039,32 +6219,32 @@
         "stickyFirstColumn": true,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -6375,9 +6555,9 @@
       "state": "incidents-worstcase-all-open",
       "width": 390,
       "file": "w502b-narrow-incidents-worstcase-all-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -6385,7 +6565,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -6410,32 +6590,32 @@
         "stickyFirstColumn": true,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -6732,9 +6912,9 @@
       "state": "incidents-worstcase-every-disclosure",
       "width": 390,
       "file": "w502b-narrow-incidents-worstcase-every-disclosure.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -6742,15 +6922,15 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
         "docClientWidth": 390,
-        "docHeight": 2797,
-        "main": 2647,
+        "docHeight": 2469,
+        "main": 2319,
         "strip": 84,
-        "panel": 2042,
+        "panel": 1714,
         "currentnessNotice": 42,
         "contextNotice": 60,
         "contextNoticeText": "Opening a record moves you to its own area; the breadcrumb keeps this site.",
@@ -6767,32 +6947,32 @@
         "stickyFirstColumn": true,
         "rowCount": 5,
         "windows": [
-          "22 Oct · from 19:15",
-          "22 Oct · from 19:14",
-          "22 Oct · from 19:13",
-          "22 Oct · from 19:12",
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:15",
+          "23 Oct · from 19:14",
+          "23 Oct · from 19:13",
+          "23 Oct · from 19:12",
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "findingAnchors": 0,
@@ -6874,122 +7054,202 @@
         "openCodes": [
           {
             "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
-            "lines": 3,
-            "reachable": true,
-            "cellFits": true
-          },
-          {
-            "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
+            "full": true,
             "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
+            "cellFits": true
+          },
+          {
+            "chars": 36,
+            "full": true,
+            "lines": 1,
+            "scroller": "disclosure__body",
+            "ownScroller": true,
+            "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           }
         ],
@@ -7226,9 +7486,9 @@
       "state": "incidents-pending",
       "width": 390,
       "file": "w502b-narrow-incidents-pending.png",
-      "url": "http://localhost:5473/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "PENDING_RECOMPUTE",
@@ -7236,7 +7496,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -7261,12 +7521,12 @@
         "stickyFirstColumn": true,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 516c665e",
-            "Finding 88d089bb"
+            "Finding 03ed20b8",
+            "Finding 3126f053"
           ]
         ],
         "findingAnchors": 0,
@@ -7363,9 +7623,9 @@
       "state": "incidents-stale",
       "width": 390,
       "file": "w502b-narrow-incidents-stale.png",
-      "url": "http://localhost:5474/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "STALE_SOURCE",
@@ -7373,7 +7633,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -7398,12 +7658,12 @@
         "stickyFirstColumn": true,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 27283914",
-            "Finding 5e6b7532"
+            "Finding 00caf279",
+            "Finding c7c93036"
           ]
         ],
         "findingAnchors": 0,
@@ -7500,9 +7760,9 @@
       "state": "incidents-unknown",
       "width": 390,
       "file": "w502b-narrow-incidents-unknown.png",
-      "url": "http://localhost:5475/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "kind": "incidents",
         "panelState": "rows",
         "currentness": "UNKNOWN",
@@ -7510,7 +7770,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -7535,11 +7795,11 @@
         "stickyFirstColumn": true,
         "rowCount": 1,
         "windows": [
-          "22 Oct · from 19:11"
+          "23 Oct · from 19:11"
         ],
         "findings": [
           [
-            "Finding 8e9c77ab"
+            "Finding ac09d8bc"
           ]
         ],
         "findingAnchors": 0,
@@ -7636,9 +7896,9 @@
       "state": "incidents-forbidden-403",
       "width": 390,
       "file": "w502b-narrow-incidents-forbidden-403.png",
-      "url": "http://localhost:5476/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "refused",
         "currentness": null,
@@ -7646,7 +7906,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -7704,9 +7964,9 @@
       "state": "incidents-unavailable-503",
       "width": 390,
       "file": "w502b-narrow-incidents-unavailable-503.png",
-      "url": "http://localhost:5477/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "incidents",
         "panelState": "refused",
         "currentness": null,
@@ -7714,7 +7974,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Incidents list Manage in Incidents →",
-        "manageHref": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -7772,9 +8032,9 @@
       "state": "maintenance-positive",
       "width": 390,
       "file": "w502b-narrow-maintenance-positive.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -7782,7 +8042,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -7812,7 +8072,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.194577Z"
+          "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.901217Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -7902,9 +8162,9 @@
       "state": "maintenance-current",
       "width": 390,
       "file": "w502b-narrow-maintenance-current.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": null,
@@ -7912,7 +8172,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A04%3A03.114496Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A06%3A20.870030Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -7942,7 +8202,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+          "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -8032,9 +8292,9 @@
       "state": "maintenance-historical",
       "width": 390,
       "file": "w502b-narrow-maintenance-historical.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -8042,7 +8302,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.032887Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.790620Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -8072,7 +8332,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.032887Z"
+          "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.790620Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -8162,9 +8422,9 @@
       "state": "maintenance-zero",
       "width": 390,
       "file": "w502b-narrow-maintenance-zero.png",
-      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5471/sites/COLD-LAB-001/work/maintenance?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "empty",
         "currentness": null,
@@ -8172,7 +8432,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Scoped to Cold · 0 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-14T00%3A00%3A00.000000Z&to=2026-10-21T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A04%3A08.201756Z",
+        "manageHref": "/maintenance?from=2026-10-15T00%3A00%3A00.000000Z&to=2026-10-22T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A06%3A26.476129Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -8230,9 +8490,9 @@
       "state": "maintenance-worstcase",
       "width": 390,
       "file": "w502b-narrow-maintenance-worstcase.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -8240,7 +8500,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -8274,11 +8534,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -8584,9 +8844,9 @@
       "state": "maintenance-worstcase-one-open",
       "width": 390,
       "file": "w502b-narrow-maintenance-worstcase-one-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -8594,7 +8854,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -8628,11 +8888,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -8936,9 +9196,9 @@
       "state": "maintenance-worstcase-all-open",
       "width": 390,
       "file": "w502b-narrow-maintenance-worstcase-all-open.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -8946,7 +9206,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -8980,11 +9240,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -9266,9 +9526,9 @@
       "state": "maintenance-worstcase-every-disclosure",
       "width": 390,
       "file": "w502b-narrow-maintenance-worstcase-every-disclosure.png",
-      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+      "url": "http://localhost:5472/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "HISTORICAL",
@@ -9276,15 +9536,15 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
         "docClientWidth": 390,
-        "docHeight": 3364,
-        "main": 3214,
+        "docHeight": 2954,
+        "main": 2804,
         "strip": 84,
-        "panel": 2608,
+        "panel": 2199,
         "currentnessNotice": 42,
         "contextNotice": 60,
         "contextNoticeText": "Opening a record moves you to its own area; the breadcrumb keeps this site.",
@@ -9310,11 +9570,11 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-          "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+          "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+          "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
         ],
         "assets": [
           "generator-1 · backup generator",
@@ -9371,152 +9631,252 @@
         "openCodes": [
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           },
           {
             "chars": 36,
-            "lines": 2,
+            "full": true,
+            "lines": 1,
+            "scroller": "fact-list__value",
+            "ownScroller": true,
             "reachable": true,
+            "scrollerInCell": true,
             "cellFits": true
           }
         ],
@@ -9753,9 +10113,9 @@
       "state": "maintenance-pending",
       "width": 390,
       "file": "w502b-narrow-maintenance-pending.png",
-      "url": "http://localhost:5473/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+      "url": "http://localhost:5473/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "PENDING_RECOMPUTE",
@@ -9763,7 +10123,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -9793,7 +10153,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+          "/maintenance/requests/64b7cc03-b548-4b11-9f9f-5d345c954656?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A19.056906Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -9883,9 +10243,9 @@
       "state": "maintenance-stale",
       "width": 390,
       "file": "w502b-narrow-maintenance-stale.png",
-      "url": "http://localhost:5474/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+      "url": "http://localhost:5474/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "STALE_SOURCE",
@@ -9893,7 +10253,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -9923,7 +10283,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+          "/maintenance/requests/db33ce8a-b6fc-4349-b619-5fad57614467?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A42.261431Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -10013,9 +10373,9 @@
       "state": "maintenance-unknown",
       "width": 390,
       "file": "w502b-narrow-maintenance-unknown.png",
-      "url": "http://localhost:5475/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+      "url": "http://localhost:5475/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "kind": "maintenance",
         "panelState": "rows",
         "currentness": "UNKNOWN",
@@ -10023,7 +10383,7 @@
         "noticeAfterStrip": true,
         "noticeBeforePanel": true,
         "stripText": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -10053,7 +10413,7 @@
         ],
         "findingAnchors": 0,
         "caseAnchors": [
-          "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+          "/maintenance/requests/ddedb238-17e6-4524-98e5-eec4c80dee12?site_id=COLD-LAB-001&known_at=2026-10-24T02%3A00%3A02.424150Z"
         ],
         "assets": [
           "generator-1 · backup generator"
@@ -10143,9 +10503,9 @@
       "state": "maintenance-forbidden-403",
       "width": 390,
       "file": "w502b-narrow-maintenance-forbidden-403.png",
-      "url": "http://localhost:5476/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5476/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "refused",
         "currentness": null,
@@ -10153,7 +10513,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -10211,9 +10571,9 @@
       "state": "maintenance-unavailable-503",
       "width": 390,
       "file": "w502b-narrow-maintenance-unavailable-503.png",
-      "url": "http://localhost:5477/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+      "url": "http://localhost:5477/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
       "measurements": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "kind": "maintenance",
         "panelState": "refused",
         "currentness": null,
@@ -10221,7 +10581,7 @@
         "noticeAfterStrip": null,
         "noticeBeforePanel": null,
         "stripText": "Count unknown · work source unavailable Same records and states as the global Maintenance list Manage in Maintenance →",
-        "manageHref": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "manageHref": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "statusLabel": false,
         "coverageLine": false,
         "docScrollWidth": 390,
@@ -10407,24 +10767,24 @@
       "ok": true,
       "detail": [
         [
-          "2026-10-22T16:12:00.000000Z",
-          "2026-10-22T16:21:00.000000Z",
-          "2026-10-22T16:41:00.000000Z"
+          "2026-10-23T16:12:00.000000Z",
+          "2026-10-23T16:21:00.000000Z",
+          "2026-10-23T16:41:00.000000Z"
         ],
         [
-          "2026-10-22T16:13:00.000000Z",
-          "2026-10-22T16:22:00.000000Z",
-          "2026-10-22T16:42:00.000000Z"
+          "2026-10-23T16:13:00.000000Z",
+          "2026-10-23T16:22:00.000000Z",
+          "2026-10-23T16:42:00.000000Z"
         ],
         [
-          "2026-10-22T16:14:00.000000Z",
-          "2026-10-22T16:23:00.000000Z",
-          "2026-10-22T16:43:00.000000Z"
+          "2026-10-23T16:14:00.000000Z",
+          "2026-10-23T16:23:00.000000Z",
+          "2026-10-23T16:43:00.000000Z"
         ],
         [
-          "2026-10-22T16:15:00.000000Z",
-          "2026-10-22T16:24:00.000000Z",
-          "2026-10-22T16:44:00.000000Z"
+          "2026-10-23T16:15:00.000000Z",
+          "2026-10-23T16:24:00.000000Z",
+          "2026-10-23T16:44:00.000000Z"
         ]
       ]
     },
@@ -10554,7 +10914,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false
       }
     },
@@ -10567,7 +10927,7 @@
       "name": "desktop incidents-positive: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -10576,8 +10936,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "anchors": 0,
@@ -10595,9 +10955,9 @@
       "name": "desktop incidents-current: URL has no known_at, manifest status CURRENT, no currentness notice",
       "ok": true,
       "detail": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "status": "CURRENT",
-        "returnedKnownAt": "2026-10-23T22:43:58.688290Z",
+        "returnedKnownAt": "2026-10-24T01:58:32.891536Z",
         "currentness": null
       }
     },
@@ -10709,7 +11069,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A01%3A10.320111Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A03%3A28.569399Z",
         "statusLabel": false
       }
     },
@@ -10722,7 +11082,7 @@
       "name": "desktop incidents-current: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -10731,8 +11091,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "anchors": 0,
@@ -11057,7 +11417,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false
       }
     },
@@ -11070,11 +11430,11 @@
       "name": "desktop incidents-worstcase: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:15",
-        "22 Oct · from 19:14",
-        "22 Oct · from 19:13",
-        "22 Oct · from 19:12",
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:15",
+        "23 Oct · from 19:14",
+        "23 Oct · from 19:13",
+        "23 Oct · from 19:12",
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -11083,24 +11443,24 @@
       "detail": {
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "anchors": 0,
@@ -11464,69 +11824,8 @@
     },
     {
       "name": "desktop incidents-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)",
-      "ok": false,
-      "detail": [
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        }
-      ]
+      "ok": true,
+      "detail": []
     },
     {
       "name": "desktop incidents-pending: settled",
@@ -11656,7 +11955,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false
       }
     },
@@ -11669,7 +11968,7 @@
       "name": "desktop incidents-pending: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -11678,8 +11977,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 516c665e",
-            "Finding 88d089bb"
+            "Finding 03ed20b8",
+            "Finding 3126f053"
           ]
         ],
         "anchors": 0,
@@ -11816,7 +12115,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false
       }
     },
@@ -11829,7 +12128,7 @@
       "name": "desktop incidents-stale: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -11838,8 +12137,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 27283914",
-            "Finding 5e6b7532"
+            "Finding 00caf279",
+            "Finding c7c93036"
           ]
         ],
         "anchors": 0,
@@ -11976,7 +12275,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false
       }
     },
@@ -11989,7 +12288,7 @@
       "name": "desktop incidents-unknown: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -11998,7 +12297,7 @@
       "detail": {
         "findings": [
           [
-            "Finding 8e9c77ab"
+            "Finding ac09d8bc"
           ]
         ],
         "anchors": 0,
@@ -12274,7 +12573,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false
       }
     },
@@ -12308,7 +12607,7 @@
       "name": "desktop maintenance-positive: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.194577Z"
+        "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.901217Z"
       ]
     },
     {
@@ -12320,9 +12619,9 @@
       "name": "desktop maintenance-current: URL has no known_at, manifest status CURRENT, no currentness notice",
       "ok": true,
       "detail": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "status": "CURRENT",
-        "returnedKnownAt": "2026-10-23T22:43:58.921913Z",
+        "returnedKnownAt": "2026-10-24T01:58:33.015749Z",
         "currentness": null
       }
     },
@@ -12427,7 +12726,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A02%3A14.271314Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A04%3A25.974954Z",
         "statusLabel": false
       }
     },
@@ -12461,7 +12760,7 @@
       "name": "desktop maintenance-current: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
       ]
     },
     {
@@ -12766,7 +13065,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false
       }
     },
@@ -12812,11 +13111,11 @@
       "name": "desktop maintenance-worstcase: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+        "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
       ]
     },
     {
@@ -13141,159 +13440,8 @@
     },
     {
       "name": "desktop maintenance-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)",
-      "ok": false,
-      "detail": [
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        }
-      ]
+      "ok": true,
+      "detail": []
     },
     {
       "name": "desktop maintenance-pending: settled",
@@ -13416,7 +13564,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false
       }
     },
@@ -13450,7 +13598,7 @@
       "name": "desktop maintenance-pending: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+        "/maintenance/requests/64b7cc03-b548-4b11-9f9f-5d345c954656?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A19.056906Z"
       ]
     },
     {
@@ -13574,7 +13722,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false
       }
     },
@@ -13608,7 +13756,7 @@
       "name": "desktop maintenance-stale: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+        "/maintenance/requests/db33ce8a-b6fc-4349-b619-5fad57614467?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A42.261431Z"
       ]
     },
     {
@@ -13732,7 +13880,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false
       }
     },
@@ -13766,7 +13914,7 @@
       "name": "desktop maintenance-unknown: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+        "/maintenance/requests/ddedb238-17e6-4524-98e5-eec4c80dee12?site_id=COLD-LAB-001&known_at=2026-10-24T02%3A00%3A02.424150Z"
       ]
     },
     {
@@ -14056,7 +14204,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false
       }
     },
@@ -14069,7 +14217,7 @@
       "name": "narrow incidents-positive: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -14078,8 +14226,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "anchors": 0,
@@ -14097,9 +14245,9 @@
       "name": "narrow incidents-current: URL has no known_at, manifest status CURRENT, no currentness notice",
       "ok": true,
       "detail": {
-        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "status": "CURRENT",
-        "returnedKnownAt": "2026-10-23T22:43:58.688290Z",
+        "returnedKnownAt": "2026-10-24T01:58:32.891536Z",
         "currentness": null
       }
     },
@@ -14224,7 +14372,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A03%3A06.446258Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A05%3A21.056617Z",
         "statusLabel": false
       }
     },
@@ -14237,7 +14385,7 @@
       "name": "narrow incidents-current: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -14246,8 +14394,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 4fe8820a",
-            "Finding 6c9a371d"
+            "Finding 9b6f3fd7",
+            "Finding a065a7a3"
           ]
         ],
         "anchors": 0,
@@ -14598,7 +14746,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 5 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false
       }
     },
@@ -14611,11 +14759,11 @@
       "name": "narrow incidents-worstcase: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:15",
-        "22 Oct · from 19:14",
-        "22 Oct · from 19:13",
-        "22 Oct · from 19:12",
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:15",
+        "23 Oct · from 19:14",
+        "23 Oct · from 19:13",
+        "23 Oct · from 19:12",
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -14624,24 +14772,24 @@
       "detail": {
         "findings": [
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ],
           [
-            "Finding 270f923e",
-            "Finding efb72e9f"
+            "Finding 080995ed",
+            "Finding 855139de"
           ]
         ],
         "anchors": 0,
@@ -15044,69 +15192,8 @@
     },
     {
       "name": "narrow incidents-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)",
-      "ok": false,
-      "detail": [
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 3,
-          "reachable": true,
-          "cellFits": true
-        }
-      ]
+      "ok": true,
+      "detail": []
     },
     {
       "name": "narrow incidents-pending: settled",
@@ -15249,7 +15336,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false
       }
     },
@@ -15262,7 +15349,7 @@
       "name": "narrow incidents-pending: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -15271,8 +15358,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 516c665e",
-            "Finding 88d089bb"
+            "Finding 03ed20b8",
+            "Finding 3126f053"
           ]
         ],
         "anchors": 0,
@@ -15422,7 +15509,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false
       }
     },
@@ -15435,7 +15522,7 @@
       "name": "narrow incidents-stale: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -15444,8 +15531,8 @@
       "detail": {
         "findings": [
           [
-            "Finding 27283914",
-            "Finding 5e6b7532"
+            "Finding 00caf279",
+            "Finding c7c93036"
           ]
         ],
         "anchors": 0,
@@ -15595,7 +15682,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 incidents Same records and states as the global Incidents list Manage in Incidents →",
-        "href": "/incidents?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/incidents?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false
       }
     },
@@ -15608,7 +15695,7 @@
       "name": "narrow incidents-unknown: Site-local Window text (\"{d} {Mon} · from HH:MM\"), fixture INC at 19:11",
       "ok": true,
       "detail": [
-        "22 Oct · from 19:11"
+        "23 Oct · from 19:11"
       ]
     },
     {
@@ -15617,7 +15704,7 @@
       "detail": {
         "findings": [
           [
-            "Finding 8e9c77ab"
+            "Finding ac09d8bc"
           ]
         ],
         "anchors": 0,
@@ -15906,7 +15993,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A43%3A57.194577Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A31.901217Z",
         "statusLabel": false
       }
     },
@@ -15940,7 +16027,7 @@
       "name": "narrow maintenance-positive: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A43%3A57.194577Z"
+        "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A31.901217Z"
       ]
     },
     {
@@ -15952,9 +16039,9 @@
       "name": "narrow maintenance-current: URL has no known_at, manifest status CURRENT, no currentness notice",
       "ok": true,
       "detail": {
-        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z",
+        "href": "/sites/COLD-LAB-001/work/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z",
         "status": "CURRENT",
-        "returnedKnownAt": "2026-10-23T22:43:58.921913Z",
+        "returnedKnownAt": "2026-10-24T01:58:33.015749Z",
         "currentness": null
       }
     },
@@ -16072,7 +16159,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T23%3A04%3A03.114496Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A06%3A20.870030Z",
         "statusLabel": false
       }
     },
@@ -16106,7 +16193,7 @@
       "name": "narrow maintenance-current: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/0d47b60a-28d8-4f40-a3dd-c5b0e4c21c2c?site_id=COLD-LAB-001"
+        "/maintenance/requests/6d060205-56b6-4ee9-a62c-4c5916344421?site_id=COLD-LAB-001"
       ]
     },
     {
@@ -16437,7 +16524,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 5 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A44%3A39.120188Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A58%3A56.118141Z",
         "statusLabel": false
       }
     },
@@ -16483,11 +16570,11 @@
       "name": "narrow maintenance-worstcase: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/80d7acac-bc85-40e3-a02f-b73dc89591e8?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/2dd5a88b-55d4-4a2f-bc35-6c00d3b1f0ff?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/120c508d-0311-4f8b-b0d3-2f443890a740?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/1cd8ad26-e5ec-4f1b-a723-5ec5ba67ad2c?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z",
-        "/maintenance/requests/fce38708-bb79-4419-a35d-5cb44c9fdda5?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A44%3A39.120188Z"
+        "/maintenance/requests/f64395f1-93c5-48de-a0b1-6a90d90affbb?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/fde7020b-1f5b-4a96-92d6-5e052830e29a?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/7c397d1e-f9b5-4323-9a2d-2db144530176?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/40911c6c-105c-4cab-8462-3b75b362babf?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z",
+        "/maintenance/requests/64a68df6-6ed3-4c7c-aa03-ac5bd81718f8?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A58%3A56.118141Z"
       ]
     },
     {
@@ -16851,159 +16938,8 @@
     },
     {
       "name": "narrow maintenance-worstcase-every-disclosure: every opened UUID is one line and fully reachable in its body without widening the cell (ruling 20)",
-      "ok": false,
-      "detail": [
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        },
-        {
-          "chars": 36,
-          "lines": 2,
-          "reachable": true,
-          "cellFits": true
-        }
-      ]
+      "ok": true,
+      "detail": []
     },
     {
       "name": "narrow maintenance-pending: settled",
@@ -17139,7 +17075,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A11.047378Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A19.056906Z",
         "statusLabel": false
       }
     },
@@ -17173,7 +17109,7 @@
       "name": "narrow maintenance-pending: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/fb1da4c7-f370-4dc5-8dc1-d4a70807f6ac?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A11.047378Z"
+        "/maintenance/requests/64b7cc03-b548-4b11-9f9f-5d345c954656?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A19.056906Z"
       ]
     },
     {
@@ -17310,7 +17246,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A45%3A41.872558Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T01%3A59%3A42.261431Z",
         "statusLabel": false
       }
     },
@@ -17344,7 +17280,7 @@
       "name": "narrow maintenance-stale: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/27d75a69-a555-46fb-b160-a7480d44bbc1?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A45%3A41.872558Z"
+        "/maintenance/requests/db33ce8a-b6fc-4349-b619-5fad57614467?site_id=COLD-LAB-001&known_at=2026-10-24T01%3A59%3A42.261431Z"
       ]
     },
     {
@@ -17481,7 +17417,7 @@
       "ok": true,
       "detail": {
         "strip": "Scoped to Cold · 1 maintenance Same records and states as the global Maintenance list Manage in Maintenance →",
-        "href": "/maintenance?from=2026-10-22T00%3A00%3A00.000000Z&to=2026-10-24T00%3A00%3A00.000000Z&known_at=2026-10-23T22%3A46%3A09.852184Z",
+        "href": "/maintenance?from=2026-10-23T00%3A00%3A00.000000Z&to=2026-10-25T00%3A00%3A00.000000Z&known_at=2026-10-24T02%3A00%3A02.424150Z",
         "statusLabel": false
       }
     },
@@ -17515,7 +17451,7 @@
       "name": "narrow maintenance-unknown: WR code opens the W6 C2 Overview with site_id (R68)",
       "ok": true,
       "detail": [
-        "/maintenance/requests/6c760e66-ab6e-42e8-88d3-6f9e3fe58209?site_id=COLD-LAB-001&known_at=2026-10-23T22%3A46%3A09.852184Z"
+        "/maintenance/requests/ddedb238-17e6-4524-98e5-eec4c80dee12?site_id=COLD-LAB-001&known_at=2026-10-24T02%3A00%3A02.424150Z"
       ]
     },
     {
@@ -17667,5 +17603,5 @@
       ]
     }
   ],
-  "failed": 4
+  "failed": 0
 }
