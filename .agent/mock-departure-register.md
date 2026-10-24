@@ -445,7 +445,7 @@ Each open D1/D2/D4/D5/D6 row must show `MOCK DEVIATION Dn` beside the affected e
 | R344 | B15-10 | cold-action | D3 | Fix in W5-cold-Work | open |
 | R345 | B16-06 | availability | D3 | Fix in W5-EV-Work | open |
 | R346 | B16-07 | energy | D3 | Fix in W5-EV-Work | open |
-| R347 | B16-16 | availability, energy, ev-health, ev-scenarios, ev-work | D3 | Fix in W5-EV-Work | open |
+| R347 | B16-16 | availability, energy, ev-health, ev-scenarios, ev-work | D3 | W2-EV owns common EV tab mechanism; W5-EV-Work applies it to depth/work and recaptures | open |
 | R348 | B17-04 | ev-action | D3 | Fix in W5-EV-Work | open |
 | R349 | B17-06 | ev-action | D3 | Fix in W5-EV-Work | open |
 | R350 | B17-08 | link-check | D3 | Fix in W5-EV-Work | open |
