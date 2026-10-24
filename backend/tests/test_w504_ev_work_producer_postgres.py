@@ -97,6 +97,11 @@ def test_worstcase_adds_four_long_actions_through_the_public_routes(replayed) ->
     assert all(r["title_code_points"] == r["owner_code_points"] == 160 and r["intent_id"] for r in worst["actions"])
     assert worst["index_total_count"] == 5
     assert walk.DB_MODES == ("positive", "zero", "worstcase", "unknown") and walk.PORTS["worstcase"] == 8983
+    # W5-04 V3b: five long Incidents and five long work requests (each with its record) on one W page.
+    cases = walk._worstcase_cases(URL, "fx", built)
+    assert [r["n"] for r in cases["incidents"]] == [1, 2, 3, 4, 5] and len(cases["requests"]) == 5
+    assert all(r["record_id"] and r["activity_code_points"] == r["outcome_code_points"] == 160 for r in cases["requests"])
+    assert cases["list_total_count"] == {"incidents": 5, "maintenance": 5}
 
 
 def test_drop_stops_only_recorded_pids_and_drops_only_marker_dbs() -> None:
