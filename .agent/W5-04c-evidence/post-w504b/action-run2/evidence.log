@@ -1,0 +1,223 @@
+chrome pid 20040
+PASS  manifest: positive ready with its declared Action and intent (ruling 39)  {"status":"ready","action":{"schema_version":"domain-action-1","id":"ba271109-9925-4edf-baca-bd1534edbfcb","action_code":"ACT-000001","recorded_at":"2026-10-24T10:07:39.065819Z"}}
+PASS  manifest: clocks K1 < K2 (the Action precedes its intent; the K1 read has no intent)  ["K0=2026-10-06T09:00:00Z","K1=2026-10-24T10:07:39.065819Z","K2=2026-10-24T10:07:39.397343Z"]
+PASS  manifest: worstcase ready with a 160-code-point title and owner Action and its intent, served  {"n":2,"action_id":"cbdf1bfd-2811-4dd4-8d19-130465e434aa","action_code":"ACT-000002","recorded_at":"2026-10-24T10:09:42.334799Z","intent_id":"d68d2b05-7bd0-4565-8b98-f16e4ff58f22","title_code_points":160,"owner_code_points":160}
+PASS  manifest: forbidden served and unavailable stopped by attest  {"forbidden":{"http":403,"code":"SITE_SCOPE_FORBIDDEN"},"unavailable":{"stopped_pid":21744,"port":9007,"http_after_stop":0,"expected":"connection refused; the browser proxy reports 503"}}
+INFO  unavailable capture: 409 DOMAIN_INTENT_BASIS_CHANGED  "needs the intent's exact EV selection to change at its recorded cutoff; the native replay cannot produce it (rulings 54/55); pure vectors in domainActionVerification.test.tsx and operatorRouteFrames.test.tsx"
+INFO  unavailable capture: in-panel 503 with a healthy Site read  "the walkthrough's unavailable vector stops the whole API, so the browser shows the Site-level refusal (captured as unavailable-503); pure vector in domainActionVerification.test.tsx"
+INFO  unavailable capture: missing intent with UNKNOWN currentness  "the producer's missing-intent read (known_at = K1) is HISTORICAL; UNKNOWN stays a pure vector (domainActionVerification.test.tsx)"
+INFO  unavailable capture: pending / stale currentness  "manifest modes unavailable (ruling 54); pure vectors in domainActionVerification.test.tsx"
+PASS  desktop work-link: the EV Work code links to its /verification detail with the selected from,to (R113 closed; ruling 67)  "/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+PASS  desktop positive-from-work: settled  "loaded"
+PASS  desktop positive-from-work: the click opens the loaded EV detail at its /verification address with the selected window (ruling 67)  "/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+PASS  desktop positive: settled  "loaded"
+PASS  desktop positive: loaded, CURRENT (no currentness notice), selected query kept on the Verification tab (ruling 14)  {"shell":"loaded","tab":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"}
+PASS  desktop positive: status owner is the walkthrough's stored owner  "Charging operations · EV charging lab"
+PASS  desktop positive: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000001","Verification"],"site":"· site: EV charging lab"}
+PASS  desktop positive: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000001 · Investigate connector 2","fits":true}
+PASS  desktop positive: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  desktop positive: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z","current":"page"}]
+PASS  desktop positive: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  desktop positive: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations · EV charging lab"}
+PASS  desktop positive: owner span contained in the strip  {"inside":true,"lines":1}
+PASS  desktop positive: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  desktop positive: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  desktop positive: sole panel 'Declared verification plan' with the mock columns  {"panels":["Declared verification plan"],"head":["Criterion","Required evidence","Current result"]}
+PASS  desktop positive: the three EV criteria with plain 'Pending' results (no chip)  [["Complete a witnessed charging session","Session start, end, outcome and meter delta","Pending"],["No fault recurrence during observation","Connector diagnostic events with full coverage","Pending"],["No reduction in service availability","Comparable status coverage / operational window","Pending"]]
+PASS  desktop positive: every criteria cell contains its content (9 cells)  {"cells":9}
+PASS  desktop positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop positive: page main <= 1500  {"main":525,"docHeight":1000}
+PASS  desktop positive: status strip <= 140  42
+PASS  desktop positive: Declared verification plan panel <= 360  {"plan":248,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop positive: closing notice <= 110  42
+PASS  desktop historical: settled  "loaded"
+PASS  desktop historical: HISTORICAL blue notice between strip and plan (R80/R104)  {"status":"HISTORICAL","text":"Read as of 2026-10-24 10:07 UTC. Later work may differ."}
+PASS  desktop historical: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000001","Verification"],"site":"· site: EV charging lab"}
+PASS  desktop historical: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000001 · Investigate connector 2","fits":true}
+PASS  desktop historical: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  desktop historical: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T10%3A07%3A40.039205Z","current":"page"}]
+PASS  desktop historical: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  desktop historical: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations · EV charging lab"}
+PASS  desktop historical: owner span contained in the strip  {"inside":true,"lines":1}
+PASS  desktop historical: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  desktop historical: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  desktop historical: sole panel 'Declared verification plan' with the mock columns  {"panels":["Declared verification plan"],"head":["Criterion","Required evidence","Current result"]}
+PASS  desktop historical: the three EV criteria with plain 'Pending' results (no chip)  [["Complete a witnessed charging session","Session start, end, outcome and meter delta","Pending"],["No fault recurrence during observation","Connector diagnostic events with full coverage","Pending"],["No reduction in service availability","Comparable status coverage / operational window","Pending"]]
+PASS  desktop historical: every criteria cell contains its content (9 cells)  {"cells":9}
+PASS  desktop historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop historical: page main <= 1500  {"main":585,"docHeight":1000}
+PASS  desktop historical: status strip <= 140  42
+PASS  desktop historical: Declared verification plan panel <= 360  {"plan":248,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop historical: currentness notice <= 110  42
+PASS  desktop historical: closing notice <= 110  42
+PASS  desktop missing-intent: settled  "loaded"
+PASS  desktop missing-intent: 200 at K1 (before the intent): plan heading kept, exact no-criteria sentence, no table, notice above the plan  {"status":"HISTORICAL","missing":"No verification criteria have been declared for this Action.","panels":["Declared verification plan"]}
+PASS  desktop missing-intent: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000001","Verification"],"site":"· site: EV charging lab"}
+PASS  desktop missing-intent: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000001 · Investigate connector 2","fits":true}
+PASS  desktop missing-intent: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  desktop missing-intent: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T10%3A07%3A39.065819Z","current":"page"}]
+PASS  desktop missing-intent: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  desktop missing-intent: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations · EV charging lab"}
+PASS  desktop missing-intent: owner span contained in the strip  {"inside":true,"lines":1}
+PASS  desktop missing-intent: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  desktop missing-intent: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  desktop missing-intent: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop missing-intent: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop missing-intent: page main <= 1500  {"main":440,"docHeight":1000}
+PASS  desktop missing-intent: status strip <= 140  42
+PASS  desktop missing-intent: Declared verification plan panel <= 360  {"plan":103,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  desktop missing-intent: currentness notice <= 110  42
+PASS  desktop missing-intent: closing notice <= 110  42
+PASS  desktop worst-text: settled  "loaded"
+PASS  desktop worst-text: the 160-code-point title and owner whole (R109)  {"h1Length":173,"statusLength":178,"ownerLines":1}
+PASS  desktop worst-text: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000002","Verification"],"site":"· site: EV charging lab"}
+PASS  desktop worst-text: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx","fits":true}
+PASS  desktop worst-text: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  desktop worst-text: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/cbdf1bfd-2811-4dd4-8d19-130465e434aa/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z","current":"page"}]
+PASS  desktop worst-text: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  desktop worst-text: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"}
+PASS  desktop worst-text: owner span contained in the strip  {"inside":true,"lines":1}
+PASS  desktop worst-text: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  desktop worst-text: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  desktop worst-text: sole panel 'Declared verification plan' with the mock columns  {"panels":["Declared verification plan"],"head":["Criterion","Required evidence","Current result"]}
+PASS  desktop worst-text: the three EV criteria with plain 'Pending' results (no chip)  [["Complete a witnessed charging session","Session start, end, outcome and meter delta","Pending"],["No fault recurrence during observation","Connector diagnostic events with full coverage","Pending"],["No reduction in service availability","Comparable status coverage / operational window","Pending"]]
+PASS  desktop worst-text: every criteria cell contains its content (9 cells)  {"cells":9}
+PASS  desktop worst-text: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop worst-text: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop worst-text: page main <= 1500  {"main":643,"docHeight":1000}
+PASS  desktop worst-text: status strip <= 140  42
+PASS  desktop worst-text: Declared verification plan panel <= 360  {"plan":248,"tableScrollWidth":1120,"tableClientWidth":1120}
+PASS  desktop worst-text: closing notice <= 110  42
+PASS  desktop forbidden-403: settled  "refused"
+PASS  desktop forbidden-403: Site read healthy; one untitled panel 'EV work unavailable', server message, visible Retry; no strip, no Pending  {"refusal":"SITE_SCOPE_FORBIDDEN","message":"No access to Site 'EV-LAB-001'.","panels":["(untitled)"]}
+PASS  desktop forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop forbidden-403: page main <= 1500  {"main":315,"docHeight":1000}
+PASS  desktop forbidden-403: untitled state panel <= 360 (ruling 50)  158
+PASS  desktop invalid-422: settled  "refused"
+PASS  desktop invalid-422: a future known_at is the server's 422 in the untitled EV refusal panel  {"refusal":"INVALID_KNOWN_AT","message":"'known_at' must be one UTC instant no later than the read time."}
+PASS  desktop invalid-422: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop invalid-422: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop invalid-422: page main <= 1500  {"main":315,"docHeight":1000}
+PASS  desktop invalid-422: untitled state panel <= 360 (ruling 50)  158
+PASS  desktop not-found-404: settled  "not_found"
+PASS  desktop not-found-404: one untitled panel 'Action was not found at this site.'  {"kind":"not-found","text":"Action was not found at this site."}
+PASS  desktop not-found-404: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":1440,"clientWidth":1440}
+PASS  desktop not-found-404: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  desktop not-found-404: page main <= 1500  {"main":220,"docHeight":1000}
+PASS  desktop not-found-404: untitled state panel <= 360 (ruling 50)  63
+PASS  desktop unavailable-503: settled  "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+INFO  desktop unavailable-503: the walkthrough stops this API, so the Site read fails at the proxy (Site-level refusal, not the in-panel EV 503)  {"siteRefusal":"Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.","kind":null}
+PASS  desktop unavailable-503: a refusal with no criteria and no Pending  {"siteRefusal":"Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."}
+PASS  desktop unavailable-503: no document horizontal overflow  {"scrollWidth":1440,"clientWidth":1440}
+PASS  narrow work-link: the EV Work code links to its /verification detail with the selected from,to (R113 closed; ruling 67)  "/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+PASS  narrow positive-from-work: settled  "loaded"
+PASS  narrow positive-from-work: the click opens the loaded EV detail at its /verification address with the selected window (ruling 67)  "/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"
+PASS  narrow positive: settled  "loaded"
+PASS  narrow positive: loaded, CURRENT (no currentness notice), selected query kept on the Verification tab (ruling 14)  {"shell":"loaded","tab":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z"}
+PASS  narrow positive: status owner is the walkthrough's stored owner  "Charging operations · EV charging lab"
+PASS  narrow positive: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000001","Verification"],"site":"· site: EV charging lab"}
+PASS  narrow positive: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000001 · Investigate connector 2","fits":true}
+PASS  narrow positive: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  narrow positive: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z","current":"page"}]
+PASS  narrow positive: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  narrow positive: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations · EV charging lab"}
+PASS  narrow positive: owner span contained in the strip  {"inside":true,"lines":1}
+PASS  narrow positive: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  narrow positive: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  narrow positive: sole panel 'Declared verification plan' with the mock columns  {"panels":["Declared verification plan"],"head":["Criterion","Required evidence","Current result"]}
+PASS  narrow positive: the three EV criteria with plain 'Pending' results (no chip)  [["Complete a witnessed charging session","Session start, end, outcome and meter delta","Pending"],["No fault recurrence during observation","Connector diagnostic events with full coverage","Pending"],["No reduction in service availability","Comparable status coverage / operational window","Pending"]]
+PASS  narrow positive: every criteria cell contains its content (9 cells)  {"cells":9}
+INFO  narrow positive: criteria table scroller  {"scrollWidth":318,"clientWidth":318}
+PASS  narrow positive: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow positive: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow positive: page main <= 1900  {"main":776,"docHeight":925}
+PASS  narrow positive: status strip <= 200  42
+PASS  narrow positive: Declared verification plan panel <= 590  {"plan":406,"tableScrollWidth":318,"tableClientWidth":318}
+PASS  narrow positive: closing notice <= 160  60
+PASS  narrow historical: settled  "loaded"
+PASS  narrow historical: HISTORICAL blue notice between strip and plan (R80/R104)  {"status":"HISTORICAL","text":"Read as of 2026-10-24 10:07 UTC. Later work may differ."}
+PASS  narrow historical: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000001","Verification"],"site":"· site: EV charging lab"}
+PASS  narrow historical: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000001 · Investigate connector 2","fits":true}
+PASS  narrow historical: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  narrow historical: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T10%3A07%3A40.039205Z","current":"page"}]
+PASS  narrow historical: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  narrow historical: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations · EV charging lab"}
+PASS  narrow historical: owner span contained in the strip  {"inside":true,"lines":1}
+PASS  narrow historical: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  narrow historical: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  narrow historical: sole panel 'Declared verification plan' with the mock columns  {"panels":["Declared verification plan"],"head":["Criterion","Required evidence","Current result"]}
+PASS  narrow historical: the three EV criteria with plain 'Pending' results (no chip)  [["Complete a witnessed charging session","Session start, end, outcome and meter delta","Pending"],["No fault recurrence during observation","Connector diagnostic events with full coverage","Pending"],["No reduction in service availability","Comparable status coverage / operational window","Pending"]]
+PASS  narrow historical: every criteria cell contains its content (9 cells)  {"cells":9}
+INFO  narrow historical: criteria table scroller  {"scrollWidth":318,"clientWidth":318}
+PASS  narrow historical: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow historical: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow historical: page main <= 1900  {"main":836,"docHeight":985}
+PASS  narrow historical: status strip <= 200  42
+PASS  narrow historical: Declared verification plan panel <= 590  {"plan":406,"tableScrollWidth":318,"tableClientWidth":318}
+PASS  narrow historical: currentness notice <= 160  42
+PASS  narrow historical: closing notice <= 160  60
+PASS  narrow missing-intent: settled  "loaded"
+PASS  narrow missing-intent: 200 at K1 (before the intent): plan heading kept, exact no-criteria sentence, no table, notice above the plan  {"status":"HISTORICAL","missing":"No verification criteria have been declared for this Action.","panels":["Declared verification plan"]}
+PASS  narrow missing-intent: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000001","Verification"],"site":"· site: EV charging lab"}
+PASS  narrow missing-intent: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000001 · Investigate connector 2","fits":true}
+PASS  narrow missing-intent: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  narrow missing-intent: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/ba271109-9925-4edf-baca-bd1534edbfcb/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z&known_at=2026-10-24T10%3A07%3A39.065819Z","current":"page"}]
+PASS  narrow missing-intent: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  narrow missing-intent: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations · EV charging lab"}
+PASS  narrow missing-intent: owner span contained in the strip  {"inside":true,"lines":1}
+PASS  narrow missing-intent: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  narrow missing-intent: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  narrow missing-intent: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow missing-intent: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow missing-intent: page main <= 1900  {"main":555,"docHeight":900}
+PASS  narrow missing-intent: status strip <= 200  42
+PASS  narrow missing-intent: Declared verification plan panel <= 590  {"plan":126,"tableScrollWidth":null,"tableClientWidth":null}
+PASS  narrow missing-intent: currentness notice <= 160  42
+PASS  narrow missing-intent: closing notice <= 160  60
+PASS  narrow worst-text: settled  "loaded"
+PASS  narrow worst-text: the 160-code-point title and owner whole (R109)  {"h1Length":173,"statusLength":178,"ownerLines":3}
+PASS  narrow worst-text: mock breadcrumb Actions › {code} › Verification · site: {stored Site name} (Actions crumb to /actions)  {"crumbs":["Actions","ACT-000002","Verification"],"site":"· site: EV charging lab"}
+PASS  narrow worst-text: heading {code} · {stored title}, contained (R109)  {"h1":"ACT-000002 · Investigate connector 2 — long title proof xxxxxxxxxxxxxxxxxxxxxxxx","fits":true}
+PASS  narrow worst-text: mock question subtitle and Open site to the Site detail  {"openSite":"/sites/EV-LAB-001"}
+PASS  narrow worst-text: one Verification tab, current  [{"text":"Verification","href":"/sites/EV-LAB-001/actions/cbdf1bfd-2811-4dd4-8d19-130465e434aa/verification?from=2026-10-24T00%3A00%3A00Z&to=2026-10-25T00%3A00%3A00Z","current":"page"}]
+PASS  narrow worst-text: amber 'Open' badge on one line, unclipped (pre-flight 45)  {"text":"Open","amber":true,"lines":1,"clipped":false}
+PASS  narrow worst-text: status '{owner ?? Not assigned} · {full Site display name}', no Finding or Finding version (ruling 41)  {"status":"Charging operations 2 — long owner proof yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"}
+PASS  narrow worst-text: owner span contained in the strip  {"inside":true,"lines":3}
+PASS  narrow worst-text: no Related activity, Inspect, disabled maintenance button, Window control or 'Depot' (pre-flight 46, ruling 14/52)  {"related":false,"disabled":0,"inspect":0,"form":0,"depot":false}
+PASS  narrow worst-text: blue closing notice (mock literal)  "A completed investigation or diagnostic reset would not establish a verified outcome."
+PASS  narrow worst-text: sole panel 'Declared verification plan' with the mock columns  {"panels":["Declared verification plan"],"head":["Criterion","Required evidence","Current result"]}
+PASS  narrow worst-text: the three EV criteria with plain 'Pending' results (no chip)  [["Complete a witnessed charging session","Session start, end, outcome and meter delta","Pending"],["No fault recurrence during observation","Connector diagnostic events with full coverage","Pending"],["No reduction in service availability","Comparable status coverage / operational window","Pending"]]
+PASS  narrow worst-text: every criteria cell contains its content (9 cells)  {"cells":9}
+INFO  narrow worst-text: criteria table scroller  {"scrollWidth":318,"clientWidth":318}
+PASS  narrow worst-text: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow worst-text: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow worst-text: page main <= 1900  {"main":991,"docHeight":1141}
+PASS  narrow worst-text: status strip <= 200  114
+PASS  narrow worst-text: Declared verification plan panel <= 590  {"plan":406,"tableScrollWidth":318,"tableClientWidth":318}
+PASS  narrow worst-text: closing notice <= 160  60
+PASS  narrow forbidden-403: settled  "refused"
+PASS  narrow forbidden-403: Site read healthy; one untitled panel 'EV work unavailable', server message, visible Retry; no strip, no Pending  {"refusal":"SITE_SCOPE_FORBIDDEN","message":"No access to Site 'EV-LAB-001'.","panels":["(untitled)"]}
+PASS  narrow forbidden-403: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow forbidden-403: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow forbidden-403: page main <= 1900  {"main":361,"docHeight":900}
+PASS  narrow forbidden-403: untitled state panel <= 590 (ruling 50)  158
+PASS  narrow invalid-422: settled  "refused"
+PASS  narrow invalid-422: a future known_at is the server's 422 in the untitled EV refusal panel  {"refusal":"INVALID_KNOWN_AT","message":"'known_at' must be one UTC instant no later than the read time."}
+PASS  narrow invalid-422: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow invalid-422: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow invalid-422: page main <= 1900  {"main":384,"docHeight":900}
+PASS  narrow invalid-422: untitled state panel <= 590 (ruling 50)  181
+PASS  narrow not-found-404: settled  "not_found"
+PASS  narrow not-found-404: one untitled panel 'Action was not found at this site.'  {"kind":"not-found","text":"Action was not found at this site."}
+PASS  narrow not-found-404: no document horizontal overflow (scrollWidth <= clientWidth + 1)  {"scrollWidth":390,"clientWidth":390}
+PASS  narrow not-found-404: no cold-named attribute, class or disclosure on the EV page (ruling 45)  0
+PASS  narrow not-found-404: page main <= 1900  {"main":266,"docHeight":900}
+PASS  narrow not-found-404: untitled state panel <= 590 (ruling 50)  63
+PASS  narrow unavailable-503: settled  "Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."
+INFO  narrow unavailable-503: the walkthrough stops this API, so the Site read fails at the proxy (Site-level refusal, not the in-panel EV 503)  {"siteRefusal":"Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured.","kind":null}
+PASS  narrow unavailable-503: a refusal with no criteria and no Pending  {"siteRefusal":"Action Site unavailable The site store could not be read, so nothing is known about whether the site is configured."}
+PASS  narrow unavailable-503: no document horizontal overflow  {"scrollWidth":390,"clientWidth":390}
+212 PASS, 0 FAIL, 9 INFO

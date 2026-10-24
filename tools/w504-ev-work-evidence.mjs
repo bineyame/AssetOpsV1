@@ -485,10 +485,13 @@ function caseRowClaims(W, label, m, expectRows) {
     claim(`${W} ${label}: table scrolls inside its panel`, m.scrollerScrollWidth > m.scrollerClientWidth, { scrollWidth: m.scrollerScrollWidth, clientWidth: m.scrollerClientWidth });
   }
 }
+const BLANK_PAGE = "data:text/html,<meta name=viewport content=\"width=device-width,initial-scale=1\"><title>blank</title>";
 async function caseRecord(W, wi, kind, state, url, afterLoad) {
   // The previous capture's settled DOM would satisfy CASE_READY before the navigation commits: leave it first.
-  await send("Page.navigate", { url: "about:blank" });
-  await waitFor("location.href === 'about:blank' && document.readyState === 'complete'");
+  // W5-04c: a blank page with a device-width viewport, so the mobile-emulated 390 px width check holds (about:blank lays
+  // out at the 980 px mobile default and failed the width guard deterministically at 390).
+  await send("Page.navigate", { url: BLANK_PAGE });
+  await waitFor("location.protocol === 'data:' && document.readyState === 'complete'");
   await requireWidth(viewport[0], viewport[1], "left the previous capture", { record: false });
   const ok = await go(url, CASE_READY);
   if (afterLoad) await afterLoad();
@@ -568,6 +571,9 @@ async function mainCases() {
       m = await caseRecord(W, wi, kind, "historical", `${base("positive")}${path}?${q({ from: SW.from, to: SW.to, known_at: historicalAt })}`);
       claim(`${W} ${kind} historical: the returned HISTORICAL state's notice (R80, R104 blue) with the row`, m.currentness === "HISTORICAL" && /^Read as of .* UTC\. Later work may differ\.$/.test(m.currentnessText ?? "") && m.rowCount === 1, { status: m.currentness, text: m.currentnessText, known_at: historicalAt });
       caseCaps(W, `${kind} historical`, m, wi);
+      // W5-04c (ruling 71): with an explicit cutoff the live case-row Action link carries from, to and that known_at.
+      if (m.actionHrefs.length > 0) claim(`${W} ${kind} historical: the case-row Action link carries the explicit known_at (ruling 71)`, m.actionHrefs.every((h) => h.endsWith(`/verification?${q({ from: SW.from, to: SW.to, known_at: historicalAt })}`)), m.actionHrefs);
+      else info(`${W} ${kind} historical: no case-row Action link selected at this cutoff`, m.actionHrefs);
 
       m = await caseRecord(W, wi, kind, "zero", `${base("zero")}${path}?${q({ from: Z.work_window_W.from, to: Z.work_window_W.to })}`);
       claim(`${W} ${kind} zero: exact mock empty card, '0 ${words.noun}', closed basis, no pages, no notice`, m.empty === words.empty && m.scope?.endsWith(`· 0 ${words.noun}`) && m.basis && !m.basisOpen && m.showing === null && m.currentness === null, { empty: m.empty, scope: m.scope });
