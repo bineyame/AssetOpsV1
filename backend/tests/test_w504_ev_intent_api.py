@@ -136,6 +136,8 @@ if URL:
     _sys.path.insert(0, str(_Path(__file__).resolve().parents[2] / "tools"))
     import w504_ev_work_cases as producer  # noqa: E402
 
+    from sqlalchemy import text  # noqa: E402
+
     from ev_depth_cases import HI, LO  # noqa: E402
 
 
@@ -191,20 +193,39 @@ def test_producer_k0_route_shape_and_positive_payloads(ev) -> None:
         assert selected.k0 == producer.instant(sessions["window"]["known_at"])
         assert (selected.finding_revision_id, selected.session_id.lower()) == (str(ev.revision["id"]), own.lower())
         assert selected.accepted_evidence_ids and set(selected.accepted_evidence_ids) <= {v.lower() for v in valid}
-        raised = selected.k0 + _timedelta(seconds=1)
-        action = api.post("", producer.action_body(selected, raised, "w504a-producer-action"))
+        # Ruling 35: the Action is raised at current DB time (the domain service's raised_at window), after K0.
+        with ev.engine.connect() as c:
+            raised = c.execute(text("SELECT clock_timestamp()")).scalar_one() - _timedelta(seconds=1)
+        posted = producer.action_body(selected, raised, "w504a-producer-action")
+        assert (posted["title"], posted["owner_label"], posted["due_at"]) == (
+            "Investigate connector 2", "Charging operations", None)
+        action = api.post("", posted)
         assert action.status_code == 201, action.text
         body = action.json()
-        assert (body["title"], body["owner_label"], body["due_at"]) == (
-            "Investigate connector 2", "Charging operations", None)
+        # The K1 command response carries only identity and clock; the literals are read back from storage below.
+        assert set(body) == {"schema_version", "id", "action_code", "recorded_at"}
         declared = producer.instant(body["recorded_at"])
-        intent = api.post(f"/{body['id']}/intents", producer.intent_body(
-            selected, selected.finding_revision_id, declared, "w504a-producer-intent"))
+        posted_intent = producer.intent_body(selected, selected.finding_revision_id, declared,
+                                             "w504a-producer-intent")
+        intent = api.post(f"/{body['id']}/intents", posted_intent)
         assert intent.status_code == 201, intent.text
-        stored = intent.json()["basis"]
-        assert stored["session_ids"] == [selected.session_id.lower()]
-        assert stored["accepted_evidence_ids"] == sorted(selected.accepted_evidence_ids)
-        assert (stored["work_case_id"], stored["work_record_id"]) == (None, None)
+        assert set(intent.json()) == {"schema_version", "intent_id", "action_id", "recorded_at", "selection_token"}
+        wanted = {"finding_revision_id": selected.finding_revision_id, "work_case_id": None, "work_record_id": None,
+                  "accepted_evidence_ids": sorted(selected.accepted_evidence_ids),
+                  "session_ids": [selected.session_id.lower()]}
+        assert posted_intent["basis"] == wanted
+        with ev.engine.connect() as c:
+            row = c.execute(text(
+                "SELECT a.title, a.owner_label, a.due_at, i.basis FROM domain_action a JOIN domain_action_intent i "
+                "ON i.action_id = a.id WHERE a.id = :a"), {"a": body["id"]}).one()
+        assert (row[0], row[1], row[2]) == ("Investigate connector 2", "Charging operations", None)
+        assert row[3] == wanted
+        detail = api.get(f"/actions/{body['id']}")
+        assert detail.status_code == 200, detail.text
+        shown = detail.json()
+        assert (shown["action"]["title"], shown["action"]["owner_label"], shown["action"]["due_at"]) == (
+            "Investigate connector 2", "Charging operations", None)
+        assert shown["intent"]["basis"] == wanted and shown["intent"]["id"] == intent.json()["intent_id"]
     finally:
         api.close()
         close()
